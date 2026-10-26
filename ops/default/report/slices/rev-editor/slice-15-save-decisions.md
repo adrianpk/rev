@@ -1,11 +1,12 @@
 # Slice 15: Confirm overwrite and external changes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-15-save-decisions`
 PR: `#15`
+Integrated: `127426edc383900d2111847742591bcf575f2339`
 
 ## Purpose
 
