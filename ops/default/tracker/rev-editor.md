@@ -113,6 +113,14 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R07, 
 - [ ] T3.2: Add behavior cases for emoji sequences, combining marks, CJK width, tab stops, empty text, and a grapheme straddling chunks. Define safe display of controls without emitting terminal escape bytes.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T3.1 and T3.2 implemented; canonical integration pending.
+Task commits: T3.1 `b21fb6f837c6d959ee37716a88e96ac5da2ff400`;
+T3.2 `7a04433a8c7134b8c060379b1f4d1ca6b0a528b4`.
+Validation: required Cargo/source commands passed; `cargo test --test coordinates`
+passed eight tests with zero skips. Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 3](../report/slices/rev-editor/slice-3-coordinates.md).
+
 ### Slice 4: Publish coherent text edits
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, R09, R17, R21, R33.
