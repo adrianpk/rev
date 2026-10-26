@@ -552,13 +552,13 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R21
 - [ ] T25.2: Exercise C-/, C-_, C-x u, M-<, M->, nested rectangle chords, key repeat/release, unknown escape input, and cancellation during a pending Meta prefix.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T25.1 and T25.2 complete; canonical PR pending.
+Implementation: T25.1 and T25.2 complete; PR #25 open for integration.
 Task commits: T25.1 `3c1f54f394d1c445ca78491a8636d8925347561c`;
 T25.2 `c3be5ef27235601b0752d524e6a9a3ef64c447fc`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed twenty-six tests and the terminal PTY suite passed fifty cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#25](https://forge.adrianpk.com/adrianpk/rev/pulls/25).
 Report: [Slice 25](../report/slices/rev-editor/slice-25-terminal-keys.md).
 
 ### Slice 26: Insert bracketed Unicode paste atomically
