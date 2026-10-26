@@ -692,6 +692,15 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R07
 - [ ] T32.2: Exercise reversed endpoints, CJK/emoji/combining clusters, tab boundaries, short/empty lines, scrolling, and copy without source padding or mutation.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T32.1 and T32.2 complete; canonical PR preparation in progress.
+Task commits: T32.1 `c68bd85ba5702d8c6a7f46d2be23557b1c010655`,
+qualified at `d7b17247f5265a2678196aeed944e88a49e435c3`;
+T32.2 `3b0d40c28bfd16ed6bf468024067410cfa08fe29`.
+Validation: required Cargo/source commands passed; `cargo test --test rectangles`
+passed twelve tests and the terminal PTY suite passed sixty-six cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 32](../report/slices/rev-editor/slice-32-rectangle-copy.md).
+
 ### Slice 33: Kill rectangles as one transaction
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R09, R20, R21.
