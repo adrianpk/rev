@@ -213,3 +213,6 @@ mod failures;
 
 #[path = "create.rs"]
 mod create;
+
+#[path = "rename.rs"]
+mod rename;

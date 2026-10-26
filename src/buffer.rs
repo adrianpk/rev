@@ -2,6 +2,7 @@ pub mod edit;
 mod endings;
 mod lifecycle;
 mod region;
+mod rename;
 mod save;
 mod visits;
 

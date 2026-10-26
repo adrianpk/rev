@@ -58,6 +58,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
             Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
             Some(Pending::Replace(state)) => self.replace_argument(*state, path),
             Some(Pending::Argument(Command::FindFile)) => {

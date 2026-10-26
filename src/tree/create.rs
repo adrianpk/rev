@@ -1,6 +1,6 @@
 use std::fs::{self, OpenOptions};
 use std::io;
-use std::path::{Component, Path, PathBuf};
+use std::path::{Path, PathBuf};
 
 use super::entry::failure;
 use super::{Entry, Tree};
@@ -27,7 +27,8 @@ impl Creation {
     }
 
     pub fn publish(self, name: &str) -> io::Result<PathBuf> {
-        validate_name(name).map_err(|e| failure("create entry", &self.directory, e))?;
+        crate::file::name::validate(name)
+            .map_err(|e| failure("create entry", &self.directory, e))?;
         directory(&self.directory)?;
         let path = self.directory.join(name);
         available(&path)?;
@@ -112,22 +113,6 @@ fn directory(path: &Path) -> io::Result<()> {
             "create entry",
             path,
             io::Error::new(io::ErrorKind::InvalidInput, "select a directory"),
-        ));
-    }
-    Ok(())
-}
-
-fn validate_name(name: &str) -> io::Result<()> {
-    let mut components = Path::new(name).components();
-    let normal = matches!(components.next(), Some(Component::Normal(part)) if part == name);
-    if name.trim().is_empty()
-        || name.chars().any(char::is_control)
-        || !normal
-        || components.next().is_some()
-    {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "enter one nonempty filename without controls or path separators",
         ));
     }
     Ok(())

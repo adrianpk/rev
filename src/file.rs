@@ -83,8 +83,10 @@ pub(crate) fn write_text(
     Ok(())
 }
 mod location;
+pub(crate) mod name;
 mod observation;
 mod output;
+pub(crate) mod rename;
 mod save;
 mod temporary;
 
@@ -93,3 +95,5 @@ pub use observation::{Observation, observe};
 pub use output::{Files, Output};
 pub(crate) use save::publish;
 pub use save::{Outcome, Publication};
+
+pub use rename::{Rename, Renamed};

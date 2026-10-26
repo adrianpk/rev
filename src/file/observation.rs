@@ -15,6 +15,18 @@ pub struct Observation {
     pub(crate) mode: u32,
 }
 
+impl Observation {
+    /// Rename may change ctime; identity, bytes and permissions must still
+    /// agree before acknowledging that expected metadata transition.
+    pub(crate) fn same_content(&self, other: &Self) -> bool {
+        self.device == other.device
+            && self.inode == other.inode
+            && self.length == other.length
+            && self.modified == other.modified
+            && self.mode == other.mode
+    }
+}
+
 /// Observe a regular destination without following a newly substituted symlink.
 pub fn observe(path: &Path) -> io::Result<Option<Observation>> {
     match fs::symlink_metadata(path) {

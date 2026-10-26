@@ -2,6 +2,7 @@ mod create;
 mod entry;
 mod navigation;
 mod refresh;
+mod rename;
 
 pub use create::{CreateKind, Creation};
 pub use entry::Entry;

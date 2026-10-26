@@ -80,6 +80,7 @@ pub struct Session {
 
 enum Pending {
     TreeCreate(crate::tree::Creation),
+    TreeRename(crate::file::Rename),
     Replace(Box<replace::State>),
     Search(Box<search::State>),
     Command,

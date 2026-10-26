@@ -27,6 +27,13 @@ impl Location {
         self.observed.as_ref()
     }
 
+    pub(crate) fn relocated(&self, path: PathBuf) -> Self {
+        Self {
+            path,
+            ..self.clone()
+        }
+    }
+
     pub(crate) fn published(&self, observed: Option<Observation>) -> Self {
         Self {
             path: self.path.clone(),

@@ -32,7 +32,9 @@ impl Session {
     pub(super) fn complete_argument(&mut self) -> Action {
         match self.pending {
             Some(Pending::Buffer { .. }) => self.complete_buffer(),
-            Some(Pending::TreeCreate(_)) => self.message("Enter one name; C-g cancels"),
+            Some(Pending::TreeCreate(_) | Pending::TreeRename(_)) => {
+                self.message("Enter one name; C-g cancels")
+            }
             Some(Pending::Argument(_) | Pending::Write { .. }) => {
                 self.message("Enter a path; C-g cancels")
             }

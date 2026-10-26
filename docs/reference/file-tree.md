@@ -82,6 +82,37 @@ branches remain lazy. Refresh failures retain the successful open/save outcome
 and report the separate tree error. New entries appear without restarting, and
 tree selection continues to follow paths rather than buffer display names.
 
+## Renaming entries
+
+`C-x t R` (uppercase R) or `M-x tree-rename` prompts for one new name at the
+selected entry's current parent. The echo identifies the source. The same
+single-component name policy as creation applies. C-g cancels without changing
+disk or visiting associations. Existing destination files, directories and
+symlinks are refused, including dangling links. A destination already reserved
+by a different live buffer is also refused; directory targets check live
+reservations under the entire target prefix. The source identity and target
+conflict are checked again immediately before the filesystem rename.
+
+Only a successful rename changes visiting paths and the canonical path index.
+Renaming a directory maps visited descendants, including intended missing
+files, by path components. Text, dirty/saved states, revision, mark, history
+and editing windows remain live. Renaming a file updates its display name,
+keeping labels distinct from other live buffers. Directory descendants retain
+their existing distinct labels. Later visits reuse these owners, and saves
+write their new destinations.
+
+Renaming a symlink moves the link entry; the canonical visiting buffer of its
+referent keeps its path. No recursive traversal through a directory link is
+introduced. Loaded tree paths, expanded branches and selection follow the new
+entry, including when the tree root itself is renamed, before ordinary refresh.
+
+Rename preserves existing external-change protection: an observation is
+updated only when the prior and current identity/content/permissions agree,
+allowing rename's expected ctime change. A pre-existing or concurrently observed
+content change still requires the normal later-save decision. If post-rename
+observation or tree refresh fails, the echo reports `Renamed` and the separate
+warning; successful disk publication and new associations remain recorded.
+
 ## Geometry
 
 The pane uses at most 24 columns and at most one third of the frame, plus a

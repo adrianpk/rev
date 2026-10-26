@@ -1,4 +1,5 @@
 mod create;
+mod rename;
 
 use crate::command::{Command, Motion, Scroll, TreeCommand};
 use crate::input::Focus;
@@ -24,7 +25,12 @@ impl Session {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
         }
+        self.tree_entry_command(command)
+    }
+
+    fn tree_entry_command(&mut self, command: TreeCommand) -> Action {
         match command {
+            TreeCommand::Rename => return self.tree_rename(),
             TreeCommand::Open => return self.tree_open(),
             TreeCommand::CreateFile => return self.tree_create(crate::tree::CreateKind::File),
             TreeCommand::CreateDirectory => {
@@ -70,7 +76,7 @@ impl Session {
             Command::KeyboardQuit
                 if matches!(
                     self.pending,
-                    Some(Pending::Command | Pending::TreeCreate(_))
+                    Some(Pending::Command | Pending::TreeCreate(_) | Pending::TreeRename(_))
                 ) =>
             {
                 self.pending = None;
