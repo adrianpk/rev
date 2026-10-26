@@ -294,7 +294,7 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R02, 
 - [ ] T12.2: Exercise invalid encoding, empty files, mixed line endings, BOM round trips, missing paths, permission failures, and preservation of the previous active buffer on rejected ingress.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T12.1 and T12.2 implemented; canonical PR preparation in progress.
+Implementation: T12.1 and T12.2 implemented through PR #12.
 Task commits: T12.1 `5f874847bc942eb55481037004383fb01d46699f` with startup
 ownership `69ad76b8616b1139b27aa9b6cdc8f057ac4be078`;
 T12.2 `f012fa51de4fc8d29f1afcfc18f37e5d2fb9053f` with permission fixture
@@ -302,7 +302,7 @@ T12.2 `f012fa51de4fc8d29f1afcfc18f37e5d2fb9053f` with permission fixture
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed eleven tests and the terminal PTY suite passed twenty cases with zero skips.
 Final PR-head evidence is recorded through Looper after PR references are committed.
-PR: pending.
+PR: [#12](https://forge.adrianpk.com/adrianpk/rev/pulls/12).
 Report: [Slice 12](../report/slices/rev-editor/slice-12-file-ingress.md).
 
 ### Slice 13: Reuse canonical visited files
