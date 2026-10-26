@@ -1,11 +1,12 @@
 # Slice 39: Confirm deletion while preserving open text
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-39-tree-delete`
 PR: `#39`
+Integrated: `63db77602379fb04b39ec2f592bed51552aee5f5`
 
 ## Purpose
 

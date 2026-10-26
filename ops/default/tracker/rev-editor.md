@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 39 - Confirm deletion while preserving open text
+Active slice: Slice 40 - Bundle Rust syntax highlighting
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -834,17 +834,19 @@ Report: [Slice 38](../report/slices/rev-editor/slice-38-tree-rename.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R04, R11, R29, R30.
 
-- [ ] T39.1: Implement explicit delete confirmation and a separate nonempty-directory recursive confirmation, reconciling retained visiting buffers as missing under D07.
-- [ ] T39.2: Exercise canceled/nonempty deletion, dirty visiting files, inaccessible entries, symlink deletion without referent recursion, and refresh after partial filesystem errors.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T39.1: Implement explicit delete confirmation and a separate nonempty-directory recursive confirmation, reconciling retained visiting buffers as missing under D07.
+- [x] T39.2: Exercise canceled/nonempty deletion, dirty visiting files, inaccessible entries, symlink deletion without referent recursion, and refresh after partial filesystem errors.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T39.1 and T39.2 complete; PR #39 awaits integration.
+Implementation: delivered through PR #39.
 Task commits: T39.1 `e83b50ec10f31e6129f48b9ad6e6cb5bf1252d28`;
 T39.2 `fa5d92ce59fc2608d028bb01027a2429c731cc11`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 56 tests and the terminal PTY suite passed 80 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#39](https://forge.adrianpk.com/adrianpk/rev/pulls/39).
+Integration: `63db77602379fb04b39ec2f592bed51552aee5f5`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 39](../report/slices/rev-editor/slice-39-tree-delete.md).
 
 ### Slice 40: Bundle Rust syntax highlighting
