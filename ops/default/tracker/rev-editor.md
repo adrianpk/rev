@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 11 - Group typing and compound history
+Active slice: Slice 12 - Load exact UTF-8 file content
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -269,11 +269,11 @@ Report: [Slice 10](../report/slices/rev-editor/slice-10-history.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R19, R20, R21, R25.
 
-- [ ] T11.1: Group adjacent ordinary insertion with explicit continuity breaks, preserve whole compound records, and add the agreed simple retention policy without branching-history machinery.
-- [ ] T11.2: Exercise paste-sized transactions, replacement groups, navigation breaks, new edits after undo, and pruning complete old groups without losing the newest reversible operation.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T11.1: Group adjacent ordinary insertion with explicit continuity breaks, preserve whole compound records, and add the agreed simple retention policy without branching-history machinery.
+- [x] T11.2: Exercise paste-sized transactions, replacement groups, navigation breaks, new edits after undo, and pruning complete old groups without losing the newest reversible operation.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T11.1 and T11.2 complete; awaiting canonical PR integration.
+Implementation: T11.1 and T11.2 delivered through PR #11.
 Task commits: T11.1 `daf03ad40d2393c7731448a9a92d6a422180de5b`;
 T11.2 `3846a2971f434b88ec40bee545b24bba938b6e38` with terminal synchronization
 `febba5045e033c8409c59c254dae486fa9b82cea`.
@@ -281,6 +281,9 @@ Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed forty-four tests and the terminal PTY suite passed thirteen cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#11](https://forge.adrianpk.com/adrianpk/rev/pulls/11).
+Integration: Rebase + Fast-forward into dev at
+`b81d43b0f43dbaca5718f4b21035890c7e9fbf37`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 11](../report/slices/rev-editor/slice-11-grouping.md).
 
 ### Slice 12: Load exact UTF-8 file content

@@ -1,11 +1,12 @@
 # Slice 11: Group typing and compound history
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-11-grouping`
 PR: `#11`
+Integrated: Rebase + Fast-forward into dev at `b81d43b0f43dbaca5718f4b21035890c7e9fbf37`.
 
 ## Purpose
 

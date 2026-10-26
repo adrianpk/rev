@@ -4,7 +4,7 @@ Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
-Active slice: Slice 11 - Group typing and compound history
+Active slice: Slice 12 - Load exact UTF-8 file content
 Full gate: `scripts/check-all.sh`
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
