@@ -1,11 +1,12 @@
 # Slice 45: Exercise cross-feature Unicode and file fidelity
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `test/rev-45-adversarial-text`
 PR: `#45`
+Integrated: `b5c73f7cc61f95e51ea4956b6e8fc86335257530`
 
 ## Purpose
 

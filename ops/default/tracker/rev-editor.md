@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 45 - Exercise cross-feature Unicode and file fidelity
+Active slice: Slice 46 - Measure representative editing workloads
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -944,17 +944,19 @@ Report: [Slice 44](../report/slices/rev-editor/slice-44-terminal-journeys.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R07, R09, R10, R19, R20, R21, R26, R30, R32, R39.
 
-- [ ] T45.1: Add distinct adversarial regressions across editing/history/search/syntax and file save/reopen using emoji, combining text, CJK, tabs, CRLF, BOM, absent final newline, long lines, and shared views.
-- [ ] T45.2: Exercise repeated split/close/resize, invalid yank-pop, rectangle seams, symlink loops, inaccessible paths, and canceled destructive actions. Reuse subsystem suites rather than duplicate every journey.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T45.1: Add distinct adversarial regressions across editing/history/search/syntax and file save/reopen using emoji, combining text, CJK, tabs, CRLF, BOM, absent final newline, long lines, and shared views.
+- [x] T45.2: Exercise repeated split/close/resize, invalid yank-pop, rectangle seams, symlink loops, inaccessible paths, and canceled destructive actions. Reuse subsystem suites rather than duplicate every journey.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T45.1 and T45.2 complete; PR #45 awaits integration.
+Implementation: T45.1 and T45.2 delivered through PR #45.
 Task commits: T45.1 `84c23e4f3c1b546574cafbc834bce7adaf2aeb31`;
 T45.2 `24ca6751d3806673884cb0b20d594e3a8c7fa7dc`; fixture correction `2926c64622fb85451d772a961cf1393b7ea9bd4e`.
 Validation: all five ordered required/focused checks passed through Looper,
 including 454 native tests with zero ignored. Final PR-head evidence follows
 the report and PR-reference commits. The shared focused/full Cargo command runs
 once in the ordered list.
+Integration: `b5c73f7cc61f95e51ea4956b6e8fc86335257530`; all five ordered checks passed
+under Looper validation `ZJBTVBRCCNMOUJSGF627SKHLI2`.
 PR: [#45](https://forge.adrianpk.com/adrianpk/rev/pulls/45).
 Report: [Slice 45](../report/slices/rev-editor/slice-45-adversarial-text.md).
 
