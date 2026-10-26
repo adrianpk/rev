@@ -200,3 +200,6 @@ mod edges;
 
 #[path = "syntax/incremental.rs"]
 mod incremental;
+
+#[path = "syntax/fidelity.rs"]
+mod fidelity;
