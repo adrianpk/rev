@@ -4,7 +4,7 @@ Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
-Active slice: Slice 1 - Own terminal lifetime
+Active slice: Slice 2 - Introduce canonical rope buffers
 Full gate: `scripts/check-all.sh`
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)

@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 1 - Own terminal lifetime
+Active slice: Slice 2 - Introduce canonical rope buffers
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -71,16 +71,19 @@ under each section as work completes. Unchecked items are not delivered.
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R01, R02, R03, R34, R35, R38.
 
-- [ ] T1.1: Create the Rust 2024 executable/library package, pin the approved dependency set, forbid unsafe at every first-party crate root, and enter/restore the terminal through one RAII owner. Implement the real exit sequence without placeholder editor commands.
-- [ ] T1.2: Provide executable source-quality and per-slice/full-gate entry points. Add a minimal PTY lifecycle probe for startup, ordinary exit, and a failure after terminal acquisition; later suites must be required by the final gate rather than silently skipped.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T1.1: Create the Rust 2024 executable/library package, pin the approved dependency set, forbid unsafe at every first-party crate root, and enter/restore the terminal through one RAII owner. Implement the real exit sequence without placeholder editor commands.
+- [x] T1.2: Provide executable source-quality and per-slice/full-gate entry points. Add a minimal PTY lifecycle probe for startup, ordinary exit, and a failure after terminal acquisition; later suites must be required by the final gate rather than silently skipped.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T1.1 and T1.2 implemented; canonical integration pending.
+Implementation: T1.1 and T1.2 delivered through PR #1.
 Task commits: T1.1 `598eae082ff24fb65d9a0ae321394fa3d7c3803a`;
 T1.2 `e54df2cc72c8916b9fbe24dafa6ed8552b31f727`.
 Validation: required Cargo/source commands passed; the terminal PTY suite passed
 six cases with zero skips. Final PR-head evidence is recorded through Looper.
 PR: [#1](https://forge.adrianpk.com/adrianpk/rev/pulls/1).
+Integration: Rebase + Fast-forward into dev at
+`a37fb53316149966ed3d7457fb6cd47a94561035`; all six ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 1](../report/slices/rev-editor/slice-1-terminal.md).
 
 ### Slice 2: Introduce canonical rope buffers

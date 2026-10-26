@@ -1,11 +1,12 @@
 # Slice 1: Own terminal lifetime
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-01-terminal`
 PR: `#1`
+Integrated: Rebase + Fast-forward into dev at `a37fb53316149966ed3d7457fb6cd47a94561035`.
 
 ## Purpose
 
