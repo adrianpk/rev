@@ -427,17 +427,18 @@ def ingress_failures(root):
         denied.write_bytes(b"private")
         denied.chmod(0)
         cases = [
-            (invalid, b"UTF-8", b"valid\xff"),
-            (binary, b"NUL", b"valid\0text"),
-            (invalid / "child", b"Not a directory", None),
-            (base, b"regular file", None),
-            (denied, b"Permission denied", b"private"),
+            (invalid, b"UTF-8", b"valid\xff", b"load"),
+            (binary, b"NUL", b"valid\0text", b"load"),
+            (invalid / "child", b"Not a directory", None, b"visit"),
+            (base, b"regular file", None, b"visit"),
+            (denied, b"Permission denied", b"private", b"load"),
         ]
-        for path, marker, source in cases:
+        for path, marker, source, operation in cases:
             session = Session([str(root / "target/debug/rev"), str(path)])
             try:
                 session.finish(1)
-                assert marker in session.output and b"rev: load " in session.output
+                assert marker in session.output, bytes(session.output)
+                assert b"rev: " + operation + b" " in session.output, bytes(session.output)
                 assert ENTER in session.output and LEAVE in session.output
                 assert SHOW in session.output, bytes(session.output)
                 assert session.output.index(LEAVE) < session.output.index(b"rev:")
