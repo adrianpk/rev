@@ -38,6 +38,9 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
         "io" => Some(b"probe-io"),
         "paste" => Some(b"\x1b[?2004h"),
         "paste-stop" => Some(b"\x1b[?2004l"),
+        "cursor-stop" => Some(b"\x1b[?25h"),
+        "attributes-stop" => Some(b"\x1b[0m"),
+        "screen-stop" => Some(b"\x1b[?1049l"),
         _ => None,
     }
 }
@@ -66,7 +69,7 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
             terminal.writer().flush()
         }
         "unwind" => panic!("injected test unwind"),
-        "paste-stop" => terminal.restore(),
+        "paste-stop" | "cursor-stop" | "attributes-stop" | "screen-stop" => terminal.restore(),
         _ => Err(io::Error::other("injected session failure")),
     }
 }

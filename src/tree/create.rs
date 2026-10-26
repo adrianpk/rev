@@ -1,9 +1,10 @@
 use std::fs::{self, OpenOptions};
 use std::io;
+use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
+use super::Tree;
 use super::entry::failure;
-use super::{Entry, Tree};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CreateKind {
@@ -16,6 +17,8 @@ pub enum CreateKind {
 pub struct Creation {
     directory: PathBuf,
     kind: CreateKind,
+    device: u64,
+    inode: u64,
 }
 
 impl Creation {
@@ -29,7 +32,14 @@ impl Creation {
     pub fn publish(self, name: &str) -> io::Result<PathBuf> {
         crate::file::name::validate(name)
             .map_err(|e| failure("create entry", &self.directory, e))?;
-        directory(&self.directory)?;
+        let current = directory(&self.directory)?;
+        if current.dev() != self.device || current.ino() != self.inode {
+            return Err(failure(
+                "create entry",
+                &self.directory,
+                io::Error::other("selected directory changed after creation capture"),
+            ));
+        }
         let path = self.directory.join(name);
         available(&path)?;
         let result = match self.kind {
@@ -52,10 +62,12 @@ impl Tree {
         let entry = self
             .selected()
             .ok_or_else(|| io::Error::other("no tree selection"))?;
-        directory(entry.path())?;
+        let metadata = directory(entry.path())?;
         Ok(Creation {
             directory: entry.path().to_path_buf(),
             kind,
+            device: metadata.dev(),
+            inode: metadata.ino(),
         })
     }
 
@@ -106,16 +118,16 @@ impl Tree {
     }
 }
 
-fn directory(path: &Path) -> io::Result<()> {
-    let entry = Entry::observe(path.to_path_buf(), 0)?;
-    if !entry.is_directory() {
+fn directory(path: &Path) -> io::Result<fs::Metadata> {
+    let metadata = fs::symlink_metadata(path).map_err(|e| failure("inspect directory", path, e))?;
+    if !metadata.is_dir() {
         return Err(failure(
             "create entry",
             path,
             io::Error::new(io::ErrorKind::InvalidInput, "select a directory"),
         ));
     }
-    Ok(())
+    Ok(metadata)
 }
 
 fn available(path: &Path) -> io::Result<()> {

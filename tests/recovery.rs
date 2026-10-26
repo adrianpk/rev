@@ -6,6 +6,12 @@ mod quit;
 #[path = "recovery/failures.rs"]
 mod failures;
 
+#[path = "recovery/publication.rs"]
+mod publication;
+
+#[path = "recovery/ingress.rs"]
+mod ingress;
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -92,4 +98,41 @@ fn session(buffers: Buffers) -> Session {
         },
     )
     .unwrap()
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Snapshot {
+    bytes: Vec<u8>,
+    stamp: rev::buffer::Stamp,
+    state: rev::buffer::State,
+    location: Option<rev::file::Location>,
+    name: String,
+    mark: Option<rev::coordinates::Scalar>,
+    active: bool,
+    rectangle: bool,
+    history: usize,
+    redo: usize,
+    modified: bool,
+    read_only: bool,
+    warning: Option<String>,
+}
+
+fn snapshot(buffer: &Buffer) -> Snapshot {
+    let mut bytes = Vec::new();
+    rev::file::write(buffer, &mut bytes).unwrap();
+    Snapshot {
+        bytes,
+        stamp: buffer.stamp(),
+        state: buffer.state(),
+        location: buffer.file().cloned(),
+        name: buffer.name().into(),
+        mark: buffer.mark(),
+        active: buffer.mark_active(),
+        rectangle: buffer.rectangle_active(),
+        history: buffer.history().len(),
+        redo: buffer.redo_history().len(),
+        modified: buffer.is_modified(),
+        read_only: buffer.is_read_only(),
+        warning: buffer.save_warning().map(str::to_owned),
+    }
 }

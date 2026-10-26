@@ -95,6 +95,19 @@ fn canceled_parse() {
     apply(buffer, 0..0, "// recovered\n");
     compare(buffer);
     assert!(buffer.syntax().is_incremental());
+    let expected = text(buffer);
+    let history = buffer.history().len();
+    assert!(buffers.save(id).unwrap().is_complete());
+    assert_eq!(std::fs::read(&path).unwrap(), expected.as_bytes());
+    let buffer = buffers.get(id).unwrap();
+    assert_eq!(buffer.history().len(), history);
+    assert!(!buffer.is_modified());
+    assert!(
+        !buffer
+            .syntax()
+            .captures(buffer, 0..buffer.len_bytes().min(64))
+            .is_empty()
+    );
 }
 
 // Exhausting the actual query result bound drops all partial styles for that
@@ -124,6 +137,17 @@ fn query_limit() {
     assert_eq!(buffer.stamp(), stamp);
     assert_eq!(buffer.state(), state);
     assert_eq!(buffer.history().len(), 1);
+    assert!(buffers.save(id).unwrap().is_complete());
+    assert_eq!(std::fs::read(&path).unwrap(), source.as_bytes());
+    let buffer = buffers.get(id).unwrap();
+    assert!(!buffer.is_modified());
+    assert!(
+        buffer
+            .syntax()
+            .captures(buffer, 0..buffer.len_bytes())
+            .is_empty()
+    );
+    assert!(!buffer.syntax().captures(buffer, 0..12).is_empty());
 }
 
 // Canceled, read-only and stale preparations cannot advance a valid parse tree.

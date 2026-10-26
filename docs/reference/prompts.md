@@ -79,3 +79,9 @@ unresolved completion all stop exit and report the actual save result. Only a
 complete save of the current buffer state advances to the next buffer. A later
 independent save cannot resume a stopped exit. The terminal guard restores raw
 mode, alternate screen, bracketed paste and cursor state after an accepted exit.
+
+A save observes its destination before temporary output and rechecks it after
+staging, before replacement. Changes detected there stop publication and clean
+up the owned temporary file. The external destination stays as observed; retry
+saving to obtain a fresh conflict decision. This is a conservative metadata
+check, not a guarantee against changes in the final interval before replacement.

@@ -82,6 +82,11 @@ branches remain lazy. Refresh failures retain the successful open/save outcome
 and report the separate tree error. New entries appear without restarting, and
 tree selection continues to follow paths rather than buffer display names.
 
+A pending creation request retains the selected directory's device and inode.
+Before creating a file or child directory, it rechecks that identity as well as
+the entry type. Replacing the directory at the same path cancels creation;
+retry from a refreshed selection to authorize the new directory.
+
 ## Renaming entries
 
 `C-x t R` (uppercase R) or `M-x tree-rename` prompts for one new name at the

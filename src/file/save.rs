@@ -58,10 +58,12 @@ pub(crate) fn publish(save: &Save, output: &mut impl Output) -> Outcome {
         Ok(staged) => staged,
         Err(error) => return Outcome::failed(target, error),
     };
-    let replacement = operation(
-        "replace destination",
-        output.replace(&staged.temporary.path, target),
-    );
+    let replacement = operation("recheck destination", guard(save)).and_then(|()| {
+        operation(
+            "replace destination",
+            output.replace(&staged.temporary.path, target),
+        )
+    });
     if let Err(error) = replacement {
         return Outcome::failed(target, staged.temporary.failed(error, output));
     }

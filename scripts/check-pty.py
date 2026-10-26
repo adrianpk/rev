@@ -104,7 +104,7 @@ def lifecycle(root):
 
 def failures(root):
     binary = root / "target/debug/examples/terminal-probe"
-    cases = [("raw", 1), ("screen", 1), ("paste", 1), ("paste-stop", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
+    cases = [("raw", 1), ("screen", 1), ("paste", 1), ("paste-stop", 1), ("cursor-stop", 1), ("attributes-stop", 1), ("screen-stop", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
     for mode, expected in cases:
         session = Session([str(binary), mode])
         try:
@@ -117,9 +117,15 @@ def failures(root):
                 assert ENTER in session.output and LEAVE in session.output, bytes(session.output)
                 assert SHOW in session.output, bytes(session.output)
                 assert b"\x1b[0m" in session.output
-                assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
+                assert session.output.index(b"\x1b[0m") < session.output.index(LEAVE)
+                if mode == "attributes-stop":
+                    # Other obligations still run; Drop retries the failed reset.
+                    assert session.output.count(b"\x1b[0m") >= 2
+                    assert b"reset display attributes" in session.output
+                else:
+                    assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
             assert b"injected" in session.output, bytes(session.output)
-            if mode in ("paste", "paste-stop", "entered", "io", "unwind"):
+            if mode in ("paste", "paste-stop", "cursor-stop", "attributes-stop", "screen-stop", "entered", "io", "unwind"):
                 assert PASTE_OFF in session.output, bytes(session.output)
             print(f"PASS {mode} failure restores acquired state")
         finally:
@@ -2805,7 +2811,7 @@ def main():
     incremental_rectangles(root)
     guarded_session_exit(root)
     failed_session_exit(root)
-    print("Terminal PTY suite: 86 cases passed, 0 skipped.")
+    print("Terminal PTY suite: 89 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

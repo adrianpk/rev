@@ -33,5 +33,8 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
+- Saving checks the destination again after staging temporary output, so a changed, removed or replaced destination observed before replacement retains its external data and requires a new decision.
+- File-tree creation rejects a directory replaced while its name prompt was open, keeping new entries out of the replacement directory.
+
 - Canceling `M-x` preserves the editing view's intended vertical column and recenter cycle, so the next movement continues from the same navigation context.
 - Argument prompts clear outdated feedback after a valid edit. Tab in a path prompt retains its draft and displays a concise path-entry hint.
