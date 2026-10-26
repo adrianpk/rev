@@ -157,7 +157,7 @@ T5.2 `aa5dc2231a84db61fafb0b6b027fb1d72aeb5472`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed eleven tests and the terminal PTY suite passed seven cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#5](https://forge.adrianpk.com/adrianpk/rev/pulls/5).
 Report: [Slice 5](../report/slices/rev-editor/slice-5-input.md).
 
 ### Slice 6: Render one rope-backed viewport
