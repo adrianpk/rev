@@ -1,6 +1,7 @@
 use std::io::{self, BufWriter, Write};
 
 use crossterm::cursor::{Hide, Show};
+use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 use crossterm::style::{Attribute, SetAttribute};
 use crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
@@ -14,6 +15,7 @@ pub struct Terminal<W: Write> {
     screen: bool,
     cursor: bool,
     attributes: bool,
+    paste: bool,
 }
 
 impl<W: Write> Terminal<W> {
@@ -26,6 +28,7 @@ impl<W: Write> Terminal<W> {
             screen: false,
             cursor: false,
             attributes: false,
+            paste: false,
         })
     }
 
@@ -36,7 +39,9 @@ impl<W: Write> Terminal<W> {
         self.attributes = true;
         self.command(EnterAlternateScreen, "enter alternate screen")?;
         self.cursor = true;
-        self.command(Hide, "hide cursor")
+        self.command(Hide, "hide cursor")?;
+        self.paste = true;
+        self.command(EnableBracketedPaste, "enable bracketed paste")
     }
 
     /// Borrows buffered output; the caller flushes at render boundaries.
@@ -47,11 +52,12 @@ impl<W: Write> Terminal<W> {
     /// Attempts every acquired restoration, even if an earlier one fails.
     /// Failed obligations remain owned so drop can retry them.
     pub fn restore(&mut self) -> io::Result<()> {
+        let paste = self.disable_paste();
         let cursor = self.show();
         let attributes = self.reset_attributes();
         let screen = self.leave();
         let raw = self.release();
-        cursor.and(attributes).and(screen).and(raw)
+        paste.and(cursor).and(attributes).and(screen).and(raw)
     }
 
     fn command(&mut self, command: impl Command, operation: &str) -> io::Result<()> {
@@ -89,6 +95,14 @@ impl<W: Write> Terminal<W> {
         if self.raw {
             disable_raw_mode().map_err(|error| context(error, "disable raw mode"))?;
             self.raw = false;
+        }
+        Ok(())
+    }
+
+    fn disable_paste(&mut self) -> io::Result<()> {
+        if self.paste {
+            self.command(DisableBracketedPaste, "disable bracketed paste")?;
+            self.paste = false;
         }
         Ok(())
     }

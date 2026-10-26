@@ -32,18 +32,23 @@ fn ready(terminal: &mut Terminal<Fault>) -> io::Result<()> {
     io::stdin().read_exact(&mut [0])
 }
 
-fn probe(mode: &str) -> io::Result<()> {
-    let pattern: Option<&[u8]> = match mode {
+fn pattern(mode: &str) -> Option<&'static [u8]> {
+    match mode {
         "screen" => Some(b"\x1b[?25l"),
         "io" => Some(b"probe-io"),
+        "paste" => Some(b"\x1b[?2004h"),
+        "paste-stop" => Some(b"\x1b[?2004l"),
         _ => None,
-    };
+    }
+}
+
+fn probe(mode: &str) -> io::Result<()> {
     let output = Fault {
         output: io::stdout(),
-        pattern,
+        pattern: pattern(mode),
     };
     let mut terminal = Terminal::acquire(output)?;
-    if ["raw", "screen"].contains(&mode) {
+    if ["raw", "screen", "paste"].contains(&mode) {
         ready(&mut terminal)?;
     }
     if mode == "raw" {
@@ -61,6 +66,7 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
             terminal.writer().flush()
         }
         "unwind" => panic!("injected test unwind"),
+        "paste-stop" => terminal.restore(),
         _ => Err(io::Error::other("injected session failure")),
     }
 }

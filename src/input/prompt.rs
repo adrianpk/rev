@@ -53,6 +53,24 @@ impl Prompt {
         }
     }
 
+    pub(super) fn paste(&mut self, text: &str) -> Outcome {
+        if text.chars().any(char::is_control) {
+            return Outcome::Message("Control character rejected");
+        }
+        let count = self
+            .text
+            .chars()
+            .count()
+            .saturating_add(text.chars().count());
+        if count > LIMIT {
+            return Outcome::Message("Prompt limit is 4096 characters");
+        }
+        self.text.insert_str(self.cursor, text);
+        self.cursor += text.len();
+        self.repair();
+        Outcome::Changed
+    }
+
     fn edit(&mut self, code: KeyCode) -> Outcome {
         match code {
             KeyCode::Backspace => self.erase(self.previous()..self.cursor),

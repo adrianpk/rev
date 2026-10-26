@@ -6,6 +6,7 @@ mod history;
 mod kill;
 mod linear;
 mod motion;
+mod paste;
 mod region;
 mod save;
 mod windows;
@@ -146,6 +147,13 @@ impl Session {
             Outcome::Selection(selection) => self.select_buffer(selection),
             Outcome::Complete => self.complete_buffer(),
             Outcome::Changed => Action::Redraw,
+            Outcome::Paste(text) => self.paste_text(&text),
+            _ => self.input_feedback(outcome),
+        }
+    }
+
+    fn input_feedback(&mut self, outcome: Outcome) -> Action {
+        match outcome {
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.prefix_notice(prefix),
             Outcome::Message(message) => self.notice(message),

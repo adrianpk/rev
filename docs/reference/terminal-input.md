@@ -48,6 +48,25 @@ owner maps that report to undo because the byte cannot identify its physical
 `C-/`, `C-_` or `C-7` origin. A terminal that intercepts a chord cannot supply it
 to the editor; `C-x u` is the reportable alternative.
 
+## Bracketed paste
+
+The terminal owner enables bracketed paste on entry and disables it during every
+restoration path. A complete Crossterm paste event bypasses key decoding and
+clears pending chord/Meta prefixes. Pasted C-x, C-g, Escape and similar bytes are
+data and cannot invoke editing commands or confirm a decision.
+
+In editing focus, valid Unicode is inserted at point through one checked edit
+and one undo step, separate from adjacent typing. LF, CRLF, tabs and final-newline
+absence are preserved as supplied, even when the buffer normally uses another
+newline style. Controls are displayed using visible notation. NUL-containing
+paste is refused as binary input without inserting any part of the payload.
+
+An argument prompt accepts only single-line text within its existing 4096-character
+limit, at the prompt cursor. Control-containing or oversized payloads reject wholly.
+Decision and inventory focus refuse paste rather than treating it as a response.
+Terminal paste framing and UTF-8 decoding belong to Crossterm; literal-event
+fidelity applies to the Unicode string it delivers.
+
 ## Phases, focus and invalid input
 
 Only presses and allowed repeats dispatch. Releases are inert. Prefix,

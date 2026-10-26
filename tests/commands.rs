@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "commands/paste.rs"]
+mod paste;
 #[path = "commands/terminal.rs"]
 mod terminal;
 
@@ -404,12 +406,7 @@ fn normalized_events() {
         ))),
         Outcome::Prefix(Prefix::ControlX)
     );
-    for event in [
-        Event::Resize(0, 0),
-        Event::FocusLost,
-        Event::FocusGained,
-        Event::Paste("\u{18}\u{3}".into()),
-    ] {
+    for event in [Event::Resize(0, 0), Event::FocusLost, Event::FocusGained] {
         assert_eq!(input.handle(event), Outcome::Ignored);
         assert_eq!(input.prefix(), Some(Prefix::ControlX));
     }

@@ -715,7 +715,7 @@ fn editing_phases() {
     }
 }
 
-// Unsupported modified/control input, non-key events, and a canceled nested
+// Unsupported modified/control input, unrelated events, and a canceled nested
 // prefix cannot leak into the document. One resumed ordinary key publishes once.
 #[test]
 fn isolated_input() {
@@ -733,7 +733,6 @@ fn isolated_input() {
         press(KeyCode::Char('\0')),
         press(KeyCode::Char('\u{1b}')),
         press(KeyCode::F(1)),
-        Event::Paste("\u{18}\u{3}".into()),
         Event::Resize(0, 0),
         chord('x'),
         press(KeyCode::Char('r')),

@@ -2,6 +2,7 @@ mod bindings;
 mod inventory;
 mod key;
 mod meta;
+mod paste;
 mod prompt;
 
 use std::fmt;
@@ -49,6 +50,7 @@ pub enum Outcome {
     Prefix(Prefix),
     Command(Command),
     Editing(Key),
+    Paste(String),
     Argument(String),
     Decision(bool),
     Message(&'static str),
@@ -139,7 +141,8 @@ impl Input {
         Ok(())
     }
 
-    /// Non-key events, releases, and command/confirmation repeats are ignored.
+    /// Paste bypasses key decoding; releases, unrelated non-key events and
+    /// command/confirmation repeats are ignored.
     /// Editing outcomes are routed input, not claims of implemented commands.
     pub fn handle(&mut self, event: Event) -> Outcome {
         self.handle_at(event, Instant::now())
@@ -149,6 +152,9 @@ impl Input {
     /// before the event; callers pump `expire` to present idle expiration notices.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
         self.expire(now);
+        if let Event::Paste(text) = event {
+            return self.paste(text);
+        }
         let Event::Key(event) = event else {
             return Outcome::Ignored;
         };

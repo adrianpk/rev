@@ -20,6 +20,8 @@ ENTER = b"\x1b[?1049h"
 LEAVE = b"\x1b[?1049l"
 HIDE = b"\x1b[?25l"
 SHOW = b"\x1b[?25h"
+PASTE_ON = b"\x1b[?2004h"
+PASTE_OFF = b"\x1b[?2004l"
 
 
 def attach():
@@ -87,10 +89,12 @@ def lifecycle(root):
     try:
         session.ready(b"C-x C-c: exit")
         assert ENTER in session.output and HIDE in session.output, bytes(session.output)
+        assert PASTE_ON in session.output, bytes(session.output)
         os.write(session.master, b"\x18\x03")
         session.finish(0)
         assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
         assert session.output.index(SHOW) < session.output.index(LEAVE)
+        assert session.output.index(PASTE_OFF) < session.output.index(LEAVE)
         print("PASS startup and ordinary exit")
     finally:
         session.close()
@@ -98,7 +102,7 @@ def lifecycle(root):
 
 def failures(root):
     binary = root / "target/debug/examples/terminal-probe"
-    cases = [("raw", 1), ("screen", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
+    cases = [("raw", 1), ("screen", 1), ("paste", 1), ("paste-stop", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
     for mode, expected in cases:
         session = Session([str(binary), mode])
         try:
@@ -113,6 +117,8 @@ def failures(root):
                 assert b"\x1b[0m" in session.output
                 assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
             assert b"injected" in session.output, bytes(session.output)
+            if mode in ("paste", "paste-stop", "entered", "io", "unwind"):
+                assert PASTE_OFF in session.output, bytes(session.output)
             print(f"PASS {mode} failure restores acquired state")
         finally:
             session.close()
@@ -1441,7 +1447,7 @@ def main():
     yank_view_invalidation(root)
     terminal_key_reports(root)
     escape_deadlines(root)
-    print("Terminal PTY suite: 50 cases passed, 0 skipped.")
+    print("Terminal PTY suite: 52 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
