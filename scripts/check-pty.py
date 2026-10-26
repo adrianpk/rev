@@ -10,6 +10,7 @@ import pty
 import select
 import struct
 import subprocess
+import tempfile
 import termios
 import time
 
@@ -388,6 +389,77 @@ def typing_history(root):
         session.close()
 
 
+def file_ingress(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-files-") as directory:
+        path = Path(directory) / "unicode.txt"
+        source = "\ufeffe\u0301界\r\nlast".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"-- RW L1 C1 Text")
+            first = "\x1b[1;1He\u0301界".encode()
+            assert first in session.output and b"\x1b[2;1Hlast" in session.output
+            assert b"\xef\xbb\xbf" not in session.output, bytes(session.output)
+            group_step(session, b"\x18u", b"Nothing to undo")
+            group_step(session, b"\x05", b"-- RW L1 C4 Text", first)
+            group_step(session, b"!", b"** RW L1 C5 Text", "e\u0301界!".encode())
+            group_step(session, b"\x18u", b"-- RW L1 C4 Text", first)
+            group_step(session, b"\r", b"** RW L2 C1 Text", b"\x1b[3;1Hlast")
+            group_step(session, b"\x18u", b"-- RW L1 C4 Text", b"\x1b[2;1Hlast")
+            assert path.read_bytes() == source, "editing changed the visited file"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert SHOW in session.output and LEAVE in session.output
+            assert path.read_bytes() == source, "exit changed the visited file"
+            print("PASS UTF-8 startup, hidden BOM, CRLF editing and clean imported undo root")
+        finally:
+            session.close()
+
+
+def ingress_failures(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-errors-") as directory:
+        base = Path(directory)
+        invalid = base / "invalid.txt"
+        invalid.write_bytes(b"valid\xff")
+        binary = base / "binary.txt"
+        binary.write_bytes(b"valid\0text")
+        denied = base / "denied.txt"
+        denied.write_bytes(b"private")
+        denied.chmod(0)
+        cases = [
+            (invalid, b"UTF-8", b"valid\xff"),
+            (binary, b"NUL", b"valid\0text"),
+            (base / "missing.txt", b"missing.txt", None),
+            (base, b"regular file", None),
+            (denied, b"Permission denied", b"private"),
+        ]
+        for path, marker, source in cases:
+            session = Session([str(root / "target/debug/rev"), str(path)])
+            try:
+                session.finish(1)
+                assert marker in session.output and b"rev: load " in session.output
+                assert ENTER in session.output and LEAVE in session.output
+                assert SHOW in session.output, bytes(session.output)
+                assert session.output.index(LEAVE) < session.output.index(b"rev:")
+                if source is not None:
+                    path.chmod(0o600)
+                    assert path.read_bytes() == source, "rejected ingress changed source bytes"
+                print(f"PASS {path.name} ingress failure reports after terminal restoration")
+            finally:
+                session.close()
+
+
+def argument_failure(root):
+    session = Session([str(root / "target/debug/rev"), "one.txt", "two.txt"])
+    try:
+        session.finish(1)
+        assert b"usage: rev [file]" in session.output, bytes(session.output)
+        assert all(code not in session.output for code in (ENTER, LEAVE, HIDE, SHOW))
+        print("PASS excess startup arguments fail before acquiring terminal state")
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -404,7 +476,10 @@ def main():
     scrolling(root)
     undo_history(root)
     typing_history(root)
-    print("Terminal PTY suite: 13 cases passed, 0 skipped.")
+    file_ingress(root)
+    ingress_failures(root)
+    argument_failure(root)
+    print("Terminal PTY suite: 20 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

@@ -1,9 +1,19 @@
 #![forbid(unsafe_code)]
 
-use std::io;
+use std::fs::{self, File};
+use std::io::{self, Read, Write};
+use std::os::unix::fs::PermissionsExt;
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 
-use rev::buffer::{Buffer, Buffers};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use rev::buffer::edit::{History, Replacement};
+use rev::buffer::{Buffer, Buffers, Stamp, State};
+use rev::command::Command;
+use rev::coordinates::{Byte, Coordinates, Scalar};
 use rev::file::{self, Loaded};
+use rev::session::{Action, Session};
+use rev::view::{Size, View};
 
 fn text(buffer: &Buffer) -> String {
     buffer
@@ -92,5 +102,369 @@ fn rejected_text() {
             .expect("invalid input must be rejected");
         assert_eq!(error.kind(), io::ErrorKind::InvalidData, "{name}");
         assert!(error.to_string().contains(message), "{name}: {error}");
+    }
+}
+
+static NEXT: AtomicU64 = AtomicU64::new(0);
+
+struct Fixture(PathBuf);
+
+impl Fixture {
+    fn new() -> Self {
+        let id = NEXT.fetch_add(1, Ordering::Relaxed);
+        let path = std::env::temp_dir().join(format!("rev-files-{}-{id}", std::process::id()));
+        fs::create_dir(&path).unwrap();
+        Self(path)
+    }
+
+    fn file(&self, name: &str, bytes: &[u8]) -> PathBuf {
+        let path = self.0.join(name);
+        fs::write(&path, bytes).unwrap();
+        path
+    }
+
+    fn denied(&self) -> PathBuf {
+        let path = self.file("denied", b"private");
+        fs::set_permissions(&path, fs::Permissions::from_mode(0)).unwrap();
+        path
+    }
+}
+
+impl Drop for Fixture {
+    fn drop(&mut self) {
+        fs::remove_dir_all(&self.0).unwrap();
+    }
+}
+
+// Real files round-trip through ingress and the serializer without changing
+// the source. Reloading the output retains the same text and BOM metadata.
+#[test]
+fn file_roundtrip() {
+    let fixture = Fixture::new();
+    let cases = [
+        ("empty", ""),
+        ("LF", "α\nb\n"),
+        ("CRLF", "a\r\nb\r\n"),
+        ("mixed", "a\r\nb\nc\r\nlast"),
+        ("BOM only", "\u{feff}"),
+        ("BOM mixed", "\u{feff}α\r\nb\nlast"),
+    ];
+    let mut buffers = Buffers::new().unwrap();
+    for (name, source) in cases {
+        let path = fixture.file(name, source.as_bytes());
+        let id = buffers.load(file::load(&path).unwrap()).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let copy = fixture.0.join(format!("{name}-copy"));
+        let mut output = File::create(&copy).unwrap();
+        file::write(buffer, &mut output).unwrap();
+        output.flush().unwrap();
+        assert!(!buffer.is_modified(), "{name}");
+        assert_eq!(fs::read(&copy).unwrap(), source.as_bytes(), "{name}");
+        assert_eq!(fs::read(&path).unwrap(), source.as_bytes(), "{name}");
+        let reloaded = buffers.load(file::load(&copy).unwrap()).unwrap();
+        assert_eq!(bytes(buffers.get(reloaded).unwrap()), source.as_bytes());
+        assert_eq!(
+            buffers.get(reloaded).unwrap().has_bom(),
+            buffers.get(id).unwrap().has_bom(),
+            "{name}"
+        );
+    }
+}
+
+struct Pieces<'a> {
+    source: &'a [u8],
+    limit: usize,
+}
+
+impl Read for Pieces<'_> {
+    fn read(&mut self, output: &mut [u8]) -> io::Result<usize> {
+        let end = output.len().min(self.limit);
+        self.source.read(&mut output[..end])
+    }
+}
+
+// Scalar, BOM and CRLF bytes may straddle any read boundary. Large input
+// remains chunked and coordinate byte zero excludes the recognized BOM.
+#[test]
+fn chunked_ingress() {
+    let source = format!(
+        "\u{feff}{}last",
+        "e\u{301}界👩\u{200d}💻\r\nx\n".repeat(600)
+    );
+    let mut buffers = Buffers::new().unwrap();
+    for limit in [1, 2, 3, 17, 1024] {
+        let loaded = Loaded::read(Pieces {
+            source: source.as_bytes(),
+            limit,
+        })
+        .unwrap();
+        let id = buffers.load(loaded).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let span = buffer.span(0..buffer.len_chars()).unwrap();
+        assert!(buffer.chunks(&span).unwrap().count() > 2, "{limit}");
+        assert_eq!(bytes(buffer), source.as_bytes(), "{limit}");
+        assert_eq!(buffer.newline(), "\n", "{limit}");
+        assert!(buffer.has_bom(), "{limit}");
+        let coordinates = Coordinates::new(buffer).unwrap();
+        assert_eq!(coordinates.to_byte(Scalar(0)).unwrap(), Byte(0));
+        assert_eq!(coordinates.to_byte(Scalar(2)).unwrap(), Byte(3));
+        assert_eq!(coordinates.next(Scalar(0)).unwrap(), Scalar(2));
+    }
+}
+
+// Late invalid data must discard an already decoded prefix, including when
+// the malformed scalar or NUL appears beyond the reader's internal buffer.
+#[test]
+fn late_invalid() {
+    for suffix in [b"\xff".as_slice(), b"\xe2\x82", b"\0"] {
+        let mut source = vec![b'a'; 8192];
+        source.extend(suffix);
+        for limit in [1, 7, 2048] {
+            let error = Loaded::read(Pieces {
+                source: &source,
+                limit,
+            })
+            .err()
+            .expect("late invalid data must reject the whole candidate");
+            assert_eq!(error.kind(), io::ErrorKind::InvalidData);
+        }
+    }
+}
+
+struct Broken<'a> {
+    source: &'a [u8],
+    kind: io::ErrorKind,
+}
+
+impl Read for Broken<'_> {
+    fn read(&mut self, output: &mut [u8]) -> io::Result<usize> {
+        if output.is_empty() {
+            return Ok(0);
+        }
+        if self.source.is_empty() {
+            return Err(io::Error::new(self.kind, "injected read failure"));
+        }
+        self.source.read(output)
+    }
+}
+
+// A read failure after valid bytes keeps its I/O kind and cannot expose a
+// partially loaded document as a successful candidate.
+#[test]
+fn failed_reader() {
+    let prefix = "\u{feff}valid\r\n界".repeat(1000);
+    for kind in [
+        io::ErrorKind::PermissionDenied,
+        io::ErrorKind::UnexpectedEof,
+        io::ErrorKind::Other,
+    ] {
+        let error = Loaded::read(Broken {
+            source: prefix.as_bytes(),
+            kind,
+        })
+        .err()
+        .expect("read failure must reject the candidate");
+        assert_eq!(error.kind(), kind);
+        assert!(error.to_string().contains("injected read failure"));
+    }
+}
+
+// Missing components preserve NotFound; directories and devices are refused
+// before their contents can become an editable document.
+#[test]
+fn missing_paths() {
+    let fixture = Fixture::new();
+    let cases = [
+        (fixture.0.join("missing"), io::ErrorKind::NotFound),
+        (fixture.0.join("missing/child"), io::ErrorKind::NotFound),
+        (fixture.0.clone(), io::ErrorKind::InvalidInput),
+        (PathBuf::from("/dev/null"), io::ErrorKind::InvalidInput),
+    ];
+    for (path, kind) in cases {
+        let error = file::load(&path).err().expect("path must be rejected");
+        assert_eq!(error.kind(), kind, "{path:?}");
+        assert!(error.to_string().contains("load "), "{error}");
+    }
+}
+
+// Exercise an actual denied regular-file read, rather than substituting a
+// fake successful filesystem boundary or skipping the permission case.
+#[test]
+fn denied_file() {
+    let fixture = Fixture::new();
+    let path = fixture.denied();
+    let error = file::load(&path).err().expect("unreadable file");
+    assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
+    assert!(error.to_string().contains("denied"));
+}
+
+fn chord(character: char) -> Event {
+    Event::Key(KeyEvent::new(
+        KeyCode::Char(character),
+        KeyModifiers::CONTROL,
+    ))
+}
+
+fn dirty_session() -> Session {
+    let mut buffers = Buffers::new().unwrap();
+    let source = "0123456789\r\n".repeat(20) + "last";
+    let id = buffers.create(&source).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_mark(Some(Scalar(1))).unwrap();
+    let mut view = View::new(buffer);
+    view.point.position = Scalar(buffer.len_chars());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 8,
+            height: 5,
+        },
+    )
+    .unwrap();
+    session.insert('!');
+    session.execute(Command::KeyboardQuit);
+    session.insert('?');
+    session.execute(Command::named("undo").unwrap());
+    session.frame().unwrap();
+    assert!(session.view().top > 0);
+    assert!(session.buffer().unwrap().is_modified());
+    assert_eq!(session.buffer().unwrap().redo_history().len(), 1);
+    session.handle(chord('x'));
+    session
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Snapshot {
+    bytes: Vec<u8>,
+    stamp: Stamp,
+    state: State,
+    view: View,
+    mark: Option<Scalar>,
+    history: usize,
+    redo: usize,
+    read_only: bool,
+    newline: &'static str,
+    bom: bool,
+}
+
+fn snapshot(session: &Session) -> Snapshot {
+    let buffer = session.buffer().unwrap();
+    Snapshot {
+        bytes: bytes(buffer),
+        stamp: buffer.stamp(),
+        state: buffer.state(),
+        view: session.view().clone(),
+        mark: buffer.mark(),
+        history: buffer.history().len(),
+        redo: buffer.redo_history().len(),
+        read_only: buffer.is_read_only(),
+        newline: buffer.newline(),
+        bom: buffer.has_bom(),
+    }
+}
+
+// Every rejected ingress preserves the active dirty document, mark, scroll,
+// retained undo/redo and pending prefix. Only the readable error echo changes.
+#[test]
+fn rejected_session() {
+    let fixture = Fixture::new();
+    let cases = [
+        (
+            fixture.file("invalid", b"text\xff"),
+            io::ErrorKind::InvalidData,
+        ),
+        (fixture.file("NUL", b"a\0b"), io::ErrorKind::InvalidData),
+        (
+            fixture.file("bad-BOM", b"\xef\xbb\xbf\xff"),
+            io::ErrorKind::InvalidData,
+        ),
+        (fixture.0.join("missing"), io::ErrorKind::NotFound),
+        (fixture.0.join("missing/child"), io::ErrorKind::NotFound),
+        (fixture.0.clone(), io::ErrorKind::InvalidInput),
+        (fixture.denied(), io::ErrorKind::PermissionDenied),
+    ];
+    let mut session = dirty_session();
+    let before = snapshot(&session);
+    for (path, kind) in cases {
+        let error = session.load(&path).unwrap_err();
+        assert_eq!(error.kind(), kind, "{path:?}");
+        assert_eq!(snapshot(&session), before, "{path:?}");
+        assert!(
+            session
+                .echo()
+                .contains(path.file_name().unwrap().to_str().unwrap())
+        );
+        assert!(session.frame().unwrap().cursor().is_some());
+        assert_eq!(snapshot(&session), before);
+    }
+    assert_eq!(session.handle(chord('c')), Action::Redraw);
+    assert!(session.echo().starts_with("Unsaved changes"));
+    session.execute(Command::named("undo-redo").unwrap());
+    assert!(text(session.buffer().unwrap()).ends_with("last!?"));
+    session.execute(Command::named("undo").unwrap());
+    session.execute(Command::named("undo").unwrap());
+    assert!(!session.buffer().unwrap().is_modified());
+    assert!(text(session.buffer().unwrap()).ends_with("last"));
+}
+
+// Accepted ingress installs a fresh clean root at point/scroll zero, cancels
+// old prefixes and retains previous unsaved buffers in the session quit guard.
+#[test]
+fn accepted_session() {
+    let fixture = Fixture::new();
+    let source = "\u{feff}e\u{301}界\r\nlast";
+    let path = fixture.file("valid", source.as_bytes());
+    let mut session = dirty_session();
+    let previous = session.view().point.stamp.buffer;
+    session.load(&path).unwrap();
+    let buffer = session.buffer().unwrap();
+    assert_ne!(buffer.id(), previous);
+    assert_eq!(bytes(buffer), source.as_bytes());
+    assert_eq!(text(buffer), "e\u{301}界\r\nlast");
+    assert!(buffer.has_bom());
+    assert!(!buffer.is_modified());
+    assert!(buffer.history().is_empty());
+    assert!(buffer.redo_history().is_empty());
+    assert_eq!(session.view(), &View::new(buffer));
+    assert!(session.echo().is_empty());
+    assert!(session.frame().unwrap().cursor().is_some());
+    assert_eq!(session.handle(chord('c')), Action::Redraw);
+    assert_eq!(session.echo(), "Unbound key");
+    assert_eq!(session.execute(Command::Quit), Action::Redraw);
+    assert!(session.echo().starts_with("Unsaved changes"));
+}
+
+// Serialization emits the BOM once after edits, preserves untouched bytes and
+// does not mark an edit saved. Undo restores exact imported bytes and clean state.
+#[test]
+fn edited_format() {
+    let cases = [
+        ("BOM no final", "\u{feff}α\r\nlast", "\u{feff}!α\r\nlast"),
+        ("BOM only", "\u{feff}", "\u{feff}!"),
+        ("plain no final", "α\nlast", "!α\nlast"),
+    ];
+    let mut buffers = Buffers::new().unwrap();
+    for (name, source, expected) in cases {
+        let id = buffers
+            .load(Loaded::read(source.as_bytes()).unwrap())
+            .unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        let state = buffer.state();
+        let edit = Replacement {
+            source: buffer.span(0..0).unwrap(),
+            text: "!".into(),
+        };
+        let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+        assert_eq!(bytes(buffer), expected.as_bytes(), "{name}");
+        assert!(buffer.is_modified(), "{name}");
+        buffer.navigate(History::Undo, &mut [], None).unwrap();
+        assert_eq!(bytes(buffer), source.as_bytes(), "{name}");
+        assert_eq!(buffer.state(), state, "{name}");
+        assert!(!buffer.is_modified(), "{name}");
+        buffer.navigate(History::Redo, &mut [], None).unwrap();
+        assert_eq!(bytes(buffer), expected.as_bytes(), "{name}");
+        assert!(buffer.is_modified(), "{name}");
     }
 }
