@@ -11,7 +11,7 @@ test = true
 
 [dependencies]
 crossterm = "=0.29.0"
-ropey = "=1.6.1"
+ropey = { version = "=1.6.1", default-features = false, features = ["simd"] }
 unicode-segmentation = "=1.13.3"
 unicode-width = "=0.2.2"
 tree-sitter = "=0.27.1"
