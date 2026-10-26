@@ -1,12 +1,21 @@
 #![forbid(unsafe_code)]
 
 pub mod buffer;
+pub mod command;
 pub mod coordinates;
+pub mod input;
 pub mod terminal;
 
 use std::io::{self, Write};
 
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use command::Command;
+use crossterm::{
+    QueueableCommand,
+    cursor::MoveTo,
+    event,
+    terminal::{Clear, ClearType},
+};
+use input::{Input, Outcome};
 use terminal::Terminal;
 
 /// Runs the terminal session and reports errors after attempting restoration.
@@ -28,61 +37,26 @@ fn session(terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         .writer()
         .write_all(b"\x1b[2J\x1b[Hrev\r\nC-x C-c: exit\r\n")?;
     terminal.writer().flush()?;
-    let mut prefix = false;
+    let mut input = Input::default();
     loop {
-        if let Event::Key(key) = event::read()?
-            && quit(key, &mut prefix)
-        {
+        let outcome = input.handle(event::read()?);
+        if outcome == Outcome::Command(Command::Quit) {
             return Ok(());
         }
+        feedback(terminal.writer(), &outcome)?;
     }
 }
 
-fn quit(key: KeyEvent, prefix: &mut bool) -> bool {
-    if key.kind == KeyEventKind::Release {
-        return false;
-    }
-    let control = key.modifiers == KeyModifiers::CONTROL;
-    let exit = *prefix && control && key.code == KeyCode::Char('c');
-    *prefix = control && key.code == KeyCode::Char('x');
-    exit
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // Prefix cancellation and release reports must not trigger an exit.
-    #[test]
-    fn quit_sequence() {
-        let control = |letter| KeyEvent::new(KeyCode::Char(letter), KeyModifiers::CONTROL);
-        let cases = [
-            ("exit", vec![control('x'), control('c')], true),
-            (
-                "cancel",
-                vec![control('x'), control('g'), control('c')],
-                false,
-            ),
-            ("bare control", vec![control('c')], false),
-            ("old shortcut", vec![control('q')], false),
-            (
-                "release",
-                vec![
-                    control('x'),
-                    KeyEvent::new_with_kind(
-                        KeyCode::Char('x'),
-                        KeyModifiers::CONTROL,
-                        KeyEventKind::Release,
-                    ),
-                    control('c'),
-                ],
-                true,
-            ),
-        ];
-        for (name, keys, expected) in cases {
-            let mut prefix = false;
-            let result = keys.into_iter().any(|key| quit(key, &mut prefix));
-            assert_eq!(result, expected, "{name}");
-        }
-    }
+fn feedback(writer: &mut impl Write, outcome: &Outcome) -> io::Result<()> {
+    let message = match outcome {
+        Outcome::Prefix(prefix) => prefix.label(),
+        Outcome::Message(message) => message,
+        Outcome::Command(Command::KeyboardQuit) => "Quit",
+        _ => return Ok(()),
+    };
+    writer
+        .queue(MoveTo(0, 2))?
+        .queue(Clear(ClearType::CurrentLine))?;
+    writer.write_all(message.as_bytes())?;
+    writer.flush()
 }
