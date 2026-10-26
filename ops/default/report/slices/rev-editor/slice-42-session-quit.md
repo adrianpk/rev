@@ -1,11 +1,12 @@
 # Slice 42: Complete guarded multi-buffer session exit
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-42-session-quit`
 PR: `#42`
+Integrated: `0449afb084d68186400077b00c907ea820a4ae9b`
 
 ## Purpose
 

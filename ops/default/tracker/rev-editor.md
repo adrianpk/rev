@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 42 - Complete guarded multi-buffer session exit
+Active slice: Slice 43 - Harden ordinary failure boundaries
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -890,17 +890,17 @@ Report: [Slice 41](../report/slices/rev-editor/slice-41-incremental-syntax.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R03, R04, R11, R13, R21, R24.
 
-- [ ] T42.1: Complete save-buffers-kill-terminal across all modified named and unnamed buffers, including sequential save decisions, canceled path prompts, read-only and uncertain-publication outcomes.
-- [ ] T42.2: Exercise cancellation after earlier saves, failed required saves, several windows of one buffer, a removed destination, and final terminal restoration after a genuinely accepted quit.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T42.1: Complete save-buffers-kill-terminal across all modified named and unnamed buffers, including sequential save decisions, canceled path prompts, read-only and uncertain-publication outcomes.
+- [x] T42.2: Exercise cancellation after earlier saves, failed required saves, several windows of one buffer, a removed destination, and final terminal restoration after a genuinely accepted quit.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T42.1 and T42.2 complete; PR #42 awaits integration.
+Implementation: delivered through PR #42.
 Task commits: T42.1 `28058fec1a0122eaba717c25089908cc793d12ff`;
 T42.2 `d0674f73fcb8b185ceb9ed7e7d5bfd572f2deeb8`. Retained journey adaptation:
 `577e8c2c0b21e93ac8edd514ac11741b2879930f`.
 Validation: required Cargo/source commands passed; `cargo test --test recovery`
 passed nine tests and the terminal PTY suite passed 86 cases with zero skips.
-Final PR-head evidence is recorded through Looper.
+Integration: `0449afb084d68186400077b00c907ea820a4ae9b`; all seven ordered checks passed at this exact head through Looper (`PGK434SPJFCKEX3CH3PX6Z2RWG`).
 PR: [#42](https://forge.adrianpk.com/adrianpk/rev/pulls/42).
 Report: [Slice 42](../report/slices/rev-editor/slice-42-session-quit.md).
 
