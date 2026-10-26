@@ -29,7 +29,7 @@ impl<'a> Glyph<'a> {
     }
 }
 
-/// Projects a line incrementally; only a cluster crossing chunks is joined.
+/// Projects a line incrementally with bounded chunk context and per-cluster text.
 pub struct Glyphs<'a> {
     text: RopeSlice<'a>,
     cursor: Cursor<'a>,

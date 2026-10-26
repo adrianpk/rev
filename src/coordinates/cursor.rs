@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use ropey::RopeSlice;
 use unicode_segmentation::{GraphemeCursor, GraphemeIncomplete};
 
@@ -8,7 +10,7 @@ type Query<T> = fn(&mut GraphemeCursor, &str, usize) -> Result<T, GraphemeIncomp
 pub(super) struct Cursor<'a> {
     text: RopeSlice<'a>,
     cursor: GraphemeCursor,
-    chunk: &'a str,
+    chunk: Cow<'a, str>,
     start: usize,
 }
 
@@ -22,7 +24,7 @@ impl<'a> Cursor<'a> {
         Ok(Self {
             text,
             cursor: GraphemeCursor::new(byte, text.len_bytes(), true),
-            chunk,
+            chunk: Cow::Borrowed(chunk),
             start,
         })
     }
@@ -41,7 +43,7 @@ impl<'a> Cursor<'a> {
 
     fn query<T>(&mut self, query: Query<T>) -> Result<T, Error> {
         loop {
-            match query(&mut self.cursor, self.chunk, self.start) {
+            match query(&mut self.cursor, &self.chunk, self.start) {
                 Ok(value) => return Ok(value),
                 Err(need) => self.supply(need)?,
             }
@@ -67,9 +69,32 @@ impl<'a> Cursor<'a> {
         if start == self.start {
             return Err(Error::Segmentation);
         }
+        let (chunk, start) = if start > self.start {
+            self.overlap(chunk, start)?
+        } else {
+            (Cow::Borrowed(chunk), start)
+        };
         self.chunk = chunk;
         self.start = start;
         Ok(())
+    }
+
+    fn overlap(&self, chunk: &'a str, start: usize) -> Result<(Cow<'a, str>, usize), Error> {
+        // A repeated cursor must not recount cached regional-indicator context
+        // at an exact chunk start. One preceding scalar keeps that context valid.
+        let scalar = self
+            .text
+            .try_byte_to_char(start)
+            .map_err(|_| Error::Segmentation)?;
+        let begin = self
+            .text
+            .try_char_to_byte(scalar.saturating_sub(1))
+            .map_err(|_| Error::Segmentation)?;
+        let text = self
+            .text
+            .get_byte_slice(begin..start + chunk.len())
+            .ok_or(Error::Segmentation)?;
+        Ok((Cow::Owned(text.to_string()), begin))
     }
 
     fn context(&mut self, end: usize) -> Result<(), Error> {
