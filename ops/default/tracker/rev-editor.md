@@ -238,7 +238,7 @@ T9.2 `bc16af2c0d9744525c638aff98ae336ed56bf43f` and fixture synchronization
 Validation: required Cargo/source commands passed; `cargo test --test display`
 passed eighteen tests and the terminal PTY suite passed eleven cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#9](https://forge.adrianpk.com/adrianpk/rev/pulls/9).
 Report: [Slice 9](../report/slices/rev-editor/slice-9-scrolling.md).
 
 ### Slice 10: Restore per-buffer undo and redo
