@@ -1,6 +1,8 @@
 mod motion;
+mod scroll;
 
 pub use motion::Motion;
+pub use scroll::Scroll;
 
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -12,10 +14,11 @@ pub enum Command {
     BackwardDeleteChar,
     DeleteChar,
     Motion(Motion),
+    Scroll(Scroll),
 }
 
 impl Command {
-    pub const ALL: [Self; 14] = [
+    pub const ALL: [Self; 19] = [
         Self::Quit,
         Self::KeyboardQuit,
         Self::Newline,
@@ -30,6 +33,11 @@ impl Command {
         Self::Motion(Motion::BufferEnd),
         Self::Motion(Motion::ForwardWord),
         Self::Motion(Motion::BackwardWord),
+        Self::Scroll(Scroll::NextLine),
+        Self::Scroll(Scroll::PreviousLine),
+        Self::Scroll(Scroll::PageForward),
+        Self::Scroll(Scroll::PageBackward),
+        Self::Scroll(Scroll::Recenter),
     ];
 
     pub fn name(self) -> &'static str {
@@ -41,6 +49,7 @@ impl Command {
             Self::BackwardDeleteChar => "backward-delete-char",
             Self::DeleteChar => "delete-char",
             Self::Motion(motion) => motion.name(),
+            Self::Scroll(scroll) => scroll.name(),
         }
     }
 

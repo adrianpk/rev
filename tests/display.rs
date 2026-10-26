@@ -414,3 +414,74 @@ fn draw_boundary() {
         }
     }
 }
+
+fn editor(source: &str, point: rev::coordinates::Cell, size: Size) -> rev::session::Session {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let buffer = buffers.get(id).unwrap();
+    let mut view = View::new(buffer);
+    view.point.position = rev::coordinates::Coordinates::new(buffer)
+        .unwrap()
+        .from_cell(point)
+        .unwrap();
+    rev::session::Session::new(buffers, view, size).unwrap()
+}
+
+fn navigate(session: &mut rev::session::Session, name: &str, point: rev::coordinates::Cell) {
+    let command = rev::command::Command::named(name).expect("implemented navigation command");
+    assert_eq!(session.execute(command), rev::session::Action::Redraw);
+    assert_eq!(
+        session.view().cell(session.buffer().unwrap()).unwrap(),
+        point,
+        "{name}"
+    );
+    assert!(session.echo().is_empty(), "{name}");
+}
+
+// Consecutive vertical commands retain their intended display column rather
+// than adopting the clamped end of an intervening short logical line.
+#[test]
+fn desired_column() {
+    use rev::coordinates::Cell;
+    let size = Size {
+        width: 8,
+        height: 4,
+    };
+    let mut session = editor("abcdef\nx\nabcdef", Cell { row: 0, column: 5 }, size);
+    let stamp = session.buffer().unwrap().stamp();
+    for row in [1, 2, 1, 0] {
+        let command = if row < session.view().cell(session.buffer().unwrap()).unwrap().row {
+            "previous-line"
+        } else {
+            "next-line"
+        };
+        let column = if row == 1 { 1 } else { 5 };
+        navigate(&mut session, command, Cell { row, column });
+        assert_eq!(session.view().column, Some(5));
+        bounded(&session.frame().unwrap(), size);
+    }
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert!(session.buffer().unwrap().history().is_empty());
+    assert!(!session.buffer().unwrap().is_modified());
+}
+
+// Repeated C-l command dispatch cycles the selected logical line through
+// center, top and bottom while preserving point and document state.
+#[test]
+fn recenter_cycle() {
+    use rev::coordinates::Cell;
+    let size = Size {
+        width: 8,
+        height: 7,
+    };
+    let point = Cell { row: 10, column: 2 };
+    let mut session = editor(&"line\n".repeat(20), point, size);
+    let stamp = session.view().point;
+    for top in [8, 10, 6, 8, 10, 6] {
+        navigate(&mut session, "recenter-top-bottom", point);
+        assert_eq!(session.view().top, top);
+        assert_eq!(session.view().point, stamp);
+        bounded(&session.frame().unwrap(), size);
+    }
+    assert!(session.buffer().unwrap().history().is_empty());
+}

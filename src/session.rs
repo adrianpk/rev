@@ -99,10 +99,14 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if !matches!(command, Command::Scroll(_)) {
+            self.view.reset_navigation();
+        }
         let point = self.view.point.position.0;
         let result = match command {
             Command::Quit => return self.quit(),
             Command::Motion(motion) => return self.motion(motion),
+            Command::Scroll(scroll) => return self.scroll(scroll),
             Command::KeyboardQuit => {
                 self.input.cancel();
                 return self.message("Quit");
@@ -118,6 +122,7 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        self.view.reset_navigation();
         if character.is_control() {
             return self.message("Control character rejected");
         }

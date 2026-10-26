@@ -1,3 +1,5 @@
+mod scroll;
+
 use std::fmt;
 
 use crate::buffer::{self, Buffer, Span, edit::Point};
@@ -54,8 +56,11 @@ impl From<coordinates::Error> for Error {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct View {
     pub point: Point,
+    /// Intended terminal-cell column, retained across vertical/page/recenter input.
+    pub column: Option<usize>,
     pub top: usize,
     pub left: usize,
+    alignment: scroll::Alignment,
 }
 
 impl View {
@@ -65,8 +70,10 @@ impl View {
                 stamp: buffer.stamp(),
                 position: Scalar(0),
             },
+            column: None,
             top: 0,
             left: 0,
+            alignment: scroll::Alignment::Center,
         }
     }
 
