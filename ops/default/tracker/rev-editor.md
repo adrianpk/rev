@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 5 - Decode prefixes and focused prompts
+Active slice: Slice 6 - Render one rope-backed viewport
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -147,17 +147,20 @@ Report: [Slice 4](../report/slices/rev-editor/slice-4-edits.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R22, R23, R24, R25, R33.
 
-- [ ] T5.1: Normalize keyboard events, route one focused context, decode nested chord prefixes, and dispatch only implemented command variants. Provide a small editable argument/decision prompt used by subsequent file and safety flows.
-- [ ] T5.2: Cover invalid prefixes, C-g cancellation, prompt/document isolation, press versus release, and exactly-once dispatch. Advertise no unavailable command or functional-looking stub.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T5.1: Normalize keyboard events, route one focused context, decode nested chord prefixes, and dispatch only implemented command variants. Provide a small editable argument/decision prompt used by subsequent file and safety flows.
+- [x] T5.2: Cover invalid prefixes, C-g cancellation, prompt/document isolation, press versus release, and exactly-once dispatch. Advertise no unavailable command or functional-looking stub.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T5.1 and T5.2 implemented; canonical integration pending.
+Implementation: T5.1 and T5.2 delivered through PR #5.
 Task commits: T5.1 `a7a927c5b09b80ba7f343346d05f341e2f2eca56`;
 T5.2 `aa5dc2231a84db61fafb0b6b027fb1d72aeb5472`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed eleven tests and the terminal PTY suite passed seven cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#5](https://forge.adrianpk.com/adrianpk/rev/pulls/5).
+Integration: Rebase + Fast-forward into dev at
+`2332faed5849d40c33930c903f946b847a3da55a`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 5](../report/slices/rev-editor/slice-5-input.md).
 
 ### Slice 6: Render one rope-backed viewport

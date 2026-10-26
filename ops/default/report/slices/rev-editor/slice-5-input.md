@@ -1,11 +1,12 @@
 # Slice 5: Decode prefixes and focused prompts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-05-input`
 PR: `#5`
+Integrated: Rebase + Fast-forward into dev at `2332faed5849d40c33930c903f946b847a3da55a`.
 
 ## Purpose
 
