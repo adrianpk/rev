@@ -88,7 +88,7 @@ fn reason(buffer: &Buffer, target: &Location, explicit: bool) -> Option<&'static
 
 fn description(reason: &str, requested: &Path, target: &Path) -> String {
     if requested != target {
-        return format!("{reason}: target {target:?} (requested {requested:?})? [y/n]");
+        return format!("{reason}? [y/n] target {target:?} (requested {requested:?})");
     }
-    format!("{reason}: target {target:?}? [y/n]")
+    format!("{reason}? [y/n] target {target:?}")
 }

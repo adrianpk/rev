@@ -123,3 +123,83 @@ fn focused_consent() {
         }
     }
 }
+
+// Destination arguments cancel without side effects, even with a repeated Enter.
+// An invalid destination consumes only its argument and returns to editing.
+#[test]
+fn argument_exit() {
+    let fixture = Fixture::new();
+    let mut session = session();
+    session.insert('!');
+    let before = snapshot(&session);
+    session.execute(Command::WriteFile);
+    for character in "cancel界".chars() {
+        session.handle(press(KeyCode::Char(character)));
+    }
+    session.handle(chord('g'));
+    let mut repeated =
+        crossterm::event::KeyEvent::new(KeyCode::Enter, crossterm::event::KeyModifiers::NONE);
+    repeated.kind = crossterm::event::KeyEventKind::Repeat;
+    session.handle(crossterm::event::Event::Key(repeated));
+    assert_eq!(snapshot(&session), before);
+    for path in [Path::new(""), fixture.0.as_path()] {
+        session.execute(Command::WriteFile);
+        enter_path(&mut session, path);
+        assert!(session.echo().starts_with("save: "));
+        assert_eq!(snapshot(&session), before);
+        assert_eq!(session.frame().unwrap().cursor().unwrap().row, 0);
+    }
+    assert_eq!(fs::read_dir(&fixture.0).unwrap().count(), 0);
+}
+
+// A visited target owned by another buffer is refused without a question, even
+// through a symlink; consent cannot override canonical ownership.
+#[test]
+fn live_target() {
+    let fixture = Fixture::new();
+    let active = fixture.file("active.txt", b"active");
+    let other = fixture.file("other.txt", b"other");
+    let alias = fixture.0.join("alias.txt");
+    std::os::unix::fs::symlink(&other, &alias).unwrap();
+    let mut session = session();
+    session.load(&other).unwrap();
+    session.load(&active).unwrap();
+    session.insert('!');
+    let before = snapshot(&session);
+    session.execute(Command::WriteFile);
+    enter_path(&mut session, &alias);
+    assert!(session.echo().contains("another live buffer"));
+    assert_eq!(snapshot(&session), before);
+    assert_eq!(fs::read(other).unwrap(), b"other");
+    assert_eq!(fs::read(active).unwrap(), b"active");
+    assert_eq!(session.frame().unwrap().cursor().unwrap().row, 0);
+}
+
+// A displayed question remains focused and keeps document point/scroll through
+// tiny/empty geometry; cancel after resize restores the unchanged editing view.
+#[test]
+fn decision_geometry() {
+    let fixture = Fixture::new();
+    let path = fixture.file("occupied.txt", b"keep");
+    let mut session = session();
+    session.insert('!');
+    session.execute(Command::WriteFile);
+    enter_path(&mut session, &path);
+    for (width, height) in [(0, 0), (1, 1), (3, 2), (240, 8)] {
+        session.handle(crossterm::event::Event::Resize(width, height));
+        let before = snapshot(&session);
+        let frame = session.frame().unwrap();
+        assert_eq!(frame.rows().len(), usize::from(height));
+        if let Some(cursor) = frame.cursor() {
+            assert!(cursor.column < width && cursor.row < height);
+            assert_eq!(cursor.row, height - 1);
+        }
+        assert_eq!(snapshot(&session), before);
+        assert!(session.echo().contains(path.to_str().unwrap()));
+    }
+    let before = snapshot(&session);
+    session.handle(chord('g'));
+    assert_eq!(snapshot(&session), before);
+    assert_eq!(fs::read(path).unwrap(), b"keep");
+    assert_eq!(session.frame().unwrap().cursor().unwrap().row, 0);
+}

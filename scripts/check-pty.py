@@ -582,10 +582,92 @@ def save_failure(root):
             group_step(session, b"?", b"** RW L1 C5 Text", b"\x1b[1;1Hab!?")
             group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
             assert list(path.parent.iterdir()) == [path]
-            print("PASS failed save guards exit, missing-parent retry and external-change refusal")
+            group_step(session, b"\x18\x13", b"Destination changed on disk")
+            path.write_bytes(b"changed while asking")
+            group_step(session, b"y", b"save: not published", b"changed since last observation")
+            assert path.read_bytes() == b"changed while asking"
+            group_step(session, b"\x18\x13", b"Destination changed on disk")
+            group_step(session, b"y", b"Saved ", b"-- RW L1 C5 Text")
+            assert path.read_bytes() == b"ab!?"
+            path.unlink()
+            group_step(session, b"\x18\x13", b"Destination changed on disk")
+            group_step(session, b"y", b"Saved ")
+            assert path.read_bytes() == b"ab!?"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS failed save, missing-parent retry, stale consent and confirmed changed/removed paths")
         finally:
-            # This owned dirty fixture retains an externally changed destination.
-            # All error/refusal and continued-editing checks precede its cleanup.
+            session.close()
+
+
+def write_path(session, path, marker):
+    group_step(session, b"\x18\x17", b"Write file: ")
+    group_step(session, str(path).encode(), path.name.encode())
+    group_step(session, b"\r", marker)
+
+
+def save_decisions(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-consent-") as directory:
+        base = Path(directory)
+        source = base / "first.txt"
+        target = base / "referent.txt"
+        target.write_bytes(b"keep")
+        alias = base / "alias.txt"
+        alias.symlink_to(target)
+        session = Session([str(root / "target/debug/rev")])
+        try:
+            session.ready(b"C-x C-c: exit")
+            group_step(session, b"new", b"** RW L1 C4 Text")
+            group_step(session, b"\x18\x13", b"Write file: ")
+            group_step(session, b"cancel", b"Write file: cancel")
+            group_step(session, b"\x07", b"Quit", b"** RW L1 C4 Text")
+            assert not source.exists()
+            group_step(session, b"\x18\x13", b"Write file: ")
+            group_step(session, str(source).encode(), source.name.encode())
+            group_step(session, b"\r", b"Saved ", b"> first.txt -- RW L1 C4 Text")
+            assert source.read_bytes() == b"new"
+            write_path(session, alias, b"Overwrite occupied destination? [y/n]")
+            assert target.read_bytes() == b"keep"
+            group_step(session, b"n", b"Save canceled", b"> first.txt -- RW L1 C4 Text")
+            write_path(session, alias, b"Overwrite occupied destination? [y/n]")
+            group_step(session, b"y", b"Saved ", b"> referent.txt -- RW L1 C4 Text")
+            assert target.read_bytes() == b"new" and source.read_bytes() == b"new"
+            assert alias.is_symlink() and alias.readlink() == target
+            group_step(session, b"\x18u", b"** RW L1 C1 Text")
+            assert target.read_bytes() == b"new", "undo changed disk without save"
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C1 Text")
+            assert target.read_bytes() == b""
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS unnamed save, argument cancellation, occupied save-as, symlink referent and dirty undo")
+        finally:
+            session.close()
+
+
+def save_collision(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-collision-") as directory:
+        base = Path(directory)
+        source = base / "source.txt"
+        source.write_bytes(b"source")
+        other = base / "other.txt"
+        other.write_bytes(b"other")
+        alias = base / "alias.txt"
+        alias.symlink_to(other)
+        session = Session([str(root / "target/debug/rev"), str(source)])
+        try:
+            session.ready(b"> source.txt -- RW L1 C1 Text")
+            find_path(session, other, b"> other.txt -- RW L1 C1 Text", b"other")
+            find_path(session, source, b"> source.txt -- RW L1 C1 Text", b"source")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            write_path(session, alias, b"another live buffer")
+            assert other.read_bytes() == b"other" and source.read_bytes() == b"source"
+            group_step(session, b"?", b"** RW L1 C3 Text", b"\x1b[1;1H!?source")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert source.read_bytes() == b"!?source" and other.read_bytes() == b"other"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS canonical live-buffer collision refuses save-as and leaves editing available")
+        finally:
             session.close()
 
 
@@ -612,7 +694,9 @@ def main():
     new_visit(root)
     save_file(root)
     save_failure(root)
-    print("Terminal PTY suite: 24 cases passed, 0 skipped.")
+    save_decisions(root)
+    save_collision(root)
+    print("Terminal PTY suite: 26 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

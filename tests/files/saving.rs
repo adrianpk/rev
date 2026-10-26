@@ -511,3 +511,185 @@ fn unnamed_save() {
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
     assert!(session.echo().starts_with("Unsaved changes"));
 }
+
+fn occupied_save(buffers: &Buffers, id: BufferId, path: &Path) -> rev::buffer::Confirmation {
+    match buffers.request_save(id, Some(path)).unwrap() {
+        rev::buffer::SaveRequest::Confirm(confirmation) => confirmation,
+        rev::buffer::SaveRequest::Ready(_) => panic!("occupied target requires consent"),
+    }
+}
+
+// Confirmed save-as obeys the same actual-publication boundary as ordinary save.
+// Partial disk-full writes preserve the old association; later failures expose
+// the new target, keep the warning, and require a completed retry before clean.
+#[test]
+fn confirmed_outcomes() {
+    for fault in [
+        Fault::Write,
+        Fault::Replace,
+        Fault::DirectorySync,
+        Fault::Observe,
+        Fault::None,
+    ] {
+        let (fixture, mut buffers, id, original) = editable();
+        let target = fixture.file("occupied.txt", b"keep");
+        let before = facts(buffers.get(id).unwrap());
+        let confirmation = occupied_save(&buffers, id, &target);
+        assert_eq!(facts(buffers.get(id).unwrap()), before);
+        let result = buffers.confirm_save_with(confirmation, &mut Failing::new(fault, &fixture.0));
+        assert_eq!(fs::read(&original).unwrap(), b"original");
+        confirmed_result(&mut buffers, id, &target, &result, &before);
+        assert!(temporaries(&fixture.0).is_empty());
+    }
+}
+
+fn confirmed_result(
+    buffers: &mut Buffers,
+    id: BufferId,
+    target: &Path,
+    result: &file::Outcome,
+    before: &Facts,
+) {
+    if result.publication() == Publication::NotPublished {
+        assert_eq!(fs::read(target).unwrap(), b"keep");
+        assert_eq!(facts(buffers.get(id).unwrap()), *before);
+        return;
+    }
+    assert_eq!(fs::read(target).unwrap(), b"!original");
+    assert_eq!(buffers.get(id).unwrap().file().unwrap().path(), target);
+    assert_eq!(buffers.visit(target).unwrap(), id);
+    let buffer = buffers.get_mut(id).unwrap();
+    assert_eq!(buffer.is_modified(), !result.is_complete());
+    assert_eq!(buffer.save_warning().is_some(), !result.is_complete());
+    assert_eq!(buffer.stamp(), before.stamp);
+    assert_eq!(buffer.history().len(), before.history);
+    assert_eq!(buffer.redo_history().len(), before.redo);
+    if !result.is_complete() {
+        complete_retry(buffers, id);
+    }
+    let buffer = buffers.get_mut(id).unwrap();
+    assert!(!buffer.is_modified());
+    assert!(buffer.save_warning().is_none());
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert!(buffer.is_modified());
+    buffer.navigate(History::Redo, &mut [], None).unwrap();
+    assert!(!buffer.is_modified());
+}
+
+fn complete_retry(buffers: &mut Buffers, id: BufferId) {
+    let result = match buffers.request_save(id, None).unwrap() {
+        rev::buffer::SaveRequest::Ready(save) => buffers.publish_save(save),
+        rev::buffer::SaveRequest::Confirm(confirmation) => buffers.confirm_save(confirmation),
+    };
+    assert!(result.is_complete(), "{result:?}");
+}
+
+// Consent must not bypass OS write denial even when the containing directory
+// would permit rename, nor a native restriction introduced after the question.
+#[test]
+fn confirmed_access() {
+    for restriction in ["disk", "buffer"] {
+        let (fixture, mut buffers, id, _) = editable();
+        let target = fixture.file("occupied.txt", b"keep");
+        if restriction == "disk" {
+            fs::set_permissions(&target, fs::Permissions::from_mode(0o444)).unwrap();
+        }
+        let confirmation = occupied_save(&buffers, id, &target);
+        if restriction == "buffer" {
+            buffers.get_mut(id).unwrap().set_read_only(true);
+        }
+        let before = facts(buffers.get(id).unwrap());
+        let result = buffers.confirm_save(confirmation);
+        assert_eq!(result.publication(), Publication::NotPublished);
+        assert_eq!(
+            result.error().unwrap().kind(),
+            io::ErrorKind::PermissionDenied
+        );
+        assert_eq!(fs::read(&target).unwrap(), b"keep");
+        assert_eq!(facts(buffers.get(id).unwrap()), before);
+        assert!(temporaries(&fixture.0).is_empty());
+    }
+}
+
+// A changed/removed target invalidates its captured observation. A new live
+// owner or a relocated source independently invalidates registry admission.
+#[test]
+fn stale_consent() {
+    for change in ["rewrite", "remove", "replace", "owner", "association"] {
+        let (fixture, mut buffers, id, original) = editable();
+        let target = fixture.file("occupied.txt", b"keep");
+        let confirmation = occupied_save(&buffers, id, &target);
+        invalidate_consent(change, &mut buffers, id, &target);
+        let before = facts(buffers.get(id).unwrap());
+        let disk = fs::read(&target).ok();
+        let result = buffers.confirm_save(confirmation);
+        assert_eq!(result.publication(), Publication::NotPublished, "{change}");
+        assert_eq!(facts(buffers.get(id).unwrap()), before);
+        assert_eq!(fs::read(&target).ok(), disk);
+        assert_eq!(fs::read(&original).unwrap(), b"original");
+        assert!(temporaries(&fixture.0).is_empty());
+    }
+}
+
+fn invalidate_consent(change: &str, buffers: &mut Buffers, id: BufferId, target: &Path) {
+    match change {
+        "rewrite" => fs::write(target, b"external").unwrap(),
+        "remove" => fs::remove_file(target).unwrap(),
+        "replace" => {
+            let replacement = target.with_extension("replacement");
+            fs::write(&replacement, b"keep").unwrap();
+            fs::rename(replacement, target).unwrap();
+        }
+        "owner" => {
+            assert_ne!(buffers.visit(target).unwrap(), id);
+        }
+        "association" => {
+            let new = target.with_extension("new");
+            let save = buffers.prepare_save(id, Some(&new)).unwrap();
+            assert!(buffers.publish_save(save).is_complete());
+        }
+        _ => panic!("unknown change"),
+    }
+}
+
+// Editing during a captured question cannot be acknowledged by its old bytes.
+// Undo still reaches the captured clean logical state after actual publication.
+#[test]
+fn confirmed_capture() {
+    let (fixture, mut buffers, id, _) = editable();
+    let target = fixture.file("occupied.txt", b"keep");
+    let confirmation = occupied_save(&buffers, id, &target);
+    let captured = buffers.get(id).unwrap().state();
+    insert_text(buffers.get_mut(id).unwrap(), "newer");
+    assert!(buffers.confirm_save(confirmation).is_complete());
+    assert_eq!(fs::read(&target).unwrap(), b"!original");
+    let buffer = buffers.get_mut(id).unwrap();
+    assert_eq!(text(buffer), "newer!original");
+    assert!(buffer.is_modified());
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert_eq!(buffer.state(), captured);
+    assert!(!buffer.is_modified());
+}
+
+// An occupied symlink discloses its canonical referent. Retargeting that alias
+// during the question cannot redirect consent or replace the symlink itself.
+#[test]
+fn resolved_consent() {
+    let (fixture, mut buffers, id, original) = editable();
+    let target = fixture.file("referent.txt", b"keep");
+    let other = fixture.file("other.txt", b"other");
+    let alias = fixture.0.join("alias.txt");
+    symlink(&target, &alias).unwrap();
+    let confirmation = occupied_save(&buffers, id, &alias);
+    assert_eq!(confirmation.target(), target);
+    assert!(confirmation.message().contains(target.to_str().unwrap()));
+    assert!(confirmation.message().contains(alias.to_str().unwrap()));
+    fs::remove_file(&alias).unwrap();
+    symlink(&other, &alias).unwrap();
+    assert!(buffers.confirm_save(confirmation).is_complete());
+    assert_eq!(fs::read_link(&alias).unwrap(), other);
+    assert_eq!(fs::read(&target).unwrap(), b"!original");
+    assert_eq!(fs::read(&other).unwrap(), b"other");
+    assert_eq!(fs::read(&original).unwrap(), b"original");
+    assert_eq!(buffers.get(id).unwrap().file().unwrap().path(), target);
+}
