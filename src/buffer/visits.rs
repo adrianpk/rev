@@ -7,7 +7,7 @@ use super::{Buffer, BufferId, Buffers, Error};
 
 pub(crate) enum Visit {
     Existing(BufferId),
-    New(Buffer, PathBuf),
+    New(Box<Buffer>, PathBuf),
 }
 
 impl Visit {
@@ -41,7 +41,7 @@ impl Buffers {
             .to_string_lossy()
             .into_owned();
         buffer.file = Some(location);
-        Ok(Visit::New(buffer, path))
+        Ok(Visit::New(Box::new(buffer), path))
     }
 
     pub(crate) fn publish_visit(&mut self, visit: Visit) -> BufferId {
@@ -49,7 +49,7 @@ impl Buffers {
             Visit::Existing(id) => id,
             Visit::New(buffer, path) => {
                 self.files.insert(path, buffer.id());
-                self.insert(buffer)
+                self.insert(*buffer)
             }
         }
     }
