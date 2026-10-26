@@ -411,6 +411,14 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R14
 - [ ] T18.2: Exercise repeated split/delete, deleting the sole view, selected-view replacement, and preservation of unsaved buffers after their last visible window closes.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T18.1 and T18.2 implemented; canonical PR pending.
+Task commits: T18.1 `56a933e7857aed9896435025fae3d74d0ea9074d`;
+T18.2 `fa7726410cfd25766adbd81a8ed23c3ce2c4ef69`.
+Validation: required Cargo/source commands passed; `cargo test --test windows`
+passed twenty tests and the terminal PTY suite passed thirty-three cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+Report: [Slice 18](../report/slices/rev-editor/slice-18-window-commands.md).
+
 ### Slice 19: Map shared-buffer edits across views
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R08, R09, R11, R14, R17, R21.
