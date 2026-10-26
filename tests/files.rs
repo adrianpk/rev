@@ -125,7 +125,7 @@ impl Fixture {
 
     fn denied(&self) -> PathBuf {
         let path = self.file("denied", b"private");
-        fs::set_permissions(&path, fs::Permissions::from_mode(0)).unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o0)).unwrap();
         path
     }
 }
