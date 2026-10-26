@@ -877,6 +877,14 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T41.2: Exercise multibyte edits before captures, shared windows, parse/query failures, selection/search/cursor layering, and stale syntax invalidation without whole-file rebuild per key.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T41.1 and T41.2 complete; canonical PR pending.
+Task commits: T41.1 `41d9253f826832cdcabce9a5184922924acfb421`;
+T41.2 `6bd57189b9565dd936af46c9104d207419929bfb`.
+Validation: required Cargo/source commands passed; `cargo test --test syntax`
+passed 20 tests and the terminal PTY suite passed 84 cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 41](../report/slices/rev-editor/slice-41-incremental-syntax.md).
+
 ### Slice 42: Complete guarded multi-buffer session exit
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R03, R04, R11, R13, R21, R24.
