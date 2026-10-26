@@ -1,6 +1,7 @@
 use std::io;
 use std::path::Path;
 
+use crate::command::Command;
 use crate::view::View;
 
 use super::{Action, Session};
@@ -26,18 +27,25 @@ impl Session {
             self.view = view;
         }
         self.input.cancel();
+        self.pending = None;
         self.echo.clear();
         Ok(())
     }
 
     pub(super) fn find_file(&mut self) -> Action {
         match self.input.argument("Find file: ", "") {
-            Ok(()) => self.message(""),
+            Ok(()) => {
+                self.pending = Some(Command::FindFile);
+                self.message("")
+            }
             Err(error) => self.message(&error.to_string()),
         }
     }
 
     pub(super) fn argument(&mut self, path: String) -> Action {
+        if self.pending.take() != Some(Command::FindFile) {
+            return self.message("No file argument is pending");
+        }
         // Input emits an argument only for the implemented find-file owner.
         // Completion consumes Enter; a failed visit leaves editing available.
         let _ = self.load(Path::new(&path));

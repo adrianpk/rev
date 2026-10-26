@@ -51,6 +51,7 @@ pub struct Session {
     input: Input,
     size: Size,
     echo: String,
+    pending: Option<Command>,
 }
 
 impl Session {
@@ -63,6 +64,7 @@ impl Session {
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
+            pending: None,
         })
     }
 
@@ -155,12 +157,13 @@ impl Session {
     }
 
     fn navigation(&mut self, command: Command) {
-        if !matches!(
-            command,
-            Command::Scroll(_) | Command::FindFile | Command::KeyboardQuit
-        ) {
-            self.view.reset_navigation();
+        if matches!(command, Command::Scroll(_) | Command::FindFile) {
+            return;
         }
+        if command == Command::KeyboardQuit && self.pending.take().is_some() {
+            return;
+        }
+        self.view.reset_navigation();
     }
 
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
