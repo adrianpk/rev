@@ -512,13 +512,13 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R18
 - [ ] T23.2: Exercise copying without mutation, reversed regions, empty ring, multiline Unicode/CRLF text, ring eviction, and undo after yanking.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T23.1 and T23.2 complete; canonical PR pending.
+Implementation: T23.1 and T23.2 complete; PR #23 open for integration.
 Task commits: T23.1 `e167d8c7cf8d8ee907a09996c146f47655cab0f5`;
 T23.2 `4ee8ffb17378608dd1cf6b391d9c33b995fc0601`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed seventy-seven tests and the terminal PTY suite passed forty-six cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#23](https://forge.adrianpk.com/adrianpk/rev/pulls/23).
 Report: [Slice 23](../report/slices/rev-editor/slice-23-kill-ring.md).
 
 ### Slice 24: Rotate only the current yank range
