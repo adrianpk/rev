@@ -16,6 +16,7 @@ impl Input {
         self.available()?;
         self.context = Context::Inventory;
         self.prefix = None;
+        self.meta_deadline = None;
         Ok(())
     }
 

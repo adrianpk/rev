@@ -8,6 +8,8 @@ The product baseline is being specified before implementation:
 - [Editor specification](ops/default/spec/rev-editor.md)
 - [Editor model](ops/default/spec/rev-editor-model.md)
 
+Implemented input behavior is documented in the [terminal input reference](docs/reference/terminal-input.md).
+
 ## License
 
 Copyright (C) 2026 rev contributors.

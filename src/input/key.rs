@@ -17,6 +17,7 @@ impl Key {
             modifiers: event.modifiers,
         };
         key.character();
+        key.modifier_aliases();
         if event.kind == KeyEventKind::Repeat && !key.repeatable() {
             return None;
         }
@@ -48,5 +49,16 @@ impl Key {
 
     fn repeatable(self) -> bool {
         super::bindings::binding(self).is_some() || matches!(self.plain(), Some(KeyCode::Char(_)))
+    }
+
+    fn modifier_aliases(&mut self) {
+        if self.modifiers.contains(KeyModifiers::META) {
+            self.modifiers.remove(KeyModifiers::META);
+            self.modifiers.insert(KeyModifiers::ALT);
+        }
+        // Crossterm reports the traditional 0x1f undo byte as C-7 on Unix.
+        if self.modifiers == KeyModifiers::CONTROL && self.code == KeyCode::Char('7') {
+            self.code = KeyCode::Char('_');
+        }
     }
 }

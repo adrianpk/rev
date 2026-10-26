@@ -1,5 +1,6 @@
 mod buffers;
 mod edit;
+mod events;
 mod file;
 mod history;
 mod kill;
@@ -13,7 +14,7 @@ mod yank;
 use std::io::{self, Write};
 use std::path::Path;
 
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::KeyCode;
 
 use crate::buffer::{self, Buffer, BufferId, Buffers, Confirmation, Kill};
 use crate::command::Command;
@@ -27,7 +28,7 @@ pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> i
     let mut session = initial(path)?;
     session.draw(terminal.writer())?;
     loop {
-        match session.handle(event::read()?) {
+        match session.read_input()? {
             Action::Exit => return Ok(()),
             Action::Redraw => session.draw(terminal.writer())?,
             Action::Wait => {}
@@ -137,14 +138,6 @@ impl Session {
         self.frame().map_err(io::Error::other)?.write(writer)
     }
 
-    pub fn handle(&mut self, event: Event) -> Action {
-        if let Event::Resize(width, height) = event {
-            return self.resize(width, height);
-        }
-        let outcome = self.input.handle(event);
-        self.outcome(outcome)
-    }
-
     fn outcome(&mut self, outcome: Outcome) -> Action {
         match outcome {
             Outcome::Command(command) => self.execute(command),
@@ -154,7 +147,7 @@ impl Session {
             Outcome::Complete => self.complete_buffer(),
             Outcome::Changed => Action::Redraw,
             Outcome::Editing(key) => self.typing(key),
-            Outcome::Prefix(prefix) => self.notice(prefix.label()),
+            Outcome::Prefix(prefix) => self.prefix_notice(prefix),
             Outcome::Message(message) => self.notice(message),
             _ => Action::Wait,
         }
@@ -267,6 +260,13 @@ impl Session {
             Ok(()) => self.focus_message(message),
             Err(error) => self.message(&error.to_string()),
         }
+    }
+
+    fn prefix_notice(&mut self, prefix: crate::input::Prefix) -> Action {
+        if prefix == crate::input::Prefix::Meta {
+            return self.focus_message(prefix.label());
+        }
+        self.notice(prefix.label())
     }
 
     fn resize(&mut self, width: u16, height: u16) -> Action {

@@ -1,21 +1,25 @@
 mod bindings;
 mod inventory;
 mod key;
+mod meta;
 mod prompt;
 
 use std::fmt;
+use std::time::Instant;
 
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 
 use crate::command::Command;
 pub use inventory::Selection;
 pub use key::Key;
+pub use meta::META_TIMEOUT;
 pub use prompt::{LIMIT, Prompt};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Prefix {
     ControlX,
     Rectangle,
+    Meta,
 }
 
 impl Prefix {
@@ -23,6 +27,7 @@ impl Prefix {
         match self {
             Self::ControlX => "C-x",
             Self::Rectangle => "C-x r",
+            Self::Meta => "ESC",
         }
     }
 }
@@ -83,6 +88,7 @@ enum Context {
 pub struct Input {
     context: Context,
     prefix: Option<Prefix>,
+    meta_deadline: Option<Instant>,
     suppress_repeat: bool,
 }
 
@@ -97,7 +103,7 @@ impl Input {
     }
 
     pub fn prefix(&self) -> Option<Prefix> {
-        self.prefix
+        self.meta_deadline.map(|_| Prefix::Meta).or(self.prefix)
     }
 
     pub fn prompt(&self) -> Option<&Prompt> {
@@ -121,6 +127,7 @@ impl Input {
         let prompt = Prompt::new(label, initial)?;
         self.context = Context::Argument(prompt);
         self.prefix = None;
+        self.meta_deadline = None;
         Ok(())
     }
 
@@ -128,12 +135,20 @@ impl Input {
         self.available()?;
         self.context = Context::Decision(label);
         self.prefix = None;
+        self.meta_deadline = None;
         Ok(())
     }
 
     /// Non-key events, releases, and command/confirmation repeats are ignored.
     /// Editing outcomes are routed input, not claims of implemented commands.
     pub fn handle(&mut self, event: Event) -> Outcome {
+        self.handle_at(event, Instant::now())
+    }
+
+    /// Deliver an event at a monotonic time. Expired Escape state is cleared
+    /// before the event; callers pump `expire` to present idle expiration notices.
+    pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
+        self.expire(now);
         let Event::Key(event) = event else {
             return Outcome::Ignored;
         };
@@ -146,11 +161,12 @@ impl Input {
         let Some(key) = Key::normalize(event) else {
             return Outcome::Ignored;
         };
-        self.route(key)
+        self.meta_key(key, now)
     }
 
     fn repeat_blocked(&self, code: KeyCode) -> bool {
         self.suppress_repeat
+            || self.meta_deadline.is_some()
             || self.prefix.is_some()
             || self.focus() == Focus::Decision
             || (matches!(self.focus(), Focus::Argument | Focus::Inventory)
@@ -160,6 +176,7 @@ impl Input {
     pub fn cancel(&mut self) {
         self.context = Context::Editing;
         self.prefix = None;
+        self.meta_deadline = None;
         self.suppress_repeat = true;
     }
 
@@ -194,14 +211,18 @@ impl Input {
     fn editing(&mut self, key: Key) -> Outcome {
         match self.prefix.take() {
             Some(Prefix::ControlX) => self.control_x(key),
-            Some(Prefix::Rectangle) => Outcome::Message("Undefined key sequence"),
+            Some(Prefix::Rectangle) => {
+                self.suppress_repeat = true;
+                Outcome::Message("Undefined key sequence")
+            }
+            Some(Prefix::Meta) => unreachable!("Meta deadlines are separate from chord prefixes"),
             None => self.base(key),
         }
     }
 
     fn control_x(&mut self, key: Key) -> Outcome {
+        self.suppress_repeat = true;
         if let Some(command) = bindings::control_x(key) {
-            self.suppress_repeat = true;
             return Outcome::Command(command);
         }
         if key.plain() == Some(KeyCode::Char('r')) {

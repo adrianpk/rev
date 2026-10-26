@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "commands/terminal.rs"]
+mod terminal;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{
     BufferCommand, Command, KillCommand, LinearCommand, RegionCommand, Split, WindowCommand,
