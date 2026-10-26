@@ -1,11 +1,12 @@
 # Slice 6: Render one rope-backed viewport
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-06-display`
 PR: `#6`
+Integrated: Rebase + Fast-forward into dev at `f87c76b69ab2794f0f4a117a957bef143064f4b8`.
 
 ## Purpose
 

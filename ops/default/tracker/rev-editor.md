@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 6 - Render one rope-backed viewport
+Active slice: Slice 7 - Edit printable text and graphemes
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -167,17 +167,20 @@ Report: [Slice 5](../report/slices/rev-editor/slice-5-input.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R05, R06, R07, R08.
 
-- [ ] T6.1: Display the initial rope-backed view, visible fragments, cursor, mode line, and echo area with clipped cell geometry and deliberate flushing. Track point and horizontal/vertical viewport state independently of text.
-- [ ] T6.2: Validate mixed-width clipping, tabs, zero dimensions, status dirty/read-only/mode indicators, and readable error messages. Keep projection caches derived and correctly invalidated.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T6.1: Display the initial rope-backed view, visible fragments, cursor, mode line, and echo area with clipped cell geometry and deliberate flushing. Track point and horizontal/vertical viewport state independently of text.
+- [x] T6.2: Validate mixed-width clipping, tabs, zero dimensions, status dirty/read-only/mode indicators, and readable error messages. Keep projection caches derived and correctly invalidated.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T6.1 and T6.2 implemented; canonical integration pending.
+Implementation: T6.1 and T6.2 delivered through PR #6.
 Task commits: T6.1 `9b1d62b17dc98a039243e96693e4ceed2275e94d`;
 T6.2 `5ed738ed6e12f4f4c739aca025f279cd30d4a423`.
 Validation: required Cargo/source commands passed; `cargo test --test display`
 passed nine tests and the terminal PTY suite passed eight cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#6](https://forge.adrianpk.com/adrianpk/rev/pulls/6).
+Integration: Rebase + Fast-forward into dev at
+`f87c76b69ab2794f0f4a117a957bef143064f4b8`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 6](../report/slices/rev-editor/slice-6-display.md).
 
 ### Slice 7: Edit printable text and graphemes
