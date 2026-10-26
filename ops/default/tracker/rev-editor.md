@@ -819,12 +819,13 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R11
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T38.1 and T38.2 complete; canonical PR integration pending.
+Implementation: T38.1 and T38.2 complete; PR #38 awaits integration.
 Task commits: T38.1 `4960ae4b778a5da24a6b4f9426d765a74cd507ec`;
 T38.2 `063ffc65aaa8a553e8eeb7d5260a4661ccd55f9d`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 46 tests and the terminal PTY suite passed 78 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#38](https://forge.adrianpk.com/adrianpk/rev/pulls/38).
 Report: [Slice 38](../report/slices/rev-editor/slice-38-tree-rename.md).
 
 ### Slice 39: Confirm deletion while preserving open text
