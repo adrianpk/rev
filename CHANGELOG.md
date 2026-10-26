@@ -22,3 +22,8 @@ This project uses Semantic Versioning.
 - See cursor position, modification and read-only state in the status line while errors remain in a separate echo area.
 - Protect unsaved text: `C-x C-c` refuses to exit while any buffer has changes or an unresolved save.
 - Use reported Alt/Meta keys or a compatible Escape prefix with a 100 ms deadline. Standalone Escape clears pending key prefixes without blocking resize or guarded exit; `C-g` cancels the active interaction. See the [terminal input reference](docs/reference/terminal-input.md) for supported reports and terminal limitations.
+
+### Fixed
+
+- Canceling `M-x` preserves the editing view's intended vertical column and recenter cycle, so the next movement continues from the same navigation context.
+- Argument prompts clear outdated feedback after a valid edit. Tab in a path prompt retains its draft and displays a concise path-entry hint.

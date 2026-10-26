@@ -1,4 +1,4 @@
-use super::{Action, Session};
+use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn extended(&mut self) -> Action {
@@ -10,11 +10,12 @@ impl Session {
         }
         // Entry is transient input; the eventual shared handler owns command
         // continuity, so a named yank-pop can consume the current yank capture.
+        self.pending = Some(Pending::Command);
         self.message("")
     }
 
     pub(super) fn input_changed(&mut self) -> Action {
-        if self.input.palette().is_some() {
+        if self.input.prompt().is_some() {
             self.echo.clear();
         }
         Action::Redraw

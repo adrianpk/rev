@@ -8,6 +8,7 @@ mod kill;
 mod linear;
 mod motion;
 mod paste;
+mod prompt;
 mod region;
 mod save;
 mod windows;
@@ -68,6 +69,7 @@ pub struct Session {
 }
 
 enum Pending {
+    Command,
     Argument(Command),
     Save {
         confirmation: Box<Confirmation>,
@@ -147,11 +149,11 @@ impl Session {
 
     fn outcome(&mut self, outcome: Outcome) -> Action {
         match outcome {
-            Outcome::Command(command) => self.execute(command),
+            Outcome::Command(command) => self.command_outcome(command),
             Outcome::Argument(path) => self.argument(path),
             Outcome::Decision(accepted) => self.decision(accepted),
             Outcome::Selection(selection) => self.select_buffer(selection),
-            Outcome::Complete => self.complete_buffer(),
+            Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
             Outcome::Paste(text) => self.paste_text(&text),
             _ => self.input_feedback(outcome),
@@ -271,6 +273,7 @@ impl Session {
     }
 
     fn notice(&mut self, message: &str) -> Action {
+        self.retire_command();
         self.yank = None;
         self.kills.break_chain();
         match self.stop_typing() {

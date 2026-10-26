@@ -30,6 +30,9 @@ Opening and editing M-x is transient input, so a named `yank-pop` can still use
 the current yank range; cancellation or an unrelated invoked command ends it.
 Names are literal registry entries, with no expression or language interpretation.
 
+See [Focused prompts](prompts.md) for argument stages, in-prompt editing and
+save/close cancellation.
+
 ## Implemented catalog
 
 | Group | Names |
