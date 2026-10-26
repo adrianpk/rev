@@ -184,7 +184,8 @@ impl Session {
             return self.message(&error.to_string());
         }
         match command {
-            Command::SearchForward => self.search_forward(),
+            Command::SearchForward => self.search(crate::search::Direction::Forward),
+            Command::SearchBackward => self.search(crate::search::Direction::Backward),
             Command::Split(direction) => self.split(direction),
             Command::Window(command) => self.window_command(command),
             Command::Region(command) => self.region_command(command),

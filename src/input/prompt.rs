@@ -33,6 +33,10 @@ impl Prompt {
         self.label
     }
 
+    pub(super) fn set_label(&mut self, label: &'static str) {
+        self.label = label;
+    }
+
     pub fn text(&self) -> &str {
         &self.text
     }

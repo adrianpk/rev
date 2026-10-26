@@ -2,7 +2,7 @@ use crate::buffer::{Buffer, Span};
 use crate::coordinates::{Coordinates, Scalar};
 use crate::display::Frame;
 use crate::input::SearchAction;
-use crate::search::{Error, Pattern};
+use crate::search::{Direction, Error, Pattern};
 use crate::view::View;
 use crate::window::ViewId;
 
@@ -13,6 +13,8 @@ pub(super) struct State {
     view: ViewId,
     anchor: Scalar,
     found: Option<Span>,
+    direction: Direction,
+    point: Scalar,
 }
 
 impl Session {
@@ -44,24 +46,28 @@ impl Session {
         invalid
     }
 
-    pub(super) fn search_forward(&mut self) -> Action {
-        if matches!(self.pending, Some(Pending::Search(_))) {
-            return self.search_step(true);
+    pub(super) fn search(&mut self, direction: Direction) -> Action {
+        if let Some(Pending::Search(state)) = &mut self.pending {
+            state.repeat(direction);
+            self.input.search_label(direction);
+            return self.search_step();
         }
-        if let Err(error) = self.input.search() {
+        if let Err(error) = self.input.search(direction) {
             return self.message(&error.to_string());
         }
         let origin = self.windows.selected().clone();
         self.pending = Some(Pending::Search(Box::new(State {
             anchor: origin.point.position,
+            point: origin.point.position,
             origin,
             view: self.windows.selected_id(),
             found: None,
+            direction,
         })));
-        self.message("Type a query; C-s finds next")
+        self.message("Type a query; C-s/C-r continues")
     }
 
-    pub(super) fn search_step(&mut self, next: bool) -> Action {
+    pub(super) fn search_step(&mut self) -> Action {
         if self.invalidate_search() {
             return Action::Redraw;
         }
@@ -75,7 +81,7 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.message(&error.to_string()),
         };
-        let position = match state.update(buffer, prompt.text(), next) {
+        let position = match state.update(buffer, prompt.text()) {
             Ok(position) => position,
             Err(error) => return self.message(&error.to_string()),
         };
@@ -93,7 +99,7 @@ impl Session {
             return Action::Redraw;
         }
         match action {
-            SearchAction::Next => self.search_step(true),
+            SearchAction::Repeat(direction) => self.search(direction),
             SearchAction::Accept => {
                 self.pending = None;
                 self.message("")
@@ -123,30 +129,49 @@ impl Session {
 }
 
 impl State {
-    fn update(
-        &mut self,
-        buffer: &Buffer,
-        query: &str,
-        next: bool,
-    ) -> Result<Option<Scalar>, Error> {
+    fn repeat(&mut self, direction: Direction) {
+        if let Some(found) = &self.found {
+            self.anchor = match direction {
+                Direction::Forward => Scalar(found.range.end),
+                Direction::Backward => Scalar(found.range.start),
+            };
+        } else if direction != self.direction {
+            self.anchor = self.point;
+        }
+        self.direction = direction;
+    }
+
+    fn update(&mut self, buffer: &Buffer, query: &str) -> Result<Option<Scalar>, Error> {
         if query.is_empty() {
             self.anchor = self.origin.point.position;
             self.found = None;
+            self.point = self.anchor;
             return Ok(Some(self.anchor));
         }
-        if next && let Some(found) = &self.found {
-            self.anchor = Scalar(found.range.end);
-        }
-        self.found = Pattern::new(query)?.find(buffer, self.anchor)?;
+        let pattern = Pattern::new(query)?;
+        self.found = match self.direction {
+            Direction::Forward => pattern.find(buffer, self.anchor)?,
+            Direction::Backward => pattern.rfind(buffer, self.anchor)?,
+        };
         let Some(found) = &self.found else {
             return Ok(None);
         };
         let coordinates = Coordinates::new(buffer)?;
-        let end = Scalar(found.range.end);
-        Ok(Some(if coordinates.is_boundary(end)? {
-            end
-        } else {
-            coordinates.next(end)?
-        }))
+        self.point = match self.direction {
+            Direction::Forward => snap(&coordinates, Scalar(found.range.end), true)?,
+            Direction::Backward => snap(&coordinates, Scalar(found.range.start), false)?,
+        };
+        Ok(Some(self.point))
     }
+}
+
+fn snap(coordinates: &Coordinates<'_>, point: Scalar, forward: bool) -> Result<Scalar, Error> {
+    if coordinates.is_boundary(point)? {
+        return Ok(point);
+    }
+    Ok(if forward {
+        coordinates.next(point)?
+    } else {
+        coordinates.previous(point)?
+    })
 }

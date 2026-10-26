@@ -8,7 +8,7 @@ use rev::input::{Focus, Input, Outcome, SearchAction};
 fn input_owner() {
     use crossterm::event::KeyEventKind::Repeat;
     let mut input = Input::default();
-    input.search().unwrap();
+    input.search(rev::search::Direction::Forward).unwrap();
     assert_eq!(input.focus(), Focus::Search);
     assert_eq!(
         input.handle(Event::Paste("界\r\n\x18\x03".into())),
@@ -40,13 +40,13 @@ fn input_owner() {
 }
 
 // KMP fallback must retain overlapping prefixes at a chunk seam and must not
-// normalize Unicode or case. Invalid starts and oversized patterns are rejected.
+// normalize Unicode. Smart case changes comparison without changing source ranges.
 #[test]
 fn literal_contract() {
     for (name, source, needle, start, expected) in [
         ("prefix fallback", "abababac", "ababac", 0, Some(2..8)),
         ("overlap start", "aaaaa", "aaa", 1, Some(1..4)),
-        ("exact case", "É é", "é", 0, Some(2..3)),
+        ("smart case", "É é", "é", 0, Some(0..1)),
         ("no normalization", "e\u{301}", "é", 0, None),
         ("no wrap", "target", "target", 6, None),
         ("empty", "abc", "", 0, None),

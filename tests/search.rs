@@ -9,6 +9,8 @@ use rev::search::Pattern;
 use rev::session::{Action, Session};
 use rev::view::View;
 
+#[path = "search/control.rs"]
+mod control;
 #[path = "search/edges.rs"]
 mod edges;
 

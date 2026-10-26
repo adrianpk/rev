@@ -33,7 +33,8 @@ Names are literal registry entries, with no expression or language interpretatio
 See [Focused prompts](prompts.md) for argument stages, in-prompt editing and
 save/close cancellation.
 
-`isearch-forward` opens [forward search](search.md) with the same handler as C-s.
+`isearch-forward` and `isearch-backward` open [incremental search](search.md)
+with the same handlers as C-s and C-r.
 
 ## Implemented catalog
 
@@ -47,6 +48,6 @@ save/close cancellation.
 | Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer` |
 | Scrolling | `next-line`, `previous-line`, `scroll-up-command`, `scroll-down-command`, `recenter-top-bottom` |
 | History | `undo`, `undo-redo` |
-| Search | `isearch-forward` |
+| Search | `isearch-forward`, `isearch-backward` |
 | Regions | `set-mark-command`, `exchange-point-and-mark` |
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |

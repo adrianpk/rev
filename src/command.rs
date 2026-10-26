@@ -21,6 +21,7 @@ pub use window::WindowCommand;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     SearchForward,
+    SearchBackward,
     ExecuteExtended,
     Quit,
     FindFile,
@@ -43,8 +44,9 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 43] = [
+    pub const ALL: [Self; 44] = [
         Self::SearchForward,
+        Self::SearchBackward,
         Self::ExecuteExtended,
         Self::Quit,
         Self::FindFile,
@@ -107,6 +109,7 @@ impl Command {
     fn action_name(self) -> &'static str {
         match self {
             Self::SearchForward => "isearch-forward",
+            Self::SearchBackward => "isearch-backward",
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",

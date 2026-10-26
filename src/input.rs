@@ -132,7 +132,7 @@ impl Input {
 
     pub fn label(&self) -> Option<&'static str> {
         match &self.context {
-            Context::Search(_) => Some("I-search: "),
+            Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
             Context::Argument(prompt) => Some(prompt.label()),
             Context::Decision(label) => Some(label),

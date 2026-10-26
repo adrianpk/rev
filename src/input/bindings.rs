@@ -44,12 +44,19 @@ fn navigation(code: KeyCode) -> Option<Command> {
 fn control(code: KeyCode) -> Option<Command> {
     match code {
         KeyCode::Char('s') => Some(Command::SearchForward),
-        KeyCode::Char('/' | '_') => Some(Command::History(History::Undo)),
+        KeyCode::Char('r') => Some(Command::SearchBackward),
         KeyCode::Char(' ' | '@') => Some(Command::Region(RegionCommand::Set)),
         KeyCode::Null => Some(Command::Region(RegionCommand::Set)),
         KeyCode::Char('k') => Some(Command::Kill(KillCommand::Line)),
         KeyCode::Char('w') => Some(Command::Linear(LinearCommand::Kill)),
         KeyCode::Char('y') => Some(Command::Linear(LinearCommand::Yank)),
+        _ => control_edit(code),
+    }
+}
+
+fn control_edit(code: KeyCode) -> Option<Command> {
+    match code {
+        KeyCode::Char('/' | '_') => Some(Command::History(History::Undo)),
         _ => control_motion(code),
     }
 }

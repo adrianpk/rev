@@ -16,7 +16,7 @@ impl Session {
 
     pub(super) fn input_changed(&mut self) -> Action {
         if self.input.focus() == crate::input::Focus::Search {
-            return self.search_step(false);
+            return self.search_step();
         }
         if self.input.prompt().is_some() {
             self.echo.clear();
