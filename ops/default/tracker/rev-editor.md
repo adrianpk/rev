@@ -151,6 +151,15 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R22, 
 - [ ] T5.2: Cover invalid prefixes, C-g cancellation, prompt/document isolation, press versus release, and exactly-once dispatch. Advertise no unavailable command or functional-looking stub.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T5.1 and T5.2 implemented; canonical integration pending.
+Task commits: T5.1 `a7a927c5b09b80ba7f343346d05f341e2f2eca56`;
+T5.2 `aa5dc2231a84db61fafb0b6b027fb1d72aeb5472`.
+Validation: required Cargo/source commands passed; `cargo test --test commands`
+passed eleven tests and the terminal PTY suite passed seven cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 5](../report/slices/rev-editor/slice-5-input.md).
+
 ### Slice 6: Render one rope-backed viewport
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R05, R06, R07, R08.
