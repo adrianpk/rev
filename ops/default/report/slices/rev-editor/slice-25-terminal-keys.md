@@ -1,11 +1,12 @@
 # Slice 25: Resolve Meta Escape and undo aliases
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-25-terminal-keys`
 PR: `#25`
+Integrated: Rebase + Fast-forward into dev at `68c55eb542060a0b99ef2ba90118e0a975da7105`.
 
 ## Purpose
 

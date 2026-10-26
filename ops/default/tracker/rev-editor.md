@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 25 - Resolve Meta Escape and undo aliases
+Active slice: Slice 26 - Insert bracketed Unicode paste atomically
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -548,17 +548,20 @@ Report: [Slice 24](../report/slices/rev-editor/slice-24-yank-pop.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R21, R24, R25.
 
-- [ ] T25.1: Complete Alt/Meta and compatible Escape-prefix input using a finite nonblocking deadline, standalone Escape, C-SPC aliases, and reportable undo alternatives.
-- [ ] T25.2: Exercise C-/, C-_, C-x u, M-<, M->, nested rectangle chords, key repeat/release, unknown escape input, and cancellation during a pending Meta prefix.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T25.1: Complete Alt/Meta and compatible Escape-prefix input using a finite nonblocking deadline, standalone Escape, C-SPC aliases, and reportable undo alternatives.
+- [x] T25.2: Exercise C-/, C-_, C-x u, M-<, M->, nested rectangle chords, key repeat/release, unknown escape input, and cancellation during a pending Meta prefix.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T25.1 and T25.2 complete; PR #25 open for integration.
+Implementation: T25.1 and T25.2 delivered through PR #25.
 Task commits: T25.1 `3c1f54f394d1c445ca78491a8636d8925347561c`;
 T25.2 `c3be5ef27235601b0752d524e6a9a3ef64c447fc`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed twenty-six tests and the terminal PTY suite passed fifty cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#25](https://forge.adrianpk.com/adrianpk/rev/pulls/25).
+Integration: Rebase + Fast-forward into dev at
+`68c55eb542060a0b99ef2ba90118e0a975da7105`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 25](../report/slices/rev-editor/slice-25-terminal-keys.md).
 
 ### Slice 26: Insert bracketed Unicode paste atomically
