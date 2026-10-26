@@ -80,7 +80,7 @@ Task commits: T1.1 `598eae082ff24fb65d9a0ae321394fa3d7c3803a`;
 T1.2 `e54df2cc72c8916b9fbe24dafa6ed8552b31f727`.
 Validation: required Cargo/source commands passed; the terminal PTY suite passed
 six cases with zero skips. Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#1](https://forge.adrianpk.com/adrianpk/rev/pulls/1).
 Report: [Slice 1](../report/slices/rev-editor/slice-1-terminal.md).
 
 ### Slice 2: Introduce canonical rope buffers
