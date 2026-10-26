@@ -2,7 +2,7 @@ use std::fs::{self, File};
 use std::io::{self, Read, Write};
 use std::path::Path;
 
-use ropey::Rope;
+use ropey::{Rope, RopeSlice};
 
 use crate::buffer::Buffer;
 
@@ -65,15 +65,31 @@ pub fn write(buffer: &Buffer, writer: &mut impl Write) -> io::Result<()> {
     let span = buffer
         .span(0..buffer.len_chars())
         .map_err(io::Error::other)?;
-    let chunks = buffer.chunks(&span).map_err(io::Error::other)?;
-    if buffer.has_bom() {
+    let text = buffer.slice(&span).map_err(io::Error::other)?;
+    write_text(text, buffer.has_bom(), writer)
+}
+
+pub(crate) fn write_text(
+    text: RopeSlice<'_>,
+    bom: bool,
+    writer: &mut impl Write,
+) -> io::Result<()> {
+    if bom {
         writer.write_all(BOM)?;
     }
-    for chunk in chunks {
+    for chunk in text.chunks() {
         writer.write_all(chunk.as_bytes())?;
     }
     Ok(())
 }
 mod location;
+mod observation;
+mod output;
+mod save;
+mod temporary;
 
 pub use location::{Location, resolve};
+pub use observation::{Observation, observe};
+pub use output::{Files, Output};
+pub(crate) use save::publish;
+pub use save::{Outcome, Publication};

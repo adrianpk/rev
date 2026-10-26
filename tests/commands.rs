@@ -45,6 +45,14 @@ fn command_sequences() {
             ],
         ),
         (
+            "save buffer",
+            vec![control('x'), control('s')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::SaveBuffer),
+            ],
+        ),
+        (
             "cancel",
             vec![control('x'), control('g')],
             vec![
@@ -77,6 +85,7 @@ fn command_sequences() {
         );
     }
     assert_eq!(Command::named("find-file"), Some(Command::FindFile));
+    assert_eq!(Command::named("save-buffer"), Some(Command::SaveBuffer));
     assert_eq!(Command::named(""), None);
 }
 

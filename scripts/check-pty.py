@@ -195,7 +195,7 @@ def insertion(root):
         os.write(session.master, b"\x04")
         session.wait(lambda: b"Buffer boundary" in session.output)
         session.output.clear()
-        refusal = b"Unsaved changes; cannot quit before saving is available"
+        refusal = b"Unsaved changes; cannot quit"
         os.write(session.master, b"\x18\x03")
         session.wait(lambda: refusal in session.output)
         assert session.process.poll() is None, bytes(session.output)
@@ -210,7 +210,7 @@ def insertion(root):
         assert session.process.poll() is None and LEAVE not in session.output
         print("PASS Unicode insertion, grapheme deletion and dirty quit refusal")
     finally:
-        # This owned dirty fixture cannot quit normally before saving exists.
+        # This owned unnamed dirty fixture has no save destination.
         # Terminate it only after checking refusal and continued editing.
         session.close()
 
@@ -240,7 +240,7 @@ def motion(root):
             assert b"\x1b[2;1Hlast" in session.output, bytes(session.output)
         session.output.clear()
         os.write(session.master, b"\x18\x03")
-        session.wait(lambda: b"Unsaved changes; cannot quit before saving is available"
+        session.wait(lambda: b"Unsaved changes; cannot quit"
                      in session.output)
         assert session.process.poll() is None and LEAVE not in session.output
         print("PASS Emacs and arrow/Home/End motion preserves Unicode text and dirty state")
@@ -302,7 +302,7 @@ def scrolling(root):
         scroll_step(session, b"\x0e", (4, 9), (2, 3))
         session.output.clear()
         os.write(session.master, b"\x18\x03")
-        session.wait(lambda: b"Unsaved changes; cannot quit before saving is available"
+        session.wait(lambda: b"Unsaved changes; cannot quit"
                      in session.output)
         assert session.process.poll() is None and LEAVE not in session.output
         print("PASS retained columns, page/recenter keys and tiny-pane resize recovery")

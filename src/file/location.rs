@@ -3,12 +3,15 @@ use std::fs;
 use std::io;
 use std::path::{Component, Path, PathBuf};
 
+use super::{Observation, observe};
+
 /// Canonical existing referent or normalized intended destination. Presence
 /// records resolution time; it is not a claim that disk cannot change later.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Location {
     path: PathBuf,
     present: bool,
+    observed: Option<Observation>,
 }
 
 impl Location {
@@ -18,6 +21,18 @@ impl Location {
 
     pub fn is_present(&self) -> bool {
         self.present
+    }
+
+    pub fn observation(&self) -> Option<&Observation> {
+        self.observed.as_ref()
+    }
+
+    pub(crate) fn published(&self, observed: Option<Observation>) -> Self {
+        Self {
+            path: self.path.clone(),
+            present: true,
+            observed,
+        }
     }
 }
 
@@ -44,10 +59,12 @@ fn resolve_path(path: &Path) -> io::Result<Location> {
             _ => resolved.push(component.as_os_str()),
         }
     }
-    let present = presence(&resolved)?;
+    let observed = observe(&resolved)?;
+    let present = observed.is_some();
     Ok(Location {
         path: resolved,
         present,
+        observed,
     })
 }
 
@@ -92,16 +109,4 @@ fn parent(path: &mut PathBuf) -> io::Result<()> {
     }
     path.pop();
     Ok(())
-}
-
-fn presence(path: &Path) -> io::Result<bool> {
-    match fs::metadata(path) {
-        Ok(metadata) if metadata.is_file() => Ok(true),
-        Ok(_) => Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "expected a regular file",
-        )),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
-        Err(error) => Err(error),
-    }
 }

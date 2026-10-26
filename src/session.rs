@@ -2,6 +2,7 @@ mod edit;
 mod file;
 mod history;
 mod motion;
+mod save;
 
 use std::io::{self, Write};
 use std::path::Path;
@@ -133,6 +134,7 @@ impl Session {
         match command {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
+            Command::SaveBuffer => self.save_buffer(),
             Command::Motion(motion) => self.motion(motion),
             Command::Scroll(scroll) => self.scroll(scroll),
             Command::History(history) => self.history(history),
@@ -219,7 +221,7 @@ impl Session {
 
     fn quit(&mut self) -> Action {
         if self.buffers.is_modified() {
-            return self.message("Unsaved changes; cannot quit before saving is available");
+            return self.message("Unsaved changes; cannot quit");
         }
         Action::Exit
     }

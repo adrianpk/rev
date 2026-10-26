@@ -10,6 +10,7 @@ pub use scroll::Scroll;
 pub enum Command {
     Quit,
     FindFile,
+    SaveBuffer,
     KeyboardQuit,
     Newline,
     InsertTab,
@@ -21,9 +22,10 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 23] = [
         Self::Quit,
         Self::FindFile,
+        Self::SaveBuffer,
         Self::KeyboardQuit,
         Self::Newline,
         Self::InsertTab,
@@ -50,6 +52,7 @@ impl Command {
         match self {
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",
+            Self::SaveBuffer => "save-buffer",
             Self::KeyboardQuit => "keyboard-quit",
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",

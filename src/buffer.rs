@@ -1,6 +1,9 @@
 pub mod edit;
 mod endings;
+mod save;
 mod visits;
+
+pub use save::Save;
 
 use std::collections::{BTreeMap, VecDeque};
 
@@ -128,6 +131,7 @@ pub struct Buffer {
     typing: Option<Stamp>,
     bom: bool,
     file: Option<crate::file::Location>,
+    warning: Option<String>,
 }
 
 impl Buffer {
@@ -158,6 +162,7 @@ impl Buffer {
             typing: None,
             bom: false,
             file: None,
+            warning: None,
         })
     }
 
@@ -190,11 +195,16 @@ impl Buffer {
 
     /// Compare logical text states rather than increasing publication revisions.
     pub fn is_modified(&self) -> bool {
-        self.state != self.saved
+        self.state != self.saved || self.warning.is_some()
     }
 
     pub fn state(&self) -> State {
         self.state
+    }
+
+    /// A published but unresolved save remains pending even at an old clean state.
+    pub fn save_warning(&self) -> Option<&str> {
+        self.warning.as_deref()
     }
 
     /// A completed save may acknowledge only the exact text revision it wrote.

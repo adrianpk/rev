@@ -817,11 +817,7 @@ fn quit_guard() {
             "{name}"
         );
         if expected == Action::Redraw {
-            assert_eq!(
-                session.echo(),
-                "Unsaved changes; cannot quit before saving is available",
-                "{name}"
-            );
+            assert_eq!(session.echo(), "Unsaved changes; cannot quit", "{name}");
         }
     }
     let mut buffers = Buffers::new().unwrap();

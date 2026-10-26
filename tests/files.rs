@@ -350,6 +350,7 @@ struct Snapshot {
     bom: bool,
     file: Option<file::Location>,
     name: String,
+    warning: Option<String>,
 }
 
 fn snapshot(session: &Session) -> Snapshot {
@@ -367,6 +368,7 @@ fn snapshot(session: &Session) -> Snapshot {
         bom: buffer.has_bom(),
         file: buffer.file().cloned(),
         name: buffer.name().into(),
+        warning: buffer.save_warning().map(str::to_owned),
     }
 }
 
@@ -845,4 +847,104 @@ fn prompt_geometry() {
     assert_eq!(snapshot(&session), before);
     session.handle(press(KeyCode::Char('z')));
     assert_eq!(text(session.buffer().unwrap()), "z");
+}
+
+fn insert_text(buffer: &mut Buffer, text: &str) {
+    let edit = Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: text.into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+}
+
+// Saving streams exact captured bytes through replacement, preserves access
+// bits and history, and makes only the actually published logical state clean.
+#[test]
+fn saved_file() {
+    use std::os::unix::fs::MetadataExt;
+    let fixture = Fixture::new();
+    let cases = [
+        ("LF", "α\nlast", "!α\nlast"),
+        ("BOM mixed", "\u{feff}α\r\nb\nlast", "\u{feff}!α\r\nb\nlast"),
+        ("BOM only", "\u{feff}", "\u{feff}!"),
+    ];
+    let mut buffers = Buffers::new().unwrap();
+    for (name, source, expected) in cases {
+        let path = fixture.file(name, source.as_bytes());
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
+        let inode = fs::metadata(&path).unwrap().ino();
+        let id = buffers.visit(&path).unwrap();
+        insert_text(buffers.get_mut(id).unwrap(), "!");
+        let stamp = buffers.get(id).unwrap().stamp();
+        let result = buffers.save(id).unwrap();
+        assert!(result.is_complete(), "{name}: {result:?}");
+        assert!(result.error().is_none());
+        assert_eq!(fs::read(&path).unwrap(), expected.as_bytes(), "{name}");
+        assert_ne!(fs::metadata(&path).unwrap().ino(), inode, "{name}");
+        assert_eq!(fs::metadata(&path).unwrap().mode() & 0o777, 0o640);
+        let buffer = buffers.get_mut(id).unwrap();
+        assert_eq!(buffer.stamp(), stamp);
+        assert!(!buffer.is_modified());
+        assert_eq!(buffer.history().len(), 1);
+        buffer.navigate(History::Undo, &mut [], None).unwrap();
+        assert_eq!(bytes(buffer), source.as_bytes());
+        assert!(buffer.is_modified());
+        buffer.navigate(History::Redo, &mut [], None).unwrap();
+        assert_eq!(bytes(buffer), expected.as_bytes());
+        assert!(!buffer.is_modified());
+    }
+    assert_eq!(fs::read_dir(&fixture.0).unwrap().count(), cases.len());
+}
+
+// An explicit absent destination is associated only after actual publication;
+// the live path index and display label then identify this same canonical owner.
+#[test]
+fn first_save() {
+    let fixture = Fixture::new();
+    let path = fixture.0.join("new.txt");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("").unwrap();
+    insert_text(buffers.get_mut(id).unwrap(), "new");
+    let save = buffers.prepare_save(id, Some(&path)).unwrap();
+    assert!(buffers.get(id).unwrap().file().is_none());
+    assert!(!path.exists());
+    let result = buffers.publish_save(save);
+    assert!(result.is_complete(), "{result:?}");
+    let buffer = buffers.get(id).unwrap();
+    assert!(!buffer.is_modified());
+    assert_eq!(buffer.file().unwrap().path(), path);
+    assert!(buffer.file().unwrap().is_present());
+    assert!(buffer.file().unwrap().observation().is_some());
+    assert_eq!(buffer.name(), "new.txt");
+    assert_eq!(fs::read(&path).unwrap(), b"new");
+    assert_eq!(buffers.visit(&path).unwrap(), id);
+    assert_eq!(fs::read_dir(&fixture.0).unwrap().count(), 1);
+}
+
+// The actual binding uses the same save owner as named dispatch. Only a
+// completed save clears the modified quit guard, without changing the view point.
+#[test]
+fn session_save() {
+    let fixture = Fixture::new();
+    let path = fixture.file("session.txt", b"source");
+    let mut session = Session::empty(Size {
+        width: 80,
+        height: 8,
+    })
+    .unwrap();
+    session.load(&path).unwrap();
+    session.insert('!');
+    let point = session.view().point;
+    session.handle(chord('x'));
+    assert_eq!(session.handle(chord('s')), Action::Redraw);
+    assert!(session.echo().starts_with("Saved "), "{}", session.echo());
+    assert_eq!(session.view().point, point);
+    assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(fs::read(&path).unwrap(), b"!source");
+    assert_eq!(session.execute(Command::Quit), Action::Exit);
+    session.insert('?');
+    session.execute(Command::SaveBuffer);
+    assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(fs::read(path).unwrap(), b"!?source");
 }

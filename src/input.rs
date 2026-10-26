@@ -187,6 +187,9 @@ impl Input {
     }
 
     fn control_x(&mut self, key: Key) -> Outcome {
+        if key.control('s') {
+            return Outcome::Command(Command::SaveBuffer);
+        }
         if key.control('f') {
             return Outcome::Command(Command::FindFile);
         }
