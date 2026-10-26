@@ -1197,6 +1197,67 @@ def word_kills(root):
             session.close()
 
 
+def linear_ring(root):
+    # Real mark/meta/control reports copy without dirtying, kill the region,
+    # yank atomically, undo each edit and save exact multiline Unicode/BOM bytes.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-linear-ring-") as directory:
+        path = Path(directory) / "region.txt"
+        text = "αe\u0301\r\n界👩\u200d💻".encode()
+        source = b"\xef\xbb\xbf" + text
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> region.txt -- RW L1 C1 Text")
+            group_step(session, b"\x19", b"Kill ring is empty")
+            group_step(session, b"\x00\x1b>", b"-- RW L2 C5 Text")
+            group_step(session, b"\x1bw", b"Region copied")
+            assert b"-- RW L2 C5 Text" in last_frame(session)
+            assert b"\x1b[7m" in last_frame(session)
+            assert path.read_bytes() == source
+            group_step(session, b"\x17", b"** RW L1 C1 Text", b"\x1b[1;1H ")
+            assert b"\x1b[7m" not in last_frame(session)
+            group_step(session, b"\x19", b"** RW L2 C5 Text", "界👩\u200d💻".encode())
+            group_step(session, b"\x18u", b"** RW L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"-- RW L2 C5 Text", "界👩\u200d💻".encode())
+            assert path.read_bytes() == source
+            group_step(session, b"\x19", b"** RW L3 C5 Text")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert path.read_bytes() == b"\xef\xbb\xbf" + text + text
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS C-w/M-w/C-y region kill/copy, empty ring, atomic yank/undo and exact Unicode/BOM save")
+        finally:
+            session.close()
+
+
+def cross_buffer_yank(root):
+    # The session-owned copy survives file focus changes and inserts once into
+    # another buffer without modifying its source or normalizing CRLF bytes.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-cross-yank-") as directory:
+        source_path = Path(directory) / "source.txt"
+        target_path = Path(directory) / "target.txt"
+        source = "keep α\r\nsecond".encode()
+        source_path.write_bytes(source)
+        target_path.write_bytes(b"TARGET")
+        session = Session([str(root / "target/debug/rev"), str(source_path)])
+        try:
+            session.ready(b"> source.txt -- RW L1 C1 Text")
+            group_step(session, b"\x00\x1b>", b"-- RW L2 C7 Text")
+            group_step(session, b"\x1bw", b"Region copied")
+            find_path(session, target_path, b"> target.txt -- RW L1 C1 Text", b"TARGET")
+            group_step(session, b"\x19", b"> target.txt ** RW L2 C7 Text", b"secondTARGET")
+            group_step(session, b"\x18u", b"> target.txt -- RW L1 C1 Text", b"\x1b[1;1HTARGET ")
+            group_step(session, b"\x19", b"> target.txt ** RW L2 C7 Text", b"secondTARGET")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert target_path.read_bytes() == source + b"TARGET"
+            assert source_path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS session ring across file visits, single-step yank undo, exact CRLF save and unchanged source")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1237,7 +1298,9 @@ def main():
     scrolling_regions(root)
     line_kills(root)
     word_kills(root)
-    print("Terminal PTY suite: 44 cases passed, 0 skipped.")
+    linear_ring(root)
+    cross_buffer_yank(root)
+    print("Terminal PTY suite: 46 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
