@@ -32,3 +32,19 @@ Toggle rectangle mode again or press `C-g` to deactivate selection while keeping
 the mark. A normal `C-SPC` starts linear selection. Successful text edits deactivate
 selection; a refused edit preserves it. Shared buffers keep one mark and mode,
 while the selected pane's own point determines the visible rectangle.
+
+## Killing rows
+
+`C-x r k` or `M-x kill-rectangle` removes and retains the selected rectangle.
+It uses the same cell boundaries as copy. A partially selected tab leaves its
+unselected cells as spaces; untouched tabs retain their bytes. Short and empty
+rows receive no padding, and LF/CRLF separators stay intact.
+
+Every changed row publishes together as one undo/redo step. The initiating
+cursor moves to the top-left source row and column, following any retained tab
+prefix spaces. Other shared cursors and marks map through all row changes.
+One undo restores the original text, mark, initiating cursor and clean state
+when the operation began clean. Undo does not discard the retained rectangle.
+
+Read-only text, inactive/zero-width selection and prompt-owned input refuse
+the kill without replacing the previous rectangle or changing any source row.

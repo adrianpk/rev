@@ -53,6 +53,6 @@ an explicit decision for each occurrence.
 | Search | `isearch-forward`, `isearch-backward`, `query-replace` |
 | Regions | `set-mark-command`, `exchange-point-and-mark` |
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |
-| Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill` |
+| Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.

@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "rectangles/kill.rs"]
+mod kill;
+
 use rev::buffer::Buffers;
 use rev::buffer::edit::Point;
 use rev::command::{Command, Motion, RectangleCommand, RegionCommand};

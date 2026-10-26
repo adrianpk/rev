@@ -2,6 +2,7 @@
 pub enum RectangleCommand {
     Mark,
     Copy,
+    Kill,
 }
 
 impl RectangleCommand {
@@ -9,6 +10,7 @@ impl RectangleCommand {
         match self {
             Self::Mark => "rectangle-mark-mode",
             Self::Copy => "copy-rectangle-as-kill",
+            Self::Kill => "kill-rectangle",
         }
     }
 }

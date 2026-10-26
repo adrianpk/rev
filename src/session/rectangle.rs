@@ -15,7 +15,8 @@ impl Session {
         }
         let result = match command {
             RectangleCommand::Mark => self.rectangle_mark(),
-            RectangleCommand::Copy => self.copy_rectangle(),
+            RectangleCommand::Copy => self.retain_rectangle(false),
+            RectangleCommand::Kill => self.retain_rectangle(true),
         };
         match result {
             Ok(message) => self.message(message),
@@ -34,7 +35,7 @@ impl Session {
         })
     }
 
-    fn copy_rectangle(&mut self) -> Result<&'static str, crate::buffer::edit::Error> {
+    fn retain_rectangle(&mut self, kill: bool) -> Result<&'static str, crate::buffer::edit::Error> {
         let buffer = self.buffer().map_err(crate::buffer::edit::Error::from)?;
         let Some(selection) = Selection::new(buffer, self.view().point)? else {
             return Ok("Rectangle is not active");
@@ -43,7 +44,33 @@ impl Session {
             return Ok("Rectangle is empty");
         }
         let rectangle = Rectangle::copy(buffer, &selection)?;
+        if kill {
+            self.remove_rectangle(&selection)?;
+        }
         self.rectangle = Some(rectangle);
-        Ok("Rectangle copied")
+        Ok(if kill {
+            "Rectangle killed"
+        } else {
+            "Rectangle copied"
+        })
+    }
+    fn remove_rectangle(
+        &mut self,
+        selection: &Selection,
+    ) -> Result<(), crate::buffer::edit::Error> {
+        let buffer = self
+            .buffers
+            .get_mut(self.windows.selected().point.stamp.buffer)?;
+        let edits = selection.deletions(buffer)?;
+        let points = self.windows.points(buffer)?;
+        let cursor = crate::buffer::edit::Cursor {
+            index: points.initiator,
+            position: selection.cursor(buffer)?,
+        };
+        let mut prepared = buffer.prepare(&edits, &points.values, Some(cursor))?;
+        prepared.set_origin(self.windows.selected_id());
+        self.windows.publish(buffer, prepared, points)?;
+        self.windows.selected_mut().reset_navigation();
+        Ok(())
     }
 }

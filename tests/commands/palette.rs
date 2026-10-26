@@ -77,6 +77,7 @@ fn filter_order() {
             vec![
                 "kill-buffer",
                 "kill-line",
+                "kill-rectangle",
                 "kill-region",
                 "kill-ring-save",
                 "kill-terminal",

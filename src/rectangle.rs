@@ -1,3 +1,5 @@
+mod kill;
+
 use std::ops::{Range, RangeInclusive};
 
 use crate::buffer::{
@@ -117,6 +119,16 @@ impl Selection {
         let source = buffer.span(glyph.source.start.0..glyph.source.end.0)?;
         let partial_tab = columns != glyph.columns && buffer.slice(&source)?.as_str() == Some("\t");
         Ok(Some(Part {
+            padding: if partial_tab {
+                (glyph.columns.end - glyph.columns.start) - (columns.end - columns.start)
+            } else {
+                0
+            },
+            prefix: if partial_tab {
+                columns.start - glyph.columns.start
+            } else {
+                0
+            },
             source,
             spaces: partial_tab.then_some(columns.end - columns.start),
             columns: if partial_tab { columns } else { glyph.columns },
@@ -128,6 +140,8 @@ struct Part {
     source: Span,
     columns: Range<usize>,
     spaces: Option<usize>,
+    padding: usize,
+    prefix: usize,
 }
 
 impl Part {
