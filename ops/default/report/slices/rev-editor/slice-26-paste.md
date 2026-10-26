@@ -1,11 +1,12 @@
 # Slice 26: Insert bracketed Unicode paste atomically
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-26-paste`
 PR: `#26`
+Integrated: Rebase + Fast-forward into dev at `2dbaa9b2cc86e7ee9d3c253f55aaa6396fcd6d5d`.
 
 ## Purpose
 

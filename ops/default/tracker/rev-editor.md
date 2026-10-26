@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 26 - Insert bracketed Unicode paste atomically
+Active slice: Slice 27 - Run discoverable commands through M-x
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -568,18 +568,21 @@ Report: [Slice 25](../report/slices/rev-editor/slice-25-terminal-keys.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R10, R17, R21, R25.
 
-- [ ] T26.1: Enable supported bracketed paste, insert literal Unicode/newline text through one transaction, and avoid feeding pasted key-looking content to command decoding.
-- [ ] T26.2: Exercise large multiline paste, CRLF policy, control-looking text, terminal release/repeat noise, cancellation boundaries, and one-step undo across shared views.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T26.1: Enable supported bracketed paste, insert literal Unicode/newline text through one transaction, and avoid feeding pasted key-looking content to command decoding.
+- [x] T26.2: Exercise large multiline paste, CRLF policy, control-looking text, terminal release/repeat noise, cancellation boundaries, and one-step undo across shared views.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T26.1 and T26.2 complete; canonical PR #26 open.
+Implementation: T26.1 and T26.2 delivered through PR #26.
 Task commits: T26.1 `c944a880f3ef90d640df88c51daa3354261d07d6`;
 T26.2 `fd88fccd2936c41dd2c88c3fddef5dce8c9ee953`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed thirty-eight tests and the terminal PTY suite passed fifty-four cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#26](https://forge.adrianpk.com/adrianpk/rev/pulls/26).
-Report: [Slice 26](../report/slices/rev-editor/slice-26-paste.md), reviewing.
+Integration: Rebase + Fast-forward into dev at
+`2dbaa9b2cc86e7ee9d3c253f55aaa6396fcd6d5d`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
+Report: [Slice 26](../report/slices/rev-editor/slice-26-paste.md).
 
 ### Slice 27: Run discoverable commands through M-x
 
