@@ -894,13 +894,14 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T42.2: Exercise cancellation after earlier saves, failed required saves, several windows of one buffer, a removed destination, and final terminal restoration after a genuinely accepted quit.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T42.1 and T42.2 complete; canonical PR pending.
+Implementation: T42.1 and T42.2 complete; PR #42 awaits integration.
 Task commits: T42.1 `28058fec1a0122eaba717c25089908cc793d12ff`;
 T42.2 `d0674f73fcb8b185ceb9ed7e7d5bfd572f2deeb8`. Retained journey adaptation:
 `577e8c2c0b21e93ac8edd514ac11741b2879930f`.
 Validation: required Cargo/source commands passed; `cargo test --test recovery`
 passed nine tests and the terminal PTY suite passed 86 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#42](https://forge.adrianpk.com/adrianpk/rev/pulls/42).
 Report: [Slice 42](../report/slices/rev-editor/slice-42-session-quit.md).
 
 ### Slice 43: Harden ordinary failure boundaries
