@@ -30,13 +30,15 @@ def attach():
 
 
 class Session:
-    def __init__(self, command):
+    def __init__(self, command, colors=False):
         self.master, self.slave = pty.openpty()
         self.before = termios.tcgetattr(self.slave)
         fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
         self.output = bytearray()
         self.deadline = time.monotonic() + 8
         environment = dict(os.environ, TERM="xterm-256color")
+        if colors:
+            environment["NO_COLOR"] = ""
         self.process = subprocess.Popen(
             command, stdin=self.slave, stdout=self.slave, stderr=self.slave,
             env=environment, preexec_fn=attach,
@@ -2521,6 +2523,67 @@ def tree_delete_decisions(root):
                 workspace.chmod(0o700)
             session.close()
 
+
+def rust_syntax(root):
+    # The executable supplies grammar and query without a runtime setup step.
+    # Actual foreground sequences survive editing/history without changing bytes.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-syntax-") as directory:
+        path = Path(directory) / "main.rs"
+        source = 'fn main() {\n    let text = "界";\n}\n// note'.encode()
+        session = None
+        path.write_bytes(source)
+        try:
+            session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
+            session.ready(b"> main.rs -- RW L1 C1 Rust")
+            group_step(session, b"\x0c", b"> main.rs -- RW L1 C1 Rust")
+            frame = last_frame(session)
+            assert b"\x1b[38;5;176mfn\x1b[39m" in frame
+            assert b"\x1b[38;5;75mmain\x1b[38;5;250m" in frame
+            assert b"\x1b[38;5;114m" + '"界"'.encode() + b"\x1b[38;5;250m" in frame
+            assert b"\x1b[38;5;244m// note\x1b[39m" in frame
+            group_step(session, b"// ", b"> main.rs ** RW L1 C4 Rust", b"\x1b[38;5;244m// fn main() {")
+            group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L1 C4 Rust")
+            assert path.read_bytes() == b"// " + source
+            group_step(session, b"\x18u", b"> main.rs ** RW L1 C1 Rust", b"\x1b[38;5;176mfn")
+            named_step(session, "undo-redo", b"> main.rs -- RW L1 C4 Rust")
+            assert path.read_bytes() == b"// " + source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bundled Rust foregrounds, Unicode literal, current edit/history styles, exact saves and terminal restoration")
+        finally:
+            if session is not None:
+                session.close()
+
+
+def syntax_fallback(root):
+    # With foregrounds explicitly enabled, unsupported source remains plain.
+    # Save-as recognition follows the actual destination in both directions.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-syntax-text-") as directory:
+        base = Path(directory)
+        path = base / "source.txt"
+        rust = base / "new.rs"
+        plain = base / "plain.txt"
+        source = b"fn main() { let count = 42; }"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
+        try:
+            session.ready(b"> source.txt -- RW L1 C1 Text")
+            group_step(session, b"// ", b"> source.txt ** RW L1 C4 Text")
+            assert b"\x1b[38;5;" not in last_frame(session)
+            for target, mode in [(rust, b"Rust"), (plain, b"Text")]:
+                group_step(session, b"\x18\x17", b"Write file: ")
+                group_step(session, paste_wire(str(target).encode()), target.name.encode())
+                group_step(session, b"\r", b"Saved ", b"> " + target.name.encode() + b" -- RW L1 C4 " + mode)
+                assert target.read_bytes() == b"// " + source
+                assert (b"\x1b[38;5;244m" in last_frame(session)) == (mode == b"Rust")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS editable unsupported Text fallback, extension-aware Rust/Text save-as and exact source preservation")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2595,7 +2658,9 @@ def main():
     tree_rename_failures(root)
     tree_delete(root)
     tree_delete_decisions(root)
-    print("Terminal PTY suite: 80 cases passed, 0 skipped.")
+    rust_syntax(root)
+    syntax_fallback(root)
+    print("Terminal PTY suite: 82 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

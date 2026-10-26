@@ -194,3 +194,6 @@ fn current_revision() {
     assert_eq!(text(session.buffer().unwrap()), "/fn main() {}\n");
     assert_eq!(session.buffer().unwrap().history().len(), 1);
 }
+
+#[path = "syntax/edges.rs"]
+mod edges;
