@@ -1563,6 +1563,98 @@ def command_arguments(root):
             session.close()
 
 
+def focused_arguments(root):
+    # Canceled M-x must retain the intended vertical column and recenter cycle.
+    # Edited/canceled path drafts stay focused until a fresh argument accepts.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-focus-") as directory:
+        base = Path(directory)
+        path = base / "source.txt"
+        other = base / "other.txt"
+        unused = base / "unused.txt"
+        original = b"0123456789\nx\n0123456789\nend"
+        path.write_bytes(original)
+        other.write_bytes("\ufeffé\r\nlast".encode())
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> source.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06" * 8, b"L1 C9 Text")
+            group_step(session, b"\x0e", b"L2 C2 Text")
+            group_step(session, b"\x0c", b"L2 C2 Text", b"\x1b[2;2H" + SHOW)
+            group_step(session, b"\x1bxfind-", b"M-x find-")
+            group_step(session, b"\x07", b"Quit", b"L2 C2 Text")
+            group_step(session, b"\x0c", b"L2 C2 Text", b"\x1b[1;2H" + SHOW)
+            group_step(session, b"\x0e", b"L3 C9 Text")
+            group_step(session, b"\x18\x06", b"Find file:")
+            group_step(session, b"\x1bq", b"Unbound prompt key")
+            group_step(session, paste_wire(str(other).encode() + b"BAD"), b"Find file:", b"other.txtBAD")
+            assert b"Unbound prompt key" not in last_frame(session)
+            group_step(session, b"\t", b"Enter a path; C-g cancels", b"other.txtBAD")
+            group_step(session, b"\x02" * 3 + b"\x04" * 3, b"other.txt  ")
+            group_step(session, b"\x01\x06\x02\x05X\x08", b"other.txt  ")
+            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW L3 C9 Text")
+            find_path(session, other, b"> other.txt -- RW L1 C1 Text", "é".encode())
+            group_step(session, b"\x18\x17", b"Write file:")
+            group_step(session, paste_wire(str(unused).encode()), b"unused.txt")
+            group_step(session, b"\x07", b"Quit", b"> other.txt -- RW L1 C1 Text")
+            assert not unused.exists()
+            group_step(session, b"!", b"** RW L1 C2 Text", "!é".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            assert path.read_bytes() == original
+            assert other.read_bytes() == "\ufeff!é\r\nlast".encode()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert PASTE_OFF in session.output and LEAVE in session.output
+            print("PASS canceled M-x navigation, Emacs path editing, feedback recovery and canceled find/write")
+        finally:
+            session.close()
+
+
+def focused_close(root):
+    # Each nested close stage can be canceled. A subsequent save must keep the
+    # original shared buffer open, with independent pane points and no old consent.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-close-focus-") as directory:
+        base = Path(directory)
+        occupied = base / "occupied.txt"
+        fresh = base / "fresh.txt"
+        occupied.write_bytes(b"keep")
+        session = Session([str(root / "target/debug/rev")])
+        try:
+            session.ready(b"C-x C-c: exit")
+            group_step(session, b"draft", b"** RW L1 C6 Text", b"draft")
+            group_step(session, b"\x183", b"> *scratch* ** RW L1 C6 Text", b"|")
+            group_step(session, b"\x18o\x01", b"|> *scratch* ** RW L1 C1 Text")
+            group_step(session, b"\x18o", b"> *scratch* ** RW L1 C6 Text")
+            for stage in ["name", "question", "destination", "overwrite"]:
+                group_step(session, b"\x18k", b"Kill buffer:")
+                if stage != "name":
+                    group_step(session, b"\r", b"y=save, n=discard")
+                if stage in ("destination", "overwrite"):
+                    group_step(session, b"y", b"Write file:")
+                    group_step(session, paste_wire(str(occupied).encode()), b"occupied.txt")
+                if stage == "overwrite":
+                    group_step(session, b"\r", b"Overwrite occupied destination")
+                    resize_surface(session, 3, 1, True)
+                    resize_surface(session, 0, 0, False)
+                    resize_surface(session, 80, 24, True)
+                group_step(session, b"\x07", b"Quit", b"> *scratch* ** RW L1 C6 Text")
+                assert occupied.read_bytes() == b"keep" and not fresh.exists()
+                assert b"  *scratch* ** RW L1 C1 Text" in last_frame(session)
+            group_step(session, b"y", b"** RW L1 C7 Text", b"drafty")
+            group_step(session, b"\x18\x17", b"Write file:")
+            group_step(session, paste_wire(str(fresh).encode()), b"fresh.txt")
+            group_step(session, b"\r", b"Saved ", b"> fresh.txt -- RW L1 C7 Text")
+            assert b"  fresh.txt -- RW L1 C1 Text" in last_frame(session)
+            assert b"|drafty" in last_frame(session)
+            assert fresh.read_bytes() == b"drafty" and occupied.read_bytes() == b"keep"
+            assert sorted(path.name for path in base.iterdir()) == ["fresh.txt", "occupied.txt"]
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert PASTE_OFF in session.output and LEAVE in session.output
+            print("PASS cancel at every close stage, resize during consent and later save without closing shared text")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1613,7 +1705,9 @@ def main():
     shared_paste(root)
     command_palette(root)
     command_arguments(root)
-    print("Terminal PTY suite: 56 cases passed, 0 skipped.")
+    focused_arguments(root)
+    focused_close(root)
+    print("Terminal PTY suite: 58 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
