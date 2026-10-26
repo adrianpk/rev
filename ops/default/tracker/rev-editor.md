@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 18 - Delete and cycle editing windows
+Active slice: Slice 19 - Map shared-buffer edits across views
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -407,17 +407,20 @@ Report: [Slice 17](../report/slices/rev-editor/slice-17-splits.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R14, R15.
 
-- [ ] T18.1: Implement delete-window, delete-other-windows, and deterministic other-window traversal with wrapping and a separate tree-focus path.
-- [ ] T18.2: Exercise repeated split/delete, deleting the sole view, selected-view replacement, and preservation of unsaved buffers after their last visible window closes.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T18.1: Implement delete-window, delete-other-windows, and deterministic other-window traversal with wrapping and a separate tree-focus path.
+- [x] T18.2: Exercise repeated split/delete, deleting the sole view, selected-view replacement, and preservation of unsaved buffers after their last visible window closes.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T18.1 and T18.2 implemented through PR #18.
+Implementation: T18.1 and T18.2 delivered through PR #18.
 Task commits: T18.1 `56a933e7857aed9896435025fae3d74d0ea9074d`;
 T18.2 `fa7726410cfd25766adbd81a8ed23c3ce2c4ef69`.
 Validation: required Cargo/source commands passed; `cargo test --test windows`
 passed twenty tests and the terminal PTY suite passed thirty-three cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#18](https://forge.adrianpk.com/adrianpk/rev/pulls/18).
+Integration: Rebase + Fast-forward into dev at
+`9273fafb0d6bb86a563e8fb512d5aa61de406379`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 18](../report/slices/rev-editor/slice-18-window-commands.md).
 
 ### Slice 19: Map shared-buffer edits across views

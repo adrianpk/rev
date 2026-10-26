@@ -1,11 +1,12 @@
 # Slice 18: Delete and cycle editing windows
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-18-window-commands`
 PR: `#18`
+Integrated: Rebase + Fast-forward into dev at `9273fafb0d6bb86a563e8fb512d5aa61de406379`.
 
 ## Purpose
 
