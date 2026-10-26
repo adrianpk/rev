@@ -6,9 +6,14 @@ use crate::input::Focus;
 use super::{Action, Session};
 
 impl Session {
-    /// Retained text from the most recent directional kill chain.
+    /// The newest copied entry or directional kill chain.
     pub fn killed_text(&self) -> Option<&ropey::Rope> {
         self.kills.text()
+    }
+
+    /// Borrow the session's at most 32 owned linear entries, newest first.
+    pub fn kill_ring(&self) -> impl DoubleEndedIterator<Item = &ropey::Rope> + ExactSizeIterator {
+        self.kills.iter()
     }
 
     pub(super) fn kill_command(&mut self, command: KillCommand) -> Action {
@@ -25,14 +30,16 @@ impl Session {
 
     fn kill(&mut self, command: KillCommand) -> Result<bool, Error> {
         let source = self.kill_span(command)?;
+        self.kill_source(source, command == KillCommand::BackwardWord)
+    }
+
+    pub(super) fn kill_source(&mut self, source: Span, backward: bool) -> Result<bool, Error> {
         if source.range.is_empty() {
             return Ok(false);
         }
         let id = self.windows.selected_id();
         let buffer = self.buffer()?;
-        let text = self
-            .kills
-            .prepare(buffer, id, &source, command == KillCommand::BackwardWord)?;
+        let text = self.kills.prepare(buffer, id, &source, backward)?;
         self.replace(source.range, "")?;
         let point = self.windows.selected().point;
         self.kills.publish(text, point.stamp, id, point.position);

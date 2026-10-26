@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use ropey::Rope;
 
 use crate::buffer::{Buffer, Span, Stamp, edit::Error};
@@ -11,16 +13,42 @@ struct Continuation {
     point: Scalar,
 }
 
-/// One retained kill entry, coalesced only through a checked live command chain.
-#[derive(Default)]
-pub(crate) struct KillText {
-    text: Option<Rope>,
+/// Owned linear text, newest first, with a fixed entry bound.
+pub(crate) struct KillRing {
+    entries: VecDeque<Rope>,
     continuation: Option<Continuation>,
 }
 
-impl KillText {
+/// Fully composed before editing; publication requires no further allocation.
+pub(crate) struct Entry {
+    text: Rope,
+    coalesced: bool,
+}
+
+impl Default for KillRing {
+    fn default() -> Self {
+        Self {
+            entries: VecDeque::with_capacity(32),
+            continuation: None,
+        }
+    }
+}
+
+impl KillRing {
     pub(crate) fn text(&self) -> Option<&Rope> {
-        self.text.as_ref()
+        self.entries.front()
+    }
+
+    pub(crate) fn iter(&self) -> impl DoubleEndedIterator<Item = &Rope> + ExactSizeIterator {
+        self.entries.iter()
+    }
+
+    pub(crate) fn copy(&mut self, text: Rope) {
+        self.break_chain();
+        self.store(Entry {
+            text,
+            coalesced: false,
+        });
     }
 
     pub(crate) fn break_chain(&mut self) {
@@ -35,7 +63,7 @@ impl KillText {
         view: ViewId,
         source: &Span,
         backward: bool,
-    ) -> Result<Rope, Error> {
+    ) -> Result<Entry, Error> {
         let mut fragment: Rope = buffer.slice(source)?.into();
         let point = Scalar(if backward {
             source.range.end
@@ -43,20 +71,26 @@ impl KillText {
             source.range.start
         });
         let Some(previous) = self
-            .text
-            .as_ref()
+            .text()
             .filter(|_| self.continues(source.stamp, view, point))
         else {
-            return Ok(fragment);
+            return Ok(Entry {
+                text: fragment,
+                coalesced: false,
+            });
         };
-        if backward {
+        let text = if backward {
             fragment.append(previous.clone());
-            Ok(fragment)
+            fragment
         } else {
             let mut text = previous.clone();
             text.append(fragment);
-            Ok(text)
-        }
+            text
+        };
+        Ok(Entry {
+            text,
+            coalesced: true,
+        })
     }
 
     fn continues(&self, stamp: Stamp, view: ViewId, point: Scalar) -> bool {
@@ -65,8 +99,17 @@ impl KillText {
         })
     }
 
-    pub(crate) fn publish(&mut self, text: Rope, stamp: Stamp, view: ViewId, point: Scalar) {
-        self.text = Some(text);
+    pub(crate) fn publish(&mut self, entry: Entry, stamp: Stamp, view: ViewId, point: Scalar) {
+        self.store(entry);
         self.continuation = Some(Continuation { stamp, view, point });
+    }
+
+    fn store(&mut self, entry: Entry) {
+        if entry.coalesced {
+            self.entries.pop_front();
+        } else if self.entries.len() == 32 {
+            self.entries.pop_back();
+        }
+        self.entries.push_front(entry.text);
     }
 }

@@ -1,7 +1,9 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::{BufferCommand, Command, KillCommand, RegionCommand, Split, WindowCommand};
+use rev::command::{
+    BufferCommand, Command, KillCommand, LinearCommand, RegionCommand, Split, WindowCommand,
+};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -709,5 +711,29 @@ fn kill_bindings() {
             Outcome::Command(Command::Kill(command))
         );
         assert_eq!(Command::named(command.name()), Some(Command::Kill(command)));
+    }
+}
+
+// Region copy/kill and yank bind canonical native commands; modifier handling
+// must distinguish M-w from C-w while sharing reported names with the registry.
+#[test]
+fn linear_bindings() {
+    for (character, modifiers, command) in [
+        ('w', KeyModifiers::CONTROL, LinearCommand::Kill),
+        ('w', KeyModifiers::ALT, LinearCommand::Copy),
+        ('y', KeyModifiers::CONTROL, LinearCommand::Yank),
+    ] {
+        let mut input = Input::default();
+        assert_eq!(
+            input.handle(Event::Key(KeyEvent::new(
+                KeyCode::Char(character),
+                modifiers
+            ))),
+            Outcome::Command(Command::Linear(command))
+        );
+        assert_eq!(
+            Command::named(command.name()),
+            Some(Command::Linear(command))
+        );
     }
 }

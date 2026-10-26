@@ -1,5 +1,6 @@
 mod buffer;
 mod kill;
+mod linear;
 mod motion;
 mod region;
 mod scroll;
@@ -10,6 +11,7 @@ pub use crate::buffer::edit::History;
 pub use crate::window::Split;
 pub use buffer::BufferCommand;
 pub use kill::KillCommand;
+pub use linear::LinearCommand;
 pub use motion::Motion;
 pub use region::RegionCommand;
 pub use scroll::Scroll;
@@ -35,10 +37,11 @@ pub enum Command {
     Window(WindowCommand),
     Region(RegionCommand),
     Kill(KillCommand),
+    Linear(LinearCommand),
 }
 
 impl Command {
-    pub const ALL: [Self; 37] = [
+    pub const ALL: [Self; 40] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -76,6 +79,9 @@ impl Command {
         Self::Kill(KillCommand::Line),
         Self::Kill(KillCommand::Word),
         Self::Kill(KillCommand::BackwardWord),
+        Self::Linear(LinearCommand::Kill),
+        Self::Linear(LinearCommand::Copy),
+        Self::Linear(LinearCommand::Yank),
     ];
 
     pub fn name(self) -> &'static str {
@@ -88,6 +94,7 @@ impl Command {
             Self::Window(command) => command.name(),
             Self::Region(command) => command.name(),
             Self::Kill(command) => command.name(),
+            Self::Linear(command) => command.name(),
             _ => self.action_name(),
         }
     }
@@ -109,5 +116,9 @@ impl Command {
 
     pub fn named(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|command| command.name() == name)
+    }
+
+    pub(crate) fn is_kill(self) -> bool {
+        matches!(self, Self::Kill(_) | Self::Linear(LinearCommand::Kill))
     }
 }

@@ -3,6 +3,7 @@ mod edit;
 mod file;
 mod history;
 mod kill;
+mod linear;
 mod motion;
 mod region;
 mod save;
@@ -54,7 +55,7 @@ pub enum Action {
 pub struct Session {
     buffers: Buffers,
     windows: Windows,
-    kills: crate::kill::KillText,
+    kills: crate::kill::KillRing,
     input: Input,
     size: Size,
     echo: String,
@@ -89,7 +90,7 @@ impl Session {
         Ok(Self {
             buffers,
             windows: Windows::new(view)?,
-            kills: crate::kill::KillText::default(),
+            kills: crate::kill::KillRing::default(),
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
@@ -158,7 +159,7 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
-        if !matches!(command, Command::Kill(_)) {
+        if !command.is_kill() {
             self.kills.break_chain();
         }
         if let Err(error) = self.stop_typing() {
@@ -169,6 +170,7 @@ impl Session {
             Command::Window(command) => self.window_command(command),
             Command::Region(command) => self.region_command(command),
             Command::Kill(command) => self.kill_command(command),
+            Command::Linear(command) => self.linear_command(command),
             _ => self.dispatch(command),
         }
     }

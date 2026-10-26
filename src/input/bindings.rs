@@ -1,8 +1,8 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::command::{
-    BufferCommand, Command, History, KillCommand, Motion, RegionCommand, Scroll, Split,
-    WindowCommand,
+    BufferCommand, Command, History, KillCommand, LinearCommand, Motion, RegionCommand, Scroll,
+    Split, WindowCommand,
 };
 
 use super::Key;
@@ -47,6 +47,8 @@ fn control(code: KeyCode) -> Option<Command> {
         KeyCode::Char(' ' | '@') => Some(Command::Region(RegionCommand::Set)),
         KeyCode::Null => Some(Command::Region(RegionCommand::Set)),
         KeyCode::Char('k') => Some(Command::Kill(KillCommand::Line)),
+        KeyCode::Char('w') => Some(Command::Linear(LinearCommand::Kill)),
+        KeyCode::Char('y') => Some(Command::Linear(LinearCommand::Yank)),
         _ => control_motion(code),
     }
 }
@@ -70,6 +72,7 @@ fn meta(code: KeyCode) -> Option<Command> {
     match code {
         KeyCode::Char('d') => Some(Command::Kill(KillCommand::Word)),
         KeyCode::Backspace => Some(Command::Kill(KillCommand::BackwardWord)),
+        KeyCode::Char('w') => Some(Command::Linear(LinearCommand::Copy)),
         KeyCode::Char('f') => Some(Command::Motion(Motion::ForwardWord)),
         KeyCode::Char('b') => Some(Command::Motion(Motion::BackwardWord)),
         KeyCode::Char('<') => Some(Command::Motion(Motion::BufferStart)),

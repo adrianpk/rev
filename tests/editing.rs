@@ -2,6 +2,8 @@
 
 #[path = "editing/kills.rs"]
 mod kills;
+#[path = "editing/linear.rs"]
+mod linear;
 #[path = "editing/regions.rs"]
 mod regions;
 
