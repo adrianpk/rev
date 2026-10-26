@@ -1154,7 +1154,7 @@ fn suspended_mapping() {
 fn rejected_shared_edit() {
     for (name, read_only, range) in [
         ("bounds", false, 0..usize::MAX),
-        ("reversed", false, 5..2),
+        ("reversed", false, std::ops::Range { start: 5, end: 2 }),
         ("read only", true, 0..1),
     ] {
         let mut buffers = Buffers::new().unwrap();
