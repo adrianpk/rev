@@ -1258,6 +1258,70 @@ def cross_buffer_yank(root):
             session.close()
 
 
+def copy_rotation_lines(session, column):
+    group_step(session, b"\x00\x05", b"-- RW L1 C2 Text")
+    group_step(session, b"\x1bw", b"Region copied")
+    group_step(session, b"\x0e\x01\x00\x05", f"-- RW L2 C{column} Text".encode())
+    group_step(session, b"\x1bw", b"Region copied")
+    group_step(session, b"\x07\x1b>", b"-- RW L3 C1 Text")
+
+
+def yank_rotations(root):
+    # Real M-y reports rotate unequal entries, undo a whole replacement and
+    # refuse reuse after undo; a fresh yank captures only its own new insertion.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-yank-pop-") as directory:
+        path = Path(directory) / "rotate.txt"
+        source = "A\nlong 界\n".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> rotate.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1by", b"No current yank to replace")
+            copy_rotation_lines(session, 8)
+            group_step(session, b"<>\x02\x19", b"** RW L3 C9 Text", "<long 界>".encode())
+            group_step(session, b"\x1by", b"** RW L3 C3 Text", b"<A>")
+            group_step(session, b"\x1by", b"** RW L3 C9 Text", "<long 界>".encode())
+            group_step(session, b"\x18u", b"** RW L3 C3 Text", b"<A>")
+            group_step(session, b"\x1by", b"No current yank to replace", b"<A>")
+            group_step(session, b"\x19", b"** RW L3 C10 Text", "<Along 界>".encode())
+            group_step(session, b"\x1by", b"** RW L3 C4 Text", b"<AA>")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert path.read_bytes() == source + b"<AA>"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS M-y unequal Unicode rotation, whole undo, invalidated capture and fresh yank range")
+        finally:
+            session.close()
+
+
+def yank_view_invalidation(root):
+    # A shared-buffer edit from another pane invalidates the initiating pane's
+    # capture; undoing that edit must not revive old replacement authority.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-yank-view-") as directory:
+        path = Path(directory) / "shared.txt"
+        source = b"A\nLONG\n"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> shared.txt -- RW L1 C1 Text")
+            copy_rotation_lines(session, 5)
+            group_step(session, b"\x183", b"> shared.txt -- RW L3 C1 Text", b"|A ")
+            group_step(session, b"<>\x02\x19", b"> shared.txt ** RW L3 C6 Text", b"<LONG>")
+            group_step(session, b"\x1by", b"> shared.txt ** RW L3 C3 Text", b"<A>")
+            assert b"  shared.txt ** RW L3 C4 Text" in last_frame(session)
+            group_step(session, b"\x18oX", b"|> shared.txt ** RW L3 C5 Text", b"<A>X")
+            group_step(session, b"\x18o\x1by", b"No current yank to replace", b"<A>X")
+            group_step(session, b"\x18u", b"> shared.txt ** RW L3 C3 Text", b"\x1b[3;1H<A> ")
+            group_step(session, b"\x1by", b"No current yank to replace", b"<A>")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert path.read_bytes() == source + b"<A>"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS shared-view pop mapping, other-pane edit invalidation and refusal after undo")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1300,7 +1364,9 @@ def main():
     word_kills(root)
     linear_ring(root)
     cross_buffer_yank(root)
-    print("Terminal PTY suite: 46 cases passed, 0 skipped.")
+    yank_rotations(root)
+    yank_view_invalidation(root)
+    print("Terminal PTY suite: 48 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
