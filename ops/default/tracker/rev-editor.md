@@ -75,6 +75,14 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R01, 
 - [ ] T1.2: Provide executable source-quality and per-slice/full-gate entry points. Add a minimal PTY lifecycle probe for startup, ordinary exit, and a failure after terminal acquisition; later suites must be required by the final gate rather than silently skipped.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T1.1 and T1.2 implemented; canonical integration pending.
+Task commits: T1.1 `598eae082ff24fb65d9a0ae321394fa3d7c3803a`;
+T1.2 `e54df2cc72c8916b9fbe24dafa6ed8552b31f727`.
+Validation: required Cargo/source commands passed; the terminal PTY suite passed
+six cases with zero skips. Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 1](../report/slices/rev-editor/slice-1-terminal.md).
+
 ### Slice 2: Introduce canonical rope buffers
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, R09, R11, R33.
