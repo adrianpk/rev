@@ -968,13 +968,14 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T46.2: Inspect/measure work for pathological whole-file copying/reparse and idle repaint loops, correcting only demonstrated in-scope causes. Store concise fixture/measurement evidence without hostnames or invented guarantees.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T46.1 and T46.2 complete; canonical PR pending.
+Implementation: T46.1 and T46.2 complete; PR #46 awaits integration.
 Task commits: T46.1 `c5c2f3ea49e0cdb1a0dd1cf9ac476b3d3ee17b4e`;
 T46.2 `b67b5b3d5aabd03c396f407fcc44a4e3f9f91d01`.
 Validation: all six ordered checks passed through Looper, including 454 native
 tests and the performance command's two large fixtures, eight native workloads,
 parser-work comparison and real PTY startup/idle/restoration. Final PR-head
 evidence follows the report and PR-reference commits.
+PR: [#46](https://forge.adrianpk.com/adrianpk/rev/pulls/46).
 Report: [Slice 46](../report/slices/rev-editor/slice-46-performance.md).
 
 ### Slice 47: Audit source quality and product reference
