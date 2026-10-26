@@ -2,6 +2,7 @@ mod buffer;
 mod kill;
 mod linear;
 mod motion;
+mod rectangle;
 mod region;
 mod scroll;
 mod split;
@@ -13,6 +14,7 @@ pub use buffer::BufferCommand;
 pub use kill::KillCommand;
 pub use linear::LinearCommand;
 pub use motion::Motion;
+pub use rectangle::RectangleCommand;
 pub use region::RegionCommand;
 pub use scroll::Scroll;
 pub use window::WindowCommand;
@@ -40,12 +42,15 @@ pub enum Command {
     Split(Split),
     Window(WindowCommand),
     Region(RegionCommand),
+    Rectangle(RectangleCommand),
     Kill(KillCommand),
     Linear(LinearCommand),
 }
 
 impl Command {
-    pub const ALL: [Self; 45] = [
+    pub const ALL: [Self; 47] = [
+        Self::Rectangle(RectangleCommand::Mark),
+        Self::Rectangle(RectangleCommand::Copy),
         Self::QueryReplace,
         Self::SearchForward,
         Self::SearchBackward,
@@ -101,7 +106,6 @@ impl Command {
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),
             Self::Window(command) => command.name(),
-            Self::Region(command) => command.name(),
             Self::Kill(command) => command.name(),
             Self::Linear(command) => command.name(),
             _ => self.action_name(),
@@ -110,6 +114,8 @@ impl Command {
 
     fn action_name(self) -> &'static str {
         match self {
+            Self::Region(command) => command.name(),
+            Self::Rectangle(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",

@@ -1,8 +1,8 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::command::{
-    BufferCommand, Command, History, KillCommand, LinearCommand, Motion, RegionCommand, Scroll,
-    Split, WindowCommand,
+    BufferCommand, Command, History, KillCommand, LinearCommand, Motion, RectangleCommand,
+    RegionCommand, Scroll, Split, WindowCommand,
 };
 
 use super::Key;
@@ -104,6 +104,7 @@ pub(super) fn control_x(key: Key) -> Option<Command> {
         return control_x_control(key.code);
     }
     match key.plain()? {
+        KeyCode::Char(' ') => Some(Command::Rectangle(RectangleCommand::Mark)),
         KeyCode::Char('b') => Some(Command::Buffer(BufferCommand::Switch)),
         KeyCode::Char('k') => Some(Command::Buffer(BufferCommand::Kill)),
         KeyCode::Char('u') => Some(Command::History(History::Undo)),

@@ -7,6 +7,7 @@ pub mod display;
 pub mod file;
 pub mod input;
 mod kill;
+pub mod rectangle;
 pub mod search;
 pub mod session;
 pub mod terminal;

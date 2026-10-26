@@ -8,6 +8,7 @@ use crossterm::{
 
 use crate::buffer::{Buffer, Span};
 use crate::coordinates::{Cell, Coordinates, Glyphs, Scalar};
+use crate::rectangle::Selection;
 use crate::view::View;
 
 use super::{Error, Row};
@@ -15,6 +16,7 @@ use super::{Error, Row};
 pub(super) struct Highlight {
     start: Cell,
     end: Cell,
+    rectangle: Option<Selection>,
 }
 
 impl Highlight {
@@ -25,7 +27,9 @@ impl Highlight {
         let Some(region) = buffer.region(view.point)? else {
             return Ok(None);
         };
-        Ok(Some(Self::from_span(buffer, &region)?))
+        let mut highlight = Self::from_span(buffer, &region)?;
+        highlight.rectangle = Selection::new(buffer, view.point)?;
+        Ok(Some(highlight))
     }
 
     pub(super) fn from_span(buffer: &Buffer, span: &Span) -> Result<Self, Error> {
@@ -34,9 +38,24 @@ impl Highlight {
         let start = boundary(&coordinates, Scalar(span.range.start), false)?;
         let end = boundary(&coordinates, Scalar(span.range.end), true)?;
         Ok(Self {
+            rectangle: None,
             start: coordinates.to_cell(start)?,
             end: coordinates.to_cell(end)?,
         })
+    }
+
+    pub(super) fn selected_row(
+        &self,
+        buffer: &Buffer,
+        row: usize,
+        left: usize,
+        width: u16,
+    ) -> Result<Option<Range<u16>>, Error> {
+        let Some(rectangle) = &self.rectangle else {
+            return Ok(self.row(row, left, width));
+        };
+        let columns = rectangle.columns(buffer, row)?;
+        Ok(columns.and_then(|columns| clipped(columns, left, width)))
     }
 
     pub(super) fn row(&self, row: usize, left: usize, width: u16) -> Option<Range<u16>> {
@@ -125,4 +144,10 @@ fn reverse(writer: &mut impl Write, selected: bool, reversed: &mut bool) -> io::
         *reversed = selected;
     }
     Ok(())
+}
+
+fn clipped(columns: Range<usize>, left: usize, width: u16) -> Option<Range<u16>> {
+    let start = columns.start.saturating_sub(left).min(usize::from(width));
+    let end = columns.end.saturating_sub(left).min(usize::from(width));
+    (start < end).then_some(start as u16..end as u16)
 }

@@ -85,7 +85,7 @@ fn nested_meta() {
     input.handle_at(super::key(KeyCode::Esc), now);
     assert_eq!(
         input.handle_at(super::character('w'), now),
-        Outcome::Message("Undefined key sequence")
+        Outcome::Command(Command::Rectangle(rev::command::RectangleCommand::Copy))
     );
     assert_eq!(input.prefix(), None);
     input.handle_at(super::control('x'), now);

@@ -9,6 +9,7 @@ mod linear;
 mod motion;
 mod paste;
 mod prompt;
+mod rectangle;
 mod region;
 mod replace;
 mod save;
@@ -63,6 +64,7 @@ pub struct Session {
     buffers: Buffers,
     windows: Windows,
     kills: crate::kill::KillRing,
+    rectangle: Option<crate::rectangle::Rectangle>,
     yank: Option<yank::Capture>,
     input: Input,
     size: Size,
@@ -102,6 +104,7 @@ impl Session {
             buffers,
             windows: Windows::new(view)?,
             kills: crate::kill::KillRing::default(),
+            rectangle: None,
             yank: None,
             input: Input::default(),
             size,
@@ -202,9 +205,16 @@ impl Session {
             Command::SearchBackward => self.search(crate::search::Direction::Backward),
             Command::Split(direction) => self.split(direction),
             Command::Window(command) => self.window_command(command),
-            Command::Region(command) => self.region_command(command),
             Command::Kill(command) => self.kill_command(command),
             Command::Linear(command) => self.linear_command(command),
+            _ => self.selection_command(command),
+        }
+    }
+
+    fn selection_command(&mut self, command: Command) -> Action {
+        match command {
+            Command::Rectangle(command) => self.rectangle_command(command),
+            Command::Region(command) => self.region_command(command),
             _ => self.dispatch(command),
         }
     }

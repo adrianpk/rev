@@ -171,7 +171,7 @@ pub struct Prepared {
     operation: Operation,
     next_state: u64,
     group: Option<Transaction>,
-    active: bool,
+    active: super::region::Mode,
 }
 
 impl Buffer {
@@ -193,7 +193,7 @@ impl Buffer {
             mapping::boundary(&Coordinates::new(self)?, position)?;
         }
         self.mark = mark;
-        self.mark_active = false;
+        self.mark_mode = super::region::Mode::Inactive;
         self.break_typing();
         Ok(())
     }
@@ -261,7 +261,7 @@ impl Buffer {
             operation: Operation::Edit,
             next_state: self.next_state,
             group: None,
-            active: self.mark_active,
+            active: self.mark_mode,
         })
     }
 
@@ -271,7 +271,7 @@ impl Buffer {
         self.admit(prepared.record.before)?;
         if points != prepared.record.before_points
             || self.mark != prepared.record.before_mark
-            || self.mark_active != prepared.active
+            || self.mark_mode != prepared.active
         {
             return Err(Error::ChangedPositions);
         }
@@ -290,7 +290,7 @@ impl Buffer {
         self.state = state;
         self.next_state = prepared.next_state;
         self.mark = mark;
-        self.mark_active = false;
+        self.mark_mode = super::region::Mode::Inactive;
         points.copy_from_slice(&after_points);
         self.typing = match prepared.operation {
             Operation::Typing => Some(after),

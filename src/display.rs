@@ -156,7 +156,9 @@ impl Frame {
                 search: None,
                 selection: highlight
                     .as_ref()
-                    .and_then(|h| h.row(source, view.left, self.size.width)),
+                    .map(|h| h.selected_row(buffer, source, view.left, self.size.width))
+                    .transpose()?
+                    .flatten(),
             });
         }
         Ok(())

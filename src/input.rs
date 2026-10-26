@@ -5,6 +5,7 @@ mod meta;
 mod palette;
 mod paste;
 mod prompt;
+mod rectangle;
 mod replace;
 mod search;
 
@@ -258,10 +259,7 @@ impl Input {
     fn editing(&mut self, key: Key) -> Outcome {
         match self.prefix.take() {
             Some(Prefix::ControlX) => self.control_x(key),
-            Some(Prefix::Rectangle) => {
-                self.suppress_repeat = true;
-                Outcome::Message("Undefined key sequence")
-            }
+            Some(Prefix::Rectangle) => self.rectangle_key(key),
             Some(Prefix::Meta) => unreachable!("Meta deadlines are separate from chord prefixes"),
             None => self.base(key),
         }
