@@ -754,12 +754,13 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T35.1 and T35.2 complete; canonical PR integration pending.
+Implementation: T35.1 and T35.2 complete; PR #35 awaits integration.
 Task commits: T35.1 `7662b67f95c256a78986ed3a7a923ea587e9da7f`;
 T35.2 `929c8c881156181e20bd6a06c7fd965d7989259c`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed ten tests and the terminal PTY suite passed 72 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#35](https://forge.adrianpk.com/adrianpk/rev/pulls/35).
 Report: [Slice 35](../report/slices/rev-editor/slice-35-tree-pane.md).
 
 ### Slice 36: Traverse directories lazily and safely
