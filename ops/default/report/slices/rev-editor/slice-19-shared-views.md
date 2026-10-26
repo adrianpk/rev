@@ -1,11 +1,12 @@
 # Slice 19: Map shared-buffer edits across views
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-19-shared-views`
 PR: `#19`
+Integrated: Rebase + Fast-forward into dev at `8295f8b32759eed0c88a811019eceb3fe6c107c8`.
 
 ## Purpose
 

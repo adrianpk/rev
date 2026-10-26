@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 19 - Map shared-buffer edits across views
+Active slice: Slice 20 - Handle tiny and changing terminal geometry
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -427,18 +427,21 @@ Report: [Slice 18](../report/slices/rev-editor/slice-18-window-commands.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R08, R09, R11, R14, R17, R21.
 
-- [ ] T19.1: Complete point/top/mark mapping for insertion, deletion, replacement, undo, and redo across every view of the same buffer using the accepted affinities.
-- [ ] T19.2: Exercise edits before and across another cursor, deletion of visible lines, killing a multiply visible buffer, and history initiated from a view that later closes.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T19.1: Complete point/top/mark mapping for insertion, deletion, replacement, undo, and redo across every view of the same buffer using the accepted affinities.
+- [x] T19.2: Exercise edits before and across another cursor, deletion of visible lines, killing a multiply visible buffer, and history initiated from a view that later closes.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T19.1 and T19.2 implemented through PR #19.
+Implementation: T19.1 and T19.2 delivered through PR #19.
 Task commits: T19.1 `b0f19612089f873c8dd2cd7592479ff2f0020739`;
 T19.2 `9849102407d640f212ea27808b29b3c9e63183db` with invalid-range fixture
 `e9b129320fe6a00225d7be3a6323a195940a5534`.
 Validation: required Cargo/source commands passed; `cargo test --test windows`
 passed twenty-nine tests and the terminal PTY suite passed thirty-six cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#19](https://forge.adrianpk.com/adrianpk/rev/pulls/19).
+Integration: Rebase + Fast-forward into dev at
+`8295f8b32759eed0c88a811019eceb3fe6c107c8`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 19](../report/slices/rev-editor/slice-19-shared-views.md).
 
 ### Slice 20: Handle tiny and changing terminal geometry
