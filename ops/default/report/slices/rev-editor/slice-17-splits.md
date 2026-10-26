@@ -1,11 +1,12 @@
 # Slice 17: Create nested editing splits
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-17-splits`
 PR: `#17`
+Integrated: `db4f7813fdf3ee905b4447a083a6d2ff3901dfbe`
 
 ## Purpose
 
