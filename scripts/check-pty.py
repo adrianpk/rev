@@ -1401,6 +1401,76 @@ def escape_deadlines(root):
             session.close()
 
 
+def paste_wire(payload):
+    return b"\x1b[200~" + payload + b"\x1b[201~"
+
+
+def bracketed_paste(root):
+    # Real terminal framing must deliver one large literal edit, even with
+    # command-looking bytes, mixed separators and a pending nested prefix.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-paste-") as directory:
+        path = Path(directory) / "paste.txt"
+        source = b"\xef\xbb\xbf<>\r\nlast"
+        path.write_bytes(source)
+        payload = ("αe\u0301界👩\u200d💻\t\r\nline\n" * 256).encode()
+        payload += b"PASTE-END\x18\x03\x1b[31m\x07"
+        assert len(payload) > 4096
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> paste.txt -- RW L1 C1 Text")
+            assert PASTE_ON in session.output
+            group_step(session, b"\x06", b"-- RW L1 C2 Text")
+            group_step(session, paste_wire(b"ok\0bad"), b"Paste contains NUL", b"-- RW L1 C2 Text")
+            group_step(session, b"\x18r", b"C-x r")
+            group_step(session, paste_wire(payload), b"** RW L513 ", b"PASTE-END^X^C^[[31m^G>")
+            assert b"\x1b[31m" not in last_frame(session)
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L513 ")
+            assert path.read_bytes() == b"\xef\xbb\xbf<" + payload + b">\r\nlast"
+            group_step(session, b"\x18u", b"** RW L1 C2 Text", b"\x1b[1;1H<> ")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert session.output.rfind(PASTE_OFF) < session.output.rfind(LEAVE)
+            assert PASTE_OFF in session.output
+            print("PASS large bracketed Unicode/control paste, exact BOM/mixed-newline save and one-step undo")
+        finally:
+            session.close()
+
+
+def shared_paste(root):
+    # Prompt paste retains focus and can be canceled. Document paste maps both
+    # pane points, ignores embedded C-x/C-g, and undoes from the passive pane.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-paste-views-") as directory:
+        path = Path(directory) / "panes.txt"
+        source = b"abc\nlast"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> panes.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x183", b"> panes.txt -- RW L1 C2 Text", b"|")
+            group_step(session, b"\x18o\x1b>", b"|> panes.txt -- RW L2 C5 Text")
+            group_step(session, b"\x18o", b"> panes.txt -- RW L1 C2 Text")
+            group_step(session, b"\x18\x06", b"Find file:")
+            group_step(session, paste_wire(str(path).encode()), b"Find file:", b"panes.txt")
+            group_step(session, paste_wire(b"bad\ntext"), b"Control character", b"panes.txt")
+            group_step(session, b"\x07", b"Quit", b"-- RW L1 C2 Text")
+            group_step(session, b"\x18r", b"C-x r")
+            group_step(session, paste_wire("x\r\n界\x18\x03\x07".encode()), b"> panes.txt ** RW L2 C9 Text", "界^X^C^Gbc".encode())
+            assert b"  panes.txt ** RW L3 C5 Text" in last_frame(session)
+            group_step(session, b"\x07", b"Quit", b"** RW L2 C9 Text")
+            group_step(session, b"\x18o", b"|> panes.txt ** RW L3 C5 Text")
+            group_step(session, b"\x18u", b"|> panes.txt -- RW L2 C5 Text", b"\x1b[1;1Habc ")
+            assert b"  panes.txt -- RW L1 C2 Text" in last_frame(session)
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert PASTE_OFF in session.output and LEAVE in session.output
+            print("PASS prompt paste refusal/cancel, literal command bytes and one undo across shared views")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1447,7 +1517,9 @@ def main():
     yank_view_invalidation(root)
     terminal_key_reports(root)
     escape_deadlines(root)
-    print("Terminal PTY suite: 52 cases passed, 0 skipped.")
+    bracketed_paste(root)
+    shared_paste(root)
+    print("Terminal PTY suite: 54 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
