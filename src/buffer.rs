@@ -1,6 +1,7 @@
 pub mod edit;
 mod endings;
 mod lifecycle;
+mod region;
 mod save;
 mod visits;
 
@@ -124,6 +125,7 @@ pub struct Buffer {
     text: Rope,
     read_only: bool,
     mark: Option<Scalar>,
+    mark_active: bool,
     history: VecDeque<edit::Transaction>,
     history_bytes: usize,
     redo: VecDeque<edit::Transaction>,
@@ -155,6 +157,7 @@ impl Buffer {
             text,
             read_only: false,
             mark: None,
+            mark_active: false,
             history: VecDeque::new(),
             history_bytes: 0,
             redo: VecDeque::new(),

@@ -3,6 +3,7 @@ mod edit;
 mod file;
 mod history;
 mod motion;
+mod region;
 mod save;
 mod windows;
 
@@ -160,6 +161,7 @@ impl Session {
         match command {
             Command::Split(direction) => self.split(direction),
             Command::Window(command) => self.window_command(command),
+            Command::Region(command) => self.region_command(command),
             _ => self.dispatch(command),
         }
     }
@@ -175,10 +177,7 @@ impl Session {
             Command::Motion(motion) => self.motion(motion),
             Command::Scroll(scroll) => self.scroll(scroll),
             Command::History(history) => self.history(history),
-            Command::KeyboardQuit => {
-                self.input.cancel();
-                self.message("Quit")
-            }
+            Command::KeyboardQuit => self.keyboard_quit(),
             _ => self.edit_command(command),
         }
     }

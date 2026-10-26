@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "editing/regions.rs"]
+mod regions;
+
 use rev::buffer::edit::{Cursor, Error, Point, Replacement};
 use rev::buffer::{Buffer, Buffers, Span, Stamp};
 use rev::coordinates::Scalar;

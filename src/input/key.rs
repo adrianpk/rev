@@ -35,6 +35,9 @@ impl Key {
     }
 
     fn character(&mut self) {
+        if self.code == KeyCode::Null && self.modifiers.is_empty() {
+            self.modifiers = KeyModifiers::CONTROL;
+        }
         if let KeyCode::Char(character) = self.code {
             self.modifiers.remove(KeyModifiers::SHIFT);
             if self.modifiers.contains(KeyModifiers::CONTROL) && character.is_ascii_alphabetic() {

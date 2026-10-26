@@ -50,6 +50,7 @@ pub enum Error {
     Capacity,
     History(History),
     HistoryState,
+    Mark,
 }
 
 impl fmt::Display for Error {
@@ -57,21 +58,28 @@ impl fmt::Display for Error {
         match self {
             Self::Source(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
-            Self::ReadOnly => formatter.write_str("buffer is read-only"),
-            Self::Empty => formatter.write_str("edit has no replacements"),
-            Self::Order => {
-                formatter.write_str("base ranges must be ordered and disjoint with distinct starts")
-            }
-            Self::ChangedPositions => formatter
-                .write_str("points, mark or typing continuity changed after edit preparation"),
             Self::Cursor(index) => {
                 write!(formatter, "initiating point index {index} is unavailable")
             }
-            Self::Capacity => formatter.write_str("edit capacity or revision is exhausted"),
             Self::History(direction) => formatter.write_str(direction.unavailable()),
-            Self::HistoryState => {
-                formatter.write_str("history does not match the logical text state")
+            _ => formatter.write_str(self.message()),
+        }
+    }
+}
+
+impl Error {
+    fn message(self) -> &'static str {
+        match self {
+            Self::ReadOnly => "buffer is read-only",
+            Self::Empty => "edit has no replacements",
+            Self::Order => "base ranges must be ordered and disjoint with distinct starts",
+            Self::ChangedPositions => {
+                "points, mark, selection or typing continuity changed after edit preparation"
             }
+            Self::Capacity => "edit capacity or revision is exhausted",
+            Self::HistoryState => "history does not match the logical text state",
+            Self::Mark => "Mark is not set",
+            _ => unreachable!("parameterized errors format their own context"),
         }
     }
 }
@@ -163,6 +171,7 @@ pub struct Prepared {
     operation: Operation,
     next_state: u64,
     group: Option<Transaction>,
+    active: bool,
 }
 
 impl Buffer {
@@ -184,6 +193,7 @@ impl Buffer {
             mapping::boundary(&Coordinates::new(self)?, position)?;
         }
         self.mark = mark;
+        self.mark_active = false;
         self.break_typing();
         Ok(())
     }
@@ -251,6 +261,7 @@ impl Buffer {
             operation: Operation::Edit,
             next_state: self.next_state,
             group: None,
+            active: self.mark_active,
         })
     }
 
@@ -258,7 +269,10 @@ impl Buffer {
     /// this buffer; unchanged source snapshots are required before any mutation.
     pub fn publish(&mut self, prepared: Prepared, points: &mut [Point]) -> Result<(), Error> {
         self.admit(prepared.record.before)?;
-        if points != prepared.record.before_points || self.mark != prepared.record.before_mark {
+        if points != prepared.record.before_points
+            || self.mark != prepared.record.before_mark
+            || self.mark_active != prepared.active
+        {
             return Err(Error::ChangedPositions);
         }
         self.admit_group(&prepared)?;
@@ -276,6 +290,7 @@ impl Buffer {
         self.state = state;
         self.next_state = prepared.next_state;
         self.mark = mark;
+        self.mark_active = false;
         points.copy_from_slice(&after_points);
         self.typing = match prepared.operation {
             Operation::Typing => Some(after),

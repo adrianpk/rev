@@ -2,6 +2,7 @@ mod clip;
 mod compose;
 mod inventory;
 mod prompt;
+mod selection;
 
 use std::io::{self, Write};
 
@@ -36,6 +37,7 @@ pub struct Row {
     row: u16,
     text: String,
     band: Band,
+    selection: Option<std::ops::Range<u16>>,
 }
 
 impl Row {
@@ -45,6 +47,10 @@ impl Row {
 
     pub fn text(&self) -> &str {
         &self.text
+    }
+
+    pub fn selection(&self) -> Option<std::ops::Range<u16>> {
+        self.selection.clone()
     }
 
     pub fn band(&self) -> Band {
@@ -63,6 +69,16 @@ pub struct Frame {
 
 impl Frame {
     pub fn project(buffer: &Buffer, view: &View, size: Size, echo: &str) -> Result<Self, Error> {
+        Self::project_view(buffer, view, size, echo, true)
+    }
+
+    fn project_view(
+        buffer: &Buffer,
+        view: &View,
+        size: Size,
+        echo: &str,
+        selected: bool,
+    ) -> Result<Self, Error> {
         let point = view.cell(buffer)?;
         let mut frame = Self {
             size,
@@ -74,7 +90,8 @@ impl Frame {
             return Ok(frame);
         }
         if size.usable() {
-            frame.document(buffer, view)?;
+            let highlight = selection::Highlight::new(buffer, view, selected)?;
+            frame.document(buffer, view, highlight)?;
             frame.status(buffer, point)?;
             frame.cursor = frame.position(point, view);
         } else {
@@ -102,7 +119,7 @@ impl Frame {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
-            writer.write_all(row.text.as_bytes())?;
+            row.write(writer)?;
         }
         if let Some(cursor) = self.cursor {
             writer
@@ -112,7 +129,12 @@ impl Frame {
         writer.flush()
     }
 
-    fn document(&mut self, buffer: &Buffer, view: &View) -> Result<(), Error> {
+    fn document(
+        &mut self,
+        buffer: &Buffer,
+        view: &View,
+        highlight: Option<selection::Highlight>,
+    ) -> Result<(), Error> {
         let coordinates = Coordinates::new(buffer)?;
         for row in 0..self.size.text_rows() {
             let source = view.top.saturating_add(usize::from(row));
@@ -125,6 +147,9 @@ impl Frame {
                 row,
                 text,
                 band: Band::Document,
+                selection: highlight
+                    .as_ref()
+                    .and_then(|h| h.row(source, view.left, self.size.width)),
             });
         }
         Ok(())
@@ -143,6 +168,7 @@ impl Frame {
             row: self.size.height - 2,
             text: clip::line(Glyphs::for_text(&status)?, 0, self.size.width)?,
             band: Band::Status,
+            selection: None,
         });
         Ok(())
     }
@@ -152,6 +178,7 @@ impl Frame {
             row: self.size.height - 1,
             text: clip::line(Glyphs::for_text(message)?, 0, self.size.width)?,
             band: Band::Echo,
+            selection: None,
         });
         Ok(())
     }
@@ -162,6 +189,7 @@ impl Frame {
                 row,
                 text: " ".repeat(usize::from(self.size.width)),
                 band: Band::Document,
+                selection: None,
             });
         }
     }

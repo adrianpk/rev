@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::{BufferCommand, Command, Split, WindowCommand};
+use rev::command::{BufferCommand, Command, RegionCommand, Split, WindowCommand};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -255,9 +255,9 @@ fn prefix_recovery() {
             Outcome::Message("Undefined key sequence"),
         ),
         (
-            "repeated prefix press",
+            "exchange consumes prefix",
             vec![control('x'), control('x')],
-            Outcome::Message("Undefined key sequence"),
+            Outcome::Command(Command::Region(RegionCommand::Exchange)),
         ),
     ];
     for (name, events, expected) in cases {
@@ -663,5 +663,29 @@ fn window_repeats() {
         ));
         assert_eq!(input.handle(repeat), Outcome::Ignored);
         assert!(matches!(input.handle(character('x')), Outcome::Editing(_)));
+    }
+}
+
+// Reported C-SPC, C-@ and NUL aliases reach the same real command. The exchange
+// prefix consumes its suffix; neither selection command inserts document text.
+#[test]
+fn region_bindings() {
+    for event in [control(' '), control('@'), key(KeyCode::Null)] {
+        let mut input = Input::default();
+        assert_eq!(
+            input.handle(event),
+            Outcome::Command(Command::Region(RegionCommand::Set))
+        );
+    }
+    let mut input = Input::default();
+    assert_eq!(
+        feed(&mut input, vec![control('x'), control('x')]).last(),
+        Some(&Outcome::Command(Command::Region(RegionCommand::Exchange)))
+    );
+    for command in [RegionCommand::Set, RegionCommand::Exchange] {
+        assert_eq!(
+            Command::named(command.name()),
+            Some(Command::Region(command))
+        );
     }
 }

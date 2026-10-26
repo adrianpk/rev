@@ -44,8 +44,8 @@ impl Frame {
         for (id, area) in geometry.panes() {
             let view = windows.get(*id)?;
             let buffer = buffers.get(view.point.stamp.buffer)?;
-            let mut pane = Self::project(buffer, view, area.view_size(), "")?;
             let selected = *id == windows.selected_id();
+            let mut pane = Self::project_view(buffer, view, area.view_size(), "", selected)?;
             if !selected {
                 let status = &mut pane.rows[usize::from(area.height() - 1)];
                 status.text.replace_range(..1, " ");
@@ -83,6 +83,7 @@ impl Frame {
                         row,
                         text: "|".into(),
                         band: Band::Divider,
+                        selection: None,
                     },
                 )?;
             }
@@ -110,6 +111,9 @@ impl Frame {
             self.size.width - end,
         )?;
         target.text = format!("{left}{}{right}", source.text);
+        if let Some(selection) = &source.selection {
+            target.selection = Some(area.column() + selection.start..area.column() + selection.end);
+        }
         target.band = if area.width() == self.size.width {
             source.band
         } else {

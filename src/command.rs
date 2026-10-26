@@ -1,5 +1,6 @@
 mod buffer;
 mod motion;
+mod region;
 mod scroll;
 mod split;
 mod window;
@@ -8,6 +9,7 @@ pub use crate::buffer::edit::History;
 pub use crate::window::Split;
 pub use buffer::BufferCommand;
 pub use motion::Motion;
+pub use region::RegionCommand;
 pub use scroll::Scroll;
 pub use window::WindowCommand;
 
@@ -29,10 +31,11 @@ pub enum Command {
     Buffer(BufferCommand),
     Split(Split),
     Window(WindowCommand),
+    Region(RegionCommand),
 }
 
 impl Command {
-    pub const ALL: [Self; 32] = [
+    pub const ALL: [Self; 34] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -65,6 +68,8 @@ impl Command {
         Self::Window(WindowCommand::Delete),
         Self::Window(WindowCommand::Keep),
         Self::Window(WindowCommand::Other),
+        Self::Region(RegionCommand::Set),
+        Self::Region(RegionCommand::Exchange),
     ];
 
     pub fn name(self) -> &'static str {
@@ -75,6 +80,7 @@ impl Command {
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),
             Self::Window(command) => command.name(),
+            Self::Region(command) => command.name(),
             _ => self.action_name(),
         }
     }

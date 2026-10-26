@@ -1,6 +1,8 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::command::{BufferCommand, Command, History, Motion, Scroll, Split, WindowCommand};
+use crate::command::{
+    BufferCommand, Command, History, Motion, RegionCommand, Scroll, Split, WindowCommand,
+};
 
 use super::Key;
 
@@ -41,6 +43,8 @@ fn navigation(code: KeyCode) -> Option<Command> {
 fn control(code: KeyCode) -> Option<Command> {
     match code {
         KeyCode::Char('/' | '_') => Some(Command::History(History::Undo)),
+        KeyCode::Char(' ' | '@') => Some(Command::Region(RegionCommand::Set)),
+        KeyCode::Null => Some(Command::Region(RegionCommand::Set)),
         _ => control_motion(code),
     }
 }
@@ -85,6 +89,7 @@ pub(super) fn control_x(key: Key) -> Option<Command> {
 
 fn control_x_control(code: KeyCode) -> Option<Command> {
     match code {
+        KeyCode::Char('x') => Some(Command::Region(RegionCommand::Exchange)),
         KeyCode::Char('s') => Some(Command::SaveBuffer),
         KeyCode::Char('w') => Some(Command::WriteFile),
         KeyCode::Char('f') => Some(Command::FindFile),

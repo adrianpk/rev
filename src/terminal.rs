@@ -1,6 +1,7 @@
 use std::io::{self, BufWriter, Write};
 
 use crossterm::cursor::{Hide, Show};
+use crossterm::style::{Attribute, SetAttribute};
 use crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
 };
@@ -12,6 +13,7 @@ pub struct Terminal<W: Write> {
     raw: bool,
     screen: bool,
     cursor: bool,
+    attributes: bool,
 }
 
 impl<W: Write> Terminal<W> {
@@ -23,6 +25,7 @@ impl<W: Write> Terminal<W> {
             raw: true,
             screen: false,
             cursor: false,
+            attributes: false,
         })
     }
 
@@ -30,6 +33,7 @@ impl<W: Write> Terminal<W> {
     pub fn enter(&mut self) -> io::Result<()> {
         // A failed write may already have changed the terminal; retain its undo.
         self.screen = true;
+        self.attributes = true;
         self.command(EnterAlternateScreen, "enter alternate screen")?;
         self.cursor = true;
         self.command(Hide, "hide cursor")
@@ -44,9 +48,10 @@ impl<W: Write> Terminal<W> {
     /// Failed obligations remain owned so drop can retry them.
     pub fn restore(&mut self) -> io::Result<()> {
         let cursor = self.show();
+        let attributes = self.reset_attributes();
         let screen = self.leave();
         let raw = self.release();
-        cursor.and(screen).and(raw)
+        cursor.and(attributes).and(screen).and(raw)
     }
 
     fn command(&mut self, command: impl Command, operation: &str) -> io::Result<()> {
@@ -60,6 +65,14 @@ impl<W: Write> Terminal<W> {
         if self.cursor {
             self.command(Show, "show cursor")?;
             self.cursor = false;
+        }
+        Ok(())
+    }
+
+    fn reset_attributes(&mut self) -> io::Result<()> {
+        if self.attributes {
+            self.command(SetAttribute(Attribute::Reset), "reset display attributes")?;
+            self.attributes = false;
         }
         Ok(())
     }

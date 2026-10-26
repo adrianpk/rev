@@ -25,6 +25,7 @@ impl Size {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
     Buffer(buffer::Error),
+    Edit(buffer::edit::Error),
     Coordinates(coordinates::Error),
     Window(crate::window::Error),
 }
@@ -33,6 +34,7 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Buffer(error) => error.fmt(formatter),
+            Self::Edit(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
             Self::Window(error) => error.fmt(formatter),
         }
@@ -44,6 +46,12 @@ impl std::error::Error for Error {}
 impl From<buffer::Error> for Error {
     fn from(error: buffer::Error) -> Self {
         Self::Buffer(error)
+    }
+}
+
+impl From<buffer::edit::Error> for Error {
+    fn from(error: buffer::edit::Error) -> Self {
+        Self::Edit(error)
     }
 }
 

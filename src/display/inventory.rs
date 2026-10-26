@@ -18,6 +18,7 @@ impl Frame {
         let top = index.saturating_sub(extent - 1);
         for row in self.rows.iter_mut().take(extent) {
             row.text = " ".repeat(usize::from(self.size.width));
+            row.selection = None;
         }
         for (row, buffer) in self
             .rows
@@ -31,6 +32,7 @@ impl Frame {
                 self.size.width,
             )?;
         }
+        self.rows[extent].selection = None;
         self.rows[extent].text = clip::line(
             Glyphs::for_text(&format!("Buffers: {} live", buffers.iter().len()))?,
             0,
