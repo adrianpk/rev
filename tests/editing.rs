@@ -1518,3 +1518,433 @@ fn typing_command() {
     assert_eq!(text(session.buffer().unwrap()), "");
     assert!(!session.buffer().unwrap().is_modified());
 }
+
+fn type_at(buffer: &mut Buffer, points: &mut [Point], character: char, index: usize) {
+    let start = points[index].position.0;
+    let mut bytes = [0; 4];
+    let edit = replacement(buffer, start..start, character.encode_utf8(&mut bytes));
+    let prepared = buffer
+        .prepare_typing(
+            &edit,
+            points,
+            Cursor {
+                index,
+                position: Scalar(start + 1),
+            },
+        )
+        .unwrap();
+    buffer.publish(prepared, points).unwrap();
+}
+
+// A command that leaves point unchanged still ends typing. Prefix handling,
+// invalid input and resize must not silently join typing on either side.
+#[test]
+fn typing_breaks() {
+    use crossterm::event::{Event, KeyCode};
+    let cases = [
+        ("boundary motion", vec![chord('f')]),
+        ("away and back", vec![chord('b'), chord('f')]),
+        ("cancel", vec![chord('g')]),
+        (
+            "invalid prefix",
+            vec![chord('x'), press(KeyCode::Char('q'))],
+        ),
+        ("canceled prefix", vec![chord('x'), chord('g')]),
+        ("unbound control", vec![chord('q')]),
+        ("unbound function", vec![press(KeyCode::F(1))]),
+        ("raw control", vec![press(KeyCode::Char('\0'))]),
+        ("resize", vec![Event::Resize(40, 8)]),
+    ];
+    for (name, events) in cases {
+        let mut session = editor("", 0, false);
+        session.insert('a');
+        session.insert('b');
+        for event in events {
+            session.handle(event);
+        }
+        session.insert('c');
+        session.insert('d');
+        assert_eq!(text(session.buffer().unwrap()), "abcd", "{name}");
+        assert_eq!(session.buffer().unwrap().history().len(), 2, "{name}");
+        history(&mut session, "undo");
+        assert_eq!(text(session.buffer().unwrap()), "ab", "{name}");
+        history(&mut session, "undo");
+        assert_eq!(text(session.buffer().unwrap()), "", "{name}");
+    }
+}
+
+// Key releases are ordinary typing lifecycle noise, not commands. Repeated
+// printable input can extend the same coherent group without consuming one.
+#[test]
+fn typing_phases() {
+    use crossterm::event::{KeyCode, KeyEventKind};
+    let mut session = editor("", 0, false);
+    session.insert('a');
+    let event = press(KeyCode::Char('b'));
+    assert_eq!(
+        session.handle(phase(event.clone(), KeyEventKind::Release)),
+        rev::session::Action::Wait
+    );
+    session.handle(event.clone());
+    session.handle(phase(event, KeyEventKind::Repeat));
+    assert_eq!(text(session.buffer().unwrap()), "abb");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    history(&mut session, "undo");
+    assert_eq!(text(session.buffer().unwrap()), "");
+}
+
+// The original save boundary stays reachable as a whole group boundary. A save
+// after preparation invalidates a proposed join before any state is published.
+#[test]
+fn typing_checkpoint() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0)];
+    type_at(buffer, &mut points, 'a', 0);
+    type_at(buffer, &mut points, 'b', 0);
+    let edit = replacement(buffer, 2..2, "c");
+    let prepared = buffer
+        .prepare_typing(
+            &edit,
+            &points,
+            Cursor {
+                index: 0,
+                position: Scalar(3),
+            },
+        )
+        .unwrap();
+    let saved = buffer.state();
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    let before = snapshot(buffer, &points);
+    assert_eq!(
+        buffer.publish(prepared, &mut points).unwrap_err(),
+        Error::ChangedPositions
+    );
+    assert_eq!(snapshot(buffer, &points), before);
+    type_at(buffer, &mut points, 'c', 0);
+    type_at(buffer, &mut points, 'd', 0);
+    assert_eq!(buffer.history().len(), 2);
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "ab");
+    assert_eq!(buffer.state(), saved);
+    assert!(!buffer.is_modified());
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "");
+    assert!(buffer.is_modified());
+    buffer
+        .navigate(History::Redo, &mut points, Some(0))
+        .unwrap();
+    assert!(!buffer.is_modified());
+    buffer
+        .navigate(History::Redo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "abcd");
+    assert!(buffer.is_modified());
+}
+
+// Explicit context breaks after preparation reject a cached join even if text,
+// mark, point and revision still compare equal to their prepared snapshots.
+#[test]
+fn prepared_group() {
+    for name in ["explicit break", "same mark", "same access"] {
+        let mut buffers = Buffers::new().unwrap();
+        let buffer = buffers.get_mut(buffers.initial()).unwrap();
+        let mut points = [point(buffer, 0)];
+        type_at(buffer, &mut points, 'a', 0);
+        let edit = replacement(buffer, 1..1, "b");
+        let prepared = buffer
+            .prepare_typing(
+                &edit,
+                &points,
+                Cursor {
+                    index: 0,
+                    position: Scalar(2),
+                },
+            )
+            .unwrap();
+        match name {
+            "explicit break" => buffer.break_typing(),
+            "same mark" => buffer.set_mark(None).unwrap(),
+            _ => buffer.set_read_only(false),
+        }
+        let before = snapshot(buffer, &points);
+        assert_eq!(
+            buffer.publish(prepared, &mut points).unwrap_err(),
+            Error::ChangedPositions,
+            "{name}"
+        );
+        assert_eq!(snapshot(buffer, &points), before, "{name}");
+        type_at(buffer, &mut points, 'c', 0);
+        assert_eq!(text(buffer), "ac", "{name}");
+        assert_eq!(buffer.history().len(), 2, "{name}");
+    }
+}
+
+// Canceled or invalid private candidates do not extend retained fragments or
+// clear confirmed typing continuity; the next valid key joins only live text.
+#[test]
+fn canceled_group() {
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0)];
+    type_at(buffer, &mut points, 'a', 0);
+    let edit = replacement(buffer, 1..1, "b");
+    let prepared = buffer
+        .prepare_typing(
+            &edit,
+            &points,
+            Cursor {
+                index: 0,
+                position: Scalar(2),
+            },
+        )
+        .unwrap();
+    drop(prepared);
+    let invalid = Replacement {
+        source: Span {
+            stamp: buffer.stamp(),
+            range: 99..99,
+        },
+        text: "x".into(),
+    };
+    let before = snapshot(buffer, &points);
+    assert!(
+        buffer
+            .prepare_typing(
+                &invalid,
+                &points,
+                Cursor {
+                    index: 0,
+                    position: Scalar(100)
+                }
+            )
+            .is_err()
+    );
+    assert_eq!(snapshot(buffer, &points), before);
+    type_at(buffer, &mut points, 'c', 0);
+    assert_eq!(text(buffer), "ac");
+    assert_eq!(buffer.history().len(), 1);
+    assert_eq!(
+        buffer.history().back().unwrap().changes()[0]
+            .inserted()
+            .to_string(),
+        "ac"
+    );
+}
+
+// Changed initiators or non-initiating view positions end a group even when
+// insertion offsets remain adjacent. No view inherits another cursor snapshot.
+#[test]
+fn typing_views() {
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0), point(buffer, 0)];
+    type_at(buffer, &mut points, 'a', 0);
+    type_at(buffer, &mut points, 'b', 1);
+    type_at(buffer, &mut points, 'c', 1);
+    assert_eq!(buffer.history().len(), 2);
+    points[0].position = Scalar(0);
+    type_at(buffer, &mut points, 'd', 1);
+    assert_eq!(buffer.history().len(), 3);
+    buffer.set_mark(None).unwrap();
+    type_at(buffer, &mut points, 'e', 1);
+    assert_eq!(buffer.history().len(), 4);
+    assert_eq!(text(buffer), "abcde");
+    buffer
+        .navigate(rev::buffer::edit::History::Undo, &mut points, Some(1))
+        .unwrap();
+    assert_eq!(text(buffer), "abcd");
+    assert_eq!(points.map(|p| p.position), [Scalar(0), Scalar(4)]);
+}
+
+// Multi-range replacement remains one complete undo unit next to typing.
+// Typing after undo starts a fresh group and discards the compound redo future.
+#[test]
+fn compound_groups() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("abcdef").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let mut points = [point(buffer, 0)];
+    type_at(buffer, &mut points, 'x', 0);
+    type_at(buffer, &mut points, 'y', 0);
+    let edits = [
+        replacement(buffer, 2..3, "A\n"),
+        replacement(buffer, 5..7, "👩\u{200d}💻"),
+    ];
+    let prepared = buffer
+        .prepare(
+            &edits,
+            &points,
+            Some(Cursor {
+                index: 0,
+                position: Scalar(4),
+            }),
+        )
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(text(buffer), "xyA\nbc👩\u{200d}💻f");
+    assert_eq!(buffer.history().len(), 2);
+    assert_eq!(buffer.history().back().unwrap().changes().len(), 2);
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "xyabcdef");
+    type_at(buffer, &mut points, 'z', 0);
+    type_at(buffer, &mut points, '!', 0);
+    assert_eq!(text(buffer), "xyz!abcdef");
+    assert_eq!(buffer.history().len(), 2);
+    assert!(buffer.redo_history().is_empty());
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "xyabcdef");
+    buffer
+        .navigate(History::Redo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "xyz!abcdef");
+}
+
+// A paste-sized or replacement payload enters through one ordinary transaction,
+// preserving the untouched prefix/suffix and surviving one-step undo and redo.
+#[test]
+fn bulk_group() {
+    use rev::buffer::edit::History;
+    let source = "left\r\nold\r\nright";
+    let payload = "é界\t\r\n".repeat(6000);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let mut points = [point(buffer, 6)];
+    let edit = replacement(buffer, 6..9, &payload);
+    let prepared = buffer
+        .prepare(
+            &[edit],
+            &points,
+            Some(Cursor {
+                index: 0,
+                position: Scalar(6 + payload.chars().count()),
+            }),
+        )
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(text(buffer), format!("left\r\n{payload}\r\nright"));
+    assert_eq!(buffer.history().len(), 1);
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), source);
+    assert_eq!(points[0].position, Scalar(6));
+    assert!(buffer.is_modified());
+    buffer
+        .navigate(History::Redo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), format!("left\r\n{payload}\r\nright"));
+    assert!(!buffer.is_modified());
+}
+
+// The count bound applies to complete typing groups, not individual key edits.
+// Deep traversal must stop at the retained base without inventing a clean state.
+#[test]
+fn retained_groups() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0)];
+    for _ in 0..515 {
+        buffer.break_typing();
+        type_at(buffer, &mut points, 'a', 0);
+        type_at(buffer, &mut points, 'b', 0);
+    }
+    assert_eq!(buffer.len_chars(), 1030);
+    assert_eq!(buffer.history().len(), 512);
+    assert!(
+        buffer
+            .history()
+            .iter()
+            .all(|record| record.changes()[0].inserted().len_chars() == 2)
+    );
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    for _ in 0..512 {
+        buffer
+            .navigate(History::Undo, &mut points, Some(0))
+            .unwrap();
+    }
+    assert_eq!(text(buffer), "ababab");
+    assert_eq!(points[0].position, Scalar(6));
+    assert!(buffer.is_modified());
+    assert!(buffer.history().is_empty());
+    for _ in 0..512 {
+        buffer
+            .navigate(History::Redo, &mut points, Some(0))
+            .unwrap();
+    }
+    assert_eq!(buffer.len_chars(), 1030);
+    assert_eq!(points[0].position, Scalar(1030));
+    assert!(!buffer.is_modified());
+}
+
+// Exercise the actual 64 MiB soft target. The newest two-range operation exceeds
+// it alone, yet remains whole and reversible after every older group is pruned.
+#[test]
+fn newest_group() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 0..0, "XY")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    let payload = "a".repeat(32 * 1024 * 1024 + 1);
+    let edits = [
+        replacement(buffer, 0..0, &payload),
+        replacement(buffer, 1..1, &payload),
+    ];
+    let prepared = buffer.prepare(&edits, &[], None).unwrap();
+    drop(edits);
+    buffer.publish(prepared, &mut []).unwrap();
+    assert_eq!(buffer.history().len(), 1);
+    let record = buffer.history().back().unwrap();
+    assert_eq!(record.changes().len(), 2);
+    assert_eq!(
+        record
+            .changes()
+            .iter()
+            .map(|change| change.inserted().len_bytes())
+            .sum::<usize>(),
+        64 * 1024 * 1024 + 2
+    );
+    assert_eq!(buffer.len_chars(), 64 * 1024 * 1024 + 4);
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), "XY");
+    assert!(!buffer.is_modified());
+    assert!(buffer.history().is_empty());
+    buffer.navigate(History::Redo, &mut [], None).unwrap();
+    assert_eq!(buffer.len_chars(), 64 * 1024 * 1024 + 4);
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(payload.len()..payload.len() + 1).unwrap())
+            .unwrap()
+            .to_string(),
+        "X"
+    );
+    assert_eq!(
+        buffer
+            .slice(
+                &buffer
+                    .span(buffer.len_chars() - 1..buffer.len_chars())
+                    .unwrap()
+            )
+            .unwrap()
+            .to_string(),
+        "Y"
+    );
+    assert!(buffer.is_modified());
+}

@@ -350,6 +350,43 @@ def undo_history(root):
         session.close()
 
 
+def group_step(session, keys, marker):
+    session.output.clear()
+    os.write(session.master, keys)
+    session.wait(lambda: marker in session.output and SHOW in session.output)
+    assert session.process.poll() is None and LEAVE not in session.output
+
+
+def typing_history(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        source = "ab e\u0301👩\u200d💻".encode()
+        group_step(session, source, b"** RW L1 C7 Text")
+        assert source in session.output, bytes(session.output)
+        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        assert b"\x1b[1;1H " in session.output, bytes(session.output)
+        group_step(session, b"ab", b"** RW L1 C3 Text")
+        group_step(session, b"\x07", b"Quit")
+        group_step(session, b"cd", b"** RW L1 C5 Text")
+        group_step(session, b"\x18u", b"** RW L1 C3 Text")
+        assert b"\x1b[1;1Hab " in session.output, bytes(session.output)
+        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        group_step(session, b"ab\rcd", b"** RW L2 C3 Text")
+        group_step(session, b"\x18u", b"** RW L2 C1 Text")
+        group_step(session, b"\x18u", b"** RW L1 C3 Text")
+        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        group_step(session, b"new", b"** RW L1 C4 Text")
+        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        group_step(session, b"\x18u", b"Nothing to undo")
+        os.write(session.master, b"\x18\x03")
+        session.finish(0)
+        assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
+        print("PASS whole Unicode typing groups, command/newline boundaries and clean exit")
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -365,7 +402,8 @@ def main():
     motion(root)
     scrolling(root)
     undo_history(root)
-    print("Terminal PTY suite: 12 cases passed, 0 skipped.")
+    typing_history(root)
+    print("Terminal PTY suite: 13 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
