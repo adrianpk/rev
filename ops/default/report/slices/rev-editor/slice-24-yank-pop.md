@@ -1,11 +1,12 @@
 # Slice 24: Rotate only the current yank range
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-24-yank-pop`
 PR: `#24`
+Integrated: Rebase + Fast-forward into dev at `50ccd9554653dea4e5356d77c22a5dcde8464922`.
 
 ## Purpose
 

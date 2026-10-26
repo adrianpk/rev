@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 24 - Rotate only the current yank range
+Active slice: Slice 25 - Resolve Meta Escape and undo aliases
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -528,17 +528,20 @@ Report: [Slice 23](../report/slices/rev-editor/slice-23-kill-ring.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R19, R21.
 
-- [ ] T24.1: Implement yank-pop with buffer/view/revision-qualified inserted range and rotation; replace exactly the immediately preceding yank sequence.
-- [ ] T24.2: Exercise unequal-length entries, repeated rotations, unrelated commands, edits in another view, undo, and attempted pop before any yank.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T24.1: Implement yank-pop with buffer/view/revision-qualified inserted range and rotation; replace exactly the immediately preceding yank sequence.
+- [x] T24.2: Exercise unequal-length entries, repeated rotations, unrelated commands, edits in another view, undo, and attempted pop before any yank.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T24.1 and T24.2 complete; PR #24 open for integration.
+Implementation: T24.1 and T24.2 delivered through PR #24.
 Task commits: T24.1 `a538935b48083ba5806434472300f0d7b8d4ab07`;
 T24.2 `4c2675d43c564170a1c2a433b1f01e110ee5c3ba`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed ninety-one tests and the terminal PTY suite passed forty-eight cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#24](https://forge.adrianpk.com/adrianpk/rev/pulls/24).
+Integration: Rebase + Fast-forward into dev at
+`50ccd9554653dea4e5356d77c22a5dcde8464922`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 24](../report/slices/rev-editor/slice-24-yank-pop.md).
 
 ### Slice 25: Resolve Meta Escape and undo aliases
