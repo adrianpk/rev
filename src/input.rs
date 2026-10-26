@@ -130,7 +130,7 @@ impl Input {
         if event.kind == KeyEventKind::Press {
             self.suppress_repeat = false;
         }
-        if event.kind == KeyEventKind::Repeat && self.repeat_blocked() {
+        if event.kind == KeyEventKind::Repeat && self.repeat_blocked(event.code) {
             return Outcome::Ignored;
         }
         let Some(key) = Key::normalize(event) else {
@@ -139,8 +139,17 @@ impl Input {
         self.route(key)
     }
 
-    fn repeat_blocked(&self) -> bool {
-        self.suppress_repeat || self.prefix.is_some() || self.focus() == Focus::Decision
+    fn repeat_blocked(&self, code: KeyCode) -> bool {
+        self.suppress_repeat
+            || self.prefix.is_some()
+            || self.focus() == Focus::Decision
+            || (self.focus() == Focus::Argument && code == KeyCode::Enter)
+    }
+
+    pub fn cancel(&mut self) {
+        self.context = Context::Editing;
+        self.prefix = None;
+        self.suppress_repeat = true;
     }
 
     fn available(&self) -> Result<(), Error> {
@@ -152,8 +161,7 @@ impl Input {
 
     fn route(&mut self, key: Key) -> Outcome {
         if key.control('g') {
-            self.context = Context::Editing;
-            self.prefix = None;
+            self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
         let outcome = match &mut self.context {
@@ -190,6 +198,9 @@ impl Input {
         if key.control('x') {
             return self.wait(Prefix::ControlX);
         }
+        if let Some(command) = binding(key) {
+            return Outcome::Command(command);
+        }
         if key.plain().is_none() {
             return Outcome::Message("Unbound key");
         }
@@ -210,5 +221,18 @@ fn decide(key: Key) -> Outcome {
         Some(KeyCode::Char('y' | 'Y')) => Outcome::Decision(true),
         Some(KeyCode::Char('n' | 'N')) => Outcome::Decision(false),
         _ => Outcome::Message("Answer y or n"),
+    }
+}
+
+fn binding(key: Key) -> Option<Command> {
+    if key.control('d') {
+        return Some(Command::DeleteChar);
+    }
+    match key.plain()? {
+        KeyCode::Enter => Some(Command::Newline),
+        KeyCode::Tab => Some(Command::InsertTab),
+        KeyCode::Backspace => Some(Command::BackwardDeleteChar),
+        KeyCode::Delete => Some(Command::DeleteChar),
+        _ => None,
     }
 }

@@ -1,4 +1,5 @@
 pub mod edit;
+mod endings;
 
 use std::collections::{BTreeMap, VecDeque};
 
@@ -104,6 +105,7 @@ impl std::error::Error for Error {}
 pub struct Buffer {
     id: BufferId,
     name: String,
+    crlf: usize,
     revision: u64,
     text: Rope,
     read_only: bool,
@@ -118,6 +120,7 @@ impl Buffer {
         Ok(Self {
             id,
             name: format!("*buffer-{id}*"),
+            crlf: endings::count(RopeSlice::from(text)),
             revision: 1,
             text: Rope::from_str(text),
             read_only: false,
@@ -125,6 +128,13 @@ impl Buffer {
             history: VecDeque::new(),
             history_bytes: 0,
         })
+    }
+
+    /// Insert the prevailing current separator; LF wins ties and empty buffers.
+    /// CRLF metadata changes atomically with text, including joins at edit seams.
+    pub fn newline(&self) -> &'static str {
+        let lf = self.len_lines() - 1 - self.crlf;
+        if self.crlf > lf { "\r\n" } else { "\n" }
     }
 
     pub fn name(&self) -> &str {
@@ -246,6 +256,11 @@ impl Buffers {
             entries: BTreeMap::from([(initial, buffer)]),
             initial,
         })
+    }
+
+    /// Quit admission examines every live buffer's current dirty metadata.
+    pub fn is_modified(&self) -> bool {
+        self.entries.values().any(Buffer::is_modified)
     }
 
     pub fn initial(&self) -> BufferId {

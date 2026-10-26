@@ -143,6 +143,7 @@ impl Transaction {
 /// Publication rechecks the live revision, read-only state, points, and mark.
 pub struct Prepared {
     text: Rope,
+    crlf: usize,
     record: Transaction,
 }
 
@@ -183,6 +184,7 @@ impl Buffer {
         let after = self.next_stamp()?;
         let changes = self.changes(edits)?;
         let text = self.candidate(edits)?;
+        let crlf = super::endings::update(&self.text, &text, &changes, self.crlf)?;
         let coordinates = Coordinates::for_text(text.slice(..), after);
         let after_points = map_points(self, &changes, points, &coordinates)?;
         let mut record = Transaction {
@@ -201,7 +203,7 @@ impl Buffer {
             .iter()
             .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
         mapping::set_cursor(&mut record, cursor, &coordinates)?;
-        Ok(Prepared { text, record })
+        Ok(Prepared { text, crlf, record })
     }
 
     /// The sole text publication path. The caller supplies every live point for
@@ -214,6 +216,7 @@ impl Buffer {
         self.history.try_reserve(1).map_err(|_| Error::Capacity)?;
         // From here onward there are no recoverable operations or callbacks.
         self.text = prepared.text;
+        self.crlf = prepared.crlf;
         self.revision = prepared.record.after.revision;
         self.mark = prepared.record.after_mark;
         points.copy_from_slice(&prepared.record.after_points);

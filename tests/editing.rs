@@ -469,3 +469,130 @@ fn retained_records() {
     assert_eq!(last.changes()[0].before(), 514..514);
     assert_eq!(last.changes()[0].inserted().to_string(), "x");
 }
+
+fn editor(source: &str, position: usize, read_only: bool) -> rev::session::Session {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_read_only(read_only);
+    let mut view = rev::view::View::new(buffer);
+    view.point.position = Scalar(position);
+    rev::session::Session::new(
+        buffers,
+        view,
+        rev::display::Size {
+            width: 48,
+            height: 8,
+        },
+    )
+    .unwrap()
+}
+
+fn press(code: crossterm::event::KeyCode) -> crossterm::event::Event {
+    use crossterm::event::{Event, KeyEvent, KeyModifiers};
+    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
+}
+
+fn chord(character: char) -> crossterm::event::Event {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    Event::Key(KeyEvent::new(
+        KeyCode::Char(character),
+        KeyModifiers::CONTROL,
+    ))
+}
+
+// Actual session events enter the canonical rope without a mode switch and
+// produce a mapped cursor, dirty status, visible tabs, and a new logical line.
+#[test]
+fn direct_input() {
+    use crossterm::event::KeyCode;
+    use rev::display::Position;
+    use rev::session::Action;
+    let mut session = editor("", 0, false);
+    for character in "é界e\u{301}".chars() {
+        assert_eq!(
+            session.handle(press(KeyCode::Char(character))),
+            Action::Redraw
+        );
+    }
+    for code in [KeyCode::Tab, KeyCode::Enter, KeyCode::Char('x')] {
+        assert_eq!(session.handle(press(code)), Action::Redraw);
+    }
+    let buffer = session.buffer().unwrap();
+    assert_eq!(text(buffer), "é界e\u{301}\t\nx");
+    assert_eq!(buffer.history().len(), 7);
+    assert_eq!(buffer.stamp().revision, 8);
+    assert_eq!(session.view().point.position, Scalar(7));
+    assert_eq!(session.view().point.stamp, buffer.stamp());
+    let frame = session.frame().unwrap();
+    assert_eq!(frame.cursor(), Some(Position { column: 1, row: 1 }));
+    assert!(frame.rows()[0].text().starts_with("é界e\u{301}    "));
+    assert!(frame.rows()[1].text().starts_with('x'));
+    assert!(frame.rows()[6].text().contains("** RW L2 C2 Text"));
+}
+
+// Bound commands remove entire preceding/following graphemes and CRLF pairs.
+// Empty boundaries do not publish an empty transaction or move the point.
+#[test]
+fn bound_deletion() {
+    use crossterm::event::KeyCode;
+    let cases = [
+        (
+            "back combining",
+            "e\u{301}界",
+            2,
+            press(KeyCode::Backspace),
+            "界",
+            0,
+            1,
+        ),
+        (
+            "back emoji",
+            "a👩🏽\u{200d}💻b",
+            5,
+            press(KeyCode::Backspace),
+            "ab",
+            1,
+            1,
+        ),
+        (
+            "forward emoji",
+            "a👩🏽\u{200d}💻b",
+            1,
+            press(KeyCode::Delete),
+            "ab",
+            1,
+            1,
+        ),
+        (
+            "back CRLF",
+            "a\r\nb",
+            3,
+            press(KeyCode::Backspace),
+            "ab",
+            1,
+            1,
+        ),
+        ("forward CRLF", "a\r\nb", 1, chord('d'), "ab", 1, 1),
+        ("back flag", "🇵🇱x", 2, press(KeyCode::Backspace), "x", 0, 1),
+        (
+            "empty beginning",
+            "",
+            0,
+            press(KeyCode::Backspace),
+            "",
+            0,
+            0,
+        ),
+        ("empty end", "", 0, chord('d'), "", 0, 0),
+    ];
+    for (name, source, position, event, expected, point, records) in cases {
+        let mut session = editor(source, position, false);
+        session.handle(event);
+        let buffer = session.buffer().unwrap();
+        assert_eq!(text(buffer), expected, "{name}");
+        assert_eq!(session.view().point.position, Scalar(point), "{name}");
+        assert_eq!(buffer.history().len(), records, "{name}");
+        assert_eq!(buffer.stamp().revision, 1 + records as u64, "{name}");
+    }
+}
