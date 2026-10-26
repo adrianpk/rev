@@ -181,6 +181,29 @@ fn retained_parse() {
     compare(buffer);
     assert!(buffer.syntax().is_incremental());
     assert_eq!(text(buffer), edited);
+    let before_compound = text(buffer);
+    let start = before_compound[..before_compound.find("main").unwrap()]
+        .chars()
+        .count();
+    let replacements = [
+        Replacement {
+            source: buffer.span(0..0).unwrap(),
+            text: "// compound\r\n".into(),
+        },
+        Replacement {
+            source: buffer.span(start..start + 4).unwrap(),
+            text: "renamed\n/* gap */".into(),
+        },
+    ];
+    let prepared = buffer.prepare(&replacements, &[], None).unwrap();
+    assert_eq!(prepared.syntax_edits().len(), 2);
+    buffer.publish(prepared, &mut []).unwrap();
+    compare(buffer);
+    assert!(buffer.syntax().is_incremental());
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    compare(buffer);
+    assert_eq!(text(buffer), before_compound);
+    assert!(buffer.syntax().is_incremental());
 }
 
 // Typing contributes its own exact input edits even when history coalesces.
@@ -224,3 +247,6 @@ fn grouped_paste() {
         reference.captures(buffer, 0..buffer.len_bytes())
     );
 }
+
+#[path = "failures.rs"]
+mod failures;
