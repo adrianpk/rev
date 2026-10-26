@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 43 - Harden ordinary failure boundaries
+Active slice: Slice 44 - Drive user journeys through a PTY
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -908,16 +908,16 @@ Report: [Slice 42](../report/slices/rev-editor/slice-42-session-quit.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R03, R04, R06, R10, R13, R20, R25, R30, R32, R37, R39.
 
-- [ ] T43.1: Extend real boundary fault injection for recoverable ingress, save stages, tree operations, parser/query execution, and post-acquisition terminal errors, retaining truthful outcomes.
-- [ ] T43.2: Exercise combined failures and cleanup ordering, canceled transient interactions, readonly rejection, and state equality after rejected compound edits. Keep fixes within already approved behavior.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T43.1: Extend real boundary fault injection for recoverable ingress, save stages, tree operations, parser/query execution, and post-acquisition terminal errors, retaining truthful outcomes.
+- [x] T43.2: Exercise combined failures and cleanup ordering, canceled transient interactions, readonly rejection, and state equality after rejected compound edits. Keep fixes within already approved behavior.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T43.1 and T43.2 complete; PR #43 awaits integration.
+Implementation: delivered through PR #43.
 Task commits: T43.1 `2e45d275864e289f10c83776166569fe197fce3b`;
 T43.2 `21cde797e6cc8289178dac0d7d118ce0dd9b437c`.
 Validation: required Cargo/source commands passed; `cargo test --test recovery`
 passed 16 tests and the terminal PTY suite passed 90 cases with zero skips.
-Final PR-head evidence is recorded through Looper.
+Integration: `99c13fa2b99cecb5553bf2c5074edeeb6ba6c8ae`; all seven ordered checks passed at this exact head through Looper (`YAINMMT7QKOFJDQQCAPVMFA422`).
 PR: [#43](https://forge.adrianpk.com/adrianpk/rev/pulls/43).
 Report: [Slice 43](../report/slices/rev-editor/slice-43-failure-recovery.md).
 

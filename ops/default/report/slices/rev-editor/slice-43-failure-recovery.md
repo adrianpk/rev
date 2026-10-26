@@ -1,11 +1,12 @@
 # Slice 43: Harden ordinary failure boundaries
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `fix/rev-43-failure-recovery`
 PR: `#43`
+Integrated: `99c13fa2b99cecb5553bf2c5074edeeb6ba6c8ae`
 
 ## Purpose
 
