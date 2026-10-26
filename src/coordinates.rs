@@ -1,5 +1,6 @@
 mod cursor;
 mod display;
+mod motion;
 
 use std::fmt;
 

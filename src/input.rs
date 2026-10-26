@@ -1,3 +1,4 @@
+mod bindings;
 mod key;
 mod prompt;
 
@@ -198,7 +199,7 @@ impl Input {
         if key.control('x') {
             return self.wait(Prefix::ControlX);
         }
-        if let Some(command) = binding(key) {
+        if let Some(command) = bindings::binding(key) {
             return Outcome::Command(command);
         }
         if key.plain().is_none() {
@@ -221,18 +222,5 @@ fn decide(key: Key) -> Outcome {
         Some(KeyCode::Char('y' | 'Y')) => Outcome::Decision(true),
         Some(KeyCode::Char('n' | 'N')) => Outcome::Decision(false),
         _ => Outcome::Message("Answer y or n"),
-    }
-}
-
-fn binding(key: Key) -> Option<Command> {
-    if key.control('d') {
-        return Some(Command::DeleteChar);
-    }
-    match key.plain()? {
-        KeyCode::Enter => Some(Command::Newline),
-        KeyCode::Tab => Some(Command::InsertTab),
-        KeyCode::Backspace => Some(Command::BackwardDeleteChar),
-        KeyCode::Delete => Some(Command::DeleteChar),
-        _ => None,
     }
 }

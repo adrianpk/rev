@@ -386,3 +386,103 @@ fn empty_coordinates() {
     assert!(glyphs.next().is_none());
     assert!(glyphs.next().is_none());
 }
+
+// Word navigation consumes Unicode alphanumeric/underscore grapheme runs,
+// skips punctuation and emoji, and is directionally consistent at run edges.
+#[test]
+fn word_motion() {
+    let cases = [
+        ("empty", "", 0, 0, 0),
+        ("word start", "alpha beta", 0, 5, 0),
+        ("inside word", "alpha beta", 2, 5, 0),
+        ("word end", "alpha beta", 5, 10, 0),
+        ("punctuation", "one...two", 4, 9, 0),
+        ("underscore", "a_b 42", 0, 3, 0),
+        ("unicode", "é界_١٢!z", 0, 5, 0),
+        ("combining", "e\u{301}!界", 0, 2, 0),
+        ("emoji", "👩\u{200d}💻 x", 0, 5, 0),
+        ("CRLF", "a\r\nb", 1, 4, 0),
+        ("trailing space", "one  ", 5, 5, 0),
+    ];
+    let mut buffers = Buffers::new().unwrap();
+    for (name, source, point, next, previous) in cases {
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let coordinates = Coordinates::new(buffer).unwrap();
+        assert_eq!(
+            coordinates.forward_word(Scalar(point)).unwrap(),
+            Scalar(next),
+            "{name}"
+        );
+        assert_eq!(
+            coordinates.backward_word(Scalar(point)).unwrap(),
+            Scalar(previous),
+            "{name}"
+        );
+        assert!(!buffer.is_modified(), "{name}");
+    }
+}
+
+fn session(source: &str, position: usize, read_only: bool) -> rev::session::Session {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_read_only(read_only);
+    let mut view = rev::view::View::new(buffer);
+    view.point.position = Scalar(position);
+    rev::session::Session::new(
+        buffers,
+        view,
+        rev::display::Size {
+            width: 8,
+            height: 4,
+        },
+    )
+    .unwrap()
+}
+
+fn key(
+    code: crossterm::event::KeyCode,
+    modifiers: crossterm::event::KeyModifiers,
+) -> crossterm::event::Event {
+    crossterm::event::Event::Key(crossterm::event::KeyEvent::new(code, modifiers))
+}
+
+// Real binding events move the qualified point over whole clusters and CRLF,
+// then reveal it, without publishing text or creating history/dirty state.
+#[test]
+fn bound_motion() {
+    use crossterm::event::{KeyCode, KeyModifiers as Mod};
+    use rev::session::Action;
+    let source = "e\u{301}👩\u{200d}💻\r\nlast";
+    let mut session = session(source, 0, false);
+    let stamp = session.buffer().unwrap().stamp();
+    for (code, modifiers, position) in [
+        (KeyCode::Char('f'), Mod::CONTROL, 2),
+        (KeyCode::Right, Mod::NONE, 5),
+        (KeyCode::Char('f'), Mod::CONTROL, 7),
+        (KeyCode::Char('b'), Mod::CONTROL, 5),
+        (KeyCode::Left, Mod::NONE, 2),
+        (KeyCode::Home, Mod::NONE, 0),
+        (KeyCode::End, Mod::NONE, 5),
+        (KeyCode::Char('>'), Mod::ALT, 11),
+        (KeyCode::Char('<'), Mod::ALT, 0),
+    ] {
+        assert_eq!(session.handle(key(code, modifiers)), Action::Redraw);
+        assert_eq!(session.view().point.position, Scalar(position));
+        assert_eq!(session.view().point.stamp, stamp);
+        let frame = session.frame().unwrap();
+        assert!(frame.cursor().is_some());
+    }
+    let buffer = session.buffer().unwrap();
+    assert_eq!(buffer.stamp(), stamp);
+    assert!(buffer.history().is_empty());
+    assert!(!buffer.is_modified());
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap()
+            .to_string(),
+        source
+    );
+}

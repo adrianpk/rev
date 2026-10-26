@@ -1,4 +1,5 @@
 mod edit;
+mod motion;
 
 use std::io::{self, Write};
 
@@ -101,6 +102,7 @@ impl Session {
         let point = self.view.point.position.0;
         let result = match command {
             Command::Quit => return self.quit(),
+            Command::Motion(motion) => return self.motion(motion),
             Command::KeyboardQuit => {
                 self.input.cancel();
                 return self.message("Quit");

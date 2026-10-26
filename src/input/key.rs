@@ -44,20 +44,6 @@ impl Key {
     }
 
     fn repeatable(self) -> bool {
-        self.control('d')
-            || matches!(
-                self.plain(),
-                Some(
-                    KeyCode::Char(_)
-                        | KeyCode::Enter
-                        | KeyCode::Tab
-                        | KeyCode::Backspace
-                        | KeyCode::Delete
-                        | KeyCode::Left
-                        | KeyCode::Right
-                        | KeyCode::Home
-                        | KeyCode::End
-                )
-            )
+        super::bindings::binding(self).is_some() || matches!(self.plain(), Some(KeyCode::Char(_)))
     }
 }
