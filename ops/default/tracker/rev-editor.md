@@ -652,12 +652,13 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R24
 - [ ] T30.2: Exercise mixed Unicode case, backward chunk seams, query edits, match boundaries, direction changes, failed search, and cancellation after scrolling.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T30.1 and T30.2 complete; canonical PR preparation in progress.
+Implementation: T30.1 and T30.2 complete; canonical PR #30 prepared for integration.
 Task commits: T30.1 `c41066a63d82a1eb10961642046b60cbaa42a530`;
 T30.2 `d03adaff8e5475a8aca97f23cbc13bf3236da4d5`.
 Validation: required Cargo/source commands passed; `cargo test --test search`
 passed nineteen tests and the terminal PTY suite passed sixty-two cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#30](https://forge.adrianpk.com/adrianpk/rev/pulls/30).
 Report: [Slice 30](../report/slices/rev-editor/slice-30-search-control.md).
 
 ### Slice 31: Confirm literal replacements interactively
