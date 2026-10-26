@@ -532,13 +532,13 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R19
 - [ ] T24.2: Exercise unequal-length entries, repeated rotations, unrelated commands, edits in another view, undo, and attempted pop before any yank.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T24.1 and T24.2 complete; canonical PR pending.
+Implementation: T24.1 and T24.2 complete; PR #24 open for integration.
 Task commits: T24.1 `a538935b48083ba5806434472300f0d7b8d4ab07`;
 T24.2 `4c2675d43c564170a1c2a433b1f01e110ee5c3ba`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed ninety-one tests and the terminal PTY suite passed forty-eight cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#24](https://forge.adrianpk.com/adrianpk/rev/pulls/24).
 Report: [Slice 24](../report/slices/rev-editor/slice-24-yank-pop.md).
 
 ### Slice 25: Resolve Meta Escape and undo aliases
