@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 37 - Open and create tree entries
+Active slice: Slice 38 - Reconcile visited paths after tree rename
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -792,12 +792,12 @@ Report: [Slice 36](../report/slices/rev-editor/slice-36-tree-navigation.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R11, R12, R28, R30.
 
-- [ ] T37.1: Open selected files through find-file and add prompted new-file/new-directory creation at the selected directory, validating names and conflicts before disk mutation.
-- [ ] T37.2: Exercise existing visits, unsupported extension fallback, occupied/invalid names, permission errors, canceled creation, and synchronization of tree entries with buffers.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T37.1: Open selected files through find-file and add prompted new-file/new-directory creation at the selected directory, validating names and conflicts before disk mutation.
+- [x] T37.2: Exercise existing visits, unsupported extension fallback, occupied/invalid names, permission errors, canceled creation, and synchronization of tree entries with buffers.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T37.1 and T37.2 complete; PR #37 awaits integration.
+Implementation: T37.1 and T37.2 delivered through PR #37.
 Task commits: T37.1 `215ef188ed4494036f1d193a61ef85532bb816f2`, completed at
 `6f72e3bd1b93883aec5b68529f009dcb0cd770ec`;
 T37.2 `0abd8a723fdc6fe47e440f6c07b549353580e3a8`.
@@ -805,6 +805,9 @@ Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 33 tests and the terminal PTY suite passed 76 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#37](https://forge.adrianpk.com/adrianpk/rev/pulls/37).
+Integration: Rebase + Fast-forward into dev at
+`b7c647290236a471f17e4c3a2c5fe8f0a54688be`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 37](../report/slices/rev-editor/slice-37-tree-create.md).
 
 ### Slice 38: Reconcile visited paths after tree rename

@@ -1,11 +1,12 @@
 # Slice 37: Open and create tree entries
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-37-tree-create`
 PR: `#37`
+Integrated: Rebase + Fast-forward into dev at `b7c647290236a471f17e4c3a2c5fe8f0a54688be`.
 
 ## Purpose
 
