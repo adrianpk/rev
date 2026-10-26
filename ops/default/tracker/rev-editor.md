@@ -137,7 +137,7 @@ Task commits: T4.1 `2fed813e6ac8c1a5761e1a2733ccda7b9998d9fb`;
 T4.2 `ba6a69da8fad140524c0abaa4a7dc000624e31ff`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed ten tests with zero skips. Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#4](https://forge.adrianpk.com/adrianpk/rev/pulls/4).
 Report: [Slice 4](../report/slices/rev-editor/slice-4-edits.md).
 
 ### Slice 5: Decode prefixes and focused prompts
