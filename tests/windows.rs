@@ -149,3 +149,246 @@ fn fit_admission() {
         assert!(session.buffer().unwrap().history().is_empty());
     }
 }
+
+fn other(session: &Session) -> rev::window::ViewId {
+    session
+        .windows()
+        .iter()
+        .map(|(id, _)| id)
+        .find(|id| *id != session.windows().selected_id())
+        .unwrap()
+}
+
+// Moving and scrolling one selected pane cannot move its sibling. Native view
+// selection makes both owners independently navigable with their own pane size.
+#[test]
+fn independent_navigation() {
+    use rev::command::{Motion, Scroll};
+    let text = ("0123456789\t界".repeat(12) + "\n").repeat(60);
+    for direction in [Split::Below, Split::Right] {
+        let dimensions = size(31, 13);
+        let mut session = editor(&text, dimensions);
+        let original = session.windows().selected_id();
+        split(&mut session, direction);
+        bounded(&mut session, dimensions);
+        let sibling = other(&session);
+        let sibling_before = session.windows().get(sibling).unwrap().clone();
+        session.execute(Command::Motion(Motion::BufferEnd));
+        session.execute(Command::Scroll(Scroll::PreviousLine));
+        session.execute(Command::Motion(Motion::LineEnd));
+        bounded(&mut session, dimensions);
+        let moved = session.view().clone();
+        assert!(moved.top > 0 && moved.left > 0);
+        assert_eq!(*session.windows().get(sibling).unwrap(), sibling_before);
+        session.select_view(sibling).unwrap();
+        session.execute(Command::Scroll(Scroll::NextLine));
+        bounded(&mut session, dimensions);
+        assert_ne!(session.view().point, moved.point);
+        assert_eq!(*session.windows().get(original).unwrap(), moved);
+        assert!(session.buffer().unwrap().history().is_empty());
+        session.select_view(original).unwrap();
+        assert_eq!(*session.view(), moved);
+    }
+}
+
+// An edit initiated by a non-first view publishes one canonical text revision
+// and valid mapped points for both views. Undo/redo can be invoked from either
+// view without stale stamps or a copied/independent document.
+#[test]
+fn shared_publication() {
+    use rev::command::{History, Motion};
+    let dimensions = size(31, 13);
+    let mut session = editor("first\nsecond\nlast", dimensions);
+    split(&mut session, Split::Right);
+    let original = session.windows().selected_id();
+    let sibling = other(&session);
+    let owner = session.buffer().unwrap().id();
+    let before = session.buffer().unwrap().stamp();
+    let original_point = session.view().point.position;
+    session.select_view(sibling).unwrap();
+    session.execute(Command::Motion(Motion::BufferEnd));
+    session.insert('界');
+    assert_eq!(session.buffer().unwrap().id(), owner);
+    assert_eq!(
+        session.buffer().unwrap().stamp().revision,
+        before.revision + 1
+    );
+    assert_eq!(
+        session.windows().get(original).unwrap().point.position,
+        original_point
+    );
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert!(session.buffer().unwrap().is_modified());
+    bounded(&mut session, dimensions);
+    session.select_view(original).unwrap();
+    session.execute(Command::History(History::Undo));
+    assert_eq!(
+        session.buffer().unwrap().len_chars(),
+        "first\nsecond\nlast".chars().count()
+    );
+    assert!(!session.buffer().unwrap().is_modified());
+    bounded(&mut session, dimensions);
+    session.select_view(sibling).unwrap();
+    session.execute(Command::History(History::Redo));
+    assert!(session.buffer().unwrap().is_modified());
+    let stamp = session.buffer().unwrap().stamp();
+    for (_, view) in session.windows().iter() {
+        assert_eq!(view.point.stamp, stamp);
+        view.cell(session.buffer().unwrap()).unwrap();
+    }
+    bounded(&mut session, dimensions);
+}
+
+// Wide/combining/tab glyphs clip at each pane seam rather than byte offsets.
+// Only the selected pane supplies the status marker and translated hardware cursor.
+#[test]
+fn composed_cells() {
+    use rev::display::Position;
+    let dimensions = size(17, 9);
+    let mut session = editor("a\t界e\u{301}👩\u{200d}💻 tail\nsecond", dimensions);
+    split(&mut session, Split::Below);
+    split(&mut session, Split::Right);
+    let geometry = session.windows().geometry(dimensions).unwrap();
+    let right = geometry.panes()[1].0;
+    bounded(&mut session, dimensions);
+    let frame = session.frame().unwrap();
+    assert_eq!(frame.rows()[0].text(), "a   界e\u{301} |a   界e\u{301} ");
+    assert!(frame.rows()[3].text().starts_with("> "));
+    assert_eq!(&frame.rows()[3].text()[8..11], "|  ");
+    assert!(frame.rows()[7].text().starts_with("  "));
+    assert_eq!(frame.cursor(), Some(Position { column: 4, row: 0 }));
+    session.select_view(right).unwrap();
+    let frame = session.frame().unwrap();
+    assert!(frame.rows()[3].text().starts_with("  "));
+    assert_eq!(&frame.rows()[3].text()[8..11], "|> ");
+    assert_eq!(frame.cursor(), Some(Position { column: 13, row: 0 }));
+}
+
+// Closing a buffer already shown by several leaves repairs every live reference
+// while preserving the split tree and selected view identity.
+#[test]
+fn replaced_references() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::BufferCommand;
+    let dimensions = size(31, 13);
+    let mut session = editor("original", dimensions);
+    split(&mut session, Split::Below);
+    split(&mut session, Split::Right);
+    let closed = session.buffer().unwrap().id();
+    let selected = session.windows().selected_id();
+    let layout = session.windows().layout().clone();
+    session.execute(Command::Buffer(BufferCommand::Kill));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(session.echo(), "Buffer closed");
+    assert_ne!(session.buffer().unwrap().id(), closed);
+    assert_eq!(session.windows().selected_id(), selected);
+    assert_eq!(*session.windows().layout(), layout);
+    for (_, view) in session.windows().iter() {
+        assert_eq!(view.point.stamp, session.buffer().unwrap().stamp());
+    }
+    session.insert('!');
+    bounded(&mut session, dimensions);
+    for (_, view) in session.windows().iter() {
+        view.cell(session.buffer().unwrap()).unwrap();
+    }
+}
+
+// Insufficient resized geometry suspends projection without deleting the tree.
+// Further split attempts remain rejected until the full layout fits again.
+#[test]
+fn suspended_layout() {
+    use crossterm::event::Event;
+    let dimensions = size(31, 13);
+    let mut session = editor("original", dimensions);
+    split(&mut session, Split::Below);
+    split(&mut session, Split::Right);
+    bounded(&mut session, dimensions);
+    let layout = session.windows().layout().clone();
+    let selected = session.windows().selected_id();
+    let views = session
+        .windows()
+        .iter()
+        .map(|(id, view)| (id, view.clone()))
+        .collect::<Vec<_>>();
+    for dimensions in [size(0, 0), size(1, 1), size(3, 3)] {
+        session.handle(Event::Resize(dimensions.width, dimensions.height));
+        bounded(&mut session, dimensions);
+        assert!(session.frame().unwrap().cursor().is_none());
+        session.execute(Command::Split(Split::Right));
+        assert!(session.echo().starts_with("Split does not fit"));
+        assert_eq!(*session.windows().layout(), layout);
+        assert_eq!(session.windows().selected_id(), selected);
+        assert_eq!(
+            session
+                .windows()
+                .iter()
+                .map(|(id, view)| (id, view.clone()))
+                .collect::<Vec<_>>(),
+            views
+        );
+    }
+    session.handle(Event::Resize(dimensions.width, dimensions.height));
+    bounded(&mut session, dimensions);
+    assert!(session.frame().unwrap().cursor().is_some());
+    assert_eq!(*session.windows().layout(), layout);
+}
+
+// Repeated nesting is bounded by u16 geometry and minimum child dimensions;
+// reaching that boundary refuses further changes before any registry publication.
+#[test]
+fn nested_limits() {
+    use rev::window::Windows;
+    let buffers = Buffers::new().unwrap();
+    let view = View::new(buffers.get(buffers.initial()).unwrap());
+    let mut windows = Windows::new(view).unwrap();
+    let dimensions = size(u16::MAX, u16::MAX);
+    let mut accepted = 0;
+    for index in 0..40 {
+        let direction = if index % 2 == 0 {
+            Split::Below
+        } else {
+            Split::Right
+        };
+        let layout = windows.layout().clone();
+        if windows.split(direction, dimensions).is_err() {
+            assert_eq!(*windows.layout(), layout);
+            break;
+        }
+        accepted += 1;
+    }
+    assert!(accepted > 20 && accepted < 32);
+    assert_eq!(windows.iter().len(), accepted + 1);
+    let geometry = windows.geometry(dimensions).unwrap();
+    assert_eq!(geometry.panes().len(), accepted + 1);
+    for (_, area) in geometry.panes() {
+        assert!(area.width() >= 3 && area.height() >= 2);
+    }
+}
+
+// Invalid native view identities and an active prompt cannot steal focus or
+// change layout. Canceling the prompt returns to the same selected view.
+#[test]
+fn view_admission() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    let dimensions = size(31, 13);
+    let mut session = editor("original", dimensions);
+    split(&mut session, Split::Below);
+    let selected = session.windows().selected_id();
+    let sibling = other(&session);
+    let foreign = editor("foreign", dimensions).windows().selected_id();
+    assert!(session.select_view(foreign).is_err());
+    assert_eq!(session.windows().selected_id(), selected);
+    session.execute(Command::FindFile);
+    assert!(session.select_view(sibling).is_err());
+    assert_eq!(session.windows().selected_id(), selected);
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('g'),
+        KeyModifiers::CONTROL,
+    )));
+    assert_eq!(session.windows().selected_id(), selected);
+    session.select_view(sibling).unwrap();
+    assert_eq!(session.windows().selected_id(), sibling);
+}

@@ -779,6 +779,40 @@ def close_buffers(root):
             session.close()
 
 
+def nested_splits(root):
+    for order in ["below-right", "right-below"]:
+        with tempfile.TemporaryDirectory(prefix="rev-pty-splits-") as directory:
+            path = Path(directory) / "split.txt"
+            prefix = "a\t界e\u0301👩\u200d💻" + "0123456789" * 10
+            source = "".join(f"{prefix}-{row:02d}\n" for row in range(60)).encode()
+            path.write_bytes(source)
+            session = Session([str(root / "target/debug/rev"), str(path)])
+            try:
+                session.ready(b"> split.txt -- RW L1 C1 Text")
+                if order == "below-right":
+                    group_step(session, b"\x182", b"\x1b[11;1H> split.txt", b"\x1b[23;1H  split.txt")
+                    group_step(session, b"\x183", b"\x1b[11;1H> split.txt", b"|")
+                else:
+                    group_step(session, b"\x183", b"\x1b[23;1H> split.txt", b"|")
+                    group_step(session, b"\x182", b"\x1b[11;1H> split.txt", b"\x1b[23;1H  split.txt")
+                assert b"\x1b[1;1H" in session.output and b"\x1b[12;1H" in session.output
+                assert "界e\u0301👩\u200d💻".encode() in session.output
+                group_step(session, b"\x05", b"L1 C113 Text")
+                group_step(session, b"\x0e", b"L2 C113 Text", b"-- RW L1 C1 Text")
+                group_step(session, b"!", b"L2 C114 Text", b"** RW L1 C1 Text")
+                assert path.read_bytes() == source, "shared editing unexpectedly saved disk"
+                group_step(session, b"\x18u", b"L2 C113 Text", b"-- RW L1 C1 Text")
+                # Selected pane width 39 fits three further right divisions;
+                # the fourth must refuse without leaving a stale shared view.
+                group_step(session, b"\x183\x183\x183\x183", b"Split does not fit")
+                assert path.read_bytes() == source
+                os.write(session.master, b"\x18\x03")
+                session.finish(0)
+                print(f"PASS {order} nested splits, Unicode panes, retained focus, shared edit/undo and refused split")
+            finally:
+                session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -806,7 +840,8 @@ def main():
     save_collision(root)
     buffer_commands(root)
     close_buffers(root)
-    print("Terminal PTY suite: 28 cases passed, 0 skipped.")
+    nested_splits(root)
+    print("Terminal PTY suite: 30 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
