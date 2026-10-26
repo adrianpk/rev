@@ -857,13 +857,14 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05
 - [ ] T40.2: Exercise Rust keywords/strings/comments plus grammar-supported types/functions/numbers/operators, unsupported files, incomplete source, and missing/failed query fallback.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T40.1 and T40.2 complete; canonical PR pending.
+Implementation: T40.1 and T40.2 complete; PR #40 awaits integration.
 Task commits: T40.1 `ad71197b9defa146a2ac02b1a824979465e48c2f`;
 Clippy assertion correction `07faa9a631bae8aea364cefc939a8ca6044ca74b`;
 T40.2 `a916ffa8507896869e172e3679188bbb3ce868ba`.
 Validation: required Cargo/source commands passed; `cargo test --test syntax`
 passed 10 tests and the terminal PTY suite passed 82 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#40](https://forge.adrianpk.com/adrianpk/rev/pulls/40).
 Report: [Slice 40](../report/slices/rev-editor/slice-40-rust-highlights.md).
 
 ### Slice 41: Update syntax from exact rope edits
