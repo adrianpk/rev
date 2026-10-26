@@ -115,6 +115,9 @@ struct Snapshot {
     newline: &'static str,
     history: usize,
     points: Vec<Point>,
+    state: rev::buffer::State,
+    dirty: bool,
+    redo: usize,
 }
 
 fn snapshot(buffer: &Buffer, points: &[Point]) -> Snapshot {
@@ -126,6 +129,9 @@ fn snapshot(buffer: &Buffer, points: &[Point]) -> Snapshot {
         newline: buffer.newline(),
         history: buffer.history().len(),
         points: points.to_vec(),
+        state: buffer.state(),
+        dirty: buffer.is_modified(),
+        redo: buffer.redo_history().len(),
     }
 }
 
@@ -470,6 +476,32 @@ fn retained_records() {
     assert_eq!(last.after, buffer.stamp());
     assert_eq!(last.changes()[0].before(), 514..514);
     assert_eq!(last.changes()[0].inserted().to_string(), "x");
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    for _ in 0..512 {
+        buffer
+            .navigate(rev::buffer::edit::History::Undo, &mut [], None)
+            .unwrap();
+    }
+    assert_eq!(text(buffer), "xxx");
+    assert!(buffer.is_modified());
+    assert!(buffer.history().is_empty());
+    assert_eq!(buffer.redo_history().len(), 512);
+    let before = snapshot(buffer, &[]);
+    assert!(
+        buffer
+            .navigate(rev::buffer::edit::History::Undo, &mut [], None)
+            .is_err()
+    );
+    assert_eq!(snapshot(buffer, &[]), before);
+    for _ in 0..512 {
+        buffer
+            .navigate(rev::buffer::edit::History::Redo, &mut [], None)
+            .unwrap();
+    }
+    assert_eq!(buffer.len_chars(), 515);
+    assert_eq!(buffer.stamp().revision, 1540);
+    assert!(!buffer.is_modified());
+    assert!(buffer.redo_history().is_empty());
 }
 
 fn editor(source: &str, position: usize, read_only: bool) -> rev::session::Session {
@@ -1007,6 +1039,8 @@ fn history_cycle() {
 fn saved_history() {
     use rev::buffer::edit::History;
     let mut buffers = Buffers::new().unwrap();
+    let foreign = buffers.create("foreign").unwrap();
+    let foreign_stamp = buffers.get(foreign).unwrap().stamp();
     let buffer = buffers.get_mut(buffers.initial()).unwrap();
     let prepared = buffer
         .prepare(&[replacement(buffer, 0..0, "saved")], &[], None)
@@ -1031,5 +1065,410 @@ fn saved_history() {
     assert_eq!(text(buffer), "saveddirty");
     assert!(buffer.is_modified());
     assert!(buffer.mark_saved(saved_stamp).is_err());
+    assert!(buffer.mark_saved(foreign_stamp).is_err());
     assert!(buffer.is_modified());
+}
+
+// Repeated traversal must consume/reapply existing transactions rather than
+// recording undo as another edit or losing the initiating cursor at either end.
+#[test]
+fn history_walk() {
+    let mut session = editor("", 0, false);
+    session.insert('é');
+    session.insert('界');
+    let cases = [
+        ("undo", "é", 1, true, 1, 1),
+        ("undo", "", 0, false, 0, 2),
+        ("undo-redo", "é", 1, true, 1, 1),
+        ("undo-redo", "é界", 2, true, 2, 0),
+        ("undo", "é", 1, true, 1, 1),
+        ("undo-redo", "é界", 2, true, 2, 0),
+    ];
+    for (index, (name, source, cursor, dirty, undo, redo)) in cases.into_iter().enumerate() {
+        history(&mut session, name);
+        let buffer = session.buffer().unwrap();
+        assert_eq!(text(buffer), source);
+        assert_eq!(buffer.stamp().revision, 4 + index as u64);
+        assert_eq!(buffer.is_modified(), dirty);
+        assert_eq!(
+            (buffer.history().len(), buffer.redo_history().len()),
+            (undo, redo)
+        );
+        assert_eq!(session.view().point.position, Scalar(cursor));
+    }
+    let before = snapshot(session.buffer().unwrap(), &[session.view().point]);
+    session.execute(rev::command::Command::named("undo-redo").unwrap());
+    assert_eq!(session.echo(), "Nothing to redo");
+    assert_eq!(
+        snapshot(session.buffer().unwrap(), &[session.view().point]),
+        before
+    );
+}
+
+// A new edit after undo invalidates redo only when published. Even equal bytes
+// receive a distinct logical identity and cannot reuse a discarded save point.
+#[test]
+fn redo_branch() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    for character in ["a", "b"] {
+        let end = buffer.len_chars();
+        let prepared = buffer
+            .prepare(&[replacement(buffer, end..end, character)], &[], None)
+            .unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+    }
+    let abandoned_state = buffer.state();
+    buffer.mark_saved(buffer.stamp()).unwrap();
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 1..1, "ignored")], &[], None)
+        .unwrap();
+    drop(prepared);
+    assert_eq!(buffer.redo_history().len(), 1);
+    assert_eq!(text(buffer), "a");
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 1..1, "b")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    assert_eq!(text(buffer), "ab");
+    assert_ne!(buffer.state(), abandoned_state);
+    assert!(buffer.is_modified());
+    assert!(buffer.redo_history().is_empty());
+    let before = snapshot(buffer, &[]);
+    assert_eq!(
+        buffer.navigate(History::Redo, &mut [], None).unwrap_err(),
+        Error::History(History::Redo)
+    );
+    assert_eq!(snapshot(buffer, &[]), before);
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), "a");
+    buffer.navigate(History::Redo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), "ab");
+    assert!(buffer.is_modified());
+}
+
+// The selected live initiator receives its recorded cursor; other live points
+// map from their current positions, even when their array order has changed.
+#[test]
+fn history_positions() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("ab界cd").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_mark(Some(Scalar(2))).unwrap();
+    let mut points = [point(buffer, 0), point(buffer, 3), point(buffer, 5)];
+    let prepared = buffer
+        .prepare(
+            &[replacement(buffer, 1..3, "👩\u{200d}💻")],
+            &points,
+            Some(Cursor {
+                index: 0,
+                position: Scalar(4),
+            }),
+        )
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(buffer.mark(), Some(Scalar(1)));
+    points[0].position = Scalar(6);
+    points[1].position = Scalar(5);
+    points[2].position = Scalar(0);
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(text(buffer), "ab界cd");
+    assert_eq!(
+        points.map(|p| p.position),
+        [Scalar(0), Scalar(4), Scalar(0)]
+    );
+    assert_eq!(buffer.mark(), Some(Scalar(2)));
+    points.swap(0, 2);
+    buffer
+        .navigate(History::Redo, &mut points, Some(2))
+        .unwrap();
+    assert_eq!(text(buffer), "a👩\u{200d}💻cd");
+    assert_eq!(
+        points.map(|p| p.position),
+        [Scalar(0), Scalar(5), Scalar(4)]
+    );
+    assert!(points.iter().all(|p| p.stamp == buffer.stamp()));
+    assert_eq!(buffer.mark(), Some(Scalar(1)));
+}
+
+// Compound inverses can contain equal insertion starts after adjacent deletions;
+// replay must preserve their order and incremental newline accounting exactly.
+#[test]
+fn compound_history() {
+    use rev::buffer::edit::History;
+    let cases = [
+        (
+            "adjacent deletion",
+            "abcd",
+            vec![(0..1, ""), (1..2, "")],
+            "cd",
+        ),
+        ("CRLF seams", "a\r\nb", vec![(1..2, ""), (2..3, "")], "ab"),
+        (
+            "mixed replacement",
+            "α\r\nx界yz",
+            vec![(0..1, ""), (3..5, "e\u{301}")],
+            "\r\ne\u{301}yz",
+        ),
+    ];
+    let mut buffers = Buffers::new().unwrap();
+    for (name, source, changes, target) in cases {
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        let edits: Vec<_> = changes
+            .into_iter()
+            .map(|(range, text)| replacement(buffer, range, text))
+            .collect();
+        let prepared = buffer.prepare(&edits, &[], None).unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+        for _ in 0..3 {
+            buffer.navigate(History::Undo, &mut [], None).unwrap();
+            assert_eq!(text(buffer), source, "{name}");
+            assert_eq!(buffer.newline(), prevailing(source), "{name}");
+            assert!(!buffer.is_modified(), "{name}");
+            buffer.navigate(History::Redo, &mut [], None).unwrap();
+            assert_eq!(text(buffer), target, "{name}");
+            assert_eq!(buffer.newline(), prevailing(target), "{name}");
+            assert_eq!(buffer.history().len(), 1, "{name}");
+        }
+    }
+}
+
+fn history_fixture(direction: rev::buffer::edit::History) -> (Buffers, Vec<Point>) {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("e\u{301}\r\n界").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let mut points = vec![point(buffer, 5)];
+    let prepared = buffer
+        .prepare(
+            &[replacement(buffer, 5..5, "!")],
+            &points,
+            Some(Cursor {
+                index: 0,
+                position: Scalar(6),
+            }),
+        )
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    if direction == rev::buffer::edit::History::Redo {
+        buffer
+            .navigate(rev::buffer::edit::History::Undo, &mut points, Some(0))
+            .unwrap();
+    }
+    (buffers, points)
+}
+
+// Foreign, stale, interior and out-of-range points and unavailable initiators
+// reject the whole replay. Read-only undo/redo preserve both history futures.
+#[test]
+fn invalid_history() {
+    use rev::buffer::edit::History;
+    for direction in [History::Undo, History::Redo] {
+        let (mut buffers, mut points) = history_fixture(direction);
+        let foreign = buffers.get(buffers.initial()).unwrap().stamp();
+        let buffer = buffers.get_mut(points[0].stamp.buffer).unwrap();
+        let stamp = buffer.stamp();
+        for (name, invalid) in [
+            (
+                "foreign",
+                Point {
+                    stamp: foreign,
+                    position: Scalar(0),
+                },
+            ),
+            (
+                "stale",
+                Point {
+                    stamp: Stamp {
+                        revision: stamp.revision - 1,
+                        ..stamp
+                    },
+                    position: Scalar(0),
+                },
+            ),
+            ("cluster interior", point(buffer, 1)),
+            ("past EOF", point(buffer, 999)),
+        ] {
+            let mut supplied = [invalid];
+            let before = snapshot(buffer, &supplied);
+            assert!(
+                buffer.navigate(direction, &mut supplied, Some(0)).is_err(),
+                "{name}"
+            );
+            assert_eq!(snapshot(buffer, &supplied), before, "{name}");
+        }
+        let before = snapshot(buffer, &points);
+        assert_eq!(
+            buffer
+                .navigate(direction, &mut points, Some(99))
+                .unwrap_err(),
+            Error::Cursor(99)
+        );
+        assert_eq!(snapshot(buffer, &points), before);
+        buffer.set_read_only(true);
+        let before = snapshot(buffer, &points);
+        assert_eq!(
+            buffer
+                .navigate(direction, &mut points, Some(0))
+                .unwrap_err(),
+            Error::ReadOnly
+        );
+        assert_eq!(snapshot(buffer, &points), before);
+    }
+}
+
+// Buffers with coincident local sequence numbers still have distinct logical
+// identities and independent undo/redo queues and saved-state markers.
+#[test]
+fn independent_history() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let first = buffers.initial();
+    let second = buffers.create("other").unwrap();
+    for id in [first, second] {
+        let buffer = buffers.get_mut(id).unwrap();
+        let end = buffer.len_chars();
+        let prepared = buffer
+            .prepare(&[replacement(buffer, end..end, "!")], &[], None)
+            .unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+    }
+    assert_ne!(
+        buffers.get(first).unwrap().state(),
+        buffers.get(second).unwrap().state()
+    );
+    let other = snapshot(buffers.get(second).unwrap(), &[]);
+    buffers
+        .get_mut(first)
+        .unwrap()
+        .navigate(History::Undo, &mut [], None)
+        .unwrap();
+    assert_eq!(snapshot(buffers.get(second).unwrap(), &[]), other);
+    buffers
+        .get_mut(second)
+        .unwrap()
+        .navigate(History::Undo, &mut [], None)
+        .unwrap();
+    assert_eq!(text(buffers.get(second).unwrap()), "other");
+    assert!(!buffers.get(second).unwrap().is_modified());
+    buffers
+        .get_mut(first)
+        .unwrap()
+        .navigate(History::Redo, &mut [], None)
+        .unwrap();
+    assert_eq!(text(buffers.get(first).unwrap()), "!");
+    assert!(buffers.get(first).unwrap().is_modified());
+    assert_eq!(buffers.get(second).unwrap().redo_history().len(), 1);
+}
+
+// Each required reportable undo binding reaches the named handler; releases
+// cannot consume history while a repeated direct undo can consume one record.
+#[test]
+fn history_keys() {
+    use crossterm::event::{KeyCode, KeyEventKind};
+    let cases = [
+        ("Control slash", vec![chord('/')]),
+        ("Control underscore", vec![chord('_')]),
+        (
+            "Control X suffix",
+            vec![chord('x'), press(KeyCode::Char('u'))],
+        ),
+    ];
+    for (name, events) in cases {
+        let mut session = editor("e\u{301}", 2, false);
+        session.insert('!');
+        for event in events {
+            session.handle(event);
+        }
+        assert_eq!(text(session.buffer().unwrap()), "e\u{301}", "{name}");
+        assert_eq!(session.view().point.position, Scalar(2), "{name}");
+        assert!(!session.buffer().unwrap().is_modified(), "{name}");
+        assert!(session.echo().is_empty(), "{name}");
+    }
+    let mut session = editor("", 0, false);
+    session.insert('a');
+    assert_eq!(
+        session.handle(phase(chord('/'), KeyEventKind::Release)),
+        rev::session::Action::Wait
+    );
+    assert_eq!(text(session.buffer().unwrap()), "a");
+    session.handle(phase(chord('/'), KeyEventKind::Repeat));
+    assert_eq!(text(session.buffer().unwrap()), "");
+    session.execute(rev::command::Command::named("undo").unwrap());
+    assert_eq!(session.echo(), "Nothing to undo");
+}
+
+// Chunked history fragments include a combining cluster spanning rope seams;
+// repeated replay must restore exact UTF-8 bytes and whole initiating cursors.
+#[test]
+fn history_chunks() {
+    use rev::buffer::edit::History;
+    let source = format!("{}e{}🇵🇱\r\n", "α".repeat(1200), "\u{301}".repeat(1300));
+    let target = format!("{}\n", "界".repeat(2000));
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&source).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let mut points = [point(buffer, 0)];
+    let prepared = buffer
+        .prepare(
+            &[replacement(buffer, 0..buffer.len_chars(), &target)],
+            &points,
+            Some(Cursor {
+                index: 0,
+                position: Scalar(target.chars().count()),
+            }),
+        )
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert!(
+        buffer.history().back().unwrap().changes()[0]
+            .removed()
+            .chunks()
+            .count()
+            > 2
+    );
+    for _ in 0..4 {
+        buffer
+            .navigate(History::Undo, &mut points, Some(0))
+            .unwrap();
+        assert_eq!(text(buffer), source);
+        assert_eq!(points[0].position, Scalar(0));
+        assert_eq!(buffer.newline(), "\r\n");
+        assert!(!buffer.is_modified());
+        buffer
+            .navigate(History::Redo, &mut points, Some(0))
+            .unwrap();
+        assert_eq!(text(buffer), target);
+        assert_eq!(points[0].position, Scalar(target.chars().count()));
+        assert_eq!(buffer.newline(), "\n");
+    }
+}
+
+// Revisiting the same logical text does not revive an older prepared revision.
+// Rejection must preserve the restored text, positions and both history queues.
+#[test]
+fn prepared_history() {
+    use rev::buffer::edit::History;
+    let (mut buffers, mut points) = history_fixture(History::Undo);
+    let buffer = buffers.get_mut(points[0].stamp.buffer).unwrap();
+    let end = buffer.len_chars();
+    let stale = buffer
+        .prepare(&[replacement(buffer, end..end, "?")], &points, None)
+        .unwrap();
+    let logical = buffer.state();
+    buffer
+        .navigate(History::Undo, &mut points, Some(0))
+        .unwrap();
+    buffer
+        .navigate(History::Redo, &mut points, Some(0))
+        .unwrap();
+    assert_eq!(buffer.state(), logical);
+    let before = snapshot(buffer, &points);
+    assert!(buffer.publish(stale, &mut points).is_err());
+    assert_eq!(snapshot(buffer, &points), before);
 }

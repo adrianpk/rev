@@ -305,6 +305,49 @@ def scrolling(root):
         session.close()
 
 
+def undo_history(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        os.write(session.master, b"\x18u")
+        session.wait(lambda: b"Nothing to undo" in session.output)
+        session.output.clear()
+        source = "e\u0301界".encode()
+        os.write(session.master, source)
+        session.wait(lambda: source in session.output and b"** RW L1 C4 Text" in session.output)
+        session.output.clear()
+        # CSI-u reports these exact Control combinations without the legacy
+        # 0x1f ambiguity. C-x u remains the ordinary byte-sequence fallback.
+        os.write(session.master, b"\x1b[47;5u")
+        session.wait(lambda: b"** RW L1 C2 Text" in session.output
+                     and "\x1b[1;1He\u0301 ".encode() in session.output)
+        assert "界".encode() not in session.output, bytes(session.output)
+        session.output.clear()
+        os.write(session.master, b"\x1b[95;5u")
+        session.wait(lambda: b"** RW L1 C2 Text" in session.output
+                     and b"\x1b[1;1He " in session.output)
+        assert "\u0301".encode() not in session.output, bytes(session.output)
+        session.output.clear()
+        os.write(session.master, b"\x18u")
+        session.wait(lambda: b"-- RW L1 C1 Text" in session.output
+                     and b"\x1b[1;1H" + SHOW in session.output)
+        session.output.clear()
+        os.write(session.master, b"!")
+        session.wait(lambda: b"** RW L1 C2 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\x18u")
+        session.wait(lambda: b"-- RW L1 C1 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\x18u")
+        session.wait(lambda: b"Nothing to undo" in session.output)
+        os.write(session.master, b"\x18\x03")
+        session.finish(0)
+        assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
+        print("PASS reportable undo keys, clean-state restoration and ordinary exit")
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -319,7 +362,8 @@ def main():
     insertion(root)
     motion(root)
     scrolling(root)
-    print("Terminal PTY suite: 11 cases passed, 0 skipped.")
+    undo_history(root)
+    print("Terminal PTY suite: 12 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
