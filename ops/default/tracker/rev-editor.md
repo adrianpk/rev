@@ -375,6 +375,14 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, 
 - [ ] T16.2: Exercise several modified/unnamed/file-backed buffers, canceled close, failed required save, final-buffer replacement, and index cleanup. Preserve open text when a path disappears.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T16.1 and T16.2 implemented; canonical PR pending.
+Task commits: T16.1 `6788da0e8274452b56409596f5c3fdc09e2444e6`;
+T16.2 `1e528069250b38fec414c0305a485e161eef70de`.
+Validation: required Cargo/source commands passed; `cargo test --test files`
+passed sixty tests and the terminal PTY suite passed twenty-eight cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+Report: [Slice 16](../report/slices/rev-editor/slice-16-buffer-commands.md).
+
 ### Slice 17: Create nested editing splits
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R06, R07, R14, R33.
