@@ -166,6 +166,49 @@ def viewport(root):
         session.close()
 
 
+
+def insertion(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        source = "e\u0301界👩\u200d💻".encode()
+        os.write(session.master, source)
+        session.wait(lambda: source in session.output and b"** RW L1 C6 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\x7f")
+        prefix = "e\u0301界".encode()
+        session.wait(lambda: prefix in session.output and b"** RW L1 C4 Text" in session.output)
+        assert "👩".encode() not in session.output, bytes(session.output)
+        session.output.clear()
+        os.write(session.master, b"\t")
+        session.wait(lambda: b"** RW L1 C5 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\rZ")
+        session.wait(lambda: b"\x1b[2;1HZ" in session.output and b"** RW L2 C2 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\x04")
+        session.wait(lambda: b"Buffer boundary" in session.output)
+        session.output.clear()
+        refusal = b"Unsaved changes; cannot quit before saving is available"
+        os.write(session.master, b"\x18\x03")
+        session.wait(lambda: refusal in session.output)
+        assert session.process.poll() is None, bytes(session.output)
+        assert LEAVE not in session.output, bytes(session.output)
+        assert prefix in session.output and b"** RW L2 C2 Text" in session.output
+        session.output.clear()
+        os.write(session.master, b"\x07!")
+        session.wait(lambda: b"\x1b[2;1HZ!" in session.output and b"** RW L2 C3 Text" in session.output)
+        session.output.clear()
+        os.write(session.master, b"\x18\x03")
+        session.wait(lambda: refusal in session.output)
+        assert session.process.poll() is None and LEAVE not in session.output
+        print("PASS Unicode insertion, grapheme deletion and dirty quit refusal")
+    finally:
+        # This owned dirty fixture cannot quit normally before saving exists.
+        # Terminate it only after checking refusal and continued editing.
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -177,7 +220,8 @@ def main():
     failures(root)
     input_flow(root)
     viewport(root)
-    print("Terminal PTY suite: 8 cases passed, 0 skipped.")
+    insertion(root)
+    print("Terminal PTY suite: 9 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

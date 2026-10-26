@@ -112,6 +112,7 @@ struct Snapshot {
     stamp: Stamp,
     mark: Option<Scalar>,
     read_only: bool,
+    newline: &'static str,
     history: usize,
     points: Vec<Point>,
 }
@@ -122,6 +123,7 @@ fn snapshot(buffer: &Buffer, points: &[Point]) -> Snapshot {
         stamp: buffer.stamp(),
         mark: buffer.mark(),
         read_only: buffer.is_read_only(),
+        newline: buffer.newline(),
         history: buffer.history().len(),
         points: points.to_vec(),
     }
@@ -595,4 +597,369 @@ fn bound_deletion() {
         assert_eq!(buffer.history().len(), records, "{name}");
         assert_eq!(buffer.stamp().revision, 1 + records as u64, "{name}");
     }
+}
+
+// Every mutating binding reaches the read-only admission boundary, preserving
+// canonical bytes, history, positions, and newline metadata on rejection.
+#[test]
+fn readonly_input() {
+    use crossterm::event::KeyCode;
+    use rev::session::Action;
+    for (name, event) in [
+        ("text", press(KeyCode::Char('界'))),
+        ("newline", press(KeyCode::Enter)),
+        ("tab", press(KeyCode::Tab)),
+        ("backward", press(KeyCode::Backspace)),
+        ("delete key", press(KeyCode::Delete)),
+        ("delete binding", chord('d')),
+    ] {
+        let mut session = editor("aé\r\n界", 2, true);
+        let before = snapshot(session.buffer().unwrap(), &[session.view().point]);
+        assert_eq!(session.handle(event), Action::Redraw, "{name}");
+        assert_eq!(session.echo(), "buffer is read-only", "{name}");
+        assert_eq!(
+            snapshot(session.buffer().unwrap(), &[session.view().point]),
+            before,
+            "{name}"
+        );
+        let frame = session.frame().unwrap();
+        assert!(
+            frame.rows()[6].text().contains("-- RO L1 C3 Text"),
+            "{name}"
+        );
+    }
+}
+
+fn phase(
+    mut event: crossterm::event::Event,
+    kind: crossterm::event::KeyEventKind,
+) -> crossterm::event::Event {
+    if let crossterm::event::Event::Key(key) = &mut event {
+        key.kind = kind;
+    }
+    event
+}
+
+// Text, separators and deletion can repeat in editing focus; their releases
+// never publish again. Prompt Enter still has its separate confirmation rule.
+#[test]
+fn editing_phases() {
+    use crossterm::event::{
+        KeyCode,
+        KeyEventKind::{Release, Repeat},
+    };
+    use rev::session::Action;
+    let cases = [
+        ("text", "", 0, press(KeyCode::Char('é')), "éé"),
+        ("newlines", "", 0, press(KeyCode::Enter), "\n\n"),
+        ("tabs", "", 0, press(KeyCode::Tab), "\t\t"),
+        ("backward", "abc", 3, press(KeyCode::Backspace), "a"),
+        ("forward", "abc", 0, chord('d'), "c"),
+    ];
+    for (name, source, position, event, expected) in cases {
+        let mut session = editor(source, position, false);
+        assert_eq!(session.handle(event.clone()), Action::Redraw, "{name}");
+        assert_eq!(
+            session.handle(phase(event.clone(), Repeat)),
+            Action::Redraw,
+            "{name}"
+        );
+        assert_eq!(
+            session.handle(phase(event, Release)),
+            Action::Wait,
+            "{name}"
+        );
+        assert_eq!(text(session.buffer().unwrap()), expected, "{name}");
+        assert_eq!(session.buffer().unwrap().history().len(), 2, "{name}");
+    }
+}
+
+// Unsupported modified/control input, non-key events, and a canceled nested
+// prefix cannot leak into the document. One resumed ordinary key publishes once.
+#[test]
+fn isolated_input() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    let mut session = editor("original", 8, false);
+    let before = snapshot(session.buffer().unwrap(), &[session.view().point]);
+    let events = [
+        chord('q'),
+        chord('z'),
+        Event::Key(KeyEvent::new(KeyCode::Char('a'), KeyModifiers::ALT)),
+        Event::Key(KeyEvent::new(
+            KeyCode::Char('a'),
+            KeyModifiers::ALT | KeyModifiers::CONTROL,
+        )),
+        press(KeyCode::Char('\0')),
+        press(KeyCode::Char('\u{1b}')),
+        press(KeyCode::F(1)),
+        Event::Paste("\u{18}\u{3}".into()),
+        Event::Resize(0, 0),
+        chord('x'),
+        press(KeyCode::Char('r')),
+        chord('g'),
+        chord('x'),
+        press(KeyCode::Char('q')),
+    ];
+    for event in events {
+        session.handle(event);
+        assert_eq!(
+            snapshot(session.buffer().unwrap(), &[session.view().point]),
+            before
+        );
+    }
+    session.handle(press(KeyCode::Char('界')));
+    assert_eq!(text(session.buffer().unwrap()), "original界");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(session.view().point.position, Scalar(9));
+}
+
+// A name and its key sequence enter exactly the same production handler,
+// including deletion and the guarded quit command, with equivalent state.
+#[test]
+fn named_edits() {
+    use crossterm::event::KeyCode;
+    use rev::command::Command;
+    let cases = [
+        ("newline", vec![press(KeyCode::Enter)]),
+        ("insert-tab", vec![press(KeyCode::Tab)]),
+        ("backward-delete-char", vec![press(KeyCode::Backspace)]),
+        ("delete-char", vec![chord('d')]),
+        ("keyboard-quit", vec![chord('g')]),
+        ("kill-terminal", vec![chord('x'), chord('c')]),
+    ];
+    for (name, events) in cases {
+        let mut named = editor("aé\r\n界", 2, false);
+        let mut bound = editor("aé\r\n界", 2, false);
+        let action = named.execute(Command::named(name).unwrap());
+        let mut actions = Vec::new();
+        for event in events {
+            actions.push(bound.handle(event));
+        }
+        assert_eq!(actions.last(), Some(&action), "{name}");
+        assert_eq!(
+            text(named.buffer().unwrap()),
+            text(bound.buffer().unwrap()),
+            "{name}"
+        );
+        assert_eq!(
+            named.view().point.position,
+            bound.view().point.position,
+            "{name}"
+        );
+        assert_eq!(
+            named.buffer().unwrap().history().len(),
+            bound.buffer().unwrap().history().len(),
+            "{name}"
+        );
+        if action == rev::session::Action::Redraw {
+            assert_eq!(named.echo(), bound.echo(), "{name}");
+        }
+    }
+}
+
+// Returning to equal bytes by a distinct edit state does not silently discard
+// unsaved work. A clean buffer may quit; every dirty session retains its state.
+#[test]
+fn quit_guard() {
+    use crossterm::event::KeyCode;
+    use rev::session::Action;
+    for (name, input, expected) in [
+        ("clean", vec![], Action::Exit),
+        ("dirty", vec![press(KeyCode::Char('x'))], Action::Redraw),
+        (
+            "equal bytes",
+            vec![press(KeyCode::Char('x')), press(KeyCode::Backspace)],
+            Action::Redraw,
+        ),
+    ] {
+        let mut session = editor("", 0, false);
+        for event in input {
+            session.handle(event);
+        }
+        let before = snapshot(session.buffer().unwrap(), &[session.view().point]);
+        session.handle(chord('x'));
+        assert_eq!(session.handle(chord('c')), expected, "{name}");
+        assert_eq!(
+            snapshot(session.buffer().unwrap(), &[session.view().point]),
+            before,
+            "{name}"
+        );
+        if expected == Action::Redraw {
+            assert_eq!(
+                session.echo(),
+                "Unsaved changes; cannot quit before saving is available",
+                "{name}"
+            );
+        }
+    }
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 0..0, "unsaved")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    let clean = buffers.create("clean").unwrap();
+    let view = rev::view::View::new(buffers.get(clean).unwrap());
+    let mut session = rev::session::Session::new(
+        buffers,
+        view,
+        rev::display::Size {
+            width: 80,
+            height: 24,
+        },
+    )
+    .unwrap();
+    assert_eq!(session.execute(rev::command::Command::Quit), Action::Redraw);
+    assert_eq!(text(session.buffer().unwrap()), "clean");
+    assert!(session.echo().starts_with("Unsaved changes"));
+}
+
+fn prevailing(text: &str) -> &'static str {
+    let crlf = text.matches("\r\n").count();
+    let lf = text.matches('\n').count() - crlf;
+    if crlf > lf { "\r\n" } else { "\n" }
+}
+
+// Enter preserves existing bytes and inserts the prevailing current style,
+// choosing LF for ties and new text rather than normalizing the entire buffer.
+#[test]
+fn prevailing_input() {
+    use crossterm::event::KeyCode;
+    for source in [
+        "",
+        "abc",
+        "a\r\nb",
+        "a\r\nb\r\nc\nd",
+        "a\nb\nc\r\nd",
+        "a\nb\r\nc",
+    ] {
+        let position = source.chars().count();
+        let mut session = editor(source, position, false);
+        let newline = prevailing(source);
+        assert_eq!(session.buffer().unwrap().newline(), newline);
+        session.handle(press(KeyCode::Enter));
+        assert_eq!(
+            text(session.buffer().unwrap()),
+            format!("{source}{newline}")
+        );
+        assert_eq!(
+            session.view().point.position,
+            Scalar(position + newline.chars().count())
+        );
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+    }
+}
+
+// A whole-text oracle on small fixtures checks incremental seam accounting for
+// every scalar replacement range, including creation and splitting of CRLF.
+#[test]
+fn newline_accounting() {
+    let mut buffers = Buffers::new().unwrap();
+    for source in [
+        "",
+        "\r",
+        "\n",
+        "\r\n",
+        "\rX\n",
+        "\r\n\n",
+        "\n\r\n",
+        "é\rX\n界",
+    ] {
+        let len = source.chars().count();
+        let ranges = (0..=len).flat_map(|start| (start..=len).map(move |end| start..end));
+        for range in ranges {
+            for insert in ["", "x", "\r", "\n", "\r\n"] {
+                let id = buffers.create(source).unwrap();
+                let buffer = buffers.get_mut(id).unwrap();
+                let prepared = buffer
+                    .prepare(&[replacement(buffer, range.clone(), insert)], &[], None)
+                    .unwrap();
+                buffer.publish(prepared, &mut []).unwrap();
+                let current = text(buffer);
+                assert_eq!(
+                    buffer.newline(),
+                    prevailing(&current),
+                    "source={source:?}, range={range:?}, insert={insert:?}"
+                );
+            }
+        }
+    }
+}
+
+// Neighbor windows of adjacent base edits overlap; counting them independently
+// would corrupt newline metadata even though the final rope bytes are correct.
+#[test]
+fn compound_newlines() {
+    let cases = [
+        (
+            "several joins",
+            "\rX\nY\rZ\n",
+            vec![(1..2, ""), (3..4, ""), (5..6, "")],
+            "\r\n\r\n",
+        ),
+        (
+            "adjacent removals",
+            "\r\n",
+            vec![(0..1, ""), (1..2, "")],
+            "",
+        ),
+        (
+            "joined insertion",
+            "X\n",
+            vec![(0..1, "\r"), (2..2, "\n")],
+            "\r\n\n",
+        ),
+    ];
+    for (name, source, ranges, expected) in cases {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        let edits: Vec<_> = ranges
+            .into_iter()
+            .map(|(range, text)| replacement(buffer, range, text))
+            .collect();
+        let prepared = buffer.prepare(&edits, &[], None).unwrap();
+        assert_eq!(buffer.newline(), prevailing(source), "{name}");
+        buffer.publish(prepared, &mut []).unwrap();
+        assert_eq!(text(buffer), expected, "{name}");
+        assert_eq!(buffer.newline(), prevailing(expected), "{name}");
+    }
+}
+
+// A candidate that would create CRLF cannot publish its metadata early, either
+// on late cursor failure, cancellation, or read-only rejection at publication.
+#[test]
+fn newline_rollback() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("\rX\n").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let mut points = [point(buffer, 1)];
+    let edits = [replacement(buffer, 1..2, "")];
+    let before = snapshot(buffer, &points);
+    assert!(
+        buffer
+            .prepare(
+                &edits,
+                &points,
+                Some(Cursor {
+                    index: 0,
+                    position: Scalar(usize::MAX)
+                })
+            )
+            .is_err()
+    );
+    assert_eq!(snapshot(buffer, &points), before);
+    drop(buffer.prepare(&edits, &points, None).unwrap());
+    assert_eq!(snapshot(buffer, &points), before);
+    let prepared = buffer.prepare(&edits, &points, None).unwrap();
+    buffer.set_read_only(true);
+    let before = snapshot(buffer, &points);
+    assert_eq!(buffer.publish(prepared, &mut points), Err(Error::ReadOnly));
+    assert_eq!(snapshot(buffer, &points), before);
+    buffer.set_read_only(false);
+    let prepared = buffer.prepare(&edits, &points, None).unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(text(buffer), "\r\n");
+    assert_eq!(buffer.newline(), "\r\n");
+    assert_eq!(points[0].position, Scalar(2));
 }
