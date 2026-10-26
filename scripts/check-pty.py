@@ -1917,6 +1917,69 @@ def rectangle_scroll(root):
 
 
 
+def rectangle_kill(root):
+    # Every row is one real transaction, including tab fragments and wide
+    # clusters. Save/undo/redo preserve exact BOM and CRLF bytes and clean state.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-rectangle-kill-") as directory:
+        path = Path(directory) / "kill.txt"
+        source = "\ufeff012345\r\na\t界z\r\nQ👩\u200d💻e\u0301X\r\nx\r\n\r\n012345".encode()
+        expected = "\ufeff015\r\na z\r\nQ\r\nx\r\n\r\n015".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> kill.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x06\x18 ", b"Rectangle mark set")
+            group_step(session, b"\x1b>\x02", b"-- RW L6 C6 Text")
+            group_step(session, b"\x18rk", b"Rectangle killed", b"** RW L1 C3 Text")
+            frame = last_frame(session)
+            assert b"\x1b[1;1H015 " in frame and b"\x1b[2;1Ha z " in frame
+            assert b"\x1b[3;1HQ " in frame and b"\x1b[7m" not in frame
+            assert path.read_bytes() == source
+            group_step(session, b"\x18u", b"-- RW L6 C6 Text", "a   界z".encode())
+            group_step(session, b"\x18rk", b"Rectangle is not active")
+            named_step(session, "undo-redo", b"** RW L1 C3 Text", b"\x1b[2;1Ha z ")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
+            assert path.read_bytes() == expected
+            group_step(session, b"\x18u", b"** RW L6 C6 Text", "Q👩\u200d💻e\u0301X".encode())
+            named_step(session, "undo-redo", b"-- RW L1 C3 Text", b"\x1b[1;1H015 ")
+            assert path.read_bytes() == expected
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound rectangle kill, all-row undo/redo, partial tabs, whole Unicode and exact BOM/CRLF save state")
+        finally:
+            session.close()
+
+
+def shared_rectangle_kill(root):
+    # Named removal and passive-pane undo retain original cursor ownership.
+    # The untouched later tab stays a tab on disk rather than drawn spaces.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-shared-rectangle-") as directory:
+        path = Path(directory) / "tabs.txt"
+        source = b"\txyz\n01234567\nend\tkeep"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> tabs.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> tabs.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x06\x06", b"> tabs.txt -- RW L1 C7 Text")
+            named_step(session, "rectangle-mark-mode", b"Rectangle mark set")
+            group_step(session, b"\x0e\x01\x06\x06", b"> tabs.txt -- RW L2 C3 Text")
+            named_step(session, "kill-rectangle", b"Rectangle killed", b"> tabs.txt ** RW L1 C3 Text")
+            assert b"  z" in last_frame(session) and b"0167" in last_frame(session)
+            group_step(session, b"\x19", b"Kill ring is empty")
+            group_step(session, b"\x18o\x18u", b"  tabs.txt -- RW L2 C3 Text",
+                       b"|> tabs.txt -- RW L1 C7 Text")
+            named_step(session, "undo-redo", b"> tabs.txt ** RW L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
+            assert path.read_bytes() == b"  z\n0167\nend\tkeep"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS named rectangle kill, shared-view undo origin, partial-tab cursor, separate ring and untouched tab bytes")
+        finally:
+            session.close()
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1977,7 +2040,9 @@ def main():
     replace_lines(root)
     rectangle_copy(root)
     rectangle_scroll(root)
-    print("Terminal PTY suite: 66 cases passed, 0 skipped.")
+    rectangle_kill(root)
+    shared_rectangle_kill(root)
+    print("Terminal PTY suite: 68 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
