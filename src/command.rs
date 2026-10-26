@@ -48,10 +48,11 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 48] = [
+    pub const ALL: [Self; 49] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
+        Self::Rectangle(RectangleCommand::Yank),
         Self::QueryReplace,
         Self::SearchForward,
         Self::SearchBackward,

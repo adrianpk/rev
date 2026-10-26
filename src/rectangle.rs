@@ -1,4 +1,5 @@
 mod kill;
+mod yank;
 
 use std::ops::{Range, RangeInclusive};
 

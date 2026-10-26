@@ -13,6 +13,9 @@ impl Input {
         if key.plain() == Some(KeyCode::Char('k')) {
             return Outcome::Command(Command::Rectangle(RectangleCommand::Kill));
         }
+        if key.plain() == Some(KeyCode::Char('y')) {
+            return Outcome::Command(Command::Rectangle(RectangleCommand::Yank));
+        }
         Outcome::Message("Undefined key sequence")
     }
 }

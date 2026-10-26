@@ -2,6 +2,8 @@
 
 #[path = "rectangles/kill.rs"]
 mod kill;
+#[path = "rectangles/yank.rs"]
+mod yank;
 
 use rev::buffer::Buffers;
 use rev::buffer::edit::Point;

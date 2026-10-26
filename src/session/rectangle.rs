@@ -17,11 +17,31 @@ impl Session {
             RectangleCommand::Mark => self.rectangle_mark(),
             RectangleCommand::Copy => self.retain_rectangle(false),
             RectangleCommand::Kill => self.retain_rectangle(true),
+            RectangleCommand::Yank => self.yank_rectangle(),
         };
         match result {
             Ok(message) => self.message(message),
             Err(error) => self.message(&error.to_string()),
         }
+    }
+
+    fn yank_rectangle(&mut self) -> Result<&'static str, crate::buffer::edit::Error> {
+        let Some(rectangle) = &self.rectangle else {
+            return Ok("No rectangle to yank");
+        };
+        let point = self.windows.selected().point;
+        let buffer = self.buffers.get_mut(point.stamp.buffer)?;
+        let insertion = rectangle.insertions(buffer, point)?;
+        let points = self.windows.points(buffer)?;
+        let cursor = crate::buffer::edit::Cursor {
+            index: points.initiator,
+            position: insertion.cursor,
+        };
+        let mut prepared = buffer.prepare(&insertion.edits, &points.values, Some(cursor))?;
+        prepared.set_origin(self.windows.selected_id());
+        self.windows.publish(buffer, prepared, points)?;
+        self.windows.selected_mut().reset_navigation();
+        Ok("Rectangle yanked")
     }
 
     fn rectangle_mark(&mut self) -> Result<&'static str, crate::buffer::edit::Error> {
