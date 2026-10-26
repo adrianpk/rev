@@ -33,7 +33,7 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
-- Terminal cleanup reports all failed restoration steps, still releases raw input after output failures, and retries unfinished restoration when the session owner is dropped.
+- Terminal cleanup reports all failed restoration steps and attempts remaining cleanup after output errors, so raw input is still released.
 
 - Saving checks the destination again after staging temporary output, so a changed, removed or replaced destination observed before replacement retains its external data and requires a new decision.
 - File-tree creation rejects a directory replaced while its name prompt was open, keeping new entries out of the replacement directory.

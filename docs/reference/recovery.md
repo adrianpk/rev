@@ -6,7 +6,7 @@ not promise rollback after publication.
 
 | Result | Retained state | Next action |
 | --- | --- | --- |
-| Failed file read or invalid UTF-8/binary input | Current buffers, history, shared views and the current focused interaction. No partial file becomes a buffer. | Correct the file/path or cancel the pending interaction. |
+| Failed file read or invalid UTF-8/binary input | Current buffers, history and shared views. No partial file becomes a buffer. | Correct the file/path or cancel the pending interaction. |
 | Save not published | Current text, history, association and unsaved state. The save has not replaced the destination. | Resolve the reported error and request a fresh save. |
 | Save published, completion unresolved | The replacement exists and the actual target remains associated. A warning keeps the buffer modified; required close/quit saving is not satisfied. | Inspect the target and explicitly retry saving; changed or unobserved disk state needs fresh consent. |
 | Tree creation directory changed during its prompt | No entry is created by that request, including in the replacement directory. | Refresh, select the intended directory and start creation again. |
