@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-36-tree-navigation`
-PR: pending
+PR: `#36`
 
 ## Purpose
 
