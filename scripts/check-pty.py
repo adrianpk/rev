@@ -2743,13 +2743,209 @@ def failed_session_exit(root):
             session.close()
 
 
+def journey_step(session, keys, marker, content=None):
+    session.output.clear()
+    os.write(session.master, keys)
+    prefixes = (b"\x1b[24;1HC-x", b"\x1b[24;1HESC")
+    session.wait(lambda: frame_contains(session.output, marker, content)
+                 and not any(prefix in last_frame(session) for prefix in prefixes))
+    assert session.process.poll() is None and LEAVE not in session.output
+
+
+def accepted_exit(session, keys=b"\x18\x03"):
+    session.output.clear()
+    os.write(session.master, keys)
+    session.finish(0)
+    for code in (PASTE_OFF, SHOW, b"\x1b[0m", LEAVE):
+        assert code in session.output, bytes(session.output)
+    assert session.output.count(LEAVE) == 1
+    assert session.output.rindex(PASTE_OFF) < session.output.rindex(SHOW)
+    assert session.output.rindex(SHOW) < session.output.rindex(b"\x1b[0m")
+    assert session.output.rindex(b"\x1b[0m") < session.output.rindex(LEAVE)
+
+
+def acceptance_document(root):
+    # New text reaches a real file and another process through the same user
+    # commands used for shared views, search, replacement and history aliases.
+    with tempfile.TemporaryDirectory(prefix="rev-accept-document-") as directory:
+        path = Path(directory) / "main.rs"
+        source = 'fn main() {\r\n    let label = "e\u0301界🙂";\r\n}\r\n'.encode()
+        expected = source.replace(b"label", b"name")
+        session = Session([str(root / "target/debug/rev")], colors=True)
+        try:
+            session.ready(b"C-x C-c: exit")
+            journey_step(session, paste_wire(source), b"** RW L4 C1 Text")
+            journey_step(session, b"\x18\x13", b"Write file: ")
+            journey_step(session, str(path).encode(), b"main.rs")
+            journey_step(session, b"\r", b"Saved ", b"-- RW L4 C1 Rust")
+            assert path.read_bytes() == source
+            assert b"\x1b[38;5;176mfn" in last_frame(session)
+            journey_step(session, b"\x1b<\x1bf", b"-- RW L1 C3 Rust")
+            named_step(session, "backward-word", b"-- RW L1 C1 Rust")
+            journey_step(session, b"\x183", b"|", b"main.rs -- RW")
+            named_step(session, "split-window-below", b"main.rs -- RW")
+            assert last_frame(session).count(b"main.rs -- RW") == 3
+            journey_step(session, b"\x13label", b"I-search: label", b"\x1b[4m")
+            journey_step(session, b"\r", b"-- RW L2 C14 Rust")
+            journey_step(session, b"\x1b>\x12label", b"I-search backward: label", b"\x1b[4m")
+            journey_step(session, b"\r", b"-- RW L2 C9 Rust")
+            journey_step(session, b"\x1b<\x1b%", b"Query replace: ")
+            journey_step(session, b"label\r", b"Replace with: ")
+            journey_step(session, b"name\r", b"Replace occurrence? [y/n/q]")
+            journey_step(session, b"y", b"1 replaced", b"main.rs ** RW")
+            for undo in (b"\x1b[47;5u", b"\x1f", b"\x18u"):
+                journey_step(session, undo, b"main.rs -- RW")
+                assert b"main.rs ** RW" not in last_frame(session)
+                named_step(session, "undo-redo", b"main.rs ** RW")
+            journey_step(session, b"\x18\x13", b"Saved ", b"main.rs -- RW")
+            assert path.read_bytes() == expected
+            journey_step(session, b"\x18o", b"main.rs -- RW")
+            named_step(session, "delete-window", b"main.rs -- RW")
+            assert last_frame(session).count(b"main.rs -- RW") == 2
+            journey_step(session, b"\x181", b"main.rs -- RW")
+            assert last_frame(session).count(b"main.rs -- RW") == 1
+            accepted_exit(session)
+        finally:
+            session.close()
+        session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
+        try:
+            session.ready(b"> main.rs -- RW L1 C1 Rust")
+            assert b"\x1b[38;5;176mfn" in session.output
+            journey_step(session, b"\x13name", b"I-search: name", b"\x1b[4m")
+            journey_step(session, b"\r", b"-- RW L2 C13 Rust")
+            journey_step(session, b"\x18u", b"Nothing to undo")
+            journey_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
+            accepted_exit(session, b"\r")
+            assert path.read_bytes() == expected
+            print("PASS acceptance document: new Unicode/CRLF text, named/bound motion, nested shared views, search/replace, undo reports, exact save and process reopen")
+        finally:
+            session.close()
+
+
+def acceptance_blocks(root):
+    # Linear copies/kill/yank-pop and rectangles stay separate while buffers
+    # carry exact BOM/separator bytes and whole undo steps to their real files.
+    with tempfile.TemporaryDirectory(prefix="rev-accept-blocks-") as directory:
+        source = Path(directory) / "blocks.txt"
+        target = Path(directory) / "target.txt"
+        original = b"\xef\xbb\xbf" + "A\nlong 界\n".encode()
+        source.write_bytes(original)
+        target.write_bytes(b"\xef\xbb\xbf....\r\nq")
+        expected = b"\xef\xbb\xbf...A.\r\nq  loA"
+        session = Session([str(root / "target/debug/rev"), str(source)])
+        try:
+            session.ready(b"> blocks.txt -- RW L1 C1 Text")
+            copy_rotation_lines(session, 8)
+            journey_step(session, b"\x19", b"** RW L3 C8 Text", "long 界".encode())
+            journey_step(session, b"\x1by", b"** RW L3 C2 Text")
+            journey_step(session, b"\x18u", b"** RW L3 C8 Text")
+            named_step(session, "undo-redo", b"** RW L3 C2 Text")
+            journey_step(session, b"\x18\x13", b"Saved ")
+            assert source.read_bytes() == original + b"A"
+            journey_step(session, b"\x1b<\x00\x05\x17", b"** RW L1 C1 Text")
+            journey_step(session, b"\x18u", b"blocks.txt -- RW")
+            journey_step(session, b"\x1b<\x18 ", b"Rectangle mark set")
+            journey_step(session, b"\x0e\x06\x06", b"-- RW L2 C3 Text")
+            journey_step(session, b"\x18r\x1bw", b"Rectangle copied")
+            find_path(session, target, b"> target.txt -- RW L1 C1 Text", b"....")
+            journey_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW L2 C6 Text")
+            journey_step(session, b"\x18u", b"-- RW L1 C4 Text", b"....")
+            named_step(session, "undo-redo", b"** RW L2 C6 Text")
+            journey_step(session, b"\x19", b"** RW L2 C7 Text", b"q  loA")
+            journey_step(session, b"\x18\x13", b"Saved ")
+            assert target.read_bytes() == expected
+            assert source.read_bytes() == original + b"A"
+            buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"blocks.txt", b"> blocks.txt -- RW")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"Buffer closed")
+            find_path(session, target, b"> target.txt -- RW", b"q  loA")
+            accepted_exit(session)
+            print("PASS acceptance blocks: linear region/kill ring and yank-pop, separate rectangles, cross-buffer padding, atomic undo/redo, exact BOM and CRLF files")
+        finally:
+            session.close()
+
+
+def acceptance_workspace(root):
+    # Tree publication and buffer/window commands share the same live owners;
+    # deleted open text survives and requires an explicit save to reappear.
+    with tempfile.TemporaryDirectory(prefix="rev-accept-workspace-") as directory:
+        workspace = Path(directory) / "workspace"
+        workspace.mkdir()
+        original = workspace / "entry.rs"
+        renamed = workspace / "renamed.rs"
+        original.write_bytes(b"fn entry() {}\n")
+        source = b"// saved\nfn entry() {}\n"
+        draft = workspace / "notes/draft.txt"
+        session = Session([str(root / "target/debug/rev"), str(original)], colors=True)
+        try:
+            session.ready(b"> entry.rs -- RW L1 C1 Rust")
+            journey_step(session, paste_wire(b"// saved\n"), b"** RW L2 C1 Rust")
+            journey_step(session, b"\x183", b"|", b"entry.rs ** RW")
+            journey_step(session, b"\x18tt", b"File tree focused", b"> workspace/")
+            journey_step(session, b"\x1b[C\x1b[B", b"File tree updated", b"entry.rs")
+            named_step(session, "tree-rename", b"Rename to: ")
+            journey_step(session, b"renamed.rs\r", b"Renamed ", b"renamed.rs ** RW")
+            journey_step(session, b"\t", b"Editing")
+            journey_step(session, b"\x18\x13", b"Saved ", b"renamed.rs -- RW")
+            assert renamed.read_bytes() == source and not original.exists()
+            journey_step(session, b"\x18tf", b"File tree focused")
+            journey_step(session, b"\x1b[A", b"File tree updated", b"v workspace/")
+            named_step(session, "tree-create-directory", b"New directory name: ")
+            journey_step(session, b"notes\r", b"Created ")
+            journey_step(session, b"\x18tn", b"New file name: ")
+            journey_step(session, b"draft.txt\r", b"Created ")
+            journey_step(session, b"\r", b"> draft.txt -- RW L1 C1")
+            journey_step(session, "note界".encode(), b"** RW L1 C7")
+            journey_step(session, b"\x18\x13", b"Saved ")
+            assert draft.read_bytes() == "note界".encode()
+            journey_step(session, b"\x18\x02", b"Buffers: arrows move")
+            assert b"renamed.rs -- RW" in last_frame(session)
+            assert b"draft.txt -- RW" in last_frame(session)
+            journey_step(session, b"\x07", b"Quit")
+            buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"renamed.rs", b"> renamed.rs -- RW")
+            journey_step(session, b"!", b"renamed.rs ** RW")
+            named_step(session, "kill-buffer", b"Kill buffer: ")
+            journey_step(session, b"\r", b"y=save, n=discard, C-g=cancel")
+            journey_step(session, b"\x07", b"Quit", b"renamed.rs ** RW")
+            journey_step(session, b"\x18u", b"renamed.rs -- RW")
+            journey_step(session, b"\x181", b"renamed.rs -- RW")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"Buffer closed")
+            buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"draft.txt", b"> draft.txt -- RW")
+            journey_step(session, b"\x18tf", b"File tree focused")
+            journey_step(session, b"\x18tD", b"Delete ")
+            journey_step(session, b"n", b"Delete canceled")
+            assert draft.exists()
+            named_step(session, "tree-delete", b"Delete ")
+            journey_step(session, b"y", b"Deleted ", b"draft.txt ** RW")
+            assert not draft.exists()
+            journey_step(session, b"\t", b"Editing")
+            journey_step(session, b"\x18\x13", b"Saved ", b"draft.txt -- RW")
+            assert draft.read_bytes() == "note界".encode()
+            assert renamed.read_bytes() == source
+            accepted_exit(session)
+            print("PASS acceptance workspace: shared Rust views, tree rename/create/open/delete, buffer inventory/switch/guarded close and explicit recreation of retained text")
+        finally:
+            session.close()
+
+
+def acceptance(root):
+    journeys = [acceptance_document, acceptance_blocks, acceptance_workspace]
+    for journey in journeys:
+        journey(root)
+    print(f"Acceptance PTY suite: {len(journeys)} journeys passed, 0 skipped.")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["terminal"], required=True)
-    parser.parse_args()
+    parser.add_argument("--suite", choices=["terminal", "acceptance"], required=True)
+    args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
-    subprocess.run(["cargo", "build", "--bin", "rev", "--example", "terminal-probe"],
-                   cwd=root, check=True)
+    build = ["cargo", "build", "--bin", "rev"]
+    if args.suite == "terminal":
+        build.extend(["--example", "terminal-probe"])
+    subprocess.run(build, cwd=root, check=True)
+    if args.suite == "acceptance":
+        acceptance(root)
+        return
     lifecycle(root)
     failures(root)
     input_flow(root)
