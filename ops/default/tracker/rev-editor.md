@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 23 - Copy kill and yank linear text
+Active slice: Slice 24 - Rotate only the current yank range
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -508,17 +508,20 @@ Report: [Slice 22](../report/slices/rev-editor/slice-22-kills.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R18, R19, R21.
 
-- [ ] T23.1: Implement kill-region, kill-ring-save, yank, a 32-entry session ring, and insertion transaction grouping while keeping rectangle storage separate.
-- [ ] T23.2: Exercise copying without mutation, reversed regions, empty ring, multiline Unicode/CRLF text, ring eviction, and undo after yanking.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T23.1: Implement kill-region, kill-ring-save, yank, a 32-entry session ring, and insertion transaction grouping while keeping rectangle storage separate.
+- [x] T23.2: Exercise copying without mutation, reversed regions, empty ring, multiline Unicode/CRLF text, ring eviction, and undo after yanking.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T23.1 and T23.2 complete; PR #23 open for integration.
+Implementation: T23.1 and T23.2 delivered through PR #23.
 Task commits: T23.1 `e167d8c7cf8d8ee907a09996c146f47655cab0f5`;
 T23.2 `4ee8ffb17378608dd1cf6b391d9c33b995fc0601`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed seventy-seven tests and the terminal PTY suite passed forty-six cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#23](https://forge.adrianpk.com/adrianpk/rev/pulls/23).
+Integration: Rebase + Fast-forward into dev at
+`c2f20bec35a8f3d2d5e5815b780f027951ea58d4`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 23](../report/slices/rev-editor/slice-23-kill-ring.md).
 
 ### Slice 24: Rotate only the current yank range

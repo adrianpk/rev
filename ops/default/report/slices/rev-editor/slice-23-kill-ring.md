@@ -1,11 +1,12 @@
 # Slice 23: Copy kill and yank linear text
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-23-kill-ring`
 PR: `#23`
+Integrated: Rebase + Fast-forward into dev at `c2f20bec35a8f3d2d5e5815b780f027951ea58d4`.
 
 ## Purpose
 
