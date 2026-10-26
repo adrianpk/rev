@@ -34,6 +34,7 @@ class Session:
         self.master, self.slave = pty.openpty()
         self.before = termios.tcgetattr(self.slave)
         fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+        self.height = 24
         self.output = bytearray()
         self.deadline = time.monotonic() + 8
         environment = dict(os.environ, TERM="xterm-256color")
@@ -2746,7 +2747,8 @@ def failed_session_exit(root):
 def journey_step(session, keys, marker, content=None):
     session.output.clear()
     os.write(session.master, keys)
-    prefixes = (b"\x1b[24;1HC-x", b"\x1b[24;1HESC")
+    echo = f"\x1b[{session.height};1H".encode()
+    prefixes = (echo + b"C-x", echo + b"ESC")
     session.wait(lambda: frame_contains(session.output, marker, content)
                  and not any(prefix in last_frame(session) for prefix in prefixes))
     assert session.process.poll() is None and LEAVE not in session.output
@@ -2927,8 +2929,71 @@ def acceptance_workspace(root):
             session.close()
 
 
+def journey_resize(session, width, height):
+    session.height = height
+    resize_surface(session, width, height, True)
+    flags = termios.tcgetattr(session.slave)[3]
+    assert not flags & (termios.ICANON | termios.ECHO), "resize released raw input"
+
+
+def acceptance_failure(root):
+    # Explicit decisions and canceled path drafts survive resize. Failed saving
+    # cannot discard the session or carry exit authority into an independent save.
+    with tempfile.TemporaryDirectory(prefix="rev-accept-failure-") as directory:
+        parent = Path(directory) / "removed"
+        parent.mkdir()
+        path = parent / "live.txt"
+        original = b"\xef\xbb\xbf" + "first\r\n界last".encode()
+        path.write_bytes(original)
+        alternate = Path(directory) / "canceled.txt"
+        expected = b"\xef\xbb\xbfx!" + original[3:]
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> live.txt -- RW L1 C1 Text")
+            for code in (ENTER, HIDE, PASTE_ON):
+                assert code in session.output, bytes(session.output)
+            journey_step(session, b"x", b"** RW L1 C2 Text")
+            journey_step(session, b"\x183", b"|", b"live.txt ** RW")
+            named_step(session, "split-window-below", b"live.txt ** RW")
+            assert last_frame(session).count(b"live.txt ** RW") == 3
+            journey_step(session, b"\x18tt", b"File tree focused")
+            journey_step(session, b"\t", b"Editing")
+            path.unlink()
+            parent.rmdir()
+            journey_step(session, b"\x18\x03", b'y=save, n=discard, C-g=cancel')
+            journey_step(session, paste_wire(b"n"), b"Paste is unavailable")
+            for width, height in [(0, 0), (1, 1), (3, 3), (80, 24)]:
+                journey_resize(session, width, height)
+            assert b'y=save, n=discard, C-g=cancel' in last_frame(session)
+            journey_step(session, b"\r", b"Answer y or n")
+            journey_step(session, b"\x07", b"Quit", b"live.txt ** RW")
+            assert last_frame(session).count(b"live.txt ** RW") == 3
+            journey_step(session, b"\x18\x03", b'y=save, n=discard, C-g=cancel')
+            journey_step(session, b"y", b"Destination changed on disk")
+            journey_step(session, b"y", b"save: not published", b"live.txt ** RW")
+            assert not parent.exists() and LEAVE not in session.output
+            assert PASTE_OFF not in session.output
+            journey_step(session, b"!", b"** RW L1 C3 Text")
+            parent.mkdir()
+            journey_step(session, b"\x18\x13", b"Destination changed on disk")
+            journey_step(session, b"y", b"Saved ", b"live.txt -- RW")
+            assert path.read_bytes() == expected
+            journey_step(session, b"\x18\x17", b"Write file: ")
+            journey_step(session, str(alternate).encode(), b"canceled.txt")
+            for width, height in [(0, 0), (1, 1), (80, 24)]:
+                journey_resize(session, width, height)
+            assert b"Write file: " + str(alternate).encode() in last_frame(session)
+            journey_step(session, b"\x07", b"Quit", b"live.txt -- RW")
+            assert not alternate.exists()
+            assert path.read_bytes() == expected
+            accepted_exit(session)
+            print("PASS acceptance failure: decision/path focus through zero/tiny resize, refused paste/default consent, canceled quit, failed required save, retained shared text and final restoration")
+        finally:
+            session.close()
+
+
 def acceptance(root):
-    journeys = [acceptance_document, acceptance_blocks, acceptance_workspace]
+    journeys = [acceptance_document, acceptance_blocks, acceptance_workspace, acceptance_failure]
     for journey in journeys:
         journey(root)
     print(f"Acceptance PTY suite: {len(journeys)} journeys passed, 0 skipped.")
