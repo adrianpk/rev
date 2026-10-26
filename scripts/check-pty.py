@@ -2118,6 +2118,104 @@ def tree_resize(root):
             session.close()
 
 
+def tree_navigation(root):
+    # Real arrows/Enter traverse only expanded branches. Cycle links stay
+    # leaves; explicit refresh reconciles external changes without editing text.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-nav-") as directory:
+        workspace = Path(directory) / "workspace"
+        (workspace / "a/inner").mkdir(parents=True)
+        (workspace / "closed").mkdir()
+        (workspace / "a/inner/deep.txt").write_bytes(b"unopened")
+        (workspace / "a/child.txt").write_bytes(b"unopened")
+        (workspace / "closed/invisible.txt").write_bytes(b"unopened")
+        (workspace / "loop").symlink_to(workspace, target_is_directory=True)
+        (workspace / "z.txt").write_bytes(b"old")
+        path = workspace / "doc.txt"
+        source = b"retained document"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> doc.txt -- RW L1 C1 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x1b[C", b"File tree updated", b"> a/")
+            assert b"invisible.txt" not in last_frame(session) and b"deep.txt" not in last_frame(session)
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  > a/")
+            group_step(session, b"\r", b"File tree updated", b"> inner/")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m    > inner/")
+            group_step(session, b"\x1b[C", b"File tree updated", b"deep.txt")
+            group_step(session, b"\x1b[D", b"File tree updated", b"\x1b[7m    > inner/")
+            assert b"deep.txt" not in last_frame(session)
+            group_step(session, b"\x1b[D", b"File tree updated", b"\x1b[7m  v a/")
+            group_step(session, b"\x1b[D", b"File tree updated", b"\x1b[7m  > a/")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  > closed/")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m    doc.txt")
+            group_step(session, b"\r", b"toggle directory ", b"\x1b[7m    doc.txt")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  @ loop")
+            group_step(session, b"\x1b[C", b"File tree updated", b"\x1b[7m  @ loop")
+            (workspace / "a").rename(workspace / "renamed")
+            (workspace / "0-new.txt").write_bytes(b"new")
+            (workspace / "z.txt").unlink()
+            group_step(session, b"\x18tr", b"File tree updated", b"\x1b[7m  @ loop")
+            frame = last_frame(session)
+            assert b"> renamed/" in frame and b"0-new.txt" in frame and b"z.txt" not in frame
+            assert b"invisible.txt" not in frame and b"deep.txt" not in frame
+            assert b"> doc.txt -- RW L1 C1 Text" in frame and path.read_bytes() == source
+            group_step(session, b"\t", b"Editing")
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound lazy tree traversal, directory toggle/parent transfer, symlink leaf and explicit external refresh")
+        finally:
+            session.close()
+
+
+def tree_navigation_resize(root):
+    # Selection scrolls above the footer and survives geometry/focus changes.
+    # A denied read and deleted selection remain recoverable by real refresh.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-scroll-") as directory:
+        workspace = Path(directory) / "long"
+        workspace.mkdir()
+        for index in range(30):
+            (workspace / f"a{index:02}").mkdir()
+        path = workspace / "doc.txt"
+        path.write_bytes(b"retained")
+        locked = workspace / "a29"
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> doc.txt -- RW L1 C1 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            resize_surface(session, 48, 8, True)
+            group_step(session, b"\x1b[C", b"File tree updated", b"> a00/")
+            group_step(session, b"\x1b[B" * 30, b"File tree updated", b"\x1b[7m  > a29/")
+            assert b"\x1b[6;1H" + SHOW in last_frame(session)
+            resize_surface(session, 48, 4, True)
+            assert b"\x1b[2;1H" + SHOW in last_frame(session)
+            resize_surface(session, 31, 8, True)
+            resize_surface(session, 48, 8, True)
+            named_step(session, "focus-file-tree", b"File tree focused", b"\x1b[7m  > a29/")
+            locked.chmod(0)
+            group_step(session, b"\x1b[C", b"read directory ", b"\x1b[7m  > a29/")
+            locked.chmod(0o700)
+            locked.rmdir()
+            control = workspace / "界e\u0301\x1b[31m"
+            control.write_bytes(b"exact")
+            named_step(session, "tree-refresh", b"File tree updated", b"\x1b[7mv long/")
+            group_step(session, b"\x1b[B" * 31, b"File tree updated", "\x1b[7m    界e\u0301^[[31m".encode())
+            frame = last_frame(session)
+            assert b"\x1b[31m" not in frame
+            terminal_bounds(frame, 48, 8)
+            resize_surface(session, 0, 0, False)
+            resize_surface(session, 80, 24, True)
+            group_step(session, b"\x07", b"Quit", b"-- RW L1 C1 Text")
+            assert path.read_bytes() == b"retained" and control.read_bytes() == b"exact"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS tree selection scrolling/resizing, denied expansion, removed selection fallback and safe child labels")
+        finally:
+            if locked.exists():
+                locked.chmod(0o700)
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2184,7 +2282,9 @@ def main():
     shared_rectangle_yank(root)
     tree_pane(root)
     tree_resize(root)
-    print("Terminal PTY suite: 72 cases passed, 0 skipped.")
+    tree_navigation(root)
+    tree_navigation_resize(root)
+    print("Terminal PTY suite: 74 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

@@ -207,3 +207,6 @@ fn command_navigation() {
         assert_eq!(session.echo(), "File tree is not focused");
     }
 }
+
+#[path = "failures.rs"]
+mod failures;
