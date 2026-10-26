@@ -1,8 +1,10 @@
 mod edit;
+mod file;
 mod history;
 mod motion;
 
 use std::io::{self, Write};
+use std::path::Path;
 
 use crossterm::event::{self, Event, KeyCode};
 
@@ -13,9 +15,12 @@ use crate::input::{Input, Key, Outcome};
 use crate::terminal::Terminal;
 use crate::view::{self, View};
 
-pub(crate) fn run(terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
     let (width, height) = crossterm::terminal::size()?;
     let mut session = Session::empty(Size { width, height }).map_err(io::Error::other)?;
+    if let Some(path) = path {
+        session.load(path)?;
+    }
     session.draw(terminal.writer())?;
     loop {
         match session.handle(event::read()?) {

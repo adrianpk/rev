@@ -124,10 +124,15 @@ pub struct Buffer {
     saved: State,
     next_state: u64,
     typing: Option<Stamp>,
+    bom: bool,
 }
 
 impl Buffer {
     fn new(text: &str) -> Result<Self, Error> {
+        Self::from_rope(Rope::from_str(text))
+    }
+
+    fn from_rope(text: Rope) -> Result<Self, Error> {
         let id = BufferId::next()?;
         let state = State {
             buffer: id,
@@ -136,9 +141,9 @@ impl Buffer {
         Ok(Self {
             id,
             name: format!("*buffer-{id}*"),
-            crlf: endings::count(RopeSlice::from(text)),
+            crlf: endings::count(text.slice(..)),
             revision: 1,
-            text: Rope::from_str(text),
+            text,
             read_only: false,
             mark: None,
             history: VecDeque::new(),
@@ -148,7 +153,19 @@ impl Buffer {
             saved: state,
             next_state: 1,
             typing: None,
+            bom: false,
         })
+    }
+
+    pub(crate) fn from_loaded(loaded: crate::file::Loaded) -> Result<Self, Error> {
+        let (text, bom) = loaded.into_parts();
+        let mut buffer = Self::from_rope(text)?;
+        buffer.bom = bom;
+        Ok(buffer)
+    }
+
+    pub fn has_bom(&self) -> bool {
+        self.bom
     }
 
     /// Insert the prevailing current separator; LF wins ties and empty buffers.
@@ -304,9 +321,19 @@ impl Buffers {
     /// Creates another canonical buffer from validated Rust UTF-8 text.
     pub fn create(&mut self, text: &str) -> Result<BufferId, Error> {
         let buffer = Buffer::new(text)?;
+        Ok(self.insert(buffer))
+    }
+
+    /// Installs only fully validated ingress as a fresh clean canonical owner.
+    pub fn load(&mut self, loaded: crate::file::Loaded) -> Result<BufferId, Error> {
+        let buffer = Buffer::from_loaded(loaded)?;
+        Ok(self.insert(buffer))
+    }
+
+    pub(crate) fn insert(&mut self, buffer: Buffer) -> BufferId {
         let id = buffer.id();
         self.entries.insert(id, buffer);
-        Ok(id)
+        id
     }
 
     /// Mutable access exposes checked operations, never the underlying rope.
