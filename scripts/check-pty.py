@@ -7,6 +7,7 @@ import fcntl
 import os
 from pathlib import Path
 import pty
+import re
 import select
 import struct
 import subprocess
@@ -957,6 +958,97 @@ def kill_shared_buffer(root):
             session.close()
 
 
+
+def terminal_bounds(output, width, height):
+    moves = re.findall(rb"\x1b\[(\d+);(\d+)H", output)
+    for row, column in moves:
+        assert 1 <= int(row) <= height, (width, height, row)
+        assert 1 <= int(column) <= width, (width, height, column)
+    if width == 0 or height == 0:
+        assert not moves and SHOW not in output
+
+
+def resize_surface(session, width, height, cursor):
+    session.output.clear()
+    fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", height, width, 0, 0))
+    if width == 0 or height == 0:
+        session.wait(lambda: HIDE in session.output)
+        assert session.output == HIDE
+    elif cursor:
+        session.wait(lambda: session.output.endswith(SHOW))
+    else:
+        echo = b"Quit"[:width].ljust(width, b" ")
+        last = f"\x1b[{height};1H".encode() + echo
+        session.wait(lambda: session.output.endswith(last))
+        assert SHOW not in session.output
+    terminal_bounds(session.output, width, height)
+    assert session.process.poll() is None and LEAVE not in session.output
+
+
+def resizing_windows(root):
+    # Each report completes before the next one. The native endpoints use a
+    # single skinny axis, keeping the real fixture below its 1 MiB output bound.
+    for direction, minimum in [(b"3", (11, 3)), (b"2", (3, 7))]:
+        with tempfile.TemporaryDirectory(prefix="rev-pty-resize-") as directory:
+            path = Path(directory) / "r.txt"
+            source = b"first\nsecond\n"
+            path.write_bytes(source)
+            session = Session([str(root / "target/debug/rev"), str(path)])
+            try:
+                session.ready(b"> r.txt -- RW L1 C1 Text")
+                group_step(session, b"!", b"> r.txt ** RW L1 C2 Text")
+                group_step(session, b"\x18" + direction + b"\x18" + direction,
+                           b"> r.txt ** RW L1 C2")
+                group_step(session, b"\x05\x07", b"Quit", b"> r.txt ** RW L1 C7")
+                dimensions = [minimum, (0, 0), (0, 24), (80, 0), (1, 1),
+                              (65535, 1), (1, 65535), minimum, (80, 24)]
+                for width, height in dimensions:
+                    fits = width >= minimum[0] and height >= minimum[1]
+                    resize_surface(session, width, height, fits)
+                assert b"> r.txt ** RW L1 C7" in session.output
+                assert b"  r.txt ** RW L1 C2" in session.output
+                resize_surface(session, *minimum, True)
+                echo = f"\x1b[{minimum[1]};1H".encode() + b"Split does not fit"[:minimum[0]]
+                group_step(session, b"\x18" + direction, echo)
+                terminal_bounds(session.output, *minimum)
+                group_step(session, b"\x07", b"Quit"[:minimum[0]])
+                resize_surface(session, 80, 24, True)
+                group_step(session, b"\x18u", b"> r.txt -- RW L1 C1", b"  r.txt -- RW L1 C1")
+                assert path.read_bytes() == source
+                os.write(session.master, b"\x18\x03")
+                session.finish(0)
+                print(f"PASS C-x {direction.decode()} nested minima, zero/tiny/native-axis resize, independent point and retained undo")
+            finally:
+                session.close()
+
+
+def resizing_prompt(root):
+    # Prompt ownership and its typed argument survive suspension and one-cell
+    # clipping; Enter after expansion still visits the captured destination.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-resize-prompt-") as directory:
+        first = Path(directory) / "first.txt"
+        chosen = Path(directory) / "chosen.txt"
+        first.write_bytes(b"first")
+        chosen.write_bytes(b"destination")
+        session = Session([str(root / "target/debug/rev"), str(first)])
+        try:
+            session.ready(b"> first.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"> first.txt -- RW L1 C1 Text", b"|")
+            group_step(session, b"\x18\x06", b"Find file: ")
+            group_step(session, str(chosen).encode(), b"Find file: " + str(chosen).encode())
+            for width, height in [(0, 0), (1, 1), (3, 3), (80, 24)]:
+                resize_surface(session, width, height, True)
+            assert b"Find file: " + str(chosen).encode() in session.output
+            group_step(session, b"\r", b"> chosen.txt -- RW L1 C1 Text", b"destination")
+            assert b"|  first.txt -- RW L1 C1 Text" in session.output
+            assert first.read_bytes() == b"first" and chosen.read_bytes() == b"destination"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS prompt argument and input ownership survive zero, one-cell and restored geometry")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -990,7 +1082,9 @@ def main():
     shared_view_mapping(root)
     closed_view_history(root)
     kill_shared_buffer(root)
-    print("Terminal PTY suite: 36 cases passed, 0 skipped.")
+    resizing_windows(root)
+    resizing_prompt(root)
+    print("Terminal PTY suite: 39 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

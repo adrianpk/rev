@@ -74,3 +74,221 @@ fn tiny_interactions() {
 fn tiny_sizes() -> impl Iterator<Item = Size> {
     (0..4).flat_map(|width| (0..4).map(move |height| size(width, height)))
 }
+
+fn views(session: &rev::session::Session) -> Vec<(rev::window::ViewId, rev::view::View)> {
+    session
+        .windows()
+        .iter()
+        .map(|(id, view)| (id, view.clone()))
+        .collect()
+}
+
+fn overlaps(first: rev::window::Area, second: rev::window::Area) -> bool {
+    let x = |area: rev::window::Area| {
+        u32::from(area.column())..u32::from(area.column()) + u32::from(area.width())
+    };
+    let y = |area: rev::window::Area| {
+        u32::from(area.row())..u32::from(area.row()) + u32::from(area.height())
+    };
+    x(first).start < x(second).end
+        && x(second).start < x(first).end
+        && y(first).start < y(second).end
+        && y(second).start < y(first).end
+}
+
+fn geometry_bounds(session: &rev::session::Session, dimensions: Size) {
+    let Some(geometry) = session.windows().geometry(dimensions) else {
+        return;
+    };
+    let areas = geometry
+        .panes()
+        .iter()
+        .map(|(_, area)| *area)
+        .chain(geometry.borders().iter().copied())
+        .collect::<Vec<_>>();
+    let mut cells = 0u64;
+    for (index, area) in areas.iter().enumerate() {
+        assert!(u32::from(area.column()) + u32::from(area.width()) <= u32::from(dimensions.width));
+        assert!(u32::from(area.row()) + u32::from(area.height()) < u32::from(dimensions.height));
+        cells += u64::from(area.width()) * u64::from(area.height());
+        for other in &areas[index + 1..] {
+            assert!(!overlaps(*area, *other));
+        }
+    }
+    assert_eq!(
+        cells,
+        u64::from(dimensions.width) * u64::from(dimensions.height - 1)
+    );
+    for (_, area) in geometry.panes() {
+        assert!(area.width() >= 3 && area.height() >= 2);
+    }
+}
+
+// Every small shape fits exactly when its recursive minima fit. Projected
+// rectangles cover the frame except the echo, never overlap, and stay bounded.
+#[test]
+fn resize_grid() {
+    let cases = [
+        (Split::Right, Split::Right, 11, 3),
+        (Split::Right, Split::Below, 7, 5),
+        (Split::Below, Split::Right, 7, 5),
+        (Split::Below, Split::Below, 3, 7),
+    ];
+    for (first, second, width, height) in cases {
+        for branch in [false, true] {
+            grid_case(first, second, branch, size(width, height));
+        }
+    }
+}
+
+fn grid_case(first: Split, second: Split, branch: bool, minimum: Size) {
+    let mut session = editor("a\t界e\u{301}\nlast", size(31, 13));
+    split(&mut session, first);
+    if branch {
+        session.select_view(other(&session)).unwrap();
+    }
+    split(&mut session, second);
+    let layout = session.windows().layout().clone();
+    let points = views(&session)
+        .into_iter()
+        .map(|(id, view)| (id, view.point))
+        .collect::<Vec<_>>();
+    for dimensions in (0..18).flat_map(|width| (0..11).map(move |height| size(width, height))) {
+        let before = views(&session);
+        session.handle(Event::Resize(dimensions.width, dimensions.height));
+        let fits = dimensions.width >= minimum.width && dimensions.height >= minimum.height;
+        assert_eq!(
+            session.windows().geometry(dimensions).is_some(),
+            fits,
+            "{dimensions:?}"
+        );
+        geometry_bounds(&session, dimensions);
+        bounded(&mut session, dimensions);
+        if !fits {
+            assert_eq!(views(&session), before);
+        }
+        assert_eq!(*session.windows().layout(), layout);
+        assert_eq!(
+            views(&session)
+                .into_iter()
+                .map(|(id, view)| (id, view.point))
+                .collect::<Vec<_>>(),
+            points
+        );
+    }
+    assert_eq!(super::buffer_text(&session), "a\t界e\u{301}\nlast");
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// Native dimension endpoints are admitted without caps. Extreme axes render
+// separately; a maximal two-axis report validates geometry without a huge raster.
+#[test]
+fn native_extremes() {
+    let mut session = editor("a\t界e\u{301}\nlast", size(31, 13));
+    split(&mut session, Split::Right);
+    split(&mut session, Split::Below);
+    let layout = session.windows().layout().clone();
+    let points = views(&session)
+        .into_iter()
+        .map(|(id, view)| (id, view.point))
+        .collect::<Vec<_>>();
+    for dimensions in [
+        size(0, u16::MAX),
+        size(u16::MAX, 0),
+        size(1, u16::MAX),
+        size(u16::MAX, 1),
+        size(7, u16::MAX),
+        size(u16::MAX, 5),
+    ] {
+        session.handle(Event::Resize(dimensions.width, dimensions.height));
+        geometry_bounds(&session, dimensions);
+        bounded(&mut session, dimensions);
+        assert_eq!(*session.windows().layout(), layout);
+        assert_eq!(
+            views(&session)
+                .into_iter()
+                .map(|(id, view)| (id, view.point))
+                .collect::<Vec<_>>(),
+            points
+        );
+    }
+    geometry_bounds(&session, size(u16::MAX, u16::MAX));
+    assert!(
+        session
+            .windows()
+            .geometry(size(u16::MAX, u16::MAX))
+            .is_some()
+    );
+    session.handle(Event::Resize(31, 13));
+    bounded(&mut session, size(31, 13));
+}
+
+fn navigate_view(session: &mut rev::session::Session, id: rev::window::ViewId, row: usize) {
+    use rev::command::{Motion, Scroll};
+    session.select_view(id).unwrap();
+    session.execute(Command::Motion(Motion::BufferStart));
+    for _ in 0..row {
+        session.execute(Command::Scroll(Scroll::NextLine));
+    }
+    session.execute(Command::Motion(Motion::LineEnd));
+    session.execute(Command::Scroll(Scroll::NextLine));
+    session.execute(Command::Scroll(Scroll::PreviousLine));
+    session.execute(Command::Scroll(Scroll::Recenter));
+    session.frame().unwrap();
+}
+
+// Repeated suspended redraws and rejected splits retain complete independent
+// views and real undo/redo payloads, not just the current text or history counts.
+#[test]
+fn resize_roundtrip() {
+    use rev::command::History;
+    let text = ("0123456789\t界e\u{301}".repeat(16) + "\r\n").repeat(60);
+    let mut session = super::marked_view(&text, 2, 0, 1);
+    session.handle(Event::Resize(41, 15));
+    session.insert('X');
+    session.execute(Command::KeyboardQuit);
+    session.insert('Y');
+    session.execute(Command::History(History::Undo));
+    split(&mut session, Split::Right);
+    split(&mut session, Split::Below);
+    for (index, id) in session.windows().order().into_iter().enumerate() {
+        navigate_view(&mut session, id, (index + 1) * 10);
+    }
+    let before = views(&session);
+    let layout = session.windows().layout().clone();
+    let stamp = session.buffer().unwrap().stamp();
+    let state = session.buffer().unwrap().state();
+    let content = super::buffer_text(&session);
+    for _ in 0..8 {
+        for dimensions in tiny_sizes() {
+            session.handle(Event::Resize(dimensions.width, dimensions.height));
+            bounded(&mut session, dimensions);
+            assert_eq!(views(&session), before);
+        }
+        session.execute(Command::Split(Split::Below));
+        assert!(session.echo().starts_with("Split does not fit"));
+        session.handle(Event::Resize(41, 15));
+        bounded(&mut session, size(41, 15));
+        assert_eq!(views(&session), before);
+        assert_eq!(*session.windows().layout(), layout);
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().state(), state);
+        assert_eq!(super::buffer_text(&session), content);
+        assert_eq!(
+            session.buffer().unwrap().mark(),
+            Some(rev::coordinates::Scalar(1))
+        );
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        assert_eq!(session.buffer().unwrap().redo_history().len(), 1);
+    }
+    session.execute(Command::History(History::Redo));
+    assert_eq!(
+        session.buffer().unwrap().len_chars(),
+        text.chars().count() + 2
+    );
+    session.execute(Command::History(History::Undo));
+    session.execute(Command::History(History::Undo));
+    assert_eq!(super::buffer_text(&session), text);
+    assert!(!session.buffer().unwrap().is_modified());
+    bounded(&mut session, size(41, 15));
+}
