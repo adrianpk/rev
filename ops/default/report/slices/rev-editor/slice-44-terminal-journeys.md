@@ -1,11 +1,12 @@
 # Slice 44: Drive user journeys through a PTY
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `test/rev-44-terminal-journeys`
 PR: `#44`
+Integrated: `0e341d4a277e3b7b6159d1fa9c7978defe3d16b8`
 
 ## Purpose
 

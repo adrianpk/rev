@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 44 - Drive user journeys through a PTY
+Active slice: Slice 45 - Exercise cross-feature Unicode and file fidelity
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -925,16 +925,18 @@ Report: [Slice 43](../report/slices/rev-editor/slice-43-failure-recovery.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R01, R03, R04, R12, R14, R15, R18, R19, R20, R22, R25, R26, R27, R28, R31, R39.
 
-- [ ] T44.1: Extend the existing standard-library Python PTY harness to drive launch/edit/save/reopen, bindings and M-x, buffer/window operations, selection/rings/rectangles, search, tree actions, and quit.
-- [ ] T44.2: Use bounded condition waits, owned fixtures, real filesystem byte comparisons, resize events, and termios/screen restoration checks. Separate pure-state assertions from terminal encoding variability.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T44.1: Extend the existing standard-library Python PTY harness to drive launch/edit/save/reopen, bindings and M-x, buffer/window operations, selection/rings/rectangles, search, tree actions, and quit.
+- [x] T44.2: Use bounded condition waits, owned fixtures, real filesystem byte comparisons, resize events, and termios/screen restoration checks. Separate pure-state assertions from terminal encoding variability.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T44.1 and T44.2 complete; PR #44 awaits integration.
+Implementation: T44.1 and T44.2 delivered through PR #44.
 Task commits: T44.1 `c4b87864c2fe712ad819f0884df2744294c55664`;
 T44.2 `2de738248d6db0dac5a2a83e65ea43f32b8e79cd`.
 Validation: required Cargo/source commands passed; the acceptance PTY suite
 passed four connected journeys and the terminal PTY suite passed 90 cases,
 with zero skips. Final PR-head evidence is recorded through Looper.
+Integration: `0e341d4a277e3b7b6159d1fa9c7978defe3d16b8`; all seven checks passed
+under Looper validation `VJ6DG2YGPMBNU7JBLOS5HGAHYM`.
 PR: [#44](https://forge.adrianpk.com/adrianpk/rev/pulls/44).
 Report: [Slice 44](../report/slices/rev-editor/slice-44-terminal-journeys.md).
 
