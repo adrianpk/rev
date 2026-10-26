@@ -2,12 +2,14 @@ mod buffer;
 mod motion;
 mod scroll;
 mod split;
+mod window;
 
 pub use crate::buffer::edit::History;
 pub use crate::window::Split;
 pub use buffer::BufferCommand;
 pub use motion::Motion;
 pub use scroll::Scroll;
+pub use window::WindowCommand;
 
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -26,10 +28,11 @@ pub enum Command {
     History(History),
     Buffer(BufferCommand),
     Split(Split),
+    Window(WindowCommand),
 }
 
 impl Command {
-    pub const ALL: [Self; 29] = [
+    pub const ALL: [Self; 32] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -59,6 +62,9 @@ impl Command {
         Self::Buffer(BufferCommand::Kill),
         Self::Split(Split::Below),
         Self::Split(Split::Right),
+        Self::Window(WindowCommand::Delete),
+        Self::Window(WindowCommand::Keep),
+        Self::Window(WindowCommand::Other),
     ];
 
     pub fn name(self) -> &'static str {
@@ -68,6 +74,7 @@ impl Command {
             Self::History(history) => history.name(),
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),
+            Self::Window(command) => command.name(),
             _ => self.action_name(),
         }
     }

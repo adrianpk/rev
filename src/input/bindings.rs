@@ -1,6 +1,6 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::command::{BufferCommand, Command, History, Motion, Scroll, Split};
+use crate::command::{BufferCommand, Command, History, Motion, Scroll, Split, WindowCommand};
 
 use super::Key;
 
@@ -78,10 +78,8 @@ pub(super) fn control_x(key: Key) -> Option<Command> {
     match key.plain()? {
         KeyCode::Char('b') => Some(Command::Buffer(BufferCommand::Switch)),
         KeyCode::Char('k') => Some(Command::Buffer(BufferCommand::Kill)),
-        KeyCode::Char('2') => Some(Command::Split(Split::Below)),
-        KeyCode::Char('3') => Some(Command::Split(Split::Right)),
         KeyCode::Char('u') => Some(Command::History(History::Undo)),
-        _ => None,
+        code => window(code),
     }
 }
 
@@ -92,6 +90,17 @@ fn control_x_control(code: KeyCode) -> Option<Command> {
         KeyCode::Char('f') => Some(Command::FindFile),
         KeyCode::Char('c') => Some(Command::Quit),
         KeyCode::Char('b') => Some(Command::Buffer(BufferCommand::List)),
+        _ => None,
+    }
+}
+
+fn window(code: KeyCode) -> Option<Command> {
+    match code {
+        KeyCode::Char('2') => Some(Command::Split(Split::Below)),
+        KeyCode::Char('3') => Some(Command::Split(Split::Right)),
+        KeyCode::Char('0') => Some(Command::Window(WindowCommand::Delete)),
+        KeyCode::Char('1') => Some(Command::Window(WindowCommand::Keep)),
+        KeyCode::Char('o') => Some(Command::Window(WindowCommand::Other)),
         _ => None,
     }
 }

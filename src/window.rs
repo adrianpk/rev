@@ -1,5 +1,6 @@
 mod geometry;
 mod layout;
+mod lifecycle;
 mod points;
 
 pub use geometry::{Area, Geometry, Split};
@@ -34,6 +35,7 @@ pub enum Error {
     Exhausted,
     DoesNotFit,
     Focus,
+    OnlyWindow,
 }
 
 impl fmt::Display for Error {
@@ -43,6 +45,7 @@ impl fmt::Display for Error {
             Self::Exhausted => formatter.write_str("view identities are exhausted"),
             Self::DoesNotFit => formatter.write_str("Split does not fit the available pane"),
             Self::Focus => formatter.write_str("a prompt owns input focus"),
+            Self::OnlyWindow => formatter.write_str("Cannot delete the sole editing window"),
         }
     }
 }

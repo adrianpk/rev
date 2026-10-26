@@ -53,4 +53,43 @@ impl Layout {
             _ => false,
         }
     }
+    pub(super) fn leaves(&self, output: &mut Vec<ViewId>) {
+        match self {
+            Self::Leaf(id) => output.push(*id),
+            Self::Split { first, second, .. } => {
+                first.leaves(output);
+                second.leaves(output);
+            }
+        }
+    }
+
+    fn first_leaf(&self) -> ViewId {
+        match self {
+            Self::Leaf(id) => *id,
+            Self::Split { first, .. } => first.first_leaf(),
+        }
+    }
+
+    fn is_leaf(&self, id: ViewId) -> bool {
+        matches!(self, Self::Leaf(current) if *current == id)
+    }
+
+    /// Reconnect the sibling subtree and select its first editing leaf. This
+    /// operates on a private candidate, leaving the live layout untouched.
+    pub(super) fn remove(&mut self, id: ViewId) -> Option<ViewId> {
+        let Self::Split { first, second, .. } = self else {
+            return None;
+        };
+        if first.is_leaf(id) {
+            let replacement = second.first_leaf();
+            *self = *second.clone();
+            return Some(replacement);
+        }
+        if second.is_leaf(id) {
+            let replacement = first.first_leaf();
+            *self = *first.clone();
+            return Some(replacement);
+        }
+        first.remove(id).or_else(|| second.remove(id))
+    }
 }

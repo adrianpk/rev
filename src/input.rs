@@ -201,6 +201,7 @@ impl Input {
 
     fn control_x(&mut self, key: Key) -> Outcome {
         if let Some(command) = bindings::control_x(key) {
+            self.suppress_repeat = true;
             return Outcome::Command(command);
         }
         if key.plain() == Some(KeyCode::Char('r')) {

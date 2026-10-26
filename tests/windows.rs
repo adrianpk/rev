@@ -3,7 +3,7 @@
 use std::collections::BTreeSet;
 
 use rev::buffer::Buffers;
-use rev::command::{Command, Split};
+use rev::command::{Command, Split, WindowCommand};
 use rev::coordinates::Scalar;
 use rev::session::{Action, Session};
 use rev::view::{Size, View};
@@ -391,4 +391,119 @@ fn view_admission() {
     assert_eq!(session.windows().selected_id(), selected);
     session.select_view(sibling).unwrap();
     assert_eq!(session.windows().selected_id(), sibling);
+}
+
+fn window(session: &mut Session, command: WindowCommand) {
+    assert_eq!(session.execute(Command::Window(command)), Action::Redraw);
+}
+
+// Traversal follows layout leaves rather than allocation order, wraps exactly,
+// and does not modify any view's independent point/scroll state.
+#[test]
+fn window_cycle() {
+    for first in [Split::Below, Split::Right] {
+        let mut session = editor("abcdef\nsecond", size(31, 13));
+        let original = session.windows().selected_id();
+        split(&mut session, first);
+        let second = other(&session);
+        split(
+            &mut session,
+            if first == Split::Below {
+                Split::Right
+            } else {
+                Split::Below
+            },
+        );
+        let third = session
+            .windows()
+            .iter()
+            .map(|(id, _)| id)
+            .find(|id| *id != original && *id != second)
+            .unwrap();
+        assert_eq!(session.windows().order(), vec![original, third, second]);
+        let before = session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.clone()))
+            .collect::<Vec<_>>();
+        for expected in [third, second, original, third] {
+            window(&mut session, WindowCommand::Other);
+            assert_eq!(session.windows().selected_id(), expected);
+            assert_eq!(
+                session
+                    .windows()
+                    .iter()
+                    .map(|(id, view)| (id, view.clone()))
+                    .collect::<Vec<_>>(),
+                before
+            );
+        }
+    }
+}
+
+// Removing either child reconnects its sibling and retains both surviving
+// view states. The removed identity cannot remain selected or be selected again.
+#[test]
+fn delete_reconnect() {
+    let mut session = editor("abcdef\nsecond", size(31, 13));
+    let original = session.windows().selected_id();
+    split(&mut session, Split::Below);
+    let below = other(&session);
+    split(&mut session, Split::Right);
+    let right = session.windows().order()[1];
+    let before = session.windows().get(right).unwrap().clone();
+    let owner = session.buffer().unwrap().id();
+    window(&mut session, WindowCommand::Delete);
+    assert_eq!(session.windows().selected_id(), right);
+    assert_eq!(session.windows().order(), vec![right, below]);
+    assert_eq!(*session.view(), before);
+    assert!(session.select_view(original).is_err());
+    let Layout::Split {
+        direction,
+        first,
+        second,
+    } = session.windows().layout()
+    else {
+        panic!("remaining below split");
+    };
+    assert_eq!(*direction, Split::Below);
+    assert_eq!(**first, Layout::Leaf(right));
+    assert_eq!(**second, Layout::Leaf(below));
+    session.select_view(below).unwrap();
+    window(&mut session, WindowCommand::Delete);
+    assert_eq!(session.windows().order(), vec![right]);
+    assert_eq!(*session.windows().layout(), Layout::Leaf(right));
+    assert_eq!(session.windows().selected_id(), right);
+    assert_eq!(session.buffer().unwrap().id(), owner);
+    assert!(session.buffer().unwrap().history().is_empty());
+    bounded(&mut session, size(31, 13));
+}
+
+// Keeping only the selected window retains that exact identity and view state;
+// it does not replace it with another buffer view or alter canonical history.
+#[test]
+fn keep_selected() {
+    let mut session = editor("abcdef\nsecond", size(31, 13));
+    split(&mut session, Split::Below);
+    let below = other(&session);
+    split(&mut session, Split::Right);
+    session.select_view(below).unwrap();
+    session.execute(Command::Motion(rev::command::Motion::LineEnd));
+    let before = session.view().clone();
+    let removed = session
+        .windows()
+        .order()
+        .into_iter()
+        .filter(|id| *id != below)
+        .collect::<Vec<_>>();
+    window(&mut session, WindowCommand::Keep);
+    assert_eq!(session.windows().selected_id(), below);
+    assert_eq!(session.windows().order(), vec![below]);
+    assert_eq!(*session.view(), before);
+    assert_eq!(*session.windows().layout(), Layout::Leaf(below));
+    for id in removed {
+        assert!(session.select_view(id).is_err());
+    }
+    assert!(session.buffer().unwrap().history().is_empty());
+    bounded(&mut session, size(31, 13));
 }

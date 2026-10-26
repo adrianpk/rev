@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::{BufferCommand, Command, Split};
+use rev::command::{BufferCommand, Command, Split, WindowCommand};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -98,6 +98,30 @@ fn command_sequences() {
             vec![
                 Outcome::Prefix(Prefix::ControlX),
                 Outcome::Command(Command::Split(Split::Right)),
+            ],
+        ),
+        (
+            "delete window",
+            vec![control('x'), character('0')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Window(WindowCommand::Delete)),
+            ],
+        ),
+        (
+            "keep window",
+            vec![control('x'), character('1')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Window(WindowCommand::Keep)),
+            ],
+        ),
+        (
+            "other window",
+            vec![control('x'), character('o')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Window(WindowCommand::Other)),
             ],
         ),
         (
@@ -614,4 +638,30 @@ fn document_isolation() {
             .to_string(),
         "originalz"
     );
+}
+
+// A repeated final C-x command key cannot leak into the document after the
+// prefix is consumed. A distinct new press restores ordinary editing input.
+#[test]
+fn window_repeats() {
+    use crossterm::event::KeyEventKind;
+    for (letter, command) in [
+        ('0', WindowCommand::Delete),
+        ('1', WindowCommand::Keep),
+        ('o', WindowCommand::Other),
+    ] {
+        let mut input = Input::default();
+        input.handle(control('x'));
+        assert_eq!(
+            input.handle(character(letter)),
+            Outcome::Command(Command::Window(command))
+        );
+        let repeat = Event::Key(KeyEvent::new_with_kind(
+            KeyCode::Char(letter),
+            KeyModifiers::NONE,
+            KeyEventKind::Repeat,
+        ));
+        assert_eq!(input.handle(repeat), Outcome::Ignored);
+        assert!(matches!(input.handle(character('x')), Outcome::Editing(_)));
+    }
 }

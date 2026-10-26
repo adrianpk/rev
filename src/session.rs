@@ -157,10 +157,11 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
-        if let Command::Split(direction) = command {
-            return self.split(direction);
+        match command {
+            Command::Split(direction) => self.split(direction),
+            Command::Window(command) => self.window_command(command),
+            _ => self.dispatch(command),
         }
-        self.dispatch(command)
     }
 
     fn dispatch(&mut self, command: Command) -> Action {
