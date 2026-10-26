@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 7 - Edit printable text and graphemes
+Active slice: Slice 8 - Implement character and word motion
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -187,17 +187,20 @@ Report: [Slice 6](../report/slices/rev-editor/slice-6-display.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R02, R04, R08, R17, R25.
 
-- [ ] T7.1: Connect printable input, Enter, Tab, Backspace, and delete-char to the common edit owner and visible cursor updates. Preserve the chosen newline policy and coherent CRLF deletion.
-- [ ] T7.2: Add boundary, Unicode, and read-only behavior checks through command input. Guard modified text immediately: until saving exists, refuse an unsafe quit rather than offer a fake save action.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T7.1: Connect printable input, Enter, Tab, Backspace, and delete-char to the common edit owner and visible cursor updates. Preserve the chosen newline policy and coherent CRLF deletion.
+- [x] T7.2: Add boundary, Unicode, and read-only behavior checks through command input. Guard modified text immediately: until saving exists, refuse an unsafe quit rather than offer a fake save action.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T7.1 and T7.2 implemented; canonical integration pending.
+Implementation: T7.1 and T7.2 delivered through PR #7.
 Task commits: T7.1 `c87c86662528731c53845685640d2f5165256c12`;
 T7.2 `1dfd5d17b148f0b5ddc7f5440231dff3ebeea8ed`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed twenty-one tests and the terminal PTY suite passed nine cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#7](https://forge.adrianpk.com/adrianpk/rev/pulls/7).
+Integration: Rebase + Fast-forward into dev at
+`79dad958ec299b222b303d03529b0181a1eaa8eb`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 7](../report/slices/rev-editor/slice-7-insertion.md).
 
 ### Slice 8: Implement character and word motion

@@ -1,11 +1,12 @@
 # Slice 7: Edit printable text and graphemes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-07-insertion`
 PR: `#7`
+Integrated: Rebase + Fast-forward into dev at `79dad958ec299b222b303d03529b0181a1eaa8eb`.
 
 ## Purpose
 
