@@ -24,7 +24,9 @@ impl Session {
         self.replace(range, "")
     }
 
-    pub(super) fn replace(&mut self, range: Range<usize>, text: &str) -> Result<bool, Error> {
+    /// Replace a scalar range in the selected buffer through the same checked
+    /// transaction as editing commands, reconciling every live shared view.
+    pub fn replace(&mut self, range: Range<usize>, text: &str) -> Result<bool, Error> {
         self.edit(range, text, false)
     }
 
@@ -40,27 +42,38 @@ impl Session {
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)?;
-        let source = buffer.span(range.clone())?;
-        let position = range
-            .start
-            .checked_add(text.chars().count())
-            .ok_or(Error::Capacity)?;
-        let edits = [Replacement {
-            source,
-            text: text.into(),
-        }];
-        let mut points = self.windows.points();
+        let (edit, position) = replacement(buffer, range, text)?;
+        let points = self.windows.points(buffer)?;
         let cursor = Cursor {
             index: points.initiator,
-            position: Scalar(position),
+            position,
         };
-        let prepared = if typing {
-            buffer.prepare_typing(&edits[0], &points.values, cursor)?
+        let mut prepared = if typing {
+            buffer.prepare_typing(&edit, &points.values, cursor)?
         } else {
-            buffer.prepare(&edits, &points.values, Some(cursor))?
+            buffer.prepare(std::slice::from_ref(&edit), &points.values, Some(cursor))?
         };
-        buffer.publish(prepared, &mut points.values)?;
-        self.windows.publish_points(points, buffer);
+        prepared.set_origin(self.windows.selected_id());
+        self.windows.publish(buffer, prepared, points)?;
         Ok(true)
     }
+}
+
+fn replacement(
+    buffer: &crate::buffer::Buffer,
+    range: Range<usize>,
+    text: &str,
+) -> Result<(Replacement, Scalar), Error> {
+    let source = buffer.span(range.clone())?;
+    let position = range
+        .start
+        .checked_add(text.chars().count())
+        .ok_or(Error::Capacity)?;
+    Ok((
+        Replacement {
+            source,
+            text: text.into(),
+        },
+        Scalar(position),
+    ))
 }

@@ -51,7 +51,7 @@ impl Buffer {
         self.publish(prepared, points)
     }
 
-    fn prepare_history(
+    pub(crate) fn prepare_history(
         &self,
         direction: History,
         points: &[Point],

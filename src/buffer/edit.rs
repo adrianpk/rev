@@ -1,6 +1,7 @@
 mod grouping;
 mod history;
 mod mapping;
+mod views;
 
 pub use history::History;
 use history::Operation;
@@ -136,6 +137,7 @@ pub struct Transaction {
     pub after_mark: Option<Scalar>,
     bytes: usize,
     cursor: Option<usize>,
+    origin: Option<crate::window::ViewId>,
 }
 
 impl Transaction {
@@ -235,6 +237,7 @@ impl Buffer {
             after_mark: None,
             bytes: 0,
             cursor: None,
+            origin: None,
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
         record.bytes = record

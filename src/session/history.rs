@@ -10,12 +10,13 @@ impl Session {
     }
 
     fn replay(&mut self, direction: History) -> Result<(), Error> {
-        let mut points = self.windows.points();
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)?;
-        buffer.navigate(direction, &mut points.values, Some(points.initiator))?;
-        self.windows.publish_points(points, buffer);
+        let points = self.windows.points(buffer)?;
+        let initiator = points.history_initiator(buffer, direction);
+        let prepared = buffer.prepare_history(direction, &points.values, Some(initiator))?;
+        self.windows.publish(buffer, prepared, points)?;
         Ok(())
     }
 }

@@ -822,3 +822,144 @@ fn cycle_typing() {
     assert!(!session.buffer().unwrap().is_modified());
     bounded(&mut session, size(31, 13));
 }
+
+fn marked_view(text: &str, point: usize, top: usize, mark: usize) -> Session {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(text).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_mark(Some(Scalar(mark))).unwrap();
+    let mut view = View::new(buffer);
+    view.point.position = Scalar(point);
+    view.top = top;
+    Session::new(buffers, view, size(31, 9)).unwrap()
+}
+
+fn document(session: &Session) -> String {
+    let buffer = session.buffer().unwrap();
+    buffer
+        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+        .unwrap()
+        .to_string()
+}
+
+// Source line starts follow the accepted edit rather than their former row
+// numbers. Undo/redo map the CURRENT viewport independently of saved cursors.
+#[test]
+fn mapped_tops() {
+    use rev::command::{History, Motion};
+    let text = "zero\none\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine";
+    let point = text.find("six").unwrap();
+    let cases = [
+        ("insert", 0..0, "new\n", 5, point + 4),
+        ("delete", 0..5, "", 3, point - 5),
+        ("replace", 0..5, "new\nextra\n", 5, point + 5),
+    ];
+    for (name, range, replacement, top, mapped) in cases {
+        let mut session = marked_view(text, point, 4, point);
+        split(&mut session, Split::Right);
+        let passive = session.windows().selected_id();
+        let active = other(&session);
+        session.select_view(active).unwrap();
+        session.execute(Command::Motion(Motion::BufferStart));
+        bounded(&mut session, size(31, 9));
+        session.replace(range, replacement).unwrap();
+        let view = session.windows().get(passive).unwrap();
+        assert_eq!(
+            (view.top, view.point.position),
+            (top, Scalar(mapped)),
+            "{name}"
+        );
+        assert_eq!(
+            session.buffer().unwrap().mark(),
+            Some(Scalar(mapped)),
+            "{name}"
+        );
+        assert_eq!(session.view().top, 0, "{name}");
+        bounded(&mut session, size(31, 9));
+        session.execute(Command::History(History::Undo));
+        let view = session.windows().get(passive).unwrap();
+        assert_eq!(
+            (view.top, view.point.position),
+            (4, Scalar(point)),
+            "{name}"
+        );
+        assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(point)));
+        assert_eq!(document(&session), text);
+        session.execute(Command::History(History::Redo));
+        let view = session.windows().get(passive).unwrap();
+        assert_eq!(
+            (view.top, view.point.position),
+            (top, Scalar(mapped)),
+            "{name}"
+        );
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        bounded(&mut session, size(31, 9));
+    }
+}
+
+// Points have right affinity, while the shared mark has left affinity. A
+// combining insertion adjusts both to complete graphemes in the new revision.
+#[test]
+fn shared_affinities() {
+    use rev::command::History;
+    let mut session = marked_view("ab界cd", 2, 0, 2);
+    split(&mut session, Split::Right);
+    let active = other(&session);
+    session.select_view(active).unwrap();
+    session.insert('\u{301}');
+    assert_eq!(document(&session), "ab\u{301}界cd");
+    for (_, view) in session.windows().iter() {
+        assert_eq!(view.point.position, Scalar(3));
+        view.cell(session.buffer().unwrap()).unwrap();
+    }
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(1)));
+    session.execute(Command::History(History::Undo));
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(2)));
+    assert!(
+        session
+            .windows()
+            .iter()
+            .all(|(_, view)| view.point.position == Scalar(2))
+    );
+    session.execute(Command::History(History::Redo));
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(1)));
+    assert!(
+        session
+            .windows()
+            .iter()
+            .all(|(_, view)| view.point.position == Scalar(3))
+    );
+}
+
+// Invoking history in another view restores the original live editing cursor;
+// the invoking view maps its own current point instead of being teleported.
+#[test]
+fn live_history_origin() {
+    use rev::command::{History, Motion};
+    let mut session = editor("abcdef", size(31, 9));
+    split(&mut session, Split::Right);
+    let invoking = session.windows().selected_id();
+    let origin = other(&session);
+    session.select_view(origin).unwrap();
+    session.insert('X');
+    session.insert('Y');
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    session.execute(Command::Motion(Motion::BufferEnd));
+    session.select_view(invoking).unwrap();
+    session.execute(Command::Motion(Motion::BufferStart));
+    session.execute(Command::History(History::Undo));
+    assert_eq!(session.windows().selected_id(), invoking);
+    assert_eq!(session.view().point.position, Scalar(0));
+    assert_eq!(
+        session.windows().get(origin).unwrap().point.position,
+        Scalar(2)
+    );
+    assert_eq!(document(&session), "abcdef");
+    session.execute(Command::History(History::Redo));
+    assert_eq!(session.view().point.position, Scalar(0));
+    assert_eq!(
+        session.windows().get(origin).unwrap().point.position,
+        Scalar(4)
+    );
+    assert_eq!(document(&session), "abXYcdef");
+}

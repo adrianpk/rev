@@ -39,7 +39,11 @@ fn adjust(
     }
 }
 
-fn mapped(changes: &[Change], mut point: Scalar, affinity: Affinity) -> Result<Scalar, Error> {
+pub(super) fn mapped(
+    changes: &[Change],
+    mut point: Scalar,
+    affinity: Affinity,
+) -> Result<Scalar, Error> {
     for change in changes.iter().rev() {
         point = through(change, point, affinity)?;
     }
