@@ -12,6 +12,9 @@ mod publication;
 #[path = "recovery/ingress.rs"]
 mod ingress;
 
+#[path = "recovery/combined.rs"]
+mod combined;
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};

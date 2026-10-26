@@ -52,12 +52,27 @@ impl<W: Write> Terminal<W> {
     /// Attempts every acquired restoration, even if an earlier one fails.
     /// Failed obligations remain owned so drop can retry them.
     pub fn restore(&mut self) -> io::Result<()> {
-        let paste = self.disable_paste();
-        let cursor = self.show();
-        let attributes = self.reset_attributes();
-        let screen = self.leave();
-        let raw = self.release();
-        paste.and(cursor).and(attributes).and(screen).and(raw)
+        let errors: Vec<_> = [
+            self.disable_paste(),
+            self.show(),
+            self.reset_attributes(),
+            self.leave(),
+            self.release(),
+        ]
+        .into_iter()
+        .filter_map(Result::err)
+        .collect();
+        match errors.first() {
+            Some(first) => Err(io::Error::new(
+                first.kind(),
+                errors
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join("; "),
+            )),
+            None => Ok(()),
+        }
     }
 
     fn command(&mut self, command: impl Command, operation: &str) -> io::Result<()> {

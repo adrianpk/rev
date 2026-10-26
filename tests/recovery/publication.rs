@@ -12,6 +12,7 @@ struct Changed {
     other: PathBuf,
     change: &'static str,
     calls: Vec<&'static str>,
+    cleanup_fails: bool,
 }
 
 impl Output for Changed {
@@ -45,6 +46,9 @@ impl Output for Changed {
 
     fn remove(&mut self, temporary: &Path) -> io::Result<()> {
         self.calls.push("cleanup");
+        if self.cleanup_fails {
+            return Err(io::Error::other("cleanup unavailable"));
+        }
         fs::remove_file(temporary)
     }
 }
@@ -67,6 +71,7 @@ fn changed_staging() {
             other: other.clone(),
             change,
             calls: Vec::new(),
+            cleanup_fails: false,
         };
         let outcome = buffers.publish_save_with(save, &mut output);
         assert_eq!(outcome.publication(), Publication::NotPublished, "{change}");
@@ -109,4 +114,34 @@ fn replaced_directory() {
         assert!(!root.join("new").exists());
         assert!(!prior.join("new").exists());
     }
+}
+
+// A new pre-replacement refusal and a cleanup failure both remain visible.
+// Drop retries only the exclusively created temporary, preserving external bytes.
+#[test]
+fn failed_cleanup() {
+    let fixture = Fixture::new();
+    let target = fixture.file("target.txt", b"original");
+    let other = fixture.file("other.txt", b"outside");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&target).unwrap();
+    edit(buffers.get_mut(id).unwrap(), "retained ");
+    let before = snapshot(buffers.get(id).unwrap());
+    let save = buffers.prepare_save(id, None).unwrap();
+    let mut output = Changed {
+        target: target.clone(),
+        other,
+        change: "content",
+        calls: Vec::new(),
+        cleanup_fails: true,
+    };
+    let result = buffers.publish_save_with(save, &mut output);
+    assert_eq!(result.publication(), Publication::NotPublished);
+    let error = result.error().unwrap().to_string();
+    assert!(error.contains("recheck destination"));
+    assert!(error.contains("remove temporary output") && error.contains("cleanup unavailable"));
+    assert_eq!(output.calls, ["write", "flush", "sync file", "cleanup"]);
+    assert_eq!(snapshot(buffers.get(id).unwrap()), before);
+    assert_eq!(fs::read(target).unwrap(), b"external replacement");
+    assert_eq!(fs::read_dir(&fixture.0).unwrap().count(), 2);
 }

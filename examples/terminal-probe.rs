@@ -7,15 +7,17 @@ use rev::terminal::Terminal;
 
 struct Fault {
     output: io::Stdout,
-    pattern: Option<&'static [u8]>,
+    patterns: Vec<&'static [u8]>,
 }
 
 impl Write for Fault {
     fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
-        if let Some(pattern) = self.pattern
-            && bytes.windows(pattern.len()).any(|part| part == pattern)
+        if let Some(index) = self
+            .patterns
+            .iter()
+            .position(|pattern| bytes.windows(pattern.len()).any(|part| part == *pattern))
         {
-            self.pattern = None;
+            self.patterns.remove(index);
             return Err(io::Error::other("injected output failure"));
         }
         self.output.write(bytes)
@@ -45,10 +47,17 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
     }
 }
 
+fn patterns(mode: &str) -> Vec<&'static [u8]> {
+    if mode == "restore" {
+        return vec![b"\x1b[?2004l", b"\x1b[?25h", b"\x1b[0m", b"\x1b[?1049l"];
+    }
+    pattern(mode).into_iter().collect()
+}
+
 fn probe(mode: &str) -> io::Result<()> {
     let output = Fault {
         output: io::stdout(),
-        pattern: pattern(mode),
+        patterns: patterns(mode),
     };
     let mut terminal = Terminal::acquire(output)?;
     if ["raw", "screen", "paste"].contains(&mode) {
@@ -69,9 +78,19 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
             terminal.writer().flush()
         }
         "unwind" => panic!("injected test unwind"),
+        "restore" => restore_probe(terminal),
         "paste-stop" | "cursor-stop" | "attributes-stop" | "screen-stop" => terminal.restore(),
         _ => Err(io::Error::other("injected session failure")),
     }
+}
+
+fn restore_probe(terminal: &mut Terminal<Fault>) -> io::Result<()> {
+    let result = terminal.restore();
+    // A second PTY acknowledgment lets the harness inspect raw-mode release
+    // before Drop retries the still-owned output restoration obligations.
+    eprintln!("probe-cleanup-pending");
+    io::stdin().read_exact(&mut [0])?;
+    result
 }
 
 fn main() -> ExitCode {

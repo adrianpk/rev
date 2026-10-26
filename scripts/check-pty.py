@@ -104,12 +104,17 @@ def lifecycle(root):
 
 def failures(root):
     binary = root / "target/debug/examples/terminal-probe"
-    cases = [("raw", 1), ("screen", 1), ("paste", 1), ("paste-stop", 1), ("cursor-stop", 1), ("attributes-stop", 1), ("screen-stop", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
+    cases = [("raw", 1), ("screen", 1), ("paste", 1), ("paste-stop", 1), ("cursor-stop", 1), ("attributes-stop", 1), ("screen-stop", 1), ("restore", 1), ("entered", 1), ("io", 1), ("unwind", 101)]
     for mode, expected in cases:
         session = Session([str(binary), mode])
         try:
             session.ready(b"probe-ready")
             os.write(session.master, b"!")
+            if mode == "restore":
+                session.wait(lambda: b"probe-cleanup-pending" in session.output)
+                assert termios.tcgetattr(session.slave) == session.before
+                assert session.process.poll() is None
+                os.write(session.master, b"!\n")
             session.finish(expected)
             if mode == "raw":
                 assert all(code not in session.output for code in (ENTER, LEAVE, HIDE, SHOW))
@@ -125,8 +130,15 @@ def failures(root):
                 else:
                     assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
             assert b"injected" in session.output, bytes(session.output)
-            if mode in ("paste", "paste-stop", "cursor-stop", "attributes-stop", "screen-stop", "entered", "io", "unwind"):
+            if mode in ("paste", "paste-stop", "cursor-stop", "attributes-stop", "screen-stop", "restore", "entered", "io", "unwind"):
                 assert PASTE_OFF in session.output, bytes(session.output)
+            if mode == "restore":
+                for operation in (b"disable bracketed paste", b"show cursor",
+                                  b"reset display attributes", b"leave alternate screen"):
+                    assert operation in session.output, bytes(session.output)
+                assert session.output.rfind(PASTE_OFF) < session.output.rfind(SHOW)
+                assert session.output.rfind(SHOW) < session.output.rfind(b"\x1b[0m")
+                assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
             print(f"PASS {mode} failure restores acquired state")
         finally:
             session.close()
@@ -2811,7 +2823,7 @@ def main():
     incremental_rectangles(root)
     guarded_session_exit(root)
     failed_session_exit(root)
-    print("Terminal PTY suite: 89 cases passed, 0 skipped.")
+    print("Terminal PTY suite: 90 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
