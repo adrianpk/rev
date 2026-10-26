@@ -1,7 +1,9 @@
+mod buffer;
 mod motion;
 mod scroll;
 
 pub use crate::buffer::edit::History;
+pub use buffer::BufferCommand;
 pub use motion::Motion;
 pub use scroll::Scroll;
 
@@ -20,10 +22,11 @@ pub enum Command {
     Motion(Motion),
     Scroll(Scroll),
     History(History),
+    Buffer(BufferCommand),
 }
 
 impl Command {
-    pub const ALL: [Self; 24] = [
+    pub const ALL: [Self; 27] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -48,6 +51,9 @@ impl Command {
         Self::Scroll(Scroll::Recenter),
         Self::History(History::Undo),
         Self::History(History::Redo),
+        Self::Buffer(BufferCommand::Switch),
+        Self::Buffer(BufferCommand::List),
+        Self::Buffer(BufferCommand::Kill),
     ];
 
     pub fn name(self) -> &'static str {
@@ -55,6 +61,7 @@ impl Command {
             Self::Motion(motion) => motion.name(),
             Self::Scroll(scroll) => scroll.name(),
             Self::History(history) => history.name(),
+            Self::Buffer(command) => command.name(),
             _ => self.action_name(),
         }
     }

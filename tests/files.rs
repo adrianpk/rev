@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "files/buffers.rs"]
+mod buffers;
+
 #[path = "files/saving.rs"]
 mod saving;
 

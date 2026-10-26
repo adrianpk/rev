@@ -52,7 +52,12 @@ impl Session {
                 let _ = self.load(Path::new(&path));
                 Action::Redraw
             }
-            Some(Pending::Argument(Command::WriteFile)) => self.save_to(Some(Path::new(&path))),
+            Some(Pending::Write { buffer, close }) => {
+                self.save_to(buffer, Some(Path::new(&path)), close)
+            }
+            Some(Pending::Buffer { command, default }) => {
+                self.buffer_argument(command, default, &path)
+            }
             _ => self.message("No file argument is pending"),
         }
     }

@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::Command;
+use rev::command::{BufferCommand, Command};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -58,6 +58,30 @@ fn command_sequences() {
             vec![
                 Outcome::Prefix(Prefix::ControlX),
                 Outcome::Command(Command::WriteFile),
+            ],
+        ),
+        (
+            "switch buffer",
+            vec![control('x'), character('b')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Buffer(BufferCommand::Switch)),
+            ],
+        ),
+        (
+            "list buffers",
+            vec![control('x'), control('b')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Buffer(BufferCommand::List)),
+            ],
+        ),
+        (
+            "kill buffer",
+            vec![control('x'), character('k')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Buffer(BufferCommand::Kill)),
             ],
         ),
         (

@@ -1,6 +1,6 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::command::{Command, History, Motion, Scroll};
+use crate::command::{BufferCommand, Command, History, Motion, Scroll};
 
 use super::Key;
 
@@ -67,6 +67,29 @@ fn meta(code: KeyCode) -> Option<Command> {
         KeyCode::Char('<') => Some(Command::Motion(Motion::BufferStart)),
         KeyCode::Char('>') => Some(Command::Motion(Motion::BufferEnd)),
         KeyCode::Char('v') => Some(Command::Scroll(Scroll::PageBackward)),
+        _ => None,
+    }
+}
+
+pub(super) fn control_x(key: Key) -> Option<Command> {
+    if key.modifiers == KeyModifiers::CONTROL {
+        return control_x_control(key.code);
+    }
+    match key.plain()? {
+        KeyCode::Char('b') => Some(Command::Buffer(BufferCommand::Switch)),
+        KeyCode::Char('k') => Some(Command::Buffer(BufferCommand::Kill)),
+        KeyCode::Char('u') => Some(Command::History(History::Undo)),
+        _ => None,
+    }
+}
+
+fn control_x_control(code: KeyCode) -> Option<Command> {
+    match code {
+        KeyCode::Char('s') => Some(Command::SaveBuffer),
+        KeyCode::Char('w') => Some(Command::WriteFile),
+        KeyCode::Char('f') => Some(Command::FindFile),
+        KeyCode::Char('c') => Some(Command::Quit),
+        KeyCode::Char('b') => Some(Command::Buffer(BufferCommand::List)),
         _ => None,
     }
 }

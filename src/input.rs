@@ -1,4 +1,5 @@
 mod bindings;
+mod inventory;
 mod key;
 mod prompt;
 
@@ -7,6 +8,7 @@ use std::fmt;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 
 use crate::command::Command;
+pub use inventory::Selection;
 pub use key::Key;
 pub use prompt::{LIMIT, Prompt};
 
@@ -30,12 +32,15 @@ pub enum Focus {
     Editing,
     Argument,
     Decision,
+    Inventory,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Outcome {
     Ignored,
     Changed,
+    Complete,
+    Selection(Selection),
     Prefix(Prefix),
     Command(Command),
     Editing(Key),
@@ -69,6 +74,7 @@ enum Context {
     Editing,
     Argument(Prompt),
     Decision(&'static str),
+    Inventory,
 }
 
 /// Sole keyboard focus and prefix owner. Completion consumes the prompt once;
@@ -86,6 +92,7 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Argument(_) => Focus::Argument,
             Context::Decision(_) => Focus::Decision,
+            Context::Inventory => Focus::Inventory,
         }
     }
 
@@ -104,6 +111,7 @@ impl Input {
         match &self.context {
             Context::Argument(prompt) => Some(prompt.label()),
             Context::Decision(label) => Some(label),
+            Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
             _ => None,
         }
     }
@@ -145,7 +153,8 @@ impl Input {
         self.suppress_repeat
             || self.prefix.is_some()
             || self.focus() == Focus::Decision
-            || (self.focus() == Focus::Argument && code == KeyCode::Enter)
+            || (matches!(self.focus(), Focus::Argument | Focus::Inventory)
+                && code == KeyCode::Enter)
     }
 
     pub fn cancel(&mut self) {
@@ -170,8 +179,12 @@ impl Input {
             Context::Editing => self.editing(key),
             Context::Argument(prompt) => prompt.handle(key),
             Context::Decision(_) => decide(key),
+            Context::Inventory => inventory::handle(key),
         };
-        if matches!(outcome, Outcome::Argument(_) | Outcome::Decision(_)) {
+        if matches!(
+            outcome,
+            Outcome::Argument(_) | Outcome::Decision(_) | Outcome::Selection(Selection::Accept)
+        ) {
             self.context = Context::Editing;
             self.suppress_repeat = true;
         }
@@ -187,23 +200,11 @@ impl Input {
     }
 
     fn control_x(&mut self, key: Key) -> Outcome {
-        if key.control('s') {
-            return Outcome::Command(Command::SaveBuffer);
-        }
-        if key.control('w') {
-            return Outcome::Command(Command::WriteFile);
-        }
-        if key.control('f') {
-            return Outcome::Command(Command::FindFile);
-        }
-        if key.control('c') {
-            return Outcome::Command(Command::Quit);
+        if let Some(command) = bindings::control_x(key) {
+            return Outcome::Command(command);
         }
         if key.plain() == Some(KeyCode::Char('r')) {
             return self.wait(Prefix::Rectangle);
-        }
-        if key.plain() == Some(KeyCode::Char('u')) {
-            return Outcome::Command(Command::History(crate::command::History::Undo));
         }
         Outcome::Message("Undefined key sequence")
     }

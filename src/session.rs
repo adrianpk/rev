@@ -1,3 +1,4 @@
+mod buffers;
 mod edit;
 mod file;
 mod history;
@@ -9,7 +10,7 @@ use std::path::Path;
 
 use crossterm::event::{self, Event, KeyCode};
 
-use crate::buffer::{self, Buffer, Buffers, Confirmation};
+use crate::buffer::{self, Buffer, BufferId, Buffers, Confirmation, Kill};
 use crate::command::Command;
 use crate::display::{Frame, Size};
 use crate::input::{Input, Key, Outcome};
@@ -57,7 +58,23 @@ pub struct Session {
 
 enum Pending {
     Argument(Command),
-    Save(Box<Confirmation>),
+    Save {
+        confirmation: Box<Confirmation>,
+        close: Option<Kill>,
+    },
+    Write {
+        buffer: BufferId,
+        close: Option<Kill>,
+    },
+    Buffer {
+        command: crate::command::BufferCommand,
+        default: BufferId,
+    },
+    Inventory(BufferId),
+    Kill {
+        kill: Kill,
+        message: String,
+    },
 }
 
 impl Session {
@@ -99,8 +116,10 @@ impl Session {
         if let Some(prompt) = self.input.prompt() {
             frame.prompt(prompt, &self.echo)?;
         }
-        if matches!(self.pending, Some(Pending::Save(_))) {
-            frame.decision();
+        match &self.pending {
+            Some(Pending::Inventory(selected)) => frame.inventory(&self.buffers, *selected)?,
+            Some(Pending::Save { .. } | Pending::Kill { .. }) => frame.decision(),
+            _ => {}
         }
         Ok(frame)
     }
@@ -121,7 +140,9 @@ impl Session {
         match outcome {
             Outcome::Command(command) => self.execute(command),
             Outcome::Argument(path) => self.argument(path),
-            Outcome::Decision(accepted) => self.save_decision(accepted),
+            Outcome::Decision(accepted) => self.decision(accepted),
+            Outcome::Selection(selection) => self.select_buffer(selection),
+            Outcome::Complete => self.complete_buffer(),
             Outcome::Changed => Action::Redraw,
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.notice(prefix.label()),
@@ -145,6 +166,7 @@ impl Session {
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
             Command::WriteFile => self.write_file(),
+            Command::Buffer(command) => self.buffer_command(command),
             Command::Motion(motion) => self.motion(motion),
             Command::Scroll(scroll) => self.scroll(scroll),
             Command::History(history) => self.history(history),
@@ -171,7 +193,11 @@ impl Session {
     fn navigation(&mut self, command: Command) {
         if matches!(
             command,
-            Command::Scroll(_) | Command::FindFile | Command::SaveBuffer | Command::WriteFile
+            Command::Scroll(_)
+                | Command::FindFile
+                | Command::SaveBuffer
+                | Command::WriteFile
+                | Command::Buffer(_)
         ) {
             return;
         }

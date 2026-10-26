@@ -1,8 +1,10 @@
 pub mod edit;
 mod endings;
+mod lifecycle;
 mod save;
 mod visits;
 
+pub use lifecycle::Kill;
 pub use save::{Confirmation, Save, SaveRequest};
 
 use std::collections::{BTreeMap, VecDeque};

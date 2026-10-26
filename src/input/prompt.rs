@@ -48,6 +48,7 @@ impl Prompt {
         match code {
             KeyCode::Char(character) => self.insert(character),
             KeyCode::Enter => Outcome::Argument(std::mem::take(&mut self.text)),
+            KeyCode::Tab => Outcome::Complete,
             _ => self.edit(code),
         }
     }
