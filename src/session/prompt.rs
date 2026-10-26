@@ -4,6 +4,16 @@ use crate::input::Focus;
 use super::{Action, Pending, Session};
 
 impl Session {
+    pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if command == Command::ExecuteExtended {
+            return Some(self.extended());
+        }
+        if command == Command::KeyboardQuit {
+            self.restore_search();
+        }
+        None
+    }
+
     pub(super) fn command_outcome(&mut self, command: Command) -> Action {
         // C-g consumes pending focus in navigation without resetting the view.
         // Accepted names retire that stage before the shared handler takes over.

@@ -57,6 +57,10 @@ impl Prompt {
         if text.chars().any(char::is_control) {
             return Outcome::Message("Control character rejected");
         }
+        self.literal_paste(text)
+    }
+
+    pub(super) fn literal_paste(&mut self, text: &str) -> Outcome {
         let count = self
             .text
             .chars()

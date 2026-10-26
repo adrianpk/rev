@@ -11,6 +11,7 @@ mod paste;
 mod prompt;
 mod region;
 mod save;
+mod search;
 mod windows;
 mod yank;
 
@@ -69,6 +70,7 @@ pub struct Session {
 }
 
 enum Pending {
+    Search(Box<search::State>),
     Command,
     Argument(Command),
     Save {
@@ -125,8 +127,10 @@ impl Session {
     }
 
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
+        self.invalidate_search();
         self.windows.reveal(&self.buffers, self.size)?;
         let mut frame = Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?;
+        self.highlight_search(&mut frame)?;
         if let Some(prompt) = self.input.prompt() {
             let hint = self.input.palette().map(crate::input::Palette::hint);
             let notice = hint
@@ -149,6 +153,7 @@ impl Session {
 
     fn outcome(&mut self, outcome: Outcome) -> Action {
         match outcome {
+            Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
             Outcome::Argument(path) => self.argument(path),
             Outcome::Decision(accepted) => self.decision(accepted),
@@ -171,14 +176,15 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
-        if command == Command::ExecuteExtended {
-            return self.extended();
+        if let Some(action) = self.prepare_command(command) {
+            return action;
         }
         self.command_boundary(command);
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
         match command {
+            Command::SearchForward => self.search_forward(),
             Command::Split(direction) => self.split(direction),
             Command::Window(command) => self.window_command(command),
             Command::Region(command) => self.region_command(command),

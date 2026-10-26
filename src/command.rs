@@ -20,6 +20,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    SearchForward,
     ExecuteExtended,
     Quit,
     FindFile,
@@ -42,7 +43,8 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 42] = [
+    pub const ALL: [Self; 43] = [
+        Self::SearchForward,
         Self::ExecuteExtended,
         Self::Quit,
         Self::FindFile,
@@ -104,6 +106,7 @@ impl Command {
 
     fn action_name(self) -> &'static str {
         match self {
+            Self::SearchForward => "isearch-forward",
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",

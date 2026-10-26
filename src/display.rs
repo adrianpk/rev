@@ -2,6 +2,7 @@ mod clip;
 mod compose;
 mod inventory;
 mod prompt;
+mod search;
 mod selection;
 
 use std::io::{self, Write};
@@ -38,6 +39,7 @@ pub struct Row {
     text: String,
     band: Band,
     selection: Option<std::ops::Range<u16>>,
+    search: Option<std::ops::Range<u16>>,
 }
 
 impl Row {
@@ -51,6 +53,10 @@ impl Row {
 
     pub fn selection(&self) -> Option<std::ops::Range<u16>> {
         self.selection.clone()
+    }
+
+    pub fn search(&self) -> Option<std::ops::Range<u16>> {
+        self.search.clone()
     }
 
     pub fn band(&self) -> Band {
@@ -147,6 +153,7 @@ impl Frame {
                 row,
                 text,
                 band: Band::Document,
+                search: None,
                 selection: highlight
                     .as_ref()
                     .and_then(|h| h.row(source, view.left, self.size.width)),
@@ -168,6 +175,7 @@ impl Frame {
             row: self.size.height - 2,
             text: clip::line(Glyphs::for_text(&status)?, 0, self.size.width)?,
             band: Band::Status,
+            search: None,
             selection: None,
         });
         Ok(())
@@ -178,6 +186,7 @@ impl Frame {
             row: self.size.height - 1,
             text: clip::line(Glyphs::for_text(message)?, 0, self.size.width)?,
             band: Band::Echo,
+            search: None,
             selection: None,
         });
         Ok(())
@@ -189,6 +198,7 @@ impl Frame {
                 row,
                 text: " ".repeat(usize::from(self.size.width)),
                 band: Band::Document,
+                search: None,
                 selection: None,
             });
         }

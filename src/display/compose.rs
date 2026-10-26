@@ -83,6 +83,7 @@ impl Frame {
                         row,
                         text: "|".into(),
                         band: Band::Divider,
+                        search: None,
                         selection: None,
                     },
                 )?;

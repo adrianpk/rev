@@ -5,6 +5,7 @@ mod meta;
 mod palette;
 mod paste;
 mod prompt;
+mod search;
 
 use std::collections::VecDeque;
 use std::fmt;
@@ -18,6 +19,7 @@ pub use key::Key;
 pub use meta::META_TIMEOUT;
 pub use palette::Palette;
 pub use prompt::{LIMIT, Prompt};
+pub use search::SearchAction;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Prefix {
@@ -39,6 +41,7 @@ impl Prefix {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Focus {
     Editing,
+    Search,
     Command,
     Argument,
     Decision,
@@ -47,6 +50,7 @@ pub enum Focus {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Outcome {
+    Search(SearchAction),
     Ignored,
     Changed,
     Complete,
@@ -83,6 +87,7 @@ impl std::error::Error for Error {}
 enum Context {
     #[default]
     Editing,
+    Search(Prompt),
     Command(Palette),
     Argument(Prompt),
     Decision(&'static str),
@@ -104,6 +109,7 @@ impl Input {
     pub fn focus(&self) -> Focus {
         match self.context {
             Context::Editing => Focus::Editing,
+            Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
             Context::Argument(_) => Focus::Argument,
             Context::Decision(_) => Focus::Decision,
@@ -117,6 +123,7 @@ impl Input {
 
     pub fn prompt(&self) -> Option<&Prompt> {
         match &self.context {
+            Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
             Context::Argument(prompt) => Some(prompt),
             _ => None,
@@ -125,6 +132,7 @@ impl Input {
 
     pub fn label(&self) -> Option<&'static str> {
         match &self.context {
+            Context::Search(_) => Some("I-search: "),
             Context::Command(_) => Some("M-x "),
             Context::Argument(prompt) => Some(prompt.label()),
             Context::Decision(label) => Some(label),
@@ -186,7 +194,7 @@ impl Input {
             || self.focus() == Focus::Decision
             || (matches!(
                 self.focus(),
-                Focus::Command | Focus::Argument | Focus::Inventory
+                Focus::Command | Focus::Argument | Focus::Inventory | Focus::Search
             ) && code == KeyCode::Enter)
     }
 
@@ -213,6 +221,7 @@ impl Input {
             return self.command_key(key);
         }
         let outcome = match &mut self.context {
+            Context::Search(prompt) => search::handle(prompt, key),
             Context::Editing => self.editing(key),
             Context::Argument(prompt) => prompt.handle(key),
             Context::Decision(_) => decide(key),
@@ -225,7 +234,10 @@ impl Input {
     fn consume(&mut self, outcome: Outcome) -> Outcome {
         if matches!(
             outcome,
-            Outcome::Argument(_) | Outcome::Decision(_) | Outcome::Selection(Selection::Accept)
+            Outcome::Argument(_)
+                | Outcome::Decision(_)
+                | Outcome::Selection(Selection::Accept)
+                | Outcome::Search(SearchAction::Accept)
         ) {
             self.context = Context::Editing;
             self.suppress_repeat = true;
