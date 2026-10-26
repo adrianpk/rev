@@ -492,6 +492,15 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R17
 - [ ] T22.2: Exercise boundaries, Unicode punctuation/words, directional coalescing, read-only rejection, and one-step undo of each kill without unrelated changes.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T22.1 and T22.2 complete; canonical PR pending.
+Task commits: T22.1 `142154d0ed100c595ce03e21096a3dca6bcc03bb`;
+T22.2 `a956cbee3c9880cbf15e2664f9b1d0959552ff22`.
+Validation: required Cargo/source commands passed; `cargo test --test editing`
+passed sixty-three tests and the terminal PTY suite passed forty-four cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 22](../report/slices/rev-editor/slice-22-kills.md).
+
 ### Slice 23: Copy kill and yank linear text
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R18, R19, R21.
