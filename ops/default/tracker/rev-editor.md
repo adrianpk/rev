@@ -177,7 +177,7 @@ T6.2 `5ed738ed6e12f4f4c739aca025f279cd30d4a423`.
 Validation: required Cargo/source commands passed; `cargo test --test display`
 passed nine tests and the terminal PTY suite passed eight cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#6](https://forge.adrianpk.com/adrianpk/rev/pulls/6).
 Report: [Slice 6](../report/slices/rev-editor/slice-6-display.md).
 
 ### Slice 7: Edit printable text and graphemes
