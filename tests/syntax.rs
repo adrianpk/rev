@@ -114,11 +114,7 @@ fn file_modes() {
         assert_eq!(text(buffer), "fn main() {}\n");
         assert!(!buffer.is_modified());
         assert_eq!(
-            frame(buffer).rows()[6]
-                .text()
-                .trim_end()
-                .split_whitespace()
-                .last(),
+            frame(buffer).rows()[6].text().split_whitespace().last(),
             Some(expected)
         );
     }
