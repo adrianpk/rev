@@ -280,7 +280,7 @@ T11.2 `3846a2971f434b88ec40bee545b24bba938b6e38` with terminal synchronization
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed forty-four tests and the terminal PTY suite passed thirteen cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#11](https://forge.adrianpk.com/adrianpk/rev/pulls/11).
 Report: [Slice 11](../report/slices/rev-editor/slice-11-grouping.md).
 
 ### Slice 12: Load exact UTF-8 file content
