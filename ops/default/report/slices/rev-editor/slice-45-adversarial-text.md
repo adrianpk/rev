@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `test/rev-45-adversarial-text`
-PR: pending
+PR: `#45`
 
 ## Purpose
 
