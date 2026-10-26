@@ -1,11 +1,12 @@
 # Slice 46: Measure representative editing workloads
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `perf/rev-46-performance`
 PR: `#46`
+Integrated: `299b78a06ebd413d4064ef90093fecbccbe820ed`
 
 ## Purpose
 

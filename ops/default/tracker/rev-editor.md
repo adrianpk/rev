@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 46 - Measure representative editing workloads
+Active slice: Slice 47 - Audit source quality and product reference
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -964,17 +964,19 @@ Report: [Slice 45](../report/slices/rev-editor/slice-45-adversarial-text.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R07, R08, R26, R32, R40.
 
-- [ ] T46.1: Add a deterministic mixed-width UTF-8 fixture generator with tens of thousands of lines and measure startup, insert/delete, scroll, split redraw, and highlighting on recorded hardware context.
-- [ ] T46.2: Inspect/measure work for pathological whole-file copying/reparse and idle repaint loops, correcting only demonstrated in-scope causes. Store concise fixture/measurement evidence without hostnames or invented guarantees.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T46.1: Add a deterministic mixed-width UTF-8 fixture generator with tens of thousands of lines and measure startup, insert/delete, scroll, split redraw, and highlighting on recorded hardware context.
+- [x] T46.2: Inspect/measure work for pathological whole-file copying/reparse and idle repaint loops, correcting only demonstrated in-scope causes. Store concise fixture/measurement evidence without hostnames or invented guarantees.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T46.1 and T46.2 complete; PR #46 awaits integration.
+Implementation: T46.1 and T46.2 delivered through PR #46.
 Task commits: T46.1 `c5c2f3ea49e0cdb1a0dd1cf9ac476b3d3ee17b4e`;
 T46.2 `b67b5b3d5aabd03c396f407fcc44a4e3f9f91d01`.
 Validation: all six ordered checks passed through Looper, including 454 native
 tests and the performance command's two large fixtures, eight native workloads,
 parser-work comparison and real PTY startup/idle/restoration. Final PR-head
 evidence follows the report and PR-reference commits.
+Integration: `299b78a06ebd413d4064ef90093fecbccbe820ed`; all six ordered checks passed
+under Looper validation `GIX4W5KHFHQ5ZID5ACWNTE5TCZ`.
 PR: [#46](https://forge.adrianpk.com/adrianpk/rev/pulls/46).
 Report: [Slice 46](../report/slices/rev-editor/slice-46-performance.md).
 
