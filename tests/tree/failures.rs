@@ -10,7 +10,7 @@ use super::{Fixture, choose, selected};
 struct Locked(PathBuf);
 impl Locked {
     fn new(path: PathBuf) -> Self {
-        fs::set_permissions(&path, fs::Permissions::from_mode(0)).unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o000)).unwrap();
         Self(path)
     }
 }
