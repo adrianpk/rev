@@ -171,6 +171,15 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R05, 
 - [ ] T6.2: Validate mixed-width clipping, tabs, zero dimensions, status dirty/read-only/mode indicators, and readable error messages. Keep projection caches derived and correctly invalidated.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T6.1 and T6.2 implemented; canonical integration pending.
+Task commits: T6.1 `9b1d62b17dc98a039243e96693e4ceed2275e94d`;
+T6.2 `5ed738ed6e12f4f4c739aca025f279cd30d4a423`.
+Validation: required Cargo/source commands passed; `cargo test --test display`
+passed nine tests and the terminal PTY suite passed eight cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 6](../report/slices/rev-editor/slice-6-display.md).
+
 ### Slice 7: Edit printable text and graphemes
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R02, R04, R08, R17, R25.
