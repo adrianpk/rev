@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "commands/palette.rs"]
+mod palette;
 #[path = "commands/paste.rs"]
 mod paste;
 #[path = "commands/terminal.rs"]
@@ -417,7 +419,7 @@ fn normalized_events() {
         KeyModifiers::SUPER,
     ] {
         assert_eq!(
-            input.handle(Event::Key(KeyEvent::new(KeyCode::Char('x'), modifiers))),
+            input.handle(Event::Key(KeyEvent::new(KeyCode::Char('q'), modifiers))),
             Outcome::Message("Unbound key")
         );
     }

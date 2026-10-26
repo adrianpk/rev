@@ -8,6 +8,7 @@ impl Input {
         self.suppress_repeat = true;
         match &mut self.context {
             Context::Editing => Outcome::Paste(text),
+            Context::Command(palette) => palette.paste(&text),
             Context::Argument(prompt) => prompt.paste(&text),
             _ => Outcome::Message("Paste is unavailable in this input context"),
         }

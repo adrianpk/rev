@@ -1,6 +1,7 @@
 mod buffers;
 mod edit;
 mod events;
+mod extended;
 mod file;
 mod history;
 mod kill;
@@ -125,7 +126,12 @@ impl Session {
         self.windows.reveal(&self.buffers, self.size)?;
         let mut frame = Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?;
         if let Some(prompt) = self.input.prompt() {
-            frame.prompt(prompt, &self.echo)?;
+            let hint = self.input.palette().map(crate::input::Palette::hint);
+            let notice = hint
+                .as_deref()
+                .filter(|_| self.echo.is_empty())
+                .unwrap_or(&self.echo);
+            frame.prompt(prompt, notice)?;
         }
         match &self.pending {
             Some(Pending::Inventory(selected)) => frame.inventory(&self.buffers, *selected)?,
@@ -146,7 +152,7 @@ impl Session {
             Outcome::Decision(accepted) => self.decision(accepted),
             Outcome::Selection(selection) => self.select_buffer(selection),
             Outcome::Complete => self.complete_buffer(),
-            Outcome::Changed => Action::Redraw,
+            Outcome::Changed => self.input_changed(),
             Outcome::Paste(text) => self.paste_text(&text),
             _ => self.input_feedback(outcome),
         }
@@ -163,6 +169,9 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if command == Command::ExecuteExtended {
+            return self.extended();
+        }
         self.command_boundary(command);
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());

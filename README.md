@@ -9,6 +9,7 @@ The product baseline is being specified before implementation:
 - [Editor model](ops/default/spec/rev-editor-model.md)
 
 Implemented input behavior is documented in the [terminal input reference](docs/reference/terminal-input.md).
+Use `M-x` to run implemented commands by name; see the [command reference](docs/reference/commands.md).
 
 ## License
 

@@ -8,6 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Discover and run implemented commands through `M-x`, with prefix/substring matching, Tab completion and cycling, and session-local command history on Up/Down. Named commands share their keyboard handlers and continue into the same argument prompts; `C-g` cancels entry without inserting its text.
 - Paste bracketed multiline Unicode literally as one undo step, preserving supplied LF/CRLF and keeping command-looking text out of key decoding. Single-line paste stays in an active argument prompt; decision prompts require explicit key input.
 - Open UTF-8 files at startup or with `C-x C-f`, preserving BOM, line endings and final-newline absence. Reopening a canonical file reuses its current buffer; absent paths open empty without creating files. Invalid UTF-8 and NUL-containing binary input produce an error without installing damaged text.
 - Save buffers with `C-x C-s`, supplying a destination for unnamed text, or use `C-x C-w` to write another file. Occupied destinations and external changes require explicit confirmation; symlink saves preserve the link and write its resolved target. Saves preserve text format and existing access permissions. Failed saves retain edits and distinguish rejected writes from files already replaced with completion still unresolved.

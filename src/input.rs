@@ -2,9 +2,11 @@ mod bindings;
 mod inventory;
 mod key;
 mod meta;
+mod palette;
 mod paste;
 mod prompt;
 
+use std::collections::VecDeque;
 use std::fmt;
 use std::time::Instant;
 
@@ -14,6 +16,7 @@ use crate::command::Command;
 pub use inventory::Selection;
 pub use key::Key;
 pub use meta::META_TIMEOUT;
+pub use palette::Palette;
 pub use prompt::{LIMIT, Prompt};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -36,6 +39,7 @@ impl Prefix {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Focus {
     Editing,
+    Command,
     Argument,
     Decision,
     Inventory,
@@ -79,6 +83,7 @@ impl std::error::Error for Error {}
 enum Context {
     #[default]
     Editing,
+    Command(Palette),
     Argument(Prompt),
     Decision(&'static str),
     Inventory,
@@ -92,12 +97,14 @@ pub struct Input {
     prefix: Option<Prefix>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
+    history: VecDeque<Command>,
 }
 
 impl Input {
     pub fn focus(&self) -> Focus {
         match self.context {
             Context::Editing => Focus::Editing,
+            Context::Command(_) => Focus::Command,
             Context::Argument(_) => Focus::Argument,
             Context::Decision(_) => Focus::Decision,
             Context::Inventory => Focus::Inventory,
@@ -110,6 +117,7 @@ impl Input {
 
     pub fn prompt(&self) -> Option<&Prompt> {
         match &self.context {
+            Context::Command(palette) => Some(palette.prompt()),
             Context::Argument(prompt) => Some(prompt),
             _ => None,
         }
@@ -117,6 +125,7 @@ impl Input {
 
     pub fn label(&self) -> Option<&'static str> {
         match &self.context {
+            Context::Command(_) => Some("M-x "),
             Context::Argument(prompt) => Some(prompt.label()),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
@@ -175,8 +184,10 @@ impl Input {
             || self.meta_deadline.is_some()
             || self.prefix.is_some()
             || self.focus() == Focus::Decision
-            || (matches!(self.focus(), Focus::Argument | Focus::Inventory)
-                && code == KeyCode::Enter)
+            || (matches!(
+                self.focus(),
+                Focus::Command | Focus::Argument | Focus::Inventory
+            ) && code == KeyCode::Enter)
     }
 
     pub fn cancel(&mut self) {
@@ -198,12 +209,20 @@ impl Input {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
+        if matches!(self.context, Context::Command(_)) {
+            return self.command_key(key);
+        }
         let outcome = match &mut self.context {
             Context::Editing => self.editing(key),
             Context::Argument(prompt) => prompt.handle(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
+            Context::Command(_) => unreachable!("command focus routes before general contexts"),
         };
+        self.consume(outcome)
+    }
+
+    fn consume(&mut self, outcome: Outcome) -> Outcome {
         if matches!(
             outcome,
             Outcome::Argument(_) | Outcome::Decision(_) | Outcome::Selection(Selection::Accept)

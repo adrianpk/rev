@@ -20,6 +20,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    ExecuteExtended,
     Quit,
     FindFile,
     SaveBuffer,
@@ -41,7 +42,8 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 41] = [
+    pub const ALL: [Self; 42] = [
+        Self::ExecuteExtended,
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -102,21 +104,38 @@ impl Command {
 
     fn action_name(self) -> &'static str {
         match self {
+            Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",
             Self::SaveBuffer => "save-buffer",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
+            _ => self.edit_name(),
+        }
+    }
+
+    fn edit_name(self) -> &'static str {
+        match self {
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",
             Self::DeleteChar => "delete-char",
-            _ => unreachable!("navigation commands delegate their names before action lookup"),
+            _ => unreachable!("non-edit commands delegate their names before edit lookup"),
         }
     }
 
     pub fn named(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|command| command.name() == name)
+    }
+
+    /// Fixed-name matches: prefixes first, then substrings, lexical within each.
+    pub fn matching(query: &str) -> Vec<Self> {
+        let mut commands: Vec<_> = Self::ALL
+            .into_iter()
+            .filter(|command| command.name().contains(query))
+            .collect();
+        commands.sort_by_key(|command| (!command.name().starts_with(query), command.name()));
+        commands
     }
 
     pub(crate) fn is_kill(self) -> bool {

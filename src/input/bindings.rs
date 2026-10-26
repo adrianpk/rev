@@ -70,10 +70,17 @@ fn control_motion(code: KeyCode) -> Option<Command> {
 
 fn meta(code: KeyCode) -> Option<Command> {
     match code {
+        KeyCode::Char('x') => Some(Command::ExecuteExtended),
         KeyCode::Char('d') => Some(Command::Kill(KillCommand::Word)),
         KeyCode::Backspace => Some(Command::Kill(KillCommand::BackwardWord)),
         KeyCode::Char('w') => Some(Command::Linear(LinearCommand::Copy)),
         KeyCode::Char('y') => Some(Command::Linear(LinearCommand::Pop)),
+        _ => meta_motion(code),
+    }
+}
+
+fn meta_motion(code: KeyCode) -> Option<Command> {
+    match code {
         KeyCode::Char('f') => Some(Command::Motion(Motion::ForwardWord)),
         KeyCode::Char('b') => Some(Command::Motion(Motion::BackwardWord)),
         KeyCode::Char('<') => Some(Command::Motion(Motion::BufferStart)),
