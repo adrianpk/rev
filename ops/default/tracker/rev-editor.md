@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 2 - Introduce canonical rope buffers
+Active slice: Slice 3 - Resolve Unicode and display coordinates
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -90,16 +90,19 @@ Report: [Slice 1](../report/slices/rev-editor/slice-1-terminal.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, R09, R11, R33.
 
-- [ ] T2.1: Add stable buffer identity, one canonical Ropey store, initial empty state, checked scalar ranges, and bounded chunk/line reads. Keep file identity and view identity separate.
-- [ ] T2.2: Exercise insertion-range admission, empty/multiline stores, foreign identities, stale revisions, UTF-8 boundaries, and two references observing one text owner without a second mutable copy.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T2.1: Add stable buffer identity, one canonical Ropey store, initial empty state, checked scalar ranges, and bounded chunk/line reads. Keep file identity and view identity separate.
+- [x] T2.2: Exercise insertion-range admission, empty/multiline stores, foreign identities, stale revisions, UTF-8 boundaries, and two references observing one text owner without a second mutable copy.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T2.1 and T2.2 implemented; canonical integration pending.
+Implementation: T2.1 and T2.2 delivered through PR #2.
 Task commits: T2.1 `f3fc075194321f8603140bdb717597dac12a1688`;
 T2.2 `9487765a9240a3bb49de35dc3a117d8523432ba8`.
 Validation: required Cargo/source commands passed; `cargo test --test core`
 passed six tests with zero skips. Final PR-head evidence is recorded through Looper.
 PR: [#2](https://forge.adrianpk.com/adrianpk/rev/pulls/2).
+Integration: Rebase + Fast-forward into dev at
+`87d08134d244d2670f4e8f8d5b23a78738e5aa47`; all six ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 2](../report/slices/rev-editor/slice-2-buffers.md).
 
 ### Slice 3: Resolve Unicode and display coordinates

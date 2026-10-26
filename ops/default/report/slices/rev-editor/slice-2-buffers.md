@@ -1,11 +1,12 @@
 # Slice 2: Introduce canonical rope buffers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-02-buffers`
 PR: `#2`
+Integrated: Rebase + Fast-forward into dev at `87d08134d244d2670f4e8f8d5b23a78738e5aa47`.
 
 ## Purpose
 
