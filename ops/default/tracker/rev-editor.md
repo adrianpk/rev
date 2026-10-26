@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 27 - Run discoverable commands through M-x
+Active slice: Slice 28 - Complete focused argument and cancel flows
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -588,18 +588,21 @@ Report: [Slice 26](../report/slices/rev-editor/slice-26-paste.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R22, R23.
 
-- [ ] T27.1: Expose implemented fixed commands through M-x with lowercase hyphenated names, deterministic prefix/substring filtering, TAB selection/completion, RET invocation, and session history.
-- [ ] T27.2: Exercise unknown names, empty candidates, cancel, command history, argument continuation, and binding/name parity for file, window, editing, and history operations.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T27.1: Expose implemented fixed commands through M-x with lowercase hyphenated names, deterministic prefix/substring filtering, TAB selection/completion, RET invocation, and session history.
+- [x] T27.2: Exercise unknown names, empty candidates, cancel, command history, argument continuation, and binding/name parity for file, window, editing, and history operations.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T27.1 and T27.2 complete; canonical PR #27 open.
+Implementation: T27.1 and T27.2 delivered through PR #27.
 Task commits: T27.1 `57f42e8a1fdc3ad80d2d89c725d75e9f32f3d22b`;
 T27.2 `3e4e30cbbd9c1bee8d8a5c9135ad13ad0b194c11`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed fifty-one tests and the terminal PTY suite passed fifty-six cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#27](https://forge.adrianpk.com/adrianpk/rev/pulls/27).
-Report: [Slice 27](../report/slices/rev-editor/slice-27-command-palette.md), reviewing.
+Integration: Rebase + Fast-forward into dev at
+`b378080307fba5ede92970d3011c61037485d132`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
+Report: [Slice 27](../report/slices/rev-editor/slice-27-command-palette.md).
 
 ### Slice 28: Complete focused argument and cancel flows
 

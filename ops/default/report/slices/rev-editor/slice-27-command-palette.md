@@ -1,11 +1,12 @@
 # Slice 27: Run discoverable commands through M-x
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-27-command-palette`
 PR: `#27`
+Integrated: Rebase + Fast-forward into dev at `b378080307fba5ede92970d3011c61037485d132`.
 
 ## Purpose
 
