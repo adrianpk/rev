@@ -231,6 +231,16 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R07, 
 - [ ] T9.2: Exercise short lines between long lines, tabs/wide clusters, tiny viewports, and repeated page/recenter operations without losing intended column.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T9.1 and T9.2 complete; awaiting canonical PR integration.
+Task commits: T9.1 `60160f6f034d6554dc36315d706f4c221c30f544`;
+T9.2 `bc16af2c0d9744525c638aff98ae336ed56bf43f` and fixture synchronization
+`2c4364566b343db6b51bc5080f27e032dcbe11b3`.
+Validation: required Cargo/source commands passed; `cargo test --test display`
+passed eighteen tests and the terminal PTY suite passed eleven cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 9](../report/slices/rev-editor/slice-9-scrolling.md).
+
 ### Slice 10: Restore per-buffer undo and redo
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R11, R21.
