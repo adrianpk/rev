@@ -1849,6 +1849,74 @@ def replace_lines(root):
             session.close()
 
 
+def rectangle_copy(root):
+    # Cell selection/copy preserves source bytes and the independent linear
+    # entry. Reversed endpoints retain the same highlighted Unicode block.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-rectangle-") as directory:
+        path = Path(directory) / "block.txt"
+        source = "\ufeff012345\r\na\t界z\r\nQ👩\u200d💻e\u0301X\r\nx\r\n\r\n012345".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> block.txt -- RW L1 C1 Text")
+            group_step(session, b"\x00\x06\x1bw", b"Region copied")
+            group_step(session, b"\x07\x06\x18 ", b"Rectangle mark set", b"L1 C3 Text")
+            group_step(session, b"\x1b>\x02", b"-- RW L6 C6 Text",
+                       "a \x1b[7m  界\x1b[27mz".encode())
+            frame = last_frame(session)
+            assert b"01\x1b[7m234\x1b[27m5" in frame
+            assert "Q\x1b[7m👩\u200d💻e\u0301X\x1b[27m".encode() in frame
+            assert b"\x1b[4;1Hx " in frame and b"\x1b[5;1H " in frame
+            group_step(session, b"\x18r\x1bw", b"Rectangle copied", b"-- RW L6 C6 Text")
+            group_step(session, b"\x18\x18", b"-- RW L1 C3 Text",
+                       b"01\x1b[7m234\x1b[27m5")
+            assert path.read_bytes() == source
+            group_step(session, b"\x07\x19", b"** RW L1 C4 Text", b"0102345")
+            group_step(session, b"\x18u", b"-- RW L1 C3 Text", b"012345")
+            group_step(session, b"\x18u", b"Nothing to undo")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS rectangular tab/Unicode highlighting, reversed copy, independent linear yank and exact source fidelity")
+        finally:
+            session.close()
+
+
+def rectangle_scroll(root):
+    # Named commands use the real block handler across hidden source rows.
+    # Resize suspension and clipped edges preserve the active interaction.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-rectangle-scroll-") as directory:
+        path = Path(directory) / "rows.txt"
+        anchor = "0123456789" * 12
+        middle = "0123456789" * 11 + "a\t界e\u0301👩\u200d💻z"
+        source = "\n".join([anchor] + [middle] * 68 + [anchor]).encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> rows.txt -- RW L1 C1 Text")
+            group_step(session, b"\x05" + b"\x02" * 5, b"-- RW L1 C116 Text")
+            named_step(session, "rectangle-mark-mode", b"Rectangle mark set")
+            group_step(session, b"\x1b>\x02\x02", b"-- RW L70 C119 Text",
+                       "\x1b[7m👩\u200d💻z\x1b[27m".encode())
+            named_step(session, "copy-rectangle-as-kill", b"Rectangle copied")
+            for width, height in [(0, 0), (3, 3), (8, 5), (80, 24)]:
+                resize_surface(session, width, height, True)
+            assert b"-- RW L70 C119 Text" in last_frame(session)
+            named_step(session, "copy-rectangle-as-kill", b"Rectangle copied")
+            group_step(session, b"\x18rq", b"Undefined key sequence")
+            group_step(session, b"\x07", b"Quit")
+            assert b"\x1b[7m" not in last_frame(session)
+            named_step(session, "copy-rectangle-as-kill", b"Rectangle is not active")
+            group_step(session, b"\x18u", b"Nothing to undo")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS named rectangle copy across scrolled rows, zero/tiny resize, cancellation and unchanged history/file")
+        finally:
+            session.close()
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1907,7 +1975,9 @@ def main():
     smart_search(root)
     query_replace(root)
     replace_lines(root)
-    print("Terminal PTY suite: 64 cases passed, 0 skipped.")
+    rectangle_copy(root)
+    rectangle_scroll(root)
+    print("Terminal PTY suite: 66 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
