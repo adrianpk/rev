@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 21 - Activate and render linear regions
+Active slice: Slice 22 - Kill lines and words directionally
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -468,17 +468,20 @@ Report: [Slice 20](../report/slices/rev-editor/slice-20-resize.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R07, R18, R24.
 
-- [ ] T21.1: Implement set-mark-command, exchange-point-and-mark, movement extension, region deactivation, and focused multi-line selection rendering.
-- [ ] T21.2: Exercise reversed/empty ranges, region updates through shared edits, focus changes, viewport clipping, and C-g cancellation without losing stored mark unnecessarily.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T21.1: Implement set-mark-command, exchange-point-and-mark, movement extension, region deactivation, and focused multi-line selection rendering.
+- [x] T21.2: Exercise reversed/empty ranges, region updates through shared edits, focus changes, viewport clipping, and C-g cancellation without losing stored mark unnecessarily.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T21.1 and T21.2 implemented through PR #21.
+Implementation: T21.1 and T21.2 delivered through PR #21.
 Task commits: T21.1 `1e91e88dc3e8f837d80b4ae987d90a3a02f95f64`;
 T21.2 `25bca45422f59fbd9548ab8017fc0e428c42e4c2`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed fifty-one tests and the terminal PTY suite passed forty-two cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#21](https://forge.adrianpk.com/adrianpk/rev/pulls/21).
+Integration: Rebase + Fast-forward into dev at
+`29d62389f3d0a1ebd3a381acbe4b920498fb16b7`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 21](../report/slices/rev-editor/slice-21-regions.md).
 
 ### Slice 22: Kill lines and words directionally

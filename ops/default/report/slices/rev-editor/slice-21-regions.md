@@ -1,11 +1,12 @@
 # Slice 21: Activate and render linear regions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-21-regions`
 PR: `#21`
+Integrated: Rebase + Fast-forward into dev at `29d62389f3d0a1ebd3a381acbe4b920498fb16b7`.
 
 ## Purpose
 
