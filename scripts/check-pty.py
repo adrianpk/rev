@@ -110,6 +110,8 @@ def failures(root):
             else:
                 assert ENTER in session.output and LEAVE in session.output, bytes(session.output)
                 assert SHOW in session.output, bytes(session.output)
+                assert b"\x1b[0m" in session.output
+                assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
             assert b"injected" in session.output, bytes(session.output)
             print(f"PASS {mode} failure restores acquired state")
         finally:
@@ -1049,6 +1051,98 @@ def resizing_prompt(root):
             session.close()
 
 
+
+def last_frame(session):
+    end = session.output.rfind(SHOW)
+    start = session.output.rfind(HIDE, 0, end)
+    assert start >= 0 and end > start
+    return bytes(session.output[start:end + len(SHOW)])
+
+
+def linear_regions(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-regions-") as directory:
+        path = Path(directory) / "region.txt"
+        source = "ab界e\u0301z\nlast".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> region.txt -- RW L1 C1 Text")
+            group_step(session, b"\x00", b"Mark set")
+            assert b"\x1b[7m" not in last_frame(session)
+            group_step(session, b"\x06", b"L1 C2 Text", b"\x1b[7ma\x1b[27mb")
+            group_step(session, b"\x05\x0e", b"L2 C5 Text", b"\x1b[7mlast\x1b[27m")
+            group_step(session, b"\x18\x18", b"L1 C1 Text", b"\x1b[1;1H\x1b[7mab")
+            group_step(session, b"\x07", b"Quit")
+            assert b"\x1b[7m" not in last_frame(session)
+            group_step(session, b"\x18\x18", b"L2 C5 Text", b"\x1b[7mlast\x1b[27m")
+            group_step(session, b"\x00\x02", b"L2 C4 Text", b"las\x1b[7mt\x1b[27m")
+            group_step(session, b"!", b"** RW L2 C5 Text", b"las!t")
+            assert b"\x1b[7m" not in last_frame(session)
+            group_step(session, b"\x18u", b"-- RW L2 C4 Text", b"last")
+            assert b"\x1b[7m" not in last_frame(session)
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert b"\x1b[0m" in session.output
+            assert session.output.rfind(b"\x1b[0m") < session.output.rfind(LEAVE)
+            print("PASS NUL mark, Unicode multi-row region, exchange, cancel/reactivation and edit/undo deactivation")
+        finally:
+            session.close()
+
+
+def shared_regions(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-shared-region-") as directory:
+        path = Path(directory) / "shared.txt"
+        source = b"abcdef\nsecond"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> shared.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x06\x00\x05", b"L1 C7 Text", b"ab\x1b[7mcdef\x1b[27m")
+            group_step(session, b"\x183", b"> shared.txt -- RW L1 C7 Text", b"|abcdef")
+            assert last_frame(session).count(b"\x1b[7m") == 1
+            group_step(session, b"\x18o\x01", b"|> shared.txt -- RW L1 C1 Text",
+                       b"|\x1b[7mab\x1b[27mcdef")
+            assert last_frame(session).count(b"\x1b[7m") == 1
+            group_step(session, b"\x18\x18", b"|> shared.txt -- RW L1 C3 Text")
+            group_step(session, b"X", b"|> shared.txt ** RW L1 C4 Text", b"abXcdef")
+            assert b"\x1b[7m" not in last_frame(session)
+            assert b"  shared.txt ** RW L1 C8 Text" in session.output
+            group_step(session, b"\x18u", b"|> shared.txt -- RW L1 C3 Text", b"abcdef")
+            assert b"\x1b[7m" not in last_frame(session)
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS focused split selection, shared mark, independent mapped points and style clearing")
+        finally:
+            session.close()
+
+
+def scrolling_regions(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-scrolled-region-") as directory:
+        path = Path(directory) / "scroll.txt"
+        source = "".join(f"row-{row:02d}\t界e\u0301\n" for row in range(60)).encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> scroll.txt -- RW L1 C1 Text")
+            group_step(session, b"\x00\x1b>\x0c", b"L61 C1 Text", b"\x1b[1;1H\x1b[7mrow-49")
+            assert last_frame(session).count(b"\x1b[7m") == 11
+            resize_surface(session, 7, 5, True)
+            assert last_frame(session).count(b"\x1b[7m") == 2
+            resize_surface(session, 0, 0, False)
+            resize_surface(session, 80, 24, True)
+            group_step(session, b"\x07", b"Quit")
+            assert b"\x1b[7m" not in last_frame(session)
+            group_step(session, b"\x18\x18", b"L1 C1 Text", b"\x1b[7mrow-00")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS region spans through vertical scroll, clipped Unicode rows, suspension and restored mark")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1084,7 +1178,10 @@ def main():
     kill_shared_buffer(root)
     resizing_windows(root)
     resizing_prompt(root)
-    print("Terminal PTY suite: 39 cases passed, 0 skipped.")
+    linear_regions(root)
+    shared_regions(root)
+    scrolling_regions(root)
+    print("Terminal PTY suite: 42 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
