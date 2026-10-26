@@ -5,7 +5,7 @@ use crate::buffer::{BufferId, Kill};
 use crate::command::BufferCommand;
 use crate::view::View;
 
-use super::{Action, Pending, Session};
+use super::{Action, AfterSave, Pending, Session};
 
 impl Session {
     pub(super) fn buffer_command(&mut self, command: BufferCommand) -> Action {
@@ -87,9 +87,9 @@ impl Session {
             Err(error) => return self.message(&error.to_string()),
         };
         if buffer.file().is_none() {
-            return self.write_argument(kill.id(), Some(kill));
+            return self.write_argument(kill.id(), AfterSave::Close(kill));
         }
-        self.save_to(kill.id(), None, Some(kill))
+        self.save_to(kill.id(), None, AfterSave::Close(kill))
     }
 
     pub(super) fn close_buffer(&mut self, kill: Kill) -> Action {

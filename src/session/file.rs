@@ -65,8 +65,8 @@ impl Session {
                 let _ = self.load(Path::new(&path));
                 Action::Redraw
             }
-            Some(Pending::Write { buffer, close }) => {
-                self.save_to(buffer, Some(Path::new(&path)), close)
+            Some(Pending::Write { buffer, after }) => {
+                self.save_to(buffer, Some(Path::new(&path)), after)
             }
             Some(Pending::Buffer { command, default }) => {
                 self.buffer_argument(command, default, &path)

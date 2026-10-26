@@ -15,6 +15,7 @@ separate focused contexts. Their text does not enter the document underneath.
 | Save buffer | Save the visited path, or request a destination if unnamed; external changes require a separate explicit decision. |
 | Switch buffer | Live buffer name; an empty argument selects the current buffer. |
 | Kill buffer | Live buffer name; clean text closes immediately. Modified text asks whether to save, discard or cancel. |
+| Session exit | Each modified buffer in stable identity order, then save/discard/cancel; an unnamed save requests a path and save conflicts require separate consent. Exit follows only all decisions and completed required saves. |
 | Save before closing | Named text follows its save checks; unnamed text requests a destination. A destination conflict requires its own decision. Close occurs only after a completed save of the captured target. |
 
 Buffer-name Tab completion uses live names and their common prefix; Return
@@ -56,3 +57,25 @@ Resize remains actionable during every stage, including tiny or zero geometry.
 The prompt and pending operation survive; presentation follows the current
 terminal size. A restored editing context accepts fresh input once, without
 replaying canceled text or carrying save/close authority into another command.
+
+## Session exit
+
+`C-x C-c` and `M-x save-buffers-kill-terminal` use the same coordinator. A clean
+session exits immediately. Each modified buffer is visited once, including
+hidden buffers, modified unnamed text and removed-path warnings. Several
+windows of the same buffer do not repeat its question. The selected editing
+view and workspace focus remain in place while the bottom area names the buffer.
+
+At each quit question, y saves, n authorizes discard for this exit only, and
+C-g cancels the entire exit. An unnamed save requests its destination; an
+occupied target or changed/missing visited file requires separate consent.
+Declining that save confirmation stops exit, rather than discarding the buffer.
+C-g at any path or decision stage returns to the live session. All buffers,
+windows, points, marks and unsaved history remain; completed earlier saves stay
+saved. Discard choices do not mark text clean or survive a canceled attempt.
+
+Read-only rejection, missing parents, failed writes and publication with a later
+unresolved completion all stop exit and report the actual save result. Only a
+complete save of the current buffer state advances to the next buffer. A later
+independent save cannot resume a stopped exit. The terminal guard restores raw
+mode, alternate screen, bracketed paste and cursor state after an accepted exit.

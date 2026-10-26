@@ -134,7 +134,7 @@ impl Command {
         match self {
             Self::Rectangle(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
-            Self::Quit => "kill-terminal",
+            Self::Quit => "save-buffers-kill-terminal",
             Self::FindFile => "find-file",
             Self::SaveBuffer => "save-buffer",
             Self::WriteFile => "write-file",

@@ -246,7 +246,9 @@ fn focused_admission() {
     assert_eq!(session.buffer().unwrap().history().len(), 1);
     assert!(session.buffer().unwrap().is_modified());
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
-    assert_eq!(session.echo(), "Unsaved changes; cannot quit");
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
+    assert!(session.tree().focused());
     session.execute(Command::KeyboardQuit);
     assert!(!session.tree().focused());
     assert_eq!(session.buffer().unwrap().mark(), mark);

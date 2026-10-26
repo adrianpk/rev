@@ -42,7 +42,7 @@ an explicit decision for each occurrence.
 
 | Group | Names |
 | --- | --- |
-| Command and session | `execute-extended-command`, `keyboard-quit`, `kill-terminal` |
+| Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |

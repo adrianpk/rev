@@ -9,6 +9,9 @@ impl Session {
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {
+            if self.cancel_quit() {
+                return Some(self.message("Quit"));
+            }
             self.restore_search();
         }
         self.tree_input(command)

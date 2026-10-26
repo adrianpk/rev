@@ -765,7 +765,7 @@ fn named_edits() {
         ("backward-delete-char", vec![press(KeyCode::Backspace)]),
         ("delete-char", vec![chord('d')]),
         ("keyboard-quit", vec![chord('g')]),
-        ("kill-terminal", vec![chord('x'), chord('c')]),
+        ("save-buffers-kill-terminal", vec![chord('x'), chord('c')]),
     ];
     for (name, events) in cases {
         let mut named = editor("aé\r\n界", 2, false);
@@ -825,7 +825,10 @@ fn quit_guard() {
             "{name}"
         );
         if expected == Action::Redraw {
-            assert_eq!(session.echo(), "Unsaved changes; cannot quit", "{name}");
+            assert!(
+                session.echo().ends_with("y=save, n=discard, C-g=cancel"),
+                "{name}"
+            );
         }
     }
     let mut buffers = Buffers::new().unwrap();
@@ -847,7 +850,7 @@ fn quit_guard() {
     .unwrap();
     assert_eq!(session.execute(rev::command::Command::Quit), Action::Redraw);
     assert_eq!(text(session.buffer().unwrap()), "clean");
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().starts_with("Quit: "));
 }
 
 fn prevailing(text: &str) -> &'static str {

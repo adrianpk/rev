@@ -80,10 +80,10 @@ fn filter_order() {
                 "kill-rectangle",
                 "kill-region",
                 "kill-ring-save",
-                "kill-terminal",
                 "kill-word",
                 "backward-kill-word",
                 "copy-rectangle-as-kill",
+                "save-buffers-kill-terminal",
             ],
         ),
         ("window-right", vec!["split-window-right"]),
@@ -157,7 +157,7 @@ fn unknown_names() {
     let cases = [
         ("", "No command entered"),
         ("absent-command", "Unknown command"),
-        ("newline;kill-terminal", "Unknown command"),
+        ("newline;save-buffers-kill-terminal", "Unknown command"),
         ("FIND", "Unknown command"),
         ("界", "Unknown command"),
     ];

@@ -9,6 +9,7 @@ mod linear;
 mod motion;
 mod paste;
 mod prompt;
+mod quit;
 mod rectangle;
 mod region;
 mod replace;
@@ -78,7 +79,14 @@ pub struct Session {
     pending: Option<Pending>,
 }
 
+enum AfterSave {
+    Stay,
+    Close(Kill),
+    Quit(quit::Quit),
+}
+
 enum Pending {
+    Quit(quit::Quit),
     TreeDelete(crate::file::Deletion),
     TreeCreate(crate::tree::Creation),
     TreeRename(crate::file::Rename),
@@ -88,11 +96,11 @@ enum Pending {
     Argument(Command),
     Save {
         confirmation: Box<Confirmation>,
-        close: Option<Kill>,
+        after: AfterSave,
     },
     Write {
         buffer: BufferId,
-        close: Option<Kill>,
+        after: AfterSave,
     },
     Buffer {
         command: crate::command::BufferCommand,
@@ -168,13 +176,11 @@ impl Session {
                 .unwrap_or(&self.echo);
             frame.prompt(prompt, notice)?;
         }
-        match &self.pending {
-            Some(Pending::Inventory(selected)) => frame.inventory(&self.buffers, *selected)?,
-            Some(Pending::Save { .. } | Pending::Kill { .. } | Pending::TreeDelete(_)) => {
-                frame.decision()
-            }
-            Some(Pending::Replace(state)) if state.deciding() => frame.decision(),
-            _ => {}
+        if let Some(Pending::Inventory(selected)) = &self.pending {
+            frame.inventory(&self.buffers, *selected)?;
+        }
+        if self.input.focus() == crate::input::Focus::Decision {
+            frame.decision();
         }
         Ok(())
     }
@@ -280,7 +286,8 @@ impl Session {
     fn navigation(&mut self, command: Command) {
         if matches!(
             command,
-            Command::Scroll(_)
+            Command::Quit
+                | Command::Scroll(_)
                 | Command::FindFile
                 | Command::SaveBuffer
                 | Command::WriteFile
@@ -361,13 +368,6 @@ impl Session {
             Ok(false) => self.message("Buffer boundary"),
             Err(error) => self.message(&error.to_string()),
         }
-    }
-
-    fn quit(&mut self) -> Action {
-        if self.buffers.is_modified() {
-            return self.message("Unsaved changes; cannot quit");
-        }
-        Action::Exit
     }
 
     fn message(&mut self, message: &str) -> Action {

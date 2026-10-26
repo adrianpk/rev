@@ -312,7 +312,7 @@ fn pending_quit() {
         );
         assert_eq!(session.buffer().unwrap().len_chars(), usize::from(dirty));
         if dirty {
-            assert!(session.echo().contains("Unsaved changes"));
+            assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
         }
     }
 }

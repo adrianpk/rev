@@ -206,7 +206,7 @@ def insertion(root):
         os.write(session.master, b"\x04")
         session.wait(lambda: b"Buffer boundary" in session.output)
         session.output.clear()
-        refusal = b"Unsaved changes; cannot quit"
+        refusal = b"y=save, n=discard, C-g=cancel"
         os.write(session.master, b"\x18\x03")
         session.wait(lambda: refusal in session.output)
         assert session.process.poll() is None, bytes(session.output)
@@ -251,7 +251,7 @@ def motion(root):
             assert b"\x1b[2;1Hlast" in session.output, bytes(session.output)
         session.output.clear()
         os.write(session.master, b"\x18\x03")
-        session.wait(lambda: b"Unsaved changes; cannot quit"
+        session.wait(lambda: b"y=save, n=discard, C-g=cancel"
                      in session.output)
         assert session.process.poll() is None and LEAVE not in session.output
         print("PASS Emacs and arrow/Home/End motion preserves Unicode text and dirty state")
@@ -313,7 +313,7 @@ def scrolling(root):
         scroll_step(session, b"\x0e", (4, 9), (2, 3))
         session.output.clear()
         os.write(session.master, b"\x18\x03")
-        session.wait(lambda: b"Unsaved changes; cannot quit"
+        session.wait(lambda: b"y=save, n=discard, C-g=cancel"
                      in session.output)
         assert session.process.poll() is None and LEAVE not in session.output
         print("PASS retained columns, page/recenter keys and tiny-pane resize recovery")
@@ -593,7 +593,8 @@ def save_failure(root):
             group_step(session, b"ab", b"** RW L1 C3 Text")
             group_step(session, b"\x18\x13", b"save: not published", b"** RW L1 C3 Text")
             assert not path.parent.exists()
-            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit")
             path.parent.mkdir()
             group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
             assert path.read_bytes() == b"ab"
@@ -603,7 +604,8 @@ def save_failure(root):
             group_step(session, b"n", b"Save canceled")
             assert path.read_bytes() == b"external"
             group_step(session, b"?", b"** RW L1 C5 Text", b"\x1b[1;1Hab!?")
-            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit")
             assert list(path.parent.iterdir()) == [path]
             group_step(session, b"\x18\x13", b"Destination changed on disk")
             path.write_bytes(b"changed while asking")
@@ -751,7 +753,8 @@ def close_buffers(root):
             group_step(session, b"y", b"Write file: ")
             group_step(session, str(path).encode(), path.name.encode())
             group_step(session, b"\r", b"save: not published", b"** RW L1 C4 Text")
-            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit")
             assert not path.exists()
             path.parent.mkdir()
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
@@ -871,7 +874,8 @@ def hidden_window_buffers(root):
                 if action == b"1":
                     group_step(session, b"\x18o", b"> first.txt -- RW L1 C1 Text", b"|  hidden.txt ** RW L1 C2 Text")
                 group_step(session, b"\x18" + action, b"\x1b[23;1H> first.txt -- RW L1 C1 Text")
-                group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+                group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+                group_step(session, b"\x07", b"Quit")
                 assert first.read_bytes() == b"first" and hidden.read_bytes() == b"hidden"
                 buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"hidden.txt", b"> hidden.txt ** RW L1 C1 Text")
                 assert b"\x1b[1;1H!hidden" in session.output
@@ -1392,7 +1396,8 @@ def escape_deadlines(root):
             group_step(session, b"\x07", b"Quit")
             group_step(session, b"X", b"** RW L1 C2 Text", b"Xabc")
             group_step(session, b"\x1b", b"ESC")
-            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit")
             group_step(session, b"\x18u", b"-- RW L1 C1 Text")
             group_step(session, b"\x1b", b"ESC")
             os.write(session.master, b"\x18\x03")
@@ -1514,7 +1519,7 @@ def command_palette(root):
             named_step(session, "delete-other-windows", b"> cmd.txt -- RW L1 C1 Text")
             assert b"|" not in last_frame(session)
             assert path.read_bytes() == source
-            group_step(session, b"\x1bxkill-terminal", b"M-x kill-terminal")
+            group_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
             os.write(session.master, b"\r")
             session.finish(0)
             assert PASTE_OFF in session.output and LEAVE in session.output
@@ -2453,7 +2458,8 @@ def tree_delete(root):
             assert not path.exists()
             assert b"  live.txt ** RW L1 C1 Text" in last_frame(session)
             group_step(session, b"\t", b"Editing")
-            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit")
             group_step(session, b"\x18u", b"** RW L1 C1 Text", b"retained")
             named_step(session, "undo-redo", b"** RW L1 C2 Text", b"!retained")
             find_path(session, path, b"> live.txt ** RW L1 C2 Text", b"!retained")
