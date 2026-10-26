@@ -17,6 +17,35 @@ pub struct Area {
     height: u16,
 }
 
+/// Minimum content+status extent; the global echo row belongs to the frame.
+#[derive(Clone, Copy)]
+pub(super) struct Minimum {
+    width: u16,
+    height: u16,
+}
+
+impl Minimum {
+    pub(super) fn leaf() -> Self {
+        Self {
+            width: 3,
+            height: 2,
+        }
+    }
+
+    pub(super) fn join(split: Split, first: Self, second: Self) -> Option<Self> {
+        match split {
+            Split::Below => Some(Self {
+                width: first.width.max(second.width),
+                height: first.height.checked_add(second.height)?,
+            }),
+            Split::Right => Some(Self {
+                width: first.width.checked_add(1)?.checked_add(second.width)?,
+                height: first.height.max(second.height),
+            }),
+        }
+    }
+}
+
 pub(super) struct Division {
     pub first: Area,
     pub second: Area,
@@ -69,16 +98,26 @@ impl Area {
         })
     }
     pub(super) fn divide(self, split: Split) -> Option<Division> {
+        self.divide_to(split, Minimum::leaf(), Minimum::leaf())
+    }
+
+    pub(super) fn divide_to(
+        self,
+        split: Split,
+        first: Minimum,
+        second: Minimum,
+    ) -> Option<Division> {
         match split {
-            Split::Below => self.below(),
-            Split::Right => self.right(),
+            Split::Below => self.below(first, second),
+            Split::Right => self.right(first, second),
         }
     }
-    fn below(self) -> Option<Division> {
-        if self.height < 4 {
+
+    fn below(self, first: Minimum, second: Minimum) -> Option<Division> {
+        if first.width.max(second.width) > self.width {
             return None;
         }
-        let height = self.height / 2;
+        let height = allocation(self.height, first.height, second.height)?;
         let first = Self { height, ..self };
         let second = Self {
             row: self.row.checked_add(height)?,
@@ -91,11 +130,11 @@ impl Area {
             border: None,
         })
     }
-    fn right(self) -> Option<Division> {
-        if self.width < 7 {
+    fn right(self, first: Minimum, second: Minimum) -> Option<Division> {
+        if first.height.max(second.height) > self.height {
             return None;
         }
-        let width = (self.width - 1) / 2;
+        let width = allocation(self.width.checked_sub(1)?, first.width, second.width)?;
         let first = Self { width, ..self };
         let column = self.column.checked_add(width)?;
         let border = Self {
@@ -114,4 +153,14 @@ impl Area {
             border: Some(border),
         })
     }
+}
+
+/// Prefer equal halves, but reserve each child's complete recursive minimum.
+/// An undersized report suspends the whole projection without a partial layout.
+fn allocation(available: u16, first: u16, second: u16) -> Option<u16> {
+    let maximum = available.checked_sub(second)?;
+    if first > maximum {
+        return None;
+    }
+    Some((available / 2).clamp(first, maximum))
 }

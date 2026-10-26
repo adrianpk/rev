@@ -1,5 +1,6 @@
 use crate::view::Size;
 
+use super::geometry::Minimum;
 use super::{Area, Geometry, Split, ViewId};
 
 /// Leaves name live editing views; internal nodes record screen effects.
@@ -27,7 +28,7 @@ impl Layout {
                 first,
                 second,
             } => {
-                let division = area.divide(*direction)?;
+                let division = area.divide_to(*direction, first.minimum()?, second.minimum()?)?;
                 first.place(division.first, geometry)?;
                 second.place(division.second, geometry)?;
                 if let Some(border) = division.border {
@@ -37,6 +38,17 @@ impl Layout {
         }
         Some(())
     }
+    fn minimum(&self) -> Option<Minimum> {
+        match self {
+            Self::Leaf(_) => Some(Minimum::leaf()),
+            Self::Split {
+                direction,
+                first,
+                second,
+            } => Minimum::join(*direction, first.minimum()?, second.minimum()?),
+        }
+    }
+
     pub(super) fn split(&mut self, selected: ViewId, new: ViewId, direction: Split) -> bool {
         match self {
             Self::Leaf(id) if *id == selected => {

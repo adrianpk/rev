@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "windows/resize.rs"]
+mod resize;
+
 use std::collections::BTreeSet;
 
 use rev::buffer::Buffers;
