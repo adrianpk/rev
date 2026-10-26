@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 13 - Reuse canonical visited files
+Active slice: Slice 14 - Publish safe same-directory saves
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -312,19 +312,22 @@ Report: [Slice 12](../report/slices/rev-editor/slice-12-file-ingress.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R02, R11, R12, R23.
 
-- [ ] T13.1: Implement find-file argument flow, normalized intended paths for absent files, canonical existing referents, unique buffer labels, and existing-visit activation shared by all callers.
-- [ ] T13.2: Exercise symlink aliases, duplicate basenames, nonexistent parents, canceled prompts, directory paths, and collision with an already visited canonical target.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T13.1: Implement find-file argument flow, normalized intended paths for absent files, canonical existing referents, unique buffer labels, and existing-visit activation shared by all callers.
+- [x] T13.2: Exercise symlink aliases, duplicate basenames, nonexistent parents, canceled prompts, directory paths, and collision with an already visited canonical target.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T13.1 and T13.2 implemented through PR #13.
+Implementation: T13.1 and T13.2 delivered through PR #13.
 Task commits: T13.1 `1b6ab4d133d1cb54538fc9a63595a47b971c95ca`, completed
 through `38471f583db48ceaa8602febe5183e783dd88d1f`;
 T13.2 `d5ff90a3cde1cb54309309ebf7165c558bad3df4` with viewport synchronization
 `bce68fa55cb13316148deb9992d0712cc902e2c1`.
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed twenty-two tests and the terminal PTY suite passed twenty-two cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#13](https://forge.adrianpk.com/adrianpk/rev/pulls/13).
+Integration: Rebase + Fast-forward into dev at
+`76aabe1a57529f9ec703770a184f992ce5cd09e5`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 13](../report/slices/rev-editor/slice-13-file-visits.md).
 
 ### Slice 14: Publish safe same-directory saves

@@ -1,11 +1,12 @@
 # Slice 13: Reuse canonical visited files
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-13-file-visits`
 PR: `#13`
+Integrated: Rebase + Fast-forward into dev at `76aabe1a57529f9ec703770a184f992ce5cd09e5`.
 
 ## Purpose
 
