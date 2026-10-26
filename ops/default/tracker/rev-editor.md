@@ -357,12 +357,13 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, 
 - [ ] T15.2: Exercise cancellation, denied/disk-full writes, removed paths, save-as before/after publication failures, and clean/dirty history state after successful save and undo.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T15.1 and T15.2 implemented; canonical PR pending.
+Implementation: T15.1 and T15.2 implemented through PR #15.
 Task commits: T15.1 `06f8f340815ab3cd760d7fb38784014cf742e25c`;
 T15.2 `ad26ededc8a9033df27eddb7242d607147320f3b`.
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed forty-eight tests and the terminal PTY suite passed twenty-six cases with zero skips.
 Final PR-head evidence is recorded through Looper after PR references are committed.
+PR: [#15](https://forge.adrianpk.com/adrianpk/rev/pulls/15).
 Report: [Slice 15](../report/slices/rev-editor/slice-15-save-decisions.md).
 
 ### Slice 16: Switch list and close buffers
