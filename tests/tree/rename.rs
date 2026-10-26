@@ -212,3 +212,6 @@ fn rename_prompts() {
         Some(Command::Tree(TreeCommand::Rename))
     );
 }
+
+#[path = "rename_failures.rs"]
+mod failures;

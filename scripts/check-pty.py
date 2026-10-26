@@ -2318,6 +2318,113 @@ def tree_creation_failures(root):
             session.close()
 
 
+def tree_rename(root):
+    # Root/directory rename maps all visited descendants while equal-basename
+    # siblings stay distinct. Later normal saves must use the physical new path.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-rename-") as directory:
+        workspace = Path(directory)
+        (workspace / "a/sub").mkdir(parents=True)
+        (workspace / "b").mkdir()
+        first = workspace / "a/same.txt"
+        sibling = workspace / "b/same.txt"
+        child = workspace / "a/sub/child.txt"
+        first.write_bytes(b"first")
+        sibling.write_bytes(b"second")
+        child.write_bytes(b"child")
+        session = Session([str(root / "target/debug/rev"), str(first)])
+        try:
+            session.ready(b"> same.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            find_path(session, sibling, b"> same.txt<2> -- RW L1 C1 Text", b"second")
+            find_path(session, child, b"> child.txt -- RW L1 C1 Text", b"child")
+            group_step(session, b"#", b"** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused", b"> a/")
+            group_step(session, b"\x1b[C", b"File tree updated", b"> sub/")
+            group_step(session, b"\x18tR", b"Rename to: ")
+            group_step(session, b"moved\r", b"Renamed ", b"\x1b[7mv moved/")
+            assert b"> child.txt ** RW L1 C2 Text" in last_frame(session)
+            group_step(session, b"\t", b"Editing")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            moved = workspace / "moved"
+            assert (moved / "sub/child.txt").read_bytes() == b"#child"
+            find_path(session, moved / "same.txt", b"> same.txt ** RW L1 C1 Text", b"!first")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C1 Text")
+            group_step(session, b"\x18tf", b"File tree focused")
+            group_step(session, b"\x1b[B" * 2, b"File tree updated", b"\x1b[7m    same.txt")
+            named_step(session, "tree-rename", b"Rename to: ")
+            group_step(session, b"final.txt\r", b"Renamed ", b"\x1b[7m    final.txt")
+            assert b"> final.txt -- RW L1 C1 Text" in last_frame(session)
+            group_step(session, b"\t", b"Editing")
+            group_step(session, "界".encode(), b"** RW L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            find_path(session, sibling, b"> same.txt<2> -- RW L1 C1 Text", b"second")
+            assert (moved / "final.txt").read_bytes() == "界!first".encode()
+            assert not (workspace / "a").exists() and not (moved / "same.txt").exists()
+            assert sibling.read_bytes() == b"second"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound root/directory rename, visited descendants, equal-basename owners, named file rename and later new-path saves")
+        finally:
+            session.close()
+
+
+def tree_rename_failures(root):
+    # Canceled/conflicting/denied rename cannot alter the current association.
+    # Renaming a link preserves its referent; stale source captures cannot move
+    # a replacement entry under the old prompt's authority.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-rename-errors-") as directory:
+        workspace = Path(directory) / "workspace"
+        workspace.mkdir()
+        path = workspace / "old.txt"
+        path.write_bytes(b"original")
+        (workspace / "taken.txt").write_bytes(b"keep")
+        (workspace / "link").symlink_to("old.txt")
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> old.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x1b[C", b"File tree updated")
+            group_step(session, b"\x1b[B" * 2, b"File tree updated", b"\x1b[7m    old.txt")
+            group_step(session, b"\x18tR", b"Rename to: ")
+            group_step(session, b"canceled", b"Rename to: canceled")
+            resize_surface(session, 31, 8, True)
+            resize_surface(session, 80, 24, True)
+            group_step(session, b"\x07", b"Quit", b"> old.txt ** RW L1 C2 Text")
+            named_step(session, "focus-file-tree", b"File tree focused")
+            for name in [b"../escape", b"taken.txt"]:
+                group_step(session, b"\x18tR", b"Rename to: ")
+                group_step(session, name + b"\r", b"rename ", b"Tree *")
+            group_step(session, b"\x18tR", b"Rename to: ")
+            workspace.chmod(0o500)
+            group_step(session, b"denied\r", b"rename ", b"Tree *")
+            workspace.chmod(0o700)
+            assert path.read_bytes() == b"original" and (workspace / "taken.txt").read_bytes() == b"keep"
+            assert not (workspace / "denied").exists() and not (workspace / "canceled").exists()
+            group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  @ link")
+            named_step(session, "tree-rename", b"Rename to: ")
+            group_step(session, b"alias\r", b"Renamed ", b"\x1b[7m  @ alias")
+            assert b"> old.txt ** RW L1 C2 Text" in last_frame(session)
+            group_step(session, b"\t", b"Editing")
+            group_step(session, b"\x18\x13", b"Saved ", b"> old.txt -- RW L1 C2 Text")
+            assert path.read_bytes() == b"!original" and (workspace / "alias").readlink() == Path("old.txt")
+            named_step(session, "focus-file-tree", b"File tree focused")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m    old.txt")
+            group_step(session, b"\x18tR", b"Rename to: ")
+            path.rename(workspace / "held.txt")
+            path.write_bytes(b"replacement")
+            group_step(session, b"stale\r", b"rename ", b"Tree *")
+            assert not (workspace / "stale").exists()
+            assert path.read_bytes() == b"replacement" and (workspace / "held.txt").read_bytes() == b"!original"
+            group_step(session, b"\t", b"Editing", b"> old.txt -- RW L1 C2 Text")
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS rename cancel/resize, invalid/occupied names, write denial, symlink entry semantics and stale-source rejection")
+        finally:
+            workspace.chmod(0o700)
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2388,7 +2495,9 @@ def main():
     tree_navigation_resize(root)
     tree_creation(root)
     tree_creation_failures(root)
-    print("Terminal PTY suite: 76 cases passed, 0 skipped.")
+    tree_rename(root)
+    tree_rename_failures(root)
+    print("Terminal PTY suite: 78 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
