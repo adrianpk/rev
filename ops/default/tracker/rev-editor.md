@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 8 - Implement character and word motion
+Active slice: Slice 9 - Preserve vertical motion and scrolling
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -207,17 +207,20 @@ Report: [Slice 7](../report/slices/rev-editor/slice-7-insertion.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R07, R09, R16, R17.
 
-- [ ] T8.1: Implement forward/backward character, beginning/end of line and buffer, and Unicode-consistent word navigation using checked source positions.
-- [ ] T8.2: Exercise empty text, punctuation, mixed scripts, CRLF, emoji clusters, and scroll reveal through the real command registry. Arrow/Home/End aliases may mirror supported commands without replacing Emacs bindings.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T8.1: Implement forward/backward character, beginning/end of line and buffer, and Unicode-consistent word navigation using checked source positions.
+- [x] T8.2: Exercise empty text, punctuation, mixed scripts, CRLF, emoji clusters, and scroll reveal through the real command registry. Arrow/Home/End aliases may mirror supported commands without replacing Emacs bindings.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T8.1 and T8.2 complete; awaiting canonical PR integration.
+Implementation: T8.1 and T8.2 delivered through PR #8.
 Task commits: T8.1 `61360a264a44ebbdbc9139d9cb4ce63d352c9a50`;
 T8.2 `0b9fb1b4931394fa419a1b2209d0a8720dd1adb8`.
 Validation: required Cargo/source commands passed; `cargo test --test coordinates`
 passed nineteen tests and the terminal PTY suite passed ten cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#8](https://forge.adrianpk.com/adrianpk/rev/pulls/8).
+Integration: Rebase + Fast-forward into dev at
+`def2f4445d1b5adf4fae08226a7accb95cbc11f8`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 8](../report/slices/rev-editor/slice-8-motion.md).
 
 ### Slice 9: Preserve vertical motion and scrolling

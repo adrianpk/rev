@@ -1,11 +1,12 @@
 # Slice 8: Implement character and word motion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-08-motion`
 PR: `#8`
+Integrated: Rebase + Fast-forward into dev at `def2f4445d1b5adf4fae08226a7accb95cbc11f8`.
 
 ## Purpose
 
