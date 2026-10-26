@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 36 - Traverse directories lazily and safely
+Active slice: Slice 37 - Open and create tree entries
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -770,12 +770,12 @@ Report: [Slice 35](../report/slices/rev-editor/slice-35-tree-pane.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R28, R29.
 
-- [ ] T36.1: Implement Up/Down visible traversal, directory expansion/collapse, deterministic ordering, lazy child reads, explicit refresh, and symlinked-directory leaves.
-- [ ] T36.2: Exercise deep trees, symlink cycles, inaccessible/deleted directories, stale selections, and refresh after external filesystem changes.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T36.1: Implement Up/Down visible traversal, directory expansion/collapse, deterministic ordering, lazy child reads, explicit refresh, and symlinked-directory leaves.
+- [x] T36.2: Exercise deep trees, symlink cycles, inaccessible/deleted directories, stale selections, and refresh after external filesystem changes.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T36.1 and T36.2 complete; PR #36 awaits integration.
+Implementation: T36.1 and T36.2 delivered through PR #36.
 Task commits: T36.1 `62490595d7d8803365e083d8168f26cf08e261b7`;
 T36.2 `391dfd769d054c173b1794e26ef18ed07e63b5f5`, corrected at
 `b2d2144e6eaa66c1add562361b6c9f4ff32fb777`.
@@ -783,6 +783,9 @@ Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 22 tests and the terminal PTY suite passed 74 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#36](https://forge.adrianpk.com/adrianpk/rev/pulls/36).
+Integration: Rebase + Fast-forward into dev at
+`50ec7694c578e327b272b481b9da7c707a8321cf`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 36](../report/slices/rev-editor/slice-36-tree-navigation.md).
 
 ### Slice 37: Open and create tree entries

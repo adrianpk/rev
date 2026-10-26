@@ -1,11 +1,12 @@
 # Slice 36: Traverse directories lazily and safely
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-36-tree-navigation`
 PR: `#36`
+Integrated: Rebase + Fast-forward into dev at `50ec7694c578e327b272b481b9da7c707a8321cf`.
 
 ## Purpose
 
