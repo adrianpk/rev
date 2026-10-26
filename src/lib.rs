@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod buffer;
 pub mod terminal;
 
 use std::io::{self, Write};

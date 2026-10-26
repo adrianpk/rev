@@ -1,0 +1,256 @@
+use std::collections::BTreeMap;
+use std::fmt;
+use std::ops::Range;
+use std::sync::atomic::{AtomicU64, Ordering};
+
+use ropey::{Rope, RopeSlice, iter::Chunks};
+
+static NEXT: AtomicU64 = AtomicU64::new(1);
+
+/// A process-local buffer identity, never reused for another buffer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BufferId(u64);
+
+impl BufferId {
+    fn next() -> Result<Self, Error> {
+        NEXT.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+            value.checked_add(1)
+        })
+        .map(Self)
+        .map_err(|_| Error::Exhausted)
+    }
+}
+
+impl fmt::Display for BufferId {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(formatter)
+    }
+}
+
+/// Freshness metadata for one buffer's published text, not a saved-state marker.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Stamp {
+    pub buffer: BufferId,
+    pub revision: u64,
+}
+
+/// A half-open Unicode scalar range. Every use rechecks its stamp and bounds.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Span {
+    pub stamp: Stamp,
+    pub range: Range<usize>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Error {
+    Missing(BufferId),
+    Foreign {
+        expected: BufferId,
+        actual: BufferId,
+    },
+    Stale {
+        expected: u64,
+        actual: u64,
+    },
+    Bounds {
+        start: usize,
+        end: usize,
+        len: usize,
+    },
+    Boundary(usize),
+    Line {
+        index: usize,
+        len: usize,
+    },
+    Exhausted,
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Missing(id) => write!(formatter, "buffer {id} is not live in this registry"),
+            Self::Foreign { expected, actual } => {
+                write!(
+                    formatter,
+                    "range belongs to buffer {actual}, expected {expected}"
+                )
+            }
+            Self::Stale { expected, actual } => {
+                write!(
+                    formatter,
+                    "range revision {actual} differs from current revision {expected}"
+                )
+            }
+            Self::Bounds { start, end, len } => {
+                write!(
+                    formatter,
+                    "text range {start}..{end} is invalid for length {len}"
+                )
+            }
+            Self::Boundary(byte) => write!(formatter, "byte {byte} is not a UTF-8 scalar boundary"),
+            Self::Line { index, len } => write!(formatter, "line {index} is outside {len} lines"),
+            Self::Exhausted => formatter.write_str("buffer identities are exhausted"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
+
+/// Owns the only canonical rope for this identity. Text access is borrowed.
+pub struct Buffer {
+    id: BufferId,
+    revision: u64,
+    text: Rope,
+}
+
+impl Buffer {
+    fn new(text: &str) -> Result<Self, Error> {
+        Ok(Self {
+            id: BufferId::next()?,
+            revision: 1,
+            text: Rope::from_str(text),
+        })
+    }
+
+    pub fn id(&self) -> BufferId {
+        self.id
+    }
+
+    pub fn stamp(&self) -> Stamp {
+        Stamp {
+            buffer: self.id,
+            revision: self.revision,
+        }
+    }
+
+    pub fn len_chars(&self) -> usize {
+        self.text.len_chars()
+    }
+
+    pub fn len_bytes(&self) -> usize {
+        self.text.len_bytes()
+    }
+
+    pub fn len_lines(&self) -> usize {
+        self.text.len_lines()
+    }
+
+    /// Admits scalar ranges, including empty insertion ranges at either end.
+    pub fn span(&self, range: Range<usize>) -> Result<Span, Error> {
+        bounds(&range, self.len_chars())?;
+        Ok(Span {
+            stamp: self.stamp(),
+            range,
+        })
+    }
+
+    /// Admits a byte range only when both ends are exact UTF-8 scalar boundaries.
+    pub fn byte_span(&self, range: Range<usize>) -> Result<Span, Error> {
+        bounds(&range, self.len_bytes())?;
+        let start = self.scalar(range.start)?;
+        let end = self.scalar(range.end)?;
+        self.span(start..end)
+    }
+
+    pub fn slice(&self, span: &Span) -> Result<RopeSlice<'_>, Error> {
+        self.current(span.stamp)?;
+        self.text
+            .get_slice(span.range.clone())
+            .ok_or_else(|| range_error(&span.range, self.len_chars()))
+    }
+
+    /// Iterates borrowed chunks clipped to the admitted range, without flattening.
+    pub fn chunks(&self, span: &Span) -> Result<Chunks<'_>, Error> {
+        Ok(self.slice(span)?.chunks())
+    }
+
+    /// Borrows a scalar range within one line, retaining its original separator.
+    pub fn line(&self, index: usize, range: Range<usize>) -> Result<RopeSlice<'_>, Error> {
+        let line = self.text.get_line(index).ok_or(Error::Line {
+            index,
+            len: self.len_lines(),
+        })?;
+        line.get_slice(range.clone())
+            .ok_or_else(|| range_error(&range, line.len_chars()))
+    }
+
+    fn current(&self, stamp: Stamp) -> Result<(), Error> {
+        if stamp.buffer != self.id {
+            return Err(Error::Foreign {
+                expected: self.id,
+                actual: stamp.buffer,
+            });
+        }
+        if stamp.revision != self.revision {
+            return Err(Error::Stale {
+                expected: self.revision,
+                actual: stamp.revision,
+            });
+        }
+        Ok(())
+    }
+
+    fn scalar(&self, byte: usize) -> Result<usize, Error> {
+        let scalar = self
+            .text
+            .try_byte_to_char(byte)
+            .map_err(|_| Error::Boundary(byte))?;
+        if !self
+            .text
+            .try_char_to_byte(scalar)
+            .is_ok_and(|end| end == byte)
+        {
+            return Err(Error::Boundary(byte));
+        }
+        Ok(scalar)
+    }
+}
+
+/// Owns live buffers; file paths and view references do not own additional text.
+pub struct Buffers {
+    entries: BTreeMap<BufferId, Buffer>,
+    initial: BufferId,
+}
+
+impl Buffers {
+    /// Creates a registry with one initially empty buffer.
+    pub fn new() -> Result<Self, Error> {
+        let buffer = Buffer::new("")?;
+        let initial = buffer.id();
+        Ok(Self {
+            entries: BTreeMap::from([(initial, buffer)]),
+            initial,
+        })
+    }
+
+    pub fn initial(&self) -> BufferId {
+        self.initial
+    }
+
+    /// Creates another canonical buffer from validated Rust UTF-8 text.
+    pub fn create(&mut self, text: &str) -> Result<BufferId, Error> {
+        let buffer = Buffer::new(text)?;
+        let id = buffer.id();
+        self.entries.insert(id, buffer);
+        Ok(id)
+    }
+
+    pub fn get(&self, id: BufferId) -> Result<&Buffer, Error> {
+        self.entries.get(&id).ok_or(Error::Missing(id))
+    }
+}
+
+fn bounds(range: &Range<usize>, len: usize) -> Result<(), Error> {
+    if range.start > range.end || range.end > len {
+        return Err(range_error(range, len));
+    }
+    Ok(())
+}
+
+fn range_error(range: &Range<usize>, len: usize) -> Error {
+    Error::Bounds {
+        start: range.start,
+        end: range.end,
+        len,
+    }
+}
