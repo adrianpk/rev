@@ -431,6 +431,16 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R08
 - [ ] T19.2: Exercise edits before and across another cursor, deletion of visible lines, killing a multiply visible buffer, and history initiated from a view that later closes.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T19.1 and T19.2 implemented; canonical PR pending.
+Task commits: T19.1 `b0f19612089f873c8dd2cd7592479ff2f0020739`;
+T19.2 `9849102407d640f212ea27808b29b3c9e63183db` with invalid-range fixture
+`e9b129320fe6a00225d7be3a6323a195940a5534`.
+Validation: required Cargo/source commands passed; `cargo test --test windows`
+passed twenty-nine tests and the terminal PTY suite passed thirty-six cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+PR: pending.
+Report: [Slice 19](../report/slices/rev-editor/slice-19-shared-views.md).
+
 ### Slice 20: Handle tiny and changing terminal geometry
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R03, R05, R06, R07, R14.
