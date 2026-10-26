@@ -733,6 +733,14 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R10
 - [ ] T34.2: Exercise unequal source widths, wide target graphemes, partial tabs, absent rectangle, insertion past the final line, and undo of padding plus all inserted rows.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T34.1 and T34.2 complete; canonical PR preparation in progress.
+Task commits: T34.1 `ec1f99efc1f9d8645c7816819776e662a806774e`;
+T34.2 `e061feba7e4b35e844ca905ad164be904e3e2a09`.
+Validation: required Cargo/source commands passed; `cargo test --test rectangles`
+passed 34 tests and the terminal PTY suite passed 70 cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 34](../report/slices/rev-editor/slice-34-rectangle-yank.md).
+
 ### Slice 35: Render and focus the left file tree
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05, R06, R28.
