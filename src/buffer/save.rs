@@ -1,3 +1,7 @@
+mod decisions;
+
+pub use decisions::{Confirmation, SaveRequest};
+
 use std::collections::BTreeMap;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
@@ -20,6 +24,17 @@ pub struct Save {
 }
 
 impl Save {
+    fn capture(buffer: &Buffer, target: Location) -> Self {
+        Self {
+            text: buffer.text.clone(),
+            bom: buffer.bom,
+            stamp: buffer.stamp(),
+            state: buffer.state,
+            prior: buffer.file.clone(),
+            target,
+        }
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }
@@ -43,14 +58,7 @@ impl Buffers {
         writable(buffer)?;
         let target = destination(buffer, target)?;
         self.target_available(id, target.path())?;
-        Ok(Save {
-            text: buffer.text.clone(),
-            bom: buffer.bom,
-            stamp: buffer.stamp(),
-            state: buffer.state,
-            prior: buffer.file.clone(),
-            target,
-        })
+        Ok(Save::capture(buffer, target))
     }
 
     pub fn save(&mut self, id: BufferId) -> io::Result<Outcome> {

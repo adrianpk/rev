@@ -3,6 +3,9 @@
 #[path = "files/saving.rs"]
 mod saving;
 
+#[path = "files/decisions.rs"]
+mod decisions;
+
 use std::ffi::OsString;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};

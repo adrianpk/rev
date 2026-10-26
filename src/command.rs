@@ -11,6 +11,7 @@ pub enum Command {
     Quit,
     FindFile,
     SaveBuffer,
+    WriteFile,
     KeyboardQuit,
     Newline,
     InsertTab,
@@ -22,10 +23,11 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 23] = [
+    pub const ALL: [Self; 24] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
+        Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
         Self::InsertTab,
@@ -62,6 +64,7 @@ impl Command {
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",
             Self::SaveBuffer => "save-buffer",
+            Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",

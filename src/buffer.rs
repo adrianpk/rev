@@ -3,7 +3,7 @@ mod endings;
 mod save;
 mod visits;
 
-pub use save::Save;
+pub use save::{Confirmation, Save, SaveRequest};
 
 use std::collections::{BTreeMap, VecDeque};
 

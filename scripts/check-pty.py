@@ -576,7 +576,8 @@ def save_failure(root):
             assert path.read_bytes() == b"ab"
             path.write_bytes(b"external")
             group_step(session, b"!", b"** RW L1 C4 Text")
-            group_step(session, b"\x18\x13", b"save: not published", b"changed since last observation")
+            group_step(session, b"\x18\x13", b"Destination changed on disk")
+            group_step(session, b"n", b"Save canceled")
             assert path.read_bytes() == b"external"
             group_step(session, b"?", b"** RW L1 C5 Text", b"\x1b[1;1Hab!?")
             group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")

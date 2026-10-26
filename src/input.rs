@@ -190,6 +190,9 @@ impl Input {
         if key.control('s') {
             return Outcome::Command(Command::SaveBuffer);
         }
+        if key.control('w') {
+            return Outcome::Command(Command::WriteFile);
+        }
         if key.control('f') {
             return Outcome::Command(Command::FindFile);
         }

@@ -9,7 +9,7 @@ use std::path::Path;
 
 use crossterm::event::{self, Event, KeyCode};
 
-use crate::buffer::{self, Buffer, Buffers};
+use crate::buffer::{self, Buffer, Buffers, Confirmation};
 use crate::command::Command;
 use crate::display::{Frame, Size};
 use crate::input::{Input, Key, Outcome};
@@ -52,7 +52,12 @@ pub struct Session {
     input: Input,
     size: Size,
     echo: String,
-    pending: Option<Command>,
+    pending: Option<Pending>,
+}
+
+enum Pending {
+    Argument(Command),
+    Save(Box<Confirmation>),
 }
 
 impl Session {
@@ -94,6 +99,9 @@ impl Session {
         if let Some(prompt) = self.input.prompt() {
             frame.prompt(prompt, &self.echo)?;
         }
+        if matches!(self.pending, Some(Pending::Save(_))) {
+            frame.decision();
+        }
         Ok(frame)
     }
 
@@ -113,6 +121,7 @@ impl Session {
         match outcome {
             Outcome::Command(command) => self.execute(command),
             Outcome::Argument(path) => self.argument(path),
+            Outcome::Decision(accepted) => self.save_decision(accepted),
             Outcome::Changed => Action::Redraw,
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.notice(prefix.label()),
@@ -135,6 +144,7 @@ impl Session {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
+            Command::WriteFile => self.write_file(),
             Command::Motion(motion) => self.motion(motion),
             Command::Scroll(scroll) => self.scroll(scroll),
             Command::History(history) => self.history(history),
@@ -159,7 +169,10 @@ impl Session {
     }
 
     fn navigation(&mut self, command: Command) {
-        if matches!(command, Command::Scroll(_) | Command::FindFile) {
+        if matches!(
+            command,
+            Command::Scroll(_) | Command::FindFile | Command::SaveBuffer | Command::WriteFile
+        ) {
             return;
         }
         if command == Command::KeyboardQuit && self.pending.take().is_some() {
@@ -198,7 +211,7 @@ impl Session {
 
     fn notice(&mut self, message: &str) -> Action {
         match self.stop_typing() {
-            Ok(()) => self.message(message),
+            Ok(()) => self.focus_message(message),
             Err(error) => self.message(&error.to_string()),
         }
     }

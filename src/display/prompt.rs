@@ -4,6 +4,17 @@ use crate::input::Prompt;
 use super::{Error, Frame, Position, clip};
 
 impl Frame {
+    /// Confirmation input owns the echo cursor, leaving document point alone.
+    pub(crate) fn decision(&mut self) {
+        self.cursor = None;
+        if self.size.width > 0 && self.size.height > 0 {
+            self.cursor = Some(Position {
+                column: 0,
+                row: self.size.height - 1,
+            });
+        }
+    }
+
     pub(crate) fn prompt(&mut self, prompt: &Prompt, notice: &str) -> Result<(), Error> {
         let Some(row) = self.rows.last_mut() else {
             return Ok(());

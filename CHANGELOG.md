@@ -9,7 +9,7 @@ This project uses Semantic Versioning.
 ### Added
 
 - Open UTF-8 files at startup or with `C-x C-f`, preserving BOM, line endings and final-newline absence. Reopening a canonical file reuses its current buffer; absent paths open empty without creating files. Invalid UTF-8 and NUL-containing binary input produce an error without installing damaged text.
-- Save visited buffers with `C-x C-s`, preserving text format and existing access permissions. Failed saves retain edits and distinguish rejected writes from files already replaced with completion still unresolved.
+- Save buffers with `C-x C-s`, supplying a destination for unnamed text, or use `C-x C-w` to write another file. Occupied destinations and external changes require explicit confirmation; symlink saves preserve the link and write its resolved target. Saves preserve text format and existing access permissions. Failed saves retain edits and distinguish rejected writes from files already replaced with completion still unresolved.
 - Edit Unicode text directly in the terminal with Enter and Tab. Backspace and `C-d` remove complete graphemes, including CRLF line breaks.
 - Move by graphemes, Unicode words, logical line ends and buffer boundaries with Emacs bindings, keeping point visible as the viewport scrolls.
 - Keep the intended display column when moving through short lines, move by pages, and cycle the current line through the center, top and bottom of the viewport with `C-l`.

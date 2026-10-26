@@ -4,7 +4,7 @@ use std::path::Path;
 use crate::command::Command;
 use crate::view::View;
 
-use super::{Action, Session};
+use super::{Action, Pending, Session};
 
 impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
@@ -33,9 +33,13 @@ impl Session {
     }
 
     pub(super) fn find_file(&mut self) -> Action {
-        match self.input.argument("Find file: ", "") {
+        self.file_argument(Command::FindFile, "Find file: ")
+    }
+
+    pub(super) fn file_argument(&mut self, command: Command, label: &'static str) -> Action {
+        match self.input.argument(label, "") {
             Ok(()) => {
-                self.pending = Some(Command::FindFile);
+                self.pending = Some(Pending::Argument(command));
                 self.message("")
             }
             Err(error) => self.message(&error.to_string()),
@@ -43,12 +47,13 @@ impl Session {
     }
 
     pub(super) fn argument(&mut self, path: String) -> Action {
-        if self.pending.take() != Some(Command::FindFile) {
-            return self.message("No file argument is pending");
+        match self.pending.take() {
+            Some(Pending::Argument(Command::FindFile)) => {
+                let _ = self.load(Path::new(&path));
+                Action::Redraw
+            }
+            Some(Pending::Argument(Command::WriteFile)) => self.save_to(Some(Path::new(&path))),
+            _ => self.message("No file argument is pending"),
         }
-        // Input emits an argument only for the implemented find-file owner.
-        // Completion consumes Enter; a failed visit leaves editing available.
-        let _ = self.load(Path::new(&path));
-        Action::Redraw
     }
 }

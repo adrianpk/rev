@@ -496,7 +496,17 @@ fn unnamed_save() {
     session.insert('!');
     let before = facts(session.buffer().unwrap());
     assert_eq!(session.execute(Command::SaveBuffer), Action::Redraw);
-    assert!(session.echo().contains("no associated file destination"));
+    assert!(
+        session
+            .frame()
+            .unwrap()
+            .rows()
+            .last()
+            .unwrap()
+            .text()
+            .starts_with("Write file: ")
+    );
+    session.execute(Command::KeyboardQuit);
     assert_eq!(facts(session.buffer().unwrap()), before);
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
     assert!(session.echo().starts_with("Unsaved changes"));
