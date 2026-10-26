@@ -40,6 +40,10 @@ pub struct Glyphs<'a> {
 }
 
 impl<'a> Glyphs<'a> {
+    pub(crate) fn for_text(text: &'a str) -> Result<Self, Error> {
+        Self::new(RopeSlice::from(text), Scalar(0))
+    }
+
     pub(super) fn new(text: RopeSlice<'a>, start: Scalar) -> Result<Self, Error> {
         Ok(Self {
             text,

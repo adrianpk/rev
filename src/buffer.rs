@@ -103,6 +103,7 @@ impl std::error::Error for Error {}
 /// Owns the only canonical rope for this identity. Text access is borrowed.
 pub struct Buffer {
     id: BufferId,
+    name: String,
     revision: u64,
     text: Rope,
     read_only: bool,
@@ -113,8 +114,10 @@ pub struct Buffer {
 
 impl Buffer {
     fn new(text: &str) -> Result<Self, Error> {
+        let id = BufferId::next()?;
         Ok(Self {
-            id: BufferId::next()?,
+            id,
+            name: format!("*buffer-{id}*"),
             revision: 1,
             text: Rope::from_str(text),
             read_only: false,
@@ -122,6 +125,15 @@ impl Buffer {
             history: VecDeque::new(),
             history_bytes: 0,
         })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Published edits differ from the initial clean state.
+    pub fn is_modified(&self) -> bool {
+        !self.history.is_empty()
     }
 
     pub fn id(&self) -> BufferId {
@@ -227,7 +239,8 @@ pub struct Buffers {
 impl Buffers {
     /// Creates a registry with one initially empty buffer.
     pub fn new() -> Result<Self, Error> {
-        let buffer = Buffer::new("")?;
+        let mut buffer = Buffer::new("")?;
+        buffer.name = "*scratch*".into();
         let initial = buffer.id();
         Ok(Self {
             entries: BTreeMap::from([(initial, buffer)]),
