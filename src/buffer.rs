@@ -1,4 +1,8 @@
-use std::collections::BTreeMap;
+pub mod edit;
+
+use std::collections::{BTreeMap, VecDeque};
+
+use crate::coordinates::Scalar;
 use std::fmt;
 use std::ops::Range;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -101,6 +105,10 @@ pub struct Buffer {
     id: BufferId,
     revision: u64,
     text: Rope,
+    read_only: bool,
+    mark: Option<Scalar>,
+    history: VecDeque<edit::Transaction>,
+    history_bytes: usize,
 }
 
 impl Buffer {
@@ -109,6 +117,10 @@ impl Buffer {
             id: BufferId::next()?,
             revision: 1,
             text: Rope::from_str(text),
+            read_only: false,
+            mark: None,
+            history: VecDeque::new(),
+            history_bytes: 0,
         })
     }
 
@@ -233,6 +245,11 @@ impl Buffers {
         let id = buffer.id();
         self.entries.insert(id, buffer);
         Ok(id)
+    }
+
+    /// Mutable access exposes checked operations, never the underlying rope.
+    pub fn get_mut(&mut self, id: BufferId) -> Result<&mut Buffer, Error> {
+        self.entries.get_mut(&id).ok_or(Error::Missing(id))
     }
 
     pub fn get(&self, id: BufferId) -> Result<&Buffer, Error> {

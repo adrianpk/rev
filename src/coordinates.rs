@@ -73,6 +73,10 @@ impl<'a> Coordinates<'a> {
         })
     }
 
+    pub(crate) fn for_text(text: RopeSlice<'a>, stamp: Stamp) -> Self {
+        Self { text, stamp }
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }
