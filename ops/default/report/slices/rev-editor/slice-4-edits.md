@@ -1,11 +1,12 @@
 # Slice 4: Publish coherent text edits
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-04-edits`
 PR: `#4`
+Integrated: Rebase + Fast-forward into dev at `709ec2682b739a896c012bc5451766ab5d7dff4d`.
 
 ## Purpose
 

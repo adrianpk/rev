@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 4 - Publish coherent text edits
+Active slice: Slice 5 - Decode prefixes and focused prompts
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -128,16 +128,19 @@ Report: [Slice 3](../report/slices/rev-editor/slice-3-coordinates.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, R09, R17, R21, R33.
 
-- [ ] T4.1: Introduce one checked edit path with read-only admission, a prepared replacement, reversible history data, and exact position mapping. Multi-range edits state their coordinate space before publication.
-- [ ] T4.2: Reject stale/read-only/invalid-range edits without partial publication. Establish atomic multi-range rollback and mapped point/mark behavior so later commands cannot bypass the owner.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T4.1: Introduce one checked edit path with read-only admission, a prepared replacement, reversible history data, and exact position mapping. Multi-range edits state their coordinate space before publication.
+- [x] T4.2: Reject stale/read-only/invalid-range edits without partial publication. Establish atomic multi-range rollback and mapped point/mark behavior so later commands cannot bypass the owner.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T4.1 and T4.2 implemented; canonical integration pending.
+Implementation: T4.1 and T4.2 delivered through PR #4.
 Task commits: T4.1 `2fed813e6ac8c1a5761e1a2733ccda7b9998d9fb`;
 T4.2 `ba6a69da8fad140524c0abaa4a7dc000624e31ff`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed ten tests with zero skips. Final PR-head evidence is recorded through Looper.
 PR: [#4](https://forge.adrianpk.com/adrianpk/rev/pulls/4).
+Integration: Rebase + Fast-forward into dev at
+`709ec2682b739a896c012bc5451766ab5d7dff4d`; all six ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 4](../report/slices/rev-editor/slice-4-edits.md).
 
 ### Slice 5: Decode prefixes and focused prompts
