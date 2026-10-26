@@ -87,7 +87,11 @@ impl Session {
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
         let buffer = self.buffers.get(self.view.point.stamp.buffer)?;
         self.view.reveal(buffer, self.size)?;
-        Frame::project(buffer, &self.view, self.size, &self.echo)
+        let mut frame = Frame::project(buffer, &self.view, self.size, &self.echo)?;
+        if let Some(prompt) = self.input.prompt() {
+            frame.prompt(prompt, &self.echo)?;
+        }
+        Ok(frame)
     }
 
     fn draw(&mut self, writer: &mut impl Write) -> io::Result<()> {
@@ -98,8 +102,15 @@ impl Session {
         if let Event::Resize(width, height) = event {
             return self.resize(width, height);
         }
-        match self.input.handle(event) {
+        let outcome = self.input.handle(event);
+        self.outcome(outcome)
+    }
+
+    fn outcome(&mut self, outcome: Outcome) -> Action {
+        match outcome {
             Outcome::Command(command) => self.execute(command),
+            Outcome::Argument(path) => self.argument(path),
+            Outcome::Changed => Action::Redraw,
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.notice(prefix.label()),
             Outcome::Message(message) => self.notice(message),
@@ -117,26 +128,37 @@ impl Session {
 
     fn dispatch(&mut self, command: Command) -> Action {
         self.navigation(command);
-        let point = self.view.point.position.0;
-        let result = match command {
-            Command::Quit => return self.quit(),
-            Command::Motion(motion) => return self.motion(motion),
-            Command::Scroll(scroll) => return self.scroll(scroll),
-            Command::History(history) => return self.history(history),
+        match command {
+            Command::Quit => self.quit(),
+            Command::FindFile => self.find_file(),
+            Command::Motion(motion) => self.motion(motion),
+            Command::Scroll(scroll) => self.scroll(scroll),
+            Command::History(history) => self.history(history),
             Command::KeyboardQuit => {
                 self.input.cancel();
-                return self.message("Quit");
+                self.message("Quit")
             }
+            _ => self.edit_command(command),
+        }
+    }
+
+    fn edit_command(&mut self, command: Command) -> Action {
+        let point = self.view.point.position.0;
+        let result = match command {
             Command::Newline => self.line_break(),
             Command::InsertTab => self.replace(point..point, "\t"),
             Command::BackwardDeleteChar => self.delete(true),
             Command::DeleteChar => self.delete(false),
+            _ => return self.message("Command is not a text edit"),
         };
         self.finish(result)
     }
 
     fn navigation(&mut self, command: Command) {
-        if !matches!(command, Command::Scroll(_)) {
+        if !matches!(
+            command,
+            Command::Scroll(_) | Command::FindFile | Command::KeyboardQuit
+        ) {
             self.view.reset_navigation();
         }
     }

@@ -1,4 +1,5 @@
 mod clip;
+mod prompt;
 
 use std::io::{self, Write};
 

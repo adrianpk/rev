@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Open an existing UTF-8 file at startup, preserving its BOM, line endings and final-newline absence. Invalid UTF-8 and NUL-containing binary input produce an error without installing damaged text.
+- Open UTF-8 files at startup or with `C-x C-f`, preserving BOM, line endings and final-newline absence. Reopening a canonical file reuses its current buffer; absent paths open empty without creating files. Invalid UTF-8 and NUL-containing binary input produce an error without installing damaged text.
 - Edit Unicode text directly in the terminal with Enter and Tab. Backspace and `C-d` remove complete graphemes, including CRLF line breaks.
 - Move by graphemes, Unicode words, logical line ends and buffer boundaries with Emacs bindings, keeping point visible as the viewport scrolls.
 - Keep the intended display column when moving through short lines, move by pages, and cycle the current line through the center, top and bottom of the viewport with `C-l`.

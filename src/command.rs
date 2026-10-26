@@ -9,6 +9,7 @@ pub use scroll::Scroll;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     Quit,
+    FindFile,
     KeyboardQuit,
     Newline,
     InsertTab,
@@ -20,8 +21,9 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 21] = [
+    pub const ALL: [Self; 22] = [
         Self::Quit,
+        Self::FindFile,
         Self::KeyboardQuit,
         Self::Newline,
         Self::InsertTab,
@@ -47,6 +49,7 @@ impl Command {
     pub fn name(self) -> &'static str {
         match self {
             Self::Quit => "kill-terminal",
+            Self::FindFile => "find-file",
             Self::KeyboardQuit => "keyboard-quit",
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",

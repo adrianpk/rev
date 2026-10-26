@@ -1,11 +1,13 @@
 pub mod edit;
 mod endings;
+mod visits;
 
 use std::collections::{BTreeMap, VecDeque};
 
 use crate::coordinates::Scalar;
 use std::fmt;
 use std::ops::Range;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ropey::{Rope, RopeSlice, iter::Chunks};
@@ -125,6 +127,7 @@ pub struct Buffer {
     next_state: u64,
     typing: Option<Stamp>,
     bom: bool,
+    file: Option<crate::file::Location>,
 }
 
 impl Buffer {
@@ -154,6 +157,7 @@ impl Buffer {
             next_state: 1,
             typing: None,
             bom: false,
+            file: None,
         })
     }
 
@@ -166,6 +170,11 @@ impl Buffer {
 
     pub fn has_bom(&self) -> bool {
         self.bom
+    }
+
+    /// Destination identity is separate from the unique display label.
+    pub fn file(&self) -> Option<&crate::file::Location> {
+        self.file.as_ref()
     }
 
     /// Insert the prevailing current separator; LF wins ties and empty buffers.
@@ -295,6 +304,7 @@ impl Buffer {
 pub struct Buffers {
     entries: BTreeMap<BufferId, Buffer>,
     initial: BufferId,
+    files: BTreeMap<PathBuf, BufferId>,
 }
 
 impl Buffers {
@@ -306,6 +316,7 @@ impl Buffers {
         Ok(Self {
             entries: BTreeMap::from([(initial, buffer)]),
             initial,
+            files: BTreeMap::new(),
         })
     }
 
@@ -330,7 +341,8 @@ impl Buffers {
         Ok(self.insert(buffer))
     }
 
-    pub(crate) fn insert(&mut self, buffer: Buffer) -> BufferId {
+    pub(crate) fn insert(&mut self, mut buffer: Buffer) -> BufferId {
+        buffer.name = self.label(&buffer.name);
         let id = buffer.id();
         self.entries.insert(id, buffer);
         id

@@ -429,7 +429,7 @@ def ingress_failures(root):
         cases = [
             (invalid, b"UTF-8", b"valid\xff"),
             (binary, b"NUL", b"valid\0text"),
-            (base / "missing.txt", b"missing.txt", None),
+            (invalid / "child", b"Not a directory", None),
             (base, b"regular file", None),
             (denied, b"Permission denied", b"private"),
         ]

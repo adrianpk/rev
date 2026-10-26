@@ -1,10 +1,9 @@
 use std::io;
 use std::path::Path;
 
-use crate::buffer::Buffer;
 use crate::view::View;
 
-use super::Session;
+use super::{Action, Session};
 
 impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
@@ -18,15 +17,30 @@ impl Session {
     }
 
     fn ingress(&mut self, path: &Path) -> io::Result<()> {
-        let loaded = crate::file::load(path)?;
-        let buffer = Buffer::from_loaded(loaded).map_err(io::Error::other)?;
-        let view = View::new(&buffer);
+        let visit = self.buffers.prepare_visit(path)?;
+        let view = View::new(visit.buffer(&self.buffers).map_err(io::Error::other)?);
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
-        self.buffers.insert(buffer);
-        self.view = view;
+        let id = self.buffers.publish_visit(visit);
+        if self.view.point.stamp.buffer != id {
+            self.view = view;
+        }
         self.input.cancel();
         self.echo.clear();
         Ok(())
+    }
+
+    pub(super) fn find_file(&mut self) -> Action {
+        match self.input.argument("Find file: ", "") {
+            Ok(()) => self.message(""),
+            Err(error) => self.message(&error.to_string()),
+        }
+    }
+
+    pub(super) fn argument(&mut self, path: String) -> Action {
+        // Input emits an argument only for the implemented find-file owner.
+        // Completion consumes Enter; a failed visit leaves editing available.
+        let _ = self.load(Path::new(&path));
+        Action::Redraw
     }
 }

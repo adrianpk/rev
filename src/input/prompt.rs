@@ -62,7 +62,7 @@ impl Prompt {
             KeyCode::End => self.cursor = self.text.len(),
             _ => return Outcome::Message("Unbound prompt key"),
         }
-        Outcome::Ignored
+        Outcome::Changed
     }
 
     fn insert(&mut self, character: char) -> Outcome {
@@ -75,7 +75,7 @@ impl Prompt {
         self.text.insert(self.cursor, character);
         self.cursor += character.len_utf8();
         self.repair();
-        Outcome::Ignored
+        Outcome::Changed
     }
 
     fn erase(&mut self, range: std::ops::Range<usize>) {

@@ -2,7 +2,7 @@
 
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
-use std::os::unix::fs::PermissionsExt;
+use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -346,6 +346,7 @@ struct Snapshot {
     read_only: bool,
     newline: &'static str,
     bom: bool,
+    file: Option<file::Location>,
 }
 
 fn snapshot(session: &Session) -> Snapshot {
@@ -361,6 +362,7 @@ fn snapshot(session: &Session) -> Snapshot {
         read_only: buffer.is_read_only(),
         newline: buffer.newline(),
         bom: buffer.has_bom(),
+        file: buffer.file().cloned(),
     }
 }
 
@@ -379,8 +381,6 @@ fn rejected_session() {
             fixture.file("bad-BOM", b"\xef\xbb\xbf\xff"),
             io::ErrorKind::InvalidData,
         ),
-        (fixture.0.join("missing"), io::ErrorKind::NotFound),
-        (fixture.0.join("missing/child"), io::ErrorKind::NotFound),
         (fixture.0.clone(), io::ErrorKind::InvalidInput),
         (fixture.denied(), io::ErrorKind::PermissionDenied),
     ];
@@ -467,4 +467,106 @@ fn edited_format() {
         assert_eq!(bytes(buffer), expected.as_bytes(), "{name}");
         assert!(buffer.is_modified(), "{name}");
     }
+}
+
+// Canonical aliases select the live dirty owner, even after disk changes;
+// reopening must not decode another copy or replace its retained history.
+#[test]
+fn visited_alias() {
+    let fixture = Fixture::new();
+    let path = fixture.file("document.txt", b"source");
+    let alias = fixture.0.join("alias.txt");
+    symlink(&path, &alias).unwrap();
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let edit = Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: "!".into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    let stamp = buffer.stamp();
+    fs::write(&path, b"\xff").unwrap();
+    assert_eq!(buffers.visit(&alias).unwrap(), id);
+    let buffer = buffers.get(id).unwrap();
+    assert_eq!(buffer.stamp(), stamp);
+    assert_eq!(text(buffer), "!source");
+    assert!(buffer.is_modified());
+    assert_eq!(buffer.history().len(), 1);
+    assert_eq!(
+        buffer.file().unwrap().path(),
+        fs::canonicalize(&path).unwrap()
+    );
+    assert_eq!(buffer.name(), "document.txt");
+}
+
+// New destinations have normalized identities and a clean empty root; opening
+// neither creates missing parents nor loses reuse across lexical aliases.
+#[test]
+fn intended_visit() {
+    let fixture = Fixture::new();
+    let path = fixture.0.join("missing/deep/new.txt");
+    let alias = fixture.0.join("unused/../missing/deep/./new.txt");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    assert_eq!(buffers.visit(&alias).unwrap(), id);
+    let buffer = buffers.get(id).unwrap();
+    assert_eq!(text(buffer), "");
+    assert!(!buffer.is_modified());
+    assert!(!buffer.file().unwrap().is_present());
+    assert_eq!(buffer.file().unwrap().path(), path);
+    assert!(!fixture.0.join("missing").exists());
+    assert_eq!(buffer.name(), "new.txt");
+}
+
+fn type_argument(session: &mut Session, text: &str) {
+    for character in text.chars() {
+        assert_eq!(
+            session.handle(Event::Key(KeyEvent::new(
+                KeyCode::Char(character),
+                KeyModifiers::NONE
+            ))),
+            Action::Redraw
+        );
+    }
+}
+
+// Binding and named dispatch share a focused argument owner. Typed paths stay
+// in the minibuffer until Enter, with the cursor on its actual echo row.
+#[test]
+fn find_argument() {
+    let fixture = Fixture::new();
+    let path = fixture.file("found.txt", b"loaded");
+    let mut session = Session::empty(Size {
+        width: 80,
+        height: 8,
+    })
+    .unwrap();
+    let before = snapshot(&session);
+    session.handle(chord('x'));
+    assert_eq!(session.handle(chord('f')), Action::Redraw);
+    assert_eq!(session.echo(), "");
+    type_argument(&mut session, path.to_str().unwrap());
+    assert_eq!(snapshot(&session), before);
+    let frame = session.frame().unwrap();
+    assert!(frame.rows().last().unwrap().text().contains("Find file: "));
+    assert_eq!(frame.cursor().unwrap().row, 7);
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(text(session.buffer().unwrap()), "loaded");
+    let id = session.buffer().unwrap().id();
+    session.insert('!');
+    let edited = snapshot(&session);
+    session.execute(Command::FindFile);
+    type_argument(&mut session, path.to_str().unwrap());
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(session.buffer().unwrap().id(), id);
+    assert_eq!(snapshot(&session), edited);
+    assert_eq!(fs::read(path).unwrap(), b"loaded");
 }

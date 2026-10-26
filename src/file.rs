@@ -74,3 +74,6 @@ pub fn write(buffer: &Buffer, writer: &mut impl Write) -> io::Result<()> {
     }
     Ok(())
 }
+mod location;
+
+pub use location::{Location, resolve};

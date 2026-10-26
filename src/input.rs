@@ -35,6 +35,7 @@ pub enum Focus {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Outcome {
     Ignored,
+    Changed,
     Prefix(Prefix),
     Command(Command),
     Editing(Key),
@@ -186,6 +187,9 @@ impl Input {
     }
 
     fn control_x(&mut self, key: Key) -> Outcome {
+        if key.control('f') {
+            return Outcome::Command(Command::FindFile);
+        }
         if key.control('c') {
             return Outcome::Command(Command::Quit);
         }

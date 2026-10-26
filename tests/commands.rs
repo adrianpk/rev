@@ -37,6 +37,14 @@ fn command_sequences() {
             ],
         ),
         (
+            "find file",
+            vec![control('x'), control('f')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::FindFile),
+            ],
+        ),
+        (
             "cancel",
             vec![control('x'), control('g')],
             vec![
@@ -68,7 +76,7 @@ fn command_sequences() {
                 .all(|byte| byte.is_ascii_lowercase() || byte == b'-')
         );
     }
-    assert_eq!(Command::named("find-file"), None);
+    assert_eq!(Command::named("find-file"), Some(Command::FindFile));
     assert_eq!(Command::named(""), None);
 }
 
@@ -80,8 +88,8 @@ fn argument_focus() {
     input.argument("Path: ", "é界").unwrap();
     assert_eq!(input.focus(), Focus::Argument);
     assert_eq!(input.label(), Some("Path: "));
-    assert_eq!(input.handle(key(KeyCode::Left)), Outcome::Ignored);
-    assert_eq!(input.handle(character('x')), Outcome::Ignored);
+    assert_eq!(input.handle(key(KeyCode::Left)), Outcome::Changed);
+    assert_eq!(input.handle(character('x')), Outcome::Changed);
     assert_eq!(input.prompt().unwrap().text(), "éx界");
     assert_eq!(input.prompt().unwrap().cursor(), "éx".len());
     assert_eq!(
@@ -416,7 +424,7 @@ fn prompt_graphemes() {
         assert!(
             feed(&mut input, events)
                 .iter()
-                .all(|outcome| *outcome == Outcome::Ignored),
+                .all(|outcome| *outcome == Outcome::Changed),
             "{name}"
         );
         let prompt = input.prompt().unwrap();
@@ -439,8 +447,8 @@ fn prompt_limit() {
     );
     assert_eq!(input.prompt().unwrap().text(), full);
     assert_eq!(input.prompt().unwrap().cursor(), full.len());
-    assert_eq!(input.handle(key(KeyCode::Backspace)), Outcome::Ignored);
-    assert_eq!(input.handle(character('é')), Outcome::Ignored);
+    assert_eq!(input.handle(key(KeyCode::Backspace)), Outcome::Changed);
+    assert_eq!(input.handle(character('é')), Outcome::Changed);
     assert_eq!(input.prompt().unwrap().text().chars().count(), LIMIT);
     assert!(input.prompt().unwrap().text().ends_with('é'));
     assert_eq!(
