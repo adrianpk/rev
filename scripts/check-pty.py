@@ -1980,6 +1980,74 @@ def shared_rectangle_kill(root):
 
 
 
+def rectangle_yank(root):
+    # A cross-file retained block creates lines/prefixes as one transaction.
+    # The destination controls new separators; source BOM/CRLF remains exact.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-rectangle-yank-") as directory:
+        source = Path(directory) / "source.txt"
+        target = Path(directory) / "target.txt"
+        original = "\ufeff0AB9\r\nx界z\r\n\r\n0e\u0301X9".encode()
+        source.write_bytes(original)
+        target.write_bytes(b"\xef\xbb\xbf....")
+        expected = "\ufeff...AB.\n   界\n\n   e\u0301X".encode()
+        session = Session([str(root / "target/debug/rev"), str(source)])
+        try:
+            session.ready(b"> source.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x18 ", b"Rectangle mark set")
+            group_step(session, b"\x1b>\x02\x18r\x1bw", b"Rectangle copied")
+            find_path(session, target, b"> target.txt -- RW L1 C1 Text", b"....")
+            group_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW L4 C6 Text")
+            frame = last_frame(session)
+            assert b"\x1b[1;1H...AB. " in frame and "\x1b[2;1H   界".encode() in frame
+            assert b"\x1b[3;1H    " in frame
+            group_step(session, b"\x18u", b"-- RW L1 C4 Text", b"\x1b[1;1H.... ")
+            named_step(session, "undo-redo", b"** RW L4 C6 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
+            assert target.read_bytes() == expected and source.read_bytes() == original
+            group_step(session, b"\x18u", b"** RW L1 C4 Text", b"\x1b[1;1H.... ")
+            named_step(session, "undo-redo", b"-- RW L4 C6 Text")
+            assert target.read_bytes() == expected
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound cross-file rectangle yank, missing/empty rows, prefix padding, atomic history and exact BOM/newline saves")
+        finally:
+            session.close()
+
+
+def shared_rectangle_yank(root):
+    # Later target rows snap before touched wide/tab glyphs. Passive-pane undo
+    # restores the original initiator and untouched tab bytes stay literal.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-shared-yank-") as directory:
+        source = Path(directory) / "block.txt"
+        target = Path(directory) / "views.txt"
+        original = "0AB9\nx界z\n0CD9".encode()
+        source.write_bytes(original)
+        target.write_bytes("abcde\n界Z\n\tQ".encode())
+        session = Session([str(root / "target/debug/rev"), str(source)])
+        try:
+            session.ready(b"> block.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x18 ", b"Rectangle mark set")
+            group_step(session, b"\x1b>\x02\x18r\x1bw", b"Rectangle copied")
+            find_path(session, target, b"> views.txt -- RW L1 C1 Text", b"abcde")
+            group_step(session, b"\x183\x06", b"> views.txt -- RW L1 C2 Text", b"|")
+            named_step(session, "yank-rectangle", b"Rectangle yanked", b"> views.txt ** RW L3 C3 Text")
+            frame = last_frame(session)
+            assert "界界Z".encode() in frame and b"CD  Q" in frame
+            group_step(session, b"\x18o\x18u", b"  views.txt -- RW L1 C2 Text",
+                       b"|> views.txt -- RW L1 C1 Text")
+            named_step(session, "undo-redo", b"  views.txt ** RW L3 C3 Text")
+            group_step(session, b"\x19", b"Kill ring is empty")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
+            assert target.read_bytes() == "aABbcde\n界界Z\nCD\tQ".encode()
+            assert source.read_bytes() == original
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS named rectangle yank, wide/tab target snapping, shared undo origin, separate ring and untouched tab bytes")
+        finally:
+            session.close()
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2042,7 +2110,9 @@ def main():
     rectangle_scroll(root)
     rectangle_kill(root)
     shared_rectangle_kill(root)
-    print("Terminal PTY suite: 68 cases passed, 0 skipped.")
+    rectangle_yank(root)
+    shared_rectangle_yank(root)
+    print("Terminal PTY suite: 70 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
