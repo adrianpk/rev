@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 28 - Complete focused argument and cancel flows
+Active slice: Slice 29 - Search forward across rope chunks
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -608,18 +608,21 @@ Report: [Slice 27](../report/slices/rev-editor/slice-27-command-palette.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R04, R12, R23, R24.
 
-- [ ] T28.1: Complete predictable multi-stage command arguments, path/buffer prompts, decision prompts, in-prompt editing, and focus restoration after accept/error/cancel.
-- [ ] T28.2: Exercise cancellation at every stage of find/write/kill, prompt editing with Emacs movement, resize while prompting, and no document mutation from transient input.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T28.1: Complete predictable multi-stage command arguments, path/buffer prompts, decision prompts, in-prompt editing, and focus restoration after accept/error/cancel.
+- [x] T28.2: Exercise cancellation at every stage of find/write/kill, prompt editing with Emacs movement, resize while prompting, and no document mutation from transient input.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T28.1 and T28.2 complete; canonical PR #28 open.
+Implementation: T28.1 and T28.2 delivered through PR #28.
 Task commits: T28.1 `6f6cb8a889335c8e14596e81717910f557523c85`;
 T28.2 `716a3022b6edb898e41fe0c6bf6cef5f940d2d42`.
 Validation: required Cargo/source commands passed; `cargo test --test commands`
 passed sixty-two tests and the terminal PTY suite passed fifty-eight cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#28](https://forge.adrianpk.com/adrianpk/rev/pulls/28).
-Report: [Slice 28](../report/slices/rev-editor/slice-28-prompt-flows.md), reviewing.
+Integration: Rebase + Fast-forward into dev at
+`543b5df1281504aae93d5220962583f6a8a882f2`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
+Report: [Slice 28](../report/slices/rev-editor/slice-28-prompt-flows.md).
 
 ### Slice 29: Search forward across rope chunks
 

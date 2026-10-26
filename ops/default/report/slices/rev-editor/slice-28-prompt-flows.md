@@ -1,11 +1,12 @@
 # Slice 28: Complete focused argument and cancel flows
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-28-prompt-flows`
 PR: `#28`
+Integrated: Rebase + Fast-forward into dev at `543b5df1281504aae93d5220962583f6a8a882f2`.
 
 ## Purpose
 
