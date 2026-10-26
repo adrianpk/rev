@@ -273,6 +273,16 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R19, 
 - [ ] T11.2: Exercise paste-sized transactions, replacement groups, navigation breaks, new edits after undo, and pruning complete old groups without losing the newest reversible operation.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T11.1 and T11.2 complete; awaiting canonical PR integration.
+Task commits: T11.1 `daf03ad40d2393c7731448a9a92d6a422180de5b`;
+T11.2 `3846a2971f434b88ec40bee545b24bba938b6e38` with terminal synchronization
+`febba5045e033c8409c59c254dae486fa9b82cea`.
+Validation: required Cargo/source commands passed; `cargo test --test editing`
+passed forty-four tests and the terminal PTY suite passed thirteen cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 11](../report/slices/rev-editor/slice-11-grouping.md).
+
 ### Slice 12: Load exact UTF-8 file content
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R02, R09, R10, R11, R37.
