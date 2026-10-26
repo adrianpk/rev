@@ -316,6 +316,17 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R02, 
 - [ ] T13.2: Exercise symlink aliases, duplicate basenames, nonexistent parents, canceled prompts, directory paths, and collision with an already visited canonical target.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T13.1 and T13.2 implemented; canonical PR preparation in progress.
+Task commits: T13.1 `1b6ab4d133d1cb54538fc9a63595a47b971c95ca`, completed
+through `38471f583db48ceaa8602febe5183e783dd88d1f`;
+T13.2 `d5ff90a3cde1cb54309309ebf7165c558bad3df4` with viewport synchronization
+`bce68fa55cb13316148deb9992d0712cc902e2c1`.
+Validation: required Cargo/source commands passed; `cargo test --test files`
+passed twenty-two tests and the terminal PTY suite passed twenty-two cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+PR: pending.
+Report: [Slice 13](../report/slices/rev-editor/slice-13-file-visits.md).
+
 ### Slice 14: Publish safe same-directory saves
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R10, R13, R21.
