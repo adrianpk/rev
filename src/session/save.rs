@@ -21,7 +21,7 @@ impl Session {
         };
         let error = outcome.error().map(ToString::to_string).unwrap_or_default();
         self.message(&format!(
-            "save {:?}: {publication}: {error}",
+            "save: {publication}: {error}; target {:?}",
             outcome.target()
         ))
     }

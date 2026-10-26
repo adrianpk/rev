@@ -531,6 +531,63 @@ def new_visit(root):
             session.close()
 
 
+def save_file(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-save-") as directory:
+        path = Path(directory) / "unicode.txt"
+        source = "\ufeffe\u0301界\r\nlast".encode()
+        path.write_bytes(source)
+        path.chmod(0o640)
+        inode = path.stat().st_ino
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"-- RW L1 C1 Text")
+            group_step(session, b"\x05!", b"** RW L1 C5 Text", "e\u0301界!".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C5 Text")
+            assert path.read_bytes() == "\ufeffe\u0301界!\r\nlast".encode()
+            assert path.stat().st_ino != inode
+            assert path.stat().st_mode & 0o777 == 0o640
+            group_step(session, b"?", b"** RW L1 C6 Text")
+            group_step(session, b"\x18u", b"-- RW L1 C5 Text")
+            group_step(session, b"\x18u", b"** RW L1 C4 Text")
+            assert path.read_bytes() != source, "undo unexpectedly saved itself"
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C4 Text")
+            assert path.read_bytes() == source
+            assert list(Path(directory).iterdir()) == [path]
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert SHOW in session.output and LEAVE in session.output
+            print("PASS real save-buffer, exact BOM/CRLF bytes, permissions and saved undo state")
+        finally:
+            session.close()
+
+
+def save_failure(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-save-error-") as directory:
+        path = Path(directory) / "missing/new.txt"
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> new.txt -- RW L1 C1 Text")
+            group_step(session, b"ab", b"** RW L1 C3 Text")
+            group_step(session, b"\x18\x13", b"save: not published", b"** RW L1 C3 Text")
+            assert not path.parent.exists()
+            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            path.parent.mkdir()
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            assert path.read_bytes() == b"ab"
+            path.write_bytes(b"external")
+            group_step(session, b"!", b"** RW L1 C4 Text")
+            group_step(session, b"\x18\x13", b"save: not published", b"changed since last observation")
+            assert path.read_bytes() == b"external"
+            group_step(session, b"?", b"** RW L1 C5 Text", b"\x1b[1;1Hab!?")
+            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            assert list(path.parent.iterdir()) == [path]
+            print("PASS failed save guards exit, missing-parent retry and external-change refusal")
+        finally:
+            # This owned dirty fixture retains an externally changed destination.
+            # All error/refusal and continued-editing checks precede its cleanup.
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -552,7 +609,9 @@ def main():
     argument_failure(root)
     file_visits(root)
     new_visit(root)
-    print("Terminal PTY suite: 22 cases passed, 0 skipped.")
+    save_file(root)
+    save_failure(root)
+    print("Terminal PTY suite: 24 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
