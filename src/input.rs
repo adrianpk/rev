@@ -192,6 +192,9 @@ impl Input {
         if key.plain() == Some(KeyCode::Char('r')) {
             return self.wait(Prefix::Rectangle);
         }
+        if key.plain() == Some(KeyCode::Char('u')) {
+            return Outcome::Command(Command::History(crate::command::History::Undo));
+        }
         Outcome::Message("Undefined key sequence")
     }
 

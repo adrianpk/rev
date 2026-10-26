@@ -1,6 +1,7 @@
 mod motion;
 mod scroll;
 
+pub use crate::buffer::edit::History;
 pub use motion::Motion;
 pub use scroll::Scroll;
 
@@ -15,10 +16,11 @@ pub enum Command {
     DeleteChar,
     Motion(Motion),
     Scroll(Scroll),
+    History(History),
 }
 
 impl Command {
-    pub const ALL: [Self; 19] = [
+    pub const ALL: [Self; 21] = [
         Self::Quit,
         Self::KeyboardQuit,
         Self::Newline,
@@ -38,6 +40,8 @@ impl Command {
         Self::Scroll(Scroll::PageForward),
         Self::Scroll(Scroll::PageBackward),
         Self::Scroll(Scroll::Recenter),
+        Self::History(History::Undo),
+        Self::History(History::Redo),
     ];
 
     pub fn name(self) -> &'static str {
@@ -50,6 +54,7 @@ impl Command {
             Self::DeleteChar => "delete-char",
             Self::Motion(motion) => motion.name(),
             Self::Scroll(scroll) => scroll.name(),
+            Self::History(history) => history.name(),
         }
     }
 

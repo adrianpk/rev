@@ -39,6 +39,13 @@ pub struct Stamp {
     pub revision: u64,
 }
 
+/// Buffer-qualified logical history identity, independent of publication revision.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct State {
+    buffer: BufferId,
+    sequence: u64,
+}
+
 /// A half-open Unicode scalar range. Every use rechecks its stamp and bounds.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Span {
@@ -112,11 +119,19 @@ pub struct Buffer {
     mark: Option<Scalar>,
     history: VecDeque<edit::Transaction>,
     history_bytes: usize,
+    redo: VecDeque<edit::Transaction>,
+    state: State,
+    saved: State,
+    next_state: u64,
 }
 
 impl Buffer {
     fn new(text: &str) -> Result<Self, Error> {
         let id = BufferId::next()?;
+        let state = State {
+            buffer: id,
+            sequence: 0,
+        };
         Ok(Self {
             id,
             name: format!("*buffer-{id}*"),
@@ -127,6 +142,10 @@ impl Buffer {
             mark: None,
             history: VecDeque::new(),
             history_bytes: 0,
+            redo: VecDeque::new(),
+            state,
+            saved: state,
+            next_state: 1,
         })
     }
 
@@ -141,9 +160,21 @@ impl Buffer {
         &self.name
     }
 
-    /// Published edits differ from the initial clean state.
+    /// Compare logical text states rather than increasing publication revisions.
     pub fn is_modified(&self) -> bool {
-        !self.history.is_empty()
+        self.state != self.saved
+    }
+
+    pub fn state(&self) -> State {
+        self.state
+    }
+
+    /// A completed save may acknowledge only the exact text revision it wrote.
+    /// This metadata operation preserves undo/redo and makes no filesystem claim.
+    pub fn mark_saved(&mut self, stamp: Stamp) -> Result<(), Error> {
+        self.current(stamp)?;
+        self.saved = self.state;
+        Ok(())
     }
 
     pub fn id(&self) -> BufferId {

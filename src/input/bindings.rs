@@ -1,6 +1,6 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
-use crate::command::{Command, Motion, Scroll};
+use crate::command::{Command, History, Motion, Scroll};
 
 use super::Key;
 
@@ -39,6 +39,13 @@ fn navigation(code: KeyCode) -> Option<Command> {
 }
 
 fn control(code: KeyCode) -> Option<Command> {
+    match code {
+        KeyCode::Char('/' | '_') => Some(Command::History(History::Undo)),
+        _ => control_motion(code),
+    }
+}
+
+fn control_motion(code: KeyCode) -> Option<Command> {
     match code {
         KeyCode::Char('d') => Some(Command::DeleteChar),
         KeyCode::Char('f') => Some(Command::Motion(Motion::ForwardChar)),

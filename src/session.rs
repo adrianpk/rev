@@ -1,4 +1,5 @@
 mod edit;
+mod history;
 mod motion;
 
 use std::io::{self, Write};
@@ -99,14 +100,13 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
-        if !matches!(command, Command::Scroll(_)) {
-            self.view.reset_navigation();
-        }
+        self.navigation(command);
         let point = self.view.point.position.0;
         let result = match command {
             Command::Quit => return self.quit(),
             Command::Motion(motion) => return self.motion(motion),
             Command::Scroll(scroll) => return self.scroll(scroll),
+            Command::History(history) => return self.history(history),
             Command::KeyboardQuit => {
                 self.input.cancel();
                 return self.message("Quit");
@@ -117,6 +117,12 @@ impl Session {
             Command::DeleteChar => self.delete(false),
         };
         self.finish(result)
+    }
+
+    fn navigation(&mut self, command: Command) {
+        if !matches!(command, Command::Scroll(_)) {
+            self.view.reset_navigation();
+        }
     }
 
     /// Inserts one printable scalar, retaining a valid grapheme cursor after

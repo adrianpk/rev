@@ -963,3 +963,73 @@ fn newline_rollback() {
     assert_eq!(buffer.newline(), "\r\n");
     assert_eq!(points[0].position, Scalar(2));
 }
+
+fn history(session: &mut rev::session::Session, name: &str) {
+    let command = rev::command::Command::named(name).expect("implemented history command");
+    assert_eq!(session.execute(command), rev::session::Action::Redraw);
+    assert!(session.echo().is_empty(), "{name}: {}", session.echo());
+    assert!(session.frame().unwrap().cursor().is_some());
+}
+
+// Undo/redo restore the initiating cursor even after motion, but publish fresh
+// revisions while returning to the original logical state and clean marker.
+#[test]
+fn history_cycle() {
+    use rev::command::Command;
+    let mut session = editor("α\r\n界", 1, false);
+    let initial = session.buffer().unwrap().state();
+    session.insert('!');
+    let edited = session.buffer().unwrap().state();
+    let stale = session.buffer().unwrap().span(0..1).unwrap();
+    session.execute(Command::named("end-of-buffer").unwrap());
+    history(&mut session, "undo");
+    let buffer = session.buffer().unwrap();
+    assert_eq!(text(buffer), "α\r\n界");
+    assert_eq!(buffer.state(), initial);
+    assert_eq!(buffer.stamp().revision, 3);
+    assert!(!buffer.is_modified());
+    assert!(buffer.slice(&stale).is_err());
+    assert_eq!(session.view().point.position, Scalar(1));
+    history(&mut session, "undo-redo");
+    let buffer = session.buffer().unwrap();
+    assert_eq!(text(buffer), "α!\r\n界");
+    assert_eq!(buffer.state(), edited);
+    assert_eq!(buffer.stamp().revision, 4);
+    assert!(buffer.is_modified());
+    assert_eq!(session.view().point.position, Scalar(2));
+    assert_eq!(buffer.history().len(), 1);
+    assert!(buffer.redo_history().is_empty());
+}
+
+// Save acknowledgment preserves retained history and targets an exact revision;
+// later undo can revisit that clean logical state despite a newer revision.
+#[test]
+fn saved_history() {
+    use rev::buffer::edit::History;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 0..0, "saved")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    let saved_stamp = buffer.stamp();
+    let saved_state = buffer.state();
+    buffer.mark_saved(saved_stamp).unwrap();
+    assert_eq!(buffer.history().len(), 1);
+    assert!(!buffer.is_modified());
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 5..5, "dirty")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), "saved");
+    assert_eq!(buffer.state(), saved_state);
+    assert_ne!(buffer.stamp(), saved_stamp);
+    assert!(!buffer.is_modified());
+    assert_eq!(buffer.redo_history().len(), 1);
+    buffer.navigate(History::Redo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), "saveddirty");
+    assert!(buffer.is_modified());
+    assert!(buffer.mark_saved(saved_stamp).is_err());
+    assert!(buffer.is_modified());
+}

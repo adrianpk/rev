@@ -1,4 +1,8 @@
+mod history;
 mod mapping;
+
+pub use history::History;
+use history::Operation;
 
 use std::collections::VecDeque;
 use std::fmt;
@@ -6,7 +10,7 @@ use std::ops::Range;
 
 use ropey::Rope;
 
-use super::{Buffer, Span, Stamp};
+use super::{Buffer, Span, Stamp, State};
 use crate::coordinates::{self, Coordinates, Scalar};
 use mapping::map_points;
 
@@ -42,6 +46,8 @@ pub enum Error {
     ChangedPositions,
     Cursor(usize),
     Capacity,
+    History(History),
+    HistoryState,
 }
 
 impl fmt::Display for Error {
@@ -61,6 +67,10 @@ impl fmt::Display for Error {
                 write!(formatter, "initiating point index {index} is unavailable")
             }
             Self::Capacity => formatter.write_str("edit capacity or revision is exhausted"),
+            Self::History(direction) => formatter.write_str(direction.unavailable()),
+            Self::HistoryState => {
+                formatter.write_str("history does not match the logical text state")
+            }
         }
     }
 }
@@ -117,12 +127,15 @@ impl Change {
 pub struct Transaction {
     pub before: Stamp,
     pub after: Stamp,
+    pub before_state: State,
+    pub after_state: State,
     changes: Vec<Change>,
     before_points: Vec<Point>,
     after_points: Vec<Point>,
     pub before_mark: Option<Scalar>,
     pub after_mark: Option<Scalar>,
     bytes: usize,
+    cursor: Option<usize>,
 }
 
 impl Transaction {
@@ -145,6 +158,8 @@ pub struct Prepared {
     text: Rope,
     crlf: usize,
     record: Transaction,
+    operation: Operation,
+    next_state: u64,
 }
 
 impl Buffer {
@@ -181,29 +196,55 @@ impl Buffer {
         cursor: Option<Cursor>,
     ) -> Result<Prepared, Error> {
         self.admit(self.stamp())?;
-        let after = self.next_stamp()?;
+        let next_state = self.next_state.checked_add(1).ok_or(Error::Capacity)?;
         let changes = self.changes(edits)?;
-        let text = self.candidate(edits)?;
+        let state = State {
+            buffer: self.id,
+            sequence: self.next_state,
+        };
+        let mut prepared = self.prepare_changes(changes, points, state)?;
+        let coordinates = Coordinates::for_text(prepared.text.slice(..), prepared.record.after);
+        mapping::set_cursor(&mut prepared.record, cursor, &coordinates)?;
+        prepared.next_state = next_state;
+        Ok(prepared)
+    }
+
+    fn prepare_changes(
+        &self,
+        changes: Vec<Change>,
+        points: &[Point],
+        state: State,
+    ) -> Result<Prepared, Error> {
+        let after = self.next_stamp()?;
+        let text = self.candidate(&changes)?;
         let crlf = super::endings::update(&self.text, &text, &changes, self.crlf)?;
         let coordinates = Coordinates::for_text(text.slice(..), after);
         let after_points = map_points(self, &changes, points, &coordinates)?;
         let mut record = Transaction {
             before: self.stamp(),
             after,
+            before_state: self.state,
+            after_state: state,
             changes,
             before_points: points.to_vec(),
             after_points,
             before_mark: self.mark,
             after_mark: None,
             bytes: 0,
+            cursor: None,
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
         record.bytes = record
             .changes
             .iter()
             .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
-        mapping::set_cursor(&mut record, cursor, &coordinates)?;
-        Ok(Prepared { text, crlf, record })
+        Ok(Prepared {
+            text,
+            crlf,
+            record,
+            operation: Operation::Edit,
+            next_state: self.next_state,
+        })
     }
 
     /// The sole text publication path. The caller supplies every live point for
@@ -213,16 +254,21 @@ impl Buffer {
         if points != prepared.record.before_points || self.mark != prepared.record.before_mark {
             return Err(Error::ChangedPositions);
         }
-        self.history.try_reserve(1).map_err(|_| Error::Capacity)?;
+        self.reserve(prepared.operation)?;
+        // Queue admission completes before any text or live position changes.
+        let after = prepared.record.after;
+        let state = prepared.record.after_state;
+        let mark = prepared.record.after_mark;
+        let after_points = prepared.record.after_points.clone();
+        self.record(prepared.record, prepared.operation)?;
         // From here onward there are no recoverable operations or callbacks.
         self.text = prepared.text;
         self.crlf = prepared.crlf;
-        self.revision = prepared.record.after.revision;
-        self.mark = prepared.record.after_mark;
-        points.copy_from_slice(&prepared.record.after_points);
-        self.history_bytes = self.history_bytes.saturating_add(prepared.record.bytes);
-        self.history.push_back(prepared.record);
-        self.prune();
+        self.revision = after.revision;
+        self.state = state;
+        self.next_state = prepared.next_state;
+        self.mark = mark;
+        points.copy_from_slice(&after_points);
         Ok(())
     }
 
@@ -270,14 +316,13 @@ impl Buffer {
         Ok(changes)
     }
 
-    fn candidate(&self, edits: &[Replacement]) -> Result<Rope, Error> {
+    fn candidate(&self, changes: &[Change]) -> Result<Rope, Error> {
         let mut text = self.text.clone();
         // Descending application keeps every range in the admitted base space.
-        for edit in edits.iter().rev() {
-            text.try_remove(edit.source.range.clone())
+        for change in changes.iter().rev() {
+            text.try_remove(change.before.clone())
                 .map_err(|_| Error::Capacity)?;
-            text.try_insert(edit.source.range.start, &edit.text)
-                .map_err(|_| Error::Capacity)?;
+            insert(&mut text, change.before.start, &change.inserted)?;
         }
         Ok(text)
     }
@@ -293,4 +338,15 @@ impl Buffer {
             }
         }
     }
+}
+
+fn insert(text: &mut Rope, mut position: usize, fragment: &Rope) -> Result<(), Error> {
+    for chunk in fragment.chunks() {
+        text.try_insert(position, chunk)
+            .map_err(|_| Error::Capacity)?;
+        position = position
+            .checked_add(chunk.chars().count())
+            .ok_or(Error::Capacity)?;
+    }
+    Ok(())
 }

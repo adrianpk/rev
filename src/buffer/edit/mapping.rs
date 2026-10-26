@@ -111,6 +111,7 @@ pub(super) fn set_cursor(
             .get_mut(cursor.index)
             .ok_or(Error::Cursor(cursor.index))?;
         point.position = adjust(coordinates, cursor.position, Affinity::Right)?;
+        record.cursor = Some(cursor.index);
     }
     Ok(())
 }
