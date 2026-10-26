@@ -1143,6 +1143,60 @@ def scrolling_regions(root):
             session.close()
 
 
+def line_kills(root):
+    # The real C-k wire report removes CRLF atomically, with one undo per kill;
+    # saving after replay preserves the visit's BOM and every surviving byte.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-line-kills-") as directory:
+        path = Path(directory) / "line.txt"
+        source = b"\xef\xbb\xbf" + "ab界\r\nlast".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> line.txt -- RW L1 C1 Text")
+            group_step(session, b"\x06\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Ha ")
+            group_step(session, b"\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Halast ")
+            group_step(session, b"\x18u", b"** RW L1 C2 Text", b"\x1b[2;1Hlast ")
+            group_step(session, b"\x18u", b"-- RW L1 C2 Text", "ab界".encode())
+            assert path.read_bytes() == source
+            group_step(session, b"\x0b\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Halast ")
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert path.read_bytes() == b"\xef\xbb\xbfalast"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS C-k line/whole CRLF kills, separate undo, exact BOM save and restored exit")
+        finally:
+            session.close()
+
+
+def word_kills(root):
+    # Actual ESC-d and ESC-DEL reports exercise Unicode word/punctuation ranges
+    # in both directions, standalone undo and exact bytes across a CRLF save.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-word-kills-") as directory:
+        path = Path(directory) / "word.txt"
+        source = "e\u0301界_2...👩\u200d💻 last\r\nend".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> word.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1bd", b"** RW L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
+            group_step(session, b"\x1bd", b"** RW L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"** RW L1 C1 Text", "...👩\u200d💻 last".encode())
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text", source.split(b"\r\n")[0])
+            group_step(session, b"\x05", b"-- RW L1 C16 Text")
+            group_step(session, b"\x1b\x7f", b"** RW L1 C12 Text", "👩\u200d💻 ".encode())
+            group_step(session, b"\x1b\x7f", b"** RW L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"** RW L1 C12 Text", "e\u0301界_2...👩\u200d💻 ".encode())
+            group_step(session, b"\x18u", b"-- RW L1 C16 Text", source.split(b"\r\n")[0])
+            group_step(session, b"\x1b<\x1bd", b"** RW L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
+            group_step(session, b"\x18\x13", b"Saved ")
+            assert path.read_bytes() == "...👩\u200d💻 last\r\nend".encode()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS M-d/M-DEL Unicode word kills, directional boundaries, independent undo and CRLF save")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1181,7 +1235,9 @@ def main():
     linear_regions(root)
     shared_regions(root)
     scrolling_regions(root)
-    print("Terminal PTY suite: 42 cases passed, 0 skipped.")
+    line_kills(root)
+    word_kills(root)
+    print("Terminal PTY suite: 44 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
