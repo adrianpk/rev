@@ -35,6 +35,8 @@ save/close cancellation.
 
 `isearch-forward` and `isearch-backward` open [incremental search](search.md)
 with the same handlers as C-s and C-r.
+`query-replace` opens the same literal replacement prompts as M-% and requires
+an explicit decision for each occurrence.
 
 ## Implemented catalog
 
@@ -48,6 +50,6 @@ with the same handlers as C-s and C-r.
 | Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer` |
 | Scrolling | `next-line`, `previous-line`, `scroll-up-command`, `scroll-down-command`, `recenter-top-bottom` |
 | History | `undo`, `undo-redo` |
-| Search | `isearch-forward`, `isearch-backward` |
+| Search | `isearch-forward`, `isearch-backward`, `query-replace` |
 | Regions | `set-mark-command`, `exchange-point-and-mark` |
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |

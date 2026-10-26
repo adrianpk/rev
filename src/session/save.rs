@@ -56,6 +56,7 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::Replace(state)) => self.replace_answer(*state, accepted),
             Some(Pending::Kill { kill, .. }) => {
                 if accepted {
                     self.save_killing(kill)
@@ -95,6 +96,9 @@ impl Session {
 
     pub(super) fn focus_message(&mut self, message: &str) -> Action {
         let question = match &self.pending {
+            Some(Pending::Replace(state)) if state.deciding() => {
+                Some("Replace occurrence? [y/n/q]")
+            }
             Some(Pending::Save { confirmation, .. }) => Some(confirmation.message()),
             Some(Pending::Kill { message, .. }) => Some(message.as_str()),
             _ => None,

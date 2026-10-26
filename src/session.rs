@@ -10,6 +10,7 @@ mod motion;
 mod paste;
 mod prompt;
 mod region;
+mod replace;
 mod save;
 mod search;
 mod windows;
@@ -70,6 +71,7 @@ pub struct Session {
 }
 
 enum Pending {
+    Replace(Box<replace::State>),
     Search(Box<search::State>),
     Command,
     Argument(Command),
@@ -128,9 +130,15 @@ impl Session {
 
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
         self.invalidate_search();
+        self.invalidate_replace();
         self.windows.reveal(&self.buffers, self.size)?;
         let mut frame = Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?;
         self.highlight_search(&mut frame)?;
+        self.prompt_frame(&mut frame)?;
+        Ok(frame)
+    }
+
+    fn prompt_frame(&self, frame: &mut Frame) -> Result<(), view::Error> {
         if let Some(prompt) = self.input.prompt() {
             let hint = self.input.palette().map(crate::input::Palette::hint);
             let notice = hint
@@ -142,9 +150,10 @@ impl Session {
         match &self.pending {
             Some(Pending::Inventory(selected)) => frame.inventory(&self.buffers, *selected)?,
             Some(Pending::Save { .. } | Pending::Kill { .. }) => frame.decision(),
+            Some(Pending::Replace(state)) if state.deciding() => frame.decision(),
             _ => {}
         }
-        Ok(frame)
+        Ok(())
     }
 
     fn draw(&mut self, writer: &mut impl Write) -> io::Result<()> {
@@ -183,7 +192,12 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
+        self.active_command(command)
+    }
+
+    fn active_command(&mut self, command: Command) -> Action {
         match command {
+            Command::QueryReplace => self.query_replace(),
             Command::SearchForward => self.search(crate::search::Direction::Forward),
             Command::SearchBackward => self.search(crate::search::Direction::Backward),
             Command::Split(direction) => self.split(direction),

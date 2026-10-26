@@ -9,6 +9,7 @@ separate focused contexts. Their text does not enter the document underneath.
 | Operation | Sequence |
 | --- | --- |
 | M-x | Command query, then the selected command's handler and any arguments. |
+| Query replace | Literal query, literal replacement, then a fresh y/n/q decision for each occurrence. C-g stops at any stage; accepted edits remain independently undoable. |
 | Find file | Path, then open/reuse the file or report an ingress error. |
 | Write file | Destination path, then an explicit decision if the destination is occupied or a different referent requires consent, then save. |
 | Save buffer | Save the visited path, or request a destination if unnamed; external changes require a separate explicit decision. |
@@ -20,6 +21,9 @@ Buffer-name Tab completion uses live names and their common prefix; Return
 selects an exact name. Tab in a path argument keeps the draft and displays
 `Enter a path; C-g cancels`. [M-x completion and history](commands.md) operate
 only in command focus.
+
+Query replace has separate literal argument and occurrence-decision contexts;
+its multiline paste and cancellation rules are in [Search and replacement](search.md).
 
 ## Editing and decisions
 

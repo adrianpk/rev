@@ -50,6 +50,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::Replace(state)) => self.replace_argument(*state, path),
             Some(Pending::Argument(Command::FindFile)) => {
                 let _ = self.load(Path::new(&path));
                 Action::Redraw

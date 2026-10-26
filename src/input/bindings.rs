@@ -78,6 +78,7 @@ fn control_motion(code: KeyCode) -> Option<Command> {
 
 fn meta(code: KeyCode) -> Option<Command> {
     match code {
+        KeyCode::Char('%') => Some(Command::QueryReplace),
         KeyCode::Char('x') => Some(Command::ExecuteExtended),
         KeyCode::Char('d') => Some(Command::Kill(KillCommand::Word)),
         KeyCode::Backspace => Some(Command::Kill(KillCommand::BackwardWord)),

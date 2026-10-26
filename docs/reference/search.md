@@ -1,4 +1,6 @@
-# Incremental search
+# Search and replacement
+
+## Incremental search
 
 `C-s` or `M-x isearch-forward` opens `I-search:` in the minibuffer. `C-r` or
 `M-x isearch-backward` opens `I-search backward:`. Type a literal query to find
@@ -48,3 +50,36 @@ range. If the live source changes, the stale result cannot be highlighted or
 restored; search closes with `Search source changed`. Search itself changes
 view and transient input state, leaving text, modification state and undo/redo
 transactions intact.
+
+## Query replace
+
+`M-%` or `M-x query-replace` asks for `Query replace:` and then `Replace with:`.
+Return accepts each argument. The query must be nonempty; an empty replacement
+deletes accepted text. Both arguments support grapheme editing, literal Tab and
+bracketed multiline Unicode paste, bounded at 4096 scalars each. A replacement
+containing NUL is rejected. Query input and replacement drafts do not edit text.
+
+Matching uses the same literal smart-case policy as incremental search, from
+the starting point to the active buffer's end, without wrapping. The selected
+pane reveals and underlines the current original source range. Replacement text
+is inserted exactly, with no case adjustment, backreferences or expression
+interpretation. A raw match may touch part of a grapheme; only its exact scalar
+range is replaced, while cursor and underline projection retain whole graphemes.
+
+At `Replace occurrence? [y/n/q]`, a fresh y replaces the displayed occurrence,
+n skips it and q stops. C-g stops at either argument or a decision. Return and
+other keys have no affirmative default. Paste and held/released answers cannot
+grant consent. Accepted replacements remain when the operation stops; undo
+reverses each accepted occurrence independently, leaving skipped text intact.
+
+Continuation starts after the inserted text or skipped source range, so inserted
+query-looking text is not processed again. Empty replacements continue at the
+deletion boundary. Completion reports the accepted count; no matches reports
+zero without changing text, point or history. Read-only buffers refuse entry.
+
+The operation retains its selected view, buffer, revision and current source
+range. A later source change invalidates its outstanding arguments/decision with
+`Query replace source changed`; a stale answer cannot edit another occurrence.
+Each accepted change uses the normal checked transaction, mapping shared views
+and marks and preserving literal LF/CRLF bytes. Normal editing remains available
+after completion, failure or cancellation, with no deferred replacement.

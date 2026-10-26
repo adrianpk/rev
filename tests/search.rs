@@ -13,6 +13,8 @@ use rev::view::View;
 mod control;
 #[path = "search/edges.rs"]
 mod edges;
+#[path = "search/replace.rs"]
+mod replace;
 
 fn editor(source: &str, position: usize) -> Session {
     let mut buffers = Buffers::new().unwrap();

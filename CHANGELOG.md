@@ -8,6 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Replace literal text in the active buffer with `M-%` or `M-x query-replace`. Enter a query and replacement, then choose y to replace, n to skip or q/C-g to stop at each occurrence. Only accepted occurrences change, and each can be undone independently. Replacement preserves supplied Unicode and line endings; inserted text is not searched again.
 - Search forward with `C-s` or backward with `C-r`, also available as `M-x isearch-forward` and `isearch-backward`. Edit a visible literal query and repeat either chord to continue in that direction. Queries without uppercase characters ignore Unicode case; uppercase queries match exactly. Results cross line breaks, reveal point and underline the match in the selected pane. Failed queries retain a valid point and show `No match`; Return accepts and `C-g` restores the starting view. Query input leaves document text and undo history intact.
 - Discover and run implemented commands through `M-x`, with prefix/substring matching, Tab completion and cycling, and session-local command history on Up/Down. Named commands share their keyboard handlers and continue into the same argument prompts; `C-g` cancels entry without inserting its text.
 - Paste bracketed multiline Unicode literally as one undo step, preserving supplied LF/CRLF and keeping command-looking text out of key decoding. Single-line paste stays in an active argument prompt; decision prompts require explicit key input.

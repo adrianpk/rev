@@ -116,7 +116,7 @@ impl Session {
     }
 
     pub(super) fn highlight_search(&self, frame: &mut Frame) -> Result<(), crate::view::Error> {
-        if let Some(span) = self.search_match() {
+        if let Some(span) = self.search_match().or_else(|| self.replace_match()) {
             frame.search(
                 span,
                 self.buffer()?,

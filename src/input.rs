@@ -5,6 +5,7 @@ mod meta;
 mod palette;
 mod paste;
 mod prompt;
+mod replace;
 mod search;
 
 use std::collections::VecDeque;
@@ -90,6 +91,8 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    Literal(Prompt),
+    ReplaceDecision,
     Decision(&'static str),
     Inventory,
 }
@@ -111,8 +114,8 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Argument(_) => Focus::Argument,
-            Context::Decision(_) => Focus::Decision,
+            Context::Argument(_) | Context::Literal(_) => Focus::Argument,
+            Context::Decision(_) | Context::ReplaceDecision => Focus::Decision,
             Context::Inventory => Focus::Inventory,
         }
     }
@@ -125,7 +128,7 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
-            Context::Argument(prompt) => Some(prompt),
+            Context::Argument(prompt) | Context::Literal(prompt) => Some(prompt),
             _ => None,
         }
     }
@@ -134,7 +137,8 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
-            Context::Argument(prompt) => Some(prompt.label()),
+            Context::Argument(prompt) | Context::Literal(prompt) => Some(prompt.label()),
+            Context::ReplaceDecision => Some(replace::QUESTION),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
             _ => None,
@@ -220,15 +224,21 @@ impl Input {
         if matches!(self.context, Context::Command(_)) {
             return self.command_key(key);
         }
-        let outcome = match &mut self.context {
+        let outcome = self.focused(key);
+        self.consume(outcome)
+    }
+
+    fn focused(&mut self, key: Key) -> Outcome {
+        match &mut self.context {
             Context::Search(prompt) => search::handle(prompt, key),
             Context::Editing => self.editing(key),
             Context::Argument(prompt) => prompt.handle(key),
+            Context::Literal(prompt) => replace::argument(prompt, key),
+            Context::ReplaceDecision => replace::answer(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
             Context::Command(_) => unreachable!("command focus routes before general contexts"),
-        };
-        self.consume(outcome)
+        }
     }
 
     fn consume(&mut self, outcome: Outcome) -> Outcome {
