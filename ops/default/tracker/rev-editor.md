@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 16 - Switch list and close buffers
+Active slice: Slice 17 - Create nested editing splits
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -371,16 +371,17 @@ Report: [Slice 15](../report/slices/rev-editor/slice-15-save-decisions.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R05, R11, R12, R23.
 
-- [ ] T16.1: Implement switch-to-buffer completion, list-buffers selection, kill-buffer decisions, deterministic replacement, and unique labels independent of window lifetime.
-- [ ] T16.2: Exercise several modified/unnamed/file-backed buffers, canceled close, failed required save, final-buffer replacement, and index cleanup. Preserve open text when a path disappears.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T16.1: Implement switch-to-buffer completion, list-buffers selection, kill-buffer decisions, deterministic replacement, and unique labels independent of window lifetime.
+- [x] T16.2: Exercise several modified/unnamed/file-backed buffers, canceled close, failed required save, final-buffer replacement, and index cleanup. Preserve open text when a path disappears.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T16.1 and T16.2 implemented through PR #16.
+Implementation: T16.1 and T16.2 delivered through PR #16.
 Task commits: T16.1 `6788da0e8274452b56409596f5c3fdc09e2444e6`;
 T16.2 `1e528069250b38fec414c0305a485e161eef70de`.
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed sixty tests and the terminal PTY suite passed twenty-eight cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Integrated into `dev` at `3e2e4703b0880fdf2087f2b7a2be2fbf0a92cd73`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 PR: [#16](https://forge.adrianpk.com/adrianpk/rev/pulls/16).
 Report: [Slice 16](../report/slices/rev-editor/slice-16-buffer-commands.md).
 

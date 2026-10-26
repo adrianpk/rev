@@ -1,11 +1,12 @@
 # Slice 16: Switch list and close buffers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-16-buffer-commands`
 PR: `#16`
+Integrated: `3e2e4703b0880fdf2087f2b7a2be2fbf0a92cd73`
 
 ## Purpose
 
