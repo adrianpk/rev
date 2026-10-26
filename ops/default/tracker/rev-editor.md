@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 38 - Reconcile visited paths after tree rename
+Active slice: Slice 39 - Confirm deletion while preserving open text
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -814,18 +814,20 @@ Report: [Slice 37](../report/slices/rev-editor/slice-37-tree-create.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R11, R13, R30.
 
-- [ ] T38.1: Implement prompted rename with conflict checks, canonical path/index updates, and descendant visited-path reconciliation for a renamed directory.
-- [ ] T38.2: Exercise occupied targets, visited buffers with equal basenames, symlink entries, permission failure, cancellation, and a later save using the successful new path.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T38.1: Implement prompted rename with conflict checks, canonical path/index updates, and descendant visited-path reconciliation for a renamed directory.
+- [x] T38.2: Exercise occupied targets, visited buffers with equal basenames, symlink entries, permission failure, cancellation, and a later save using the successful new path.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T38.1 and T38.2 complete; PR #38 awaits integration.
+Implementation: delivered through PR #38.
 Task commits: T38.1 `4960ae4b778a5da24a6b4f9426d765a74cd507ec`;
 T38.2 `063ffc65aaa8a553e8eeb7d5260a4661ccd55f9d`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 46 tests and the terminal PTY suite passed 78 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#38](https://forge.adrianpk.com/adrianpk/rev/pulls/38).
+Integration: `e227443be27477c787d0451ee1f1c50c052b1140`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 38](../report/slices/rev-editor/slice-38-tree-rename.md).
 
 ### Slice 39: Confirm deletion while preserving open text

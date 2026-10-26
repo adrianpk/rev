@@ -1,11 +1,12 @@
 # Slice 38: Reconcile visited paths after tree rename
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-38-tree-rename`
 PR: `#38`
+Integrated: `e227443be27477c787d0451ee1f1c50c052b1140`
 
 ## Purpose
 
