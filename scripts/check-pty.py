@@ -1782,6 +1782,73 @@ def smart_search(root):
             session.close()
 
 
+def query_replace(root):
+    # Real M-%, literal arguments and fresh per-occurrence consent reach one
+    # checked edit; skip/quit and undo/redo keep unaccepted text and disk intact.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-replace-") as directory:
+        path = Path(directory) / "replace.txt"
+        source = b"cat cat cat"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> replace.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1b%", b"Query replace: ")
+            group_step(session, b"cat", b"Query replace: cat")
+            group_step(session, b"\r", b"Replace with: ")
+            group_step(session, paste_wire("界".encode()), b"Replace with: " + "界".encode())
+            group_step(session, b"\r", b"Replace occurrence? [y/n/q]", b"\x1b[4mcat\x1b[24m")
+            group_step(session, paste_wire(b"y"), b"Paste is unavailable", b"-- RW L1 C4 Text")
+            group_step(session, b"\r", b"Answer y, n or q", b"-- RW L1 C4 Text")
+            group_step(session, b"y", b"1 replaced", b"** RW L1 C7 Text")
+            group_step(session, b"n", b"1 replaced", b"** RW L1 C11 Text")
+            group_step(session, b"q", b"Quit", b"** RW L1 C11 Text")
+            assert path.read_bytes() == source
+            group_step(session, b"\x18u", b"-- RW L1 C4 Text", source)
+            named_step(session, "undo-redo", b"** RW L1 C3 Text", "界 cat cat".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            assert path.read_bytes() == "界 cat cat".encode()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS M-% fresh consent, skip/quit, literal replacement, independent undo/redo and exact save")
+        finally:
+            session.close()
+
+
+def replace_lines(root):
+    # Named replacement accepts multiline CRLF queries and literal LF/tab data;
+    # resize and shared-view history preserve consent and source file format.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-replace-lines-") as directory:
+        path = Path(directory) / "lines.txt"
+        source = "\ufeff界\r\nend | 界\r\nend | 界\r\nend".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> lines.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> lines.txt -- RW L1 C1 Text")
+            named_step(session, "query-replace", b"Query replace: ")
+            group_step(session, paste_wire("界\r\nend".encode()), b"Query replace:")
+            group_step(session, b"\r", b"Replace with: ")
+            group_step(session, paste_wire("é\n\t$1".encode()), b"Replace with:")
+            group_step(session, b"\r", b"Replace occurrence? [y/n/q]", b"\x1b[4mend\x1b[24m")
+            for width, height in [(0, 0), (1, 1), (80, 24)]:
+                resize_surface(session, width, height, True)
+            assert b"Replace occurrence? [y/n/q]" in last_frame(session)
+            group_step(session, b"y", b"1 replaced", b"** RW")
+            group_step(session, b"n", b"1 replaced")
+            group_step(session, b"\x07", b"Quit")
+            assert path.read_bytes() == source
+            group_step(session, b"\x18o", b"|> lines.txt ** RW")
+            group_step(session, b"\x18u", b"-- RW")
+            named_step(session, "undo-redo", b"** RW")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
+            assert path.read_bytes() == "\ufeffé\n\t$1 | 界\r\nend | 界\r\nend".encode()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS named multiline replacement, resize/cancel, shared-view undo/redo and BOM/CRLF fidelity")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1838,7 +1905,9 @@ def main():
     multiline_search(root)
     backward_search(root)
     smart_search(root)
-    print("Terminal PTY suite: 62 cases passed, 0 skipped.")
+    query_replace(root)
+    replace_lines(root)
+    print("Terminal PTY suite: 64 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
