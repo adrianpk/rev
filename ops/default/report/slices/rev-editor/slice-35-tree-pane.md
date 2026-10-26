@@ -1,11 +1,12 @@
 # Slice 35: Render and focus the left file tree
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-35-tree-pane`
 PR: `#35`
+Integrated: Rebase + Fast-forward into dev at `242b1f8c155d6a8af9d750075a50dac87eb2180b`.
 
 ## Purpose
 

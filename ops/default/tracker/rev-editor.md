@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 35 - Render and focus the left file tree
+Active slice: Slice 36 - Traverse directories lazily and safely
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -749,18 +749,21 @@ Report: [Slice 34](../report/slices/rev-editor/slice-34-rectangle-yank.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05, R06, R28.
 
-- [ ] T35.1: Implement toggle-file-tree, root selection, a narrow left allocation, selected entry indication, and predictable focus transfer retaining the last editing view.
-- [ ] T35.2: Exercise show/hide with dirty buffers, M-x invocation, narrow-width auto-hide, resize restoration, and exclusion from other-window cycling.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T35.1: Implement toggle-file-tree, root selection, a narrow left allocation, selected entry indication, and predictable focus transfer retaining the last editing view.
+- [x] T35.2: Exercise show/hide with dirty buffers, M-x invocation, narrow-width auto-hide, resize restoration, and exclusion from other-window cycling.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T35.1 and T35.2 complete; PR #35 awaits integration.
+Implementation: T35.1 and T35.2 delivered through PR #35.
 Task commits: T35.1 `7662b67f95c256a78986ed3a7a923ea587e9da7f`;
 T35.2 `929c8c881156181e20bd6a06c7fd965d7989259c`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed ten tests and the terminal PTY suite passed 72 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#35](https://forge.adrianpk.com/adrianpk/rev/pulls/35).
+Integration: Rebase + Fast-forward into dev at
+`242b1f8c155d6a8af9d750075a50dac87eb2180b`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 35](../report/slices/rev-editor/slice-35-tree-pane.md).
 
 ### Slice 36: Traverse directories lazily and safely

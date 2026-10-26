@@ -4,7 +4,7 @@ Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
-Active slice: Slice 35 - Render and focus the left file tree
+Active slice: Slice 36 - Traverse directories lazily and safely
 Full gate: `scripts/check-all.sh`
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
