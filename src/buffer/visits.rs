@@ -41,6 +41,7 @@ impl Buffers {
             .to_string_lossy()
             .into_owned();
         buffer.file = Some(location);
+        buffer.select_syntax();
         Ok(Visit::New(Box::new(buffer), path))
     }
 

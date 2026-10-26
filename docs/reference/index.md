@@ -6,3 +6,4 @@
 - [File tree](file-tree.md): optional left pane, root selection and keyboard focus.
 - [Rectangles](rectangles.md): display-column selection, Unicode edges and separate retained rows.
 - [Terminal input](terminal-input.md): key reports, Escape timing and undo aliases.
+- [Syntax highlighting](syntax.md): bundled Rust recognition, fixed palette and plain-text fallback.

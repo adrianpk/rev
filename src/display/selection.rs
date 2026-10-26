@@ -91,26 +91,50 @@ fn boundary(coordinates: &Coordinates<'_>, point: Scalar, forward: bool) -> Resu
     })
 }
 
+#[derive(Default)]
+struct Attributes {
+    foreground: Option<crate::syntax::Style>,
+    reversed: bool,
+    underlined: bool,
+}
+
 impl Row {
     pub(super) fn write(&self, writer: &mut impl Write) -> io::Result<()> {
-        if self.selection.is_none() && self.search.is_none() {
+        if self.plain() {
             return writer.write_all(self.text.as_bytes());
         }
-        let mut reversed = false;
-        let mut underlined = false;
+        let mut attributes = Attributes::default();
         for glyph in Glyphs::for_text(&self.text).map_err(io::Error::other)? {
-            let glyph = glyph.map_err(io::Error::other)?;
-            let selected = covers(&self.selection, glyph.columns.start);
-            reverse(writer, selected, &mut reversed)?;
-            underline(
-                writer,
-                covers(&self.search, glyph.columns.start),
-                &mut underlined,
-            )?;
-            writer.write_all(glyph.text.as_bytes())?;
+            self.write_glyph(writer, glyph.map_err(io::Error::other)?, &mut attributes)?;
         }
-        reverse(writer, false, &mut reversed)?;
-        underline(writer, false, &mut underlined)
+        super::syntax::color(writer, None, &mut attributes.foreground)?;
+        reverse(writer, false, &mut attributes.reversed)?;
+        underline(writer, false, &mut attributes.underlined)
+    }
+
+    fn plain(&self) -> bool {
+        self.selection.is_none() && self.search.is_none() && self.syntax.is_empty()
+    }
+
+    fn write_glyph(
+        &self,
+        writer: &mut impl Write,
+        glyph: crate::coordinates::Glyph<'_>,
+        attributes: &mut Attributes,
+    ) -> io::Result<()> {
+        let column = glyph.columns.start;
+        super::syntax::color(writer, self.style(column), &mut attributes.foreground)?;
+        reverse(
+            writer,
+            covers(&self.selection, column),
+            &mut attributes.reversed,
+        )?;
+        underline(
+            writer,
+            covers(&self.search, column),
+            &mut attributes.underlined,
+        )?;
+        writer.write_all(glyph.text.as_bytes())
     }
 }
 

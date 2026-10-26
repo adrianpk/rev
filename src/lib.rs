@@ -10,6 +10,7 @@ mod kill;
 pub mod rectangle;
 pub mod search;
 pub mod session;
+pub mod syntax;
 pub mod terminal;
 pub mod tree;
 pub mod view;

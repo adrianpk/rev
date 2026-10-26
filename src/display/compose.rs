@@ -82,6 +82,7 @@ impl Frame {
                     &Row {
                         row,
                         text: "|".into(),
+                        syntax: Vec::new(),
                         band: Band::Divider,
                         search: None,
                         selection: None,
@@ -112,6 +113,12 @@ impl Frame {
             self.size.width - end,
         )?;
         target.text = format!("{left}{}{right}", source.text);
+        target
+            .syntax
+            .extend(source.syntax.iter().map(|paint| super::Paint {
+                columns: area.column() + paint.columns.start..area.column() + paint.columns.end,
+                style: paint.style,
+            }));
         if let Some(selection) = &source.selection {
             target.selection = Some(area.column() + selection.start..area.column() + selection.end);
         }

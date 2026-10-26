@@ -19,6 +19,7 @@ impl Frame {
         for row in self.rows.iter_mut().take(extent) {
             row.text = " ".repeat(usize::from(self.size.width));
             row.selection = None;
+            row.syntax.clear();
         }
         for (row, buffer) in self
             .rows
@@ -33,6 +34,7 @@ impl Frame {
             )?;
         }
         self.rows[extent].selection = None;
+        self.rows[extent].syntax.clear();
         self.rows[extent].text = clip::line(
             Glyphs::for_text(&format!("Buffers: {} live", buffers.iter().len()))?,
             0,

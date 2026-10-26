@@ -4,7 +4,9 @@ mod inventory;
 mod prompt;
 mod search;
 mod selection;
+mod syntax;
 mod tree;
+pub use syntax::Paint;
 
 use std::io::{self, Write};
 
@@ -39,6 +41,7 @@ pub struct Row {
     row: u16,
     text: String,
     band: Band,
+    syntax: Vec<Paint>,
     selection: Option<std::ops::Range<u16>>,
     search: Option<std::ops::Range<u16>>,
 }
@@ -58,6 +61,10 @@ impl Row {
 
     pub fn search(&self) -> Option<std::ops::Range<u16>> {
         self.search.clone()
+    }
+
+    pub fn syntax(&self) -> &[Paint] {
+        &self.syntax
     }
 
     pub fn band(&self) -> Band {
@@ -153,6 +160,7 @@ impl Frame {
             self.rows.push(Row {
                 row,
                 text,
+                syntax: syntax::row(buffer, view, source, self.size.width)?,
                 band: Band::Document,
                 search: None,
                 selection: highlight
@@ -169,14 +177,16 @@ impl Frame {
         let dirty = if buffer.is_modified() { "**" } else { "--" };
         let access = if buffer.is_read_only() { "RO" } else { "RW" };
         let status = format!(
-            "> {} {dirty} {access} L{} C{} Text",
+            "> {} {dirty} {access} L{} C{} {}",
             buffer.name(),
             point.row + 1,
-            point.column + 1
+            point.column + 1,
+            buffer.mode()
         );
         self.rows.push(Row {
             row: self.size.height - 2,
             text: clip::line(Glyphs::for_text(&status)?, 0, self.size.width)?,
+            syntax: Vec::new(),
             band: Band::Status,
             search: None,
             selection: None,
@@ -188,6 +198,7 @@ impl Frame {
         self.rows.push(Row {
             row: self.size.height - 1,
             text: clip::line(Glyphs::for_text(message)?, 0, self.size.width)?,
+            syntax: Vec::new(),
             band: Band::Echo,
             search: None,
             selection: None,
@@ -200,6 +211,7 @@ impl Frame {
             self.rows.push(Row {
                 row,
                 text: " ".repeat(usize::from(self.size.width)),
+                syntax: Vec::new(),
                 band: Band::Document,
                 search: None,
                 selection: None,

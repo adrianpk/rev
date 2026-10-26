@@ -37,6 +37,9 @@ fn prepend(row: &mut super::Row, tree: &Tree, width: u16, height: u16) -> Result
     let text = clip::line(Glyphs::for_text(&label)?, 0, width)?;
     row.text = format!("{text}|{}", row.text);
     row.band = Band::Mixed;
+    for paint in &mut row.syntax {
+        paint.columns = paint.columns.start + width + 1..paint.columns.end + width + 1;
+    }
     if tree.focused() {
         row.selection = (row.row == tree.selected_row()).then_some(0..width);
         row.search = None;

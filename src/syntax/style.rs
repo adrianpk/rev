@@ -1,0 +1,44 @@
+/// Fixed semantic palette groups supplied by the bundled Rust query.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Style {
+    Keyword,
+    String,
+    Comment,
+    Type,
+    Function,
+    Number,
+    Punctuation,
+}
+
+impl Style {
+    pub(super) fn named(name: &str) -> Option<Self> {
+        match name.split('.').next()? {
+            "keyword" => Some(Self::Keyword),
+            "string" | "escape" => Some(Self::String),
+            "comment" => Some(Self::Comment),
+            _ => Self::symbol(name),
+        }
+    }
+
+    fn symbol(name: &str) -> Option<Self> {
+        match name.split('.').next()? {
+            "type" | "constructor" => Some(Self::Type),
+            "function" => Some(Self::Function),
+            "constant" => Some(Self::Number),
+            "punctuation" | "operator" => Some(Self::Punctuation),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn color(self) -> u8 {
+        match self {
+            Self::Keyword => 176,
+            Self::String => 114,
+            Self::Comment => 244,
+            Self::Type => 81,
+            Self::Function => 75,
+            Self::Number => 215,
+            Self::Punctuation => 250,
+        }
+    }
+}

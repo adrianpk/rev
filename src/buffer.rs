@@ -5,6 +5,7 @@ mod lifecycle;
 mod region;
 mod rename;
 mod save;
+mod syntax;
 mod visits;
 
 pub use lifecycle::Kill;
@@ -135,6 +136,7 @@ pub struct Buffer {
     saved: State,
     next_state: u64,
     typing: Option<Stamp>,
+    syntax: crate::syntax::Syntax,
     bom: bool,
     file: Option<crate::file::Location>,
     warning: Option<String>,
@@ -167,6 +169,7 @@ impl Buffer {
             saved: state,
             next_state: 1,
             typing: None,
+            syntax: crate::syntax::Syntax::default(),
             bom: false,
             file: None,
             warning: None,

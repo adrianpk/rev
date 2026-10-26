@@ -142,6 +142,11 @@ impl Session {
     }
 
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
+        for (_, view) in self.windows.iter() {
+            self.buffers
+                .get_mut(view.point.stamp.buffer)?
+                .refresh_syntax();
+        }
         self.invalidate_search();
         self.invalidate_replace();
         self.tree.reveal(self.size);

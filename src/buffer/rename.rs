@@ -135,6 +135,7 @@ fn apply(buffer: &mut Buffer, change: Relocation) -> Option<String> {
         location = location.published(Some(after.clone()));
     }
     buffer.file = Some(location);
+    buffer.select_syntax();
     buffer.name = change.label;
     buffer.break_typing();
     let warning = observed
