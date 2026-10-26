@@ -21,7 +21,9 @@ impl Session {
 
     fn ingress(&mut self, path: &Path) -> io::Result<()> {
         let visit = self.buffers.prepare_visit(path)?;
-        let view = View::new(visit.buffer(&self.buffers).map_err(io::Error::other)?);
+        let buffer = visit.buffer(&self.buffers).map_err(io::Error::other)?;
+        let observed = buffer.file().map(|file| file.path().to_path_buf());
+        let view = View::new(buffer);
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
         let id = self.buffers.publish_visit(visit);
@@ -32,6 +34,11 @@ impl Session {
         self.input.cancel();
         self.pending = None;
         self.echo.clear();
+        if let Some(path) = observed
+            && let Err(error) = self.tree.observe_path(&path)
+        {
+            self.echo = format!("Opened {}; tree refresh failed: {error}", path.display());
+        }
         Ok(())
     }
 
@@ -51,6 +58,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
             Some(Pending::Replace(state)) => self.replace_argument(*state, path),
             Some(Pending::Argument(Command::FindFile)) => {
                 let _ = self.load(Path::new(&path));

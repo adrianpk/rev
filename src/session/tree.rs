@@ -1,3 +1,5 @@
+mod create;
+
 use crate::command::{Command, Motion, Scroll, TreeCommand};
 use crate::input::Focus;
 use crate::tree::Tree;
@@ -21,6 +23,14 @@ impl Session {
     pub(super) fn tree_command(&mut self, command: TreeCommand) -> Action {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
+        }
+        match command {
+            TreeCommand::Open => return self.tree_open(),
+            TreeCommand::CreateFile => return self.tree_create(crate::tree::CreateKind::File),
+            TreeCommand::CreateDirectory => {
+                return self.tree_create(crate::tree::CreateKind::Directory);
+            }
+            _ => {}
         }
         if !matches!(command, TreeCommand::Toggle | TreeCommand::Focus) {
             return self.tree_navigation(command);
@@ -53,11 +63,16 @@ impl Session {
             return None;
         }
         if let Some(command) = tree_alias(command) {
-            return Some(self.tree_navigation(command));
+            return Some(self.tree_command(command));
         }
         match command {
             Command::Tree(_) | Command::Quit => None,
-            Command::KeyboardQuit if matches!(self.pending, Some(Pending::Command)) => {
+            Command::KeyboardQuit
+                if matches!(
+                    self.pending,
+                    Some(Pending::Command | Pending::TreeCreate(_))
+                ) =>
+            {
                 self.pending = None;
                 self.input.cancel();
                 Some(self.message("Quit"))
@@ -114,7 +129,7 @@ fn tree_alias(command: Command) -> Option<TreeCommand> {
         Command::Scroll(Scroll::NextLine) => Some(TreeCommand::Next),
         Command::Motion(Motion::ForwardChar) => Some(TreeCommand::Expand),
         Command::Motion(Motion::BackwardChar) => Some(TreeCommand::Collapse),
-        Command::Newline => Some(TreeCommand::Activate),
+        Command::Newline => Some(TreeCommand::Open),
         _ => None,
     }
 }

@@ -79,6 +79,20 @@ impl Session {
     }
 
     fn saved(&mut self, outcome: &Outcome, close: Option<Kill>) -> Action {
+        let refreshed = if outcome.publication() != Publication::NotPublished {
+            self.tree.observe_path(outcome.target())
+        } else {
+            Ok(())
+        };
+        let action = self.after_saved(outcome, close);
+        if let Err(error) = refreshed {
+            self.echo
+                .push_str(&format!("; tree refresh failed: {error}"));
+        }
+        action
+    }
+
+    fn after_saved(&mut self, outcome: &Outcome, close: Option<Kill>) -> Action {
         if outcome.is_complete()
             && let Some(kill) = close
         {

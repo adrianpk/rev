@@ -14,6 +14,9 @@ impl Input {
             Some(KeyCode::Char('t')) => TreeCommand::Toggle,
             Some(KeyCode::Char('f')) => TreeCommand::Focus,
             Some(KeyCode::Char('r')) => TreeCommand::Refresh,
+            Some(KeyCode::Char('o')) => TreeCommand::Open,
+            Some(KeyCode::Char('n')) => TreeCommand::CreateFile,
+            Some(KeyCode::Char('d')) => TreeCommand::CreateDirectory,
             _ => return Outcome::Message("Undefined key sequence"),
         };
         Outcome::Command(Command::Tree(command))

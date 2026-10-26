@@ -25,8 +25,12 @@ no Git metadata. Drawing and visible movement perform no filesystem reads.
 
 Up/Down (or C-p/C-n) move through visible entries without wrapping. Right
 (or C-f) expands a directory; Left (or C-b) collapses an expanded directory
-or selects the visible parent. Enter toggles a directory. Symlinks remain
-leaves, including links to directories; Enter on a leaf reports that condition.
+or selects the visible parent. Enter or `M-x tree-open` toggles a directory or opens a file through the same
+canonical pipeline as `find-file`. Existing visits reuse their live buffers,
+including unsaved text. Successful open returns to the retained editing window;
+failed open preserves tree focus and existing text. Symlinks remain leaves;
+opening a file link resolves its target through the normal file pipeline,
+while opening a directory link reports the regular-file requirement.
 These actions preserve editor text, point and history.
 
 The corresponding names are `tree-previous-line`, `tree-next-line`,
@@ -50,6 +54,33 @@ remains selected and collapsed so refresh can recover when it returns.
 The pane scrolls to keep the selected entry above its footer, including after
 resize. Refresh and expansion run only on explicit commands and require work
 proportional to the direct entries of the requested open branches.
+
+## Creating entries
+
+Select a directory, then use `C-x t n` or `M-x tree-create-file` for an empty
+file, or `C-x t d` or `M-x tree-create-directory` for a directory. `C-x t o`
+also invokes `tree-open`. The name prompt retains its selected directory until
+acceptance; C-g cancels without writing. Tab keeps the draft and shows a hint.
+Creation requires tree focus and a directory selection, including a collapsed
+directory. File and symlink selections cannot redirect the target implicitly.
+
+Names must be one nonempty filename component, with no controls, dot/parent
+components, absolute path or path separators. Unicode and spaces are allowed;
+a name containing only whitespace is refused. An existing file, directory or
+symlink, including a dangling link, is never replaced. The parent is revalidated
+at publication; exclusive file creation and directory creation also reject a
+conflict that appears after validation.
+
+Successful creation keeps tree focus, expands the parent and selects the new
+entry. It does not open a buffer; Enter opens a new file explicitly. An error
+reports its operation/path without discarding editor text. If creation succeeds
+but observation fails, the echo says `Created` and identifies the refresh error
+so a published entry is not reported as an unperformed write.
+
+Opens and published saves refresh already loaded parent directories. Collapsed
+branches remain lazy. Refresh failures retain the successful open/save outcome
+and report the separate tree error. New entries appear without restarting, and
+tree selection continues to follow paths rather than buffer display names.
 
 ## Geometry
 
