@@ -273,7 +273,8 @@ fn pending_clean() {
     )
     .unwrap();
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
     assert_eq!(fs::read(path).unwrap(), b"clean");
 }
 
@@ -509,7 +510,8 @@ fn unnamed_save() {
     session.execute(Command::KeyboardQuit);
     assert_eq!(facts(session.buffer().unwrap()), before);
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
 }
 
 fn occupied_save(buffers: &Buffers, id: BufferId, path: &Path) -> rev::buffer::Confirmation {

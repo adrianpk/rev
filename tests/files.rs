@@ -414,7 +414,8 @@ fn rejected_session() {
         assert_eq!(snapshot(&session), before);
     }
     assert_eq!(session.handle(chord('c')), Action::Redraw);
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
     session.execute(Command::named("undo-redo").unwrap());
     assert!(text(session.buffer().unwrap()).ends_with("last!?"));
     session.execute(Command::named("undo").unwrap());
@@ -447,7 +448,8 @@ fn accepted_session() {
     assert_eq!(session.handle(chord('c')), Action::Redraw);
     assert_eq!(session.echo(), "Unbound key");
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
 }
 
 // Serialization emits the BOM once after edits, preserves untouched bytes and
@@ -723,7 +725,8 @@ fn failed_association() {
         assert!(session.frame().unwrap().cursor().is_some());
     }
     assert_eq!(session.handle(chord('c')), Action::Redraw);
-    assert!(session.echo().starts_with("Unsaved changes"));
+    assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+    session.execute(Command::KeyboardQuit);
     let after_quit = snapshot(&session);
     session.load(&active).unwrap();
     assert_eq!(snapshot(&session), after_quit);

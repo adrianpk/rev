@@ -704,7 +704,8 @@ fn hidden_modified() {
         assert_eq!(session.windows().iter().len(), 1);
         assert_eq!(session.buffer().unwrap().id(), active);
         assert_eq!(session.execute(Command::Quit), Action::Redraw);
-        assert!(session.echo().starts_with("Unsaved changes"));
+        assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
+        session.execute(Command::KeyboardQuit);
         session.execute(Command::Buffer(BufferCommand::Switch));
         for ch in name.chars() {
             session.handle(Event::Key(KeyEvent::new(
