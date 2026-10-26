@@ -94,6 +94,14 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, 
 - [ ] T2.2: Exercise insertion-range admission, empty/multiline stores, foreign identities, stale revisions, UTF-8 boundaries, and two references observing one text owner without a second mutable copy.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T2.1 and T2.2 implemented; canonical integration pending.
+Task commits: T2.1 `f3fc075194321f8603140bdb717597dac12a1688`;
+T2.2 `9487765a9240a3bb49de35dc3a117d8523432ba8`.
+Validation: required Cargo/source commands passed; `cargo test --test core`
+passed six tests with zero skips. Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 2](../report/slices/rev-editor/slice-2-buffers.md).
+
 ### Slice 3: Resolve Unicode and display coordinates
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R07, R09, R10, R16.
