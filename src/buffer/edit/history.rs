@@ -56,20 +56,8 @@ impl Buffer {
         points: &[Point],
         initiator: Option<usize>,
     ) -> Result<Prepared, Error> {
-        self.admit(self.stamp())?;
-        if let Some(index) = initiator
-            && index >= points.len()
-        {
-            return Err(Error::Cursor(index));
-        }
-        let record = self
-            .stack(direction)
-            .back()
-            .ok_or(Error::History(direction))?;
-        let (source, target) = record.states(direction);
-        if self.state != source {
-            return Err(Error::HistoryState);
-        }
+        let record = self.history_record(direction, points.len(), initiator)?;
+        let (_, target) = record.states(direction);
         let changes = record.replay(direction);
         let mut prepared = self.prepare_changes(changes, points, target)?;
         let coordinates = Coordinates::for_text(prepared.text.slice(..), prepared.record.after);
@@ -81,6 +69,29 @@ impl Buffer {
         mapping::set_cursor(&mut prepared.record, cursor, &coordinates)?;
         prepared.operation = Operation::History(direction);
         Ok(prepared)
+    }
+
+    fn history_record(
+        &self,
+        direction: History,
+        point_count: usize,
+        initiator: Option<usize>,
+    ) -> Result<&Transaction, Error> {
+        self.admit(self.stamp())?;
+        if let Some(index) = initiator
+            && index >= point_count
+        {
+            return Err(Error::Cursor(index));
+        }
+        let record = self
+            .stack(direction)
+            .back()
+            .ok_or(Error::History(direction))?;
+        let (source, _) = record.states(direction);
+        if self.state != source {
+            return Err(Error::HistoryState);
+        }
+        Ok(record)
     }
 
     fn stack(&self, direction: History) -> &VecDeque<Transaction> {
