@@ -61,6 +61,7 @@ fn escape_deadline() {
     assert_eq!(input.expire(now + META_TIMEOUT), Outcome::Ignored);
     assert_eq!(input.prefix(), None);
     for late in [META_TIMEOUT, META_TIMEOUT + Duration::from_secs(1)] {
+        let mut input = Input::default();
         input.handle_at(super::key(KeyCode::Esc), now);
         assert_eq!(
             input.handle_at(super::character('f'), now + late),
@@ -91,7 +92,7 @@ fn nested_meta() {
     input.handle_at(super::character('r'), now);
     input.handle_at(super::key(KeyCode::Esc), now);
     assert_eq!(
-        input.handle_at(super::control('g'), now),
+        input.handle_at(super::control('g'), now + Duration::from_millis(10)),
         Outcome::Command(Command::KeyboardQuit)
     );
     assert_eq!(input.prefix(), None);
@@ -167,4 +168,211 @@ fn meta_yank() {
             .to_string(),
         "aa"
     );
+}
+
+// Consumed or rejected suffixes suppress held-key repeats without suppressing
+// the next distinct press; neither a Meta nor nested suffix may leak into text.
+#[test]
+fn suffix_phases() {
+    use crossterm::event::KeyEventKind::{Release, Repeat};
+    let now = Instant::now();
+    for (prefix, suffix, expected) in [
+        (
+            vec![super::key(KeyCode::Esc)],
+            'f',
+            Outcome::Command(Command::Motion(Motion::ForwardWord)),
+        ),
+        (
+            vec![super::key(KeyCode::Esc)],
+            'q',
+            Outcome::Message("Unbound key"),
+        ),
+        (
+            vec![super::control('x')],
+            'q',
+            Outcome::Message("Undefined key sequence"),
+        ),
+        (
+            vec![super::control('x'), super::character('r')],
+            'w',
+            Outcome::Message("Undefined key sequence"),
+        ),
+    ] {
+        let mut input = Input::default();
+        for event in prefix {
+            input.handle_at(event, now);
+        }
+        assert_eq!(input.handle_at(super::character(suffix), now), expected);
+        for kind in [Release, Repeat] {
+            assert_eq!(
+                input.handle_at(super::phase(super::character(suffix), kind), now),
+                Outcome::Ignored
+            );
+        }
+        assert!(matches!(
+            input.handle_at(super::character('z'), now),
+            Outcome::Editing(_)
+        ));
+    }
+}
+
+// Escape releases/repeats and resize do not extend its original deadline. C-g
+// cancels immediately and leaves no later timer message to affect new input.
+#[test]
+fn escape_phases() {
+    use crossterm::event::KeyEventKind::{Release, Repeat};
+    let now = Instant::now();
+    let mut input = Input::default();
+    input.handle_at(super::key(KeyCode::Esc), now);
+    for event in [
+        super::phase(super::key(KeyCode::Esc), Repeat),
+        super::phase(super::key(KeyCode::Esc), Release),
+        Event::Resize(0, 0),
+    ] {
+        assert_eq!(
+            input.handle_at(event, now + Duration::from_millis(10)),
+            Outcome::Ignored
+        );
+    }
+    assert_eq!(
+        input.remaining(now + Duration::from_millis(10)),
+        Some(META_TIMEOUT - Duration::from_millis(10))
+    );
+    assert_eq!(
+        input.handle_at(super::control('g'), now),
+        Outcome::Command(Command::KeyboardQuit)
+    );
+    assert_eq!(input.expire(now + META_TIMEOUT), Outcome::Ignored);
+    assert_eq!(input.remaining(now), None);
+    input.handle_at(super::key(KeyCode::Esc), now + META_TIMEOUT);
+    assert_eq!(
+        input.handle_at(super::key(KeyCode::Esc), now + META_TIMEOUT),
+        Outcome::Message("Escape")
+    );
+    assert_eq!(input.remaining(now + META_TIMEOUT), None);
+}
+
+// Modified suffixes stay with argument/inventory/decision owners; expiration
+// preserves focus, while explicit cancellation restores editing exactly once.
+#[test]
+fn focused_meta() {
+    use rev::input::Focus;
+    let now = Instant::now();
+    for focus in [Focus::Argument, Focus::Decision, Focus::Inventory] {
+        let mut input = Input::default();
+        match focus {
+            Focus::Argument => input.argument("Path: ", "kept").unwrap(),
+            Focus::Decision => input.decision("Overwrite?").unwrap(),
+            _ => input.inventory().unwrap(),
+        }
+        input.handle_at(super::key(KeyCode::Esc), now);
+        assert!(matches!(
+            input.handle_at(super::character('f'), now),
+            Outcome::Message(_)
+        ));
+        assert_eq!(input.focus(), focus);
+        input.handle_at(super::key(KeyCode::Esc), now);
+        assert_eq!(input.expire(now + META_TIMEOUT), Outcome::Message("Escape"));
+        assert_eq!(input.focus(), focus);
+        if let Some(prompt) = input.prompt() {
+            assert_eq!(prompt.text(), "kept");
+        }
+        input.handle_at(super::key(KeyCode::Esc), now + META_TIMEOUT);
+        assert_eq!(
+            input.handle_at(super::control('g'), now + META_TIMEOUT),
+            Outcome::Command(Command::KeyboardQuit)
+        );
+        assert_eq!(input.focus(), Focus::Editing);
+    }
+}
+
+// Pending Meta cannot defer or bypass guarded quit. Control chords are routed
+// immediately and the buffer's actual dirty state determines the exit result.
+#[test]
+fn pending_quit() {
+    use rev::session::{Action, Session};
+    use rev::view::Size;
+    let now = Instant::now();
+    for dirty in [false, true] {
+        let mut session = Session::empty(Size {
+            width: 48,
+            height: 8,
+        })
+        .unwrap();
+        if dirty {
+            session.insert('X');
+        }
+        session.handle_at(super::key(KeyCode::Esc), now);
+        session.handle_at(Event::Resize(0, 0), now);
+        assert!(session.frame().unwrap().cursor().is_none());
+        session.handle_at(super::control('x'), now);
+        assert_eq!(
+            session.handle_at(super::control('c'), now),
+            if dirty { Action::Redraw } else { Action::Exit }
+        );
+        assert_eq!(session.buffer().unwrap().len_chars(), usize::from(dirty));
+        if dirty {
+            assert!(session.echo().contains("Unsaved changes"));
+        }
+    }
+}
+
+// Expiration is still presented when the simultaneous event is an ignored
+// release; later prompt typing stays isolated and explicit cancellation works.
+#[test]
+fn session_expiry() {
+    use rev::session::{Action, Session};
+    use rev::view::Size;
+    let now = Instant::now();
+    let mut session = Session::empty(Size {
+        width: 48,
+        height: 8,
+    })
+    .unwrap();
+    session.execute(Command::FindFile);
+    session.handle_at(super::key(KeyCode::Esc), now);
+    let release = super::phase(
+        super::key(KeyCode::Esc),
+        crossterm::event::KeyEventKind::Release,
+    );
+    assert_eq!(
+        session.handle_at(release, now + META_TIMEOUT),
+        Action::Redraw
+    );
+    assert_eq!(session.echo(), "Escape");
+    assert_eq!(session.expire_input(now + META_TIMEOUT), Action::Wait);
+    session.handle_at(super::character('x'), now + META_TIMEOUT);
+    assert_eq!(session.buffer().unwrap().len_chars(), 0);
+    session.handle_at(super::control('g'), now + META_TIMEOUT);
+    session.handle_at(super::character('a'), now + META_TIMEOUT);
+    assert_eq!(session.buffer().unwrap().len_chars(), 1);
+}
+
+// Each report reaches real per-buffer undo, recovering the clean empty state
+// once for one typing group rather than merely resolving an enum in the decoder.
+#[test]
+fn reported_undo() {
+    use rev::session::Session;
+    use rev::view::Size;
+    for events in [
+        vec![super::control('/')],
+        vec![super::control('_')],
+        vec![super::control('7')],
+        vec![super::control('x'), super::character('u')],
+    ] {
+        let mut session = Session::empty(Size {
+            width: 48,
+            height: 8,
+        })
+        .unwrap();
+        session.insert('é');
+        session.insert('界');
+        for event in events {
+            session.handle(event);
+        }
+        let buffer = session.buffer().unwrap();
+        assert_eq!(buffer.len_chars(), 0);
+        assert!(!buffer.is_modified());
+        assert_eq!(buffer.redo_history().len(), 1);
+    }
 }

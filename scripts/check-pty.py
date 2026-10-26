@@ -1322,6 +1322,79 @@ def yank_view_invalidation(root):
             session.close()
 
 
+def terminal_key_reports(root):
+    # Exercise the actual legacy and enhanced reports, including 0x1f's C-7
+    # library alias, without requiring an emulator to infer punctuation keys.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-key-reports-") as directory:
+        path = Path(directory) / "keys.txt"
+        source = b"abc\nlast"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> keys.txt -- RW L1 C1 Text")
+            for undo in [b"\x1f", b"\x1b[47;5u", b"\x1b[95;5u", b"\x18u"]:
+                group_step(session, b"X", b"** RW L1 C2 Text", b"Xabc")
+                group_step(session, undo, b"-- RW L1 C1 Text", b"\x1b[1;1Habc ")
+            group_step(session, b"\x1b[32;5u", b"Mark set")
+            group_step(session, b"\x06", b"L1 C2 Text", b"\x1b[7ma\x1b[27mbc")
+            group_step(session, b"\x07", b"Quit")
+            group_step(session, b"\x1b>", b"L2 C5 Text")
+            group_step(session, b"\x1b<", b"L1 C1 Text")
+            group_step(session, b"\x18r\x1bw", b"Undefined key sequence")
+            group_step(session, b"\x18r\x07", b"Quit")
+            group_step(session, b"\x1b[999~\x0c", b"-- RW L1 C1 Text", b"\x1b[1;1Habc ")
+            group_step(session, b"\x1bq", b"Unbound key")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS legacy/enhanced undo, C-SPC, M-</M->, nested chords and unknown escape isolation")
+        finally:
+            session.close()
+
+
+def escape_deadlines(root):
+    # Separate writes expose an actual pending Escape event. Observe its frame
+    # before the suffix, resize or cancellation; idle expiry needs no sleep.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-escape-") as directory:
+        path = Path(directory) / "escape.txt"
+        source = b"abc\nlast"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> escape.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1b", b"ESC")
+            group_step(session, b">", b"L2 C5 Text")
+            group_step(session, b"\x1b", b"ESC")
+            group_step(session, b"<", b"L1 C1 Text")
+            group_step(session, b"\x1b", b"ESC")
+            resize_surface(session, 7, 5, True)
+            group_step(session, b"\x07", b"Quit")
+            resize_surface(session, 80, 24, True)
+            group_step(session, b"\x1b", b"ESC")
+            session.output.clear()
+            session.wait(lambda: frame_contains(session.output, b"Escape", None))
+            group_step(session, b"f", b"** RW L1 C2 Text", b"fabc")
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            group_step(session, b"\x18r", b"C-x r")
+            group_step(session, b"\x1b", b"ESC")
+            group_step(session, b"w", b"Undefined key sequence")
+            group_step(session, b"\x18\x06", b"Find file:")
+            group_step(session, b"\x1b", b"ESC")
+            group_step(session, b"q", b"Unbound prompt key")
+            group_step(session, b"\x07", b"Quit")
+            group_step(session, b"X", b"** RW L1 C2 Text", b"Xabc")
+            group_step(session, b"\x1b", b"ESC")
+            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            group_step(session, b"\x1b", b"ESC")
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert path.read_bytes() == source
+            print("PASS separate Escape Meta, finite idle expiry, resize/cancel, focused input and guarded exit")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1366,7 +1439,9 @@ def main():
     cross_buffer_yank(root)
     yank_rotations(root)
     yank_view_invalidation(root)
-    print("Terminal PTY suite: 48 cases passed, 0 skipped.")
+    terminal_key_reports(root)
+    escape_deadlines(root)
+    print("Terminal PTY suite: 50 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
