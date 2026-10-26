@@ -146,12 +146,17 @@ def viewport(root):
         cursor = b"\x1b[1;1H" + SHOW
         session.wait(lambda: cursor in session.output)
         assert status in session.output, bytes(session.output)
+        # A rendered startup frame precedes event-reader registration. Observe
+        # a handled key before the first SIGWINCH so the resize cannot be lost.
+        session.output.clear()
+        os.write(session.master, b"\x07")
+        session.wait(lambda: b"Quit" in session.output)
         session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 3, 3, 0, 0))
-        session.wait(lambda: b"\x1b[3;1HC-x" in session.output)
+        session.wait(lambda: b"\x1b[3;1HQui" in session.output)
         session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 1, 1, 0, 0))
-        session.wait(lambda: b"\x1b[1;1HC" in session.output)
+        session.wait(lambda: b"\x1b[1;1HQ" in session.output)
         session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
         session.wait(lambda: HIDE in session.output)
