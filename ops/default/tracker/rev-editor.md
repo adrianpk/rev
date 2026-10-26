@@ -838,6 +838,14 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R04
 - [ ] T39.2: Exercise canceled/nonempty deletion, dirty visiting files, inaccessible entries, symlink deletion without referent recursion, and refresh after partial filesystem errors.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T39.1 and T39.2 complete; canonical PR pending.
+Task commits: T39.1 `e83b50ec10f31e6129f48b9ad6e6cb5bf1252d28`;
+T39.2 `fa5d92ce59fc2608d028bb01027a2429c731cc11`.
+Validation: required Cargo/source commands passed; `cargo test --test tree`
+passed 56 tests and the terminal PTY suite passed 80 cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 39](../report/slices/rev-editor/slice-39-tree-delete.md).
+
 ### Slice 40: Bundle Rust syntax highlighting
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05, R31, R34.
