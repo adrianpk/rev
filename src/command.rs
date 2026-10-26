@@ -50,6 +50,15 @@ impl Command {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Motion(motion) => motion.name(),
+            Self::Scroll(scroll) => scroll.name(),
+            Self::History(history) => history.name(),
+            _ => self.action_name(),
+        }
+    }
+
+    fn action_name(self) -> &'static str {
+        match self {
             Self::Quit => "kill-terminal",
             Self::FindFile => "find-file",
             Self::SaveBuffer => "save-buffer",
@@ -58,16 +67,7 @@ impl Command {
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",
             Self::DeleteChar => "delete-char",
-            Self::Motion(_) | Self::Scroll(_) | Self::History(_) => self.navigation_name(),
-        }
-    }
-
-    fn navigation_name(self) -> &'static str {
-        match self {
-            Self::Motion(motion) => motion.name(),
-            Self::Scroll(scroll) => scroll.name(),
-            Self::History(history) => history.name(),
-            _ => unreachable!("only delegated navigation commands enter this owner"),
+            _ => unreachable!("navigation commands delegate their names before action lookup"),
         }
     }
 
