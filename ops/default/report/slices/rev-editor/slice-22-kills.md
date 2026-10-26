@@ -1,11 +1,12 @@
 # Slice 22: Kill lines and words directionally
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-22-kills`
 PR: `#22`
+Integrated: Rebase + Fast-forward into dev at `e1a83d8fd532dff7aff461269668301a27af9321`.
 
 ## Purpose
 

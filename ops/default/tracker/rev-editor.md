@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 22 - Kill lines and words directionally
+Active slice: Slice 23 - Copy kill and yank linear text
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -488,17 +488,20 @@ Report: [Slice 21](../report/slices/rev-editor/slice-21-regions.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R17, R19, R21.
 
-- [ ] T22.1: Implement kill-line, kill-word, and backward-kill-word through checked transactions, including coherent CRLF removal at logical line end.
-- [ ] T22.2: Exercise boundaries, Unicode punctuation/words, directional coalescing, read-only rejection, and one-step undo of each kill without unrelated changes.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T22.1: Implement kill-line, kill-word, and backward-kill-word through checked transactions, including coherent CRLF removal at logical line end.
+- [x] T22.2: Exercise boundaries, Unicode punctuation/words, directional coalescing, read-only rejection, and one-step undo of each kill without unrelated changes.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T22.1 and T22.2 complete; PR #22 open for integration.
+Implementation: T22.1 and T22.2 delivered through PR #22.
 Task commits: T22.1 `142154d0ed100c595ce03e21096a3dca6bcc03bb`;
 T22.2 `a956cbee3c9880cbf15e2664f9b1d0959552ff22`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed sixty-three tests and the terminal PTY suite passed forty-four cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#22](https://forge.adrianpk.com/adrianpk/rev/pulls/22).
+Integration: Rebase + Fast-forward into dev at
+`e1a83d8fd532dff7aff461269668301a27af9321`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 22](../report/slices/rev-editor/slice-22-kills.md).
 
 ### Slice 23: Copy kill and yank linear text

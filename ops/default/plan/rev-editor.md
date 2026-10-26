@@ -4,7 +4,7 @@ Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
-Active slice: Slice 22 - Kill lines and words directionally
+Active slice: Slice 23 - Copy kill and yank linear text
 Full gate: `scripts/check-all.sh`
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
