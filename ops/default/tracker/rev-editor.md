@@ -797,13 +797,14 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R11
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
 
-Implementation: T37.1 and T37.2 complete; canonical PR integration pending.
+Implementation: T37.1 and T37.2 complete; PR #37 awaits integration.
 Task commits: T37.1 `215ef188ed4494036f1d193a61ef85532bb816f2`, completed at
 `6f72e3bd1b93883aec5b68529f009dcb0cd770ec`;
 T37.2 `0abd8a723fdc6fe47e440f6c07b549353580e3a8`.
 Validation: required Cargo/source commands passed; `cargo test --test tree`
 passed 33 tests and the terminal PTY suite passed 76 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#37](https://forge.adrianpk.com/adrianpk/rev/pulls/37).
 Report: [Slice 37](../report/slices/rev-editor/slice-37-tree-create.md).
 
 ### Slice 38: Reconcile visited paths after tree rename
