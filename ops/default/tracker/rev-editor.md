@@ -948,6 +948,15 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T45.2: Exercise repeated split/close/resize, invalid yank-pop, rectangle seams, symlink loops, inaccessible paths, and canceled destructive actions. Reuse subsystem suites rather than duplicate every journey.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T45.1 and T45.2 complete; canonical PR pending.
+Task commits: T45.1 `84c23e4f3c1b546574cafbc834bce7adaf2aeb31`;
+T45.2 `24ca6751d3806673884cb0b20d594e3a8c7fa7dc`; fixture correction `2926c64622fb85451d772a961cf1393b7ea9bd4e`.
+Validation: all five ordered required/focused checks passed through Looper,
+including 454 native tests with zero ignored. Final PR-head evidence follows
+the report and PR-reference commits. The shared focused/full Cargo command runs
+once in the ordered list.
+Report: [Slice 45](../report/slices/rev-editor/slice-45-adversarial-text.md).
+
 ### Slice 46: Measure representative editing workloads
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R07, R08, R26, R32, R40.
