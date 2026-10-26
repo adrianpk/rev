@@ -9,25 +9,8 @@ use crossterm::{
 
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyphs};
-pub use crate::view::Error;
 use crate::view::View;
-
-/// Native terminal dimensions; zero is a valid suspended-presentation input.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Size {
-    pub width: u16,
-    pub height: u16,
-}
-
-impl Size {
-    pub fn usable(self) -> bool {
-        self.width >= 3 && self.height >= 3
-    }
-
-    pub fn text_rows(self) -> u16 {
-        if self.usable() { self.height - 2 } else { 0 }
-    }
-}
+pub use crate::view::{Error, Size};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Band {

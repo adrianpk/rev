@@ -136,6 +136,36 @@ def input_flow(root):
         session.close()
 
 
+
+def viewport(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        status = b"> *scratch* -- RW L1 C1 Text"
+        cursor = b"\x1b[1;1H" + SHOW
+        session.wait(lambda: cursor in session.output)
+        assert status in session.output, bytes(session.output)
+        session.output.clear()
+        fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 3, 3, 0, 0))
+        session.wait(lambda: b"\x1b[3;1HC-x" in session.output)
+        session.output.clear()
+        fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 1, 1, 0, 0))
+        session.wait(lambda: b"\x1b[1;1HC" in session.output)
+        session.output.clear()
+        fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 0, 0, 0, 0))
+        session.wait(lambda: HIDE in session.output)
+        assert b";1H" not in session.output, bytes(session.output)
+        session.output.clear()
+        fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
+        session.wait(lambda: status in session.output and cursor in session.output)
+        os.write(session.master, b"\x18\x03")
+        session.finish(0)
+        assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
+        print("PASS rope viewport, status and cursor survive tiny/zero resize")
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -146,7 +176,8 @@ def main():
     lifecycle(root)
     failures(root)
     input_flow(root)
-    print("Terminal PTY suite: 7 cases passed, 0 skipped.")
+    viewport(root)
+    print("Terminal PTY suite: 8 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
