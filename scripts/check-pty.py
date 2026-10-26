@@ -350,10 +350,11 @@ def undo_history(root):
         session.close()
 
 
-def group_step(session, keys, marker):
+def group_step(session, keys, marker, content=None):
     session.output.clear()
     os.write(session.master, keys)
-    session.wait(lambda: marker in session.output and SHOW in session.output)
+    session.wait(lambda: marker in session.output and SHOW in session.output
+                 and (content is None or content in session.output))
     assert session.process.poll() is None and LEAVE not in session.output
 
 
@@ -362,7 +363,7 @@ def typing_history(root):
     try:
         session.ready(b"C-x C-c: exit")
         source = "ab e\u0301👩\u200d💻".encode()
-        group_step(session, source, b"** RW L1 C7 Text")
+        group_step(session, source, b"** RW L1 C7 Text", source)
         assert source in session.output, bytes(session.output)
         group_step(session, b"\x18u", b"-- RW L1 C1 Text")
         assert b"\x1b[1;1H " in session.output, bytes(session.output)
