@@ -1,7 +1,9 @@
 #![forbid(unsafe_code)]
 
+use std::ffi::OsString;
 use std::fs::{self, File};
 use std::io::{self, Read, Write};
+use std::os::unix::ffi::OsStringExt;
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -347,6 +349,7 @@ struct Snapshot {
     newline: &'static str,
     bom: bool,
     file: Option<file::Location>,
+    name: String,
 }
 
 fn snapshot(session: &Session) -> Snapshot {
@@ -363,6 +366,7 @@ fn snapshot(session: &Session) -> Snapshot {
         newline: buffer.newline(),
         bom: buffer.has_bom(),
         file: buffer.file().cloned(),
+        name: buffer.name().into(),
     }
 }
 
@@ -569,4 +573,276 @@ fn find_argument() {
     assert_eq!(session.buffer().unwrap().id(), id);
     assert_eq!(snapshot(&session), edited);
     assert_eq!(fs::read(path).unwrap(), b"loaded");
+}
+
+// Resolving symlinks before parent traversal preserves filesystem semantics;
+// missing suffixes and relative paths converge without creating directories.
+#[test]
+fn normalized_paths() {
+    let fixture = Fixture::new();
+    fs::create_dir_all(fixture.0.join("real/deep")).unwrap();
+    let source = fixture.file("real/parent.txt", b"real");
+    let link = fixture.0.join("shortcut");
+    symlink(fixture.0.join("real/deep"), &link).unwrap();
+    let mut relative = PathBuf::new();
+    for _ in std::env::current_dir().unwrap().ancestors().skip(1) {
+        relative.push("..");
+    }
+    relative.push(source.strip_prefix("/").unwrap());
+    let cases = [
+        (
+            "symlink parent",
+            link.join("../parent.txt"),
+            source.clone(),
+            true,
+        ),
+        ("relative file", relative, source, true),
+        (
+            "missing suffix",
+            link.join("missing/../new.txt"),
+            fixture.0.join("real/deep/new.txt"),
+            false,
+        ),
+        (
+            "rejoined symlink",
+            fixture.0.join("unused/../shortcut/new.txt"),
+            fixture.0.join("real/deep/new.txt"),
+            false,
+        ),
+        (
+            "missing parents",
+            fixture.0.join("absent/deep/./new.txt"),
+            fixture.0.join("absent/deep/new.txt"),
+            false,
+        ),
+    ];
+    for (name, input, expected, present) in cases {
+        let location = file::resolve(&input).unwrap();
+        assert_eq!(location.path(), expected, "{name}");
+        assert_eq!(location.is_present(), present, "{name}");
+    }
+    assert!(!fixture.0.join("unused").exists());
+    assert!(!fixture.0.join("absent").exists());
+}
+
+// Basenames, generated labels and literal suffixes never identify the rope.
+// Colliding live labels remain unique while every destination stays explicit.
+#[test]
+fn duplicate_labels() {
+    let fixture = Fixture::new();
+    let mut buffers = Buffers::new().unwrap();
+    let cases = [
+        ("one", "note.txt"),
+        ("two", "note.txt"),
+        ("three", "note.txt<2>"),
+        ("four", "*scratch*"),
+    ];
+    let mut labels = std::collections::BTreeSet::from(["*scratch*".to_string()]);
+    for (directory, basename) in cases {
+        fs::create_dir(fixture.0.join(directory)).unwrap();
+        let path = fixture.file(&format!("{directory}/{basename}"), directory.as_bytes());
+        let id = buffers.visit(&path).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        assert!(labels.insert(buffer.name().to_owned()), "{basename}");
+        assert_eq!(text(buffer), directory);
+        assert_eq!(buffer.file().unwrap().path(), path);
+        assert_eq!(buffers.visit(&path).unwrap(), id);
+    }
+    let anonymous = buffers.create("unnamed").unwrap();
+    assert!(labels.insert(buffers.get(anonymous).unwrap().name().to_owned()));
+}
+
+// Non-UTF-8 paths retain exact OS identity. Lossy display labels can collide,
+// but their suffixes and associations still select distinct canonical buffers.
+#[test]
+fn raw_names() {
+    let fixture = Fixture::new();
+    let mut buffers = Buffers::new().unwrap();
+    let mut labels = std::collections::BTreeSet::new();
+    for (name, body) in [
+        (b"raw-\xff.txt".as_slice(), "first"),
+        (b"raw-\xfe.txt", "second"),
+    ] {
+        let path = fixture.0.join(OsString::from_vec(name.into()));
+        fs::write(&path, body).unwrap();
+        let id = buffers.visit(&path).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        assert!(labels.insert(buffer.name().to_owned()));
+        assert_eq!(buffer.file().unwrap().path(), path);
+        assert_eq!(text(buffer), body);
+        assert_eq!(buffers.visit(&path).unwrap(), id);
+    }
+}
+
+// Rejected ingress cannot change a visiting buffer's association, unique label,
+// history or view. A dangling symlink is an error, never a new link replacement.
+#[test]
+fn failed_association() {
+    let fixture = Fixture::new();
+    let source = "0123456789\r\n".repeat(20) + "last";
+    let active = fixture.file("active.txt", source.as_bytes());
+    let invalid = fixture.file("invalid.txt", b"bad\xff");
+    let dangling = fixture.0.join("dangling");
+    symlink(fixture.0.join("missing-target"), &dangling).unwrap();
+    let mut session = Session::empty(Size {
+        width: 8,
+        height: 5,
+    })
+    .unwrap();
+    session.load(&active).unwrap();
+    session.insert('!');
+    session.execute(Command::named("end-of-buffer").unwrap());
+    session.execute(Command::named("previous-line").unwrap());
+    session.frame().unwrap();
+    session.handle(chord('x'));
+    let before = snapshot(&session);
+    let cases = [
+        (invalid.clone(), io::ErrorKind::InvalidData),
+        (fixture.0.clone(), io::ErrorKind::InvalidInput),
+        (invalid.join("child"), io::ErrorKind::NotADirectory),
+        (fixture.denied(), io::ErrorKind::PermissionDenied),
+        (PathBuf::new(), io::ErrorKind::InvalidInput),
+        (dangling.clone(), io::ErrorKind::NotFound),
+    ];
+    for (path, kind) in cases {
+        let error = session.load(&path).unwrap_err();
+        assert_eq!(error.kind(), kind, "{path:?}");
+        assert_eq!(session.echo(), error.to_string());
+        assert_eq!(snapshot(&session), before, "{path:?}");
+        assert!(session.frame().unwrap().cursor().is_some());
+    }
+    assert_eq!(session.handle(chord('c')), Action::Redraw);
+    assert!(session.echo().starts_with("Unsaved changes"));
+    let after_quit = snapshot(&session);
+    session.load(&active).unwrap();
+    assert_eq!(snapshot(&session), after_quit);
+    assert!(fs::symlink_metadata(dangling).unwrap().is_symlink());
+    assert!(!fixture.0.join("missing-target").exists());
+}
+
+// A failed candidate enters neither the index nor label inventory. A later
+// successful retry receives one fresh owner and the next actual collision label.
+#[test]
+fn failed_index() {
+    let fixture = Fixture::new();
+    fs::create_dir(fixture.0.join("one")).unwrap();
+    fs::create_dir(fixture.0.join("two")).unwrap();
+    let first = fixture.file("one/same.txt", b"one");
+    let second = fixture.file("two/same.txt", b"\xff");
+    let mut buffers = Buffers::new().unwrap();
+    let one = buffers.visit(&first).unwrap();
+    assert!(buffers.visit(&second).is_err());
+    fs::write(&second, b"two").unwrap();
+    let two = buffers.visit(&second).unwrap();
+    assert_ne!(one, two);
+    assert_eq!(buffers.get(one).unwrap().name(), "same.txt");
+    assert_eq!(buffers.get(two).unwrap().name(), "same.txt<2>");
+    assert_eq!(text(buffers.get(two).unwrap()), "two");
+    assert_eq!(buffers.visit(&second).unwrap(), two);
+}
+
+// A newly appearing disk file and its symlink alias cannot fork a live intended
+// destination or replace its unsaved text. Reuse keeps the original format state.
+#[test]
+fn new_reuse() {
+    let fixture = Fixture::new();
+    let path = fixture.0.join("new.txt");
+    let mut session = Session::empty(Size {
+        width: 80,
+        height: 8,
+    })
+    .unwrap();
+    session.load(&path).unwrap();
+    session.insert('!');
+    let before = snapshot(&session);
+    fs::write(&path, b"external").unwrap();
+    let alias = fixture.0.join("alias.txt");
+    symlink(&path, &alias).unwrap();
+    session.load(&alias).unwrap();
+    assert_eq!(snapshot(&session), before);
+    assert_eq!(text(session.buffer().unwrap()), "!");
+    assert!(!session.buffer().unwrap().file().unwrap().is_present());
+    assert_eq!(fs::read(path).unwrap(), b"external");
+}
+
+fn press(code: KeyCode) -> Event {
+    Event::Key(KeyEvent::new(code, KeyModifiers::NONE))
+}
+
+// Cancel returns to the same associated document and view; prompt text and a
+// repeated Enter cannot become a visit or a document edit after cancellation.
+#[test]
+fn canceled_find() {
+    let fixture = Fixture::new();
+    let active = fixture.file("active", b"original");
+    let other = fixture.file("other", b"other");
+    let mut session = Session::empty(Size {
+        width: 80,
+        height: 8,
+    })
+    .unwrap();
+    session.load(&active).unwrap();
+    session.insert('!');
+    let before = snapshot(&session);
+    session.execute(Command::FindFile);
+    type_argument(&mut session, other.to_str().unwrap());
+    session.handle(press(KeyCode::Left));
+    session.handle(press(KeyCode::Backspace));
+    assert_eq!(snapshot(&session), before);
+    session.handle(chord('g'));
+    assert_eq!(session.echo(), "Quit");
+    assert_eq!(snapshot(&session), before);
+    let repeat = Event::Key(KeyEvent::new_with_kind(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+        crossterm::event::KeyEventKind::Repeat,
+    ));
+    assert_eq!(session.handle(repeat), Action::Wait);
+    assert_eq!(snapshot(&session), before);
+    session.insert('z');
+    assert_eq!(text(session.buffer().unwrap()), "!zoriginal");
+    assert_eq!(
+        session.buffer().unwrap().history().len(),
+        before.history + 1
+    );
+    assert_eq!(fs::read(other).unwrap(), b"other");
+}
+
+// Argument cursors belong to the echo row and remain bounded through narrow,
+// one-row and zero-size frames. Empty submission reports an error and consumes Enter.
+#[test]
+fn prompt_geometry() {
+    use unicode_width::UnicodeWidthStr;
+    let mut session = Session::empty(Size {
+        width: 80,
+        height: 8,
+    })
+    .unwrap();
+    session.execute(Command::FindFile);
+    type_argument(&mut session, "界e\u{301}");
+    let before = snapshot(&session);
+    for (width, height) in [(3, 3), (5, 1), (1, 1), (0, 0), (80, 8)] {
+        session.handle(Event::Resize(width, height));
+        let frame = session.frame().unwrap();
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|row| row.text().width() == usize::from(width))
+        );
+        if let Some(cursor) = frame.cursor() {
+            assert_eq!(cursor.row, height - 1);
+            assert_eq!(cursor.column, 14.min(width - 1));
+        } else {
+            assert_eq!((width, height), (0, 0));
+        }
+        assert_eq!(snapshot(&session), before);
+    }
+    session.handle(chord('g'));
+    session.execute(Command::FindFile);
+    session.handle(press(KeyCode::Enter));
+    assert!(session.echo().contains("empty file path"));
+    assert_eq!(snapshot(&session), before);
+    session.handle(press(KeyCode::Char('z')));
+    assert_eq!(text(session.buffer().unwrap()), "z");
 }

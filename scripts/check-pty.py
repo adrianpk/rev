@@ -461,6 +461,71 @@ def argument_failure(root):
         session.close()
 
 
+def find_path(session, path, marker, content):
+    group_step(session, b"\x18\x06", b"Find file: ")
+    suffix = f"{path.parent.name}/{path.name}".encode()
+    group_step(session, str(path).encode(), suffix)
+    group_step(session, b"\r", marker, content)
+
+
+def file_visits(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-visits-") as directory:
+        base = Path(directory)
+        (base / "one").mkdir()
+        (base / "two").mkdir()
+        first = base / "one/note.txt"
+        second = base / "two/note.txt"
+        first.write_bytes(b"alpha")
+        second.write_bytes(b"beta")
+        alias = base / "alias.txt"
+        alias.symlink_to(first)
+        session = Session([str(root / "target/debug/rev"), str(first)])
+        try:
+            session.ready(b"> note.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text", b"\x1b[1;1H!alpha")
+            find_path(session, alias, b"> note.txt ** RW L1 C2 Text", b"\x1b[1;1H!alpha")
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text", b"\x1b[1;1Halpha")
+            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"\x1b[1;1Hbeta")
+            find_path(session, alias, b"> note.txt -- RW L1 C1 Text", b"\x1b[1;1Halpha")
+            group_step(session, b"\x18\x06", b"Find file: ")
+            assert b"\x1b[24;12H" + SHOW in session.output, bytes(session.output)
+            group_step(session, str(second).encode(), b"two/note.txt")
+            group_step(session, b"\x07", b"Quit", b"> note.txt -- RW L1 C1 Text")
+            assert b"\x1b[1;1Halpha" in session.output, bytes(session.output)
+            assert first.read_bytes() == b"alpha" and second.read_bytes() == b"beta"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert SHOW in session.output and LEAVE in session.output
+            print("PASS find-file focus, dirty symlink reuse, duplicate labels and cancellation")
+        finally:
+            session.close()
+
+
+def new_visit(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-new-") as directory:
+        base = Path(directory)
+        path = base / "missing/deep/new.txt"
+        alias = base / "unused/../missing/deep/./new.txt"
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> new.txt -- RW L1 C1 Text")
+            assert not (base / "missing").exists()
+            group_step(session, b"\x18\x06", b"Find file: ")
+            group_step(session, b"\r", b"empty file path", b"> new.txt -- RW L1 C1 Text")
+            group_step(session, b"ab", b"** RW L1 C3 Text", b"\x1b[1;1Hab")
+            find_path(session, alias, b"> new.txt ** RW L1 C3 Text", b"\x1b[1;1Hab")
+            assert b"\x1b[1;3H" + SHOW in session.output, bytes(session.output)
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            assert not (base / "missing").exists() and not (base / "unused").exists()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert SHOW in session.output and LEAVE in session.output
+            assert list(base.iterdir()) == [], "visiting created filesystem entries"
+            print("PASS absent startup paths, consumed empty argument and normalized live reuse")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -480,7 +545,9 @@ def main():
     file_ingress(root)
     ingress_failures(root)
     argument_failure(root)
-    print("Terminal PTY suite: 20 cases passed, 0 skipped.")
+    file_visits(root)
+    new_visit(root)
+    print("Terminal PTY suite: 22 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
