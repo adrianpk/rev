@@ -49,6 +49,8 @@ choices, and retain valid editing state and canonical file ownership.
 - Pending arguments, inventory selection, close choices and confirmed saves have
   distinct owners. Save continuations carry the chosen close request instead of
   assuming the active editing buffer is the save source.
+- PTY waits accept a matching completed redraw, so text markers and cursor
+  assertions observe the same frame rather than a partially received successor.
 - List input consumes its keys and Enter repeats; only editing focus can route
   document keystrokes. Tiny/empty geometry retains input ownership safely.
 - Existing real output faults exercise unresolved publication before close. These

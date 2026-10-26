@@ -359,9 +359,21 @@ def undo_history(root):
 def group_step(session, keys, marker, content=None):
     session.output.clear()
     os.write(session.master, keys)
-    session.wait(lambda: marker in session.output and SHOW in session.output
-                 and (content is None or content in session.output))
+    session.wait(lambda: frame_contains(session.output, marker, content))
     assert session.process.poll() is None and LEAVE not in session.output
+
+
+def frame_contains(output, marker, content):
+    # Markers and cursor must belong to one finished redraw. A previous SHOW
+    # cannot complete a new frame whose bytes arrive in a later PTY read.
+    end = output.rfind(SHOW)
+    if end < 0:
+        return False
+    start = output.rfind(HIDE, 0, end)
+    if start < 0:
+        return False
+    frame = output[start:end + len(SHOW)]
+    return marker in frame and (content is None or content in frame)
 
 
 def typing_history(root):
