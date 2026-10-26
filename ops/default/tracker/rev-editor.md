@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 20 - Handle tiny and changing terminal geometry
+Active slice: Slice 21 - Activate and render linear regions
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -448,17 +448,20 @@ Report: [Slice 19](../report/slices/rev-editor/slice-19-shared-views.md).
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R03, R05, R06, R07, R14.
 
-- [ ] T20.1: Recompute nested geometry on resize, preserve the logical layout under suspended areas, and apply minimum pane/status/minibuffer dimensions without underflow.
-- [ ] T20.2: Exercise zero dimensions, extremely narrow/tall/wide reports, repeated resize bursts, rejected splits, and restoration of usable viewports after expansion.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T20.1: Recompute nested geometry on resize, preserve the logical layout under suspended areas, and apply minimum pane/status/minibuffer dimensions without underflow.
+- [x] T20.2: Exercise zero dimensions, extremely narrow/tall/wide reports, repeated resize bursts, rejected splits, and restoration of usable viewports after expansion.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T20.1 and T20.2 implemented through PR #20.
+Implementation: T20.1 and T20.2 delivered through PR #20.
 Task commits: T20.1 `18647c936a7172319c5c96b2c7af598cf8cb2a44`;
 T20.2 `555985b025019931a37c6d5903d5f07ce1f3ec0c`.
 Validation: required Cargo/source commands passed; `cargo test --test windows`
 passed thirty-four tests and the terminal PTY suite passed thirty-nine cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#20](https://forge.adrianpk.com/adrianpk/rev/pulls/20).
+Integration: Rebase + Fast-forward into dev at
+`95cca8e1ffe5c510cf030ae2d415d21898d5bae0`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 20](../report/slices/rev-editor/slice-20-resize.md).
 
 ### Slice 21: Activate and render linear regions

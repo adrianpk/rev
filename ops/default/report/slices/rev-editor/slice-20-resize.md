@@ -1,11 +1,12 @@
 # Slice 20: Handle tiny and changing terminal geometry
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-20-resize`
 PR: `#20`
+Integrated: Rebase + Fast-forward into dev at `95cca8e1ffe5c510cf030ae2d415d21898d5bae0`.
 
 ## Purpose
 
