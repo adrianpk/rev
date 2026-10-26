@@ -4,6 +4,7 @@ mod file;
 mod history;
 mod motion;
 mod save;
+mod windows;
 
 use std::io::{self, Write};
 use std::path::Path;
@@ -16,6 +17,7 @@ use crate::display::{Frame, Size};
 use crate::input::{Input, Key, Outcome};
 use crate::terminal::Terminal;
 use crate::view::{self, View};
+use crate::window::Windows;
 
 pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
     let mut session = initial(path)?;
@@ -49,7 +51,7 @@ pub enum Action {
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
     buffers: Buffers,
-    view: View,
+    windows: Windows,
     input: Input,
     size: Size,
     echo: String,
@@ -83,7 +85,7 @@ impl Session {
         view.cell(buffers.get(view.point.stamp.buffer)?)?;
         Ok(Self {
             buffers,
-            view,
+            windows: Windows::new(view)?,
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
@@ -98,11 +100,11 @@ impl Session {
     }
 
     pub fn buffer(&self) -> Result<&Buffer, buffer::Error> {
-        self.buffers.get(self.view.point.stamp.buffer)
+        self.buffers.get(self.windows.selected().point.stamp.buffer)
     }
 
     pub fn view(&self) -> &View {
-        &self.view
+        self.windows.selected()
     }
 
     pub fn echo(&self) -> &str {
@@ -110,9 +112,8 @@ impl Session {
     }
 
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
-        let buffer = self.buffers.get(self.view.point.stamp.buffer)?;
-        self.view.reveal(buffer, self.size)?;
-        let mut frame = Frame::project(buffer, &self.view, self.size, &self.echo)?;
+        self.windows.reveal(&self.buffers, self.size)?;
+        let mut frame = Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?;
         if let Some(prompt) = self.input.prompt() {
             frame.prompt(prompt, &self.echo)?;
         }
@@ -156,6 +157,9 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
+        if let Command::Split(direction) = command {
+            return self.split(direction);
+        }
         self.dispatch(command)
     }
 
@@ -179,7 +183,7 @@ impl Session {
     }
 
     fn edit_command(&mut self, command: Command) -> Action {
-        let point = self.view.point.position.0;
+        let point = self.windows.selected().point.position.0;
         let result = match command {
             Command::Newline => self.line_break(),
             Command::InsertTab => self.replace(point..point, "\t"),
@@ -204,13 +208,13 @@ impl Session {
         if command == Command::KeyboardQuit && self.pending.take().is_some() {
             return;
         }
-        self.view.reset_navigation();
+        self.windows.selected_mut().reset_navigation();
     }
 
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
-        self.view.reset_navigation();
+        self.windows.selected_mut().reset_navigation();
         if character.is_control() {
             return self.notice("Control character rejected");
         }
@@ -231,7 +235,7 @@ impl Session {
 
     fn stop_typing(&mut self) -> Result<(), buffer::Error> {
         self.buffers
-            .get_mut(self.view.point.stamp.buffer)
+            .get_mut(self.windows.selected().point.stamp.buffer)
             .map(Buffer::break_typing)
     }
 

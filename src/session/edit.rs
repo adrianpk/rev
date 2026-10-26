@@ -8,14 +8,14 @@ use super::Session;
 impl Session {
     pub(super) fn line_break(&mut self) -> Result<bool, Error> {
         let newline = self.buffer()?.newline();
-        let point = self.view.point.position.0;
+        let point = self.windows.selected().point.position.0;
         self.replace(point..point, newline)
     }
 
     pub(super) fn delete(&mut self, backward: bool) -> Result<bool, Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
-        let point = self.view.point.position;
+        let point = self.windows.selected().point.position;
         let range = if backward {
             coordinates.previous(point)?.0..point.0
         } else {
@@ -29,7 +29,7 @@ impl Session {
     }
 
     pub(super) fn type_text(&mut self, text: &str) -> Result<bool, Error> {
-        let point = self.view.point.position.0;
+        let point = self.windows.selected().point.position.0;
         self.edit(point..point, text, true)
     }
 
@@ -37,7 +37,9 @@ impl Session {
         if range.is_empty() && text.is_empty() {
             return Ok(false);
         }
-        let buffer = self.buffers.get_mut(self.view.point.stamp.buffer)?;
+        let buffer = self
+            .buffers
+            .get_mut(self.windows.selected().point.stamp.buffer)?;
         let source = buffer.span(range.clone())?;
         let position = range
             .start
@@ -47,17 +49,18 @@ impl Session {
             source,
             text: text.into(),
         }];
+        let mut points = self.windows.points();
         let cursor = Cursor {
-            index: 0,
+            index: points.initiator,
             position: Scalar(position),
         };
-        let points = std::slice::from_ref(&self.view.point);
         let prepared = if typing {
-            buffer.prepare_typing(&edits[0], points, cursor)?
+            buffer.prepare_typing(&edits[0], &points.values, cursor)?
         } else {
-            buffer.prepare(&edits, points, Some(cursor))?
+            buffer.prepare(&edits, &points.values, Some(cursor))?
         };
-        buffer.publish(prepared, std::slice::from_mut(&mut self.view.point))?;
+        buffer.publish(prepared, &mut points.values)?;
+        self.windows.publish_points(points, buffer);
         Ok(true)
     }
 }

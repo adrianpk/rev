@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::{BufferCommand, Command};
+use rev::command::{BufferCommand, Command, Split};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -82,6 +82,22 @@ fn command_sequences() {
             vec![
                 Outcome::Prefix(Prefix::ControlX),
                 Outcome::Command(Command::Buffer(BufferCommand::Kill)),
+            ],
+        ),
+        (
+            "split below",
+            vec![control('x'), character('2')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Split(Split::Below)),
+            ],
+        ),
+        (
+            "split right",
+            vec![control('x'), character('3')],
+            vec![
+                Outcome::Prefix(Prefix::ControlX),
+                Outcome::Command(Command::Split(Split::Right)),
             ],
         ),
         (

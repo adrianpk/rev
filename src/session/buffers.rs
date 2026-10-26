@@ -21,7 +21,7 @@ impl Session {
         }
         self.pending = Some(Pending::Buffer {
             command,
-            default: self.view.point.stamp.buffer,
+            default: self.windows.selected().point.stamp.buffer,
         });
         self.message("Tab completes names; Enter uses the current buffer when empty")
     }
@@ -52,8 +52,8 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.message(&error.to_string()),
         };
-        if self.view.point.stamp.buffer != id {
-            self.view = View::new(buffer);
+        if self.windows.selected().point.stamp.buffer != id {
+            *self.windows.selected_mut() = View::new(buffer);
         }
         self.input.cancel();
         self.pending = None;
@@ -93,14 +93,16 @@ impl Session {
     }
 
     pub(super) fn close_buffer(&mut self, kill: Kill) -> Action {
-        let selected = self.view.point.stamp.buffer == kill.id();
+        let closed = kill.id();
         let replacement = match self.buffers.kill(kill) {
             Ok(id) => id,
             Err(error) => return self.message(&error.to_string()),
         };
-        if selected {
-            self.activate(replacement);
-        }
+        let buffer = match self.buffers.get(replacement) {
+            Ok(buffer) => buffer,
+            Err(error) => return self.message(&error.to_string()),
+        };
+        self.windows.replace_buffer(closed, buffer);
         self.input.cancel();
         self.pending = None;
         self.message("Buffer closed")

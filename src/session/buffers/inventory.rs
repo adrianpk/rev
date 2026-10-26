@@ -8,7 +8,9 @@ impl Session {
         if let Err(error) = self.input.inventory() {
             return self.message(&error.to_string());
         }
-        self.pending = Some(Pending::Inventory(self.view.point.stamp.buffer));
+        self.pending = Some(Pending::Inventory(
+            self.windows.selected().point.stamp.buffer,
+        ));
         self.message("Buffers: arrows move, Enter selects, C-g cancels")
     }
 

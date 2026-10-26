@@ -15,7 +15,7 @@ impl Session {
     }
 
     pub(super) fn write_file(&mut self) -> Action {
-        self.write_argument(self.view.point.stamp.buffer, None)
+        self.write_argument(self.windows.selected().point.stamp.buffer, None)
     }
 
     pub(super) fn write_argument(&mut self, buffer: BufferId, close: Option<Kill>) -> Action {

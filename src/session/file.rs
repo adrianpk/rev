@@ -23,8 +23,8 @@ impl Session {
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
         let id = self.buffers.publish_visit(visit);
-        if self.view.point.stamp.buffer != id {
-            self.view = view;
+        if self.windows.selected().point.stamp.buffer != id {
+            *self.windows.selected_mut() = view;
         }
         self.input.cancel();
         self.pending = None;

@@ -26,6 +26,7 @@ impl Size {
 pub enum Error {
     Buffer(buffer::Error),
     Coordinates(coordinates::Error),
+    Window(crate::window::Error),
 }
 
 impl fmt::Display for Error {
@@ -33,6 +34,7 @@ impl fmt::Display for Error {
         match self {
             Self::Buffer(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
+            Self::Window(error) => error.fmt(formatter),
         }
     }
 }
@@ -48,6 +50,12 @@ impl From<buffer::Error> for Error {
 impl From<coordinates::Error> for Error {
     fn from(error: coordinates::Error) -> Self {
         Self::Coordinates(error)
+    }
+}
+
+impl From<crate::window::Error> for Error {
+    fn from(error: crate::window::Error) -> Self {
+        Self::Window(error)
     }
 }
 

@@ -1,4 +1,5 @@
 mod clip;
+mod compose;
 mod inventory;
 mod prompt;
 
@@ -19,6 +20,8 @@ pub enum Band {
     Document,
     Status,
     Echo,
+    Divider,
+    Mixed,
 }
 
 /// A surface position, distinct from a logical document cell.

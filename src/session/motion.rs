@@ -13,11 +13,13 @@ impl Session {
     }
 
     fn scroll_point(&mut self, scroll: Scroll) -> Result<(), Error> {
-        let buffer = self.buffers.get(self.view.point.stamp.buffer)?;
-        let mut candidate = self.view.clone();
-        candidate.scroll(buffer, self.size, scroll)?;
-        candidate.reveal(buffer, self.size)?;
-        self.view = candidate;
+        let buffer = self
+            .buffers
+            .get(self.windows.selected().point.stamp.buffer)?;
+        let mut candidate = self.windows.selected().clone();
+        candidate.scroll(buffer, self.pane_size(), scroll)?;
+        candidate.reveal(buffer, self.pane_size())?;
+        *self.windows.selected_mut() = candidate;
         Ok(())
     }
 
@@ -29,13 +31,15 @@ impl Session {
     }
 
     fn move_point(&mut self, motion: Motion) -> Result<(), Error> {
-        let buffer = self.buffers.get(self.view.point.stamp.buffer)?;
-        self.view.cell(buffer)?;
+        let buffer = self
+            .buffers
+            .get(self.windows.selected().point.stamp.buffer)?;
+        self.windows.selected().cell(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
-        let mut candidate = self.view.clone();
+        let mut candidate = self.windows.selected().clone();
         candidate.point.position = motion.target(&coordinates, candidate.point.position)?;
-        candidate.reveal(buffer, self.size)?;
-        self.view = candidate;
+        candidate.reveal(buffer, self.pane_size())?;
+        *self.windows.selected_mut() = candidate;
         Ok(())
     }
 }
