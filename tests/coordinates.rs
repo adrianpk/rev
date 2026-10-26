@@ -486,3 +486,291 @@ fn bound_motion() {
         source
     );
 }
+
+fn execute(session: &mut rev::session::Session, name: &str, position: usize) {
+    let command = rev::command::Command::named(name).expect("implemented motion command");
+    assert_eq!(session.execute(command), rev::session::Action::Redraw);
+    assert_eq!(session.view().point.position, Scalar(position), "{name}");
+    assert!(session.frame().unwrap().cursor().is_some(), "{name}");
+}
+
+// Named dispatch and all eight Emacs bindings must reach the same handler,
+// including on read-only text where point movement remains available.
+#[test]
+fn named_motion() {
+    use crossterm::event::{KeyCode, KeyModifiers as Mod};
+    let source = "first\r\nαe\u{301}👩\u{200d}💻! last\n";
+    let cases = [
+        ("forward-char", 'f', Mod::CONTROL, 13),
+        ("backward-char", 'b', Mod::CONTROL, 8),
+        ("move-beginning-of-line", 'a', Mod::CONTROL, 7),
+        ("move-end-of-line", 'e', Mod::CONTROL, 19),
+        ("beginning-of-buffer", '<', Mod::ALT, 0),
+        ("end-of-buffer", '>', Mod::ALT, 20),
+        ("forward-word", 'f', Mod::ALT, 19),
+        ("backward-word", 'b', Mod::ALT, 7),
+    ];
+    for (name, character, modifiers, position) in cases {
+        let mut named = session(source, 10, true);
+        let mut bound = session(source, 10, true);
+        execute(&mut named, name, position);
+        assert_eq!(
+            bound.handle(key(KeyCode::Char(character), modifiers)),
+            rev::session::Action::Redraw,
+            "{name}"
+        );
+        assert_eq!(bound.view().point.position, Scalar(position), "{name}");
+        assert!(bound.echo().is_empty(), "{name}");
+        assert!(!bound.buffer().unwrap().is_modified(), "{name}");
+    }
+}
+
+// Repeated commands skip separator runs, preserve mixed-script graphemes,
+// and clamp at either end even when the entire document is separators.
+#[test]
+fn word_edges() {
+    let cases: [(&str, &str, &[usize], &[usize]); 3] = [
+        ("empty", "", &[0, 0], &[0, 0]),
+        ("separators", " \t...👩\u{200d}💻\r\n", &[10, 10], &[0, 0]),
+        (
+            "mixed",
+            "ab...界_٢ e\u{301}👩\u{200d}💻!z\r\n",
+            &[2, 8, 11, 16, 18, 18],
+            &[15, 9, 5, 0, 0],
+        ),
+    ];
+    for (name, source, forward, backward) in cases {
+        let mut session = session(source, 0, false);
+        for &point in forward {
+            execute(&mut session, "forward-word", point);
+        }
+        for &point in backward {
+            execute(&mut session, "backward-word", point);
+        }
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+    }
+}
+
+// Logical line destinations exclude the complete CRLF separator, retain lone
+// CR as visible text, and distinguish an empty middle line from trailing EOF.
+#[test]
+fn line_motion() {
+    let source = "α\r\n\r\nz\rx\n";
+    let cases = [
+        ("first start", 0, 0, 1),
+        ("first end", 1, 0, 1),
+        ("empty line", 3, 3, 3),
+        ("last start", 5, 5, 8),
+        ("visible CR", 6, 5, 8),
+        ("last end", 8, 5, 8),
+        ("trailing line", 9, 9, 9),
+    ];
+    for (name, point, start, end) in cases {
+        let mut beginning = session(source, point, false);
+        let mut ending = session(source, point, false);
+        execute(&mut beginning, "move-beginning-of-line", start);
+        execute(&mut ending, "move-end-of-line", end);
+        assert!(!beginning.buffer().unwrap().is_modified(), "{name}");
+        assert!(!ending.buffer().unwrap().is_modified(), "{name}");
+    }
+}
+
+// Retained forward/backward cursors must cross actual rope seams, including
+// long combining clusters and regional-indicator context, without flattening.
+#[test]
+fn chunk_words() {
+    let first = format!("e{}", "\u{301}".repeat(1500));
+    let second = "界_٢".repeat(700);
+    for (name, separator) in [
+        ("punctuation", ".".repeat(1600)),
+        ("ZWJ emoji", "👩\u{200d}💻".repeat(400)),
+        ("flags", "🇵🇱".repeat(600)),
+    ] {
+        let source = format!("{first}{separator}{second}.end");
+        let middle = first.chars().count() + separator.chars().count();
+        let last = middle + second.chars().count();
+        let mut session = session(&source, 0, false);
+        let buffer = session.buffer().unwrap();
+        let text = buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap();
+        assert!(text.chunks().count() > 2, "{name}");
+        for point in [first.chars().count(), last, last + 4, last + 4] {
+            execute(&mut session, "forward-word", point);
+        }
+        for point in [last + 1, middle, 0, 0] {
+            execute(&mut session, "backward-word", point);
+        }
+    }
+}
+
+// Horizontal and logical-row reveal use document cells, with a valid visible
+// cursor after word, line, character and whole-buffer destinations.
+#[test]
+fn motion_reveal() {
+    let source = format!("a\t界{}\r\none\ntwo\n界\tend", "x".repeat(12));
+    let mut session = session(&source, 0, false);
+    let cases = [
+        ("move-end-of-line", 15, 0, 11, (7, 0)),
+        ("backward-char", 14, 0, 11, (6, 0)),
+        ("move-end-of-line", 15, 0, 11, (7, 0)),
+        ("forward-char", 17, 0, 0, (0, 1)),
+        ("end-of-buffer", 30, 2, 0, (7, 1)),
+        ("backward-word", 27, 2, 0, (4, 1)),
+        ("beginning-of-buffer", 0, 0, 0, (0, 0)),
+    ];
+    for (name, point, top, left, cursor) in cases {
+        execute(&mut session, name, point);
+        assert_eq!(
+            (session.view().top, session.view().left),
+            (top, left),
+            "{name}"
+        );
+        let position = session.frame().unwrap().cursor().unwrap();
+        assert_eq!((position.column, position.row), cursor, "{name}");
+    }
+}
+
+fn buffer_state(
+    buffer: &rev::buffer::Buffer,
+) -> (String, rev::buffer::Stamp, Option<Scalar>, usize) {
+    let text = buffer
+        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+        .unwrap()
+        .to_string();
+    (text, buffer.stamp(), buffer.mark(), buffer.history().len())
+}
+
+// Moving through dirty, marked, read-only text must leave its existing edit
+// record, revision, newline metadata and mark unchanged.
+#[test]
+fn motion_state() {
+    use rev::buffer::edit::Replacement;
+    use rev::display::Size;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let edit = Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: "changed\r\nwords".into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer.set_mark(Some(Scalar(3))).unwrap();
+    buffer.set_read_only(true);
+    let before = buffer_state(buffer);
+    let view = rev::view::View::new(buffer);
+    let mut session = rev::session::Session::new(
+        buffers,
+        view,
+        Size {
+            width: 8,
+            height: 4,
+        },
+    )
+    .unwrap();
+    for (name, point) in [
+        ("end-of-buffer", 14),
+        ("backward-char", 13),
+        ("move-beginning-of-line", 9),
+        ("forward-char", 10),
+        ("move-end-of-line", 14),
+        ("backward-word", 9),
+        ("forward-word", 14),
+        ("beginning-of-buffer", 0),
+    ] {
+        execute(&mut session, name, point);
+    }
+    let buffer = session.buffer().unwrap();
+    assert_eq!(buffer_state(buffer), before);
+    assert!(buffer.is_modified() && buffer.is_read_only());
+    assert_eq!(buffer.newline(), "\r\n");
+}
+
+// Motion key repeats dispatch once while releases are ignored; modifier
+// normalization must preserve reportable shifted Meta buffer destinations.
+#[test]
+fn motion_phases() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind as Kind, KeyModifiers as Mod};
+    let cases = [
+        ('f', Mod::CONTROL, 3),
+        ('b', Mod::CONTROL, 1),
+        ('a', Mod::CONTROL, 0),
+        ('e', Mod::CONTROL, 5),
+        ('f', Mod::ALT, 5),
+        ('b', Mod::ALT, 0),
+        ('<', Mod::ALT | Mod::SHIFT, 0),
+        ('>', Mod::ALT | Mod::SHIFT, 5),
+    ];
+    for (character, modifiers, point) in cases {
+        let mut session = session("ab cd", 2, false);
+        let event = |kind| {
+            Event::Key(KeyEvent::new_with_kind(
+                KeyCode::Char(character),
+                modifiers,
+                kind,
+            ))
+        };
+        assert_eq!(
+            session.handle(event(Kind::Release)),
+            rev::session::Action::Wait
+        );
+        assert_eq!(session.view().point.position, Scalar(2));
+        assert_eq!(
+            session.handle(event(Kind::Repeat)),
+            rev::session::Action::Redraw
+        );
+        assert_eq!(session.view().point.position, Scalar(point));
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}
+
+// Word scans reject out-of-range scalars and grapheme/CRLF interiors rather
+// than creating an ambiguous source position or silently repairing one.
+#[test]
+fn invalid_words() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("e\u{301}\r\nx").unwrap();
+    let coordinates = Coordinates::new(buffers.get(id).unwrap()).unwrap();
+    for (name, point, error) in [
+        ("combining interior", 1, Error::Cluster(Scalar(1))),
+        ("CRLF interior", 3, Error::Cluster(Scalar(3))),
+        ("past EOF", 6, Error::Scalar(Scalar(6))),
+        ("overflow", usize::MAX, Error::Scalar(Scalar(usize::MAX))),
+    ] {
+        assert_eq!(
+            coordinates.forward_word(Scalar(point)).unwrap_err(),
+            error,
+            "{name}"
+        );
+        assert_eq!(
+            coordinates.backward_word(Scalar(point)).unwrap_err(),
+            error,
+            "{name}"
+        );
+    }
+}
+
+// Every registered motion is safe on an empty document; repeated character
+// commands also clamp at the real ends of a multi-scalar emoji cluster.
+#[test]
+fn motion_limits() {
+    use rev::command::Command;
+    let mut empty = session("", 0, false);
+    for command in Command::ALL {
+        if let Command::Motion(_) = command {
+            execute(&mut empty, command.name(), 0);
+        }
+    }
+    let mut emoji = session("👩\u{200d}💻", 0, false);
+    for (name, point) in [
+        ("backward-char", 0),
+        ("forward-char", 3),
+        ("forward-char", 3),
+        ("backward-char", 0),
+        ("backward-char", 0),
+    ] {
+        execute(&mut emoji, name, point);
+    }
+    assert!(emoji.buffer().unwrap().history().is_empty());
+    assert!(empty.buffer().unwrap().history().is_empty());
+}

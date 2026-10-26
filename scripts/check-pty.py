@@ -209,6 +209,40 @@ def insertion(root):
         session.close()
 
 
+def motion(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        first = "e\u0301界👩\u200d💻 first".encode()
+        os.write(session.master, first + b"\rlast")
+        session.wait(lambda: b"** RW L2 C5 Text" in session.output
+                     and b"\x1b[2;5H" + SHOW in session.output)
+        cases = [
+            (b"\x01", 2, 1), (b"\x02", 1, 12), (b"\x02", 1, 11),
+            (b"\x05", 1, 12), (b"\x01", 1, 1), (b"\x06", 1, 2),
+            (b"\x1b[C", 1, 4), (b"\x06", 1, 6), (b"\x1bf", 1, 12),
+            (b"\x1bb", 1, 7), (b"\x1b<", 1, 1), (b"\x1b>", 2, 5),
+            (b"\x1b[H", 2, 1), (b"\x1b[F", 2, 5),
+        ]
+        for chord, row, column in cases:
+            session.output.clear()
+            os.write(session.master, chord)
+            status = f"** RW L{row} C{column} Text".encode()
+            cursor = f"\x1b[{row};{column}H".encode() + SHOW
+            session.wait(lambda: status in session.output and cursor in session.output)
+            assert b"\x1b[1;1H" + first in session.output, bytes(session.output)
+            assert b"\x1b[2;1Hlast" in session.output, bytes(session.output)
+        session.output.clear()
+        os.write(session.master, b"\x18\x03")
+        session.wait(lambda: b"Unsaved changes; cannot quit before saving is available"
+                     in session.output)
+        assert session.process.poll() is None and LEAVE not in session.output
+        print("PASS Emacs and arrow/Home/End motion preserves Unicode text and dirty state")
+    finally:
+        # Stop only this owned dirty fixture, after every motion/refusal check.
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -221,7 +255,8 @@ def main():
     input_flow(root)
     viewport(root)
     insertion(root)
-    print("Terminal PTY suite: 9 cases passed, 0 skipped.")
+    motion(root)
+    print("Terminal PTY suite: 10 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
