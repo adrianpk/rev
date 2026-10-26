@@ -632,6 +632,14 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R07
 - [ ] T29.2: Exercise Unicode chunk seams, multiline text, incremental query changes, no-match behavior, and searches on representative larger ropes without per-key whole-file copies.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T29.1 and T29.2 complete; canonical PR preparation in progress.
+Task commits: T29.1 `65df69161fa93616a191f50f2c70bfdcad22cf98`;
+T29.2 `3ba1af483b66be0caf17f6d676d0c9ca8157a9bc`.
+Validation: required Cargo/source commands passed; `cargo test --test search`
+passed eleven tests and the terminal PTY suite passed sixty cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 29](../report/slices/rev-editor/slice-29-forward-search.md).
+
 ### Slice 30: Search backward with smart case and cancel
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R24, R26.
