@@ -1,11 +1,12 @@
 # Slice 32: Select and copy display-column rectangles
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-32-rectangle-copy`
 PR: `#32`
+Integrated: Rebase + Fast-forward into dev at `42b879a78263a3cb5dd6dcc24cd920a9173a14f9`.
 
 ## Purpose
 

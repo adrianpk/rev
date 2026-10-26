@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 32 - Select and copy display-column rectangles
+Active slice: Slice 33 - Kill rectangles as one transaction
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -688,11 +688,11 @@ Report: [Slice 31](../report/slices/rev-editor/slice-31-query-replace.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R07, R09, R20.
 
-- [ ] T32.1: Implement rectangle-mark-mode, cell-based row extraction, whole-cluster edge inclusion, partial-tab representation, and copy-rectangle-as-kill in separate rectangle storage.
-- [ ] T32.2: Exercise reversed endpoints, CJK/emoji/combining clusters, tab boundaries, short/empty lines, scrolling, and copy without source padding or mutation.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T32.1: Implement rectangle-mark-mode, cell-based row extraction, whole-cluster edge inclusion, partial-tab representation, and copy-rectangle-as-kill in separate rectangle storage.
+- [x] T32.2: Exercise reversed endpoints, CJK/emoji/combining clusters, tab boundaries, short/empty lines, scrolling, and copy without source padding or mutation.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T32.1 and T32.2 complete; canonical PR #32 prepared for integration.
+Implementation: T32.1 and T32.2 delivered through PR #32.
 Task commits: T32.1 `c68bd85ba5702d8c6a7f46d2be23557b1c010655`,
 qualified at `d7b17247f5265a2678196aeed944e88a49e435c3`;
 T32.2 `3b0d40c28bfd16ed6bf468024067410cfa08fe29`.
@@ -700,6 +700,9 @@ Validation: required Cargo/source commands passed; `cargo test --test rectangles
 passed twelve tests and the terminal PTY suite passed sixty-six cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#32](https://forge.adrianpk.com/adrianpk/rev/pulls/32).
+Integration: Rebase + Fast-forward into dev at
+`42b879a78263a3cb5dd6dcc24cd920a9173a14f9`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 32](../report/slices/rev-editor/slice-32-rectangle-copy.md).
 
 ### Slice 33: Kill rectangles as one transaction
