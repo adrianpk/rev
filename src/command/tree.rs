@@ -21,12 +21,19 @@ impl TreeCommand {
             Self::CreateDirectory => "tree-create-directory",
             Self::Toggle => "toggle-file-tree",
             Self::Focus => "focus-file-tree",
+            _ => self.navigation_name(),
+        }
+    }
+
+    fn navigation_name(self) -> &'static str {
+        match self {
             Self::Previous => "tree-previous-line",
             Self::Next => "tree-next-line",
             Self::Expand => "tree-expand",
             Self::Collapse => "tree-collapse",
             Self::Activate => "tree-toggle-directory",
             Self::Refresh => "tree-refresh",
+            _ => unreachable!("entry commands route before navigation names"),
         }
     }
 }
