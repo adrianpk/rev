@@ -1,11 +1,12 @@
 # Slice 30: Search backward with smart case and cancel
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-30-search-control`
 PR: `#30`
+Integrated: Rebase + Fast-forward into dev at `144155023f101134aa4fb50320049d9fe96d8bf3`.
 
 ## Purpose
 

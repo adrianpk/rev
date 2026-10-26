@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 30 - Search backward with smart case and cancel
+Active slice: Slice 31 - Confirm literal replacements interactively
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -648,17 +648,20 @@ Report: [Slice 29](../report/slices/rev-editor/slice-29-forward-search.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R24, R26.
 
-- [ ] T30.1: Implement isearch-backward, direction repetition, smart-case query matching, RET acceptance, and C-g restoration of the exact starting view/point.
-- [ ] T30.2: Exercise mixed Unicode case, backward chunk seams, query edits, match boundaries, direction changes, failed search, and cancellation after scrolling.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T30.1: Implement isearch-backward, direction repetition, smart-case query matching, RET acceptance, and C-g restoration of the exact starting view/point.
+- [x] T30.2: Exercise mixed Unicode case, backward chunk seams, query edits, match boundaries, direction changes, failed search, and cancellation after scrolling.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T30.1 and T30.2 complete; canonical PR #30 prepared for integration.
+Implementation: T30.1 and T30.2 delivered through PR #30.
 Task commits: T30.1 `c41066a63d82a1eb10961642046b60cbaa42a530`;
 T30.2 `d03adaff8e5475a8aca97f23cbc13bf3236da4d5`.
 Validation: required Cargo/source commands passed; `cargo test --test search`
 passed nineteen tests and the terminal PTY suite passed sixty-two cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#30](https://forge.adrianpk.com/adrianpk/rev/pulls/30).
+Integration: Rebase + Fast-forward into dev at
+`144155023f101134aa4fb50320049d9fe96d8bf3`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 30](../report/slices/rev-editor/slice-30-search-control.md).
 
 ### Slice 31: Confirm literal replacements interactively
