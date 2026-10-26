@@ -82,6 +82,7 @@ fn filter_order() {
                 "kill-terminal",
                 "kill-word",
                 "backward-kill-word",
+                "copy-rectangle-as-kill",
             ],
         ),
         ("window-right", vec!["split-window-right"]),
