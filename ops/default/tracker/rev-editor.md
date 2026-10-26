@@ -774,6 +774,16 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R28
 - [ ] T36.2: Exercise deep trees, symlink cycles, inaccessible/deleted directories, stale selections, and refresh after external filesystem changes.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+
+Implementation: T36.1 and T36.2 complete; canonical PR integration pending.
+Task commits: T36.1 `62490595d7d8803365e083d8168f26cf08e261b7`;
+T36.2 `391dfd769d054c173b1794e26ef18ed07e63b5f5`, corrected at
+`b2d2144e6eaa66c1add562361b6c9f4ff32fb777`.
+Validation: required Cargo/source commands passed; `cargo test --test tree`
+passed 22 tests and the terminal PTY suite passed 74 cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 36](../report/slices/rev-editor/slice-36-tree-navigation.md).
+
 ### Slice 37: Open and create tree entries
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R11, R12, R28, R30.
