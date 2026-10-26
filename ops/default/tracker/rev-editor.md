@@ -929,6 +929,14 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T44.2: Use bounded condition waits, owned fixtures, real filesystem byte comparisons, resize events, and termios/screen restoration checks. Separate pure-state assertions from terminal encoding variability.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T44.1 and T44.2 complete; canonical PR pending.
+Task commits: T44.1 `c4b87864c2fe712ad819f0884df2744294c55664`;
+T44.2 `2de738248d6db0dac5a2a83e65ea43f32b8e79cd`.
+Validation: required Cargo/source commands passed; the acceptance PTY suite
+passed four connected journeys and the terminal PTY suite passed 90 cases,
+with zero skips. Final PR-head evidence is recorded through Looper.
+Report: [Slice 44](../report/slices/rev-editor/slice-44-terminal-journeys.md).
+
 ### Slice 45: Exercise cross-feature Unicode and file fidelity
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R07, R09, R10, R19, R20, R21, R26, R30, R32, R39.
