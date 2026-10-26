@@ -217,7 +217,7 @@ T8.2 `0b9fb1b4931394fa419a1b2209d0a8720dd1adb8`.
 Validation: required Cargo/source commands passed; `cargo test --test coordinates`
 passed nineteen tests and the terminal PTY suite passed ten cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#8](https://forge.adrianpk.com/adrianpk/rev/pulls/8).
 Report: [Slice 8](../report/slices/rev-editor/slice-8-motion.md).
 
 ### Slice 9: Preserve vertical motion and scrolling
