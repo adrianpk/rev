@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 33 - Kill rectangles as one transaction
+Active slice: Slice 34 - Yank blocks with coherent padding and undo
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -709,17 +709,20 @@ Report: [Slice 32](../report/slices/rev-editor/slice-32-rectangle-copy.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R09, R20, R21.
 
-- [ ] T33.1: Implement kill-rectangle with all row changes prepared in a declared coordinate space, retaining the rectangle and mapping every affected live view coherently.
-- [ ] T33.2: Exercise partially touched tabs, wide clusters, empty rows, read-only/invalid admission, large row counts, and atomic undo/redo without partial row publication.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T33.1: Implement kill-rectangle with all row changes prepared in a declared coordinate space, retaining the rectangle and mapping every affected live view coherently.
+- [x] T33.2: Exercise partially touched tabs, wide clusters, empty rows, read-only/invalid admission, large row counts, and atomic undo/redo without partial row publication.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T33.1 and T33.2 complete; canonical PR #33 prepared for integration.
+Implementation: T33.1 and T33.2 delivered through PR #33.
 Task commits: T33.1 `cc6c158a59fd71ab025eb01b96264ff21de04fc1`;
 T33.2 `e99ace6bb3d6841e9e5cdd2196ba1a091091cedc`.
 Validation: required Cargo/source commands passed; `cargo test --test rectangles`
 passed 23 tests and the terminal PTY suite passed 68 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#33](https://forge.adrianpk.com/adrianpk/rev/pulls/33).
+Integration: Rebase + Fast-forward into dev at
+`80ae94eb8b3b71999e79a8d00cfa23873be4f5c9`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 33](../report/slices/rev-editor/slice-33-rectangle-kill.md).
 
 ### Slice 34: Yank blocks with coherent padding and undo

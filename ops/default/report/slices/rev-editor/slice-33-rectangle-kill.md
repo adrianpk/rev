@@ -1,11 +1,12 @@
 # Slice 33: Kill rectangles as one transaction
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-33-rectangle-kill`
 PR: `#33`
+Integrated: Rebase + Fast-forward into dev at `80ae94eb8b3b71999e79a8d00cfa23873be4f5c9`.
 
 ## Purpose
 
