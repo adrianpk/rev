@@ -16,11 +16,7 @@ use crate::terminal::Terminal;
 use crate::view::{self, View};
 
 pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
-    let (width, height) = crossterm::terminal::size()?;
-    let mut session = Session::empty(Size { width, height }).map_err(io::Error::other)?;
-    if let Some(path) = path {
-        session.load(path)?;
-    }
+    let mut session = initial(path)?;
     session.draw(terminal.writer())?;
     loop {
         match session.handle(event::read()?) {
@@ -29,6 +25,15 @@ pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> i
             Action::Wait => {}
         }
     }
+}
+
+fn initial(path: Option<&Path>) -> io::Result<Session> {
+    let (width, height) = crossterm::terminal::size()?;
+    let mut session = Session::empty(Size { width, height }).map_err(io::Error::other)?;
+    if let Some(path) = path {
+        session.load(path)?;
+    }
+    Ok(session)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
