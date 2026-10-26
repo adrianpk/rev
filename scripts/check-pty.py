@@ -873,6 +873,90 @@ def hidden_window_buffers(root):
                 session.close()
 
 
+
+def shared_view_mapping(root):
+    # The scrolled pane must keep the same source context when another pane
+    # inserts above it. Undo from that passive pane restores the live origin.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-shared-") as directory:
+        path = Path(directory) / "shared.txt"
+        source = "".join(f"row-{row:02d} abcd\n" for row in range(60)).encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> shared.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"> shared.txt -- RW L1 C1 Text", b"|")
+            group_step(session, b"\x18o", b"|> shared.txt -- RW L1 C1 Text")
+            group_step(session, b"\x0e" * 30, b"|> shared.txt -- RW L31 C1 Text")
+            group_step(session, b"\x0c", b"|> shared.txt -- RW L31 C1 Text", b"|row-19")
+            group_step(session, b"\x18o", b"> shared.txt -- RW L1 C1 Text")
+            first_row = b"\x1b[1;1H" + b" " * 39 + b"|row-19"
+            group_step(session, b"\r", b"> shared.txt ** RW L2 C1 Text", first_row)
+            assert b"|  shared.txt ** RW L32 C1 Text" in session.output
+            group_step(session, b"\x18o", b"|> shared.txt ** RW L32 C1 Text")
+            first_row = b"\x1b[1;1Hrow-00 abcd" + b" " * 28 + b"|row-19"
+            group_step(session, b"\x18u", b"|> shared.txt -- RW L31 C1 Text", first_row)
+            assert b"  shared.txt -- RW L1 C1 Text" in session.output
+            assert b"\x1b[12;41H" + SHOW in session.output
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS shared line anchors, independent mapped cursors and undo through the passive pane")
+        finally:
+            session.close()
+
+
+def closed_view_history(root):
+    # A deleted editing origin cannot reappear during undo; a later split is
+    # an independent live view and the invoking cursor receives the fallback.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-closed-origin-") as directory:
+        path = Path(directory) / "history.txt"
+        path.write_bytes(b"abcdef")
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> history.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"> history.txt -- RW L1 C1 Text", b"|")
+            group_step(session, b"\x18o\x06\x06", b"|> history.txt -- RW L1 C3 Text")
+            group_step(session, b"X", b"|> history.txt ** RW L1 C4 Text", b"abXcdef")
+            group_step(session, b"\x180", b"\x1b[23;1H> history.txt ** RW L1 C1 Text")
+            group_step(session, b"\x182\x18o", b"\x1b[23;1H> history.txt ** RW L1 C1 Text",
+                       b"\x1b[11;1H  history.txt ** RW L1 C1 Text")
+            group_step(session, b"\x18u", b"\x1b[23;1H> history.txt -- RW L1 C3 Text",
+                       b"\x1b[11;1H  history.txt -- RW L1 C1 Text")
+            assert b"\x1b[12;3H" + SHOW in session.output
+            assert path.read_bytes() == b"abcdef"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS closed-origin undo fallback, later split and retained independent cursor")
+        finally:
+            session.close()
+
+
+def kill_shared_buffer(root):
+    # Cancel retains all three modified panes; explicit discard replaces every
+    # reference, then revisiting reads unchanged file bytes into a fresh buffer.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-shared-kill-") as directory:
+        path = Path(directory) / "kill.txt"
+        path.write_bytes(b"original")
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> kill.txt -- RW L1 C1 Text")
+            group_step(session, b"\x182\x183", b"\x1b[11;1H> kill.txt -- RW L1 C1 Text", b"|")
+            group_step(session, b"!", b"> kill.txt ** RW L1 C2 Text", b"|  kill.txt ** RW L1 C2 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"\x07", b"Quit", b"\x1b[23;1H  kill.txt ** RW L1 C2 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"n", b"Buffer closed", b"|  *scratch* -- RW L1 C1 Text")
+            assert b"\x1b[23;1H  *scratch* -- RW L1 C1 Text" in session.output
+            find_path(session, path, b"> kill.txt -- RW L1 C1 Text", b"original")
+            assert b"|  *scratch* -- RW L1 C1 Text" in session.output
+            assert path.read_bytes() == b"original"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS shared modified-buffer kill cancellation, discard, repaired panes and fresh visit")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -903,7 +987,10 @@ def main():
     nested_splits(root)
     window_lifecycle(root)
     hidden_window_buffers(root)
-    print("Terminal PTY suite: 33 cases passed, 0 skipped.")
+    shared_view_mapping(root)
+    closed_view_history(root)
+    kill_shared_buffer(root)
+    print("Terminal PTY suite: 36 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

@@ -834,14 +834,6 @@ fn marked_view(text: &str, point: usize, top: usize, mark: usize) -> Session {
     Session::new(buffers, view, size(31, 9)).unwrap()
 }
 
-fn document(session: &Session) -> String {
-    let buffer = session.buffer().unwrap();
-    buffer
-        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
-        .unwrap()
-        .to_string()
-}
-
 // Source line starts follow the accepted edit rather than their former row
 // numbers. Undo/redo map the CURRENT viewport independently of saved cursors.
 #[test]
@@ -884,7 +876,7 @@ fn mapped_tops() {
             "{name}"
         );
         assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(point)));
-        assert_eq!(document(&session), text);
+        assert_eq!(buffer_text(&session), text);
         session.execute(Command::History(History::Redo));
         let view = session.windows().get(passive).unwrap();
         assert_eq!(
@@ -907,7 +899,7 @@ fn shared_affinities() {
     let active = other(&session);
     session.select_view(active).unwrap();
     session.insert('\u{301}');
-    assert_eq!(document(&session), "ab\u{301}界cd");
+    assert_eq!(buffer_text(&session), "ab\u{301}界cd");
     for (_, view) in session.windows().iter() {
         assert_eq!(view.point.position, Scalar(3));
         view.cell(session.buffer().unwrap()).unwrap();
@@ -954,12 +946,245 @@ fn live_history_origin() {
         session.windows().get(origin).unwrap().point.position,
         Scalar(2)
     );
-    assert_eq!(document(&session), "abcdef");
+    assert_eq!(buffer_text(&session), "abcdef");
     session.execute(Command::History(History::Redo));
     assert_eq!(session.view().point.position, Scalar(0));
     assert_eq!(
         session.windows().get(origin).unwrap().point.position,
         Scalar(4)
     );
-    assert_eq!(document(&session), "abXYcdef");
+    assert_eq!(buffer_text(&session), "abXYcdef");
+}
+
+// Erasing another view's point and top collapses them to the replacement
+// boundary. History maps those CURRENT locations instead of restoring snapshots.
+#[test]
+fn erased_viewport() {
+    use rev::command::{History, Motion};
+    let text = "zero\r\none\r\ntwo\r\nthree\r\nfour\r\nfive\r\nsix\r\nseven\r\neight\r\nnine";
+    let start = text.find("two").unwrap();
+    let end = text.find("seven").unwrap();
+    let point = text.find("six").unwrap();
+    let mut session = marked_view(text, point, 4, point);
+    split(&mut session, Split::Right);
+    let passive = session.windows().selected_id();
+    session.select_view(other(&session)).unwrap();
+    session.execute(Command::Motion(Motion::BufferStart));
+    bounded(&mut session, size(31, 9));
+    session.replace(start..end, "new\r\n").unwrap();
+    let view = session.windows().get(passive).unwrap();
+    assert_eq!((view.top, view.point.position), (2, Scalar(start + 5)));
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(start)));
+    bounded(&mut session, size(31, 9));
+    session.execute(Command::History(History::Undo));
+    let view = session.windows().get(passive).unwrap();
+    assert_eq!((view.top, view.point.position), (2, Scalar(end)));
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(point)));
+    assert_eq!(buffer_text(&session), text);
+    bounded(&mut session, size(31, 9));
+    session.execute(Command::History(History::Redo));
+    let view = session.windows().get(passive).unwrap();
+    assert_eq!((view.top, view.point.position), (2, Scalar(start + 5)));
+    bounded(&mut session, size(31, 9));
+}
+
+// Insertion exactly at the top retains the left-affine line start. Each point
+// shifts right, while mark and horizontal scroll retain their own policies.
+#[test]
+fn top_affinity() {
+    let text = "zero\none\ntwo\nthree\nfour\nfive\nsix\nseven\neight";
+    let start = text.find("four").unwrap();
+    let point = text.find("six").unwrap();
+    let mut session = marked_view(text, point, 4, start);
+    split(&mut session, Split::Right);
+    let passive = other(&session);
+    session.replace(start..start, "界\n").unwrap();
+    let view = session.windows().get(passive).unwrap();
+    assert_eq!((view.top, view.left), (4, 0));
+    assert_eq!(view.point.position, Scalar(point + 2));
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(start)));
+    bounded(&mut session, size(31, 9));
+}
+
+fn buffer_argument(session: &mut Session, command: rev::command::BufferCommand, name: &str) {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    session.execute(Command::Buffer(command));
+    for ch in name.chars() {
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char(ch),
+            KeyModifiers::NONE,
+        )));
+    }
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+}
+
+// A closed origin, or one now showing another buffer, cannot receive the old
+// cursor. Replay falls back to the invoking view and never recreates old IDs.
+#[test]
+fn unavailable_origin() {
+    use rev::command::{BufferCommand, History, Motion};
+    for mode in ["closed", "switched"] {
+        let mut session = editor("abcdef", size(31, 13));
+        let origin = session.windows().selected_id();
+        split(&mut session, Split::Right);
+        let invoking = other(&session);
+        session.insert('X');
+        if mode == "closed" {
+            window(&mut session, WindowCommand::Delete);
+        } else {
+            buffer_argument(&mut session, BufferCommand::Switch, "*scratch*");
+        }
+        let foreign = session.windows().get(origin).ok().cloned();
+        session.select_view(invoking).unwrap();
+        session.execute(Command::Motion(Motion::BufferStart));
+        split(&mut session, Split::Below);
+        let unaffected = session
+            .windows()
+            .order()
+            .into_iter()
+            .find(|id| *id != origin && *id != invoking)
+            .unwrap();
+        let order = session.windows().order();
+        session.execute(Command::History(History::Undo));
+        assert_eq!(session.view().point.position, Scalar(2), "{mode}");
+        assert_eq!(buffer_text(&session), "abcdef");
+        assert_eq!(
+            session.windows().get(unaffected).unwrap().point.position,
+            Scalar(0)
+        );
+        session.execute(Command::History(History::Redo));
+        assert_eq!(session.view().point.position, Scalar(3), "{mode}");
+        assert_eq!(buffer_text(&session), "abXcdef");
+        assert_eq!(session.windows().order(), order);
+        assert_eq!(session.windows().get(origin).ok(), foreign.as_ref());
+        bounded(&mut session, size(31, 13));
+    }
+}
+
+// Canceling a multiply visible modified buffer's kill preserves every view;
+// explicit discard repairs all references without disturbing another buffer.
+#[test]
+fn kill_shared_modified() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::{BufferCommand, History};
+    let mut session = editor("original", size(31, 13));
+    split(&mut session, Split::Right);
+    let foreign = other(&session);
+    session.select_view(foreign).unwrap();
+    buffer_argument(&mut session, BufferCommand::Switch, "*scratch*");
+    let untouched = session.view().clone();
+    window(&mut session, WindowCommand::Other);
+    split(&mut session, Split::Below);
+    session.insert('!');
+    let closed = session.buffer().unwrap().id();
+    let layout = session.windows().layout().clone();
+    let before = session
+        .windows()
+        .iter()
+        .map(|(id, view)| (id, view.clone()))
+        .collect::<Vec<_>>();
+    buffer_argument(&mut session, BufferCommand::Kill, "");
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('g'),
+        KeyModifiers::CONTROL,
+    )));
+    assert_eq!(
+        session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.clone()))
+            .collect::<Vec<_>>(),
+        before
+    );
+    assert_eq!(buffer_text(&session), "or!iginal");
+    buffer_argument(&mut session, BufferCommand::Kill, "");
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('n'),
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(session.echo(), "Buffer closed");
+    assert_eq!(*session.windows().layout(), layout);
+    assert_eq!(*session.windows().get(foreign).unwrap(), untouched);
+    assert!(
+        session
+            .windows()
+            .iter()
+            .all(|(_, view)| view.point.stamp.buffer != closed)
+    );
+    session.execute(Command::History(History::Undo));
+    assert_eq!(session.echo(), "Nothing to undo");
+    bounded(&mut session, size(31, 13));
+}
+
+// Presentation suspension cannot postpone reconciliation: every view receives
+// valid current stamps and mapped top rows before usable geometry returns.
+#[test]
+fn suspended_mapping() {
+    use crossterm::event::Event;
+    use rev::command::{History, Motion};
+    let text = "zero\none\ntwo\nthree\nfour\nfive\nsix\nseven\neight";
+    let point = text.find("six").unwrap();
+    let mut session = marked_view(text, point, 4, point);
+    let passive = session.windows().selected_id();
+    split(&mut session, Split::Right);
+    session.select_view(other(&session)).unwrap();
+    session.execute(Command::Motion(Motion::BufferStart));
+    bounded(&mut session, size(31, 9));
+    session.handle(Event::Resize(0, 0));
+    session.replace(0..0, "new\n").unwrap();
+    assert_eq!(session.windows().get(passive).unwrap().top, 5);
+    session.execute(Command::History(History::Undo));
+    assert_eq!(session.windows().get(passive).unwrap().top, 4);
+    session.execute(Command::History(History::Redo));
+    assert_eq!(session.windows().get(passive).unwrap().top, 5);
+    for (_, view) in session.windows().iter() {
+        assert_eq!(view.point.stamp, session.buffer().unwrap().stamp());
+        view.cell(session.buffer().unwrap()).unwrap();
+    }
+    session.handle(Event::Resize(31, 9));
+    bounded(&mut session, size(31, 9));
+}
+
+// Rejected replacements cannot partially move a passive cursor/top/mark or
+// publish history, even though all of those owners participate in valid edits.
+#[test]
+fn rejected_shared_edit() {
+    for (name, read_only, range) in [
+        ("bounds", false, 0..usize::MAX),
+        ("reversed", false, 5..2),
+        ("read only", true, 0..1),
+    ] {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create("first\nsecond\nthird").unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer.set_read_only(read_only);
+        buffer.set_mark(Some(Scalar(6))).unwrap();
+        let mut view = View::new(buffer);
+        view.point.position = Scalar(6);
+        view.top = 1;
+        let mut session = Session::new(buffers, view, size(31, 9)).unwrap();
+        split(&mut session, Split::Right);
+        let before = session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.clone()))
+            .collect::<Vec<_>>();
+        let stamp = session.buffer().unwrap().stamp();
+        assert!(session.replace(range, "new\n").is_err(), "{name}");
+        assert_eq!(
+            session
+                .windows()
+                .iter()
+                .map(|(id, view)| (id, view.clone()))
+                .collect::<Vec<_>>(),
+            before
+        );
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(6)));
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert_eq!(buffer_text(&session), "first\nsecond\nthird");
+    }
 }
