@@ -612,6 +612,14 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R04
 - [ ] T28.2: Exercise cancellation at every stage of find/write/kill, prompt editing with Emacs movement, resize while prompting, and no document mutation from transient input.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T28.1 and T28.2 complete; canonical PR pending.
+Task commits: T28.1 `6f6cb8a889335c8e14596e81717910f557523c85`;
+T28.2 `716a3022b6edb898e41fe0c6bf6cef5f940d2d42`.
+Validation: required Cargo/source commands passed; `cargo test --test commands`
+passed sixty-two tests and the terminal PTY suite passed fifty-eight cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 28](../report/slices/rev-editor/slice-28-prompt-flows.md), reviewing.
+
 ### Slice 29: Search forward across rope chunks
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R07, R09, R26.
