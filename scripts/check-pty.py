@@ -1346,7 +1346,7 @@ def terminal_key_reports(root):
             group_step(session, b"\x07", b"Quit")
             group_step(session, b"\x1b>", b"L2 C5 Text")
             group_step(session, b"\x1b<", b"L1 C1 Text")
-            group_step(session, b"\x18r\x1bw", b"Undefined key sequence")
+            group_step(session, b"\x18r\x1bw", b"Rectangle is not active")
             group_step(session, b"\x18r\x07", b"Quit")
             group_step(session, b"\x1b[999~\x0c", b"-- RW L1 C1 Text", b"\x1b[1;1Habc ")
             group_step(session, b"\x1bq", b"Unbound key")
