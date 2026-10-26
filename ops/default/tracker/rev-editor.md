@@ -132,6 +132,14 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R08, 
 - [ ] T4.2: Reject stale/read-only/invalid-range edits without partial publication. Establish atomic multi-range rollback and mapped point/mark behavior so later commands cannot bypass the owner.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T4.1 and T4.2 implemented; canonical integration pending.
+Task commits: T4.1 `2fed813e6ac8c1a5761e1a2733ccda7b9998d9fb`;
+T4.2 `ba6a69da8fad140524c0abaa4a7dc000624e31ff`.
+Validation: required Cargo/source commands passed; `cargo test --test editing`
+passed ten tests with zero skips. Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 4](../report/slices/rev-editor/slice-4-edits.md).
+
 ### Slice 5: Decode prefixes and focused prompts
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R22, R23, R24, R25, R33.
