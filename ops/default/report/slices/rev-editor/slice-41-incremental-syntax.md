@@ -1,11 +1,12 @@
 # Slice 41: Update syntax from exact rope edits
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-41-incremental-syntax`
 PR: `#41`
+Integrated: `09840bfebb3a4fdeb041a458d7e502790e8e5142`
 
 ## Purpose
 

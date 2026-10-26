@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 41 - Update syntax from exact rope edits
+Active slice: Slice 42 - Complete guarded multi-buffer session exit
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -873,16 +873,16 @@ Report: [Slice 40](../report/slices/rev-editor/slice-40-rust-highlights.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R07, R09, R32, R40.
 
-- [ ] T41.1: Translate every accepted edit/undo/redo/rectangle/paste to correct Tree-sitter byte and row/byte-column edits, retaining parser/tree state and bounding visible capture work.
-- [ ] T41.2: Exercise multibyte edits before captures, shared windows, parse/query failures, selection/search/cursor layering, and stale syntax invalidation without whole-file rebuild per key.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T41.1: Translate every accepted edit/undo/redo/rectangle/paste to correct Tree-sitter byte and row/byte-column edits, retaining parser/tree state and bounding visible capture work.
+- [x] T41.2: Exercise multibyte edits before captures, shared windows, parse/query failures, selection/search/cursor layering, and stale syntax invalidation without whole-file rebuild per key.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T41.1 and T41.2 complete; PR #41 awaits integration.
+Implementation: delivered through PR #41.
 Task commits: T41.1 `41d9253f826832cdcabce9a5184922924acfb421`;
 T41.2 `6bd57189b9565dd936af46c9104d207419929bfb`.
 Validation: required Cargo/source commands passed; `cargo test --test syntax`
 passed 20 tests and the terminal PTY suite passed 84 cases with zero skips.
-Final PR-head evidence is recorded through Looper.
+Integration: `09840bfebb3a4fdeb041a458d7e502790e8e5142`; all seven ordered checks passed at this exact head through Looper (`6QZKA7LNZQYXFCVG432M3RKBAJ`).
 PR: [#41](https://forge.adrianpk.com/adrianpk/rev/pulls/41).
 Report: [Slice 41](../report/slices/rev-editor/slice-41-incremental-syntax.md).
 
