@@ -95,6 +95,15 @@ fn decision_authority() {
         assert_eq!(text(&session), "first");
     }
     answer(&mut session, 'n');
+    let second = session.echo().to_owned();
+    let repeat = Event::Key(KeyEvent {
+        code: KeyCode::Char('n'),
+        modifiers: KeyModifiers::NONE,
+        kind: KeyEventKind::Repeat,
+        state: KeyEventState::NONE,
+    });
+    assert_ne!(session.handle(repeat), Action::Exit);
+    assert!(session.echo().starts_with(&second));
     cancel(&mut session);
     assert!(session.buffer().unwrap().is_modified());
     session.execute(Command::Quit);

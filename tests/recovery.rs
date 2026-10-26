@@ -3,6 +3,9 @@
 #[path = "recovery/quit.rs"]
 mod quit;
 
+#[path = "recovery/failures.rs"]
+mod failures;
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};

@@ -2654,6 +2654,77 @@ def incremental_rectangles(root):
             session.close()
 
 
+def guarded_session_exit(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-quit-") as directory:
+        first = Path(directory) / "first.txt"
+        second = Path(directory) / "second.txt"
+        draft = Path(directory) / "draft.txt"
+        first.write_bytes(b"first")
+        second.write_bytes(b"second")
+        session = Session([str(root / "target/debug/rev")])
+        try:
+            session.ready(b"C-x C-c: exit")
+            source = "draft界\r\nlast".encode()
+            group_step(session, paste_wire(source), b"** RW L2 C5 Text")
+            find_path(session, first, b"> first.txt -- RW L1 C1 Text", b"first")
+            group_step(session, b"!", b"> first.txt ** RW L1 C2 Text")
+            group_step(session, b"\x183", b"|", b"first.txt ** RW L1 C2 Text")
+            find_path(session, second, b"> second.txt -- RW L1 C1 Text", b"second")
+            group_step(session, b"?", b"> second.txt ** RW L1 C2 Text")
+            group_step(session, b"\x18\x03", b'Quit: "*scratch*"?')
+            group_step(session, b"y", b"Write file: ")
+            group_step(session, str(draft).encode(), b"draft.txt")
+            group_step(session, b"\r", b'Quit: "first.txt"?')
+            assert draft.read_bytes() == source
+            group_step(session, b"y", b'Quit: "second.txt"?')
+            assert first.read_bytes() == b"!first"
+            group_step(session, b"\x07", b"Quit", b"> second.txt ** RW L1 C2 Text")
+            assert b"|  first.txt -- RW L1 C2 Text" in last_frame(session)
+            assert second.read_bytes() == b"second"
+            group_step(session, b"!", b"> second.txt ** RW L1 C3 Text")
+            group_step(session, b"\x18\x03", b'Quit: "second.txt"?')
+            os.write(session.master, b"n")
+            session.finish(0)
+            assert PASTE_OFF in session.output and SHOW in session.output and LEAVE in session.output
+            assert second.read_bytes() == b"second"
+            print("PASS sequential hidden/unnamed saves, shared views, cancel after earlier saves, explicit discard and terminal restoration")
+        finally:
+            session.close()
+
+
+def failed_session_exit(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-quit-failure-") as directory:
+        parent = Path(directory) / "removed"
+        parent.mkdir()
+        target = parent / "target.txt"
+        target.write_bytes(b"base")
+        session = Session([str(root / "target/debug/rev"), str(target)])
+        try:
+            session.ready(b"> target.txt -- RW L1 C1 Text")
+            group_step(session, b"new ", b"> target.txt ** RW L1 C5 Text")
+            target.unlink()
+            parent.rmdir()
+            group_step(session, b"\x18\x03", b'Quit: "target.txt"?')
+            group_step(session, b"y", b"Destination changed on disk")
+            group_step(session, b"n", b"Save canceled", b"> target.txt ** RW L1 C5 Text")
+            assert not target.exists()
+            group_step(session, b"\x18\x03", b'Quit: "target.txt"?')
+            group_step(session, b"y", b"Destination changed on disk")
+            group_step(session, b"y", b"save: not published", b"> target.txt ** RW L1 C5 Text")
+            assert not parent.exists() and LEAVE not in session.output
+            parent.mkdir()
+            group_step(session, b"\x18\x13", b"Destination changed on disk")
+            group_step(session, b"y", b"Saved ", b"> target.txt -- RW L1 C5 Text")
+            assert target.read_bytes() == b"new base"
+            group_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
+            os.write(session.master, b"\r")
+            session.finish(0)
+            assert PASTE_OFF in session.output and SHOW in session.output and LEAVE in session.output
+            print("PASS removed destination consent, declined/failed required saves, independent retry and named clean exit with terminal restoration")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2732,7 +2803,9 @@ def main():
     syntax_fallback(root)
     incremental_shared(root)
     incremental_rectangles(root)
-    print("Terminal PTY suite: 84 cases passed, 0 skipped.")
+    guarded_session_exit(root)
+    failed_session_exit(root)
+    print("Terminal PTY suite: 86 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
