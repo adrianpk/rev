@@ -1,11 +1,12 @@
 # Slice 9: Preserve vertical motion and scrolling
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-09-scrolling`
 PR: `#9`
+Integrated: Rebase + Fast-forward into dev at `151b63415c224c3e46fb8bf6b25e7424b1c71366`.
 
 ## Purpose
 

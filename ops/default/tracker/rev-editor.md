@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 9 - Preserve vertical motion and scrolling
+Active slice: Slice 10 - Restore per-buffer undo and redo
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -227,11 +227,11 @@ Report: [Slice 8](../report/slices/rev-editor/slice-8-motion.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R07, R16.
 
-- [ ] T9.1: Implement next/previous logical line with retained desired display column, page motion, horizontal reveal, and recenter-top-bottom behavior.
-- [ ] T9.2: Exercise short lines between long lines, tabs/wide clusters, tiny viewports, and repeated page/recenter operations without losing intended column.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T9.1: Implement next/previous logical line with retained desired display column, page motion, horizontal reveal, and recenter-top-bottom behavior.
+- [x] T9.2: Exercise short lines between long lines, tabs/wide clusters, tiny viewports, and repeated page/recenter operations without losing intended column.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T9.1 and T9.2 complete; awaiting canonical PR integration.
+Implementation: T9.1 and T9.2 delivered through PR #9.
 Task commits: T9.1 `60160f6f034d6554dc36315d706f4c221c30f544`;
 T9.2 `bc16af2c0d9744525c638aff98ae336ed56bf43f` and fixture synchronization
 `2c4364566b343db6b51bc5080f27e032dcbe11b3`.
@@ -239,6 +239,9 @@ Validation: required Cargo/source commands passed; `cargo test --test display`
 passed eighteen tests and the terminal PTY suite passed eleven cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#9](https://forge.adrianpk.com/adrianpk/rev/pulls/9).
+Integration: Rebase + Fast-forward into dev at
+`151b63415c224c3e46fb8bf6b25e7424b1c71366`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 9](../report/slices/rev-editor/slice-9-scrolling.md).
 
 ### Slice 10: Restore per-buffer undo and redo
