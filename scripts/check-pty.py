@@ -114,6 +114,28 @@ def failures(root):
             session.close()
 
 
+
+def input_flow(root):
+    session = Session([str(root / "target/debug/rev")])
+    try:
+        session.ready(b"C-x C-c: exit")
+        os.write(session.master, b"\x18r")
+        session.wait(lambda: b"C-x r" in session.output)
+        os.write(session.master, b"\x07")
+        session.wait(lambda: b"Quit" in session.output)
+        os.write(session.master, b"\x03")
+        session.wait(lambda: b"Unbound key" in session.output)
+        assert session.process.poll() is None, bytes(session.output)
+        os.write(session.master, b"\x18q")
+        session.wait(lambda: b"Undefined key sequence" in session.output)
+        os.write(session.master, b"\x18\x03")
+        session.finish(0)
+        assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
+        print("PASS nested prefix cancellation and invalid-sequence recovery")
+    finally:
+        session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -123,7 +145,8 @@ def main():
                    cwd=root, check=True)
     lifecycle(root)
     failures(root)
-    print("Terminal PTY suite: 6 cases passed, 0 skipped.")
+    input_flow(root)
+    print("Terminal PTY suite: 7 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

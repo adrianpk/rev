@@ -126,3 +126,426 @@ fn explicit_decisions() {
         assert_eq!(input.focus(), Focus::Editing);
     }
 }
+
+fn phase(mut event: Event, kind: crossterm::event::KeyEventKind) -> Event {
+    if let Event::Key(key) = &mut event {
+        key.kind = kind;
+    }
+    event
+}
+
+// Cancellation and invalid suffixes consume their keys, discard all pending
+// prefix state, and let the next ordinary character reach editing once.
+#[test]
+fn prefix_recovery() {
+    let cases = [
+        (
+            "nested cancel",
+            vec![control('x'), character('r'), control('g')],
+            Outcome::Command(Command::KeyboardQuit),
+        ),
+        (
+            "bare cancel",
+            vec![control('g')],
+            Outcome::Command(Command::KeyboardQuit),
+        ),
+        (
+            "nested invalid",
+            vec![control('x'), character('r'), character('q')],
+            Outcome::Message("Undefined key sequence"),
+        ),
+        (
+            "invalid suffix",
+            vec![control('x'), character('q')],
+            Outcome::Message("Undefined key sequence"),
+        ),
+        (
+            "plain suffix",
+            vec![control('x'), character('c')],
+            Outcome::Message("Undefined key sequence"),
+        ),
+        (
+            "repeated prefix press",
+            vec![control('x'), control('x')],
+            Outcome::Message("Undefined key sequence"),
+        ),
+    ];
+    for (name, events, expected) in cases {
+        let mut input = Input::default();
+        let outcomes = feed(&mut input, events);
+        assert_eq!(outcomes.last(), Some(&expected), "{name}");
+        assert_eq!(input.prefix(), None, "{name}");
+        assert_eq!(input.focus(), Focus::Editing, "{name}");
+        assert_eq!(
+            input.handle(character('z')),
+            Outcome::Editing(Key {
+                code: KeyCode::Char('z'),
+                modifiers: KeyModifiers::NONE
+            }),
+            "{name}"
+        );
+        assert_eq!(
+            input.handle(control('c')),
+            Outcome::Message("Unbound key"),
+            "{name}"
+        );
+    }
+}
+
+// Releases are inert. Held prefix keys cannot advance or invalidate a chord,
+// while repeated ordinary text remains repeatable editing input.
+#[test]
+fn key_phases() {
+    use crossterm::event::KeyEventKind::{Release, Repeat};
+    let mut input = Input::default();
+    let events = vec![
+        control('x'),
+        phase(control('x'), Repeat),
+        phase(control('x'), Release),
+        phase(control('c'), Repeat),
+        control('c'),
+        phase(control('c'), Release),
+        phase(control('c'), Repeat),
+    ];
+    assert_eq!(
+        feed(&mut input, events),
+        [
+            Outcome::Prefix(Prefix::ControlX),
+            Outcome::Ignored,
+            Outcome::Ignored,
+            Outcome::Ignored,
+            Outcome::Command(Command::Quit),
+            Outcome::Ignored,
+            Outcome::Ignored
+        ]
+    );
+    let outcomes = feed(
+        &mut input,
+        vec![
+            character('a'),
+            phase(character('a'), Repeat),
+            phase(character('a'), Release),
+        ],
+    );
+    assert_eq!(
+        outcomes
+            .iter()
+            .filter(|outcome| matches!(outcome, Outcome::Editing(_)))
+            .count(),
+        2
+    );
+    assert_eq!(outcomes.last(), Some(&Outcome::Ignored));
+    input.handle(control('x'));
+    assert_eq!(
+        input.handle(character('r')),
+        Outcome::Prefix(Prefix::Rectangle)
+    );
+    assert_eq!(
+        input.handle(phase(character('r'), Repeat)),
+        Outcome::Ignored
+    );
+    assert_eq!(input.prefix(), Some(Prefix::Rectangle));
+}
+
+// A confirmation requires a fresh press; its repeat cannot become a second
+// answer or leak into the document after the decision has closed.
+#[test]
+fn completion_phases() {
+    use crossterm::event::KeyEventKind::{Release, Repeat};
+    let mut input = Input::default();
+    input.decision("Continue? y/n").unwrap();
+    assert_eq!(
+        input.handle(phase(character('y'), Repeat)),
+        Outcome::Ignored
+    );
+    assert_eq!(input.focus(), Focus::Decision);
+    assert_eq!(input.handle(character('y')), Outcome::Decision(true));
+    for event in [
+        phase(character('y'), Repeat),
+        phase(character('y'), Release),
+    ] {
+        assert_eq!(input.handle(event), Outcome::Ignored);
+    }
+    assert!(matches!(input.handle(character('y')), Outcome::Editing(_)));
+    input.argument("Path: ", "value").unwrap();
+    assert_eq!(
+        input.handle(phase(key(KeyCode::Enter), Repeat)),
+        Outcome::Ignored
+    );
+    assert_eq!(input.focus(), Focus::Argument);
+    assert_eq!(
+        input.handle(key(KeyCode::Enter)),
+        Outcome::Argument("value".into())
+    );
+    assert_eq!(
+        input.handle(phase(key(KeyCode::Enter), Release)),
+        Outcome::Ignored
+    );
+    assert_eq!(
+        input.handle(phase(key(KeyCode::Enter), Repeat)),
+        Outcome::Ignored
+    );
+}
+
+// Character case is already encoded by the terminal; modifiers cannot smuggle
+// control bytes into editing. Non-key events leave the pending chord intact.
+#[test]
+fn normalized_events() {
+    let mut input = Input::default();
+    assert_eq!(
+        input.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('A'),
+            KeyModifiers::SHIFT
+        ))),
+        Outcome::Editing(Key {
+            code: KeyCode::Char('A'),
+            modifiers: KeyModifiers::NONE
+        })
+    );
+    assert_eq!(
+        input.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('X'),
+            KeyModifiers::CONTROL | KeyModifiers::SHIFT
+        ))),
+        Outcome::Prefix(Prefix::ControlX)
+    );
+    for event in [
+        Event::Resize(0, 0),
+        Event::FocusLost,
+        Event::FocusGained,
+        Event::Paste("\u{18}\u{3}".into()),
+    ] {
+        assert_eq!(input.handle(event), Outcome::Ignored);
+        assert_eq!(input.prefix(), Some(Prefix::ControlX));
+    }
+    assert_eq!(input.handle(control('c')), Outcome::Command(Command::Quit));
+    for modifiers in [
+        KeyModifiers::ALT,
+        KeyModifiers::CONTROL | KeyModifiers::ALT,
+        KeyModifiers::SUPER,
+    ] {
+        assert_eq!(
+            input.handle(Event::Key(KeyEvent::new(KeyCode::Char('x'), modifiers))),
+            Outcome::Message("Unbound key")
+        );
+    }
+    for value in ['\0', '\u{1b}', '\n', '\u{7f}', '\u{9b}'] {
+        assert_eq!(
+            input.handle(character(value)),
+            Outcome::Message("Control character rejected")
+        );
+    }
+}
+
+// Cursor edits operate on entire graphemes with both Emacs and terminal keys;
+// edits that join adjacent clusters repair the prompt cursor before deletion.
+#[test]
+fn prompt_graphemes() {
+    let cases = [
+        (
+            "emoji deletion",
+            "e\u{301}👩\u{200d}💻界",
+            vec![key(KeyCode::Left), key(KeyCode::Backspace)],
+            "e\u{301}界",
+            "e\u{301}".len(),
+        ),
+        (
+            "home delete",
+            "e\u{301}界",
+            vec![control('a'), control('d')],
+            "界",
+            0,
+        ),
+        (
+            "backward forward",
+            "e\u{301}界",
+            vec![control('b'), control('f')],
+            "e\u{301}界",
+            "e\u{301}界".len(),
+        ),
+        (
+            "end erase",
+            "e\u{301}界",
+            vec![control('a'), control('e'), control('h')],
+            "e\u{301}",
+            "e\u{301}".len(),
+        ),
+        (
+            "ZWJ join",
+            "👩💻",
+            vec![key(KeyCode::Left), character('\u{200d}')],
+            "👩\u{200d}💻",
+            "👩\u{200d}💻".len(),
+        ),
+        (
+            "joined delete",
+            "👩💻",
+            vec![
+                key(KeyCode::Left),
+                character('\u{200d}'),
+                key(KeyCode::Backspace),
+            ],
+            "",
+            0,
+        ),
+        (
+            "combining insertion",
+            "a界",
+            vec![key(KeyCode::Left), character('\u{301}')],
+            "a\u{301}界",
+            "a\u{301}".len(),
+        ),
+        (
+            "empty boundaries",
+            "",
+            vec![
+                key(KeyCode::Left),
+                key(KeyCode::Backspace),
+                key(KeyCode::Delete),
+                key(KeyCode::Right),
+                key(KeyCode::Home),
+                key(KeyCode::End),
+            ],
+            "",
+            0,
+        ),
+    ];
+    for (name, initial, events, expected, cursor) in cases {
+        let mut input = Input::default();
+        input.argument("Text: ", initial).unwrap();
+        assert!(
+            feed(&mut input, events)
+                .iter()
+                .all(|outcome| *outcome == Outcome::Ignored),
+            "{name}"
+        );
+        let prompt = input.prompt().unwrap();
+        assert_eq!(prompt.text(), expected, "{name}");
+        assert_eq!(prompt.cursor(), cursor, "{name}");
+    }
+}
+
+// Scalar limits reject an entire insertion visibly, preserving cursor and text;
+// deleting one multibyte grapheme makes exactly one scalar of capacity available.
+#[test]
+fn prompt_limit() {
+    use rev::input::LIMIT;
+    let mut input = Input::default();
+    let full = "界".repeat(LIMIT);
+    input.argument("Path: ", &full).unwrap();
+    assert_eq!(
+        input.handle(character('é')),
+        Outcome::Message("Prompt limit is 4096 characters")
+    );
+    assert_eq!(input.prompt().unwrap().text(), full);
+    assert_eq!(input.prompt().unwrap().cursor(), full.len());
+    assert_eq!(input.handle(key(KeyCode::Backspace)), Outcome::Ignored);
+    assert_eq!(input.handle(character('é')), Outcome::Ignored);
+    assert_eq!(input.prompt().unwrap().text().chars().count(), LIMIT);
+    assert!(input.prompt().unwrap().text().ends_with('é'));
+    assert_eq!(
+        input.handle(character('\n')),
+        Outcome::Message("Control character rejected")
+    );
+    let accepted = input.handle(key(KeyCode::Enter));
+    assert!(matches!(accepted, Outcome::Argument(value) if value.chars().count() == LIMIT));
+}
+
+// Rejected prompt acquisition preserves its current owner or pending prefix.
+// Opening a valid prompt clears the prefix before its first character arrives.
+#[test]
+fn prompt_acquisition() {
+    use rev::input::{Error, LIMIT};
+    let mut input = Input::default();
+    input.handle(control('x'));
+    assert_eq!(
+        input.argument("Path: ", &"x".repeat(LIMIT + 1)),
+        Err(Error::Limit)
+    );
+    assert_eq!(input.argument("Path: ", "bad\npath"), Err(Error::Control));
+    assert_eq!(input.focus(), Focus::Editing);
+    assert_eq!(input.prefix(), Some(Prefix::ControlX));
+    input.argument("Path: ", "kept").unwrap();
+    assert_eq!(input.prefix(), None);
+    assert_eq!(input.argument("Other: ", "lost"), Err(Error::Busy));
+    assert_eq!(input.decision("Replace? y/n"), Err(Error::Busy));
+    assert_eq!(input.prompt().unwrap().text(), "kept");
+    assert_eq!(
+        input.handle(control('g')),
+        Outcome::Command(Command::KeyboardQuit)
+    );
+    input.decision("Delete? y/n").unwrap();
+    assert_eq!(input.argument("Path: ", "lost"), Err(Error::Busy));
+    assert_eq!(input.label(), Some("Delete? y/n"));
+    assert_eq!(
+        input.handle(control('g')),
+        Outcome::Command(Command::KeyboardQuit)
+    );
+    assert_eq!(input.focus(), Focus::Editing);
+    assert_eq!(input.label(), None);
+}
+
+fn deliver(
+    buffer: &mut rev::buffer::Buffer,
+    point: &mut rev::buffer::edit::Point,
+    outcome: Outcome,
+) {
+    if let Outcome::Editing(Key {
+        code: KeyCode::Char(value),
+        modifiers,
+    }) = outcome
+    {
+        assert!(modifiers.is_empty());
+        let edits = [rev::buffer::edit::Replacement {
+            source: buffer.span(point.position.0..point.position.0).unwrap(),
+            text: value.to_string(),
+        }];
+        let prepared = buffer
+            .prepare(&edits, std::slice::from_ref(point), None)
+            .unwrap();
+        buffer
+            .publish(prepared, std::slice::from_mut(point))
+            .unwrap();
+    }
+}
+
+// The real buffer edit owner receives only routed editing text. Prefixes,
+// arguments, confirmations, and cancellation leave its revision/history intact;
+// after focus returns, one ordinary key causes exactly one real publication.
+#[test]
+fn document_isolation() {
+    let mut buffers = rev::buffer::Buffers::new().unwrap();
+    let id = buffers.create("original").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let stamp = buffer.stamp();
+    let mut point = rev::buffer::edit::Point {
+        stamp,
+        position: rev::coordinates::Scalar(8),
+    };
+    let mut input = Input::default();
+    for event in [control('x'), character('r'), control('g')] {
+        deliver(buffer, &mut point, input.handle(event));
+    }
+    input.argument("Path: ", "").unwrap();
+    for event in [control('x'), character('r'), control('c'), control('g')] {
+        deliver(buffer, &mut point, input.handle(event));
+    }
+    input.argument("Path: ", "file").unwrap();
+    deliver(buffer, &mut point, input.handle(key(KeyCode::Enter)));
+    input.decision("Overwrite? y/n").unwrap();
+    deliver(buffer, &mut point, input.handle(character('y')));
+    assert_eq!(buffer.stamp(), stamp);
+    assert!(buffer.history().is_empty());
+    assert_eq!(point.position, rev::coordinates::Scalar(8));
+    deliver(buffer, &mut point, input.handle(character('z')));
+    assert_eq!(buffer.stamp().revision, stamp.revision + 1);
+    assert_eq!(buffer.history().len(), 1);
+    assert_eq!(point.position, rev::coordinates::Scalar(9));
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..9).unwrap())
+            .unwrap()
+            .to_string(),
+        "originalz"
+    );
+}
