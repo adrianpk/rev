@@ -452,6 +452,15 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R03
 - [ ] T20.2: Exercise zero dimensions, extremely narrow/tall/wide reports, repeated resize bursts, rejected splits, and restoration of usable viewports after expansion.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T20.1 and T20.2 implemented; canonical PR pending.
+Task commits: T20.1 `18647c936a7172319c5c96b2c7af598cf8cb2a44`;
+T20.2 `555985b025019931a37c6d5903d5f07ce1f3ec0c`.
+Validation: required Cargo/source commands passed; `cargo test --test windows`
+passed thirty-four tests and the terminal PTY suite passed thirty-nine cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+PR: pending.
+Report: [Slice 20](../report/slices/rev-editor/slice-20-resize.md).
+
 ### Slice 21: Activate and render linear regions
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R07, R18, R24.
