@@ -14,6 +14,7 @@ mod region;
 mod replace;
 mod save;
 mod search;
+mod tree;
 mod windows;
 mod yank;
 
@@ -47,6 +48,10 @@ fn initial(path: Option<&Path>) -> io::Result<Session> {
     let mut session = Session::empty(Size { width, height }).map_err(io::Error::other)?;
     if let Some(path) = path {
         session.load(path)?;
+        if let Some(file) = session.buffer().map_err(io::Error::other)?.file() {
+            let path = file.path().to_path_buf();
+            session.tree.initial(&path);
+        }
     }
     Ok(session)
 }
@@ -63,6 +68,7 @@ pub enum Action {
 pub struct Session {
     buffers: Buffers,
     windows: Windows,
+    tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
     rectangle: Option<crate::rectangle::Rectangle>,
     yank: Option<yank::Capture>,
@@ -103,6 +109,7 @@ impl Session {
         Ok(Self {
             buffers,
             windows: Windows::new(view)?,
+            tree: crate::tree::Tree::default(),
             kills: crate::kill::KillRing::default(),
             rectangle: None,
             yank: None,
@@ -134,9 +141,11 @@ impl Session {
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
         self.invalidate_search();
         self.invalidate_replace();
-        self.windows.reveal(&self.buffers, self.size)?;
-        let mut frame = Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?;
+        let size = self.editing_size();
+        self.windows.reveal(&self.buffers, size)?;
+        let mut frame = Frame::compose(&self.buffers, &self.windows, size, &self.echo)?;
         self.highlight_search(&mut frame)?;
+        frame = frame.with_tree(&self.tree, self.size, &self.echo)?;
         self.prompt_frame(&mut frame)?;
         Ok(frame)
     }
@@ -213,6 +222,7 @@ impl Session {
 
     fn selection_command(&mut self, command: Command) -> Action {
         match command {
+            Command::Tree(command) => self.tree_command(command),
             Command::Rectangle(command) => self.rectangle_command(command),
             Command::Region(command) => self.region_command(command),
             _ => self.dispatch(command),
@@ -276,6 +286,9 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.tree.focused() {
+            return self.message("File tree owns input focus");
+        }
         self.yank = None;
         self.kills.break_chain();
         self.windows.selected_mut().reset_navigation();
@@ -322,6 +335,9 @@ impl Session {
 
     fn resize(&mut self, width: u16, height: u16) -> Action {
         self.size = Size { width, height };
+        if self.tree.resize(self.size) {
+            self.echo = "File tree hidden at this width".into();
+        }
         match self.stop_typing() {
             Ok(()) => Action::Redraw,
             Err(error) => self.message(&error.to_string()),

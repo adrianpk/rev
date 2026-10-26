@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Show a narrow left file-tree pane with `M-x toggle-file-tree` or `C-x t t`. The selected root uses the initial file's parent or current directory and stays separate from editing buffers and window cycling. Use `C-x t f` or `M-x focus-file-tree` to focus it, and Tab or `C-g` to return to the retained editor. Narrow terminals hide the pane and release its focus; widening restores the pane without stealing editor focus.
+
 - Select display-column rectangles with `C-x SPC`, copy with `C-x r M-w`, remove with `C-x r k` and insert retained rows with `C-x r y`; each command is also available through `M-x`. Selection preserves whole Unicode clusters and copies partial tab cells as spaces without padding short source lines. Insertion snaps to whole target graphemes, pads only short prefixes and creates needed lines. Each block edit can be undone or redone in one step. Rectangle text stays separate from the linear kill ring; copying leaves text and undo history unchanged.
 
 - Replace literal text in the active buffer with `M-%` or `M-x query-replace`. Enter a query and replacement, then choose y to replace, n to skip or q/C-g to stop at each occurrence. Only accepted occurrences change, and each can be undone independently. Replacement preserves supplied Unicode and line endings; inserted text is not searched again.

@@ -6,6 +6,7 @@ mod rectangle;
 mod region;
 mod scroll;
 mod split;
+mod tree;
 mod window;
 
 pub use crate::buffer::edit::History;
@@ -17,11 +18,13 @@ pub use motion::Motion;
 pub use rectangle::RectangleCommand;
 pub use region::RegionCommand;
 pub use scroll::Scroll;
+pub use tree::TreeCommand;
 pub use window::WindowCommand;
 
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Tree(TreeCommand),
     QueryReplace,
     SearchForward,
     SearchBackward,
@@ -48,11 +51,13 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 49] = [
+    pub const ALL: [Self; 51] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
         Self::Rectangle(RectangleCommand::Yank),
+        Self::Tree(TreeCommand::Toggle),
+        Self::Tree(TreeCommand::Focus),
         Self::QueryReplace,
         Self::SearchForward,
         Self::SearchBackward,
@@ -116,7 +121,6 @@ impl Command {
 
     fn action_name(self) -> &'static str {
         match self {
-            Self::Region(command) => command.name(),
             Self::Rectangle(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "kill-terminal",
@@ -130,6 +134,8 @@ impl Command {
 
     fn search_name(self) -> &'static str {
         match self {
+            Self::Region(command) => command.name(),
+            Self::Tree(command) => command.name(),
             Self::QueryReplace => "query-replace",
             Self::SearchForward => "isearch-forward",
             Self::SearchBackward => "isearch-backward",

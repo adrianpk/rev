@@ -53,6 +53,9 @@ an explicit decision for each occurrence.
 | Search | `isearch-forward`, `isearch-backward`, `query-replace` |
 | Regions | `set-mark-command`, `exchange-point-and-mark` |
 | Kills and retained text | `kill-line`, `kill-word`, `backward-kill-word`, `kill-region`, `kill-ring-save`, `yank`, `yank-pop` |
+| Tree | `toggle-file-tree`, `focus-file-tree` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
+
+See [File tree](file-tree.md) for root, layout and keyboard focus.

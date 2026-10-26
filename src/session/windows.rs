@@ -14,7 +14,7 @@ impl Session {
     /// live destination. A transient interaction retains its own input focus.
     pub fn select_view(&mut self, id: ViewId) -> Result<(), Error> {
         self.yank = None;
-        if self.input.focus() != Focus::Editing {
+        if self.input.focus() != Focus::Editing || self.tree.focused() {
             return Err(crate::window::Error::Focus.into());
         }
         let view = self.windows.get(id)?;
@@ -26,14 +26,14 @@ impl Session {
     }
 
     pub(super) fn split(&mut self, direction: Split) -> Action {
-        match self.windows.split(direction, self.size) {
+        match self.windows.split(direction, self.editing_size()) {
             Ok(_) => self.message(""),
             Err(error) => self.message(&error.to_string()),
         }
     }
 
     pub(super) fn window_command(&mut self, command: WindowCommand) -> Action {
-        if self.input.focus() != Focus::Editing {
+        if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message(&crate::window::Error::Focus.to_string());
         }
         match command {
@@ -65,7 +65,7 @@ impl Session {
 
     pub(super) fn pane_size(&self) -> Size {
         self.windows
-            .area(self.windows.selected_id(), self.size)
+            .area(self.windows.selected_id(), self.editing_size())
             .map(|area| area.view_size())
             .unwrap_or(Size {
                 width: 0,

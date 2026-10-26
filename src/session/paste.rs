@@ -2,6 +2,9 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn paste_text(&mut self, text: &str) -> Action {
+        if self.tree.focused() {
+            return self.message("File tree owns input focus");
+        }
         self.yank = None;
         self.kills.break_chain();
         if let Err(error) = self.stop_typing() {

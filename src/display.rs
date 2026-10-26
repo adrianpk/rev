@@ -4,6 +4,7 @@ mod inventory;
 mod prompt;
 mod search;
 mod selection;
+mod tree;
 
 use std::io::{self, Write};
 

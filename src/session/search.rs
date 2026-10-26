@@ -121,7 +121,8 @@ impl Session {
                 span,
                 self.buffer()?,
                 self.view(),
-                self.windows.area(self.windows.selected_id(), self.size),
+                self.windows
+                    .area(self.windows.selected_id(), self.editing_size()),
             )?;
         }
         Ok(())

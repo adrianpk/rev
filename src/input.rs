@@ -8,6 +8,7 @@ mod prompt;
 mod rectangle;
 mod replace;
 mod search;
+mod tree;
 
 use std::collections::VecDeque;
 use std::fmt;
@@ -27,6 +28,7 @@ pub use search::SearchAction;
 pub enum Prefix {
     ControlX,
     Rectangle,
+    Tree,
     Meta,
 }
 
@@ -35,6 +37,7 @@ impl Prefix {
         match self {
             Self::ControlX => "C-x",
             Self::Rectangle => "C-x r",
+            Self::Tree => "C-x t",
             Self::Meta => "ESC",
         }
     }
@@ -260,6 +263,7 @@ impl Input {
         match self.prefix.take() {
             Some(Prefix::ControlX) => self.control_x(key),
             Some(Prefix::Rectangle) => self.rectangle_key(key),
+            Some(Prefix::Tree) => self.tree_key(key),
             Some(Prefix::Meta) => unreachable!("Meta deadlines are separate from chord prefixes"),
             None => self.base(key),
         }
@@ -272,6 +276,9 @@ impl Input {
         }
         if key.plain() == Some(KeyCode::Char('r')) {
             return self.wait(Prefix::Rectangle);
+        }
+        if key.plain() == Some(KeyCode::Char('t')) {
+            return self.wait(Prefix::Tree);
         }
         Outcome::Message("Undefined key sequence")
     }

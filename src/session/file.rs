@@ -28,6 +28,7 @@ impl Session {
         if self.windows.selected().point.stamp.buffer != id {
             *self.windows.selected_mut() = view;
         }
+        self.tree.edit();
         self.input.cancel();
         self.pending = None;
         self.echo.clear();

@@ -11,7 +11,7 @@ impl Session {
         if command == Command::KeyboardQuit {
             self.restore_search();
         }
-        None
+        self.tree_input(command)
     }
 
     pub(super) fn command_outcome(&mut self, command: Command) -> Action {
