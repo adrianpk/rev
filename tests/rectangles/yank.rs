@@ -441,3 +441,69 @@ fn terminal_phases() {
     assert_eq!(text(&session), "");
     assert!(!session.buffer().unwrap().is_modified());
 }
+
+// Two different grapheme joins occur in one CRLF rectangle transaction: ZWJ
+// joins to a right-hand emoji and a detached accent joins its left neighbor.
+// History from the peer must preserve separators and repair every live point.
+#[test]
+fn shared_seams() {
+    use rev::command::Split;
+    let original = "q💻z\r\nab";
+    let expected = "q👩\u{200d}💻z\r\na\u{301}b";
+    let mut session = retained(
+        "👩\u{200d}X\r\n\u{301}",
+        (cell(0, 0), cell(1, 1)),
+        original,
+        false,
+    );
+    assert_eq!(
+        session.rectangle().unwrap().rows(),
+        ["👩\u{200d}", "\u{301}"]
+    );
+    super::at(&mut session, cell(0, 1));
+    session.execute(Command::Split(Split::Right));
+    let origin = session.windows().selected_id();
+    let peer = session.windows().order()[1];
+    session.select_view(peer).unwrap();
+    super::at(&mut session, cell(1, 1));
+    session.select_view(origin).unwrap();
+    yank(&mut session);
+    assert_eq!(text(&session), expected);
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(
+        session
+            .buffer()
+            .unwrap()
+            .history()
+            .back()
+            .unwrap()
+            .changes()
+            .len(),
+        2
+    );
+    session.select_view(peer).unwrap();
+    for direction in [History::Undo, History::Redo, History::Undo, History::Redo] {
+        session.execute(Command::History(direction));
+        assert_eq!(
+            text(&session),
+            if direction == History::Undo {
+                original
+            } else {
+                expected
+            }
+        );
+        assert_eq!(
+            session.buffer().unwrap().is_modified(),
+            direction == History::Redo
+        );
+        let buffer = session.buffer().unwrap();
+        let coordinates = Coordinates::new(buffer).unwrap();
+        for (_, view) in session.windows().iter() {
+            assert_eq!(view.point.stamp, buffer.stamp());
+            assert!(coordinates.is_boundary(view.point.position).unwrap());
+            coordinates.to_cell(view.point.position).unwrap();
+        }
+        session.frame().unwrap();
+    }
+    assert_eq!(session.kill_ring().len(), 0);
+}

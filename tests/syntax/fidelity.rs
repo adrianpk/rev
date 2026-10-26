@@ -50,6 +50,10 @@ fn chunk_search(session: &mut Session) {
     let needle = whole.slice(range.clone()).to_string();
     let source = whole.to_string();
     let expected = source[..source.find(&needle).unwrap()].chars().count();
+    assert_eq!(
+        expected, range.start,
+        "seam query must have a unique first occurrence"
+    );
     session.execute(Command::Motion(Motion::BufferStart));
     query(session, Command::SearchForward, &needle);
     let found = session.search_match().unwrap();

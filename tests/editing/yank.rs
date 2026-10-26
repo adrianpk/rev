@@ -386,3 +386,48 @@ fn rotation_limits() {
         assert_eq!(session.kill_ring().len(), count);
     }
 }
+
+// Removing the yank's owning view cannot transfer its literal range to a new
+// view, even after tiny resize and undo/redo restore the same document state.
+#[test]
+fn retired_yank() {
+    use crossterm::event::Event;
+    use rev::command::{Split, WindowCommand};
+    let mut session = stocked(&["界", "👩\u{200d}"], "💻e\u{301}\r\n");
+    session.execute(Command::Split(Split::Right));
+    let owner = session.windows().selected_id();
+    let peer = session.windows().order()[1];
+    linear(&mut session, LinearCommand::Yank);
+    assert_eq!(
+        super::text(session.buffer().unwrap()),
+        "👩\u{200d}💻e\u{301}\r\n"
+    );
+    session.handle(Event::Resize(0, 0));
+    session.handle(Event::Resize(48, 8));
+    session.execute(Command::Window(WindowCommand::Delete));
+    assert_eq!(session.windows().selected_id(), peer);
+    assert!(session.windows().get(owner).is_err());
+    session.execute(Command::Split(Split::Right));
+    session.execute(Command::History(History::Undo));
+    session.execute(Command::History(History::Redo));
+    let points = session
+        .windows()
+        .iter()
+        .map(|(_, view)| view.point)
+        .collect::<Vec<_>>();
+    rejected(&mut session);
+    assert_eq!(
+        session
+            .windows()
+            .iter()
+            .map(|(_, view)| view.point)
+            .collect::<Vec<_>>(),
+        points
+    );
+    assert_eq!(
+        super::text(session.buffer().unwrap()),
+        "👩\u{200d}💻e\u{301}\r\n"
+    );
+    session.execute(Command::History(History::Undo));
+    assert_eq!(super::text(session.buffer().unwrap()), "💻e\u{301}\r\n");
+}

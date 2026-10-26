@@ -139,3 +139,6 @@ fn snapshot(buffer: &Buffer) -> Snapshot {
         warning: buffer.save_warning().map(str::to_owned),
     }
 }
+
+#[path = "recovery/paths.rs"]
+mod paths;

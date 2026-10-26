@@ -292,3 +292,84 @@ fn resize_roundtrip() {
     assert!(!session.buffer().unwrap().is_modified());
     bounded(&mut session, size(41, 15));
 }
+
+// Repeated successful split/delete/keep cycles must never reuse retired view
+// identities or consume an existing redo branch, even across suspended frames.
+#[test]
+fn recreated_views() {
+    use rev::command::{History, Motion, WindowCommand};
+    use rev::coordinates::Coordinates;
+    use std::collections::BTreeSet;
+    for first in [Split::Below, Split::Right] {
+        let source = "a\t界e\u{301}👩\u{200d}💻\r\nlast";
+        let mut session = editor(source, size(61, 15));
+        session.insert('X');
+        session.execute(Command::KeyboardQuit);
+        session.insert('Y');
+        session.execute(Command::History(History::Undo));
+        let anchor = session.windows().selected_id();
+        let mut issued = BTreeSet::from([anchor]);
+        let content = super::buffer_text(&session);
+        let state = session.buffer().unwrap().state();
+        for _ in 0..12 {
+            split(&mut session, first);
+            split(
+                &mut session,
+                if first == Split::Below {
+                    Split::Right
+                } else {
+                    Split::Below
+                },
+            );
+            let ids = session.windows().order();
+            for id in ids.iter().copied().filter(|id| *id != anchor) {
+                assert!(issued.insert(id), "a retired identity was reused");
+                session.select_view(id).unwrap();
+                session.execute(Command::Motion(Motion::BufferEnd));
+            }
+            session.select_view(anchor).unwrap();
+            let points = views(&session)
+                .into_iter()
+                .map(|(id, view)| (id, view.point))
+                .collect::<Vec<_>>();
+            for dimensions in [size(0, 0), size(1, 1), size(7, 5), size(61, 15)] {
+                session.handle(Event::Resize(dimensions.width, dimensions.height));
+                bounded(&mut session, dimensions);
+                assert_eq!(
+                    views(&session)
+                        .into_iter()
+                        .map(|(id, view)| (id, view.point))
+                        .collect::<Vec<_>>(),
+                    points
+                );
+                let buffer = session.buffer().unwrap();
+                let coordinates = Coordinates::new(buffer).unwrap();
+                for (_, point) in &points {
+                    assert_eq!(point.stamp, buffer.stamp());
+                    assert!(coordinates.is_boundary(point.position).unwrap());
+                }
+            }
+            let retired = ids.into_iter().find(|id| *id != anchor).unwrap();
+            session.select_view(retired).unwrap();
+            session.execute(Command::Window(WindowCommand::Delete));
+            assert_eq!(session.windows().iter().len(), 2);
+            assert!(session.windows().get(retired).is_err());
+            session.select_view(anchor).unwrap();
+            session.execute(Command::Window(WindowCommand::Keep));
+            assert_eq!(session.windows().order(), [anchor]);
+            assert_eq!(super::buffer_text(&session), content);
+            assert_eq!(session.buffer().unwrap().state(), state);
+            assert_eq!(session.buffer().unwrap().history().len(), 1);
+            assert_eq!(session.buffer().unwrap().redo_history().len(), 1);
+        }
+        session.execute(Command::History(History::Redo));
+        assert_eq!(
+            super::buffer_text(&session),
+            "a\tXY界e\u{301}👩\u{200d}💻\r\nlast"
+        );
+        session.execute(Command::History(History::Undo));
+        session.execute(Command::History(History::Undo));
+        assert_eq!(super::buffer_text(&session), source);
+        assert!(!session.buffer().unwrap().is_modified());
+    }
+}
