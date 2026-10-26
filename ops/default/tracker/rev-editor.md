@@ -99,7 +99,7 @@ Task commits: T2.1 `f3fc075194321f8603140bdb717597dac12a1688`;
 T2.2 `9487765a9240a3bb49de35dc3a117d8523432ba8`.
 Validation: required Cargo/source commands passed; `cargo test --test core`
 passed six tests with zero skips. Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#2](https://forge.adrianpk.com/adrianpk/rev/pulls/2).
 Report: [Slice 2](../report/slices/rev-editor/slice-2-buffers.md).
 
 ### Slice 3: Resolve Unicode and display coordinates
