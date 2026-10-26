@@ -2,6 +2,7 @@ mod buffers;
 mod edit;
 mod file;
 mod history;
+mod kill;
 mod motion;
 mod region;
 mod save;
@@ -53,6 +54,7 @@ pub enum Action {
 pub struct Session {
     buffers: Buffers,
     windows: Windows,
+    kills: crate::kill::KillText,
     input: Input,
     size: Size,
     echo: String,
@@ -87,6 +89,7 @@ impl Session {
         Ok(Self {
             buffers,
             windows: Windows::new(view)?,
+            kills: crate::kill::KillText::default(),
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
@@ -155,6 +158,9 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if !matches!(command, Command::Kill(_)) {
+            self.kills.break_chain();
+        }
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
@@ -162,6 +168,7 @@ impl Session {
             Command::Split(direction) => self.split(direction),
             Command::Window(command) => self.window_command(command),
             Command::Region(command) => self.region_command(command),
+            Command::Kill(command) => self.kill_command(command),
             _ => self.dispatch(command),
         }
     }
@@ -214,6 +221,7 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        self.kills.break_chain();
         self.windows.selected_mut().reset_navigation();
         if character.is_control() {
             return self.notice("Control character rejected");
@@ -240,6 +248,7 @@ impl Session {
     }
 
     fn notice(&mut self, message: &str) -> Action {
+        self.kills.break_chain();
         match self.stop_typing() {
             Ok(()) => self.focus_message(message),
             Err(error) => self.message(&error.to_string()),

@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "editing/kills.rs"]
+mod kills;
 #[path = "editing/regions.rs"]
 mod regions;
 

@@ -6,6 +6,7 @@ pub mod coordinates;
 pub mod display;
 pub mod file;
 pub mod input;
+mod kill;
 pub mod session;
 pub mod terminal;
 pub mod view;

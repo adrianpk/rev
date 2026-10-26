@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use rev::command::{BufferCommand, Command, RegionCommand, Split, WindowCommand};
+use rev::command::{BufferCommand, Command, KillCommand, RegionCommand, Split, WindowCommand};
 use rev::input::{Focus, Input, Key, Outcome, Prefix};
 
 fn key(code: KeyCode) -> Event {
@@ -687,5 +687,27 @@ fn region_bindings() {
             Command::named(command.name()),
             Some(Command::Region(command))
         );
+    }
+}
+
+// Terminal control/meta reports and canonical names resolve to the same live
+// handlers rather than inserting the command suffix into the document.
+#[test]
+fn kill_bindings() {
+    for (code, modifiers, command) in [
+        (KeyCode::Char('k'), KeyModifiers::CONTROL, KillCommand::Line),
+        (KeyCode::Char('d'), KeyModifiers::ALT, KillCommand::Word),
+        (
+            KeyCode::Backspace,
+            KeyModifiers::ALT,
+            KillCommand::BackwardWord,
+        ),
+    ] {
+        let mut input = Input::default();
+        assert_eq!(
+            input.handle(Event::Key(KeyEvent::new(code, modifiers))),
+            Outcome::Command(Command::Kill(command))
+        );
+        assert_eq!(Command::named(command.name()), Some(Command::Kill(command)));
     }
 }

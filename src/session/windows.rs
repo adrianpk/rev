@@ -19,6 +19,7 @@ impl Session {
         let view = self.windows.get(id)?;
         view.cell(self.buffers.get(view.point.stamp.buffer)?)?;
         self.stop_typing()?;
+        self.kills.break_chain();
         self.windows.select(id)?;
         Ok(())
     }
