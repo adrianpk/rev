@@ -8,6 +8,7 @@ mod motion;
 mod region;
 mod save;
 mod windows;
+mod yank;
 
 use std::io::{self, Write};
 use std::path::Path;
@@ -56,6 +57,7 @@ pub struct Session {
     buffers: Buffers,
     windows: Windows,
     kills: crate::kill::KillRing,
+    yank: Option<yank::Capture>,
     input: Input,
     size: Size,
     echo: String,
@@ -91,6 +93,7 @@ impl Session {
             buffers,
             windows: Windows::new(view)?,
             kills: crate::kill::KillRing::default(),
+            yank: None,
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
@@ -159,9 +162,7 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
-        if !command.is_kill() {
-            self.kills.break_chain();
-        }
+        self.command_boundary(command);
         if let Err(error) = self.stop_typing() {
             return self.message(&error.to_string());
         }
@@ -188,6 +189,15 @@ impl Session {
             Command::History(history) => self.history(history),
             Command::KeyboardQuit => self.keyboard_quit(),
             _ => self.edit_command(command),
+        }
+    }
+
+    fn command_boundary(&mut self, command: Command) {
+        if !command.is_kill() {
+            self.kills.break_chain();
+        }
+        if command != Command::Linear(crate::command::LinearCommand::Pop) {
+            self.yank = None;
         }
     }
 
@@ -223,6 +233,7 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        self.yank = None;
         self.kills.break_chain();
         self.windows.selected_mut().reset_navigation();
         if character.is_control() {
@@ -250,6 +261,7 @@ impl Session {
     }
 
     fn notice(&mut self, message: &str) -> Action {
+        self.yank = None;
         self.kills.break_chain();
         match self.stop_typing() {
             Ok(()) => self.focus_message(message),

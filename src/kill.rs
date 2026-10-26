@@ -43,6 +43,11 @@ impl KillRing {
         self.entries.iter()
     }
 
+    pub(crate) fn older(&self, index: usize) -> Option<(usize, &Rope)> {
+        let next = index.checked_add(1)?.checked_rem(self.entries.len())?;
+        Some((next, self.entries.get(next)?))
+    }
+
     pub(crate) fn copy(&mut self, text: Rope) {
         self.break_chain();
         self.store(Entry {

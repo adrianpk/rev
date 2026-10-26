@@ -6,6 +6,8 @@ mod kills;
 mod linear;
 #[path = "editing/regions.rs"]
 mod regions;
+#[path = "editing/yank.rs"]
+mod yank;
 
 use rev::buffer::edit::{Cursor, Error, Point, Replacement};
 use rev::buffer::{Buffer, Buffers, Span, Stamp};

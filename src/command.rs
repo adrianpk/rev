@@ -41,7 +41,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 40] = [
+    pub const ALL: [Self; 41] = [
         Self::Quit,
         Self::FindFile,
         Self::SaveBuffer,
@@ -82,6 +82,7 @@ impl Command {
         Self::Linear(LinearCommand::Kill),
         Self::Linear(LinearCommand::Copy),
         Self::Linear(LinearCommand::Yank),
+        Self::Linear(LinearCommand::Pop),
     ];
 
     pub fn name(self) -> &'static str {

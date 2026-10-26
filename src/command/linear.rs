@@ -3,6 +3,7 @@ pub enum LinearCommand {
     Kill,
     Copy,
     Yank,
+    Pop,
 }
 
 impl LinearCommand {
@@ -11,6 +12,7 @@ impl LinearCommand {
             Self::Kill => "kill-region",
             Self::Copy => "kill-ring-save",
             Self::Yank => "yank",
+            Self::Pop => "yank-pop",
         }
     }
 }

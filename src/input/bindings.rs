@@ -73,6 +73,7 @@ fn meta(code: KeyCode) -> Option<Command> {
         KeyCode::Char('d') => Some(Command::Kill(KillCommand::Word)),
         KeyCode::Backspace => Some(Command::Kill(KillCommand::BackwardWord)),
         KeyCode::Char('w') => Some(Command::Linear(LinearCommand::Copy)),
+        KeyCode::Char('y') => Some(Command::Linear(LinearCommand::Pop)),
         KeyCode::Char('f') => Some(Command::Motion(Motion::ForwardWord)),
         KeyCode::Char('b') => Some(Command::Motion(Motion::BackwardWord)),
         KeyCode::Char('<') => Some(Command::Motion(Motion::BufferStart)),

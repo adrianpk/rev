@@ -6,10 +6,11 @@ use crate::input::Focus;
 
 use super::{Action, Session};
 
-enum Error {
+pub(super) enum Error {
     Edit(edit::Error),
     Inactive,
     EmptyRing,
+    Yank,
 }
 
 impl fmt::Display for Error {
@@ -18,6 +19,7 @@ impl fmt::Display for Error {
             Self::Edit(error) => error.fmt(formatter),
             Self::Inactive => formatter.write_str("Region is not active"),
             Self::EmptyRing => formatter.write_str("Kill ring is empty"),
+            Self::Yank => formatter.write_str("No current yank to replace"),
         }
     }
 }
@@ -31,11 +33,13 @@ impl From<edit::Error> for Error {
 impl Session {
     pub(super) fn linear_command(&mut self, command: LinearCommand) -> Action {
         if self.input.focus() != Focus::Editing {
+            self.yank = None;
             self.kills.break_chain();
             return self.message("a prompt owns input focus");
         }
         let result = self.linear_edit(command);
         if !matches!(result, Ok(true)) {
+            self.yank = None;
             self.kills.break_chain();
         }
         match result {
@@ -57,6 +61,7 @@ impl Session {
                 Ok(self.copy_region(source)?)
             }
             LinearCommand::Yank => self.yank(),
+            LinearCommand::Pop => self.yank_pop(),
         }
     }
 
@@ -74,11 +79,5 @@ impl Session {
         let text = self.buffer()?.slice(&source)?.into();
         self.kills.copy(text);
         Ok(true)
-    }
-
-    fn yank(&mut self) -> Result<bool, Error> {
-        let text = self.kills.text().ok_or(Error::EmptyRing)?.to_string();
-        let point = self.windows.selected().point.position.0;
-        Ok(self.replace(point..point, &text)?)
     }
 }

@@ -722,6 +722,7 @@ fn linear_bindings() {
         ('w', KeyModifiers::CONTROL, LinearCommand::Kill),
         ('w', KeyModifiers::ALT, LinearCommand::Copy),
         ('y', KeyModifiers::CONTROL, LinearCommand::Yank),
+        ('y', KeyModifiers::ALT, LinearCommand::Pop),
     ] {
         let mut input = Input::default();
         assert_eq!(
