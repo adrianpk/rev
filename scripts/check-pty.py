@@ -258,8 +258,13 @@ def scrolling(root):
     session = Session([str(root / "target/debug/rev")])
     try:
         session.ready(b"C-x C-c: exit")
+        # Confirm event-reader registration before sending the first SIGWINCH.
+        session.output.clear()
+        os.write(session.master, b"\x07")
+        session.wait(lambda: b"Quit" in session.output)
+        session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 7, 80, 0, 0))
-        session.wait(lambda: b"\x1b[7;1HC-x C-c: exit" in session.output)
+        session.wait(lambda: b"\x1b[7;1HQuit" in session.output)
         lines = ["0123456789", "x", "a\t界e\u0301👩\u200d💻"] + ["0123456789"] * 12
         os.write(session.master, "\r".join(lines).encode())
         session.wait(lambda: b"** RW L15 C11 Text" in session.output)
