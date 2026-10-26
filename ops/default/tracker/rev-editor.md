@@ -252,6 +252,16 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, 
 - [ ] T10.2: Exercise repeated navigation, unavailable history, a retained clean save point, independent buffers, read-only restrictions, and coherent mapping of non-initiating positions.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T10.1 and T10.2 complete; awaiting canonical PR integration.
+Task commits: T10.1 `ca57d28a6027aca29186077a8932bcc24aaf5e69` with admission
+refinement `20923bfd678a19798f86212c9cd61592819ce0c6`;
+T10.2 `fdf16328e74c9c90571ee494d5cc8413013ce155`.
+Validation: required Cargo/source commands passed; `cargo test --test editing`
+passed thirty-two tests and the terminal PTY suite passed twelve cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 10](../report/slices/rev-editor/slice-10-history.md).
+
 ### Slice 11: Group typing and compound history
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R19, R20, R21, R25.
