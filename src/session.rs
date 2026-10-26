@@ -86,20 +86,26 @@ impl Session {
 
     pub fn handle(&mut self, event: Event) -> Action {
         if let Event::Resize(width, height) = event {
-            self.size = Size { width, height };
-            return Action::Redraw;
+            return self.resize(width, height);
         }
         match self.input.handle(event) {
             Outcome::Command(command) => self.execute(command),
             Outcome::Editing(key) => self.typing(key),
-            Outcome::Prefix(prefix) => self.message(prefix.label()),
-            Outcome::Message(message) => self.message(message),
+            Outcome::Prefix(prefix) => self.notice(prefix.label()),
+            Outcome::Message(message) => self.notice(message),
             _ => Action::Wait,
         }
     }
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if let Err(error) = self.stop_typing() {
+            return self.message(&error.to_string());
+        }
+        self.dispatch(command)
+    }
+
+    fn dispatch(&mut self, command: Command) -> Action {
         self.navigation(command);
         let point = self.view.point.position.0;
         let result = match command {
@@ -130,12 +136,11 @@ impl Session {
     pub fn insert(&mut self, character: char) -> Action {
         self.view.reset_navigation();
         if character.is_control() {
-            return self.message("Control character rejected");
+            return self.notice("Control character rejected");
         }
         let mut bytes = [0; 4];
         let text = character.encode_utf8(&mut bytes);
-        let point = self.view.point.position.0;
-        let result = self.replace(point..point, text);
+        let result = self.type_text(text);
         self.finish(result)
     }
 
@@ -145,7 +150,28 @@ impl Session {
         {
             return self.insert(character);
         }
-        self.message("Unbound key")
+        self.notice("Unbound key")
+    }
+
+    fn stop_typing(&mut self) -> Result<(), buffer::Error> {
+        self.buffers
+            .get_mut(self.view.point.stamp.buffer)
+            .map(Buffer::break_typing)
+    }
+
+    fn notice(&mut self, message: &str) -> Action {
+        match self.stop_typing() {
+            Ok(()) => self.message(message),
+            Err(error) => self.message(&error.to_string()),
+        }
+    }
+
+    fn resize(&mut self, width: u16, height: u16) -> Action {
+        self.size = Size { width, height };
+        match self.stop_typing() {
+            Ok(()) => Action::Redraw,
+            Err(error) => self.message(&error.to_string()),
+        }
     }
 
     fn finish(&mut self, result: Result<bool, buffer::edit::Error>) -> Action {

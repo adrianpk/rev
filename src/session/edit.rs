@@ -25,6 +25,15 @@ impl Session {
     }
 
     pub(super) fn replace(&mut self, range: Range<usize>, text: &str) -> Result<bool, Error> {
+        self.edit(range, text, false)
+    }
+
+    pub(super) fn type_text(&mut self, text: &str) -> Result<bool, Error> {
+        let point = self.view.point.position.0;
+        self.edit(point..point, text, true)
+    }
+
+    fn edit(&mut self, range: Range<usize>, text: &str, typing: bool) -> Result<bool, Error> {
         if range.is_empty() && text.is_empty() {
             return Ok(false);
         }
@@ -42,8 +51,12 @@ impl Session {
             index: 0,
             position: Scalar(position),
         };
-        let prepared =
-            buffer.prepare(&edits, std::slice::from_ref(&self.view.point), Some(cursor))?;
+        let points = std::slice::from_ref(&self.view.point);
+        let prepared = if typing {
+            buffer.prepare_typing(&edits[0], points, cursor)?
+        } else {
+            buffer.prepare(&edits, points, Some(cursor))?
+        };
         buffer.publish(prepared, std::slice::from_mut(&mut self.view.point))?;
         Ok(true)
     }

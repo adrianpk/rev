@@ -13,6 +13,7 @@ pub enum History {
 #[derive(Clone, Copy)]
 pub(super) enum Operation {
     Edit,
+    Typing,
     History(History),
 }
 
@@ -113,15 +114,17 @@ impl Buffer {
         &mut self,
         record: Transaction,
         operation: Operation,
+        group: Option<Transaction>,
     ) -> Result<(), Error> {
         match operation {
             Operation::Edit => self.record_edit(record),
+            Operation::Typing => self.record_typing(record, group)?,
             Operation::History(direction) => self.transfer(direction)?,
         }
         Ok(())
     }
 
-    fn record_edit(&mut self, record: Transaction) {
+    pub(super) fn record_edit(&mut self, record: Transaction) {
         for discarded in self.redo.drain(..) {
             self.history_bytes = self.history_bytes.saturating_sub(discarded.bytes);
         }

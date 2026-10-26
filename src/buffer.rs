@@ -123,6 +123,7 @@ pub struct Buffer {
     state: State,
     saved: State,
     next_state: u64,
+    typing: Option<Stamp>,
 }
 
 impl Buffer {
@@ -146,6 +147,7 @@ impl Buffer {
             state,
             saved: state,
             next_state: 1,
+            typing: None,
         })
     }
 
@@ -174,6 +176,7 @@ impl Buffer {
     pub fn mark_saved(&mut self, stamp: Stamp) -> Result<(), Error> {
         self.current(stamp)?;
         self.saved = self.state;
+        self.break_typing();
         Ok(())
     }
 

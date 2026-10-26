@@ -313,7 +313,9 @@ def undo_history(root):
         session.wait(lambda: b"Nothing to undo" in session.output)
         session.output.clear()
         source = "e\u0301界".encode()
-        os.write(session.master, source)
+        # Explicit command boundaries keep these three encoding checks separate
+        # from the adjacent-typing group exercised by its own terminal journey.
+        os.write(session.master, b"e\x07" + "\u0301".encode() + b"\x07" + "界".encode())
         session.wait(lambda: source in session.output and b"** RW L1 C4 Text" in session.output)
         session.output.clear()
         # CSI-u reports these exact Control combinations without the legacy

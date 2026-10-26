@@ -554,7 +554,7 @@ fn direct_input() {
     }
     let buffer = session.buffer().unwrap();
     assert_eq!(text(buffer), "é界e\u{301}\t\nx");
-    assert_eq!(buffer.history().len(), 7);
+    assert_eq!(buffer.history().len(), 4);
     assert_eq!(buffer.stamp().revision, 8);
     assert_eq!(session.view().point.position, Scalar(7));
     assert_eq!(session.view().point.stamp, buffer.stamp());
@@ -682,13 +682,13 @@ fn editing_phases() {
     };
     use rev::session::Action;
     let cases = [
-        ("text", "", 0, press(KeyCode::Char('é')), "éé"),
-        ("newlines", "", 0, press(KeyCode::Enter), "\n\n"),
-        ("tabs", "", 0, press(KeyCode::Tab), "\t\t"),
-        ("backward", "abc", 3, press(KeyCode::Backspace), "a"),
-        ("forward", "abc", 0, chord('d'), "c"),
+        ("text", "", 0, press(KeyCode::Char('é')), "éé", 1),
+        ("newlines", "", 0, press(KeyCode::Enter), "\n\n", 2),
+        ("tabs", "", 0, press(KeyCode::Tab), "\t\t", 2),
+        ("backward", "abc", 3, press(KeyCode::Backspace), "a", 2),
+        ("forward", "abc", 0, chord('d'), "c", 2),
     ];
-    for (name, source, position, event, expected) in cases {
+    for (name, source, position, event, expected, groups) in cases {
         let mut session = editor(source, position, false);
         assert_eq!(session.handle(event.clone()), Action::Redraw, "{name}");
         assert_eq!(
@@ -702,7 +702,7 @@ fn editing_phases() {
             "{name}"
         );
         assert_eq!(text(session.buffer().unwrap()), expected, "{name}");
-        assert_eq!(session.buffer().unwrap().history().len(), 2, "{name}");
+        assert_eq!(session.buffer().unwrap().history().len(), groups, "{name}");
     }
 }
 
@@ -1075,6 +1075,7 @@ fn saved_history() {
 fn history_walk() {
     let mut session = editor("", 0, false);
     session.insert('é');
+    session.execute(rev::command::Command::KeyboardQuit);
     session.insert('界');
     let cases = [
         ("undo", "é", 1, true, 1, 1),
@@ -1471,4 +1472,49 @@ fn prepared_history() {
     let before = snapshot(buffer, &points);
     assert!(buffer.publish(stale, &mut points).is_err());
     assert_eq!(snapshot(buffer, &points), before);
+}
+
+// Adjacent printable scalars, including combining and emoji components, form
+// one retained undo unit while every accepted key still publishes a revision.
+#[test]
+fn typing_group() {
+    let mut session = editor("", 0, false);
+    let source = "ab e\u{301}👩\u{200d}💻";
+    for character in source.chars() {
+        session.insert(character);
+    }
+    let buffer = session.buffer().unwrap();
+    assert_eq!(text(buffer), source);
+    assert_eq!(buffer.history().len(), 1);
+    assert_eq!(buffer.stamp().revision, 1 + source.chars().count() as u64);
+    assert_eq!(buffer.history().back().unwrap().changes().len(), 1);
+    history(&mut session, "undo");
+    assert_eq!(text(session.buffer().unwrap()), "");
+    assert_eq!(session.view().point.position, Scalar(0));
+    assert!(!session.buffer().unwrap().is_modified());
+    history(&mut session, "undo-redo");
+    assert_eq!(text(session.buffer().unwrap()), source);
+    assert_eq!(
+        session.view().point.position,
+        Scalar(source.chars().count())
+    );
+}
+
+// Navigation breaks typing continuity even within an existing word. Undo first
+// removes the new insertion, then the whole earlier typing group.
+#[test]
+fn typing_command() {
+    let mut session = editor("", 0, false);
+    session.insert('a');
+    session.insert('b');
+    session.handle(chord('b'));
+    session.insert('X');
+    assert_eq!(text(session.buffer().unwrap()), "aXb");
+    assert_eq!(session.buffer().unwrap().history().len(), 2);
+    history(&mut session, "undo");
+    assert_eq!(text(session.buffer().unwrap()), "ab");
+    assert_eq!(session.view().point.position, Scalar(1));
+    history(&mut session, "undo");
+    assert_eq!(text(session.buffer().unwrap()), "");
+    assert!(!session.buffer().unwrap().is_modified());
 }

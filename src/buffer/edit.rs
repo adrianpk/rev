@@ -1,3 +1,4 @@
+mod grouping;
 mod history;
 mod mapping;
 
@@ -60,9 +61,8 @@ impl fmt::Display for Error {
             Self::Order => {
                 formatter.write_str("base ranges must be ordered and disjoint with distinct starts")
             }
-            Self::ChangedPositions => {
-                formatter.write_str("points or mark changed after edit preparation")
-            }
+            Self::ChangedPositions => formatter
+                .write_str("points, mark or typing continuity changed after edit preparation"),
             Self::Cursor(index) => {
                 write!(formatter, "initiating point index {index} is unavailable")
             }
@@ -123,7 +123,7 @@ impl Change {
 }
 
 /// One published operation. Its stamps also invalidate revision-derived caches.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Transaction {
     pub before: Stamp,
     pub after: Stamp,
@@ -160,6 +160,7 @@ pub struct Prepared {
     record: Transaction,
     operation: Operation,
     next_state: u64,
+    group: Option<Transaction>,
 }
 
 impl Buffer {
@@ -169,6 +170,7 @@ impl Buffer {
 
     pub fn set_read_only(&mut self, read_only: bool) {
         self.read_only = read_only;
+        self.break_typing();
     }
 
     pub fn mark(&self) -> Option<Scalar> {
@@ -180,6 +182,7 @@ impl Buffer {
             mapping::boundary(&Coordinates::new(self)?, position)?;
         }
         self.mark = mark;
+        self.break_typing();
         Ok(())
     }
 
@@ -244,6 +247,7 @@ impl Buffer {
             record,
             operation: Operation::Edit,
             next_state: self.next_state,
+            group: None,
         })
     }
 
@@ -254,13 +258,14 @@ impl Buffer {
         if points != prepared.record.before_points || self.mark != prepared.record.before_mark {
             return Err(Error::ChangedPositions);
         }
+        self.admit_group(&prepared)?;
         self.reserve(prepared.operation)?;
         // Queue admission completes before any text or live position changes.
         let after = prepared.record.after;
         let state = prepared.record.after_state;
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
-        self.record(prepared.record, prepared.operation)?;
+        self.record(prepared.record, prepared.operation, prepared.group)?;
         // From here onward there are no recoverable operations or callbacks.
         self.text = prepared.text;
         self.crlf = prepared.crlf;
@@ -269,6 +274,10 @@ impl Buffer {
         self.next_state = prepared.next_state;
         self.mark = mark;
         points.copy_from_slice(&after_points);
+        self.typing = match prepared.operation {
+            Operation::Typing => Some(after),
+            _ => None,
+        };
         Ok(())
     }
 
@@ -328,8 +337,8 @@ impl Buffer {
     }
 
     fn prune(&mut self) {
-        // One transaction is one group until command grouping is introduced.
-        // Always retain the newest reversible operation, even above the soft cap.
+        // Prune whole groups only, always retaining the newest coherent group
+        // even when its payload alone exceeds the soft target.
         while self.history.len() > 1
             && (self.history.len() > 512 || self.history_bytes > 64 * 1024 * 1024)
         {
