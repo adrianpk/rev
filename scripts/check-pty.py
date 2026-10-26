@@ -1720,6 +1720,68 @@ def multiline_search(root):
             session.close()
 
 
+def backward_search(root):
+    # A real C-r query crosses many lines, stops at BOF and reverses after a
+    # failure; accepted search owns no stale cancellation origin or undo entry.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-backward-") as directory:
+        path = Path(directory) / "back.txt"
+        source = b"cat\n" + b"filler\n" * 45 + b"CAT cat"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> back.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1b>", b"-- RW L47 C8 Text")
+            group_step(session, b"\x12", b"I-search backward:")
+            group_step(session, b"cat", b"-- RW L47 C5 Text", b"I-search backward: cat")
+            group_step(session, b"\x12", b"-- RW L47 C1 Text", b"\x1b[4mCAT\x1b[24m")
+            group_step(session, b"\x12", b"-- RW L1 C1 Text", b"\x1b[4mcat\x1b[24m")
+            group_step(session, b"\x12", b"No match", b"-- RW L1 C1 Text")
+            assert b"\x1b[4m" not in last_frame(session)
+            group_step(session, b"\x13", b"I-search: cat", b"-- RW L1 C4 Text")
+            group_step(session, b"\x13", b"-- RW L47 C4 Text", b"\x1b[4mCAT\x1b[24m")
+            group_step(session, b"\r", b"-- RW L47 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW L47 C4 Text")
+            group_step(session, b"\x18u", b"Nothing to undo")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS backward search, smart-case continuation, BOF failure, direction recovery and acceptance")
+        finally:
+            session.close()
+
+
+def smart_search(root):
+    # Unicode expansions must highlight original text; cancel after vertical
+    # reveal and resize restores the same document viewport, not just its point.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-smart-search-") as directory:
+        path = Path(directory) / "smart.txt"
+        source = ("İ\tStraße\n" + "filler\n" * 45 + "STRASSE\nend").encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> smart.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1b>", b"-- RW L48 C4 Text")
+            original = last_frame(session).split(b"\x1b[23;1H")[0]
+            named_step(session, "isearch-backward", b"I-search backward:")
+            group_step(session, b"strasse", b"-- RW L47 C1 Text")
+            group_step(session, b"\x12", b"-- RW L1 C5 Text", b"\x1b[4m" + "Straße".encode() + b"\x1b[24m")
+            group_step(session, b"\x01" + b"\x04" * 7 + paste_wire("i\u0307".encode()), b"-- RW L1 C1 Text", b"\x1b[4m" + "İ".encode() + b"\x1b[24m")
+            for width, height in [(0, 0), (1, 1), (80, 24)]:
+                resize_surface(session, width, height, True)
+            group_step(session, b"\x07", b"Quit", b"-- RW L48 C4 Text")
+            assert last_frame(session).split(b"\x1b[23;1H")[0] == original
+            group_step(session, b"\x1b<", b"-- RW L1 C1 Text")
+            group_step(session, b"\x13", b"I-search:")
+            group_step(session, b"STRASSE", b"-- RW L47 C8 Text", b"\x1b[4mSTRASSE\x1b[24m")
+            group_step(session, b"\r", b"-- RW L47 C8 Text")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS Unicode fold/source ranges, named backward search, exact viewport cancel and uppercase policy")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1774,7 +1836,9 @@ def main():
     focused_close(root)
     forward_search(root)
     multiline_search(root)
-    print("Terminal PTY suite: 60 cases passed, 0 skipped.")
+    backward_search(root)
+    smart_search(root)
+    print("Terminal PTY suite: 62 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
