@@ -1,11 +1,12 @@
 # Slice 40: Bundle Rust syntax highlighting
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-40-rust-highlights`
 PR: `#40`
+Integrated: `c2c5e08dad8669ac68b7c5b7e0fae868b376c939`
 
 ## Purpose
 

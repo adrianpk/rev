@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 40 - Bundle Rust syntax highlighting
+Active slice: Slice 41 - Update syntax from exact rope edits
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -853,11 +853,11 @@ Report: [Slice 39](../report/slices/rev-editor/slice-39-tree-delete.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R05, R31, R34.
 
-- [ ] T40.1: Integrate the pinned Rust grammar and bundled HIGHLIGHTS_QUERY with safe Tree-sitter APIs, a small capture palette, and extension selection with plain-text fallback.
-- [ ] T40.2: Exercise Rust keywords/strings/comments plus grammar-supported types/functions/numbers/operators, unsupported files, incomplete source, and missing/failed query fallback.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T40.1: Integrate the pinned Rust grammar and bundled HIGHLIGHTS_QUERY with safe Tree-sitter APIs, a small capture palette, and extension selection with plain-text fallback.
+- [x] T40.2: Exercise Rust keywords/strings/comments plus grammar-supported types/functions/numbers/operators, unsupported files, incomplete source, and missing/failed query fallback.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T40.1 and T40.2 complete; PR #40 awaits integration.
+Implementation: delivered through PR #40.
 Task commits: T40.1 `ad71197b9defa146a2ac02b1a824979465e48c2f`;
 Clippy assertion correction `07faa9a631bae8aea364cefc939a8ca6044ca74b`;
 T40.2 `a916ffa8507896869e172e3679188bbb3ce868ba`.
@@ -865,6 +865,8 @@ Validation: required Cargo/source commands passed; `cargo test --test syntax`
 passed 10 tests and the terminal PTY suite passed 82 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#40](https://forge.adrianpk.com/adrianpk/rev/pulls/40).
+Integration: `c2c5e08dad8669ac68b7c5b7e0fae868b376c939`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 40](../report/slices/rev-editor/slice-40-rust-highlights.md).
 
 ### Slice 41: Update syntax from exact rope edits
