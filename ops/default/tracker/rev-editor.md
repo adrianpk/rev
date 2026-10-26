@@ -572,6 +572,14 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R10
 - [ ] T26.2: Exercise large multiline paste, CRLF policy, control-looking text, terminal release/repeat noise, cancellation boundaries, and one-step undo across shared views.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T26.1 and T26.2 complete; canonical PR pending.
+Task commits: T26.1 `c944a880f3ef90d640df88c51daa3354261d07d6`;
+T26.2 `fd88fccd2936c41dd2c88c3fddef5dce8c9ee953`.
+Validation: required Cargo/source commands passed; `cargo test --test commands`
+passed thirty-eight tests and the terminal PTY suite passed fifty-four cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 26](../report/slices/rev-editor/slice-26-paste.md), reviewing.
+
 ### Slice 27: Run discoverable commands through M-x
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R22, R23.
