@@ -393,6 +393,14 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R06
 - [ ] T17.2: Exercise mixed split directions, minimum dimensions, allocation of distinct view IDs, and independent point/scroll after split. Refuse non-fitting changes before mutating layout.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T17.1 and T17.2 implemented; canonical PR pending.
+Task commits: T17.1 `d8aa6ff34885e2499e81ab5faa57c544cff9b68b`;
+T17.2 `e6a2e82e6566d590564de3d3ac6028160f953028`.
+Validation: required Cargo/source commands passed; `cargo test --test windows`
+passed ten tests and the terminal PTY suite passed thirty cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+Report: [Slice 17](../report/slices/rev-editor/slice-17-splits.md).
+
 ### Slice 18: Delete and cycle editing windows
 
 Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R14, R15.
