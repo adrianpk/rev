@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 3 - Resolve Unicode and display coordinates
+Active slice: Slice 4 - Publish coherent text edits
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -109,16 +109,19 @@ Report: [Slice 2](../report/slices/rev-editor/slice-2-buffers.md).
 
 Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R07, R09, R10, R16.
 
-- [ ] T3.1: Implement explicit scalar/byte/line-byte/display conversion and grapheme navigation over rope chunks. Use Unicode segmentation context across seams; retain CRLF as one logical separator.
-- [ ] T3.2: Add behavior cases for emoji sequences, combining marks, CJK width, tab stops, empty text, and a grapheme straddling chunks. Define safe display of controls without emitting terminal escape bytes.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T3.1: Implement explicit scalar/byte/line-byte/display conversion and grapheme navigation over rope chunks. Use Unicode segmentation context across seams; retain CRLF as one logical separator.
+- [x] T3.2: Add behavior cases for emoji sequences, combining marks, CJK width, tab stops, empty text, and a grapheme straddling chunks. Define safe display of controls without emitting terminal escape bytes.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T3.1 and T3.2 implemented; canonical integration pending.
+Implementation: T3.1 and T3.2 delivered through PR #3.
 Task commits: T3.1 `b21fb6f837c6d959ee37716a88e96ac5da2ff400`;
 T3.2 `7a04433a8c7134b8c060379b1f4d1ca6b0a528b4`.
 Validation: required Cargo/source commands passed; `cargo test --test coordinates`
 passed eight tests with zero skips. Final PR-head evidence is recorded through Looper.
 PR: [#3](https://forge.adrianpk.com/adrianpk/rev/pulls/3).
+Integration: Rebase + Fast-forward into dev at
+`22184eecdda62ac5f5602b74afa198b85de494f3`; all six ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 3](../report/slices/rev-editor/slice-3-coordinates.md).
 
 ### Slice 4: Publish coherent text edits

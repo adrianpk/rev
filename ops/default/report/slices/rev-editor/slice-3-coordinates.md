@@ -1,11 +1,12 @@
 # Slice 3: Resolve Unicode and display coordinates
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-03-coordinates`
 PR: `#3`
+Integrated: Rebase + Fast-forward into dev at `22184eecdda62ac5f5602b74afa198b85de494f3`.
 
 ## Purpose
 
