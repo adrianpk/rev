@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 12 - Load exact UTF-8 file content
+Active slice: Slice 13 - Reuse canonical visited files
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -290,19 +290,22 @@ Report: [Slice 11](../report/slices/rev-editor/slice-11-grouping.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R02, R09, R10, R11, R37.
 
-- [ ] T12.1: Load existing files into canonical ropes with strict UTF-8, conservative NUL binary rejection, exact LF/CRLF and final-newline retention, recognized BOM metadata, and prevailing newline preference.
-- [ ] T12.2: Exercise invalid encoding, empty files, mixed line endings, BOM round trips, missing paths, permission failures, and preservation of the previous active buffer on rejected ingress.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T12.1: Load existing files into canonical ropes with strict UTF-8, conservative NUL binary rejection, exact LF/CRLF and final-newline retention, recognized BOM metadata, and prevailing newline preference.
+- [x] T12.2: Exercise invalid encoding, empty files, mixed line endings, BOM round trips, missing paths, permission failures, and preservation of the previous active buffer on rejected ingress.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T12.1 and T12.2 implemented through PR #12.
+Implementation: T12.1 and T12.2 delivered through PR #12.
 Task commits: T12.1 `5f874847bc942eb55481037004383fb01d46699f` with startup
 ownership `69ad76b8616b1139b27aa9b6cdc8f057ac4be078`;
 T12.2 `f012fa51de4fc8d29f1afcfc18f37e5d2fb9053f` with permission fixture
 `c744436be30be980975a269f3ff228da2d94c697`.
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed eleven tests and the terminal PTY suite passed twenty cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Final PR-head evidence is recorded through Looper.
 PR: [#12](https://forge.adrianpk.com/adrianpk/rev/pulls/12).
+Integration: Rebase + Fast-forward into dev at
+`9bf25810d05f17fb04d3b535899a1d1ebf955caa`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 12](../report/slices/rev-editor/slice-12-file-ingress.md).
 
 ### Slice 13: Reuse canonical visited files

@@ -1,11 +1,12 @@
 # Slice 12: Load exact UTF-8 file content
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-12-file-ingress`
 PR: `#12`
+Integrated: Rebase + Fast-forward into dev at `9bf25810d05f17fb04d3b535899a1d1ebf955caa`.
 
 ## Purpose
 
