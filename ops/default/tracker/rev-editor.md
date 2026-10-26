@@ -713,6 +713,14 @@ Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R09
 - [ ] T33.2: Exercise partially touched tabs, wide clusters, empty rows, read-only/invalid admission, large row counts, and atomic undo/redo without partial row publication.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T33.1 and T33.2 complete; canonical PR preparation in progress.
+Task commits: T33.1 `cc6c158a59fd71ab025eb01b96264ff21de04fc1`;
+T33.2 `e99ace6bb3d6841e9e5cdd2196ba1a091091cedc`.
+Validation: required Cargo/source commands passed; `cargo test --test rectangles`
+passed 23 tests and the terminal PTY suite passed 68 cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 33](../report/slices/rev-editor/slice-33-rectangle-kill.md).
+
 ### Slice 34: Yank blocks with coherent padding and undo
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R10, R20, R21.
