@@ -6,7 +6,7 @@ pub use style::Style;
 use std::ops::Range;
 
 use ropey::RopeSlice;
-use tree_sitter::{Parser, Query, QueryCursor, StreamingIterator, Tree};
+use tree_sitter::{InputEdit, ParseOptions, Parser, Query, QueryCursor, StreamingIterator, Tree};
 
 use crate::buffer::{Buffer, Stamp};
 use source::Source;
@@ -24,6 +24,8 @@ pub struct Capture {
 pub struct Syntax {
     parsed: Option<Parsed>,
     stamp: Option<Stamp>,
+    source: Option<Stamp>,
+    incremental: bool,
 }
 
 struct Parsed {
@@ -39,6 +41,8 @@ impl Syntax {
         Self {
             parsed: query.and_then(Parsed::new),
             stamp: None,
+            source: None,
+            incremental: false,
         }
     }
 
@@ -55,16 +59,45 @@ impl Syntax {
         }
     }
 
-    /// Read borrowed rope chunks, never a flattened document copy. Refresh at
-    /// most once for a revision; obsolete trees cannot supply current captures.
+    /// Whether the last successful parse reused a tree already edited to the
+    /// current source revision. Invalidation and failure clear this evidence.
+    pub fn is_incremental(&self) -> bool {
+        self.incremental
+    }
+
+    /// Edit the retained tree only after text admission succeeds. Its coordinate
+    /// revision can advance through several hidden edits without reparsing, but
+    /// no captures are current until the parser confirms that revised tree.
+    pub(crate) fn edit(&mut self, before: Stamp, after: Stamp, edits: &[InputEdit]) {
+        self.stamp = None;
+        self.incremental = false;
+        if let Some(parsed) = &mut self.parsed {
+            parsed.edit(self.source == Some(before), edits);
+        }
+        self.source = Some(after);
+    }
+
+    /// Read borrowed rope chunks, at most once per revision. Only a retained
+    /// tree whose coordinates match that revision can seed incremental parsing.
     pub fn update(&mut self, text: RopeSlice<'_>, stamp: Stamp) {
+        self.refresh(text, stamp, None);
+    }
+
+    /// A caller can bound real parser work with Tree-sitter's progress callback.
+    /// Cancellation discards the tree and parser continuation, preserving text.
+    pub fn update_with(&mut self, text: RopeSlice<'_>, stamp: Stamp, options: ParseOptions<'_>) {
+        self.refresh(text, stamp, Some(options));
+    }
+
+    fn refresh(&mut self, text: RopeSlice<'_>, stamp: Stamp, options: Option<ParseOptions<'_>>) {
         if self.stamp == Some(stamp) {
             return;
         }
+        self.incremental = false;
         if let Some(parsed) = &mut self.parsed {
-            let mut read = |offset, _| source::chunk(text, offset);
-            parsed.tree = parsed.parser.parse_with_options(&mut read, None, None);
+            self.incremental = parsed.update(text, self.source == Some(stamp), options);
         }
+        self.source = Some(stamp);
         self.stamp = Some(stamp);
     }
 
@@ -93,6 +126,18 @@ impl Syntax {
 }
 
 impl Parsed {
+    fn edit(&mut self, current: bool, edits: &[InputEdit]) {
+        if !current {
+            self.tree = None;
+            return;
+        }
+        if let Some(tree) = &mut self.tree {
+            for edit in edits {
+                tree.edit(edit);
+            }
+        }
+    }
+
     fn new(source: &str) -> Option<Self> {
         let language = tree_sitter_rust::LANGUAGE.into();
         let mut parser = Parser::new();
@@ -110,6 +155,23 @@ impl Parsed {
             query,
             tree: None,
         })
+    }
+
+    fn update(
+        &mut self,
+        text: RopeSlice<'_>,
+        current: bool,
+        options: Option<ParseOptions<'_>>,
+    ) -> bool {
+        let old = self.tree.as_ref().filter(|_| current);
+        let reused = old.is_some();
+        let mut read = |offset, _| source::chunk(text, offset);
+        let tree = self.parser.parse_with_options(&mut read, old, options);
+        if tree.is_none() {
+            self.parser.reset();
+        }
+        self.tree = tree;
+        reused && self.tree.is_some()
     }
 
     fn captures(&self, source: Source<'_>, bytes: Range<usize>) -> Vec<Capture> {

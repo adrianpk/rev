@@ -1,6 +1,7 @@
 mod grouping;
 mod history;
 mod mapping;
+mod syntax;
 mod views;
 
 pub use history::History;
@@ -165,6 +166,7 @@ impl Transaction {
 /// A private copy-on-write candidate; dropping it cancels without publication.
 /// Publication rechecks the live revision, read-only state, points, and mark.
 pub struct Prepared {
+    syntax: Vec<tree_sitter::InputEdit>,
     text: Rope,
     crlf: usize,
     record: Transaction,
@@ -254,7 +256,9 @@ impl Buffer {
             .changes
             .iter()
             .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
+        let syntax = syntax::edits(&self.text, &record.changes)?;
         Ok(Prepared {
+            syntax,
             text,
             crlf,
             record,
@@ -278,12 +282,14 @@ impl Buffer {
         self.admit_group(&prepared)?;
         self.reserve(prepared.operation)?;
         // Queue admission completes before any text or live position changes.
+        let before = prepared.record.before;
         let after = prepared.record.after;
         let state = prepared.record.after_state;
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
         self.record(prepared.record, prepared.operation, prepared.group)?;
         // From here onward there are no recoverable operations or callbacks.
+        self.syntax.edit(before, after, &prepared.syntax);
         self.text = prepared.text;
         self.crlf = prepared.crlf;
         self.revision = after.revision;

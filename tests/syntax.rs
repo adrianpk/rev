@@ -197,3 +197,6 @@ fn current_revision() {
 
 #[path = "syntax/edges.rs"]
 mod edges;
+
+#[path = "syntax/incremental.rs"]
+mod incremental;

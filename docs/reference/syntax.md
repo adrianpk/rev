@@ -44,9 +44,28 @@ to visible terminal cells. Tabs, wide clusters, control rendering and horizontal
 clipping retain the ordinary editor coordinate rules; clipped grapheme fragments
 remain blank. A styled row contains the same padded text as an unstyled row.
 
-The buffer retains parser, tree and query state between redraws. Rendered buffers
-refresh at most once per new revision, outside atomic text publication, using
-borrowed source chunks.
+## Incremental revisions
+
+Every admitted mutation prepares exact Tree-sitter input edits alongside its
+rope candidate. Ranges use the base revision and publish in descending source
+order. Byte offsets and LF-based row/byte columns account for multibyte text,
+CRLF, replaced line breaks and each inserted fragment. Typing contributions,
+paste, rectangle rows, undo and redo all use the same publication boundary.
+Canceled or rejected preparation leaves the existing tree unchanged.
+
+Publication adjusts the retained tree's coordinates and immediately invalidates
+its captures. Several accepted edits can accumulate before rendering. A later
+refresh reuses the tree only when its coordinates match the current revision;
+otherwise it starts from current source. Drawing refreshes at most once per
+rendered revision, outside atomic publication, from borrowed rope chunks.
+No complete document String is built for parsing.
+
+An incomplete parse can still supply current captures. A canceled or failed
+parse discards the tree and parser continuation, keeps the accepted text/history
+and uses Text status. That revision is not retried on every redraw. A subsequent
+accepted revision can recover from current text and resume incremental reuse.
+The library's progress-aware refresh accepts Tree-sitter ParseOptions for a
+bounded parser attempt; cancellation cannot roll back an accepted edit.
 
 Queries cover the visible source interval of each document row. Each request
 allows at most 4096 in-progress matches and 65536 returned styles; exceeding a
