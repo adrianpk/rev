@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 34 - Yank blocks with coherent padding and undo
+Active slice: Slice 35 - Render and focus the left file tree
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -729,17 +729,20 @@ Report: [Slice 33](../report/slices/rev-editor/slice-33-rectangle-kill.md).
 
 Inputs: [Part 5](../plan/rev-editor/05-rectangles-and-tree.md); requirements R10, R20, R21.
 
-- [ ] T34.1: Implement yank-rectangle across successive lines, deterministic insertion at target cell boundaries, necessary short-line padding, and additional lines under the newline policy.
-- [ ] T34.2: Exercise unequal source widths, wide target graphemes, partial tabs, absent rectangle, insertion past the final line, and undo of padding plus all inserted rows.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T34.1: Implement yank-rectangle across successive lines, deterministic insertion at target cell boundaries, necessary short-line padding, and additional lines under the newline policy.
+- [x] T34.2: Exercise unequal source widths, wide target graphemes, partial tabs, absent rectangle, insertion past the final line, and undo of padding plus all inserted rows.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T34.1 and T34.2 complete; canonical PR #34 prepared for integration.
+Implementation: T34.1 and T34.2 delivered through PR #34.
 Task commits: T34.1 `ec1f99efc1f9d8645c7816819776e662a806774e`;
 T34.2 `e061feba7e4b35e844ca905ad164be904e3e2a09`.
 Validation: required Cargo/source commands passed; `cargo test --test rectangles`
 passed 34 tests and the terminal PTY suite passed 70 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#34](https://forge.adrianpk.com/adrianpk/rev/pulls/34).
+Integration: Rebase + Fast-forward into dev at
+`014661dbb26aaa1941460f675c2f519c49317830`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 34](../report/slices/rev-editor/slice-34-rectangle-yank.md).
 
 ### Slice 35: Render and focus the left file tree

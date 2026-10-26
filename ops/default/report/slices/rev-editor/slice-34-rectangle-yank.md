@@ -1,11 +1,12 @@
 # Slice 34: Yank blocks with coherent padding and undo
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-34-rectangle-yank`
 PR: `#34`
+Integrated: Rebase + Fast-forward into dev at `014661dbb26aaa1941460f675c2f519c49317830`.
 
 ## Purpose
 
