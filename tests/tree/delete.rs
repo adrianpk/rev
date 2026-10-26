@@ -26,7 +26,14 @@ fn retained_file() {
         if dirty {
             insert(buffers.get_mut(id).unwrap(), "界");
         }
-        let buffer = buffers.get(id).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer
+            .activate_mark(rev::buffer::edit::Point {
+                stamp: buffer.stamp(),
+                position: rev::coordinates::Scalar(0),
+            })
+            .unwrap();
+        let mark = buffer.mark();
         let stamp = buffer.stamp();
         let state = buffer.state();
         let expected = text(buffer);
@@ -43,6 +50,8 @@ fn retained_file() {
         assert_eq!(text(buffer), expected);
         assert_eq!(buffer.stamp(), stamp);
         assert_eq!(buffer.state(), state);
+        assert_eq!(buffer.mark(), mark);
+        assert!(buffer.mark_active());
         assert_eq!(buffer.history().len(), history);
         assert!(!buffer.file().unwrap().is_present());
         assert!(buffer.file().unwrap().observation().is_none());
@@ -175,3 +184,6 @@ fn cancel_delete() {
         Some(Command::Tree(TreeCommand::Delete))
     );
 }
+
+#[path = "delete_failures.rs"]
+mod failures;

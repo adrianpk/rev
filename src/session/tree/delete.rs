@@ -42,7 +42,7 @@ impl Session {
 
     fn deleted(&mut self, deleted: Deleted) -> Action {
         let mut notice = match deleted.error() {
-            Some(error) => format!("{error}; deletion may be partial; open text retained"),
+            Some(error) => format!("Delete failed; may be partial: {error}; open text retained"),
             None => format!(
                 "Deleted {}; open text retained; explicit save recreates files",
                 deleted.source().display()

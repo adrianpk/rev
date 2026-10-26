@@ -2425,6 +2425,102 @@ def tree_rename_failures(root):
             session.close()
 
 
+
+def tree_delete(root):
+    # Confirmed file removal preserves shared views/history and a canonical
+    # absent visit. Only an explicit save recreates the retained document.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-delete-") as directory:
+        path = Path(directory) / "live.txt"
+        path.write_bytes(b"retained")
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> live.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            group_step(session, b"\x182", b"> live.txt ** RW L1 C2 Text")
+            group_step(session, b"\x18o\x01", b"> live.txt ** RW L1 C1 Text")
+            group_step(session, b"\x18o", b"> live.txt ** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x1b[C\x1b[B", b"File tree updated", b"\x1b[7m    live.txt")
+            group_step(session, b"\x18tD", b"Delete ", b"Tree *")
+            group_step(session, b"z", b"Delete ", b"> live.txt ** RW L1 C2 Text")
+            group_step(session, paste_wire(b"y"), b"Delete ")
+            assert path.read_bytes() == b"retained"
+            group_step(session, b"n", b"Delete canceled")
+            named_step(session, "tree-delete", b"Delete ")
+            group_step(session, b"y", b"Deleted ", b"> live.txt ** RW L1 C2 Text")
+            assert not path.exists()
+            assert b"  live.txt ** RW L1 C1 Text" in last_frame(session)
+            group_step(session, b"\t", b"Editing")
+            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            group_step(session, b"\x18u", b"** RW L1 C1 Text", b"retained")
+            named_step(session, "undo-redo", b"** RW L1 C2 Text", b"!retained")
+            find_path(session, path, b"> live.txt ** RW L1 C2 Text", b"!retained")
+            assert not path.exists() and b"live.txt<2>" not in last_frame(session)
+            group_step(session, b"\x18\x13", b"Saved ", b"> live.txt -- RW L1 C2 Text")
+            assert path.read_bytes() == b"!retained"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound/named delete, refused paste/cancel, retained shared views/history, absent revisit and explicit recreation")
+        finally:
+            session.close()
+
+
+def tree_delete_decisions(root):
+    # Nonempty removal needs two decisions. Cancellation, resize, denied
+    # recursive removal and a child symlink cannot discard visiting text.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-delete-dir-") as directory:
+        base = Path(directory)
+        workspace = base / "dir"
+        workspace.mkdir()
+        path = workspace / "child.txt"
+        path.write_bytes(b"child")
+        external = base / "outside.txt"
+        external.write_bytes(b"outside")
+        (workspace / "link").symlink_to(external)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> child.txt -- RW L1 C1 Text")
+            group_step(session, b"#", b"** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x18tD", b"Delete ")
+            group_step(session, b"n", b"Delete canceled")
+            named_step(session, "tree-delete", b"Delete ")
+            group_step(session, b"y", b"Directory contains children; recursively delete")
+            resize_surface(session, 31, 8, True)
+            resize_surface(session, 80, 24, True)
+            assert b"Directory contains children" in last_frame(session)
+            group_step(session, b"n", b"Delete canceled")
+            assert path.read_bytes() == b"child" and external.read_bytes() == b"outside"
+            named_step(session, "focus-file-tree", b"File tree focused")
+            named_step(session, "tree-delete", b"Delete ")
+            group_step(session, b"y", b"Directory contains children")
+            group_step(session, paste_wire(b"y"), b"Directory contains children")
+            group_step(session, b"\x07", b"Quit", b"Tree *")
+            assert path.exists()
+            group_step(session, b"\x18tD", b"Delete ")
+            group_step(session, b"y", b"Directory contains children")
+            workspace.chmod(0o500)
+            group_step(session, b"y", b"Delete failed; may be partial", b"> child.txt ** RW L1 C2 Text")
+            workspace.chmod(0o700)
+            assert path.read_bytes() == b"child" and external.read_bytes() == b"outside"
+            group_step(session, b"\x18tD", b"Delete ")
+            group_step(session, b"y", b"Directory contains children")
+            group_step(session, b"y", b"Deleted ", b"> child.txt ** RW L1 C2 Text")
+            assert not workspace.exists() and external.read_bytes() == b"outside"
+            group_step(session, b"\t", b"Editing")
+            group_step(session, b"\x18\x13", b"save: not published", b"#child")
+            assert not workspace.exists()
+            workspace.mkdir()
+            group_step(session, b"\x18\x13", b"Saved ", b"> child.txt -- RW L1 C2 Text")
+            assert path.read_bytes() == b"#child" and external.read_bytes() == b"outside"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS separate recursive consent, cancel/resize, write denial/refresh, symlink referent retention and missing-parent save")
+        finally:
+            if workspace.exists():
+                workspace.chmod(0o700)
+            session.close()
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2497,7 +2593,9 @@ def main():
     tree_creation_failures(root)
     tree_rename(root)
     tree_rename_failures(root)
-    print("Terminal PTY suite: 78 cases passed, 0 skipped.")
+    tree_delete(root)
+    tree_delete_decisions(root)
+    print("Terminal PTY suite: 80 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
