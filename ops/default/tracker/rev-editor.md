@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 14 - Publish safe same-directory saves
+Active slice: Slice 15 - Confirm overwrite and external changes
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -334,17 +334,18 @@ Report: [Slice 13](../report/slices/rev-editor/slice-13-file-visits.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R10, R13, R21.
 
-- [ ] T14.1: Implement save-buffer using captured rope text, same-directory temporary output, checked writes, permission preservation where practical, replacement, and explicit completion/publication outcomes.
-- [ ] T14.2: Exercise injected write/flush/replace/post-replace failures and cleanup. Reconcile actual publication, saved logical state, dirty flags, and a first successful file association truthfully.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T14.1: Implement save-buffer using captured rope text, same-directory temporary output, checked writes, permission preservation where practical, replacement, and explicit completion/publication outcomes.
+- [x] T14.2: Exercise injected write/flush/replace/post-replace failures and cleanup. Reconcile actual publication, saved logical state, dirty flags, and a first successful file association truthfully.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T14.1 and T14.2 implemented through PR #14.
+Implementation: T14.1 and T14.2 delivered through PR #14.
 Task commits: T14.1 `c9d8c39b05901db5b80c2fba1bfd60d8af5493fd`, completed
 through `f16523df10507278497ad7d8cc6454ee096119bc`;
 T14.2 `7bdc7fa8bed7bd3db00340f9b1cc877b56b36885`.
 Validation: required Cargo/source commands passed; `cargo test --test files`
 passed thirty-seven tests and the terminal PTY suite passed twenty-four cases with zero skips.
-Final PR-head evidence is recorded through Looper after PR references are committed.
+Integrated into `dev` at `50fd66b75b57f4a1ad54ebd4be15f47e7bea2ea2`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 PR: [#14](https://forge.adrianpk.com/adrianpk/rev/pulls/14).
 Report: [Slice 14](../report/slices/rev-editor/slice-14-saving.md).
 

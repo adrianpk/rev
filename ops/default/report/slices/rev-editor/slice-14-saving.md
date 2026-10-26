@@ -1,11 +1,12 @@
 # Slice 14: Publish safe same-directory saves
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-14-saving`
 PR: `#14`
+Integrated: `50fd66b75b57f4a1ad54ebd4be15f47e7bea2ea2`
 
 ## Purpose
 
