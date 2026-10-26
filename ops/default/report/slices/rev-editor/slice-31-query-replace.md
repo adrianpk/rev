@@ -1,11 +1,12 @@
 # Slice 31: Confirm literal replacements interactively
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-31-query-replace`
 PR: `#31`
+Integrated: Rebase + Fast-forward into dev at `64b274d8c1b2b617bfb263dd362fe6a515932a1a`.
 
 ## Purpose
 

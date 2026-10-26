@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 31 - Confirm literal replacements interactively
+Active slice: Slice 32 - Select and copy display-column rectangles
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -668,17 +668,20 @@ Report: [Slice 30](../report/slices/rev-editor/slice-30-search-control.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R21, R23, R27.
 
-- [ ] T31.1: Implement M-% and query-replace prompts followed by yes/no/quit decisions, applying each accepted occurrence through the canonical checked transaction.
-- [ ] T31.2: Exercise replacement lengths, Unicode/CRLF text, skipped matches, no matches, cancellation, read-only buffers, and undo of accepted replacements.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T31.1: Implement M-% and query-replace prompts followed by yes/no/quit decisions, applying each accepted occurrence through the canonical checked transaction.
+- [x] T31.2: Exercise replacement lengths, Unicode/CRLF text, skipped matches, no matches, cancellation, read-only buffers, and undo of accepted replacements.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T31.1 and T31.2 complete; canonical PR #31 prepared for integration.
+Implementation: T31.1 and T31.2 delivered through PR #31.
 Task commits: T31.1 `802e14981c2f83f1211786ca16cba39aadf06d45`;
 T31.2 `2231f92989703ee543c68036c7c64ac96fde60f5`.
 Validation: required Cargo/source commands passed; `cargo test --test search`
 passed thirty tests and the terminal PTY suite passed sixty-four cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#31](https://forge.adrianpk.com/adrianpk/rev/pulls/31).
+Integration: Rebase + Fast-forward into dev at
+`64b274d8c1b2b617bfb263dd362fe6a515932a1a`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 31](../report/slices/rev-editor/slice-31-query-replace.md).
 
 ### Slice 32: Select and copy display-column rectangles
