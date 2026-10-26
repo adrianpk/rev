@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
-use rev::buffer::edit::{Cursor, Point, Replacement};
-use rev::buffer::{Buffer, Buffers};
+use rev::buffer::edit::{Cursor, Error, Point, Replacement};
+use rev::buffer::{Buffer, Buffers, Span, Stamp};
 use rev::coordinates::Scalar;
 
 fn text(buffer: &Buffer) -> String {
@@ -104,4 +104,368 @@ fn reversible_fragments() {
     buffer.publish(prepared, &mut []).unwrap();
     assert_eq!(text(buffer), "aé\r\n界");
     assert_eq!(buffer.history().len(), 2);
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct Snapshot {
+    text: String,
+    stamp: Stamp,
+    mark: Option<Scalar>,
+    read_only: bool,
+    history: usize,
+    points: Vec<Point>,
+}
+
+fn snapshot(buffer: &Buffer, points: &[Point]) -> Snapshot {
+    Snapshot {
+        text: text(buffer),
+        stamp: buffer.stamp(),
+        mark: buffer.mark(),
+        read_only: buffer.is_read_only(),
+        history: buffer.history().len(),
+        points: points.to_vec(),
+    }
+}
+
+// Admission rejects the complete batch, even when its first replacement is
+// valid. A nonempty prior history and stored positions must survive unchanged.
+#[test]
+fn rejected_ranges() {
+    use rev::buffer::Error as Source;
+    let mut buffers = Buffers::new().unwrap();
+    let foreign = buffers.create("foreign").unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 0..0, "abcdef")], &[], None)
+        .unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer.set_mark(Some(Scalar(3))).unwrap();
+    let points = [point(buffer, 2), point(buffer, 5)];
+    let stamp = buffer.stamp();
+    let make = |range| Replacement {
+        source: Span { stamp, range },
+        text: "Ω".into(),
+    };
+    let stale = Replacement {
+        source: Span {
+            stamp: Stamp {
+                revision: stamp.revision - 1,
+                ..stamp
+            },
+            range: 2..3,
+        },
+        text: "!".into(),
+    };
+    let other = Replacement {
+        source: Span {
+            stamp: Stamp {
+                buffer: foreign,
+                ..stamp
+            },
+            range: 2..3,
+        },
+        text: "!".into(),
+    };
+    let cases = [
+        ("empty batch", vec![], Error::Empty),
+        ("overlap", vec![make(1..4), make(3..5)], Error::Order),
+        ("descending", vec![make(3..4), make(1..2)], Error::Order),
+        ("same insertion", vec![make(1..1), make(1..1)], Error::Order),
+        (
+            "reversed",
+            vec![make(0..1), make(std::ops::Range { start: 4, end: 2 })],
+            Error::Source(Source::Bounds {
+                start: 4,
+                end: 2,
+                len: 6,
+            }),
+        ),
+        (
+            "outside",
+            vec![make(0..1), make(6..usize::MAX)],
+            Error::Source(Source::Bounds {
+                start: 6,
+                end: usize::MAX,
+                len: 6,
+            }),
+        ),
+        (
+            "stale second",
+            vec![make(0..1), stale],
+            Error::Source(Source::Stale {
+                expected: stamp.revision,
+                actual: stamp.revision - 1,
+            }),
+        ),
+        (
+            "foreign second",
+            vec![make(0..1), other],
+            Error::Source(Source::Foreign {
+                expected: stamp.buffer,
+                actual: foreign,
+            }),
+        ),
+    ];
+    for (name, edits, expected) in cases {
+        let before = snapshot(buffer, &points);
+        assert_eq!(
+            buffer.prepare(&edits, &points, None).err(),
+            Some(expected),
+            "{name}"
+        );
+        assert_eq!(snapshot(buffer, &points), before, "{name}");
+    }
+}
+
+// Cursor validation occurs after the candidate replacement and position map;
+// its failure is a recoverable preparation failure, with nothing to roll back.
+#[test]
+fn failed_preparation() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("e\u{301}界").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.set_mark(Some(Scalar(2))).unwrap();
+    let points = [point(buffer, 2)];
+    let edits = [replacement(buffer, 0..2, "replacement")];
+    for (name, cursor) in [
+        (
+            "missing initiator",
+            Cursor {
+                index: 1,
+                position: Scalar(0),
+            },
+        ),
+        (
+            "invalid result point",
+            Cursor {
+                index: 0,
+                position: Scalar(usize::MAX),
+            },
+        ),
+    ] {
+        let before = snapshot(buffer, &points);
+        assert!(
+            buffer.prepare(&edits, &points, Some(cursor)).is_err(),
+            "{name}"
+        );
+        assert_eq!(snapshot(buffer, &points), before, "{name}");
+    }
+    for (name, invalid) in [
+        ("inside grapheme", point(buffer, 1)),
+        ("outside source", point(buffer, 4)),
+        (
+            "stale point",
+            Point {
+                stamp: Stamp {
+                    revision: 0,
+                    ..buffer.stamp()
+                },
+                position: Scalar(0),
+            },
+        ),
+    ] {
+        let before = snapshot(buffer, &[invalid]);
+        assert!(buffer.prepare(&edits, &[invalid], None).is_err(), "{name}");
+        assert_eq!(snapshot(buffer, &[invalid]), before, "{name}");
+    }
+    let before = snapshot(buffer, &points);
+    assert!(buffer.set_mark(Some(Scalar(1))).is_err());
+    assert_eq!(snapshot(buffer, &points), before);
+}
+
+// Read-only admission is enforced both before preparation and immediately
+// before publication; a prepared candidate confers no lasting write authority.
+#[test]
+fn read_only() {
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0)];
+    let edits = [replacement(buffer, 0..0, "new")];
+    let prepared = buffer.prepare(&edits, &points, None).unwrap();
+    buffer.set_read_only(true);
+    let before = snapshot(buffer, &points);
+    assert_eq!(
+        buffer.prepare(&edits, &points, None).err(),
+        Some(Error::ReadOnly)
+    );
+    assert_eq!(buffer.publish(prepared, &mut points), Err(Error::ReadOnly));
+    assert_eq!(snapshot(buffer, &points), before);
+}
+
+// Publication cannot overwrite a subsequent edit or live point/mark movement.
+// A foreign candidate is rejected even when its scalar ranges would fit.
+#[test]
+fn changed_sources() {
+    let mut buffers = Buffers::new().unwrap();
+    let other = buffers.create("abc").unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let mut points = [point(buffer, 0)];
+    let edits = [replacement(buffer, 0..0, "abc")];
+    let stale = buffer.prepare(&edits, &points, None).unwrap();
+    let current = buffer.prepare(&edits, &points, None).unwrap();
+    buffer.publish(current, &mut points).unwrap();
+    let before = snapshot(buffer, &points);
+    assert!(matches!(
+        buffer.publish(stale, &mut points),
+        Err(Error::Source(rev::buffer::Error::Stale { .. }))
+    ));
+    assert_eq!(snapshot(buffer, &points), before);
+    for name in ["point", "mark", "point count"] {
+        let prepared = buffer
+            .prepare(&[replacement(buffer, 1..2, "X")], &points, None)
+            .unwrap();
+        let mut live = points.to_vec();
+        match name {
+            "point" => live[0].position = Scalar(0),
+            "mark" => buffer.set_mark(Some(Scalar(1))).unwrap(),
+            _ => live.clear(),
+        }
+        let before = snapshot(buffer, &live);
+        assert_eq!(
+            buffer.publish(prepared, &mut live),
+            Err(Error::ChangedPositions),
+            "{name}"
+        );
+        assert_eq!(snapshot(buffer, &live), before, "{name}");
+    }
+    let prepared = buffer
+        .prepare(&[replacement(buffer, 0..0, "foreign")], &[], None)
+        .unwrap();
+    let buffer = buffers.get_mut(other).unwrap();
+    let before = snapshot(buffer, &[]);
+    assert!(matches!(
+        buffer.publish(prepared, &mut []),
+        Err(Error::Source(rev::buffer::Error::Foreign { .. }))
+    ));
+    assert_eq!(snapshot(buffer, &[]), before);
+}
+
+// Mapping uses insertion affinity and then repairs newly joined graphemes,
+// including control separators, combining text, flags and emoji ZWJ sequences.
+#[test]
+fn position_affinity() {
+    let cases = [
+        ("insertion", "ab", 1..1, "XY", "aXYb", 3, 1),
+        ("replacement", "abcd", 1..3, "XY", "aXYd", 3, 1),
+        ("deletion", "abcd", 1..3, "", "ad", 1, 1),
+        (
+            "combining insertion",
+            "ab",
+            1..1,
+            "\u{301}",
+            "a\u{301}b",
+            2,
+            0,
+        ),
+        ("combining join", "aX\u{301}b", 1..2, "", "a\u{301}b", 2, 0),
+        ("CRLF join", "\rX\n", 1..2, "", "\r\n", 2, 0),
+        (
+            "emoji join",
+            "👩X\u{200d}💻",
+            1..2,
+            "",
+            "👩\u{200d}💻",
+            3,
+            0,
+        ),
+        ("flag join", "🇺X🇸", 1..2, "", "🇺🇸", 2, 0),
+    ];
+    for (name, source, range, insert, expected, point_end, mark_end) in cases {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer.set_mark(Some(Scalar(1))).unwrap();
+        let mut points = [point(buffer, 1)];
+        let prepared = buffer
+            .prepare(&[replacement(buffer, range, insert)], &points, None)
+            .unwrap();
+        buffer.publish(prepared, &mut points).unwrap();
+        assert_eq!(text(buffer), expected, "{name}");
+        assert_eq!(points[0].position, Scalar(point_end), "{name}");
+        assert_eq!(buffer.mark(), Some(Scalar(mark_end)), "{name}");
+    }
+}
+
+// Adjacent base ranges and an insertion at a removed range's end must preserve
+// endpoint affinity. Surviving points on either side shift by the exact delta.
+#[test]
+fn adjacent_ranges() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create("abcd").unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let edits = [
+        replacement(buffer, 0..1, "XX"),
+        replacement(buffer, 1..1, "Y"),
+        replacement(buffer, 2..4, ""),
+    ];
+    let mut points: Vec<_> = (0..=4).map(|position| point(buffer, position)).collect();
+    buffer.set_mark(Some(Scalar(1))).unwrap();
+    let prepared = buffer.prepare(&edits, &points, None).unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(text(buffer), "XXYb");
+    assert_eq!(
+        points
+            .iter()
+            .map(|point| point.position.0)
+            .collect::<Vec<_>>(),
+        [2, 3, 4, 4, 4]
+    );
+    assert_eq!(buffer.mark(), Some(Scalar(2)));
+}
+
+// A join at a real rope seam uses complete grapheme context after publication,
+// without converting the document into a second mutable string store.
+#[test]
+fn chunk_join() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&"界".repeat(6000)).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let span = buffer.span(0..buffer.len_chars()).unwrap();
+    let seam = buffer
+        .chunks(&span)
+        .unwrap()
+        .next()
+        .unwrap()
+        .chars()
+        .count();
+    assert!(seam > 0 && seam < buffer.len_chars());
+    buffer.set_mark(Some(Scalar(seam))).unwrap();
+    let mut points = [point(buffer, seam), point(buffer, buffer.len_chars())];
+    let prepared = buffer
+        .prepare(&[replacement(buffer, seam..seam, "\u{301}")], &points, None)
+        .unwrap();
+    buffer.publish(prepared, &mut points).unwrap();
+    assert_eq!(points[0].position, Scalar(seam + 1));
+    assert_eq!(points[1].position, Scalar(6001));
+    assert_eq!(buffer.mark(), Some(Scalar(seam - 1)));
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(seam - 1..seam + 2).unwrap())
+            .unwrap()
+            .to_string(),
+        "界\u{301}界"
+    );
+}
+
+// Retention drops whole oldest operations and keeps the newest reversible
+// fragments and monotonically increasing publication stamp intact.
+#[test]
+fn retained_records() {
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    for _ in 0..515 {
+        let end = buffer.len_chars();
+        let prepared = buffer
+            .prepare(&[replacement(buffer, end..end, "x")], &[], None)
+            .unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+    }
+    assert_eq!(buffer.len_chars(), 515);
+    assert_eq!(buffer.stamp().revision, 516);
+    assert_eq!(buffer.history().len(), 512);
+    assert_eq!(buffer.history().front().unwrap().before.revision, 4);
+    let last = buffer.history().back().unwrap();
+    assert_eq!(last.after, buffer.stamp());
+    assert_eq!(last.changes()[0].before(), 514..514);
+    assert_eq!(last.changes()[0].inserted().to_string(), "x");
 }
