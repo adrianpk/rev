@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-41-incremental-syntax`
-PR: pending
+PR: `#41`
 
 ## Purpose
 
