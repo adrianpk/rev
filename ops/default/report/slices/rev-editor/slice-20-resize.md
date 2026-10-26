@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-20-resize`
-PR: pending
+PR: `#20`
 
 ## Purpose
 
