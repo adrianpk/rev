@@ -592,6 +592,14 @@ Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R22
 - [ ] T27.2: Exercise unknown names, empty candidates, cancel, command history, argument continuation, and binding/name parity for file, window, editing, and history operations.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T27.1 and T27.2 complete; canonical PR pending.
+Task commits: T27.1 `57f42e8a1fdc3ad80d2d89c725d75e9f32f3d22b`;
+T27.2 `3e4e30cbbd9c1bee8d8a5c9135ad13ad0b194c11`.
+Validation: required Cargo/source commands passed; `cargo test --test commands`
+passed fifty-one tests and the terminal PTY suite passed fifty-six cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+Report: [Slice 27](../report/slices/rev-editor/slice-27-command-palette.md), reviewing.
+
 ### Slice 28: Complete focused argument and cancel flows
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R04, R12, R23, R24.
