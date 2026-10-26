@@ -42,8 +42,9 @@ fn failed_paths() {
     tree.move_selection(true);
     assert_eq!(tree.selected().unwrap().path(), denied);
     fs::set_permissions(&denied, fs::Permissions::from_mode(0o000)).unwrap();
-    let failure = tree.expand().unwrap_err();
+    let result = tree.expand();
     fs::set_permissions(&denied, fs::Permissions::from_mode(0o700)).unwrap();
+    let failure = result.unwrap_err();
     assert_eq!(failure.kind(), ErrorKind::PermissionDenied);
     assert!(!tree.selected().unwrap().expanded());
     assert_eq!(tree.entries().len(), 5);
@@ -54,8 +55,9 @@ fn failed_paths() {
     );
     for name in ["cycle-a", "cycle-b", "denied/child.rs"] {
         fs::set_permissions(&denied, fs::Permissions::from_mode(0o000)).unwrap();
-        let failure = buffers.visit(&fixture.0.join(name)).err().unwrap();
+        let result = buffers.visit(&fixture.0.join(name));
         fs::set_permissions(&denied, fs::Permissions::from_mode(0o700)).unwrap();
+        let failure = result.unwrap_err();
         if name.starts_with("denied") {
             assert_eq!(failure.kind(), ErrorKind::PermissionDenied);
         } else {
@@ -71,13 +73,7 @@ fn failed_paths() {
     for _ in 0..4 {
         for name in ["cycle-a", "cycle-b"] {
             let path = fixture.0.join(name);
-            for _ in 0..tree.entries().len() {
-                if tree.selected().unwrap().path() == path {
-                    break;
-                }
-                tree.move_selection(true);
-            }
-            assert_eq!(tree.selected().unwrap().path(), path);
+            select(&mut tree, &path);
             assert!(tree.selected().unwrap().is_symlink());
             tree.expand().unwrap();
             tree.refresh().unwrap();
@@ -142,4 +138,14 @@ fn canceled_tree() {
     let mut expected = before;
     expected.stamp = buffer.stamp();
     assert_eq!(snapshot(buffer), expected);
+}
+
+fn select(tree: &mut Tree, path: &Path) {
+    for _ in 0..tree.entries().len() {
+        if tree.selected().unwrap().path() == path {
+            break;
+        }
+        tree.move_selection(true);
+    }
+    assert_eq!(tree.selected().unwrap().path(), path);
 }
