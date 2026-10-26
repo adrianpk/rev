@@ -118,7 +118,7 @@ Task commits: T3.1 `b21fb6f837c6d959ee37716a88e96ac5da2ff400`;
 T3.2 `7a04433a8c7134b8c060379b1f4d1ca6b0a528b4`.
 Validation: required Cargo/source commands passed; `cargo test --test coordinates`
 passed eight tests with zero skips. Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#3](https://forge.adrianpk.com/adrianpk/rev/pulls/3).
 Report: [Slice 3](../report/slices/rev-editor/slice-3-coordinates.md).
 
 ### Slice 4: Publish coherent text edits
