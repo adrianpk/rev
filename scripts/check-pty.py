@@ -2218,6 +2218,106 @@ def tree_navigation_resize(root):
             session.close()
 
 
+def tree_creation(root):
+    # Creation stays in the tree. Opening uses real canonical ingress, so a
+    # later symlink visit recovers dirty text/history rather than rereading disk.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-create-") as directory:
+        workspace = Path(directory) / "workspace"
+        workspace.mkdir()
+        (workspace / "folder").mkdir()
+        path = workspace / "work.txt"
+        path.write_bytes(b"original")
+        (workspace / "alias").symlink_to(path)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> work.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x18tn", b"New file name: ")
+            group_step(session, b"new.xyz", b"New file name: new.xyz")
+            group_step(session, b"\r", b"Created ", b"\x1b[7m    new.xyz")
+            assert b"> work.txt ** RW L1 C2 Text" in last_frame(session)
+            assert (workspace / "new.xyz").read_bytes() == b""
+            group_step(session, b"\r", b"> new.xyz -- RW L1 C1 Text")
+            group_step(session, "界".encode(), b"** RW L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            group_step(session, b"\x18tf", b"File tree focused", b"\x1b[7m    new.xyz")
+            group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  @ alias")
+            named_step(session, "tree-open", b"> work.txt ** RW L1 C1 Text", b"|!original")
+            group_step(session, b"\x18u", b"> work.txt -- RW L1 C1 Text", b"|original")
+            group_step(session, b"\x18tf", b"File tree focused")
+            group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  > folder/")
+            group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7mv workspace/")
+            named_step(session, "tree-create-directory", b"New directory name: ")
+            group_step(session, b"made\r", b"Created ", b"\x1b[7m  > made/")
+            group_step(session, b"\x18tn", b"New file name: ")
+            group_step(session, b"inside.txt\r", b"Created ", b"\x1b[7m      inside.txt")
+            group_step(session, b"\r", b"> inside.txt -- RW L1 C1 Text")
+            assert (workspace / "new.xyz").read_bytes() == "界".encode()
+            assert (workspace / "made/inside.txt").read_bytes() == b""
+            assert path.read_bytes() == b"original" and (workspace / "alias").is_symlink()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS bound/named tree creation, unsupported Text open/save and canonical dirty-buffer/history reuse")
+        finally:
+            session.close()
+
+
+def tree_creation_failures(root):
+    # Invalid/conflicting/canceled names preserve disk and text. Captured parent
+    # paths reject symlink replacement and survive focused prompt resizing.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-name-") as directory:
+        workspace = Path(directory) / "workspace"
+        workspace.mkdir()
+        blocked = workspace / "blocked"
+        blocked.mkdir()
+        path = workspace / "keep.txt"
+        path.write_bytes(b"exact")
+        (workspace / "occupied").symlink_to(workspace / "missing")
+        moved = workspace / "moved"
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> keep.txt -- RW L1 C1 Text")
+            group_step(session, b"\x18tt", b"File tree focused")
+            group_step(session, b"\x18tn", b"New file name: ")
+            group_step(session, b"canceled\x07", b"Quit", b"Tree *")
+            assert not (workspace / "canceled").exists()
+            for name in [b"../escape", b"keep.txt", b"occupied"]:
+                group_step(session, b"\x18tn", b"New file name: ")
+                group_step(session, name + b"\r", b"create entry ", b"Tree *")
+            assert path.read_bytes() == b"exact" and (workspace / "occupied").is_symlink()
+            assert not (workspace / "missing").exists() and not (Path(directory) / "escape").exists()
+            group_step(session, b"\x1b[C", b"File tree updated", b"> blocked/")
+            group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  > blocked/")
+            group_step(session, b"\x18td", b"New directory name: ")
+            blocked.rename(moved)
+            blocked.symlink_to(moved, target_is_directory=True)
+            group_step(session, b"redirected\r", b"create entry ", b"Tree *")
+            assert not (moved / "redirected").exists()
+            named_step(session, "tree-refresh", b"File tree updated", b"\x1b[7m  @ blocked")
+            group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  > moved/")
+            moved.chmod(0o500)
+            group_step(session, b"\x18tn", b"New file name: ")
+            group_step(session, b"denied\r", b"create entry ", b"Tree *")
+            moved.chmod(0o700)
+            assert not (moved / "denied").exists()
+            group_step(session, b"\x18td", b"New directory name: ")
+            group_step(session, b"tiny", b"New directory name: tiny")
+            resize_surface(session, 31, 8, True)
+            resize_surface(session, 48, 8, True)
+            group_step(session, b"\r", b"Created ", b"> tiny/")
+            assert b"Tree *" not in last_frame(session)
+            assert (moved / "tiny").is_dir() and not (workspace / "tiny").exists()
+            assert path.read_bytes() == b"exact"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS tree name cancel/conflicts, captured-parent symlink refusal, permission failure and prompt resize publication")
+        finally:
+            if moved.exists():
+                moved.chmod(0o700)
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2286,7 +2386,9 @@ def main():
     tree_resize(root)
     tree_navigation(root)
     tree_navigation_resize(root)
-    print("Terminal PTY suite: 74 cases passed, 0 skipped.")
+    tree_creation(root)
+    tree_creation_failures(root)
+    print("Terminal PTY suite: 76 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

@@ -143,3 +143,6 @@ fn creation_prompts() {
     assert_eq!(session.buffer().unwrap().history().len(), 1);
     assert_eq!(crate::text(&session), "!");
 }
+
+#[path = "create_failures.rs"]
+mod failures;

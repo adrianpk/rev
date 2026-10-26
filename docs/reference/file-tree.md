@@ -71,7 +71,7 @@ symlink, including a dangling link, is never replaced. The parent is revalidated
 at publication; exclusive file creation and directory creation also reject a
 conflict that appears after validation.
 
-Successful creation keeps tree focus, expands the parent and selects the new
+Successful creation retains workspace focus, expands the parent and selects the new
 entry. It does not open a buffer; Enter opens a new file explicitly. An error
 reports its operation/path without discarding editor text. If creation succeeds
 but observation fails, the echo says `Created` and identifies the refresh error
