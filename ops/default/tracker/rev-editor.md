@@ -472,13 +472,13 @@ Inputs: [Part 3](../plan/rev-editor/03-windows-and-regions.md); requirements R07
 - [ ] T21.2: Exercise reversed/empty ranges, region updates through shared edits, focus changes, viewport clipping, and C-g cancellation without losing stored mark unnecessarily.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T21.1 and T21.2 implemented; canonical PR pending.
+Implementation: T21.1 and T21.2 implemented through PR #21.
 Task commits: T21.1 `1e91e88dc3e8f837d80b4ae987d90a3a02f95f64`;
 T21.2 `25bca45422f59fbd9548ab8017fc0e428c42e4c2`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed fifty-one tests and the terminal PTY suite passed forty-two cases with zero skips.
 Final PR-head evidence is recorded through Looper after PR references are committed.
-PR: pending.
+PR: [#21](https://forge.adrianpk.com/adrianpk/rev/pulls/21).
 Report: [Slice 21](../report/slices/rev-editor/slice-21-regions.md).
 
 ### Slice 22: Kill lines and words directionally
