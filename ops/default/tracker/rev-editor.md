@@ -197,7 +197,7 @@ T7.2 `1dfd5d17b148f0b5ddc7f5440231dff3ebeea8ed`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed twenty-one tests and the terminal PTY suite passed nine cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#7](https://forge.adrianpk.com/adrianpk/rev/pulls/7).
 Report: [Slice 7](../report/slices/rev-editor/slice-7-insertion.md).
 
 ### Slice 8: Implement character and word motion
