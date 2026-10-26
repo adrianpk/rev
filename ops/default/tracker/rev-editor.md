@@ -211,6 +211,15 @@ Inputs: [Part 1](../plan/rev-editor/01-core-and-terminal.md); requirements R07, 
 - [ ] T8.2: Exercise empty text, punctuation, mixed scripts, CRLF, emoji clusters, and scroll reveal through the real command registry. Arrow/Home/End aliases may mirror supported commands without replacing Emacs bindings.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T8.1 and T8.2 complete; awaiting canonical PR integration.
+Task commits: T8.1 `61360a264a44ebbdbc9139d9cb4ce63d352c9a50`;
+T8.2 `0b9fb1b4931394fa419a1b2209d0a8720dd1adb8`.
+Validation: required Cargo/source commands passed; `cargo test --test coordinates`
+passed nineteen tests and the terminal PTY suite passed ten cases with zero skips.
+Final PR-head evidence is recorded through Looper.
+PR: pending.
+Report: [Slice 8](../report/slices/rev-editor/slice-8-motion.md).
+
 ### Slice 9: Preserve vertical motion and scrolling
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R07, R16.
