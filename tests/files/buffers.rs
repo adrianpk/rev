@@ -203,3 +203,233 @@ fn close_decisions() {
     assert_ne!(session.buffer().unwrap().id(), id);
     assert_eq!(text(session.buffer().unwrap()), "original");
 }
+
+// Switching among modified unnamed/file owners retains each canonical history;
+// an externally removed path remains editable and selectable without disk ingress.
+#[test]
+fn retained_owners() {
+    let fixture = Fixture::new();
+    let path = fixture.file("document.txt", b"original");
+    let mut buffers = Buffers::new().unwrap();
+    let initial = buffers.initial();
+    let unnamed = buffers.create("").unwrap();
+    let name = buffers.get(unnamed).unwrap().name().to_owned();
+    let file = buffers.visit(&path).unwrap();
+    for id in [initial, unnamed, file] {
+        insert_text(buffers.get_mut(id).unwrap(), "!");
+    }
+    let mut session = editor(buffers, initial);
+    let original = snapshot(&session);
+    command(&mut session, BufferCommand::Switch, &name);
+    assert_eq!(text(session.buffer().unwrap()), "!");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    fs::remove_file(&path).unwrap();
+    command(&mut session, BufferCommand::Switch, "document.txt");
+    assert_eq!(session.buffer().unwrap().id(), file);
+    assert_eq!(text(session.buffer().unwrap()), "!original");
+    session.execute(Command::History(rev::command::History::Undo));
+    assert_eq!(text(session.buffer().unwrap()), "original");
+    assert!(!session.buffer().unwrap().is_modified());
+    assert!(!path.exists());
+    command(&mut session, BufferCommand::Switch, "*scratch*");
+    assert_eq!(snapshot(&session).bytes, original.bytes);
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert!(session.buffer().unwrap().is_modified());
+    command(&mut session, BufferCommand::Switch, &name);
+    assert_eq!(session.buffer().unwrap().id(), unnamed);
+    assert!(session.buffer().unwrap().is_modified());
+}
+
+// Saving an inactive chosen owner must write that buffer, close only it, and
+// retain the active view/text/history instead of accidentally saving the selection.
+#[test]
+fn inactive_close() {
+    let fixture = Fixture::new();
+    let path = fixture.file("inactive.txt", b"original");
+    let mut buffers = Buffers::new().unwrap();
+    let initial = buffers.initial();
+    let inactive = buffers.visit(&path).unwrap();
+    insert_text(buffers.get_mut(initial).unwrap(), "active");
+    insert_text(buffers.get_mut(inactive).unwrap(), "!");
+    let mut session = editor(buffers, initial);
+    let before = snapshot(&session);
+    command(&mut session, BufferCommand::Kill, "inactive.txt");
+    session.handle(press(KeyCode::Char('y')));
+    assert_eq!(session.echo(), "Buffer closed");
+    assert_eq!(snapshot(&session), before);
+    assert_eq!(fs::read(&path).unwrap(), b"!original");
+    session.load(&path).unwrap();
+    assert_ne!(session.buffer().unwrap().id(), inactive);
+    assert_eq!(text(session.buffer().unwrap()), "!original");
+}
+
+// Denied access, missing parents and native read-only state cannot satisfy a
+// required save. The same dirty owner remains usable after each refusal.
+#[test]
+fn failed_close_save() {
+    use std::os::unix::fs::PermissionsExt;
+    for failure in ["denied", "missing", "readonly"] {
+        let fixture = Fixture::new();
+        let path = if failure == "missing" {
+            fixture.0.join("missing/new.txt")
+        } else {
+            fixture.file("document.txt", b"original")
+        };
+        if failure == "denied" {
+            fs::set_permissions(&path, fs::Permissions::from_mode(0o444)).unwrap();
+        }
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&path).unwrap();
+        insert_text(buffers.get_mut(id).unwrap(), "!");
+        if failure == "readonly" {
+            buffers.get_mut(id).unwrap().set_read_only(true);
+        }
+        let mut session = editor(buffers, id);
+        let before = snapshot(&session);
+        command(&mut session, BufferCommand::Kill, "");
+        session.handle(press(KeyCode::Char('y')));
+        assert!(session.echo().starts_with("save: "), "{}", session.echo());
+        assert_eq!(snapshot(&session), before, "{failure}");
+        assert!(session.buffer().unwrap().is_modified());
+        session.handle(press(KeyCode::Char('?')));
+        assert_eq!(session.buffer().unwrap().id(), id);
+        assert_eq!(
+            session.buffer().unwrap().is_read_only(),
+            failure == "readonly"
+        );
+        assert_ne!(session.echo(), "Buffer closed");
+    }
+}
+
+// Required save preserves its close target across unnamed and overwrite prompts.
+// Cancellation at either prompt drops close authority; a later successful save
+// of the final owner installs a fresh scratch with no stale text/history.
+#[test]
+fn nested_close_save() {
+    let fixture = Fixture::new();
+    let path = fixture.file("occupied.txt", b"keep");
+    let buffers = Buffers::new().unwrap();
+    let original = buffers.initial();
+    let mut session = editor(buffers, original);
+    session.insert('界');
+    for cancel in ["argument", "decision", "complete"] {
+        let before = snapshot(&session);
+        command(&mut session, BufferCommand::Kill, "");
+        session.handle(press(KeyCode::Char('y')));
+        if cancel == "argument" {
+            session.handle(chord('g'));
+        } else {
+            argument(&mut session, path.to_str().unwrap());
+            assert!(session.echo().contains("Overwrite occupied destination"));
+            session.handle(press(KeyCode::Char(if cancel == "decision" {
+                'n'
+            } else {
+                'y'
+            })));
+        }
+        if cancel == "complete" {
+            assert_ne!(session.buffer().unwrap().id(), original);
+            assert_eq!(session.buffer().unwrap().name(), "*scratch*");
+            assert_eq!(text(session.buffer().unwrap()), "");
+            assert!(session.buffer().unwrap().history().is_empty());
+            assert!(!session.buffer().unwrap().is_modified());
+            assert_eq!(fs::read(&path).unwrap(), "界".as_bytes());
+        } else {
+            assert_eq!(snapshot(&session), before);
+            assert_eq!(fs::read(&path).unwrap(), b"keep");
+        }
+    }
+    assert_eq!(session.execute(Command::Quit), rev::session::Action::Exit);
+    session.insert('!');
+    assert_eq!(text(session.buffer().unwrap()), "!");
+}
+
+// A stale close request cannot discard later edits or invalidate live indexes;
+// the same guard applies to native callers and session confirmation completion.
+#[test]
+fn stale_close() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.initial();
+    let kill = buffers.prepare_kill(id).unwrap();
+    insert_text(buffers.get_mut(id).unwrap(), "!");
+    assert!(buffers.kill(kill).is_err());
+    assert_eq!(buffers.iter().len(), 1);
+    let mut session = editor(buffers, id);
+    command(&mut session, BufferCommand::Kill, "");
+    session.insert('?');
+    session.handle(press(KeyCode::Char('n')));
+    assert!(session.echo().contains("revision"));
+    assert_eq!(session.buffer().unwrap().id(), id);
+    assert_eq!(text(session.buffer().unwrap()), "?!");
+    assert!(session.buffer().unwrap().is_modified());
+}
+
+// Killing a clean final owner is immediate and cannot reuse its identity. A
+// previously captured save cannot publish through a later owner of the same path.
+#[test]
+fn closed_identity() {
+    let fixture = Fixture::new();
+    let path = fixture.file("document.txt", b"original");
+    let mut buffers = Buffers::new().unwrap();
+    let old = buffers.visit(&path).unwrap();
+    let save = buffers.prepare_save(old, None).unwrap();
+    let kill = buffers.prepare_kill(old).unwrap();
+    buffers.kill(kill).unwrap();
+    let new = buffers.visit(&path).unwrap();
+    assert_ne!(old, new);
+    assert_eq!(buffers.get(new).unwrap().name(), "document.txt");
+    let result = buffers.publish_save(save);
+    assert_eq!(result.publication(), rev::file::Publication::NotPublished);
+    assert_eq!(fs::read(&path).unwrap(), b"original");
+    let buffers = Buffers::new().unwrap();
+    let old = buffers.initial();
+    let mut session = editor(buffers, old);
+    command(&mut session, BufferCommand::Kill, "");
+    assert_ne!(session.buffer().unwrap().id(), old);
+    assert_eq!(session.echo(), "Buffer closed");
+    session.insert('x');
+    assert_eq!(text(session.buffer().unwrap()), "x");
+}
+
+// A long inventory draws only visible rows, safely escapes unusual names, and
+// retains identity selection through scrolling and Enter-repeat suppression.
+#[test]
+fn inventory_limits() {
+    use crossterm::event::{KeyEvent, KeyEventKind, KeyModifiers};
+    let fixture = Fixture::new();
+    let mut buffers = Buffers::new().unwrap();
+    let initial = buffers.initial();
+    for _ in 0..40 {
+        buffers.create("text").unwrap();
+    }
+    let path = fixture.file("last\n\x1b.txt", b"raw");
+    let last = buffers.visit(&path).unwrap();
+    let mut session = editor(buffers, initial);
+    session.execute(Command::Buffer(BufferCommand::List));
+    session.handle(press(KeyCode::End));
+    let frame = session.frame().unwrap();
+    assert_eq!(frame.rows().len(), 8);
+    assert_eq!(
+        frame
+            .rows()
+            .iter()
+            .filter(|row| row.band() == Band::Document)
+            .count(),
+        6
+    );
+    for row in frame.rows() {
+        assert!(!row.text().contains('\x1b'));
+        assert!(!row.text().contains('\n'));
+    }
+    let repeated = Event::Key(KeyEvent::new_with_kind(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+        KeyEventKind::Repeat,
+    ));
+    assert_eq!(session.handle(repeated.clone()), rev::session::Action::Wait);
+    assert_eq!(session.buffer().unwrap().id(), initial);
+    session.handle(press(KeyCode::Enter));
+    assert_eq!(session.buffer().unwrap().id(), last);
+    assert_eq!(session.handle(repeated), rev::session::Action::Wait);
+    assert_eq!(text(session.buffer().unwrap()), "raw");
+}

@@ -671,6 +671,102 @@ def save_collision(root):
             session.close()
 
 
+def buffer_prompt(session, keys, label, name, marker):
+    group_step(session, keys, label)
+    if name:
+        group_step(session, name, name)
+    group_step(session, b"\r", marker)
+
+
+def buffer_commands(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-buffers-") as directory:
+        base = Path(directory)
+        (base / "one").mkdir()
+        (base / "two").mkdir()
+        first = base / "one/note.txt"
+        second = base / "two/note.txt"
+        first.write_bytes(b"alpha")
+        second.write_bytes(b"beta")
+        session = Session([str(root / "target/debug/rev"), str(first)])
+        try:
+            session.ready(b"> note.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            group_step(session, b"\x18b", b"Switch to buffer: ")
+            group_step(session, b"note.txt\t", b"2 matching buffer(s)")
+            group_step(session, b"\r", b"> note.txt ** RW L1 C1 Text", b"!alpha")
+            group_step(session, b"\x18u", b"> note.txt -- RW L1 C1 Text", b"alpha")
+            group_step(session, b"\x18\x02", b"Buffers: arrows move")
+            assert b"note.txt<2> -- RW" in session.output
+            assert b"one/note.txt" in session.output and b"two/note.txt" in session.output
+            group_step(session, b"\x1b[B", b"> note.txt<2> -- RW")
+            group_step(session, b"\r", b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"Buffer closed")
+            assert b"> *scratch* -- RW L1 C1 Text" in session.output
+            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"note.txt", b"Buffer closed")
+            assert b"> note.txt<2> -- RW L1 C1 Text" in session.output
+            assert first.read_bytes() == b"alpha" and second.read_bytes() == b"beta"
+            find_path(session, first, b"> note.txt -- RW L1 C1 Text", b"alpha")
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS buffer completion, selectable duplicate-name inventory, retained history and inactive close")
+        finally:
+            session.close()
+
+
+def close_buffers(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-close-") as directory:
+        path = Path(directory) / "missing/new.txt"
+        session = Session([str(root / "target/debug/rev")])
+        try:
+            session.ready(b"C-x C-c: exit")
+            group_step(session, b"new", b"** RW L1 C4 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save, n=discard, C-g=cancel")
+            group_step(session, b"\x07", b"Quit", b"** RW L1 C4 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"y", b"Write file: ")
+            group_step(session, str(path).encode(), path.name.encode())
+            group_step(session, b"\r", b"save: not published", b"** RW L1 C4 Text")
+            group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+            assert not path.exists()
+            path.parent.mkdir()
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"y", b"Write file: ")
+            group_step(session, str(path).encode(), path.name.encode())
+            group_step(session, b"\r", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            assert path.read_bytes() == b"new"
+            find_path(session, path, b"> new.txt -- RW L1 C1 Text", b"new")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            path.write_bytes(b"external")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"y", b"Destination changed on disk")
+            group_step(session, b"n", b"Save canceled", b"** RW L1 C2 Text")
+            assert path.read_bytes() == b"external"
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            find_path(session, path, b"> new.txt -- RW L1 C1 Text", b"external")
+            path.chmod(0o444)
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"y", b"Destination changed on disk")
+            group_step(session, b"y", b"save: not published", b"Permission denied")
+            assert path.read_bytes() == b"external"
+            path.chmod(0o600)
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"y", b"Destination changed on disk")
+            group_step(session, b"y", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            assert path.read_bytes() == b"!external"
+            group_step(session, b"discard", b"** RW L1 C8 Text")
+            buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
+            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS close cancellation, failed required saves, nested consent, discard and final replacement")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -696,7 +792,9 @@ def main():
     save_failure(root)
     save_decisions(root)
     save_collision(root)
-    print("Terminal PTY suite: 26 cases passed, 0 skipped.")
+    buffer_commands(root)
+    close_buffers(root)
+    print("Terminal PTY suite: 28 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

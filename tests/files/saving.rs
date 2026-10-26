@@ -693,3 +693,50 @@ fn resolved_consent() {
     assert_eq!(fs::read(&original).unwrap(), b"original");
     assert_eq!(buffers.get(id).unwrap().file().unwrap().path(), target);
 }
+
+// Publication warnings remain a real close decision even at an old clean text
+// state. An unresolved observation requires separate fresh consent; cancel keeps
+// the owner, and only a complete retry satisfies save-before-close.
+#[test]
+fn unresolved_close() {
+    for fault in [Fault::DirectorySync, Fault::Observe] {
+        let (fixture, mut buffers, id, path) = editable();
+        let save = buffers.prepare_save(id, None).unwrap();
+        let result = buffers.publish_save_with(save, &mut Failing::new(fault, &fixture.0));
+        assert_eq!(result.publication(), Publication::Uncertain);
+        buffers
+            .get_mut(id)
+            .unwrap()
+            .navigate(History::Undo, &mut [], None)
+            .unwrap();
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 160,
+                height: 8,
+            },
+        )
+        .unwrap();
+        let before = super::snapshot(&session);
+        session.execute(Command::Buffer(rev::command::BufferCommand::Kill));
+        session.handle(super::press(crossterm::event::KeyCode::Enter));
+        assert!(session.echo().contains("y=save, n=discard"));
+        session.handle(super::chord('g'));
+        assert_eq!(super::snapshot(&session), before);
+        session.execute(Command::Buffer(rev::command::BufferCommand::Kill));
+        session.handle(super::press(crossterm::event::KeyCode::Enter));
+        session.handle(super::press(crossterm::event::KeyCode::Char('y')));
+        if fault == Fault::Observe {
+            assert!(session.echo().contains("Destination changed on disk"));
+            assert_eq!(session.buffer().unwrap().id(), id);
+            assert!(session.buffer().unwrap().is_modified());
+            session.handle(super::press(crossterm::event::KeyCode::Char('y')));
+        }
+        assert_eq!(session.echo(), "Buffer closed");
+        assert_ne!(session.buffer().unwrap().id(), id);
+        assert_eq!(fs::read(&path).unwrap(), b"original");
+        assert!(!session.buffer().unwrap().is_modified());
+    }
+}
