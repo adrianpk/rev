@@ -1,6 +1,7 @@
 # rev Editor
 
-Status: draft
+Status: accepted
+Approved: product owner, 2026-10-26
 Date: 2026-10-26
 Format: OpenSpec baseline requirements and scenarios
 Model: [rev Editor Model](rev-editor-model.md)
@@ -21,8 +22,8 @@ lesson pacing, and work deliberately left for a learner are outside this
 implementation contract.
 
 The source document remains the provenance reference. This baseline and its
-model are a draft adaptation for review; their existence does not approve an
-implementation plan or authorize a controller start. Markdown scenarios state
+model are accepted by the product owner. The approved delivery plan and tracker
+own execution authority and state. Markdown scenarios state
 acceptance obligations; they are not evidence that tests have run.
 
 ## Scope and priority
@@ -46,7 +47,7 @@ MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
 after the required baseline is satisfied. A **Design default** retains a
 choice labeled as such in the reference, rather than claiming a separate
-product-owner decision. Proposed clarifications are identified below.
+product-owner decision. Accepted adaptation clarifications are identified below.
 
 ## Vocabulary and invariants
 
@@ -377,7 +378,7 @@ where supported. Appropriate permissions SHOULD be preserved where practical.
 Unavailable guarantees MUST be disclosed. A later failure MUST distinguish
 an unpublished attempt from a replacement already published; it cannot claim
 that the original destination was preserved if replacement already happened.
-The model defines the proposed outcome and saved-state rules.
+The model defines the accepted outcome and saved-state rules.
 
 #### Scenario: Write fails before replacement
 
@@ -554,7 +555,7 @@ operation over all affected lines.
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain the rectangle without editing. |
 | `C-x r y` | `yank-rectangle` | Insert the retained rows at point across successive lines. |
 
-The draft clarification table defines boundary behavior for tabs and wide
+The clarification table defines boundary behavior for tabs and wide
 clusters. Additional clear/open/number/register operations are outside scope.
 
 #### Scenario: Rectangle spans short and mixed-width lines
@@ -980,7 +981,7 @@ cargo test --all
 
 It MUST also pass the first-party unsafe check and explicit review of R36-R37.
 Repository tooling for those checks SHALL be defined during approved planning
-and implementation; this draft does not claim that tooling already exists.
+and implementation; this document does not claim that tooling already exists.
 Tests MUST target observable behavior rather than elaborate private mocks.
 
 #### Scenario: Tests pass but a required quality check fails
@@ -1063,12 +1064,12 @@ required to validate the representative workload.
 | Commands | Static Rust registry; session-local command-name history. |
 | Platform | Linux terminal first, without broad platform certification. |
 
-## Proposed adaptation clarifications
+## Accepted adaptation clarifications
 
-These choices make cross-component behavior reviewable. They are part of this
-draft, not claims that the source already specified every detail.
+These accepted choices make cross-component behavior reviewable. They do not
+claim that the source already specified every detail.
 
-| ID | Proposed clarification | Reason and boundary |
+| ID | Accepted clarification | Reason and boundary |
 | --- | --- | --- |
 | D01 | Protect modified unnamed buffers on quit as well as file-backed buffers. | Preserve the source's general no-silent-loss acceptance rule. |
 | D02 | Qualify prepared ranges with buffer identity and text revision; map every live view after accepted edits. | Prevent stale ranges and cross-view position corruption without requiring a public anchor framework. |
@@ -1160,13 +1161,14 @@ code edits, plugins, or external helper programs during normal editing.
 ## Delivery boundary
 
 The requested implementation shall be prepared as one complete, bounded Looper
-cycle covering the full baseline. The later approved plan must enumerate all
+cycle covering the full baseline. The approved plan must enumerate all
 required slices and dependencies before execution, with no arbitrary small
 slice quota. Detailed supporting documents may distribute implementation
 knowledge while one canonical plan and tracker retain execution authority.
 
-This draft records that constraint but does not create a slice map, tracker,
-controller configuration, merge grant, release, or implementation evidence.
+The [delivery plan](../plan/rev-editor.md) and
+[tracker](../tracker/rev-editor.md) record the approved slice map, decisions, and
+execution state. This specification does not replace their validation evidence.
 
 ## References
 

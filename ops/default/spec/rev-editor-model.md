@@ -1,6 +1,7 @@
 # rev Editor Model
 
-Status: draft
+Status: accepted
+Approved: product owner, 2026-10-26
 Date: 2026-10-26
 Specification: [rev Editor](rev-editor.md)
 Scope: native state, text persistence, and cross-component invariants
@@ -11,7 +12,7 @@ Define the state and persistence contracts needed by the paired specification.
 Tables name semantic responsibilities. They do not mandate public Rust types,
 a module per record, a custom rope, a database, or a multi-crate workspace.
 The specification owns observable commands and acceptance. This companion
-shares its draft status and proposed clarifications D01-D07.
+shares its accepted status and accepted clarifications D01-D07.
 
 ## Ownership
 
@@ -219,7 +220,7 @@ target change, or incompatible mutation invalidates it before reuse.
 | `policy` | The same width/tab/grapheme policy used by drawing and motion. |
 
 Row text is independent of the linear ring. Selection derives its line range
-and display columns from point/mark. Under proposed D04, a touched wide cluster
+and display columns from point/mark. Under D04, a touched wide cluster
 is included whole; tab-cell fragments are represented with spaces without
 altering untouched tabs. A short line contributes only its actual selected
 text. Copy does not add absent cells to that source.
@@ -369,10 +370,10 @@ canonical rope, history, and file association may not.
 | Resize | Geometry/projection changes without changing canonical document state. |
 | Quit | Required decisions/saves succeed before terminal guard release. |
 
-## Planning decisions still to pin
+## Implementation decisions
 
-The product scope is bounded. These implementation choices must be recorded
-in the later approved plan before related slices execute:
+The [approved delivery plan](../plan/rev-editor.md#pinned-implementation-decisions)
+resolves these implementation choices before their owning slices execute:
 
 1. Exact rope, terminal, Unicode, and Tree-sitter crate versions and compatible
    bundled Rust grammar/query.
@@ -387,5 +388,6 @@ in the later approved plan before related slices execute:
 6. History retention, prompt/ring bounds, source-quality checks, PTY fixtures,
    and representative performance measurements.
 
-These are explicit planning inputs, not permission to expand functionality or
-to defer required acceptance behavior beyond the single planned delivery.
+The plan records exact defaults, dependency versions, and validation owners.
+These decisions do not expand functionality or defer required acceptance
+behavior beyond the single approved delivery.
