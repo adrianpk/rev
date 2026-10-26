@@ -338,6 +338,16 @@ Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, 
 - [ ] T14.2: Exercise injected write/flush/replace/post-replace failures and cleanup. Reconcile actual publication, saved logical state, dirty flags, and a first successful file association truthfully.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T14.1 and T14.2 implemented; canonical PR preparation in progress.
+Task commits: T14.1 `c9d8c39b05901db5b80c2fba1bfd60d8af5493fd`, completed
+through `f16523df10507278497ad7d8cc6454ee096119bc`;
+T14.2 `7bdc7fa8bed7bd3db00340f9b1cc877b56b36885`.
+Validation: required Cargo/source commands passed; `cargo test --test files`
+passed thirty-seven tests and the terminal PTY suite passed twenty-four cases with zero skips.
+Final PR-head evidence is recorded through Looper after PR references are committed.
+PR: pending.
+Report: [Slice 14](../report/slices/rev-editor/slice-14-saving.md).
+
 ### Slice 15: Confirm overwrite and external changes
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R12, R13, R23.
