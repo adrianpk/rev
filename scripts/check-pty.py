@@ -2048,6 +2048,76 @@ def shared_rectangle_yank(root):
 
 
 
+def tree_pane(root):
+    # The initial resolved parent is selected without a Git directory. Tree
+    # focus rejects editing; M-x and bound routes preserve dirty text/history.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-") as directory:
+        workspace = Path(directory) / "workspace"
+        workspace.mkdir()
+        path = workspace / "draft.txt"
+        source = "ab界e\u0301\nlast".encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> draft.txt -- RW L1 C1 Text")
+            group_step(session, b"!", b"** RW L1 C2 Text")
+            group_step(session, b"\x18tt", b"File tree focused", b"> workspace/")
+            frame = last_frame(session)
+            assert b"\x1b[7m> workspace/" in frame and b"Tree *" in frame
+            assert b"\x1b[1;1H" + SHOW in frame
+            group_step(session, b"bad", b"File tree owns input focus", b"** RW L1 C2 Text")
+            group_step(session, b"\t", b"Editing", b"** RW L1 C2 Text")
+            assert b"\x1b[1;27H" + SHOW in last_frame(session)
+            named_step(session, "focus-file-tree", b"File tree focused")
+            named_step(session, "toggle-file-tree", b"File tree hidden", b"** RW L1 C2 Text")
+            assert b"> workspace/" not in last_frame(session)
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text", "\x1b[1;1Hab界e\u0301".encode())
+            assert path.read_bytes() == source and not (workspace / ".git").exists()
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS collapsed startup root, bound/named tree focus, dirty-text admission and retained undo")
+        finally:
+            session.close()
+
+
+def tree_resize(root):
+    # Auto-hide releases workspace focus, keeps the root/show preference and
+    # restores the pane without stealing focus. Labels cannot emit terminal SGR.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-tree-resize-") as directory:
+        workspace = Path(directory) / "界e\u0301\x1b[31m"
+        workspace.mkdir()
+        path = workspace / "geometry.txt"
+        path.write_bytes(b"original")
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> geometry.txt -- RW L1 C1 Text")
+            group_step(session, b"\x18tt", b"File tree focused", "界e\u0301^[[31m/".encode())
+            assert b"\x1b[31m" not in last_frame(session)
+            resize_surface(session, 31, 8, True)
+            assert b"Tree *" not in last_frame(session)
+            group_step(session, b"X", b"** RW L1 C2 Text")
+            resize_surface(session, 32, 8, True)
+            assert "界e\u0301".encode() in last_frame(session)
+            assert b"\x1b[1;13H" + SHOW in last_frame(session)
+            resize_surface(session, 0, 0, False)
+            resize_surface(session, 3, 3, True)
+            resize_surface(session, 80, 24, True)
+            assert b"\x1b[1;27H" + SHOW in last_frame(session)
+            named_step(session, "focus-file-tree", b"File tree focused")
+            group_step(session, b"\x1bx", b"M-x ")
+            group_step(session, b"toggle-file-tree", b"M-x toggle-file-tree")
+            group_step(session, b"\x07", b"Quit", b"Tree *")
+            assert b"\x1b[1;1H" + SHOW in last_frame(session)
+            named_step(session, "toggle-file-tree", b"File tree hidden")
+            group_step(session, b"\x18u", b"-- RW L1 C1 Text", b"\x1b[1;1Horiginal")
+            assert path.read_bytes() == b"original"
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS Unicode/control root clipping, narrow/zero resize restoration and canceled tree M-x focus")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -2112,7 +2182,9 @@ def main():
     shared_rectangle_kill(root)
     rectangle_yank(root)
     shared_rectangle_yank(root)
-    print("Terminal PTY suite: 70 cases passed, 0 skipped.")
+    tree_pane(root)
+    tree_resize(root)
+    print("Terminal PTY suite: 72 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
