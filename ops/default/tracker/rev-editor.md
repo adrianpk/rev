@@ -259,7 +259,7 @@ T10.2 `fdf16328e74c9c90571ee494d5cc8413013ce155`.
 Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed thirty-two tests and the terminal PTY suite passed twelve cases with zero skips.
 Final PR-head evidence is recorded through Looper.
-PR: pending.
+PR: [#10](https://forge.adrianpk.com/adrianpk/rev/pulls/10).
 Report: [Slice 10](../report/slices/rev-editor/slice-10-history.md).
 
 ### Slice 11: Group typing and compound history
