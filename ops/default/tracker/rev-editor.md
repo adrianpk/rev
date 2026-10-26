@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 29 - Search forward across rope chunks
+Active slice: Slice 30 - Search backward with smart case and cancel
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -628,17 +628,20 @@ Report: [Slice 28](../report/slices/rev-editor/slice-28-prompt-flows.md).
 
 Inputs: [Part 4](../plan/rev-editor/04-commands-and-search.md); requirements R07, R09, R26.
 
-- [ ] T29.1: Implement isearch-forward with visible minibuffer query, chunk-crossing literal matching, next-match continuation, source-qualified results, and match reveal/highlighting.
-- [ ] T29.2: Exercise Unicode chunk seams, multiline text, incremental query changes, no-match behavior, and searches on representative larger ropes without per-key whole-file copies.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T29.1: Implement isearch-forward with visible minibuffer query, chunk-crossing literal matching, next-match continuation, source-qualified results, and match reveal/highlighting.
+- [x] T29.2: Exercise Unicode chunk seams, multiline text, incremental query changes, no-match behavior, and searches on representative larger ropes without per-key whole-file copies.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T29.1 and T29.2 complete; canonical PR #29 prepared for integration.
+Implementation: T29.1 and T29.2 delivered through PR #29.
 Task commits: T29.1 `65df69161fa93616a191f50f2c70bfdcad22cf98`;
 T29.2 `3ba1af483b66be0caf17f6d676d0c9ca8157a9bc`.
 Validation: required Cargo/source commands passed; `cargo test --test search`
 passed eleven tests and the terminal PTY suite passed sixty cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#29](https://forge.adrianpk.com/adrianpk/rev/pulls/29).
+Integration: Rebase + Fast-forward into dev at
+`9e7decac0237df6877707fee780801b858487fa2`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 29](../report/slices/rev-editor/slice-29-forward-search.md).
 
 ### Slice 30: Search backward with smart case and cancel

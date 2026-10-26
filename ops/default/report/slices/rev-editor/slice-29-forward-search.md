@@ -1,11 +1,12 @@
 # Slice 29: Search forward across rope chunks
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-29-forward-search`
 PR: `#29`
+Integrated: Rebase + Fast-forward into dev at `9e7decac0237df6877707fee780801b858487fa2`.
 
 ## Purpose
 
