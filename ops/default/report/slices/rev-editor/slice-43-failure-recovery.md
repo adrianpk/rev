@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `fix/rev-43-failure-recovery`
-PR: pending
+PR: `#43`
 
 ## Purpose
 

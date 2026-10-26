@@ -912,12 +912,13 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T43.2: Exercise combined failures and cleanup ordering, canceled transient interactions, readonly rejection, and state equality after rejected compound edits. Keep fixes within already approved behavior.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T43.1 and T43.2 complete; canonical PR pending.
+Implementation: T43.1 and T43.2 complete; PR #43 awaits integration.
 Task commits: T43.1 `2e45d275864e289f10c83776166569fe197fce3b`;
 T43.2 `21cde797e6cc8289178dac0d7d118ce0dd9b437c`.
 Validation: required Cargo/source commands passed; `cargo test --test recovery`
 passed 16 tests and the terminal PTY suite passed 90 cases with zero skips.
 Final PR-head evidence is recorded through Looper.
+PR: [#43](https://forge.adrianpk.com/adrianpk/rev/pulls/43).
 Report: [Slice 43](../report/slices/rev-editor/slice-43-failure-recovery.md).
 
 ### Slice 44: Drive user journeys through a PTY
