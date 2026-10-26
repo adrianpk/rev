@@ -9,6 +9,9 @@ use rev::search::Pattern;
 use rev::session::{Action, Session};
 use rev::view::View;
 
+#[path = "search/edges.rs"]
+mod edges;
+
 fn editor(source: &str, position: usize) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
@@ -52,28 +55,30 @@ fn text(session: &Session) -> String {
 // returns original scalar coordinates and freshness rather than flattened bytes.
 #[test]
 fn chunk_match() {
-    let source = "é界\n".repeat(1500);
-    let session = editor(&source, 0);
-    let buffer = session.buffer().unwrap();
-    let whole = buffer.span(0..buffer.len_chars()).unwrap();
-    let seam = buffer
-        .chunks(&whole)
-        .unwrap()
-        .next()
-        .unwrap()
-        .chars()
-        .count();
-    let expected = buffer.span(seam - 3..seam + 4).unwrap();
-    let literal = buffer.slice(&expected).unwrap().to_string();
-    assert!(literal.contains('\n'));
-    let found = Pattern::new(&literal)
-        .unwrap()
-        .find(buffer, Scalar(seam - 3))
-        .unwrap()
-        .unwrap();
-    assert_eq!(found, expected);
-    assert_eq!(buffer.slice(&found).unwrap().to_string(), literal);
-    assert_eq!(text(&session), source);
+    for unit in ["é界\n", "e\u{301}👩\u{200d}💻\r\n", "abababac界\n"] {
+        let source = unit.repeat(1500);
+        let session = editor(&source, 0);
+        let buffer = session.buffer().unwrap();
+        let whole = buffer.span(0..buffer.len_chars()).unwrap();
+        let seam = buffer
+            .chunks(&whole)
+            .unwrap()
+            .next()
+            .unwrap()
+            .chars()
+            .count();
+        let expected = buffer.span(seam - 12..seam + 12).unwrap();
+        let literal = buffer.slice(&expected).unwrap().to_string();
+        assert!(literal.contains('\n'));
+        let found = Pattern::new(&literal)
+            .unwrap()
+            .find(buffer, Scalar(seam - 12))
+            .unwrap()
+            .unwrap();
+        assert_eq!(found, expected);
+        assert_eq!(buffer.slice(&found).unwrap().to_string(), literal);
+        assert_eq!(text(&session), source);
+    }
 }
 
 // Query changes rescan from the current search anchor; repetition advances and a

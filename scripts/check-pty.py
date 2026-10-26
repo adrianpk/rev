@@ -1655,6 +1655,71 @@ def focused_close(root):
             session.close()
 
 
+def forward_search(root):
+    # Real incremental key reports and next-match search reveal a distant line;
+    # failure keeps point, deletion recovers, and accepted search leaves disk clean.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-search-") as directory:
+        path = Path(directory) / "search.txt"
+        source = b"one cat\n" + b"filler\n" * 45 + b"cat end"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> search.txt -- RW L1 C1 Text")
+            group_step(session, b"\x13", b"I-search: ")
+            group_step(session, b"c", b"I-search: c", b"-- RW L1 C6 Text")
+            group_step(session, b"at", b"I-search: cat", b"\x1b[4mcat\x1b[24m")
+            group_step(session, b"\x13", b"-- RW L47 C4 Text", b"I-search: cat")
+            assert b"\x1b[4mcat\x1b[24m" in last_frame(session)
+            group_step(session, b"z", b"No match", b"-- RW L47 C4 Text")
+            assert b"I-search: catz" in last_frame(session)
+            assert b"\x1b[4m" not in last_frame(session)
+            group_step(session, b"\x7f", b"I-search: cat", b"\x1b[4mcat\x1b[24m")
+            assert b"No match" not in last_frame(session)
+            group_step(session, b"\r", b"-- RW L47 C4 Text")
+            assert b"I-search:" not in last_frame(session)
+            assert b"\x1b[4m" not in last_frame(session)
+            group_step(session, b"\x18u", b"Nothing to undo", b"-- RW L47 C4 Text")
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS incremental forward search, distant continuation, no-match recovery and unchanged text/history")
+        finally:
+            session.close()
+
+
+def multiline_search(root):
+    # Named search accepts a bracketed CRLF/Unicode query across real rope chunks;
+    # selected-pane styling and focused query ownership survive tiny geometry.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-search-lines-") as directory:
+        path = Path(directory) / "unicode.txt"
+        source = ("filler text\r\n" * 64 + "e\u0301\t界\r\nend\nlast").encode()
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> unicode.txt -- RW L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> unicode.txt -- RW L1 C1 Text")
+            group_step(session, b"\x18o", b"|> unicode.txt -- RW L1 C1 Text")
+            named_step(session, "isearch-forward", b"I-search: ")
+            group_step(session, paste_wire("界\r\nend".encode()), b"I-search:", b"|> unicode.txt -- RW L66 C4 Text")
+            frame = last_frame(session)
+            assert b"\x1b[4m" + "界".encode() in frame
+            assert b"\x1b[4mend\x1b[24m" in frame
+            assert b"  unicode.txt -- RW L1 C1 Text" in frame
+            for width, height in [(0, 0), (1, 1), (3, 3), (80, 24)]:
+                resize_surface(session, width, height, True)
+            assert b"I-search:" in last_frame(session)
+            assert b"|> unicode.txt -- RW L66 C4 Text" in last_frame(session)
+            group_step(session, b"\x07", b"Quit", b"|> unicode.txt -- RW L1 C1 Text")
+            assert b"I-search:" not in last_frame(session)
+            assert b"\x1b[4m" not in last_frame(session)
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS named multiline Unicode search, pane isolation, resize/cancel and exact disk bytes")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1707,7 +1772,9 @@ def main():
     command_arguments(root)
     focused_arguments(root)
     focused_close(root)
-    print("Terminal PTY suite: 58 cases passed, 0 skipped.")
+    forward_search(root)
+    multiline_search(root)
+    print("Terminal PTY suite: 60 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
