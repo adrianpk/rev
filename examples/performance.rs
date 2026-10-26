@@ -7,8 +7,11 @@ use std::time::{Duration, Instant};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{Command, Motion, Scroll, Split, WindowCommand};
-use rev::session::{Action, Session};
+use rev::session::Session;
 use rev::view::Size;
+
+#[path = "performance/work.rs"]
+mod work;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -20,13 +23,19 @@ fn require(condition: bool, message: &str) -> Result<()> {
 }
 
 fn emit(name: &str, mut samples: Vec<Duration>) {
-    samples.sort();
-    let median = samples[samples.len() / 2].as_secs_f64() * 1_000_000.0;
-    let maximum = samples.last().unwrap().as_secs_f64() * 1_000_000.0;
+    let (median, maximum) = statistics(&mut samples);
     println!(
         "{{\"workload\":\"{name}\",\"samples\":{},\"median_us\":{median:.3},\"max_us\":{maximum:.3}}}",
         samples.len()
     );
+}
+
+fn statistics(samples: &mut [Duration]) -> (f64, f64) {
+    samples.sort();
+    (
+        samples[samples.len() / 2].as_secs_f64() * 1_000_000.0,
+        samples.last().unwrap().as_secs_f64() * 1_000_000.0,
+    )
 }
 
 fn draw(session: &mut Session) -> Result<()> {
@@ -82,38 +91,34 @@ fn search(session: &mut Session) -> Result<()> {
     Ok(())
 }
 
+fn edit(session: &mut Session, insertion: bool) -> Result<Duration> {
+    let before = session.buffer()?.len_chars();
+    let start = Instant::now();
+    if insertion {
+        session.insert('é');
+    } else {
+        session.execute(Command::BackwardDeleteChar);
+    }
+    draw(session)?;
+    let elapsed = start.elapsed();
+    let expected = if insertion { before + 1 } else { before - 1 };
+    require(
+        session.buffer()?.len_chars() == expected,
+        "edit did not publish",
+    )?;
+    require(
+        session.buffer()?.syntax().is_incremental(),
+        "edit reparsed without its tree",
+    )?;
+    Ok(elapsed)
+}
+
 fn editing(session: &mut Session) -> Result<()> {
     let mut insert = Vec::new();
     let mut delete = Vec::new();
     for _ in 0..32 {
-        let before = session.buffer()?.len_chars();
-        let start = Instant::now();
-        require(
-            session.insert('é') == Action::Redraw,
-            "insert was not dispatched",
-        )?;
-        draw(session)?;
-        insert.push(start.elapsed());
-        require(
-            session.buffer()?.len_chars() == before + 1,
-            "insert did not publish",
-        )?;
-        require(
-            session.buffer()?.syntax().is_incremental(),
-            "insert reparsed without its tree",
-        )?;
-        let start = Instant::now();
-        session.execute(Command::BackwardDeleteChar);
-        draw(session)?;
-        delete.push(start.elapsed());
-        require(
-            session.buffer()?.len_chars() == before,
-            "delete did not publish",
-        )?;
-        require(
-            session.buffer()?.syntax().is_incremental(),
-            "delete reparsed without its tree",
-        )?;
+        insert.push(edit(session, true)?);
+        delete.push(edit(session, false)?);
     }
     emit("insert", insert);
     emit("delete", delete);
@@ -179,14 +184,7 @@ fn highlighting(session: &mut Session) -> Result<()> {
     Ok(())
 }
 
-fn run(path: &Path) -> Result<()> {
-    let original = std::fs::read(path)?;
-    let mut session = startup(path)?;
-    search(&mut session)?;
-    editing(&mut session)?;
-    scrolling(&mut session)?;
-    splitting(&mut session)?;
-    highlighting(&mut session)?;
+fn unchanged(session: &Session, path: &Path, original: &[u8]) -> Result<()> {
     let mut actual = Vec::new();
     rev::file::write(session.buffer()?, &mut actual)?;
     require(
@@ -198,6 +196,22 @@ fn run(path: &Path) -> Result<()> {
         "measurement changed the file",
     )?;
     Ok(())
+}
+
+fn workloads(session: &mut Session) -> Result<()> {
+    search(session)?;
+    editing(session)?;
+    scrolling(session)?;
+    splitting(session)?;
+    highlighting(session)
+}
+
+fn run(path: &Path) -> Result<()> {
+    let original = std::fs::read(path)?;
+    let mut session = startup(path)?;
+    workloads(&mut session)?;
+    unchanged(&session, path, &original)?;
+    work::run(path)
 }
 
 fn main() -> Result<()> {

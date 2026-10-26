@@ -8,12 +8,14 @@ import math
 import os
 from pathlib import Path
 import platform
+import select
 import subprocess
+import sys
 import tempfile
 import time
 
 
-WORKLOADS = {"load", "search", "insert", "delete", "scroll", "split_redraw", "highlighting"}
+WORKLOADS = {"load", "search", "insert", "delete", "scroll", "split_redraw", "highlighting", "syntax_work"}
 
 
 def fixture(path, lines):
@@ -45,7 +47,9 @@ def hardware():
 
 def native(root, path):
     result = subprocess.run([str(root / "target/release/examples/performance"), str(path)],
-                            cwd=root, capture_output=True, text=True, timeout=120, check=True)
+                            cwd=root, capture_output=True, text=True, timeout=120)
+    if result.returncode:
+        raise AssertionError(f"native measurement failed:\n{result.stderr[-4000:]}\n{result.stdout[-4000:]}")
     records = [json.loads(line) for line in result.stdout.splitlines()]
     assert len(records) == len(WORKLOADS), "missing or duplicate native measurements"
     assert {record["workload"] for record in records} == WORKLOADS, "missing required workload"
@@ -56,6 +60,31 @@ def native(root, path):
     return records
 
 
+def cpu_ticks(process):
+    fields = Path(f"/proc/{process.pid}/stat").read_text().rsplit(")", 1)[1].split()
+    return int(fields[11]) + int(fields[12])
+
+
+def idle(session):
+    # This is a measured quiescent interval, not a fixed readiness sleep.
+    session.output.clear()
+    started = time.perf_counter()
+    before = cpu_ticks(session.process)
+    deadline = started + 0.35
+    while time.perf_counter() < deadline:
+        remaining = max(0, deadline - time.perf_counter())
+        if select.select([session.master], [], [], remaining)[0]:
+            session.drain()
+    elapsed = time.perf_counter() - started
+    ticks = cpu_ticks(session.process) - before
+    frequency = os.sysconf("SC_CLK_TCK")
+    assert session.process.poll() is None, "editor exited while idle"
+    assert not session.output, "idle editor emitted repaint output"
+    assert ticks <= max(2, math.ceil(elapsed * frequency * 0.1)), "sustained idle CPU work"
+    return {"elapsed_ms": round(elapsed * 1000, 3), "output_bytes": len(session.output),
+            "cpu_ms": round(ticks * 1000 / frequency, 3)}
+
+
 def terminal(root, path, harness):
     start = time.perf_counter()
     session = harness.Session([str(root / "target/release/rev"), str(path)], colors=True)
@@ -64,8 +93,9 @@ def terminal(root, path, harness):
         elapsed = (time.perf_counter() - start) * 1000
         flags = harness.termios.tcgetattr(session.slave)[3]
         assert not flags & (harness.termios.ICANON | harness.termios.ECHO), "raw mode missing"
+        quiet = idle(session)
         harness.accepted_exit(session)
-        return {"startup_ms": round(elapsed, 3)}
+        return {"startup_ms": round(elapsed, 3), "idle": quiet}
     finally:
         session.close()
 
@@ -74,6 +104,7 @@ def main():
     root = Path(__file__).resolve().parent.parent
     subprocess.run(["cargo", "build", "--release", "--bin", "rev", "--example", "performance"],
                    cwd=root, check=True, timeout=180)
+    sys.dont_write_bytecode = True
     specification = importlib.util.spec_from_file_location("rev_pty", root / "scripts/check-pty.py")
     harness = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(harness)
@@ -88,7 +119,7 @@ def main():
             assert hashlib.sha256(path.read_bytes()).hexdigest() == record["sha256"], "fixture bytes changed"
             result["fixtures"].append(record)
     print(json.dumps(result, indent=2))
-    print("Performance workloads: 2 fixtures, 7 native workloads each, 2 real PTY startups; passed.")
+    print("Performance workloads: 2 fixtures, 8 native workloads each, 2 real PTY startup/idle/restoration checks; passed.")
 
 
 if __name__ == "__main__":
