@@ -483,5 +483,330 @@ fn recenter_cycle() {
         assert_eq!(session.view().point, stamp);
         bounded(&session.frame().unwrap(), size);
     }
+    navigate(&mut session, "next-line", Cell { row: 11, column: 2 });
+    navigate(
+        &mut session,
+        "recenter-top-bottom",
+        Cell { row: 11, column: 2 },
+    );
+    assert_eq!(session.view().top, 9);
+    navigate(
+        &mut session,
+        "recenter-top-bottom",
+        Cell { row: 11, column: 2 },
+    );
+    assert_eq!(session.view().top, 11);
+    session.execute(rev::command::Command::KeyboardQuit);
+    navigate(
+        &mut session,
+        "recenter-top-bottom",
+        Cell { row: 11, column: 2 },
+    );
+    assert_eq!(session.view().top, 9);
     assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// A goal inside a tab or wide cluster snaps to its start without replacing
+// the goal; later long lines recover it across both LF and CRLF separators.
+#[test]
+fn cell_goals() {
+    use rev::coordinates::Cell;
+    let source = "0123456789\r\na\t界e\u{301}👩\u{200d}💻\r\nx\n0123456789";
+    let size = Size {
+        width: 5,
+        height: 4,
+    };
+    for (name, goal, snapped) in [
+        ("tab", 2, 1),
+        ("wide", 5, 4),
+        ("emoji edge", 7, 7),
+        ("emoji interior", 8, 7),
+    ] {
+        let mut session = editor(
+            source,
+            Cell {
+                row: 0,
+                column: goal,
+            },
+            size,
+        );
+        for (command, row, column) in [
+            ("next-line", 1, snapped),
+            ("next-line", 2, 1),
+            ("next-line", 3, goal),
+            ("previous-line", 2, 1),
+            ("previous-line", 1, snapped),
+            ("previous-line", 0, goal),
+        ] {
+            navigate(&mut session, command, Cell { row, column });
+            assert_eq!(session.view().column, Some(goal), "{name}");
+            bounded(&session.frame().unwrap(), size);
+        }
+    }
+}
+
+// Pages advance the viewport and point together with two context rows, retain
+// the goal through short destinations, and clamp at both document boundaries.
+#[test]
+fn page_navigation() {
+    use rev::coordinates::Cell;
+    let source = (0..15)
+        .map(|row| match row {
+            3 => "x",
+            9 => "a\t界",
+            _ => "0123456789",
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    let size = Size {
+        width: 6,
+        height: 7,
+    };
+    let mut session = editor(&source, Cell { row: 0, column: 8 }, size);
+    session.frame().unwrap();
+    let cases = [
+        ("scroll-up-command", 3, 1, 3),
+        ("scroll-up-command", 6, 8, 4),
+        ("scroll-up-command", 9, 6, 7),
+        ("scroll-up-command", 12, 8, 10),
+        ("scroll-up-command", 14, 8, 12),
+        ("scroll-up-command", 14, 8, 12),
+        ("scroll-down-command", 11, 8, 9),
+        ("scroll-down-command", 8, 8, 6),
+        ("scroll-down-command", 5, 8, 3),
+        ("scroll-down-command", 2, 8, 0),
+        ("scroll-down-command", 0, 8, 0),
+        ("scroll-down-command", 0, 8, 0),
+    ];
+    for (command, row, column, top) in cases {
+        navigate(&mut session, command, Cell { row, column });
+        assert_eq!(session.view().top, top);
+        assert_eq!(session.view().column, Some(8));
+        navigate(&mut session, "recenter-top-bottom", Cell { row, column });
+        assert_eq!(session.view().column, Some(8));
+        bounded(&session.frame().unwrap(), size);
+    }
+}
+
+// Nonvertical movement and insertion discard a prior goal, so later vertical
+// movement uses the newly chosen cell instead of resurrecting an old column.
+#[test]
+fn navigation_reset() {
+    use rev::coordinates::Cell;
+    let size = Size {
+        width: 8,
+        height: 5,
+    };
+    let mut session = editor(
+        "0123456789\nx\n0123456789",
+        Cell { row: 0, column: 8 },
+        size,
+    );
+    navigate(&mut session, "next-line", Cell { row: 1, column: 1 });
+    assert_eq!(session.view().column, Some(8));
+    navigate(
+        &mut session,
+        "move-beginning-of-line",
+        Cell { row: 1, column: 0 },
+    );
+    assert_eq!(session.view().column, None);
+    navigate(&mut session, "next-line", Cell { row: 2, column: 0 });
+    navigate(
+        &mut session,
+        "move-end-of-line",
+        Cell { row: 2, column: 10 },
+    );
+    navigate(&mut session, "previous-line", Cell { row: 1, column: 1 });
+    assert_eq!(session.view().column, Some(10));
+    assert_eq!(session.insert('!'), rev::session::Action::Redraw);
+    assert_eq!(session.view().column, None);
+    navigate(&mut session, "previous-line", Cell { row: 0, column: 2 });
+    assert_eq!(session.view().column, Some(2));
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+}
+
+// Suspended presentation keeps goals and scroll intact. A one-row pane still
+// pages one logical line, and resize recovery reveals the same intended cell.
+#[test]
+fn suspended_navigation() {
+    use crossterm::event::Event;
+    use rev::coordinates::Cell;
+    for (width, height) in [(0, 0), (1, 1), (2, 2), (3, 3)] {
+        let size = Size { width, height };
+        let mut session = editor(
+            "abcdef\nx\nabcdef",
+            Cell { row: 0, column: 5 },
+            Size {
+                width: 8,
+                height: 7,
+            },
+        );
+        navigate(&mut session, "next-line", Cell { row: 1, column: 1 });
+        let origin = (session.view().top, session.view().left);
+        session.handle(Event::Resize(width, height));
+        let point = if size.usable() {
+            Cell { row: 2, column: 5 }
+        } else {
+            Cell { row: 1, column: 1 }
+        };
+        navigate(&mut session, "scroll-up-command", point);
+        navigate(
+            &mut session,
+            "scroll-down-command",
+            Cell { row: 1, column: 1 },
+        );
+        for _ in 0..4 {
+            navigate(
+                &mut session,
+                "recenter-top-bottom",
+                Cell { row: 1, column: 1 },
+            );
+            assert_eq!(session.view().column, Some(5));
+            bounded(&session.frame().unwrap(), size);
+        }
+        if !size.usable() {
+            assert_eq!((session.view().top, session.view().left), origin);
+            assert!(session.frame().unwrap().cursor().is_none());
+        }
+        session.handle(Event::Resize(8, 7));
+        navigate(&mut session, "next-line", Cell { row: 2, column: 5 });
+        assert_eq!(session.view().column, Some(5));
+        bounded(
+            &session.frame().unwrap(),
+            Size {
+                width: 8,
+                height: 7,
+            },
+        );
+    }
+}
+
+// Reported Emacs and arrow/Page bindings reach the same native handlers.
+// Repeats move once; a release cannot move point or advance the recenter cycle.
+#[test]
+fn scroll_bindings() {
+    use crossterm::event::{
+        Event, KeyCode as Code, KeyEvent, KeyEventKind as Kind, KeyModifiers as Mod,
+    };
+    use rev::coordinates::Cell;
+    let size = Size {
+        width: 8,
+        height: 7,
+    };
+    let cases = [
+        (Code::Char('n'), Mod::CONTROL, 11, 7),
+        (Code::Down, Mod::NONE, 11, 7),
+        (Code::Char('p'), Mod::CONTROL, 9, 6),
+        (Code::Up, Mod::NONE, 9, 6),
+        (Code::Char('v'), Mod::CONTROL, 13, 9),
+        (Code::PageDown, Mod::NONE, 13, 9),
+        (Code::Char('v'), Mod::ALT, 7, 3),
+        (Code::PageUp, Mod::NONE, 7, 3),
+        (Code::Char('l'), Mod::CONTROL, 10, 8),
+    ];
+    for (code, modifiers, row, top) in cases {
+        let mut session = editor(&"line\n".repeat(20), Cell { row: 10, column: 3 }, size);
+        session.frame().unwrap();
+        let before = session.view().clone();
+        let event = |kind| Event::Key(KeyEvent::new_with_kind(code, modifiers, kind));
+        assert_eq!(
+            session.handle(event(Kind::Release)),
+            rev::session::Action::Wait
+        );
+        assert_eq!(session.view(), &before);
+        assert_eq!(
+            session.handle(event(Kind::Repeat)),
+            rev::session::Action::Redraw
+        );
+        assert_eq!(
+            session.view().cell(session.buffer().unwrap()).unwrap(),
+            Cell { row, column: 3 }
+        );
+        assert_eq!(session.view().top, top);
+        bounded(&session.frame().unwrap(), size);
+    }
+}
+
+// Scrolling read-only dirty text preserves its stored mark, revision, newline
+// metadata and existing reversible history rather than publishing an edit.
+#[test]
+fn scroll_state() {
+    use rev::buffer::edit::Replacement;
+    let mut buffers = Buffers::new().unwrap();
+    let buffer = buffers.get_mut(buffers.initial()).unwrap();
+    let source = "a\t界e\u{301}\r\n".repeat(20);
+    let edit = Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: source.clone(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    buffer.set_mark(Some(Scalar(3))).unwrap();
+    buffer.set_read_only(true);
+    let stamp = buffer.stamp();
+    let view = View::new(buffer);
+    let size = Size {
+        width: 5,
+        height: 7,
+    };
+    let mut session = rev::session::Session::new(buffers, view, size).unwrap();
+    for name in [
+        "next-line",
+        "scroll-up-command",
+        "recenter-top-bottom",
+        "scroll-down-command",
+        "previous-line",
+    ] {
+        let command = rev::command::Command::named(name).unwrap();
+        assert_eq!(session.execute(command), rev::session::Action::Redraw);
+        assert!(session.echo().is_empty());
+        bounded(&session.frame().unwrap(), size);
+    }
+    let buffer = session.buffer().unwrap();
+    assert_eq!(buffer.stamp(), stamp);
+    assert_eq!(buffer.mark(), Some(Scalar(3)));
+    assert_eq!(buffer.history().len(), 1);
+    assert!(buffer.is_modified() && buffer.is_read_only());
+    assert_eq!(buffer.newline(), "\r\n");
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap()
+            .to_string(),
+        source
+    );
+}
+
+// Empty buffers and the first/last logical lines admit repeated page, line and
+// recenter commands without invented rows, empty edits or invalid coordinates.
+#[test]
+fn scroll_limits() {
+    use rev::command::Command;
+    use rev::coordinates::Cell;
+    let size = Size {
+        width: 8,
+        height: 7,
+    };
+    let mut empty = editor("", Cell { row: 0, column: 0 }, size);
+    for command in Command::ALL {
+        if let Command::Scroll(_) = command {
+            navigate(&mut empty, command.name(), Cell { row: 0, column: 0 });
+        }
+    }
+    let mut session = editor("abcdef\nx\nabcdef", Cell { row: 2, column: 5 }, size);
+    for (command, row, column) in [
+        ("next-line", 2, 5),
+        ("scroll-up-command", 2, 5),
+        ("previous-line", 1, 1),
+        ("scroll-down-command", 0, 5),
+        ("previous-line", 0, 5),
+        ("scroll-down-command", 0, 5),
+    ] {
+        navigate(&mut session, command, Cell { row, column });
+        assert!(session.view().top < session.buffer().unwrap().len_lines());
+        assert_eq!(session.view().column, Some(5));
+        bounded(&session.frame().unwrap(), size);
+    }
+    assert!(session.buffer().unwrap().history().is_empty());
+    assert!(!session.buffer().unwrap().is_modified());
 }
