@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 10 - Restore per-buffer undo and redo
+Active slice: Slice 11 - Group typing and compound history
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -248,11 +248,11 @@ Report: [Slice 9](../report/slices/rev-editor/slice-9-scrolling.md).
 
 Inputs: [Part 2](../plan/rev-editor/02-files-and-history.md); requirements R04, R11, R21.
 
-- [ ] T10.1: Implement conventional per-buffer undo/redo, fresh publication revisions, logical saved-state identity, initiating-view restoration, and redo invalidation after a new edit.
-- [ ] T10.2: Exercise repeated navigation, unavailable history, a retained clean save point, independent buffers, read-only restrictions, and coherent mapping of non-initiating positions.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T10.1: Implement conventional per-buffer undo/redo, fresh publication revisions, logical saved-state identity, initiating-view restoration, and redo invalidation after a new edit.
+- [x] T10.2: Exercise repeated navigation, unavailable history, a retained clean save point, independent buffers, read-only restrictions, and coherent mapping of non-initiating positions.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T10.1 and T10.2 complete; awaiting canonical PR integration.
+Implementation: T10.1 and T10.2 delivered through PR #10.
 Task commits: T10.1 `ca57d28a6027aca29186077a8932bcc24aaf5e69` with admission
 refinement `20923bfd678a19798f86212c9cd61592819ce0c6`;
 T10.2 `fdf16328e74c9c90571ee494d5cc8413013ce155`.
@@ -260,6 +260,9 @@ Validation: required Cargo/source commands passed; `cargo test --test editing`
 passed thirty-two tests and the terminal PTY suite passed twelve cases with zero skips.
 Final PR-head evidence is recorded through Looper.
 PR: [#10](https://forge.adrianpk.com/adrianpk/rev/pulls/10).
+Integration: Rebase + Fast-forward into dev at
+`2aaf75921e52b2666500c3c2470af1166f70d669`; all seven ordered checks passed
+on that exact head, with merge activity recorded by the controller.
 Report: [Slice 10](../report/slices/rev-editor/slice-10-history.md).
 
 ### Slice 11: Group typing and compound history

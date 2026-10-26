@@ -1,11 +1,12 @@
 # Slice 10: Restore per-buffer undo and redo
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `feat/rev-10-history`
 PR: `#10`
+Integrated: Rebase + Fast-forward into dev at `2aaf75921e52b2666500c3c2470af1166f70d669`.
 
 ## Purpose
 
