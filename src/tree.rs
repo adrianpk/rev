@@ -1,4 +1,5 @@
 mod create;
+mod delete;
 mod entry;
 mod navigation;
 mod refresh;

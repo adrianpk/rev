@@ -113,6 +113,33 @@ content change still requires the normal later-save decision. If post-rename
 observation or tree refresh fails, the echo reports `Renamed` and the separate
 warning; successful disk publication and new associations remain recorded.
 
+## Deleting entries
+
+`C-x t D` (uppercase D) or `M-x tree-delete` asks whether to delete the selected
+entry, identifying its path. Answer y or n; C-g cancels. A nonempty directory
+requires a second, separate question stating that it contains children and
+asking for recursive deletion. Canceling either question leaves disk unchanged.
+Repeated keys and bracketed paste cannot approve a decision. Source identity
+is checked again before mutation. An empty directory never gains recursive
+permission merely because children appear after its initial decision.
+
+Deletion removes symlink entries without following file or directory referents,
+including dangling links. Open visiting buffers keep their exact text, point,
+mark, revision and history. Associations whose paths are actually absent are
+marked missing, with an explicit-save warning and a modified status so closing
+or quitting cannot silently discard retained text. Their canonical reservations
+remain: revisiting an absent path reuses the live buffer without recreating it.
+Only an explicit save recreates a file; missing parents are not created. Old
+save captures cannot recreate a path from before its association changed.
+
+Recursive removal can fail after deleting some children. The echo reports the
+actual path/error and says deletion may be partial. Each affected visiting path
+is inspected; only confirmed absence changes its association. Permission or
+observation errors do not imply absence. The tree refreshes after successful or
+failed deletion, retaining usable branches and ancestor selection. A refresh
+error is reported separately. No filesystem rollback or all-or-nothing deletion
+is claimed; all in-memory ropes survive either outcome.
+
 ## Geometry
 
 The pane uses at most 24 columns and at most one third of the frame, plus a

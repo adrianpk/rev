@@ -7,7 +7,7 @@ use rev::file::Rename;
 
 use super::{Fixture, choose};
 
-fn insert(buffer: &mut Buffer, text: &str) {
+pub(super) fn insert(buffer: &mut Buffer, text: &str) {
     let edit = Replacement {
         source: buffer.span(0..0).unwrap(),
         text: text.into(),
@@ -15,7 +15,7 @@ fn insert(buffer: &mut Buffer, text: &str) {
     let prepared = buffer.prepare(&[edit], &[], None).unwrap();
     buffer.publish(prepared, &mut []).unwrap();
 }
-fn text(buffer: &Buffer) -> String {
+pub(super) fn text(buffer: &Buffer) -> String {
     buffer
         .slice(&buffer.span(0..buffer.len_chars()).unwrap())
         .unwrap()

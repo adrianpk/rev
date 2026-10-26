@@ -1,4 +1,5 @@
 mod create;
+mod delete;
 mod rename;
 
 use crate::command::{Command, Motion, Scroll, TreeCommand};
@@ -30,6 +31,7 @@ impl Session {
 
     fn tree_entry_command(&mut self, command: TreeCommand) -> Action {
         match command {
+            TreeCommand::Delete => return self.tree_delete(),
             TreeCommand::Rename => return self.tree_rename(),
             TreeCommand::Open => return self.tree_open(),
             TreeCommand::CreateFile => return self.tree_create(crate::tree::CreateKind::File),
@@ -76,7 +78,12 @@ impl Session {
             Command::KeyboardQuit
                 if matches!(
                     self.pending,
-                    Some(Pending::Command | Pending::TreeCreate(_) | Pending::TreeRename(_))
+                    Some(
+                        Pending::Command
+                            | Pending::TreeCreate(_)
+                            | Pending::TreeRename(_)
+                            | Pending::TreeDelete(_)
+                    )
                 ) =>
             {
                 self.pending = None;

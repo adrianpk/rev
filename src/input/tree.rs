@@ -14,6 +14,7 @@ impl Input {
             Some(KeyCode::Char('t')) => TreeCommand::Toggle,
             Some(KeyCode::Char('f')) => TreeCommand::Focus,
             Some(KeyCode::Char('r')) => TreeCommand::Refresh,
+            Some(KeyCode::Char('D')) => TreeCommand::Delete,
             Some(KeyCode::Char('R')) => TreeCommand::Rename,
             Some(KeyCode::Char('o')) => TreeCommand::Open,
             Some(KeyCode::Char('n')) => TreeCommand::CreateFile,

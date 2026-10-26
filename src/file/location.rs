@@ -27,6 +27,14 @@ impl Location {
         self.observed.as_ref()
     }
 
+    pub(crate) fn missing(&self) -> Self {
+        Self {
+            path: self.path.clone(),
+            present: false,
+            observed: None,
+        }
+    }
+
     pub(crate) fn relocated(&self, path: PathBuf) -> Self {
         Self {
             path,

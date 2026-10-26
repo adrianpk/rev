@@ -1,5 +1,6 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TreeCommand {
+    Delete,
     Rename,
     Open,
     CreateFile,
@@ -17,6 +18,7 @@ pub enum TreeCommand {
 impl TreeCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Delete => "tree-delete",
             Self::Rename => "tree-rename",
             Self::Open => "tree-open",
             Self::CreateFile => "tree-create-file",

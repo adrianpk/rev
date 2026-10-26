@@ -56,6 +56,7 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::TreeDelete(deletion)) => self.delete_answer(deletion, accepted),
             Some(Pending::Replace(state)) => self.replace_answer(*state, accepted),
             Some(Pending::Kill { kill, .. }) => {
                 if accepted {
@@ -109,6 +110,10 @@ impl Session {
     }
 
     pub(super) fn focus_message(&mut self, message: &str) -> Action {
+        if let Some(Pending::TreeDelete(deletion)) = &self.pending {
+            self.echo = format!("{}; {message}", deletion.message());
+            return Action::Redraw;
+        }
         let question = match &self.pending {
             Some(Pending::Replace(state)) if state.deciding() => {
                 Some("Replace occurrence? [y/n/q]")

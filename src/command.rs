@@ -51,11 +51,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 61] = [
+    pub const ALL: [Self; 62] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
         Self::Rectangle(RectangleCommand::Yank),
+        Self::Tree(TreeCommand::Delete),
         Self::Tree(TreeCommand::Rename),
         Self::Tree(TreeCommand::Open),
         Self::Tree(TreeCommand::CreateFile),

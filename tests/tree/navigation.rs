@@ -216,3 +216,6 @@ mod create;
 
 #[path = "rename.rs"]
 mod rename;
+
+#[path = "delete.rs"]
+mod delete;

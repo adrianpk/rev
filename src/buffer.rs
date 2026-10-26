@@ -1,3 +1,4 @@
+mod delete;
 pub mod edit;
 mod endings;
 mod lifecycle;

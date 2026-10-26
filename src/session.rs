@@ -79,6 +79,7 @@ pub struct Session {
 }
 
 enum Pending {
+    TreeDelete(crate::file::Deletion),
     TreeCreate(crate::tree::Creation),
     TreeRename(crate::file::Rename),
     Replace(Box<replace::State>),
@@ -164,7 +165,9 @@ impl Session {
         }
         match &self.pending {
             Some(Pending::Inventory(selected)) => frame.inventory(&self.buffers, *selected)?,
-            Some(Pending::Save { .. } | Pending::Kill { .. }) => frame.decision(),
+            Some(Pending::Save { .. } | Pending::Kill { .. } | Pending::TreeDelete(_)) => {
+                frame.decision()
+            }
             Some(Pending::Replace(state)) if state.deciding() => frame.decision(),
             _ => {}
         }
@@ -339,7 +342,7 @@ impl Session {
     fn resize(&mut self, width: u16, height: u16) -> Action {
         self.size = Size { width, height };
         if self.tree.resize(self.size) {
-            self.echo = "File tree hidden at this width".into();
+            self.focus_message("File tree hidden at this width");
         }
         match self.stop_typing() {
             Ok(()) => Action::Redraw,
