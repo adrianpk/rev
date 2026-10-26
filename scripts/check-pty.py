@@ -1383,7 +1383,7 @@ def escape_deadlines(root):
             group_step(session, b"\x18u", b"-- RW L1 C1 Text")
             group_step(session, b"\x18r", b"C-x r")
             group_step(session, b"\x1b", b"ESC")
-            group_step(session, b"w", b"Undefined key sequence")
+            group_step(session, b"w", b"Rectangle is not active")
             group_step(session, b"\x18\x06", b"Find file:")
             group_step(session, b"\x1b", b"ESC")
             group_step(session, b"q", b"Unbound prompt key")
