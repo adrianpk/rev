@@ -1471,6 +1471,98 @@ def shared_paste(root):
             session.close()
 
 
+def named_step(session, name, marker, content=None):
+    group_step(session, b"\x1bx", b"M-x ")
+    group_step(session, name.encode(), b"M-x " + name.encode())
+    group_step(session, b"\r", marker, content)
+
+
+def command_palette(root):
+    # Actual Meta-x, query keys, Tab cycling and history reach real shared
+    # handlers; unknown/canceled names must never become underlying text.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-commands-") as directory:
+        path = Path(directory) / "cmd.txt"
+        source = b"abc\nlast"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> cmd.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1bx", b"M-x ", b"backward-delete-char")
+            group_step(session, b"split-window", b"M-x split-window", b"split-window-right")
+            resize_surface(session, 3, 1, True)
+            resize_surface(session, 0, 0, False)
+            resize_surface(session, 80, 24, True)
+            group_step(session, b"\t", b"M-x split-window-below")
+            group_step(session, b"\t", b"M-x split-window-right")
+            group_step(session, b"\r", b"> cmd.txt -- RW L1 C1 Text", b"|")
+            named_step(session, "other-window", b"|> cmd.txt -- RW L1 C1 Text")
+            named_step(session, "newline", b"|> cmd.txt ** RW L2 C1 Text", b"abc")
+            named_step(session, "undo", b"|> cmd.txt -- RW L1 C1 Text")
+            named_step(session, "undo-redo", b"|> cmd.txt ** RW L2 C1 Text")
+            named_step(session, "undo", b"|> cmd.txt -- RW L1 C1 Text")
+            group_step(session, b"\x1bx", b"M-x ")
+            group_step(session, b"absent-command", b"M-x absent-command", b"No matching commands")
+            group_step(session, b"\t", b"No matching command")
+            group_step(session, b"\r", b"Unknown command", b"-- RW L1 C1 Text")
+            group_step(session, b"\x1bx", b"M-x ")
+            group_step(session, b"\x1b[A", b"M-x undo  ")
+            group_step(session, b"\x07", b"Quit")
+            group_step(session, b"\x1bxkill-", b"M-x kill-")
+            group_step(session, b"\x07", b"Quit", b"-- RW L1 C1 Text")
+            named_step(session, "delete-other-windows", b"> cmd.txt -- RW L1 C1 Text")
+            assert b"|" not in last_frame(session)
+            assert path.read_bytes() == source
+            group_step(session, b"\x1bxkill-terminal", b"M-x kill-terminal")
+            os.write(session.master, b"\r")
+            session.finish(0)
+            assert PASTE_OFF in session.output and LEAVE in session.output
+            print("PASS M-x candidate cycling/history, resize/cancel, named splits/edit/undo/redo and exit")
+        finally:
+            session.close()
+
+
+def command_arguments(root):
+    # Named file commands continue through the real focused path handlers, save
+    # exact BOM/CRLF bytes and reopen canonical buffers without leaking queries.
+    with tempfile.TemporaryDirectory(prefix="rev-pty-command-args-") as directory:
+        base = Path(directory)
+        source = base / "source.txt"
+        target = base / "copy.txt"
+        canceled = base / "unused.txt"
+        original = "\ufeffé\r\nlast".encode()
+        source.write_bytes(original)
+        session = Session([str(root / "target/debug/rev")])
+        try:
+            session.ready(b"C-x C-c: exit")
+            named_step(session, "find-file", b"Find file:")
+            group_step(session, paste_wire(str(source).encode()), b"Find file:", b"source.txt")
+            group_step(session, b"\r", b"> source.txt -- RW L1 C1 Text", "é".encode())
+            named_step(session, "write-file", b"Write file:")
+            group_step(session, paste_wire(str(canceled).encode()), b"Write file:", b"unused.txt")
+            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW L1 C1 Text")
+            assert not canceled.exists() and source.read_bytes() == original
+            group_step(session, b"\x05!", b"** RW L1 C3 Text", "é!".encode())
+            named_step(session, "save-buffer", b"Saved ", b"-- RW L1 C3 Text")
+            expected = "\ufeffé!\r\nlast".encode()
+            assert source.read_bytes() == expected
+            named_step(session, "write-file", b"Write file:")
+            group_step(session, paste_wire(str(target).encode()), b"Write file:", b"copy.txt")
+            group_step(session, b"\r", b"Saved ", b"> copy.txt -- RW L1 C3 Text")
+            assert target.read_bytes() == expected
+            named_step(session, "find-file", b"Find file:")
+            group_step(session, paste_wire(str(target).encode()), b"Find file:", b"copy.txt")
+            group_step(session, b"\r", b"> copy.txt -- RW L1 C3 Text", "é!".encode())
+            named_step(session, "list-buffers", b"Buffers: arrows move")
+            group_step(session, b"\x07", b"Quit", b"> copy.txt -- RW L1 C3 Text")
+            assert sorted(path.name for path in base.iterdir()) == ["copy.txt", "source.txt"]
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            assert PASTE_OFF in session.output and LEAVE in session.output
+            print("PASS named find/write/save/buffer handlers, canceled path, exact saved bytes and canonical reopen")
+        finally:
+            session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -1519,7 +1611,9 @@ def main():
     escape_deadlines(root)
     bracketed_paste(root)
     shared_paste(root)
-    print("Terminal PTY suite: 54 cases passed, 0 skipped.")
+    command_palette(root)
+    command_arguments(root)
+    print("Terminal PTY suite: 56 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
