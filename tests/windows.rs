@@ -507,3 +507,318 @@ fn keep_selected() {
     assert!(session.buffer().unwrap().history().is_empty());
     bounded(&mut session, size(31, 13));
 }
+
+// The sole editor cannot be deleted. Keep/other remain safe no-ops, preserving
+// its identity, canonical buffer and independent navigation state.
+#[test]
+fn sole_window() {
+    for command in [
+        WindowCommand::Delete,
+        WindowCommand::Keep,
+        WindowCommand::Other,
+    ] {
+        let mut session = editor("original", size(31, 13));
+        session.insert('!');
+        let selected = session.windows().selected_id();
+        let view = session.view().clone();
+        let stamp = session.buffer().unwrap().stamp();
+        let state = session.buffer().unwrap().state();
+        window(&mut session, command);
+        assert_eq!(session.windows().order(), vec![selected]);
+        assert_eq!(session.windows().selected_id(), selected);
+        assert_eq!(*session.windows().layout(), Layout::Leaf(selected));
+        assert_eq!(*session.view(), view);
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().state(), state);
+        if command == WindowCommand::Delete {
+            assert!(session.echo().contains("sole editing window"));
+        }
+        assert!(session.buffer().unwrap().is_modified());
+        bounded(&mut session, size(31, 13));
+    }
+}
+
+// Deleting a leaf opposite a nested sibling promotes the whole surviving
+// subtree, including direction, leaf order and every independent view state.
+#[test]
+fn promoted_subtree() {
+    for remove_first in [true, false] {
+        let mut session = editor("original", size(31, 13));
+        let original = session.windows().selected_id();
+        split(
+            &mut session,
+            if remove_first {
+                Split::Right
+            } else {
+                Split::Below
+            },
+        );
+        let second = other(&session);
+        if remove_first {
+            session.select_view(second).unwrap();
+        }
+        split(
+            &mut session,
+            if remove_first {
+                Split::Below
+            } else {
+                Split::Right
+            },
+        );
+        let removed = if remove_first { original } else { second };
+        let survivors = session
+            .windows()
+            .order()
+            .into_iter()
+            .filter(|id| *id != removed)
+            .collect::<Vec<_>>();
+        let before = session
+            .windows()
+            .iter()
+            .filter(|(id, _)| *id != removed)
+            .map(|(id, view)| (id, view.clone()))
+            .collect::<Vec<_>>();
+        session.select_view(removed).unwrap();
+        window(&mut session, WindowCommand::Delete);
+        assert_eq!(session.windows().order(), survivors);
+        assert_eq!(session.windows().selected_id(), survivors[0]);
+        assert_eq!(
+            session
+                .windows()
+                .iter()
+                .map(|(id, view)| (id, view.clone()))
+                .collect::<Vec<_>>(),
+            before
+        );
+        let Layout::Split { direction, .. } = session.windows().layout() else {
+            panic!("promoted split");
+        };
+        assert_eq!(
+            *direction,
+            if remove_first {
+                Split::Below
+            } else {
+                Split::Right
+            }
+        );
+        bounded(&mut session, size(31, 13));
+    }
+}
+
+// Repeated split/cycle/delete collapses parent nodes without orphaning leaves
+// or reusing removed identities. Registry and layout contain exactly the same IDs.
+#[test]
+fn repeated_deletion() {
+    let dimensions = size(31, 13);
+    let mut session = editor("original", dimensions);
+    let mut allocated = session
+        .windows()
+        .order()
+        .into_iter()
+        .collect::<BTreeSet<_>>();
+    for round in 0..12 {
+        let first = if round % 2 == 0 {
+            Split::Below
+        } else {
+            Split::Right
+        };
+        let second = if first == Split::Below {
+            Split::Right
+        } else {
+            Split::Below
+        };
+        let original = session.windows().selected_id();
+        split(&mut session, first);
+        let sibling = other(&session);
+        assert!(allocated.insert(sibling));
+        split(&mut session, second);
+        let middle = session.windows().order()[1];
+        assert!(allocated.insert(middle));
+        window(&mut session, WindowCommand::Other);
+        assert_eq!(session.windows().selected_id(), middle);
+        window(&mut session, WindowCommand::Delete);
+        assert!(session.windows().get(middle).is_err());
+        assert_eq!(session.windows().selected_id(), original);
+        window(&mut session, WindowCommand::Other);
+        assert_eq!(session.windows().selected_id(), sibling);
+        window(&mut session, WindowCommand::Delete);
+        assert!(session.windows().get(sibling).is_err());
+        assert_eq!(session.windows().order(), vec![original]);
+        let registered = session
+            .windows()
+            .iter()
+            .map(|(id, _)| id)
+            .collect::<BTreeSet<_>>();
+        assert_eq!(registered, session.windows().order().into_iter().collect());
+        bounded(&mut session, dimensions);
+    }
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+fn buffer_text(session: &Session) -> String {
+    let buffer = session.buffer().unwrap();
+    buffer
+        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+        .unwrap()
+        .to_string()
+}
+
+// Removing the last visible window never removes its dirty buffer. Both delete
+// paths retain text/history and unsaved-quit protection, and switching recovers
+// the same identity instead of allocating an independent replacement document.
+#[test]
+fn hidden_modified() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::BufferCommand;
+    for action in [WindowCommand::Delete, WindowCommand::Keep] {
+        let mut buffers = Buffers::new().unwrap();
+        let active = buffers.create("active").unwrap();
+        let hidden = buffers.create("hidden").unwrap();
+        let name = buffers.get(hidden).unwrap().name().to_owned();
+        let view = View::new(buffers.get(active).unwrap());
+        let mut session = Session::new(buffers, view, size(31, 13)).unwrap();
+        let original = session.windows().selected_id();
+        split(&mut session, Split::Right);
+        window(&mut session, WindowCommand::Other);
+        session.execute(Command::Buffer(BufferCommand::Switch));
+        for ch in name.chars() {
+            session.handle(Event::Key(KeyEvent::new(
+                KeyCode::Char(ch),
+                KeyModifiers::NONE,
+            )));
+        }
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Enter,
+            KeyModifiers::NONE,
+        )));
+        session.insert('!');
+        let stamp = session.buffer().unwrap().stamp();
+        let state = session.buffer().unwrap().state();
+        if action == WindowCommand::Keep {
+            session.select_view(original).unwrap();
+        }
+        window(&mut session, action);
+        assert_eq!(session.windows().iter().len(), 1);
+        assert_eq!(session.buffer().unwrap().id(), active);
+        assert_eq!(session.execute(Command::Quit), Action::Redraw);
+        assert!(session.echo().starts_with("Unsaved changes"));
+        session.execute(Command::Buffer(BufferCommand::Switch));
+        for ch in name.chars() {
+            session.handle(Event::Key(KeyEvent::new(
+                KeyCode::Char(ch),
+                KeyModifiers::NONE,
+            )));
+        }
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Enter,
+            KeyModifiers::NONE,
+        )));
+        assert_eq!(session.buffer().unwrap().id(), hidden);
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert_eq!(session.buffer().unwrap().state(), state);
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        assert_eq!(buffer_text(&session), "!hidden");
+        bounded(&mut session, size(31, 13));
+    }
+}
+
+// Traversal/deletion use the logical editing tree even when geometry suspends.
+// Restoring dimensions draws the surviving selected view without replacing it.
+#[test]
+fn hidden_layout_commands() {
+    use crossterm::event::Event;
+    let mut session = editor("original", size(31, 13));
+    split(&mut session, Split::Below);
+    split(&mut session, Split::Right);
+    let order = session.windows().order();
+    session.handle(Event::Resize(0, 0));
+    window(&mut session, WindowCommand::Other);
+    assert_eq!(session.windows().selected_id(), order[1]);
+    window(&mut session, WindowCommand::Delete);
+    assert_eq!(session.windows().selected_id(), order[0]);
+    assert_eq!(session.windows().order(), vec![order[0], order[2]]);
+    window(&mut session, WindowCommand::Keep);
+    window(&mut session, WindowCommand::Delete);
+    assert!(session.echo().contains("sole editing window"));
+    assert_eq!(session.windows().order(), vec![order[0]]);
+    session.handle(Event::Resize(31, 13));
+    bounded(&mut session, size(31, 13));
+    assert_eq!(session.windows().selected_id(), order[0]);
+}
+
+fn interaction(session: &mut Session, mode: &str) {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::BufferCommand;
+    match mode {
+        "argument" => {
+            session.execute(Command::FindFile);
+        }
+        "inventory" => {
+            session.execute(Command::Buffer(BufferCommand::List));
+        }
+        "decision" => {
+            session.execute(Command::Buffer(BufferCommand::Kill));
+            session.handle(Event::Key(KeyEvent::new(
+                KeyCode::Enter,
+                KeyModifiers::NONE,
+            )));
+        }
+        _ => panic!("unknown interaction"),
+    }
+}
+
+// Prompt/list/decision ownership is separate from editing traversal. Native
+// command dispatch cannot steal focus; cancellation enables normal cycling again.
+#[test]
+fn transient_focus() {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+    for mode in ["argument", "inventory", "decision"] {
+        let mut session = editor("original", size(31, 13));
+        split(&mut session, Split::Right);
+        session.insert('!');
+        let selected = session.windows().selected_id();
+        let layout = session.windows().layout().clone();
+        let stamp = session.buffer().unwrap().stamp();
+        let before = session.view().clone();
+        interaction(&mut session, mode);
+        for command in [
+            WindowCommand::Other,
+            WindowCommand::Delete,
+            WindowCommand::Keep,
+        ] {
+            window(&mut session, command);
+            assert!(session.echo().contains("owns input focus"));
+            assert_eq!(session.windows().selected_id(), selected);
+            assert_eq!(*session.windows().layout(), layout);
+            assert_eq!(*session.view(), before);
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        }
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('g'),
+            KeyModifiers::CONTROL,
+        )));
+        window(&mut session, WindowCommand::Other);
+        assert_ne!(session.windows().selected_id(), selected);
+        bounded(&mut session, size(31, 13));
+    }
+}
+
+// Changing editing focus ends ordinary typing continuity even when both views
+// share the same rope and mapped position. Each view's typing is a whole undo step.
+#[test]
+fn cycle_typing() {
+    use rev::command::History;
+    let mut session = editor("abcdef", size(31, 13));
+    split(&mut session, Split::Right);
+    session.insert('x');
+    window(&mut session, WindowCommand::Other);
+    session.insert('y');
+    assert_eq!(buffer_text(&session), "abxycdef");
+    assert_eq!(session.buffer().unwrap().history().len(), 2);
+    session.execute(Command::History(History::Undo));
+    assert_eq!(buffer_text(&session), "abxcdef");
+    session.execute(Command::History(History::Undo));
+    assert_eq!(buffer_text(&session), "abcdef");
+    assert!(!session.buffer().unwrap().is_modified());
+    bounded(&mut session, size(31, 13));
+}

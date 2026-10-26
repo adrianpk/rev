@@ -813,6 +813,66 @@ def nested_splits(root):
                 session.close()
 
 
+def window_lifecycle(root):
+    with tempfile.TemporaryDirectory(prefix="rev-pty-windows-") as directory:
+        path = Path(directory) / "view.txt"
+        source = b"alpha\nbeta\n"
+        path.write_bytes(source)
+        session = Session([str(root / "target/debug/rev"), str(path)])
+        try:
+            session.ready(b"> view.txt -- RW L1 C1 Text")
+            group_step(session, b"\x182", b"\x1b[11;1H> view.txt", b"\x1b[23;1H  view.txt")
+            group_step(session, b"\x183", b"\x1b[11;1H> view.txt", b"|")
+            group_step(session, b"\x18o", b"|> view.txt -- RW L1 C1 Text", b"\x1b[1;41H" + SHOW)
+            group_step(session, b"\x05", b"|> view.txt -- RW L1 C6 Text", b"\x1b[1;46H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW L1 C1 Text", b"\x1b[12;1H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[11;1H> view.txt -- RW L1 C1 Text", b"\x1b[1;1H" + SHOW)
+            assert b"|  view.txt -- RW L1 C6 Text" in session.output
+            group_step(session, b"\x180", b"\x1b[11;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            end = session.output.rfind(SHOW)
+            frame = session.output[session.output.rfind(HIDE, 0, end):end + len(SHOW)]
+            assert b"|" not in frame, "deleted right division retained its separator"
+            group_step(session, b"\x181", b"\x1b[23;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            group_step(session, b"\x180", b"Cannot delete the sole editing window", b"\x1b[1;6H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            assert path.read_bytes() == source
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            print("PASS editing-leaf cycle/wrap, independent point, sibling promotion, keep-selected and sole refusal")
+        finally:
+            session.close()
+
+
+def hidden_window_buffers(root):
+    for action in [b"0", b"1"]:
+        with tempfile.TemporaryDirectory(prefix="rev-pty-hidden-buffer-") as directory:
+            first = Path(directory) / "first.txt"
+            hidden = Path(directory) / "hidden.txt"
+            first.write_bytes(b"first")
+            hidden.write_bytes(b"hidden")
+            session = Session([str(root / "target/debug/rev"), str(first)])
+            try:
+                session.ready(b"> first.txt -- RW L1 C1 Text")
+                group_step(session, b"\x183", b"> first.txt -- RW L1 C1 Text", b"|")
+                group_step(session, b"\x18o", b"|> first.txt -- RW L1 C1 Text")
+                find_path(session, hidden, b"|> hidden.txt -- RW L1 C1 Text", b"hidden")
+                group_step(session, b"!", b"|> hidden.txt ** RW L1 C2 Text")
+                if action == b"1":
+                    group_step(session, b"\x18o", b"> first.txt -- RW L1 C1 Text", b"|  hidden.txt ** RW L1 C2 Text")
+                group_step(session, b"\x18" + action, b"\x1b[23;1H> first.txt -- RW L1 C1 Text")
+                group_step(session, b"\x18\x03", b"Unsaved changes; cannot quit")
+                assert first.read_bytes() == b"first" and hidden.read_bytes() == b"hidden"
+                buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"hidden.txt", b"> hidden.txt ** RW L1 C1 Text")
+                assert b"\x1b[1;1H!hidden" in session.output
+                group_step(session, b"\x18u", b"> hidden.txt -- RW L1 C1 Text", b"\x1b[1;1Hhidden")
+                assert hidden.read_bytes() == b"hidden"
+                os.write(session.master, b"\x18\x03")
+                session.finish(0)
+                print(f"PASS C-x {action.decode()} retains hidden modified file, quit protection, buffer reuse and undo")
+            finally:
+                session.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", choices=["terminal"], required=True)
@@ -841,7 +901,9 @@ def main():
     buffer_commands(root)
     close_buffers(root)
     nested_splits(root)
-    print("Terminal PTY suite: 30 cases passed, 0 skipped.")
+    window_lifecycle(root)
+    hidden_window_buffers(root)
+    print("Terminal PTY suite: 33 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":
