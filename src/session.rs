@@ -141,6 +141,7 @@ impl Session {
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
         self.invalidate_search();
         self.invalidate_replace();
+        self.tree.reveal(self.size);
         let size = self.editing_size();
         self.windows.reveal(&self.buffers, size)?;
         let mut frame = Frame::compose(&self.buffers, &self.windows, size, &self.echo)?;

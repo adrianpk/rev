@@ -224,7 +224,6 @@ fn focused_admission() {
     let mark = session.buffer().unwrap().mark();
     tree(&mut session, TreeCommand::Toggle);
     for command in [
-        Command::Newline,
         Command::DeleteChar,
         Command::Motion(Motion::BufferStart),
         Command::Scroll(Scroll::PageForward),
@@ -382,3 +381,6 @@ fn terminal_phases() {
     assert_eq!(text(&session), "");
     assert!(session.buffer().unwrap().history().is_empty());
 }
+
+#[path = "tree/navigation.rs"]
+mod navigation;

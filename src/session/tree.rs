@@ -1,4 +1,4 @@
-use crate::command::{Command, TreeCommand};
+use crate::command::{Command, Motion, Scroll, TreeCommand};
 use crate::input::Focus;
 use crate::tree::Tree;
 use crate::view::Size;
@@ -22,9 +22,12 @@ impl Session {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
         }
+        if !matches!(command, TreeCommand::Toggle | TreeCommand::Focus) {
+            return self.tree_navigation(command);
+        }
         let result = match command {
             TreeCommand::Toggle => self.tree.toggle(self.size),
-            TreeCommand::Focus => self.tree.focus(self.size),
+            _ => self.tree.focus(self.size),
         };
         if let Err(error) = result {
             return self.message(&format!("Open file tree: {error}"));
@@ -49,6 +52,9 @@ impl Session {
         if !self.tree.focused() {
             return None;
         }
+        if let Some(command) = tree_alias(command) {
+            return Some(self.tree_navigation(command));
+        }
         match command {
             Command::Tree(_) | Command::Quit => None,
             Command::KeyboardQuit if matches!(self.pending, Some(Pending::Command)) => {
@@ -63,5 +69,52 @@ impl Session {
             }
             _ => Some(self.message("File tree owns input focus")),
         }
+    }
+}
+
+impl Session {
+    fn tree_navigation(&mut self, command: TreeCommand) -> Action {
+        if !self.tree.focused() {
+            return self.message("File tree is not focused");
+        }
+        let result = match command {
+            TreeCommand::Previous => {
+                self.tree.move_selection(false);
+                Ok(())
+            }
+            TreeCommand::Next => {
+                self.tree.move_selection(true);
+                Ok(())
+            }
+            TreeCommand::Expand => self.tree.expand(),
+            TreeCommand::Collapse => {
+                self.tree.collapse();
+                Ok(())
+            }
+            TreeCommand::Activate => {
+                self.input.suppress_command_repeat();
+                self.tree.activate()
+            }
+            TreeCommand::Refresh => {
+                self.input.suppress_command_repeat();
+                self.tree.refresh()
+            }
+            _ => unreachable!("presentation commands route before tree navigation"),
+        };
+        match result {
+            Ok(()) => self.message("File tree updated"),
+            Err(error) => self.message(&error.to_string()),
+        }
+    }
+}
+
+fn tree_alias(command: Command) -> Option<TreeCommand> {
+    match command {
+        Command::Scroll(Scroll::PreviousLine) => Some(TreeCommand::Previous),
+        Command::Scroll(Scroll::NextLine) => Some(TreeCommand::Next),
+        Command::Motion(Motion::ForwardChar) => Some(TreeCommand::Expand),
+        Command::Motion(Motion::BackwardChar) => Some(TreeCommand::Collapse),
+        Command::Newline => Some(TreeCommand::Activate),
+        _ => None,
     }
 }

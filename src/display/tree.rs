@@ -18,7 +18,10 @@ impl Frame {
             }
         }
         self.cursor = if tree.focused() {
-            Some(Position { column: 0, row: 0 })
+            Some(Position {
+                column: 0,
+                row: tree.selected_row(),
+            })
         } else {
             self.cursor.map(|cursor| Position {
                 column: cursor.column + width + 1,
@@ -30,12 +33,12 @@ impl Frame {
 }
 
 fn prepend(row: &mut super::Row, tree: &Tree, width: u16, height: u16) -> Result<(), Error> {
-    let label = tree.line(row.row, height);
+    let label = tree.line(row.row, height, width);
     let text = clip::line(Glyphs::for_text(&label)?, 0, width)?;
     row.text = format!("{text}|{}", row.text);
     row.band = Band::Mixed;
     if tree.focused() {
-        row.selection = (row.row == 0).then_some(0..width);
+        row.selection = (row.row == tree.selected_row()).then_some(0..width);
         row.search = None;
     } else {
         row.selection = row
