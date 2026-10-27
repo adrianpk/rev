@@ -1,3 +1,4 @@
+mod binding;
 mod buffer;
 mod kill;
 mod linear;
@@ -11,6 +12,7 @@ mod window;
 
 pub use crate::buffer::edit::History;
 pub use crate::window::Split;
+pub use binding::{Binding, PromptAction};
 pub use buffer::BufferCommand;
 pub use kill::KillCommand;
 pub use linear::LinearCommand;

@@ -18,6 +18,7 @@ impl Key {
         };
         key.character();
         key.modifier_aliases();
+        key.terminal_aliases();
         if event.kind == KeyEventKind::Repeat && !key.repeatable() {
             return None;
         }
@@ -56,9 +57,46 @@ impl Key {
             self.modifiers.remove(KeyModifiers::META);
             self.modifiers.insert(KeyModifiers::ALT);
         }
-        // Crossterm reports the traditional 0x1f undo byte as C-7 on Unix.
-        if self.modifiers == KeyModifiers::CONTROL && self.code == KeyCode::Char('7') {
-            self.code = KeyCode::Char('_');
+    }
+}
+
+impl Key {
+    fn shift_aliases(&mut self) {
+        if self.modifiers == KeyModifiers::SHIFT && self.code == KeyCode::Tab {
+            self.code = KeyCode::BackTab;
+            self.modifiers = KeyModifiers::NONE;
         }
+        if self.code == KeyCode::BackTab {
+            self.modifiers.remove(KeyModifiers::SHIFT);
+        }
+    }
+
+    fn terminal_aliases(&mut self) {
+        self.shift_aliases();
+        if !self.modifiers.contains(KeyModifiers::CONTROL) {
+            return;
+        }
+        // Traditional terminal reports collapse these aliases, including C-7
+        // for the Unix 0x1f undo byte. Alt remains present on Meta aliases.
+        match self.code {
+            KeyCode::Char('i') => self.unmodified(KeyCode::Tab),
+            KeyCode::Char('j' | 'm') => self.unmodified(KeyCode::Enter),
+            KeyCode::Char('h' | '?') => self.unmodified(KeyCode::Backspace),
+            KeyCode::Char('[') => self.unmodified(KeyCode::Esc),
+            _ => self.control_identity(),
+        }
+    }
+
+    fn control_identity(&mut self) {
+        match self.code {
+            KeyCode::Char('@') | KeyCode::Null => self.code = KeyCode::Char(' '),
+            KeyCode::Char('/' | '7') => self.code = KeyCode::Char('_'),
+            _ => {}
+        }
+    }
+
+    fn unmodified(&mut self, code: KeyCode) {
+        self.code = code;
+        self.modifiers.remove(KeyModifiers::CONTROL);
     }
 }

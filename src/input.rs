@@ -1,6 +1,7 @@
 mod bindings;
 mod inventory;
 mod key;
+pub mod keymap;
 mod meta;
 mod palette;
 mod paste;
