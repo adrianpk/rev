@@ -92,3 +92,49 @@ fn auxiliary_limits() {
         assert!(composition.tree().unwrap().active());
     }
 }
+
+// Native workspace projection keeps whole split subtrees and complete bounds
+// across tree hiding thresholds and maximal auxiliary requests. Maximal axes
+// inspect compact geometry without allocating a terminal-sized raster.
+#[test]
+fn workspace_grid() {
+    let mut owner = editor();
+    owner.execute(Command::Tree(TreeCommand::Toggle));
+    let session = nested(Split::Right, Split::Below, false);
+    let ids = session.windows().order();
+    let dimensions = [0, 1, 7, 31, 32, 48, 61, 72, u16::MAX]
+        .into_iter()
+        .flat_map(|width| {
+            [0, 1, 2, 3, 5, 6, 8, 13, u16::MAX]
+                .into_iter()
+                .flat_map(move |height| {
+                    [0, 1, 8, u16::MAX].map(|rows| (Size { width, height }, rows))
+                })
+        });
+    for (size, rows) in dimensions {
+        let composition = Composition::workspace(session.windows(), owner.tree(), size, rows);
+        assert_eq!(composition.is_some(), size.width > 0 && size.height > 0);
+        if let Some(composition) = composition {
+            workspace_bounds(&composition, size);
+        }
+    }
+    assert_eq!(session.windows().order(), ids);
+    assert!(owner.tree().focused());
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+fn workspace_bounds(composition: &Composition, size: Size) {
+    assert_eq!(composition.size(), size);
+    assert_eq!(
+        composition.prompt(),
+        area(0, size.height - 1, size.width, 1)
+    );
+    assert_eq!(
+        composition.tree().is_some(),
+        size.width >= 32 && size.height >= 3
+    );
+    assert!(composition.panels().len() == 3 || composition.panels().is_empty());
+    if !composition.panels().is_empty() {
+        super::geometry::coverage(composition, area(0, 0, size.width, size.height));
+    }
+}

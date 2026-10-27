@@ -359,3 +359,136 @@ fn workspace_tree() {
     );
     assert!(buffer.history().is_empty());
 }
+
+// Hiding and reopening a tree during native resize preserves a pending Unicode
+// command draft, dirty shared text and independent points. Wide glyphs at the
+// editing/tree seam stay clipped by cells, and undo retains saved-state truth.
+#[test]
+fn workspace_lifecycle() {
+    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::{History, Motion, TreeCommand};
+
+    let source = format!("{}界e\u{301}", "a".repeat(18));
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&source).unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 61,
+            height: 13,
+        },
+    )
+    .unwrap();
+    session.execute(Command::Split(Split::Right));
+    session.execute(Command::Split(Split::Below));
+    let ids = session.windows().order();
+    session.select_view(ids[1]).unwrap();
+    session.execute(Command::Motion(Motion::BufferEnd));
+    session.select_view(ids[0]).unwrap();
+    session.execute(Command::Tree(TreeCommand::Toggle));
+    let root = session.tree().root().unwrap().to_path_buf();
+    let selected = session.tree().selected().unwrap().path().to_path_buf();
+    let frame = session.frame().unwrap();
+    assert_eq!(drawn(&frame, 39, 0), " ");
+    assert_eq!(drawn(&frame, 40, 0), "│");
+    assert_eq!(drawn(&frame, 59, 0), "界");
+    session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+    session.replace(0..0, "!").unwrap();
+    let points = session
+        .windows()
+        .iter()
+        .map(|(id, view)| (id, view.point))
+        .collect::<Vec<_>>();
+    let before = (
+        session.buffer().unwrap().stamp(),
+        session.buffer().unwrap().state(),
+    );
+    session.execute(Command::Tree(TreeCommand::Focus));
+    session.execute(Command::ExecuteExtended);
+    session.handle(Event::Paste("toggle-fi".into()));
+    for size in [
+        Size {
+            width: 31,
+            height: 8,
+        },
+        Size {
+            width: 1,
+            height: 1,
+        },
+        Size {
+            width: 0,
+            height: 0,
+        },
+        Size {
+            width: 32,
+            height: 6,
+        },
+        Size {
+            width: 61,
+            height: 13,
+        },
+    ] {
+        session.handle(Event::Resize(size.width, size.height));
+        let frame = session.frame().unwrap();
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .all(|row| row.text().width() == usize::from(size.width))
+        );
+        assert!(
+            frame
+                .cursor()
+                .is_none_or(|cursor| cursor.column < size.width && cursor.row < size.height)
+        );
+    }
+    assert!(
+        session
+            .frame()
+            .unwrap()
+            .rows()
+            .last()
+            .unwrap()
+            .text()
+            .starts_with("M-x toggle-fi")
+    );
+    assert!(!session.tree().focused());
+    session.execute(Command::KeyboardQuit);
+    session.execute(Command::Tree(TreeCommand::Focus));
+    session.execute(Command::Tree(TreeCommand::Toggle));
+    assert!(!session.tree().visible());
+    session.execute(Command::Tree(TreeCommand::Toggle));
+    assert!(session.tree().focused());
+    assert_eq!(session.tree().root(), Some(root.as_path()));
+    assert_eq!(session.tree().selected().unwrap().path(), selected);
+    assert_eq!(session.windows().order(), ids);
+    assert_eq!(
+        session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.point))
+            .collect::<Vec<_>>(),
+        points
+    );
+    assert_eq!(
+        (
+            session.buffer().unwrap().stamp(),
+            session.buffer().unwrap().state()
+        ),
+        before
+    );
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert!(session.buffer().unwrap().is_modified());
+    session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+    session.execute(Command::History(History::Undo));
+    let buffer = session.buffer().unwrap();
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap(),
+        source.as_str()
+    );
+    assert!(!buffer.is_modified());
+}
