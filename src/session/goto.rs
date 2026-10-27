@@ -7,15 +7,15 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn goto_line(&mut self) -> Action {
-        self.line_prompt(self.windows.selected_id(), self.view().point.stamp, "")
+        self.line_prompt(self.windows.selected_id(), self.view().point.stamp, "", "")
     }
 
-    fn line_prompt(&mut self, view: ViewId, source: Stamp, draft: &str) -> Action {
+    fn line_prompt(&mut self, view: ViewId, source: Stamp, draft: &str, feedback: &str) -> Action {
         if let Err(error) = self.input.argument("Goto line: ", draft) {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::GotoLine { view, source });
-        self.message("")
+        self.message(feedback)
     }
 
     pub(super) fn goto_argument(&mut self, view: ViewId, source: Stamp, draft: &str) -> Action {
@@ -25,8 +25,12 @@ impl Session {
         let line = match draft.trim().parse::<i64>() {
             Ok(line) => line,
             Err(_) => {
-                self.line_prompt(view, source, draft);
-                return self.message("Enter a signed 64-bit decimal line number");
+                return self.line_prompt(
+                    view,
+                    source,
+                    draft,
+                    "Enter a signed 64-bit decimal line number",
+                );
             }
         };
         match self.move_to_line(line) {

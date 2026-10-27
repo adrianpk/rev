@@ -60,7 +60,7 @@ Contracts: NAV01 NAV02.
 Details and exact checks: [Slice 2](../plan/rev-input-navigation.md#slice-2-add-emacs-style-line-navigation).
 
 - [x] T2.1: Add the compiled goto-line identity, bounded signed-integer prompt and M-g g / M-g M-g defaults through existing command/keymap owners; preserve C-g and all prior aliases.
-- [ ] T2.2: Use checked logical-line lookup and native reveal; match start clamping for nonpositive values and EOF clamping beyond the last line. Preserve other views and cancellation state.
+- [x] T2.2: Use checked logical-line lookup and native reveal; match start clamping for nonpositive values and EOF clamping beyond the last line. Preserve other views and cancellation state.
 - [ ] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 

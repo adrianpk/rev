@@ -21,6 +21,11 @@ keymap and argument owners while preserving canonical text and view ownership.
   overflowing input retains the draft for correction without moving point.
 - An existing positive line goes to its start. Nonpositive values clamp to
   buffer start; requests beyond the last logical line clamp to exact EOF.
+- Cancellation retains the complete selected view, including intended column
+  and recenter state. Successful navigation reveals only that view and uses
+  the ordinary shared mark, including in read-only buffers.
+- Acceptance rejects an intervening source revision without moving the newer
+  mapped view or altering its document state.
 
 ## Implementation Notes
 
@@ -45,8 +50,11 @@ NAV02 retains ordinary per-view movement, C-g and shared-buffer history owners.
 
 ## Validation
 
-- PASS: `cargo test --test commands goto::` (initial two dispatch cases).
-- Boundary, view ownership, terminal and final clean-HEAD checks are in progress.
+- PASS: `cargo test --test commands goto::` (six native dispatch, boundary,
+  cancellation, shared/read-only and stale-source regressions).
+- Logical-bound cases cover empty/single-line, LF/CRLF, Unicode, final empty
+  lines and both signed extremes, comparing exact positions and document state.
+- Terminal, malformed-input and final clean-HEAD checks are in progress.
 
 ## Risks and Follow-ups
 

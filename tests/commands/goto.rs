@@ -1,3 +1,6 @@
+#[path = "goto/bounds.rs"]
+mod bounds;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::Command;
 use rev::input::{Input, Outcome, Prefix};
