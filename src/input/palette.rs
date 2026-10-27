@@ -17,16 +17,18 @@ pub struct Palette {
     selected: usize,
     history: Option<usize>,
     draft: String,
+    policy: crate::config::Minibuffer,
 }
 
 impl Palette {
-    fn new(limit: usize) -> Result<Self, Error> {
+    fn new(policy: &crate::config::Minibuffer) -> Result<Self, Error> {
         Ok(Self {
-            prompt: Prompt::new("M-x ", "", limit)?,
+            prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
             selected: 0,
             history: None,
             draft: String::new(),
+            policy: policy.clone(),
         })
     }
 
@@ -35,21 +37,29 @@ impl Palette {
     }
 
     pub fn candidates(&self) -> Vec<Command> {
-        Command::matching(self.query.as_deref().unwrap_or(self.prompt.text()))
+        let query = self.query.as_deref().unwrap_or(self.prompt.text());
+        let mut candidates = Command::matching(query);
+        match self.policy.r#match {
+            crate::config::Match::PrefixThenSubstring => {}
+            crate::config::Match::Prefix => {
+                candidates.retain(|command| command.name().starts_with(query))
+            }
+            crate::config::Match::Substring => candidates.sort_by_key(|command| command.name()),
+        }
+        candidates
     }
 
-    /// A small inline candidate list; frame clipping owns available geometry.
-    pub fn hint(&self) -> String {
-        let names: Vec<_> = self
-            .candidates()
-            .into_iter()
-            .take(3)
-            .map(Command::name)
-            .collect();
-        if names.is_empty() {
-            return "No matching commands".into();
-        }
-        names.join("  ")
+    /// Candidate rows only; the query has its own reserved row. Even an empty
+    /// result requests one row so the empty state has an explicit surface.
+    pub fn requested_rows(&self) -> u16 {
+        self.candidates()
+            .len()
+            .max(1)
+            .min(self.policy.candidate_limit) as u16
+    }
+
+    pub fn selected(&self) -> Option<usize> {
+        (self.selected < self.candidates().len()).then_some(self.selected)
     }
 
     fn handle(&mut self, key: Key, history: &VecDeque<Command>) -> Outcome {
@@ -128,7 +138,7 @@ impl Input {
     /// Opens command entry only from editing; session history survives cancel.
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Command(Palette::new(self.policy.input_limit)?);
+        self.context = Context::Command(Palette::new(&self.policy)?);
         self.clear_prefix();
         Ok(())
     }

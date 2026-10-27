@@ -163,15 +163,7 @@ impl Session {
         self.invalidate_search();
         self.invalidate_replace();
         let composition = self.composition();
-        let tree = composition
-            .as_ref()
-            .and_then(|composition| composition.tree());
-        self.tree
-            .reveal(tree.map_or(0, |panel| panel.content().height()));
-        let size = composition
-            .as_ref()
-            .map_or(self.size, |composition| composition.editing_size());
-        self.windows.reveal(&self.buffers, size)?;
+        self.reveal_workspace(composition.as_ref())?;
         let mut frame = match &composition {
             Some(composition) => Frame::compose_workspace(
                 &self.buffers,
@@ -184,18 +176,36 @@ impl Session {
         };
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
-        self.prompt_frame(&mut frame)?;
+        self.prompt_frame(&mut frame, composition.as_ref())?;
         Ok(frame)
     }
 
-    fn prompt_frame(&self, frame: &mut Frame) -> Result<(), view::Error> {
-        if let Some(prompt) = self.input.prompt() {
-            let hint = self.input.palette().map(crate::input::Palette::hint);
-            let notice = hint
-                .as_deref()
-                .filter(|_| self.echo.is_empty())
-                .unwrap_or(&self.echo);
-            frame.prompt(prompt, notice)?;
+    fn reveal_workspace(
+        &mut self,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), view::Error> {
+        // Completion borrows presentation rows. It cannot scroll the retained
+        // editing/tree workspace while the query owns the visible cursor.
+        if self.input.palette().is_some() {
+            return Ok(());
+        }
+        let tree = composition.and_then(|composition| composition.tree());
+        self.tree
+            .reveal(tree.map_or(0, |panel| panel.content().height()));
+        let size = composition.map_or(self.size, |composition| composition.editing_size());
+        self.windows.reveal(&self.buffers, size)?;
+        Ok(())
+    }
+
+    fn prompt_frame(
+        &self,
+        frame: &mut Frame,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), view::Error> {
+        if let Some(palette) = self.input.palette() {
+            frame.commands(palette, composition, &self.echo)?;
+        } else if let Some(prompt) = self.input.prompt() {
+            frame.prompt(prompt, &self.echo)?;
         }
         if let Some(Pending::Inventory(selected)) = &self.pending {
             frame.inventory(&self.buffers, *selected)?;

@@ -189,7 +189,7 @@ fn empty_candidates() {
     );
     input.handle(Event::Paste("absent-command".into()));
     assert!(input.palette().unwrap().candidates().is_empty());
-    assert_eq!(input.palette().unwrap().hint(), "No matching commands");
+    assert_eq!(input.palette().unwrap().selected(), None);
     assert_eq!(
         input.handle(super::key(KeyCode::Tab)),
         Outcome::Message("No matching command")

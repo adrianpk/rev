@@ -21,6 +21,8 @@ mod palette;
 mod paste;
 #[path = "commands/terminal.rs"]
 mod terminal;
+#[path = "commands/vertical.rs"]
+mod vertical;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{

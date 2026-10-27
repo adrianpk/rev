@@ -88,6 +88,22 @@ impl Composition {
         Some(composition)
     }
 
+    /// Put a command query before its candidate rows within the reserved
+    /// completion region. Editing, tree and shared separators retain their bounds.
+    pub fn command(windows: &Windows, tree: &Tree, size: Size, rows: u16) -> Option<Self> {
+        let mut composition = Self::workspace(windows, tree, size, rows)?;
+        if let Some(auxiliary) = composition.auxiliary {
+            let content = auxiliary.content();
+            composition.prompt = Area::new(0, content.row(), size.width, 1)?;
+            composition.auxiliary = Some(Panel::new(
+                Area::new(0, content.row() + 1, size.width, content.height())?,
+                false,
+                false,
+            ));
+        }
+        Some(composition)
+    }
+
     fn expand_auxiliary(&mut self, width: u16) -> Option<()> {
         if let Some(panel) = self.auxiliary {
             let content = panel.content();
@@ -131,7 +147,12 @@ impl Composition {
     pub fn size(&self) -> Size {
         Size {
             width: self.prompt.column() + self.prompt.width(),
-            height: self.prompt.row() + self.prompt.height(),
+            height: self
+                .auxiliary
+                .map_or(self.prompt.row() + self.prompt.height(), |panel| {
+                    (self.prompt.row() + self.prompt.height())
+                        .max(panel.outer().row() + panel.outer().height())
+                }),
         }
     }
 

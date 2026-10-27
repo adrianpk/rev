@@ -1,4 +1,5 @@
 mod clip;
+mod completion;
 mod compose;
 mod inventory;
 mod prompt;
@@ -30,6 +31,7 @@ pub enum Band {
     Document,
     Status,
     Echo,
+    Completion,
     Divider,
     Mixed,
 }

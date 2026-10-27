@@ -197,7 +197,15 @@ fn memory_only_draw() {
     session.handle(Event::Paste("find".into()));
     for _ in 0..3 {
         let frame = session.frame().unwrap();
-        assert!(frame.rows().last().unwrap().text().contains("M-x find"));
+        assert!(
+            frame
+                .rows()
+                .iter()
+                .find(|row| row.band() == rev::display::Band::Echo)
+                .unwrap()
+                .text()
+                .contains("M-x find")
+        );
         assert!(session.tree().focused());
         assert_eq!(
             session

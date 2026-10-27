@@ -15,6 +15,14 @@ impl Session {
     }
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
+        if let Some(palette) = self.input.palette() {
+            return crate::panel::Composition::command(
+                &self.windows,
+                &self.tree,
+                self.size,
+                palette.requested_rows(),
+            );
+        }
         crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, 0)
     }
 
