@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `perf/rev-config-ui-29-configuration-ui-performance`
-PR: pending
+PR: [#78](https://forge.adrianpk.com/adrianpk/rev/pulls/78)
 
 ## Purpose
 
@@ -49,11 +49,11 @@ parser, redraw or idle work with finite owned fixtures and enforced budgets.
 
 ## Implementation Notes
 
-- T29.1: `651051c5f19f` adds deterministic fixtures, release native measurements,
+- T29.1: `651051c5f19fc716234a380255d7b9ebf64e5e49` adds deterministic fixtures, release native measurements,
   sample/timing/memory admission and the performance suite entry point.
-- T29.2: `f6534d4974f2` adds read/traversal positive controls, cached-work watches,
+- T29.2: `f6534d4974f24dcb244a14c29bc17b5ccae0e412` adds read/traversal positive controls, cached-work watches,
   configured PTY idle and bounded child/descriptor ownership.
-- T29.3 records the environment, measurements and budgets below and emits total
+- T29.3: `7c2a072fb2d69ab4f5386ce9141f3cfed25a7056` records the environment, measurements and budgets below and emits total
   measurement elapsed time separately from compilation. No runtime tuning or
   runtime repair is required by the measured workloads.
 - Reuse includes the existing hardware report, PTY owner, idle CPU/output oracle,

@@ -765,7 +765,8 @@ Details and checks: [Slice 29](../plan/rev-configuration-ui.md#slice-29-bound-st
 - [x] T29.3: Record environment, workload sizes, measured values and enforced budgets. Fix demonstrated regressions within scope; do not add speculative tuning or weaken a failing budget.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
-Task commits: T29.1 `651051c5f19f`; T29.2 `f6534d4974f2`.
+Task commits: T29.1 `651051c5f19fc716234a380255d7b9ebf64e5e49`; T29.2 `f6534d4974f24dcb244a14c29bc17b5ccae0e412`;
+T29.3 `7c2a072fb2d69ab4f5386ce9141f3cfed25a7056`.
 All six focused performance selections pass: seven native workloads and one
 configured PTY with editing/prompt idle. Exact graph/directory limits, zero
 cached/recursive fixture open/access events, parser cutoff controls, unchanged
@@ -774,6 +775,7 @@ hardware/compiler, sample counts, measurements and explicit evidence limits.
 Historical performance owners and budgets remain unchanged. Final readiness
 requires controller evidence for the clean PR head; dev integration is pending.
 Report: [Slice 29](../report/slices/rev-configuration-ui/slice-29-configuration-ui-performance.md).
+PR: [#78](https://forge.adrianpk.com/adrianpk/rev/pulls/78).
 
 ### Slice 30: Verify delivery acceptance and references
 
