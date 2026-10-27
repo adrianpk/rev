@@ -100,7 +100,7 @@ Details and exact checks: [Slice 5](../plan/rev-input-navigation.md#slice-5-rend
 - [x] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 5 implementation is complete; canonical PR references and final exact-HEAD evidence are being prepared. The [canonical report](../report/slices/rev-input-navigation/slice-5-absolute-gutter.md) records native rendered cells, final-origin regressions and owned terminal outcomes. T5.1: `469b7f0a07fea889a24c94cb1f54e8316f84747b`. T5.2: `35c6006d2634764a37059590946d78b67a03cc44`.
+Slice 5 implementation is complete; canonical PR [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-5-absolute-gutter.md) records native rendered cells, final-origin regressions and owned terminal outcomes. T5.1: `469b7f0a07fea889a24c94cb1f54e8316f84747b`. T5.2: `35c6006d2634764a37059590946d78b67a03cc44`. T5.3: `a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa`.
 
 ### Slice 6: render independent relative numbering
 

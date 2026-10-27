@@ -11,9 +11,9 @@ source: chat
 reported_at: 2026-10-27T19:35:00Z
 ready_at: 2026-10-27T21:28:15Z
 started_at: 2026-10-27T21:28:15Z
-branch: refactor/rev-input-04-gutter-policy
-pr: https://forge.adrianpk.com/adrianpk/rev/pulls/84
-commits: [3762cf7f1f26a5a8244f5ce904214d57ef5d645a, e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca, 3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c]
+branch: feat/rev-input-05-absolute-gutter
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/85
+commits: [3762cf7f1f26a5a8244f5ce904214d57ef5d645a, e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca, 3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c, 469b7f0a07fea889a24c94cb1f54e8316f84747b, 35c6006d2634764a37059590946d78b67a03cc44, a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa]
 ---
 
 # Deliver the approved native line-number gutter
@@ -52,3 +52,10 @@ records independent view policy, split/rebind/close lifetime and checked integer
 cell geometry. Twelve native groups cover real session paths, source/view
 invalidation and boundary partitions. Canonical PR: [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84).
 Slice 4 integrated into dev at `db5006cb038a644b4786d015f80d83afeb33daaf`; canonical evidence `AVX4W4B2M4OCHU3UXSQUUIYFON` and focused evidence `PZDKOF6JKENREIFMCNYTWMY3KP` passed. The ticket remains in progress through its remaining assigned primary slices 5-8.
+
+## Slice 5 evidence
+
+The [absolute rendering report](../../report/slices/rev-input-navigation/slice-5-absolute-gutter.md)
+records real logical labels, final text/cursor/overlay bounds, semantic roles,
+ASCII output and native/owned-terminal fidelity. Canonical PR: [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85).
+The ticket remains active through Slice 5 integration and primary slices 6-8.
