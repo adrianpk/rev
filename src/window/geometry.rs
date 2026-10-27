@@ -33,16 +33,23 @@ impl Minimum {
         }
     }
 
-    pub(super) fn join(split: Split, first: Self, second: Self) -> Option<Self> {
+    pub(super) fn join(split: Split, first: Self, second: Self, gap: u16) -> Option<Self> {
         match split {
             Split::Below => Some(Self {
                 width: first.width.max(second.width),
-                height: first.height.checked_add(second.height)?,
+                height: first.height.checked_add(gap)?.checked_add(second.height)?,
             }),
             Split::Right => Some(Self {
-                width: first.width.checked_add(1)?.checked_add(second.width)?,
+                width: first.width.checked_add(gap)?.checked_add(second.width)?,
                 height: first.height.max(second.height),
             }),
+        }
+    }
+
+    pub(super) fn size(self) -> Size {
+        Size {
+            width: self.width,
+            height: self.height,
         }
     }
 }
@@ -124,7 +131,12 @@ impl Area {
         })
     }
     pub(super) fn divide(self, split: Split) -> Option<Division> {
-        self.divide_to(split, Minimum::leaf(), Minimum::leaf())
+        self.divide_to(
+            split,
+            Minimum::leaf(),
+            Minimum::leaf(),
+            u16::from(split == Split::Right),
+        )
     }
 
     pub(super) fn divide_to(
@@ -132,51 +144,57 @@ impl Area {
         split: Split,
         first: Minimum,
         second: Minimum,
+        gap: u16,
     ) -> Option<Division> {
         match split {
-            Split::Below => self.below(first, second),
-            Split::Right => self.right(first, second),
+            Split::Below => self.below(first, second, gap),
+            Split::Right => self.right(first, second, gap),
         }
     }
 
-    fn below(self, first: Minimum, second: Minimum) -> Option<Division> {
+    fn below(self, first: Minimum, second: Minimum, gap: u16) -> Option<Division> {
         if first.width.max(second.width) > self.width {
             return None;
         }
-        let height = allocation(self.height, first.height, second.height)?;
+        let height = allocation(self.height.checked_sub(gap)?, first.height, second.height)?;
         let first = Self { height, ..self };
+        let row = self.row.checked_add(height)?;
         let second = Self {
-            row: self.row.checked_add(height)?,
-            height: self.height - height,
+            row: row.checked_add(gap)?,
+            height: self.height - height - gap,
             ..self
         };
         Some(Division {
             first,
             second,
-            border: None,
+            border: (gap > 0).then_some(Self {
+                row,
+                height: gap,
+                ..self
+            }),
         })
     }
-    fn right(self, first: Minimum, second: Minimum) -> Option<Division> {
+    fn right(self, first: Minimum, second: Minimum, gap: u16) -> Option<Division> {
         if first.height.max(second.height) > self.height {
             return None;
         }
-        let width = allocation(self.width.checked_sub(1)?, first.width, second.width)?;
+        let width = allocation(self.width.checked_sub(gap)?, first.width, second.width)?;
         let first = Self { width, ..self };
         let column = self.column.checked_add(width)?;
         let border = Self {
             column,
-            width: 1,
+            width: gap,
             ..self
         };
         let second = Self {
-            column: column.checked_add(1)?,
-            width: self.width - width - 1,
+            column: column.checked_add(gap)?,
+            width: self.width - width - gap,
             ..self
         };
         Some(Division {
             first,
             second,
-            border: Some(border),
+            border: (gap > 0).then_some(border),
         })
     }
 }

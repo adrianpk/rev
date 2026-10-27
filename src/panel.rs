@@ -1,6 +1,11 @@
 //! Derived presentation bounds. Panels own no buffers, views or input state.
 //! Shared separators belong to composition, outside each panel's outer bounds.
 
+mod border;
+mod composition;
+
+pub use composition::Composition;
+
 use std::ops::Range;
 
 use crate::display::Position;
