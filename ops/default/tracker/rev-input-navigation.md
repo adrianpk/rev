@@ -207,7 +207,7 @@ T11.3: `89329d0f0199ea0ddfd71bb50a764c62e51160bc`.
 Contracts: PTR01 PTR02.
 Details and exact checks: [Slice 12](../plan/rev-input-navigation.md#slice-12-scroll-the-pointed-pane-without-changing-focus).
 
-- [ ] T12.1: Route vertical wheel/trackpad events to the document view or tree beneath the pointer without stealing keyboard focus.
+- [x] T12.1: Route vertical wheel/trackpad events to the document view or tree beneath the pointer without stealing keyboard focus.
 - [ ] T12.2: Clamp native scroll bounds and adjust only necessary target-view state using existing view contracts; keep other view points and shared canonical text coherent.
 - [ ] T12.3: Verify both directions, inactive targets, large/empty documents, tree and nested panes; add no simulated inertia, idle loop or competing scrolling owner.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

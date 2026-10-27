@@ -12,6 +12,35 @@ pub(super) enum Alignment {
 }
 
 impl View {
+    /// Move the viewport first. Retain point unless the new visible rows exclude
+    /// it, then use the ordinary checked display-column mapping at the near edge.
+    pub(crate) fn scroll_viewport(
+        &mut self,
+        buffer: &Buffer,
+        backward: bool,
+        distance: usize,
+        size: Size,
+    ) -> Result<(), Error> {
+        let point = self.cell(buffer)?;
+        if !size.usable() {
+            return Ok(());
+        }
+        let last = buffer.len_lines() - 1;
+        self.top = destination(self.top, distance, backward).min(last);
+        let bottom = self
+            .top
+            .saturating_add(usize::from(size.text_rows()) - 1)
+            .min(last);
+        let row = point.row.clamp(self.top, bottom);
+        if row != point.row {
+            self.point.position = Coordinates::new(buffer)?.from_cell(Cell {
+                row,
+                column: point.column,
+            })?;
+        }
+        self.reveal(buffer, size)
+    }
+
     /// Nonvertical commands and direct insertion start a new navigation sequence.
     pub(crate) fn reset_navigation(&mut self) {
         self.column = None;

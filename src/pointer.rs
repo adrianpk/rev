@@ -5,7 +5,9 @@ use crate::display::Position;
 use crate::window::ViewId;
 
 mod hit;
+mod target;
 pub use hit::Hit;
+pub(crate) use target::Target;
 
 /// Native operations admitted from the existing terminal decoder. Hover,
 /// secondary buttons and horizontal scrolling have no operation in this contract.

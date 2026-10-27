@@ -95,6 +95,10 @@ impl Windows {
         self.views.get(&id).ok_or(Error::Missing(id))
     }
 
+    pub(crate) fn get_mut(&mut self, id: ViewId) -> Result<&mut View, Error> {
+        self.views.get_mut(&id).ok_or(Error::Missing(id))
+    }
+
     /// Change one live view's native presentation leaves without touching point,
     /// text, layout or other views. The caller owns event-driven redraw scheduling.
     pub fn change_gutter(

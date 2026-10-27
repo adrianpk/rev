@@ -3,6 +3,24 @@ use std::io;
 use super::Tree;
 
 impl Tree {
+    /// Scroll only the loaded preorder; no expansion, directory read or focus
+    /// transition. Keep selection unless the visible interval excludes it.
+    pub(crate) fn scroll_viewport(&mut self, backward: bool, distance: usize, rows: u16) -> bool {
+        if rows == 0 {
+            return false;
+        }
+        let before = (self.top, self.selected);
+        let last = self.entries.len().saturating_sub(1);
+        self.top = if backward {
+            self.top.saturating_sub(distance)
+        } else {
+            self.top.saturating_add(distance).min(last)
+        };
+        let bottom = self.top.saturating_add(usize::from(rows) - 1).min(last);
+        self.selected = self.selected.clamp(self.top, bottom);
+        (self.top, self.selected) != before
+    }
+
     /// Move only within the loaded visible preorder; endpoints do not wrap.
     pub fn move_selection(&mut self, forward: bool) {
         if forward {

@@ -14,6 +14,8 @@ mod focus;
 mod cells;
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "pointer/scroll.rs"]
+mod scroll;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

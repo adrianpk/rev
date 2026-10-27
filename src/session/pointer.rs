@@ -4,12 +4,22 @@ use crate::view::Error;
 
 use super::{Action, Session};
 
+mod scroll;
+
 impl Session {
     pub(super) fn pointer(&mut self, event: Event) -> Action {
-        if event.kind != Kind::Press || self.input.focus() != Focus::Editing {
+        if self.input.focus() != Focus::Editing {
             return Action::Wait;
         }
-        match self.pointer_press(event.position) {
+        match event.kind {
+            Kind::Press => self.press(event.position),
+            Kind::ScrollUp | Kind::ScrollDown => self.pointer_scroll(event),
+            _ => Action::Wait,
+        }
+    }
+
+    fn press(&mut self, position: crate::display::Position) -> Action {
+        match self.pointer_press(position) {
             Ok(Some(hit)) => self.focus_hit(hit),
             Ok(None) => Action::Wait,
             Err(error) => self.error(&error.to_string()),
