@@ -173,8 +173,13 @@ Slice 10 implementation is prepared. Native pointer admission and keyboard
 continuity, reversible 1002/1006 modes, selective failure/retry and thirteen owned
 PTY sessions pass. Startup reporting remains inactive pending the recorded native
 handler/control integrations. The pointer ticket remains active across its
-primary slices 10-15. Canonical PR/task references and final exact-head evidence
-follow before controller-owned integration.
+primary slices 10-15. Canonical PR
+[#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90) targets dev, and its
+[canonical report](../report/slices/rev-input-navigation/slice-10-pointer-lifetime.md)
+is reviewing. Final exact-head evidence follows before controller-owned integration.
+T10.1: `0e3fa967691c1be21295efe00b22a2b3f0e520d9`.
+T10.2: `5ea8db194ddf83b11f38623d0af256a22e65d3a0`.
+T10.3: `b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d`.
 
 ### Slice 11: focus panes and place point by pointer
 

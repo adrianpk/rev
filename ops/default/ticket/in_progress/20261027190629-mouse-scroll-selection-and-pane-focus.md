@@ -5,7 +5,7 @@ status: in_progress
 ready_at: 2026-10-27T23:05:50Z
 started_at: 2026-10-27T23:05:50Z
 branch: feat/rev-input-10-pointer-lifetime
-pr: pending
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/90
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,7 +13,7 @@ scope: ui
 tags: mouse, scrolling, selection
 source: chat
 reported_at: 2026-10-27T19:06:29Z
-commits: []
+commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d]
 ---
 
 # Add mouse and trackpad scrolling, selection and pane focus
@@ -84,3 +84,13 @@ Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navi
 and [tracker](../../tracker/rev-input-navigation.md) as the other six current
 work items. Follow its assigned primary slices, lifecycle and controller-owned
 integration/acceptance; do not create a separate successor run for this ticket.
+
+
+## Primary slice progress
+
+Slice 10 is prepared in canonical PR [#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90).
+Its [report](../../report/slices/rev-input-navigation/slice-10-pointer-lifetime.md)
+records native admission, reversible terminal ownership, failure/retry behavior,
+keyboard continuity and thirteen owned decoder/lifetime PTYs. Exact final-head
+evidence is recorded after PR references. This ticket remains in progress until
+all assigned primary slices 10-15 integrate.
