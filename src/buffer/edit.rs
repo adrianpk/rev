@@ -370,7 +370,8 @@ impl Buffer {
         // Prune whole groups only, always retaining the newest coherent group
         // even when its payload alone exceeds the soft target.
         while self.history.len() > 1
-            && (self.history.len() > 512 || self.history_bytes > 64 * 1024 * 1024)
+            && (self.history.len() > self.history_policy.group_limit
+                || self.history_bytes > self.history_policy.payload_target_bytes)
         {
             if let Some(record) = self.history.pop_front() {
                 self.history_bytes = self.history_bytes.saturating_sub(record.bytes);
