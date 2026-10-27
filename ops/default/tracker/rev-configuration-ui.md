@@ -178,7 +178,8 @@ Details and checks: [Slice 6](../plan/rev-configuration-ui.md#slice-6-project-bu
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T6.1 `8f8e39e0f2c134d3f8c8c9af014bee1c2538e753`;
-T6.2 `fe01eae99816159a732df635830a425e50e88982`; T6.3 recorded after commit.
+T6.2 `fe01eae99816159a732df635830a425e50e88982`;
+T6.3 `fd6c061b651ff17ab21ee37dcc23b7de9555583c`.
 Development validation: ten new coordinate, display and window cases passed,
 including widths 1/2/4/8/32, real rope seams, CRLF, clipped Unicode, marked/search
 geometry, shared views and history preservation. Corrected a test assumption
@@ -186,7 +187,8 @@ that an active search prompt leaves the terminal cursor in the document;
 document position is asserted through the view. Focused Clippy passed.
 Final exact-head slice evidence belongs to the controller.
 Report: [Slice 6](../report/slices/rev-configuration-ui/slice-6-buffer-display-policy.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#55](https://forge.adrianpk.com/adrianpk/rev/pulls/55);
+dev integration remains controller-owned.
 
 ### Slice 7: Apply indentation and new-file defaults
 

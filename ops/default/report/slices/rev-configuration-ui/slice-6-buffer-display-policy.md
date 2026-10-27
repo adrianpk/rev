@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-06-buffer-display-policy`
-PR: pending
+PR: [#55](https://forge.adrianpk.com/adrianpk/rev/pulls/55)
 
 ## Purpose
 
@@ -35,7 +35,8 @@ document geometry while retaining canonical text and independent view state.
   ownership, supplied-snapshot construction and tab-aware glyph coordinates.
 - T6.2: `fe01eae99816159a732df635830a425e50e88982` adds view goal
   invalidation and shared-view/lifecycle coverage.
-- T6.3 adds mixed-unit, seam, replay, clipping and marked/search geometry cases
+- T6.3: `fd6c061b651ff17ab21ee37dcc23b7de9555583c` adds mixed-unit,
+  seam, replay, clipping and marked/search geometry cases
   and this report. All ten new cases pass across focused development runs.
 - Buffer policies expose shared access only. Their widths come from admitted
   snapshots, so projection cannot divide by zero or accept an unchecked width.
