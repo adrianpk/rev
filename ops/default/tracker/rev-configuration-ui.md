@@ -606,7 +606,7 @@ Contracts: UI03-UI04, baseline R10-R13. Tickets: TKT-20261027085234.
 Details and checks: [Slice 23](../plan/rev-configuration-ui.md#slice-23-observe-bounded-filesystem-candidates).
 
 - [x] T23.1: Create a filesystem candidate provider for one current directory component with 4096-entry and 512-KiB-name-byte limits, safe retained path identities, directories-first byte-name ordering and cached filtering.
-- [ ] T23.2: Handle relative/absolute paths, leading ~/, spaces and Unicode without shell expansion; separate lossless path identity from clipped/control-safe labels. Report non-UTF-8 names explicitly instead of opening lossy paths.
+- [x] T23.2: Handle relative/absolute paths, leading ~/, spaces and Unicode without shell expansion; separate lossless path identity from clipped/control-safe labels. Report non-UTF-8 names explicitly instead of opening lossy paths.
 - [ ] T23.3: Create provider tests for ambiguous/common/unique prefixes, hidden names, symlinks, permission/disappearance errors and limits. No recursion, watcher or reads during rendering/filtering.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

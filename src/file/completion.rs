@@ -2,12 +2,14 @@
 //! label access use retained memory; this owner neither visits nor creates files.
 
 mod candidate;
+mod query;
 
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
 pub use candidate::Candidate;
+pub use query::Query;
 
 pub const ENTRY_LIMIT: usize = 4096;
 pub const NAME_BYTE_LIMIT: usize = 512 * 1024;

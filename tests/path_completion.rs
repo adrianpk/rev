@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "path_completion/identity.rs"]
+mod identity;
 
 use rev::file::completion::Provider;
 
