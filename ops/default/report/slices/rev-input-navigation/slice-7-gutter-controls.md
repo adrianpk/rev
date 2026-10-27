@@ -1,11 +1,12 @@
 # Slice 7: Wire gutter settings and native commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-07-gutter-controls`
 PR: [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87)
+Integrated: `aee53c1ba94b57d331dc7f28429c408972db49a7`
 
 ## Purpose
 
@@ -87,7 +88,7 @@ GUT12 and CFG05 use the same validated startup graph and native view policy.
   edit. Both children finish and restore terminal state and owned descriptors;
   existing eight-second/one-MiB PTY limits remain unchanged.
 
-The controller records final clean-HEAD evidence for this canonical list:
+PASS at the integrated candidate: canonical evidence `S4U4BQHGATEAZSWB26ORGOE6AE` records all five checks and 283 native tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -95,7 +96,7 @@ The controller records final clean-HEAD evidence for this canonical list:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Separate focused final evidence uses the same head and this ordered list:
+PASS on the same candidate: focused evidence `56QBBUMAP2AVIWFLDJZBEZDRX6` records reference/drift checks and two owned PTYs:
 
 - `python3 scripts/check-config-reference.py`
 - `python3 -m unittest discover -s scripts -p test_config_reference.py`

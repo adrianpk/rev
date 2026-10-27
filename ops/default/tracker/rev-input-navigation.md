@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 7 - wire gutter settings and native commands
+Active slice: Slice 8 - preserve gutter geometry across editor surfaces
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -122,9 +122,9 @@ Details and exact checks: [Slice 7](../plan/rev-input-navigation.md#slice-7-wire
 - [x] T7.1: Wire every accepted gutter/model key, palette role, type/bound and default into the existing partial/resolved settings path without a second preference store.
 - [x] T7.2: Implement all eight accepted compiled gutter command identities, per-view overrides, inspect and reset; no placeholder handlers or new factory key conflicts.
 - [x] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 7 implementation is complete; canonical PR [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-7-gutter-controls.md) records admitted startup leaves, eight native commands, complete references and owned PTY outcomes. T7.1: `013feb78180384d6cbec1deedecb89862f4c8986`. T7.2: `51f117014706d884eb4115250f683243223ad8da`. T7.3: `6172023b1e4b7271169a37f434d23147154b8a14`.
+Slice 7 of 20 completed. Canonical PR [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87) integrated into dev at `aee53c1ba94b57d331dc7f28429c408972db49a7`. Canonical evidence `S4U4BQHGATEAZSWB26ORGOE6AE` and focused evidence `56QBBUMAP2AVIWFLDJZBEZDRX6` passed on that candidate. Slice 8 is active. The [canonical report](../report/slices/rev-input-navigation/slice-7-gutter-controls.md) records admitted startup leaves, eight native commands, complete references and owned PTY outcomes. T7.1: `013feb78180384d6cbec1deedecb89862f4c8986`. T7.2: `51f117014706d884eb4115250f683243223ad8da`. T7.3: `6172023b1e4b7271169a37f434d23147154b8a14`.
 
 ### Slice 8: preserve gutter geometry across editor surfaces
 

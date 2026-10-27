@@ -75,5 +75,4 @@ records the admitted settings/palette snapshot, eight real native commands,
 per-view override/reset behavior and complete sample/catalog reconciliation.
 Canonical PR: [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87).
 Native and owned-terminal checks preserve source bytes, history and startup
-immutability. The ticket remains in progress through Slice 7 integration and
-its remaining primary Slice 8.
+immutability. Slice 7 integrated into dev at `aee53c1ba94b57d331dc7f28429c408972db49a7`; canonical evidence `S4U4BQHGATEAZSWB26ORGOE6AE` and focused evidence `56QBBUMAP2AVIWFLDJZBEZDRX6` passed. The ticket remains in progress through its remaining primary Slice 8.
