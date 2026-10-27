@@ -8,9 +8,11 @@ mod rename;
 mod save;
 mod syntax;
 mod visits;
+mod whitespace;
 
 pub use lifecycle::Kill;
 pub use save::{Confirmation, Save, SaveRequest};
+pub use whitespace::Whitespace;
 
 use std::collections::{BTreeMap, VecDeque};
 

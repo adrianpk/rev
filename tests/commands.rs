@@ -27,6 +27,8 @@ mod selection;
 mod terminal;
 #[path = "commands/vertical.rs"]
 mod vertical;
+#[path = "commands/whitespace.rs"]
+mod whitespace;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{

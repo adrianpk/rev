@@ -10,6 +10,7 @@ mod split;
 mod tree;
 mod window;
 
+pub use crate::buffer::Whitespace;
 pub use crate::buffer::edit::History;
 pub use crate::window::Split;
 pub use binding::{Binding, PromptAction};
@@ -34,6 +35,7 @@ pub enum Command {
     Quit,
     FindFile,
     GotoLine,
+    Whitespace(Whitespace),
     SaveBuffer,
     WriteFile,
     KeyboardQuit,
@@ -54,7 +56,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 63] = [
+    pub const ALL: [Self; 65] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -79,6 +81,8 @@ impl Command {
         Self::Quit,
         Self::FindFile,
         Self::GotoLine,
+        Self::Whitespace(Whitespace::Tabify),
+        Self::Whitespace(Whitespace::Untabify),
         Self::SaveBuffer,
         Self::WriteFile,
         Self::KeyboardQuit,
@@ -130,6 +134,7 @@ impl Command {
             Self::Window(command) => command.name(),
             Self::Kill(command) => command.name(),
             Self::Linear(command) => command.name(),
+            Self::Whitespace(command) => command.name(),
             _ => self.action_name(),
         }
     }

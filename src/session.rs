@@ -19,6 +19,7 @@ mod save;
 mod search;
 mod startup;
 mod tree;
+mod whitespace;
 mod windows;
 mod yank;
 
@@ -302,6 +303,7 @@ impl Session {
             Command::Tree(command) => self.tree_command(command),
             Command::Rectangle(command) => self.rectangle_command(command),
             Command::Region(command) => self.region_command(command),
+            Command::Whitespace(command) => self.whitespace_command(command),
             _ => self.dispatch(command),
         }
     }

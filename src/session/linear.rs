@@ -65,7 +65,7 @@ impl Session {
         }
     }
 
-    fn active_region(&self) -> Result<Span, Error> {
+    pub(super) fn active_region(&self) -> Result<Span, Error> {
         self.buffer()
             .map_err(edit::Error::from)?
             .region(self.windows.selected().point)?

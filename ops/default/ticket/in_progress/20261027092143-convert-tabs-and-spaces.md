@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027092143
 title: Add explicit tabs-to-spaces and spaces-to-tabs commands
-status: open
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,9 @@ scope: domain
 tags: whitespace, indentation
 source: chat
 reported_at: 2026-10-27T09:21:43Z
+ready_at: 2026-10-27T20:51:03Z
+started_at: 2026-10-27T20:51:03Z
+branch: feat/rev-input-03-whitespace-conversion
 commits: []
 ---
 

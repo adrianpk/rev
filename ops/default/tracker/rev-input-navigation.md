@@ -71,7 +71,7 @@ Slice 2 of 20 completed. The [canonical report](../report/slices/rev-input-navig
 Contracts: WSP01 WSP02.
 Details and exact checks: [Slice 3](../plan/rev-input-navigation.md#slice-3-add-explicit-tabify-and-untabify).
 
-- [ ] T3.1: Implement both native M-x operations on the existing admitted linear region; missing regions give feedback and never silently select the whole document.
+- [x] T3.1: Implement both native M-x operations on the existing admitted linear region; missing regions give feedback and never silently select the whole document.
 - [ ] T3.2: Compute tab stops from the effective buffer policy and true starting display column, including Unicode prefixes and mixed whitespace; retain all nonselected bytes and line formats.
 - [ ] T3.3: Publish one checked edit/undo operation, cover redo/no-op/read-only/shared views and document how to select the intended range; retain source fidelity and record focused evidence. Reconcile any historical open-future-ticket guard against the newly verified conversion delivery instead of deleting the provenance check.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
