@@ -1,0 +1,249 @@
+# rev startup configuration reference, schema 1.
+# Every active value below is a compiled default. Omitted leaves also use defaults.
+# Read defaults.md for precedence, bounds and startup/error behavior.
+# Copy only the overrides you need to your user config.toml; restart to apply them.
+# All paths are literal. No shell expansion or implicit project config is used.
+
+# Integer schema version; only 1 is accepted. Omission also means 1.
+version = 1
+# Array of local paths, loaded depth-first in order before this source's leaves.
+include = []
+# Optional includes: replace the top-level include array after creating these files.
+# include = ["editing.toml", "colors.toml"]
+
+[editor]
+# "spaces" or "tabs"; global policy, overridable per language.
+indent_style = "spaces"
+# Integer 1..=32 display columns between indentation stops.
+indent_width = 4
+# Integer 1..=32 display cells between literal-tab stops; does not rewrite bytes.
+tab_width = 4
+
+[scroll]
+# Integer 0..=1000 overlapping rows per page; usable panes still advance one row.
+page_overlap = 2
+
+[windows]
+# Finite float 0.1..=0.9; preferred first-child share after the split separator.
+split_ratio = 0.5
+
+[minibuffer]
+# Integer 1..=32 candidate rows, clipped to the available terminal geometry.
+candidate_limit = 8
+# Command matching: "prefix-then-substring", "prefix" or "substring".
+# Path matching remains literal case-sensitive component-prefix matching.
+match = "prefix-then-substring"
+# Integer 1..=4096 distinct accepted M-x names retained in this session.
+history_limit = 128
+# Integer 1..=65536 Unicode scalars per prompt; excess input rejects atomically.
+input_limit = 4096
+
+[history]
+# Integer 1..=65536 complete undo/redo groups per buffer.
+group_limit = 512
+# Integer 1..=1073741824 logical payload bytes; soft target, not resident memory.
+# The newest coherent group remains even if it alone exceeds this target.
+payload_target_bytes = 67108864
+
+[kill_ring]
+# Integer 1..=4096 retained linear entries; rectangles have a separate store.
+capacity = 32
+# Boolean; join consecutive compatible directional kills into one entry.
+coalesce = true
+
+[tree]
+# Boolean; initial visibility. Tiny/narrow terminals can hide the pane.
+visible = false
+# Integer 1..=512 preferred columns, subject to editor and terminal minima.
+width = 24
+# Finite float 0.1..=0.5 maximum terminal-width share.
+max_fraction = 0.3333333333333333
+# "auto", "cwd" or "file-parent"; see defaults.md for initial-root behavior.
+root = "auto"
+# Boolean; include dot-prefixed entries in tree observations.
+show_hidden = true
+# Boolean; sort directories before leaves, then names by bytes.
+directories_first = true
+
+[syntax]
+# Boolean; enable the existing bundled grammar/query, with plain-text fallback.
+enabled = true
+# Integer 0..=1073741824 UTF-8 bytes; zero means no configured cutoff.
+max_bytes = 0
+
+[files]
+# "lf" or "crlf"; creation default only, never conversion of existing files.
+newline = "lf"
+# Boolean; creation default for one leading UTF-8 BOM.
+bom = false
+
+[files.associations]
+# Optional associations: uncomment entries below to override built-in recognition.
+# "*.go" = "go"
+# "Buildfile" = "go"
+# Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
+# followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
+
+# Tokyo Night night defaults. All 25 roles are active six-digit #RRGGBB strings.
+# Terminal true-color/cursor support and NO_COLOR determine visible capability.
+[palette]
+background = "#1a1b26"          # Document and ordinary prompt background.
+foreground = "#c0caf5"          # Document text and inherited tree text.
+cursor = "#c0caf5"              # Terminal cursor color when supported.
+selection = "#283457"           # Document/vertical candidate selection background.
+selection_text = "#c0caf5"      # Selected document/candidate foreground.
+search = "#3d59a1"              # Search-match background.
+search_text = "#c0caf5"         # Search-match foreground.
+status = "#16161e"              # Active status background.
+status_text = "#a9b1d6"         # Active and inactive status foreground.
+status_inactive = "#1a1b26"     # Inactive status background.
+border = "#3b4261"              # Inactive split separator foreground.
+border_active = "#7aa2f7"       # Active split separator foreground.
+tree = "#16161e"                # Tree background.
+tree_selected = "#283457"       # Selected tree entry background.
+tree_selected_text = "#c0caf5"  # Selected tree entry foreground.
+message = "#c0caf5"             # Normal echo/message foreground.
+warning = "#e0af68"             # Warning foreground.
+error = "#db4b4b"               # Error foreground.
+
+[palette.syntax]
+keyword = "#9d7cd8"
+string = "#9ece6a"              # Strings and escapes.
+comment = "#565f89"             # Comments and documentation comments.
+type = "#2ac3de"                # Types and constructors.
+function = "#7aa2f7"            # Functions, methods and macros.
+number = "#ff9e64"              # Constants, booleans and numeric literals.
+punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
+
+# Complete built-in maps follow. Use existing fixed command/action names only.
+# Missing entries inherit; exact normalized overrides replace one chord.
+# Remove/comment an override to inherit it again. There is no unbinding sentinel.
+# C-g always cancels; mappings cannot supply file/save/delete consent.
+# Terminal aliases, key availability and focus rules are described in bindings.md.
+
+[keys.editor]
+"C-g" = "keyboard-quit"
+"M-x" = "execute-extended-command"
+"RET" = "newline"
+"TAB" = "insert-tab"
+"Backspace" = "backward-delete-char"
+"Delete" = "delete-char"
+"C-d" = "delete-char"
+"Left" = "backward-char"
+"C-b" = "backward-char"
+"Right" = "forward-char"
+"C-f" = "forward-char"
+"Home" = "move-beginning-of-line"
+"C-a" = "move-beginning-of-line"
+"End" = "move-end-of-line"
+"C-e" = "move-end-of-line"
+"Up" = "previous-line"
+"C-p" = "previous-line"
+"Down" = "next-line"
+"C-n" = "next-line"
+"PageUp" = "scroll-down-command"
+"M-v" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"C-v" = "scroll-up-command"
+"C-l" = "recenter-top-bottom"
+"C-_" = "undo"
+"C-s" = "isearch-forward"
+"C-r" = "isearch-backward"
+"C-SPC" = "set-mark-command"
+"C-k" = "kill-line"
+"C-w" = "kill-region"
+"C-y" = "yank"
+"M-%" = "query-replace"
+"M-d" = "kill-word"
+"M-DEL" = "backward-kill-word"
+"M-w" = "kill-ring-save"
+"M-y" = "yank-pop"
+"M-f" = "forward-word"
+"M-b" = "backward-word"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"
+"C-x C-x" = "exchange-point-and-mark"
+"C-x C-s" = "save-buffer"
+"C-x C-w" = "write-file"
+"C-x C-f" = "find-file"
+"C-x C-c" = "save-buffers-kill-terminal"
+"C-x C-b" = "list-buffers"
+"C-x SPC" = "rectangle-mark-mode"
+"C-x b" = "switch-to-buffer"
+"C-x k" = "kill-buffer"
+"C-x u" = "undo"
+"C-x 2" = "split-window-below"
+"C-x 3" = "split-window-right"
+"C-x 0" = "delete-window"
+"C-x 1" = "delete-other-windows"
+"C-x o" = "other-window"
+"C-x r M-w" = "copy-rectangle-as-kill"
+"C-x r k" = "kill-rectangle"
+"C-x r y" = "yank-rectangle"
+"C-x t t" = "toggle-file-tree"
+"C-x t f" = "focus-file-tree"
+"C-x t r" = "tree-refresh"
+"C-x t D" = "tree-delete"
+"C-x t R" = "tree-rename"
+"C-x t o" = "tree-open"
+"C-x t n" = "tree-create-file"
+"C-x t d" = "tree-create-directory"
+
+[keys.minibuffer]
+"C-g" = "keyboard-quit"
+"RET" = "minibuffer-accept"
+"TAB" = "minibuffer-complete"
+"Backspace" = "backward-delete-char"
+"Delete" = "delete-char"
+"C-d" = "delete-char"
+"Left" = "backward-char"
+"C-b" = "backward-char"
+"Right" = "forward-char"
+"C-f" = "forward-char"
+"Home" = "move-beginning-of-line"
+"C-a" = "move-beginning-of-line"
+"End" = "move-end-of-line"
+"C-e" = "move-end-of-line"
+"Up" = "minibuffer-previous"
+"C-p" = "minibuffer-previous"
+"Down" = "minibuffer-next"
+"C-n" = "minibuffer-next"
+"M-p" = "minibuffer-history-previous"
+"M-n" = "minibuffer-history-next"
+"C-s" = "isearch-forward"
+"C-r" = "isearch-backward"
+
+[keys.tree]
+"C-g" = "keyboard-quit"
+"TAB" = "insert-tab"
+"M-x" = "execute-extended-command"
+"Up" = "tree-previous-line"
+"C-p" = "tree-previous-line"
+"Down" = "tree-next-line"
+"C-n" = "tree-next-line"
+"Right" = "tree-expand"
+"C-f" = "tree-expand"
+"Left" = "tree-collapse"
+"C-b" = "tree-collapse"
+"RET" = "tree-open"
+"C-x C-c" = "save-buffers-kill-terminal"
+"C-x t t" = "toggle-file-tree"
+"C-x t f" = "focus-file-tree"
+"C-x t r" = "tree-refresh"
+"C-x t D" = "tree-delete"
+"C-x t R" = "tree-rename"
+"C-x t o" = "tree-open"
+"C-x t n" = "tree-create-file"
+"C-x t d" = "tree-create-directory"
+
+# No active language overrides: omitted editing leaves inherit the resolved globals.
+[language]
+
+# Optional language: uncomment the complete block to override only these leaves.
+# [language.go]
+# indent_style = "tabs"
+# indent_width = 4
+# tab_width = 8
+# grammar = "plain"
+# Only "rust" and "plain" grammars exist. The rust ID defaults to "rust";
+# every other ID defaults to "plain". Language identity does not install a parser.
