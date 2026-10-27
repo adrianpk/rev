@@ -137,7 +137,6 @@ fn apply(buffer: &mut Buffer, change: Relocation, settings: &Snapshot) -> Option
     }
     buffer.file = Some(location);
     buffer.apply_settings(settings);
-    buffer.select_syntax();
     buffer.name = change.label;
     buffer.break_typing();
     let warning = observed

@@ -110,10 +110,10 @@ impl Tree {
     }
 
     pub(crate) fn initial(&mut self, file: &Path) {
-        if self.policy.root != crate::config::TreeRoot::Cwd {
-            if let Some(parent) = file.parent() {
-                self.set_root(parent.to_path_buf());
-            }
+        if self.policy.root != crate::config::TreeRoot::Cwd
+            && let Some(parent) = file.parent()
+        {
+            self.set_root(parent.to_path_buf());
         }
     }
 

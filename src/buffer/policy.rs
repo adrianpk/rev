@@ -10,9 +10,14 @@ impl Buffer {
     }
 
     /// Resolve from a supplied snapshot without reloading files or changing
-    /// canonical text, revisions, marks, saved states, syntax or undo history.
+    /// canonical text, revisions, marks, saved states or undo history.
+    /// Syntax presentation follows its admitted grammar and global cutoff.
     /// Views discard cached display goals before their next reveal/navigation.
     pub fn apply_settings(&mut self, settings: &Snapshot) {
-        self.policy = settings.editor(self.language(settings));
+        let language = self.language(settings);
+        self.policy = settings.editor(language);
+        self.syntax_policy = settings.settings().syntax.clone();
+        self.grammar = settings.grammar(language);
+        self.refresh_syntax();
     }
 }

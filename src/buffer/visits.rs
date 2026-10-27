@@ -38,7 +38,6 @@ impl Buffers {
         buffer.name = location.basename().to_string_lossy().into_owned();
         buffer.file = Some(location);
         buffer.apply_settings(&self.settings);
-        buffer.select_syntax();
         Ok(Visit::New(Box::new(buffer), path))
     }
 

@@ -173,7 +173,6 @@ fn reconcile(
     index.insert(save.target().into(), buffer.id());
     buffer.file = Some(save.target.published(outcome.observed.clone()));
     buffer.name = label;
-    buffer.select_syntax();
     buffer.break_typing();
     if outcome.is_complete() {
         buffer.saved = save.state;

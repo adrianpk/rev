@@ -206,3 +206,6 @@ mod fidelity;
 
 #[path = "syntax/palette.rs"]
 mod palette;
+
+#[path = "syntax/preferences.rs"]
+mod preferences;

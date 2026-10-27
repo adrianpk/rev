@@ -27,24 +27,36 @@ impl Buffer {
     /// only presentation; all accepted text, marks, views and history remain.
     pub fn refresh_syntax(&mut self) {
         let stamp = self.stamp();
-        self.syntax.update(self.text.slice(..), stamp);
+        if self.prepare_syntax() {
+            self.syntax.update(self.text.slice(..), stamp);
+        }
     }
 
     /// Apply a finite progress policy to the same parser boundary as normal
     /// refresh. A failed attempt remains Text until another accepted revision.
     pub fn parse_with(&mut self, options: tree_sitter::ParseOptions<'_>) {
         let stamp = self.stamp();
-        self.syntax.update_with(self.text.slice(..), stamp, options);
+        if self.prepare_syntax() {
+            self.syntax.update_with(self.text.slice(..), stamp, options);
+        }
     }
 
-    pub(super) fn select_syntax(&mut self) {
-        let settings = Snapshot::default();
-        let rust = settings.grammar(self.language(&settings)) == Grammar::Rust;
-        self.syntax = if rust {
-            Syntax::rust(Some(tree_sitter_rust::HIGHLIGHTS_QUERY))
-        } else {
-            Syntax::default()
-        };
-        self.refresh_syntax();
+    // Parser admission is derived metadata. Dropping it above the byte cutoff
+    // removes stale styles; shrinking below the cutoff starts from current text.
+    // Parse failure keeps active=true, retaining once-per-revision retry bounds.
+    fn prepare_syntax(&mut self) -> bool {
+        let admitted = self.syntax_policy.enabled
+            && self.grammar == Grammar::Rust
+            && (self.syntax_policy.max_bytes == 0
+                || self.len_bytes() <= self.syntax_policy.max_bytes);
+        if admitted != self.syntax_active {
+            self.syntax = if admitted {
+                Syntax::rust(Some(tree_sitter_rust::HIGHLIGHTS_QUERY))
+            } else {
+                Syntax::default()
+            };
+            self.syntax_active = admitted;
+        }
+        admitted
     }
 }
