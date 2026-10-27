@@ -34,14 +34,8 @@ The current behavior is described in
 
 Present M-x candidates as a compact vertical list, with one command per row,
 incremental filtering, a clearly selected row, and keyboard selection.
-Use Helm/Ivy-style interaction and Odra's vertical command completion as
-presentation references, while retaining rev's small built-in command model.
-
-Odra's reference uses a bounded bottom panel with the query first and rows
-below it. The relevant source references are its Candidate Session Reference,
-`src/odra/candidate_ui.odin`, and `src/odra/interaction_workflow.odin`.
-Only the interaction and layout are references; rev does not need Odra's
-source-neutral navigation framework for this ticket.
+Use a bounded bottom panel with the query first and candidate rows below it,
+while retaining rev's small built-in command model.
 
 ## Acceptance criteria
 

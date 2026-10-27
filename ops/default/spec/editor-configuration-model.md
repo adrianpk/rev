@@ -1,6 +1,9 @@
 # Editor Configuration Model
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
+Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
 Approved: product owner, 2026-10-27; unified configuration and interaction delivery authorized.
 Date: 2026-10-27
 Specification: [Editor Configuration](editor-configuration.md)
@@ -425,7 +428,7 @@ assignments, with comments/reference metadata sufficient to explain defaults,
 allowed values, units, scopes, and optional usage. Its defaults must agree with
 compiled defaults for that same release.
 
-## Validation evidence required later
+## Validation evidence
 
 - Absent versus explicit false/zero/empty partial values.
 - Same-scope leaf overrides, table merging, array replacement, and root/include order.
@@ -440,6 +443,7 @@ compiled defaults for that same release.
 - Unchanged text bytes/history/dirty state when preferences only change presentation.
 - CRLF/BOM/final-newline fidelity and truthful save outcomes after configuration changes.
 
-These are implementation acceptance obligations, not runtime checks claimed to
-have run while this contract is authored. The approved plan assigns them to the
-new delivery; the original 48-slice delivery remains closed.
+These acceptance obligations passed through the controller-owned full gate
+on the validated candidate above. The final Slice 30 report records the native,
+terminal, performance and catalog evidence. The original 48-slice delivery
+remains closed with its own historical evidence.

@@ -1,10 +1,13 @@
 # Configuration and Interaction Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
+Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: None - all 30 slices integrated; controller-owned full gate pending
+Active slice: None - all 30 slices delivered; delivery completed
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -327,7 +330,7 @@ Details and checks: [Slice 12](../plan/rev-configuration-ui.md#slice-12-compose-
 
 - [x] T12.1: Migrate tree content, separator, status and selection to the panel contract; remove string-prefix geometry and duplicated syntax/selection offset arithmetic.
 - [x] T12.2: Reserve an auxiliary completion panel through the same composition interface while keeping tree focus and semantic state separate. Hiding a pane must not destroy buffers or pending prompts.
-- [x] T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping. No Odra registry/framework or unrelated tree feature is required.
+- [x] T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping.
 - [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T12.1 `1dd17fc3427736749d8533ce807963f66036628f`;
@@ -796,13 +799,13 @@ The 30-requirement acceptance map resolves named native, eight PTY and seven
 performance cases. Original A01-A20 and all eight baseline checks remain
 mandatory within eleven gate stages. Twelve negative guard tests and discovery
 pass; four complete amendments and eleven ticket outcomes are reconciled.
-T30.3 preparation is complete; its post-gate closure work remains pending below.
+T30.3 preparation and post-gate documentation closure are complete.
 All eight ordered checks passed on `d4450c013f3350d2a5268c35ca799cde560a70d1`, controller validation
 `QSZOEPTDW22LQ4HKPGSW6UCFRK`, including both prerequisite checks and twelve guard
 tests. Canonical PR #79 integrated that exact head by Rebase + Fast-forward
 into dev. Slice 30 of 30 completed. All 30 reports are delivered with verified
 integrated heads; all eleven assigned tickets are solved. The controller-owned
-full gate and final delivery closure remain pending.
+full gate passed on the validated candidate recorded below.
 Report: [Slice 30](../report/slices/rev-configuration-ui/slice-30-configuration-ui-acceptance.md).
 PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79).
 
@@ -812,14 +815,27 @@ branch `fix/rev-configuration-ui-validation-1`, integrated at
 controller validation `7SBZYXAIGU5Z3P6ANNC3UFFTLN`, including 218 native
 tests with zero failures or ignored tests. The palette regression now locates
 query/candidate rows by their semantic identities. The controller-owned full
-gate and final delivery closure remain pending.
+gate passed after this repair on the validated candidate recorded below.
 
 ## Delivery-set closure
 
 - [x] All 90 tasks and all 30 slice reports integrated through canonical PRs.
 - [x] All eleven current tickets solved with actual task/PR/check evidence.
-- [ ] CFG01-CFG22, four modified baseline requirements and UI01-UI04 mapped to passing acceptance evidence.
-- [ ] Exhaustive sample/default/schema/keymap checks agree; unsupported future settings are absent.
-- [ ] Controller-owned scripts/check-all.sh passes on the clean exact dev candidate with zero skipped required checks.
-- [ ] Record gate identity/candidate, final documentation reconciliation and Acta outcome.
-- [ ] Leave the future conversion ticket open; stop before main promotion.
+- [x] CFG01-CFG22, four modified baseline requirements and UI01-UI04 mapped to passing acceptance evidence.
+- [x] Exhaustive sample/default/schema/keymap checks agree; unsupported future settings are absent.
+- [x] Controller-owned scripts/check-all.sh passes on the clean exact dev candidate with zero skipped required checks.
+- [x] Record gate identity/candidate, final documentation reconciliation and Acta outcome.
+- [x] Leave the future conversion ticket open; stop before main promotion.
+
+Controller gate `scripts/check-all.sh` passed on immutable candidate
+`95713efb7f79fbc72417615a921841f8d49730ed` under validation
+`FWDUCVRJCYBKFXEWEFLKPKA35E` on 2026-10-27. All eleven stages passed:
+formatting, Clippy, 716 native tests, source checks, four baseline PTY journeys,
+two original performance fixtures, exhaustive configuration reference checks,
+eight configuration/UI terminal sessions, seven new bounded-work workloads,
+A01-A20 and CFG/UI acceptance, and whitespace. No required cases were skipped.
+
+Only registered documentation closure paths differ from that candidate.
+All 30 reports retain their verified integration heads. The eleven assigned
+tickets are solved; the future conversion ticket remains open. No owned
+test fixtures remain running. The primary checkout stays on dev.

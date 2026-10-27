@@ -31,8 +31,7 @@ See [Focused prompts](../../../../docs/reference/prompts.md) and
 
 ## Expected outcome
 
-Provide Emacs-like filesystem completion in the find-file interaction, using
-Odra's file-opening workflow as a behavioral reference. Users can complete
+Provide filesystem completion in the find-file interaction. Users can complete
 path components, inspect matching files and directories, navigate into a
 directory, and choose a file without remembering its complete path.
 
@@ -60,17 +59,6 @@ directory, and choose a file without remembering its complete path.
 - Validate path matching and directory traversal at native filesystem
   boundaries, plus one representative terminal journey for completion,
   file acceptance and cancellation.
-
-## Reference evidence
-
-Odra provides filesystem candidates, explicit completion, directory descent,
-parent navigation and activation through `src/odra/path_navigation_workflow.odin`
-and `src/interaction/filesystem_candidates.odin`.
-
-Ruru was also suggested as a reference. Its current prompt and editor sources
-must be checked for an actual filename-completion workflow before treating it
-as implemented evidence. Async file-operation completion is a different concern.
-
 
 ## Related work
 

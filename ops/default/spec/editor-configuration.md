@@ -1,6 +1,9 @@
 # Editor Configuration
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
+Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
 Approved: product owner, 2026-10-27; unified configuration and interaction delivery authorized.
 Date: 2026-10-27
 Format: OpenSpec capability proposal with explicit baseline amendments
@@ -16,10 +19,10 @@ Define declarative TOML configuration for `rev`, with built-in fallback
 defaults, an exhaustive reference sample, palette role overrides, editing
 preferences, language-specific settings, and context-specific keybindings.
 
-The original 48-slice editor delivery is complete. This accepted change belongs
-to the separately authorized configuration and interaction delivery. Its plan
-and single tracker own implementation and completion; acceptance of this
-contract does not claim that the runtime already supports configuration.
+The original 48-slice editor delivery is complete. This change was delivered
+through the separately authorized configuration and interaction delivery. Its
+plan and single tracker record implementation and completion. Runtime support
+passed the controller-owned full gate on the validated candidate above.
 
 OpenSpec is the shared workspace Markdown format. Reading or validating this
 proposal does not require the OpenSpec CLI or another runtime service.
@@ -719,7 +722,9 @@ expansion rule; keep the explicit distinction from kill and destination yank.
 - Exact accepted catalog and bounds are in the model. The candidate inventory
   is a roadmap boundary and cannot add implementation scope.
 
-No product decision remains open for slicing. Runtime evidence remains pending.
+No product decision remains open. The controller-owned full gate passed all
+configuration and interaction acceptance checks on the validated candidate above.
+The original baseline evidence remains distinct from this completed delivery.
 
 ## References
 

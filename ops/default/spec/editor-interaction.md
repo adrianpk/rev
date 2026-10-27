@@ -1,6 +1,9 @@
 # Editor Interaction
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
+Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
 Date: 2026-10-27
 Approved: product owner; panels, vertical M-x and find-file completion join the configuration delivery.
 Format: OpenSpec capability additions
@@ -11,8 +14,7 @@ Plan: [Configuration and Interaction Delivery](../plan/rev-configuration-ui.md)
 
 Give rev's existing panes a small structural presentation owner and make its
 command and file prompts discoverable. Buffer, view, layout, command and file
-owners retain their existing authority. Odra supplies interaction and panel
-references; no Odra framework port or extension mechanism is implied.
+owners retain their existing authority.
 
 ## ADDED Requirements
 
@@ -133,8 +135,6 @@ all four requirements, in combination with configuration, Unicode tabs, shared
 views and resize. Existing file-publication and terminal-cleanup guarantees
 remain authoritative. Ticket paths and slice assignments are in the master plan.
 
-- Odra: `src/ui/contracts.odin`, Extensible UI Foundation Reference;
-  `src/odra/path_navigation_workflow.odin` and
-  `src/interaction/filesystem_candidates.odin`.
-- Ruru was inspected as a possible reference; no equivalent filename provider
-  was confirmed, so this contract does not claim one was reused.
+The controller-owned full gate passed UI01-UI04 on the validated candidate
+above. The final Slice 30 report records native geometry/state checks, terminal
+journeys, file-publication and cleanup evidence alongside configuration checks.

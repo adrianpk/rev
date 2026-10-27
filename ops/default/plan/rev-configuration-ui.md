@@ -1,10 +1,13 @@
 # Configuration and Interaction Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
+Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: None - all 30 slices integrated; controller-owned full gate pending
+Active slice: None - all 30 slices delivered; delivery completed
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -89,8 +92,8 @@ two, as checked by the existing source gate. No new frontend framework, service,
 Node runtime, CLI or generic schema engine is part of this work.
 
 Only toml 1.1.8 and serde 1.0.229 are new direct dependencies selected for this
-approved TOML scope; retain GPL-3.0-only for first-party code. Odra is a design
-reference, not a framework transplant; no Emacs implementation code is copied.
+approved TOML scope; retain GPL-3.0-only for first-party code. No Emacs
+implementation code is copied.
 
 Follow exact branch/title/report identities. Use Conventional Commits with
 existing rev task suffix `(Tn.m)` for task commits; this is a rev-only convention.
@@ -267,7 +270,7 @@ Prerequisites: Slices 1-11 integrated in order.
 
 - T12.1: Migrate tree content, separator, status and selection to the panel contract; remove string-prefix geometry and duplicated syntax/selection offset arithmetic.
 - T12.2: Reserve an auxiliary completion panel through the same composition interface while keeping tree focus and semantic state separate. Hiding a pane must not destroy buffers or pending prompts.
-- T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping. No Odra registry/framework or unrelated tree feature is required.
+- T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping.
 
 Focused validation:
 
@@ -609,12 +612,21 @@ authorized repair/retry evidence succeeds. Do not claim success from 30 merges.
 
 ## Closure
 
-After the unchanged required full gate reports its exact dev candidate green,
-close this plan, tracker, accepted spec/model and interaction spec and record
-the gate identity/candidate evidence. All 30 delivered slice reports, eleven
-solved tickets, sample/catalog consistency and requirement evidence are required.
-The gate candidate and any later documentation-only closure commit must remain
-distinguishable. Historical rev-editor reports and its completed run remain
-unchanged; configuration/UI closure is a separate outcome. The future conversion
-ticket stays open. Main promotion and public mirror publication wait for their
-own maintainer instruction.
+The controller-owned `scripts/check-all.sh` passed on immutable candidate
+`95713efb7f79fbc72417615a921841f8d49730ed` under validation
+`FWDUCVRJCYBKFXEWEFLKPKA35E` on 2026-10-27. All eleven ordered stages
+passed with 716 native tests, four baseline PTY journeys, eight configuration/UI
+terminal sessions, two original performance fixtures and seven new bounded-work
+workloads. Sample/catalog/default consistency, A01-A20, CFG01-CFG22, the four
+modified baseline requirements and UI01-UI04 passed with zero required skips.
+
+All 30 canonical slice PRs and the authorized gate repair are integrated into
+dev. All 90 tasks and 30 reports are delivered, and all eleven assigned tickets
+are solved. The configuration spec/model and interaction spec are completed.
+
+Documentation closure changes only configured closure paths. Executable source,
+dependencies, validation scripts and acceptance definitions match the tested
+candidate. The tested candidate and later documentation closure commit remain
+distinct. Historical rev-editor reports and its completed run remain unchanged.
+The future conversion ticket remains open. Main promotion and public mirror
+publication require their own maintainer instruction.

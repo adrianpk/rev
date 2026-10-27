@@ -48,8 +48,8 @@ terminal and performance evidence and prepare controller-owned final validation.
   report references after verified integration of their assigned slices. The
   future conversion ticket remains open.
 - All 30 reports are delivered with immutable integration markers. Slice 30
-  integrated through canonical PR #79. Final acceptance and delivery closure
-  remain pending the controller-owned full gate.
+  integrated through canonical PR #79. The authorized repair PR #80 and all
+  final acceptance checks are integrated and validated by the controller.
 
 ## Implementation Notes
 
@@ -146,16 +146,24 @@ failures or ignored tests:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
+Final controller gate `scripts/check-all.sh` passed on immutable candidate
+`95713efb7f79fbc72417615a921841f8d49730ed` under validation
+`FWDUCVRJCYBKFXEWEFLKPKA35E` on 2026-10-27. Its eleven stages passed
+formatting, Clippy, 716 native tests, source checks, four baseline PTY journeys,
+two original performance fixtures, 59 schema/catalog entries, 25 active RGB
+roles, 109 default bindings, eight configuration/UI terminal sessions, seven
+new bounded-work workloads, A01-A20 and CFG/UI acceptance, and whitespace.
+No required cases were skipped. Controller gate elapsed time was 71.572 seconds.
+
 ## Risks and Follow-ups
 
-Canonical Slice 30 integration is verified. Gate preparation closes the
-report/tracker integration entry and moves the acceptance ticket to its approved
-solved path with the integrated head. All 30 reports and eleven solved tickets
-are prepared for strict gate prerequisites.
+All 30 reports and eleven solved tickets are closed against the controller
+evidence recorded above. The plan, tracker, configuration spec/model and
+interaction spec are completed. Only configured documentation closure paths
+differ from the tested candidate; executable source, validation scripts,
+dependencies and acceptance definitions retain their tested versions.
 
-The controller then runs the unchanged `scripts/check-all.sh` entry point on
-one clean exact dev candidate. Only after its success may the approved closure
-paths record the gate identity/candidate, close this delivery's plan/tracker/
-spec/model/interaction status and remaining closure checkboxes, and record Acta.
-The historical baseline candidate, gate candidate and later documentation-only
-closure commit remain distinct. No main promotion or publication is included.
+The historical baseline candidate, this gate candidate and the later
+documentation closure commit remain distinct. The future conversion ticket
+remains open. No owned test fixtures remain running. Main promotion and
+publication require a separate maintainer instruction.

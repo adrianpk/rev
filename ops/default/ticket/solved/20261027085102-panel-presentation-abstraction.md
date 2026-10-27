@@ -39,10 +39,6 @@ existing editor panes and auxiliary UI. Give content bounds, borders or
 separators, clipping, status placement, and active-state presentation one
 coherent composition contract.
 
-Odra's `ui` surfaces and panel composition are the architectural reference.
-Inspect its Extensible UI Foundation Reference and `src/ui/contracts.odin`,
-while keeping rev's implementation proportional to its built-in terminal UI.
-
 ## Acceptance criteria
 
 - Editing panes and the file tree use explicit panel geometry and composition
