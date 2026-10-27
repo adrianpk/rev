@@ -16,6 +16,7 @@ pub struct Terminal<W: Write> {
     cursor: bool,
     attributes: bool,
     paste: bool,
+    cursor_color: bool,
 }
 
 impl<W: Write> Terminal<W> {
@@ -29,6 +30,7 @@ impl<W: Write> Terminal<W> {
             cursor: false,
             attributes: false,
             paste: false,
+            cursor_color: false,
         })
     }
 
@@ -56,6 +58,7 @@ impl<W: Write> Terminal<W> {
             self.disable_paste(),
             self.show(),
             self.reset_attributes(),
+            self.reset_cursor_color(),
             self.leave(),
             self.release(),
         ]
@@ -121,6 +124,56 @@ impl<W: Write> Terminal<W> {
         }
         Ok(())
     }
+
+    /// OSC 12/112 is attempted only for recognized xterm-compatible TERM
+    /// families with colors enabled. There is no query, wait or redraw timer.
+    pub fn set_cursor_color(&mut self, color: crate::config::Rgb) -> io::Result<()> {
+        if !self.screen {
+            return Err(io::Error::other(
+                "cursor color requires the alternate screen",
+            ));
+        }
+        if !cursor_color_supported() {
+            return Ok(());
+        }
+        // Own the reset before a write can partially change the terminal.
+        self.cursor_color = true;
+        let crate::config::Rgb(r, g, b) = color;
+        write!(self.output, "\x1b]12;#{r:02x}{g:02x}{b:02x}\x07")
+            .and_then(|()| self.output.flush())
+            .map_err(|error| context(error, "set cursor color"))
+    }
+
+    fn reset_cursor_color(&mut self) -> io::Result<()> {
+        if self.cursor_color {
+            self.output
+                .write_all(b"\x1b]112\x07")
+                .and_then(|()| self.output.flush())
+                .map_err(|error| context(error, "reset cursor color"))?;
+            self.cursor_color = false;
+        }
+        Ok(())
+    }
+}
+
+fn cursor_color_supported() -> bool {
+    if crossterm::style::Colored::ansi_color_disabled_memoized() {
+        return false;
+    }
+    let term = std::env::var("TERM").unwrap_or_default();
+    [
+        "xterm",
+        "screen",
+        "tmux",
+        "rxvt",
+        "alacritty",
+        "kitty",
+        "foot",
+        "wezterm",
+        "ghostty",
+    ]
+    .iter()
+    .any(|prefix| term.starts_with(prefix))
 }
 
 impl<W: Write> Drop for Terminal<W> {

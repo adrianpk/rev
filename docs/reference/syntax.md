@@ -31,18 +31,19 @@ unless supplied a palette with `Frame::with_palette`.
 | Grammar-provided punctuation and operators | `palette.syntax.punctuation` | `#89ddff` |
 
 Each present RGB leaf replaces only its own role. Unknown query capture groups
-retain the terminal foreground. The bundled query determines which tokens
+retain the ordinary document foreground. The bundled query determines which tokens
 receive captures; highlighting does not invent language coverage from character
-matching. Selected cells suppress syntax foregrounds before reverse video, and
-search underlining remains independent. Foreground resets at row boundaries
-prevent syntax colors leaking into tree labels, status, prompts and dividers.
-The standard `NO_COLOR` environment preference suppresses foreground sequences
-without changing recognition, text or selection behavior. RGB fidelity depends
+matching. Selected cells use the selection text/background colors before
+syntax; search matches use their own text/background colors and underlining.
+Selections take precedence when the two overlap. Colors reset at row boundaries,
+and composed status, tree, separator and prompt spans keep their own roles.
+The standard `NO_COLOR` environment preference suppresses RGB sequences while
+retaining reverse-video selection and search underlining. RGB fidelity depends
 on the terminal's true-color support.
 
 Executable startup configuration loading is not active yet; it uses the
-compiled syntax defaults. Remaining UI palette roles and cursor restoration are
-part of the pending presentation work.
+compiled defaults. The [terminal input reference](terminal-input.md#palette-and-cursor-restoration)
+describes cursor color capability fallback and restoration.
 
 ## Source and display coordinates
 

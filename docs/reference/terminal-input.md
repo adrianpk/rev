@@ -80,3 +80,25 @@ Unknown library-decoded modified keys and control characters are rejected;
 malformed terminal control sequences discarded by Crossterm do not enter text.
 Printable characters received after a standalone Escape has expired are ordinary
 new input, rather than an indefinitely pending Meta suffix.
+
+## Palette and cursor restoration
+
+The renderer supplies semantic RGB foreground/background colors through SGR.
+Selections and current search matches override syntax colors; each row resets
+colors and attributes before another surface is drawn. `NO_COLOR` suppresses
+RGB emission and retains reverse-video selection and search underlining.
+True-color fidelity depends on terminal support.
+
+The terminal owner attempts [xterm OSC 12 and OSC 112](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html)
+for cursor color and reset when colors are enabled and `TERM` starts with
+`xterm`, `screen`, `tmux`, `rxvt`, `alacritty`, `kitty`, `foot`, `wezterm` or
+`ghostty`. Unknown/missing `TERM` and `NO_COLOR` leave cursor color untouched.
+A recognized terminal or multiplexer can still ignore or block color controls;
+the hardware cursor remains visible using its terminal color. No capability
+query, reply wait or blinking timer is introduced.
+
+Restoration resets text attributes/colors and the cursor's terminal default
+color before leaving the alternate screen, including output errors and unwind.
+This does not reconstruct a cursor color set by another application before
+entry. Failed restorations remain owned for Drop to retry; every other cleanup
+step, including raw-mode release, is attempted even after an output failure.

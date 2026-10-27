@@ -34,6 +34,7 @@ use crate::window::Windows;
 
 pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
     let mut session = initial(path)?;
+    terminal.set_cursor_color(session.buffers.palette().cursor)?;
     session.draw(terminal.writer())?;
     loop {
         match session.read_input()? {

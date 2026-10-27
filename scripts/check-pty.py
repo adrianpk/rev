@@ -30,7 +30,7 @@ def attach():
 
 
 class Session:
-    def __init__(self, command, colors=False):
+    def __init__(self, command, colors=False, env=None):
         self.master, self.slave = pty.openpty()
         self.before = termios.tcgetattr(self.slave)
         fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
@@ -40,6 +40,8 @@ class Session:
         environment = dict(os.environ, TERM="xterm-256color")
         if colors:
             environment["NO_COLOR"] = ""
+        if env:
+            environment.update(env)
         self.process = subprocess.Popen(
             command, stdin=self.slave, stdout=self.slave, stderr=self.slave,
             env=environment, preexec_fn=attach,
@@ -2562,10 +2564,10 @@ def rust_syntax(root):
             session.ready(b"> main.rs -- RW L1 C1 Rust")
             group_step(session, b"\x0c", b"> main.rs -- RW L1 C1 Rust")
             frame = last_frame(session)
-            assert b"\x1b[38;2;157;124;216mfn\x1b[39m" in frame
+            assert b"\x1b[38;2;157;124;216mfn\x1b[38;2;192;202;245m" in frame
             assert b"\x1b[38;2;122;162;247mmain\x1b[38;2;137;221;255m" in frame
             assert b"\x1b[38;2;158;206;106m" + '"界"'.encode() + b"\x1b[38;2;137;221;255m" in frame
-            assert b"\x1b[38;2;86;95;137m// note\x1b[39m" in frame
+            assert b"\x1b[38;2;86;95;137m// note\x1b[38;2;192;202;245m" in frame
             group_step(session, b"// ", b"> main.rs ** RW L1 C4 Rust", b"\x1b[38;2;86;95;137m// fn main() {")
             group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L1 C4 Rust")
             assert path.read_bytes() == b"// " + source
@@ -2594,7 +2596,8 @@ def syntax_fallback(root):
         try:
             session.ready(b"> source.txt -- RW L1 C1 Text")
             group_step(session, b"// ", b"> source.txt ** RW L1 C4 Text")
-            assert b"\x1b[38;2;" not in last_frame(session)
+            assert b"\x1b[38;2;157;124;216m" not in last_frame(session)
+            assert b"\x1b[38;2;86;95;137m" not in last_frame(session)
             for target, mode in [(rust, b"Rust"), (plain, b"Text")]:
                 group_step(session, b"\x18\x17", b"Write file: ")
                 group_step(session, paste_wire(str(target).encode()), target.name.encode())

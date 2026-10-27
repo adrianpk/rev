@@ -3,6 +3,10 @@
 use std::io::{self, Read, Write};
 use std::process::ExitCode;
 
+use crossterm::{
+    QueueableCommand,
+    style::{Color, SetBackgroundColor, SetForegroundColor},
+};
 use rev::terminal::Terminal;
 
 struct Fault {
@@ -42,6 +46,8 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
         "paste-stop" => Some(b"\x1b[?2004l"),
         "cursor-stop" => Some(b"\x1b[?25h"),
         "attributes-stop" => Some(b"\x1b[0m"),
+        "color-set" => Some(b"\x1b]12;"),
+        "color-stop" => Some(b"\x1b]112"),
         "screen-stop" => Some(b"\x1b[?1049l"),
         _ => None,
     }
@@ -49,7 +55,13 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
 
 fn patterns(mode: &str) -> Vec<&'static [u8]> {
     if mode == "restore" {
-        return vec![b"\x1b[?2004l", b"\x1b[?25h", b"\x1b[0m", b"\x1b[?1049l"];
+        return vec![
+            b"\x1b[?2004l",
+            b"\x1b[?25h",
+            b"\x1b[0m",
+            b"\x1b]112",
+            b"\x1b[?1049l",
+        ];
     }
     pattern(mode).into_iter().collect()
 }
@@ -67,8 +79,25 @@ fn probe(mode: &str) -> io::Result<()> {
         return Err(io::Error::other("injected raw-stage failure"));
     }
     terminal.enter()?;
+    if mode == "color-set" {
+        ready(&mut terminal)?;
+    }
+    palette(&mut terminal)?;
     ready(&mut terminal)?;
     finish(&mut terminal, mode)
+}
+
+fn palette(terminal: &mut Terminal<Fault>) -> io::Result<()> {
+    terminal.set_cursor_color(rev::config::Rgb(1, 35, 69))?;
+    terminal
+        .writer()
+        .queue(SetForegroundColor(Color::Rgb { r: 1, g: 35, b: 69 }))?
+        .queue(SetBackgroundColor(Color::Rgb {
+            r: 67,
+            g: 89,
+            b: 101,
+        }))?;
+    Ok(())
 }
 
 fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
@@ -79,9 +108,21 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
         }
         "unwind" => panic!("injected test unwind"),
         "restore" => restore_probe(terminal),
-        "paste-stop" | "cursor-stop" | "attributes-stop" | "screen-stop" => terminal.restore(),
+        mode if restores(mode) => terminal.restore(),
         _ => Err(io::Error::other("injected session failure")),
     }
+}
+
+fn restores(mode: &str) -> bool {
+    [
+        "paste-stop",
+        "cursor-stop",
+        "attributes-stop",
+        "screen-stop",
+        "color-stop",
+        "normal",
+    ]
+    .contains(&mode)
 }
 
 fn restore_probe(terminal: &mut Terminal<Fault>) -> io::Result<()> {
