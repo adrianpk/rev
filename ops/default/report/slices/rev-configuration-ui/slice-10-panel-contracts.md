@@ -1,6 +1,6 @@
 # Slice 10: Define panel geometry contracts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -76,8 +76,11 @@ Development checks:
 - `cargo clippy --lib --test panels --test windows -- -D warnings`: passed.
 - `cargo run --quiet --example source-check -- --source src/panel.rs --source src/panel/composition.rs --source src/panel/border.rs --source src/window/layout.rs --source src/window/geometry.rs --root tests/panels.rs --source tests/panels/geometry.rs`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All six ordered checks passed on the clean final PR head
+`e3763fd30b8ab0aeb433d25c44e4f43d7bf1eb13`, controller validation
+`HHR6ATRPUOOJEL222DBMUJLWMN`: 9 panel and 38 window tests.
+PR #59 integrated that exact commit into dev by Rebase + Fast-forward.
+Commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

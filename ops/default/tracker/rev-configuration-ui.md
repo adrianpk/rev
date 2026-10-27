@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 10 - Define panel geometry contracts
+Active slice: Slice 11 - Compose editing panels
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -275,7 +275,7 @@ Details and checks: [Slice 10](../plan/rev-configuration-ui.md#slice-10-define-p
 - [x] T10.1: Introduce the smallest common presentation records for panel outer/content bounds, reserved separator/status cells, clipping and active state; keep Layout, ViewId and buffer ownership authoritative.
 - [x] T10.2: Derive separator topology and junctions for nested horizontal/vertical splits, including minimum geometry and future completion-area reservation. Avoid a second window tree or general UI registry.
 - [x] T10.3: Create native panel-contract tests for no overlap, bounded coordinates, zero/tiny frames and stable identities. This preparatory layer must compile without changing input semantics.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T10.1 `964812e837b27a4f406d2ae75730bd478b1d48ea`;
 T10.2 `407b116d69ce421cd51fa862b9e57f5fcd02b471`;
@@ -284,10 +284,13 @@ Development validation: panel bounds/clipping, native overflow, T/cross
 junctions, completion reservation and 4608 small projection cases passed.
 Native extremes and active/stable view identities passed. Focused Clippy and
 source checks passed. Runtime rendering/input continue through existing owners.
-Final exact-head evidence belongs to the controller.
+All six ordered checks passed on `e3763fd30b8ab0aeb433d25c44e4f43d7bf1eb13`,
+controller validation `HHR6ATRPUOOJEL222DBMUJLWMN`, including 9 panel
+and 38 window tests.
 Report: [Slice 10](../report/slices/rev-configuration-ui/slice-10-panel-contracts.md).
 PR: [#59](https://forge.adrianpk.com/adrianpk/rev/pulls/59);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`e3763fd30b8ab0aeb433d25c44e4f43d7bf1eb13`. Slice 10 of 30 completed.
 
 ### Slice 11: Compose editing panels
 
