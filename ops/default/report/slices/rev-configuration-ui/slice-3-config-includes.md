@@ -1,11 +1,12 @@
 # Slice 3: Load bounded include graphs
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-03-config-includes`
 PR: [#52](https://forge.adrianpk.com/adrianpk/rev/pulls/52)
+Integrated: Rebase + Fast-forward into dev at `035ca7fb9b69fa02424557a00744e6d6c35a6002`.
 
 ## Purpose
 
@@ -84,14 +85,15 @@ Development checks:
   batch failed on a decimal Unix permission literal in the new denied-read
   fixture; corrected to `0o0` before regenerating exact-head evidence.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All five ordered checks passed on clean PR head
+`035ca7fb9b69fa02424557a00744e6d6c35a6002`, controller validation
+`A2VHYFH4JXYZGQG5STDPTSUF6J`. Commands, in canonical order:
 
-- `cargo fmt --all -- --check`
-- `cargo clippy --all-targets --all-features -- -D warnings`
-- `cargo test --test configuration`
-- `python3 scripts/check-source.py`
-- `git diff --check`
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --all-targets --all-features -- -D warnings`: passed.
+- `cargo test --test configuration`: passed; 35 tests.
+- `python3 scripts/check-source.py`: passed.
+- `git diff --check`: passed.
 
 ## Risks and Follow-ups
 

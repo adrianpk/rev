@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 3 - Load bounded include graphs
+Active slice: Slice 4 - Resolve layered settings
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -105,7 +105,7 @@ Details and checks: [Slice 3](../plan/rev-configuration-ui.md#slice-3-load-bound
 - [x] T3.1: Resolve independent XDG roots and optional config.toml without creating files/directories; ignore relative XDG values, use HOME fallbacks, and return precise errors when a required root cannot be resolved.
 - [x] T3.2: Read explicit includes depth-first in declaration order relative to the declaring source; enforce root-depth zero, depth 16, 64 occurrences, 256 KiB per source and 2 MiB total before unbounded allocation. Detect active-stack symlink/hard-link cycles by file identity.
 - [x] T3.3: Test shared acyclic leaves, duplicates counting toward bounds, permission/missing includes, alias cycles and read errors. A missing optional root alone selects defaults; a broken explicit source rejects the candidate.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T3.1 `b55d825bee9bf0d35e638beca57af290f5a2fb27`;
 T3.2 `6840ad1cf9bdfe8b607ac78751f9060b48e92cbd`;
@@ -114,10 +114,12 @@ Development validation: all 15 new focused configuration tests passed, including
 exact byte/depth/occurrence boundaries, real permission errors and alias cycles.
 T3.3 follow-up: correct the denied-read fixture's Unix permission literal to
 octal after the initial all-target Clippy rejection.
-Final exact-head slice evidence belongs to the controller.
+All five ordered checks passed on `035ca7fb9b69fa02424557a00744e6d6c35a6002`,
+controller validation `A2VHYFH4JXYZGQG5STDPTSUF6J`, including 35 configuration tests.
 Report: [Slice 3](../report/slices/rev-configuration-ui/slice-3-config-includes.md).
 PR: [#52](https://forge.adrianpk.com/adrianpk/rev/pulls/52);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`035ca7fb9b69fa02424557a00744e6d6c35a6002`. Slice 3 of 30 completed.
 
 ### Slice 4: Resolve layered settings
 
