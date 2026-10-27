@@ -80,6 +80,9 @@ Development checks:
 - `cargo test --test configuration includes::`: passed; three tests.
 - `cargo test --test configuration include_`: passed; nine boundary tests.
 - `cargo clippy --lib -- -D warnings`: passed.
+- `cargo clippy --all-targets --all-features -- -D warnings`: initial controller
+  batch failed on a decimal Unix permission literal in the new denied-read
+  fixture; corrected to `0o0` before regenerating exact-head evidence.
 
 The controller stores final results for the exact clean PR head after its
 PR-reference follow-up commit. Required commands, in canonical order:

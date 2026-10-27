@@ -206,7 +206,7 @@ fn denied_source(name: &str) {
         _ => unreachable!("known permission fixture"),
     };
     let original = fs::metadata(&denied).unwrap().permissions();
-    fs::set_permissions(&denied, fs::Permissions::from_mode(0)).unwrap();
+    fs::set_permissions(&denied, fs::Permissions::from_mode(0o0)).unwrap();
     let result = load(&selected);
     fs::set_permissions(&denied, original).unwrap();
     let error = result.unwrap_err();
