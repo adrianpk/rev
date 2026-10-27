@@ -1,6 +1,6 @@
 # Slice 24: Complete and navigate file paths
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -117,6 +117,12 @@ terminal regressions in this exact order:
 - `cargo test --test tree command_focus`
 - `python3 scripts/check-path-navigation.py`
 - `git diff --check`
+
+Verified controller evidence `ZZKS6TPE3BTHBC74NSVKP536ZR` passed all ten ordered
+checks on `9f365b86d4097f6c78a6777f848c651bcbe2bce3`: 246 native tests and two
+RGB/NO_COLOR terminal sessions, zero skips. Canonical PR #73 merged through
+Rebase + Fast-forward into dev at that exact head. Acta merge event
+`01M5Z47H2DEAFVSP8SDWCS1HKC` records the integration.
 
 ## Risks and Follow-ups
 
