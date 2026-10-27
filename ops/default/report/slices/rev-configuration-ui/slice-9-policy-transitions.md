@@ -1,6 +1,6 @@
 # Slice 9: Retain buffer policies across path changes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -84,8 +84,11 @@ Development checks:
 - `cargo clippy --lib --test rectangles --test tree --test files -- -D warnings`: passed.
 - `python3 scripts/check-source.py`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All seven ordered checks passed on the clean final PR head
+`a4d9565cf4fcff7487808fe2281f78ec1d1ea24f`, controller validation
+`OOM5IPKLFDQUBFEXTAA6PRC44Y`: 40 rectangle, 58 tree and 70 file tests.
+PR #58 integrated that exact commit into dev by Rebase + Fast-forward.
+Commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
