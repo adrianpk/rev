@@ -95,3 +95,56 @@ fn transfer_case(source: usize, target: usize, capture: RectangleCommand) {
     assert_eq!(session.rectangle().unwrap().rows(), rows);
     assert_eq!(session.kill_ring().len(), 0);
 }
+
+// Shared destination points map through a cross-width literal-tab yank. Undo
+// from the peer restores both live points and the destination's saved identity.
+#[test]
+fn shared_transfer() {
+    use rev::command::{Motion, RegionCommand, Split};
+
+    let mut session = transfer(4, 8, RectangleCommand::Kill);
+    at(&mut session, cell(0, 8));
+    session.execute(Command::Region(RegionCommand::Set));
+    let origin = session.windows().selected_id();
+    session.execute(Command::Split(Split::Right));
+    let peer = session.windows().order()[1];
+    session.select_view(peer).unwrap();
+    session.execute(Command::Motion(Motion::BufferEnd));
+    let before = session.view().point.position;
+    session.select_view(origin).unwrap();
+    session.execute(Command::Rectangle(RectangleCommand::Yank));
+    let expected = "\ta\tbX\nq       c\td";
+    assert_eq!(text(&session), expected);
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(
+        session.view().point.position,
+        Scalar(expected.chars().count())
+    );
+    assert_eq!(
+        session.windows().get(peer).unwrap().point.position,
+        session.view().point.position
+    );
+    session.select_view(peer).unwrap();
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), "\tX\nq");
+    assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(
+        session.windows().get(origin).unwrap().point.position,
+        Scalar(1)
+    );
+    assert_eq!(session.view().point.position, before);
+    assert_eq!(session.buffer().unwrap().mark(), Some(Scalar(1)));
+    session.execute(Command::History(History::Redo));
+    assert_eq!(text(&session), expected);
+    assert!(session.buffer().unwrap().is_modified());
+    session.frame().unwrap();
+    for (_, view) in session.windows().iter() {
+        assert_eq!(view.point.stamp, session.buffer().unwrap().stamp());
+        assert!(
+            Coordinates::new(session.buffer().unwrap())
+                .unwrap()
+                .is_boundary(view.point.position)
+                .unwrap()
+        );
+    }
+}

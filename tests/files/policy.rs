@@ -107,3 +107,102 @@ fn publication_policy() {
         assert!(temporaries(&fixture.0).is_empty());
     }
 }
+
+// A real write-file prompt leaves both shared views untouched on cancel or
+// failure. Success reprojects their independent points/goals and preserves
+// byte fidelity, one existing edit and the saved identity through undo/redo.
+#[test]
+fn shared_policy() {
+    use rev::command::{History as Replay, Motion, Scroll, Split};
+    use rev::coordinates::Cell;
+
+    let fixture = Fixture::new();
+    let mut buffers = configured(&fixture);
+    let path = fixture.file("old.txt", b"\xef\xbb\xbf\tA\r\n\tB");
+    let occupied = fixture.file("occupied.go", b"external");
+    let id = buffers.visit(&path).unwrap();
+    insert_text(buffers.get_mut(id).unwrap(), "!");
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.point.position = rev::coordinates::Scalar(2);
+    view.column = Some(4);
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 80,
+            height: 8,
+        },
+    )
+    .unwrap();
+    let origin = session.windows().selected_id();
+    session.execute(Command::Split(Split::Right));
+    let peer = session.windows().order()[1];
+    session.select_view(peer).unwrap();
+    session.execute(Command::Motion(Motion::BufferEnd));
+    session.execute(Command::Motion(Motion::BackwardChar));
+    session.execute(Command::Scroll(Scroll::PreviousLine));
+    session.execute(Command::Scroll(Scroll::NextLine));
+    session.select_view(origin).unwrap();
+    let before = (
+        session.view().point,
+        session.windows().get(peer).unwrap().point,
+    );
+    write_path(&mut session, &occupied);
+    assert!(session.echo().starts_with("Overwrite occupied destination"));
+    session.execute(Command::KeyboardQuit);
+    write_path(&mut session, &fixture.0.join("missing/new.go"));
+    assert!(session.echo().starts_with("save: not published"));
+    assert_eq!(session.buffer().unwrap().policy().tab_width, 4);
+    assert_eq!(session.buffer().unwrap().file().unwrap().path(), path);
+    assert!(session.buffer().unwrap().is_modified());
+    assert_eq!(
+        (
+            session.view().point,
+            session.windows().get(peer).unwrap().point
+        ),
+        before
+    );
+    let target = fixture.0.join("new.go");
+    write_path(&mut session, &target);
+    assert!(session.echo().starts_with("Saved "));
+    session.frame().unwrap();
+    assert_eq!(
+        (
+            session.view().point,
+            session.windows().get(peer).unwrap().point
+        ),
+        before
+    );
+    for (id, row) in [(origin, 0), (peer, 1)] {
+        let view = session.windows().get(id).unwrap();
+        assert_eq!(
+            view.cell(session.buffer().unwrap()).unwrap(),
+            Cell { row, column: 8 }
+        );
+        assert_eq!(view.column, None);
+    }
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(fs::read(&target).unwrap(), b"\xef\xbb\xbf!\tA\r\n\tB");
+    assert_eq!(fs::read(&path).unwrap(), b"\xef\xbb\xbf\tA\r\n\tB");
+    assert_eq!(fs::read(&occupied).unwrap(), b"external");
+    session.select_view(peer).unwrap();
+    session.execute(Command::History(Replay::Undo));
+    assert_eq!(text(session.buffer().unwrap()), "\tA\r\n\tB");
+    assert!(session.buffer().unwrap().is_modified());
+    session.execute(Command::History(Replay::Redo));
+    assert_eq!(text(session.buffer().unwrap()), "!\tA\r\n\tB");
+    assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(session.buffer().unwrap().policy().tab_width, 8);
+}
+
+fn write_path(session: &mut Session, path: &Path) {
+    use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+
+    session.execute(Command::WriteFile);
+    session.handle(Event::Paste(path.to_str().unwrap().into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+}
