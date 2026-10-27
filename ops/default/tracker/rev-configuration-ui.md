@@ -738,8 +738,18 @@ Details and checks: [Slice 28](../plan/rev-configuration-ui.md#slice-28-harden-c
 
 - [x] T28.1: Complete adversarial coverage of include cycles/limits/read failures, layered key collisions, association overlaps, whole-candidate rollback and candidate-list stale filesystem state.
 - [x] T28.2: Exercise cross-width rectangle copy/kill/yank, successful and failed file/directory rename policies, CRLF/BOM fidelity, shared views and undo/saved-state truth with configured limits.
-- [ ] T28.3: Repair only bounded defects in approved owners revealed by these checks; no new features or duplicated blanket test suite. Map each failure boundary to the requirement it can falsify.
+- [x] T28.3: Repair only bounded defects in approved owners revealed by these checks; no new features or duplicated blanket test suite. Map each failure boundary to the requirement it can falsify.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T28.1 `a56ad61f17e6`; T28.2 `c918b3a0945a`.
+Focused configuration/include/key/association, stale path, cross-width rectangle
+and configured rename/history checks pass. Existing graph fixtures are extended;
+four new parameterized native tests cover changed filesystem contents/kinds,
+formatted shared transfer and real rename failures/success with bounded history.
+The report maps each boundary to the requirement it can falsify. No runtime
+repair is required by these checks. Final exact-head validation and canonical
+PR follow-up remain pending; integration belongs to the controller.
+Report: [Slice 28](../report/slices/rev-configuration-ui/slice-28-configuration-ui-boundaries.md).
 
 ### Slice 29: Bound startup and completion work
 
