@@ -48,7 +48,7 @@ fn presentation() {
     let frame = session.frame().unwrap();
     assert_eq!(frame.rows()[0].selection(), Some(0..16));
     assert_eq!(frame.cursor().unwrap().column, 0);
-    assert_eq!(frame.rows()[0].text().chars().nth(16), Some('|'));
+    assert_eq!(frame.rows()[0].text().chars().nth(16), Some('│'));
     assert!(frame.rows().iter().all(|row| row.text().width() == 48));
     session.handle(key(KeyCode::Tab));
     assert!(!session.tree().focused());

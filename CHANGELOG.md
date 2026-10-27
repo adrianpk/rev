@@ -27,7 +27,7 @@ This project uses Semantic Versioning.
 
 ### Changed
 
-- Editing panes share continuous Unicode separators and connected junctions. Stacked panes reserve a separator row in addition to their status rows.
+- Editing panes and the file tree share continuous Unicode separators and connected junctions. Stacked panes reserve a separator row in addition to their status rows.
 
 - Tab inserts spaces to the next four-column indentation stop by default. Pasted tab characters remain literal.
 

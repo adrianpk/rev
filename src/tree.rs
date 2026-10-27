@@ -43,8 +43,8 @@ impl Tree {
         self.entries.get(self.selected)
     }
 
-    pub(crate) fn reveal(&mut self, size: Size) {
-        let height = usize::from(size.height.saturating_sub(2));
+    pub(crate) fn reveal(&mut self, rows: u16) {
+        let height = usize::from(rows);
         if height == 0 {
             return;
         }
@@ -112,10 +112,11 @@ impl Tree {
         hidden
     }
 
-    pub(crate) fn line(&self, row: u16, height: u16, width: u16) -> String {
-        if row + 1 == height {
-            return if self.focused { "Tree *" } else { "Tree" }.into();
-        }
+    pub(crate) fn status(&self) -> &str {
+        if self.focused { "Tree *" } else { "Tree" }
+    }
+
+    pub(crate) fn line(&self, row: u16, width: u16) -> String {
         self.entries
             .get(self.top + usize::from(row))
             .map(|entry| entry.label(width))

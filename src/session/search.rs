@@ -115,15 +115,23 @@ impl Session {
         }
     }
 
-    pub(super) fn highlight_search(&self, frame: &mut Frame) -> Result<(), crate::view::Error> {
+    pub(super) fn highlight_search(
+        &self,
+        frame: &mut Frame,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), crate::view::Error> {
         if let Some(span) = self.search_match().or_else(|| self.replace_match()) {
             frame.search(
                 span,
                 self.buffer()?,
                 self.view(),
-                self.windows
-                    .area(self.windows.selected_id(), self.editing_size())
-                    .map(|area| crate::panel::Panel::new(area, true, true)),
+                composition.and_then(|composition| {
+                    composition
+                        .panels()
+                        .iter()
+                        .find(|(_, panel)| panel.active())
+                        .map(|(_, panel)| *panel)
+                }),
             )?;
         }
         Ok(())

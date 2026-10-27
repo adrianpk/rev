@@ -14,12 +14,13 @@ impl Session {
         &self.tree
     }
 
+    pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
+        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size)
+    }
+
     pub(super) fn editing_size(&self) -> Size {
-        let width = self.tree.width(self.size);
-        Size {
-            width: self.size.width - width - u16::from(width > 0),
-            ..self.size
-        }
+        self.composition()
+            .map_or(self.size, |composition| composition.editing_size())
     }
 
     pub(super) fn tree_command(&mut self, command: TreeCommand) -> Action {

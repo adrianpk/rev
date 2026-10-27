@@ -14,6 +14,34 @@ impl Frame {
         size: Size,
         echo: &str,
     ) -> Result<Self, Error> {
+        let outer = Area::new(0, 0, size.width, size.height).ok_or(CoordinateError::Overflow)?;
+        let composition = Composition::new(windows, outer, 0);
+        Self::composition(buffers, windows, size, echo, composition.as_ref())
+    }
+
+    /// Draw a supplied native composition without recomputing its placement.
+    pub fn compose_in(
+        buffers: &Buffers,
+        windows: &Windows,
+        composition: &Composition,
+        echo: &str,
+    ) -> Result<Self, Error> {
+        Self::composition(
+            buffers,
+            windows,
+            composition.size(),
+            echo,
+            Some(composition),
+        )
+    }
+
+    fn composition(
+        buffers: &Buffers,
+        windows: &Windows,
+        size: Size,
+        echo: &str,
+        composition: Option<&Composition>,
+    ) -> Result<Self, Error> {
         let selected = buffers.get(windows.selected().point.stamp.buffer)?;
         let mut frame = Self {
             size,
@@ -26,10 +54,9 @@ impl Frame {
         }
         frame.blank_rows();
         frame.echo(echo)?;
-        let outer = Area::new(0, 0, size.width, size.height).ok_or(CoordinateError::Overflow)?;
-        if let Some(composition) = Composition::new(windows, outer, 0) {
-            frame.panes(buffers, windows, &composition)?;
-            frame.dividers(&composition)?;
+        if let Some(composition) = composition {
+            frame.panes(buffers, windows, composition)?;
+            frame.dividers(composition)?;
         }
         Ok(frame)
     }

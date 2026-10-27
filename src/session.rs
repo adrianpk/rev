@@ -157,12 +157,24 @@ impl Session {
         }
         self.invalidate_search();
         self.invalidate_replace();
-        self.tree.reveal(self.size);
-        let size = self.editing_size();
+        let composition = self.composition();
+        let tree = composition
+            .as_ref()
+            .and_then(|composition| composition.tree());
+        self.tree
+            .reveal(tree.map_or(0, |panel| panel.content().height()));
+        let size = composition
+            .as_ref()
+            .map_or(self.size, |composition| composition.editing_size());
         self.windows.reveal(&self.buffers, size)?;
-        let mut frame = Frame::compose(&self.buffers, &self.windows, size, &self.echo)?;
-        self.highlight_search(&mut frame)?;
-        frame = frame.with_tree(&self.tree, self.size, &self.echo)?;
+        let mut frame = match &composition {
+            Some(composition) => {
+                Frame::compose_in(&self.buffers, &self.windows, composition, &self.echo)?
+            }
+            None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
+        };
+        self.highlight_search(&mut frame, composition.as_ref())?;
+        frame.tree(&self.tree, tree)?;
         self.prompt_frame(&mut frame)?;
         Ok(frame)
     }

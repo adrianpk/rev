@@ -4,6 +4,8 @@
 hidden. Showing it focuses the retained selection, initially the collapsed root.
 The focused selection uses reverse video. The footer shows `Tree *` while the tree owns workspace input.
 The editor's selected window, text, point, mark and undo history remain live.
+The tree and editing panes share Unicode separators and connected junctions;
+content and footer stay inside reserved cells alongside nested splits.
 
 The initial file's resolved parent is the startup root. Without an initial
 file, the root is the current directory when the tree first opens. The retained

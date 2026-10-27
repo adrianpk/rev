@@ -1,4 +1,6 @@
 use crate::display::Position;
+use crate::tree::Tree;
+use crate::view::Size;
 use crate::window::{Area, ViewId, Windows};
 
 use super::{Panel, border};
@@ -12,6 +14,8 @@ pub struct Composition {
     borders: Vec<Area>,
     auxiliary: Option<Panel>,
     prompt: Area,
+    viewport: Area,
+    tree: Option<Panel>,
 }
 
 impl Composition {
@@ -46,9 +50,68 @@ impl Composition {
         Some(Self {
             panels,
             borders,
+            viewport: editing,
+            tree: None,
             auxiliary,
             prompt: Area::new(outer.column(), outer.row() + available, outer.width(), 1)?,
         })
+    }
+
+    /// Compose tree and editing geometry without changing either semantic owner.
+    /// An editing tree that does not fit is suspended while tree/prompt survive.
+    pub fn workspace(windows: &Windows, tree: &Tree, size: Size) -> Option<Self> {
+        if size.width == 0 || size.height == 0 {
+            return None;
+        }
+        let width = tree.width(size);
+        let column = width + u16::from(width > 0);
+        let outer = Area::new(column, 0, size.width - column, size.height)?;
+        let viewport = Area::new(column, 0, outer.width(), size.height - 1)?;
+        let mut composition = Self::new(windows, outer, 0).unwrap_or(Self {
+            panels: Vec::new(),
+            borders: Vec::new(),
+            auxiliary: None,
+            viewport,
+            tree: None,
+            prompt: Area::new(0, size.height - 1, size.width, 1)?,
+        });
+        composition.prompt = Area::new(0, size.height - 1, size.width, 1)?;
+        composition.attach_tree(tree, width)?;
+        Some(composition)
+    }
+
+    fn attach_tree(&mut self, tree: &Tree, width: u16) -> Option<()> {
+        if width == 0 {
+            return Some(());
+        }
+        let height = self.viewport.height();
+        self.tree = Some(Panel::new(
+            Area::new(0, 0, width, height)?,
+            true,
+            tree.focused(),
+        ));
+        self.borders.push(Area::new(width, 0, 1, height)?);
+        for (_, panel) in &mut self.panels {
+            panel.active &= !tree.focused();
+        }
+        Some(())
+    }
+
+    pub fn tree(&self) -> Option<Panel> {
+        self.tree
+    }
+
+    /// Editing sizes borrow the global prompt reservation for existing view
+    /// calculations; the actual viewport excludes that row.
+    pub fn editing_size(&self) -> Size {
+        self.viewport.view_size()
+    }
+
+    pub fn size(&self) -> Size {
+        Size {
+            width: self.prompt.column() + self.prompt.width(),
+            height: self.prompt.row() + self.prompt.height(),
+        }
     }
 
     pub fn panels(&self) -> &[(ViewId, Panel)] {

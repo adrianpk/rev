@@ -291,3 +291,71 @@ fn bounded_surface(session: &mut Session, size: Size) {
         assert!(frame.cursor().is_none());
     }
 }
+
+// Tree content/status and nested editing separators share native bounds. Tree
+// focus owns selection; returning to editing translates syntax, search, region
+// and cursor once, preserving canonical text and independent view identities.
+#[test]
+fn workspace_tree() {
+    use crate::config_fixture::Fixture;
+    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+    use rev::command::{Motion, RegionCommand, TreeCommand};
+
+    let fixture = Fixture::new();
+    let source = "\tfn target() {}\r\n界e\u{301}";
+    let path = fixture.write("main.rs", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let size = Size {
+        width: 61,
+        height: 13,
+    };
+    let mut session = Session::new(buffers, view, size).unwrap();
+    session.execute(Command::Split(Split::Right));
+    session.execute(Command::Split(Split::Below));
+    let ids = session.windows().order();
+    session.execute(Command::Tree(TreeCommand::Toggle));
+    let composition = Composition::workspace(session.windows(), session.tree(), size).unwrap();
+    let tree = composition.tree().unwrap();
+    let frame = session.frame().unwrap();
+    assert_eq!(frame.rows()[0].selection(), Some(0..20));
+    assert_eq!(frame.cursor(), tree.position(position(0, 0)));
+    assert_eq!(drawn(&frame, 20, 5), "├");
+    assert_eq!(drawn(&frame, 40, 5), "┤");
+    assert!(
+        composition
+            .panels()
+            .iter()
+            .all(|(_, panel)| !panel.active())
+    );
+    assert!(
+        frame.rows()[0]
+            .syntax()
+            .iter()
+            .all(|paint| paint.columns.start >= 21)
+    );
+    session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+    session.execute(Command::Motion(Motion::ForwardChar));
+    session.execute(Command::Region(RegionCommand::Set));
+    session.execute(Command::SearchForward);
+    session.handle(Event::Paste("target".into()));
+    let frame = session.frame().unwrap();
+    assert_eq!(frame.rows()[0].selection(), Some(25..34));
+    assert_eq!(frame.rows()[0].search(), Some(28..34));
+    assert_eq!(drawn(&frame, 28, 0), "t");
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(session.frame().unwrap().cursor(), Some(position(34, 0)));
+    assert_eq!(session.windows().order(), ids);
+    let buffer = session.buffer().unwrap();
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap(),
+        source
+    );
+    assert!(buffer.history().is_empty());
+}

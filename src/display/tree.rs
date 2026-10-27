@@ -1,57 +1,52 @@
 use crate::coordinates::Glyphs;
+use crate::panel::Panel;
 use crate::tree::Tree;
 
-use super::{Band, Error, Frame, Position, Size, clip};
+use super::{Band, Error, Frame, Position, Row, clip};
 
 impl Frame {
-    pub(crate) fn with_tree(mut self, tree: &Tree, size: Size, echo: &str) -> Result<Self, Error> {
-        let width = tree.width(size);
-        if width == 0 {
-            return Ok(self);
-        }
-        self.size = size;
-        for row in &mut self.rows {
-            if row.band == Band::Echo {
-                row.text = clip::line(Glyphs::for_text(echo)?, 0, size.width)?;
-            } else {
-                prepend(row, tree, width, size.height - 1)?;
+    pub(crate) fn tree(&mut self, tree: &Tree, panel: Option<Panel>) -> Result<(), Error> {
+        let Some(panel) = panel else {
+            return Ok(());
+        };
+        let content = panel.content();
+        for row in 0..content.height() {
+            let label = tree.line(row, content.width());
+            let source = Row {
+                row,
+                text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,
+                syntax: Vec::new(),
+                band: Band::Document,
+                search: None,
+                selection: (panel.active() && row == tree.selected_row())
+                    .then_some(0..content.width()),
             }
+            .projected(panel);
+            self.blit(content, source)?;
         }
-        self.cursor = if tree.focused() {
-            Some(Position {
+        self.tree_status(tree, panel)?;
+        if panel.active() {
+            self.cursor = panel.position(Position {
                 column: 0,
                 row: tree.selected_row(),
-            })
-        } else {
-            self.cursor.map(|cursor| Position {
-                column: cursor.column + width + 1,
-                ..cursor
-            })
-        };
-        Ok(self)
+            });
+        }
+        Ok(())
     }
-}
-
-fn prepend(row: &mut super::Row, tree: &Tree, width: u16, height: u16) -> Result<(), Error> {
-    let label = tree.line(row.row, height, width);
-    let text = clip::line(Glyphs::for_text(&label)?, 0, width)?;
-    row.text = format!("{text}|{}", row.text);
-    row.band = Band::Mixed;
-    for paint in &mut row.syntax {
-        paint.columns = paint.columns.start + width + 1..paint.columns.end + width + 1;
+    fn tree_status(&mut self, tree: &Tree, panel: Panel) -> Result<(), Error> {
+        if let Some(status) = panel.status() {
+            self.blit(
+                status,
+                Row {
+                    row: 0,
+                    text: clip::line(Glyphs::for_text(tree.status())?, 0, status.width())?,
+                    syntax: Vec::new(),
+                    band: Band::Status,
+                    search: None,
+                    selection: None,
+                },
+            )?;
+        }
+        Ok(())
     }
-    if tree.focused() {
-        row.selection = (row.row == tree.selected_row()).then_some(0..width);
-        row.search = None;
-    } else {
-        row.selection = row
-            .selection
-            .take()
-            .map(|range| range.start + width + 1..range.end + width + 1);
-        row.search = row
-            .search
-            .take()
-            .map(|range| range.start + width + 1..range.end + width + 1);
-    }
-    Ok(())
 }
