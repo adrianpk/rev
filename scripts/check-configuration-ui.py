@@ -9,6 +9,7 @@ import time
 
 from configuration_ui.journeys import configured, fallback
 from configuration_ui.lifetime import fault
+from configuration_ui.performance import KINDS, run as performance
 from configuration_ui.support import ROOT
 from configuration_ui.workspace import workspace
 
@@ -42,9 +43,18 @@ def run_scenario(scenario, variant):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['terminal'], required=True)
+    parser.add_argument('--suite', choices=['terminal', 'performance'], required=True)
     parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind'])
+    parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
+    if args.suite == 'performance':
+        if args.case is not None:
+            parser.error('--case requires the terminal suite')
+        subprocess.run(['cargo', 'build', '--release', '--bin', 'rev', '--example', 'configuration-performance'], cwd=ROOT, check=True, timeout=180)
+        performance(args.workload)
+        return
+    if args.workload is not None:
+        parser.error('--workload requires the performance suite')
     build = ['cargo', 'build', '--bin', 'rev']
     if args.case in [None, 'io', 'unwind']:
         build.extend(['--example', 'terminal-probe'])

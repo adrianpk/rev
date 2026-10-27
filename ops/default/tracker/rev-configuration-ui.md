@@ -760,7 +760,7 @@ PR: [#77](https://forge.adrianpk.com/adrianpk/rev/pulls/77).
 Contracts: CFG08, CFG17-CFG19, UI04, baseline R32-R35. Tickets: TKT-20261027103715.
 Details and checks: [Slice 29](../plan/rev-configuration-ui.md#slice-29-bound-startup-and-completion-work).
 
-- [ ] T29.1: Extend reproducible performance fixtures for maximal admitted include graphs, directory candidate limits/filter reuse, panel redraw with tabbed Unicode and syntax cutoff behavior.
+- [x] T29.1: Extend reproducible performance fixtures for maximal admitted include graphs, directory candidate limits/filter reuse, panel redraw with tabbed Unicode and syntax cutoff behavior.
 - [ ] T29.2: Check event-driven idle behavior, bounded config/candidate allocations and absence of recursive directory work or filesystem reads on draw. Retain the original load/search/edit/scroll/syntax budgets and fixtures.
 - [ ] T29.3: Record environment, workload sizes, measured values and enforced budgets. Fix demonstrated regressions within scope; do not add speculative tuning or weaken a failing budget.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
