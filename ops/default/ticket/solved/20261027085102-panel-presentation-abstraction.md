@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027085102
 title: Introduce a minimal panel presentation abstraction
-status: ready
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,7 +10,12 @@ tags: panels, layout, rendering
 source: chat
 reported_at: 2026-10-27T08:51:02Z
 ready_at: 2026-10-27T10:37:08Z
-commits: []
+commits: [e3763fd30b8ab0aeb433d25c44e4f43d7bf1eb13, 167a49e33369d48cf5fcb009019ccd9303dde736, 9ec177b137cc84d566f961fac8422ad741d55fe6, 8921273e463e2d8cdb5999aede301c984893a7b6, 3ba6bb0ecd825a4f3e75081ec5b056821fa6ff5d]
+started_at: 2026-10-27T18:27:50Z
+reviewed_at: 2026-10-27T18:27:50Z
+reconciled_at: 2026-10-27T18:27:50Z
+closed_at: 2026-10-27T18:27:50Z
+resolution: fixed
 ---
 
 # Introduce a minimal panel presentation abstraction
@@ -68,3 +73,11 @@ Ready for the single [configuration and interaction plan](../../plan/rev-configu
 geometry, navigation, matching, path acceptance and bounds. Assigned slices:
 10, 11, 12, 13, 14. Use their recorded branches, task commits and
 reports; no separate ticket branch or independent controller is required.
+
+## Verified delivery evidence
+
+- Slice 10: [#59](https://forge.adrianpk.com/adrianpk/rev/pulls/59); integrated `e3763fd30b8ab0aeb433d25c44e4f43d7bf1eb13`. [Report](../../report/slices/rev-configuration-ui/slice-10-panel-contracts.md) records the delivered behavior and exact-head checks.
+- Slice 11: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60); integrated `167a49e33369d48cf5fcb009019ccd9303dde736`. [Report](../../report/slices/rev-configuration-ui/slice-11-editor-panels.md) records the delivered behavior and exact-head checks.
+- Slice 12: [#61](https://forge.adrianpk.com/adrianpk/rev/pulls/61); integrated `9ec177b137cc84d566f961fac8422ad741d55fe6`. [Report](../../report/slices/rev-configuration-ui/slice-12-tree-panels.md) records the delivered behavior and exact-head checks.
+- Slice 13: [#62](https://forge.adrianpk.com/adrianpk/rev/pulls/62); integrated `8921273e463e2d8cdb5999aede301c984893a7b6`. [Report](../../report/slices/rev-configuration-ui/slice-13-palette-and-syntax.md) records the delivered behavior and exact-head checks.
+- Slice 14: [#63](https://forge.adrianpk.com/adrianpk/rev/pulls/63); integrated `3ba6bb0ecd825a4f3e75081ec5b056821fa6ff5d`. [Report](../../report/slices/rev-configuration-ui/slice-14-ui-palette.md) records the delivered behavior and exact-head checks.

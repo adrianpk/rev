@@ -196,7 +196,7 @@ def check_enums(root, models, rows):
 
 
 def check_links(root):
-    paths = ["README.md", "CHANGELOG.md", "docs/reference/index.md", "docs/reference/defaults.md", "docs/reference/bindings.md", "docs/reference/syntax.md"]
+    paths = ["README.md", "CHANGELOG.md", "docs/reference/index.md", "docs/reference/defaults.md", "docs/reference/bindings.md", "docs/reference/syntax.md", "docs/reference/rectangles.md"]
     for name in paths:
         path = root / name
         for target in re.findall(r"\]\(([^)]+)\)", path.read_text()):

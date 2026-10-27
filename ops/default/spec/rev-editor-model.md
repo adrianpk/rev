@@ -10,6 +10,11 @@ Scope: native state, text persistence, and cross-component invariants
 
 ## Purpose
 
+The validated candidate above belongs to the original delivery. The accepted
+[configuration model](editor-configuration-model.md) supplies immutable startup
+settings, effective buffer policies, context maps and semantic palette roles;
+its separate delivery owns the configuration/interaction acceptance evidence.
+
 Define the state and persistence contracts needed by the paired specification.
 Tables name semantic responsibilities. They do not mandate public Rust types,
 a module per record, a custom rope, a database, or a multi-crate workspace.
@@ -223,14 +228,16 @@ target change, or incompatible mutation invalidates it before reuse.
 
 Row text is independent of the linear ring. Selection derives its line range
 and display columns from point/mark. Under D04, a touched wide cluster
-is included whole; tab-cell fragments are represented with spaces without
-altering untouched tabs. A short line contributes only its actual selected
+is included whole. Copy expands all selected tab cells into retained spaces;
+kill retains complete selected tabs and materializes partial edges as spaces,
+without altering untouched tabs. A short line contributes only its actual selected
 text. Copy does not add absent cells to that source.
 
 Yank inserts successive rows at the selected display column, pads short target
 lines only as needed, and creates additional lines when insertion requires
 them. It never divides a target grapheme. Its line creation, padding, and text
-insertion are one undoable operation. The policy must be consistent when a
+insertion are one undoable operation. Retained tabs use destination tab stops;
+rows are not retabulated to force their source right edge. The policy must be consistent when a
 wide cluster makes the copied fragment wider than the requested cell span.
 
 ## File association and persisted representation

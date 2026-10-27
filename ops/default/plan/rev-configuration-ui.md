@@ -551,17 +551,17 @@ status directory changes, update references in this delivery accordingly.
 
 | Ticket | Requirements | Required slices |
 | --- | --- | --- |
-| [TKT-20261027103708](../ticket/ready/20261027103708-configuration-loading.md) | CFG01-CFG03, CFG07-CFG08, CFG14-CFG15, CFG21 | 1, 2, 3, 4, 20 |
-| [TKT-20261027103709](../ticket/ready/20261027103709-configuration-buffer-policies.md) | CFG09-CFG11, CFG16, modified R17/R20 | 5, 6, 7, 8, 9 |
-| [TKT-20261027103710](../ticket/ready/20261027103710-configuration-palette.md) | CFG04, CFG18 | 13, 14 |
-| [TKT-20261027103711](../ticket/ready/20261027103711-configuration-presentation.md) | CFG18-CFG20 | 10, 11, 12, 15 |
-| [TKT-20261027103712](../ticket/ready/20261027103712-configuration-retention.md) | CFG17, CFG20 | 16 |
-| [TKT-20261027103713](../ticket/ready/20261027103713-configuration-keybindings.md) | CFG06, CFG12-CFG13, modified R22 | 17, 18, 19 |
-| [TKT-20261027103714](../ticket/ready/20261027103714-configuration-reference.md) | CFG05-CFG06, CFG20 | 26 |
-| [TKT-20261027103715](../ticket/ready/20261027103715-configuration-acceptance.md) | CFG22, UI01-UI04 | 27, 28, 29, 30 |
-| [TKT-20261027084156](../ticket/ready/20261027084156-vertical-command-completion.md) | UI02 | 21, 22 |
-| [TKT-20261027085102](../ticket/ready/20261027085102-panel-presentation-abstraction.md) | UI01 | 10, 11, 12, 13, 14 |
-| [TKT-20261027085234](../ticket/ready/20261027085234-file-path-completion.md) | UI03-UI04 | 23, 24, 25 |
+| [TKT-20261027103708](../ticket/solved/20261027103708-configuration-loading.md) | CFG01-CFG03, CFG07-CFG08, CFG14-CFG15, CFG21 | 1, 2, 3, 4, 20 |
+| [TKT-20261027103709](../ticket/solved/20261027103709-configuration-buffer-policies.md) | CFG09-CFG11, CFG16, modified R17/R20 | 5, 6, 7, 8, 9 |
+| [TKT-20261027103710](../ticket/solved/20261027103710-configuration-palette.md) | CFG04, CFG18 | 13, 14 |
+| [TKT-20261027103711](../ticket/solved/20261027103711-configuration-presentation.md) | CFG18-CFG20 | 10, 11, 12, 15 |
+| [TKT-20261027103712](../ticket/solved/20261027103712-configuration-retention.md) | CFG17, CFG20 | 16 |
+| [TKT-20261027103713](../ticket/solved/20261027103713-configuration-keybindings.md) | CFG06, CFG12-CFG13, modified R22 | 17, 18, 19 |
+| [TKT-20261027103714](../ticket/solved/20261027103714-configuration-reference.md) | CFG05-CFG06, CFG20 | 26 |
+| [TKT-20261027103715](../ticket/reviewing/20261027103715-configuration-acceptance.md) | CFG22, UI01-UI04 | 27, 28, 29, 30 |
+| [TKT-20261027084156](../ticket/solved/20261027084156-vertical-command-completion.md) | UI02 | 21, 22 |
+| [TKT-20261027085102](../ticket/solved/20261027085102-panel-presentation-abstraction.md) | UI01 | 10, 11, 12, 13, 14 |
+| [TKT-20261027085234](../ticket/solved/20261027085234-file-path-completion.md) | UI03-UI04 | 23, 24, 25 |
 
 Each CFG01-CFG22 and UI01-UI04 requirement must map to concrete native tests and,
 where observable in a terminal, PTY assertions in the final acceptance map.

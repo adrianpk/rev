@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027085234
 title: Complete filesystem paths when opening a file
-status: ready
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,7 +10,12 @@ tags: completion, file-opening, minibuffer
 source: chat
 reported_at: 2026-10-27T08:52:34Z
 ready_at: 2026-10-27T10:37:08Z
-commits: []
+commits: [39cb2a1d1049409ec31ba8fccb7fb86a68cc2904, 9f365b86d4097f6c78a6777f848c651bcbe2bce3, e86c5451203cac1f64279a4cc6a6e29762ed8989]
+started_at: 2026-10-27T18:27:50Z
+reviewed_at: 2026-10-27T18:27:50Z
+reconciled_at: 2026-10-27T18:27:50Z
+closed_at: 2026-10-27T18:27:50Z
+resolution: fixed
 ---
 
 # Complete filesystem paths when opening a file
@@ -80,3 +85,9 @@ Ready for the single [configuration and interaction plan](../../plan/rev-configu
 geometry, navigation, matching, path acceptance and bounds. Assigned slices:
 23, 24, 25. Use their recorded branches, task commits and
 reports; no separate ticket branch or independent controller is required.
+
+## Verified delivery evidence
+
+- Slice 23: [#72](https://forge.adrianpk.com/adrianpk/rev/pulls/72); integrated `39cb2a1d1049409ec31ba8fccb7fb86a68cc2904`. [Report](../../report/slices/rev-configuration-ui/slice-23-path-candidates.md) records the delivered behavior and exact-head checks.
+- Slice 24: [#73](https://forge.adrianpk.com/adrianpk/rev/pulls/73); integrated `9f365b86d4097f6c78a6777f848c651bcbe2bce3`. [Report](../../report/slices/rev-configuration-ui/slice-24-path-navigation.md) records the delivered behavior and exact-head checks.
+- Slice 25: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74); integrated `e86c5451203cac1f64279a4cc6a6e29762ed8989`. [Report](../../report/slices/rev-configuration-ui/slice-25-find-file-integration.md) records the delivered behavior and exact-head checks.

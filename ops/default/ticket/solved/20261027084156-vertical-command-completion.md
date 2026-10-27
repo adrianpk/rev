@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027084156
 title: Show M-x command candidates in a vertical list
-status: ready
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,7 +10,12 @@ tags: minibuffer, completion
 source: chat
 reported_at: 2026-10-27T08:41:56Z
 ready_at: 2026-10-27T10:37:08Z
-commits: []
+commits: [f3b62e02f067e64bf515a28c8f0e5aaf4b18ba58, 0bb5aadf82d19849857d0dea63c62dd58f7ee511]
+started_at: 2026-10-27T18:27:50Z
+reviewed_at: 2026-10-27T18:27:50Z
+reconciled_at: 2026-10-27T18:27:50Z
+closed_at: 2026-10-27T18:27:50Z
+resolution: fixed
 ---
 
 # Show M-x command candidates in a vertical list
@@ -65,3 +70,8 @@ Ready for the single [configuration and interaction plan](../../plan/rev-configu
 geometry, navigation, matching, path acceptance and bounds. Assigned slices:
 21, 22. Use their recorded branches, task commits and
 reports; no separate ticket branch or independent controller is required.
+
+## Verified delivery evidence
+
+- Slice 21: [#70](https://forge.adrianpk.com/adrianpk/rev/pulls/70); integrated `f3b62e02f067e64bf515a28c8f0e5aaf4b18ba58`. [Report](../../report/slices/rev-configuration-ui/slice-21-vertical-command-list.md) records the delivered behavior and exact-head checks.
+- Slice 22: [#71](https://forge.adrianpk.com/adrianpk/rev/pulls/71); integrated `0bb5aadf82d19849857d0dea63c62dd58f7ee511`. [Report](../../report/slices/rev-configuration-ui/slice-22-command-selection.md) records the delivered behavior and exact-head checks.

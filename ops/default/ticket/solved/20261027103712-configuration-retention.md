@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027103712
 title: Configure bounded history rings and prompts
-status: ready
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -10,7 +10,12 @@ tags: configuration
 source: chat
 reported_at: 2026-10-27T10:37:12Z
 ready_at: 2026-10-27T10:37:12Z
-commits: []
+commits: [726dbfbedf3192c25a45188ad143ef96aceb4940]
+started_at: 2026-10-27T18:27:50Z
+reviewed_at: 2026-10-27T18:27:50Z
+reconciled_at: 2026-10-27T18:27:50Z
+closed_at: 2026-10-27T18:27:50Z
+resolution: fixed
 ---
 
 # Configure bounded history rings and prompts
@@ -33,3 +38,7 @@ The approved [master plan](../../plan/rev-configuration-ui.md) defines exact tas
 Approved as part of the single configuration and interaction delivery. Slice
 branches and reports are authoritative; this ticket does not request a separate
 parallel branch or a second tracker. No future-inventory feature is included.
+
+## Verified delivery evidence
+
+- Slice 16: [#65](https://forge.adrianpk.com/adrianpk/rev/pulls/65); integrated `726dbfbedf3192c25a45188ad143ef96aceb4940`. [Report](../../report/slices/rev-configuration-ui/slice-16-bounded-preferences.md) records the delivered behavior and exact-head checks.

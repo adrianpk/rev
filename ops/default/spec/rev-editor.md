@@ -12,6 +12,12 @@ Reference SHA-256: `7dd838f03fa9c9fdd8dbf952913c8590fbd0a750e936422b6bd169867f27
 
 ## Purpose
 
+The validated candidate above records the original rev-editor delivery. The
+accepted [configuration amendments](editor-configuration.md) now replace R01,
+R17, R20 and R22 completely; [interaction requirements](editor-interaction.md)
+define panel and completion presentation. Their implementation and pending
+final-gate evidence belong to rev-configuration-ui, separately from that history.
+
 Define the complete reference implementation of `rev`: a small, non-modal,
 terminal text editor written in Rust, with Emacs-style editing, rope-backed
 buffers, split windows, a side file tree, and Tree-sitter highlighting.
@@ -99,7 +105,9 @@ The baseline MUST respect the exclusions under Scope and priority.
 
 **Design default:** Linux terminals are the primary target. Other platforms
 MAY work through the selected crates; broad platform certification is not
-required. The interface uses built-in defaults and one fixed palette.
+required. The interface uses compiled defaults and one semantic palette whose
+roles MAY be overridden through the accepted declarative configuration contract.
+Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 #### Scenario: Ordinary offline editing
 
@@ -225,7 +233,8 @@ assume that a Rust `char` or UTF-8 byte occupies one cell.
 The focused region MUST be visibly highlighted across rows and scrolling.
 Syntax, selection, search indication, and cursor styles MUST compose in a
 stable order with readable text and status. **Design defaults:** no soft wrap,
-a horizontal viewport for long lines, and four-cell tab stops. Actual tabs
+a horizontal viewport for long lines, and default four-cell tab stops.
+The effective buffer policy applies coherently to every shared view. Actual tabs
 remain valid buffer content.
 
 #### Scenario: Reveal mixed-width text
@@ -473,23 +482,28 @@ structural navigation. Arrow, Home, End, and Page keys MAY mirror these commands
 
 Source: sections 9.2-9.3. Acceptance: A02, A03, A09.
 
-Printable input MUST insert at point. Enter MUST insert a line break, and Tab
-MUST insert a tab unless a different behavior is explicitly documented.
-Backspace MUST delete the preceding character/grapheme without crossing buffer
-start. `C-d` / `delete-char` MUST delete the following character/grapheme without
-crossing buffer end.
+Printable input MUST insert at point. Enter MUST insert a line break using the
+document's applicable format policy. Tab MUST insert under the effective,
+documented indentation policy: one literal tab for tabs, or spaces through the
+next indentation stop for spaces. Applying that policy MUST NOT convert existing
+content or literal pasted text. Backspace MUST delete the preceding
+character/grapheme without crossing buffer start. `C-d` (`delete-char` in the
+built-in keymap) MUST delete the following character/grapheme without crossing
+buffer end.
 
 `C-k` / `kill-line` MUST kill to line end, or the line separator when already
 at line end. `M-d` / `kill-word` and `M-DEL` / `backward-kill-word` MUST kill in
-their respective directions. Region deletion MUST update point and mark
-consistently. Every affected view MUST retain valid positions after an edit.
-Control/Meta combinations MUST enter the keymap rather than insert their
-printable representation or unknown control bytes.
+their respective directions. These sequences identify the default keymap;
+explicit user overrides may choose other bindings for the same commands.
+Region deletion MUST update point and mark consistently. Every affected view
+MUST retain valid positions after an edit. Control/Meta combinations MUST
+enter the effective keymap rather than insert their printable representation
+or unknown control bytes.
 
 #### Scenario: Kill a CRLF line separator
 
 - **GIVEN** point at the end of a line followed by CRLF
-- **WHEN** `C-k` kills its line separator
+- **WHEN** `C-k` invokes the default `kill-line` binding
 - **THEN** the logical separator is removed coherently and retained for yanking
 - **AND** all views remain at valid positions.
 
@@ -557,8 +571,19 @@ operation over all affected lines.
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain the rectangle without editing. |
 | `C-x r y` | `yank-rectangle` | Insert the retained rows at point across successive lines. |
 
-The clarification table defines boundary behavior for tabs and wide
-clusters. Additional clear/open/number/register operations are outside scope.
+These keys describe defaults under R22. Extraction MUST use the source
+buffer's effective display policy. Rectangle copy MUST materialize selected
+tab cells as spaces in its retained rows without changing source text. Kill
+MUST retain complete selected tabs and handle partially selected tab edges
+through the source policy. Yank MUST align each row's left edge to the
+destination display column and insert the retained row contents. It MUST NOT
+retabulate retained rows to force their original source width; literal tabs
+use the destination buffer's tab stops.
+
+This tab/column behavior follows the observed GNU Emacs 31.1 copy, kill and
+yank operations. Rev retains its existing whole-grapheme, short-source-line
+and atomic-history rules. Additional clear/open/number/register operations
+remain outside this change.
 
 #### Scenario: Rectangle spans short and mixed-width lines
 
@@ -572,6 +597,20 @@ clusters. Additional clear/open/number/register operations are outside scope.
 - **GIVEN** a rectangle command changed several lines
 - **WHEN** the user invokes undo once
 - **THEN** every affected line is restored as one transaction.
+
+#### Scenario: Copy a tabbed rectangle into a different tab policy
+
+- **GIVEN** source rows `a\tb` and `c\td` with tab width 4
+- **WHEN** their existing columns are copied and yanked into a buffer with tab width 8
+- **THEN** retained rows are `a   b` and `c   d`, without source mutation
+- **AND** both rows start at the selected destination display column.
+
+#### Scenario: Kill retains complete tabs for destination interpretation
+
+- **GIVEN** the same source rows and a rectangle containing each complete tab
+- **WHEN** that rectangle is killed and yanked into a buffer with tab width 8
+- **THEN** retained tabs stay literal tabs and use the destination's tab stops
+- **AND** row starts remain aligned without forcing the original right edge.
 
 ### Requirement: R21 Per-buffer undo and redo
 
@@ -616,14 +655,25 @@ command MUST work; a functional-looking stub is not an implemented command.
 Public names MUST be lowercase and hyphenated, preferring the corresponding
 Emacs name. Internal identifiers use idiomatic Rust naming under R36.
 
+Key tables in the editor baseline describe built-in bindings. Explicit valid
+user configuration MAY override those sequences or add aliases while retaining
+the existing named operations and context rules. Without an override, the
+documented built-in mapping MUST remain effective.
+
 The registry MUST NOT introduce a command interpreter or public plugin
 protocol. Names MUST NOT imply absent Emacs subsystems.
 
 #### Scenario: Equivalent named and bound command
 
-- **GIVEN** equivalent sessions with the same active buffer and layout
+- **GIVEN** equivalent sessions with the same active buffer, layout, and built-in keymap
 - **WHEN** one invokes `C-x 3` and the other invokes `M-x split-window-right`
 - **THEN** both execute the same operation and produce equivalent split behavior.
+
+#### Scenario: User alias retains command identity
+
+- **GIVEN** a valid editor alias names `split-window-right`
+- **WHEN** that alias or `M-x split-window-right` is invoked
+- **THEN** both reach the same supported Rust handler.
 
 ### Requirement: R23 Minibuffer command entry and arguments
 
@@ -631,9 +681,10 @@ Source: section 12.3. Acceptance: A04, A05, A11.
 
 `M-x` MUST activate a labeled command prompt. Typing MUST filter known commands;
 prefix or substring matching SHOULD be supported with deterministic ordering.
-A small candidate list MAY
-appear without needlessly obscuring editing. `TAB` MUST select or complete a
-candidate; `RET` MUST invoke it. Unknown names MUST report a concise error,
+The vertical candidate list follows UI02: query editing, selection, explicit
+completion and history navigation retain distinct state. `TAB` MUST complete a
+candidate; `RET` MUST invoke the explicitly selected or fully typed command.
+The shared composition reserves completion rows without discarding editing views. Unknown names MUST report a concise error,
 return control to editing, and leave document text unchanged.
 
 Argument-taking commands MUST prompt in a predictable sequence. Focused
@@ -1055,13 +1106,13 @@ required to validate the representative workload.
 | Tree | Initially hidden, left side, current directory or initial file parent as root. |
 | Tree toggle | `toggle-file-tree`; optional `C-x t t`. |
 | Tree focus | Separate from `other-window` cycling. |
-| Text display | No soft wrap; horizontal scrolling; visual tab stops every four cells. |
+| Text display | No soft wrap; horizontal scrolling; default four-cell tab stops, with coherent buffer-specific overrides. |
 | Character motion | User-perceived grapheme clusters where possible. |
 | Line endings | Preserve existing LF/CRLF; inserted newlines follow prevailing style. |
 | Kill ring | 32 in-memory linear entries; separate rectangle storage. |
 | History | Conventional per-buffer undo/redo; new edit invalidates redo. |
 | Search | Literal smart-case; interactive in-buffer replacement. |
-| Syntax | Bundled Rust grammar and query; plain-text fallback; one fixed palette. |
+| Syntax | Bundled Rust grammar/query; plain fallback; configured semantic palette roles and syntax cutoff. |
 | Save | Same-directory temporary output and replacement after successful write. |
 | Commands | Static Rust registry; session-local command-name history. |
 | Platform | Linux terminal first, without broad platform certification. |
@@ -1083,7 +1134,8 @@ claim that the source already specified every detail.
 
 The model describes these proposals without prescribing a custom rope,
 branching history, background workers, or a reusable extension framework.
-No additional language grammar or user configuration system is selected.
+No additional language grammar is selected. Startup TOML configuration is
+defined by the accepted configuration contract and its exhaustive catalog.
 
 ## Related Rust design evidence
 

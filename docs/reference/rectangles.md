@@ -14,7 +14,8 @@ keeps the previously retained rectangle. Read-only text can be copied.
 ## Cell boundaries
 
 - Columns follow the buffer's tab stops and Unicode width, as drawing does.
-  The default tab width is four cells.
+  The default tab width is four cells; the effective
+  [buffer policy](defaults.md#text-and-files) can override it.
 - An edge touching a wide grapheme includes the complete cluster, including
   combining marks and joined emoji. A copied row can therefore be wider than
   the requested display span.
@@ -28,6 +29,11 @@ The session retains one rectangle, separate from the linear kill ring. Copy
 changes neither source text, cursor, mark, modification state nor undo history.
 The next successful rectangle copy replaces the retained rows and requested
 width. Ordinary linear copying and yanking use their existing ring.
+
+Across buffers, copied tab cells remain spaces; complete killed tabs remain
+literal and use the destination tab stops. Every shared destination view sees
+the same published text. The configured history limits retain the newest
+compound rectangle as one complete unit, even beyond the soft payload target.
 
 Toggle rectangle mode again or press `C-g` to deactivate selection while keeping
 the mark. A normal `C-SPC` starts linear selection. Successful text edits deactivate

@@ -544,9 +544,9 @@ Schema/sample checks alone SHALL NOT count as runtime acceptance evidence.
 
 ## MODIFIED Requirements
 
-The complete future replacements below retain the baseline identities and
-existing scenarios. They are proposals only; the accepted baseline file is
-unchanged. The R17 insertion policy follows the next-stop decision in CFG10.
+The complete accepted replacements below retain the baseline identities and
+existing scenarios. They are reconciled into the current baseline in Slice 30;
+the original validated baseline remains identified separately. The R17 insertion policy follows the next-stop decision in CFG10.
 
 ### Requirement: R01 Product identity and runtime boundary
 
