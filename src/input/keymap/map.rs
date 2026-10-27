@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::command::Binding;
+use crate::command::{Binding, Command};
 
 use super::{Context, Sequence};
 
@@ -118,6 +118,17 @@ impl Map {
             .next()
             .is_some_and(|(next, _)| {
                 next != sequence && next.chords().starts_with(sequence.chords())
+            })
+    }
+
+    /// Decision stages may wait only for cancellation sequences. Other mapped
+    /// actions cannot consume an answer as a suffix and accidentally consent.
+    pub(crate) fn is_cancel_prefix(&self, sequence: &Sequence) -> bool {
+        self.entries
+            .range(sequence.clone()..)
+            .take_while(|(next, _)| next.chords().starts_with(sequence.chords()))
+            .any(|(next, entry)| {
+                next != sequence && entry.target == Binding::Command(Command::KeyboardQuit)
             })
     }
 

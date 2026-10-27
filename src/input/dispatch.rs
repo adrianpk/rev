@@ -16,8 +16,7 @@ impl Input {
             return self.bound(binding, key, custom, continued);
         }
         if map.is_prefix(&sequence) {
-            self.suppress_repeat = true;
-            return self.wait(sequence_prefix(&sequence));
+            return self.wait_sequence(&sequence);
         }
         self.unmatched(key, continued)
     }
@@ -28,7 +27,7 @@ impl Input {
         self.context_binding(binding, key, custom)
     }
 
-    fn unmatched(&mut self, key: Key, continued: bool) -> Outcome {
+    pub(super) fn unmatched(&mut self, key: Key, continued: bool) -> Outcome {
         self.clear_prefix();
         if continued {
             self.suppress_repeat = true;
@@ -36,6 +35,11 @@ impl Input {
         }
         let outcome = self.focused(key);
         self.consume(outcome)
+    }
+
+    pub(super) fn wait_sequence(&mut self, sequence: &Sequence) -> Outcome {
+        self.suppress_repeat = true;
+        self.wait(sequence_prefix(sequence))
     }
 
     /// The bounded pending sequence is input state, independent of buffer text.

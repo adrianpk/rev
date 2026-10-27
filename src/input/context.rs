@@ -46,18 +46,22 @@ impl Input {
     }
 
     pub(super) fn decision_key(&mut self, key: Key) -> Outcome {
-        // Decisions accept only their native explicit answers. A single-chord
-        // cancel alias may dismiss them, but no mapped accept/edit can consent.
-        let cancel = Sequence::from_chords(&[key]).is_some_and(|sequence| {
-            self.keymaps.map(MapContext::Minibuffer).lookup(&sequence)
-                == Some(Binding::Command(Command::KeyboardQuit))
-        });
-        if cancel {
+        // Decisions accept only native explicit answers, plus cancellation.
+        // A failed cancel prefix consumes its suffix without interpreting y/n.
+        let continued = !self.chords.is_empty();
+        self.chords.push(key);
+        let Some(sequence) = Sequence::from_chords(&self.chords) else {
+            return self.unmatched(key, continued);
+        };
+        let map = self.keymaps.map(MapContext::Minibuffer);
+        if map.lookup(&sequence) == Some(Binding::Command(Command::KeyboardQuit)) {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
-        let outcome = self.focused(key);
-        self.consume(outcome)
+        if map.is_cancel_prefix(&sequence) {
+            return self.wait_sequence(&sequence);
+        }
+        self.unmatched(key, continued)
     }
 }
 
