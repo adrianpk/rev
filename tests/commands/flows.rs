@@ -372,8 +372,8 @@ fn stage_phases() {
     assert_eq!(fs::read(occupied).unwrap(), b"keep");
 }
 
-// Ingress/save failures return keyboard ownership without publishing text or
-// keeping a pending close that could affect a later independent successful save.
+// Find-file failures retain their editable draft until canceled. Save failures
+// release focus without keeping close authority for a later independent save.
 #[test]
 fn failed_stages() {
     for stage in ["find", "write", "close"] {
@@ -400,6 +400,12 @@ fn failed_stages() {
         assert_eq!(snapshot(&session), before, "{stage}");
         assert!(!session.echo().is_empty(), "{stage}");
         assert!(!missing.exists(), "{stage}");
+        if stage == "find" {
+            session.handle(super::character('?'));
+            assert_eq!(snapshot(&session), before);
+            assert!(echo_row(&mut session).contains("invalid.txt?"));
+            session.execute(Command::KeyboardQuit);
+        }
         session.handle(super::character('!'));
         named(&mut session, "write-file");
         submit(&mut session, &fresh);

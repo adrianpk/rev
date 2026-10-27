@@ -60,6 +60,8 @@ failed drafts, and descend into directories without visiting them as text buffer
 - The existing absent-path PTY journey now cancels the retained empty-path prompt
   before typing into the document. Its text assertions tolerate palette SGR while
   retaining exact buffer, point, normalized-reuse and no-creation checks.
+- The shared-window failed-stages regression asserts that find-file retains
+  editable prompt focus, then cancels before independent write/save checks.
 
 ## Contracts Added or Changed
 
@@ -79,7 +81,7 @@ failed drafts, and descend into directories without visiting them as text buffer
 - `src/session/path.rs`, `session/file.rs`: directory continuation and canonical ingress.
 - `tests/path_completion/acceptance.rs`, `visits.rs`, `failures.rs`: 14 new journeys.
 - `tests/commands/context_keymaps/flows.rs`: accept aliases and directory bounds.
-- `tests/files.rs`: empty-path error focus and cancellation.
+- `tests/files.rs`, `tests/commands/flows.rs`: retained error focus and cancellation.
 - `scripts/check-path-acceptance.py`, `scripts/check-pty.py`: actual terminal checks.
 - Prompt, binding and provider references; `CHANGELOG.md`: delivered behavior.
 
@@ -93,6 +95,7 @@ Successful development checks:
 - `cargo test --test files prompt_geometry`: retained empty-path prompt, tiny geometry and cancellation passed.
 - `cargo test --test files format::`: five format regressions passed.
 - `cargo test --test recovery paths::failed_paths`: real permission/symlink recovery passed.
+- `cargo test --test commands flows::failed_stages`: retained shared-buffer prompt focus and independent save passed.
 - `cargo test --test commands find_file_aliases`: existing configured file prompt aliases passed.
 - `cargo test --test commands path_accept_aliases`: configured accept phases and directory/file continuation passed.
 - `cargo test --test commands path_directory_bound`: atomic directory acceptance bound and new-name retry passed.
