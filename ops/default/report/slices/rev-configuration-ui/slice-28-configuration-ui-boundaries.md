@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `test/rev-config-ui-28-configuration-ui-boundaries`
 PR: [#77](https://forge.adrianpk.com/adrianpk/rev/pulls/77)
+Integrated: `dd02eb4fc85630c10565f28a98a5dd16f7a23626`
 
 ## Purpose
 

@@ -771,5 +771,97 @@
         "names_filter"
       ]
     }
+  ],
+  "tickets": [
+    {
+      "file": "20261027103708-configuration-loading.md",
+      "slices": [
+        1,
+        2,
+        3,
+        4,
+        20
+      ]
+    },
+    {
+      "file": "20261027103709-configuration-buffer-policies.md",
+      "slices": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "file": "20261027103710-configuration-palette.md",
+      "slices": [
+        13,
+        14
+      ]
+    },
+    {
+      "file": "20261027103711-configuration-presentation.md",
+      "slices": [
+        10,
+        11,
+        12,
+        15
+      ]
+    },
+    {
+      "file": "20261027103712-configuration-retention.md",
+      "slices": [
+        16
+      ]
+    },
+    {
+      "file": "20261027103713-configuration-keybindings.md",
+      "slices": [
+        17,
+        18,
+        19
+      ]
+    },
+    {
+      "file": "20261027103714-configuration-reference.md",
+      "slices": [
+        26
+      ]
+    },
+    {
+      "file": "20261027103715-configuration-acceptance.md",
+      "slices": [
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "file": "20261027084156-vertical-command-completion.md",
+      "slices": [
+        21,
+        22
+      ]
+    },
+    {
+      "file": "20261027085102-panel-presentation-abstraction.md",
+      "slices": [
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "file": "20261027085234-file-path-completion.md",
+      "slices": [
+        23,
+        24,
+        25
+      ]
+    }
   ]
 }

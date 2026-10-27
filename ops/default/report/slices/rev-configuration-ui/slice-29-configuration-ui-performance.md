@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `perf/rev-config-ui-29-configuration-ui-performance`
 PR: [#78](https://forge.adrianpk.com/adrianpk/rev/pulls/78)
+Integrated: `aa652074dbc9cf9d620bf7cf10fc25ec9a1499eb`
 
 ## Purpose
 

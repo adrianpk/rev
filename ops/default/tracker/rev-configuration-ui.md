@@ -787,8 +787,21 @@ Details and checks: [Slice 30](../plan/rev-configuration-ui.md#slice-30-verify-d
 
 - [x] T30.1: Add a requirement-to-native/PTY/performance evidence map for this delivery and require it from scripts/check-all.sh, retaining all original eight checks and A01-A20 evidence protections. Detect missing cases, skipped suites, stale candidate identity or absent slice reports.
 - [x] T30.2: Reconcile selected baseline statements/default tables and rectangle references with accepted config/interaction contracts, keeping baseline history distinct from the new implementation evidence. Verify sample, docs and all eleven ticket outcomes agree with actual delivered behavior.
-- [ ] T30.3: Prepare all 30 reports, resolved ticket paths and acceptance prerequisites; do not run the full gate in the worker. After controller-owned exact-dev full-gate success, close only approved artifacts using that evidence, record Acta outcome and stop without main promotion.
+- [x] T30.3: Prepare all 30 reports, resolved ticket paths and acceptance prerequisites; do not run the full gate in the worker. After controller-owned exact-dev full-gate success, close only approved artifacts using that evidence, record Acta outcome and stop without main promotion.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T30.1 `63f8b9a3fbd4`; T30.2 `486a94c719a1`.
+The 30-requirement acceptance map resolves named native, eight PTY and seven
+performance cases. Original A01-A20 and all eight baseline checks remain
+mandatory within eleven gate stages. Twelve negative guard tests and discovery
+pass; four complete amendments and eleven ticket outcomes are reconciled.
+T30.3 preparation is complete; its post-gate closure work remains pending below.
+There are ten solved tickets; the acceptance ticket is reviewing until this
+slice integrates. All 30 report paths are prepared and prior heads verified.
+Final exact-head validation, canonical PR integration and controller-owned full
+gate remain pending. Gate preparation closes this slice's integration entries
+and moves the acceptance ticket to solved after its merge is verified.
+Report: [Slice 30](../report/slices/rev-configuration-ui/slice-30-configuration-ui-acceptance.md).
 
 ## Delivery-set closure
 

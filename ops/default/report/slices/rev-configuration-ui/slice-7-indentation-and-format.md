@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-07-indentation-and-format`
 PR: [#56](https://forge.adrianpk.com/adrianpk/rev/pulls/56)
+Integrated: `e6d781ad529cdb57ca20ede62ac76984c6a77505`
 
 ## Purpose
 

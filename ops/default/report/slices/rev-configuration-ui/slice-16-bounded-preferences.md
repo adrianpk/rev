@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-16-bounded-preferences`
 PR: [#65](https://forge.adrianpk.com/adrianpk/rev/pulls/65)
+Integrated: `726dbfbedf3192c25a45188ad143ef96aceb4940`
 
 ## Purpose
 

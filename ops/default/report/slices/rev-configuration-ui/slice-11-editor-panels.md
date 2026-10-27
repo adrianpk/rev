@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `refactor/rev-config-ui-11-editor-panels`
 PR: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60)
+Integrated: `167a49e33369d48cf5fcb009019ccd9303dde736`
 
 ## Purpose
 

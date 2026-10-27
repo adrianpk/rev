@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-18-editor-keymaps`
 PR: [#67](https://forge.adrianpk.com/adrianpk/rev/pulls/67)
+Integrated: `acebc81731bb936cb14d5b13f6060546d167ca7c`
 
 ## Purpose
 

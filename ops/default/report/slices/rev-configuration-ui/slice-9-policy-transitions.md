@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-09-policy-transitions`
 PR: [#58](https://forge.adrianpk.com/adrianpk/rev/pulls/58)
+Integrated: `a4d9565cf4fcff7487808fe2281f78ec1d1ea24f`
 
 ## Purpose
 

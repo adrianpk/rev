@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-15-presentation-preferences`
 PR: [#64](https://forge.adrianpk.com/adrianpk/rev/pulls/64)
+Integrated: `c946be7f0ee451f2c554b457d5443451eff57797`
 
 ## Purpose
 

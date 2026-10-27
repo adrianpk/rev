@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-21-vertical-command-list`
 PR: [#70](https://forge.adrianpk.com/adrianpk/rev/pulls/70)
+Integrated: `f3b62e02f067e64bf515a28c8f0e5aaf4b18ba58`
 
 ## Purpose
 

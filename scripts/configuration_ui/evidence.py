@@ -7,6 +7,8 @@ import re
 import subprocess
 
 from acceptance import CONFIGURATION_COMMANDS, digest, references, require
+from acceptance_delivery import integrated
+from configuration_ui.delivery import ancestor, reconciled, tickets
 from configuration_ui.performance import BUDGET_US, EXPECTED, records
 
 GROUPS = {'configured': ['configured-rgb', 'configured-no-color'], 'missing': ['missing'],
@@ -47,6 +49,8 @@ def delivery(root, document, readiness):
     for number, line in enumerate(tables[0], 1):
         fields = [part.strip().strip('`') for part in line.strip('|').split('|')]
         report(root, fields, number, readiness)
+    tickets(root, document, readiness)
+    reconciled(root)
 
 
 def report(root, fields, number, readiness):
@@ -57,8 +61,10 @@ def report(root, fields, number, readiness):
     text = path.read_text()
     require(re.findall(r'^## (.+)$', text, re.M) == SECTIONS, f'Slice {number}: incomplete report')
     require(f'Branch: `{fields[2]}`' in text and 'Delivery set: rev-configuration-ui' in text, 'report identity mismatch')
-    states = ['reviewing', 'delivered'] if number == 30 else ['delivered']
+    states = ['reviewing', 'delivered'] if number == 30 and readiness else ['delivered']
     require(any(f'Status: {state}\n' in text for state in states), f'Slice {number}: report not ready')
+    if number != 30 or not readiness:
+        ancestor(root, integrated(text))
     if number != 30 or not readiness or 'PR: pending' not in text:
         require(re.search(r'^PR: \[#\d+\]\(https://forge\.adrianpk\.com/adrianpk/rev/pulls/\d+\)$', text, re.M), f'Slice {number}: missing canonical PR')
 

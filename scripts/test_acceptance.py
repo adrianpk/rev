@@ -148,6 +148,19 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 terminal(bad)
 
+    # Colored prefix frames must not satisfy a command's retained status marker
+    # before the final key dispatches and publishes the requested new geometry.
+    def test_colored_prefix(self):
+        import runpy
+        from types import SimpleNamespace
+        root = Path(__file__).resolve().parent.parent
+        harness = runpy.run_path(str(root / 'scripts/check-pty.py'))
+        prefix = harness['HIDE'] + b'\x1b[1;1Hmain.rs -- RW\x1b[24;1H\x1b[38;2;192;202;245mC-x\x1b[0m' + harness['SHOW']
+        session = SimpleNamespace(output=bytearray(prefix), height=24)
+        self.assertFalse(harness['journey_ready'](session, b'main.rs -- RW', None))
+        session.output = bytearray(prefix.replace(b'C-x', b'Quit'))
+        self.assertTrue(harness['journey_ready'](session, b'main.rs -- RW', None))
+
     # The exact requirement set and real native/terminal/workload references
     # must survive independent map edits, not merely a count of passing commands.
     def test_config_manifest(self):
@@ -166,6 +179,34 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
                 path.write_text(json.dumps(bad))
                 with self.subTest(name=name), self.assertRaises(ValueError):
                     manifest(fixture)
+
+    # Frozen slice identity and required report metadata reject missing or
+    # altered artifacts before a prerequisite pass can be mistaken for delivery.
+    def test_config_reports(self):
+        from configuration_ui.evidence import PLAN, TRACKER, delivery, manifest
+        root = Path(__file__).resolve().parent.parent
+        document = manifest(root)
+        delivery(root, document, readiness=True)
+        row = next(line for line in (root / PLAN).read_text().splitlines() if line.startswith('| Slice 1 |'))
+        fields = [part.strip().strip('`') for part in row.strip('|').split('|')]
+        with tempfile.TemporaryDirectory(prefix='rev-config-report-') as directory:
+            fixture = Path(directory)
+            for name in [PLAN, TRACKER]:
+                path = fixture / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text((root / name).read_text())
+            with self.assertRaisesRegex(ValueError, 'missing configuration Slice 1 report'):
+                delivery(fixture, document, readiness=True)
+            report = fixture / fields[4]
+            report.parent.mkdir(parents=True)
+            report.write_text((root / fields[4]).read_text().replace(fields[2], 'changed-branch'))
+            with self.assertRaisesRegex(ValueError, 'report identity mismatch'):
+                delivery(fixture, document, readiness=True)
+            for name in [PLAN, TRACKER]:
+                path = fixture / name
+                path.write_text(path.read_text().replace(fields[2], 'changed-branch'))
+            with self.assertRaisesRegex(ValueError, 'approved configuration slice identities changed'):
+                delivery(fixture, document, readiness=True)
 
     # Successful process exit does not replace bounded samples, fixture identity,
     # positive read/parser controls, exact limits or event-driven idle evidence.

@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-24-path-navigation`
 PR: [#73](https://forge.adrianpk.com/adrianpk/rev/pulls/73)
+Integrated: `9f365b86d4097f6c78a6777f848c651bcbe2bce3`
 
 ## Purpose
 

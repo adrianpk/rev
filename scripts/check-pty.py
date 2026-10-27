@@ -2748,13 +2748,20 @@ def failed_session_exit(root):
             session.close()
 
 
+def journey_ready(session, marker, content):
+    if not frame_contains(session.output, marker, content):
+        return False
+    # Semantic echo colors may separate cursor placement from prefix text.
+    # Strip SGR only, retaining row coordinates and all actual message bytes.
+    frame = re.sub(rb"\x1b\[[0-9;]*m", b"", last_frame(session))
+    echo = f"\x1b[{session.height};1H".encode()
+    return not any(echo + prefix in frame for prefix in (b"C-x", b"ESC"))
+
+
 def journey_step(session, keys, marker, content=None):
     session.output.clear()
     os.write(session.master, keys)
-    echo = f"\x1b[{session.height};1H".encode()
-    prefixes = (echo + b"C-x", echo + b"ESC")
-    session.wait(lambda: frame_contains(session.output, marker, content)
-                 and not any(prefix in last_frame(session) for prefix in prefixes))
+    session.wait(lambda: journey_ready(session, marker, content))
     assert session.process.poll() is None and LEAVE not in session.output
 
 
@@ -2788,7 +2795,7 @@ def acceptance_document(root):
             assert b"\x1b[38;2;157;124;216mfn" in last_frame(session)
             journey_step(session, b"\x1b<\x1bf", b"-- RW L1 C3 Rust")
             named_step(session, "backward-word", b"-- RW L1 C1 Rust")
-            journey_step(session, b"\x183", b"|", b"main.rs -- RW")
+            journey_step(session, b"\x183", "│".encode(), b"main.rs -- RW")
             named_step(session, "split-window-below", b"main.rs -- RW")
             assert last_frame(session).count(b"main.rs -- RW") == 3
             journey_step(session, b"\x13label", b"I-search: label", b"\x1b[4m")
@@ -2885,7 +2892,7 @@ def acceptance_workspace(root):
         try:
             session.ready(b"> entry.rs -- RW L1 C1 Rust")
             journey_step(session, paste_wire(b"// saved\n"), b"** RW L2 C1 Rust")
-            journey_step(session, b"\x183", b"|", b"entry.rs ** RW")
+            journey_step(session, b"\x183", "│".encode(), b"entry.rs ** RW")
             journey_step(session, b"\x18tt", b"File tree focused", b"> workspace/")
             journey_step(session, b"\x1b[C\x1b[B", b"File tree updated", b"entry.rs")
             named_step(session, "tree-rename", b"Rename to: ")
@@ -2957,7 +2964,7 @@ def acceptance_failure(root):
             for code in (ENTER, HIDE, PASTE_ON):
                 assert code in session.output, bytes(session.output)
             journey_step(session, b"x", b"** RW L1 C2 Text")
-            journey_step(session, b"\x183", b"|", b"live.txt ** RW")
+            journey_step(session, b"\x183", "│".encode(), b"live.txt ** RW")
             named_step(session, "split-window-below", b"live.txt ** RW")
             assert last_frame(session).count(b"live.txt ** RW") == 3
             journey_step(session, b"\x18tt", b"File tree focused")

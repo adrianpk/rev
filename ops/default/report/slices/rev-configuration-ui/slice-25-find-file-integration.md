@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-25-find-file-integration`
 PR: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74)
+Integrated: `e86c5451203cac1f64279a4cc6a6e29762ed8989`
 
 ## Purpose
 

@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-06-buffer-display-policy`
 PR: [#55](https://forge.adrianpk.com/adrianpk/rev/pulls/55)
+Integrated: `9db4f5682730cb95dbe33bad260adf972aad8b1d`
 
 ## Purpose
 

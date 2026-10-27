@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `fix/rev-config-ui-08-rectangle-capture`
 PR: [#57](https://forge.adrianpk.com/adrianpk/rev/pulls/57)
+Integrated: `7672b1eed5709c05d0221f705603ba12628c203f`
 
 ## Purpose
 

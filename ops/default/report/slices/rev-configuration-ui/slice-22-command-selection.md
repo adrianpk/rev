@@ -6,6 +6,7 @@ Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-u
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-22-command-selection`
 PR: [#71](https://forge.adrianpk.com/adrianpk/rev/pulls/71)
+Integrated: `0bb5aadf82d19849857d0dea63c62dd58f7ee511`
 
 ## Purpose
 
