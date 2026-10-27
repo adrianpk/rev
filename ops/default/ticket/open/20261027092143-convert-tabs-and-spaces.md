@@ -34,13 +34,16 @@ or displaying a tab must not perform this conversion implicitly.
   tracking and shared-view position updates. A no-op conversion stays a no-op.
 - Respect read-only buffers and retain ordinary cancellation and error behavior.
 
-## Decisions before implementation
+## Selected conversion contract
 
-Choose whole-buffer versus active-region operation and indentation-only
-versus all eligible text conversion. Define how mixed whitespace and display
-alignment are preserved in each direction before implementation.
+[Explicit Whitespace Conversion](../../spec/editor-whitespace-conversion.md)
+selects marked linear regions, all eligible selected whitespace and preserved
+visual columns through native tabify/untabify. No usable region causes feedback,
+not implicit whole-buffer conversion. Existing region admission remains in force.
 
 ## Delivery boundary
 
-Capture for future consideration. This ticket is not automatically part of
-the current configuration, panel, M-x and file-completion delivery scope.
+Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navigation.md)
+and [tracker](../../tracker/rev-input-navigation.md) as the other six current
+work items. Follow its assigned primary slices, lifecycle and controller-owned
+integration/acceptance; do not create a separate successor run for this ticket.

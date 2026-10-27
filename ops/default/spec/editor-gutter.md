@@ -394,8 +394,8 @@ independent settings store or persistent annotation entity. Runtime overrides
 and geometry remain ordinary view/session state. Future bookmark or LSP
 contracts will define their own actual state and persistence when needed.
 
-The accepted specification and model remain isolated and uncommitted. Approval
-covers their behavior and control contracts. It does not create a gutter plan,
-tracker, slice count, branch, controller change or implementation authorization.
-Before later authorized slicing, reconcile the actual closed configuration/UI
-contracts against this bounded scope.
+The accepted specification and model are versioned. The product owner selected
+this bounded capability for the combined input/navigation/presentation delivery.
+Its plan and tracker own slicing, implementation and controller authority; the
+completed configuration/UI validation remains historical evidence. Reconcile
+current configuration/view contracts without expanding gutter behavior.

@@ -1,0 +1,251 @@
+# Input, Navigation and Presentation Tracker
+
+Status: Approved
+Approved: product owner, 2026-10-27; complete all seven selected topics in one autonomous Looper cycle after reconciling their contracts and slicing. Startup and canonical dev integration requested.
+Date: 2026-10-27
+Delivery set: rev-input-navigation
+Slice strategy: layered
+Active slice: Slice 1 - restore responsive vertical navigation
+Full gate: `scripts/check-all.sh`
+Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
+Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
+Model: [Gutter Model](../spec/editor-gutter-model.md), [Existing Configuration Model](../spec/editor-configuration-model.md)
+Plan: [Input and Navigation Delivery](../plan/rev-input-navigation.md)
+
+## Canonical slice map
+
+| Slice | Short name | Exact branch | Expected PR title | Report |
+| --- | --- | --- | --- | --- |
+| Slice 1 | restore responsive vertical navigation | `fix/rev-input-01-navigation-responsiveness` | `fix(slice-1): restore responsive vertical navigation` | `ops/default/report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md` |
+| Slice 2 | add Emacs-style line navigation | `feat/rev-input-02-goto-line` | `feat(slice-2): add Emacs-style line navigation` | `ops/default/report/slices/rev-input-navigation/slice-2-goto-line.md` |
+| Slice 3 | add explicit tabify and untabify | `feat/rev-input-03-whitespace-conversion` | `feat(slice-3): add explicit tabify and untabify` | `ops/default/report/slices/rev-input-navigation/slice-3-whitespace-conversion.md` |
+| Slice 4 | define native gutter view policy | `refactor/rev-input-04-gutter-policy` | `refactor(slice-4): define native gutter view policy` | `ops/default/report/slices/rev-input-navigation/slice-4-gutter-policy.md` |
+| Slice 5 | render absolute logical line numbers | `feat/rev-input-05-absolute-gutter` | `feat(slice-5): render absolute logical line numbers` | `ops/default/report/slices/rev-input-navigation/slice-5-absolute-gutter.md` |
+| Slice 6 | render independent relative numbering | `feat/rev-input-06-relative-gutter` | `feat(slice-6): render independent relative numbering` | `ops/default/report/slices/rev-input-navigation/slice-6-relative-gutter.md` |
+| Slice 7 | wire gutter settings and native commands | `feat/rev-input-07-gutter-controls` | `feat(slice-7): wire gutter settings and native commands` | `ops/default/report/slices/rev-input-navigation/slice-7-gutter-controls.md` |
+| Slice 8 | preserve gutter geometry across editor surfaces | `fix/rev-input-08-gutter-geometry` | `fix(slice-8): preserve gutter geometry across editor surfaces` | `ops/default/report/slices/rev-input-navigation/slice-8-gutter-geometry.md` |
+| Slice 9 | align pane status into left and right groups | `feat/rev-input-09-status-layout` | `feat(slice-9): align pane status into left and right groups` | `ops/default/report/slices/rev-input-navigation/slice-9-status-layout.md` |
+| Slice 10 | own native pointer reporting and input state | `feat/rev-input-10-pointer-lifetime` | `feat(slice-10): own native pointer reporting and input state` | `ops/default/report/slices/rev-input-navigation/slice-10-pointer-lifetime.md` |
+| Slice 11 | focus panes and place point by pointer | `feat/rev-input-11-pointer-hit-focus` | `feat(slice-11): focus panes and place point by pointer` | `ops/default/report/slices/rev-input-navigation/slice-11-pointer-hit-focus.md` |
+| Slice 12 | scroll the pointed pane without changing focus | `feat/rev-input-12-pointer-scroll` | `feat(slice-12): scroll the pointed pane without changing focus` | `ops/default/report/slices/rev-input-navigation/slice-12-pointer-scroll.md` |
+| Slice 13 | select canonical text by dragging | `feat/rev-input-13-pointer-selection` | `feat(slice-13): select canonical text by dragging` | `ops/default/report/slices/rev-input-navigation/slice-13-pointer-selection.md` |
+| Slice 14 | extend pointer selection with bounded autoscroll | `feat/rev-input-14-drag-autoscroll` | `feat(slice-14): extend pointer selection with bounded autoscroll` | `ops/default/report/slices/rev-input-navigation/slice-14-drag-autoscroll.md` |
+| Slice 15 | activate native mouse defaults and runtime control | `feat/rev-input-15-pointer-controls` | `feat(slice-15): activate native mouse defaults and runtime control` | `ops/default/report/slices/rev-input-navigation/slice-15-pointer-controls.md` |
+| Slice 16 | package the complete startup configuration template | `feat/rev-input-16-bootstrap-template` | `feat(slice-16): package the complete startup configuration template` | `ops/default/report/slices/rev-input-navigation/slice-16-bootstrap-template.md` |
+| Slice 17 | create absent user configuration safely | `feat/rev-input-17-bootstrap-publication` | `feat(slice-17): create absent user configuration safely` | `ops/default/report/slices/rev-input-navigation/slice-17-bootstrap-publication.md` |
+| Slice 18 | exercise the complete combined terminal workflow | `test/rev-input-18-combined-terminal` | `test(slice-18): exercise the complete combined terminal workflow` | `ops/default/report/slices/rev-input-navigation/slice-18-combined-terminal.md` |
+| Slice 19 | verify bounded input gutter and pointer work | `perf/rev-input-19-bounded-interaction` | `perf(slice-19): verify bounded input gutter and pointer work` | `ops/default/report/slices/rev-input-navigation/slice-19-bounded-interaction.md` |
+| Slice 20 | reconcile combined delivery acceptance and references | `test/rev-input-20-delivery-acceptance` | `test(slice-20): reconcile combined delivery acceptance and references` | `ops/default/report/slices/rev-input-navigation/slice-20-delivery-acceptance.md` |
+
+## Task state
+
+All unchecked tasks remain work to do; no implementation evidence is claimed.
+Use one Conventional Commit per task when practical, retaining this repository's existing (Tn.m) suffix convention without exporting it to other projects.
+
+### Slice 1: restore responsive vertical navigation
+
+Contracts: R07 R16.
+Details and exact checks: [Slice 1](../plan/rev-input-navigation.md#slice-1-restore-responsive-vertical-navigation).
+
+- [ ] T1.1: Reproduce the reported repeat-input tail through the existing terminal/event/render path; record the tested build, fixture, input rate and measured cause before changing scheduling.
+- [ ] T1.2: Correct the demonstrated bottleneck with finite event/render work; preserve every ordered text/command transition, Escape deadlines, C-g, history and both arrow directions. Do not discard input merely to hide a backlog.
+- [ ] T1.3: Add a meaningful regression, check ordinary/large files and boundary reversal, and record exact focused evidence and the canonical slice report.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 2: add Emacs-style line navigation
+
+Contracts: NAV01 NAV02.
+Details and exact checks: [Slice 2](../plan/rev-input-navigation.md#slice-2-add-emacs-style-line-navigation).
+
+- [ ] T2.1: Add the compiled goto-line identity, bounded signed-integer prompt and M-g g / M-g M-g defaults through existing command/keymap owners; preserve C-g and all prior aliases.
+- [ ] T2.2: Use checked logical-line lookup and native reveal; match start clamping for nonpositive values and EOF clamping beyond the last line. Preserve other views and cancellation state.
+- [ ] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 3: add explicit tabify and untabify
+
+Contracts: WSP01 WSP02.
+Details and exact checks: [Slice 3](../plan/rev-input-navigation.md#slice-3-add-explicit-tabify-and-untabify).
+
+- [ ] T3.1: Implement both native M-x operations on the existing admitted linear region; missing regions give feedback and never silently select the whole document.
+- [ ] T3.2: Compute tab stops from the effective buffer policy and true starting display column, including Unicode prefixes and mixed whitespace; retain all nonselected bytes and line formats.
+- [ ] T3.3: Publish one checked edit/undo operation, cover redo/no-op/read-only/shared views and document how to select the intended range; retain source fidelity and record focused evidence. Reconcile any historical open-future-ticket guard against the newly verified conversion delivery instead of deleting the provenance check.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 4: define native gutter view policy
+
+Contracts: GUT01 GUT04 GUT11.
+Details and exact checks: [Slice 4](../plan/rev-input-navigation.md#slice-4-define-native-gutter-view-policy).
+
+- [ ] T4.1: Introduce the bounded native gutter projection/view-policy records using existing buffer, ViewId, line index and panel owners; add the gutter integration-test target.
+- [ ] T4.2: Model independent visibility/mode/current-line/side overrides, split inheritance, reset and lifecycle without per-line retained number arrays or new persistent stores.
+- [ ] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 5: render absolute logical line numbers
+
+Contracts: GUT01 GUT03 GUT04 GUT05 GUT10.
+Details and exact checks: [Slice 5](../plan/rev-input-navigation.md#slice-5-render-absolute-logical-line-numbers).
+
+- [ ] T5.1: Render absolute logical line labels with the accepted minimum digits, padding, separator fallback and semantic palette inside each panel.
+- [ ] T5.2: Give text one checked origin after number allocation; align cursor, tabs, Unicode, syntax/search/regions and horizontal clipping without prefix-string geometry.
+- [ ] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 6: render independent relative numbering
+
+Contracts: GUT02 GUT04 GUT11.
+Details and exact checks: [Slice 6](../plan/rev-input-navigation.md#slice-6-render-independent-relative-numbering).
+
+- [ ] T6.1: Add relative labels from each view's own logical point and absolute/zero/hidden current-line forms; keep digit width stable during origin movement.
+- [ ] T6.2: Preserve independent points and overrides across shared splits, buffer switches, close and rebind; retain complete logical numbering through edits and history.
+- [ ] T6.3: Verify both modes, current-line forms and shared-view lifecycle with render-level assertions and record bounded visible-row behavior.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 7: wire gutter settings and native commands
+
+Contracts: GUT10 GUT12 CFG05.
+Details and exact checks: [Slice 7](../plan/rev-input-navigation.md#slice-7-wire-gutter-settings-and-native-commands).
+
+- [ ] T7.1: Wire every accepted gutter/model key, palette role, type/bound and default into the existing partial/resolved settings path without a second preference store.
+- [ ] T7.2: Implement all eight accepted compiled gutter command identities, per-view overrides, inspect and reset; no placeholder handlers or new factory key conflicts.
+- [ ] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 8: preserve gutter geometry across editor surfaces
+
+Contracts: GUT05 GUT06 GUT13 GUT14.
+Details and exact checks: [Slice 8](../plan/rev-input-navigation.md#slice-8-preserve-gutter-geometry-across-editor-surfaces).
+
+- [ ] T8.1: Complete narrow/zero/resized geometry with the accepted degradation order, left/right placement, nested splits, tree and completion-region coexistence.
+- [ ] T8.2: Audit every display-to-text consumer including rectangles, hit-test preparation, search overlays and status bounds; avoid independent coordinate recipes.
+- [ ] T8.3: Exercise actual editing/reveal/save/history and mode switches, verify no idle gutter work or retained per-document label arrays, and close the gutter ticket only after its assigned integrations.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 9: align pane status into left and right groups
+
+Contracts: R05 STA01 STA02.
+Details and exact checks: [Slice 9](../plan/rev-input-navigation.md#slice-9-align-pane-status-into-left-and-right-groups).
+
+- [ ] T9.1: Compose the existing identity/dirty/access/position facts on the left and syntax/Text on the right inside each pane's status area; retain one row and active styling.
+- [ ] T9.2: Use cell-width-aware flexible space and the accepted compact/omit/clip order; preserve truthful independent points, RO/RW and clean/modified markers.
+- [ ] T9.3: Adapt existing native/PTY status expectations to semantic two-group rendering while preserving their substantive assertions; run display regressions and the affected historical acceptance journeys.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 10: own native pointer reporting and input state
+
+Contracts: PTR01 PTR05.
+Details and exact checks: [Slice 10](../plan/rev-input-navigation.md#slice-10-own-native-pointer-reporting-and-input-state).
+
+- [ ] T10.1: Add the pointer integration-test target, minimal native event/capture records and terminal reporting ownership using the existing crossterm decoder and cleanup owner.
+- [ ] T10.2: Admit only required press/release/button-motion/scroll reporting, avoiding all-motion hover traffic and a device/plugin abstraction; undo partially acquired modes on failure.
+- [ ] T10.3: Verify enable/disable/unwind/idempotent restoration and preserve keyboard/prefix deadlines. Keep factory activation until the working handlers and settings are integrated.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 11: focus panes and place point by pointer
+
+Contracts: PTR02 PTR03.
+Details and exact checks: [Slice 11](../plan/rev-input-navigation.md#slice-11-focus-panes-and-place-point-by-pointer).
+
+- [ ] T11.1: Resolve primary clicks through current composed pane/gutter/text geometry and reuse the ordinary focus transition and checked movement owner.
+- [ ] T11.2: Map tabs, graphemes, wide glyphs, scrolling, clipping and EOF accurately; pane-owned decorations may focus without fabricating text positions.
+- [ ] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 12: scroll the pointed pane without changing focus
+
+Contracts: PTR01 PTR02.
+Details and exact checks: [Slice 12](../plan/rev-input-navigation.md#slice-12-scroll-the-pointed-pane-without-changing-focus).
+
+- [ ] T12.1: Route vertical wheel/trackpad events to the document view or tree beneath the pointer without stealing keyboard focus.
+- [ ] T12.2: Clamp native scroll bounds and adjust only necessary target-view state using existing view contracts; keep other view points and shared canonical text coherent.
+- [ ] T12.3: Verify both directions, inactive targets, large/empty documents, tree and nested panes; add no simulated inertia, idle loop or competing scrolling owner.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 13: select canonical text by dragging
+
+Contracts: PTR03 PTR04.
+Details and exact checks: [Slice 13](../plan/rev-input-navigation.md#slice-13-select-canonical-text-by-dragging).
+
+- [ ] T13.1: Use primary-button press/drag/release to establish and extend the existing linear mark/region; a click without drag only moves point.
+- [ ] T13.2: Keep capture on the originating view across gutter, status and neighboring panes; cancel on C-g, invalidation, mode disable and reported focus loss.
+- [ ] T13.3: Verify selection/copy/kill/undo integration, Unicode/tab endpoints and byte fidelity; retain selection after release without implicit clipboard writes.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 14: extend pointer selection with bounded autoscroll
+
+Contracts: PTR04 PTR05.
+Details and exact checks: [Slice 14](../plan/rev-input-navigation.md#slice-14-extend-pointer-selection-with-bounded-autoscroll).
+
+- [ ] T14.1: Implement source-view autoscroll above/below its visible text only during a valid captured drag; pause inside and stop on release/cancellation/invalidation.
+- [ ] T14.2: Use a minimum 100 ms tick and at most min(mouse.scroll_lines, text-area height) rows per tick; process cancellation before due work and never accumulate timer/motion debt.
+- [ ] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 15: activate native mouse defaults and runtime control
+
+Contracts: PTR01 PTR06 CFG05.
+Details and exact checks: [Slice 15](../plan/rev-input-navigation.md#slice-15-activate-native-mouse-defaults-and-runtime-control).
+
+- [ ] T15.1: Wire mouse.enabled=true and mouse.scroll_lines=3 with bounds 1..100, plus the compiled M-x mouse-mode session toggle, through the existing typed configuration/catalog.
+- [ ] T15.2: Activate only the complete event/cleanup path, preserve startup-only snapshots and no-write runtime overrides, and add accurate exhaustive sample/default documentation.
+- [ ] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 16: package the complete startup configuration template
+
+Contracts: CFG23 CFG05.
+Details and exact checks: [Slice 16](../plan/rev-input-navigation.md#slice-16-package-the-complete-startup-configuration-template).
+
+- [ ] T16.1: Embed the supported complete sample in the binary and expose a bounded template source without needing a checkout, documentation file or network at runtime.
+- [ ] T16.2: Ensure every active generated leaf equals compiled defaults, explicit palette values are complete and unused optional examples stay commented.
+- [ ] T16.3: Extend existing catalog/reference guards to cover packaged/reference/default equality including delivered gutter/mouse controls; do not create user files in pure loading helpers.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 17: create absent user configuration safely
+
+Contracts: CFG01 CFG14 CFG15 CFG24.
+Details and exact checks: [Slice 17](../plan/rev-input-navigation.md#slice-17-create-absent-user-configuration-safely).
+
+- [ ] T17.1: Provision the implicit user root during normal editor startup only when no destination entry exists; honor existing XDG resolution and create only necessary configuration parents.
+- [ ] T17.2: Publish a complete template without clobbering concurrent winners, links, invalid/empty files or other entries; keep pure resolution/loading read-only and retain usable defaults with truthful diagnostics on failure.
+- [ ] T17.3: Verify real filesystem races and fault paths, isolate HOME/all XDG roots in every process-based fixture, and adapt missing-root startup assertions while retaining their recovery/fidelity guarantees.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 18: exercise the complete combined terminal workflow
+
+Contracts: GUT14 PTR01-PTR06 NAV01-NAV02 WSP01-WSP02 CFG23-CFG24 STA01-STA02.
+Details and exact checks: [Slice 18](../plan/rev-input-navigation.md#slice-18-exercise-the-complete-combined-terminal-workflow).
+
+- [ ] T18.1: Extend the existing configuration/UI PTY harness with a named combined journey covering first-start creation, splits/tree, both gutter modes, status groups, line navigation, whitespace conversion and pointer events.
+- [ ] T18.2: Use actual decoded terminal screen cells and file/history outcomes, including cancel, resize, capture cleanup and reported failures; no schema-only success or skipped path counts as acceptance.
+- [ ] T18.3: Extend the existing evidence map/checker for the admitted additional terminal cases while preserving all prior cases and assertions; keep the unchanged full-gate command sequence coherent.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 19: verify bounded input gutter and pointer work
+
+Contracts: GUT13 PTR05 R07 CFG23.
+Details and exact checks: [Slice 19](../plan/rev-input-navigation.md#slice-19-verify-bounded-input-gutter-and-pointer-work).
+
+- [ ] T19.1: Extend the existing native performance example/collector with large-buffer gutter, repeat-input release/stop and active-drag/idle workloads; reuse its process/fixture measurement ownership.
+- [ ] T19.2: Record latency, CPU, memory, iterations and candidate identity; preserve the existing ceilings and give new workloads finite measured bounds without raising limits to mask failures.
+- [ ] T19.3: Check hidden-gutter and mouse-disabled paths, no idle ticks and one-time bootstrap work; add guard coverage so missing/skipped/stale workloads cannot establish acceptance.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+### Slice 20: reconcile combined delivery acceptance and references
+
+Contracts: All seven selected work items.
+Details and exact checks: [Slice 20](../plan/rev-input-navigation.md#slice-20-reconcile-combined-delivery-acceptance-and-references).
+
+- [ ] T20.1: Reconcile complete approved specification replacements/additions into their actual baseline, configuration model and user references without rewriting historical validation provenance.
+- [ ] T20.2: Extend existing acceptance evidence for all new requirements and the current plan/ticket/report ancestry; preserve original protections, zero-skip checks and same-clean-candidate evidence.
+- [ ] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
+- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+## Delivery closure
+
+- [ ] All seven tickets reflect verified primary-slice integration and actual implementation evidence.
+- [ ] Every assigned slice report is delivered; source/model/reference links and complete baseline amendments agree.
+- [ ] Controller full gate passed the exact clean integrated dev candidate, including new real terminal/resource evidence and retained protections.
+- [ ] Only approved documentation closure paths changed afterward; record candidate and validation identity without relabeling evidence.
+- [ ] Final plan/tracker/spec/model metadata, canonical push and Acta outcome match actual completion.
