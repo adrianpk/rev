@@ -120,7 +120,7 @@ Contracts: GUT10 GUT12 CFG05.
 Details and exact checks: [Slice 7](../plan/rev-input-navigation.md#slice-7-wire-gutter-settings-and-native-commands).
 
 - [x] T7.1: Wire every accepted gutter/model key, palette role, type/bound and default into the existing partial/resolved settings path without a second preference store.
-- [ ] T7.2: Implement all eight accepted compiled gutter command identities, per-view overrides, inspect and reset; no placeholder handlers or new factory key conflicts.
+- [x] T7.2: Implement all eight accepted compiled gutter command identities, per-view overrides, inspect and reset; no placeholder handlers or new factory key conflicts.
 - [ ] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 

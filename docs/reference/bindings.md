@@ -47,6 +47,14 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x undo-redo` | `undo-redo` | Reapply the next redo group. |
 | `M-x tabify` | `tabify` | Compress the marked whitespace at effective tab stops when shorter. |
 | `M-x untabify` | `untabify` | Expand marked literal tabs while preserving text columns. |
+| `M-x gutter-toggle-line-numbers` | `gutter-toggle-line-numbers` | Hide or restore numbers, retaining mode. |
+| `M-x gutter-cycle-line-number-mode` | `gutter-cycle-line-number-mode` | Alternate absolute and relative, retaining visibility. |
+| `M-x gutter-set-line-numbers-absolute` | `gutter-set-line-numbers-absolute` | Show absolute logical line numbers. |
+| `M-x gutter-set-line-numbers-relative` | `gutter-set-line-numbers-relative` | Show distances from this view's logical point. |
+| `M-x gutter-cycle-current-line` | `gutter-cycle-current-line` | Cycle absolute, zero and hidden current labels. |
+| `M-x gutter-toggle-line-number-side` | `gutter-toggle-line-number-side` | Move this view's number field left or right. |
+| `M-x gutter-inspect-numbering` | `gutter-inspect-numbering` | Report effective policy and startup/view override sources. |
+| `M-x gutter-reset-numbering` | `gutter-reset-numbering` | Restore this view's immutable startup policy. |
 | `C-s` | `isearch-forward` | Incremental literal forward search. |
 | `C-r` | `isearch-backward` | Incremental literal backward search. |
 | `M-%` | `query-replace` | Confirm each literal replacement. |

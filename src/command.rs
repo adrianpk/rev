@@ -1,5 +1,6 @@
 mod binding;
 mod buffer;
+mod gutter;
 mod kill;
 mod linear;
 mod motion;
@@ -15,6 +16,7 @@ pub use crate::buffer::edit::History;
 pub use crate::window::Split;
 pub use binding::{Binding, PromptAction};
 pub use buffer::BufferCommand;
+pub use gutter::GutterCommand;
 pub use kill::KillCommand;
 pub use linear::LinearCommand;
 pub use motion::Motion;
@@ -35,6 +37,7 @@ pub enum Command {
     Quit,
     FindFile,
     GotoLine,
+    Gutter(GutterCommand),
     Whitespace(Whitespace),
     SaveBuffer,
     WriteFile,
@@ -56,7 +59,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 65] = [
+    pub const ALL: [Self; 73] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -81,6 +84,14 @@ impl Command {
         Self::Quit,
         Self::FindFile,
         Self::GotoLine,
+        Self::Gutter(GutterCommand::Toggle),
+        Self::Gutter(GutterCommand::CycleMode),
+        Self::Gutter(GutterCommand::Absolute),
+        Self::Gutter(GutterCommand::Relative),
+        Self::Gutter(GutterCommand::CycleCurrentLine),
+        Self::Gutter(GutterCommand::ToggleSide),
+        Self::Gutter(GutterCommand::Inspect),
+        Self::Gutter(GutterCommand::Reset),
         Self::Whitespace(Whitespace::Tabify),
         Self::Whitespace(Whitespace::Untabify),
         Self::SaveBuffer,
@@ -142,6 +153,7 @@ impl Command {
     fn action_name(self) -> &'static str {
         match self {
             Self::Rectangle(command) => command.name(),
+            Self::Gutter(command) => command.name(),
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "save-buffers-kill-terminal",
             Self::FindFile => "find-file",

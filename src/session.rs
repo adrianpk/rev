@@ -4,6 +4,7 @@ mod events;
 mod extended;
 mod file;
 mod goto;
+mod gutter;
 mod history;
 mod kill;
 mod linear;
@@ -304,6 +305,7 @@ impl Session {
             Command::Rectangle(command) => self.rectangle_command(command),
             Command::Region(command) => self.region_command(command),
             Command::Whitespace(command) => self.whitespace_command(command),
+            Command::Gutter(command) => self.gutter_command(command),
             _ => self.dispatch(command),
         }
     }
