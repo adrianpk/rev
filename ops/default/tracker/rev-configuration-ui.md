@@ -562,7 +562,7 @@ Details and checks: [Slice 21](../plan/rev-configuration-ui.md#slice-21-present-
 
 Task commits: T21.1 `5ff7d648583fa5da25a08c6c87b1e9149ec9bea4`;
 T21.2 `46cb306acc8409ad2297b23defed8c557c58c4a7`;
-T21.3 is the Slice 21 report-introduction commit.
+T21.3 `e8d7dd186c509f969df483d0963b578a349af94a`.
 Nine command-list regressions, one command-region geometry case and two actual
 RGB/NO_COLOR terminal sessions pass for configured matching/limits, vertical rows,
 explicit empty results, retained selection/origin, Unicode/tiny frames, tree and
@@ -570,7 +570,8 @@ nested panes, and unchanged editing viewports. Focused Clippy/source checks pass
 with nesting at most two. Required exact-head validation follows the PR-reference
 commit through the controller.
 Report: [Slice 21](../report/slices/rev-configuration-ui/slice-21-vertical-command-list.md).
-PR: pending canonical creation; dev integration remains controller-owned.
+PR: [#70](https://forge.adrianpk.com/adrianpk/rev/pulls/70);
+dev integration remains controller-owned.
 
 ### Slice 22: Navigate and execute command candidates
 

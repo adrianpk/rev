@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-21-vertical-command-list`
-PR: pending canonical creation
+PR: [#70](https://forge.adrianpk.com/adrianpk/rev/pulls/70)
 
 ## Purpose
 
@@ -41,7 +41,7 @@ command, input and palette owners while preserving the underlying editing view.
   vertical candidate rendering, replacing joined inline hints.
 - T21.2: `46cb306acc8409ad2297b23defed8c557c58c4a7` retains independent list
   selection/scroll, reveals the selected row and preserves zero-row suspension.
-- T21.3: this report-introduction commit adds geometry/Unicode/limit and actual
+- T21.3: `e8d7dd186c509f969df483d0963b578a349af94a` adds geometry/Unicode/limit and actual
   terminal regressions and updates the command documentation.
 - Composition::command repositions the query ahead of the auxiliary panel inside
   the same reserved extent. Editing minima, tree bounds and shared separators
