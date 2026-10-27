@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `refactor/rev-config-ui-11-editor-panels`
-PR: pending
+PR: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60)
 
 ## Purpose
 
@@ -38,7 +38,8 @@ separators and one source of placement for text, overlays and cursor cells.
   frames. `Row::projected` translates clipped metadata through `Panel::clip`;
   cursor placement uses `Panel::position`, status uses its reserved bounds and
   search uses selected-panel content.
-- T11.3 adds rendered crossing, focus/resize and lower-right overlay evidence.
+- T11.3: `ca7ea55c3534c7a894ad0d4dccfa70fe6c19d1f7` adds rendered
+  crossing, focus/resize and lower-right overlay evidence.
   Existing resize/minimum and Unicode seam expectations deliberately change for
   actual separator rows and Unicode cells rather than removing assertions.
 - Row publication consumes its text and metadata. A full-width row transfers

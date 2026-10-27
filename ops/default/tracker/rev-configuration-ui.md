@@ -303,14 +303,16 @@ Details and checks: [Slice 11](../plan/rev-configuration-ui.md#slice-11-compose-
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T11.1 `d1ae49100a76035ddd9ea98a48484f1d4fd86e8c`;
-T11.2 `7b773d08b9dacd93e9da589f54220246c6c35c74`.
+T11.2 `7b773d08b9dacd93e9da589f54220246c6c35c74`;
+T11.3 `ca7ea55c3534c7a894ad0d4dccfa70fe6c19d1f7`.
 Development validation: four rendered-panel cases, split admission/geometry,
 clipped cells, selected search, shared syntax and all six window resize
 regressions passed. Focused Clippy/source checks passed. Existing geometry
 fixtures now reserve horizontal separator rows explicitly.
 Final exact-head evidence belongs to the controller.
 Report: [Slice 11](../report/slices/rev-configuration-ui/slice-11-editor-panels.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60);
+dev integration remains controller-owned.
 
 ### Slice 12: Compose tree and auxiliary panels
 
