@@ -225,8 +225,18 @@ Details and checks: [Slice 8](../plan/rev-configuration-ui.md#slice-8-capture-em
 
 - [x] T8.1: Separate copy and kill rectangle capture semantics: copy expands retained tabs without source mutation; kill preserves whole interior tabs and materializes only partial edges as required.
 - [x] T8.2: Use the source buffer policy for display columns, retain whole-grapheme boundaries and baseline short-line/no-right-padding behavior, and keep linear and rectangular stores distinct.
-- [ ] T8.3: Port the observed Emacs behavior into original fixtures, not source code: a-tab-b and c-tab-d at width 4, partial edges, wide clusters and a one-transaction kill/undo. Update contradictory copy tests deliberately.
+- [x] T8.3: Port the observed Emacs behavior into original fixtures, not source code: a-tab-b and c-tab-d at width 4, partial edges, wide clusters and a one-transaction kill/undo. Update contradictory copy tests deliberately.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T8.1 `8271ccd8fa68ee05af02a412d3832088b5beedfe`;
+T8.2 `d858fcd8bbf2e6eff2d6d1bbff02eeda4958aa8a`; T8.3 recorded after commit.
+Development validation: three new capture cases, strengthened copy/kill tab-edge
+and store-separation checks and the adapted copied-row insertion regression
+passed. Coverage includes configured widths 1/2/4/8/32, Unicode, short rows,
+CRLF, read-only copy and one-step kill/undo. Focused Clippy passed.
+Final exact-head evidence belongs to the controller.
+Report: [Slice 8](../report/slices/rev-configuration-ui/slice-8-rectangle-capture.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 9: Keep rectangle and path transitions coherent
 

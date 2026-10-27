@@ -117,22 +117,31 @@ fn command_routes() {
     );
 }
 
-// Every tab edge retains only existing unselected cells, including two partial
-// edge tabs in the same row. Untouched suffix tabs keep their original bytes.
+// Copy expands complete tabs while kill retains them. Both keep selected partial
+// cells as spaces; deletion materializes only unselected edges and leaves later
+// tabs literal. Every multi-row deletion is one operation across undo and redo.
 #[test]
 fn tab_fragments() {
     let source = "0123456789ABCD\na\tb\tc\tz\n0123456789ABCD";
     let cases = [
-        (2, 3, " ", "a  b\tc\tz"),
-        (1, 4, "\t", "ab\tc\tz"),
-        (2, 6, "  b ", "a   c\tz"),
-        (0, 2, "a ", "  b\tc\tz"),
-        (5, 7, "  ", "a\tb c\tz"),
-        (7, 9, " c", "a\tb  \tz"),
-        (12, 14, "z", "a\tb\tc\t"),
+        (2, 3, " ", " ", "a  b\tc\tz"),
+        (1, 4, "   ", "\t", "ab\tc\tz"),
+        (2, 6, "  b ", "  b ", "a   c\tz"),
+        (0, 2, "a ", "a ", "  b\tc\tz"),
+        (5, 7, "  ", "  ", "a\tb c\tz"),
+        (7, 9, " c", " c", "a\tb  \tz"),
+        (12, 14, "z", "z", "a\tb\tc\t"),
+        (0, 9, "a   b   c", "a\tb\tc", "\tz"),
     ];
-    for (left, right, retained, remaining) in cases {
+    for (left, right, copied, retained, remaining) in cases {
         let mut session = selected(source, cell(0, left), cell(2, right));
+        super::copy(&mut session);
+        assert_eq!(
+            session.rectangle().unwrap().rows()[1],
+            copied,
+            "{left}..{right}"
+        );
+        assert_eq!(text(&session), source);
         kill(&mut session);
         assert_eq!(
             session.rectangle().unwrap().rows()[1],
