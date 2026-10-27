@@ -33,7 +33,7 @@ impl Buffers {
             self.get(*id).map_err(io::Error::other)?;
             return Ok(Visit::Existing(*id));
         }
-        let mut buffer = visiting(&location)?;
+        let mut buffer = visiting(&location, &self.settings.settings().files)?;
         let path = location.path().to_path_buf();
         buffer.name = location.basename().to_string_lossy().into_owned();
         buffer.file = Some(location);
@@ -65,9 +65,9 @@ impl Buffers {
     }
 }
 
-fn visiting(location: &file::Location) -> io::Result<Buffer> {
+fn visiting(location: &file::Location, files: &crate::config::Files) -> io::Result<Buffer> {
     if location.is_present() {
         return Buffer::from_loaded(file::load(location.path())?).map_err(io::Error::other);
     }
-    Buffer::new("").map_err(io::Error::other)
+    Buffer::new("", files).map_err(io::Error::other)
 }

@@ -199,7 +199,7 @@ Contracts: CFG10, CFG16. Tickets: TKT-20261027103709.
 Details and checks: [Slice 7](../plan/rev-configuration-ui.md#slice-7-apply-indentation-and-new-file-defaults).
 
 - [x] T7.1: Route Tab through the effective policy: literal U+0009 for tabs; enough spaces for the next indent_width stop for spaces. Bracketed paste remains literal and one normal undo operation.
-- [ ] T7.2: Apply configured LF/CRLF and BOM only when creating a new buffer. Existing files retain recognized BOM, mixed/newline fidelity and final-newline absence through save.
+- [x] T7.2: Apply configured LF/CRLF and BOM only when creating a new buffer. Existing files retain recognized BOM, mixed/newline fidelity and final-newline absence through save.
 - [ ] T7.3: Test nonaligned columns, tabs already in text, wide Unicode, read-only refusal, undo/redo and existing-file save fidelity. Do not implement conversion commands.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

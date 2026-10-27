@@ -140,13 +140,17 @@ pub struct Buffer {
     typing: Option<Stamp>,
     syntax: crate::syntax::Syntax,
     bom: bool,
+    default_newline: crate::config::Newline,
     file: Option<crate::file::Location>,
     warning: Option<String>,
 }
 
 impl Buffer {
-    fn new(text: &str) -> Result<Self, Error> {
-        Self::from_rope(Rope::from_str(text))
+    fn new(text: &str, files: &crate::config::Files) -> Result<Self, Error> {
+        let mut buffer = Self::from_rope(Rope::from_str(text))?;
+        buffer.bom = files.bom;
+        buffer.default_newline = files.newline;
+        Ok(buffer)
     }
 
     fn from_rope(text: Rope) -> Result<Self, Error> {
@@ -174,6 +178,7 @@ impl Buffer {
             typing: None,
             syntax: crate::syntax::Syntax::default(),
             bom: false,
+            default_newline: crate::config::Newline::Lf,
             file: None,
             warning: None,
         })
@@ -195,10 +200,14 @@ impl Buffer {
         self.file.as_ref()
     }
 
-    /// Insert the prevailing current separator; LF wins ties and empty buffers.
-    /// CRLF metadata changes atomically with text, including joins at edit seams.
+    /// Insert the prevailing separator; LF wins mixed ties. With no separators,
+    /// use the creation default (LF for loaded files). CRLF counts change only
+    /// with atomic text publication, including joins at edit seams.
     pub fn newline(&self) -> &'static str {
         let lf = self.len_lines() - 1 - self.crlf;
+        if lf == 0 && self.crlf == 0 && self.default_newline == crate::config::Newline::Crlf {
+            return "\r\n";
+        }
         if self.crlf > lf { "\r\n" } else { "\n" }
     }
 
@@ -340,7 +349,7 @@ impl Buffers {
     /// Use one supplied, admitted snapshot for newly installed buffer policies.
     /// Construction performs no configuration discovery or file reads.
     pub fn with_settings(settings: crate::config::Snapshot) -> Result<Self, Error> {
-        let mut buffer = Buffer::new("")?;
+        let mut buffer = Buffer::new("", &settings.settings().files)?;
         buffer.name = "*scratch*".into();
         buffer.apply_settings(&settings);
         let initial = buffer.id();
@@ -363,7 +372,7 @@ impl Buffers {
 
     /// Creates another canonical buffer from validated Rust UTF-8 text.
     pub fn create(&mut self, text: &str) -> Result<BufferId, Error> {
-        let buffer = Buffer::new(text)?;
+        let buffer = Buffer::new(text, &self.settings.settings().files)?;
         Ok(self.insert(buffer))
     }
 

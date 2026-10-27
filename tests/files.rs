@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "files/format.rs"]
+mod format;
+
 #[path = "files/associations.rs"]
 mod associations;
 

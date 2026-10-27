@@ -36,7 +36,7 @@ impl Buffers {
     pub fn kill(&mut self, kill: Kill) -> Result<BufferId, Error> {
         self.get(kill.id())?.current(kill.stamp)?;
         let fresh = if self.entries.len() == 1 {
-            Some(Buffer::new("")?)
+            Some(Buffer::new("", &self.settings.settings().files)?)
         } else {
             None
         };
