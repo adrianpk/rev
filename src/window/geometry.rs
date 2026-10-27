@@ -131,12 +131,7 @@ impl Area {
         })
     }
     pub(super) fn divide(self, split: Split) -> Option<Division> {
-        self.divide_to(
-            split,
-            Minimum::leaf(),
-            Minimum::leaf(),
-            u16::from(split == Split::Right),
-        )
+        self.divide_to(split, Minimum::leaf(), Minimum::leaf(), 1)
     }
 
     pub(super) fn divide_to(

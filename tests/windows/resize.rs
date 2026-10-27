@@ -10,7 +10,7 @@ use super::{bounded, editor, other, size, split};
 fn branch_minima() {
     for (name, direction, dimensions) in [
         ("right", Split::Right, size(11, 3)),
-        ("below", Split::Below, size(3, 7)),
+        ("below", Split::Below, size(3, 9)),
     ] {
         for second in [false, true] {
             let mut session = editor("abc", size(31, 13));
@@ -130,9 +130,9 @@ fn geometry_bounds(session: &rev::session::Session, dimensions: Size) {
 fn resize_grid() {
     let cases = [
         (Split::Right, Split::Right, 11, 3),
-        (Split::Right, Split::Below, 7, 5),
-        (Split::Below, Split::Right, 7, 5),
-        (Split::Below, Split::Below, 3, 7),
+        (Split::Right, Split::Below, 7, 6),
+        (Split::Below, Split::Right, 7, 6),
+        (Split::Below, Split::Below, 3, 9),
     ];
     for (first, second, width, height) in cases {
         for branch in [false, true] {

@@ -114,12 +114,12 @@ fn mixed_layout() {
             .map(|(_, a)| (a.column(), a.row(), a.width(), a.height()))
             .collect::<Vec<_>>();
         let expected = if first == Split::Below {
-            vec![(0, 0, 15, 6), (16, 0, 15, 6), (0, 6, 31, 6)]
+            vec![(0, 0, 15, 5), (16, 0, 15, 5), (0, 6, 31, 6)]
         } else {
-            vec![(0, 0, 15, 6), (0, 6, 15, 6), (16, 0, 15, 12)]
+            vec![(0, 0, 15, 5), (0, 6, 15, 6), (16, 0, 15, 12)]
         };
         assert_eq!(actual, expected);
-        assert_eq!(geometry.borders().len(), 1);
+        assert_eq!(geometry.borders().len(), 2);
         assert_eq!(session.windows().iter().len(), 3);
         bounded(&mut session, size(31, 13));
     }
@@ -130,8 +130,8 @@ fn mixed_layout() {
 #[test]
 fn fit_admission() {
     let cases = [
-        ("below exact", 3, 5, Split::Below, true),
-        ("below short", 3, 4, Split::Below, false),
+        ("below exact", 3, 6, Split::Below, true),
+        ("below short", 3, 5, Split::Below, false),
         ("right exact", 7, 3, Split::Right, true),
         ("right narrow", 6, 3, Split::Right, false),
         ("narrow text", 2, 8, Split::Below, false),
@@ -260,15 +260,15 @@ fn composed_cells() {
     let right = geometry.panes()[1].0;
     bounded(&mut session, dimensions);
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].text(), "a   界e\u{301} |a   界e\u{301} ");
-    assert!(frame.rows()[3].text().starts_with("> "));
-    assert_eq!(&frame.rows()[3].text()[8..11], "|  ");
+    assert_eq!(frame.rows()[0].text(), "a   界e\u{301} │a   界e\u{301} ");
+    assert!(frame.rows()[2].text().starts_with("> "));
+    assert_eq!(&frame.rows()[2].text()[8..13], "│  ");
     assert!(frame.rows()[7].text().starts_with("  "));
     assert_eq!(frame.cursor(), Some(Position { column: 4, row: 0 }));
     session.select_view(right).unwrap();
     let frame = session.frame().unwrap();
-    assert!(frame.rows()[3].text().starts_with("  "));
-    assert_eq!(&frame.rows()[3].text()[8..11], "|> ");
+    assert!(frame.rows()[2].text().starts_with("  "));
+    assert_eq!(&frame.rows()[2].text()[8..13], "│> ");
     assert_eq!(frame.cursor(), Some(Position { column: 13, row: 0 }));
 }
 

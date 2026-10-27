@@ -2,6 +2,8 @@
 
 #[path = "panels/geometry.rs"]
 mod geometry;
+#[path = "panels/rendering.rs"]
+mod rendering;
 
 use rev::buffer::Buffers;
 use rev::command::{Command, Split};

@@ -1,6 +1,7 @@
 use crate::buffer::Buffers;
 use crate::coordinates::{Error as CoordinateError, Glyphs};
-use crate::window::{Area, Geometry, Windows};
+use crate::panel::{Composition, Panel};
+use crate::window::{Area, Windows};
 
 use super::{Band, Error, Frame, Position, Row, Size, clip};
 
@@ -14,9 +15,6 @@ impl Frame {
         echo: &str,
     ) -> Result<Self, Error> {
         let selected = buffers.get(windows.selected().point.stamp.buffer)?;
-        if windows.iter().len() == 1 {
-            return Self::project(selected, windows.selected(), size, echo);
-        }
         let mut frame = Self {
             size,
             stamp: selected.stamp(),
@@ -28,9 +26,10 @@ impl Frame {
         }
         frame.blank_rows();
         frame.echo(echo)?;
-        if let Some(geometry) = windows.geometry(size) {
-            frame.panes(buffers, windows, &geometry)?;
-            frame.dividers(geometry.borders())?;
+        let outer = Area::new(0, 0, size.width, size.height).ok_or(CoordinateError::Overflow)?;
+        if let Some(composition) = Composition::new(windows, outer, 0) {
+            frame.panes(buffers, windows, &composition)?;
+            frame.dividers(&composition)?;
         }
         Ok(frame)
     }
@@ -39,49 +38,52 @@ impl Frame {
         &mut self,
         buffers: &Buffers,
         windows: &Windows,
-        geometry: &Geometry,
+        composition: &Composition,
     ) -> Result<(), Error> {
-        for (id, area) in geometry.panes() {
+        for (id, panel) in composition.panels() {
+            let area = panel.outer();
             let view = windows.get(*id)?;
             let buffer = buffers.get(view.point.stamp.buffer)?;
-            let selected = *id == windows.selected_id();
+            let selected = panel.active();
             let mut pane = Self::project_view(buffer, view, area.view_size(), "", selected)?;
             if !selected {
                 let status = &mut pane.rows[usize::from(area.height() - 1)];
                 status.text.replace_range(..1, " ");
             }
-            self.paint(*area, &pane, selected)?;
+            self.paint(*panel, &pane)?;
         }
         Ok(())
     }
 
-    fn paint(&mut self, area: Area, pane: &Frame, selected: bool) -> Result<(), Error> {
+    fn paint(&mut self, panel: Panel, pane: &Frame) -> Result<(), Error> {
+        let area = panel.outer();
         for row in pane.rows.iter().take(usize::from(area.height())) {
             self.blit(area, row)?;
         }
-        if selected && let Some(cursor) = pane.cursor {
-            self.cursor = Some(Position {
-                column: area
-                    .column()
-                    .checked_add(cursor.column)
-                    .ok_or(CoordinateError::Overflow)?,
-                row: area
-                    .row()
-                    .checked_add(cursor.row)
-                    .ok_or(CoordinateError::Overflow)?,
-            });
+        if panel.active() {
+            self.cursor = pane.cursor.and_then(|cursor| panel.position(cursor));
         }
         Ok(())
     }
 
-    fn dividers(&mut self, borders: &[Area]) -> Result<(), Error> {
-        for area in borders {
+    fn dividers(&mut self, composition: &Composition) -> Result<(), Error> {
+        for area in composition.borders() {
             for row in 0..area.height() {
+                let text = (0..area.width())
+                    .map(|column| {
+                        composition
+                            .separator(Position {
+                                column: area.column() + column,
+                                row: area.row() + row,
+                            })
+                            .unwrap_or(' ')
+                    })
+                    .collect();
                 self.blit(
                     *area,
                     &Row {
                         row,
-                        text: "|".into(),
+                        text,
                         syntax: Vec::new(),
                         band: Band::Divider,
                         search: None,

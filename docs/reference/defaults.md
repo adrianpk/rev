@@ -64,8 +64,10 @@ accepted or canceled. Return and pasted text cannot grant save/delete consent.
 A separately reported Escape has a 100-ms Meta deadline; `C-g` cancels the
 active interaction. Tiny or zero geometry retains text, views, pending input
 and history while suspending/clipping presentation. Normal editing panes need
-three text columns and a text/status row pair; nested splits use their combined
-minimum. The tree hides below 32 terminal columns and uses at most 24 columns
+three text columns and a text/status row pair. Each split reserves one shared
+separator cell on its split axis; nested splits use their combined minimum.
+Separators use continuous Unicode lines and connected junctions, without an
+outer frame around each pane. The tree hides below 32 terminal columns and uses at most 24 columns
 or one third of the frame when shown.
 
 ## Product boundary

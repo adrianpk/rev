@@ -14,41 +14,29 @@ pub enum Layout {
     },
 }
 
-#[derive(Clone, Copy)]
-enum Boundaries {
-    Columns,
-    Shared,
-}
-
-impl Boundaries {
-    fn gap(self, direction: Split) -> u16 {
-        u16::from(direction == Split::Right || matches!(self, Self::Shared))
-    }
-}
-
 impl Layout {
     pub(super) fn geometry(&self, size: Size) -> Option<Geometry> {
-        self.project(Area::root(size)?, Boundaries::Columns)
+        self.project(Area::root(size)?)
     }
 
     pub(crate) fn panel_geometry(&self, area: Area) -> Option<Geometry> {
-        self.project(area, Boundaries::Shared)
+        self.project(area)
     }
 
     pub(crate) fn panel_minimum(&self) -> Option<Size> {
-        Some(self.minimum(Boundaries::Shared)?.size())
+        Some(self.minimum()?.size())
     }
 
-    fn project(&self, area: Area, boundaries: Boundaries) -> Option<Geometry> {
-        let minimum = self.minimum(boundaries)?.size();
+    fn project(&self, area: Area) -> Option<Geometry> {
+        let minimum = self.minimum()?.size();
         if area.width() < minimum.width || area.height() < minimum.height {
             return None;
         }
         let mut geometry = Geometry::default();
-        self.place(area, &mut geometry, boundaries)?;
+        self.place(area, &mut geometry)?;
         Some(geometry)
     }
-    fn place(&self, area: Area, geometry: &mut Geometry, boundaries: Boundaries) -> Option<()> {
+    fn place(&self, area: Area, geometry: &mut Geometry) -> Option<()> {
         match self {
             Self::Leaf(id) => geometry.panes.push((*id, area)),
             Self::Split {
@@ -56,14 +44,10 @@ impl Layout {
                 first,
                 second,
             } => {
-                let division = area.divide_to(
-                    *direction,
-                    first.minimum(boundaries)?,
-                    second.minimum(boundaries)?,
-                    boundaries.gap(*direction),
-                )?;
-                first.place(division.first, geometry, boundaries)?;
-                second.place(division.second, geometry, boundaries)?;
+                let division =
+                    area.divide_to(*direction, first.minimum()?, second.minimum()?, 1)?;
+                first.place(division.first, geometry)?;
+                second.place(division.second, geometry)?;
                 if let Some(border) = division.border {
                     geometry.borders.push(border);
                 }
@@ -71,19 +55,14 @@ impl Layout {
         }
         Some(())
     }
-    fn minimum(&self, boundaries: Boundaries) -> Option<Minimum> {
+    fn minimum(&self) -> Option<Minimum> {
         match self {
             Self::Leaf(_) => Some(Minimum::leaf()),
             Self::Split {
                 direction,
                 first,
                 second,
-            } => Minimum::join(
-                *direction,
-                first.minimum(boundaries)?,
-                second.minimum(boundaries)?,
-                boundaries.gap(*direction),
-            ),
+            } => Minimum::join(*direction, first.minimum()?, second.minimum()?, 1),
         }
     }
 
