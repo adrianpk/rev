@@ -167,7 +167,8 @@ fn search_colors() {
 }
 
 // Real handler outcomes supply warning/error roles without parsing message
-// wording. An ensuing prompt returns to the ordinary message color.
+// wording. An ensuing prompt returns to the ordinary message color above
+// candidates, whose normal and selected colors remain independent.
 #[test]
 fn message_colors() {
     let (fixture, mut session, palette) = session();
@@ -181,8 +182,36 @@ fn message_colors() {
     let cells = surface::draw(&session.frame().unwrap());
     colors(&cells[&(11, 0)], palette.error, palette.background);
     session.execute(Command::FindFile);
-    let cells = surface::draw(&session.frame().unwrap());
-    colors(&cells[&(11, 0)], palette.message, palette.background);
+    let frame = session.frame().unwrap();
+    let cells = surface::draw(&frame);
+    let prompt = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == Band::Echo)
+        .unwrap();
+    assert!(prompt.text().starts_with("Find file: "));
+    colors(
+        &cells[&(usize::from(prompt.row()), 0)],
+        palette.message,
+        palette.background,
+    );
+    for selected in [false, true] {
+        let candidate = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == Band::Completion && row.selection().is_some() == selected)
+            .unwrap();
+        let (foreground, background) = if selected {
+            (palette.selection_text, palette.selection)
+        } else {
+            (palette.foreground, palette.background)
+        };
+        colors(
+            &cells[&(usize::from(candidate.row()), 0)],
+            foreground,
+            background,
+        );
+    }
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert!(!session.buffer().unwrap().is_modified());
 }

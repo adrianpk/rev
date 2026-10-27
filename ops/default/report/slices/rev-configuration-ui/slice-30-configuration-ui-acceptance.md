@@ -128,3 +128,25 @@ paths record the gate identity/candidate, close this delivery's plan/tracker/
 spec/model/interaction status and remaining closure checkboxes, and record Acta.
 The historical baseline candidate, gate candidate and later documentation-only
 closure commit remain distinct. No main promotion or publication is included.
+
+## Final-gate palette regression
+
+The first final gate stopped at `palette::message_colors`: the assertion still
+addressed the bottom terminal row after find-file completion moved its query
+above the candidates. That row correctly used the normal candidate foreground.
+
+The correction locates the query by its `Band::Echo` identity and checks its
+message palette role. It also checks both normal and selected completion rows
+against their independent palette roles. Warning/error and document-immutability
+assertions remain intact. Runtime code and the full-gate command are unchanged.
+
+Focused reproduction after correction:
+
+- `cargo test --test display palette::message_colors -- --exact --nocapture`:
+  passed, one test executed with no failures or skips.
+- `cargo fmt --all -- --check`: passed.
+- `git diff --check`: passed.
+
+The repair requires exact-head display, path-completion, command and panel
+regressions, Clippy and source validation before controller-owned integration.
+The complete `scripts/check-all.sh` gate and delivery closure remain pending.
