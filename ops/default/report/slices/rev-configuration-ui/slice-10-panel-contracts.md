@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `refactor/rev-config-ui-10-panel-contracts`
-PR: pending
+PR: [#59](https://forge.adrianpk.com/adrianpk/rev/pulls/59)
 
 ## Purpose
 
@@ -35,8 +35,8 @@ completion consumers while retaining the existing semantic split tree.
   layout traversal and recursive allocation with explicit separator spacing.
   Current runtime geometry keeps its existing spacing; the new panel projection
   reserves actual shared cells on both axes.
-- T10.3 adds the projection grid, full native extent arithmetic and live activity
-  checks. The reversed-range negative fixture uses an explicit range record
+- T10.3: `d73cc5f1dfe467877e40e04c67ed7d8eaafbe5e9` adds the projection
+  grid, full native extent arithmetic and live activity checks. The reversed-range negative fixture uses an explicit range record
   while preserving its rejection assertion under Clippy.
 - Separator glyphs derive from neighboring reserved cells over compact spans.
   Panel content, status, separators, auxiliary content and prompt partition the
