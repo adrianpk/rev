@@ -76,7 +76,7 @@ Details and exact checks: [Slice 3](../plan/rev-input-navigation.md#slice-3-add-
 - [x] T3.3: Publish one checked edit/undo operation, cover redo/no-op/read-only/shared views and document how to select the intended range; retain source fidelity and record focused evidence. Reconcile any historical open-future-ticket guard against the newly verified conversion delivery instead of deleting the provenance check.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 3 implementation is complete; canonical PR references and final exact-HEAD evidence are being prepared. The [canonical report](../report/slices/rev-input-navigation/slice-3-whitespace-conversion.md) records native conversion, history/fidelity, PTY outcomes and retained provenance checks. T3.1: `e015dcfb6104872696571df7f0e361209774c2f7`. T3.2: `28be1f4d52fd44c50ab92c9d586a4fe54b648d60`.
+Slice 3 implementation is complete; canonical PR [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-3-whitespace-conversion.md) records native conversion, history/fidelity, PTY outcomes and retained provenance checks. T3.1: `e015dcfb6104872696571df7f0e361209774c2f7`. T3.2: `28be1f4d52fd44c50ab92c9d586a4fe54b648d60`. T3.3: `86874577229ca5ec52eb00547f63a62a46d3da9f`.
 
 ### Slice 4: define native gutter view policy
 
