@@ -18,6 +18,10 @@ selected current-line forms and stable full-buffer digit geometry.
   point. Absolute mode retains one-based source labels.
 - Both modes honor absolute, zero and hidden current-line forms. The real
   current row retains semantic color and non-color emphasis, even when blank.
+- Shared panes keep their own relative origins across focus changes. Splits
+  inherit override provenance by value, then may diverge without moving point.
+- File visits, buffer switches and buffer/window closure retain live policies
+  and recompute labels for current source. Edits and undo/redo map both views.
 - Movement and scrolling retain width derived from the complete buffer;
   viewport padding beyond EOF remains unnumbered.
 
@@ -40,12 +44,17 @@ stable full-source digit width. GUT11 retains independent view policy and point.
 - `src/gutter/row.rs`: policy-driven labels and semantic row identity.
 - `src/display/gutter.rs`: bounded visible-row rendering with effective policy.
 - `tests/gutter/relative.rs`: actual field cells, semantic roles and integer bounds.
+- `tests/gutter/shared.rs`: composed shared panes and native editing/lifecycle paths.
 
 ## Validation
 
 - PASS: `cargo test --test gutter relative::` covers the six mode/current-form
   combinations and integer limits. Actual output cells retain semantic styling,
   document text, cursor origin and exact Unicode/CRLF source bytes.
+- PASS: `cargo test --test gutter shared::` covers both split directions with
+  points on lines 20/60, inactive current labels, focus changes, mapped edits and
+  undo/redo, window deletion, independent modes/forms, hide/restore/reset and
+  native file/buffer rebind/close. Unicode/BOM/CRLF bytes remain exact.
 - PASS: `python3 scripts/check-source.py` retains safe Rust and all existing
   parameter, nesting and complexity limits.
 

@@ -17,6 +17,8 @@ mod policy;
 mod relative;
 #[path = "gutter/rendering.rs"]
 mod rendering;
+#[path = "gutter/shared.rs"]
+mod shared;
 #[path = "support/surface.rs"]
 mod surface;
 
