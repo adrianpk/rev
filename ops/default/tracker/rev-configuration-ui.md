@@ -86,12 +86,14 @@ Details and checks: [Slice 2](../plan/rev-configuration-ui.md#slice-2-validate-t
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T2.1 `2b4ff0093157ca30bc540c935f12fd6f18b5ec87`;
-T2.2 `4c1512f370a0731c82e97ba30d250c1ab102057d`.
+T2.2 `4c1512f370a0731c82e97ba30d250c1ab102057d`;
+T2.3 `22985c06620b209d1b906b73d5ba7b79a5140a92`.
 Development validation: all 15 source-validation tests passed, including every
 numeric bound and all 25 RGB roles. Final exact-head slice evidence belongs to
 the controller.
 Report: [Slice 2](../report/slices/rev-configuration-ui/slice-2-toml-validation.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#51](https://forge.adrianpk.com/adrianpk/rev/pulls/51);
+dev integration remains controller-owned.
 
 ### Slice 3: Load bounded include graphs
 

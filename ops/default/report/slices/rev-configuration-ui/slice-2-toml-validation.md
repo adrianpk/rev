@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-02-toml-validation`
-PR: pending
+PR: [#51](https://forge.adrianpk.com/adrianpk/rev/pulls/51)
 
 ## Purpose
 
@@ -31,7 +31,8 @@ colors and scoped values validate, with actionable source diagnostics.
   typed source diagnostics, numeric admission and palette validation.
 - T2.2: `4c1512f370a0731c82e97ba30d250c1ab102057d` validates language and
   association scopes and command values, distinguishing key and value spans.
-- T2.3 adds boundary coverage and this report. A regression fixture reproduced
+- T2.3: `22985c06620b209d1b906b73d5ba7b79a5140a92` adds boundary coverage
+  and this report. A regression fixture reproduced
   signed numeric fragments being admitted as RGB channels; requiring six ASCII
   hexadecimal digits rejects them before channel conversion.
 - The TOML parser builds one spanned tree. A shallow location index retains
