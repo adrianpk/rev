@@ -143,7 +143,7 @@ fn readonly_exit() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&target).unwrap();
     edit(buffers.get_mut(id).unwrap(), "retained");
-    buffers.get_mut(id).unwrap().set_read_only(true);
+    buffers.get_mut(id).unwrap().set_readonly(true);
     let mut session = session(buffers);
     session.execute(Command::Quit);
     assert_eq!(answer(&mut session, 'y'), Action::Redraw);

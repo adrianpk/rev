@@ -101,7 +101,7 @@ fn meta_motion(code: KeyCode) -> Option<Command> {
 
 pub(super) fn control_x(key: Key) -> Option<Command> {
     if key.modifiers == KeyModifiers::CONTROL {
-        return control_x_control(key.code);
+        return control_suffix(key.code);
     }
     match key.plain()? {
         KeyCode::Char(' ') => Some(Command::Rectangle(RectangleCommand::Mark)),
@@ -112,7 +112,7 @@ pub(super) fn control_x(key: Key) -> Option<Command> {
     }
 }
 
-fn control_x_control(code: KeyCode) -> Option<Command> {
+fn control_suffix(code: KeyCode) -> Option<Command> {
     match code {
         KeyCode::Char('x') => Some(Command::Region(RegionCommand::Exchange)),
         KeyCode::Char('s') => Some(Command::SaveBuffer),

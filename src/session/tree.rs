@@ -26,10 +26,10 @@ impl Session {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
         }
-        self.tree_entry_command(command)
+        self.tree_entry(command)
     }
 
-    fn tree_entry_command(&mut self, command: TreeCommand) -> Action {
+    fn tree_entry(&mut self, command: TreeCommand) -> Action {
         match command {
             TreeCommand::Delete => return self.tree_delete(),
             TreeCommand::Rename => return self.tree_rename(),
@@ -120,11 +120,11 @@ impl Session {
                 Ok(())
             }
             TreeCommand::Activate => {
-                self.input.suppress_command_repeat();
+                self.input.suppress_repeat();
                 self.tree.activate()
             }
             TreeCommand::Refresh => {
-                self.input.suppress_command_repeat();
+                self.input.suppress_repeat();
                 self.tree.refresh()
             }
             _ => unreachable!("presentation commands route before tree navigation"),

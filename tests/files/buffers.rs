@@ -126,7 +126,7 @@ fn buffer_inventory() {
         .visit(&fixture.file("two/note.txt", b"second"))
         .unwrap();
     insert_text(buffers.get_mut(first).unwrap(), "!");
-    buffers.get_mut(second).unwrap().set_read_only(true);
+    buffers.get_mut(second).unwrap().set_readonly(true);
     let mut session = editor(buffers, first);
     let before = snapshot(&session);
     session.handle(chord('x'));
@@ -282,7 +282,7 @@ fn failed_close_save() {
         let id = buffers.visit(&path).unwrap();
         insert_text(buffers.get_mut(id).unwrap(), "!");
         if failure == "readonly" {
-            buffers.get_mut(id).unwrap().set_read_only(true);
+            buffers.get_mut(id).unwrap().set_readonly(true);
         }
         let mut session = editor(buffers, id);
         let before = snapshot(&session);
@@ -294,7 +294,7 @@ fn failed_close_save() {
         session.handle(press(KeyCode::Char('?')));
         assert_eq!(session.buffer().unwrap().id(), id);
         assert_eq!(
-            session.buffer().unwrap().is_read_only(),
+            session.buffer().unwrap().is_readonly(),
             failure == "readonly"
         );
         assert_ne!(session.echo(), "Buffer closed");

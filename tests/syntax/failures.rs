@@ -53,7 +53,7 @@ fn canceled_parse() {
         called = true;
         ControlFlow::Break(())
     };
-    buffer.refresh_syntax_with(ParseOptions::new().progress_callback(&mut cancel));
+    buffer.parse_with(ParseOptions::new().progress_callback(&mut cancel));
     assert!(
         called,
         "parser cancellation must reach the actual progress boundary"
@@ -168,13 +168,13 @@ fn rejected_edits() {
             .prepare(std::slice::from_ref(&replacement), &[], None)
             .unwrap(),
     );
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     assert!(
         buffer
             .prepare(std::slice::from_ref(&replacement), &[], None)
             .is_err()
     );
-    buffer.set_read_only(false);
+    buffer.set_readonly(false);
     assert_eq!(buffer.mode(), "Rust");
     assert_eq!(text(buffer), "fn main() {}\n");
     assert!(buffer.history().is_empty());

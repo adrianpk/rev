@@ -134,7 +134,7 @@ fn snapshot(buffer: &Buffer, points: &[Point]) -> Snapshot {
         text: text(buffer),
         stamp: buffer.stamp(),
         mark: buffer.mark(),
-        read_only: buffer.is_read_only(),
+        read_only: buffer.is_readonly(),
         newline: buffer.newline(),
         history: buffer.history().len(),
         points: points.to_vec(),
@@ -299,7 +299,7 @@ fn read_only() {
     let mut points = [point(buffer, 0)];
     let edits = [replacement(buffer, 0..0, "new")];
     let prepared = buffer.prepare(&edits, &points, None).unwrap();
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     let before = snapshot(buffer, &points);
     assert_eq!(
         buffer.prepare(&edits, &points, None).err(),
@@ -517,7 +517,7 @@ fn editor(source: &str, position: usize, read_only: bool) -> rev::session::Sessi
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let buffer = buffers.get_mut(id).unwrap();
-    buffer.set_read_only(read_only);
+    buffer.set_readonly(read_only);
     let mut view = rev::view::View::new(buffer);
     view.point.position = Scalar(position);
     rev::session::Session::new(
@@ -991,11 +991,11 @@ fn newline_rollback() {
     drop(buffer.prepare(&edits, &points, None).unwrap());
     assert_eq!(snapshot(buffer, &points), before);
     let prepared = buffer.prepare(&edits, &points, None).unwrap();
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     let before = snapshot(buffer, &points);
     assert_eq!(buffer.publish(prepared, &mut points), Err(Error::ReadOnly));
     assert_eq!(snapshot(buffer, &points), before);
-    buffer.set_read_only(false);
+    buffer.set_readonly(false);
     let prepared = buffer.prepare(&edits, &points, None).unwrap();
     buffer.publish(prepared, &mut points).unwrap();
     assert_eq!(text(buffer), "\r\n");
@@ -1318,7 +1318,7 @@ fn invalid_history() {
             Error::Cursor(99)
         );
         assert_eq!(snapshot(buffer, &points), before);
-        buffer.set_read_only(true);
+        buffer.set_readonly(true);
         let before = snapshot(buffer, &points);
         assert_eq!(
             buffer
@@ -1677,7 +1677,7 @@ fn prepared_group() {
         match name {
             "explicit break" => buffer.break_typing(),
             "same mark" => buffer.set_mark(None).unwrap(),
-            _ => buffer.set_read_only(false),
+            _ => buffer.set_readonly(false),
         }
         let before = snapshot(buffer, &points);
         assert_eq!(

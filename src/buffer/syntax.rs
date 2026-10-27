@@ -20,7 +20,7 @@ impl Buffer {
 
     /// Apply a finite progress policy to the same parser boundary as normal
     /// refresh. A failed attempt remains Text until another accepted revision.
-    pub fn refresh_syntax_with(&mut self, options: tree_sitter::ParseOptions<'_>) {
+    pub fn parse_with(&mut self, options: tree_sitter::ParseOptions<'_>) {
         let stamp = self.stamp();
         self.syntax.update_with(self.text.slice(..), stamp, options);
     }

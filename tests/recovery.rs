@@ -135,7 +135,7 @@ fn snapshot(buffer: &Buffer) -> Snapshot {
         history: buffer.history().len(),
         redo: buffer.redo_history().len(),
         modified: buffer.is_modified(),
-        read_only: buffer.is_read_only(),
+        read_only: buffer.is_readonly(),
         warning: buffer.save_warning().map(str::to_owned),
     }
 }

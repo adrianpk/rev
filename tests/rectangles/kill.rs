@@ -364,12 +364,12 @@ fn invalid_rows() {
     let prepared = buffer
         .prepare(std::slice::from_ref(&edit), &[point], None)
         .unwrap();
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     assert!(matches!(
         buffer.publish(prepared, &mut [point]),
         Err(Error::ReadOnly)
     ));
-    buffer.set_read_only(false);
+    buffer.set_readonly(false);
     let prepared = buffer.prepare(&[edit], &[point], None).unwrap();
     buffer.toggle_rectangle(point).unwrap();
     assert!(matches!(

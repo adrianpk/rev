@@ -30,7 +30,7 @@ fn editor(text: &str, a: Cell, b: Cell, read_only: bool) -> Session {
             position: start,
         })
         .unwrap();
-    buffer.set_read_only(read_only);
+    buffer.set_readonly(read_only);
     let mut view = View::new(buffer);
     view.point.position = end;
     Session::new(

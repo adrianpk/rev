@@ -267,7 +267,7 @@ fn fresh_projection() {
             .text()
             .starts_with("> *scratch* ** RW L1 C8 Text")
     );
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     let readonly = Frame::project(buffer, &view, size, "Save failed: denied").unwrap();
     assert_eq!(readonly.stamp(), edited.stamp());
     assert!(
@@ -742,7 +742,7 @@ fn scroll_state() {
     let prepared = buffer.prepare(&[edit], &[], None).unwrap();
     buffer.publish(prepared, &mut []).unwrap();
     buffer.set_mark(Some(Scalar(3))).unwrap();
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     let stamp = buffer.stamp();
     let view = View::new(buffer);
     let size = Size {
@@ -766,7 +766,7 @@ fn scroll_state() {
     assert_eq!(buffer.stamp(), stamp);
     assert_eq!(buffer.mark(), Some(Scalar(3)));
     assert_eq!(buffer.history().len(), 1);
-    assert!(buffer.is_modified() && buffer.is_read_only());
+    assert!(buffer.is_modified() && buffer.is_readonly());
     assert_eq!(buffer.newline(), "\r\n");
     assert_eq!(
         buffer

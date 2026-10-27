@@ -15,7 +15,7 @@ fn retained(source: &str, endpoints: (Cell, Cell), target: &str, read_only: bool
     let source_id = buffers.create(source).unwrap();
     let target_id = buffers.create(target).unwrap();
     let target_buffer = buffers.get_mut(target_id).unwrap();
-    target_buffer.set_read_only(read_only);
+    target_buffer.set_readonly(read_only);
     let name = target_buffer.name().to_owned();
     let buffer = buffers.get_mut(source_id).unwrap();
     let coordinates = Coordinates::new(buffer).unwrap();

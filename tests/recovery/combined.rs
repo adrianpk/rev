@@ -69,14 +69,14 @@ fn parser_publication() {
         called = true;
         ControlFlow::Break(())
     };
-    buffer.refresh_syntax_with(ParseOptions::new().progress_callback(&mut stop));
+    buffer.parse_with(ParseOptions::new().progress_callback(&mut stop));
     assert!(called);
     assert_eq!(buffer.mode(), "Text");
     assert_eq!(snapshot(buffer), before);
     let positions = points;
     let save = buffers.prepare_save(id, None).unwrap();
     let mut output = Uncertain { calls: Vec::new() };
-    let result = buffers.publish_save_with(save, &mut output);
+    let result = buffers.publish_with(save, &mut output);
     assert_eq!(result.publication(), Publication::Uncertain);
     assert_eq!(output.calls, ["replace", "sync directory", "observe"]);
     let error = result.error().unwrap().to_string();
@@ -206,7 +206,7 @@ fn rejected_compound() {
             .collect();
         let prepared = buffer.prepare(&edits, &points, None).unwrap();
         if failure == "readonly" {
-            buffer.set_read_only(true);
+            buffer.set_readonly(true);
         } else {
             points[1].position = Scalar(15);
         }
@@ -219,7 +219,7 @@ fn rejected_compound() {
             buffer.syntax().captures(buffer, 0..buffer.len_bytes()),
             captures
         );
-        buffer.set_read_only(false);
+        buffer.set_readonly(false);
         buffer.navigate(History::Redo, &mut [], None).unwrap();
         assert!(snapshot(buffer).bytes.starts_with(b"// redo\r\n"));
         assert!(buffer.is_modified());

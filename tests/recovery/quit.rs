@@ -125,7 +125,7 @@ fn failed_saves() {
         buffers
             .get_mut(id)
             .unwrap()
-            .set_read_only(failure == "readonly");
+            .set_readonly(failure == "readonly");
         let mut session = session(buffers);
         session.execute(Command::Quit);
         answer(&mut session, 'y');

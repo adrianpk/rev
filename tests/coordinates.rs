@@ -427,7 +427,7 @@ fn session(source: &str, position: usize, read_only: bool) -> rev::session::Sess
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let buffer = buffers.get_mut(id).unwrap();
-    buffer.set_read_only(read_only);
+    buffer.set_readonly(read_only);
     let mut view = rev::view::View::new(buffer);
     view.point.position = Scalar(position);
     rev::session::Session::new(
@@ -656,7 +656,7 @@ fn motion_state() {
     let prepared = buffer.prepare(&[edit], &[], None).unwrap();
     buffer.publish(prepared, &mut []).unwrap();
     buffer.set_mark(Some(Scalar(3))).unwrap();
-    buffer.set_read_only(true);
+    buffer.set_readonly(true);
     let before = buffer_state(buffer);
     let view = rev::view::View::new(buffer);
     let mut session = rev::session::Session::new(
@@ -682,7 +682,7 @@ fn motion_state() {
     }
     let buffer = session.buffer().unwrap();
     assert_eq!(buffer_state(buffer), before);
-    assert!(buffer.is_modified() && buffer.is_read_only());
+    assert!(buffer.is_modified() && buffer.is_readonly());
     assert_eq!(buffer.newline(), "\r\n");
 }
 

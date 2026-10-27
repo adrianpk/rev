@@ -67,12 +67,12 @@ impl Buffers {
     }
 
     pub fn publish_save(&mut self, save: Save) -> Outcome {
-        self.publish_save_with(save, &mut file::Files)
+        self.publish_with(save, &mut file::Files)
     }
 
     /// The default output is the real filesystem; boundary overrides support
     /// failure evidence without adding runtime fault switches or fake commands.
-    pub fn publish_save_with(&mut self, save: Save, output: &mut impl Output) -> Outcome {
+    pub fn publish_with(&mut self, save: Save, output: &mut impl Output) -> Outcome {
         let label = match self.admit_save(&save) {
             Ok(label) => label,
             Err(error) => return Outcome::failed(save.target(), error),
@@ -130,7 +130,7 @@ impl Buffers {
 }
 
 fn writable(buffer: &Buffer) -> io::Result<()> {
-    if buffer.is_read_only() {
+    if buffer.is_readonly() {
         return Err(io::Error::new(
             io::ErrorKind::PermissionDenied,
             "buffer is read-only",

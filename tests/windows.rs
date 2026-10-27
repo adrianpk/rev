@@ -1164,7 +1164,7 @@ fn rejected_shared_edit() {
         let mut buffers = Buffers::new().unwrap();
         let id = buffers.create("first\nsecond\nthird").unwrap();
         let buffer = buffers.get_mut(id).unwrap();
-        buffer.set_read_only(read_only);
+        buffer.set_readonly(read_only);
         buffer.set_mark(Some(Scalar(6))).unwrap();
         let mut view = View::new(buffer);
         view.point.position = Scalar(6);

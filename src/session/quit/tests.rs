@@ -59,7 +59,7 @@ fn unresolved_exit() {
     };
     session.input.cancel();
     let save = session.buffers.prepare_save(id, None).unwrap();
-    let outcome = session.buffers.publish_save_with(save, &mut Uncertain);
+    let outcome = session.buffers.publish_with(save, &mut Uncertain);
     assert_eq!(outcome.publication(), Publication::Uncertain);
     assert_eq!(fs::read(&path).unwrap(), b"new base");
     assert_eq!(

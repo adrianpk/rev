@@ -372,7 +372,7 @@ fn snapshot(session: &Session) -> Snapshot {
         mark: buffer.mark(),
         history: buffer.history().len(),
         redo: buffer.redo_history().len(),
-        read_only: buffer.is_read_only(),
+        read_only: buffer.is_readonly(),
         newline: buffer.newline(),
         bom: buffer.has_bom(),
         file: buffer.file().cloned(),

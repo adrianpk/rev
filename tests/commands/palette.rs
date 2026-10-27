@@ -43,7 +43,7 @@ fn populated(readonly: bool) -> Session {
     let prepared = buffer.prepare(&[edit], &[], None).unwrap();
     buffer.publish(prepared, &mut []).unwrap();
     buffer.mark_saved(buffer.stamp()).unwrap();
-    buffer.set_read_only(readonly);
+    buffer.set_readonly(readonly);
     let mut view = View::new(buffer);
     view.point.position = Scalar(1);
     Session::new(
@@ -331,6 +331,12 @@ fn catalog_dispatch() {
         let mut direct = editor();
         let mut palette = editor();
         let action = direct.execute(command);
+        assert_ne!(
+            direct.echo(),
+            "Command is not a text edit",
+            "{}",
+            command.name()
+        );
         assert_eq!(
             action,
             named(&mut palette, command.name()),
@@ -502,4 +508,25 @@ fn admission_geometry() {
     session.handle(super::key(KeyCode::Enter));
     assert_eq!(session.windows().iter().len(), 2);
     assert_eq!(text(&session), "abc def\nlast");
+}
+
+// The user-facing catalog must contain every live name exactly once; removing
+// a name from either the registry or documentation cannot silently hide drift.
+#[test]
+fn catalog_reference() {
+    use std::collections::BTreeSet;
+    let source = include_str!("../../docs/reference/commands.md");
+    let names = source
+        .lines()
+        .filter(|line| line.starts_with('|'))
+        .flat_map(|line| line.split('`').skip(1).step_by(2))
+        .collect::<Vec<_>>();
+    let documented = names.iter().copied().collect::<BTreeSet<_>>();
+    let live = Command::ALL
+        .into_iter()
+        .map(Command::name)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(names.len(), documented.len(), "duplicate documented name");
+    assert_eq!(Command::ALL.len(), live.len(), "duplicate registry name");
+    assert_eq!(documented, live);
 }

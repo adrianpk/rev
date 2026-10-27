@@ -175,7 +175,7 @@ impl Frame {
 
     fn status(&mut self, buffer: &Buffer, point: Cell) -> Result<(), Error> {
         let dirty = if buffer.is_modified() { "**" } else { "--" };
-        let access = if buffer.is_read_only() { "RO" } else { "RW" };
+        let access = if buffer.is_readonly() { "RO" } else { "RW" };
         let status = format!(
             "> {} {dirty} {access} L{} C{} {}",
             buffer.name(),

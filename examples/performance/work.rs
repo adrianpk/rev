@@ -35,7 +35,7 @@ fn refresh(buffer: &mut Buffer) -> Result<(Duration, usize)> {
         ControlFlow::Continue(())
     };
     let start = Instant::now();
-    buffer.refresh_syntax_with(ParseOptions::new().progress_callback(&mut progress));
+    buffer.parse_with(ParseOptions::new().progress_callback(&mut progress));
     let elapsed = start.elapsed();
     require(buffer.mode() == "Rust", "incremental parser failed")?;
     Ok((elapsed, calls))

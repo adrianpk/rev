@@ -41,7 +41,7 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.message(&error.to_string()),
         };
-        if buffer.is_read_only() {
+        if buffer.is_readonly() {
             return self.message(&edit::Error::ReadOnly.to_string());
         }
         let owner = Owner {

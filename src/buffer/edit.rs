@@ -177,11 +177,11 @@ pub struct Prepared {
 }
 
 impl Buffer {
-    pub fn is_read_only(&self) -> bool {
+    pub fn is_readonly(&self) -> bool {
         self.read_only
     }
 
-    pub fn set_read_only(&mut self, read_only: bool) {
+    pub fn set_readonly(&mut self, read_only: bool) {
         self.read_only = read_only;
         self.break_typing();
     }

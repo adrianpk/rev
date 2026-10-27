@@ -146,7 +146,7 @@ fn facts(buffer: &Buffer) -> Facts {
         history: buffer.history().len(),
         redo: buffer.redo_history().len(),
         dirty: buffer.is_modified(),
-        read_only: buffer.is_read_only(),
+        read_only: buffer.is_readonly(),
         warning: buffer.save_warning().map(str::to_owned),
     }
 }
@@ -179,7 +179,7 @@ fn failed_output() {
         let before = facts(buffers.get(id).unwrap());
         let save = buffers.prepare_save(id, None).unwrap();
         let mut output = Failing::new(fault, &fixture.0);
-        let result = buffers.publish_save_with(save, &mut output);
+        let result = buffers.publish_with(save, &mut output);
         assert_eq!(result.publication(), Publication::NotPublished, "{fault:?}");
         assert!(!result.is_complete());
         assert!(
@@ -208,7 +208,7 @@ fn uncertain_output() {
         let (fixture, mut buffers, id, path) = editable();
         let before = facts(buffers.get(id).unwrap());
         let save = buffers.prepare_save(id, None).unwrap();
-        let result = buffers.publish_save_with(save, &mut Failing::new(fault, &fixture.0));
+        let result = buffers.publish_with(save, &mut Failing::new(fault, &fixture.0));
         assert_eq!(result.publication(), Publication::Uncertain);
         assert!(!result.is_complete());
         assert_eq!(result.target(), path);
@@ -258,8 +258,7 @@ fn pending_clean() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
     let save = buffers.prepare_save(id, None).unwrap();
-    let result =
-        buffers.publish_save_with(save, &mut Failing::new(Fault::DirectorySync, &fixture.0));
+    let result = buffers.publish_with(save, &mut Failing::new(Fault::DirectorySync, &fixture.0));
     assert_eq!(result.publication(), Publication::Uncertain);
     assert!(buffers.get(id).unwrap().is_modified());
     let view = View::new(buffers.get(id).unwrap());
@@ -316,7 +315,7 @@ fn initial_outcomes() {
         insert_text(buffers.get_mut(id).unwrap(), "new");
         let before = facts(buffers.get(id).unwrap());
         let save = buffers.prepare_save(id, Some(&path)).unwrap();
-        let result = buffers.publish_save_with(save, &mut Failing::new(fault, &fixture.0));
+        let result = buffers.publish_with(save, &mut Failing::new(fault, &fixture.0));
         if fault == Fault::Write {
             assert_eq!(result.publication(), Publication::NotPublished);
             assert_eq!(facts(buffers.get(id).unwrap()), before);
@@ -345,7 +344,7 @@ fn association_move() {
         let before = facts(buffers.get(id).unwrap());
         let save = buffers.prepare_save(id, Some(&target)).unwrap();
         assert_eq!(facts(buffers.get(id).unwrap()), before);
-        let result = buffers.publish_save_with(save, &mut Failing::new(fault, &fixture.0));
+        let result = buffers.publish_with(save, &mut Failing::new(fault, &fixture.0));
         assert_eq!(fs::read(&original).unwrap(), b"original");
         if result.publication() == Publication::NotPublished {
             assert_eq!(facts(buffers.get(id).unwrap()), before);
@@ -380,7 +379,7 @@ fn access_admission() {
     );
     assert_eq!(facts(buffers.get(id).unwrap()), before);
     let save = buffers.prepare_save(id, None).unwrap();
-    buffers.get_mut(id).unwrap().set_read_only(true);
+    buffers.get_mut(id).unwrap().set_readonly(true);
     let restricted = facts(buffers.get(id).unwrap());
     assert!(buffers.prepare_save(id, None).is_err());
     assert_eq!(
@@ -477,7 +476,7 @@ fn symlink_save() {
     insert_text(buffers.get_mut(id).unwrap(), "!");
     let save = buffers.prepare_save(id, None).unwrap();
     let mut output = Failing::new(Fault::None, path.parent().unwrap());
-    assert!(buffers.publish_save_with(save, &mut output).is_complete());
+    assert!(buffers.publish_with(save, &mut output).is_complete());
     assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
     assert_eq!(fs::read_link(&alias).unwrap(), path);
     assert_eq!(fs::read(&path).unwrap(), b"!original");
@@ -538,7 +537,7 @@ fn confirmed_outcomes() {
         let before = facts(buffers.get(id).unwrap());
         let confirmation = occupied_save(&buffers, id, &target);
         assert_eq!(facts(buffers.get(id).unwrap()), before);
-        let result = buffers.confirm_save_with(confirmation, &mut Failing::new(fault, &fixture.0));
+        let result = buffers.confirm_with(confirmation, &mut Failing::new(fault, &fixture.0));
         assert_eq!(fs::read(&original).unwrap(), b"original");
         confirmed_result(&mut buffers, id, &target, &result, &before);
         assert!(temporaries(&fixture.0).is_empty());
@@ -598,7 +597,7 @@ fn confirmed_access() {
         }
         let confirmation = occupied_save(&buffers, id, &target);
         if restriction == "buffer" {
-            buffers.get_mut(id).unwrap().set_read_only(true);
+            buffers.get_mut(id).unwrap().set_readonly(true);
         }
         let before = facts(buffers.get(id).unwrap());
         let result = buffers.confirm_save(confirmation);
@@ -704,7 +703,7 @@ fn unresolved_close() {
     for fault in [Fault::DirectorySync, Fault::Observe] {
         let (fixture, mut buffers, id, path) = editable();
         let save = buffers.prepare_save(id, None).unwrap();
-        let result = buffers.publish_save_with(save, &mut Failing::new(fault, &fixture.0));
+        let result = buffers.publish_with(save, &mut Failing::new(fault, &fixture.0));
         assert_eq!(result.publication(), Publication::Uncertain);
         buffers
             .get_mut(id)

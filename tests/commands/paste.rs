@@ -10,7 +10,7 @@ fn editor(source: &str, position: usize, readonly: bool) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let buffer = buffers.get_mut(id).unwrap();
-    buffer.set_read_only(readonly);
+    buffer.set_readonly(readonly);
     let mut view = View::new(buffer);
     view.point.position = Scalar(position);
     Session::new(

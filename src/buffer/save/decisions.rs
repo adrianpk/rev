@@ -50,15 +50,15 @@ impl Buffers {
     /// Explicit consent consumes only the captured destination/observation.
     /// Normal live-owner, association, permission and disk guards still apply.
     pub fn confirm_save(&mut self, confirmation: Confirmation) -> Outcome {
-        self.confirm_save_with(confirmation, &mut file::Files)
+        self.confirm_with(confirmation, &mut file::Files)
     }
 
-    pub fn confirm_save_with(
+    pub fn confirm_with(
         &mut self,
         confirmation: Confirmation,
         output: &mut impl Output,
     ) -> Outcome {
-        self.publish_save_with(confirmation.save, output)
+        self.publish_with(confirmation.save, output)
     }
 }
 

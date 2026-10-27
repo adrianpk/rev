@@ -320,7 +320,7 @@ fn read_only() {
         let id = buffers.create("cat cat").unwrap();
         let buffer = buffers.get_mut(id).unwrap();
         buffer.set_mark(Some(Scalar(4))).unwrap();
-        buffer.set_read_only(true);
+        buffer.set_readonly(true);
         let view = View::new(buffer);
         let mut session = Session::new(
             buffers,

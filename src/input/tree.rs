@@ -4,7 +4,7 @@ use super::{Input, Key, Outcome};
 use crate::command::{Command, TreeCommand};
 
 impl Input {
-    pub(crate) fn suppress_command_repeat(&mut self) {
+    pub(crate) fn suppress_repeat(&mut self) {
         self.suppress_repeat = true;
     }
 

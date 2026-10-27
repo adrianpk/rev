@@ -49,7 +49,7 @@ impl Session {
         let Some(entry) = self.tree.selected() else {
             return self.message("No tree entry selected");
         };
-        self.input.suppress_command_repeat();
+        self.input.suppress_repeat();
         if entry.is_directory() {
             return self.tree_navigation(crate::command::TreeCommand::Activate);
         }

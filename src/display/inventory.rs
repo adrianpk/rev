@@ -51,7 +51,7 @@ impl Frame {
 fn entry(buffer: &Buffer, selected: BufferId) -> String {
     let marker = if buffer.id() == selected { ">" } else { " " };
     let dirty = if buffer.is_modified() { "**" } else { "--" };
-    let access = if buffer.is_read_only() { "RO" } else { "RW" };
+    let access = if buffer.is_readonly() { "RO" } else { "RW" };
     let path = buffer
         .file()
         .map_or_else(|| "(unnamed)".into(), |file| format!("{:?}", file.path()));

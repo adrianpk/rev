@@ -73,7 +73,7 @@ fn changed_staging() {
             calls: Vec::new(),
             cleanup_fails: false,
         };
-        let outcome = buffers.publish_save_with(save, &mut output);
+        let outcome = buffers.publish_with(save, &mut output);
         assert_eq!(outcome.publication(), Publication::NotPublished, "{change}");
         assert!(outcome.error().is_some());
         assert_eq!(output.calls, ["write", "flush", "sync file", "cleanup"]);
@@ -135,7 +135,7 @@ fn failed_cleanup() {
         calls: Vec::new(),
         cleanup_fails: true,
     };
-    let result = buffers.publish_save_with(save, &mut output);
+    let result = buffers.publish_with(save, &mut output);
     assert_eq!(result.publication(), Publication::NotPublished);
     let error = result.error().unwrap().to_string();
     assert!(error.contains("recheck destination"));
