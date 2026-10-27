@@ -481,10 +481,21 @@ Slice 17 of 30 completed.
 Contracts: CFG12-CFG13, modified R22. Tickets: TKT-20261027103713.
 Details and checks: [Slice 18](../plan/rev-configuration-ui.md#slice-18-dispatch-configurable-editor-bindings).
 
-- [ ] T18.1: Route editor chords and prefixes through the validated effective map and the same Rust handler identities as M-x. Retain built-in aliases, Meta/Escape timing and literal paste semantics.
-- [ ] T18.2: Apply exact user reassignment without deleting any inherited binding implicitly; commenting an override restores its built-in. Preserve prefix cancellation and reset across context changes.
-- [ ] T18.3: Test aliases such as M-j to next-line, replacement, multikey sequences, unknown commands, prefix collisions, terminal aliases, read-only refusal and exactly-once dispatch.
+- [x] T18.1: Route editor chords and prefixes through the validated effective map and the same Rust handler identities as M-x. Retain built-in aliases, Meta/Escape timing and literal paste semantics.
+- [x] T18.2: Apply exact user reassignment without deleting any inherited binding implicitly; commenting an override restores its built-in. Preserve prefix cancellation and reset across context changes.
+- [x] T18.3: Test aliases such as M-j to next-line, replacement, multikey sequences, unknown commands, prefix collisions, terminal aliases, read-only refusal and exactly-once dispatch.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T18.1 `a6ecace9ee64235fe8ec324fa63d418d4985efe7`;
+T18.2 `2422f5d109f74ebdd0b818854a45368b367c1711`;
+T18.3 is the Slice 18 report introduction commit.
+Focused configured dispatch checks passed for aliases, exact replacement,
+inherited defaults, bounded prefixes, cancellation, context resets, literal paste,
+rejected candidates, read-only refusal, phases and M-x parity. A focused regression
+caught held Enter aliases bypassing acceptance guards; normalized phase admission
+corrects it. Focused Clippy and source checks passed; supplied behavior is documented.
+Report: [Slice 18](../report/slices/rev-configuration-ui/slice-18-editor-keymaps.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 19: Dispatch transient and tree bindings
 

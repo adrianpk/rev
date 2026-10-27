@@ -121,8 +121,8 @@ pub struct Input {
 }
 
 impl Input {
-    /// Uses an admitted snapshot for session-local prompt and command history
-    /// bounds. The default constructor retains the compiled preferences.
+    /// Uses admitted editor maps and session-local prompt/history bounds.
+    /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
         Self {
             policy: settings.settings().minibuffer.clone(),
@@ -202,13 +202,12 @@ impl Input {
         if event.kind == KeyEventKind::Press {
             self.suppress_repeat = false;
         }
-        if event.kind == KeyEventKind::Repeat && self.repeat_blocked(event.code) {
-            return Outcome::Ignored;
-        }
         let Some(key) = Key::normalize(event) else {
             return Outcome::Ignored;
         };
-        if event.kind == KeyEventKind::Repeat && !self.repeatable(key) {
+        if event.kind == KeyEventKind::Repeat
+            && (self.repeat_blocked(key.code) || !self.repeatable(key))
+        {
             return Outcome::Ignored;
         }
         self.meta_key(key, now)

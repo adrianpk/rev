@@ -114,9 +114,11 @@ involved sequences; source key/value locations are included when available.
 `C-g` is reserved for `keyboard-quit` in every context. A longer sequence that
 contains it is unreachable because it cancels pending prefixes, and rejects.
 
-These contracts expose validated maps through `Snapshot::keymaps()`. Configured
-map dispatch is a separate consumer step; validation alone does not activate
-user overrides. The existing native handlers continue to own input stages.
+These contracts expose validated maps through `Snapshot::keymaps()`. Library
+input/session construction supplied with a snapshot dispatches `keys.editor`
+through the existing Rust command handlers. Minibuffer/tree overrides retain
+validation contracts while their dispatch consumers are separate. The existing
+native handlers continue to own those input stages.
 
 ### Sequence vocabulary
 
@@ -160,6 +162,27 @@ The first table on this page lists every editor default, with the aliases above.
 Editor targets are the fixed implemented `Command` catalog used by M-x. A user
 alias does not install a new handler, shell expression or executable body.
 Prompt-only actions below are unavailable in the editor and M-x catalog.
+
+
+A supplied editor mapping such as `keys.editor.'M-j' = 'next-line'` invokes the
+same handler as M-x `next-line`. Reassigning `C-f` replaces that chord while its
+unmodified Right alias remains inherited. The input owner copies the admitted
+map; it does not reread configuration during typing or drawing.
+
+Custom prefixes consume their complete bounded sequence and display the pending
+normalized chords. A mismatch consumes the sequence and reports an error; no
+suffix leaks into document text. C-g, paste, prompt acquisition/acceptance and
+workspace ownership changes clear pending chords. Resize alone keeps an editing
+prefix. Escape expiry clears the whole pending sequence under the existing
+finite Meta policy. Unmapped printable input retains ordinary insertion.
+
+Repetition follows the resolved action: single-chord editing/motion actions keep
+native repeat behavior, while prefix completions and session/prompt transitions
+require fresh presses. Releases do not dispatch. Every Enter alias requires a
+fresh prompt acceptance. Literal paste bypasses bindings, including printable
+characters assigned to commands, and publishes through the canonical edit owner.
+Read-only refusal, saved-state identity and undo use the same owners as M-x.
+Executable startup configuration discovery remains a separate integration step.
 
 ### Minibuffer defaults and availability
 
