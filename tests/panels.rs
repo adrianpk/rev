@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "panels/geometry.rs"]
+mod geometry;
+
 use rev::buffer::Buffers;
 use rev::command::{Command, Split};
 use rev::display::Position;
@@ -83,7 +86,7 @@ fn cell_clipping() {
         (2, 0..3, None),
         (0, 6..9, None),
         (0, 3..3, None),
-        (0, 5..2, None),
+        (0, std::ops::Range { start: 5, end: 2 }, None),
     ];
     for (row, columns, expected) in cases {
         assert_eq!(panel.clip(row, columns), expected);

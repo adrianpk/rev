@@ -274,8 +274,18 @@ Details and checks: [Slice 10](../plan/rev-configuration-ui.md#slice-10-define-p
 
 - [x] T10.1: Introduce the smallest common presentation records for panel outer/content bounds, reserved separator/status cells, clipping and active state; keep Layout, ViewId and buffer ownership authoritative.
 - [x] T10.2: Derive separator topology and junctions for nested horizontal/vertical splits, including minimum geometry and future completion-area reservation. Avoid a second window tree or general UI registry.
-- [ ] T10.3: Create native panel-contract tests for no overlap, bounded coordinates, zero/tiny frames and stable identities. This preparatory layer must compile without changing input semantics.
+- [x] T10.3: Create native panel-contract tests for no overlap, bounded coordinates, zero/tiny frames and stable identities. This preparatory layer must compile without changing input semantics.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T10.1 `964812e837b27a4f406d2ae75730bd478b1d48ea`;
+T10.2 `407b116d69ce421cd51fa862b9e57f5fcd02b471`.
+Development validation: panel bounds/clipping, native overflow, T/cross
+junctions, completion reservation and 4608 small projection cases passed.
+Native extremes and active/stable view identities passed. Focused Clippy and
+source checks passed. Runtime rendering/input continue through existing owners.
+Final exact-head evidence belongs to the controller.
+Report: [Slice 10](../report/slices/rev-configuration-ui/slice-10-panel-contracts.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 11: Compose editing panels
 
