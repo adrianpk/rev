@@ -37,6 +37,8 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
+- Repeated vertical navigation stops promptly after input ends, including wide terminal surfaces; queued edits and commands retain their original order.
+
 - Rectangle copy expands selected tabs into retained spaces without changing source text; rectangle kill preserves complete tabs. Yanking aligns row starts at the destination column, retaining whole destination graphemes and using the destination tab stops.
 - Visiting a file through an alias retains its visible basename for the buffer label and language selection, while saves and repeated visits share the canonical destination.
 - Terminal cleanup attempts every restoration step after an output error, reports failed steps together and still releases raw input.
