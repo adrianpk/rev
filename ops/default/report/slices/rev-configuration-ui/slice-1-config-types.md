@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-01-config-types`
-PR: pending
+PR: [#50](https://forge.adrianpk.com/adrianpk/rev/pulls/50)
 
 ## Purpose
 
@@ -32,7 +32,8 @@ resolution.
   records, compiled defaults, fixed palette and numeric semantics.
 - T1.2: `21bd37e90d8cd48d93e37e4284cf511f4485a524` pins dependencies and
   adds partial deserialization and source-presence tests.
-- T1.3 adds catalog invariants and this preparatory report. Startup activation
+- T1.3: `b64a242bc6218d3d28c08aa0a6810118c0533db6` adds catalog invariants
+  and this preparatory report. Startup activation
   remains assigned to Slice 20; these types do not advertise operational controls.
 - `Document` contains partial concern records instead of defaulted `Settings`.
   Signed raw integers and color literals retain invalid input for later
