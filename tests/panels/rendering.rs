@@ -96,24 +96,33 @@ fn projected_overlays() {
         .unwrap()
         .1;
     let row = usize::from(panel.content().row());
+    let geometry = session
+        .view()
+        .gutter_geometry(session.buffer().unwrap(), panel.content())
+        .unwrap();
+    let text_panel = Panel::new(geometry.text(), false, panel.active());
     let frame = session.frame().unwrap();
     assert_eq!(
         frame.rows()[row].selection(),
-        panel.clip(0, 4..13).map(|(_, columns)| columns)
+        text_panel.clip(0, 4..13).map(|(_, columns)| columns)
     );
     assert_eq!(
         frame.rows()[row].search(),
-        panel.clip(0, 7..13).map(|(_, columns)| columns)
+        text_panel.clip(0, 7..13).map(|(_, columns)| columns)
     );
     assert!(
         frame.rows()[row]
             .syntax()
             .iter()
             .any(|paint| paint.style == Style::Keyword
-                && paint.columns == panel.clip(0, 4..6).unwrap().1)
+                && paint.columns == text_panel.clip(0, 4..6).unwrap().1)
     );
     assert_eq!(
-        drawn(&frame, panel.content().column() + 7, panel.content().row()),
+        drawn(
+            &frame,
+            text_panel.content().column() + 7,
+            text_panel.content().row()
+        ),
         "t"
     );
     assert!(frame.rows()[5].syntax().is_empty());
@@ -129,7 +138,7 @@ fn projected_overlays() {
         KeyModifiers::NONE,
     )));
     let frame = session.frame().unwrap();
-    assert_eq!(frame.cursor(), panel.position(position(13, 0)));
+    assert_eq!(frame.cursor(), text_panel.position(position(13, 0)));
     assert!(frame.rows().iter().all(|row| row.search().is_none()));
     assert_eq!(
         session

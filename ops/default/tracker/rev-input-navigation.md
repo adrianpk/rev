@@ -96,7 +96,7 @@ Contracts: GUT01 GUT03 GUT04 GUT05 GUT10.
 Details and exact checks: [Slice 5](../plan/rev-input-navigation.md#slice-5-render-absolute-logical-line-numbers).
 
 - [x] T5.1: Render absolute logical line labels with the accepted minimum digits, padding, separator fallback and semantic palette inside each panel.
-- [ ] T5.2: Give text one checked origin after number allocation; align cursor, tabs, Unicode, syntax/search/regions and horizontal clipping without prefix-string geometry.
+- [x] T5.2: Give text one checked origin after number allocation; align cursor, tabs, Unicode, syntax/search/regions and horizontal clipping without prefix-string geometry.
 - [ ] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 

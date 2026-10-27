@@ -17,6 +17,8 @@ impl Frame {
         let Some(panel) = panel else {
             return Ok(());
         };
+        let geometry = view.gutter_geometry(buffer, panel.content())?;
+        let panel = Panel::new(geometry.text(), false, panel.active());
         let highlight = Highlight::from_span(buffer, span)?;
         for local in 0..panel.content().height() {
             let columns = highlight.row(

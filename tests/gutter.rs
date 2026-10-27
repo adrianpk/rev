@@ -3,6 +3,8 @@
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
 
+#[path = "gutter/alignment.rs"]
+mod alignment;
 #[path = "gutter/geometry.rs"]
 mod geometry;
 #[path = "gutter/invalidation.rs"]

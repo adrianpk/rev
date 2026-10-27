@@ -21,6 +21,9 @@ canonical text, terminal-cell geometry and the ordinary editing surfaces.
 - Ordinary labels, current-line labels, background and separator use semantic
   roles in the existing frame palette. Current labels also use bold emphasis,
   reset before document/status cells.
+- Document clipping, syntax, linear/rectangular selection, search and cursor
+  placement share the final text area. Horizontal reveal uses its reduced width
+  while tab stops remain document-relative, on either side of the number field.
 - The frame output boundary admits Unicode `│` or ASCII `|` separators at the
   same reserved cell. Literal document separators retain their source rendering.
 
@@ -31,6 +34,9 @@ A label is at most 20 digits; each rendered field is bounded by admitted geometr
 Hidden or geometrically suppressed fields return before row materialization.
 The renderer paints number fields and document text as separate cell-bounded
 areas, then retains existing status, border, prompt and completion owners.
+`View::gutter_geometry` is the shared partition used by rendering, horizontal
+reveal and search clipping. Existing row projection translates all document
+style/selection spans and the cursor through that final text panel exactly once.
 
 The four compiled gutter roles extend the existing immutable frame palette.
 Their TOML leaves and operational gutter command identities remain assigned to
@@ -60,8 +66,14 @@ safe fixed separators, semantic colors and non-color current-line emphasis.
   complexity limits. The SGR fixture decoder delegates non-RGB attributes to a
   small owner after adding bold support exceeded the cyclomatic-ten limit;
   every prior supported code and unexpected-code rejection remains asserted.
-- Final text-origin/reveal/overlay alignment, broader display regressions and
-  exact clean-HEAD evidence are in progress.
+- PASS: `cargo test --test gutter alignment::` reproduces and corrects reveal
+  using full panel width instead of final text width. Six left/right and narrow/
+  wide cases assert exact tab/Unicode clipping, cursor placement and hidden-state
+  geometry with unchanged canonical text/history.
+- PASS: `cargo test --test panels projected_overlays` retains the existing real
+  nested-panel syntax/selection/search/cursor assertions at the final text origin;
+  peer points, border/status cells and source bytes remain protected.
+- Broader display regressions and exact clean-HEAD evidence are in progress.
 
 ## Risks and Follow-ups
 

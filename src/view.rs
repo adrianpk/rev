@@ -142,8 +142,11 @@ impl View {
         let point = self.cell(buffer)?;
         self.sync_policy(buffer);
         if size.usable() {
+            let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
+                .ok_or(coordinates::Error::Overflow)?;
+            let width = self.gutter_geometry(buffer, content)?.text().width();
             reveal(&mut self.top, point.row, usize::from(size.text_rows()));
-            reveal(&mut self.left, point.column, usize::from(size.width));
+            reveal(&mut self.left, point.column, usize::from(width));
         }
         Ok(())
     }
