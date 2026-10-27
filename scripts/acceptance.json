@@ -1,0 +1,580 @@
+{
+  "version": 1,
+  "canonical_map_sha256": "cd449c8d5b22695873cdf2e85f5ca8b2f64013a5831e12d002cdb99fcb6db524",
+  "cases": [
+    {
+      "id": "A01",
+      "condition": "Editable empty startup and restored terminal",
+      "native": [
+        {
+          "target": "tests/display.rs",
+          "test": "initial_frame"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "quit_guard"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_failure"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A02",
+      "condition": "Mode-free printable insertion at point",
+      "native": [
+        {
+          "target": "tests/editing.rs",
+          "test": "direct_input"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "bound_deletion"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "paste::literal_payload"
+        }
+      ],
+      "pty": [
+        "acceptance_workspace"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A03",
+      "condition": "Unicode-aware character, word, line and display motion",
+      "native": [
+        {
+          "target": "tests/coordinates.rs",
+          "test": "bound_motion"
+        },
+        {
+          "target": "tests/coordinates.rs",
+          "test": "named_motion"
+        },
+        {
+          "target": "tests/coordinates.rs",
+          "test": "chunk_context"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "desired_column"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "page_navigation"
+        }
+      ],
+      "pty": [
+        "acceptance_document"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A04",
+      "condition": "Find, save, write-file and exact file bytes",
+      "native": [
+        {
+          "target": "tests/files.rs",
+          "test": "file_roundtrip"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "visited_alias"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "saving::symlink_save"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "saving::failed_output"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_blocks",
+        "acceptance_failure"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A05",
+      "condition": "Buffer inventory, switching and guarded close independent of windows",
+      "native": [
+        {
+          "target": "tests/files.rs",
+          "test": "buffers::retained_owners"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "buffers::registry_lifetime"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "buffers::close_decisions"
+        }
+      ],
+      "pty": [
+        "acceptance_workspace"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A06",
+      "condition": "Nested splits with shared text and independent points",
+      "native": [
+        {
+          "target": "tests/windows.rs",
+          "test": "split_state"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "mixed_layout"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "shared_publication"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_workspace"
+      ],
+      "performance": [
+        "split_redraw"
+      ]
+    },
+    {
+      "id": "A07",
+      "condition": "Window deletion, keep-selected and focus preserve buffers",
+      "native": [
+        {
+          "target": "tests/windows.rs",
+          "test": "window_cycle"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "delete_reconnect"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "keep_selected"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "hidden_modified"
+        }
+      ],
+      "pty": [
+        "acceptance_document"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A08",
+      "condition": "Visible region, exchange, focus and cancellation",
+      "native": [
+        {
+          "target": "tests/editing.rs",
+          "test": "regions::multiline_surface"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "regions::transient_selection"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "regions::shared_focus"
+        }
+      ],
+      "pty": [
+        "acceptance_blocks"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A09",
+      "condition": "Directional kills, copy, yank and current-range yank-pop",
+      "native": [
+        {
+          "target": "tests/editing.rs",
+          "test": "kills::line_separators"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "kills::word_ranges"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "kills::directional_text"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "linear::copy_region"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "yank::rotating_ranges"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "yank::no_yank"
+        }
+      ],
+      "pty": [
+        "acceptance_blocks"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A10",
+      "condition": "Display-column rectangles and one-transaction history",
+      "native": [
+        {
+          "target": "tests/rectangles.rs",
+          "test": "cell_fragments"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "kill::atomic_rows"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "kill::tab_fragments"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "yank::shared_seams"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "yank::unicode_joins"
+        }
+      ],
+      "pty": [
+        "acceptance_blocks"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A11",
+      "condition": "Named commands and bindings use the same real handlers",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_dispatch"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::binding_parity"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_reference"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "flows::canceled_paths"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_workspace"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A12",
+      "condition": "Per-buffer undo/redo for insertion, deletion and paste",
+      "native": [
+        {
+          "target": "tests/editing.rs",
+          "test": "history_cycle"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "independent_history"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "redo_branch"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "paste::atomic_payload"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "paste::shared_payload"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "terminal::undo_reports"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_blocks"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A13",
+      "condition": "Forward/backward smart-case search and confirmed literal replacement",
+      "native": [
+        {
+          "target": "tests/search.rs",
+          "test": "chunk_match"
+        },
+        {
+          "target": "tests/search.rs",
+          "test": "control::backward_seams"
+        },
+        {
+          "target": "tests/search.rs",
+          "test": "control::smart_ranges"
+        },
+        {
+          "target": "tests/search.rs",
+          "test": "control::cancel_view"
+        },
+        {
+          "target": "tests/search.rs",
+          "test": "replace::confirmed_flow"
+        },
+        {
+          "target": "tests/search.rs",
+          "test": "replace::unicode_lines"
+        }
+      ],
+      "pty": [
+        "acceptance_document"
+      ],
+      "performance": [
+        "search"
+      ]
+    },
+    {
+      "id": "A14",
+      "condition": "Lazy keyboard tree, safe operations and retained visited paths",
+      "native": [
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::visible_walk"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::failures::symlink_leaves"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::create::failures::parent_changes"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::rename::renamed_directory"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::delete::recursive_decision"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::delete::failures::partial_delete"
+        }
+      ],
+      "pty": [
+        "acceptance_workspace"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A15",
+      "condition": "Bundled current Rust highlighting and editable parser fallback",
+      "native": [
+        {
+          "target": "tests/syntax.rs",
+          "test": "bundled_palette"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "file_modes"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "edges::query_fallbacks"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "incremental::failures::canceled_parse"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "incremental::exact_edits"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_workspace"
+      ],
+      "performance": [
+        "highlighting",
+        "syntax_work"
+      ]
+    },
+    {
+      "id": "A16",
+      "condition": "Canonical rope ownership through file, edit, history and syntax operations",
+      "native": [
+        {
+          "target": "tests/core.rs",
+          "test": "shared_owner"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "history_chunks"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "chunked_ingress"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "fidelity::unicode_roundtrip"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_blocks"
+      ],
+      "performance": [
+        "load",
+        "insert",
+        "delete",
+        "syntax_work"
+      ]
+    },
+    {
+      "id": "A17",
+      "condition": "Bounded native editor scope and complete static command catalog",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_reference"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_dispatch"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "file_modes"
+        }
+      ],
+      "pty": [
+        "acceptance_document",
+        "acceptance_workspace"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A18",
+      "condition": "Safe Rust, bounded source structure, meaningful tests and lint checks",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_reference"
+        },
+        {
+          "target": "examples/source-check.rs",
+          "test": "tests::source_rules"
+        }
+      ],
+      "pty": [
+        "acceptance_document"
+      ],
+      "performance": [
+        "syntax_work"
+      ]
+    },
+    {
+      "id": "A19",
+      "condition": "Guarded close/quit, fresh save consent and retained text after failure",
+      "native": [
+        {
+          "target": "tests/files.rs",
+          "test": "saving::stale_consent"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "saving::uncertain_output"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "quit::sequential_exit"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "quit::canceled_progress"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "quit::failed_saves"
+        },
+        {
+          "target": "tests/tree.rs",
+          "test": "navigation::delete::retained_file"
+        }
+      ],
+      "pty": [
+        "acceptance_workspace",
+        "acceptance_failure"
+      ],
+      "performance": []
+    },
+    {
+      "id": "A20",
+      "condition": "Resize and ordinary boundary failures retain state and terminal lifetime",
+      "native": [
+        {
+          "target": "tests/windows.rs",
+          "test": "resize::resize_roundtrip"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "resize::native_extremes"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "combined::rejected_compound"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "combined::parser_publication"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "publication::failed_cleanup"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "flows::resized_stages"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "terminal::escape_deadline"
+        }
+      ],
+      "pty": [
+        "acceptance_failure"
+      ],
+      "performance": [
+        "scroll"
+      ]
+    }
+  ]
+}
