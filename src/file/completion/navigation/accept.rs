@@ -14,10 +14,17 @@ impl Navigation {
     pub(crate) fn accept(&self) -> io::Result<Acceptance> {
         let path = self.accepted_path()?;
         match std::fs::metadata(&path) {
-            Ok(metadata) if metadata.is_dir() => Ok(Acceptance::Directory(self.directory_draft()?)),
-            Err(error) if self.chosen => Err(error),
+            Ok(metadata) if metadata.is_dir() => self.accept_directory(&path),
+            Err(error) if self.chosen => Err(path_error(&path, error)),
             _ => Ok(Acceptance::File(path)),
         }
+    }
+
+    fn accept_directory(&self, path: &std::path::Path) -> io::Result<Acceptance> {
+        // Validate access before changing the draft. Actual bounded enumeration
+        // remains with the navigation owner after the prompt accepts its text.
+        std::fs::read_dir(path).map_err(|error| path_error(path, error))?;
+        Ok(Acceptance::Directory(self.directory_draft()?))
     }
 
     fn accepted_path(&self) -> io::Result<PathBuf> {
@@ -46,4 +53,8 @@ impl Navigation {
         }
         Ok(draft)
     }
+}
+
+fn path_error(path: &std::path::Path, error: io::Error) -> io::Error {
+    io::Error::new(error.kind(), format!("accept {path:?}: {error}"))
 }
