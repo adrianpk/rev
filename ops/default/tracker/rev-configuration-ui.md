@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 4 - Resolve layered settings
+Active slice: Slice 5 - Identify buffer languages
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -129,7 +129,7 @@ Details and checks: [Slice 4](../plan/rev-configuration-ui.md#slice-4-resolve-la
 - [x] T4.1: Resolve built-ins, ordered includes and root leaves with table merging and array replacement. Resolve language partials after global layers so a late global value cannot erase an explicit language leaf.
 - [x] T4.2: Validate the complete candidate before publishing one immutable startup snapshot; preserve concise per-leaf provenance where useful. A failed candidate yields complete built-ins and one actionable diagnostic, never mixed accepted/rejected values.
 - [x] T4.3: Exercise root/include ordering, false/zero/empty values, per-language inheritance and candidate rollback without reading project-local config or evaluating paths.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T4.1 `88a4185b3e0ce8062c6de09531106f08bf1d389f`;
 T4.2 `3a6b77457c047978871d7a01934fb39c5e114792`;
@@ -137,10 +137,12 @@ T4.3 `5b7a40e088cf87acc0feaa00e4a66e6e98d5d7da`.
 Development validation: all 14 new focused configuration tests passed, covering
 partial/source/language precedence, complete projection, leaf origins and whole
 candidate fallback. An isolated child verifies explicit user-source selection.
-Final exact-head slice evidence belongs to the controller.
+All five ordered checks passed on `100d9a7d939b96a16e8309abba7af2c9705dc6e3`,
+controller validation `42OENLRHMME4XSVSRQF6H2QUUO`, including 49 configuration tests.
 Report: [Slice 4](../report/slices/rev-configuration-ui/slice-4-config-resolution.md).
 PR: [#53](https://forge.adrianpk.com/adrianpk/rev/pulls/53);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`100d9a7d939b96a16e8309abba7af2c9705dc6e3`. Slice 4 of 30 completed.
 
 ### Slice 5: Identify buffer languages
 

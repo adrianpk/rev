@@ -1,6 +1,6 @@
 # Slice 4: Resolve layered settings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -84,8 +84,11 @@ Development checks:
 - `cargo test --test configuration resolution_contract::`: passed; four tests,
   including one isolated child process with its own CWD and environment.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+The controller recorded all five ordered checks passing on clean head
+`100d9a7d939b96a16e8309abba7af2c9705dc6e3`, validation
+`42OENLRHMME4XSVSRQF6H2QUUO`, including 49 configuration tests. Canonical PR #53
+integrated that exact head into dev by Rebase + Fast-forward.
+Required commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
