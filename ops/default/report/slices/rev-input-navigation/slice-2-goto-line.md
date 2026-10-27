@@ -67,6 +67,9 @@ NAV02 retains ordinary per-view movement, C-g and shared-buffer history owners.
 - Invalid-number cases include empty/sign-only, fractional/internal-space,
   nondecimal/Unicode digits and both overflowing signs. A configured three-scalar
   prompt rejects oversize paste wholly and accepts a bounded retry.
+- Initial `python3 scripts/check-config-reference.py` validation rejected an
+  outdated editor-map count of 66. The defaults table now records 68 editor
+  entries; all schema/map equality checks and commands remain unchanged.
 - The reference sample includes both new aliases; the acceptance evidence guard
   retains its exact schema, palette and optional-example assertions and expects
   111 defaults instead of 109, accounting for these two inherited bindings.
