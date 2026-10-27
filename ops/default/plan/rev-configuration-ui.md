@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 12 - Compose tree and auxiliary panels
+Active slice: Slice 13 - Resolve palette and syntax colors
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)

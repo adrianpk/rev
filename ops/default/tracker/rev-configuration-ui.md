@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 12 - Compose tree and auxiliary panels
+Active slice: Slice 13 - Resolve palette and syntax colors
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -328,7 +328,7 @@ Details and checks: [Slice 12](../plan/rev-configuration-ui.md#slice-12-compose-
 - [x] T12.1: Migrate tree content, separator, status and selection to the panel contract; remove string-prefix geometry and duplicated syntax/selection offset arithmetic.
 - [x] T12.2: Reserve an auxiliary completion panel through the same composition interface while keeping tree focus and semantic state separate. Hiding a pane must not destroy buffers or pending prompts.
 - [x] T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping. No Odra registry/framework or unrelated tree feature is required.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T12.1 `1dd17fc3427736749d8533ce807963f66036628f`;
 T12.2 `bb0ded2f9b942e9b9d81ed5575a86227bda1e050`;
@@ -337,10 +337,13 @@ Development validation: tree presentation/overlays/lifecycle/nested layout,
 auxiliary reservation/limits and native workspace lifecycle/grid cases passed.
 Coverage includes 324 workspace projections, Unicode seams, pending draft and
 independent point retention, focus repair and undo truth. Focused Clippy/source
-checks passed. Final exact-head evidence belongs to the controller.
+checks passed. Final exact-head validation `JATSPFSRYLFSF7NQX5X6YKMPR6`
+passed all ten commands on `9ec177b137cc84d566f961fac8422ad741d55fe6`: 185 native
+tests, zero skips, formatting, Clippy, source checks and diff whitespace.
 Report: [Slice 12](../report/slices/rev-configuration-ui/slice-12-tree-panels.md).
 PR: [#61](https://forge.adrianpk.com/adrianpk/rev/pulls/61);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`9ec177b137cc84d566f961fac8422ad741d55fe6`. Slice 12 of 30 completed.
 
 ### Slice 13: Resolve palette and syntax colors
 

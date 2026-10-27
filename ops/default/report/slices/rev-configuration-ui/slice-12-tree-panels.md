@@ -1,6 +1,6 @@
 # Slice 12: Compose the tree through panels
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -86,9 +86,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/panel/composition.rs --source src/display/tree.rs --source src/session.rs --source src/session/tree.rs --source tests/panels/workspace.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/panels/rendering.rs --source tests/panels/workspace.rs`: passed after final test additions.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Commands, in canonical order, with focused
-rendering/overlay regressions after the required prefix:
+Final controller validation `JATSPFSRYLFSF7NQX5X6YKMPR6` passed all ten commands
+on clean PR head `9ec177b137cc84d566f961fac8422ad741d55fe6`: 185 native tests,
+zero skips (panels 18, tree 58, windows 38, display 20, search 30, syntax 21).
+PR #61 integrated through Rebase + Fast-forward into dev at that same commit.
+Commands, in canonical order, with focused regressions after the required prefix:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
