@@ -29,7 +29,7 @@ impl Input {
         }
         // Existing owners retain completion, history, literal search tabs and
         // argument consumption. Inherited keys keep their audited stage limits
-        // (for example inventory arrows versus command-history C-p/C-n).
+        // (for example inventory arrows versus command-candidate C-p/C-n).
         let key = if custom { prompt_key(binding) } else { key };
         let outcome = self.focused(key);
         self.consume(outcome)
@@ -84,6 +84,8 @@ fn prompt_key(binding: Binding) -> Key {
         Binding::Prompt(PromptAction::Complete) => KeyCode::Tab,
         Binding::Prompt(PromptAction::Previous) => KeyCode::Up,
         Binding::Prompt(PromptAction::Next) => KeyCode::Down,
+        Binding::Prompt(PromptAction::HistoryPrevious) => return history_key('p'),
+        Binding::Prompt(PromptAction::HistoryNext) => return history_key('n'),
         Binding::Command(Command::BackwardDeleteChar) => KeyCode::Backspace,
         Binding::Command(Command::DeleteChar) => KeyCode::Delete,
         Binding::Command(Command::Motion(motion)) => motion_code(motion),
@@ -92,6 +94,13 @@ fn prompt_key(binding: Binding) -> Key {
     Key {
         code,
         modifiers: KeyModifiers::NONE,
+    }
+}
+
+fn history_key(character: char) -> Key {
+    Key {
+        code: KeyCode::Char(character),
+        modifiers: KeyModifiers::ALT,
     }
 }
 

@@ -195,19 +195,21 @@ affirm a decision. Inventory keeps its existing selection owner.
 | --- | --- | --- |
 | `C-g` | `keyboard-quit` | Cancel any stage. |
 | `RET` | `minibuffer-accept` | Accept text/search, invoke a command, or select inventory; no affirmative decision default. |
-| `TAB` | `minibuffer-complete` | Complete/cycle commands, complete buffer names or show path guidance; literal search/replacement inserts a tab. |
+| `TAB` | `minibuffer-complete` | Complete the selected command, complete buffer names or show path guidance; literal search/replacement inserts a tab. |
 | Backspace | `backward-delete-char` | Delete the preceding text grapheme. |
 | Delete, `C-d` | `delete-char` | Delete the following text grapheme. |
 | Left, `C-b` | `backward-char` | Move through text graphemes. |
 | Right, `C-f` | `forward-char` | Move through text graphemes. |
 | Home, `C-a` | `move-beginning-of-line` | Start of prompt text; inventory uses Home alone for first item. |
 | End, `C-e` | `move-end-of-line` | End of prompt text; inventory uses End alone for last item. |
-| Up, `C-p` | `minibuffer-previous` | Previous command-history entry; inventory uses Up alone for previous item. |
-| Down, `C-n` | `minibuffer-next` | Newer history entry/draft; inventory uses Down alone for next item. |
+| Up, `C-p` | `minibuffer-previous` | Previous command candidate; inventory uses Up alone for previous item. |
+| Down, `C-n` | `minibuffer-next` | Next command candidate; inventory uses Down alone for next item. |
+| `M-p` | `minibuffer-history-previous` | Recall an older accepted command in M-x. |
+| `M-n` | `minibuffer-history-next` | Recall a newer command or restore the M-x draft. |
 | `C-s` | `isearch-forward` | Repeat forward in incremental search. |
 | `C-r` | `isearch-backward` | Repeat backward in incremental search. |
 
-The four `minibuffer-*` targets name existing Rust prompt actions in the common
+The six `minibuffer-*` targets name existing Rust prompt actions in the common
 binding catalog. They are context-only actions. Minibuffer configuration admits
 exactly these targets plus the text-motion, deletion, search and cancel command
 identities in this table. An unrelated command such as `save-buffer` rejects.
@@ -217,8 +219,8 @@ through the active owner: M-x records its command history, find-file consumes
 its path argument, and search accepts its current result. Completion aliases
 retain the table's stage behavior, including literal tabs in search/replacement.
 Custom text-motion/deletion aliases use the same grapheme cursor and prompt
-limit. Explicit previous/next aliases select the corresponding history or
-inventory action; inherited keys keep the stage distinctions in the table.
+limit. Explicit previous/next aliases select the corresponding command candidate
+or inventory item; history aliases recall commands only in M-x; inherited keys keep the stage distinctions in the table.
 
 Decision stages retain fixed fresh y/n answers (query-replace also accepts q).
 Mapped acceptance, completion and editing cannot supply consent. Additional

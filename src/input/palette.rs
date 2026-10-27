@@ -8,13 +8,14 @@ use crate::command::Command;
 
 use super::{Context, Error, Input, Key, Outcome, Prompt};
 
-/// Owns bounded command text, completion cycling and history-navigation draft.
+/// Owns bounded command text, candidate selection and history-navigation draft.
 /// Candidates are derived from the static registry, never interpreted as code.
 #[derive(Debug)]
 pub struct Palette {
     prompt: Prompt,
     query: Option<String>,
     selected: usize,
+    chosen: bool,
     top: usize,
     history: Option<usize>,
     draft: String,
@@ -27,6 +28,7 @@ impl Palette {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
             selected: 0,
+            chosen: false,
             top: 0,
             history: None,
             draft: String::new(),
@@ -84,11 +86,28 @@ impl Palette {
     }
 
     fn handle(&mut self, key: Key, history: &VecDeque<Command>) -> Outcome {
+        if let Some(previous) = direction(key) {
+            return self.navigate(previous);
+        }
         match key.plain() {
             Some(KeyCode::Tab) => self.complete(),
             Some(KeyCode::Enter) => self.accept(),
             _ => self.edit(key, history),
         }
+    }
+
+    fn navigate(&mut self, previous: bool) -> Outcome {
+        let count = self.candidates().len();
+        if count == 0 {
+            return Outcome::Message("No matching command");
+        }
+        self.selected = if previous {
+            self.selected.saturating_sub(1)
+        } else {
+            (self.selected + 1).min(count - 1)
+        };
+        self.chosen = true;
+        Outcome::Changed
     }
 
     fn edit(&mut self, key: Key, history: &VecDeque<Command>) -> Outcome {
@@ -108,6 +127,7 @@ impl Palette {
         if outcome == Outcome::Changed {
             self.query = None;
             self.selected = 0;
+            self.chosen = false;
             self.top = 0;
             self.history = None;
         }
@@ -119,24 +139,21 @@ impl Palette {
         if candidates.is_empty() {
             return Outcome::Message("No matching command");
         }
-        let selected = if self.query.is_some() {
-            (self.selected + 1) % candidates.len()
-        } else {
-            0
-        };
         let query = self
             .query
             .clone()
             .unwrap_or_else(|| self.prompt.text().to_owned());
-        let outcome = self.set_text(candidates[selected].name());
+        let outcome = self.set_text(candidates[self.selected].name());
         if outcome == Outcome::Changed {
             self.query = Some(query);
-            self.selected = selected;
         }
         outcome
     }
 
     fn accept(&self) -> Outcome {
+        if self.chosen {
+            return Outcome::Command(self.candidates()[self.selected]);
+        }
         if self.prompt.text().is_empty() {
             return Outcome::Message("No command entered");
         }
@@ -153,6 +170,16 @@ impl Palette {
             Ok(()) => Outcome::Changed,
             Err(_) => Outcome::Message(super::prompt::LIMIT_MESSAGE),
         }
+    }
+}
+
+fn direction(key: Key) -> Option<bool> {
+    match key.plain() {
+        Some(KeyCode::Up) => Some(true),
+        Some(KeyCode::Down) => Some(false),
+        _ if key.control('p') => Some(true),
+        _ if key.control('n') => Some(false),
+        _ => None,
     }
 }
 

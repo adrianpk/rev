@@ -16,10 +16,19 @@ pub enum PromptAction {
     Complete,
     Previous,
     Next,
+    HistoryPrevious,
+    HistoryNext,
 }
 
 impl PromptAction {
-    pub const ALL: [Self; 4] = [Self::Accept, Self::Complete, Self::Previous, Self::Next];
+    pub const ALL: [Self; 6] = [
+        Self::Accept,
+        Self::Complete,
+        Self::Previous,
+        Self::Next,
+        Self::HistoryPrevious,
+        Self::HistoryNext,
+    ];
 
     pub fn name(self) -> &'static str {
         match self {
@@ -27,6 +36,8 @@ impl PromptAction {
             Self::Complete => "minibuffer-complete",
             Self::Previous => "minibuffer-previous",
             Self::Next => "minibuffer-next",
+            Self::HistoryPrevious => "minibuffer-history-previous",
+            Self::HistoryNext => "minibuffer-history-next",
         }
     }
 }

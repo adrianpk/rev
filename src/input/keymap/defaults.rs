@@ -96,6 +96,8 @@ const MINIBUFFER: &[(&str, &str)] = &[
     ("C-p", "minibuffer-previous"),
     ("Down", "minibuffer-next"),
     ("C-n", "minibuffer-next"),
+    ("M-p", "minibuffer-history-previous"),
+    ("M-n", "minibuffer-history-next"),
     ("C-s", "isearch-forward"),
     ("C-r", "isearch-backward"),
 ];

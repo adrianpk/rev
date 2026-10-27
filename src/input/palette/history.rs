@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crossterm::event::KeyCode;
+use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::command::Command;
 use crate::input::{Key, Outcome};
@@ -8,18 +8,14 @@ use crate::input::{Key, Outcome};
 use super::Palette;
 
 pub(super) fn direction(key: Key) -> Option<bool> {
-    match key.plain() {
-        Some(KeyCode::Up) => Some(true),
-        Some(KeyCode::Down) => Some(false),
-        _ => control_direction(key),
+    if key.modifiers != KeyModifiers::ALT {
+        return None;
     }
-}
-
-fn control_direction(key: Key) -> Option<bool> {
-    if key.control('p') {
-        return Some(true);
+    match key.code {
+        KeyCode::Char('p') => Some(true),
+        KeyCode::Char('n') => Some(false),
+        _ => None,
     }
-    key.control('n').then_some(false)
 }
 
 impl Palette {
@@ -47,6 +43,7 @@ impl Palette {
             self.history = index;
             self.query = None;
             self.selected = 0;
+            self.chosen = false;
             self.top = 0;
         }
         outcome

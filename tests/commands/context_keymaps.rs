@@ -97,7 +97,7 @@ fn prompt_actions() {
 #[test]
 fn palette_actions() {
     let mut input = Input::with_settings(&settings(
-        "[keys.minibuffer]\n'M-a' = 'minibuffer-accept'\n'M-c' = 'minibuffer-complete'\n'M-p' = 'minibuffer-previous'\n'M-n' = 'minibuffer-next'",
+        "[keys.minibuffer]\n'M-a' = 'minibuffer-accept'\n'M-c' = 'minibuffer-complete'\n'M-h' = 'minibuffer-history-previous'\n'M-l' = 'minibuffer-history-next'",
     ));
     input.commands().unwrap();
     input.handle(Event::Paste("newl".into()));
@@ -106,9 +106,9 @@ fn palette_actions() {
     assert_eq!(input.handle(meta('a')), Outcome::Command(Command::Newline));
     input.commands().unwrap();
     input.handle(Event::Paste("draft".into()));
-    input.handle(meta('p'));
+    input.handle(meta('h'));
     assert_eq!(input.prompt().unwrap().text(), "newline");
-    input.handle(meta('n'));
+    input.handle(meta('l'));
     assert_eq!(input.prompt().unwrap().text(), "draft");
     input.handle(control('g'));
     assert_eq!(input.focus(), Focus::Editing);

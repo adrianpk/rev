@@ -6,6 +6,10 @@ use rev::input::{Focus, Input, Outcome};
 use rev::session::{Action, Session};
 use rev::view::{Size, View};
 
+fn meta(value: char) -> Event {
+    Event::Key(KeyEvent::new(KeyCode::Char(value), KeyModifiers::ALT))
+}
+
 fn open() -> Event {
     Event::Key(KeyEvent::new(KeyCode::Char('x'), KeyModifiers::ALT))
 }
@@ -107,10 +111,10 @@ fn filter_order() {
     }
 }
 
-// Tab completes and cycles the original filtered set, rather than narrowing to
-// its first completed name. Return consumes the selected shared command once.
+// Tab completes the selected name without cycling. Navigation retains the
+// original filter and Return consumes the explicitly selected command once.
 #[test]
-fn tab_cycle() {
+fn selected_completion() {
     let mut input = Input::default();
     assert_eq!(
         input.handle(open()),
@@ -118,13 +122,13 @@ fn tab_cycle() {
     );
     input.commands().unwrap();
     input.handle(Event::Paste("split-window".into()));
-    for expected in [
-        "split-window-below",
-        "split-window-right",
-        "split-window-below",
-        "split-window-right",
+    for (event, expected) in [
+        (super::key(KeyCode::Tab), "split-window-below"),
+        (super::key(KeyCode::Tab), "split-window-below"),
+        (super::key(KeyCode::Down), "split-window-below"),
+        (super::key(KeyCode::Tab), "split-window-right"),
     ] {
-        assert_eq!(input.handle(super::key(KeyCode::Tab)), Outcome::Changed);
+        assert_eq!(input.handle(event), Outcome::Changed);
         assert_eq!(input.prompt().unwrap().text(), expected);
     }
     assert_eq!(
@@ -184,7 +188,7 @@ fn empty_candidates() {
     let mut input = Input::default();
     input.commands().unwrap();
     assert_eq!(
-        input.handle(super::key(KeyCode::Up)),
+        input.handle(meta('p')),
         Outcome::Message("Command history is empty")
     );
     input.handle(Event::Paste("absent-command".into()));
@@ -219,16 +223,16 @@ fn command_history() {
     input.commands().unwrap();
     input.handle(Event::Paste("draft".into()));
     let steps = [
-        (super::key(KeyCode::Up), "forward-char"),
-        (super::control('p'), "newline"),
-        (super::key(KeyCode::Up), "newline"),
-        (super::key(KeyCode::Down), "forward-char"),
-        (super::control('n'), "draft"),
-        (super::key(KeyCode::Up), "forward-char"),
+        (meta('p'), "forward-char"),
+        (meta('p'), "newline"),
+        (meta('p'), "newline"),
+        (meta('n'), "forward-char"),
+        (meta('n'), "draft"),
+        (meta('p'), "forward-char"),
         (super::key(KeyCode::Backspace), "forward-cha"),
-        (super::key(KeyCode::Down), "forward-cha"),
-        (super::key(KeyCode::Up), "forward-char"),
-        (super::key(KeyCode::Down), "forward-cha"),
+        (meta('n'), "forward-cha"),
+        (meta('p'), "forward-char"),
+        (meta('n'), "forward-cha"),
     ];
     for (event, expected) in steps {
         assert_eq!(input.handle(event), Outcome::Changed);
@@ -236,12 +240,12 @@ fn command_history() {
     }
     input.handle(super::control('g'));
     input.commands().unwrap();
-    input.handle(super::key(KeyCode::Up));
+    input.handle(meta('p'));
     assert_eq!(input.prompt().unwrap().text(), "forward-char");
     let mut other = Input::default();
     other.commands().unwrap();
     assert_eq!(
-        other.handle(super::key(KeyCode::Up)),
+        other.handle(meta('p')),
         Outcome::Message("Command history is empty")
     );
 }
@@ -288,7 +292,7 @@ fn entry_phases() {
     }
 }
 
-// Query edits invalidate the previous Tab cycle. Oversized or control paste
+// Query edits invalidate the previous completion filter. Oversized or control paste
 // rejects wholly, and another focused owner cannot be replaced by M-x entry.
 #[test]
 fn query_admission() {

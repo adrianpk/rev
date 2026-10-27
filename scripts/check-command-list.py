@@ -72,7 +72,7 @@ def case(root, colored):
         frame = step(session, b"\x1bxkill", b"M-x kill")
         ordered(frame, b"M-x kill", [b"kill-buffer", b"kill-line"])
         selected_style(frame, b"kill-buffer", colored)
-        frame = step(session, b"\t" * 8, b"M-x copy-rectangle-as-kill")
+        frame = step(session, b"\x1b[B" * 7 + b"\t", b"M-x copy-rectangle-as-kill")
         ordered(frame, b"M-x copy-rectangle-as-kill", [b"backward-kill-word", b"copy-rectangle-as-kill"])
         selected_style(frame, b"copy-rectangle-as-kill", colored)
         PTY["resize_surface"](session, 80, 4, True)

@@ -16,18 +16,23 @@ same fixed command registry and handlers as keyboard bindings.
   clipped to geometry after complete editing minima. The selected command uses
   the selection palette roles, with reverse video under `NO_COLOR`. No matches
   display `No matching commands` in an unselected row.
-- Tab completes the first candidate. Further Tabs cycle that original matching
-  set and wrap. The selected row stays visible as the list scrolls. Editing the
-  query starts a new matching set and resets selection and scroll origin.
-- Return invokes the exact name when present, otherwise the first matching
-  candidate. An empty query invokes nothing. Unknown names report `Unknown command`
-  and return to editing without changing document text. Tab with no matches keeps
-  command focus and reports `No matching command`.
-- Up or C-p recalls earlier commands; Down or C-n moves toward newer commands
-  and then restores the draft query. Navigation stops at the oldest entry. The
-  session retains up to 128 distinct accepted command names, most recent first.
-  Accepting a name records the invocation even if its handler later refuses it.
-  Canceled or unknown input does not enter history; history is not persisted.
+- Up/Down or C-p/C-n selects the previous/next candidate, stopping at either
+  end without changing the query. The selected row stays visible as the list
+  scrolls. Tab fills the selected command name without executing or cycling it;
+  the original matching set remains available for further navigation.
+- Return invokes an explicitly selected candidate, otherwise an exact typed name
+  or the first match for a nonempty query. Opening M-x and pressing Return with
+  an empty query reports `No command entered`; explicit navigation or completion
+  is required to choose from the unfiltered list. Unknown names report
+  `Unknown command` and restore the workspace without changing document text.
+  Tab or navigation with no matches retains command focus and reports
+  `No matching command`.
+- Editing the query resets selection and scroll origin. M-p recalls earlier commands; M-n moves toward
+  newer commands and then restores the draft query. History recall starts a new
+  matching set; navigation stops at the oldest entry. The session retains up to
+  128 distinct accepted command names, most recent first. Accepting a name records
+  the invocation even if its handler later refuses it. Canceled or unknown input
+  does not enter history; history is not persisted.
 - C-g cancels command entry. Text, cursor edits and single-line paste remain in
   the prompt. The existing 4096-character prompt bound and control rejection apply.
   Releases and repeated Return do not invoke a command twice.

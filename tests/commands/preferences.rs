@@ -6,6 +6,13 @@ use rev::view::{Size, View};
 
 use super::{Command, Event, KeyCode, character, control, key};
 
+fn meta(value: char) -> Event {
+    Event::Key(crossterm::event::KeyEvent::new(
+        KeyCode::Char(value),
+        crossterm::event::KeyModifiers::ALT,
+    ))
+}
+
 fn settings(config: &str) -> Snapshot {
     let fixture = super::config_fixture::Fixture::new();
     let startup = prepare(&fixture.write("config.toml", config));
@@ -81,25 +88,25 @@ fn command_retention() {
         }
         input.commands().unwrap();
         input.handle(Event::Paste("draft".into()));
-        input.handle(key(KeyCode::Up));
+        input.handle(meta('p'));
         assert_eq!(input.prompt().unwrap().text(), "yank");
-        input.handle(key(KeyCode::Up));
+        input.handle(meta('p'));
         assert_eq!(
             input.prompt().unwrap().text(),
             if limit == 1 { "yank" } else { "undo-redo" }
         );
-        input.handle(key(KeyCode::Up));
+        input.handle(meta('p'));
         assert_eq!(
             input.prompt().unwrap().text(),
             if limit == 1 { "yank" } else { "undo-redo" }
         );
         for _ in 0..limit {
-            input.handle(key(KeyCode::Down));
+            input.handle(meta('n'));
         }
         assert_eq!(input.prompt().unwrap().text(), "draft");
         input.handle(control('g'));
         input.commands().unwrap();
-        input.handle(key(KeyCode::Up));
+        input.handle(meta('p'));
         assert_eq!(input.prompt().unwrap().text(), "yank");
     }
 }
@@ -115,15 +122,15 @@ fn bounded_command_names() {
     );
     input.commands().unwrap();
     input.handle(Event::Paste("ya".into()));
-    for code in [KeyCode::Tab, KeyCode::Up, KeyCode::Up] {
+    for event in [key(KeyCode::Tab), meta('p'), meta('p')] {
         assert_eq!(
-            input.handle(key(code)),
+            input.handle(event),
             Outcome::Message("Prompt input limit exceeded")
         );
         assert_eq!(input.prompt().unwrap().text(), "ya");
         assert_eq!(input.prompt().unwrap().cursor(), 2);
     }
-    input.handle(key(KeyCode::Down));
+    input.handle(meta('n'));
     assert_eq!(input.prompt().unwrap().text(), "ya");
     input.handle(control('g'));
     assert_eq!(input.focus(), Focus::Editing);

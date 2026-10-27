@@ -121,16 +121,17 @@ fn empty_result() {
     assert_eq!(session.view().point, point);
 }
 
-// Completion cycling retains the original filter while keeping a later selected
+// Candidate navigation retains the original filter while keeping a later selected
 // row visible. Zero-row suspension and restoration preserve that selection.
 #[test]
 fn retained_selection() {
     let mut session = configured("minibuffer.candidate_limit = 2", size());
     query(&mut session, "kill");
-    for _ in 0..8 {
-        session.handle(super::key(KeyCode::Tab));
+    for _ in 0..7 {
+        session.handle(super::key(KeyCode::Down));
         session.frame().unwrap();
     }
+    session.handle(super::key(KeyCode::Tab));
     let before = session.frame().unwrap();
     assert_eq!(
         names(&before),
@@ -172,10 +173,11 @@ fn query_resets_selection() {
     let stamp = session.buffer().unwrap().stamp();
     let saved = session.buffer().unwrap().state();
     query(&mut session, "kill");
-    for _ in 0..7 {
-        session.handle(super::key(KeyCode::Tab));
+    for _ in 0..6 {
+        session.handle(super::key(KeyCode::Down));
         session.frame().unwrap();
     }
+    session.handle(super::key(KeyCode::Tab));
     session.handle(super::key(KeyCode::Backspace));
     let frame = session.frame().unwrap();
     assert_eq!(names(&frame), ["backward-kill-word"]);

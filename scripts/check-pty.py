@@ -1506,7 +1506,7 @@ def named_step(session, name, marker, content=None):
 
 
 def command_palette(root):
-    # Actual Meta-x, query keys, Tab cycling and history reach real shared
+    # Actual Meta-x, query keys, candidate navigation and history reach real shared
     # handlers; unknown/canceled names must never become underlying text.
     with tempfile.TemporaryDirectory(prefix="rev-pty-commands-") as directory:
         path = Path(directory) / "cmd.txt"
@@ -1521,7 +1521,7 @@ def command_palette(root):
             resize_surface(session, 0, 0, False)
             resize_surface(session, 80, 24, True)
             group_step(session, b"\t", b"M-x split-window-below")
-            group_step(session, b"\t", b"M-x split-window-right")
+            group_step(session, b"\x1b[B\t", b"M-x split-window-right")
             group_step(session, b"\r", b"> cmd.txt -- RW L1 C1 Text", b"|")
             named_step(session, "other-window", b"|> cmd.txt -- RW L1 C1 Text")
             named_step(session, "newline", b"|> cmd.txt ** RW L2 C1 Text", b"abc")
@@ -1533,7 +1533,7 @@ def command_palette(root):
             group_step(session, b"\t", b"No matching command")
             group_step(session, b"\r", b"Unknown command", b"-- RW L1 C1 Text")
             group_step(session, b"\x1bx", b"M-x ")
-            group_step(session, b"\x1b[A", b"M-x undo  ")
+            group_step(session, b"\x1bp", b"M-x undo  ")
             group_step(session, b"\x07", b"Quit")
             group_step(session, b"\x1bxkill-", b"M-x kill-")
             group_step(session, b"\x07", b"Quit", b"-- RW L1 C1 Text")
@@ -1544,7 +1544,7 @@ def command_palette(root):
             os.write(session.master, b"\r")
             session.finish(0)
             assert PASTE_OFF in session.output and LEAVE in session.output
-            print("PASS M-x candidate cycling/history, resize/cancel, named splits/edit/undo/redo and exit")
+            print("PASS M-x candidate navigation/history, resize/cancel, named splits/edit/undo/redo and exit")
         finally:
             session.close()
 
