@@ -1,6 +1,6 @@
 # Slice 15: Apply layout tree and syntax preferences
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -88,9 +88,12 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/buffer.rs --source src/buffer/syntax.rs --source src/buffer/policy.rs --source tests/syntax/preferences.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/tree/preferences.rs --source tests/windows/preferences.rs --source tests/syntax/preferences.rs`: passed.
 
-The controller records final evidence on the clean PR head after its
-PR-reference follow-up commit. Required commands precede focused shared
-rendering, scrolling and publication regressions:
+Exact-head controller evidence `C5POK6XVB6OZBUGQ6544ZCYTXU` passed all 10
+commands below at `c946be7f0ee451f2c554b457d5443451eff57797`: 192 native tests,
+zero skips, formatting, Clippy, source and whitespace checks. PR #64 merged by
+Rebase + Fast-forward into `dev` at that same head. Slice 15 of 30 completed.
+Required commands precede focused shared rendering, scrolling and publication
+regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 15 - Apply presentation and syntax preferences
+Active slice: Slice 16 - Apply bounded history and prompt preferences
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -406,7 +406,7 @@ Details and checks: [Slice 15](../plan/rev-configuration-ui.md#slice-15-apply-pr
 - [x] T15.1: Apply page_overlap with clamped forward progress, preferred split_ratio with geometry minima, tree visibility/width/max_fraction/root, hidden entry filtering and directory-first ordering with deterministic filename ties.
 - [x] T15.2: Apply syntax enabled/max_bytes and supported per-language rust/plain grammar selection; crossing a cutoff invalidates stale styling without preventing edits or changing text/history.
 - [x] T15.3: Test default equivalence, valid extremes, tiny geometry, dotfiles, initial file versus scratch root, retained tree focus and no filesystem reads during drawing. Do not add natural sorting or extra display controls.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T15.1 `44543334610ee49689442241acf984cfe071eadc`;
 T15.2 `1c8824ab576504d25c8be3f8bd7698406cb9bb93`;
@@ -418,7 +418,11 @@ real parser admission and published destination policies preserve text/history.
 Focused Clippy and source checks passed after correcting the root conditional.
 Report: [Slice 15](../report/slices/rev-configuration-ui/slice-15-presentation-preferences.md).
 PR: [#64](https://forge.adrianpk.com/adrianpk/rev/pulls/64);
-dev integration remains controller-owned.
+Rebase + Fast-forward integration verified at
+`c946be7f0ee451f2c554b457d5443451eff57797`. Exact-head controller evidence
+`C5POK6XVB6OZBUGQ6544ZCYTXU` passed all 10 commands: 192 native tests, zero
+skips, formatting, Clippy, source checks and whitespace checks.
+Slice 15 of 30 completed.
 
 ### Slice 16: Apply bounded history and prompt preferences
 
