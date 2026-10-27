@@ -24,7 +24,9 @@ impl Session {
         self.input.set_tree_focus(self.tree.focused());
         let expired = self.expire_input(now);
         if let Event::Resize(width, height) = event {
-            return self.resize(width, height);
+            let action = self.resize(width, height);
+            self.input.set_tree_focus(self.tree.focused());
+            return action;
         }
         let outcome = self.input.handle_at(event, now);
         let action = self.outcome(outcome);

@@ -249,7 +249,9 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        self.active_command(command)
+        let action = self.active_command(command);
+        self.input.set_tree_focus(self.tree.focused());
+        action
     }
 
     fn active_command(&mut self, command: Command) -> Action {

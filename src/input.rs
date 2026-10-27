@@ -272,6 +272,7 @@ impl Input {
                 | Outcome::Search(SearchAction::Accept)
         ) {
             self.context = Context::Editing;
+            self.clear_prefix();
             self.suppress_repeat = true;
         }
         outcome
