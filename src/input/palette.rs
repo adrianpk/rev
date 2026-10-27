@@ -15,6 +15,7 @@ pub struct Palette {
     prompt: Prompt,
     query: Option<String>,
     selected: usize,
+    top: usize,
     history: Option<usize>,
     draft: String,
     policy: crate::config::Minibuffer,
@@ -26,6 +27,7 @@ impl Palette {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
             selected: 0,
+            top: 0,
             history: None,
             draft: String::new(),
             policy: policy.clone(),
@@ -62,6 +64,25 @@ impl Palette {
         (self.selected < self.candidates().len()).then_some(self.selected)
     }
 
+    pub fn top(&self) -> usize {
+        self.top
+    }
+
+    /// Geometry changes presentation only. Zero candidate rows retain both
+    /// selection and origin so a suspended list can be restored coherently.
+    fn reveal(&mut self, rows: u16) {
+        if rows == 0 {
+            return;
+        }
+        let rows = usize::from(rows);
+        if self.selected < self.top {
+            self.top = self.selected;
+        } else if self.selected >= self.top + rows {
+            self.top = self.selected + 1 - rows;
+        }
+        self.top = self.top.min(self.candidates().len().saturating_sub(rows));
+    }
+
     fn handle(&mut self, key: Key, history: &VecDeque<Command>) -> Outcome {
         match key.plain() {
             Some(KeyCode::Tab) => self.complete(),
@@ -87,6 +108,7 @@ impl Palette {
         if outcome == Outcome::Changed {
             self.query = None;
             self.selected = 0;
+            self.top = 0;
             self.history = None;
         }
         outcome
@@ -147,6 +169,12 @@ impl Input {
         match &self.context {
             Context::Command(palette) => Some(palette),
             _ => None,
+        }
+    }
+
+    pub(crate) fn reveal_commands(&mut self, rows: u16) {
+        if let Context::Command(palette) = &mut self.context {
+            palette.reveal(rows);
         }
     }
 

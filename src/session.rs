@@ -163,6 +163,11 @@ impl Session {
         self.invalidate_search();
         self.invalidate_replace();
         let composition = self.composition();
+        let candidate_rows = composition
+            .as_ref()
+            .and_then(|composition| composition.auxiliary())
+            .map_or(0, |panel| panel.content().height());
+        self.input.reveal_commands(candidate_rows);
         self.reveal_workspace(composition.as_ref())?;
         let mut frame = match &composition {
             Some(composition) => Frame::compose_workspace(

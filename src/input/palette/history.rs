@@ -47,6 +47,7 @@ impl Palette {
             self.history = index;
             self.query = None;
             self.selected = 0;
+            self.top = 0;
         }
         outcome
     }

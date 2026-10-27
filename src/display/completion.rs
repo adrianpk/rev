@@ -25,7 +25,7 @@ impl Frame {
         let candidates = palette.candidates();
         let content = panel.content();
         for row in 0..content.height() {
-            let index = usize::from(row);
+            let index = palette.top() + usize::from(row);
             let label = candidates
                 .get(index)
                 .map(|command| command.name())

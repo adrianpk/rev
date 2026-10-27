@@ -117,3 +117,101 @@ fn empty_result() {
     assert!(names(&session.frame().unwrap()).is_empty());
     assert_eq!(session.view().point, point);
 }
+
+// Completion cycling retains the original filter while keeping a later selected
+// row visible. Zero-row suspension and restoration preserve that selection.
+#[test]
+fn retained_selection() {
+    let mut session = configured("minibuffer.candidate_limit = 2", size());
+    query(&mut session, "kill");
+    for _ in 0..8 {
+        session.handle(super::key(KeyCode::Tab));
+        session.frame().unwrap();
+    }
+    let before = session.frame().unwrap();
+    assert_eq!(
+        names(&before),
+        ["backward-kill-word", "copy-rectangle-as-kill"]
+    );
+    let selected = before
+        .rows()
+        .iter()
+        .find(|row| row.selection().is_some())
+        .unwrap();
+    assert!(selected.text().starts_with("copy-rectangle-as-kill"));
+    assert!(
+        before
+            .rows()
+            .iter()
+            .any(|row| row.text().starts_with("M-x copy-rectangle-as-kill"))
+    );
+    session.handle(Event::Resize(80, 4));
+    assert!(names(&session.frame().unwrap()).is_empty());
+    session.handle(Event::Resize(80, 14));
+    let restored = session.frame().unwrap();
+    assert_eq!(names(&restored), names(&before));
+    assert_eq!(
+        restored
+            .rows()
+            .iter()
+            .find(|row| row.selection().is_some())
+            .unwrap()
+            .text(),
+        selected.text()
+    );
+}
+
+// Actual query edits retire completion selection and scroll, whereas rendering
+// alone leaves query/cursor, buffer stamps, history and saved identity intact.
+#[test]
+fn query_resets_selection() {
+    let mut session = configured("minibuffer.candidate_limit = 1", size());
+    let stamp = session.buffer().unwrap().stamp();
+    let saved = session.buffer().unwrap().state();
+    query(&mut session, "kill");
+    for _ in 0..7 {
+        session.handle(super::key(KeyCode::Tab));
+        session.frame().unwrap();
+    }
+    session.handle(super::key(KeyCode::Backspace));
+    let frame = session.frame().unwrap();
+    assert_eq!(names(&frame), ["backward-kill-word"]);
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .any(|row| row.text().starts_with("M-x backward-kill-wor  "))
+    );
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(session.buffer().unwrap().state(), saved);
+    assert!(session.buffer().unwrap().history().is_empty());
+    let again = session.frame().unwrap();
+    assert_eq!(again.cursor(), frame.cursor());
+    assert_eq!(names(&again), names(&frame));
+}
+
+// The list borrows rows without scrolling a tabbed Unicode document underneath
+// it. Cancel returns every retained view property, including goals and recenter.
+#[test]
+fn retained_viewport() {
+    use rev::command::{Motion, Scroll};
+    let mut session = configured("minibuffer.candidate_limit = 8", size());
+    let fixture = super::config_fixture::Fixture::new();
+    let path = fixture.write("view.txt", &("a\t界e\u{301}\n".repeat(40)));
+    session.load(&path).unwrap();
+    for _ in 0..17 {
+        session.execute(Command::Scroll(Scroll::NextLine));
+    }
+    session.execute(Command::Motion(Motion::LineEnd));
+    session.execute(Command::Scroll(Scroll::Recenter));
+    session.frame().unwrap();
+    let before = session.view().clone();
+    query(&mut session, "kill");
+    for _ in 0..3 {
+        session.frame().unwrap();
+    }
+    assert_eq!(*session.view(), before);
+    session.execute(Command::KeyboardQuit);
+    session.frame().unwrap();
+    assert_eq!(*session.view(), before);
+}
