@@ -127,7 +127,7 @@ Contracts: CFG03, CFG07, CFG09, CFG14-CFG15. Tickets: TKT-20261027103708.
 Details and checks: [Slice 4](../plan/rev-configuration-ui.md#slice-4-resolve-layered-settings).
 
 - [x] T4.1: Resolve built-ins, ordered includes and root leaves with table merging and array replacement. Resolve language partials after global layers so a late global value cannot erase an explicit language leaf.
-- [ ] T4.2: Validate the complete candidate before publishing one immutable startup snapshot; preserve concise per-leaf provenance where useful. A failed candidate yields complete built-ins and one actionable diagnostic, never mixed accepted/rejected values.
+- [x] T4.2: Validate the complete candidate before publishing one immutable startup snapshot; preserve concise per-leaf provenance where useful. A failed candidate yields complete built-ins and one actionable diagnostic, never mixed accepted/rejected values.
 - [ ] T4.3: Exercise root/include ordering, false/zero/empty values, per-language inheritance and candidate rollback without reading project-local config or evaluating paths.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

@@ -2,6 +2,8 @@
 
 #[path = "configuration/boundaries.rs"]
 mod boundaries;
+#[path = "configuration/candidate.rs"]
+mod candidate;
 #[path = "configuration/catalog.rs"]
 mod catalog;
 #[path = "configuration/fixture.rs"]
