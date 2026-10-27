@@ -988,13 +988,14 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T47.2: Finish README usage plus concise Diataxis reference/how-to material for bindings, scope, terminal limitations, file/undo defaults, and recovery. Keep Unreleased changelog outcomes accurate and complete.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T47.1 and T47.2 complete; awaiting canonical PR integration.
+Implementation: T47.1 and T47.2 complete; awaiting PR #47 integration.
 Task commits: T47.1 `95cd1cc506b76c5a26ca71c17b390064e8f6dfe4`;
 T47.2 `9c50120253237606b0cfc400839e207702f48290`.
 Validation: all seven ordered checks passed through Looper, including 455 native
 tests, source-quality bounds, the documented release build and four real PTY
 acceptance journeys with zero skips. Final PR-head evidence follows the report
 and PR-reference commits.
+PR: [#47](https://forge.adrianpk.com/adrianpk/rev/pulls/47).
 Report: [Slice 47](../report/slices/rev-editor/slice-47-quality-reference.md).
 
 ### Slice 48: Verify the complete integrated editor contract
