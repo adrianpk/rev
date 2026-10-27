@@ -1,6 +1,6 @@
 # Slice 5: Identify buffer languages
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -87,9 +87,11 @@ Development checks:
 - `cargo test --test syntax association_modes`: passed; one adapted regression.
 - `cargo clippy --lib --test configuration --test files -- -D warnings`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands precede the affected syntax
-regressions and whitespace check:
+The controller recorded all seven ordered checks passing on clean head
+`95923e869370a44de581ed34003fc228549049ef`, validation
+`YT7IW6CWG4D6XZCCRM2HQUUHXW`: 54 configuration, 62 file and 21 syntax tests.
+Canonical PR #54 integrated that exact head into dev by Rebase + Fast-forward.
+Required commands precede the affected syntax regressions and whitespace check:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

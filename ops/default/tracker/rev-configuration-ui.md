@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 5 - Identify buffer languages
+Active slice: Slice 6 - Project buffer tab policies
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -152,18 +152,20 @@ Details and checks: [Slice 5](../plan/rev-configuration-ui.md#slice-5-identify-b
 - [x] T5.1: Implement the exact built-in basename/suffix map from the model, with user rules overriding built-ins, exact names before suffixes and longest suffix specificity. Identical patterns use normal layer precedence; overlapping extensions are valid.
 - [x] T5.2: Keep language identity independent of bundled grammar availability; unknown identities inherit global editing preferences and default to plain syntax. Retain the visible visiting basename when canonical file identity uses an alias.
 - [x] T5.3: Cover compound suffixes, .h overrides, exact names, unknown extensions and Go policies without a Go grammar. Association resolution must not read directories or open a new file.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T5.1 `35b6faeb78529d279ebbbbd01a53499e38f030d7`;
 T5.2 `0cd0ebf2291267ad7bd509f20a7cfaaae16bbbaa`;
 T5.3 `4c59dd552f6a0ac3cfcbefe45c7c80b3ccae7d83`.
 Development validation: five focused configuration association tests, two file
 association tests and the adapted syntax association regression passed. Focused
-library/configuration/file Clippy passed. Final exact-head evidence belongs to
-the controller.
+library/configuration/file Clippy passed. All seven ordered checks passed on
+`95923e869370a44de581ed34003fc228549049ef`, controller validation
+`YT7IW6CWG4D6XZCCRM2HQUUHXW`, including 54 configuration, 62 file and 21 syntax tests.
 Report: [Slice 5](../report/slices/rev-configuration-ui/slice-5-file-associations.md).
 PR: [#54](https://forge.adrianpk.com/adrianpk/rev/pulls/54);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`95923e869370a44de581ed34003fc228549049ef`. Slice 5 of 30 completed.
 
 ### Slice 6: Project buffer tab policies
 
