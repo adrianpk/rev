@@ -35,6 +35,9 @@ impl Session {
     pub(super) fn complete_argument(&mut self) -> Action {
         match self.pending {
             Some(Pending::Path(_)) => self.complete_path(),
+            Some(Pending::GotoLine { .. }) => {
+                self.message("Enter a signed decimal line number; C-g cancels")
+            }
             Some(Pending::Buffer { .. }) => self.complete_buffer(),
             Some(Pending::TreeCreate(_) | Pending::TreeRename(_)) => {
                 self.message("Enter one name; C-g cancels")

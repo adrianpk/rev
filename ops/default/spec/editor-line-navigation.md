@@ -6,7 +6,7 @@ Date: 2026-10-27
 Format: OpenSpec capability additions
 Baseline: [rev Editor](rev-editor.md), R07, R09, R16, R18 and R22
 Related: [Editor Gutter](editor-gutter.md)
-Ticket: [Emacs-style goto-line](../ticket/open/20261027191322-add-emacs-style-goto-line.md)
+Ticket: [Emacs-style goto-line](../ticket/in_progress/20261027191322-add-emacs-style-goto-line.md)
 
 ## Purpose
 

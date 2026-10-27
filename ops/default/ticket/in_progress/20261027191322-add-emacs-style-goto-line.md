@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027191322
 title: Add Emacs-style goto-line navigation
-status: open
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,9 @@ scope: ui
 tags: navigation, keybindings
 source: chat
 reported_at: 2026-10-27T19:13:22Z
+ready_at: 2026-10-27T20:34:14Z
+started_at: 2026-10-27T20:34:14Z
+branch: feat/rev-input-02-goto-line
 commits: []
 ---
 

@@ -15,6 +15,8 @@ mod preferences;
 
 #[path = "commands/flows.rs"]
 mod flows;
+#[path = "commands/goto.rs"]
+mod goto;
 #[path = "commands/palette.rs"]
 mod palette;
 #[path = "commands/paste.rs"]

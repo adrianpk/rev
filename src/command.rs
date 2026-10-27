@@ -33,6 +33,7 @@ pub enum Command {
     ExecuteExtended,
     Quit,
     FindFile,
+    GotoLine,
     SaveBuffer,
     WriteFile,
     KeyboardQuit,
@@ -53,7 +54,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 62] = [
+    pub const ALL: [Self; 63] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -77,6 +78,7 @@ impl Command {
         Self::ExecuteExtended,
         Self::Quit,
         Self::FindFile,
+        Self::GotoLine,
         Self::SaveBuffer,
         Self::WriteFile,
         Self::KeyboardQuit,
@@ -138,6 +140,7 @@ impl Command {
             Self::ExecuteExtended => "execute-extended-command",
             Self::Quit => "save-buffers-kill-terminal",
             Self::FindFile => "find-file",
+            Self::GotoLine => "goto-line",
             Self::SaveBuffer => "save-buffer",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",

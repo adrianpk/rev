@@ -3,6 +3,7 @@ mod edit;
 mod events;
 mod extended;
 mod file;
+mod goto;
 mod history;
 mod kill;
 mod linear;
@@ -89,6 +90,10 @@ enum Pending {
     Replace(Box<replace::State>),
     Search(Box<search::State>),
     Command,
+    GotoLine {
+        view: crate::window::ViewId,
+        source: crate::buffer::Stamp,
+    },
     Path(Box<crate::file::completion::Navigation>),
     Save {
         confirmation: Box<Confirmation>,
@@ -305,6 +310,7 @@ impl Session {
         match command {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
+            Command::GotoLine => self.goto_line(),
             Command::SaveBuffer => self.save_buffer(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
@@ -343,6 +349,7 @@ impl Session {
             Command::Quit
                 | Command::Scroll(_)
                 | Command::FindFile
+                | Command::GotoLine
                 | Command::SaveBuffer
                 | Command::WriteFile
                 | Command::Buffer(_)
