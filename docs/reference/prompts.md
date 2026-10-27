@@ -3,8 +3,8 @@
 The active prompt owns keyboard input until its current stage accepts, reports
 an error or is canceled. Command names, paths, buffer names and decisions use
 separate focused contexts. Their text does not enter the document underneath.
-The M-x query appears above its vertical candidates when surplus rows fit; other
-argument and decision prompts retain the bottom prompt row.
+M-x and find-file queries appear above their vertical candidates when surplus
+rows fit; other argument and decision prompts retain the bottom prompt row.
 
 ## Stages
 
@@ -21,9 +21,26 @@ argument and decision prompts retain the bottom prompt row.
 | Save before closing | Named text follows its save checks; unnamed text requests a destination. A destination conflict requires its own decision. Close occurs only after a completed save of the captured target. |
 
 Buffer-name Tab completion uses live names and their common prefix; Return
-selects an exact name. Tab in a path argument keeps the draft and displays
+selects an exact name. Find-file starts in the visiting file's parent directory,
+otherwise cwd. Its blank draft filters that base directory; relative paths use
+that base, while absolute paths and leading `~/` choose explicit directories.
+The query stays above one candidate per row, bounded by
+`minibuffer.candidate_limit` and available geometry. Directory labels end in `/`.
+
+In find-file, Up/Down or C-p/C-n moves the selection without changing the draft.
+Tab fills an explicitly selected or unique name, or extends the shared prefix at
+whole-grapheme boundaries. Completing a directory keeps its separator and lists
+that component; deleting or editing the path back to a parent refreshes it.
+Typing within the same component reuses the cached observation. Explicit Tab can
+refresh disk changes; drawing and resize do not read disk. Incomplete observations
+show a warning and require an explicit selection for completion rather than
+assuming uniqueness from a partial list. No match or refused completion retains
+the draft and focus. C-g cancels without visiting a candidate or editing text.
+
+Write/save path arguments keep their draft on Tab and display
 `Enter a path; C-g cancels`. [M-x completion and history](commands.md) operate
-only in command focus.
+only in command focus. See the [filesystem candidate contract](path-completion.md)
+for observation bounds and exact path/label identities.
 
 Query replace has separate literal argument and occurrence-decision contexts;
 its multiline paste and cancellation rules are in [Search and replacement](search.md).

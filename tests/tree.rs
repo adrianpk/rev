@@ -216,7 +216,13 @@ fn command_focus() {
     assert!(!session.tree().focused());
     let frame = session.frame().unwrap();
     assert_eq!(frame.rows().last().unwrap().text().width(), 48);
-    assert_eq!(frame.cursor().unwrap().row, 7);
+    let prompt = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == rev::display::Band::Echo)
+        .unwrap();
+    assert!(prompt.text().starts_with("Find file: "));
+    assert_eq!(frame.cursor().unwrap().row, prompt.row());
     session.execute(Command::KeyboardQuit);
     session.insert('x');
     assert_eq!(text(&session), "x");

@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "path_completion/edges.rs"]
+mod edges;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "path_completion/identity.rs"]

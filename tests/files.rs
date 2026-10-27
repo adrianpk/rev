@@ -573,8 +573,13 @@ fn find_argument() {
     type_argument(&mut session, path.to_str().unwrap());
     assert_eq!(snapshot(&session), before);
     let frame = session.frame().unwrap();
-    assert!(frame.rows().last().unwrap().text().contains("Find file: "));
-    assert_eq!(frame.cursor().unwrap().row, 7);
+    let prompt = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == rev::display::Band::Echo)
+        .unwrap();
+    assert!(prompt.text().starts_with("Find file: "));
+    assert_eq!(frame.cursor().unwrap().row, prompt.row());
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Enter,
         KeyModifiers::NONE,
@@ -851,7 +856,12 @@ fn prompt_geometry() {
                 .all(|row| row.text().width() == usize::from(width))
         );
         if let Some(cursor) = frame.cursor() {
-            assert_eq!(cursor.row, height - 1);
+            let prompt = frame
+                .rows()
+                .iter()
+                .find(|row| row.band() == rev::display::Band::Echo)
+                .unwrap();
+            assert_eq!(cursor.row, prompt.row());
             assert_eq!(cursor.column, 14.min(width - 1));
         } else {
             assert_eq!((width, height), (0, 0));

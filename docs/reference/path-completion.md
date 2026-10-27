@@ -16,6 +16,27 @@ for path completion. It does not open editing buffers or create files.
 | `Candidate::label()` | Return a terminal-safe full label; display clipping must not change opening identity. |
 | `Candidate::is_directory()`, `Candidate::is_symlink()` | Expose the entry's observed type without following child symlinks. |
 
+## Find-file navigation
+
+`Navigation::new(base, home)` owns a single component snapshot, editable draft,
+selection and scroll origin. `update(draft, false)` changes the filter and resets
+selection only after an actual text change. A directory transition observes the
+new component; cursor movement and redraw do not refresh it.
+
+`navigate(previous)` moves a bounded selection without changing the draft.
+`complete()` explicitly refreshes and returns a selected/unique name or an
+extended whole-grapheme shared prefix. Selected identities survive sorting shifts;
+a missing selected name reports an error. Directories retain a trailing separator.
+The prompt owner enforces the configured scalar bound before installing text.
+Incomplete snapshots cannot imply unique/shared completion without an explicit
+selection. Unsupported names never become replacement opening paths.
+
+`requested_rows(limit)`, `reveal(rows)`, `selected()` and `top()` provide presentation
+state for the common completion panel. Diagnostics reserve a visible row within
+that limit; zero candidate rows retain selection and origin. The common display
+owner clips labels independently of paths. `typed_path()` resolves the retained
+literal draft against its explicit roots.
+
 ## Queries and identity
 
 Relative text uses the explicit absolute base. An absolute draft supplies its own

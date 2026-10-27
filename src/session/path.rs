@@ -56,6 +56,18 @@ impl Session {
         self.select_buffer(selection)
     }
 
+    pub(super) fn open_draft(&mut self, navigation: Navigation, draft: &str) -> Action {
+        if draft.is_empty() {
+            let _ = self.load(std::path::Path::new(""));
+            return Action::Redraw;
+        }
+        let Some(path) = navigation.typed_path() else {
+            return self.error(navigation.diagnostic().unwrap_or("Invalid file path"));
+        };
+        let _ = self.load(&path);
+        Action::Redraw
+    }
+
     pub(super) fn complete_path(&mut self) -> Action {
         let Some(Pending::Path(path)) = &mut self.pending else {
             return self.message("No path completion is pending");

@@ -195,15 +195,15 @@ affirm a decision. Inventory keeps its existing selection owner.
 | --- | --- | --- |
 | `C-g` | `keyboard-quit` | Cancel any stage. |
 | `RET` | `minibuffer-accept` | Accept text/search, invoke a command, or select inventory; no affirmative decision default. |
-| `TAB` | `minibuffer-complete` | Complete the selected command, complete buffer names or show path guidance; literal search/replacement inserts a tab. |
+| `TAB` | `minibuffer-complete` | Complete commands, find-file paths or buffer names; write/save shows path guidance; literal search/replacement inserts a tab. |
 | Backspace | `backward-delete-char` | Delete the preceding text grapheme. |
 | Delete, `C-d` | `delete-char` | Delete the following text grapheme. |
 | Left, `C-b` | `backward-char` | Move through text graphemes. |
 | Right, `C-f` | `forward-char` | Move through text graphemes. |
 | Home, `C-a` | `move-beginning-of-line` | Start of prompt text; inventory uses Home alone for first item. |
 | End, `C-e` | `move-end-of-line` | End of prompt text; inventory uses End alone for last item. |
-| Up, `C-p` | `minibuffer-previous` | Previous command candidate; inventory uses Up alone for previous item. |
-| Down, `C-n` | `minibuffer-next` | Next command candidate; inventory uses Down alone for next item. |
+| Up, `C-p` | `minibuffer-previous` | Previous command or find-file candidate; inventory uses Up alone for previous item. |
+| Down, `C-n` | `minibuffer-next` | Next command or find-file candidate; inventory uses Down alone for next item. |
 | `M-p` | `minibuffer-history-previous` | Recall an older accepted command in M-x. |
 | `M-n` | `minibuffer-history-next` | Recall a newer command or restore the M-x draft. |
 | `C-s` | `isearch-forward` | Repeat forward in incremental search. |

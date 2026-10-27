@@ -631,8 +631,18 @@ Details and checks: [Slice 24](../plan/rev-configuration-ui.md#slice-24-complete
 
 - [x] T24.1: Initialize find-file in the current visiting file parent or cwd, and integrate the provider with the common vertical completion panel; show directory markers without modifying the actual path bytes.
 - [x] T24.2: Implement Tab unique/shared-prefix completion, directory descent, editable parent navigation and candidate selection. Invalidate cached observations only for directory changes or explicit completion refresh.
-- [ ] T24.3: Test ./, ../, ~/, absolute names, spaces, Unicode boundaries, trailing separators, changing prefixes, incomplete lists, tiny resize and C-g with draft/focus retained.
+- [x] T24.3: Test ./, ../, ~/, absolute names, spaces, Unicode boundaries, trailing separators, changing prefixes, incomplete lists, tiny resize and C-g with draft/focus retained.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T24.1 `324c635437f760dfd2679607e4aec12aff24baf9`;
+T24.2 `531930ec9a4115c234df5a11345d97bb9f3c33e5`.
+Fourteen new path/navigation tests, one configured candidate-alias regression and
+two RGB/NO_COLOR terminal sessions cover native bases, shared/selected completion,
+directory/home/Unicode paths, cached redraw, refresh, incomplete lists, bounds,
+resize and cancellation. Focused file/tree cursor and panel checks pass, as do
+Clippy/source checks with nesting at most two. Final readiness uses controller
+evidence for the clean PR head; dev integration remains pending.
+Report: [Slice 24](../report/slices/rev-configuration-ui/slice-24-path-navigation.md).
 
 ### Slice 25: Open selected and new file paths safely
 

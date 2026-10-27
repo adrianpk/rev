@@ -1616,7 +1616,7 @@ def focused_arguments(root):
             group_step(session, b"\x1bq", b"Unbound prompt key")
             group_step(session, paste_wire(str(other).encode() + b"BAD"), b"Find file:", b"other.txtBAD")
             assert b"Unbound prompt key" not in last_frame(session)
-            group_step(session, b"\t", b"Enter a path; C-g cancels", b"other.txtBAD")
+            group_step(session, b"\t", b"No matching paths", b"other.txtBAD")
             group_step(session, b"\x02" * 3 + b"\x04" * 3, b"other.txt  ")
             group_step(session, b"\x01\x06\x02\x05X\x08", b"other.txt  ")
             group_step(session, b"\x07", b"Quit", b"> source.txt -- RW L3 C9 Text")

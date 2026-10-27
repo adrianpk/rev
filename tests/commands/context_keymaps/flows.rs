@@ -1,5 +1,40 @@
 use super::*;
 
+// Configured candidate and completion aliases route to the active file prompt,
+// independently of editor commands, without visiting the highlighted identity.
+#[test]
+fn path_candidate_aliases() {
+    let fixture = super::super::config_fixture::Fixture::new();
+    fixture.write("root/alpha.txt", "alpha");
+    fixture.write("root/bravo.txt", "bravo");
+    let mut session = editor(
+        "[keys.minibuffer]\n'M-j' = 'minibuffer-next'\n'M-k' = 'minibuffer-previous'\n'M-c' = 'minibuffer-complete'",
+        "retained",
+    );
+    let stamp = session.buffer().unwrap().stamp();
+    session.execute(Command::FindFile);
+    session.handle(Event::Paste(format!(
+        "{}/",
+        fixture.0.join("root").display()
+    )));
+    session.handle(meta('j'));
+    session.handle(meta('k'));
+    session.handle(meta('j'));
+    session.handle(meta('c'));
+    let frame = session.frame().unwrap();
+    let query = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == rev::display::Band::Echo)
+        .unwrap();
+    assert!(query.text().contains("/bravo.txt"));
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(text(&session), "retained");
+    session.handle(control('g'));
+    session.handle(character('!'));
+    assert_eq!(text(&session), "!retained");
+}
+
 // Candidate and history aliases retain distinct targets. Custom movement and
 // completion never rewrite history or invoke a command before acceptance.
 #[test]
