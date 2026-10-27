@@ -5,7 +5,7 @@ Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `test/rev-48-acceptance`
-PR: pending
+PR: `#48`
 
 ## Purpose
 
