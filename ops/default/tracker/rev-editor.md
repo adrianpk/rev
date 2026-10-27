@@ -3,7 +3,7 @@
 Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
-Active slice: Slice 47 - Audit source quality and product reference
+Active slice: Slice 48 - Verify the complete integrated editor contract
 Plan: [rev Editor Delivery](../plan/rev-editor.md)
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)
@@ -984,17 +984,19 @@ Report: [Slice 46](../report/slices/rev-editor/slice-46-performance.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R01, R22, R25, R33, R34, R35, R36, R37, R38.
 
-- [ ] T47.1: Review actual production functions for cyclomatic paths, at most five parameters including self, shallow nesting, concise names, restrained comments, ownership, dependency necessity, and complete real command catalog.
-- [ ] T47.2: Finish README usage plus concise Diataxis reference/how-to material for bindings, scope, terminal limitations, file/undo defaults, and recovery. Keep Unreleased changelog outcomes accurate and complete.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T47.1: Review actual production functions for cyclomatic paths, at most five parameters including self, shallow nesting, concise names, restrained comments, ownership, dependency necessity, and complete real command catalog.
+- [x] T47.2: Finish README usage plus concise Diataxis reference/how-to material for bindings, scope, terminal limitations, file/undo defaults, and recovery. Keep Unreleased changelog outcomes accurate and complete.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T47.1 and T47.2 complete; awaiting PR #47 integration.
+Implementation: T47.1 and T47.2 delivered through PR #47.
 Task commits: T47.1 `95cd1cc506b76c5a26ca71c17b390064e8f6dfe4`;
 T47.2 `9c50120253237606b0cfc400839e207702f48290`.
 Validation: all seven ordered checks passed through Looper, including 455 native
 tests, source-quality bounds, the documented release build and four real PTY
 acceptance journeys with zero skips. Final PR-head evidence follows the report
 and PR-reference commits.
+Integration: `226bba7a509138db599a689afdac3a2b843f2e80`; all seven ordered checks passed
+under Looper validation `TDZNJNEBHDOKJJDLXWKXXRXTZ5`.
 PR: [#47](https://forge.adrianpk.com/adrianpk/rev/pulls/47).
 Report: [Slice 47](../report/slices/rev-editor/slice-47-quality-reference.md).
 

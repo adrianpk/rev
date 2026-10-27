@@ -4,7 +4,7 @@ Status: approved
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
-Active slice: Slice 47 - Audit source quality and product reference
+Active slice: Slice 48 - Verify the complete integrated editor contract
 Full gate: `scripts/check-all.sh`
 Spec: [rev Editor](../spec/rev-editor.md)
 Model: [rev Editor Model](../spec/rev-editor-model.md)

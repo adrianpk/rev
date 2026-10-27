@@ -1,11 +1,12 @@
 # Slice 47: Audit source quality and product reference
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `refactor/rev-47-quality-reference`
 PR: `#47`
+Integrated: `226bba7a509138db599a689afdac3a2b843f2e80`
 
 ## Purpose
 
