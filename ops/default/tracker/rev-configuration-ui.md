@@ -331,14 +331,16 @@ Details and checks: [Slice 12](../plan/rev-configuration-ui.md#slice-12-compose-
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T12.1 `1dd17fc3427736749d8533ce807963f66036628f`;
-T12.2 `bb0ded2f9b942e9b9d81ed5575a86227bda1e050`.
+T12.2 `bb0ded2f9b942e9b9d81ed5575a86227bda1e050`;
+T12.3 `7e76ebe38a802314d6b41ba27010be0ad42d39f3`.
 Development validation: tree presentation/overlays/lifecycle/nested layout,
 auxiliary reservation/limits and native workspace lifecycle/grid cases passed.
 Coverage includes 324 workspace projections, Unicode seams, pending draft and
 independent point retention, focus repair and undo truth. Focused Clippy/source
 checks passed. Final exact-head evidence belongs to the controller.
 Report: [Slice 12](../report/slices/rev-configuration-ui/slice-12-tree-panels.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#61](https://forge.adrianpk.com/adrianpk/rev/pulls/61);
+dev integration remains controller-owned.
 
 ### Slice 13: Resolve palette and syntax colors
 

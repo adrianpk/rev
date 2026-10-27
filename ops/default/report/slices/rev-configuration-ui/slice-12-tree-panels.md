@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `refactor/rev-config-ui-12-tree-panels`
-PR: pending
+PR: [#61](https://forge.adrianpk.com/adrianpk/rev/pulls/61)
 
 ## Purpose
 
@@ -38,7 +38,8 @@ bounds while retaining their existing semantic and input owners.
 - T12.2: `bb0ded2f9b942e9b9d81ed5575a86227bda1e050` extends workspace
   composition with bounded auxiliary reservations. `Frame::compose_workspace`
   renders one supplied layout, preserving Tree focus and the full-width prompt.
-- T12.3 checks tree plus nested panes, rendered Unicode seams, pending input,
+- T12.3: `7e76ebe38a802314d6b41ba27010be0ad42d39f3` checks tree plus
+  nested panes, rendered Unicode seams, pending input,
   narrow focus repair, reopen, dirty-state undo and 324 native workspace cases.
 - Geometry remains disposable metadata derived from Windows/Layout and Tree.
   No second layout tree, directory scan on draw, retained frame cache or input
