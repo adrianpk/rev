@@ -15,6 +15,7 @@ mod region;
 mod replace;
 mod save;
 mod search;
+mod startup;
 mod tree;
 mod windows;
 mod yank;
@@ -47,15 +48,7 @@ pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> i
 
 fn initial(path: Option<&Path>) -> io::Result<Session> {
     let (width, height) = crossterm::terminal::size()?;
-    let mut session = Session::empty(Size { width, height }).map_err(io::Error::other)?;
-    if let Some(path) = path {
-        session.load(path)?;
-        if let Some(file) = session.buffer().map_err(io::Error::other)?.file() {
-            let path = file.path().to_path_buf();
-            session.tree.initial(&path);
-        }
-    }
-    Ok(session)
+    Session::startup(path, Size { width, height })
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

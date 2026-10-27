@@ -5,7 +5,7 @@
 //! resolution; it must never be deserialized through the complete defaults.
 //! Signed input integers retain invalid negative values for later diagnostics.
 //! Effective sizes count their documented units, not allocation capacities.
-//! These records are preparatory: startup loading and consumers are separate.
+//! Executable startup publishes one admitted snapshot to its existing consumers.
 
 mod associations;
 mod diagnostic;

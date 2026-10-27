@@ -26,6 +26,8 @@ mod resolution;
 mod resolution_contract;
 #[path = "configuration/scopes.rs"]
 mod scopes;
+#[path = "configuration/startup.rs"]
+mod startup;
 #[path = "configuration/xdg.rs"]
 mod xdg;
 
