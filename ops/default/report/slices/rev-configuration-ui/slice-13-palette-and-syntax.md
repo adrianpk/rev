@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-13-palette-and-syntax`
-PR: pending
+PR: [#62](https://forge.adrianpk.com/adrianpk/rev/pulls/62)
 
 ## Purpose
 
@@ -35,7 +35,7 @@ palette while preserving canonical document, policy and history ownership.
 - T13.2: `e86b30c254970d3a06a6635bdf9caeb5327b67c5` resolves capture styles
   to RGB at emission, prioritizes selection, and updates the syntax reference,
   Unreleased syntax note and existing PTY color expectations.
-- T13.3 adds real capture-to-output comparisons for every syntax override,
+- T13.3: `95717ac8f63029107a11897bf225890e8a644eae` adds real capture-to-output comparisons for every syntax override,
   standalone/composed frame equivalence, partial-token region precedence and
   dirty Rust/plain transitions followed by undo and redo.
 - Configuration parsing, validation, merging and typed defaults keep their
