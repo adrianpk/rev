@@ -1,5 +1,6 @@
 """Owned fixture and completed-frame helpers for configuration/UI journeys."""
 
+import errno
 import os
 from pathlib import Path
 import re
@@ -130,14 +131,28 @@ def finish(session, colored=True):
 
 def restoration(session, colored=True):
     wire = bytes(session.output)
-    for code in [PTY['PASTE_OFF'], PTY['SHOW'], b'\x1b[0m', PTY['LEAVE']]:
-        assert code in wire, code
+    cleanup = wire[wire.rindex(PTY['PASTE_OFF']):]
+    codes = [PTY['PASTE_OFF'], PTY['SHOW'], b'\x1b[0m']
     if colored:
-        assert wire.rindex(b'\x1b]112\x07') < wire.rindex(PTY['LEAVE'])
+        codes.append(b'\x1b]112\x07')
     else:
         assert b'\x1b]12;' not in wire and b'\x1b]112' not in wire
-    assert wire.rindex(PTY['PASTE_OFF']) < wire.rindex(PTY['LEAVE'])
-    assert session.process.poll() == session.process.returncode
+    codes.append(PTY['LEAVE'])
+    offsets = [cleanup.index(code) for code in codes]
+    assert offsets == sorted(offsets), 'terminal restoration order changed'
+    assert session.process.returncode is not None, 'owned child was not reaped'
+
+
+def close(session):
+    session.close()
+    assert session.process.returncode is not None, 'owned child survived cleanup'
+    for descriptor in [session.master, session.slave]:
+        try:
+            os.fstat(descriptor)
+        except OSError as error:
+            assert error.errno == errno.EBADF
+            continue
+        raise AssertionError('owned PTY descriptor survived cleanup')
 
 
 def passive(root):

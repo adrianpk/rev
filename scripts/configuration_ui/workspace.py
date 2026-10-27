@@ -2,7 +2,7 @@
 
 import re
 
-from .support import BINARY, CONFIG, LIST, PTY, canvas, cells, cursor, environment, finish, fixtures, passive, rows, send, snapshot, step, visit, write
+from .support import BINARY, CONFIG, LIST, PTY, canvas, cells, close, cursor, environment, finish, fixtures, passive, rows, send, snapshot, step, visit, write
 
 
 WORKSPACE = """
@@ -122,7 +122,7 @@ def workspace(root, colored):
         assert snapshot(root) == before, 'workspace operations changed disk'
         finish(session, colored)
     finally:
-        session.close()
+        close(session)
     assert snapshot(root) == before
     passive(root)
     print(f"PASS {'RGB' if colored else 'NO_COLOR'} tree/nested ratios, shared edit/undo, per-buffer tabs, horizontal/page/EOF boundaries, completion resize/cancel and editing-only cycle")

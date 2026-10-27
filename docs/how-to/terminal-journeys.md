@@ -26,6 +26,39 @@ coordinates and observable selected-buffer state. Each accepted exit verifies
 termios, bracketed-paste disable, visible cursor, attribute reset and alternate
 screen restoration.
 
+## Run configuration and UI workflows
+
+```sh
+python3 scripts/check-configuration-ui.py --suite terminal
+```
+
+This command builds the editor and its terminal fault probe, then runs eight
+owned PTY sessions with isolated HOME and XDG paths:
+
+| Sessions | Checks |
+| --- | --- |
+| Configured RGB and NO_COLOR | Visible tab cells and cursor columns, palette/key overrides, M-x candidate/completion/history aliases, retained path errors, directory/Unicode completion, freely typed new filenames and an explicit BOM/CRLF save. |
+| Missing and invalid configuration | Silent missing sources or a nonfatal diagnostic, complete default tab/key/palette/format behavior and passive XDG roots. |
+| Workspace RGB and NO_COLOR | Configured tree and nested split geometry, shared edit/undo, distinct buffer tab policies, horizontal/page/EOF boundaries, completion through zero/tiny/growing resize, exact canceled canvas/cursor restoration and editing-pane cycling. |
+| Output error and unwind | Expected nonzero fault-probe exits, ordered cursor/text color reset, termios/paste/screen restoration and complete owned-child/PTY cleanup. |
+
+Success prints `Configuration/UI terminal suite: 8 sessions passed, 0 skipped.`
+Assertions inspect complete visible rows, candidate selection, cursor positions
+and exact bytes/entries in the owned fixture. Observation, completion and visits
+must preserve the fixture; only explicit saves create the expected files.
+Every process has the existing eight-second session deadline and 1-MiB output
+limit. Fixture snapshots allow at most 32 entries and 64 KiB per file. Cleanup
+reaps only the owned child and verifies both PTY descriptors are closed.
+
+For a focused rerun, select one case, such as:
+
+```sh
+python3 scripts/check-configuration-ui.py --suite terminal --case workspace
+```
+
+Available cases are `configured`, `missing`, `rejected`, `workspace`, `io` and
+`unwind`. The configured and workspace cases each run RGB and NO_COLOR variants.
+
 ## Run terminal boundary regressions
 
 ```sh

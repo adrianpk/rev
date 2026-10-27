@@ -711,10 +711,22 @@ PR: [#75](https://forge.adrianpk.com/adrianpk/rev/pulls/75).
 Contracts: CFG22, UI01-UI04, baseline R03-R07. Tickets: TKT-20261027103715.
 Details and checks: [Slice 27](../plan/rev-configuration-ui.md#slice-27-exercise-combined-terminal-workflows).
 
-- [ ] T27.1: Add real isolated PTY journeys for startup palette/tab/key overrides, missing and invalid config, M-x candidate/history selection, find-file directory/Unicode completion and new filename behavior.
-- [ ] T27.2: Combine tree/nested panels, shared buffer policies, horizontal and vertical boundaries, focus and tiny/growing resize. Assert visible behavior and retained document text, not only escape substring presence.
-- [ ] T27.3: Use bounded fixtures/timeouts, zero skips and explicit child cleanup after completion. Verify normal/error terminal color/mode restoration and no disk entry created by observation.
+- [x] T27.1: Add real isolated PTY journeys for startup palette/tab/key overrides, missing and invalid config, M-x candidate/history selection, find-file directory/Unicode completion and new filename behavior.
+- [x] T27.2: Combine tree/nested panels, shared buffer policies, horizontal and vertical boundaries, focus and tiny/growing resize. Assert visible behavior and retained document text, not only escape substring presence.
+- [x] T27.3: Use bounded fixtures/timeouts, zero skips and explicit child cleanup after completion. Verify normal/error terminal color/mode restoration and no disk entry created by observation.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T27.1 `1389238803bfea95120cd4632784c3e354209100`;
+T27.2 `a9232206e549dad33269bd0740d366c9f2a97385`;
+T27.3 full report-introduction commit recorded in the PR follow-up.
+Eight focused owned PTY sessions pass: configured and workspace RGB/NO_COLOR,
+missing/invalid configuration, output error and unwind. Assertions cover visible
+rows/cursors, exact fixture bytes/entries, M-x/path ownership, shared policies,
+zero/tiny/growing geometry, restoration order and reaped children/closed PTYs.
+Session/output/snapshot bounds remain explicit; no cases are skipped.
+Final readiness requires controller evidence for the clean PR head; canonical
+PR creation and dev integration remain pending.
+Report: [Slice 27](../report/slices/rev-configuration-ui/slice-27-configuration-ui-journeys.md).
 
 ### Slice 28: Harden cross-feature failure boundaries
 

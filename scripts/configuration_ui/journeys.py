@@ -1,6 +1,6 @@
 """Connected startup, command and file-prompt journeys on real terminals."""
 
-from .support import BINARY, CONFIG, LIST, PTY, canvas, cursor, environment, finish, fixtures, passive, query, rows, snapshot, step, visit, write
+from .support import BINARY, CONFIG, LIST, PTY, canvas, close, cursor, environment, finish, fixtures, passive, query, snapshot, step, visit, write
 
 
 def commands(session, colored):
@@ -35,6 +35,16 @@ def paths(session, source):
     assert source.read_bytes().startswith(b'\tlet label')
 
 
+def ingress_error(session):
+    frame = visit(session, 'alpha.txt/child', b'Find file: alpha.txt/child  visit "')
+    query(frame, 'Find file: alpha.txt/child')
+    assert canvas(frame)[1].startswith('        let label')
+    frame = step(session, b'x', b'Find file: alpha.txt/childx')
+    query(frame, 'Find file: alpha.txt/childx')
+    frame = step(session, b'\x07', b'Quit')
+    assert cursor(frame) == (1, 1)
+
+
 def configured(root, colored):
     source = fixtures(root)
     before = snapshot(root)
@@ -45,10 +55,14 @@ def configured(root, colored):
         assert canvas(frame)[1].startswith('        let label = "界e\u0301";')
         assert (b'\x1b]12;#112233\x07' in session.output) == colored
         assert (b'\x1b[38;2;1;2;3m' in frame) == colored
+        assert (b'\x1b[48;2;16;17;18m' in frame) == colored
+        if not colored:
+            assert b'\x1b[38;2;' not in frame and b'\x1b[48;2;' not in frame
         frame = step(session, b'\x06', b'> main.rs -- RW L1 C9 Rust')
         assert cursor(frame) == (1, 9)
         step(session, b'\x1b<', b'> main.rs -- RW L1 C1 Rust')
         commands(session, colored)
+        ingress_error(session)
         paths(session, source)
         assert snapshot(root) == before, 'completion/observation changed disk'
         step(session, b'\r', b'> al -- RW L1 C1 Text')
@@ -61,7 +75,7 @@ def configured(root, colored):
         assert target.read_bytes() == b'\xef\xbb\xbf  \xc3\xa9\r\n'
         finish(session, colored)
     finally:
-        session.close()
+        close(session)
     expected = dict(before, **{'work/al': b'\xef\xbb\xbf  \xc3\xa9\r\n'})
     assert snapshot(root) == expected
     passive(root)
@@ -79,6 +93,8 @@ def fallback(root, rejected):
         frame = PTY['last_frame'](session)
         assert canvas(frame)[1].startswith('    let label')
         assert b'\x1b[38;2;1;2;3m' not in frame
+        assert b'\x1b[38;2;192;202;245m' in frame
+        assert b'\x1b]12;#c0caf5\x07' in session.output
         assert (b'Configuration:' in frame) == rejected
         frame = step(session, b'\x06', b'> main.rs -- RW L1 C5 Rust')
         assert cursor(frame) == (1, 5)
@@ -90,7 +106,7 @@ def fallback(root, rejected):
         step(session, b'\x18\x13', b'Saved ')
         finish(session)
     finally:
-        session.close()
+        close(session)
     expected = dict(before, **{'work/fallback-new': b'    Q\n'})
     assert snapshot(root) == expected
     passive(root)
