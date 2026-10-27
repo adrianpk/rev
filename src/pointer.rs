@@ -4,6 +4,9 @@ use crate::buffer::edit::Point;
 use crate::display::Position;
 use crate::window::ViewId;
 
+mod hit;
+pub use hit::Hit;
+
 /// Native operations admitted from the existing terminal decoder. Hover,
 /// secondary buttons and horizontal scrolling have no operation in this contract.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

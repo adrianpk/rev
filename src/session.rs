@@ -11,6 +11,7 @@ mod linear;
 mod motion;
 mod paste;
 mod path;
+mod pointer;
 mod prompt;
 mod quit;
 mod rectangle;
@@ -264,6 +265,7 @@ impl Session {
 
     fn input_feedback(&mut self, outcome: Outcome) -> Action {
         match outcome {
+            Outcome::Pointer(event) => self.pointer(event),
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.prefix_notice(prefix),
             Outcome::Message(message) => self.notice(message),

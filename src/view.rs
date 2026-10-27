@@ -1,3 +1,4 @@
+mod hit;
 mod scroll;
 
 use std::fmt;

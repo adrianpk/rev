@@ -7,6 +7,9 @@ use rev::pointer::{Event as PointerEvent, Kind};
 #[path = "pointer/input_state.rs"]
 mod input_state;
 
+#[path = "pointer/focus.rs"]
+mod focus;
+
 fn mouse(kind: MouseEventKind) -> MouseEvent {
     MouseEvent {
         kind,

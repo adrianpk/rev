@@ -42,8 +42,19 @@ impl Session {
             .get(self.windows.selected().point.stamp.buffer)?;
         self.windows.selected().cell(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
+        let target = motion.target(&coordinates, self.view().point.position)?;
+        self.place_point(crate::buffer::edit::Point {
+            position: target,
+            ..self.view().point
+        })
+    }
+
+    pub(super) fn place_point(&mut self, point: crate::buffer::edit::Point) -> Result<(), Error> {
+        let buffer = self.buffer()?;
         let mut candidate = self.windows.selected().clone();
-        candidate.point.position = motion.target(&coordinates, candidate.point.position)?;
+        candidate.point = point;
+        candidate.cell(buffer)?;
+        candidate.reset_navigation();
         candidate.reveal(buffer, self.pane_size())?;
         *self.windows.selected_mut() = candidate;
         Ok(())

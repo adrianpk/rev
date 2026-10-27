@@ -100,6 +100,15 @@ impl Area {
         self.height
     }
 
+    /// Resolve a terminal cell inside these half-open bounds, without admitting
+    /// a neighboring separator or overflowing an origin translation.
+    pub fn local(self, position: crate::display::Position) -> Option<crate::display::Position> {
+        let column = position.column.checked_sub(self.column)?;
+        let row = position.row.checked_sub(self.row)?;
+        (column < self.width && row < self.height)
+            .then_some(crate::display::Position { column, row })
+    }
+
     pub(crate) fn with_status(self, reserve: bool) -> (Self, Option<Self>) {
         let height = u16::from(reserve && self.height > 0);
         let content = Self {

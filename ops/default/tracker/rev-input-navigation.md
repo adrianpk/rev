@@ -185,7 +185,7 @@ T10.3: `b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d`.
 Contracts: PTR02 PTR03.
 Details and exact checks: [Slice 11](../plan/rev-input-navigation.md#slice-11-focus-panes-and-place-point-by-pointer).
 
-- [ ] T11.1: Resolve primary clicks through current composed pane/gutter/text geometry and reuse the ordinary focus transition and checked movement owner.
+- [x] T11.1: Resolve primary clicks through current composed pane/gutter/text geometry and reuse the ordinary focus transition and checked movement owner.
 - [ ] T11.2: Map tabs, graphemes, wide glyphs, scrolling, clipping and EOF accurately; pane-owned decorations may focus without fabricating text positions.
 - [ ] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

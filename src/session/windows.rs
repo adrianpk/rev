@@ -17,6 +17,10 @@ impl Session {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return Err(crate::window::Error::Focus.into());
         }
+        self.select_editing_view(id)
+    }
+
+    pub(super) fn select_editing_view(&mut self, id: ViewId) -> Result<(), Error> {
         let view = self.windows.get(id)?;
         view.cell(self.buffers.get(view.point.stamp.buffer)?)?;
         self.stop_typing()?;
