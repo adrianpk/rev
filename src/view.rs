@@ -28,6 +28,7 @@ pub enum Error {
     Edit(buffer::edit::Error),
     Coordinates(coordinates::Error),
     Window(crate::window::Error),
+    Gutter(crate::gutter::Error),
     WorkingDirectory(std::io::ErrorKind),
 }
 
@@ -38,12 +39,19 @@ impl fmt::Display for Error {
             Self::Edit(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
             Self::Window(error) => error.fmt(formatter),
+            Self::Gutter(error) => error.fmt(formatter),
             Self::WorkingDirectory(kind) => write!(formatter, "read working directory: {kind}"),
         }
     }
 }
 
 impl std::error::Error for Error {}
+
+impl From<crate::gutter::Error> for Error {
+    fn from(error: crate::gutter::Error) -> Self {
+        Self::Gutter(error)
+    }
+}
 
 impl From<buffer::Error> for Error {
     fn from(error: buffer::Error) -> Self {
@@ -74,6 +82,8 @@ impl From<crate::window::Error> for Error {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct View {
     pub point: Point,
+    /// Session-only presentation values, copied by splits and never text data.
+    pub gutter: crate::gutter::Policy,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
     pub top: usize,
@@ -89,6 +99,7 @@ impl View {
                 stamp: buffer.stamp(),
                 position: Scalar(0),
             },
+            gutter: crate::gutter::Policy::default(),
             column: None,
             top: 0,
             left: 0,

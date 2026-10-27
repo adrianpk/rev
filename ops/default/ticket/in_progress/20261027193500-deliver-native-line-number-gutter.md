@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027193500
 title: Deliver the approved native line-number gutter
-status: open
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,9 @@ scope: ui
 tags: gutter, line-numbers
 source: chat
 reported_at: 2026-10-27T19:35:00Z
+ready_at: 2026-10-27T21:28:15Z
+started_at: 2026-10-27T21:28:15Z
+branch: refactor/rev-input-04-gutter-policy
 commits: []
 ---
 

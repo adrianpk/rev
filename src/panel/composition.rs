@@ -19,6 +19,23 @@ pub struct Composition {
 }
 
 impl Composition {
+    /// Derive only a live editing leaf's gutter. Auxiliary/tree surfaces are not
+    /// candidates; a suspended editing layout has no projection. Buffer stamps
+    /// and point rows are checked against the canonical source before use.
+    pub fn gutter(
+        &self,
+        windows: &Windows,
+        buffer: &crate::buffer::Buffer,
+        id: ViewId,
+    ) -> Result<Option<crate::gutter::Projection>, crate::view::Error> {
+        let view = windows.get(id)?;
+        self.panels
+            .iter()
+            .find(|(member, _)| *member == id)
+            .map(|(_, panel)| crate::gutter::Projection::new(id, view, buffer, panel.content()))
+            .transpose()
+    }
+
     /// Reserve the prompt first, then up to the requested auxiliary rows plus
     /// one shared separator. Every editing leaf keeps its recursive minimum
     /// of three columns, one content row and one status row.

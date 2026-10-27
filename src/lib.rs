@@ -6,6 +6,7 @@ pub mod config;
 pub mod coordinates;
 pub mod display;
 pub mod file;
+pub mod gutter;
 pub mod input;
 mod kill;
 pub mod panel;
