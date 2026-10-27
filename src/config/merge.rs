@@ -1,9 +1,9 @@
 use std::collections::BTreeMap;
 
 use super::{
-    Document, Keymaps, Language, PartialEditor, PartialFiles, PartialHistory, PartialKillRing,
-    PartialMinibuffer, PartialPalette, PartialScroll, PartialSyntax, PartialSyntaxPalette,
-    PartialTree, PartialWindows,
+    Document, Keymaps, Language, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette,
+    PartialHistory, PartialKillRing, PartialMinibuffer, PartialPalette, PartialScroll,
+    PartialSyntax, PartialSyntaxPalette, PartialTree, PartialWindows,
 };
 
 #[derive(Default)]
@@ -23,6 +23,7 @@ impl Document {
         merge.editor(&mut self.editor, &later.editor);
         merge.scroll(&mut self.scroll, &later.scroll);
         merge.windows(&mut self.windows, &later.windows);
+        merge.gutter(&mut self.gutter, &later.gutter);
         merge.minibuffer(&mut self.minibuffer, &later.minibuffer);
         merge.history(&mut self.history, &later.history);
         merge.kill_ring(&mut self.kill_ring, &later.kill_ring);
@@ -238,6 +239,7 @@ impl Merge {
         self.leaf(&["palette", "warning"], &mut base.warning, &later.warning);
         self.leaf(&["palette", "error"], &mut base.error, &later.error);
         self.syntax_palette(&mut base.syntax, &later.syntax);
+        self.gutter_palette(&mut base.gutter, &later.gutter);
     }
 
     fn syntax_palette(&mut self, base: &mut PartialSyntaxPalette, later: &PartialSyntaxPalette) {
@@ -275,6 +277,55 @@ impl Merge {
             &["palette", "syntax", "punctuation"],
             &mut base.punctuation,
             &later.punctuation,
+        );
+    }
+
+    fn gutter(&mut self, base: &mut PartialGutter, later: &PartialGutter) {
+        self.leaf(&["gutter", "visible"], &mut base.visible, &later.visible);
+        self.leaf(&["gutter", "mode"], &mut base.mode, &later.mode);
+        self.leaf(
+            &["gutter", "current_line"],
+            &mut base.current_line,
+            &later.current_line,
+        );
+        self.leaf(&["gutter", "side"], &mut base.side, &later.side);
+        self.leaf(
+            &["gutter", "minimum_digits"],
+            &mut base.minimum_digits,
+            &later.minimum_digits,
+        );
+        self.leaf(
+            &["gutter", "left_padding"],
+            &mut base.left_padding,
+            &later.left_padding,
+        );
+        self.leaf(
+            &["gutter", "right_padding"],
+            &mut base.right_padding,
+            &later.right_padding,
+        );
+    }
+
+    fn gutter_palette(&mut self, base: &mut PartialGutterPalette, later: &PartialGutterPalette) {
+        self.leaf(
+            &["palette", "gutter", "background"],
+            &mut base.background,
+            &later.background,
+        );
+        self.leaf(
+            &["palette", "gutter", "foreground"],
+            &mut base.foreground,
+            &later.foreground,
+        );
+        self.leaf(
+            &["palette", "gutter", "current_line"],
+            &mut base.current_line,
+            &later.current_line,
+        );
+        self.leaf(
+            &["palette", "gutter", "separator"],
+            &mut base.separator,
+            &later.separator,
         );
     }
 

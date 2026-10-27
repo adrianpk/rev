@@ -10,6 +10,8 @@ mod candidate;
 mod catalog;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "configuration/gutter.rs"]
+mod gutter;
 #[path = "configuration/include_bounds.rs"]
 mod include_bounds;
 #[path = "configuration/includes.rs"]

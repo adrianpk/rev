@@ -1,12 +1,16 @@
+use serde::Deserialize;
+
 /// Number calculation and current-line form are independent view preferences.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Mode {
     #[default]
     Absolute,
     Relative,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum CurrentLine {
     #[default]
     Absolute,
@@ -14,7 +18,8 @@ pub enum CurrentLine {
     Hidden,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Side {
     #[default]
     Left,
@@ -68,8 +73,7 @@ impl Default for Format {
     }
 }
 
-/// Complete native startup values. Configuration loading adopts these records
-/// in its assigned slice; there is no separate persistence or settings loader.
+/// Complete admitted startup values, shared by configuration and native views.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Settings {
     pub visible: bool,

@@ -13,7 +13,10 @@ impl Session {
     pub fn startup(path: Option<&Path>, size: Size) -> io::Result<Self> {
         let startup = Startup::from_env();
         let buffers = Buffers::with_settings(startup.snapshot).map_err(io::Error::other)?;
-        let view = View::new(buffers.get(buffers.initial()).map_err(io::Error::other)?);
+        let view = View::with_settings(
+            buffers.get(buffers.initial()).map_err(io::Error::other)?,
+            buffers.snapshot(),
+        );
         let mut session = Self::new(buffers, view, size).map_err(io::Error::other)?;
         session.startup_file(path)?;
         if let Some(diagnostic) = startup.diagnostic {

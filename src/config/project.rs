@@ -1,8 +1,9 @@
 use super::{
-    Document, Editor, Files, History, KillRing, Language, Minibuffer, Palette, PartialEditor,
-    PartialFiles, PartialHistory, PartialKillRing, PartialMinibuffer, PartialPalette,
-    PartialScroll, PartialSyntax, PartialSyntaxPalette, PartialTree, PartialWindows, Rgb, Scroll,
-    Settings, Syntax, SyntaxPalette, Tree, Windows,
+    Document, Editor, Files, GutterPalette, History, KillRing, Language, Minibuffer, Palette,
+    PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette, PartialHistory,
+    PartialKillRing, PartialMinibuffer, PartialPalette, PartialScroll, PartialSyntax,
+    PartialSyntaxPalette, PartialTree, PartialWindows, Rgb, Scroll, Settings, Syntax,
+    SyntaxPalette, Tree, Windows,
 };
 
 // Projection runs only after validating every partial and the complete candidate.
@@ -12,6 +13,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     editor(&mut settings.editor, &document.editor);
     scroll(&mut settings.scroll, &document.scroll);
     windows(&mut settings.windows, &document.windows);
+    gutter(&mut settings.gutter, &document.gutter);
     minibuffer(&mut settings.minibuffer, &document.minibuffer);
     history(&mut settings.history, &document.history);
     kill_ring(&mut settings.kill_ring, &document.kill_ring);
@@ -123,6 +125,7 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     color(&mut base.warning, &partial.warning);
     color(&mut base.error, &partial.error);
     syntax_palette(&mut base.syntax, &partial.syntax);
+    gutter_palette(&mut base.gutter, &partial.gutter);
 }
 
 fn syntax_palette(base: &mut SyntaxPalette, partial: &PartialSyntaxPalette) {
@@ -133,4 +136,31 @@ fn syntax_palette(base: &mut SyntaxPalette, partial: &PartialSyntaxPalette) {
     color(&mut base.function, &partial.function);
     color(&mut base.number, &partial.number);
     color(&mut base.punctuation, &partial.punctuation);
+}
+
+fn gutter(base: &mut crate::gutter::Settings, partial: &PartialGutter) {
+    scalar(&mut base.visible, partial.visible);
+    scalar(&mut base.mode, partial.mode);
+    scalar(&mut base.current_line, partial.current_line);
+    scalar(&mut base.side, partial.side);
+    let defaults = base.format;
+    base.format = crate::gutter::Format::new(
+        partial
+            .minimum_digits
+            .map_or(defaults.minimum_digits(), |n| n as u8),
+        partial
+            .left_padding
+            .map_or(defaults.left_padding(), |n| n as u8),
+        partial
+            .right_padding
+            .map_or(defaults.right_padding(), |n| n as u8),
+    )
+    .expect("validated gutter format");
+}
+
+fn gutter_palette(base: &mut GutterPalette, partial: &PartialGutterPalette) {
+    color(&mut base.background, &partial.background);
+    color(&mut base.foreground, &partial.foreground);
+    color(&mut base.current_line, &partial.current_line);
+    color(&mut base.separator, &partial.separator);
 }

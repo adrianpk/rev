@@ -22,7 +22,8 @@ mod xdg;
 pub use diagnostic::{Diagnostic, Position};
 pub use load::{Source, Sources, load};
 pub use palette::{
-    GutterPalette, Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette,
+    GutterPalette, Palette, PartialGutterPalette, PartialPalette, PartialSyntaxPalette, Rgb,
+    SyntaxPalette,
 };
 pub use parse::parse;
 pub use resolve::{Snapshot, resolve};
@@ -40,6 +41,7 @@ pub struct Settings {
     pub editor: Editor,
     pub scroll: Scroll,
     pub windows: Windows,
+    pub gutter: crate::gutter::Settings,
     pub minibuffer: Minibuffer,
     pub history: History,
     pub kill_ring: KillRing,
@@ -63,6 +65,7 @@ pub struct Document {
     pub editor: PartialEditor,
     pub scroll: PartialScroll,
     pub windows: PartialWindows,
+    pub gutter: PartialGutter,
     pub minibuffer: PartialMinibuffer,
     pub history: PartialHistory,
     pub kill_ring: PartialKillRing,
@@ -358,4 +361,18 @@ pub struct Keymaps {
     pub editor: BTreeMap<String, String>,
     pub minibuffer: BTreeMap<String, String>,
     pub tree: BTreeMap<String, String>,
+}
+
+/// Optional gutter leaves retain absence through include/root layering. Bounds
+/// are validated before constructing the native view format.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialGutter {
+    pub visible: Option<bool>,
+    pub mode: Option<crate::gutter::Mode>,
+    pub current_line: Option<crate::gutter::CurrentLine>,
+    pub side: Option<crate::gutter::Side>,
+    pub minimum_digits: Option<i64>,
+    pub left_padding: Option<i64>,
+    pub right_padding: Option<i64>,
 }

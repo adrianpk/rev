@@ -41,7 +41,7 @@ pub struct Palette {
     pub warning: Rgb,
     pub error: Rgb,
     pub syntax: SyntaxPalette,
-    /// Native gutter roles; startup parsing is wired with the gutter settings.
+    /// Number-field roles from the same immutable startup palette.
     pub gutter: GutterPalette,
 }
 
@@ -115,6 +115,7 @@ pub struct PartialPalette {
     pub warning: Option<String>,
     pub error: Option<String>,
     pub syntax: PartialSyntaxPalette,
+    pub gutter: PartialGutterPalette,
 }
 
 /// The seven existing syntax groups; capture mapping remains syntax-owned.
@@ -154,4 +155,14 @@ pub struct PartialSyntaxPalette {
     pub function: Option<String>,
     pub number: Option<String>,
     pub punctuation: Option<String>,
+}
+
+/// Optional semantic number-field colors, admitted with the whole candidate.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialGutterPalette {
+    pub background: Option<String>,
+    pub foreground: Option<String>,
+    pub current_line: Option<String>,
+    pub separator: Option<String>,
 }

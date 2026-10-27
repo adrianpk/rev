@@ -121,6 +121,14 @@ impl View {
         }
     }
 
+    /// Construct an initial view from the same admitted session snapshot used by
+    /// buffers and input. Later rebinds retain this policy instead of reloading it.
+    pub fn with_settings(buffer: &Buffer, settings: &crate::config::Snapshot) -> Self {
+        let mut view = Self::new(buffer);
+        view.gutter = crate::gutter::Policy::new(settings.settings().gutter);
+        view
+    }
+
     /// Switch canonical text using the ordinary new-buffer navigation state,
     /// retaining only this view's independent presentation policy and provenance.
     pub fn rebind(&mut self, buffer: &Buffer) {

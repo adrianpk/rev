@@ -3,7 +3,7 @@ use std::ops::RangeInclusive;
 
 use crate::input::keymap;
 
-use super::{Document, Keymaps, PartialPalette, PartialSyntaxPalette, Rgb};
+use super::{Document, Keymaps, PartialGutterPalette, PartialPalette, PartialSyntaxPalette, Rgb};
 
 pub(super) enum Target {
     Key,
@@ -38,6 +38,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     integer("version", document.version, 1..=1)?;
     editing(document)?;
     retention(document)?;
+    gutter(document)?;
     float(
         "windows.split_ratio",
         document.windows.split_ratio,
@@ -148,6 +149,7 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
     for (key, value) in colors {
         color(&format!("palette.{key}"), value.as_deref())?;
     }
+    gutter_palette(&palette.gutter)?;
     syntax_palette(&palette.syntax)
 }
 
@@ -245,4 +247,31 @@ fn bindings(keys: &Keymaps) -> Result<keymap::Effective, Failure> {
             keymap::Site::Value => Target::Value,
         },
     })
+}
+
+fn gutter(document: &Document) -> Result<(), Failure> {
+    for (key, value, range) in [
+        (
+            "gutter.minimum_digits",
+            document.gutter.minimum_digits,
+            1..=20,
+        ),
+        ("gutter.left_padding", document.gutter.left_padding, 0..=4),
+        ("gutter.right_padding", document.gutter.right_padding, 0..=4),
+    ] {
+        integer(key, value, range)?;
+    }
+    Ok(())
+}
+
+fn gutter_palette(palette: &PartialGutterPalette) -> Result<(), Failure> {
+    for (key, value) in [
+        ("background", &palette.background),
+        ("foreground", &palette.foreground),
+        ("current_line", &palette.current_line),
+        ("separator", &palette.separator),
+    ] {
+        color(&format!("palette.gutter.{key}"), value.as_deref())?;
+    }
+    Ok(())
 }
