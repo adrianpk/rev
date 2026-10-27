@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027190521
 title: Stop prolonged movement after repeated vertical arrow input
-status: reviewing
+status: solved
 kind: bug
 severity: unclassified
 priority: unclassified
@@ -13,6 +13,8 @@ ready_at: 2026-10-27T20:20:54Z
 started_at: 2026-10-27T20:20:54Z
 branch: fix/rev-input-01-navigation-responsiveness
 reviewed_at: 2026-10-27T20:28:01Z
+closed_at: 2026-10-27T20:33:18Z
+resolution: fixed
 commits: [db32befb12db284ed56958d719ac3843c3cb71e5, 6ae33afb14c6e0d6973d2bf9238970708e1b91cf, ef908a5081e64d8030062405e95e6293ff95e7c3]
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/81
 ---
@@ -69,4 +71,6 @@ records the baseline and corrected timing measurements. Native event consumption
 retains ordered handlers and draws after at most 32 events or 4 ms of event work.
 The focused navigation PTY suite covers ordinary/large documents, Up/Down,
 release, reversal, bounds, editing/undo, Escape, cancellation and unchanged bytes.
-The ticket remains reviewing until canonical integration is verified.
+Canonical PR [#81](https://forge.adrianpk.com/adrianpk/rev/pulls/81) is integrated
+at `44edc37bcb15d5bb9ff1ed2456c5f5381515ad26`; its exact five-command controller validation passed.
+The approved later slices retain their combined terminal and resource checks.

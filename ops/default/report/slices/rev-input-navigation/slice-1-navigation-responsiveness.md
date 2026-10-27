@@ -1,11 +1,12 @@
 # Slice 1: Restore responsive vertical navigation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `fix/rev-input-01-navigation-responsiveness`
 PR: [#81](https://forge.adrianpk.com/adrianpk/rev/pulls/81)
+Integrated: `44edc37bcb15d5bb9ff1ed2456c5f5381515ad26`
 
 ## Purpose
 
@@ -17,8 +18,8 @@ preserving ordered input and canonical editing state.
 Repeated Up/Down input is consumed in bounded batches before drawing. Every
 event still reaches its native handler in order; no input is dropped. Ordinary
 and large documents retain their bytes, accurate movement, bounds and undo.
-The native scheduling and focused PTY regressions pass. The controller owns
-the clean-HEAD handoff checks listed below.
+The native scheduling and focused PTY regressions pass. The controller verified
+the canonical PR and integrated its exact validated candidate into dev.
 
 ## Implementation Notes
 
@@ -83,15 +84,19 @@ No input event may be discarded to reduce the measured backlog.
 - The extended PTY suite also passes standalone Escape expiry followed by
   ordinary insertion/undo and nested-prefix cancellation in every fixture.
 
-Clean-HEAD handoff uses controller evidence for this exact ordered list:
+PASS: canonical clean-HEAD evidence `JAGKIAXYUR5X37CCUFQZDRF2BG` records
+these five commands for the integrated commit:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
 - `cargo test --test commands --test display --test windows --test recovery`
 - `python3 scripts/check-source.py`
-- `cargo test --lib session::events::tests`
-- `python3 scripts/check-pty.py --suite navigation`
 - `git diff --check`
+
+PASS: retained clean-HEAD evidence `HPKPBCV7JJPONAAG554JFKMZ55` also records
+`cargo test --lib session::events::tests` and
+`python3 scripts/check-pty.py --suite navigation` on the same candidate. Wide
+surface release tails were 22.66-34.68 ms, within the unchanged 150 ms bound.
 
 ## Risks and Follow-ups
 
