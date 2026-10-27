@@ -133,8 +133,10 @@ Details and exact checks: [Slice 8](../plan/rev-input-navigation.md#slice-8-pres
 
 - [x] T8.1: Complete narrow/zero/resized geometry with the accepted degradation order, left/right placement, nested splits, tree and completion-region coexistence.
 - [x] T8.2: Audit every display-to-text consumer including rectangles, hit-test preparation, search overlays and status bounds; avoid independent coordinate recipes.
-- [ ] T8.3: Exercise actual editing/reveal/save/history and mode switches, verify no idle gutter work or retained per-document label arrays, and close the gutter ticket only after its assigned integrations.
+- [x] T8.3: Exercise actual editing/reveal/save/history and mode switches, verify no idle gutter work or retained per-document label arrays, and close the gutter ticket only after its assigned integrations.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 8 implementation is complete; canonical PR and final clean-HEAD evidence are recorded before handoff. Integration remains pending, including final gutter-ticket closure after its assigned primary integrations. The [canonical report](../report/slices/rev-input-navigation/slice-8-gutter-geometry.md) records decoded lane bounds, fixed coordinate consumers and owned terminal/history/idle evidence. T8.1: `5ce05ad03e318bdb03b742a1678f3f679488789c`. T8.2: `b859c68e3e388aa11c65874adbdde19a70f05c50`.
 
 ### Slice 9: align pane status into left and right groups
 

@@ -1,6 +1,6 @@
 # Slice 8: Preserve gutter geometry across editor surfaces
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -21,6 +21,8 @@ editing surfaces, shared panes and actual terminal interaction.
 - Search, syntax, linear selection, rectangle selection and accepted cursors
   share final text origins on either side, hidden fields and horizontal clipping.
 - Rectangle capture retains document-relative columns and exact source rows.
+- File-completion candidates remain unnumbered and preserve every editing view
+  through shrink/zero/grow and cancellation.
 - Zero/tiny suspension and shrink/grow cycles retain view identities, points,
   requested gutter policies, canonical source and completion drafts.
 
@@ -42,6 +44,18 @@ the original pane's distinct reserved row. Tree/completion retain separate panel
 `Panel::position` admits only content-local cells; final text panels reject their
 right/bottom edges. The checked partition supplies the later hit-mapping bounds.
 
+Bounded-work inspection confirms that `Projection`, `Policy` and `Geometry`
+retain only fixed-size metadata; number rows are produced only inside the visible
+height loop. Hidden/suppressed lanes return before row materialization. Full line
+counts use existing rope metadata and point lookup uses the existing line index;
+there is no gutter timer, scanner or background owner. The native idle deadline
+returns `Wait`. Two owned PTYs separately observe no output or process CPU ticks
+during a 120 ms idle sample. These are bounded functional/idle observations,
+not the later combined performance workload gate.
+
+The gutter ticket remains active until verified integration of its final primary
+Slice 8, preserving its assigned primary-slice closure condition.
+
 ## Contracts Added or Changed
 
 GUT05 retains the final text coordinate boundary; GUT06 protects complete text
@@ -54,6 +68,9 @@ projection; GUT14 verifies native and terminal editor boundaries.
 - `tests/gutter/surfaces.rs`: explicit physical search/region/syntax/cursor bounds and rectangle capture.
 - `src/gutter/geometry.rs`, `src/panel/composition.rs`: existing checked owners.
 
+- `tests/gutter/completion.rs`: real path candidates, complete view retention and idle admission.
+- `scripts/configuration_ui/gutter_geometry.py`: owned nested terminal/history/idle journeys.
+
 ## Validation
 
 - PASS: `cargo test --test gutter workspace::` covers 48 actual frame projections
@@ -65,6 +82,31 @@ projection; GUT14 verifies native and terminal editor boundaries.
   Actual underlined cells, region/syntax spans, cursor positions, peer points,
   status/border exclusion and copied `fn` rectangle rows remain coherent.
 - PASS: `python3 scripts/check-source.py` retains all unchanged source limits.
+
+- PASS: `cargo test --test gutter completion::` verifies path candidates and query
+  ownership across zero/tiny and restored geometry, complete view retention,
+  canonical source/history and a native idle deadline.
+- PASS: `python3 scripts/check-pty.py --suite gutter-geometry` (two owned sessions,
+  zero skipped). RGB and monochrome journeys verify nested independent relative
+  origins and sides, tree/path coexistence, zero resize and restored points,
+  edit/save/undo/redo with exact BOM/Unicode/CRLF bytes, view close and idle output/
+  CPU-tick samples. Every owned child and terminal descriptor is restored/reaped;
+  eight-second and one-MiB limits remain unchanged.
+
+The controller records final clean-HEAD results for this canonical list:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test gutter --test display --test panels --test windows --test search --test path_completion`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Separate focused final evidence uses the same head and this ordered list:
+
+- `cargo test --test rectangles --test syntax`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-pty.py --suite gutter-geometry`
+- `git diff --check`
 
 ## Risks and Follow-ups
 

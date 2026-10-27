@@ -5,6 +5,8 @@ mod config_fixture;
 
 #[path = "gutter/alignment.rs"]
 mod alignment;
+#[path = "gutter/completion.rs"]
+mod completion;
 #[path = "gutter/controls.rs"]
 mod controls;
 #[path = "gutter/geometry.rs"]

@@ -13,7 +13,7 @@ use super::{Buffers, config_fixture::Fixture, surface};
 
 const SOURCE: &str = "\tfn target() { let text = \"界e\u{301}\"; }\r\n\tfn second() {}\r\n";
 
-fn editor(fixture: &Fixture, side: bool, visible: bool) -> Session {
+pub(super) fn editor(fixture: &Fixture, side: bool, visible: bool) -> Session {
     let path = fixture.write("main.rs", SOURCE);
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();

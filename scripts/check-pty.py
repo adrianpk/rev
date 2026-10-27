@@ -3012,13 +3012,18 @@ def acceptance(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["terminal", "acceptance", "navigation", "goto-line", "whitespace", "absolute-gutter", "gutter-controls"], required=True)
+    parser.add_argument("--suite", choices=["terminal", "acceptance", "navigation", "goto-line", "whitespace", "absolute-gutter", "gutter-controls", "gutter-geometry"], required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     build = ["cargo", "build", "--bin", "rev"]
     if args.suite == "terminal":
         build.extend(["--example", "terminal-probe"])
     subprocess.run(build, cwd=root, check=True)
+    if args.suite == "gutter-geometry":
+        from configuration_ui.gutter_geometry import run
+        with tempfile.TemporaryDirectory(prefix="rev-gutter-geometry-") as directory:
+            run(Path(directory))
+        return
     if args.suite == "gutter-controls":
         from configuration_ui.gutter_controls import run
         with tempfile.TemporaryDirectory(prefix="rev-gutter-controls-") as directory:
