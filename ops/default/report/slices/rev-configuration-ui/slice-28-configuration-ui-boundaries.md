@@ -1,6 +1,6 @@
 # Slice 28: Harden cross-feature failure boundaries
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -96,8 +96,10 @@ Successful focused development checks:
 - Changed-source native quality checks passed with at most five parameters,
   nesting at most two and cyclomatic complexity at most ten.
 
-Final readiness requires controller evidence for the clean PR head after the
-PR-reference follow-up commit, with this exact command order:
+All eight commands passed on clean head `dd02eb4fc85630c10565f28a98a5dd16f7a23626`, controller validation
+`242PT4VM24GVANC7X5NHVC7YGS`: 78 configuration, 43 path completion, 42 rectangle
+and 19 recovery tests, zero failures or ignored tests. Canonical PR #77
+integrated that exact head into dev by Rebase + Fast-forward. Command order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

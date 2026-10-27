@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 28 - Harden cross-feature failure boundaries
+Active slice: Slice 29 - Bound startup and completion work
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -739,7 +739,7 @@ Details and checks: [Slice 28](../plan/rev-configuration-ui.md#slice-28-harden-c
 - [x] T28.1: Complete adversarial coverage of include cycles/limits/read failures, layered key collisions, association overlaps, whole-candidate rollback and candidate-list stale filesystem state.
 - [x] T28.2: Exercise cross-width rectangle copy/kill/yank, successful and failed file/directory rename policies, CRLF/BOM fidelity, shared views and undo/saved-state truth with configured limits.
 - [x] T28.3: Repair only bounded defects in approved owners revealed by these checks; no new features or duplicated blanket test suite. Map each failure boundary to the requirement it can falsify.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T28.1 `a56ad61f17e6092af3c423ad38fce33a1c91c335`; T28.2 `c918b3a0945a07ef26756a1f6ac7e45b3ba0a5d6`;
 T28.3 `37ef43b857d9a8a37231855ef236e5850097ecff`.
@@ -748,8 +748,10 @@ and configured rename/history checks pass. Existing graph fixtures are extended;
 four new parameterized native tests cover changed filesystem contents/kinds,
 formatted shared transfer and real rename failures/success with bounded history.
 The report maps each boundary to the requirement it can falsify. No runtime
-repair is required by these checks. Final readiness requires controller evidence for the clean PR head;
-dev integration belongs to the controller.
+repair is required by these checks. All eight ordered checks passed on `dd02eb4fc85630c10565f28a98a5dd16f7a23626`, controller validation
+`242PT4VM24GVANC7X5NHVC7YGS`, including 182 native tests with zero failures or
+ignored tests. Canonical PR #77 integrated that exact head by Rebase +
+Fast-forward into dev. Slice 28 of 30 completed.
 Report: [Slice 28](../report/slices/rev-configuration-ui/slice-28-configuration-ui-boundaries.md).
 PR: [#77](https://forge.adrianpk.com/adrianpk/rev/pulls/77).
 
