@@ -102,16 +102,21 @@ impl Row {
     pub(super) fn write(
         &self,
         writer: &mut impl Write,
-        _palette: &crate::config::Palette,
+        palette: &crate::config::Palette,
     ) -> io::Result<()> {
         if self.plain() {
             return writer.write_all(self.text.as_bytes());
         }
         let mut attributes = Attributes::default();
         for glyph in Glyphs::for_text(&self.text).map_err(io::Error::other)? {
-            self.write_glyph(writer, glyph.map_err(io::Error::other)?, &mut attributes)?;
+            self.write_glyph(
+                writer,
+                glyph.map_err(io::Error::other)?,
+                &mut attributes,
+                palette,
+            )?;
         }
-        super::syntax::color(writer, None, &mut attributes.foreground)?;
+        super::syntax::color(writer, None, &mut attributes.foreground, &palette.syntax)?;
         reverse(writer, false, &mut attributes.reversed)?;
         underline(writer, false, &mut attributes.underlined)
     }
@@ -125,14 +130,15 @@ impl Row {
         writer: &mut impl Write,
         glyph: crate::coordinates::Glyph<'_>,
         attributes: &mut Attributes,
+        palette: &crate::config::Palette,
     ) -> io::Result<()> {
         let column = glyph.columns.start;
-        super::syntax::color(writer, self.style(column), &mut attributes.foreground)?;
-        reverse(
-            writer,
-            covers(&self.selection, column),
-            &mut attributes.reversed,
-        )?;
+        let selected = covers(&self.selection, column);
+        // Selection owns its appearance. A syntax foreground must not become
+        // the reverse-video background or survive into the selected glyph.
+        let style = if selected { None } else { self.style(column) };
+        super::syntax::color(writer, style, &mut attributes.foreground, &palette.syntax)?;
+        reverse(writer, selected, &mut attributes.reversed)?;
         underline(
             writer,
             covers(&self.search, column),

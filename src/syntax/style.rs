@@ -29,16 +29,4 @@ impl Style {
             _ => None,
         }
     }
-
-    pub(crate) fn color(self) -> u8 {
-        match self {
-            Self::Keyword => 176,
-            Self::String => 114,
-            Self::Comment => 244,
-            Self::Type => 81,
-            Self::Function => 75,
-            Self::Number => 215,
-            Self::Punctuation => 250,
-        }
-    }
 }

@@ -144,8 +144,8 @@ fn visual_only() {
     frame.write(&mut terminal).unwrap();
     assert!(
         terminal
-            .windows(b"\x1b[38;5;176m".len())
-            .any(|bytes| bytes == b"\x1b[38;5;176m")
+            .windows(b"\x1b[38;2;157;124;216m".len())
+            .any(|bytes| bytes == b"\x1b[38;2;157;124;216m")
     );
     assert!(terminal.windows(5).any(|bytes| bytes == b"\x1b[39m"));
     assert_eq!(frame.cursor().unwrap().column, 0);

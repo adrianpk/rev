@@ -351,7 +351,7 @@ Contracts: CFG04, CFG18, UI01. Tickets: TKT-20261027103710, TKT-20261027085102.
 Details and checks: [Slice 13](../plan/rev-configuration-ui.md#slice-13-resolve-palette-and-syntax-colors).
 
 - [x] T13.1: Implement all 25 selected palette roles using the pinned Tokyo Night Neovim night values, including all seven existing syntax classes. Every present leaf overrides only itself.
-- [ ] T13.2: Replace hardcoded syntax ANSI indices with configured RGB style resolution through existing captures. Preserve capture mapping, incremental parsing and plain-text fallback; add no grammars.
+- [x] T13.2: Replace hardcoded syntax ANSI indices with configured RGB style resolution through existing captures. Preserve capture mapping, incremental parsing and plain-text fallback; add no grammars.
 - [ ] T13.3: Test all default values, single-role overrides, invalid RGB rejection, selected text precedence over syntax and Rust/plain policy changes without touching document/history.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

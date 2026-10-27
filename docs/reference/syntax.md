@@ -15,26 +15,34 @@ can use Rust presentation without creating a disk file.
 
 ## Palette
 
-The fixed palette applies only to document foregrounds. Terminal backgrounds
-remain unchanged. Unknown query capture groups retain the default foreground.
+Document syntax uses the semantic RGB palette, with these built-in Tokyo Night
+night colors. The library's registry composition reads overrides from its
+admitted configuration snapshot; a standalone `Frame::project` uses defaults
+unless supplied a palette with `Frame::with_palette`.
 
-| Captures | Foreground | ANSI palette index |
+| Captures | Palette role | RGB default |
 | --- | --- | --- |
-| Keywords | Muted magenta | 176 |
-| Strings and escapes | Green | 114 |
-| Comments and documentation comments | Gray | 244 |
-| Types and constructors | Cyan | 81 |
-| Functions, methods and macros | Blue | 75 |
-| Constants, booleans and numeric literals | Amber | 215 |
-| Grammar-provided punctuation and operators | Light gray | 250 |
+| Keywords | `palette.syntax.keyword` | `#9d7cd8` |
+| Strings and escapes | `palette.syntax.string` | `#9ece6a` |
+| Comments and documentation comments | `palette.syntax.comment` | `#565f89` |
+| Types and constructors | `palette.syntax.type` | `#2ac3de` |
+| Functions, methods and macros | `palette.syntax.function` | `#7aa2f7` |
+| Constants, booleans and numeric literals | `palette.syntax.number` | `#ff9e64` |
+| Grammar-provided punctuation and operators | `palette.syntax.punctuation` | `#89ddff` |
 
-The bundled query determines which tokens receive captures. Highlighting does
-not invent extra language coverage from character matching. Region reverse video
-and search underlining remain independent of foreground colors. Tree labels,
-status lines, prompts, dividers and buffer inventory keep their normal styling.
-Foreground resets at row boundaries prevent color from leaking into those areas.
+Each present RGB leaf replaces only its own role. Unknown query capture groups
+retain the terminal foreground. The bundled query determines which tokens
+receive captures; highlighting does not invent language coverage from character
+matching. Selected cells suppress syntax foregrounds before reverse video, and
+search underlining remains independent. Foreground resets at row boundaries
+prevent syntax colors leaking into tree labels, status, prompts and dividers.
 The standard `NO_COLOR` environment preference suppresses foreground sequences
-without changing recognition, text or selection behavior.
+without changing recognition, text or selection behavior. RGB fidelity depends
+on the terminal's true-color support.
+
+Executable startup configuration loading is not active yet; it uses the
+compiled syntax defaults. Remaining UI palette roles and cursor restoration are
+part of the pending presentation work.
 
 ## Source and display coordinates
 

@@ -2562,14 +2562,14 @@ def rust_syntax(root):
             session.ready(b"> main.rs -- RW L1 C1 Rust")
             group_step(session, b"\x0c", b"> main.rs -- RW L1 C1 Rust")
             frame = last_frame(session)
-            assert b"\x1b[38;5;176mfn\x1b[39m" in frame
-            assert b"\x1b[38;5;75mmain\x1b[38;5;250m" in frame
-            assert b"\x1b[38;5;114m" + '"界"'.encode() + b"\x1b[38;5;250m" in frame
-            assert b"\x1b[38;5;244m// note\x1b[39m" in frame
-            group_step(session, b"// ", b"> main.rs ** RW L1 C4 Rust", b"\x1b[38;5;244m// fn main() {")
+            assert b"\x1b[38;2;157;124;216mfn\x1b[39m" in frame
+            assert b"\x1b[38;2;122;162;247mmain\x1b[38;2;137;221;255m" in frame
+            assert b"\x1b[38;2;158;206;106m" + '"界"'.encode() + b"\x1b[38;2;137;221;255m" in frame
+            assert b"\x1b[38;2;86;95;137m// note\x1b[39m" in frame
+            group_step(session, b"// ", b"> main.rs ** RW L1 C4 Rust", b"\x1b[38;2;86;95;137m// fn main() {")
             group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L1 C4 Rust")
             assert path.read_bytes() == b"// " + source
-            group_step(session, b"\x18u", b"> main.rs ** RW L1 C1 Rust", b"\x1b[38;5;176mfn")
+            group_step(session, b"\x18u", b"> main.rs ** RW L1 C1 Rust", b"\x1b[38;2;157;124;216mfn")
             named_step(session, "undo-redo", b"> main.rs -- RW L1 C4 Rust")
             assert path.read_bytes() == b"// " + source
             os.write(session.master, b"\x18\x03")
@@ -2594,13 +2594,13 @@ def syntax_fallback(root):
         try:
             session.ready(b"> source.txt -- RW L1 C1 Text")
             group_step(session, b"// ", b"> source.txt ** RW L1 C4 Text")
-            assert b"\x1b[38;5;" not in last_frame(session)
+            assert b"\x1b[38;2;" not in last_frame(session)
             for target, mode in [(rust, b"Rust"), (plain, b"Text")]:
                 group_step(session, b"\x18\x17", b"Write file: ")
                 group_step(session, paste_wire(str(target).encode()), target.name.encode())
                 group_step(session, b"\r", b"Saved ", b"> " + target.name.encode() + b" -- RW L1 C4 " + mode)
                 assert target.read_bytes() == b"// " + source
-                assert (b"\x1b[38;5;244m" in last_frame(session)) == (mode == b"Rust")
+                assert (b"\x1b[38;2;86;95;137m" in last_frame(session)) == (mode == b"Rust")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2623,16 +2623,16 @@ def incremental_shared(root):
             session.ready(b"> main.rs -- RW L1 C1 Rust")
             group_step(session, b"\x183", b"> main.rs -- RW L1 C1 Rust", b"|")
             group_step(session, paste_wire(prefix), b"> main.rs ** RW L2 C1 Rust")
-            assert last_frame(session).count(b"\x1b[38;5;176mfn") == 2
+            assert last_frame(session).count(b"\x1b[38;2;157;124;216mfn") == 2
             group_step(session, b"\x00", b"Mark set")
             group_step(session, b"\x06\x06", b"> main.rs ** RW L2 C3 Rust", b"\x1b[7m")
             group_step(session, b"\x13alpha", b"I-search: alpha", b"> main.rs ** RW L2 C9 Rust")
             frame = last_frame(session)
-            assert b"\x1b[38;5;176m" in frame and b"\x1b[38;5;75m" in frame
+            assert b"\x1b[38;2;157;124;216m" in frame and b"\x1b[38;2;122;162;247m" in frame
             assert b"\x1b[7m" in frame and b"\x1b[4m" in frame
             group_step(session, b"\r", b"> main.rs ** RW L2 C9 Rust")
             group_step(session, b"\x18u", b"> main.rs -- RW L1 C1 Rust")
-            assert last_frame(session).count(b"\x1b[38;5;176mfn") == 2
+            assert last_frame(session).count(b"\x1b[38;2;157;124;216mfn") == 2
             named_step(session, "undo-redo", b"> main.rs ** RW L2 C1 Rust")
             group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L2 C1 Rust")
             assert path.read_bytes() == prefix + source
@@ -2657,13 +2657,13 @@ def incremental_rectangles(root):
             group_step(session, b"\x18 ", b"Rectangle mark set")
             group_step(session, b"\x0e\x06\x06", b"L2 C6 Rust")
             group_step(session, b"\x18rk", b"Rectangle killed", b"> rect.rs ** RW L1 C4 Rust")
-            assert b"\x1b[38;5;75m" not in last_frame(session)
+            assert b"\x1b[38;2;122;162;247m" not in last_frame(session)
             group_step(session, b"\x18u", b"> rect.rs -- RW L2 C6 Rust")
-            assert b"\x1b[38;5;75mab" in last_frame(session) and b"\x1b[38;5;75mcd" in last_frame(session)
+            assert b"\x1b[38;2;122;162;247mab" in last_frame(session) and b"\x1b[38;2;122;162;247mcd" in last_frame(session)
             named_step(session, "undo-redo", b"> rect.rs ** RW L1 C4 Rust")
-            assert b"\x1b[38;5;75m" not in last_frame(session)
+            assert b"\x1b[38;2;122;162;247m" not in last_frame(session)
             group_step(session, b"\x18ry", b"Rectangle yanked")
-            assert b"\x1b[38;5;75mab" in last_frame(session) and b"\x1b[38;5;75mcd" in last_frame(session)
+            assert b"\x1b[38;2;122;162;247mab" in last_frame(session) and b"\x1b[38;2;122;162;247mcd" in last_frame(session)
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -2781,7 +2781,7 @@ def acceptance_document(root):
             journey_step(session, str(path).encode(), b"main.rs")
             journey_step(session, b"\r", b"Saved ", b"-- RW L4 C1 Rust")
             assert path.read_bytes() == source
-            assert b"\x1b[38;5;176mfn" in last_frame(session)
+            assert b"\x1b[38;2;157;124;216mfn" in last_frame(session)
             journey_step(session, b"\x1b<\x1bf", b"-- RW L1 C3 Rust")
             named_step(session, "backward-word", b"-- RW L1 C1 Rust")
             journey_step(session, b"\x183", b"|", b"main.rs -- RW")
@@ -2812,7 +2812,7 @@ def acceptance_document(root):
         session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
         try:
             session.ready(b"> main.rs -- RW L1 C1 Rust")
-            assert b"\x1b[38;5;176mfn" in session.output
+            assert b"\x1b[38;2;157;124;216mfn" in session.output
             journey_step(session, b"\x13name", b"I-search: name", b"\x1b[4m")
             journey_step(session, b"\r", b"-- RW L2 C13 Rust")
             journey_step(session, b"\x18u", b"Nothing to undo")
