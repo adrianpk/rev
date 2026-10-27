@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 25 - Open selected and new file paths safely
+Active slice: Slice 26 - Publish exhaustive configuration reference
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -657,7 +657,7 @@ Details and checks: [Slice 25](../plan/rev-configuration-ui.md#slice-25-open-sel
 - [x] T25.1: Unify C-x C-f and M-x find-file: explicit selected-candidate Return accepts that identity; freely typed Return accepts the draft/new filename; an accepted directory descends without visiting a text buffer.
 - [x] T25.2: Open through existing canonical visit/file ownership, reusing dirty buffers and applying startup language/new-file policies. Candidate observation/completion cannot create files or publish saves.
 - [x] T25.3: Test revisit through aliases, relative canonical reuse, nonexistent file creation only in memory, failed/unreadable paths retaining prompt and active buffer, symlink destinations and no accidental save. Scope stays find-file.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T25.1 `27b9fd9133d8a018a29a8ac2b47b7a64a98a00c2`;
 T25.2 `cb8e0aa1b0bb3bb9d87a1c499dd6cca46789f4ae`;
@@ -668,8 +668,12 @@ selected/typed paths, directory continuation, dirty canonical reuse, frozen
 policies, real permission errors, unsupported names and symlink destinations.
 Two RGB/NO_COLOR acceptance PTYs, two navigation PTYs and the focused absent-path
 PTY preserve exact fixture bytes and create no files. Focused source checks pass;
-added or changed functions have nesting at most two. Final readiness requires controller evidence on the
-clean PR head; dev integration remains pending.
+added or changed functions have nesting at most two. Controller evidence
+`V27U3KLXUNXUICU6XL62WINBHD` passed all eleven ordered checks on
+`e86c5451203cac1f64279a4cc6a6e29762ed8989`: 260 native tests and five owned
+PTY sessions, zero skips. PR #74 merged through Rebase + Fast-forward into dev
+at that exact head; Acta merge event `01M5Z58JW4P9K1H1A796P17QM9` confirms
+integration. Slice 25 of 30 completed.
 Report: [Slice 25](../report/slices/rev-configuration-ui/slice-25-find-file-integration.md).
 PR: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74).
 

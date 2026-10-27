@@ -1,6 +1,6 @@
 # Slice 25: Open selected and new file paths safely
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -120,6 +120,12 @@ PR-reference follow-up commit, with this exact ordered command list:
 - `python3 scripts/check-path-acceptance.py`
 - `python3 -c 'import runpy; from pathlib import Path; runpy.run_path("scripts/check-pty.py")["new_visit"](Path.cwd())'`
 - `git diff --check`
+
+Verified controller evidence `V27U3KLXUNXUICU6XL62WINBHD` passed all eleven
+ordered checks on `e86c5451203cac1f64279a4cc6a6e29762ed8989`: 260 native tests
+and five owned PTY sessions, zero skips. Canonical PR #74 merged through Rebase +
+Fast-forward into dev at that exact head. Acta merge event
+`01M5Z58JW4P9K1H1A796P17QM9` records integration.
 
 ## Risks and Follow-ups
 
