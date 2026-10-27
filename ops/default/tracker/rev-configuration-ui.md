@@ -537,14 +537,15 @@ Details and checks: [Slice 20](../plan/rev-configuration-ui.md#slice-20-activate
 
 Task commits: T20.1 `5360fd648c27305d4feef87a2b1e4955df9f71db`;
 T20.2 `190b2e22967c8826692b8e03f85a2ea73ce614c5`;
-T20.3 is the Slice 20 report-introduction commit.
+T20.3 `d9004750b8165e7db2deb580171f49da022fd5c1`.
 Seven native startup cases (twelve isolated children) and four executable PTY
 sessions pass for XDG discovery, includes, all context maps, palette/tab/format
 behavior, complete fallback, diagnostics, passive roots and restart-only effects.
 Focused Clippy/source checks pass with nesting at most two. Required exact-head
 validation follows the PR-reference commit through the controller.
 Report: [Slice 20](../report/slices/rev-configuration-ui/slice-20-startup-configuration.md).
-PR: pending canonical creation; dev integration remains controller-owned.
+PR: [#69](https://forge.adrianpk.com/adrianpk/rev/pulls/69);
+dev integration remains controller-owned.
 
 ### Slice 21: Present vertical M-x candidates
 

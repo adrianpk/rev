@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-20-startup-configuration`
-PR: pending canonical creation
+PR: [#69](https://forge.adrianpk.com/adrianpk/rev/pulls/69)
 
 ## Purpose
 
@@ -46,7 +46,7 @@ executable before creating buffers and input owners, with usable default fallbac
 - T20.2: `190b2e22967c8826692b8e03f85a2ea73ce614c5` tests silent absence,
   complete fallback, source/key diagnostics after ingress, broken roots and
   environment resolution without modifying the parent process environment.
-- T20.3: this report-introduction commit adds restart/consumer and executable PTY
+- T20.3: `d9004750b8165e7db2deb580171f49da022fd5c1` adds restart/consumer and executable PTY
   regressions, updates startup documentation and records the delivered capability.
 - Isolated child processes supply HOME, XDG roots and CWD without unsafe global
   environment mutation. Their fixtures cover malformed project-local files,
