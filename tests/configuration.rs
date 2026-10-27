@@ -10,8 +10,12 @@ mod fixture;
 mod include_bounds;
 #[path = "configuration/includes.rs"]
 mod includes;
+#[path = "configuration/merging.rs"]
+mod merging;
 #[path = "configuration/parsing.rs"]
 mod parsing;
+#[path = "configuration/resolution.rs"]
+mod resolution;
 #[path = "configuration/scopes.rs"]
 mod scopes;
 #[path = "configuration/xdg.rs"]

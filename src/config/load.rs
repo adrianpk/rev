@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use super::{Diagnostic, Document, parse};
 
 const MAX_DEPTH: usize = 16;
-const MAX_SOURCES: usize = 64;
+pub(super) const MAX_SOURCES: usize = 64;
 const SOURCE_BYTES: usize = 256 * 1024;
 const TOTAL_BYTES: usize = 2 * 1024 * 1024;
 

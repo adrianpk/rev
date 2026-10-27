@@ -9,8 +9,11 @@
 
 mod diagnostic;
 mod load;
+mod merge;
 mod palette;
 mod parse;
+mod project;
+mod resolve;
 mod validate;
 mod xdg;
 
@@ -18,6 +21,7 @@ pub use diagnostic::{Diagnostic, Position};
 pub use load::{Source, Sources, load};
 pub use palette::{Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette};
 pub use parse::parse;
+pub use resolve::{Snapshot, resolve};
 pub use xdg::Roots;
 
 use std::collections::BTreeMap;
