@@ -1,6 +1,6 @@
 # Slice 16: Apply bounded history and prompt preferences
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -92,9 +92,11 @@ then failed shared search validation because one query-replace assertion still
 expected a numeric default in feedback. That assertion now checks the exact
 configurable-limit message; its focused regression passed.
 
-The controller records final evidence on the clean PR head after its
-PR-reference follow-up commit. Required commands precede the focused shared
-search/query-replace input regressions:
+Exact-head controller evidence `J2BSWUIQSV6737HEY2XJVFC6MD` passed all eight
+commands below at `726dbfbedf3192c25a45188ad143ef96aceb4940`: 240 native tests,
+zero skips, formatting, Clippy, source and whitespace checks. PR #65 merged by
+Rebase + Fast-forward into `dev` at that head. Slice 16 of 30 completed.
+Required commands precede focused shared search/query-replace input regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

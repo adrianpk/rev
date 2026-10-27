@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 16 - Apply bounded history and prompt preferences
+Active slice: Slice 17 - Validate context keymaps
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -432,7 +432,7 @@ Details and checks: [Slice 16](../plan/rev-configuration-ui.md#slice-16-apply-bo
 - [x] T16.1: Apply whole-group history count and soft payload target through the existing history owner, preserving the newest coherent transaction and truthful saved state.
 - [x] T16.2: Apply positive linear-ring capacity and directional coalescing; apply command history/input limits through existing prompt owners. No session persistence or time-based grouping is introduced.
 - [x] T16.3: Test retention below one compound rectangle, ring eviction, coalescing disabled, bounded Unicode prompt input and cancellation after an over-limit error. Avoid tests that only mirror field assignment.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T16.1 `c9c6abca1aaf167768bc8810939bd7a3ea0199f7`;
 T16.2 `8da79cb8dcfd7cc0dce6e98f8d891b75469f8aff`;
@@ -444,7 +444,11 @@ limits, bounded completion/recall, command retention, literal search and both
 query-replace stages retain cancellation. Focused Clippy and source checks passed.
 Report: [Slice 16](../report/slices/rev-configuration-ui/slice-16-bounded-preferences.md).
 PR: [#65](https://forge.adrianpk.com/adrianpk/rev/pulls/65);
-dev integration remains controller-owned.
+Rebase + Fast-forward integration verified at
+`726dbfbedf3192c25a45188ad143ef96aceb4940`. Exact-head controller evidence
+`J2BSWUIQSV6737HEY2XJVFC6MD` passed all eight commands: 240 native tests,
+zero skips, formatting, Clippy, source and whitespace checks.
+Slice 16 of 30 completed.
 
 ### Slice 17: Validate context keymaps
 
