@@ -741,15 +741,17 @@ Details and checks: [Slice 28](../plan/rev-configuration-ui.md#slice-28-harden-c
 - [x] T28.3: Repair only bounded defects in approved owners revealed by these checks; no new features or duplicated blanket test suite. Map each failure boundary to the requirement it can falsify.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
-Task commits: T28.1 `a56ad61f17e6`; T28.2 `c918b3a0945a`.
+Task commits: T28.1 `a56ad61f17e6092af3c423ad38fce33a1c91c335`; T28.2 `c918b3a0945a07ef26756a1f6ac7e45b3ba0a5d6`;
+T28.3 `37ef43b857d9a8a37231855ef236e5850097ecff`.
 Focused configuration/include/key/association, stale path, cross-width rectangle
 and configured rename/history checks pass. Existing graph fixtures are extended;
 four new parameterized native tests cover changed filesystem contents/kinds,
 formatted shared transfer and real rename failures/success with bounded history.
 The report maps each boundary to the requirement it can falsify. No runtime
-repair is required by these checks. Final exact-head validation and canonical
-PR follow-up remain pending; integration belongs to the controller.
+repair is required by these checks. Final readiness requires controller evidence for the clean PR head;
+dev integration belongs to the controller.
 Report: [Slice 28](../report/slices/rev-configuration-ui/slice-28-configuration-ui-boundaries.md).
+PR: [#77](https://forge.adrianpk.com/adrianpk/rev/pulls/77).
 
 ### Slice 29: Bound startup and completion work
 

@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `test/rev-config-ui-28-configuration-ui-boundaries`
-PR: pending
+PR: [#77](https://forge.adrianpk.com/adrianpk/rev/pulls/77)
 
 ## Purpose
 
@@ -45,11 +45,11 @@ existing configuration, completion, rectangle and rename owners.
 
 ## Implementation Notes
 
-- T28.1: `a56ad61f17e6` extends existing configuration fixtures and adds two
+- T28.1: `a56ad61f17e6092af3c423ad38fce33a1c91c335` extends existing configuration fixtures and adds two
   native stale-path tests using the existing configured session fixture.
-- T28.2: `c918b3a0945a` adds two parameterized native boundary tests for formatted
+- T28.2: `c918b3a0945a07ef26756a1f6ac7e45b3ba0a5d6` adds two parameterized native boundary tests for formatted
   rectangle transfer and configured file/directory rename/history workflows.
-- T28.3 records the falsifiable requirement map below. All focused behavior
+- T28.3: `37ef43b857d9a8a37231855ef236e5850097ecff` records the falsifiable requirement map below. All focused behavior
   checks pass on the existing runtime; no runtime repair is required.
 - All changes use native integration targets, existing owned temporary fixtures
   and real filesystem operations. Permission modes are restored before
