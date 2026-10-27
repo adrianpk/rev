@@ -1,6 +1,6 @@
 # Slice 26: Publish exhaustive configuration reference
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -113,6 +113,12 @@ PR-reference follow-up commit, in this exact order:
 - `python3 scripts/check-source.py`
 - `python3 scripts/test_config_reference.py`
 - `git diff --check`
+
+Verified controller evidence `Z6U4KHAMZQDKNIIFHVKN5LOHP3` passed all seven
+ordered checks on `3a8591e5bee3c38b1abafc3d8a3d1163a045026d`: 78 native tests
+and seven named drift probes, zero skips. Canonical PR #75 merged through Rebase +
+Fast-forward into dev at that exact head. Acta merge event
+`01M5Z6FFTEJSGBQYA6HPBF1ERC` records integration.
 
 ## Risks and Follow-ups
 
