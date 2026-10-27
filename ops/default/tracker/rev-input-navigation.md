@@ -39,7 +39,7 @@ Plan: [Input and Navigation Delivery](../plan/rev-input-navigation.md)
 
 ## Task state
 
-All unchecked tasks remain work to do; no implementation evidence is claimed.
+All unchecked tasks remain work to do; checked tasks have evidence below.
 Use one Conventional Commit per task when practical, retaining this repository's existing (Tn.m) suffix convention without exporting it to other projects.
 
 ### Slice 1: restore responsive vertical navigation
@@ -47,10 +47,12 @@ Use one Conventional Commit per task when practical, retaining this repository's
 Contracts: R07 R16.
 Details and exact checks: [Slice 1](../plan/rev-input-navigation.md#slice-1-restore-responsive-vertical-navigation).
 
-- [ ] T1.1: Reproduce the reported repeat-input tail through the existing terminal/event/render path; record the tested build, fixture, input rate and measured cause before changing scheduling.
+- [x] T1.1: Reproduce the reported repeat-input tail through the existing terminal/event/render path; record the tested build, fixture, input rate and measured cause before changing scheduling.
 - [ ] T1.2: Correct the demonstrated bottleneck with finite event/render work; preserve every ordered text/command transition, Escape deadlines, C-g, history and both arrow directions. Do not discard input merely to hide a backlog.
 - [ ] T1.3: Add a meaningful regression, check ordinary/large files and boundary reversal, and record exact focused evidence and the canonical slice report.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 1 investigation: the [canonical report](../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md) records baseline build, isolated PTY fixtures, rates and measured rendering backlog. Correction and exact clean-HEAD validation remain pending.
 
 ### Slice 2: add Emacs-style line navigation
 

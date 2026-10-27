@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027190521
 title: Stop prolonged movement after repeated vertical arrow input
-status: open
+status: in_progress
 kind: bug
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,9 @@ scope: ui
 tags: navigation, scrolling, input
 source: chat
 reported_at: 2026-10-27T19:05:21Z
+ready_at: 2026-10-27T20:20:54Z
+started_at: 2026-10-27T20:20:54Z
+branch: fix/rev-input-01-navigation-responsiveness
 commits: []
 ---
 
