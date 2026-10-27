@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 7 - Apply indentation and new-file defaults
+Active slice: Slice 8 - Capture Emacs-style rectangles
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -201,7 +201,7 @@ Details and checks: [Slice 7](../plan/rev-configuration-ui.md#slice-7-apply-inde
 - [x] T7.1: Route Tab through the effective policy: literal U+0009 for tabs; enough spaces for the next indent_width stop for spaces. Bracketed paste remains literal and one normal undo operation.
 - [x] T7.2: Apply configured LF/CRLF and BOM only when creating a new buffer. Existing files retain recognized BOM, mixed/newline fidelity and final-newline absence through save.
 - [x] T7.3: Test nonaligned columns, tabs already in text, wide Unicode, read-only refusal, undo/redo and existing-file save fidelity. Do not implement conversion commands.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T7.1 `8800c20c6a6df0a1f0796dc26607d80faf30b111`;
 T7.2 `7c34b501f11ed17174d108dbdfc38419b817e3ee`;
@@ -210,10 +210,13 @@ Development validation: three focused indentation/paste/dispatch tests and five
 file-format tests passed. Coverage includes Unicode display columns, opposing
 widths, read-only refusal, new-file Return/save/undo, existing format fidelity,
 settings replacement and final-buffer recreation. Focused Clippy passed.
-Final exact-head evidence belongs to the controller.
+All seven ordered checks passed on `e6d781ad529cdb57ca20ede62ac76984c6a77505`,
+controller validation `S7M2KNEOYW3XTZSQU4M3ESKR2Y`, including 92 editing,
+67 file and 66 command tests.
 Report: [Slice 7](../report/slices/rev-configuration-ui/slice-7-indentation-and-format.md).
 PR: [#56](https://forge.adrianpk.com/adrianpk/rev/pulls/56);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`e6d781ad529cdb57ca20ede62ac76984c6a77505`. Slice 7 of 30 completed.
 
 ### Slice 8: Capture Emacs-style rectangles
 

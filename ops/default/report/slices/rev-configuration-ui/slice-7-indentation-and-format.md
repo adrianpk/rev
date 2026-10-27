@@ -1,6 +1,6 @@
 # Slice 7: Apply indentation and new-file defaults
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -86,8 +86,11 @@ Development checks:
 - `cargo test --test files format::`: passed; five tests.
 - `cargo clippy --lib --test commands --test files -- -D warnings`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+The controller recorded all seven ordered checks passing on clean head
+`e6d781ad529cdb57ca20ede62ac76984c6a77505`, validation
+`S7M2KNEOYW3XTZSQU4M3ESKR2Y`: 92 editing, 67 file and 66 command tests.
+Canonical PR #56 integrated that exact head into dev by Rebase + Fast-forward.
+Required commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
