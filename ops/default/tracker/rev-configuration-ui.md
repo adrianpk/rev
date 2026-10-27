@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 21 - Present vertical M-x candidates
+Active slice: Slice 22 - Navigate and execute command candidates
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -558,7 +558,7 @@ Details and checks: [Slice 21](../plan/rev-configuration-ui.md#slice-21-present-
 - [x] T21.1: Replace horizontal joined hints with query-plus-vertical candidate rows in the auxiliary panel. Apply configured row limit and matching mode with stable rank/order, safe Unicode clipping and explicit empty results.
 - [x] T21.2: Retain selected row and scroll origin independently of editable query; draw selected command clearly using semantic palette roles, without rendering-side filesystem reads or dispatch.
 - [x] T21.3: Test many matches, query filtering, zero available candidate rows, tree/nested panes, resize and draft/selection retention. Preserve the underlying editing viewport contract.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T21.1 `5ff7d648583fa5da25a08c6c87b1e9149ec9bea4`;
 T21.2 `46cb306acc8409ad2297b23defed8c557c58c4a7`;
@@ -567,11 +567,13 @@ Nine command-list regressions, one command-region geometry case and two actual
 RGB/NO_COLOR terminal sessions pass for configured matching/limits, vertical rows,
 explicit empty results, retained selection/origin, Unicode/tiny frames, tree and
 nested panes, and unchanged editing viewports. Focused Clippy/source checks pass
-with nesting at most two. Required exact-head validation follows the PR-reference
-commit through the controller.
+with nesting at most two. Final evidence `5OVU5L53D5Q6FFAJFJDAVYIT6O` passed
+all nine ordered checks at clean head `f3b62e02f067e64bf515a28c8f0e5aaf4b18ba58`:
+226 native tests and two terminal sessions, zero skips.
 Report: [Slice 21](../report/slices/rev-configuration-ui/slice-21-vertical-command-list.md).
 PR: [#70](https://forge.adrianpk.com/adrianpk/rev/pulls/70);
-dev integration remains controller-owned.
+verified controller integration into dev at that same head.
+Acta merge event: `01M5Z18NCM7G3KN36JN0YBMHBY`.
 
 ### Slice 22: Navigate and execute command candidates
 

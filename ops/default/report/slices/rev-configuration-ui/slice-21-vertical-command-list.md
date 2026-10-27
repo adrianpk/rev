@@ -1,6 +1,6 @@
 # Slice 21: Present vertical M-x candidates
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -96,9 +96,11 @@ Development checks:
 Initial controller evidence `PVC2LB7HPAUKC4XPB246XH6VFF` passed the six required
 checks, then stopped at the tree command-cursor assumption described above.
 Its corrected contract retains full-width bottom-row argument/decision assertions.
-The controller records final evidence on the clean PR head after its PR-reference
-follow-up commit. Required commands precede the focused tree/workspace and actual
-terminal regressions:
+Final evidence `5OVU5L53D5Q6FFAJFJDAVYIT6O` passed all nine ordered checks
+on clean head `f3b62e02f067e64bf515a28c8f0e5aaf4b18ba58`: 226 native tests
+and two terminal sessions, zero skips. The controller integrated PR #70 into dev
+at that same commit. Acta merge event: `01M5Z18NCM7G3KN36JN0YBMHBY`.
+Required commands precede the focused tree/workspace and terminal regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
