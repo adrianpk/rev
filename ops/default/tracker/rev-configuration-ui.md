@@ -60,8 +60,15 @@ Details and checks: [Slice 1](../plan/rev-configuration-ui.md#slice-1-model-type
 
 - [x] T1.1: Establish a small configuration owner with complete defaults and partial input types for the entire accepted model catalog; absence must survive parsing and language/include merging. Document ownership and numeric semantics without introducing a generic framework.
 - [x] T1.2: Pin toml 1.1.8 and serde 1.0.229 with only required parser/derive features; commit Cargo.lock, preserve Rust 1.98 and first-party safe Rust. Create the configuration integration test target and verify explicit false, zero and absent values.
-- [ ] T1.3: Record source/default/catalog invariants and preparatory status. Do not advertise operational configuration before Slice 20 wires all consumers.
+- [x] T1.3: Record source/default/catalog invariants and preparatory status. Do not advertise operational configuration before Slice 20 wires all consumers.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T1.1 `64038cccf6332c17410ad4fe85e589adfcccd5d9`;
+T1.2 `21bd37e90d8cd48d93e37e4284cf511f4485a524`.
+Development validation: library/test compilation and focused presence/catalog
+checks passed. Final exact-head slice evidence belongs to the controller.
+Report: [Slice 1](../report/slices/rev-configuration-ui/slice-1-config-types.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 2: Validate TOML and diagnostics
 

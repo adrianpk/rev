@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/catalog.rs"]
+mod catalog;
+
 use rev::config::{Document, Grammar, IndentStyle};
 
 // Input must retain explicit false/zero/empty values, even when they coincide
@@ -74,6 +77,10 @@ fn source_records() {
         r##"
 version = 1
 include = ["base.toml", "palette.toml"]
+[minibuffer]
+match = "substring"
+[tree]
+root = "file-parent"
 [files]
 newline = "crlf"
 bom = false
@@ -94,6 +101,11 @@ type = "#2ac3de"
     .unwrap();
     assert_eq!(input.version, Some(1));
     assert_eq!(input.include.unwrap(), ["base.toml", "palette.toml"]);
+    assert_eq!(
+        input.minibuffer.r#match,
+        Some(rev::config::Match::Substring)
+    );
+    assert_eq!(input.tree.root, Some(rev::config::TreeRoot::FileParent));
     assert_eq!(input.files.bom, Some(false));
     assert_eq!(input.files.newline, Some(rev::config::Newline::Crlf));
     assert_eq!(input.files.associations["*.h"], "cpp");
