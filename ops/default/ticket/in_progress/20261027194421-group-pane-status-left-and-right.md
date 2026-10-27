@@ -1,7 +1,11 @@
 ---
 id: TKT-20261027194421
 title: Group pane status information on the left and right
-status: open
+status: in_progress
+ready_at: 2026-10-27T22:46:43Z
+started_at: 2026-10-27T22:46:43Z
+branch: feat/rev-input-09-status-layout
+pr: pending
 kind: task
 severity: unclassified
 priority: unclassified

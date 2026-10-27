@@ -4,6 +4,8 @@
 mod config_fixture;
 #[path = "display/policy.rs"]
 mod policy;
+#[path = "display/status.rs"]
+mod status;
 
 #[path = "display/palette.rs"]
 mod palette;

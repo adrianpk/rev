@@ -6,6 +6,7 @@ mod inventory;
 mod prompt;
 mod search;
 mod selection;
+mod status;
 mod style;
 mod syntax;
 pub use style::Message;
@@ -215,21 +216,12 @@ impl Frame {
         let Some(area) = panel.status() else {
             return Ok(());
         };
-        let dirty = if buffer.is_modified() { "**" } else { "--" };
-        let access = if buffer.is_readonly() { "RO" } else { "RW" };
-        let marker = if panel.active() { '>' } else { ' ' };
-        let status = format!(
-            "{marker} {} {dirty} {access} L{} C{} {}",
-            buffer.name(),
-            point.row + 1,
-            point.column + 1,
-            buffer.mode()
-        );
+        let status = status::line(buffer, point, area.width(), panel.active())?;
         self.blit(
             area,
             Row {
                 row: 0,
-                text: clip::line(Glyphs::for_text(&status)?, 0, area.width())?,
+                text: status,
                 syntax: Vec::new(),
                 band: Band::Status,
                 tone: Tone::Status(panel.active()),
