@@ -5,7 +5,7 @@ Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-02-goto-line`
-PR: pending
+PR: [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82)
 
 ## Purpose
 
@@ -80,9 +80,15 @@ five-command list; successful evidence is stored outside the repository:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Additional focused configuration, reference and terminal evidence is retained
-separately for the same final HEAD. The canonical PR list preserves the
-configured prefix, including its final whitespace check.
+The controller also records this focused list separately for the same final HEAD:
+
+- `cargo test --test configuration`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-pty.py --suite goto-line`
+- `git diff --check`
+
+The canonical PR list preserves the configured prefix, including its final
+whitespace check.
 
 ## Risks and Follow-ups
 

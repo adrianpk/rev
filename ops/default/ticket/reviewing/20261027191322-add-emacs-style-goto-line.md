@@ -13,7 +13,8 @@ ready_at: 2026-10-27T20:34:14Z
 started_at: 2026-10-27T20:34:14Z
 branch: feat/rev-input-02-goto-line
 reviewed_at: 2026-10-27T20:42:27Z
-commits: [645d5b45c8344e6a0033c0bf6679430235db8343, 4cf7b662a1b8200282800df1e38b0338e6f5969b]
+commits: [645d5b45c8344e6a0033c0bf6679430235db8343, 4cf7b662a1b8200282800df1e38b0338e6f5969b, dcd195bbea7ec7a55a2fc5958052664e094ed0a9]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/82
 ---
 
 # Add Emacs-style goto-line navigation

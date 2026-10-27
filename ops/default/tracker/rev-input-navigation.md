@@ -64,7 +64,7 @@ Details and exact checks: [Slice 2](../plan/rev-input-navigation.md#slice-2-add-
 - [x] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 2 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-2-goto-line.md) records native command/prompt dispatch, numeric and source bounds, independent views and real PTY outcomes. T2.1: `645d5b45c8344e6a0033c0bf6679430235db8343`. T2.2: `4cf7b662a1b8200282800df1e38b0338e6f5969b`. Canonical PR and exact final-HEAD evidence are recorded through their verified handoff transitions.
+Slice 2 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-2-goto-line.md) records native command/prompt dispatch, numeric and source bounds, independent views and real PTY outcomes. T2.1: `645d5b45c8344e6a0033c0bf6679430235db8343`. T2.2: `4cf7b662a1b8200282800df1e38b0338e6f5969b`. T2.3: `dcd195bbea7ec7a55a2fc5958052664e094ed0a9`. Canonical PR: [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82), targeting dev. The report records the controller command lists for the final PR HEAD; integration remains controller-owned and unverified.
 
 ### Slice 3: add explicit tabify and untabify
 
