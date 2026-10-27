@@ -16,6 +16,8 @@ mod navigation;
 mod observation;
 #[path = "path_completion/panel.rs"]
 mod panel;
+#[path = "path_completion/stale.rs"]
+mod stale;
 #[path = "path_completion/visits.rs"]
 mod visits;
 

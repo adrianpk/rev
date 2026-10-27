@@ -1,7 +1,7 @@
 use std::fs;
 use std::os::unix::fs::{PermissionsExt, symlink};
 
-use rev::config::load;
+use rev::config::{Diagnostic, Snapshot, Sources, load, prepare};
 
 use crate::fixture::Fixture;
 
@@ -18,10 +18,13 @@ fn padded(text: &str, length: usize) -> String {
 fn alias_cycles() {
     for name in ["ordinary", "symlink", "hard link"] {
         let fixture = Fixture::new();
-        let root = fixture.write("config.toml", "include = ['alias.toml']");
+        let root = fixture.write(
+            "config.toml",
+            "editor.tab_width = 8\ninclude = ['alias.toml']",
+        );
         let alias = fixture.0.join("alias.toml");
         cycle_alias(&fixture, name, &root, &alias);
-        let error = load(&root).unwrap_err();
+        let error = checked_load(&root).unwrap_err();
         let diagnostic = error.to_string();
         assert!(diagnostic.contains("cycle"), "{name}: {error}");
         assert!(diagnostic.contains("config.toml"), "{name}");
@@ -48,7 +51,7 @@ fn depth_limit() {
     for (name, edges, accepted) in [("maximum", 16, true), ("one past", 17, false)] {
         let fixture = Fixture::new();
         chain(&fixture, edges);
-        let result = load(&fixture.0.join("node-0.toml"));
+        let result = checked_load(&fixture.0.join("node-0.toml"));
         assert_eq!(result.is_ok(), accepted, "{name}: {result:?}");
         match result {
             Ok(graph) => {
@@ -63,7 +66,10 @@ fn depth_limit() {
 fn chain(fixture: &Fixture, edges: usize) {
     for depth in 0..=edges {
         let text = if depth < edges {
-            format!("include = ['node-{}.toml']", depth + 1)
+            format!(
+                "editor.tab_width = 8\ninclude = ['node-{}.toml']",
+                depth + 1
+            )
         } else {
             String::new()
         };
@@ -81,8 +87,11 @@ fn occurrence_limit() {
         let includes = std::iter::repeat_n("'leaf.toml'", count)
             .collect::<Vec<_>>()
             .join(",");
-        let root = fixture.write("config.toml", &format!("include = [{includes}]"));
-        let result = load(&root);
+        let root = fixture.write(
+            "config.toml",
+            &format!("editor.tab_width = 8\ninclude = [{includes}]"),
+        );
+        let result = checked_load(&root);
         assert_eq!(result.is_ok(), accepted, "{name}: {result:?}");
         occurrence_result(result, accepted);
     }
@@ -116,13 +125,16 @@ fn source_byte_limit() {
 fn source_sizes(name: &str) {
     let fixture = Fixture::new();
     for (extra, accepted) in [(0, true), (1, false)] {
-        let path = fixture.write("large.toml", &padded("", 256 * 1024 + extra));
+        let path = fixture.write(
+            "large.toml",
+            &padded("editor.tab_width = 8\n", 256 * 1024 + extra),
+        );
         let root = if name == "include" {
             fixture.write("config.toml", "include = ['large.toml']")
         } else {
             path
         };
-        let result = load(&root);
+        let result = checked_load(&root);
         assert_eq!(result.is_ok(), accepted, "{name}, extra {extra}");
         if let Err(error) = result {
             assert!(error.message.contains("256 KiB"), "{name}: {error}");
@@ -138,13 +150,13 @@ fn total_byte_limit() {
     let repeated = std::iter::repeat_n("'full.toml'", 7)
         .collect::<Vec<_>>()
         .join(",");
-    let text = format!("include = [{repeated}, 'tail.toml', 'empty.toml']");
+    let text = format!("editor.tab_width = 8\ninclude = [{repeated}, 'tail.toml', 'empty.toml']");
     let root = fixture.write("config.toml", &text);
     fixture.write("full.toml", &padded("", 256 * 1024));
     fixture.write("empty.toml", "");
     for (extra, accepted) in [(0, true), (1, false)] {
         fixture.write("tail.toml", &padded("", 256 * 1024 - text.len() + extra));
-        let result = load(&root);
+        let result = checked_load(&root);
         assert_eq!(result.is_ok(), accepted, "extra {extra}: {result:?}");
         total_result(result, accepted);
     }
@@ -167,13 +179,13 @@ fn broken_sources() {
     let fixture = Fixture::new();
     let root = fixture.0.join("config.toml");
     symlink("missing.toml", &root).unwrap();
-    let error = load(&root).unwrap_err();
+    let error = checked_load(&root).unwrap_err();
     assert_eq!(error.source, root);
     assert!(error.message.contains("read configuration"));
     fs::remove_file(&root).unwrap();
     fs::create_dir(&root).unwrap();
     assert!(
-        load(&root)
+        checked_load(&root)
             .unwrap_err()
             .message
             .contains("regular configuration file")
@@ -181,7 +193,7 @@ fn broken_sources() {
     fs::remove_dir(&root).unwrap();
     let root = fixture.write("config.toml", "include = ['directory']");
     fs::create_dir(fixture.0.join("directory")).unwrap();
-    let error = load(&root).unwrap_err();
+    let error = checked_load(&root).unwrap_err();
     assert_eq!(error.source, root);
     assert_eq!(error.key, ["include"]);
 }
@@ -198,7 +210,10 @@ fn denied_sources() {
 fn denied_source(name: &str) {
     let fixture = Fixture::new();
     let child = fixture.write("private/child.toml", "editor.tab_width = 8");
-    let root = fixture.write("config.toml", "include = ['private/child.toml']");
+    let root = fixture.write(
+        "config.toml",
+        "editor.indent_width = 2\ninclude = ['private/child.toml']",
+    );
     let (selected, denied) = match name {
         "root" => (root.clone(), root.clone()),
         "include" => (root, child),
@@ -208,8 +223,11 @@ fn denied_source(name: &str) {
     let original = fs::metadata(&denied).unwrap().permissions();
     fs::set_permissions(&denied, fs::Permissions::from_mode(0o0)).unwrap();
     let result = load(&selected);
+    let startup = prepare(&selected);
     fs::set_permissions(&denied, original).unwrap();
     let error = result.unwrap_err();
+    assert_eq!(startup.snapshot, Snapshot::default(), "{name}");
+    assert_eq!(startup.diagnostic.unwrap().to_string(), error.to_string());
     assert!(
         error.message.contains("Permission denied"),
         "{name}: {error}"
@@ -231,7 +249,7 @@ fn literal_paths() {
     fixture.write("settings/~/literal.toml", "");
     fixture.write("settings/*.toml", "");
     fixture.write("settings/unused.toml", "not valid TOML");
-    let graph = load(&root).unwrap();
+    let graph = checked_load(&root).unwrap();
     assert_eq!(graph.sources.len(), 5);
     assert_eq!(graph.sources[4].path, absolute);
     assert_eq!(fs::read_to_string(root).unwrap(), text);
@@ -253,15 +271,28 @@ fn rejected_graphs() {
     let fixture = Fixture::new();
     for (name, text, message) in cases {
         let root = fixture.write("config.toml", text);
-        let error = load(&root).unwrap_err();
+        let error = checked_load(&root).unwrap_err();
         assert!(error.message.contains(message), "{name}: {error}");
         assert_eq!(error.key, ["include"], "{name}");
     }
     let root = fixture.write("config.toml", "include = ['valid.toml', 'invalid.toml']");
     fixture.write("valid.toml", "editor.tab_width = 8");
     let invalid = fixture.write("invalid.toml", "editor.tab_width = 0");
-    let error = load(&root).unwrap_err();
+    let error = checked_load(&root).unwrap_err();
     assert_eq!(error.source, invalid);
     assert_eq!(error.key, ["editor", "tab_width"]);
     assert!(error.position.is_some());
+}
+
+// CFG07-CFG08/CFG14: loader rejection must reach startup as one rejected
+// candidate, never accepted settings/provenance from the earlier graph prefix.
+fn checked_load(root: &std::path::Path) -> Result<Sources, Diagnostic> {
+    let result = load(root);
+    if let Err(error) = &result {
+        let startup = prepare(root);
+        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.diagnostic.unwrap().to_string(), error.to_string());
+        assert_eq!(startup.snapshot.origin(&["editor", "tab_width"]), None);
+    }
+    result
 }

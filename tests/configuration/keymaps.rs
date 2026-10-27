@@ -152,23 +152,43 @@ fn rejected_maps() {
 // publishes complete defaults, including unrelated settings and all three maps.
 #[test]
 fn merged_conflict() {
-    let fixture = super::fixture::Fixture::new();
-    fixture.write("first.toml", "[keys.editor]\n'M-j k' = 'next-line'");
-    let root = fixture.write(
-        "config.toml",
-        "include = ['first.toml']\neditor.tab_width = 8\n[keys.editor]\n'M-j' = 'previous-line'",
-    );
-    let startup = prepare(&root);
-    let error = startup.diagnostic.unwrap();
-    assert!(error.message.contains("M-j k") && error.message.contains("M-j"));
-    assert_eq!(error.source, root);
-    assert_eq!(error.key, ["keys", "editor", "M-j"]);
-    assert_eq!(startup.snapshot, Snapshot::default());
-    assert_eq!(
-        lookup(&startup.snapshot, Context::Editor, "C-x C-s"),
-        Binding::named("save-buffer")
-    );
-    assert_eq!(lookup(&startup.snapshot, Context::Editor, "M-j"), None);
+    for (context, command) in [
+        ("editor", "next-line"),
+        ("minibuffer", "minibuffer-next"),
+        ("tree", "tree-next-line"),
+    ] {
+        conflict_layers(context, command);
+    }
+}
+
+fn conflict_layers(context: &str, command: &str) {
+    for (first, last, origin) in [
+        ("M-j k", "ESC j", "config.toml"),
+        ("ESC j", "M-j k", "first.toml"),
+    ] {
+        let fixture = super::fixture::Fixture::new();
+        fixture.write(
+            "first.toml",
+            &format!("[keys.{context}]\n'{first}' = '{command}'"),
+        );
+        let root = fixture.write("config.toml", &format!(
+            "include = ['first.toml']\neditor.tab_width = 8\npalette.background = '#010203'\n[files.associations]\n'*.rs' = 'go'\n[keys.{context}]\n'{last}' = '{command}'"
+        ));
+        let startup = prepare(&root);
+        let error = startup.diagnostic.unwrap();
+        assert!(
+            error.message.contains("prefix conflict"),
+            "{context}: {error}"
+        );
+        assert_eq!(error.source, fixture.0.join(origin));
+        assert_eq!(error.key, ["keys", context, "ESC j"]);
+        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot.origin(&["editor", "tab_width"]), None);
+        assert_eq!(
+            lookup(&startup.snapshot, Context::Editor, "C-x C-s"),
+            Binding::named("save-buffer")
+        );
+    }
 }
 
 // Removing an override restores the inherited command without modifying any

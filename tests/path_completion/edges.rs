@@ -9,7 +9,7 @@ use rev::view::{Size, View};
 
 use super::fixture::Fixture;
 
-fn configured(fixture: &Fixture, config: &str) -> Session {
+pub(super) fn configured(fixture: &Fixture, config: &str) -> Session {
     let snapshot = prepare(&fixture.write("config.toml", config));
     assert!(snapshot.diagnostic.is_none());
     let buffers = Buffers::with_settings(snapshot.snapshot).unwrap();

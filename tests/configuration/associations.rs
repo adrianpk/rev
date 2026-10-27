@@ -97,6 +97,15 @@ fn layered_patterns() {
     for (path, expected) in cases {
         assert_eq!(snapshot.language(Path::new(path)), expected, "{path}");
     }
+    // The resolved name and policy remain fixed after every source disappears.
+    fs::remove_file(&root).unwrap();
+    fs::remove_file(&last).unwrap();
+    fs::remove_file(fixture.0.join("first.toml")).unwrap();
+    assert_eq!(
+        snapshot.language(Path::new("file.test.ts")),
+        "checked-typescript"
+    );
+    assert_eq!(snapshot.language(Path::new("special.h")), "special");
     assert_eq!(
         snapshot.origin(&["files", "associations", "*.h"]),
         Some(root.as_path())

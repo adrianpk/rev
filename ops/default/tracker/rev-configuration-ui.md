@@ -736,7 +736,7 @@ PR: [#76](https://forge.adrianpk.com/adrianpk/rev/pulls/76).
 Contracts: CFG01-CFG22, UI01-UI04. Tickets: TKT-20261027103715.
 Details and checks: [Slice 28](../plan/rev-configuration-ui.md#slice-28-harden-cross-feature-failure-boundaries).
 
-- [ ] T28.1: Complete adversarial coverage of include cycles/limits/read failures, layered key collisions, association overlaps, whole-candidate rollback and candidate-list stale filesystem state.
+- [x] T28.1: Complete adversarial coverage of include cycles/limits/read failures, layered key collisions, association overlaps, whole-candidate rollback and candidate-list stale filesystem state.
 - [ ] T28.2: Exercise cross-width rectangle copy/kill/yank, successful and failed file/directory rename policies, CRLF/BOM fidelity, shared views and undo/saved-state truth with configured limits.
 - [ ] T28.3: Repair only bounded defects in approved owners revealed by these checks; no new features or duplicated blanket test suite. Map each failure boundary to the requirement it can falsify.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
