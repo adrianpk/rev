@@ -611,13 +611,15 @@ Details and checks: [Slice 23](../plan/rev-configuration-ui.md#slice-23-observe-
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T23.1 `e08a241e09e1bdce280e4619a4839f42ee3f2dc8`;
-T23.2 `abb2f921ab3d4e553057ade991ff1347fd31fb34`.
+T23.2 `abb2f921ab3d4e553057ade991ff1347fd31fb34`;
+T23.3 `5904932a76fe484dbd3d5d1d3906de6cf9649dca`.
 Thirteen native regressions cover cached literal filtering, ordered hidden names,
 explicit base/home roots, Unicode/control-safe and unsupported identities,
 refresh/error retention, child symlinks and entry/name-byte bounds. Focused Clippy
 and source checks pass with nesting at most two. Final readiness uses controller
 evidence for the clean PR head; dev integration remains pending.
 Report: [Slice 23](../report/slices/rev-configuration-ui/slice-23-path-candidates.md).
+PR: [#72](https://forge.adrianpk.com/adrianpk/rev/pulls/72).
 
 ### Slice 24: Complete and navigate file paths
 

@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-23-path-candidates`
-PR: pending
+PR: [#72](https://forge.adrianpk.com/adrianpk/rev/pulls/72)
 
 ## Purpose
 
@@ -39,7 +39,8 @@ queries, safe display labels and independently retained opening identities.
   provider, cached literal filtering, candidate identities and ordering tests.
 - T23.2: `abb2f921ab3d4e553057ade991ff1347fd31fb34` adds literal query parsing
   with explicit roots and Unicode, control-safe and unsupported-name regressions.
-- T23.3 adds real filesystem limit/error/symlink/refresh coverage and documents
+- T23.3: `5904932a76fe484dbd3d5d1d3906de6cf9649dca` adds real filesystem
+  limit/error/symlink/refresh coverage and documents
   the public provider API in the existing reference index.
 - Provider retains a single component. Callers request a new observation for a
   directory transition; redraw and filter operations do not refresh it implicitly.
