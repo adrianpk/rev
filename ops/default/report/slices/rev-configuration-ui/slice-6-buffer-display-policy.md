@@ -1,6 +1,6 @@
 # Slice 6: Project buffer tab policies
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -90,9 +90,12 @@ Development checks:
 - `cargo test --test display policy::marked_geometry`: passed after correction.
 - `cargo clippy --lib --test coordinates --test display --test windows -- -D warnings`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands precede the affected editing
-regression target and whitespace check:
+The controller recorded all eight ordered checks passing on clean head
+`9db4f5682730cb95dbe33bad260adf972aad8b1d`, validation
+`QODDPXB5OZODZAJXZJ75KLEGGG`: 24 coordinate, 20 display, 38 window and 92 editing
+tests. Canonical PR #55 integrated that exact head into dev by Rebase +
+Fast-forward. Required commands precede the affected editing regression target
+and whitespace check:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

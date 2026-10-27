@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 6 - Project buffer tab policies
+Active slice: Slice 7 - Apply indentation and new-file defaults
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -175,7 +175,7 @@ Details and checks: [Slice 6](../plan/rev-configuration-ui.md#slice-6-project-bu
 - [x] T6.1: Give each buffer one effective editing/display policy from a supplied settings snapshot; replace hardcoded tab assumptions in coordinate conversion, viewport projection, vertical goal columns, selection and search geometry.
 - [x] T6.2: Use buffer policy coherently across shared views and invalidate display-derived caches without changing canonical text positions, rope revisions, saved-state identity or history.
 - [x] T6.3: Test widths 1, 2, 4, 8 and 32, mixed wide/combining/ZWJ clusters, chunk seams, CRLF and clipped views. Default tab width must preserve baseline geometry.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T6.1 `8f8e39e0f2c134d3f8c8c9af014bee1c2538e753`;
 T6.2 `fe01eae99816159a732df635830a425e50e88982`;
@@ -185,10 +185,13 @@ including widths 1/2/4/8/32, real rope seams, CRLF, clipped Unicode, marked/sear
 geometry, shared views and history preservation. Corrected a test assumption
 that an active search prompt leaves the terminal cursor in the document;
 document position is asserted through the view. Focused Clippy passed.
-Final exact-head slice evidence belongs to the controller.
+All eight ordered checks passed on `9db4f5682730cb95dbe33bad260adf972aad8b1d`,
+controller validation `QODDPXB5OZODZAJXZJ75KLEGGG`, including 24 coordinate,
+20 display, 38 window and 92 editing tests.
 Report: [Slice 6](../report/slices/rev-configuration-ui/slice-6-buffer-display-policy.md).
 PR: [#55](https://forge.adrianpk.com/adrianpk/rev/pulls/55);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`9db4f5682730cb95dbe33bad260adf972aad8b1d`. Slice 6 of 30 completed.
 
 ### Slice 7: Apply indentation and new-file defaults
 
