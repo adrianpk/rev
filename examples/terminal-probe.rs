@@ -9,6 +9,9 @@ use crossterm::{
 };
 use rev::terminal::Terminal;
 
+#[path = "terminal_probe/pointer.rs"]
+mod pointer;
+
 struct Fault {
     output: io::Stdout,
     patterns: Vec<&'static [u8]>,
@@ -136,7 +139,12 @@ fn restore_probe(terminal: &mut Terminal<Fault>) -> io::Result<()> {
 
 fn main() -> ExitCode {
     let mode = std::env::args().nth(1).unwrap_or_default();
-    match probe(&mode) {
+    let result = if mode.starts_with("mouse-") {
+        pointer::probe(&mode)
+    } else {
+        probe(&mode)
+    };
+    match result {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("probe: {error}");

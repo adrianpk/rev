@@ -58,3 +58,6 @@ fn emit(output: &mut impl Write, bytes: &[u8], operation: &str) -> io::Result<()
         .and_then(|()| output.flush())
         .map_err(|error| super::context(error, operation))
 }
+
+#[cfg(test)]
+mod tests;

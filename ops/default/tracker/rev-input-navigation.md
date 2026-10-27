@@ -165,7 +165,7 @@ Contracts: PTR01 PTR05.
 Details and exact checks: [Slice 10](../plan/rev-input-navigation.md#slice-10-own-native-pointer-reporting-and-input-state).
 
 - [x] T10.1: Add the pointer integration-test target, minimal native event/capture records and terminal reporting ownership using the existing crossterm decoder and cleanup owner.
-- [ ] T10.2: Admit only required press/release/button-motion/scroll reporting, avoiding all-motion hover traffic and a device/plugin abstraction; undo partially acquired modes on failure.
+- [x] T10.2: Admit only required press/release/button-motion/scroll reporting, avoiding all-motion hover traffic and a device/plugin abstraction; undo partially acquired modes on failure.
 - [ ] T10.3: Verify enable/disable/unwind/idempotent restoration and preserve keyboard/prefix deadlines. Keep factory activation until the working handlers and settings are integrated.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 

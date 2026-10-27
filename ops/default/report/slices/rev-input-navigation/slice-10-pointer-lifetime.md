@@ -58,6 +58,21 @@ reporting without enabling hover or adding idle work.
 
 - PASS: `python3 scripts/check-source.py` retains unchanged safe-Rust and source-quality limits.
 
+- PASS: `cargo test --lib terminal::mouse` checks exact minimal modes,
+  idempotent disable/re-enable, partial-write acquisition rollback, all failed
+  undo obligations, aggregated diagnostics and selective cleanup retry.
+- PASS: `python3 scripts/check-pty.py --suite pointer-lifetime` checks eleven
+  owned sessions: pre-entry guard, normal/toggle, each acquisition failure,
+  failed rollback, each release failure, combined release failure, I/O and
+  unwind. Termios, paste/cursor/attributes/screen cleanup, passive filesystem,
+  descriptor closure and child reaping remain required.
+
+BufWriter may resend a failed buffered command while attempting subsequent
+cleanup. The retained-obligation assertion therefore observes fresh Drop resets
+after the cleanup checkpoint, while separately checking that raw input was
+already released and both operation diagnostics were retained. It does not infer
+mode state from a write's return value or omit any restoration assertion.
+
 ## Risks and Follow-ups
 
 The approved later slices integrate geometry, focus, scroll, selection and
