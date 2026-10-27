@@ -174,3 +174,22 @@ fn separate_history() {
         Outcome::Message("No command entered")
     );
 }
+
+// Compatible Escape delivery reaches the same history actions as direct Meta
+// without inserting p/n into the query or stealing candidate navigation keys.
+#[test]
+fn escape_history() {
+    let mut input = query("newline");
+    input.handle(key(KeyCode::Enter));
+    input.commands().unwrap();
+    let now = std::time::Instant::now();
+    for (suffix, expected) in [('p', "newline"), ('n', "")] {
+        input.handle_at(key(KeyCode::Esc), now);
+        input.handle_at(super::character(suffix), now);
+        assert_eq!(input.prompt().unwrap().text(), expected);
+    }
+    assert_eq!(
+        input.handle(key(KeyCode::Enter)),
+        Outcome::Message("No command entered")
+    );
+}

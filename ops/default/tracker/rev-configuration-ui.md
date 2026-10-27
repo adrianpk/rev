@@ -582,8 +582,17 @@ Details and checks: [Slice 22](../plan/rev-configuration-ui.md#slice-22-navigate
 
 - [x] T22.1: Bind Up/Down and C-p/C-n to candidates, M-p/M-n to command history, Tab to complete the selected name and Return to the same named handler exactly once.
 - [x] T22.2: Define exact/no-match/empty-query behavior, reset selection coherently after query changes and keep the selected row visible. Continue argument prompts normally; C-g restores the previous editing/tree focus.
-- [ ] T22.3: Test history versus candidate navigation, no accidental first-command execution, custom context aliases, cancellation and selected handler invocation with arguments.
+- [x] T22.3: Test history versus candidate navigation, no accidental first-command execution, custom context aliases, cancellation and selected handler invocation with arguments.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T22.1 `9e7f3ebb897adc59c32c8a23feb732c187a3ab4a`;
+T22.2 `97410b79146cfb26605381ea31099b95116f8609`.
+Eight new native regressions and two RGB/NO_COLOR terminal sessions cover separate
+candidate/history navigation, explicit/exact/empty/no-match acceptance, coherent
+query resets, custom context aliases, selected file arguments, held/released
+acceptance and editor/tree cancellation. Focused Clippy/source checks pass with
+nesting at most two. Final exact-head evidence and controller integration pending.
+Report: [Slice 22](../report/slices/rev-configuration-ui/slice-22-command-selection.md).
 
 ### Slice 23: Observe bounded filesystem candidates
 

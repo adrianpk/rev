@@ -1,5 +1,124 @@
 use super::*;
 
+// Candidate and history aliases retain distinct targets. Custom movement and
+// completion never rewrite history or invoke a command before acceptance.
+#[test]
+fn candidate_aliases() {
+    let mut input = Input::with_settings(&settings(
+        "[keys.minibuffer]\n'M-j' = 'minibuffer-next'\n'M-k' = 'minibuffer-previous'\n'M-h' = 'minibuffer-history-previous'\n'M-l' = 'minibuffer-history-next'\n'M-c' = 'minibuffer-complete'\n'M-a' = 'minibuffer-accept'",
+    ));
+    input.commands().unwrap();
+    input.handle(Event::Paste("newline".into()));
+    assert_eq!(input.handle(meta('a')), Outcome::Command(Command::Newline));
+    input.commands().unwrap();
+    input.handle(Event::Paste("split-window".into()));
+    input.handle(meta('j'));
+    assert_eq!(input.palette().unwrap().selected(), Some(1));
+    assert_eq!(input.prompt().unwrap().text(), "split-window");
+    input.handle(meta('k'));
+    assert_eq!(input.palette().unwrap().selected(), Some(0));
+    input.handle(meta('h'));
+    assert_eq!(input.prompt().unwrap().text(), "newline");
+    input.handle(meta('l'));
+    assert_eq!(input.prompt().unwrap().text(), "split-window");
+    input.handle(meta('j'));
+    input.handle(meta('c'));
+    assert_eq!(input.prompt().unwrap().text(), "split-window-right");
+    assert_eq!(
+        input.handle(meta('a')),
+        Outcome::Command(Command::Split(rev::command::Split::Right))
+    );
+}
+
+// A later selected row invokes the native file handler. Held accept cannot
+// cross into its argument stage or publish a second save; fresh acceptance can.
+#[test]
+fn selected_arguments() {
+    for (name, config, next, accept) in [
+        ("native", "", key(KeyCode::Down), key(KeyCode::Enter)),
+        (
+            "aliases",
+            "[keys.minibuffer]\n'M-j' = 'minibuffer-next'\n'M-a' = 'minibuffer-accept'",
+            meta('j'),
+            meta('a'),
+        ),
+    ] {
+        let fixture = super::super::config_fixture::Fixture::new();
+        let target = fixture.0.join("selected.txt");
+        let mut session = editor(config, "retained界\n");
+        let stamp = session.buffer().unwrap().stamp();
+        session.execute(Command::ExecuteExtended);
+        session.handle(Event::Paste("file".into()));
+        for _ in 0..4 {
+            session.handle(next.clone());
+        }
+        session.handle(accept.clone());
+        for kind in [KeyEventKind::Repeat, KeyEventKind::Release] {
+            assert_eq!(
+                session.handle(phase(accept.clone(), kind)),
+                rev::session::Action::Wait,
+                "{name}"
+            );
+        }
+        assert!(
+            session
+                .frame()
+                .unwrap()
+                .rows()
+                .last()
+                .unwrap()
+                .text()
+                .starts_with("Write file: "),
+            "{name}"
+        );
+        session.handle(Event::Paste(target.to_str().unwrap().into()));
+        session.handle(phase(accept.clone(), KeyEventKind::Repeat));
+        assert!(!target.exists(), "{name}");
+        session.handle(accept.clone());
+        assert_eq!(
+            std::fs::read(&target).unwrap(),
+            "retained界\n".as_bytes(),
+            "{name}"
+        );
+        assert_eq!(session.buffer().unwrap().stamp(), stamp, "{name}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+        assert_eq!(
+            session.handle(phase(accept, KeyEventKind::Repeat)),
+            rev::session::Action::Wait,
+            "{name}"
+        );
+        assert_eq!(text(&session), "retained界\n", "{name}");
+    }
+}
+
+// C-g retires candidate navigation and its draft, returning to the same tree
+// selection or editor view without changing text, history or file identity.
+#[test]
+fn selected_cancellation() {
+    for from_tree in [false, true] {
+        let (_fixture, mut session) = tree_editor("[keys.minibuffer]\n'M-j' = 'minibuffer-next'");
+        if !from_tree {
+            session.handle(key(KeyCode::Tab));
+        }
+        session.frame().unwrap();
+        let view = session.view().clone();
+        let stamp = session.buffer().unwrap().stamp();
+        let selected = session.tree().selected().unwrap().path().to_owned();
+        session.execute(Command::ExecuteExtended);
+        session.handle(Event::Paste("file".into()));
+        session.handle(meta('j'));
+        session.frame().unwrap();
+        session.handle(control('g'));
+        session.frame().unwrap();
+        assert_eq!(session.tree().focused(), from_tree);
+        assert_eq!(session.tree().selected().unwrap().path(), selected);
+        assert_eq!(*session.view(), view);
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert_eq!(text(&session), "retained");
+    }
+}
+
 // A real Unicode path is repaired through configured prompt handlers. Accept
 // opens that file once; completion guidance and editing never touch source text.
 #[test]

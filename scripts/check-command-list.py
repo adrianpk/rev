@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify vertical M-x placement, selection colors and resize on owned PTYs."""
+"""Verify M-x navigation, native arguments and retained geometry on owned PTYs."""
 
 import os
 from pathlib import Path
@@ -60,6 +60,20 @@ def selected_style(frame, name, colored):
         assert b"\x1b[38;2;" not in frame
 
 
+def selected_command(session, root):
+    target = root / "selected-copy.txt"
+    step(session, b"\x1bx", b"M-x ")
+    step(session, b"\r", b"No command entered")
+    step(session, b"\x1bxfile" + b"\x1b[B" * 4 + b"\r", b"Write file: ")
+    step(session, PTY["paste_wire"](str(target).encode()), str(target).encode())
+    step(session, b"\r", b"Saved ")
+    assert target.read_bytes() == b"retained\n"
+    step(session, b"\x1bxdraft", b"M-x draft")
+    step(session, b"\x1bp", b"M-x write-file")
+    step(session, b"\x1bn", b"M-x draft")
+    step(session, b"\x07", b"Quit")
+
+
 def case(root, colored):
     config = root / "user/rev/config.toml"
     config.parent.mkdir(parents=True)
@@ -72,7 +86,7 @@ def case(root, colored):
         frame = step(session, b"\x1bxkill", b"M-x kill")
         ordered(frame, b"M-x kill", [b"kill-buffer", b"kill-line"])
         selected_style(frame, b"kill-buffer", colored)
-        frame = step(session, b"\x1b[B" * 7 + b"\t", b"M-x copy-rectangle-as-kill")
+        frame = step(session, b"\x1b[B" * 7 + b"\x10\x0e\t", b"M-x copy-rectangle-as-kill")
         ordered(frame, b"M-x copy-rectangle-as-kill", [b"backward-kill-word", b"copy-rectangle-as-kill"])
         selected_style(frame, b"copy-rectangle-as-kill", colored)
         PTY["resize_surface"](session, 80, 4, True)
@@ -82,13 +96,14 @@ def case(root, colored):
         ordered(frame, b"M-x copy-rectangle-as-kill", [b"backward-kill-word", b"copy-rectangle-as-kill"])
         selected_style(frame, b"copy-rectangle-as-kill", colored)
         step(session, b"\x07", b"Quit")
+        selected_command(session, root)
         os.write(session.master, b"\x18\x03")
         session.finish(0)
         assert PTY["PASTE_OFF"] in session.output and PTY["LEAVE"] in session.output
         assert path.read_bytes() == b"retained\n"
     finally:
         session.close()
-    print(f"PASS vertical query/list, retained selection, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
+    print(f"PASS candidate/history navigation, selected native file arguments, empty-query guard, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
 
 
 def main():
