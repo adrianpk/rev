@@ -1004,24 +1004,25 @@ Report: [Slice 47](../report/slices/rev-editor/slice-47-quality-reference.md).
 
 Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R01, R02, R03, R04, R05, R06, R07, R08, R09, R10, R11, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21, R22, R23, R24, R25, R26, R27, R28, R29, R30, R31, R32, R33, R34, R35, R36, R37, R38, R39, R40.
 
-- [ ] T48.1: Complete a reviewed A01-A20 evidence map linking the real regression/PTY/performance checks, close any remaining within-scope integration defects, and make scripts/check-all.sh invoke the exact mandatory gate without skips.
-- [ ] T48.2: Exercise the assembled user journeys through the built executable and verify all gate prerequisites, reports, required commands, and unchanged identities. Leave primary dev clean and pushed for controller-owned final validation.
-- [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
+- [x] T48.1: Complete a reviewed A01-A20 evidence map linking the real regression/PTY/performance checks, close any remaining within-scope integration defects, and make scripts/check-all.sh invoke the exact mandatory gate without skips.
+- [x] T48.2: Exercise the assembled user journeys through the built executable and verify all gate prerequisites, reports, required commands, and unchanged identities. Leave primary dev clean and pushed for controller-owned final validation.
+- [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T48.1 and T48.2 complete; awaiting PR #48 integration and controller gate.
+Implementation: T48.1 and T48.2 delivered through PR #48; controller gate pending.
 Task commits: T48.1 `b5fb082836f69ce6395874c1394b396012ea0205`;
 T48.2 `3399f763425bef65b40116a99823dc1604e17254`.
 Validation: all eight ordered slice checks passed through Looper, including
 455 native tests, source-quality bounds, four real PTY journeys, seven checker
 tests and acceptance prerequisites. The combined full gate remains pending.
-Final PR-head evidence follows the report and PR-reference commits.
+Integration: `d7612fecd278c5c0cacc4af0fb10797a709b39f3`; all eight ordered slice checks
+passed under Looper validation `5XPZMNJLSJTLXTZBWSLDY3UBKQ`.
 PR: [#48](https://forge.adrianpk.com/adrianpk/rev/pulls/48).
 Report: [Slice 48](../report/slices/rev-editor/slice-48-acceptance.md).
 
 ## Integrated closure
 
-- [ ] All 48 canonical slice PRs are merged into dev and every task outcome is recorded.
+- [x] All 48 canonical slice PRs are merged into dev and every task outcome is recorded.
 - [ ] R01-R40 and A01-A20 have real, current acceptance evidence with no required skips.
 - [ ] The controller full gate passes on the exact clean integrated candidate.
-- [ ] All 48 reports are delivered and dev is clean and synchronized with origin/dev.
+- [x] All 48 reports are delivered and dev is clean and synchronized with origin/dev.
 - [ ] Plan/tracker are completed and post-gate changes stay within registered closure paths.

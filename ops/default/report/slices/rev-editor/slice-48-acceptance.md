@@ -1,11 +1,12 @@
 # Slice 48: Verify the complete integrated editor contract
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-editor
 Plan: [rev Editor Delivery](../../../plan/rev-editor.md)
 Tracker: [rev Editor Tracker](../../../tracker/rev-editor.md)
 Branch: `test/rev-48-acceptance`
 PR: `#48`
+Integrated: `d7612fecd278c5c0cacc4af0fb10797a709b39f3`
 
 ## Purpose
 
@@ -103,8 +104,9 @@ case name. PTY labels denote `acceptance_<label>` in `scripts/check-pty.py`.
 ## Validation
 
 All eight ordered slice checks passed through Looper on task HEAD `3399f763425bef65b40116a99823dc1604e17254` under
-validation `UWFQMD5Y4OKIXYB6KQVQ5UMLJM`. Final clean PR-head evidence is recorded
-after the report and PR-reference commits.
+validation `UWFQMD5Y4OKIXYB6KQVQ5UMLJM`. All eight commands also passed on
+final PR HEAD `d7612fecd278c5c0cacc4af0fb10797a709b39f3` under validation
+`5XPZMNJLSJTLXTZBWSLDY3UBKQ` before integration.
 
 - `cargo fmt --all -- --check`: passed.
 - `cargo clippy --all-targets --all-features -- -D warnings`: passed.
