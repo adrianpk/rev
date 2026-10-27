@@ -661,15 +661,16 @@ Details and checks: [Slice 25](../plan/rev-configuration-ui.md#slice-25-open-sel
 
 Task commits: T25.1 `27b9fd9133d8a018a29a8ac2b47b7a64a98a00c2`;
 T25.2 `cb8e0aa1b0bb3bb9d87a1c499dd6cca46789f4ae`;
-T25.3 full report-introduction commit recorded in the PR follow-up.
+T25.3 `0f15778c80e7e05e165531a5408dccb397f2c8fb`.
 Fourteen new path journeys and two configured accept/bound regressions cover
 selected/typed paths, directory continuation, dirty canonical reuse, frozen
 policies, real permission errors, unsupported names and symlink destinations.
 Two RGB/NO_COLOR acceptance PTYs, two navigation PTYs and the focused absent-path
 PTY preserve exact fixture bytes and create no files. Focused source checks pass
 with nesting at most two. Final readiness requires controller evidence on the
-clean PR head; canonical PR creation and dev integration remain pending.
+clean PR head; dev integration remains pending.
 Report: [Slice 25](../report/slices/rev-configuration-ui/slice-25-find-file-integration.md).
+PR: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74).
 
 ### Slice 26: Publish exhaustive configuration reference
 

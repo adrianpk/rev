@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-25-find-file-integration`
-PR: pending canonical creation
+PR: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74)
 
 ## Purpose
 
@@ -46,9 +46,9 @@ failed drafts, and descend into directories without visiting them as text buffer
   acceptance regressions. Empty-path failure now retains find-file focus.
 - T25.2: `cb8e0aa1b0bb3bb9d87a1c499dd6cca46789f4ae` validates directory access
   before changing its draft and adds four canonical-reuse/startup-policy journeys.
-- T25.3: the report-introduction commit adds six failure/identity regressions,
+- T25.3: `0f15778c80e7e05e165531a5408dccb397f2c8fb` adds six failure/identity regressions,
   two configured accept/bound regressions, two actual terminal journeys and
-  delivered behavior references. Its full hash is recorded in the PR follow-up.
+  delivered behavior references and this report.
 - Input retains the bounded prompt on PathAccept. Session delegates selection
   interpretation to file navigation, directory text to the existing prompt bound,
   and file opening to Session::load. Only successful ingress consumes the prompt
