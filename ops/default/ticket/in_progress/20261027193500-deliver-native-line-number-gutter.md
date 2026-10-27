@@ -12,8 +12,8 @@ reported_at: 2026-10-27T19:35:00Z
 ready_at: 2026-10-27T21:28:15Z
 started_at: 2026-10-27T21:28:15Z
 branch: feat/rev-input-07-gutter-controls
-pr: pending
-commits: [3762cf7f1f26a5a8244f5ce904214d57ef5d645a, e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca, 3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c, 469b7f0a07fea889a24c94cb1f54e8316f84747b, 35c6006d2634764a37059590946d78b67a03cc44, a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa, 6a1d15d697d76622bb3b397b1c3b50def73bced4, 9f491efaf72c48d9770ccfe4060ddd17bfa68c12, cf4ebcd56703127cfd5cb8c24f1fe91e77c2126e, 013feb78180384d6cbec1deedecb89862f4c8986, 51f117014706d884eb4115250f683243223ad8da]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/87
+commits: [3762cf7f1f26a5a8244f5ce904214d57ef5d645a, e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca, 3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c, 469b7f0a07fea889a24c94cb1f54e8316f84747b, 35c6006d2634764a37059590946d78b67a03cc44, a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa, 6a1d15d697d76622bb3b397b1c3b50def73bced4, 9f491efaf72c48d9770ccfe4060ddd17bfa68c12, cf4ebcd56703127cfd5cb8c24f1fe91e77c2126e, 013feb78180384d6cbec1deedecb89862f4c8986, 51f117014706d884eb4115250f683243223ad8da, 6172023b1e4b7271169a37f434d23147154b8a14]
 ---
 
 # Deliver the approved native line-number gutter
@@ -73,6 +73,7 @@ Slice 6 integrated into dev at `3e1f4b9651fed9306949ca2679c16859a5ed916d`; canon
 The [gutter controls report](../../report/slices/rev-input-navigation/slice-7-gutter-controls.md)
 records the admitted settings/palette snapshot, eight real native commands,
 per-view override/reset behavior and complete sample/catalog reconciliation.
+Canonical PR: [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87).
 Native and owned-terminal checks preserve source bytes, history and startup
 immutability. The ticket remains in progress through Slice 7 integration and
 its remaining primary Slice 8.

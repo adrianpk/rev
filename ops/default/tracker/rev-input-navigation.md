@@ -124,7 +124,7 @@ Details and exact checks: [Slice 7](../plan/rev-input-navigation.md#slice-7-wire
 - [x] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 7 implementation is complete; canonical PR and final clean-HEAD evidence are recorded before handoff. Integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-7-gutter-controls.md) records admitted startup leaves, eight native commands, complete references and owned PTY outcomes. T7.1: `013feb78180384d6cbec1deedecb89862f4c8986`. T7.2: `51f117014706d884eb4115250f683243223ad8da`.
+Slice 7 implementation is complete; canonical PR [#87](https://forge.adrianpk.com/adrianpk/rev/pulls/87) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-7-gutter-controls.md) records admitted startup leaves, eight native commands, complete references and owned PTY outcomes. T7.1: `013feb78180384d6cbec1deedecb89862f4c8986`. T7.2: `51f117014706d884eb4115250f683243223ad8da`. T7.3: `6172023b1e4b7271169a37f434d23147154b8a14`.
 
 ### Slice 8: preserve gutter geometry across editor surfaces
 
