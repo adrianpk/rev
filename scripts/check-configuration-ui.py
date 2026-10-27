@@ -8,13 +8,14 @@ import tempfile
 
 from configuration_ui.journeys import configured, fallback
 from configuration_ui.support import ROOT
+from configuration_ui.workspace import workspace
 
 
 def terminal(selected):
-    for name, scenario in [('configured', configured), ('missing', fallback), ('rejected', fallback)]:
+    for name, scenario in [('configured', configured), ('missing', fallback), ('rejected', fallback), ('workspace', workspace)]:
         if selected is not None and selected != name:
             continue
-        variants = [True, False] if name == 'configured' else [name == 'rejected']
+        variants = [True, False] if name in ['configured', 'workspace'] else [name == 'rejected']
         for variant in variants:
             run_scenario(scenario, variant)
     print('Configuration/UI terminal journeys passed, 0 skipped.')
@@ -28,7 +29,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace'])
     args = parser.parse_args()
     subprocess.run(['cargo', 'build', '--bin', 'rev'], cwd=ROOT, check=True)
     terminal(args.case)
