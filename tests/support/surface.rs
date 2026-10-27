@@ -85,19 +85,3 @@ fn rgb<'a>(codes: &'a [u16], code: u16, state: &mut Cell) -> &'a [u16] {
     }
     &codes[4..]
 }
-
-pub fn without_sgr(text: &str) -> String {
-    let mut result = String::new();
-    let mut tail = text;
-    while let Some(start) = tail.find("\x1b[") {
-        result.push_str(&tail[..start]);
-        let rest = &tail[start + 2..];
-        let end = rest.find(|c: char| ('@'..='~').contains(&c)).unwrap();
-        if !rest[..=end].ends_with('m') {
-            result.push_str(&tail[start..start + 3 + end]);
-        }
-        tail = &rest[end + 1..];
-    }
-    result.push_str(tail);
-    result
-}

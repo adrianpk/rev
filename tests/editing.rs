@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "support/surface.rs"]
+mod surface;
+
 #[path = "editing/kills.rs"]
 mod kills;
 #[path = "editing/linear.rs"]

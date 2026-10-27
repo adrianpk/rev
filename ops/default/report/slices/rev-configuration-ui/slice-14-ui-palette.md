@@ -84,6 +84,18 @@ Development checks:
 - `python3 -c 'import runpy; suite = runpy.run_path("scripts/check-ui-palette.py"); suite["restoration"]("normal", 0); suite["restoration"]("color-stop", 1)'`: passed after adding active text-color probes.
 - `python3 -c 'import runpy; suite = runpy.run_path("scripts/check-ui-palette.py"); suite["application"]()'`: passed; actual executable defaults and cleanup.
 
+The first exact-head validation stopped at an inherited reverse-video assertion
+in display policy coverage. Selection assertions in the affected display,
+linear-region, rectangle and search tests now inspect effective RGB cells;
+NO_COLOR reverse-video behavior remains covered by the isolated PTY case.
+Focused corrections passed:
+
+- `cargo test --test display marked_geometry`
+- `cargo test --test editing multiline_surface`
+- `cargo test --test rectangles clipped_surface`
+- `cargo test --test search selected_surface`
+- `cargo run --quiet --example source-check -- --source tests/display/policy.rs --source tests/editing/regions.rs --source tests/rectangles.rs --source tests/search.rs --source tests/support/surface.rs`
+
 The controller records final results for the clean PR head after its PR-reference
 follow-up commit. Required commands precede focused syntax and real PTY checks:
 
@@ -94,6 +106,9 @@ follow-up commit. Required commands precede focused syntax and real PTY checks:
 - `cargo test --test recovery`
 - `python3 scripts/check-source.py`
 - `cargo test --test syntax`
+- `cargo test --test editing multiline_surface`
+- `cargo test --test rectangles clipped_surface`
+- `cargo test --test search selected_surface`
 - `python3 scripts/check-ui-palette.py`
 - `python3 -c 'from pathlib import Path; import runpy; suite = runpy.run_path("scripts/check-pty.py"); [suite[name](Path.cwd()) for name in ("rust_syntax", "syntax_fallback", "incremental_rectangles")]'`
 - `git diff --check`

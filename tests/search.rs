@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "support/surface.rs"]
+mod surface;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::buffer::Buffers;
 use rev::command::{Command, RegionCommand, Split};
@@ -127,8 +130,8 @@ fn incremental_query() {
         .unwrap();
 }
 
-// Only the selected pane underlines the match. Region reverse video remains
-// independent, and accepting removes search styling without changing the rope.
+// Only the selected pane underlines the match. Region colors take precedence
+// over syntax/search colors, and accepting removes search styling without changing the rope.
 #[test]
 fn selected_surface() {
     let mut session = editor("a\t界e\u{301}z", 1);
@@ -150,11 +153,13 @@ fn selected_surface() {
             .skip(1)
             .all(|row| row.search().is_none())
     );
-    let mut wire = Vec::new();
-    frame.write(&mut wire).unwrap();
-    assert!(wire.windows(4).any(|part| part == b"\x1b[4m"));
-    assert!(wire.windows(5).any(|part| part == b"\x1b[24m"));
-    assert!(wire.windows(4).any(|part| part == b"\x1b[7m"));
+    let cells = surface::draw(&frame);
+    let palette = rev::config::Palette::default();
+    assert_eq!(cells[&(0, 4)].foreground, Some(palette.selection_text));
+    assert_eq!(cells[&(0, 4)].background, Some(palette.selection));
+    assert!(cells[&(0, 4)].underline);
+    assert_eq!(cells[&(0, 7)].background, Some(palette.background));
+    assert!(!cells[&(0, 7)].underline);
     assert_eq!(session.windows().get(other).unwrap(), &other_view);
     key(&mut session, KeyCode::Enter, KeyModifiers::NONE);
     assert!(session.search_match().is_none());

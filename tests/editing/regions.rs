@@ -59,10 +59,12 @@ fn multiline_surface() {
             .skip(2)
             .all(|row| row.selection().is_none())
     );
-    let mut wire = Vec::new();
-    frame.write(&mut wire).unwrap();
-    assert!(wire.windows(4).any(|part| part == b"\x1b[7m"));
-    assert!(wire.windows(5).any(|part| part == b"\x1b[27m"));
+    let cells = super::surface::draw(&frame);
+    let palette = rev::config::Palette::default();
+    assert_eq!(cells[&(0, 1)].foreground, Some(palette.selection_text));
+    assert_eq!(cells[&(0, 1)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 0)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 4)].background, Some(palette.background));
     assert!(frame.rows().iter().all(|row| !row.text().contains('\x1b')));
     assert!(!session.buffer().unwrap().is_modified());
 }

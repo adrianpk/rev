@@ -387,7 +387,9 @@ Focused cell-color checks passed for mixed panels, focus borders, tree selection
 search/region precedence, message severity and escape safety. Real PTYs passed
 cursor/text cleanup, partial color writes, failed resets, raw-mode release,
 capability/NO_COLOR fallback and executable defaults. Focused Clippy and source
-checks passed. Final exact-head evidence belongs to the controller.
+checks passed. Inherited selection assertions now verify effective RGB cells
+in display, linear-region, rectangle and search coverage; focused corrections
+passed. Final exact-head evidence belongs to the controller.
 Report: [Slice 14](../report/slices/rev-configuration-ui/slice-14-ui-palette.md).
 PR: [#63](https://forge.adrianpk.com/adrianpk/rev/pulls/63);
 dev integration remains controller-owned.

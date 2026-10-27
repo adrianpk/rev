@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "support/surface.rs"]
+mod surface;
+
 #[path = "rectangles/transfer.rs"]
 mod transfer;
 
@@ -286,10 +289,12 @@ fn clipped_surface() {
             .skip(2)
             .all(|row| row.selection().is_none())
     );
-    let mut wire = Vec::new();
-    frame.write(&mut wire).unwrap();
-    assert!(wire.windows(4).any(|part| part == b"\x1b[7m"));
-    assert!(wire.windows(5).any(|part| part == b"\x1b[27m"));
+    let cells = surface::draw(&frame);
+    let palette = rev::config::Palette::default();
+    assert_eq!(cells[&(0, 0)].foreground, Some(palette.selection_text));
+    assert_eq!(cells[&(0, 0)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 0)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 2)].background, Some(palette.background));
     copy(&mut session);
     assert_eq!(session.rectangle().unwrap().rows()[1], "  界");
 }

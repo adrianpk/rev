@@ -416,7 +416,7 @@ fn draw_boundary() {
         assert!(wire.starts_with("\x1b[?25l"));
         assert_eq!(wire.ends_with("\x1b[?25h"), frame.cursor().is_some());
         assert!(!wire.contains("\x1b[2J"));
-        let plain = surface::without_sgr(&wire);
+        let plain = without_sgr(&wire);
         for row in frame.rows() {
             assert!(plain.contains(&format!("\x1b[{};1H{}", row.row() + 1, row.text())));
         }
@@ -820,4 +820,20 @@ fn scroll_limits() {
     }
     assert!(session.buffer().unwrap().history().is_empty());
     assert!(!session.buffer().unwrap().is_modified());
+}
+
+fn without_sgr(text: &str) -> String {
+    let mut result = String::new();
+    let mut tail = text;
+    while let Some(start) = tail.find("\x1b[") {
+        result.push_str(&tail[..start]);
+        let rest = &tail[start + 2..];
+        let end = rest.find(|c: char| ('@'..='~').contains(&c)).unwrap();
+        if !rest[..=end].ends_with('m') {
+            result.push_str(&tail[start..start + 3 + end]);
+        }
+        tail = &rest[end + 1..];
+    }
+    result.push_str(tail);
+    result
 }

@@ -82,10 +82,16 @@ fn marked_geometry() {
                 .column,
             usize::from(stop + 3)
         );
-        let mut wire = Vec::new();
-        frame.write(&mut wire).unwrap();
-        assert!(wire.windows(4).any(|part| part == b"\x1b[4m"));
-        assert!(wire.windows(4).any(|part| part == b"\x1b[7m"));
+        let cells = super::surface::draw(&frame);
+        let palette = rev::config::Palette::default();
+        let cell = cells[&(0, usize::from(stop))];
+        assert_eq!(cell.foreground, Some(palette.selection_text));
+        assert_eq!(cell.background, Some(palette.selection));
+        assert!(cell.underline);
+        assert_eq!(
+            cells[&(0, usize::from(stop + 3))].background,
+            Some(palette.background)
+        );
         assert!(!session.buffer().unwrap().is_modified());
         assert!(session.buffer().unwrap().history().is_empty());
     }
