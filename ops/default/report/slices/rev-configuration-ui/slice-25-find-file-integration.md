@@ -60,8 +60,9 @@ failed drafts, and descend into directories without visiting them as text buffer
 - The existing absent-path PTY journey now cancels the retained empty-path prompt
   before typing into the document. Its text assertions tolerate palette SGR while
   retaining exact buffer, point, normalized-reuse and no-creation checks.
-- The shared-window failed-stages regression asserts that find-file retains
-  editable prompt focus, then cancels before independent write/save checks.
+- T25.3 follow-up `5e034847329c880b4cbff876b3d97cc7183067b8` updates the shared-window
+  failed-stages regression to retain editable find-file focus, then cancel
+  before independent write/save checks.
 
 ## Contracts Added or Changed
 
@@ -100,7 +101,7 @@ Successful development checks:
 - `cargo test --test commands path_accept_aliases`: configured accept phases and directory/file continuation passed.
 - `cargo test --test commands path_directory_bound`: atomic directory acceptance bound and new-name retry passed.
 - `cargo clippy --lib --test path_completion --test commands --test files -- -D warnings`: passed.
-- Focused source-check over all changed Rust modules and test roots passed: at most five parameters, cyclomatic complexity ten and nesting two.
+- Focused source checks passed; added or changed functions use at most five parameters, cyclomatic complexity ten and nesting two. Unchanged routines retain the existing source-gate bound.
 - `python3 scripts/check-path-navigation.py`: two RGB/NO_COLOR navigation sessions passed, zero skips.
 - `python3 scripts/check-path-acceptance.py`: two RGB/NO_COLOR acceptance sessions passed, zero skips; fixture bytes and directory entries unchanged.
 - `python3 -c 'import runpy; from pathlib import Path; runpy.run_path("scripts/check-pty.py")["new_visit"](Path.cwd())'`: absent startup paths, retained empty-path focus, normalized live reuse and no filesystem creation passed.
