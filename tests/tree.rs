@@ -188,7 +188,16 @@ fn command_focus() {
     tree(&mut session, TreeCommand::Toggle);
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("toggle-file-tree".into()));
-    assert_eq!(session.frame().unwrap().cursor().unwrap().row, 7);
+    let frame = session.frame().unwrap();
+    let query = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == rev::display::Band::Echo)
+        .unwrap();
+    assert_eq!(frame.cursor().unwrap().row, query.row());
+    let candidate = &frame.rows()[usize::from(query.row()) + 1];
+    assert_eq!(candidate.band(), rev::display::Band::Completion);
+    assert!(candidate.text().starts_with("toggle-file-tree"));
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Char('g'),
         KeyModifiers::CONTROL,

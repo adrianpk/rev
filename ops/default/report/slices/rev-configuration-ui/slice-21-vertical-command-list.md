@@ -83,6 +83,7 @@ Development checks:
 - `cargo test --test commands palette::context_reference`: passed.
 - `cargo test --test panels rendering::workspace_lifecycle`: passed.
 - `cargo test --test tree preferences::memory_only_draw`: passed, including retained no-filesystem-read behavior.
+- `cargo test --test tree command_focus`: passed after replacing the obsolete last-row command-cursor assumption with explicit query/candidate ownership assertions.
 - `cargo test --test panels workspace::command_region`: passed.
 - `cargo clippy --lib --test commands --test panels --test tree -- -D warnings`: passed after initial composition.
 - `cargo clippy --lib --test commands -- -D warnings`: passed after list retention.
@@ -92,6 +93,9 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source tests/commands/vertical.rs --source tests/commands/vertical/geometry.rs --source tests/panels/workspace.rs`: passed; nesting at most two.
 - `python3 scripts/check-command-list.py`: passed; two terminal sessions, zero skips.
 
+Initial controller evidence `PVC2LB7HPAUKC4XPB246XH6VFF` passed the six required
+checks, then stopped at the tree command-cursor assumption described above.
+Its corrected contract retains full-width bottom-row argument/decision assertions.
 The controller records final evidence on the clean PR head after its PR-reference
 follow-up commit. Required commands precede the focused tree/workspace and actual
 terminal regressions:
