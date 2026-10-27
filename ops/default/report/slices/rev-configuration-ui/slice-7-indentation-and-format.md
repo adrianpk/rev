@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-07-indentation-and-format`
-PR: pending
+PR: [#56](https://forge.adrianpk.com/adrianpk/rev/pulls/56)
 
 ## Purpose
 
@@ -38,7 +38,8 @@ encoding guarantees.
   insertion, focused indentation/paste tests and the visible default update.
 - T7.2: `7c34b501f11ed17174d108dbdfc38419b817e3ee` initializes format
   metadata once in new-buffer construction while loaded ingress bypasses it.
-- T7.3 adds real bound/M-x admission, Return/save/undo, unrelated word edits and
+- T7.3: `8be9fb6807d7b69038667689cf29f64370729540` adds real bound/M-x
+  admission, Return/save/undo, unrelated word edits and
   final-buffer format coverage and this report. All eight new tests pass.
 - Indentation uses the existing checked `replace` operation. It publishes one
   replacement and retains shared-view mapping, command boundaries and history.
