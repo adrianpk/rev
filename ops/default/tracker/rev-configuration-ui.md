@@ -104,8 +104,16 @@ Details and checks: [Slice 3](../plan/rev-configuration-ui.md#slice-3-load-bound
 
 - [x] T3.1: Resolve independent XDG roots and optional config.toml without creating files/directories; ignore relative XDG values, use HOME fallbacks, and return precise errors when a required root cannot be resolved.
 - [x] T3.2: Read explicit includes depth-first in declaration order relative to the declaring source; enforce root-depth zero, depth 16, 64 occurrences, 256 KiB per source and 2 MiB total before unbounded allocation. Detect active-stack symlink/hard-link cycles by file identity.
-- [ ] T3.3: Test shared acyclic leaves, duplicates counting toward bounds, permission/missing includes, alias cycles and read errors. A missing optional root alone selects defaults; a broken explicit source rejects the candidate.
+- [x] T3.3: Test shared acyclic leaves, duplicates counting toward bounds, permission/missing includes, alias cycles and read errors. A missing optional root alone selects defaults; a broken explicit source rejects the candidate.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T3.1 `b55d825bee9bf0d35e638beca57af290f5a2fb27`;
+T3.2 `6840ad1cf9bdfe8b607ac78751f9060b48e92cbd`.
+Development validation: all 15 new focused configuration tests passed, including
+exact byte/depth/occurrence boundaries, real permission errors and alias cycles.
+Final exact-head slice evidence belongs to the controller.
+Report: [Slice 3](../report/slices/rev-configuration-ui/slice-3-config-includes.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 4: Resolve layered settings
 

@@ -6,6 +6,8 @@ mod boundaries;
 mod catalog;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "configuration/include_bounds.rs"]
+mod include_bounds;
 #[path = "configuration/includes.rs"]
 mod includes;
 #[path = "configuration/parsing.rs"]
