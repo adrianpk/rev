@@ -1,6 +1,6 @@
 # Slice 14: Render UI palette and restore terminal colors
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -96,8 +96,11 @@ Focused corrections passed:
 - `cargo test --test search selected_surface`
 - `cargo run --quiet --example source-check -- --source tests/display/policy.rs --source tests/editing/regions.rs --source tests/rectangles.rs --source tests/search.rs --source tests/support/surface.rs`
 
-The controller records final results for the clean PR head after its PR-reference
-follow-up commit. Required commands precede focused syntax and real PTY checks:
+Final controller validation `GPQFHWTX4LUK6AS3RIPAXXV2VY` passed all thirteen
+commands on clean PR head `3ba6bb0ecd825a4f3e75081ec5b056821fa6ff5d`: 87 native
+tests (display 25, panels 18, recovery 18, syntax 23 and three focused cases),
+fifteen PTY cases and zero skips. PR #63 integrated through Rebase + Fast-forward
+into dev at that same commit. Commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

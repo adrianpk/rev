@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 14 - Render UI palette and restore terminal
+Active slice: Slice 15 - Apply presentation and syntax preferences
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -378,7 +378,7 @@ Details and checks: [Slice 14](../plan/rev-configuration-ui.md#slice-14-render-u
 - [x] T14.1: Apply background/foreground, status, border/focus, tree, region, search, prompt, warning and error roles through composition. Ensure every selected role has a real consumer.
 - [x] T14.2: Apply cursor color through supported terminal sequences, with a documented capability fallback; restore cursor/text colors and terminal modes on normal exit and failures through the existing lifecycle owner.
 - [x] T14.3: Test safe escape emission, no style leakage between panels, readable selections and restoration after errors. Keep idle rendering event-driven and do not add blinking.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T14.1 `eea4858ae3c2b16e174091f53020867ef0f81c1c`;
 T14.2 `7a665f6f4394a487d8344290b866a1e934727f91`;
@@ -389,10 +389,14 @@ cursor/text cleanup, partial color writes, failed resets, raw-mode release,
 capability/NO_COLOR fallback and executable defaults. Focused Clippy and source
 checks passed. Inherited selection assertions now verify effective RGB cells
 in display, linear-region, rectangle and search coverage; focused corrections
-passed. Final exact-head evidence belongs to the controller.
+passed. Final exact-head validation `GPQFHWTX4LUK6AS3RIPAXXV2VY` passed all
+thirteen commands on `3ba6bb0ecd825a4f3e75081ec5b056821fa6ff5d`: 87 native
+tests and fifteen PTY cases, zero skips, formatting, Clippy, source and whitespace
+checks.
 Report: [Slice 14](../report/slices/rev-configuration-ui/slice-14-ui-palette.md).
 PR: [#63](https://forge.adrianpk.com/adrianpk/rev/pulls/63);
-dev integration remains controller-owned.
+integrated through Rebase + Fast-forward into dev at
+`3ba6bb0ecd825a4f3e75081ec5b056821fa6ff5d`. Slice 14 of 30 completed.
 
 ### Slice 15: Apply presentation and syntax preferences
 
