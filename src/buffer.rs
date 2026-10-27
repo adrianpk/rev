@@ -341,6 +341,10 @@ pub struct Buffers {
 }
 
 impl Buffers {
+    pub(crate) fn snapshot(&self) -> &crate::config::Snapshot {
+        &self.settings
+    }
+
     /// The global palette is shared by all buffers and does not vary by path.
     pub(crate) fn palette(&self) -> &crate::config::Palette {
         &self.settings.settings().palette

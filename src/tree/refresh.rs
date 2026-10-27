@@ -41,7 +41,7 @@ impl Tree {
         while index < self.entries.len() {
             let entry = &self.entries[index];
             if entry.directory && expanded.contains(&entry.path) {
-                match entry.children() {
+                match entry.children(&self.policy) {
                     Ok(children) => {
                         self.entries[index].expanded = true;
                         self.entries.splice(index + 1..index + 1, children);

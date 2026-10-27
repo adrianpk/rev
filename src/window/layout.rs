@@ -15,28 +15,28 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub(super) fn geometry(&self, size: Size) -> Option<Geometry> {
-        self.project(Area::root(size)?)
+    pub(super) fn geometry(&self, size: Size, ratio: f64) -> Option<Geometry> {
+        self.project(Area::root(size)?, ratio)
     }
 
-    pub(crate) fn panel_geometry(&self, area: Area) -> Option<Geometry> {
-        self.project(area)
+    pub(crate) fn panel_geometry(&self, area: Area, ratio: f64) -> Option<Geometry> {
+        self.project(area, ratio)
     }
 
     pub(crate) fn panel_minimum(&self) -> Option<Size> {
         Some(self.minimum()?.size())
     }
 
-    fn project(&self, area: Area) -> Option<Geometry> {
+    fn project(&self, area: Area, ratio: f64) -> Option<Geometry> {
         let minimum = self.minimum()?.size();
         if area.width() < minimum.width || area.height() < minimum.height {
             return None;
         }
         let mut geometry = Geometry::default();
-        self.place(area, &mut geometry)?;
+        self.place(area, &mut geometry, ratio)?;
         Some(geometry)
     }
-    fn place(&self, area: Area, geometry: &mut Geometry) -> Option<()> {
+    fn place(&self, area: Area, geometry: &mut Geometry, ratio: f64) -> Option<()> {
         match self {
             Self::Leaf(id) => geometry.panes.push((*id, area)),
             Self::Split {
@@ -45,9 +45,9 @@ impl Layout {
                 second,
             } => {
                 let division =
-                    area.divide_to(*direction, first.minimum()?, second.minimum()?, 1)?;
-                first.place(division.first, geometry)?;
-                second.place(division.second, geometry)?;
+                    area.divide_to(*direction, first.minimum()?, second.minimum()?, ratio)?;
+                first.place(division.first, geometry, ratio)?;
+                second.place(division.second, geometry, ratio)?;
                 if let Some(border) = division.border {
                     geometry.borders.push(border);
                 }

@@ -4,6 +4,8 @@
 mod config_fixture;
 #[path = "windows/policy.rs"]
 mod policy;
+#[path = "windows/preferences.rs"]
+mod preferences;
 
 #[path = "windows/resize.rs"]
 mod resize;

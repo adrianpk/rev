@@ -21,17 +21,12 @@ impl View {
     pub(crate) fn scroll(
         &mut self,
         buffer: &Buffer,
-        size: Size,
         scroll: Scroll,
+        distance: usize,
     ) -> Result<(), Error> {
         let point = self.cell(buffer)?;
         self.sync_policy(buffer);
-        if scroll == Scroll::Recenter {
-            self.recenter(point, size);
-            return Ok(());
-        }
         self.alignment = Alignment::Center;
-        let distance = distance(scroll, size);
         if distance == 0 {
             return Ok(());
         }
@@ -45,7 +40,14 @@ impl View {
         Ok(())
     }
 
-    fn recenter(&mut self, point: Cell, size: Size) {
+    pub(crate) fn recenter(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
+        let point = self.cell(buffer)?;
+        self.sync_policy(buffer);
+        self.align(point, size);
+        Ok(())
+    }
+
+    fn align(&mut self, point: Cell, size: Size) {
         if !size.usable() {
             return;
         }
@@ -66,15 +68,4 @@ fn destination(origin: usize, distance: usize, backward: bool) -> usize {
     } else {
         origin.saturating_add(distance)
     }
-}
-
-fn distance(scroll: Scroll, size: Size) -> usize {
-    if !scroll.page() {
-        return 1;
-    }
-    if !size.usable() {
-        return 0;
-    }
-    // Retain two context rows where geometry permits, advancing at least one.
-    usize::from(size.text_rows().saturating_sub(2).max(1))
 }

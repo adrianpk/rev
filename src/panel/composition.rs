@@ -29,7 +29,7 @@ impl Composition {
         let rows = auxiliary_rows.min(surplus.saturating_sub(1));
         let height = available - rows - u16::from(rows > 0);
         let editing = Area::new(outer.column(), outer.row(), outer.width(), height)?;
-        let geometry = windows.layout().panel_geometry(editing)?;
+        let geometry = windows.panel_geometry(editing)?;
         let panels = geometry
             .panes()
             .iter()

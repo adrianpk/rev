@@ -24,7 +24,7 @@ impl Tree {
         if !entry.directory || entry.expanded {
             return Ok(());
         }
-        let children = entry.children()?;
+        let children = entry.children(&self.policy)?;
         self.entries[self.selected].expanded = true;
         self.entries
             .splice(self.selected + 1..self.selected + 1, children);

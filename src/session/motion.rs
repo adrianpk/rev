@@ -17,7 +17,13 @@ impl Session {
             .buffers
             .get(self.windows.selected().point.stamp.buffer)?;
         let mut candidate = self.windows.selected().clone();
-        candidate.scroll(buffer, self.pane_size(), scroll)?;
+        let size = self.pane_size();
+        if scroll == Scroll::Recenter {
+            candidate.recenter(buffer, size)?;
+        } else {
+            let overlap = self.buffers.snapshot().settings().scroll.page_overlap;
+            candidate.scroll(buffer, scroll, distance(scroll, size, overlap))?;
+        }
         candidate.reveal(buffer, self.pane_size())?;
         *self.windows.selected_mut() = candidate;
         Ok(())
@@ -42,4 +48,16 @@ impl Session {
         *self.windows.selected_mut() = candidate;
         Ok(())
     }
+}
+
+// The global overlap is clamped against current content rows, never against the
+// document. Tiny usable panes still advance; suspended pages retain their point.
+fn distance(scroll: Scroll, size: crate::view::Size, overlap: usize) -> usize {
+    if !scroll.page() {
+        return 1;
+    }
+    if !size.usable() {
+        return 0;
+    }
+    usize::from(size.text_rows()).saturating_sub(overlap).max(1)
 }

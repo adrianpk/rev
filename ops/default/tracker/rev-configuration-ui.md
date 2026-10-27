@@ -403,7 +403,7 @@ integrated through Rebase + Fast-forward into dev at
 Contracts: CFG18-CFG19, UI01. Tickets: TKT-20261027103711.
 Details and checks: [Slice 15](../plan/rev-configuration-ui.md#slice-15-apply-presentation-and-syntax-preferences).
 
-- [ ] T15.1: Apply page_overlap with clamped forward progress, preferred split_ratio with geometry minima, tree visibility/width/max_fraction/root, hidden entry filtering and directory-first ordering with deterministic filename ties.
+- [x] T15.1: Apply page_overlap with clamped forward progress, preferred split_ratio with geometry minima, tree visibility/width/max_fraction/root, hidden entry filtering and directory-first ordering with deterministic filename ties.
 - [ ] T15.2: Apply syntax enabled/max_bytes and supported per-language rust/plain grammar selection; crossing a cutoff invalidates stale styling without preventing edits or changing text/history.
 - [ ] T15.3: Test default equivalence, valid extremes, tiny geometry, dotfiles, initial file versus scratch root, retained tree focus and no filesystem reads during drawing. Do not add natural sorting or extra display controls.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.

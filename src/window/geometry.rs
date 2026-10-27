@@ -130,8 +130,8 @@ impl Area {
             height: size.height.saturating_sub(1),
         })
     }
-    pub(super) fn divide(self, split: Split) -> Option<Division> {
-        self.divide_to(split, Minimum::leaf(), Minimum::leaf(), 1)
+    pub(super) fn divide(self, split: Split, ratio: f64) -> Option<Division> {
+        self.divide_to(split, Minimum::leaf(), Minimum::leaf(), ratio)
     }
 
     pub(super) fn divide_to(
@@ -139,19 +139,25 @@ impl Area {
         split: Split,
         first: Minimum,
         second: Minimum,
-        gap: u16,
+        ratio: f64,
     ) -> Option<Division> {
         match split {
-            Split::Below => self.below(first, second, gap),
-            Split::Right => self.right(first, second, gap),
+            Split::Below => self.below(first, second, ratio),
+            Split::Right => self.right(first, second, ratio),
         }
     }
 
-    fn below(self, first: Minimum, second: Minimum, gap: u16) -> Option<Division> {
+    fn below(self, first: Minimum, second: Minimum, ratio: f64) -> Option<Division> {
+        let gap = 1;
         if first.width.max(second.width) > self.width {
             return None;
         }
-        let height = allocation(self.height.checked_sub(gap)?, first.height, second.height)?;
+        let height = allocation(
+            self.height.checked_sub(gap)?,
+            first.height,
+            second.height,
+            ratio,
+        )?;
         let first = Self { height, ..self };
         let row = self.row.checked_add(height)?;
         let second = Self {
@@ -169,11 +175,17 @@ impl Area {
             }),
         })
     }
-    fn right(self, first: Minimum, second: Minimum, gap: u16) -> Option<Division> {
+    fn right(self, first: Minimum, second: Minimum, ratio: f64) -> Option<Division> {
+        let gap = 1;
         if first.height.max(second.height) > self.height {
             return None;
         }
-        let width = allocation(self.width.checked_sub(gap)?, first.width, second.width)?;
+        let width = allocation(
+            self.width.checked_sub(gap)?,
+            first.width,
+            second.width,
+            ratio,
+        )?;
         let first = Self { width, ..self };
         let column = self.column.checked_add(width)?;
         let border = Self {
@@ -194,12 +206,12 @@ impl Area {
     }
 }
 
-/// Prefer equal halves, but reserve each child's complete recursive minimum.
+/// Prefer the admitted ratio, but reserve each child's complete recursive minimum.
 /// An undersized report suspends the whole projection without a partial layout.
-fn allocation(available: u16, first: u16, second: u16) -> Option<u16> {
+fn allocation(available: u16, first: u16, second: u16, ratio: f64) -> Option<u16> {
     let maximum = available.checked_sub(second)?;
     if first > maximum {
         return None;
     }
-    Some((available / 2).clamp(first, maximum))
+    Some(((f64::from(available) * ratio).floor() as u16).clamp(first, maximum))
 }

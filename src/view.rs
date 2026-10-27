@@ -28,6 +28,7 @@ pub enum Error {
     Edit(buffer::edit::Error),
     Coordinates(coordinates::Error),
     Window(crate::window::Error),
+    WorkingDirectory(std::io::ErrorKind),
 }
 
 impl fmt::Display for Error {
@@ -37,6 +38,7 @@ impl fmt::Display for Error {
             Self::Edit(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
             Self::Window(error) => error.fmt(formatter),
+            Self::WorkingDirectory(kind) => write!(formatter, "read working directory: {kind}"),
         }
     }
 }

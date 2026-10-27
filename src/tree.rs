@@ -24,6 +24,7 @@ pub struct Tree {
     entries: Vec<Entry>,
     selected: usize,
     top: usize,
+    policy: crate::config::Tree,
 }
 
 impl Tree {
@@ -34,6 +35,38 @@ impl Tree {
             root: Some(root),
             ..Self::default()
         }
+    }
+
+    /// Observe no entries until explicit expansion or refresh; the supplied
+    /// root and admitted policy determine initial visibility without focus.
+    pub fn with_settings(root: PathBuf, settings: &crate::config::Snapshot) -> Self {
+        Self::configured(root, &settings.settings().tree)
+    }
+
+    fn configured(root: PathBuf, policy: &crate::config::Tree) -> Self {
+        Self {
+            policy: policy.clone(),
+            visible: policy.visible,
+            ..Self::new(root)
+        }
+    }
+
+    pub(crate) fn startup(policy: &crate::config::Tree, file: Option<&Path>) -> io::Result<Self> {
+        let parent = file
+            .and_then(Path::parent)
+            .filter(|_| policy.root != crate::config::TreeRoot::Cwd);
+        let root = match parent {
+            Some(parent) => parent.to_path_buf(),
+            None => std::env::current_dir()?,
+        };
+        Ok(Self::configured(root, policy))
+    }
+
+    fn set_root(&mut self, root: PathBuf) {
+        self.entries = vec![Entry::root(root.clone())];
+        self.root = Some(root);
+        self.selected = 0;
+        self.top = 0;
     }
 
     pub fn entries(&self) -> &[Entry] {
@@ -72,12 +105,15 @@ impl Tree {
         if !self.visible || size.width < 32 || !size.usable() {
             return 0;
         }
-        24.min(size.width / 3)
+        let maximum = (f64::from(size.width) * self.policy.max_fraction).floor() as u16;
+        (self.policy.width as u16).min(maximum)
     }
 
     pub(crate) fn initial(&mut self, file: &Path) {
-        if let Some(parent) = file.parent() {
-            *self = Self::new(parent.to_path_buf());
+        if self.policy.root != crate::config::TreeRoot::Cwd {
+            if let Some(parent) = file.parent() {
+                self.set_root(parent.to_path_buf());
+            }
         }
     }
 
@@ -93,7 +129,7 @@ impl Tree {
 
     pub(crate) fn focus(&mut self, size: Size) -> io::Result<()> {
         if self.root.is_none() {
-            *self = Self::new(std::env::current_dir()?);
+            self.set_root(std::env::current_dir()?);
         }
         self.visible = true;
         self.focused = self.width(size) > 0;

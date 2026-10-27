@@ -118,11 +118,18 @@ enum Pending {
 impl Session {
     /// Takes ownership of canonical buffers and a qualified initial view.
     pub fn new(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
-        view.cell(buffers.get(view.point.stamp.buffer)?)?;
+        let buffer = buffers.get(view.point.stamp.buffer)?;
+        view.cell(buffer)?;
+        let tree = crate::tree::Tree::startup(
+            &buffers.snapshot().settings().tree,
+            buffer.file().map(|file| file.path()),
+        )
+        .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
+        let windows = Windows::with_settings(view, buffers.snapshot())?;
         Ok(Self {
             buffers,
-            windows: Windows::new(view)?,
-            tree: crate::tree::Tree::default(),
+            windows,
+            tree,
             kills: crate::kill::KillRing::default(),
             rectangle: None,
             yank: None,

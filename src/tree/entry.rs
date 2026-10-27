@@ -52,7 +52,7 @@ impl Entry {
         })
     }
 
-    pub(super) fn children(&self) -> io::Result<Vec<Self>> {
+    pub(super) fn children(&self, policy: &crate::config::Tree) -> io::Result<Vec<Self>> {
         // Revalidate the selected entry before reading: a replaced symlink must
         // not turn a stale directory observation into a traversable link.
         let current = Self::observe(self.path.clone(), self.depth)?;
@@ -68,12 +68,19 @@ impl Entry {
         let mut children = Vec::new();
         for child in directory {
             let child = child.map_err(|e| failure("read directory", &self.path, e))?;
-            children.push(Self::observe(child.path(), self.depth + 1)?);
+            if policy.show_hidden || !child.file_name().as_encoded_bytes().starts_with(b".") {
+                children.push(Self::observe(child.path(), self.depth + 1)?);
+            }
         }
         children.sort_by(|a, b| {
-            (!a.directory, a.path.file_name()).cmp(&(!b.directory, b.path.file_name()))
+            a.order_key(policy.directories_first)
+                .cmp(&b.order_key(policy.directories_first))
         });
         Ok(children)
+    }
+
+    fn order_key(&self, directories_first: bool) -> (bool, Option<&std::ffi::OsStr>) {
+        (directories_first && !self.directory, self.path.file_name())
     }
 
     pub(super) fn label(&self, width: u16) -> String {

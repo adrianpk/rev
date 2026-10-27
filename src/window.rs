@@ -57,15 +57,26 @@ pub struct Windows {
     views: BTreeMap<ViewId, View>,
     selected: ViewId,
     layout: Layout,
+    ratio: f64,
 }
 
 impl Windows {
     pub fn new(view: View) -> Result<Self, Error> {
+        Self::from_ratio(view, 0.5)
+    }
+
+    /// Apply the admitted global ratio to initial and resized layout projection.
+    pub fn with_settings(view: View, settings: &crate::config::Snapshot) -> Result<Self, Error> {
+        Self::from_ratio(view, settings.settings().windows.split_ratio)
+    }
+
+    fn from_ratio(view: View, ratio: f64) -> Result<Self, Error> {
         let id = ViewId::next()?;
         Ok(Self {
             views: BTreeMap::from([(id, view)]),
             selected: id,
             layout: Layout::Leaf(id),
+            ratio,
         })
     }
     pub fn selected_id(&self) -> ViewId {
@@ -90,8 +101,12 @@ impl Windows {
         &self.layout
     }
     pub fn geometry(&self, size: Size) -> Option<Geometry> {
-        self.layout.geometry(size)
+        self.layout.geometry(size, self.ratio)
     }
+    pub(crate) fn panel_geometry(&self, area: Area) -> Option<Geometry> {
+        self.layout.panel_geometry(area, self.ratio)
+    }
+
     pub fn area(&self, id: ViewId, size: Size) -> Option<Area> {
         self.geometry(size)?
             .panes()
@@ -109,7 +124,8 @@ impl Windows {
     /// an identity or publishing a new leaf. Original focus and view are retained.
     pub fn split(&mut self, direction: Split, size: Size) -> Result<ViewId, Error> {
         let area = self.area(self.selected, size).ok_or(Error::DoesNotFit)?;
-        area.divide(direction).ok_or(Error::DoesNotFit)?;
+        area.divide(direction, self.ratio)
+            .ok_or(Error::DoesNotFit)?;
         let id = ViewId::next()?;
         let view = self.selected().clone();
         let mut candidate = self.layout.clone();

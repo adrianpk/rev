@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "tree/preferences.rs"]
+mod preferences;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{Command, TreeCommand};
 use rev::display::Size;
