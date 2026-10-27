@@ -762,8 +762,18 @@ Details and checks: [Slice 29](../plan/rev-configuration-ui.md#slice-29-bound-st
 
 - [x] T29.1: Extend reproducible performance fixtures for maximal admitted include graphs, directory candidate limits/filter reuse, panel redraw with tabbed Unicode and syntax cutoff behavior.
 - [x] T29.2: Check event-driven idle behavior, bounded config/candidate allocations and absence of recursive directory work or filesystem reads on draw. Retain the original load/search/edit/scroll/syntax budgets and fixtures.
-- [ ] T29.3: Record environment, workload sizes, measured values and enforced budgets. Fix demonstrated regressions within scope; do not add speculative tuning or weaken a failing budget.
+- [x] T29.3: Record environment, workload sizes, measured values and enforced budgets. Fix demonstrated regressions within scope; do not add speculative tuning or weaken a failing budget.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T29.1 `651051c5f19f`; T29.2 `f6534d4974f2`.
+All six focused performance selections pass: seven native workloads and one
+configured PTY with editing/prompt idle. Exact graph/directory limits, zero
+cached/recursive fixture open/access events, parser cutoff controls, unchanged
+fixture hashes and timing/RSS budgets are enforced. The report records local
+hardware/compiler, sample counts, measurements and explicit evidence limits.
+Historical performance owners and budgets remain unchanged. Final readiness
+requires controller evidence for the clean PR head; dev integration is pending.
+Report: [Slice 29](../report/slices/rev-configuration-ui/slice-29-configuration-ui-performance.md).
 
 ### Slice 30: Verify delivery acceptance and references
 

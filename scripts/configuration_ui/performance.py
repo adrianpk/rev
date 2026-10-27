@@ -72,6 +72,7 @@ def watched(root, kind):
 
 
 def run(selected):
+    started = time.perf_counter()
     baseline = runpy.run_path(str(ROOT / 'scripts/check-performance.py'))
     result = {'hardware': baseline['hardware'](), 'budgets_us': BUDGET_US,
               'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096, 'native': [], 'observation': {}}
@@ -91,5 +92,6 @@ def run(selected):
         expected = 7 if selected is None else len(EXPECTED.get(selected, []))
         assert len(result['native']) == expected, 'missing required native workload'
         assert ('terminal' in result) == (selected is None or selected == 'idle'), 'missing PTY evidence'
+    result['measurement_elapsed_ms'] = round((time.perf_counter() - started) * 1000, 3)
     print(json.dumps(result, indent=2))
     print(f'Configuration/UI performance suite: {len(result["native"])} native workloads, {int("terminal" in result)} PTY session passed, 0 skipped.')
