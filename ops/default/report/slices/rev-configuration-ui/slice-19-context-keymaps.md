@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-19-context-keymaps`
-PR: pending canonical creation
+PR: [#68](https://forge.adrianpk.com/adrianpk/rev/pulls/68)
 
 ## Purpose
 
@@ -46,7 +46,7 @@ search, command, inventory, confirmation and filesystem action owners.
 - T19.2: `71406c2e227812c86157bffbbaff408e9b34421a` guards decision admission,
   enables bounded cancellation sequences without consuming consent suffixes, and
   tests replacement/filesystem decisions and reserved cancellation.
-- T19.3: this report-introduction commit adds the remaining native workflow
+- T19.3: `6ef075a601e28560fe344ecc3111b6c0134c2121` adds the remaining native workflow
   regressions and documents supplied context dispatch.
 - Map entries retain whether a chord is explicitly configured. Inherited entries
   preserve existing stage-specific key distinctions; custom targets translate

@@ -513,14 +513,15 @@ Details and checks: [Slice 19](../plan/rev-configuration-ui.md#slice-19-dispatch
 
 Task commits: T19.1 `d025410560191c202f5e59d3e786d82aa3fea936`;
 T19.2 `71406c2e227812c86157bffbbaff408e9b34421a`;
-T19.3 is the Slice 19 report-introduction commit.
+T19.3 `6ef075a601e28560fe344ecc3111b6c0134c2121`.
 Eighteen configured behavior tests pass for prompt Unicode editing, command
 completion/history, find-file, search, replacement, bounded prefixes, tree focus,
 filesystem arguments and explicit fresh consent. Focused Clippy/source checks
 pass with nesting at most two. Required exact-head validation follows the
 PR-reference commit through the controller.
 Report: [Slice 19](../report/slices/rev-configuration-ui/slice-19-context-keymaps.md).
-PR: pending canonical creation; dev integration remains controller-owned.
+PR: [#68](https://forge.adrianpk.com/adrianpk/rev/pulls/68);
+dev integration remains controller-owned.
 
 ### Slice 20: Activate startup configuration
 
