@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "rectangles/capture.rs"]
+mod capture;
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+
 #[path = "rectangles/kill.rs"]
 mod kill;
 #[path = "rectangles/yank.rs"]
@@ -320,30 +325,32 @@ fn scrolled_chunks() {
 fn separate_store() {
     use rev::command::{History, LinearCommand};
     let source = "012345\na\t界z\n012345";
-    let mut session = selected(source, cell(0, 2), cell(2, 5));
+    let mut session = selected(source, cell(0, 1), cell(2, 4));
     copy(&mut session);
-    session.execute(Command::Region(RegionCommand::Set));
-    session.execute(Command::Motion(Motion::LineEnd));
-    session.execute(Command::Linear(LinearCommand::Copy));
-    assert_eq!(session.kill_ring().next().unwrap().to_string(), "5");
     session.execute(Command::KeyboardQuit);
-    at(&mut session, cell(0, 2));
+    at(&mut session, cell(1, 1));
+    session.execute(Command::Region(RegionCommand::Set));
+    session.execute(Command::Motion(Motion::ForwardChar));
+    session.execute(Command::Linear(LinearCommand::Copy));
+    assert_eq!(session.kill_ring().next().unwrap().to_string(), "\t");
+    session.execute(Command::KeyboardQuit);
+    at(&mut session, cell(0, 1));
     session.execute(Command::Rectangle(RectangleCommand::Mark));
-    at(&mut session, cell(2, 5));
+    at(&mut session, cell(2, 4));
     copy(&mut session);
-    assert_eq!(session.kill_ring().next().unwrap().to_string(), "5");
+    assert_eq!(session.kill_ring().next().unwrap().to_string(), "\t");
     session.execute(Command::KeyboardQuit);
     session.execute(Command::Rectangle(RectangleCommand::Mark));
     session.execute(Command::Rectangle(RectangleCommand::Copy));
     assert_eq!(session.echo(), "Rectangle is empty");
-    assert_eq!(session.rectangle().unwrap().rows(), ["234", "  界", "234"]);
+    assert_eq!(session.rectangle().unwrap().rows(), ["123", "   ", "123"]);
     session.execute(Command::KeyboardQuit);
     session.execute(Command::Rectangle(RectangleCommand::Copy));
     assert_eq!(session.echo(), "Rectangle is not active");
     session.execute(Command::Motion(Motion::LineEnd));
     session.execute(Command::Linear(LinearCommand::Yank));
-    assert_eq!(text(&session), format!("{source}5"));
-    assert_eq!(session.rectangle().unwrap().rows(), ["234", "  界", "234"]);
+    assert_eq!(text(&session), format!("{source}\t"));
+    assert_eq!(session.rectangle().unwrap().rows(), ["123", "   ", "123"]);
     session.execute(Command::History(History::Undo));
     assert_eq!(text(&session), source);
     assert!(!session.buffer().unwrap().is_modified());

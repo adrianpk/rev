@@ -224,7 +224,7 @@ Contracts: CFG11, modified R20. Tickets: TKT-20261027103709.
 Details and checks: [Slice 8](../plan/rev-configuration-ui.md#slice-8-capture-emacs-style-rectangles).
 
 - [x] T8.1: Separate copy and kill rectangle capture semantics: copy expands retained tabs without source mutation; kill preserves whole interior tabs and materializes only partial edges as required.
-- [ ] T8.2: Use the source buffer policy for display columns, retain whole-grapheme boundaries and baseline short-line/no-right-padding behavior, and keep linear and rectangular stores distinct.
+- [x] T8.2: Use the source buffer policy for display columns, retain whole-grapheme boundaries and baseline short-line/no-right-padding behavior, and keep linear and rectangular stores distinct.
 - [ ] T8.3: Port the observed Emacs behavior into original fixtures, not source code: a-tab-b and c-tab-d at width 4, partial edges, wide clusters and a one-transaction kill/undo. Update contradictory copy tests deliberately.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
