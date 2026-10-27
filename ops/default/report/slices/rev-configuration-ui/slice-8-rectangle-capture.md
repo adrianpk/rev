@@ -1,6 +1,6 @@
 # Slice 8: Preserve rectangle tab semantics
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -84,8 +84,11 @@ Development checks:
 - `cargo test --test rectangles kill::tab_fragments`: passed; strengthened matrix.
 - `cargo clippy --lib --test rectangles -- -D warnings`: passed.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All six ordered checks passed on the clean final PR head
+`7672b1eed5709c05d0221f705603ba12628c203f`, controller validation
+`RSTOMMXIYRVKDJNLZI37TEXLBN`: 38 rectangle and 24 coordinate tests.
+PR #57 integrated that exact commit into dev by Rebase + Fast-forward.
+Commands, in canonical order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
