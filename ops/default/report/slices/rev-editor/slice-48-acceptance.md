@@ -122,10 +122,16 @@ final PR HEAD `d7612fecd278c5c0cacc4af0fb10797a709b39f3` under validation
 
 The existing command-history regression also passed after the P12 correction.
 
+Controller full gate: `scripts/check-all.sh` passed on immutable candidate
+`b56d705c7a84b823bf069fc874bc762938d6d897` under validation
+`ECG376EW4AS7H7M4ST6BSW47K3` on 2026-10-27. All eight stages completed:
+formatting, Clippy, 455 native tests, source quality, four real PTY journeys,
+two large performance fixtures with all eight workloads and real terminal
+startup/idle checks, A01-A20 completeness, and `git diff --check`. No required
+case was skipped. Final closure changes only registered documentation paths.
+
 ## Risks and Follow-ups
 
-The worker's focused checks do not constitute the combined integrated gate.
-The controller must execute `scripts/check-all.sh` on the exact clean integrated
-candidate and retain its result before final documentation closure. Performance
-limits remain those of the existing representative fixtures and hardware
-observations; this slice adds no latency or general file-size guarantee.
+The controller's successful gate applies to the recorded immutable candidate.
+Performance observations remain limited to the representative fixtures and
+recorded hardware; they do not establish a general latency or file-size guarantee.

@@ -1,6 +1,8 @@
 # rev Editor
 
-Status: accepted
+Status: implemented
+Implemented: 2026-10-27; completed rev-editor delivery
+Validated candidate: `b56d705c7a84b823bf069fc874bc762938d6d897`
 Approved: product owner, 2026-10-26
 Date: 2026-10-26
 Format: OpenSpec baseline requirements and scenarios

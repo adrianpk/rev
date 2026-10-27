@@ -1,6 +1,9 @@
 # rev Editor Tracker
 
-Status: approved
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `b56d705c7a84b823bf069fc874bc762938d6d897`
+Gate validation: `ECG376EW4AS7H7M4ST6BSW47K3`
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Active slice: Slice 48 - Verify the complete integrated editor contract
@@ -1008,12 +1011,13 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [x] T48.2: Exercise the assembled user journeys through the built executable and verify all gate prerequisites, reports, required commands, and unchanged identities. Leave primary dev clean and pushed for controller-owned final validation.
 - [x] Record passing required/focused validation, canonical PR integration, and delivered report.
 
-Implementation: T48.1 and T48.2 delivered through PR #48; controller gate pending.
+Implementation: T48.1 and T48.2 delivered through PR #48.
 Task commits: T48.1 `b5fb082836f69ce6395874c1394b396012ea0205`;
 T48.2 `3399f763425bef65b40116a99823dc1604e17254`.
 Validation: all eight ordered slice checks passed through Looper, including
 455 native tests, source-quality bounds, four real PTY journeys, seven checker
-tests and acceptance prerequisites. The combined full gate remains pending.
+tests and acceptance prerequisites. The combined full gate passed on the
+immutable candidate recorded below.
 Integration: `d7612fecd278c5c0cacc4af0fb10797a709b39f3`; all eight ordered slice checks
 passed under Looper validation `5XPZMNJLSJTLXTZBWSLDY3UBKQ`.
 PR: [#48](https://forge.adrianpk.com/adrianpk/rev/pulls/48).
@@ -1022,7 +1026,18 @@ Report: [Slice 48](../report/slices/rev-editor/slice-48-acceptance.md).
 ## Integrated closure
 
 - [x] All 48 canonical slice PRs are merged into dev and every task outcome is recorded.
-- [ ] R01-R40 and A01-A20 have real, current acceptance evidence with no required skips.
-- [ ] The controller full gate passes on the exact clean integrated candidate.
+- [x] R01-R40 and A01-A20 have real, current acceptance evidence with no required skips.
+- [x] The controller full gate passes on the exact clean integrated candidate.
 - [x] All 48 reports are delivered and dev is clean and synchronized with origin/dev.
-- [ ] Plan/tracker are completed and post-gate changes stay within registered closure paths.
+- [x] Plan/tracker are completed and post-gate changes stay within registered closure paths.
+
+Controller gate: `scripts/check-all.sh` passed on immutable candidate
+`b56d705c7a84b823bf069fc874bc762938d6d897` under validation
+`ECG376EW4AS7H7M4ST6BSW47K3` on 2026-10-27. The eight ordered stages
+passed formatting, Clippy, 455 native tests, source quality, four real PTY
+journeys, two representative performance fixtures, A01-A20 evidence completeness
+and whitespace checks. No required cases were skipped.
+
+All 48 slices and canonical reports are delivered. Final closure changes only
+registered documentation paths; executable source, validation scripts,
+dependencies and acceptance definitions match the tested candidate.

@@ -1,6 +1,9 @@
 # rev Editor Delivery
 
-Status: approved
+Status: Completed
+Completed: 2026-10-27
+Validated candidate: `b56d705c7a84b823bf069fc874bc762938d6d897`
+Gate validation: `ECG376EW4AS7H7M4ST6BSW47K3`
 Approved: product owner, 2026-10-26; complete baseline implementation and Looper startup requested.
 Delivery set: rev-editor
 Slice strategy: behavior-first
