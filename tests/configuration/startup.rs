@@ -1,3 +1,6 @@
+#[path = "startup_errors.rs"]
+mod errors;
+
 use std::path::Path;
 use std::process::Command as Process;
 
@@ -9,8 +12,9 @@ use rev::view::Size;
 
 use crate::fixture::Fixture;
 
-fn child(test: &str, fixture: &Fixture) {
-    let output = Process::new(std::env::current_exe().unwrap())
+fn process(test: &str, fixture: &Fixture) -> Process {
+    let mut process = Process::new(std::env::current_exe().unwrap());
+    process
         .args(["--exact", test, "--nocapture"])
         .current_dir(fixture.0.join("project"))
         .env("REV_STARTUP_CHILD", "1")
@@ -20,15 +24,21 @@ fn child(test: &str, fixture: &Fixture) {
         .env("XDG_CONFIG_HOME", fixture.0.join("user"))
         .env("XDG_DATA_HOME", fixture.0.join("data"))
         .env("XDG_STATE_HOME", fixture.0.join("state"))
-        .env("XDG_CACHE_HOME", fixture.0.join("cache"))
-        .output()
-        .unwrap();
+        .env("XDG_CACHE_HOME", fixture.0.join("cache"));
+    process
+}
+
+fn success(output: std::process::Output) {
     assert!(
         output.status.success(),
         "{}\n{}",
         String::from_utf8_lossy(&output.stdout),
         String::from_utf8_lossy(&output.stderr)
     );
+}
+
+fn child(test: &str, fixture: &Fixture) {
+    success(process(test, fixture).output().unwrap());
 }
 
 fn isolated() -> bool {
