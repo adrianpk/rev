@@ -14,6 +14,8 @@ mod fixture;
 mod include_bounds;
 #[path = "configuration/includes.rs"]
 mod includes;
+#[path = "configuration/keymaps.rs"]
+mod keymaps;
 #[path = "configuration/merging.rs"]
 mod merging;
 #[path = "configuration/parsing.rs"]

@@ -8,11 +8,17 @@ use super::{Diagnostic, Document, Editor, Grammar, Settings, Sources, project, v
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Snapshot {
     settings: Settings,
+    keymaps: crate::input::keymap::Effective,
     sources: Vec<PathBuf>,
     origins: BTreeMap<Vec<String>, usize>,
 }
 
 impl Snapshot {
+    /// Complete admitted maps; user overrides are not activated by this accessor.
+    pub fn keymaps(&self) -> &crate::input::keymap::Effective {
+        &self.keymaps
+    }
+
     pub fn settings(&self) -> &Settings {
         &self.settings
     }
@@ -61,7 +67,8 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
             origins.insert(key, *id);
         }
     }
-    validate::document(&document).map_err(|failure| {
+    origins.retain(|key, _| retained_origin(&document, key));
+    let keymaps = validate::document(&document).map_err(|failure| {
         let path = origins
             .get(&failure.key)
             .map(|id| sources.sources[*id].path.as_path())
@@ -70,6 +77,7 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
     })?;
     Ok(Snapshot {
         settings: project::settings(&document),
+        keymaps,
         sources: sources
             .sources
             .iter()
@@ -109,4 +117,20 @@ fn order(sources: &Sources) -> Result<(), Diagnostic> {
         }
     }
     Ok(())
+}
+
+fn retained_origin(document: &Document, key: &[String]) -> bool {
+    let [root, context, sequence] = key else {
+        return true;
+    };
+    if root != "keys" {
+        return true;
+    }
+    let map = match context.as_str() {
+        "editor" => &document.keys.editor,
+        "minibuffer" => &document.keys.minibuffer,
+        "tree" => &document.keys.tree,
+        _ => return true,
+    };
+    map.contains_key(sequence)
 }

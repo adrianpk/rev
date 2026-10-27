@@ -312,12 +312,35 @@ impl Merge {
     }
 
     fn keys(&mut self, base: &mut Keymaps, later: &Keymaps) {
-        self.table(&["keys", "editor"], &mut base.editor, &later.editor);
-        self.table(
+        self.binding_table(&["keys", "editor"], &mut base.editor, &later.editor);
+        self.binding_table(
             &["keys", "minibuffer"],
             &mut base.minibuffer,
             &later.minibuffer,
         );
-        self.table(&["keys", "tree"], &mut base.tree, &later.tree);
+        self.binding_table(&["keys", "tree"], &mut base.tree, &later.tree);
+    }
+}
+
+impl Merge {
+    fn binding_table(
+        &mut self,
+        prefix: &[&str],
+        base: &mut BTreeMap<String, String>,
+        later: &BTreeMap<String, String>,
+    ) {
+        // A later exact normalized chord replaces its earlier spelling as well
+        // as its value. Same-layer aliases are rejected before layer merging.
+        use crate::input::keymap::Sequence;
+        let replaced: std::collections::BTreeSet<_> = later
+            .keys()
+            .filter_map(|key| Sequence::parse(key).ok())
+            .collect();
+        base.retain(|key, _| {
+            !Sequence::parse(key)
+                .ok()
+                .is_some_and(|key| replaced.contains(&key))
+        });
+        self.table(prefix, base, later);
     }
 }

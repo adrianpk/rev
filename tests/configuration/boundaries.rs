@@ -146,7 +146,7 @@ fn binding_values() {
 }
 
 fn binding_context(context: &str) {
-    let key = format!("keys.{context}.binding");
+    let key = format!("keys.{context}.F");
     admit(&key, "'keyboard-quit'", true);
     for value in [
         "false",

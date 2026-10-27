@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::ops::RangeInclusive;
 
-use crate::command::Command;
+use crate::input::keymap;
 
 use super::{Document, Keymaps, PartialPalette, PartialSyntaxPalette, Rgb};
 
@@ -34,7 +34,7 @@ impl Failure {
     }
 }
 
-pub(super) fn document(document: &Document) -> Result<(), Failure> {
+pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
     retention(document)?;
@@ -236,28 +236,13 @@ fn association_pattern(pattern: &str) -> bool {
             .any(|character| character.is_control() || "*?[]/\\".contains(character))
 }
 
-fn bindings(keys: &Keymaps) -> Result<(), Failure> {
-    for (context, map) in [
-        ("editor", &keys.editor),
-        ("minibuffer", &keys.minibuffer),
-        ("tree", &keys.tree),
-    ] {
-        binding_values(context, map)?;
-    }
-    Ok(())
-}
-
-fn binding_values(context: &str, map: &BTreeMap<String, String>) -> Result<(), Failure> {
-    // Chord normalization, context-specific actions and whole-map prefix
-    // conflicts are admitted by the later keymap owner, not by string parsing.
-    for (sequence, command) in map {
-        if Command::named(command).is_none() {
-            return Err(Failure::at(
-                &["keys", context, sequence],
-                "expected an existing command name; unbinding values are unsupported",
-                Target::Value,
-            ));
-        }
-    }
-    Ok(())
+fn bindings(keys: &Keymaps) -> Result<keymap::Effective, Failure> {
+    keymap::compile(keys).map_err(|error| Failure {
+        key: vec!["keys".into(), error.context.name().into(), error.sequence],
+        message: error.message,
+        target: match error.site {
+            keymap::Site::Key => Target::Key,
+            keymap::Site::Value => Target::Value,
+        },
+    })
 }
