@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-03-config-includes`
-PR: pending
+PR: [#52](https://forge.adrianpk.com/adrianpk/rev/pulls/52)
 
 ## Purpose
 
@@ -34,7 +34,8 @@ graph under fixed traversal and read bounds, preserving declaration provenance.
   location resolution and passive location tests with OS-native path bytes.
 - T3.2: `6840ad1cf9bdfe8b607ac78751f9060b48e92cbd` adds bounded reads,
   explicit include traversal, occurrence provenance and postorder layering.
-- T3.3 adds exact-boundary, alias, permission, literal-path and failure tests
+- T3.3: `75b0215f37affec202f3ff966ee6bb8737f29ccd` adds exact-boundary,
+  alias, permission, literal-path and failure tests
   and this report. All 15 new focused configuration tests pass without skips.
 - Regular-file checks precede opening and follow handle acquisition. Reads
   use `Read::take` with the smaller of the source and remaining total budgets;

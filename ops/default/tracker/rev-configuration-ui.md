@@ -108,12 +108,14 @@ Details and checks: [Slice 3](../plan/rev-configuration-ui.md#slice-3-load-bound
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T3.1 `b55d825bee9bf0d35e638beca57af290f5a2fb27`;
-T3.2 `6840ad1cf9bdfe8b607ac78751f9060b48e92cbd`.
+T3.2 `6840ad1cf9bdfe8b607ac78751f9060b48e92cbd`;
+T3.3 `75b0215f37affec202f3ff966ee6bb8737f29ccd`.
 Development validation: all 15 new focused configuration tests passed, including
 exact byte/depth/occurrence boundaries, real permission errors and alias cycles.
 Final exact-head slice evidence belongs to the controller.
 Report: [Slice 3](../report/slices/rev-configuration-ui/slice-3-config-includes.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#52](https://forge.adrianpk.com/adrianpk/rev/pulls/52);
+dev integration remains controller-owned.
 
 ### Slice 4: Resolve layered settings
 
