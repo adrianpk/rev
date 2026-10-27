@@ -13,7 +13,8 @@ ready_at: 2026-10-27T20:20:54Z
 started_at: 2026-10-27T20:20:54Z
 branch: fix/rev-input-01-navigation-responsiveness
 reviewed_at: 2026-10-27T20:28:01Z
-commits: [db32befb12db284ed56958d719ac3843c3cb71e5, 6ae33afb14c6e0d6973d2bf9238970708e1b91cf]
+commits: [db32befb12db284ed56958d719ac3843c3cb71e5, 6ae33afb14c6e0d6973d2bf9238970708e1b91cf, ef908a5081e64d8030062405e95e6293ff95e7c3]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/81
 ---
 
 # Stop prolonged movement after repeated vertical arrow input

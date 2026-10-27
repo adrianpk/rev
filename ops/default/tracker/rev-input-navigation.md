@@ -52,7 +52,7 @@ Details and exact checks: [Slice 1](../plan/rev-input-navigation.md#slice-1-rest
 - [x] T1.3: Add a meaningful regression, check ordinary/large files and boundary reversal, and record exact focused evidence and the canonical slice report.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 1 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md) records baseline fixtures/rates, the rendering backlog and the corrected native/PTY regressions. T1.1: `db32befb12db284ed56958d719ac3843c3cb71e5`. T1.2: `6ae33afb14c6e0d6973d2bf9238970708e1b91cf`. The final PR HEAD uses the report's ordered controller validation; canonical PR and integration references follow their verified transitions.
+Slice 1 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md) records baseline fixtures/rates, the rendering backlog and the corrected native/PTY regressions. T1.1: `db32befb12db284ed56958d719ac3843c3cb71e5`. T1.2: `6ae33afb14c6e0d6973d2bf9238970708e1b91cf`. T1.3: `ef908a5081e64d8030062405e95e6293ff95e7c3`. Canonical PR: [#81](https://forge.adrianpk.com/adrianpk/rev/pulls/81), targeting dev. The final PR HEAD uses the report's ordered controller validation. Dev integration remains controller-owned and unverified.
 
 ### Slice 2: add Emacs-style line navigation
 
