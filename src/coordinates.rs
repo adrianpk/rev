@@ -59,7 +59,8 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// Borrows one buffer revision; it cannot outlive or mutate its canonical text.
+/// Borrows one buffer revision and effective display policy; neither can change
+/// while these coordinates remain borrowed.
 pub struct Coordinates<'a> {
     text: RopeSlice<'a>,
     stamp: Stamp,

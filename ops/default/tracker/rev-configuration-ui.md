@@ -174,8 +174,19 @@ Details and checks: [Slice 6](../plan/rev-configuration-ui.md#slice-6-project-bu
 
 - [x] T6.1: Give each buffer one effective editing/display policy from a supplied settings snapshot; replace hardcoded tab assumptions in coordinate conversion, viewport projection, vertical goal columns, selection and search geometry.
 - [x] T6.2: Use buffer policy coherently across shared views and invalidate display-derived caches without changing canonical text positions, rope revisions, saved-state identity or history.
-- [ ] T6.3: Test widths 1, 2, 4, 8 and 32, mixed wide/combining/ZWJ clusters, chunk seams, CRLF and clipped views. Default tab width must preserve baseline geometry.
+- [x] T6.3: Test widths 1, 2, 4, 8 and 32, mixed wide/combining/ZWJ clusters, chunk seams, CRLF and clipped views. Default tab width must preserve baseline geometry.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T6.1 `8f8e39e0f2c134d3f8c8c9af014bee1c2538e753`;
+T6.2 `fe01eae99816159a732df635830a425e50e88982`; T6.3 recorded after commit.
+Development validation: ten new coordinate, display and window cases passed,
+including widths 1/2/4/8/32, real rope seams, CRLF, clipped Unicode, marked/search
+geometry, shared views and history preservation. Corrected a test assumption
+that an active search prompt leaves the terminal cursor in the document;
+document position is asserted through the view. Focused Clippy passed.
+Final exact-head slice evidence belongs to the controller.
+Report: [Slice 6](../report/slices/rev-configuration-ui/slice-6-buffer-display-policy.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 7: Apply indentation and new-file defaults
 

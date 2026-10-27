@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "display/policy.rs"]
+mod policy;
+
 use rev::buffer::Buffers;
 use rev::coordinates::Scalar;
 use rev::display::{Band, Frame, Position, Size};
