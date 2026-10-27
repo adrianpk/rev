@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 10 - own native pointer reporting and input state
+Active slice: Slice 11 - focus panes and place point by pointer
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -167,16 +167,15 @@ Details and exact checks: [Slice 10](../plan/rev-input-navigation.md#slice-10-ow
 - [x] T10.1: Add the pointer integration-test target, minimal native event/capture records and terminal reporting ownership using the existing crossterm decoder and cleanup owner.
 - [x] T10.2: Admit only required press/release/button-motion/scroll reporting, avoiding all-motion hover traffic and a device/plugin abstraction; undo partially acquired modes on failure.
 - [x] T10.3: Verify enable/disable/unwind/idempotent restoration and preserve keyboard/prefix deadlines. Keep factory activation until the working handlers and settings are integrated.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 10 implementation is prepared. Native pointer admission and keyboard
-continuity, reversible 1002/1006 modes, selective failure/retry and thirteen owned
-PTY sessions pass. Startup reporting remains inactive pending the recorded native
-handler/control integrations. The pointer ticket remains active across its
-primary slices 10-15. Canonical PR
-[#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90) targets dev, and its
+Slice 10 of 20 completed. Canonical PR [#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90)
+integrated into dev at `7b3e61401c9da9d56caf54ea2cb8cd9739676932`.
+Canonical evidence `KPBD5UH4PQ7YNUHLHKZ3VF2Z5Z` and focused evidence
+`NFGTJIHHJD5Z7FAAKWARKJZF4Z` passed on that candidate. The
 [canonical report](../report/slices/rev-input-navigation/slice-10-pointer-lifetime.md)
-is reviewing. Final exact-head evidence follows before controller-owned integration.
+records mode ownership, native admission, keyboard continuity and thirteen PTYs.
+The pointer ticket remains active through primary slices 10-15. Slice 11 is active.
 T10.1: `0e3fa967691c1be21295efe00b22a2b3f0e520d9`.
 T10.2: `5ea8db194ddf83b11f38623d0af256a22e65d3a0`.
 T10.3: `b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d`.

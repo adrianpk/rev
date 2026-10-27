@@ -1,11 +1,12 @@
 # Slice 10: Own native pointer reporting and input state
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-10-pointer-lifetime`
 PR: [#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90)
+Integrated: `7b3e61401c9da9d56caf54ea2cb8cd9739676932`
 
 ## Purpose
 
@@ -93,8 +94,9 @@ cleanup. The retained-obligation assertion observes fresh Drop resets after a
 cleanup checkpoint, separately checking prior raw release and both diagnostics.
 It does not infer successful mode cleanup from a write's return value.
 
-Final clean-head canonical validation is recorded by the controller after PR
-reference commits, in this exact order:
+Canonical evidence `KPBD5UH4PQ7YNUHLHKZ3VF2Z5Z` passed on clean final head
+`7b3e61401c9da9d56caf54ea2cb8cd9739676932`, integrated into dev through PR #90.
+All five ordered checks passed, including 190 native cases:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -102,8 +104,14 @@ reference commits, in this exact order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-The canonical PR and controller evidence identify the final candidate. Focused
-exact-head evidence additionally checks the library/display and owned PTY suite.
+Focused evidence `NFGTJIHHJD5Z7FAAKWARKJZF4Z` passed on that same head:
+
+- `cargo test --lib --test display`
+- `python3 scripts/check-pty.py --suite pointer-lifetime`
+- `git diff --check`
+
+It covers 41 library/display cases and thirteen owned PTYs. The pointer ticket
+remains active until all primary slices 10-15 integrate.
 
 A retained final-check failure on `2b0a3e1dc06d50ba220fa6be07c723db1ebd3d34`
 exposed a readiness race in the decoder fixture: buffered stdin could prefetch

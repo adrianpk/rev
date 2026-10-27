@@ -88,9 +88,10 @@ integration/acceptance; do not create a separate successor run for this ticket.
 
 ## Primary slice progress
 
-Slice 10 is prepared in canonical PR [#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90).
-Its [report](../../report/slices/rev-input-navigation/slice-10-pointer-lifetime.md)
-records native admission, reversible terminal ownership, failure/retry behavior,
-keyboard continuity and thirteen owned decoder/lifetime PTYs. Exact final-head
-evidence is recorded after PR references. This ticket remains in progress until
-all assigned primary slices 10-15 integrate.
+Slice 10 integrated into dev through canonical PR
+[#90](https://forge.adrianpk.com/adrianpk/rev/pulls/90) at
+`7b3e61401c9da9d56caf54ea2cb8cd9739676932`. Its
+[report](../../report/slices/rev-input-navigation/slice-10-pointer-lifetime.md)
+records native admission, reversible terminal ownership, failure/retry, keyboard
+continuity and thirteen owned PTYs. Exact-candidate canonical and focused checks
+passed. This ticket remains in progress until all primary slices 10-15 integrate.
