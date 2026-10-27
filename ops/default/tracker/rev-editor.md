@@ -1008,6 +1008,15 @@ Inputs: [Part 6](../plan/rev-editor/06-syntax-and-acceptance.md); requirements R
 - [ ] T48.2: Exercise the assembled user journeys through the built executable and verify all gate prerequisites, reports, required commands, and unchanged identities. Leave primary dev clean and pushed for controller-owned final validation.
 - [ ] Record passing required/focused validation, canonical PR integration, and delivered report.
 
+Implementation: T48.1 and T48.2 complete; awaiting canonical PR integration and controller gate.
+Task commits: T48.1 `b5fb082836f69ce6395874c1394b396012ea0205`;
+T48.2 `3399f763425bef65b40116a99823dc1604e17254`.
+Validation: all eight ordered slice checks passed through Looper, including
+455 native tests, source-quality bounds, four real PTY journeys, seven checker
+tests and acceptance prerequisites. The combined full gate remains pending.
+Final PR-head evidence follows the report and PR-reference commits.
+Report: [Slice 48](../report/slices/rev-editor/slice-48-acceptance.md).
+
 ## Integrated closure
 
 - [ ] All 48 canonical slice PRs are merged into dev and every task outcome is recorded.
