@@ -112,7 +112,7 @@ Details and exact checks: [Slice 6](../plan/rev-input-navigation.md#slice-6-rend
 - [x] T6.3: Verify both modes, current-line forms and shared-view lifecycle with render-level assertions and record bounded visible-row behavior.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 6 implementation is complete; canonical PR and final clean-HEAD evidence are recorded before handoff. Integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-6-relative-gutter.md) records logical relative labels, all current-line forms and native shared-view lifecycle. T6.1: `6a1d15d697d76622bb3b397b1c3b50def73bced4`. T6.2: `9f491efaf72c48d9770ccfe4060ddd17bfa68c12`.
+Slice 6 implementation is complete; canonical PR [#86](https://forge.adrianpk.com/adrianpk/rev/pulls/86) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-6-relative-gutter.md) records logical relative labels, all current-line forms and native shared-view lifecycle. T6.1: `6a1d15d697d76622bb3b397b1c3b50def73bced4`. T6.2: `9f491efaf72c48d9770ccfe4060ddd17bfa68c12`. T6.3: `cf4ebcd56703127cfd5cb8c24f1fe91e77c2126e`.
 
 ### Slice 7: wire gutter settings and native commands
 
