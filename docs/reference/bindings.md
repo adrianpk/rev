@@ -115,10 +115,10 @@ involved sequences; source key/value locations are included when available.
 contains it is unreachable because it cancels pending prefixes, and rejects.
 
 These contracts expose validated maps through `Snapshot::keymaps()`. Library
-input/session construction supplied with a snapshot dispatches `keys.editor`
-through the existing Rust command handlers. Minibuffer/tree overrides retain
-validation contracts while their dispatch consumers are separate. The existing
-native handlers continue to own those input stages.
+input/session construction supplied with a snapshot dispatches `keys.editor`,
+`keys.minibuffer` and `keys.tree` through their existing Rust action owners.
+The focused prompt temporarily owns the minibuffer map even when the tree
+retains workspace focus. No keymap edits the underlying document from a prompt.
 
 ### Sequence vocabulary
 
@@ -212,6 +212,21 @@ binding catalog. They are context-only actions. Minibuffer configuration admits
 exactly these targets plus the text-motion, deletion, search and cancel command
 identities in this table. An unrelated command such as `save-buffer` rejects.
 
+A supplied alias such as `keys.minibuffer.'M-a' = 'minibuffer-accept'` accepts
+through the active owner: M-x records its command history, find-file consumes
+its path argument, and search accepts its current result. Completion aliases
+retain the table's stage behavior, including literal tabs in search/replacement.
+Custom text-motion/deletion aliases use the same grapheme cursor and prompt
+limit. Explicit previous/next aliases select the corresponding history or
+inventory action; inherited keys keep the stage distinctions in the table.
+
+Decision stages retain fixed fresh y/n answers (query-replace also accepts q).
+Mapped acceptance, completion and editing cannot supply consent. Additional
+`keyboard-quit` aliases may be sequences; their mismatched suffix is consumed,
+so a y suffix cannot affirm a pending decision. Reserved C-g always cancels.
+Accept aliases, completed prefixes and transitions require fresh presses;
+releases and held acceptance keys cannot submit a newly acquired argument.
+
 ### Tree defaults and availability
 
 | Keys | Target |
@@ -237,3 +252,10 @@ Tree configuration admits the tree command catalog, cancel, exit, M-x and
 return-to-editing, plus the existing navigation aliases `previous-line`,
 `next-line`, `backward-char`, `forward-char` and `newline`. File mutation commands
 retain their prompts and explicit confirmation; a binding cannot supply consent.
+
+Supplied tree bindings dispatch only while the tree owns workspace focus and no
+prompt is active. Exact reassignment preserves independent inherited aliases:
+changing `C-n` does not change Down. Navigation aliases can repeat; open, refresh,
+mutation and workspace transitions require fresh presses. Pending prefixes are
+cleared by prompt acquisition, cancellation and workspace changes. Tree text
+and paste never enter the visiting buffer while tree focus is retained.

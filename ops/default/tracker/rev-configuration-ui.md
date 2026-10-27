@@ -506,10 +506,21 @@ on that clean head: 344 native tests, zero skips. Acta merge event:
 Contracts: CFG12-CFG13, UI02-UI03. Tickets: TKT-20261027103713.
 Details and checks: [Slice 19](../plan/rev-configuration-ui.md#slice-19-dispatch-transient-and-tree-bindings).
 
-- [ ] T19.1: Wire validated minibuffer/tree maps to their existing action owners without bypassing argument, search, replace, confirmation or tree mutation state machines.
-- [ ] T19.2: Keep C-g cancellation reachable and destructive confirmations explicit. Reassignment in one context cannot leak into editor text or change unrelated context defaults.
-- [ ] T19.3: Test context isolation, prefix reset, prompt Unicode editing, tree focus/navigation and cancellation through find-file, M-x, query-replace and pending filesystem decisions.
+- [x] T19.1: Wire validated minibuffer/tree maps to their existing action owners without bypassing argument, search, replace, confirmation or tree mutation state machines.
+- [x] T19.2: Keep C-g cancellation reachable and destructive confirmations explicit. Reassignment in one context cannot leak into editor text or change unrelated context defaults.
+- [x] T19.3: Test context isolation, prefix reset, prompt Unicode editing, tree focus/navigation and cancellation through find-file, M-x, query-replace and pending filesystem decisions.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T19.1 `d025410560191c202f5e59d3e786d82aa3fea936`;
+T19.2 `71406c2e227812c86157bffbbaff408e9b34421a`;
+T19.3 is the Slice 19 report-introduction commit.
+Eighteen configured behavior tests pass for prompt Unicode editing, command
+completion/history, find-file, search, replacement, bounded prefixes, tree focus,
+filesystem arguments and explicit fresh consent. Focused Clippy/source checks
+pass with nesting at most two. Required exact-head validation follows the
+PR-reference commit through the controller.
+Report: [Slice 19](../report/slices/rev-configuration-ui/slice-19-context-keymaps.md).
+PR: pending canonical creation; dev integration remains controller-owned.
 
 ### Slice 20: Activate startup configuration
 

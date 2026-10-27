@@ -113,9 +113,11 @@ activation. Enhanced reports do not create separate identities for those aliases
 Named modified keys remain dependent on terminal reports and interception.
 
 
-Editor maps supplied with an admitted snapshot resolve aliases and prefixes
-before ordinary text fallback. Repetition uses the resolved command, so a new
-single-chord motion alias can repeat while a completed prefix cannot repeat its
-suffix. Phase checks use normalized keys: held Control-m/j cannot bypass the
+Editor, minibuffer and tree maps supplied with an admitted snapshot resolve
+aliases and bounded prefixes at the current focus owner. Repetition uses the
+resolved action, so a new single-chord motion/navigation alias can repeat while
+a completed prefix cannot repeat its suffix. Prompt acceptance and tree mutation
+or workspace transitions require a fresh press regardless of their alias.
+Decisions keep explicit fresh answers; mapped acceptance cannot grant consent. Phase checks use normalized keys: held Control-m/j cannot bypass the
 fresh Enter requirement in prompts. Releases and literal paste retain their
 existing event ownership.
