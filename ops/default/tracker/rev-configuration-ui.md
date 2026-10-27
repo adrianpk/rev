@@ -790,7 +790,8 @@ Details and checks: [Slice 30](../plan/rev-configuration-ui.md#slice-30-verify-d
 - [x] T30.3: Prepare all 30 reports, resolved ticket paths and acceptance prerequisites; do not run the full gate in the worker. After controller-owned exact-dev full-gate success, close only approved artifacts using that evidence, record Acta outcome and stop without main promotion.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
-Task commits: T30.1 `63f8b9a3fbd4`; T30.2 `486a94c719a1`.
+Task commits: T30.1 `63f8b9a3fbd4dba906dfe168a3a3c0a741872e02`; T30.2 `486a94c719a1eb029c97895f287b03e4681d9e32`;
+T30.3 `530437313969939016a873d9b873df8be2d41bd9`.
 The 30-requirement acceptance map resolves named native, eight PTY and seven
 performance cases. Original A01-A20 and all eight baseline checks remain
 mandatory within eleven gate stages. Twelve negative guard tests and discovery
@@ -802,6 +803,7 @@ Final exact-head validation, canonical PR integration and controller-owned full
 gate remain pending. Gate preparation closes this slice's integration entries
 and moves the acceptance ticket to solved after its merge is verified.
 Report: [Slice 30](../report/slices/rev-configuration-ui/slice-30-configuration-ui-acceptance.md).
+PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79).
 
 ## Delivery-set closure
 

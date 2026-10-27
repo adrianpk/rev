@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `test/rev-config-ui-30-configuration-ui-acceptance`
-PR: pending
+PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79)
 
 ## Purpose
 
@@ -53,11 +53,11 @@ terminal and performance evidence and prepare controller-owned final validation.
 
 ## Implementation Notes
 
-- T30.1: `63f8b9a3fbd4` adds the requirement map, extends gate evidence by exact
+- T30.1: `63f8b9a3fbd4dba906dfe168a3a3c0a741872e02` adds the requirement map, extends gate evidence by exact
   command identity, retains baseline protections and adds negative guard cases.
-- T30.2: `486a94c719a1` reconciles complete baseline amendments, model/reference
+- T30.2: `486a94c719a1eb029c97895f287b03e4681d9e32` reconciles complete baseline amendments, model/reference
   behavior and verified ticket outcomes without rewriting historical reports.
-- T30.3 prepares report/ticket ancestry and acceptance prerequisites, preserving
+- T30.3: `530437313969939016a873d9b873df8be2d41bd9` prepares report/ticket ancestry and acceptance prerequisites, preserving
   controller ownership of integration, final validation and documentation closure.
 - Existing Python/Cargo discovery and standard-library checks are reused. There
   are no new runtime dependencies, product features or generic schema layers.
