@@ -44,7 +44,7 @@ All normal keyboard paths remain available.
 | Whitespace conversion | [TKT-20261027092143](../ticket/solved/20261027092143-convert-tabs-and-spaces.md) | 3 |
 | Gutter | [TKT-20261027193500](../ticket/solved/20261027193500-deliver-native-line-number-gutter.md) | 4-8 |
 | Status layout | [TKT-20261027194421](../ticket/solved/20261027194421-group-pane-status-left-and-right.md) | 9 |
-| Pointer interaction | [TKT-20261027190629](../ticket/open/20261027190629-mouse-scroll-selection-and-pane-focus.md) | 10-15 |
+| Pointer interaction | [TKT-20261027190629](../ticket/in_progress/20261027190629-mouse-scroll-selection-and-pane-focus.md) | 10-15 |
 | Configuration creation | [TKT-20261027193636](../ticket/open/20261027193636-create-missing-user-configuration.md) | 16-17 |
 
 All seven also participate in terminal, resource and final acceptance slices

@@ -59,6 +59,7 @@ pub enum Focus {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Outcome {
+    Pointer(crate::pointer::Event),
     Search(SearchAction),
     Ignored,
     Changed,
@@ -199,6 +200,9 @@ impl Input {
     /// before the event; callers pump `expire` to present idle expiration notices.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
         self.expire(now);
+        if let Event::Mouse(event) = event {
+            return self.pointer(event);
+        }
         if let Event::Paste(text) = event {
             return self.paste(text);
         }
@@ -217,6 +221,13 @@ impl Input {
             return Outcome::Ignored;
         }
         self.meta_key(key, now)
+    }
+
+    fn pointer(&self, event: crossterm::event::MouseEvent) -> Outcome {
+        if self.focus() != Focus::Editing {
+            return Outcome::Ignored;
+        }
+        crate::pointer::Event::from_mouse(event).map_or(Outcome::Ignored, Outcome::Pointer)
     }
 
     fn repeat_blocked(&self, code: KeyCode) -> bool {

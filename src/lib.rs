@@ -10,6 +10,7 @@ pub mod gutter;
 pub mod input;
 mod kill;
 pub mod panel;
+pub mod pointer;
 pub mod rectangle;
 pub mod search;
 pub mod session;

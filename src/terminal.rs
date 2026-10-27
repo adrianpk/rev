@@ -8,6 +8,8 @@ use crossterm::terminal::{
 };
 use crossterm::{Command, ExecutableCommand};
 
+mod mouse;
+
 /// Owns terminal restoration, including partially completed acquisition.
 pub struct Terminal<W: Write> {
     output: BufWriter<W>,
@@ -17,6 +19,7 @@ pub struct Terminal<W: Write> {
     attributes: bool,
     paste: bool,
     cursor_color: bool,
+    mouse: mouse::Reporting,
 }
 
 impl<W: Write> Terminal<W> {
@@ -31,6 +34,7 @@ impl<W: Write> Terminal<W> {
             attributes: false,
             paste: false,
             cursor_color: false,
+            mouse: mouse::Reporting::default(),
         })
     }
 
@@ -54,28 +58,26 @@ impl<W: Write> Terminal<W> {
     /// Attempts every acquired restoration, even if an earlier one fails.
     /// Failed obligations remain owned so drop can retry them.
     pub fn restore(&mut self) -> io::Result<()> {
-        let errors: Vec<_> = [
+        restoration([
+            self.set_mouse_reporting(false),
             self.disable_paste(),
             self.show(),
             self.reset_attributes(),
             self.reset_cursor_color(),
             self.leave(),
             self.release(),
-        ]
-        .into_iter()
-        .filter_map(Result::err)
-        .collect();
-        match errors.first() {
-            Some(first) => Err(io::Error::new(
-                first.kind(),
-                errors
-                    .iter()
-                    .map(ToString::to_string)
-                    .collect::<Vec<_>>()
-                    .join("; "),
-            )),
-            None => Ok(()),
+        ])
+    }
+
+    /// Reversibly owns only button-event tracking and SGR coordinates. Default
+    /// entry leaves reporting disabled until native handlers select it.
+    pub fn set_mouse_reporting(&mut self, enabled: bool) -> io::Result<()> {
+        if enabled && !self.screen {
+            return Err(io::Error::other(
+                "mouse reporting requires the alternate screen",
+            ));
         }
+        self.mouse.set(&mut self.output, enabled)
     }
 
     fn command(&mut self, command: impl Command, operation: &str) -> io::Result<()> {
@@ -186,4 +188,19 @@ impl<W: Write> Drop for Terminal<W> {
 
 fn context(error: io::Error, operation: &str) -> io::Error {
     io::Error::new(error.kind(), format!("{operation}: {error}"))
+}
+
+fn restoration(results: impl IntoIterator<Item = io::Result<()>>) -> io::Result<()> {
+    let errors: Vec<_> = results.into_iter().filter_map(Result::err).collect();
+    match errors.first() {
+        Some(first) => Err(io::Error::new(
+            first.kind(),
+            errors
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join("; "),
+        )),
+        None => Ok(()),
+    }
 }

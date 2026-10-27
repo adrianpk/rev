@@ -1,7 +1,11 @@
 ---
 id: TKT-20261027190629
 title: Add mouse and trackpad scrolling, selection and pane focus
-status: open
+status: in_progress
+ready_at: 2026-10-27T23:05:50Z
+started_at: 2026-10-27T23:05:50Z
+branch: feat/rev-input-10-pointer-lifetime
+pr: pending
 kind: task
 severity: unclassified
 priority: unclassified
