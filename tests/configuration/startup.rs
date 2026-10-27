@@ -122,16 +122,14 @@ fn consumers() {
     session.execute(Command::ExecuteExtended);
     session.handle(Event::Paste("find-file".into()));
     session.handle(meta('a'));
-    assert!(
-        session
-            .frame()
-            .unwrap()
-            .rows()
-            .last()
-            .unwrap()
-            .text()
-            .starts_with("Find file: ")
-    );
+    let frame = session.frame().unwrap();
+    let query = frame
+        .rows()
+        .iter()
+        .find(|row| row.band() == rev::display::Band::Echo)
+        .unwrap();
+    assert!(query.text().starts_with("Find file: "));
+    assert_eq!(frame.cursor().unwrap().row, query.row());
     session.execute(Command::KeyboardQuit);
     session.execute(Command::Tree(TreeCommand::Focus));
     session.handle(meta('l'));
