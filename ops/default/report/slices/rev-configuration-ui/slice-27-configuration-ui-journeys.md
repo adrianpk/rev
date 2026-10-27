@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `test/rev-config-ui-27-configuration-ui-journeys`
-PR: pending canonical creation
+PR: [#76](https://forge.adrianpk.com/adrianpk/rev/pulls/76)
 
 ## Purpose
 
@@ -54,10 +54,9 @@ through connected real terminal workflows with bounded, explicitly owned fixture
   the existing controlling-PTY owner and completed-frame decoder.
 - T27.2: `a9232206e549dad33269bd0740d366c9f2a97385` combines tree/nested
   geometry, shared policies, boundaries and exact prompt-resize cancellation.
-- T27.3: the report-introduction commit adds focused output-error/unwind checks,
+- T27.3: `9d431003f671edead10fa8529ad8f741dc6456af` adds output-error/unwind checks,
   ordered cleanup assertions, child/descriptor verification, retained ingress
   errors, bounded fixture capture, elapsed reporting and operating documentation.
-  Its full hash is recorded in the canonical PR follow-up.
 - The new concrete helper modules separate fixture/frame operations, connected
   prompt journeys, workspace journeys and terminal lifetime. They use Python's
   standard library and existing test helpers, without runtime source changes.
