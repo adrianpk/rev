@@ -7,6 +7,8 @@ mod config_fixture;
 mod geometry;
 #[path = "panels/rendering.rs"]
 mod rendering;
+#[path = "panels/workspace.rs"]
+mod workspace;
 
 use rev::buffer::Buffers;
 use rev::command::{Command, Split};

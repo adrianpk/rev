@@ -168,13 +168,16 @@ impl Session {
             .map_or(self.size, |composition| composition.editing_size());
         self.windows.reveal(&self.buffers, size)?;
         let mut frame = match &composition {
-            Some(composition) => {
-                Frame::compose_in(&self.buffers, &self.windows, composition, &self.echo)?
-            }
+            Some(composition) => Frame::compose_workspace(
+                &self.buffers,
+                &self.windows,
+                &self.tree,
+                composition,
+                &self.echo,
+            )?,
             None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
         };
         self.highlight_search(&mut frame, composition.as_ref())?;
-        frame.tree(&self.tree, tree)?;
         self.prompt_frame(&mut frame)?;
         Ok(frame)
     }

@@ -316,7 +316,7 @@ fn workspace_tree() {
     session.execute(Command::Split(Split::Below));
     let ids = session.windows().order();
     session.execute(Command::Tree(TreeCommand::Toggle));
-    let composition = Composition::workspace(session.windows(), session.tree(), size).unwrap();
+    let composition = Composition::workspace(session.windows(), session.tree(), size, 0).unwrap();
     let tree = composition.tree().unwrap();
     let frame = session.frame().unwrap();
     assert_eq!(frame.rows()[0].selection(), Some(0..20));

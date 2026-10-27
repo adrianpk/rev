@@ -15,7 +15,7 @@ impl Session {
     }
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
-        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size)
+        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, 0)
     }
 
     pub(super) fn editing_size(&self) -> Size {

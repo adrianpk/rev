@@ -59,7 +59,14 @@ impl Composition {
 
     /// Compose tree and editing geometry without changing either semantic owner.
     /// An editing tree that does not fit is suspended while tree/prompt survive.
-    pub fn workspace(windows: &Windows, tree: &Tree, size: Size) -> Option<Self> {
+    /// Auxiliary rows reserve full-width content above the global prompt only
+    /// after all editing minima fit; tree and editing share its separator.
+    pub fn workspace(
+        windows: &Windows,
+        tree: &Tree,
+        size: Size,
+        auxiliary_rows: u16,
+    ) -> Option<Self> {
         if size.width == 0 || size.height == 0 {
             return None;
         }
@@ -67,7 +74,7 @@ impl Composition {
         let column = width + u16::from(width > 0);
         let outer = Area::new(column, 0, size.width - column, size.height)?;
         let viewport = Area::new(column, 0, outer.width(), size.height - 1)?;
-        let mut composition = Self::new(windows, outer, 0).unwrap_or(Self {
+        let mut composition = Self::new(windows, outer, auxiliary_rows).unwrap_or(Self {
             panels: Vec::new(),
             borders: Vec::new(),
             auxiliary: None,
@@ -76,8 +83,22 @@ impl Composition {
             prompt: Area::new(0, size.height - 1, size.width, 1)?,
         });
         composition.prompt = Area::new(0, size.height - 1, size.width, 1)?;
+        composition.expand_auxiliary(size.width)?;
         composition.attach_tree(tree, width)?;
         Some(composition)
+    }
+
+    fn expand_auxiliary(&mut self, width: u16) -> Option<()> {
+        if let Some(panel) = self.auxiliary {
+            let content = panel.content();
+            self.auxiliary = Some(Panel::new(
+                Area::new(0, content.row(), width, content.height())?,
+                false,
+                panel.active(),
+            ));
+            *self.borders.last_mut()? = Area::new(0, self.viewport.height(), width, 1)?;
+        }
+        Some(())
     }
 
     fn attach_tree(&mut self, tree: &Tree, width: u16) -> Option<()> {

@@ -1,10 +1,26 @@
+use crate::buffer::Buffers;
 use crate::coordinates::Glyphs;
-use crate::panel::Panel;
+use crate::panel::{Composition, Panel};
 use crate::tree::Tree;
+use crate::window::Windows;
 
 use super::{Band, Error, Frame, Position, Row, clip};
 
 impl Frame {
+    /// Render one supplied workspace composition without shifting content after
+    /// projection. Semantic tree focus remains with the supplied Tree owner.
+    pub fn compose_workspace(
+        buffers: &Buffers,
+        windows: &Windows,
+        tree: &Tree,
+        composition: &Composition,
+        echo: &str,
+    ) -> Result<Self, Error> {
+        let mut frame = Self::compose_in(buffers, windows, composition, echo)?;
+        frame.tree(tree, composition.tree())?;
+        Ok(frame)
+    }
+
     pub(crate) fn tree(&mut self, tree: &Tree, panel: Option<Panel>) -> Result<(), Error> {
         let Some(panel) = panel else {
             return Ok(());

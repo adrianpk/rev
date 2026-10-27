@@ -326,7 +326,7 @@ Contracts: UI01, CFG19. Tickets: TKT-20261027103711, TKT-20261027085102.
 Details and checks: [Slice 12](../plan/rev-configuration-ui.md#slice-12-compose-tree-and-auxiliary-panels).
 
 - [x] T12.1: Migrate tree content, separator, status and selection to the panel contract; remove string-prefix geometry and duplicated syntax/selection offset arithmetic.
-- [ ] T12.2: Reserve an auxiliary completion panel through the same composition interface while keeping tree focus and semantic state separate. Hiding a pane must not destroy buffers or pending prompts.
+- [x] T12.2: Reserve an auxiliary completion panel through the same composition interface while keeping tree focus and semantic state separate. Hiding a pane must not destroy buffers or pending prompts.
 - [ ] T12.3: Test tree plus nested splits, narrow hiding, focus repair, reopen/resize and exact cell clipping. No Odra registry/framework or unrelated tree feature is required.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

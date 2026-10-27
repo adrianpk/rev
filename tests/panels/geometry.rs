@@ -10,13 +10,14 @@ fn overlaps(first: Area, second: Area) -> bool {
         && y(second).start < y(first).end
 }
 
-fn coverage(composition: &Composition, outer: Area) {
+pub(super) fn coverage(composition: &Composition, outer: Area) {
     let areas = composition
         .panels()
         .iter()
         .map(|(_, panel)| panel.outer())
         .chain(composition.borders().iter().copied())
         .chain(composition.auxiliary().map(|panel| panel.outer()))
+        .chain(composition.tree().map(|panel| panel.outer()))
         .chain(std::iter::once(composition.prompt()))
         .collect::<Vec<_>>();
     let mut cells = 0u64;
