@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027191322
 title: Add Emacs-style goto-line navigation
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,6 +13,8 @@ ready_at: 2026-10-27T20:34:14Z
 started_at: 2026-10-27T20:34:14Z
 branch: feat/rev-input-02-goto-line
 reviewed_at: 2026-10-27T20:42:27Z
+closed_at: 2026-10-27T20:51:02Z
+resolution: fixed
 commits: [645d5b45c8344e6a0033c0bf6679430235db8343, 4cf7b662a1b8200282800df1e38b0338e6f5969b, dcd195bbea7ec7a55a2fc5958052664e094ed0a9]
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/82
 ---
@@ -64,4 +66,6 @@ records both inherited aliases and M-x, bounded signed numeric input, native
 logical clamping and checked source/view ownership. Eight native regressions
 and two owned PTY journeys pass, including invalid-input correction, Unicode/CRLF,
 empty/final-empty lines, read-only/shared views, cancellation and unchanged state.
-The ticket remains reviewing until canonical integration is verified.
+Canonical PR [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82) is integrated
+at `9fdd5ab5c0e66a85c560060c586823f2abbeaacb`; its canonical and focused exact-HEAD
+controller checks passed.

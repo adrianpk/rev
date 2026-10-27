@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 2 - add Emacs-style line navigation
+Active slice: Slice 3 - add explicit tabify and untabify
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -40,7 +40,7 @@ All normal keyboard paths remain available.
 | Topic | Ticket | Primary slices |
 | --- | --- | --- |
 | Arrow responsiveness | [TKT-20261027190521](../ticket/solved/20261027190521-stop-arrow-key-navigation-inertia.md) | 1; repeated at 18-20 |
-| Line navigation | [TKT-20261027191322](../ticket/reviewing/20261027191322-add-emacs-style-goto-line.md) | 2 |
+| Line navigation | [TKT-20261027191322](../ticket/solved/20261027191322-add-emacs-style-goto-line.md) | 2 |
 | Whitespace conversion | [TKT-20261027092143](../ticket/open/20261027092143-convert-tabs-and-spaces.md) | 3 |
 | Gutter | [TKT-20261027193500](../ticket/open/20261027193500-deliver-native-line-number-gutter.md) | 4-8 |
 | Status layout | [TKT-20261027194421](../ticket/open/20261027194421-group-pane-status-left-and-right.md) | 9 |

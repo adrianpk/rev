@@ -1,11 +1,12 @@
 # Slice 2: Add Emacs-style line navigation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-02-goto-line`
 PR: [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82)
+Integrated: `9fdd5ab5c0e66a85c560060c586823f2abbeaacb`
 
 ## Purpose
 
@@ -78,8 +79,8 @@ NAV02 retains ordinary per-view movement, C-g and shared-buffer history owners.
   retains its exact schema, palette and optional-example assertions and expects
   111 defaults instead of 109, accounting for these two inherited bindings.
 
-The final clean PR HEAD is validated by the controller with this exact canonical
-five-command list; successful evidence is stored outside the repository:
+PASS: canonical controller evidence `JBTSUPG2UDHIZXF55AEKYU5NHQ` validates
+the integrated commit with this exact five-command list:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -87,7 +88,8 @@ five-command list; successful evidence is stored outside the repository:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-The controller also records this focused list separately for the same final HEAD:
+PASS: focused controller evidence `YLCNU3AI5PBBZ2R5BFSZLRKMC6` records this
+list on the same integrated commit:
 
 - `cargo test --test configuration`
 - `python3 scripts/check-config-reference.py`

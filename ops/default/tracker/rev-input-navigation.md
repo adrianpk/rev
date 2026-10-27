@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 2 - add Emacs-style line navigation
+Active slice: Slice 3 - add explicit tabify and untabify
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -52,7 +52,7 @@ Details and exact checks: [Slice 1](../plan/rev-input-navigation.md#slice-1-rest
 - [x] T1.3: Add a meaningful regression, check ordinary/large files and boundary reversal, and record exact focused evidence and the canonical slice report.
 - [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 1 of 20 completed. The [canonical report](../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md) records baseline fixtures/rates, the rendering backlog and the corrected native/PTY regressions. T1.1: `db32befb12db284ed56958d719ac3843c3cb71e5`. T1.2: `6ae33afb14c6e0d6973d2bf9238970708e1b91cf`. T1.3: `ef908a5081e64d8030062405e95e6293ff95e7c3`. Canonical PR: [#81](https://forge.adrianpk.com/adrianpk/rev/pulls/81), targeting dev. Canonical five-command evidence `JAGKIAXYUR5X37CCUFQZDRF2BG` passed at integrated dev commit `44edc37bcb15d5bb9ff1ed2456c5f5381515ad26`; focused evidence `HPKPBCV7JJPONAAG554JFKMZ55` also passed on that candidate. Slice 2 is active.
+Slice 1 of 20 completed. The [canonical report](../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md) records baseline fixtures/rates, the rendering backlog and the corrected native/PTY regressions. T1.1: `db32befb12db284ed56958d719ac3843c3cb71e5`. T1.2: `6ae33afb14c6e0d6973d2bf9238970708e1b91cf`. T1.3: `ef908a5081e64d8030062405e95e6293ff95e7c3`. Canonical PR: [#81](https://forge.adrianpk.com/adrianpk/rev/pulls/81), targeting dev. Canonical five-command evidence `JAGKIAXYUR5X37CCUFQZDRF2BG` passed at integrated dev commit `44edc37bcb15d5bb9ff1ed2456c5f5381515ad26`; focused evidence `HPKPBCV7JJPONAAG554JFKMZ55` also passed on that candidate. Slice 2 was activated.
 
 ### Slice 2: add Emacs-style line navigation
 
@@ -62,9 +62,9 @@ Details and exact checks: [Slice 2](../plan/rev-input-navigation.md#slice-2-add-
 - [x] T2.1: Add the compiled goto-line identity, bounded signed-integer prompt and M-g g / M-g M-g defaults through existing command/keymap owners; preserve C-g and all prior aliases.
 - [x] T2.2: Use checked logical-line lookup and native reveal; match start clamping for nonpositive values and EOF clamping beyond the last line. Preserve other views and cancellation state.
 - [x] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 2 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-2-goto-line.md) records native command/prompt dispatch, numeric and source bounds, independent views and real PTY outcomes. T2.1: `645d5b45c8344e6a0033c0bf6679430235db8343`. T2.2: `4cf7b662a1b8200282800df1e38b0338e6f5969b`. T2.3: `dcd195bbea7ec7a55a2fc5958052664e094ed0a9`. Canonical PR: [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82), targeting dev. The report records the controller command lists for the final PR HEAD; integration remains controller-owned and unverified.
+Slice 2 of 20 completed. The [canonical report](../report/slices/rev-input-navigation/slice-2-goto-line.md) records native command/prompt dispatch, numeric and source bounds, independent views and real PTY outcomes. T2.1: `645d5b45c8344e6a0033c0bf6679430235db8343`. T2.2: `4cf7b662a1b8200282800df1e38b0338e6f5969b`. T2.3: `dcd195bbea7ec7a55a2fc5958052664e094ed0a9`. Canonical PR: [#82](https://forge.adrianpk.com/adrianpk/rev/pulls/82), targeting dev. Canonical five-command evidence `JBTSUPG2UDHIZXF55AEKYU5NHQ` and focused evidence `YLCNU3AI5PBBZ2R5BFSZLRKMC6` passed at integrated dev commit `9fdd5ab5c0e66a85c560060c586823f2abbeaacb`. Slice 3 is active.
 
 ### Slice 3: add explicit tabify and untabify
 
