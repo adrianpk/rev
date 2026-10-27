@@ -5,6 +5,9 @@ mod config_fixture;
 #[path = "display/policy.rs"]
 mod policy;
 
+#[path = "display/palette.rs"]
+mod palette;
+
 use rev::buffer::Buffers;
 use rev::coordinates::Scalar;
 use rev::display::{Band, Frame, Position, Size};

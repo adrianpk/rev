@@ -352,8 +352,17 @@ Details and checks: [Slice 13](../plan/rev-configuration-ui.md#slice-13-resolve-
 
 - [x] T13.1: Implement all 25 selected palette roles using the pinned Tokyo Night Neovim night values, including all seven existing syntax classes. Every present leaf overrides only itself.
 - [x] T13.2: Replace hardcoded syntax ANSI indices with configured RGB style resolution through existing captures. Preserve capture mapping, incremental parsing and plain-text fallback; add no grammars.
-- [ ] T13.3: Test all default values, single-role overrides, invalid RGB rejection, selected text precedence over syntax and Rust/plain policy changes without touching document/history.
+- [x] T13.3: Test all default values, single-role overrides, invalid RGB rejection, selected text precedence over syntax and Rust/plain policy changes without touching document/history.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T13.1 `bf851d6483286cb6836ac87b159f18c8b4e20d99`;
+T13.2 `e86b30c254970d3a06a6635bdf9caeb5327b67c5`.
+Development checks passed for all 25 independent palette leaves, RGB syntax
+rendering, partial-token linear/rectangle selection and Rust/plain rename
+transitions retaining dirty text, mark, saved state and undo/redo. Focused Clippy
+and source checks passed. Final exact-head evidence belongs to the controller.
+Report: [Slice 13](../report/slices/rev-configuration-ui/slice-13-palette-and-syntax.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 14: Render UI palette and restore terminal
 

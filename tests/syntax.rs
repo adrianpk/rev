@@ -203,3 +203,6 @@ mod incremental;
 
 #[path = "syntax/fidelity.rs"]
 mod fidelity;
+
+#[path = "syntax/palette.rs"]
+mod palette;
