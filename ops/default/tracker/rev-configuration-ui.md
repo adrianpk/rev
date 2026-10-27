@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 13 - Resolve palette and syntax colors
+Active slice: Slice 14 - Render UI palette and restore terminal
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -353,7 +353,7 @@ Details and checks: [Slice 13](../plan/rev-configuration-ui.md#slice-13-resolve-
 - [x] T13.1: Implement all 25 selected palette roles using the pinned Tokyo Night Neovim night values, including all seven existing syntax classes. Every present leaf overrides only itself.
 - [x] T13.2: Replace hardcoded syntax ANSI indices with configured RGB style resolution through existing captures. Preserve capture mapping, incremental parsing and plain-text fallback; add no grammars.
 - [x] T13.3: Test all default values, single-role overrides, invalid RGB rejection, selected text precedence over syntax and Rust/plain policy changes without touching document/history.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T13.1 `bf851d6483286cb6836ac87b159f18c8b4e20d99`;
 T13.2 `e86b30c254970d3a06a6635bdf9caeb5327b67c5`;
@@ -361,10 +361,14 @@ T13.3 `95717ac8f63029107a11897bf225890e8a644eae`.
 Development checks passed for all 25 independent palette leaves, RGB syntax
 rendering, partial-token linear/rectangle selection and Rust/plain rename
 transitions retaining dirty text, mark, saved state and undo/redo. Focused Clippy
-and source checks passed. Final exact-head evidence belongs to the controller.
+and source checks passed. Final exact-head validation `VVCDW6GTGVC7OTJ2Y44BDNJEYQ`
+passed all eight commands on `8921273e463e2d8cdb5999aede301c984893a7b6`: 99 native
+tests, three real PTY syntax journeys, zero skips, formatting, Clippy, source
+checks and diff whitespace.
 Report: [Slice 13](../report/slices/rev-configuration-ui/slice-13-palette-and-syntax.md).
 PR: [#62](https://forge.adrianpk.com/adrianpk/rev/pulls/62);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`8921273e463e2d8cdb5999aede301c984893a7b6`. Slice 13 of 30 completed.
 
 ### Slice 14: Render UI palette and restore terminal
 

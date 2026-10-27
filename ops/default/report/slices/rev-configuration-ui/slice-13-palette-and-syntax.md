@@ -1,6 +1,6 @@
 # Slice 13: Apply semantic RGB palette roles
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -72,8 +72,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/display.rs --source src/buffer.rs --source src/display/compose.rs --source src/display/selection.rs --source src/display/syntax.rs --source src/syntax/style.rs --source tests/configuration/resolution_contract.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/syntax/palette.rs --source tests/display/palette.rs`: passed.
 
-The controller stores final evidence on the clean PR head after its PR-reference
-follow-up commit. Required commands precede focused real-PTY syntax regressions:
+Final controller validation `VVCDW6GTGVC7OTJ2Y44BDNJEYQ` passed all eight commands
+on clean PR head `8921273e463e2d8cdb5999aede301c984893a7b6`: 99 native tests
+(configuration 55, syntax 23, display 21), three real PTY syntax journeys and
+zero skips. PR #62 integrated through Rebase + Fast-forward into dev at that
+same commit. Required commands precede focused real-PTY syntax regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
