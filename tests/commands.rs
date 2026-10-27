@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "commands/context_keymaps.rs"]
+mod context_keymaps;
 #[path = "commands/editor_keymaps.rs"]
 mod editor_keymaps;
 #[path = "commands/indent.rs"]

@@ -45,10 +45,6 @@ impl Key {
         }
     }
 
-    pub(super) fn repeatable(self) -> bool {
-        super::bindings::binding(self).is_some() || matches!(self.plain(), Some(KeyCode::Char(_)))
-    }
-
     fn modifier_aliases(&mut self) {
         if self.modifiers.contains(KeyModifiers::META) {
             self.modifiers.remove(KeyModifiers::META);

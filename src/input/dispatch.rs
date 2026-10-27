@@ -1,21 +1,19 @@
-use crate::command::{Binding, Command};
+use crate::command::Binding;
 
-use super::keymap::{Context, Sequence};
+use super::keymap::Sequence;
 use super::{Input, Key, Outcome, Prefix};
 
 impl Input {
-    pub(super) fn editing(&mut self, key: Key) -> Outcome {
-        if self.workspace_tree {
-            return self.legacy_editing(key);
-        }
+    pub(super) fn mapped(&mut self, key: Key) -> Outcome {
         let continued = !self.chords.is_empty();
         self.chords.push(key);
         let Some(sequence) = Sequence::from_chords(&self.chords) else {
             return self.unmatched(key, continued);
         };
-        let map = self.keymaps.map(Context::Editor);
-        if let Some(Binding::Command(command)) = map.lookup(&sequence) {
-            return self.editor_command(command, continued);
+        let map = self.keymaps.map(self.map_context());
+        if let Some(binding) = map.lookup(&sequence) {
+            let custom = map.is_custom(&sequence);
+            return self.bound(binding, key, custom, continued);
         }
         if map.is_prefix(&sequence) {
             self.suppress_repeat = true;
@@ -24,10 +22,10 @@ impl Input {
         self.unmatched(key, continued)
     }
 
-    fn editor_command(&mut self, command: Command, continued: bool) -> Outcome {
+    fn bound(&mut self, binding: Binding, key: Key, custom: bool, continued: bool) -> Outcome {
         self.clear_prefix();
-        self.suppress_repeat |= continued || !command.repeatable();
-        Outcome::Command(command)
+        self.suppress_repeat |= continued || !self.binding_repeats(binding);
+        self.context_binding(binding, key, custom)
     }
 
     fn unmatched(&mut self, key: Key, continued: bool) -> Outcome {
@@ -36,7 +34,8 @@ impl Input {
             self.suppress_repeat = true;
             return Outcome::Message("Undefined key sequence");
         }
-        self.literal(key)
+        let outcome = self.focused(key);
+        self.consume(outcome)
     }
 
     /// The bounded pending sequence is input state, independent of buffer text.
@@ -64,15 +63,12 @@ impl Input {
     }
 
     pub(super) fn repeatable(&self, key: Key) -> bool {
-        if self.focus() != super::Focus::Editing || self.workspace_tree {
-            return key.repeatable();
-        }
         let Some(sequence) = Sequence::from_chords(&[key]) else {
             return false;
         };
-        let map = self.keymaps.map(Context::Editor);
-        if let Some(Binding::Command(command)) = map.lookup(&sequence) {
-            return command.repeatable();
+        let map = self.keymaps.map(self.map_context());
+        if let Some(binding) = map.lookup(&sequence) {
+            return self.binding_repeats(binding);
         }
         !map.is_prefix(&sequence) && matches!(key.plain(), Some(crossterm::event::KeyCode::Char(_)))
     }

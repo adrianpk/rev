@@ -106,6 +106,12 @@ impl Map {
         self.entries.get(sequence).map(|entry| entry.target)
     }
 
+    /// Inherited entries preserve native stage-specific key distinctions;
+    /// explicit aliases select the named action at its canonical owner.
+    pub(crate) fn is_custom(&self, sequence: &Sequence) -> bool {
+        self.entries.get(sequence).is_some_and(|entry| entry.custom)
+    }
+
     pub fn is_prefix(&self, sequence: &Sequence) -> bool {
         self.entries
             .range(sequence.clone()..)

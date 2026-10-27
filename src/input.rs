@@ -1,5 +1,5 @@
-mod bindings;
-mod editor;
+mod context;
+mod dispatch;
 mod inventory;
 mod key;
 pub mod keymap;
@@ -7,7 +7,6 @@ mod meta;
 mod palette;
 mod paste;
 mod prompt;
-mod rectangle;
 mod replace;
 mod search;
 mod tree;
@@ -121,7 +120,7 @@ pub struct Input {
 }
 
 impl Input {
-    /// Uses admitted editor maps and session-local prompt/history bounds.
+    /// Uses admitted context maps and session-local prompt/history bounds.
     /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
         Self {
@@ -242,23 +241,22 @@ impl Input {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
-        if matches!(self.context, Context::Command(_)) {
-            return self.command_key(key);
+        if self.focus() == Focus::Decision {
+            return self.decision_key(key);
         }
-        let outcome = self.focused(key);
-        self.consume(outcome)
+        self.mapped(key)
     }
 
     fn focused(&mut self, key: Key) -> Outcome {
         match &mut self.context {
             Context::Search(prompt) => search::handle(prompt, key),
-            Context::Editing => self.editing(key),
+            Context::Editing => self.literal(key),
             Context::Argument(prompt) => prompt.handle(key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
-            Context::Command(_) => unreachable!("command focus routes before general contexts"),
+            Context::Command(_) => self.command_key(key),
         }
     }
 
@@ -275,42 +273,6 @@ impl Input {
             self.suppress_repeat = true;
         }
         outcome
-    }
-
-    fn legacy_editing(&mut self, key: Key) -> Outcome {
-        match self.prefix.take() {
-            Some(Prefix::ControlX) => self.control_x(key),
-            Some(Prefix::Rectangle) => self.rectangle_key(key),
-            Some(Prefix::Tree) => self.tree_key(key),
-            Some(Prefix::Meta | Prefix::Sequence) => {
-                unreachable!("only native prefixes reach tree routing")
-            }
-            None => self.base(key),
-        }
-    }
-
-    fn control_x(&mut self, key: Key) -> Outcome {
-        self.suppress_repeat = true;
-        if let Some(command) = bindings::control_x(key) {
-            return Outcome::Command(command);
-        }
-        if key.plain() == Some(KeyCode::Char('r')) {
-            return self.wait(Prefix::Rectangle);
-        }
-        if key.plain() == Some(KeyCode::Char('t')) {
-            return self.wait(Prefix::Tree);
-        }
-        Outcome::Message("Undefined key sequence")
-    }
-
-    fn base(&mut self, key: Key) -> Outcome {
-        if key.control('x') {
-            return self.wait(Prefix::ControlX);
-        }
-        if let Some(command) = bindings::binding(key) {
-            return Outcome::Command(command);
-        }
-        self.literal(key)
     }
 
     fn literal(&self, key: Key) -> Outcome {
