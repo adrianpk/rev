@@ -102,3 +102,12 @@ color before leaving the alternate screen, including output errors and unwind.
 This does not reconstruct a cursor color set by another application before
 entry. Failed restorations remain owned for Drop to retry; every other cleanup
 step, including raw-mode release, is attempted even after an output failure.
+
+## Configured chord identity
+
+The [keymap vocabulary](bindings.md#sequence-vocabulary) uses the same key
+normalizer as native input. It deliberately merges traditional Control aliases
+and Escape/Meta equivalents, including `C-i`/Tab, `C-m`/Return, `C-h`/Backspace,
+NUL/`C-SPC` and the legacy undo reports. Conflicting custom aliases reject before
+activation. Enhanced reports do not create separate identities for those aliases.
+Named modified keys remain dependent on terminal reports and interception.

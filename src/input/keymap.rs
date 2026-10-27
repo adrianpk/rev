@@ -1,6 +1,7 @@
 //! Configuration keymap contracts. Dispatch activation belongs to the focused
 //! input owners; parsing uses the same terminal aliases as runtime keys.
 mod availability;
+mod cancellation;
 mod defaults;
 mod map;
 mod sequence;

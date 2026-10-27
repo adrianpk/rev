@@ -190,3 +190,77 @@ fn complete_defaults() {
         Binding::named("save-buffer")
     );
 }
+
+// Cancel stays reachable in each complete map. Case aliases cannot reassign it,
+// and a chord containing cancel later in a prefix is unreachable and rejected.
+#[test]
+fn cancel_guard() {
+    for (context, replacement) in [
+        ("editor", "undo"),
+        ("minibuffer", "forward-char"),
+        ("tree", "tree-next-line"),
+    ] {
+        let allowed = format!("[keys.{context}]\n'C-g' = 'keyboard-quit'");
+        assert!(parse(Path::new("cancel.toml"), allowed.as_bytes()).is_ok());
+        let blocked = format!("[keys.{context}]\n'C-G' = '{replacement}'");
+        let error = parse(Path::new("cancel.toml"), blocked.as_bytes()).unwrap_err();
+        assert!(error.message.contains("C-g is reserved"));
+        assert_eq!(&blocked[error.span.unwrap()], format!("'{replacement}'"));
+        let unreachable = format!("[keys.{context}]\n'M-j C-g' = 'keyboard-quit'");
+        let error = parse(Path::new("cancel.toml"), unreachable.as_bytes()).unwrap_err();
+        assert!(error.message.contains("cannot complete"));
+        assert_eq!(&unreachable[error.span.unwrap()], "'M-j C-g'");
+    }
+}
+
+// Terminal aliases cannot receive conflicting custom targets in one source,
+// even when modern terminals can report some of those physical keys separately.
+#[test]
+fn indistinguishable_chords() {
+    for (left, right) in [
+        ("C-i", "TAB"),
+        ("C-m", "RET"),
+        ("C-h", "DEL"),
+        ("C-@", "C-SPC"),
+        ("C-/", "C-7"),
+        ("ESC j", "M-j"),
+    ] {
+        let source = format!("[keys.editor]\n'{left}' = 'undo'\n'{right}' = 'next-line'");
+        let error = parse(Path::new("aliases.toml"), source.as_bytes()).unwrap_err();
+        assert!(
+            error
+                .message
+                .contains("terminal aliases cannot be distinguished"),
+            "{left}: {error}"
+        );
+        assert!(error.span.is_some());
+    }
+}
+
+// A failed reconfiguration cannot partially replace any effective context map.
+// Omitting the override on the next preparation restores the inherited mapping.
+#[test]
+fn rejected_replacement() {
+    let fixture = super::fixture::Fixture::new();
+    let path = fixture.write("config.toml", "[keys.editor]\n'C-x C-s' = 'undo'");
+    let previous = prepare(&path).snapshot;
+    fixture.write(
+        "config.toml",
+        "[keys.editor]\n'M-j' = 'next-line'\n[keys.minibuffer]\n'C-g' = 'forward-char'",
+    );
+    let rejected = prepare(&path);
+    assert!(rejected.diagnostic.is_some());
+    assert_eq!(rejected.snapshot, Snapshot::default());
+    assert_eq!(
+        lookup(&previous, Context::Editor, "C-x C-s"),
+        Binding::named("undo")
+    );
+    fixture.write("config.toml", "# The override is omitted.\n");
+    let restored = prepare(&path);
+    assert!(restored.diagnostic.is_none());
+    assert_eq!(
+        lookup(&restored.snapshot, Context::Editor, "C-x C-s"),
+        Binding::named("save-buffer")
+    );
+    assert_eq!(lookup(&restored.snapshot, Context::Editor, "M-j"), None);
+}

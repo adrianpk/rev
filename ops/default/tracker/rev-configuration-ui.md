@@ -455,10 +455,21 @@ Slice 16 of 30 completed.
 Contracts: CFG06, CFG12-CFG13, modified R22. Tickets: TKT-20261027103713.
 Details and checks: [Slice 17](../plan/rev-configuration-ui.md#slice-17-validate-context-keymaps).
 
-- [ ] T17.1: Audit the real editor/minibuffer/tree default maps and fixed action identities. Parse configured chord sequences through one normalization vocabulary including terminal aliases and prefix sequences.
-- [ ] T17.2: Validate inherited-plus-user maps, exact replacement, command availability in context and leaf/prefix conflicts before activation. Existing prompt/tree actions may gain stable catalog names, but configuration never supplies executable bodies.
-- [ ] T17.3: Keep cancellation reachable: preserve C-g as the transient cancel chord and reject attempts that remove that escape path. Reject non-command/unbinding values and explain terminal-indistinguishable chords. Document every default mapping.
+- [x] T17.1: Audit the real editor/minibuffer/tree default maps and fixed action identities. Parse configured chord sequences through one normalization vocabulary including terminal aliases and prefix sequences.
+- [x] T17.2: Validate inherited-plus-user maps, exact replacement, command availability in context and leaf/prefix conflicts before activation. Existing prompt/tree actions may gain stable catalog names, but configuration never supplies executable bodies.
+- [x] T17.3: Keep cancellation reachable: preserve C-g as the transient cancel chord and reject attempts that remove that escape path. Reject non-command/unbinding values and explain terminal-indistinguishable chords. Document every default mapping.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T17.1 `9e7d05767b363d99cf26eb6b649dab21634a2b20`;
+T17.2 `921c5038bb8d56c732a7f1b1d2e2e650e53e369b`;
+T17.3 is the Slice 17 report introduction commit.
+Focused native/default and configuration checks passed for chord limits, terminal
+aliases, normalized replacement, provenance, context availability, inherited and
+merged prefix conflicts, cancellation and complete-default fallback. Fixed action
+identities and every native default mapping are documented. Focused Clippy and
+source checks passed after correcting ordering, alias match and fixed-array forms.
+Report: [Slice 17](../report/slices/rev-configuration-ui/slice-17-keymap-contracts.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 18: Dispatch configurable editor bindings
 

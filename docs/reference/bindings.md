@@ -96,3 +96,121 @@ same ratio, clamped to each subtree's complete recursive minima. Small resizes
 suspend the entire editing projection and retain view identities and history.
 The default remains equal halves. These supplied preferences do not yet enable
 executable startup configuration discovery.
+
+## Configuration keymap contracts
+
+`keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
+maps. Omitted entries keep their built-in command. An exact normalized override
+replaces that chord, including an earlier spelling from another included layer.
+Removing/commenting an override restores the inherited entry. Two aliases for
+one chord in the same source reject, even when their target names agree.
+Empty strings, booleans, sentinel values and removal operations cannot unbind.
+
+The candidate is validated before publication. Unknown or unavailable targets,
+invalid syntax, normalized duplicates and command/prefix collisions reject the
+whole candidate. For example, `C-x` cannot become an immediate command while
+`C-x C-s` remains a binding. Diagnostics identify the context, source key and
+involved sequences; source key/value locations are included when available.
+`C-g` is reserved for `keyboard-quit` in every context. A longer sequence that
+contains it is unreachable because it cancels pending prefixes, and rejects.
+
+These contracts expose validated maps through `Snapshot::keymaps()`. Configured
+map dispatch is a separate consumer step; validation alone does not activate
+user overrides. The existing native handlers continue to own input stages.
+
+### Sequence vocabulary
+
+A sequence has one through eight normalized chords separated by ASCII whitespace.
+Each chord is one printable scalar or a named key. Names are case-insensitive:
+`RET`/`Return`/`Enter`, `TAB`, `SPC`/`Space`, `DEL`/`Backspace`, `Delete`,
+`ESC`/`Escape`, `NULL`, `Left`, `Right`, `Up`, `Down`, `Home`, `End`, `PageUp`,
+`PageDown`, `BackTab`. `Delete` removes forward; `DEL` means Backspace.
+
+`C-` adds Control and `M-`/`A-` adds Alt/Meta; modifiers can combine but cannot
+repeat. `S-` applies to named keys. For text, use the actual uppercase or shifted
+scalar, such as `A` or `%`, rather than `S-a`. Control letters fold to lowercase.
+`S-TAB` normalizes to `BackTab`. Named modified keys still require the terminal
+to report them; configuration cannot create an intercepted or absent event.
+
+Escape plus a plain non-Escape chord normalizes to its Meta form: `ESC j` and
+`M-j` are one binding. A bare Escape is reserved for the existing finite Meta
+wait/expiry operation. `ESC C-j` cannot promise a distinct physical sequence.
+The [terminal input contract](terminal-input.md) describes timing and reports.
+
+The conservative terminal vocabulary also unifies these aliases, including when
+an enhanced protocol can report some physical keys separately:
+
+| Spellings | Normalized key |
+| --- | --- |
+| `C-i` | `TAB` |
+| `C-j`, `C-m` | `RET` |
+| `C-h`, `C-?`, `C-8` | `Backspace` |
+| `C-[`, `C-3` | Escape Meta prefix |
+| `NULL`, `C-@`, `C-2` | `C-SPC` |
+| `C-4` | Control-backslash |
+| `C-5` | `C-]` |
+| `C-6` | `C-^` |
+| `C-/`, `C-7` | `C-_` |
+
+Alt remains present on Control aliases: `C-M-h` and `M-DEL` are one chord.
+
+### Editor defaults and availability
+
+The first table on this page lists every editor default, with the aliases above.
+Editor targets are the fixed implemented `Command` catalog used by M-x. A user
+alias does not install a new handler, shell expression or executable body.
+Prompt-only actions below are unavailable in the editor and M-x catalog.
+
+### Minibuffer defaults and availability
+
+These defaults describe the existing stage owners. A target is admitted only
+where its stage supports it; it never edits the underlying document. Decisions
+retain fresh y/n consent (query-replace also accepts q), and Return/paste cannot
+affirm a decision. Inventory keeps its existing selection owner.
+
+| Keys | Target | Existing stage behavior |
+| --- | --- | --- |
+| `C-g` | `keyboard-quit` | Cancel any stage. |
+| `RET` | `minibuffer-accept` | Accept text/search, invoke a command, or select inventory; no affirmative decision default. |
+| `TAB` | `minibuffer-complete` | Complete/cycle commands, complete buffer names or show path guidance; literal search/replacement inserts a tab. |
+| Backspace | `backward-delete-char` | Delete the preceding text grapheme. |
+| Delete, `C-d` | `delete-char` | Delete the following text grapheme. |
+| Left, `C-b` | `backward-char` | Move through text graphemes. |
+| Right, `C-f` | `forward-char` | Move through text graphemes. |
+| Home, `C-a` | `move-beginning-of-line` | Start of prompt text; inventory uses Home alone for first item. |
+| End, `C-e` | `move-end-of-line` | End of prompt text; inventory uses End alone for last item. |
+| Up, `C-p` | `minibuffer-previous` | Previous command-history entry; inventory uses Up alone for previous item. |
+| Down, `C-n` | `minibuffer-next` | Newer history entry/draft; inventory uses Down alone for next item. |
+| `C-s` | `isearch-forward` | Repeat forward in incremental search. |
+| `C-r` | `isearch-backward` | Repeat backward in incremental search. |
+
+The four `minibuffer-*` targets name existing Rust prompt actions in the common
+binding catalog. They are context-only actions. Minibuffer configuration admits
+exactly these targets plus the text-motion, deletion, search and cancel command
+identities in this table. An unrelated command such as `save-buffer` rejects.
+
+### Tree defaults and availability
+
+| Keys | Target |
+| --- | --- |
+| `C-g` | `keyboard-quit` |
+| `TAB` | `insert-tab` (return to editing) |
+| `M-x` | `execute-extended-command` |
+| Up, `C-p` | `tree-previous-line` |
+| Down, `C-n` | `tree-next-line` |
+| Right, `C-f` | `tree-expand` |
+| Left, `C-b` | `tree-collapse` |
+| `RET`, `C-x t o` | `tree-open` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `C-x t t` | `toggle-file-tree` |
+| `C-x t f` | `focus-file-tree` |
+| `C-x t r` | `tree-refresh` |
+| `C-x t D` | `tree-delete` |
+| `C-x t R` | `tree-rename` |
+| `C-x t n` | `tree-create-file` |
+| `C-x t d` | `tree-create-directory` |
+
+Tree configuration admits the tree command catalog, cancel, exit, M-x and
+return-to-editing, plus the existing navigation aliases `previous-line`,
+`next-line`, `backward-char`, `forward-char` and `newline`. File mutation commands
+retain their prompts and explicit confirmation; a binding cannot supply consent.

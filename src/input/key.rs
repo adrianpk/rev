@@ -88,10 +88,26 @@ impl Key {
     }
 
     fn control_identity(&mut self) {
-        match self.code {
-            KeyCode::Char('@') | KeyCode::Null => self.code = KeyCode::Char(' '),
-            KeyCode::Char('/' | '7') => self.code = KeyCode::Char('_'),
-            _ => {}
+        let aliases = [
+            (KeyCode::Null, KeyCode::Char(' '), false),
+            (KeyCode::Char('@'), KeyCode::Char(' '), false),
+            (KeyCode::Char('2'), KeyCode::Char(' '), false),
+            (KeyCode::Char('3'), KeyCode::Esc, true),
+            (KeyCode::Char('4'), KeyCode::Char('\\'), false),
+            (KeyCode::Char('5'), KeyCode::Char(']'), false),
+            (KeyCode::Char('6'), KeyCode::Char('^'), false),
+            (KeyCode::Char('/'), KeyCode::Char('_'), false),
+            (KeyCode::Char('7'), KeyCode::Char('_'), false),
+            (KeyCode::Char('8'), KeyCode::Backspace, true),
+        ];
+        if let Some((_, code, plain)) = aliases
+            .into_iter()
+            .find(|(alias, _, _)| *alias == self.code)
+        {
+            self.code = code;
+            if plain {
+                self.modifiers.remove(KeyModifiers::CONTROL);
+            }
         }
     }
 

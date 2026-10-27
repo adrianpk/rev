@@ -60,6 +60,7 @@ impl Map {
             let sequence = Sequence::parse(spelling)
                 .map_err(|error| Error::new(context, spelling, Site::Key, error.0))?;
             let target = context.target(spelling, name)?;
+            super::cancellation::admit(context, spelling, &sequence, target)?;
             if let Some(previous) = incoming.insert(
                 sequence,
                 Entry {
