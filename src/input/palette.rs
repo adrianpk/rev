@@ -15,6 +15,8 @@ pub struct Palette {
     prompt: Prompt,
     query: Option<String>,
     selected: usize,
+    // A painted default row is not an invocation. Only explicit navigation
+    // may accept a candidate while the query itself is still empty.
     chosen: bool,
     top: usize,
     history: Option<usize>,
@@ -114,17 +116,19 @@ impl Palette {
         if let Some(previous) = history::direction(key) {
             return self.recall(history, previous);
         }
+        let previous = self.prompt.text().to_owned();
         let outcome = self.prompt.handle(key);
-        self.edited(outcome)
+        self.edited(outcome, &previous)
     }
 
     pub(super) fn paste(&mut self, text: &str) -> Outcome {
+        let previous = self.prompt.text().to_owned();
         let outcome = self.prompt.paste(text);
-        self.edited(outcome)
+        self.edited(outcome, &previous)
     }
 
-    fn edited(&mut self, outcome: Outcome) -> Outcome {
-        if outcome == Outcome::Changed {
+    fn edited(&mut self, outcome: Outcome, previous: &str) -> Outcome {
+        if outcome == Outcome::Changed && self.prompt.text() != previous {
             self.query = None;
             self.selected = 0;
             self.chosen = false;

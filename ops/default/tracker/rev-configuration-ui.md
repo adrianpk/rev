@@ -581,7 +581,7 @@ Contracts: UI02, CFG12-CFG13, baseline R23. Tickets: TKT-20261027084156.
 Details and checks: [Slice 22](../plan/rev-configuration-ui.md#slice-22-navigate-and-execute-command-candidates).
 
 - [x] T22.1: Bind Up/Down and C-p/C-n to candidates, M-p/M-n to command history, Tab to complete the selected name and Return to the same named handler exactly once.
-- [ ] T22.2: Define exact/no-match/empty-query behavior, reset selection coherently after query changes and keep the selected row visible. Continue argument prompts normally; C-g restores the previous editing/tree focus.
+- [x] T22.2: Define exact/no-match/empty-query behavior, reset selection coherently after query changes and keep the selected row visible. Continue argument prompts normally; C-g restores the previous editing/tree focus.
 - [ ] T22.3: Test history versus candidate navigation, no accidental first-command execution, custom context aliases, cancellation and selected handler invocation with arguments.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

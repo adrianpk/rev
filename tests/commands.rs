@@ -19,6 +19,8 @@ mod flows;
 mod palette;
 #[path = "commands/paste.rs"]
 mod paste;
+#[path = "commands/selection.rs"]
+mod selection;
 #[path = "commands/terminal.rs"]
 mod terminal;
 #[path = "commands/vertical.rs"]

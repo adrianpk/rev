@@ -27,7 +27,8 @@ same fixed command registry and handlers as keyboard bindings.
   `Unknown command` and restore the workspace without changing document text.
   Tab or navigation with no matches retains command focus and reports
   `No matching command`.
-- Editing the query resets selection and scroll origin. M-p recalls earlier commands; M-n moves toward
+- Editing the query resets selection and scroll origin. Cursor movement and
+  refused edits preserve them. M-p recalls earlier commands; M-n moves toward
   newer commands and then restores the draft query. History recall starts a new
   matching set; navigation stops at the oldest entry. The session retains up to
   128 distinct accepted command names, most recent first. Accepting a name records
