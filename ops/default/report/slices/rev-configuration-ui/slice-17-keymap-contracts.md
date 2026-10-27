@@ -1,6 +1,6 @@
 # Slice 17: Validate context keymaps
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -99,10 +99,11 @@ counted shared targets across independent context tables as duplicates. The
 corrected oracle preserves the global catalog check and adds exact, unique
 per-context default target coverage; its focused check passed.
 
-The controller records final evidence on the clean PR head after its
-PR-reference follow-up commit. Required commands precede focused shared input
-regressions for search/query-replace and tree focus; these suites add only a few
-seconds and protect the shared normalizer's other active consumers:
+Exact-head controller evidence `CZSYPTGNKC3GWGVR5WHMHZCJSA` passed all eight
+commands below at `09c26d8951fbbdf63eedaf245288cf9aa1a9fc0f`: 233 native tests,
+zero skips, formatting, Clippy, source and whitespace checks. PR #66 merged by
+Rebase + Fast-forward into `dev` at that head. Slice 17 of 30 completed.
+Required commands precede focused shared search/query-replace and tree regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

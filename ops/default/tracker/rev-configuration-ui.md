@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 17 - Validate context keymaps
+Active slice: Slice 18 - Dispatch configurable editor bindings
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -458,7 +458,7 @@ Details and checks: [Slice 17](../plan/rev-configuration-ui.md#slice-17-validate
 - [x] T17.1: Audit the real editor/minibuffer/tree default maps and fixed action identities. Parse configured chord sequences through one normalization vocabulary including terminal aliases and prefix sequences.
 - [x] T17.2: Validate inherited-plus-user maps, exact replacement, command availability in context and leaf/prefix conflicts before activation. Existing prompt/tree actions may gain stable catalog names, but configuration never supplies executable bodies.
 - [x] T17.3: Keep cancellation reachable: preserve C-g as the transient cancel chord and reject attempts that remove that escape path. Reject non-command/unbinding values and explain terminal-indistinguishable chords. Document every default mapping.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T17.1 `9e7d05767b363d99cf26eb6b649dab21634a2b20`;
 T17.2 `921c5038bb8d56c732a7f1b1d2e2e650e53e369b`;
@@ -470,7 +470,11 @@ identities and every native default mapping are documented. Focused Clippy and
 source checks passed after correcting ordering, alias match and fixed-array forms.
 Report: [Slice 17](../report/slices/rev-configuration-ui/slice-17-keymap-contracts.md).
 PR: [#66](https://forge.adrianpk.com/adrianpk/rev/pulls/66);
-dev integration remains controller-owned.
+Rebase + Fast-forward integration verified at
+`09c26d8951fbbdf63eedaf245288cf9aa1a9fc0f`. Exact-head controller evidence
+`CZSYPTGNKC3GWGVR5WHMHZCJSA` passed all eight commands: 233 native tests,
+zero skips, formatting, Clippy, source and whitespace checks.
+Slice 17 of 30 completed.
 
 ### Slice 18: Dispatch configurable editor bindings
 
