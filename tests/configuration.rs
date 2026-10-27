@@ -18,6 +18,8 @@ mod merging;
 mod parsing;
 #[path = "configuration/resolution.rs"]
 mod resolution;
+#[path = "configuration/resolution_contract.rs"]
+mod resolution_contract;
 #[path = "configuration/scopes.rs"]
 mod scopes;
 #[path = "configuration/xdg.rs"]
