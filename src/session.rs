@@ -26,7 +26,7 @@ use crossterm::event::KeyCode;
 
 use crate::buffer::{self, Buffer, BufferId, Buffers, Confirmation, Kill};
 use crate::command::Command;
-use crate::display::{Frame, Size};
+use crate::display::{Frame, Message, Size};
 use crate::input::{Input, Key, Outcome};
 use crate::terminal::Terminal;
 use crate::view::{self, View};
@@ -76,6 +76,7 @@ pub struct Session {
     input: Input,
     size: Size,
     echo: String,
+    echo_kind: Message,
     pending: Option<Pending>,
 }
 
@@ -127,6 +128,7 @@ impl Session {
             input: Input::default(),
             size,
             echo: "C-x C-c: exit".into(),
+            echo_kind: Message::Normal,
             pending: None,
         })
     }
@@ -177,6 +179,7 @@ impl Session {
             )?,
             None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
         };
+        frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame)?;
         Ok(frame)
@@ -234,7 +237,7 @@ impl Session {
         }
         self.command_boundary(command);
         if let Err(error) = self.stop_typing() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.active_command(command)
     }
@@ -278,6 +281,7 @@ impl Session {
     }
 
     fn command_boundary(&mut self, command: Command) {
+        self.echo_kind = Message::Normal;
         if !command.is_kill() {
             self.kills.break_chain();
         }
@@ -353,8 +357,12 @@ impl Session {
         self.yank = None;
         self.kills.break_chain();
         match self.stop_typing() {
-            Ok(()) => self.focus_message(message),
-            Err(error) => self.message(&error.to_string()),
+            Ok(()) => {
+                let action = self.focus_message(message);
+                self.echo_kind = Message::Warning;
+                action
+            }
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -372,7 +380,7 @@ impl Session {
         }
         match self.stop_typing() {
             Ok(()) => Action::Redraw,
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -380,12 +388,19 @@ impl Session {
         match result {
             Ok(true) => self.message(""),
             Ok(false) => self.message("Buffer boundary"),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
     fn message(&mut self, message: &str) -> Action {
+        self.echo_kind = Message::Normal;
         self.echo = message.into();
         Action::Redraw
+    }
+
+    fn error(&mut self, message: &str) -> Action {
+        let action = self.message(message);
+        self.echo_kind = Message::Error;
+        action
     }
 }

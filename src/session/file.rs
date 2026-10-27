@@ -14,7 +14,7 @@ impl Session {
         self.kills.break_chain();
         let result = self.ingress(path);
         if let Err(error) = &result {
-            self.echo = error.to_string();
+            self.error(&error.to_string());
         }
         result
     }
@@ -33,11 +33,13 @@ impl Session {
         self.tree.edit();
         self.input.cancel();
         self.pending = None;
+        self.echo_kind = crate::display::Message::Normal;
         self.echo.clear();
         if let Some(path) = observed
             && let Err(error) = self.tree.observe_path(&path)
         {
             self.echo = format!("Opened {}; tree refresh failed: {error}", path.display());
+            self.echo_kind = crate::display::Message::Warning;
         }
         Ok(())
     }
@@ -52,7 +54,7 @@ impl Session {
                 self.pending = Some(Pending::Argument(command));
                 self.message("")
             }
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

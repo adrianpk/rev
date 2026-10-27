@@ -6,7 +6,7 @@ use super::{Action, Pending, Session};
 impl Session {
     pub(in crate::session) fn list_buffers(&mut self) -> Action {
         if let Err(error) = self.input.inventory() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Inventory(
             self.windows.selected().point.stamp.buffer,

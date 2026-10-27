@@ -45,7 +45,7 @@ impl Session {
         match result {
             Ok(true) if command == LinearCommand::Copy => self.message("Region copied"),
             Ok(changed) => self.finish(Ok(changed)),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

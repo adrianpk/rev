@@ -14,7 +14,7 @@ impl Session {
             return self.message("No matching buffer");
         };
         if let Err(error) = self.input.complete(&completed) {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.message(&format!(
             "{count} matching buffer(s); Enter selects an exact name"

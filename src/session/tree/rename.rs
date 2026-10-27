@@ -13,10 +13,10 @@ impl Session {
         }
         let rename = match self.tree.prepare_rename() {
             Ok(rename) => rename,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if let Err(error) = self.input.argument("Rename to: ", "") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = format!("Rename {}", rename.source().display());
         self.pending = Some(Pending::TreeRename(rename));
@@ -26,7 +26,7 @@ impl Session {
     pub(in crate::session) fn tree_renamed(&mut self, rename: Rename, name: &str) -> Action {
         let renamed = match self.buffers.rename(rename, name) {
             Ok(renamed) => renamed,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let mut notice = format!(
             "Renamed {} to {}",

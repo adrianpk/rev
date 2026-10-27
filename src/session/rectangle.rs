@@ -21,7 +21,7 @@ impl Session {
         };
         match result {
             Ok(message) => self.message(message),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

@@ -53,7 +53,7 @@ impl Session {
             return self.search_step();
         }
         if let Err(error) = self.input.search(direction) {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         let origin = self.windows.selected().clone();
         self.pending = Some(Pending::Search(Box::new(State {
@@ -79,11 +79,11 @@ impl Session {
         };
         let buffer = match self.buffers.get(state.origin.point.stamp.buffer) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let position = match state.update(buffer, prompt.text()) {
             Ok(position) => position,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if let Some(position) = position {
             let view = self.windows.selected_mut();

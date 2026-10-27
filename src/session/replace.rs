@@ -39,7 +39,7 @@ impl Session {
     pub(super) fn query_replace(&mut self) -> Action {
         let buffer = match self.buffer() {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if buffer.is_readonly() {
             return self.message(&edit::Error::ReadOnly.to_string());
@@ -61,7 +61,7 @@ impl Session {
 
     fn replace_prompt(&mut self, state: State, label: &'static str) -> Action {
         if let Err(error) = self.input.replace_argument(label) {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Replace(Box::new(state)));
         self.message("")
@@ -111,7 +111,7 @@ impl Session {
         }
         let pattern = match Pattern::new(query) {
             Ok(pattern) => pattern,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         self.replace_prompt(
             State {
@@ -136,10 +136,10 @@ impl Session {
             Ok(None) => {
                 return self.message(&format!("Query replace complete: {} replaced", owner.count));
             }
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if let Err(error) = self.input.replace_decision() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         let count = owner.count;
         let stage = Stage::Decision(Candidate {
@@ -180,7 +180,7 @@ impl Session {
         };
         let mut owner = state.owner;
         if let Err(error) = self.replace_apply(&mut owner, &candidate, accepted) {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.replace_next(owner, candidate.pattern, candidate.replacement)
     }

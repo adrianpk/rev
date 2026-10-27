@@ -3,10 +3,10 @@ use super::{Action, Pending, Session};
 impl Session {
     pub(super) fn extended(&mut self) -> Action {
         if let Err(error) = self.stop_typing() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         if let Err(error) = self.input.commands() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         // Entry is transient input; the eventual shared handler owns command
         // continuity, so a named yank-pop can consume the current yank capture.

@@ -132,7 +132,7 @@ impl Session {
         };
         match result {
             Ok(()) => self.message("File tree updated"),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 }

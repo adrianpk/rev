@@ -33,6 +33,8 @@ impl Frame {
                 text: clip::line(Glyphs::for_text(&label)?, 0, content.width())?,
                 syntax: Vec::new(),
                 band: Band::Document,
+                tone: super::Tone::Tree,
+                faces: Vec::new(),
                 search: None,
                 selection: (panel.active() && row == tree.selected_row())
                     .then_some(0..content.width()),
@@ -58,6 +60,8 @@ impl Frame {
                     text: clip::line(Glyphs::for_text(tree.status())?, 0, status.width())?,
                     syntax: Vec::new(),
                     band: Band::Status,
+                    tone: super::Tone::Status(panel.active()),
+                    faces: Vec::new(),
                     search: None,
                     selection: None,
                 },

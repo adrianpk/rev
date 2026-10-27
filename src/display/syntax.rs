@@ -1,10 +1,4 @@
-use std::io::{self, Write};
 use std::ops::Range;
-
-use crossterm::{
-    QueueableCommand,
-    style::{Color, SetForegroundColor},
-};
 
 use crate::buffer::Buffer;
 use crate::config::{Rgb, SyntaxPalette};
@@ -101,28 +95,9 @@ fn append(result: &mut Vec<Paint>, paint: Paint) {
     }
 }
 
-pub(super) fn color(
-    writer: &mut impl Write,
-    style: Option<Style>,
-    current: &mut Option<Style>,
-    palette: &SyntaxPalette,
-) -> io::Result<()> {
-    if style != *current {
-        let color = style
-            .map(|style| {
-                let Rgb(r, g, b) = foreground(style, palette);
-                Color::Rgb { r, g, b }
-            })
-            .unwrap_or(Color::Reset);
-        writer.queue(SetForegroundColor(color))?;
-        *current = style;
-    }
-    Ok(())
-}
-
 // Capture classification stays syntax-owned; terminal colors resolve only at
 // presentation against the one frame palette, including grouped captures.
-fn foreground(style: Style, palette: &SyntaxPalette) -> Rgb {
+pub(super) fn foreground(style: Style, palette: &SyntaxPalette) -> Rgb {
     match style {
         Style::Keyword => palette.keyword,
         Style::String => palette.string,

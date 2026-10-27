@@ -375,7 +375,7 @@ integrated by Rebase + Fast-forward into dev at
 Contracts: CFG04, CFG14, UI01, baseline R03. Tickets: TKT-20261027103710, TKT-20261027085102.
 Details and checks: [Slice 14](../plan/rev-configuration-ui.md#slice-14-render-ui-palette-and-restore-terminal).
 
-- [ ] T14.1: Apply background/foreground, status, border/focus, tree, region, search, prompt, warning and error roles through composition. Ensure every selected role has a real consumer.
+- [x] T14.1: Apply background/foreground, status, border/focus, tree, region, search, prompt, warning and error roles through composition. Ensure every selected role has a real consumer.
 - [ ] T14.2: Apply cursor color through supported terminal sequences, with a documented capability fallback; restore cursor/text colors and terminal modes on normal exit and failures through the existing lifecycle owner.
 - [ ] T14.3: Test safe escape emission, no style leakage between panels, readable selections and restoration after errors. Keep idle rendering event-driven and do not add blinking.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.

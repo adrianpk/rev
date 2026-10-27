@@ -8,7 +8,7 @@ impl Session {
     pub(super) fn scroll(&mut self, scroll: Scroll) -> Action {
         match self.scroll_point(scroll) {
             Ok(()) => self.message(""),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -26,7 +26,7 @@ impl Session {
     pub(super) fn motion(&mut self, motion: Motion) -> Action {
         match self.move_point(motion) {
             Ok(()) => self.message(""),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

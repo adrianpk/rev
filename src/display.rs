@@ -4,7 +4,10 @@ mod inventory;
 mod prompt;
 mod search;
 mod selection;
+mod style;
 mod syntax;
+pub use style::Message;
+use style::{Face, Tone};
 mod tree;
 pub use syntax::Paint;
 
@@ -43,6 +46,8 @@ pub struct Row {
     row: u16,
     text: String,
     band: Band,
+    tone: Tone,
+    faces: Vec<Face>,
     syntax: Vec<Paint>,
     selection: Option<std::ops::Range<u16>>,
     search: Option<std::ops::Range<u16>>,
@@ -175,6 +180,8 @@ impl Frame {
                 text,
                 syntax: syntax::row(buffer, view, source, content.width())?,
                 band: Band::Document,
+                tone: Tone::Document,
+                faces: Vec::new(),
                 search: None,
                 selection: highlight
                     .as_ref()
@@ -209,6 +216,8 @@ impl Frame {
                 text: clip::line(Glyphs::for_text(&status)?, 0, area.width())?,
                 syntax: Vec::new(),
                 band: Band::Status,
+                tone: Tone::Status(panel.active()),
+                faces: Vec::new(),
                 search: None,
                 selection: None,
             },
@@ -221,6 +230,8 @@ impl Frame {
             text: clip::line(Glyphs::for_text(message)?, 0, self.size.width)?,
             syntax: Vec::new(),
             band: Band::Echo,
+            tone: Tone::Message(Message::Normal),
+            faces: Vec::new(),
             search: None,
             selection: None,
         });
@@ -234,6 +245,8 @@ impl Frame {
                 text: " ".repeat(usize::from(self.size.width)),
                 syntax: Vec::new(),
                 band: Band::Document,
+                tone: Tone::Document,
+                faces: Vec::new(),
                 search: None,
                 selection: None,
             });

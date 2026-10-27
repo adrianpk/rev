@@ -10,7 +10,7 @@ impl Session {
         match self.buffer() {
             Ok(buffer) if buffer.file().is_none() => self.write_file(),
             Ok(buffer) => self.save_to(buffer.id(), None, AfterSave::Stay),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -20,7 +20,7 @@ impl Session {
 
     pub(super) fn write_argument(&mut self, buffer: BufferId, after: AfterSave) -> Action {
         if let Err(error) = self.input.argument("Write file: ", "") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Write { buffer, after });
         self.message("")
@@ -44,7 +44,7 @@ impl Session {
 
     fn confirm(&mut self, confirmation: Confirmation, after: AfterSave) -> Action {
         if let Err(error) = self.input.decision("Save? [y/n]") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = confirmation.message().into();
         self.pending = Some(Pending::Save {
@@ -108,7 +108,7 @@ impl Session {
     fn close_saved(&mut self, kill: Kill) -> Action {
         let buffer = match self.buffers.get(kill.id()) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if buffer.is_modified() {
             return self.message("Buffer changed; close canceled");
@@ -146,7 +146,7 @@ impl Session {
             _ => "published; completion unresolved",
         };
         let error = outcome.error().map(ToString::to_string).unwrap_or_default();
-        self.message(&format!(
+        self.error(&format!(
             "save: {publication}: {error}; target {:?}",
             outcome.target()
         ))

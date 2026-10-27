@@ -17,7 +17,7 @@ impl Session {
             _ => "Kill buffer: ",
         };
         if let Err(error) = self.input.argument(label, "") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Buffer {
             command,
@@ -50,7 +50,7 @@ impl Session {
     pub(super) fn activate(&mut self, id: BufferId) -> Action {
         let buffer = match self.buffers.get(id) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if self.windows.selected().point.stamp.buffer != id {
             *self.windows.selected_mut() = View::new(buffer);
@@ -63,18 +63,18 @@ impl Session {
     fn kill_buffer(&mut self, id: BufferId) -> Action {
         let kill = match self.buffers.prepare_kill(id) {
             Ok(kill) => kill,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let buffer = match self.buffers.get(id) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if !buffer.is_modified() {
             return self.close_buffer(kill);
         }
         let message = format!("Close {:?}? y=save, n=discard, C-g=cancel", buffer.name());
         if let Err(error) = self.input.decision("Save before closing?") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = message.clone();
         self.pending = Some(Pending::Kill { kill, message });
@@ -84,7 +84,7 @@ impl Session {
     pub(super) fn save_killing(&mut self, kill: Kill) -> Action {
         let buffer = match self.buffers.get(kill.id()) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if buffer.file().is_none() {
             return self.write_argument(kill.id(), AfterSave::Close(kill));
@@ -96,11 +96,11 @@ impl Session {
         let closed = kill.id();
         let replacement = match self.buffers.kill(kill) {
             Ok(id) => id,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let buffer = match self.buffers.get(replacement) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         self.windows.replace_buffer(closed, buffer);
         self.input.cancel();

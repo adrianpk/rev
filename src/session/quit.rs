@@ -29,11 +29,11 @@ impl Session {
         };
         let buffer = match self.buffers.get(*id) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         quit.question = format!("Quit: {:?}? y=save, n=discard, C-g=cancel", buffer.name());
         if let Err(error) = self.input.decision("Save before quitting?") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = quit.question.clone();
         self.pending = Some(Pending::Quit(quit));
@@ -49,7 +49,7 @@ impl Session {
         };
         let buffer = match self.buffers.get(id) {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         if buffer.file().is_none() {
             return self.write_argument(id, AfterSave::Quit(quit));

@@ -79,8 +79,18 @@ impl Frame {
     fn dividers(&mut self, composition: &Composition) -> Result<(), Error> {
         for area in composition.borders() {
             for row in 0..area.height() {
+                let mut faces = Vec::new();
                 let text = (0..area.width())
                     .map(|column| {
+                        let point = Position {
+                            column: area.column() + column,
+                            row: area.row() + row,
+                        };
+                        super::style::append(
+                            &mut faces,
+                            point.column,
+                            super::Tone::Border(super::style::focused(composition, point)),
+                        );
                         composition
                             .separator(Position {
                                 column: area.column() + column,
@@ -96,6 +106,8 @@ impl Frame {
                         text,
                         syntax: Vec::new(),
                         band: Band::Divider,
+                        tone: super::Tone::Border(false),
+                        faces,
                         search: None,
                         selection: None,
                     },
@@ -115,6 +127,11 @@ impl Frame {
             .get_mut(usize::from(row))
             .ok_or(CoordinateError::Overflow)?;
         target.text = text(&target.text, source.text, area, self.size.width)?;
+        target.faces.push(super::Face {
+            columns: area.column()..area.column() + area.width(),
+            tone: source.tone,
+        });
+        target.faces.extend(source.faces);
         target.syntax.extend(source.syntax);
         if source.selection.is_some() {
             target.selection = source.selection;

@@ -20,6 +20,9 @@ impl Frame {
             row.text = " ".repeat(usize::from(self.size.width));
             row.selection = None;
             row.syntax.clear();
+            row.faces.clear();
+            row.tone = super::Tone::Document;
+            row.search = None;
         }
         for (row, buffer) in self
             .rows
@@ -35,6 +38,9 @@ impl Frame {
         }
         self.rows[extent].selection = None;
         self.rows[extent].syntax.clear();
+        self.rows[extent].faces.clear();
+        self.rows[extent].tone = super::Tone::Status(true);
+        self.rows[extent].search = None;
         self.rows[extent].text = clip::line(
             Glyphs::for_text(&format!("Buffers: {} live", buffers.iter().len()))?,
             0,

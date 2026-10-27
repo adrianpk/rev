@@ -28,7 +28,7 @@ impl Session {
     pub(super) fn split(&mut self, direction: Split) -> Action {
         match self.windows.split(direction, self.editing_size()) {
             Ok(_) => self.message(""),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -40,7 +40,7 @@ impl Session {
             WindowCommand::Other => self.cycle_view(),
             WindowCommand::Delete => match self.windows.delete_selected() {
                 Ok(_) => self.message(""),
-                Err(error) => self.message(&error.to_string()),
+                Err(error) => self.error(&error.to_string()),
             },
             WindowCommand::Keep => {
                 if self.windows.delete_others() == 0 {
@@ -59,7 +59,7 @@ impl Session {
             .and_then(|id| self.select_view(id));
         match result {
             Ok(()) => self.message(""),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

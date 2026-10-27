@@ -4,6 +4,13 @@ use crate::input::Prompt;
 use super::{Error, Frame, Position, clip};
 
 impl Frame {
+    /// Preserve explicit severity supplied by the session or another presenter.
+    pub fn message_kind(&mut self, message: super::Message) {
+        if let Some(row) = self.rows.last_mut() {
+            row.tone = super::Tone::Message(message);
+        }
+    }
+
     /// Confirmation input owns the echo cursor, leaving document point alone.
     pub(crate) fn decision(&mut self) {
         self.cursor = None;

@@ -15,7 +15,7 @@ impl Session {
 
     fn delete_question(&mut self, deletion: Deletion) -> Action {
         if let Err(error) = self.input.decision("Delete entry? [y/n]") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = deletion.message();
         self.pending = Some(Pending::TreeDelete(deletion));

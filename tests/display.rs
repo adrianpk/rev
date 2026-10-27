@@ -7,6 +7,8 @@ mod policy;
 
 #[path = "display/palette.rs"]
 mod palette;
+#[path = "support/surface.rs"]
+mod surface;
 
 use rev::buffer::Buffers;
 use rev::coordinates::Scalar;
@@ -414,8 +416,9 @@ fn draw_boundary() {
         assert!(wire.starts_with("\x1b[?25l"));
         assert_eq!(wire.ends_with("\x1b[?25h"), frame.cursor().is_some());
         assert!(!wire.contains("\x1b[2J"));
+        let plain = surface::without_sgr(&wire);
         for row in frame.rows() {
-            assert!(wire.contains(&format!("\x1b[{};1H{}", row.row() + 1, row.text())));
+            assert!(plain.contains(&format!("\x1b[{};1H{}", row.row() + 1, row.text())));
         }
         if size.width == 0 {
             assert_eq!(wire, "\x1b[?25l");

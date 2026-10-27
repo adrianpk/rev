@@ -8,7 +8,7 @@ impl Session {
         self.yank = None;
         self.kills.break_chain();
         if let Err(error) = self.stop_typing() {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         if text.contains('\0') {
             return self.message("Paste contains NUL; binary input rejected");

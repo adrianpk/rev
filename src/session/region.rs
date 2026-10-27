@@ -15,7 +15,7 @@ impl Session {
             } else {
                 ""
             }),
-            Err(error) => self.message(&error.to_string()),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 
@@ -40,7 +40,7 @@ impl Session {
             .get_mut(self.windows.selected().point.stamp.buffer)
         {
             Ok(buffer) => buffer,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         buffer.deactivate_region();
         self.input.cancel();

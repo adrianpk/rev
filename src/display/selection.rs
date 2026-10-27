@@ -93,9 +93,9 @@ fn boundary(coordinates: &Coordinates<'_>, point: Scalar, forward: bool) -> Resu
 
 #[derive(Default)]
 struct Attributes {
-    foreground: Option<crate::syntax::Style>,
-    reversed: bool,
+    colors: Option<super::style::Colors>,
     underlined: bool,
+    reversed: bool,
 }
 
 impl Row {
@@ -104,9 +104,6 @@ impl Row {
         writer: &mut impl Write,
         palette: &crate::config::Palette,
     ) -> io::Result<()> {
-        if self.plain() {
-            return writer.write_all(self.text.as_bytes());
-        }
         let mut attributes = Attributes::default();
         for glyph in Glyphs::for_text(&self.text).map_err(io::Error::other)? {
             self.write_glyph(
@@ -116,13 +113,9 @@ impl Row {
                 palette,
             )?;
         }
-        super::syntax::color(writer, None, &mut attributes.foreground, &palette.syntax)?;
+        underline(writer, false, &mut attributes.underlined)?;
         reverse(writer, false, &mut attributes.reversed)?;
-        underline(writer, false, &mut attributes.underlined)
-    }
-
-    fn plain(&self) -> bool {
-        self.selection.is_none() && self.search.is_none() && self.syntax.is_empty()
+        super::style::reset(writer)
     }
 
     fn write_glyph(
@@ -133,12 +126,14 @@ impl Row {
         palette: &crate::config::Palette,
     ) -> io::Result<()> {
         let column = glyph.columns.start;
-        let selected = covers(&self.selection, column);
-        // Selection owns its appearance. A syntax foreground must not become
-        // the reverse-video background or survive into the selected glyph.
-        let style = if selected { None } else { self.style(column) };
-        super::syntax::color(writer, style, &mut attributes.foreground, &palette.syntax)?;
-        reverse(writer, selected, &mut attributes.reversed)?;
+        self.colors(column, palette)
+            .write(writer, &mut attributes.colors)?;
+        let monochrome = crossterm::style::Colored::ansi_color_disabled_memoized();
+        reverse(
+            writer,
+            monochrome && covers(&self.selection, column),
+            &mut attributes.reversed,
+        )?;
         underline(
             writer,
             covers(&self.search, column),
@@ -167,6 +162,12 @@ fn underline(writer: &mut impl Write, marked: bool, underlined: &mut bool) -> io
     Ok(())
 }
 
+fn clipped(columns: Range<usize>, left: usize, width: u16) -> Option<Range<u16>> {
+    let start = columns.start.saturating_sub(left).min(usize::from(width));
+    let end = columns.end.saturating_sub(left).min(usize::from(width));
+    (start < end).then_some(start as u16..end as u16)
+}
+
 fn reverse(writer: &mut impl Write, selected: bool, reversed: &mut bool) -> io::Result<()> {
     if selected != *reversed {
         let attribute = if selected {
@@ -178,10 +179,4 @@ fn reverse(writer: &mut impl Write, selected: bool, reversed: &mut bool) -> io::
         *reversed = selected;
     }
     Ok(())
-}
-
-fn clipped(columns: Range<usize>, left: usize, width: u16) -> Option<Range<u16>> {
-    let start = columns.start.saturating_sub(left).min(usize::from(width));
-    let end = columns.end.saturating_sub(left).min(usize::from(width));
-    (start < end).then_some(start as u16..end as u16)
 }

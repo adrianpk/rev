@@ -13,14 +13,14 @@ impl Session {
         }
         let creation = match self.tree.prepare_create(kind) {
             Ok(creation) => creation,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let label = match kind {
             CreateKind::File => "New file name: ",
             CreateKind::Directory => "New directory name: ",
         };
         if let Err(error) = self.input.argument(label, "") {
-            return self.message(&error.to_string());
+            return self.error(&error.to_string());
         }
         self.echo = format!("In {}", creation.directory().display());
         self.pending = Some(Pending::TreeCreate(creation));
@@ -30,7 +30,7 @@ impl Session {
     pub(in crate::session) fn tree_created(&mut self, creation: Creation, name: &str) -> Action {
         let path = match creation.publish(name) {
             Ok(path) => path,
-            Err(error) => return self.message(&error.to_string()),
+            Err(error) => return self.error(&error.to_string()),
         };
         let notice = match self.tree.reveal_created(&path) {
             Ok(()) => format!("Created {}", path.display()),
