@@ -41,27 +41,9 @@ impl Frame {
         composition: &Composition,
     ) -> Result<(), Error> {
         for (id, panel) in composition.panels() {
-            let area = panel.outer();
             let view = windows.get(*id)?;
             let buffer = buffers.get(view.point.stamp.buffer)?;
-            let selected = panel.active();
-            let mut pane = Self::project_view(buffer, view, area.view_size(), "", selected)?;
-            if !selected {
-                let status = &mut pane.rows[usize::from(area.height() - 1)];
-                status.text.replace_range(..1, " ");
-            }
-            self.paint(*panel, &pane)?;
-        }
-        Ok(())
-    }
-
-    fn paint(&mut self, panel: Panel, pane: &Frame) -> Result<(), Error> {
-        let area = panel.outer();
-        for row in pane.rows.iter().take(usize::from(area.height())) {
-            self.blit(area, row)?;
-        }
-        if panel.active() {
-            self.cursor = pane.cursor.and_then(|cursor| panel.position(cursor));
+            self.panel(buffer, view, *panel)?;
         }
         Ok(())
     }
@@ -81,7 +63,7 @@ impl Frame {
                     .collect();
                 self.blit(
                     *area,
-                    &Row {
+                    Row {
                         row,
                         text,
                         syntax: Vec::new(),
@@ -95,7 +77,7 @@ impl Frame {
         Ok(())
     }
 
-    fn blit(&mut self, area: Area, source: &Row) -> Result<(), Error> {
+    pub(super) fn blit(&mut self, area: Area, source: Row) -> Result<(), Error> {
         let row = area
             .row()
             .checked_add(source.row)
@@ -104,25 +86,13 @@ impl Frame {
             .rows
             .get_mut(usize::from(row))
             .ok_or(CoordinateError::Overflow)?;
-        let end = area
-            .column()
-            .checked_add(area.width())
-            .ok_or(CoordinateError::Overflow)?;
-        let left = clip::line(Glyphs::for_text(&target.text)?, 0, area.column())?;
-        let right = clip::line(
-            Glyphs::for_text(&target.text)?,
-            usize::from(end),
-            self.size.width - end,
-        )?;
-        target.text = format!("{left}{}{right}", source.text);
-        target
-            .syntax
-            .extend(source.syntax.iter().map(|paint| super::Paint {
-                columns: area.column() + paint.columns.start..area.column() + paint.columns.end,
-                style: paint.style,
-            }));
-        if let Some(selection) = &source.selection {
-            target.selection = Some(area.column() + selection.start..area.column() + selection.end);
+        target.text = text(&target.text, source.text, area, self.size.width)?;
+        target.syntax.extend(source.syntax);
+        if source.selection.is_some() {
+            target.selection = source.selection;
+        }
+        if source.search.is_some() {
+            target.search = source.search;
         }
         target.band = if area.width() == self.size.width {
             source.band
@@ -131,4 +101,37 @@ impl Frame {
         };
         Ok(())
     }
+}
+
+impl Row {
+    pub(super) fn projected(mut self, panel: Panel) -> Self {
+        self.syntax = self
+            .syntax
+            .into_iter()
+            .filter_map(|mut paint| {
+                paint.columns = panel.clip(self.row, paint.columns)?.1;
+                Some(paint)
+            })
+            .collect();
+        self.selection = self
+            .selection
+            .and_then(|range| panel.clip(self.row, range).map(|(_, columns)| columns));
+        self.search = self
+            .search
+            .and_then(|range| panel.clip(self.row, range).map(|(_, columns)| columns));
+        self
+    }
+}
+
+fn text(target: &str, source: String, area: Area, width: u16) -> Result<String, Error> {
+    if area.column() == 0 && area.width() == width {
+        return Ok(source);
+    }
+    let end = area
+        .column()
+        .checked_add(area.width())
+        .ok_or(CoordinateError::Overflow)?;
+    let left = clip::line(Glyphs::for_text(target)?, 0, area.column())?;
+    let right = clip::line(Glyphs::for_text(target)?, usize::from(end), width - end)?;
+    Ok(format!("{left}{source}{right}"))
 }

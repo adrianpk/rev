@@ -17,8 +17,10 @@ use crossterm::{
 
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyphs};
+use crate::panel::Panel;
 use crate::view::View;
 pub use crate::view::{Error, Size};
+use crate::window::Area;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Band {
@@ -83,17 +85,7 @@ pub struct Frame {
 
 impl Frame {
     pub fn project(buffer: &Buffer, view: &View, size: Size, echo: &str) -> Result<Self, Error> {
-        Self::project_view(buffer, view, size, echo, true)
-    }
-
-    fn project_view(
-        buffer: &Buffer,
-        view: &View,
-        size: Size,
-        echo: &str,
-        selected: bool,
-    ) -> Result<Self, Error> {
-        let point = view.cell(buffer)?;
+        view.cell(buffer)?;
         let mut frame = Self {
             size,
             stamp: buffer.stamp(),
@@ -103,16 +95,25 @@ impl Frame {
         if size.width == 0 || size.height == 0 {
             return Ok(frame);
         }
-        if size.usable() {
-            let highlight = selection::Highlight::new(buffer, view, selected)?;
-            frame.document(buffer, view, highlight)?;
-            frame.status(buffer, point)?;
-            frame.cursor = frame.position(point, view);
-        } else {
-            frame.blank_rows();
-        }
+        frame.blank_rows();
         frame.echo(echo)?;
+        if size.usable() {
+            let area = Area::new(0, 0, size.width, size.height - 1)
+                .ok_or(crate::coordinates::Error::Overflow)?;
+            frame.panel(buffer, view, Panel::new(area, true, true))?;
+        }
         Ok(frame)
+    }
+
+    fn panel(&mut self, buffer: &Buffer, view: &View, panel: Panel) -> Result<(), Error> {
+        let point = view.cell(buffer)?;
+        let highlight = selection::Highlight::new(buffer, view, panel.active())?;
+        self.document(buffer, view, panel, highlight)?;
+        self.status(buffer, point, panel)?;
+        if panel.active() {
+            self.cursor = Self::position(point, view, panel);
+        }
+        Ok(())
     }
 
     pub fn stamp(&self) -> Stamp {
@@ -147,51 +148,61 @@ impl Frame {
         &mut self,
         buffer: &Buffer,
         view: &View,
+        panel: Panel,
         highlight: Option<selection::Highlight>,
     ) -> Result<(), Error> {
         let coordinates = Coordinates::new(buffer)?;
-        for row in 0..self.size.text_rows() {
+        let content = panel.content();
+        for row in 0..content.height() {
             let source = view.top.saturating_add(usize::from(row));
             let text = if source < buffer.len_lines() {
-                clip::line(coordinates.glyphs(source)?, view.left, self.size.width)?
+                clip::line(coordinates.glyphs(source)?, view.left, content.width())?
             } else {
-                " ".repeat(usize::from(self.size.width))
+                " ".repeat(usize::from(content.width()))
             };
-            self.rows.push(Row {
+            let projected = Row {
                 row,
                 text,
-                syntax: syntax::row(buffer, view, source, self.size.width)?,
+                syntax: syntax::row(buffer, view, source, content.width())?,
                 band: Band::Document,
                 search: None,
                 selection: highlight
                     .as_ref()
-                    .map(|h| h.selected_row(buffer, source, view.left, self.size.width))
+                    .map(|h| h.selected_row(buffer, source, view.left, content.width()))
                     .transpose()?
                     .flatten(),
-            });
+            }
+            .projected(panel);
+            self.blit(content, projected)?;
         }
         Ok(())
     }
 
-    fn status(&mut self, buffer: &Buffer, point: Cell) -> Result<(), Error> {
+    fn status(&mut self, buffer: &Buffer, point: Cell, panel: Panel) -> Result<(), Error> {
+        let Some(area) = panel.status() else {
+            return Ok(());
+        };
         let dirty = if buffer.is_modified() { "**" } else { "--" };
         let access = if buffer.is_readonly() { "RO" } else { "RW" };
+        let marker = if panel.active() { '>' } else { ' ' };
         let status = format!(
-            "> {} {dirty} {access} L{} C{} {}",
+            "{marker} {} {dirty} {access} L{} C{} {}",
             buffer.name(),
             point.row + 1,
             point.column + 1,
             buffer.mode()
         );
-        self.rows.push(Row {
-            row: self.size.height - 2,
-            text: clip::line(Glyphs::for_text(&status)?, 0, self.size.width)?,
-            syntax: Vec::new(),
-            band: Band::Status,
-            search: None,
-            selection: None,
-        });
-        Ok(())
+        self.blit(
+            area,
+            Row {
+                row: 0,
+                text: clip::line(Glyphs::for_text(&status)?, 0, area.width())?,
+                syntax: Vec::new(),
+                band: Band::Status,
+                search: None,
+                selection: None,
+            },
+        )
     }
 
     fn echo(&mut self, message: &str) -> Result<(), Error> {
@@ -219,15 +230,10 @@ impl Frame {
         }
     }
 
-    fn position(&self, point: Cell, view: &View) -> Option<Position> {
-        let column = point.column.checked_sub(view.left)?;
-        let row = point.row.checked_sub(view.top)?;
-        if column >= usize::from(self.size.width) || row >= usize::from(self.size.text_rows()) {
-            return None;
-        }
-        Some(Position {
-            column: u16::try_from(column).ok()?,
-            row: u16::try_from(row).ok()?,
+    fn position(point: Cell, view: &View, panel: Panel) -> Option<Position> {
+        panel.position(Position {
+            column: u16::try_from(point.column.checked_sub(view.left)?).ok()?,
+            row: u16::try_from(point.row.checked_sub(view.top)?).ok()?,
         })
     }
 }

@@ -122,7 +122,8 @@ impl Session {
                 self.buffer()?,
                 self.view(),
                 self.windows
-                    .area(self.windows.selected_id(), self.editing_size()),
+                    .area(self.windows.selected_id(), self.editing_size())
+                    .map(|area| crate::panel::Panel::new(area, true, true)),
             )?;
         }
         Ok(())

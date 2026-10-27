@@ -298,7 +298,7 @@ Contracts: UI01, baseline R05-R07, R14-R15. Tickets: TKT-20261027103711, TKT-202
 Details and checks: [Slice 11](../plan/rev-configuration-ui.md#slice-11-compose-editing-panels).
 
 - [x] T11.1: Migrate editor rendering to panel content bounds and continuous shared Unicode separators/junctions, with no per-pane outer frame. Reserve horizontal border rows and status cells explicitly in layout minima.
-- [ ] T11.2: Derive text, cursor, syntax, search, selection and status translations from the same geometry owner; remove repeated ASCII-pipe painting as an independent placement convention.
+- [x] T11.2: Derive text, cursor, syntax, search, selection and status translations from the same geometry owner; remove repeated ASCII-pipe painting as an independent placement convention.
 - [ ] T11.3: Test nested split directions, active/inactive panes, same-buffer independent points, clipped Unicode and resize. Keep the baseline default split proportion and focus traversal.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

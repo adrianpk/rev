@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+
 #[path = "panels/geometry.rs"]
 mod geometry;
 #[path = "panels/rendering.rs"]
