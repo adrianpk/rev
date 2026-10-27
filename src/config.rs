@@ -8,12 +8,14 @@
 //! These records are preparatory: startup loading and consumers are separate.
 
 mod diagnostic;
+mod load;
 mod palette;
 mod parse;
 mod validate;
 mod xdg;
 
 pub use diagnostic::{Diagnostic, Position};
+pub use load::{Source, Sources, load};
 pub use palette::{Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette};
 pub use parse::parse;
 pub use xdg::Roots;

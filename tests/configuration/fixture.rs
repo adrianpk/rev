@@ -14,6 +14,13 @@ impl Fixture {
         fs::create_dir(&path).unwrap();
         Self(path)
     }
+
+    pub fn write(&self, relative: &str, text: &str) -> PathBuf {
+        let path = self.0.join(relative);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(&path, text).unwrap();
+        path
+    }
 }
 
 impl Drop for Fixture {
