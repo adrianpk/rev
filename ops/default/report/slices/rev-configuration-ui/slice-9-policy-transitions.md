@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-09-policy-transitions`
-PR: pending
+PR: [#58](https://forge.adrianpk.com/adrianpk/rev/pulls/58)
 
 ## Purpose
 
@@ -40,7 +40,8 @@ and destination buffer policies while retaining file fidelity and history.
   snapshot only after a save has published or rename has succeeded. Rename
   already enumerates affected canonical owners; each receives its new policy
   when its location is reconciled.
-- T9.3 verifies cross-width shared insertion, canceled/failed/successful
+- T9.3: `8572b9653894e08f1d084a870af0c52e8bc9b022` verifies cross-width
+  shared insertion, canceled/failed/successful
   write-file with independent views, renamed descendants and aliases, and
   truthful saved-state replay. Config files are changed after snapshot creation
   to detect accidental rereads during later publication.

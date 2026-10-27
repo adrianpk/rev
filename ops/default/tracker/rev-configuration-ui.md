@@ -254,13 +254,15 @@ Details and checks: [Slice 9](../plan/rev-configuration-ui.md#slice-9-keep-recta
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T9.1 `3d7be72f1dc132c4d0adba0d77489deaa66c0f3e`;
-T9.2 `ae94322442e1b4b8e77704c8777cd0271206c77d`.
+T9.2 `ae94322442e1b4b8e77704c8777cd0271206c77d`;
+T9.3 `8572b9653894e08f1d084a870af0c52e8bc9b022`.
 Development validation: cross-width copy/kill/yank, interior destination edges,
 save publication outcomes, file/directory rename policies and shared-view
 write-file/history checks passed. Focused Clippy and source quality passed.
 Final exact-head evidence belongs to the controller.
 Report: [Slice 9](../report/slices/rev-configuration-ui/slice-9-policy-transitions.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#58](https://forge.adrianpk.com/adrianpk/rev/pulls/58);
+dev integration remains controller-owned.
 
 ### Slice 10: Define panel geometry contracts
 
