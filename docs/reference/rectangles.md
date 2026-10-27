@@ -56,14 +56,16 @@ the kill without replacing the previous rectangle or changing any source row.
 `C-x r y` or `M-x yank-rectangle` inserts the retained rows at point across
 successive logical lines. It uses the selected view's display column for each
 row. If that column touches the interior of a wide glyph or tab on a later
-row, insertion snaps to that glyph's source start and preserves its text.
+row, prefix spaces reach that column before inserting the retained text and
+the complete original glyph. No destination grapheme is split.
 
 A short target line receives only the prefix spaces needed for a nonempty row.
 An empty retained row advances the block without adding spaces to an existing
 line. Missing target rows are created with the buffer's prevailing LF/CRLF
 separator; a new empty row has no column padding. Source fragments keep their
 actual unequal lengths, including wide-cluster expansion, without right padding.
-Complete retained tabs stay tabs and follow the destination's four-cell stops.
+Complete retained tabs stay tabs and follow the destination buffer's tab stops.
+Rows are not retabulated to force the source rectangle's right edge.
 
 All inserted rows, prefix padding and added separators form one undo/redo step.
 The initiating cursor ends after the last row's actual insertion; shared views

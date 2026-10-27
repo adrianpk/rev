@@ -97,11 +97,11 @@ fn append_rows() {
     assert_eq!(session.kill_ring().len(), 0);
 }
 
-// A target inside a wide/tab glyph snaps to its source start. Existing short
-// rows pad only for nonempty fragments, while empty fragments leave rows intact.
+// A target inside a wide/tab glyph keeps that glyph whole and pads the gap to
+// the shared left column. Empty fragments leave existing rows intact.
 #[test]
 fn target_edges() {
-    for (middle, inserted) in [("界Z", "界界Z"), ("\tZ", "界\tZ")] {
+    for (middle, inserted) in [("界Z", " 界界Z"), ("\tZ", " 界\tZ")] {
         let target = format!("abcde\n{middle}\n\tx\nq");
         let mut session = retained(SOURCE, (cell(0, 1), cell(3, 3)), &target, false);
         super::at(&mut session, cell(0, 1));

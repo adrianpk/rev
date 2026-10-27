@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "rectangles/transfer.rs"]
+mod transfer;
+
 #[path = "rectangles/capture.rs"]
 mod capture;
 #[path = "configuration/fixture.rs"]

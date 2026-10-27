@@ -96,8 +96,7 @@ impl Insertion {
 }
 
 fn padding(coordinates: &Coordinates<'_>, position: Scalar, column: usize) -> Result<usize, Error> {
-    if position != coordinates.line_end(position)? {
-        return Ok(0);
-    }
+    // Cell lookup keeps whole graphemes. A short row or an interior glyph
+    // therefore needs a left gap before the retained text, never right padding.
     Ok(column.saturating_sub(coordinates.to_cell(position)?.column))
 }
