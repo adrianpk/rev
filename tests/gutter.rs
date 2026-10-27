@@ -23,6 +23,8 @@ mod rendering;
 mod shared;
 #[path = "support/surface.rs"]
 mod surface;
+#[path = "gutter/surfaces.rs"]
+mod surfaces;
 #[path = "gutter/workspace.rs"]
 mod workspace;
 

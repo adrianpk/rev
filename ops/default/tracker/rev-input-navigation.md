@@ -132,7 +132,7 @@ Contracts: GUT05 GUT06 GUT13 GUT14.
 Details and exact checks: [Slice 8](../plan/rev-input-navigation.md#slice-8-preserve-gutter-geometry-across-editor-surfaces).
 
 - [x] T8.1: Complete narrow/zero/resized geometry with the accepted degradation order, left/right placement, nested splits, tree and completion-region coexistence.
-- [ ] T8.2: Audit every display-to-text consumer including rectangles, hit-test preparation, search overlays and status bounds; avoid independent coordinate recipes.
+- [x] T8.2: Audit every display-to-text consumer including rectangles, hit-test preparation, search overlays and status bounds; avoid independent coordinate recipes.
 - [ ] T8.3: Exercise actual editing/reveal/save/history and mode switches, verify no idle gutter work or retained per-document label arrays, and close the gutter ticket only after its assigned integrations.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
