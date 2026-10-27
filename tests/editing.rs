@@ -3,6 +3,11 @@
 #[path = "support/surface.rs"]
 mod surface;
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "editing/preferences.rs"]
+mod preferences;
+
 #[path = "editing/kills.rs"]
 mod kills;
 #[path = "editing/linear.rs"]

@@ -429,10 +429,21 @@ Slice 15 of 30 completed.
 Contracts: CFG17, CFG20, CFG22. Tickets: TKT-20261027103712.
 Details and checks: [Slice 16](../plan/rev-configuration-ui.md#slice-16-apply-bounded-history-and-prompt-preferences).
 
-- [ ] T16.1: Apply whole-group history count and soft payload target through the existing history owner, preserving the newest coherent transaction and truthful saved state.
-- [ ] T16.2: Apply positive linear-ring capacity and directional coalescing; apply command history/input limits through existing prompt owners. No session persistence or time-based grouping is introduced.
-- [ ] T16.3: Test retention below one compound rectangle, ring eviction, coalescing disabled, bounded Unicode prompt input and cancellation after an over-limit error. Avoid tests that only mirror field assignment.
+- [x] T16.1: Apply whole-group history count and soft payload target through the existing history owner, preserving the newest coherent transaction and truthful saved state.
+- [x] T16.2: Apply positive linear-ring capacity and directional coalescing; apply command history/input limits through existing prompt owners. No session persistence or time-based grouping is introduced.
+- [x] T16.3: Test retention below one compound rectangle, ring eviction, coalescing disabled, bounded Unicode prompt input and cancellation after an over-limit error. Avoid tests that only mirror field assignment.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T16.1 `c9c6abca1aaf167768bc8810939bd7a3ea0199f7`;
+T16.2 `8da79cb8dcfd7cc0dce6e98f8d891b75469f8aff`;
+T16.3 is the Slice 16 report introduction commit.
+Focused configured checks passed for whole typing groups, logical byte equality,
+deferred pruning/redo branches, saved-state identity, compound rectangles,
+capacity-one ring rotation, eviction and directional coalescing. Unicode prompt
+limits, bounded completion/recall, command retention, literal search and both
+query-replace stages retain cancellation. Focused Clippy and source checks passed.
+Report: [Slice 16](../report/slices/rev-configuration-ui/slice-16-bounded-preferences.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 17: Validate context keymaps
 

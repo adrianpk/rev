@@ -4,6 +4,8 @@
 mod config_fixture;
 #[path = "commands/indent.rs"]
 mod indent;
+#[path = "commands/preferences.rs"]
+mod preferences;
 
 #[path = "commands/flows.rs"]
 mod flows;

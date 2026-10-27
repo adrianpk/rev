@@ -13,6 +13,8 @@ mod config_fixture;
 
 #[path = "rectangles/kill.rs"]
 mod kill;
+#[path = "rectangles/preferences.rs"]
+mod preferences;
 #[path = "rectangles/yank.rs"]
 mod yank;
 

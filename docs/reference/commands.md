@@ -62,3 +62,22 @@ for file, history and retained-text policies.
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
 
 See [File tree](file-tree.md) for root, layout and keyboard focus.
+
+## Supplied retention preferences
+
+Library sessions supplied with an admitted snapshot use `history.group_limit`
+(1..=65536 complete groups, default 512) and `history.payload_target_bytes`
+(1..=1073741824 logical fragment bytes, default 67108864). At each completed edit,
+oldest whole groups evict until both targets hold, always retaining the newest
+coherent group even when it alone exceeds the payload target. This soft target
+is not a process-memory maximum. Applying a different buffer policy leaves
+published undo/redo records intact until the next edit; branching then discards
+redo and applies retention through the canonical history owner. Pruning never
+marks text saved or changes the logical saved-state identity.
+
+`kill_ring.capacity` admits 1..=4096 linear entries (default 32). A new entry
+replaces the oldest when full; yank-pop wraps over the retained entries, including
+at capacity one. With `kill_ring.coalesce = true` (the default), consecutive
+compatible kills append forward or prepend backward. Setting it false retains
+separate entries. Copy and intervening commands still end continuity. Rectangular
+text retains its separate owner. These preferences retain only session memory.
