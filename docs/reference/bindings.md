@@ -82,3 +82,17 @@ Paste and Return do not grant affirmative consent.
 See [Commands](commands.md) for matching, completion and command history,
 [Rectangles](rectangles.md) for block edges and [Scope and defaults](defaults.md)
 for retained text, history and file behavior.
+
+## Supplied layout and scrolling preferences
+
+Library sessions supplied with an admitted snapshot use `scroll.page_overlap`
+to compute page distance from the current pane's content height. Usable panes
+advance at least one row even when overlap exceeds that height; suspended pages
+retain point. The default overlap remains two rows.
+
+`windows.split_ratio` prefers the first child's share of the available extent
+after its one-cell separator. Both axes and native panel composition use the
+same ratio, clamped to each subtree's complete recursive minima. Small resizes
+suspend the entire editing projection and retain view identities and history.
+The default remains equal halves. These supplied preferences do not yet enable
+executable startup configuration discovery.

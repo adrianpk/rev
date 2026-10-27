@@ -405,8 +405,18 @@ Details and checks: [Slice 15](../plan/rev-configuration-ui.md#slice-15-apply-pr
 
 - [x] T15.1: Apply page_overlap with clamped forward progress, preferred split_ratio with geometry minima, tree visibility/width/max_fraction/root, hidden entry filtering and directory-first ordering with deterministic filename ties.
 - [x] T15.2: Apply syntax enabled/max_bytes and supported per-language rust/plain grammar selection; crossing a cutoff invalidates stale styling without preventing edits or changing text/history.
-- [ ] T15.3: Test default equivalence, valid extremes, tiny geometry, dotfiles, initial file versus scratch root, retained tree focus and no filesystem reads during drawing. Do not add natural sorting or extra display controls.
+- [x] T15.3: Test default equivalence, valid extremes, tiny geometry, dotfiles, initial file versus scratch root, retained tree focus and no filesystem reads during drawing. Do not add natural sorting or extra display controls.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T15.1 `44543334610ee49689442241acf984cfe071eadc`;
+T15.2 `1c8824ab576504d25c8be3f8bd7698406cb9bb93`.
+Focused preference checks passed for ratio/page extremes, recursive minima,
+initial tree visibility/root, hidden/native filename ordering, refresh and
+memory-only redraw after observed paths disappear. Grammar/cutoff transitions,
+real parser admission and published destination policies preserve text/history.
+Focused Clippy and source checks passed after correcting the root conditional.
+Report: [Slice 15](../report/slices/rev-configuration-ui/slice-15-presentation-preferences.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 16: Apply bounded history and prompt preferences
 

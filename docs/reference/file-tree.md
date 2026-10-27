@@ -2,13 +2,13 @@
 
 `M-x toggle-file-tree` or `C-x t t` shows or hides the left pane. It starts
 hidden. Showing it focuses the retained selection, initially the collapsed root.
-The focused selection uses reverse video. The footer shows `Tree *` while the tree owns workspace input.
+The focused selection uses its palette colors, or reverse video with `NO_COLOR`. The footer shows `Tree *` while the tree owns workspace input.
 The editor's selected window, text, point, mark and undo history remain live.
 The tree and editing panes share Unicode separators and connected junctions;
 content and footer stay inside reserved cells alongside nested splits.
 
 The initial file's resolved parent is the startup root. Without an initial
-file, the root is the current directory when the tree first opens. The retained
+file, the root is the current directory captured at session construction. The retained
 root survives hiding, resizing and later file visits. Root presentation reads
 no Git metadata. Drawing and visible movement perform no filesystem reads.
 
@@ -45,6 +45,16 @@ comparison is case-sensitive and independent of locale. Dot entries are shown.
 Each expansion reads only that directory's direct children. Collapsing removes
 its loaded descendants; expanding again observes fresh children. There is no
 recursive scan or implicit symlink traversal.
+
+Library sessions supplied with an admitted snapshot also apply `tree.visible`,
+`width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
+visibility preserves editing focus. Width is the lesser of the preferred
+columns and maximum frame share; frames narrower than 32 columns still hide
+the tree and release its focus. `auto` and `file-parent` choose an initial
+file's parent, falling back to cwd; `cwd` always chooses cwd. Root selection
+reads no directory entries. Filtering and sorting apply only during expansion
+or refresh, with native case-sensitive filename ordering and symlinks as leaves.
+Executable startup configuration discovery is not active yet.
 
 `C-x t r` or `M-x tree-refresh` reloads the root and previously expanded
 branches. New directories stay collapsed. Selection follows its retained path;

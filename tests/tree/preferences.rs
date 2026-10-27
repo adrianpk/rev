@@ -48,6 +48,15 @@ fn listing_policy() {
                 .unwrap()
                 .is_symlink()
         );
+        tree.refresh().unwrap();
+        assert_eq!(
+            tree.entries()
+                .iter()
+                .skip(1)
+                .map(|entry| entry.path().file_name().unwrap().to_str().unwrap())
+                .collect::<Vec<_>>(),
+            expected
+        );
     }
 }
 
@@ -96,4 +105,114 @@ fn initial_visibility() {
             0
         );
     }
+}
+
+// Initial file context chooses the root once. Cwd policy and scratch fallback
+// remain explicit; later visits never reset the retained workspace root.
+#[test]
+fn startup_roots() {
+    for (policy, initial) in [
+        ("auto", true),
+        ("cwd", true),
+        ("file-parent", true),
+        ("auto", false),
+        ("file-parent", false),
+    ] {
+        let fixture = config_fixture::Fixture::new();
+        let file = fixture.write("first/main.rs", "fn main() {}\n");
+        let later = fixture.write("later/other.txt", "retained");
+        let startup = prepare(&fixture.write(
+            "config.toml",
+            &format!("tree.root = '{policy}'\ntree.visible = true"),
+        ));
+        assert!(startup.diagnostic.is_none());
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = if initial {
+            buffers.visit(&file).unwrap()
+        } else {
+            buffers.initial()
+        };
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 80,
+                height: 12,
+            },
+        )
+        .unwrap();
+        let expected = if initial && policy != "cwd" {
+            file.parent().unwrap().to_path_buf()
+        } else {
+            std::env::current_dir().unwrap()
+        };
+        assert_eq!(session.tree().root(), Some(expected.as_path()));
+        assert!(!session.tree().focused());
+        session.load(&later).unwrap();
+        tree(&mut session, TreeCommand::Focus);
+        tree(&mut session, TreeCommand::Toggle);
+        tree(&mut session, TreeCommand::Toggle);
+        assert_eq!(session.tree().root(), Some(expected.as_path()));
+        assert_eq!(text(&session), "retained");
+    }
+}
+
+// Disappearing observed paths cannot turn redraw or visible movement into IO.
+// A focused pending command, root and loaded entries survive those projections.
+#[test]
+fn memory_only_draw() {
+    let fixture = config_fixture::Fixture::new();
+    let file = fixture.write("root/main.rs", "fn main() {}\n");
+    fixture.write("root/.hidden", "hidden");
+    let startup = prepare(&fixture.write(
+        "config.toml",
+        "tree.visible = true\ntree.show_hidden = false",
+    ));
+    assert!(startup.diagnostic.is_none());
+    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    let id = buffers.visit(&file).unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 80,
+            height: 12,
+        },
+    )
+    .unwrap();
+    tree(&mut session, TreeCommand::Focus);
+    tree(&mut session, TreeCommand::Expand);
+    let root = session.tree().root().unwrap().to_path_buf();
+    let observed: Vec<_> = session
+        .tree()
+        .entries()
+        .iter()
+        .map(|entry| entry.path().to_path_buf())
+        .collect();
+    assert_eq!(observed.len(), 2);
+    std::fs::rename(&root, fixture.0.join("moved")).unwrap();
+    session.execute(Command::ExecuteExtended);
+    session.handle(Event::Paste("find".into()));
+    for _ in 0..3 {
+        let frame = session.frame().unwrap();
+        assert!(frame.rows().last().unwrap().text().contains("M-x find"));
+        assert!(session.tree().focused());
+        assert_eq!(
+            session
+                .tree()
+                .entries()
+                .iter()
+                .map(|entry| entry.path().to_path_buf())
+                .collect::<Vec<_>>(),
+            observed
+        );
+    }
+    session.execute(Command::KeyboardQuit);
+    tree(&mut session, TreeCommand::Next);
+    session.frame().unwrap();
+    assert_eq!(session.tree().root(), Some(root.as_path()));
+    assert_eq!(text(&session), "fn main() {}\n");
+    assert!(session.buffer().unwrap().history().is_empty());
 }

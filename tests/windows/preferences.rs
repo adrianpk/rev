@@ -102,3 +102,49 @@ fn page_overlap() {
         assert!(session.buffer().unwrap().history().is_empty());
     }
 }
+
+// Extreme ratios clamp against the entire recursive subtree, so a tiny resize
+// suspends all editing leaves together and later restores the identical layout.
+#[test]
+fn ratio_minima() {
+    for ratio in [0.1, 0.9] {
+        let extent = size(7, 6);
+        let mut session = configured(
+            "retained",
+            &format!("windows.split_ratio = {ratio}"),
+            extent,
+        );
+        split(&mut session, Split::Right);
+        split(&mut session, Split::Below);
+        let layout = session.windows().layout().clone();
+        let order = session.windows().order();
+        let points: Vec<_> = session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.point))
+            .collect();
+        for (width, height, visible) in [(6, 6, false), (7, 5, false), (0, 0, false), (7, 6, true)]
+        {
+            session.handle(crossterm::event::Event::Resize(width, height));
+            let frame = session.frame().unwrap();
+            let composition =
+                Composition::workspace(session.windows(), session.tree(), size(width, height), 0);
+            assert_eq!(
+                composition.as_ref().map_or(0, |c| c.panels().len()),
+                if visible { 3 } else { 0 }
+            );
+            assert_eq!(frame.cursor().is_some(), visible);
+            assert_eq!(session.windows().layout(), &layout);
+            assert_eq!(session.windows().order(), order);
+            assert_eq!(
+                session
+                    .windows()
+                    .iter()
+                    .map(|(id, view)| (id, view.point))
+                    .collect::<Vec<_>>(),
+                points
+            );
+        }
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}

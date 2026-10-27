@@ -13,6 +13,18 @@ reject a text edit or discard history. Renaming or saving to another extension
 updates recognition using the actual associated path. A missing `.rs` destination
 can use Rust presentation without creating a disk file.
 
+## Supplied syntax preferences
+
+Library sessions use their admitted snapshot's `syntax.enabled`, `max_bytes` and
+per-language `grammar`. Only `rust` and `plain` grammar choices are supported;
+associations identify a language independently of its grammar. Disabling syntax
+or exceeding a positive UTF-8 byte cutoff drops derived styling without
+rejecting edits or changing history. Equality is admitted and zero means no
+configured cutoff. Shrinking below the cutoff starts parsing from current text.
+A canceled parse is not retried on every redraw of that same revision.
+Renames and published write-file destinations re-resolve grammar from the same
+snapshot; rejected operations retain their old policy.
+
 ## Palette
 
 Document syntax uses the semantic RGB palette, with these built-in Tokyo Night

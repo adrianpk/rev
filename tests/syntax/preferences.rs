@@ -123,3 +123,98 @@ fn policy_transitions() {
     assert_eq!(text(buffer), "// note\nfn main() {}\n");
     assert!(buffer.is_modified());
 }
+
+// Reach the real parser progress boundary as a positive control. Disabled,
+// plain and oversized buffers skip it entirely while keeping accepted edits.
+#[test]
+fn parser_admission() {
+    use std::ops::ControlFlow;
+    use tree_sitter::{ParseOptions, ParseState};
+    let source = "fn main() { let value = 42; }\n".repeat(5000);
+    for (name, config, called) in [
+        ("disabled", "syntax.enabled = false", false),
+        ("plain", "language.rust.grammar = 'plain'", false),
+        ("cutoff", "syntax.max_bytes = 1", false),
+        ("unlimited", "syntax.max_bytes = 0", true),
+    ] {
+        let fixture = Fixture::new();
+        let startup = prepare(&fixture.file("config.toml", config));
+        assert!(startup.diagnostic.is_none());
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = buffers.visit(&fixture.file("main.rs", &source)).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        let edit = Replacement {
+            source: buffer.span(0..0).unwrap(),
+            text: "// changed\n".into(),
+        };
+        let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+        buffer.publish(prepared, &mut []).unwrap();
+        let stamp = buffer.stamp();
+        let state = buffer.state();
+        let mut entered = false;
+        let mut cancel = |_: &ParseState| {
+            entered = true;
+            ControlFlow::Break(())
+        };
+        buffer.parse_with(ParseOptions::new().progress_callback(&mut cancel));
+        assert_eq!(entered, called, "{name}");
+        assert_eq!(buffer.mode(), "Text");
+        buffer.refresh_syntax();
+        assert_eq!(
+            buffer.mode(),
+            "Text",
+            "{name}: redraw must not retry canceled revision"
+        );
+        assert_eq!((buffer.stamp(), buffer.state()), (stamp, state));
+        assert_eq!(buffer.history().len(), 1);
+        assert_eq!(text(buffer), format!("// changed\n{source}"));
+    }
+}
+
+// Published write-file destinations apply the registry's language grammar only
+// after publication; new syntax cannot alter the saved text or its undo groups.
+#[test]
+fn saved_grammar() {
+    let fixture = Fixture::new();
+    let source = "fn main() {}\n";
+    let original = fixture.file("main.rs", source);
+    let startup = prepare(&fixture.file(
+        "config.toml",
+        "language.rust.grammar = 'plain'\nlanguage.go.grammar = 'rust'",
+    ));
+    assert!(startup.diagnostic.is_none());
+    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    let id = buffers.visit(&original).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    assert_eq!(buffer.mode(), "Text");
+    let edit = Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: "// dirty\n".into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    let stamp = buffer.stamp();
+    let state = buffer.state();
+    for (name, mode) in [("saved.go", "Rust"), ("saved.txt", "Text")] {
+        let target = fixture.path(name);
+        let save = buffers.prepare_save(id, Some(&target)).unwrap();
+        assert!(buffers.publish_save(save).is_complete());
+        let buffer = buffers.get(id).unwrap();
+        assert_eq!(buffer.mode(), mode);
+        assert_eq!((buffer.stamp(), buffer.state()), (stamp, state));
+        assert_eq!(buffer.history().len(), 1);
+        assert!(!buffer.is_modified());
+        assert_eq!(
+            fs::read(&target).unwrap(),
+            format!("// dirty\n{source}").as_bytes()
+        );
+    }
+    assert_eq!(fs::read(&original).unwrap(), source.as_bytes());
+    let buffer = buffers.get_mut(id).unwrap();
+    buffer.navigate(History::Undo, &mut [], None).unwrap();
+    assert_eq!(text(buffer), source);
+    assert!(buffer.is_modified());
+    buffer.navigate(History::Redo, &mut [], None).unwrap();
+    assert_eq!(buffer.state(), state);
+    assert!(!buffer.is_modified());
+}
