@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 19 - Dispatch transient and tree bindings
+Active slice: Slice 20 - Activate startup configuration
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -509,7 +509,7 @@ Details and checks: [Slice 19](../plan/rev-configuration-ui.md#slice-19-dispatch
 - [x] T19.1: Wire validated minibuffer/tree maps to their existing action owners without bypassing argument, search, replace, confirmation or tree mutation state machines.
 - [x] T19.2: Keep C-g cancellation reachable and destructive confirmations explicit. Reassignment in one context cannot leak into editor text or change unrelated context defaults.
 - [x] T19.3: Test context isolation, prefix reset, prompt Unicode editing, tree focus/navigation and cancellation through find-file, M-x, query-replace and pending filesystem decisions.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T19.1 `d025410560191c202f5e59d3e786d82aa3fea936`;
 T19.2 `71406c2e227812c86157bffbbaff408e9b34421a`;
@@ -517,11 +517,13 @@ T19.3 `6ef075a601e28560fe344ecc3111b6c0134c2121`.
 Eighteen configured behavior tests pass for prompt Unicode editing, command
 completion/history, find-file, search, replacement, bounded prefixes, tree focus,
 filesystem arguments and explicit fresh consent. Focused Clippy/source checks
-pass with nesting at most two. Required exact-head validation follows the
-PR-reference commit through the controller.
+pass with nesting at most two. Final evidence `ZG7VQKTLCDBWMCIRGAXJPQMUJS`
+passed all nine ordered checks at clean head
+`c26ba1b857f90c8baf2cb6cf2b3e75c40879a3ec`: 362 tests, zero skips.
 Report: [Slice 19](../report/slices/rev-configuration-ui/slice-19-context-keymaps.md).
 PR: [#68](https://forge.adrianpk.com/adrianpk/rev/pulls/68);
-dev integration remains controller-owned.
+verified controller integration into dev at that same head.
+Acta merge event: `01M5YZMECFWEPVPCMGFBGA550B`.
 
 ### Slice 20: Activate startup configuration
 

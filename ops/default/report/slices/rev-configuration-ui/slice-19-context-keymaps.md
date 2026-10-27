@@ -1,6 +1,6 @@
 # Slice 19: Dispatch transient and tree bindings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -92,9 +92,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/input/context.rs --source src/input/dispatch.rs --source src/input/keymap/map.rs --source tests/commands/context_keymaps/guards.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/commands/context_keymaps/flows.rs --source tests/commands/context_keymaps/guards.rs --source tests/commands/context_keymaps.rs`: passed; nesting at most two.
 
-The controller records final evidence on the clean PR head after its PR-reference
-follow-up commit. Required repository checks precede focused configuration and
-editing regressions, which protect candidate admission and shared editor routing:
+Final evidence `ZG7VQKTLCDBWMCIRGAXJPQMUJS` passed all nine ordered checks
+on clean head `c26ba1b857f90c8baf2cb6cf2b3e75c40879a3ec`: 362 tests, zero skips.
+The controller integrated PR #68 into dev at that same commit.
+Acta merge event: `01M5YZMECFWEPVPCMGFBGA550B`.
+Required repository checks precede focused configuration and editing regressions:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
