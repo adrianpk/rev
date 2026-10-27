@@ -7,6 +7,7 @@
 //! Effective sizes count their documented units, not allocation capacities.
 //! These records are preparatory: startup loading and consumers are separate.
 
+mod associations;
 mod diagnostic;
 mod load;
 mod merge;

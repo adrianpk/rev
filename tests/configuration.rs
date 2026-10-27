@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/associations.rs"]
+mod associations;
 #[path = "configuration/boundaries.rs"]
 mod boundaries;
 #[path = "configuration/candidate.rs"]
