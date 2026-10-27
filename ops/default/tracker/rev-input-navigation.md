@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 4 - define native gutter view policy
+Active slice: Slice 5 - render absolute logical line numbers
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -86,9 +86,9 @@ Details and exact checks: [Slice 4](../plan/rev-input-navigation.md#slice-4-defi
 - [x] T4.1: Introduce the bounded native gutter projection/view-policy records using existing buffer, ViewId, line index and panel owners; add the gutter integration-test target.
 - [x] T4.2: Model independent visibility/mode/current-line/side overrides, split inheritance, reset and lifecycle without per-line retained number arrays or new persistent stores.
 - [x] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 4 native policy implementation is complete; canonical PR [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-4-gutter-policy.md) records policy/lifecycle, checked geometry and invalidation evidence. T4.1: `3762cf7f1f26a5a8244f5ce904214d57ef5d645a`. T4.2: `e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca`. T4.3: `3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c`.
+Slice 4 of 20 completed. Canonical PR [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84) integrated into dev at `db5006cb038a644b4786d015f80d83afeb33daaf`. Canonical five-command evidence `AVX4W4B2M4OCHU3UXSQUUIYFON` and focused evidence `PZDKOF6JKENREIFMCNYTWMY3KP` passed on that candidate. Slice 5 is active. The [canonical report](../report/slices/rev-input-navigation/slice-4-gutter-policy.md) records policy/lifecycle, checked geometry and invalidation evidence. T4.1: `3762cf7f1f26a5a8244f5ce904214d57ef5d645a`. T4.2: `e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca`. T4.3: `3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c`.
 
 ### Slice 5: render absolute logical line numbers
 

@@ -51,4 +51,4 @@ The [native policy report](../../report/slices/rev-input-navigation/slice-4-gutt
 records independent view policy, split/rebind/close lifetime and checked integer/
 cell geometry. Twelve native groups cover real session paths, source/view
 invalidation and boundary partitions. Canonical PR: [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84).
-The ticket remains in progress through its remaining assigned primary slices 5-8.
+Slice 4 integrated into dev at `db5006cb038a644b4786d015f80d83afeb33daaf`; canonical evidence `AVX4W4B2M4OCHU3UXSQUUIYFON` and focused evidence `PZDKOF6JKENREIFMCNYTWMY3KP` passed. The ticket remains in progress through its remaining assigned primary slices 5-8.

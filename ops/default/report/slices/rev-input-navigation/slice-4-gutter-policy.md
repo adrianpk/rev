@@ -1,11 +1,12 @@
 # Slice 4: Define native gutter view policy
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `refactor/rev-input-04-gutter-policy`
 PR: [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84)
+Integrated: `db5006cb038a644b4786d015f80d83afeb33daaf`
 
 ## Purpose
 
@@ -98,7 +99,8 @@ lifetime. No document/history ownership changes.
 - Focused source analysis passes unchanged safe-Rust, parameter, nesting and
   complexity limits for the new records, changed owners and native tests.
 
-The controller records final clean-HEAD results for this ordered canonical list:
+PASS: canonical controller evidence `AVX4W4B2M4OCHU3UXSQUUIYFON` validates
+the integrated commit with this exact ordered list (72 native tests):
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -106,7 +108,8 @@ The controller records final clean-HEAD results for this ordered canonical list:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused final evidence uses this separate ordered list on the same clean HEAD:
+PASS: focused controller evidence `PZDKOF6JKENREIFMCNYTWMY3KP` records
+this list on the same integrated commit (217 native and 13 acceptance tests):
 
 - `cargo test --test commands --test files`
 - `python3 scripts/check-config-reference.py`
