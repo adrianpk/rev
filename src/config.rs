@@ -13,6 +13,8 @@ pub use palette::{Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPale
 
 use std::collections::BTreeMap;
 
+use serde::Deserialize;
+
 /// Complete global defaults plus optional language and user mapping overrides.
 /// Built-in file recognition and context bindings remain owned by their dispatchers.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -33,7 +35,8 @@ pub struct Settings {
 
 /// One source's data, before validation or inheritance. Empty tables do not
 /// reset siblings; absent leaves differ from false, zero and empty collections.
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct Document {
     /// Absent means schema 1; explicit versions require validation.
     pub version: Option<i64>,
@@ -53,34 +56,39 @@ pub struct Document {
     pub palette: PartialPalette,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum IndentStyle {
     Spaces,
     Tabs,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Match {
     PrefixThenSubstring,
     Prefix,
     Substring,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum TreeRoot {
     Auto,
     Cwd,
     FileParent,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Newline {
     Lf,
     Crlf,
 }
 
 /// Only the existing bundled Rust grammar or plain text may be selected.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum Grammar {
     Rust,
     Plain,
@@ -104,7 +112,8 @@ impl Default for Editor {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialEditor {
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,
@@ -113,7 +122,8 @@ pub struct PartialEditor {
 
 /// Only these four leaves are permitted in a language table. Missing editing
 /// leaves inherit globals; grammar defaults to Rust for rust, plain otherwise.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct Language {
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,
@@ -133,7 +143,8 @@ impl Default for Scroll {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialScroll {
     pub page_overlap: Option<i64>,
 }
@@ -150,7 +161,8 @@ impl Default for Windows {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialWindows {
     pub split_ratio: Option<f64>,
 }
@@ -177,7 +189,8 @@ impl Default for Minibuffer {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialMinibuffer {
     pub candidate_limit: Option<i64>,
     pub r#match: Option<Match>,
@@ -203,7 +216,8 @@ impl Default for History {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialHistory {
     pub group_limit: Option<i64>,
     pub payload_target_bytes: Option<i64>,
@@ -225,7 +239,8 @@ impl Default for KillRing {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialKillRing {
     pub capacity: Option<i64>,
     pub coalesce: Option<bool>,
@@ -256,7 +271,8 @@ impl Default for Tree {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialTree {
     pub visible: Option<bool>,
     pub width: Option<i64>,
@@ -282,7 +298,8 @@ impl Default for Syntax {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialSyntax {
     pub enabled: Option<bool>,
     pub max_bytes: Option<i64>,
@@ -307,7 +324,8 @@ impl Default for Files {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialFiles {
     pub newline: Option<Newline>,
     pub bom: Option<bool>,
@@ -316,7 +334,8 @@ pub struct PartialFiles {
 
 /// User sequence-to-command overrides only. Empty maps inherit built-in context
 /// dispatch; values require later validation against fixed command identities.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct Keymaps {
     pub editor: BTreeMap<String, String>,
     pub minibuffer: BTreeMap<String, String>,

@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 /// Opaque terminal-independent RGB channels, in red/green/blue order.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rgb(pub u8, pub u8, pub u8);
@@ -53,7 +55,8 @@ impl Default for Palette {
 }
 
 /// Source leaves retain color literals for validation and source diagnostics.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialPalette {
     pub background: Option<String>,
     pub foreground: Option<String>,
@@ -103,7 +106,8 @@ impl Default for SyntaxPalette {
 }
 
 /// Source leaves retain color literals for validation and source diagnostics.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PartialSyntaxPalette {
     pub keyword: Option<String>,
     pub string: Option<String>,
