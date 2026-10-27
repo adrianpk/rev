@@ -4,6 +4,8 @@
 mod catalog;
 #[path = "configuration/parsing.rs"]
 mod parsing;
+#[path = "configuration/scopes.rs"]
+mod scopes;
 
 use rev::config::{Document, Grammar, IndentStyle};
 

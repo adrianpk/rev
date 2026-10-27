@@ -81,7 +81,7 @@ Contracts: CFG02, CFG04-CFG06, CFG13-CFG14, CFG20. Tickets: TKT-20261027103708.
 Details and checks: [Slice 2](../plan/rev-configuration-ui.md#slice-2-validate-toml-and-diagnostics).
 
 - [x] T2.1: Parse UTF-8 TOML 1.1 into typed partial documents, accepting omitted version as 1 and rejecting unknown explicit versions, unknown keys, bad types/enums, invalid RGB and out-of-range/nonfinite numbers.
-- [ ] T2.2: Validate only accepted language leaves and pattern shapes; retain source/key and spans where available. Reject duplicate keys and non-command binding values without silently defaulting bad input.
+- [x] T2.2: Validate only accepted language leaves and pattern shapes; retain source/key and spans where available. Reject duplicate keys and non-command binding values without silently defaulting bad input.
 - [ ] T2.3: Exercise malformed input, Unicode positions, valid empty include arrays and every admitted bound, including soft history limits and zero syntax cutoff. Keep parsing independent of editor mutation.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

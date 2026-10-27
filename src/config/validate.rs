@@ -1,10 +1,19 @@
+use std::collections::BTreeMap;
 use std::ops::RangeInclusive;
 
-use super::{Document, PartialPalette, PartialSyntaxPalette, Rgb};
+use crate::command::Command;
+
+use super::{Document, Keymaps, PartialPalette, PartialSyntaxPalette, Rgb};
+
+pub(super) enum Target {
+    Key,
+    Value,
+}
 
 pub(super) struct Failure {
     pub key: Vec<String>,
     pub message: String,
+    pub target: Target,
 }
 
 impl Failure {
@@ -12,6 +21,15 @@ impl Failure {
         Self {
             key: key.split('.').map(str::to_owned).collect(),
             message,
+            target: Target::Value,
+        }
+    }
+
+    fn at(key: &[&str], message: &str, target: Target) -> Self {
+        Self {
+            key: key.iter().map(|key| (*key).to_owned()).collect(),
+            message: message.to_owned(),
+            target,
         }
     }
 }
@@ -26,7 +44,10 @@ pub(super) fn document(document: &Document) -> Result<(), Failure> {
         0.1..=0.9,
     )?;
     float("tree.max_fraction", document.tree.max_fraction, 0.1..=0.5)?;
-    palette(&document.palette)
+    palette(&document.palette)?;
+    languages(document)?;
+    associations(&document.files.associations)?;
+    bindings(&document.keys)
 }
 
 fn editing(document: &Document) -> Result<(), Failure> {
@@ -152,6 +173,91 @@ fn color(key: &str, value: Option<&str>) -> Result<(), Failure> {
             key,
             "expected six-digit RGB color #RRGGBB".into(),
         ));
+    }
+    Ok(())
+}
+
+fn languages(document: &Document) -> Result<(), Failure> {
+    for (id, language) in &document.language {
+        if !language_id(id) {
+            return Err(Failure::at(
+                &["language", id],
+                "expected lowercase language ID starting with a letter",
+                Target::Key,
+            ));
+        }
+        integer(
+            &format!("language.{id}.indent_width"),
+            language.indent_width,
+            1..=32,
+        )?;
+        integer(
+            &format!("language.{id}.tab_width"),
+            language.tab_width,
+            1..=32,
+        )?;
+    }
+    Ok(())
+}
+
+fn language_id(id: &str) -> bool {
+    id.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
+        && id
+            .bytes()
+            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+}
+
+fn associations(associations: &BTreeMap<String, String>) -> Result<(), Failure> {
+    for (pattern, id) in associations {
+        let key = ["files", "associations", pattern];
+        if !association_pattern(pattern) {
+            return Err(Failure::at(
+                &key,
+                "expected literal basename or leading *.suffix without other wildcards or path separators",
+                Target::Key,
+            ));
+        }
+        if !language_id(id) {
+            return Err(Failure::at(
+                &key,
+                "expected lowercase language ID starting with a letter",
+                Target::Value,
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn association_pattern(pattern: &str) -> bool {
+    let literal = pattern.strip_prefix("*.").unwrap_or(pattern);
+    !literal.is_empty()
+        && !literal
+            .chars()
+            .any(|character| character.is_control() || "*?[]/\\".contains(character))
+}
+
+fn bindings(keys: &Keymaps) -> Result<(), Failure> {
+    for (context, map) in [
+        ("editor", &keys.editor),
+        ("minibuffer", &keys.minibuffer),
+        ("tree", &keys.tree),
+    ] {
+        binding_values(context, map)?;
+    }
+    Ok(())
+}
+
+fn binding_values(context: &str, map: &BTreeMap<String, String>) -> Result<(), Failure> {
+    // Chord normalization, context-specific actions and whole-map prefix
+    // conflicts are admitted by the later keymap owner, not by string parsing.
+    for (sequence, command) in map {
+        if Command::named(command).is_none() {
+            return Err(Failure::at(
+                &["keys", context, sequence],
+                "expected an existing command name; unbinding values are unsupported",
+                Target::Value,
+            ));
+        }
     }
     Ok(())
 }

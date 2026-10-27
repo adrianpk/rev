@@ -32,7 +32,10 @@ pub fn parse(source: &Path, bytes: &[u8]) -> Result<Document, Diagnostic> {
         let span = locations
             .0
             .get(&failure.key)
-            .map(|location| location.value.clone());
+            .map(|location| match failure.target {
+                validate::Target::Key => location.key.clone(),
+                validate::Target::Value => location.value.clone(),
+            });
         let mut diagnostic = Diagnostic::new(source, failure.message).locate(text, span);
         diagnostic.key = failure.key;
         diagnostic
