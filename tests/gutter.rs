@@ -3,6 +3,10 @@
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
 
+#[path = "gutter/geometry.rs"]
+mod geometry;
+#[path = "gutter/invalidation.rs"]
+mod invalidation;
 #[path = "gutter/lifecycle.rs"]
 mod lifecycle;
 #[path = "gutter/policy.rs"]

@@ -56,6 +56,8 @@ impl Geometry {
     pub fn digits(self) -> u8 {
         self.digits
     }
+    /// None means hidden or insufficient content geometry. Requested policy is
+    /// retained by the view, so a later projection can restore the full field.
     pub fn numbers(self) -> Option<Area> {
         self.numbers
     }

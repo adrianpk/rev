@@ -85,8 +85,10 @@ Details and exact checks: [Slice 4](../plan/rev-input-navigation.md#slice-4-defi
 
 - [x] T4.1: Introduce the bounded native gutter projection/view-policy records using existing buffer, ViewId, line index and panel owners; add the gutter integration-test target.
 - [x] T4.2: Model independent visibility/mode/current-line/side overrides, split inheritance, reset and lifecycle without per-line retained number arrays or new persistent stores.
-- [ ] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
+- [x] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 4 native policy implementation is complete; canonical PR references and final exact-HEAD evidence are being prepared. The [canonical report](../report/slices/rev-input-navigation/slice-4-gutter-policy.md) records policy/lifecycle, checked geometry and invalidation evidence. T4.1: `3762cf7f1f26a5a8244f5ce904214d57ef5d645a`. T4.2: `e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca`.
 
 ### Slice 5: render absolute logical line numbers
 

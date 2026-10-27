@@ -1,6 +1,6 @@
 # Slice 4: Define native gutter view policy
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -24,6 +24,10 @@ existing editing view, logical line index and panel owners.
   view releases its own state and rejects its former identity.
 - A composition derives a gutter projection only for a live editing ViewId,
   checking its source revision before using the canonical logical line index.
+- Decimal-boundary edits, undo/redo, view movement and resize derive fresh
+  geometry. Wrong buffers/revisions, invalid points and closed identities cannot
+  produce a projection. Narrow content hides the complete number field while
+  retaining the requested view policy.
 - Number width follows complete-buffer line metadata and admitted minimum
   digits. Checked terminal-cell geometry reserves padding and one separator
   while retaining the panel's protected three text columns.
@@ -35,6 +39,10 @@ bounds. The projection records the existing ViewId, source stamp, logical point
 row, line count, effective policy and checked number/text bounds. It retains no
 buffer reference, number-row array, document copy, timer or background worker.
 Digit calculation uses checked integer metadata, with at most 20 admitted digits.
+The minimum is admitted in 1..=20 and each padding in 0..=4; none can truncate a
+complete source line index. Width is independent of the relative origin.
+Each projection uses source/point line-index lookup plus bounded field arithmetic;
+retained policy memory scales only with the existing view count.
 Projection callers derive a fresh snapshot after source, view or layout changes.
 
 `Windows::change_gutter` admits a live ViewId before changing one native leaf;
@@ -60,23 +68,50 @@ lifetime. No document/history ownership changes.
 - `src/view.rs`, `src/window.rs` and `src/session/{buffers,file}.rs`: policy
   updates and lifetime through the existing split/rebind/close paths.
 - `src/panel/composition.rs`: checked live editing-panel projection boundary.
-- `tests/gutter.rs` and `tests/gutter/{policy,lifecycle}.rs`: native policy and
-  actual session lifecycle regressions.
+- `tests/gutter.rs` and `tests/gutter/`: native policy, actual session lifecycle,
+  source/identity invalidation and checked integer/cell-bound regressions.
 
 ## Validation
 
-- PASS: `cargo test --test gutter` verifies factory policy, source identity,
-  logical line metadata, complete field/text geometry and separate status/prompt
-  bounds using the actual view and panel owners.
-- PASS: the same gutter target now includes five groups covering independent
-  leaf provenance/reset, both split directions, foreign/closed identities,
-  actual buffer switching, shared-buffer closure and file ingress.
+- PASS: `cargo test --test gutter` (12 native groups, zero skipped).
+- The real view/panel boundary verifies factory values, canonical source
+  identity, logical metadata, complete field/text bounds and separate
+  status/prompt reservations without modifying text or history.
+- Independent-leaf cases cover startup-equal overrides, provenance, reset,
+  idempotent updates, both split directions and foreign/closed ViewIds.
+  Actual session cases cover buffer switch, shared-buffer closure and file
+  ingress, retaining each view's policy and the ordinary text/history owners.
 - An absent file path is admitted as a new document by ordinary file ingress.
-  The rejected-ingress fixture uses an existing directory to verify the failure
-  assertion while preserving that established new-file behavior.
+  The rejected-ingress fixture uses an existing directory, preserving the
+  failure assertion and established new-file behavior.
+- Checked-format cases reject unsupported minima/padding. Decimal cases cover
+  9/10, 99/100, 9999/10000, 99999/100000 and `usize::MAX` without creating one
+  source row or label per possible index.
+- The partition grid covers 4,428 projections across side, visibility, padding,
+  source count, zero/tiny/usable dimensions and ordinary/maximal u16 origins.
+  Every admitted number/text partition covers content exactly and retains the
+  protected three text columns; hidden fields restore the original text bounds.
+- A real native edit crosses 9999/10000 lines and undo/redo restores coherent
+  widths with fresh stamps. Relative-origin movement keeps width stable; reset
+  changes presentation only. Stale/wrong source, invalid points and closed
+  identity checks reject projection. Resize suspension retains the whole view.
 - Focused source analysis passes unchanged safe-Rust, parameter, nesting and
-  complexity limits for the changed owners and native tests.
-- Decimal-boundary, invalidation and final clean-HEAD checks are in progress.
+  complexity limits for the new records, changed owners and native tests.
+
+The controller records final clean-HEAD results for this ordered canonical list:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test gutter --test panels --test windows`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final evidence uses this separate ordered list on the same clean HEAD:
+
+- `cargo test --test commands --test files`
+- `python3 scripts/check-config-reference.py`
+- `python3 -m unittest discover -s scripts -p test_acceptance.py`
+- `git diff --check`
 
 ## Risks and Follow-ups
 

@@ -1,5 +1,10 @@
 //! Native view policy and disposable number geometry. These records prepare
 //! numbering without enabling rendering, TOML keys or command identities.
+//!
+//! Source and point lookup reuse the rope's logical line index. Geometry uses
+//! bounded integer digit metadata and panel-cell bounds; it never scans all
+//! lines or materializes number rows. View changes report invalidation to the
+//! existing redraw caller, with no timer or independent paint scheduling.
 
 mod geometry;
 mod policy;
