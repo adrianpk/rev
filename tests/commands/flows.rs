@@ -175,8 +175,8 @@ fn canceled_navigation() {
     }
 }
 
-// Tab in a path argument keeps its exact draft and focus, presenting the path
-// interaction policy instead of an internal buffer-completion state error.
+// Find-file reports an unmatched component without discarding its query.
+// Save/write arguments retain their existing path-entry guidance.
 #[test]
 fn path_tab() {
     for command in [Command::FindFile, Command::WriteFile, Command::SaveBuffer] {
@@ -187,7 +187,11 @@ fn path_tab() {
         session.handle(super::key(KeyCode::Tab));
         assert_eq!(
             session.echo(),
-            "Enter a path; C-g cancels",
+            if command == Command::FindFile {
+                "No matching paths"
+            } else {
+                "Enter a path; C-g cancels"
+            },
             "{}",
             command.name()
         );

@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "path_completion/identity.rs"]
 mod identity;
+#[path = "path_completion/navigation.rs"]
+mod navigation;
 #[path = "path_completion/observation.rs"]
 mod observation;
 #[path = "path_completion/panel.rs"]

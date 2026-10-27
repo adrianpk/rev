@@ -630,7 +630,7 @@ Contracts: UI03-UI04, CFG12-CFG13. Tickets: TKT-20261027085234.
 Details and checks: [Slice 24](../plan/rev-configuration-ui.md#slice-24-complete-and-navigate-file-paths).
 
 - [x] T24.1: Initialize find-file in the current visiting file parent or cwd, and integrate the provider with the common vertical completion panel; show directory markers without modifying the actual path bytes.
-- [ ] T24.2: Implement Tab unique/shared-prefix completion, directory descent, editable parent navigation and candidate selection. Invalidate cached observations only for directory changes or explicit completion refresh.
+- [x] T24.2: Implement Tab unique/shared-prefix completion, directory descent, editable parent navigation and candidate selection. Invalidate cached observations only for directory changes or explicit completion refresh.
 - [ ] T24.3: Test ./, ../, ~/, absolute names, spaces, Unicode boundaries, trailing separators, changing prefixes, incomplete lists, tiny resize and C-g with draft/focus retained.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

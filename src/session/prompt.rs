@@ -34,13 +34,12 @@ impl Session {
 
     pub(super) fn complete_argument(&mut self) -> Action {
         match self.pending {
+            Some(Pending::Path(_)) => self.complete_path(),
             Some(Pending::Buffer { .. }) => self.complete_buffer(),
             Some(Pending::TreeCreate(_) | Pending::TreeRename(_)) => {
                 self.message("Enter one name; C-g cancels")
             }
-            Some(Pending::Path(_) | Pending::Write { .. }) => {
-                self.message("Enter a path; C-g cancels")
-            }
+            Some(Pending::Write { .. }) => self.message("Enter a path; C-g cancels"),
             _ => self.message("No argument is active"),
         }
     }

@@ -2,6 +2,8 @@ use std::path::{Path, PathBuf};
 
 use super::{Candidate, Provider, Query};
 
+mod complete;
+
 /// Retained path draft, component observation and independent list selection.
 /// Only draft directory transitions or explicit refresh may observe disk.
 #[derive(Debug)]

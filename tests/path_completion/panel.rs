@@ -98,3 +98,71 @@ fn retained_observation() {
     session.frame().unwrap();
     assert_eq!(*session.view(), view);
 }
+
+// Native Tab descends through a completed directory without visiting a buffer.
+// Deleting its separator reobserves the parent, preserving text and saved state.
+#[test]
+fn native_descent() {
+    let fixture = Fixture::new();
+    let mut session = editor(&fixture);
+    let stamp = session.buffer().unwrap().stamp();
+    let file = session.buffer().unwrap().file().unwrap().path().to_owned();
+    session.execute(Command::FindFile);
+    session.handle(Event::Paste("ch".into()));
+    session.handle(key(KeyCode::Tab));
+    let frame = session.frame().unwrap();
+    assert_eq!(labels(&frame), ["nested.txt"]);
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .any(|row| row.text().starts_with("Find file: child/"))
+    );
+    session.handle(key(KeyCode::Backspace));
+    assert_eq!(labels(&session.frame().unwrap()), ["child/"]);
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(session.buffer().unwrap().file().unwrap().path(), file);
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// Both navigation pairs move the highlighted candidate without changing the
+// draft. Tab fills that identity and neither opens it nor edits the document.
+#[test]
+fn native_selection() {
+    for next in [
+        key(KeyCode::Down),
+        Event::Key(KeyEvent::new(KeyCode::Char('n'), KeyModifiers::CONTROL)),
+    ] {
+        let fixture = Fixture::new();
+        let mut session = editor(&fixture);
+        let stamp = session.buffer().unwrap().stamp();
+        session.execute(Command::FindFile);
+        session.handle(next);
+        let frame = session.frame().unwrap();
+        let selected = frame
+            .rows()
+            .iter()
+            .find(|row| row.band() == Band::Completion && row.selection().is_some())
+            .unwrap();
+        assert_eq!(selected.text().trim(), "alpha.txt");
+        session.handle(key(KeyCode::Tab));
+        assert!(
+            session
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| row.text().starts_with("Find file: alpha.txt"))
+        );
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert!(
+            session
+                .buffer()
+                .unwrap()
+                .file()
+                .unwrap()
+                .path()
+                .ends_with("document.txt")
+        );
+    }
+}

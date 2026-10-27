@@ -139,7 +139,7 @@ fn find_file_aliases() {
         session.handle(meta('d'));
     }
     session.handle(meta('c'));
-    assert_eq!(session.echo(), "Enter a path; C-g cancels");
+    assert_eq!(session.echo(), "");
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     session.handle(meta('a'));
     session.handle(phase(meta('a'), KeyEventKind::Repeat));

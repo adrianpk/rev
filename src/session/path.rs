@@ -55,4 +55,21 @@ impl Session {
         }
         self.select_buffer(selection)
     }
+
+    pub(super) fn complete_path(&mut self) -> Action {
+        let Some(Pending::Path(path)) = &mut self.pending else {
+            return self.message("No path completion is pending");
+        };
+        let completed = match path.complete() {
+            Ok(completed) => completed,
+            Err(error) => return self.notice(&error.to_string()),
+        };
+        if let Some(completed) = completed
+            && let Err(error) = self.input.complete(&completed)
+        {
+            return self.notice(&error.to_string());
+        }
+        self.sync_path();
+        self.message("")
+    }
 }
