@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-24-path-navigation`
-PR: pending
+PR: [#73](https://forge.adrianpk.com/adrianpk/rev/pulls/73)
 
 ## Purpose
 
@@ -46,7 +46,8 @@ vertical completion panel, with selected/shared completion and directory travers
   retained navigation and shared query/candidate geometry to native events.
 - T24.2: `531930ec9a4115c234df5a11345d97bb9f3c33e5` adds unique/shared/selected
   completion, directory traversal and refreshed-selection identity checks.
-- T24.3 adds path-spelling, incomplete-list, prompt-bound, resize, alias and actual
+- T24.3: `e698d323a802d46d890dafdce40879c02b4c94b5` adds path-spelling,
+  incomplete-list, prompt-bound, resize, alias and actual
   RGB/NO_COLOR terminal journeys, updates references and records the slice report.
 - Input owns the bounded path prompt and key decoding. Session owns its pending
   Navigation and event-driven observation. Frame reads retained labels and list

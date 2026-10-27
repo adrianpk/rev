@@ -635,7 +635,8 @@ Details and checks: [Slice 24](../plan/rev-configuration-ui.md#slice-24-complete
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T24.1 `324c635437f760dfd2679607e4aec12aff24baf9`;
-T24.2 `531930ec9a4115c234df5a11345d97bb9f3c33e5`.
+T24.2 `531930ec9a4115c234df5a11345d97bb9f3c33e5`;
+T24.3 `e698d323a802d46d890dafdce40879c02b4c94b5`.
 Fourteen new path/navigation tests, one configured candidate-alias regression and
 two RGB/NO_COLOR terminal sessions cover native bases, shared/selected completion,
 directory/home/Unicode paths, cached redraw, refresh, incomplete lists, bounds,
@@ -643,6 +644,7 @@ resize and cancellation. Focused file/tree cursor and panel checks pass, as do
 Clippy/source checks with nesting at most two. Final readiness uses controller
 evidence for the clean PR head; dev integration remains pending.
 Report: [Slice 24](../report/slices/rev-configuration-ui/slice-24-path-navigation.md).
+PR: [#73](https://forge.adrianpk.com/adrianpk/rev/pulls/73).
 
 ### Slice 25: Open selected and new file paths safely
 
