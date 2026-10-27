@@ -58,7 +58,7 @@ consistently with the plan and controller checkpoint.
 Contracts: CFG02-CFG06, CFG20. Tickets: TKT-20261027103708.
 Details and checks: [Slice 1](../plan/rev-configuration-ui.md#slice-1-model-typed-configuration).
 
-- [ ] T1.1: Establish a small configuration owner with complete defaults and partial input types for the entire accepted model catalog; absence must survive parsing and language/include merging. Document ownership and numeric semantics without introducing a generic framework.
+- [x] T1.1: Establish a small configuration owner with complete defaults and partial input types for the entire accepted model catalog; absence must survive parsing and language/include merging. Document ownership and numeric semantics without introducing a generic framework.
 - [ ] T1.2: Pin toml 1.1.8 and serde 1.0.229 with only required parser/derive features; commit Cargo.lock, preserve Rust 1.98 and first-party safe Rust. Create the configuration integration test target and verify explicit false, zero and absent values.
 - [ ] T1.3: Record source/default/catalog invariants and preparatory status. Do not advertise operational configuration before Slice 20 wires all consumers.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.

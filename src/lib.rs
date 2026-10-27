@@ -2,6 +2,7 @@
 
 pub mod buffer;
 pub mod command;
+pub mod config;
 pub mod coordinates;
 pub mod display;
 pub mod file;
