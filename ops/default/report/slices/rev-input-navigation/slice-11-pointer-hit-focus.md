@@ -18,6 +18,10 @@ point through the existing checked movement owner.
   through the same gutter partition used by rendering.
 - Number fields and status rows can focus their pane without changing point.
   Shared separators, prompts and outside cells do not identify document text.
+- Complete tab, wide, combining, control and ZWJ glyph cells map to the cluster
+  start. Current tab policy, top/left offsets and either gutter side are honored.
+- Exact EOL and final-empty-row boundaries remain selectable. Trailing fill,
+  beyond-EOF rows and clipped glyph fragments focus without moving point.
 - Tree and editing focus use existing focus owners; active prompt owners retain
   their input. Source text and history remain canonical.
 
@@ -39,14 +43,17 @@ without treating decorations or padding as source positions.
 - `src/view/hit.rs`: checked gutter/text projection.
 - `src/session/pointer.rs`: native press dispatch and existing focus transitions.
 - `src/session/motion.rs`: shared checked movement owner.
+- `src/coordinates/hit.rs`, `tests/pointer/cells.rs`: checked painted-cell boundaries.
 - `tests/pointer/focus.rs`: pane focus, text and decoration regressions.
 
 ## Validation
 
 Development checks passed:
 
-- `cargo test --test pointer`: seven groups passed, including shared-pane point
-  placement, frame cursor agreement, decoration focus and unchanged source/history.
+- `cargo test --test pointer`: twelve groups passed, including shared-pane point
+  placement, frame cursor agreement, decorations, literal glyph/EOF/clipping
+  mappings, tab widths 1/4/8/32, nonzero origins and rejected stale/foreign or
+  overflowing candidates. Canonical source bytes and history remain unchanged.
 - `python3 scripts/check-source.py`: unchanged safe-Rust and complexity limits.
 
 Final clean-head evidence will be recorded after task and PR-reference commits.

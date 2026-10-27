@@ -10,6 +10,11 @@ mod input_state;
 #[path = "pointer/focus.rs"]
 mod focus;
 
+#[path = "pointer/cells.rs"]
+mod cells;
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+
 fn mouse(kind: MouseEventKind) -> MouseEvent {
     MouseEvent {
         kind,

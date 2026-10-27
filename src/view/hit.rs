@@ -19,6 +19,15 @@ impl View {
         let Some(local) = text.local(position) else {
             return Ok(None);
         };
+        self.text_hit(buffer, text, local)
+    }
+
+    fn text_hit(
+        &self,
+        buffer: &Buffer,
+        text: Area,
+        local: Position,
+    ) -> Result<Option<Point>, Error> {
         let row = self
             .top
             .checked_add(usize::from(local.row))
@@ -30,9 +39,15 @@ impl View {
             .left
             .checked_add(usize::from(local.column))
             .ok_or(crate::coordinates::Error::Overflow)?;
-        Ok(Some(Point {
-            stamp: buffer.stamp(),
-            position: Coordinates::new(buffer)?.from_cell(Cell { row, column })?,
-        }))
+        let right = self
+            .left
+            .checked_add(usize::from(text.width()))
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        Ok(Coordinates::new(buffer)?
+            .hit_cell(Cell { row, column }, self.left..right)?
+            .map(|position| Point {
+                stamp: buffer.stamp(),
+                position,
+            }))
     }
 }
