@@ -586,13 +586,16 @@ Details and checks: [Slice 22](../plan/rev-configuration-ui.md#slice-22-navigate
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T22.1 `9e7f3ebb897adc59c32c8a23feb732c187a3ab4a`;
-T22.2 `97410b79146cfb26605381ea31099b95116f8609`.
+T22.2 `97410b79146cfb26605381ea31099b95116f8609`;
+T22.3 `629b4aa7151f531faf25e39e90cf6246eb57294a`.
 Eight new native regressions and two RGB/NO_COLOR terminal sessions cover separate
 candidate/history navigation, explicit/exact/empty/no-match acceptance, coherent
 query resets, custom context aliases, selected file arguments, held/released
 acceptance and editor/tree cancellation. Focused Clippy/source checks pass with
-nesting at most two. Final exact-head evidence and controller integration pending.
+nesting at most two. Final readiness uses the controller's exact-head evidence;
+dev integration remains pending.
 Report: [Slice 22](../report/slices/rev-configuration-ui/slice-22-command-selection.md).
+PR: [#71](https://forge.adrianpk.com/adrianpk/rev/pulls/71).
 
 ### Slice 23: Observe bounded filesystem candidates
 

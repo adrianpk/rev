@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-22-command-selection`
-PR: pending
+PR: [#71](https://forge.adrianpk.com/adrianpk/rev/pulls/71)
 
 ## Purpose
 
@@ -42,7 +42,8 @@ and argument owners.
   history input, completes the selected name and routes selected acceptance.
 - T22.2: `97410b79146cfb26605381ea31099b95116f8609` distinguishes text changes
   from cursor/no-op outcomes and tests explicit, exact, empty and unmatched input.
-- T22.3 adds custom-context, selected argument, cancellation and Escape-history
+- T22.3: `629b4aa7151f531faf25e39e90cf6246eb57294a` adds custom-context,
+  selected argument, cancellation and Escape-history
   regressions, and extends the two owned RGB/NO_COLOR terminal journeys.
 - Palette retains an explicit-choice flag separately from its default visual
   highlight. Navigation can override a previously completed exact name without
