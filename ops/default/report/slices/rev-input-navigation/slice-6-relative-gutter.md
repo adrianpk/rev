@@ -1,6 +1,6 @@
 # Slice 6: Render independent relative numbering
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -31,7 +31,12 @@ selected current-line forms and stable full-buffer digit geometry.
 policy. Distance uses checked-range integer metadata and `abs_diff`; current-line
 selection is independent of the calculation mode. The existing renderer resolves
 the current logical row from the pane's own view, including inactive panes.
-Hidden or suppressed fields return before row materialization. No retained number
+Hidden or suppressed fields return before row materialization.
+The row loop remains limited by the admitted number area height; each integer
+label is at most 20 digits and uses the existing line index/count. A 100,000-line
+fixture renders six text rows with correct EOF padding, then hides/restores
+without changing point or mode. This is structural/native evidence; timing and
+memory workload acceptance belongs to the assigned later performance slice. No retained number
 arrays, caches, background work or settings store are introduced.
 
 ## Contracts Added or Changed
@@ -45,6 +50,8 @@ stable full-source digit width. GUT11 retains independent view policy and point.
 - `src/display/gutter.rs`: bounded visible-row rendering with effective policy.
 - `tests/gutter/relative.rs`: actual field cells, semantic roles and integer bounds.
 - `tests/gutter/shared.rs`: composed shared panes and native editing/lifecycle paths.
+- `tests/gutter/rendering.rs`: absolute and relative decimal-boundary history.
+- `docs/reference/gutter.md`: factory behavior and supported native policy.
 
 ## Validation
 
@@ -57,6 +64,28 @@ stable full-source digit width. GUT11 retains independent view policy and point.
   native file/buffer rebind/close. Unicode/BOM/CRLF bytes remain exact.
 - PASS: `python3 scripts/check-source.py` retains safe Rust and all existing
   parameter, nesting and complexity limits.
+
+- PASS: `cargo test --test gutter` (25 native groups, zero skipped). Both modes
+  cross the 9999/10000 boundary through real edit/undo/redo; current and adjacent
+  labels, document origin and hardware cursor remain coherent. Relative cases
+  also cover empty, one-line, Unicode, CRLF, final-empty and EOF padding rows.
+- PASS: `python3 scripts/check-config-reference.py` retains 59 admitted catalog
+  entries, 25 configurable RGB roles and 111 bindings with valid reference links.
+  Native relative policy does not advertise unsupported terminal controls.
+
+The controller records final results on the clean PR head for this canonical list:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test gutter --test display --test windows`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Separate focused final evidence uses the same head and this ordered list:
+
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-pty.py --suite absolute-gutter`
+- `git diff --check`
 
 ## Risks and Follow-ups
 

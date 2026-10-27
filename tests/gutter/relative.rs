@@ -180,3 +180,85 @@ fn stable_origin() {
     assert!(buffer.history().is_empty());
     assert!(!buffer.is_modified());
 }
+
+// Relative numbering follows canonical logical rows at EOF. An empty source,
+// CRLF, Unicode clusters and a final editable empty row never create padding labels.
+#[test]
+fn logical_rows() {
+    for (name, source, labels) in [
+        ("empty", "", vec!["   1 │"]),
+        ("one Unicode", "界\te\u{301}", vec!["   1 │"]),
+        ("CRLF", "\r\n", vec!["   1 │", "   2 │"]),
+        ("no final", "a\nb", vec!["   1 │", "   2 │"]),
+        (
+            "mixed final",
+            "界\r\nlast\n",
+            vec!["   2 │", "   1 │", "   3 │"],
+        ),
+    ] {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let mut view = View::new(buffer);
+        view.gutter.apply(Change::Mode(Mode::Relative));
+        point(&mut view, buffer, labels.len() - 1);
+        let frame = Frame::project(buffer, &view, SIZE, "").unwrap();
+        for (row, expected) in labels.iter().enumerate() {
+            assert_eq!(prefix(&frame, row), *expected, "{name}/{row}");
+        }
+        assert_eq!(prefix(&frame, labels.len()), "     │", "{name}");
+        assert_eq!(
+            frame.cursor().unwrap().row,
+            u16::try_from(labels.len() - 1).unwrap()
+        );
+        assert!(buffer.history().is_empty());
+        assert!(!buffer.is_modified());
+    }
+}
+
+// Large source metadata changes field digits, while materialization remains the
+// same six visible text rows. Hiding/restoring retains relative mode and point.
+#[test]
+fn visible_bound() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&"\n".repeat(99_999)).unwrap();
+    let buffer = buffers.get(id).unwrap();
+    let mut view = View::new(buffer);
+    point(&mut view, buffer, 99_999);
+    view.top = 99_997;
+    view.gutter.apply(Change::Mode(Mode::Relative));
+    let original = view.clone();
+    let frame = Frame::project(buffer, &view, SIZE, "").unwrap();
+    for (row, expected) in [
+        "     2 │",
+        "     1 │",
+        "100000 │",
+        "       │",
+        "       │",
+        "       │",
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(
+            frame.rows()[row].text().chars().take(8).collect::<String>(),
+            *expected
+        );
+    }
+    assert_eq!(frame.rows().len(), usize::from(SIZE.height));
+    assert_eq!(frame.cursor(), Some(Position { column: 8, row: 2 }));
+    view.gutter.apply(Change::Visible(false));
+    let hidden = Frame::project(buffer, &view, SIZE, "").unwrap();
+    assert_eq!(hidden.cursor(), Some(Position { column: 0, row: 2 }));
+    assert!(hidden.rows()[0].text().chars().all(|c| c == ' '));
+    assert_eq!(view.gutter.effective().mode, Mode::Relative);
+    view.gutter.apply(Change::Visible(true));
+    let restored = Frame::project(buffer, &view, SIZE, "").unwrap();
+    assert_eq!(restored.rows()[2].text(), frame.rows()[2].text());
+    assert_eq!(
+        (view.point, view.top, view.left),
+        (original.point, original.top, original.left)
+    );
+    assert!(buffer.history().is_empty());
+    assert!(!buffer.is_modified());
+}

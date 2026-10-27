@@ -1,7 +1,7 @@
 use rev::config::{Palette, Rgb};
 use rev::coordinates::Scalar;
 use rev::display::{Frame, Position};
-use rev::gutter::{NumberRow, Separator};
+use rev::gutter::{Change, Mode, NumberRow, Separator};
 use rev::view::{Size, View};
 use unicode_width::UnicodeWidthStr;
 
@@ -11,13 +11,20 @@ use super::{Buffers, surface};
 // text origin and hardware cursor change together, then undo restores all three.
 #[test]
 fn rendered_decimal() {
+    for mode in [Mode::Absolute, Mode::Relative] {
+        decimal_case(mode);
+    }
+}
+
+fn decimal_case(mode: Mode) {
     use crossterm::event::Event;
     use rev::command::{Command, History, Motion};
     use rev::session::Session;
 
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(&"\n".repeat(9_998)).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.gutter.apply(Change::Mode(mode));
     let mut session = Session::new(
         buffers,
         view,
@@ -31,6 +38,16 @@ fn rendered_decimal() {
     let before = session.frame().unwrap();
     let cursor = before.cursor().unwrap();
     assert_eq!(cursor.column, 6);
+    let previous = if mode == Mode::Relative {
+        "   1 │"
+    } else {
+        "9998 │"
+    };
+    assert!(
+        before.rows()[usize::from(cursor.row) - 1]
+            .text()
+            .starts_with(previous)
+    );
     assert!(
         before.rows()[usize::from(cursor.row)]
             .text()
@@ -40,6 +57,16 @@ fn rendered_decimal() {
     let edited = session.frame().unwrap();
     let cursor = edited.cursor().unwrap();
     assert_eq!(cursor.column, 7);
+    let previous = if mode == Mode::Relative {
+        "    1 │"
+    } else {
+        " 9999 │"
+    };
+    assert!(
+        edited.rows()[usize::from(cursor.row) - 1]
+            .text()
+            .starts_with(previous)
+    );
     assert!(
         edited.rows()[usize::from(cursor.row)]
             .text()
