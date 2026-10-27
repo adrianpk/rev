@@ -16,12 +16,13 @@ impl Frame {
         let Some(area) = geometry.numbers() else {
             return Ok(());
         };
+        let settings = view.gutter.effective();
         for row in 0..area.height() {
             let label = view
                 .top
                 .checked_add(usize::from(row))
-                .and_then(|line| NumberRow::absolute(line, buffer.len_lines(), current));
-            let mut projected = field(area, geometry.digits(), view.gutter.effective(), label)?;
+                .and_then(|line| NumberRow::new(line, buffer.len_lines(), current, settings));
+            let mut projected = field(area, geometry.digits(), settings, label)?;
             projected.row = row;
             self.blit(area, projected)?;
         }

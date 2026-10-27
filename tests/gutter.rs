@@ -13,6 +13,8 @@ mod invalidation;
 mod lifecycle;
 #[path = "gutter/policy.rs"]
 mod policy;
+#[path = "gutter/relative.rs"]
+mod relative;
 #[path = "gutter/rendering.rs"]
 mod rendering;
 #[path = "support/surface.rs"]

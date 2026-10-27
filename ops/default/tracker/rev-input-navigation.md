@@ -107,7 +107,7 @@ Slice 5 of 20 completed. Canonical PR [#85](https://forge.adrianpk.com/adrianpk/
 Contracts: GUT02 GUT04 GUT11.
 Details and exact checks: [Slice 6](../plan/rev-input-navigation.md#slice-6-render-independent-relative-numbering).
 
-- [ ] T6.1: Add relative labels from each view's own logical point and absolute/zero/hidden current-line forms; keep digit width stable during origin movement.
+- [x] T6.1: Add relative labels from each view's own logical point and absolute/zero/hidden current-line forms; keep digit width stable during origin movement.
 - [ ] T6.2: Preserve independent points and overrides across shared splits, buffer switches, close and rebind; retain complete logical numbering through edits and history.
 - [ ] T6.3: Verify both modes, current-line forms and shared-view lifecycle with render-level assertions and record bounded visible-row behavior.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

@@ -1,3 +1,5 @@
+use super::{CurrentLine, Mode, Settings};
+
 /// Semantic number-field roles in the existing frame palette.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Role {
@@ -7,7 +9,7 @@ pub enum Role {
 }
 
 /// One real visible logical row. Empty viewport padding has no NumberRow.
-/// The optional label also admits an independently hidden current row later.
+/// A hidden current-line form retains its row identity and semantic role.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct NumberRow {
     /// Zero-based logical source row, not a terminal row or display column.
@@ -17,14 +19,14 @@ pub struct NumberRow {
 }
 
 impl NumberRow {
-    pub fn absolute(line: usize, lines: usize, current: usize) -> Option<Self> {
-        if line >= lines {
+    pub fn new(line: usize, lines: usize, current: usize, settings: Settings) -> Option<Self> {
+        if line >= lines || current >= lines {
             return None;
         }
         Some(Self {
             line,
             current: line == current,
-            label: Some(line.checked_add(1)?),
+            label: label(line, current, settings),
         })
     }
 
@@ -34,6 +36,20 @@ impl NumberRow {
         } else {
             Role::Number
         }
+    }
+}
+
+fn label(line: usize, current: usize, settings: Settings) -> Option<usize> {
+    if line == current {
+        return match settings.current_line {
+            CurrentLine::Absolute => line.checked_add(1),
+            CurrentLine::Zero => Some(0),
+            CurrentLine::Hidden => None,
+        };
+    }
+    match settings.mode {
+        Mode::Absolute => line.checked_add(1),
+        Mode::Relative => Some(line.abs_diff(current)),
     }
 }
 

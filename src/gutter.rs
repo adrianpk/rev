@@ -1,4 +1,4 @@
-//! Native view policy, checked number geometry and absolute logical row labels.
+//! Native view policy, checked number geometry and logical row labels.
 //! Startup TOML and command identities remain owned by their integration layer.
 //!
 //! Source and point lookup reuse the rope's logical line index. Geometry uses

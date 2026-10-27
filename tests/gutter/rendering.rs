@@ -144,7 +144,8 @@ fn row_boundaries() {
         (usize::MAX, usize::MAX, 0, None),
     ] {
         assert_eq!(
-            NumberRow::absolute(line, count, current).map(|r| (r.label.unwrap(), r.current)),
+            NumberRow::new(line, count, current, Default::default())
+                .map(|r| (r.label.unwrap(), r.current)),
             expected
         );
     }
