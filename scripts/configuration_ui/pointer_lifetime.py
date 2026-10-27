@@ -100,6 +100,9 @@ def decoder(root):
     try:
         session.ready(b'probe-ready')
         os.write(session.master, b'!')
+        # The stdin acknowledgment must finish before the decoder's /dev/tty
+        # reader owns reports; buffered stdin could otherwise prefetch one.
+        session.wait(lambda: b'probe-input-ready\r\n' in session.output)
         for wire, expected in [
             (b'\x1b[<0;18;5M', b'pointer Press 17 4 0'),
             (b'\x1b[<32;18;5M', b'pointer Drag 17 4 0'),

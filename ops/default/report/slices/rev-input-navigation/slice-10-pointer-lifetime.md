@@ -105,6 +105,13 @@ reference commits, in this exact order:
 The canonical PR and controller evidence identify the final candidate. Focused
 exact-head evidence additionally checks the library/display and owned PTY suite.
 
+A retained final-check failure on `2b0a3e1dc06d50ba220fa6be07c723db1ebd3d34`
+exposed a readiness race in the decoder fixture: buffered stdin could prefetch
+the first SGR report with the preceding acknowledgment. An explicit
+`probe-input-ready` barrier now transfers ownership before reports are sent.
+The event assertions, eight-second deadline, output ceiling, idle observation
+and all cleanup checks remain unchanged. Fresh evidence uses the corrected head.
+
 ## Risks and Follow-ups
 
 The approved later slices integrate geometry, focus, scroll, selection and

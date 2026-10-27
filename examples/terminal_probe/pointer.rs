@@ -56,6 +56,8 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
 }
 
 fn input(terminal: &mut Terminal<Fault>) -> io::Result<()> {
+    terminal.writer().write_all(b"probe-input-ready\r\n")?;
+    terminal.writer().flush()?;
     let mut input = Input::default();
     for _ in 0..32 {
         let outcome = input.handle(crossterm::event::read()?);
