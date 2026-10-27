@@ -56,7 +56,7 @@ occurrences are independent undo steps. See [Search and replacement](search.md).
 ## Interaction bounds
 
 Prompt input is bounded at 4096 Unicode scalars, with whole-payload rejection
-instead of truncation. Command history retains up to 64 distinct accepted
+instead of truncation. Command history retains up to 128 distinct accepted
 names in session memory. File/buffer arguments and decisions own input until
 accepted or canceled. Return and pasted text cannot grant save/delete consent.
 

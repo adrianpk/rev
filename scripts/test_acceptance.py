@@ -6,7 +6,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from acceptance import COMMANDS, catalog, digest, execution, native, references, terminal
+from acceptance import COMMANDS, catalog, digest, execution, manifest, native, references, source, terminal
+from acceptance_delivery import PLAN, TRACKER, integrated, maps
 
 
 NATIVE = """Running tests/editing.rs (target/debug/deps/editing-fixture)
@@ -42,6 +43,21 @@ class AcceptanceTests(unittest.TestCase):
         listing = NATIVE.replace("test direct_input ... ok", "direct_input: test").replace("test bound_deletion ... ok", "bound_deletion: test")
         self.assertEqual(catalog(listing, listing=True), native(NATIVE))
 
+    # Successful process exit without structural measurements cannot stand in
+    # for the mandatory source-quality check or its accepted limits.
+    def test_source(self):
+        text = "edit: cyclomatic=5, nesting=2\nSource quality passed: safe Rust, parameters <= 5, nesting <= 3, cyclomatic <= 10.\n"
+        source(text)
+        for name, bad in {
+            "empty": "",
+            "no metrics": text.split("\n", 1)[1],
+            "complexity": text.replace("cyclomatic=5", "cyclomatic=11"),
+            "nesting": text.replace("nesting=2", "nesting=4"),
+            "completion": text.split("\n")[0],
+        }.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                source(bad)
+
     # One missing/duplicated journey or a skip cannot be replaced by a printed
     # completion sentence from another run or a smaller selection.
     def test_terminal(self):
@@ -55,6 +71,39 @@ class AcceptanceTests(unittest.TestCase):
         }.items():
             with self.subTest(name=name), self.assertRaises(ValueError):
                 terminal(bad)
+
+    # Both delivered report formats carry the same full immutable hash;
+    # abbreviated or missing integration records cannot satisfy readiness.
+    def test_integration(self):
+        head = "a" * 40
+        for line in [f"Integrated: `{head}`", f"Integrated: Rebase + Fast-forward into dev at `{head}`."]:
+            with self.subTest(line=line):
+                self.assertEqual(integrated(line), head)
+        for line in ["", "Integrated: `abcdef0`", f"Other: `{head}`", f"Integrated: `{head}a`"]:
+            with self.subTest(line=line), self.assertRaises(ValueError):
+                integrated(line)
+
+    # Editing both plan tables in the same way must still fail the approved
+    # identity pin; agreement between two changed documents is insufficient.
+    def test_identity(self):
+        root = Path(__file__).resolve().parent.parent
+        document = manifest(root)
+        plan = (root / PLAN).read_text()
+        tracker = (root / TRACKER).read_text()
+        with tempfile.TemporaryDirectory(prefix="rev-acceptance-map-") as temporary:
+            fixture = Path(temporary)
+            for path, text in [(PLAN, plan), (TRACKER, tracker)]:
+                (fixture / path).parent.mkdir(parents=True, exist_ok=True)
+                (fixture / path).write_text(text)
+            maps(fixture, document)
+            for path, text in [(PLAN, plan), (TRACKER, tracker)]:
+                (fixture / path).write_text(text.replace("test/rev-48-acceptance", "test/rev-48-changed"))
+            with self.assertRaisesRegex(ValueError, "identities changed"):
+                maps(fixture, document)
+            (fixture / PLAN).write_text(plan.replace(COMMANDS[0] + "\n" + COMMANDS[1], COMMANDS[1] + "\n" + COMMANDS[0]))
+            (fixture / TRACKER).write_text(tracker)
+            with self.assertRaisesRegex(ValueError, "command prefix changed"):
+                maps(fixture, document)
 
     # The gate must reject evidence from another commit, changed logs, failed
     # commands and incomplete/reordered execution even when the logs look valid.

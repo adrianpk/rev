@@ -17,7 +17,7 @@ same fixed command registry and handlers as keyboard bindings.
   command focus and reports `No matching command`.
 - Up or C-p recalls earlier commands; Down or C-n moves toward newer commands
   and then restores the draft query. Navigation stops at the oldest entry. The
-  session retains up to 64 distinct accepted command names, most recent first.
+  session retains up to 128 distinct accepted command names, most recent first.
   Accepting a name records the invocation even if its handler later refuses it.
   Canceled or unknown input does not enter history; history is not persisted.
 - C-g cancels command entry. Text, cursor edits and single-line paste remain in

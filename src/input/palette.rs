@@ -8,7 +8,7 @@ use crate::command::Command;
 
 use super::{Context, Error, Input, Key, Outcome, Prompt};
 
-const HISTORY_LIMIT: usize = 64;
+const HISTORY_LIMIT: usize = 128;
 
 /// Owns bounded command text, completion cycling and history-navigation draft.
 /// Candidates are derived from the static registry, never interpreted as code.

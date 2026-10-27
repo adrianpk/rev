@@ -9,7 +9,8 @@ import shlex
 import subprocess
 import tempfile
 
-from acceptance import COMMANDS, catalog, digest, execution, identity, journeys, manifest, native, performance, references, terminal
+from acceptance import COMMANDS, catalog, digest, execution, identity, journeys, manifest, native, performance, references, source, terminal
+from acceptance_delivery import delivery
 
 
 def gate(root):
@@ -47,15 +48,17 @@ def main():
         return
     document = manifest(root)
     journeys(root)
+    delivery(root, document, readiness=args.prerequisites)
     if args.prerequisites:
         result = subprocess.run(["cargo", "test", "--all", "--", "--list"], cwd=root,
                                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
         references(document["cases"], catalog(result.stdout, listing=True))
-        print("Acceptance prerequisites: A01-A20 map, native cases and four real journeys resolved; no gate result claimed.")
+        print("Acceptance prerequisites: A01-A20 map, native cases, four journeys, 48 fixed identities and report state resolved; no gate result claimed.")
         return
     logs = execution(os.environ.get("REV_ACCEPTANCE_RUN"), identity(root))
     cases = native(logs[2])
     references(document["cases"], cases)
+    source(logs[3])
     terminal(logs[4])
     performance(logs[5])
     print(f"Acceptance evidence: A01-A20 passed on the same clean HEAD; {len(cases)} native tests, four PTY journeys, two performance fixtures; zero skips.")

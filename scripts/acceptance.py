@@ -96,6 +96,12 @@ def native(text):
     return cases
 
 
+def source(text):
+    metrics = re.findall(r"^[a-z_][a-z_0-9]*: cyclomatic=(\d+), nesting=(\d+)$", text, re.M)
+    require(metrics and all(int(paths) <= 10 and int(nesting) <= 3 for paths, nesting in metrics), "missing or invalid source metrics")
+    require("Source quality passed: safe Rust, parameters <= 5, nesting <= 3, cyclomatic <= 10." in text, "missing source-quality completion")
+
+
 def terminal(text):
     names = re.findall(r"^PASS acceptance (document|blocks|workspace|failure):", text, re.M)
     require(len(names) == 4 and {"acceptance_" + name for name in names} == JOURNEYS, "missing or duplicate PTY journey")
@@ -117,6 +123,9 @@ def performance(text):
         for record in work:
             require(record["samples"] > 0 and math.isfinite(record["median_us"]) and record["median_us"] > 0, "missing timing sample")
             require(math.isfinite(record["max_us"]) and record["max_us"] >= record["median_us"], "invalid timing range")
+        syntax = next(record for record in work if record["workload"] == "syntax_work")
+        require(syntax["cold_parse_us"] > 0 and syntax["cold_callbacks"] > 0, "missing cold parser reference")
+        require(0 < syntax["max_incremental_callbacks"] < syntax["cold_callbacks"] / 4 and syntax["unchanged_callbacks"] == 0, "missing incremental or unchanged parser evidence")
         terminal = fixture["terminal"]
         require(terminal["startup_ms"] > 0 and terminal["idle"]["elapsed_ms"] >= 350 and terminal["idle"]["output_bytes"] == 0, "missing real PTY startup/idle evidence")
     require("Performance workloads: 2 fixtures, 8 native workloads each, 2 real PTY startup/idle/restoration checks; passed." in text, "missing performance completion")

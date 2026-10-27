@@ -189,6 +189,10 @@
         {
           "target": "tests/editing.rs",
           "test": "regions::shared_focus"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "regions::endpoints"
         }
       ],
       "pty": [
@@ -279,6 +283,10 @@
         {
           "target": "tests/commands.rs",
           "test": "flows::canceled_paths"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::command_history"
         }
       ],
       "pty": [
