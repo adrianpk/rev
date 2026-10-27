@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Go to a logical line with `M-g g`, `M-g M-g` or `M-x goto-line`. Cancel without moving the current view, correct invalid numbers in place, and navigate read-only text without changing its history.
+
 - Configure existing editing, display, palette, history, file and context-keybinding preferences through startup TOML under the XDG configuration directory. Explicit includes and language overrides compose before startup; invalid sources show a diagnostic and retain complete defaults. Configuration changes take effect after restarting, and startup creates no settings files or empty XDG directories. The [complete reference sample](docs/reference/config.toml) lists every supported value and default context binding.
 - Edit Unicode text directly in the terminal, with whole-grapheme movement and deletion, literal tabs, visible controls and scrolling that retains the intended display column. The status shows position, modification, read-only state and language mode.
 - Open UTF-8 files at startup or with `C-x C-f`, preserving BOM, LF/CRLF and final-newline presence. Canonical paths reuse live buffers; absent paths start empty without creating files. Invalid UTF-8 and NUL-containing binary input reject without replacing live text.

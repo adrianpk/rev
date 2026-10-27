@@ -122,7 +122,7 @@ def validate(root, logs, cases):
     delivery(root, document, readiness=False)
     references(document['cases'], cases)
     reference, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
-    require('Configuration reference: 59 schema/catalog entries, 25 active RGB roles, 109 default bindings and three optional examples agree; links valid.' in reference, 'missing configuration catalog evidence')
+    require('Configuration reference: 59 schema/catalog entries, 25 active RGB roles, 111 default bindings and three optional examples agree; links valid.' in reference, 'missing configuration catalog evidence')
     terminal(pty)
     performance(measured)
     print('Configuration/UI acceptance: CFG01-CFG22, R01/R17/R20/R22 and UI01-UI04 passed on the same clean HEAD; zero skips.')

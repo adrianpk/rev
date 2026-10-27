@@ -37,6 +37,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | End, `C-e` | `move-end-of-line` | Move to logical line end. |
 | `M-<` | `beginning-of-buffer` | Move to buffer start. |
 | `M->` | `end-of-buffer` | Move to buffer end. |
+| `M-g g`, `M-g M-g` | `goto-line` | Prompt for a one-based logical line; M-g alone is a prefix. |
 | Down, `C-n` | `next-line` | Move down, retaining the intended display column. |
 | Up, `C-p` | `previous-line` | Move up, retaining the intended display column. |
 | Page Down, `C-v` | `scroll-up-command` | Advance one page. |

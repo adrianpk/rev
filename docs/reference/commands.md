@@ -70,7 +70,7 @@ for file, history and retained-text policies.
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char` |
-| Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer` |
+| Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer`, `goto-line` |
 | Scrolling | `next-line`, `previous-line`, `scroll-up-command`, `scroll-down-command`, `recenter-top-bottom` |
 | History | `undo`, `undo-redo` |
 | Search | `isearch-forward`, `isearch-backward`, `query-replace` |
@@ -82,6 +82,23 @@ for file, history and retained-text policies.
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
 
 See [File tree](file-tree.md) for root, layout and keyboard focus.
+
+## Line navigation
+
+`M-g g`, `M-g M-g` and `M-x goto-line` open `Goto line: `. Enter a signed
+64-bit decimal integer and press Return. The configured `minibuffer.input_limit`
+bounds the draft (default 4096 Unicode scalars). Surrounding whitespace is
+ignored; malformed, fractional, nondecimal or overflowing values retain the
+draft with feedback so it can be edited and submitted again. Tab displays input
+guidance. C-g cancels and retains the original point, viewport and navigation
+state; normal region deactivation still applies.
+
+Numbers refer to one-based logical lines. Existing lines go to their beginning;
+zero or negative numbers go to buffer start, and numbers past the final line go
+to exact buffer end. A final newline therefore admits a final empty logical
+line. Navigation reveals the destination in the selected view, preserves other
+views and uses the existing mark/region rules. Read-only text remains navigable;
+no edit, undo entry, dirty change or save occurs.
 
 ## Supplied retention preferences
 

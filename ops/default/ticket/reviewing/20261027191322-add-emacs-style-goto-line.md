@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027191322
 title: Add Emacs-style goto-line navigation
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-27T19:13:22Z
 ready_at: 2026-10-27T20:34:14Z
 started_at: 2026-10-27T20:34:14Z
 branch: feat/rev-input-02-goto-line
-commits: []
+reviewed_at: 2026-10-27T20:42:27Z
+commits: [645d5b45c8344e6a0033c0bf6679430235db8343, 4cf7b662a1b8200282800df1e38b0338e6f5969b]
 ---
 
 # Add Emacs-style goto-line navigation
@@ -54,3 +55,12 @@ Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navi
 and [tracker](../../tracker/rev-input-navigation.md) as the other six current
 work items. Follow its assigned primary slices, lifecycle and controller-owned
 integration/acceptance; do not create a separate successor run for this ticket.
+
+## Implementation evidence
+
+The [Slice 2 report](../../report/slices/rev-input-navigation/slice-2-goto-line.md)
+records both inherited aliases and M-x, bounded signed numeric input, native
+logical clamping and checked source/view ownership. Eight native regressions
+and two owned PTY journeys pass, including invalid-input correction, Unicode/CRLF,
+empty/final-empty lines, read-only/shared views, cancellation and unchanged state.
+The ticket remains reviewing until canonical integration is verified.

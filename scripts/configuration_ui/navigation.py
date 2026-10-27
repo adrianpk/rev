@@ -85,3 +85,49 @@ def run(root):
         finally:
             close(session)
     print('Navigation PTY suite: 4 owned sessions passed, 0 skipped.')
+
+
+def goto_line(root):
+    from configuration_ui.support import cursor, rows
+
+    for name, source, last_line, last_column in [
+        ('unicode', '\r\n'.join(f'row {line:03} 界e\u0301' for line in range(1, 81)).encode(), 80, 12),
+        ('empty', b'', 1, 1),
+    ]:
+        fixture = root / name
+        fixture.mkdir()
+        path = fixture / 'goto.txt'
+        path.write_bytes(source)
+        session = PTY['Session']([str(BINARY), str(path)], env=environment(fixture))
+        try:
+            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
+            step(session, b'\x1bg', b'M-g')
+            step(session, b'g', b'Goto line: ')
+            frame = step(session, b'37', b'Goto line: 37')
+            assert b'-- RW L1 C1 Text' in frame, 'draft moved document point'
+            target = 37 if source else 1
+            target_status = f'-- RW L{target} C1 Text'.encode()
+            frame = step(session, b'\r', target_status)
+            assert cursor(frame)[0] < 23, 'goto did not reveal document cursor'
+            before = {row: text for row, text in rows(frame).items() if row < 24}
+            step(session, b'\x1bg\x1bg', b'Goto line: ')
+            step(session, b'78', b'Goto line: 78')
+            frame = step(session, b'\x07', b'Quit')
+            assert {row: text for row, text in rows(frame).items() if row < 24} == before
+            assert target_status in frame, 'cancel moved document point'
+            step(session, b'\x1bxgoto-line\r', b'Goto line: ')
+            draft = b'9223372036854775808'
+            frame = step(session, draft + b'\r', b'Enter a signed 64-bit decimal line number')
+            assert b'Goto line: ' + draft in frame and target_status in frame
+            corrected = b'\x01' + b'\x1b[3~' * len(draft) + b'+2\r'
+            step(session, corrected, f'-- RW L{2 if source else 1} C1 Text'.encode())
+            step(session, b'\x1bgg-1\r', b'-- RW L1 C1 Text')
+            step(session, b'\x1bgg999\r', f'-- RW L{last_line} C{last_column} Text'.encode())
+            step(session, b'\x1bg', b'M-g')
+            step(session, b'\x07', b'Quit')
+            finish(session)
+            assert path.read_bytes() == source, 'goto-line changed source bytes'
+            print(f'PASS goto-line {name}: aliases, M-x, correction, bounds, reveal, cancellation and source bytes')
+        finally:
+            close(session)
+    print('Goto-line PTY suite: 2 owned sessions passed, 0 skipped.')

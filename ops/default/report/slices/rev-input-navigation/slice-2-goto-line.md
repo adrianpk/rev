@@ -1,6 +1,6 @@
 # Slice 2: Add Emacs-style line navigation
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -46,15 +46,43 @@ NAV02 retains ordinary per-view movement, C-g and shared-buffer history owners.
 - `src/command.rs`: compiled goto-line identity.
 - `src/input/keymap/defaults.rs`: inherited M-g sequences.
 - `src/session/goto.rs`: argument validation, ownership and checked destination.
-- `tests/commands/goto.rs`: native binding and actual prompt dispatch.
+- `tests/commands/goto.rs` and `tests/commands/goto/bounds.rs`: native dispatch,
+  clamping, invalid-input recovery and complete state comparisons.
+- `scripts/configuration_ui/navigation.py`: real controlling PTY journeys through
+  `scripts/check-pty.py --suite goto-line`.
+- `docs/reference/commands.md`, `bindings.md`, `prompts.md` and `config.toml`:
+  delivered command behavior and both inherited aliases.
 
 ## Validation
 
-- PASS: `cargo test --test commands goto::` (six native dispatch, boundary,
-  cancellation, shared/read-only and stale-source regressions).
+- PASS: `cargo test --test commands goto::` (eight native dispatch, boundary,
+  cancellation, shared/read-only, stale-source, invalid-number and prompt-limit
+  regressions).
 - Logical-bound cases cover empty/single-line, LF/CRLF, Unicode, final empty
   lines and both signed extremes, comparing exact positions and document state.
-- Terminal, malformed-input and final clean-HEAD checks are in progress.
+- PASS: `python3 scripts/check-pty.py --suite goto-line` (two isolated controlling
+  PTYs: 80 Unicode/CRLF logical lines without final newline, and an empty file).
+  Both exercise native aliases, M-x, 64-bit overflow and correction, clamping,
+  actual cursor reveal, cancellation, terminal restoration and unchanged bytes.
+- Invalid-number cases include empty/sign-only, fractional/internal-space,
+  nondecimal/Unicode digits and both overflowing signs. A configured three-scalar
+  prompt rejects oversize paste wholly and accepts a bounded retry.
+- The reference sample includes both new aliases; the acceptance evidence guard
+  retains its exact schema, palette and optional-example assertions and expects
+  111 defaults instead of 109, accounting for these two inherited bindings.
+
+The final clean PR HEAD is validated by the controller with this exact canonical
+five-command list; successful evidence is stored outside the repository:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test commands --test editing --test recovery`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Additional focused configuration, reference and terminal evidence is retained
+separately for the same final HEAD. The canonical PR list preserves the
+configured prefix, including its final whitespace check.
 
 ## Risks and Follow-ups
 

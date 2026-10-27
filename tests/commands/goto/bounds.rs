@@ -182,3 +182,81 @@ fn stale_source() {
     submit(&mut session, "2");
     assert_eq!(session.view().point.position, Scalar(10));
 }
+
+// Malformed, nondecimal and overflowing values retain their prompt draft and
+// leave the full view/document untouched; ordinary prompt editing can repair it.
+#[test]
+fn invalid_numbers() {
+    for draft in [
+        "",
+        "+",
+        "-",
+        "1.5",
+        "1 2",
+        "0x10",
+        "１２",
+        "--2",
+        "9223372036854775808",
+        "-9223372036854775809",
+    ] {
+        let mut session = editor("first\nsecond\nlast");
+        let before = document(&session);
+        let view = session.view().clone();
+        session.execute(Command::GotoLine);
+        submit(&mut session, draft);
+        assert_eq!(
+            session.echo(),
+            "Enter a signed 64-bit decimal line number",
+            "{draft}"
+        );
+        assert_eq!(*session.view(), view, "{draft}");
+        assert_eq!(document(&session), before, "{draft}");
+        assert!(
+            session
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| row.text().starts_with(&format!("Goto line: {draft}"))),
+            "{draft}"
+        );
+        session.handle(key(KeyCode::Home, KeyModifiers::NONE));
+        for _ in draft.chars() {
+            session.handle(key(KeyCode::Delete, KeyModifiers::NONE));
+        }
+        submit(&mut session, " +2 ");
+        assert_eq!(session.view().point.position, Scalar(6), "{draft}");
+        assert_eq!(document(&session), before, "{draft}");
+    }
+}
+
+// The existing configured scalar bound rejects oversize input wholly. A valid
+// retry and cancellation remain available instead of overflowing number parsing.
+#[test]
+fn prompt_limit() {
+    let fixture = crate::config_fixture::Fixture::new();
+    let startup = rev::config::prepare(&fixture.write("config.toml", "minibuffer.input_limit = 3"));
+    assert!(startup.diagnostic.is_none());
+    let buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    let view = View::new(buffers.get(buffers.initial()).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 80,
+            height: 10,
+        },
+    )
+    .unwrap();
+    let before = document(&session);
+    session.execute(Command::GotoLine);
+    session.handle(Event::Paste("1234".into()));
+    assert_eq!(session.echo(), "Prompt input limit exceeded");
+    assert_eq!(document(&session), before);
+    submit(&mut session, "123");
+    assert_eq!(session.view().point.position, Scalar(0));
+    assert_eq!(document(&session), before);
+    session.execute(Command::GotoLine);
+    session.handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+    assert_eq!(session.echo(), "Quit");
+}

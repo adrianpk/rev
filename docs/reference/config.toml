@@ -125,6 +125,8 @@ punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
 [keys.editor]
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
+"M-g g" = "goto-line"
+"M-g M-g" = "goto-line"
 "RET" = "newline"
 "TAB" = "insert-tab"
 "Backspace" = "backward-delete-char"

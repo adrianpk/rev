@@ -12,6 +12,7 @@ rows fit; other argument and decision prompts retain the bottom prompt row.
 | Operation | Sequence |
 | --- | --- |
 | M-x | Command query, then the selected command's handler and any arguments. |
+| Goto line | Signed decimal line number; invalid or overflowing input retains the draft for correction. C-g preserves point and viewport. |
 | Query replace | Literal query, literal replacement, then a fresh y/n/q decision for each occurrence. C-g stops at any stage; accepted edits remain independently undoable. |
 | Find file | Selected or typed path; directories descend, files open/reuse, and ingress errors retain the draft. |
 | Write file | Destination path, then an explicit decision if the destination is occupied or a different referent requires consent, then save. |
@@ -78,7 +79,8 @@ Repeated Return or a held decision suffix cannot accept the next stage.
 
 ## Completion, failure and cancellation
 
-Return consumes ordinary arguments once before their handler continues. Find-file
+Return consumes ordinary arguments once before their handler continues. Goto-line
+reopens invalid numeric input with its draft and feedback. Find-file
 keeps its draft until file ingress succeeds or C-g cancels; directory acceptance
 continues within that prompt. An unknown buffer or failed save returns to editing
 with its error and retains the source text. A failed required save keeps the buffer open. A later independent

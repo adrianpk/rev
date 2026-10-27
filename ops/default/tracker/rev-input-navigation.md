@@ -61,8 +61,10 @@ Details and exact checks: [Slice 2](../plan/rev-input-navigation.md#slice-2-add-
 
 - [x] T2.1: Add the compiled goto-line identity, bounded signed-integer prompt and M-g g / M-g M-g defaults through existing command/keymap owners; preserve C-g and all prior aliases.
 - [x] T2.2: Use checked logical-line lookup and native reveal; match start clamping for nonpositive values and EOF clamping beyond the last line. Preserve other views and cancellation state.
-- [ ] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
+- [x] T2.3: Verify native and prompt dispatch, Unicode/CRLF/empty/final-newline boundaries and malformed/overflow input; update command references and record evidence without claiming general numeric-prefix support.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 2 is reviewing. The [canonical report](../report/slices/rev-input-navigation/slice-2-goto-line.md) records native command/prompt dispatch, numeric and source bounds, independent views and real PTY outcomes. T2.1: `645d5b45c8344e6a0033c0bf6679430235db8343`. T2.2: `4cf7b662a1b8200282800df1e38b0338e6f5969b`. Canonical PR and exact final-HEAD evidence are recorded through their verified handoff transitions.
 
 ### Slice 3: add explicit tabify and untabify
 
