@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 23 - Observe bounded filesystem candidates
+Active slice: Slice 24 - Complete and navigate file paths
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -608,7 +608,7 @@ Details and checks: [Slice 23](../plan/rev-configuration-ui.md#slice-23-observe-
 - [x] T23.1: Create a filesystem candidate provider for one current directory component with 4096-entry and 512-KiB-name-byte limits, safe retained path identities, directories-first byte-name ordering and cached filtering.
 - [x] T23.2: Handle relative/absolute paths, leading ~/, spaces and Unicode without shell expansion; separate lossless path identity from clipped/control-safe labels. Report non-UTF-8 names explicitly instead of opening lossy paths.
 - [x] T23.3: Create provider tests for ambiguous/common/unique prefixes, hidden names, symlinks, permission/disappearance errors and limits. No recursion, watcher or reads during rendering/filtering.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T23.1 `e08a241e09e1bdce280e4619a4839f42ee3f2dc8`;
 T23.2 `abb2f921ab3d4e553057ade991ff1347fd31fb34`;
@@ -616,10 +616,13 @@ T23.3 `5904932a76fe484dbd3d5d1d3906de6cf9649dca`.
 Thirteen native regressions cover cached literal filtering, ordered hidden names,
 explicit base/home roots, Unicode/control-safe and unsupported identities,
 refresh/error retention, child symlinks and entry/name-byte bounds. Focused Clippy
-and source checks pass with nesting at most two. Final readiness uses controller
-evidence for the clean PR head; dev integration remains pending.
+and source checks pass with nesting at most two. Final evidence
+`ZCOJKRCUPP3WQMVGH3Y3TZ2LU2` passed all five ordered checks at clean head
+`39cb2a1d1049409ec31ba8fccb7fb86a68cc2904`: 13 native filesystem tests, zero skips.
 Report: [Slice 23](../report/slices/rev-configuration-ui/slice-23-path-candidates.md).
-PR: [#72](https://forge.adrianpk.com/adrianpk/rev/pulls/72).
+PR: [#72](https://forge.adrianpk.com/adrianpk/rev/pulls/72);
+verified controller integration into dev at the same head.
+Acta merge event: `01M5Z2VGBE4P1KW5MZ2BAHSB3R`.
 
 ### Slice 24: Complete and navigate file paths
 

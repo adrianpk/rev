@@ -1,6 +1,6 @@
 # Slice 23: Observe bounded filesystem candidates
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -85,8 +85,10 @@ Successful development checks:
 - `cargo run --quiet --example source-check -- --source src/file/completion/query.rs --source tests/path_completion/identity.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/path_completion/observation.rs`: passed; nesting at most two.
 
-Final readiness uses controller evidence for the clean PR head after the
-PR-reference follow-up commit, with these ordered commands:
+Controller evidence `ZCOJKRCUPP3WQMVGH3Y3TZ2LU2` passed all five ordered checks
+at clean head `39cb2a1d1049409ec31ba8fccb7fb86a68cc2904`, including 13 native
+filesystem tests with zero skips. PR #72 integrated into dev at that same head.
+Acta merge event: `01M5Z2VGBE4P1KW5MZ2BAHSB3R`. Ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
