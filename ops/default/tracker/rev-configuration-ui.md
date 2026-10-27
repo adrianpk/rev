@@ -381,14 +381,16 @@ Details and checks: [Slice 14](../plan/rev-configuration-ui.md#slice-14-render-u
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T14.1 `eea4858ae3c2b16e174091f53020867ef0f81c1c`;
-T14.2 `7a665f6f4394a487d8344290b866a1e934727f91`.
+T14.2 `7a665f6f4394a487d8344290b866a1e934727f91`;
+T14.3 `c57478dedb74bedf16e17e6e2c9fad34289cfff9`.
 Focused cell-color checks passed for mixed panels, focus borders, tree selection,
 search/region precedence, message severity and escape safety. Real PTYs passed
 cursor/text cleanup, partial color writes, failed resets, raw-mode release,
 capability/NO_COLOR fallback and executable defaults. Focused Clippy and source
 checks passed. Final exact-head evidence belongs to the controller.
 Report: [Slice 14](../report/slices/rev-configuration-ui/slice-14-ui-palette.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#63](https://forge.adrianpk.com/adrianpk/rev/pulls/63);
+dev integration remains controller-owned.
 
 ### Slice 15: Apply presentation and syntax preferences
 

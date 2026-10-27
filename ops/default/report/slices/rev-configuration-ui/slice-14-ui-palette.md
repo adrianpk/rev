@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-14-ui-palette`
-PR: pending
+PR: [#63](https://forge.adrianpk.com/adrianpk/rev/pulls/63)
 
 ## Purpose
 
@@ -37,7 +37,7 @@ cursor/text colors through the terminal lifecycle, including partial failures.
   explicit message severity from existing handlers.
 - T14.2: `7a665f6f4394a487d8344290b866a1e934727f91` adds owned cursor
   color cleanup, bounded capability fallback, real PTY probes and color docs.
-- T14.3 decodes the actual writer's SGR/cursor output into effective cell colors
+- T14.3: `c57478dedb74bedf16e17e6e2c9fad34289cfff9` decodes the actual writer's SGR/cursor output into effective cell colors
   to test mixed panels, tree focus, overlays and safety. It completes explicit
   severity handling for tree/save outcomes and adds executable default coverage.
 - The palette remains snapshot-owned; frames retain disposable derived values.
