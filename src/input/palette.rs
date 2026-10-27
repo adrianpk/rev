@@ -129,8 +129,7 @@ impl Input {
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
         self.context = Context::Command(Palette::new(self.policy.input_limit)?);
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 

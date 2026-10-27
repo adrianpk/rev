@@ -1,4 +1,5 @@
 mod bindings;
+mod editor;
 mod inventory;
 mod key;
 pub mod keymap;
@@ -31,6 +32,7 @@ pub enum Prefix {
     Rectangle,
     Tree,
     Meta,
+    Sequence,
 }
 
 impl Prefix {
@@ -40,6 +42,7 @@ impl Prefix {
             Self::Rectangle => "C-x r",
             Self::Tree => "C-x t",
             Self::Meta => "ESC",
+            Self::Sequence => "Key sequence",
         }
     }
 }
@@ -108,6 +111,9 @@ enum Context {
 pub struct Input {
     context: Context,
     prefix: Option<Prefix>,
+    chords: Vec<Key>,
+    keymaps: keymap::Effective,
+    workspace_tree: bool,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
@@ -120,6 +126,7 @@ impl Input {
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
         Self {
             policy: settings.settings().minibuffer.clone(),
+            keymaps: settings.keymaps().clone(),
             ..Self::default()
         }
     }
@@ -164,16 +171,14 @@ impl Input {
         self.available()?;
         let prompt = Prompt::new(label, initial, self.policy.input_limit)?;
         self.context = Context::Argument(prompt);
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 
     pub fn decision(&mut self, label: &'static str) -> Result<(), Error> {
         self.available()?;
         self.context = Context::Decision(label);
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 
@@ -203,6 +208,9 @@ impl Input {
         let Some(key) = Key::normalize(event) else {
             return Outcome::Ignored;
         };
+        if event.kind == KeyEventKind::Repeat && !self.repeatable(key) {
+            return Outcome::Ignored;
+        }
         self.meta_key(key, now)
     }
 
@@ -219,8 +227,7 @@ impl Input {
 
     pub fn cancel(&mut self) {
         self.context = Context::Editing;
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         self.suppress_repeat = true;
     }
 
@@ -270,12 +277,14 @@ impl Input {
         outcome
     }
 
-    fn editing(&mut self, key: Key) -> Outcome {
+    fn legacy_editing(&mut self, key: Key) -> Outcome {
         match self.prefix.take() {
             Some(Prefix::ControlX) => self.control_x(key),
             Some(Prefix::Rectangle) => self.rectangle_key(key),
             Some(Prefix::Tree) => self.tree_key(key),
-            Some(Prefix::Meta) => unreachable!("Meta deadlines are separate from chord prefixes"),
+            Some(Prefix::Meta | Prefix::Sequence) => {
+                unreachable!("only native prefixes reach tree routing")
+            }
             None => self.base(key),
         }
     }
@@ -301,6 +310,10 @@ impl Input {
         if let Some(command) = bindings::binding(key) {
             return Outcome::Command(command);
         }
+        self.literal(key)
+    }
+
+    fn literal(&self, key: Key) -> Outcome {
         if key.plain().is_none() {
             return Outcome::Message("Unbound key");
         }

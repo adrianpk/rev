@@ -42,6 +42,15 @@ impl Sequence {
         Ok(Self(keys))
     }
 
+    /// Only normalized runtime keys enter this constructor. Unsupported native
+    /// key codes have no configured spelling and never reach sequence ordering.
+    pub(crate) fn from_chords(chords: &[Key]) -> Option<Self> {
+        let admitted = !chords.is_empty()
+            && chords.len() <= Self::MAX_CHORDS
+            && chords.iter().all(|key| supported(key.code));
+        admitted.then(|| Self(chords.to_vec()))
+    }
+
     pub fn chords(&self) -> &[Key] {
         &self.0
     }
@@ -179,4 +188,82 @@ fn navigation_order(code: KeyCode) -> u32 {
         KeyCode::PageDown => 7,
         _ => unreachable!("sequences contain only parsed named keys and scalars"),
     }
+}
+
+fn supported(code: KeyCode) -> bool {
+    matches!(
+        code,
+        KeyCode::Char(_)
+            | KeyCode::Enter
+            | KeyCode::Tab
+            | KeyCode::BackTab
+            | KeyCode::Backspace
+            | KeyCode::Delete
+            | KeyCode::Esc
+            | KeyCode::Left
+            | KeyCode::Right
+            | KeyCode::Up
+            | KeyCode::Down
+            | KeyCode::Home
+            | KeyCode::End
+            | KeyCode::PageUp
+            | KeyCode::PageDown
+    )
+}
+
+impl fmt::Display for Sequence {
+    fn fmt(&self, output: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (index, key) in self.0.iter().enumerate() {
+            if index > 0 {
+                output.write_str(" ")?;
+            }
+            write_modifiers(output, key.modifiers)?;
+            output.write_str(&key_name(key.code))?;
+        }
+        Ok(())
+    }
+}
+
+fn write_modifiers(output: &mut fmt::Formatter<'_>, modifiers: KeyModifiers) -> fmt::Result {
+    for (modifier, name) in [
+        (KeyModifiers::CONTROL, "C-"),
+        (KeyModifiers::ALT, "M-"),
+        (KeyModifiers::SHIFT, "S-"),
+    ] {
+        if modifiers.contains(modifier) {
+            output.write_str(name)?;
+        }
+    }
+    Ok(())
+}
+
+fn key_name(code: KeyCode) -> String {
+    if let KeyCode::Char(character) = code {
+        return if character == ' ' {
+            "SPC".into()
+        } else {
+            character.to_string()
+        };
+    }
+    [
+        (KeyCode::Enter, "RET"),
+        (KeyCode::Tab, "TAB"),
+        (KeyCode::BackTab, "BackTab"),
+        (KeyCode::Backspace, "Backspace"),
+        (KeyCode::Delete, "Delete"),
+        (KeyCode::Esc, "ESC"),
+        (KeyCode::Left, "Left"),
+        (KeyCode::Right, "Right"),
+        (KeyCode::Up, "Up"),
+        (KeyCode::Down, "Down"),
+        (KeyCode::Home, "Home"),
+        (KeyCode::End, "End"),
+        (KeyCode::PageUp, "PageUp"),
+        (KeyCode::PageDown, "PageDown"),
+    ]
+    .into_iter()
+    .find(|(key, _)| *key == code)
+    .expect("sequences contain only admitted keys")
+    .1
+    .into()
 }

@@ -3,8 +3,7 @@ use super::{Context, Input, Outcome};
 impl Input {
     /// A paste cancels pending chord modifiers but retains its focused owner.
     pub(super) fn paste(&mut self, text: String) -> Outcome {
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         self.suppress_repeat = true;
         match &mut self.context {
             Context::Editing => Outcome::Paste(text),

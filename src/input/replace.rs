@@ -10,16 +10,14 @@ impl Input {
     pub(crate) fn replace_argument(&mut self, label: &'static str) -> Result<(), Error> {
         self.available()?;
         self.context = Context::Literal(Prompt::new(label, "", self.policy.input_limit)?);
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 
     pub(crate) fn replace_decision(&mut self) -> Result<(), Error> {
         self.available()?;
         self.context = Context::ReplaceDecision;
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 }

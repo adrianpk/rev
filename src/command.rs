@@ -184,3 +184,25 @@ impl Command {
         matches!(self, Self::Kill(_) | Self::Linear(LinearCommand::Kill))
     }
 }
+
+impl Command {
+    /// Repetition belongs to the resolved action, independent of its chord.
+    /// Prefix completions and session/prompt transitions require fresh presses.
+    pub(crate) fn repeatable(self) -> bool {
+        matches!(
+            self,
+            Self::Newline
+                | Self::InsertTab
+                | Self::BackwardDeleteChar
+                | Self::DeleteChar
+                | Self::Motion(_)
+                | Self::Scroll(_)
+                | Self::History(_)
+                | Self::Region(_)
+                | Self::Kill(_)
+                | Self::Linear(_)
+                | Self::SearchForward
+                | Self::SearchBackward
+        )
+    }
+}

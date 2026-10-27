@@ -18,8 +18,7 @@ impl Input {
     /// explicit interaction cancellation command; standalone Escape clears chords.
     pub fn expire(&mut self, now: Instant) -> Outcome {
         if self.meta_deadline.is_some_and(|deadline| now >= deadline) {
-            self.meta_deadline = None;
-            self.prefix = None;
+            self.clear_prefix();
             self.suppress_repeat = true;
             return Outcome::Message("Escape");
         }
@@ -39,7 +38,7 @@ impl Input {
 
     fn escape(&mut self, now: Instant) -> Outcome {
         if self.meta_deadline.take().is_some() {
-            self.prefix = None;
+            self.clear_prefix();
             self.suppress_repeat = true;
             return Outcome::Message("Escape");
         }

@@ -15,8 +15,7 @@ impl Input {
     pub fn inventory(&mut self) -> Result<(), Error> {
         self.available()?;
         self.context = Context::Inventory;
-        self.prefix = None;
-        self.meta_deadline = None;
+        self.clear_prefix();
         Ok(())
     }
 

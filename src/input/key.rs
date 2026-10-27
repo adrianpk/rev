@@ -19,9 +19,6 @@ impl Key {
         key.character();
         key.modifier_aliases();
         key.terminal_aliases();
-        if event.kind == KeyEventKind::Repeat && !key.repeatable() {
-            return None;
-        }
         Some(key)
     }
 
@@ -48,7 +45,7 @@ impl Key {
         }
     }
 
-    fn repeatable(self) -> bool {
+    pub(super) fn repeatable(self) -> bool {
         super::bindings::binding(self).is_some() || matches!(self.plain(), Some(KeyCode::Char(_)))
     }
 

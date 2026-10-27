@@ -377,10 +377,14 @@ impl Session {
     }
 
     fn prefix_notice(&mut self, prefix: crate::input::Prefix) -> Action {
+        let label = self
+            .input
+            .prefix_label()
+            .unwrap_or_else(|| prefix.label().into());
         if prefix == crate::input::Prefix::Meta {
-            return self.focus_message(prefix.label());
+            return self.focus_message(&label);
         }
-        self.notice(prefix.label())
+        self.notice(&label)
     }
 
     fn resize(&mut self, width: u16, height: u16) -> Action {
