@@ -689,15 +689,16 @@ Details and checks: [Slice 26](../plan/rev-configuration-ui.md#slice-26-publish-
 
 Task commits: T26.1 `f71b106df0511709e9bbfe097fc55257f59b13a1`;
 T26.2 `030d2f2ed3d9231293a1a61e6a533944e14184f5`;
-T26.3 full report-introduction commit recorded in the PR follow-up.
+T26.3 `b965ba71ecc3223a70be78a5ae3412a53c33e0d2`.
 The complete sample has 25 active RGB roles and 109 default context bindings.
 All 59 catalog entries describe supported types, bounds, defaults and scopes.
 Eight native reference tests and seven named drift probes pass, along with
 focused Clippy/source and documentation-link checks; added Rust functions have
 nesting at most two. Schema/default evidence remains separate from UI acceptance.
-Final readiness requires controller evidence for the clean PR head; canonical
-PR creation and dev integration remain pending.
+Final readiness requires controller evidence for the clean PR head;
+dev integration remains pending.
 Report: [Slice 26](../report/slices/rev-configuration-ui/slice-26-configuration-reference.md).
+PR: [#75](https://forge.adrianpk.com/adrianpk/rev/pulls/75).
 
 ### Slice 27: Exercise combined terminal workflows
 

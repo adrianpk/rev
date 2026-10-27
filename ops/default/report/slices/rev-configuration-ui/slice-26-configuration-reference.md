@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `docs/rev-config-ui-26-configuration-reference`
-PR: pending canonical creation
+PR: [#75](https://forge.adrianpk.com/adrianpk/rev/pulls/75)
 
 ## Purpose
 
@@ -49,9 +49,8 @@ reference whose schema, defaults, bindings and examples are checked for drift.
   English sample with all accepted active defaults and commented optional blocks.
 - T26.2: `030d2f2ed3d9231293a1a61e6a533944e14184f5` expands existing reference
   pages, preserves the README product/build style and updates reader-facing links.
-- T26.3: the report-introduction commit adds deterministic schema/catalog checks,
+- T26.3: `b965ba71ecc3223a70be78a5ae3412a53c33e0d2` adds schema/catalog checks,
   typed/default/map/example/parser-bound tests, drift probes and this report.
-  Its full commit is recorded in the canonical PR follow-up.
 - The checker is a read-only test of the current model declarations and public
   sample. Rust remains the owner of type admission, resolution and compiled
   defaults. No runtime schema API, dependency or configuration behavior changes.
