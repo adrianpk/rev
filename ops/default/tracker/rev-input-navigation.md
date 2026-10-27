@@ -88,7 +88,7 @@ Details and exact checks: [Slice 4](../plan/rev-input-navigation.md#slice-4-defi
 - [x] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 4 native policy implementation is complete; canonical PR references and final exact-HEAD evidence are being prepared. The [canonical report](../report/slices/rev-input-navigation/slice-4-gutter-policy.md) records policy/lifecycle, checked geometry and invalidation evidence. T4.1: `3762cf7f1f26a5a8244f5ce904214d57ef5d645a`. T4.2: `e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca`.
+Slice 4 native policy implementation is complete; canonical PR [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-4-gutter-policy.md) records policy/lifecycle, checked geometry and invalidation evidence. T4.1: `3762cf7f1f26a5a8244f5ce904214d57ef5d645a`. T4.2: `e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca`. T4.3: `3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c`.
 
 ### Slice 5: render absolute logical line numbers
 

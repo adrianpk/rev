@@ -12,7 +12,8 @@ reported_at: 2026-10-27T19:35:00Z
 ready_at: 2026-10-27T21:28:15Z
 started_at: 2026-10-27T21:28:15Z
 branch: refactor/rev-input-04-gutter-policy
-commits: []
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/84
+commits: [3762cf7f1f26a5a8244f5ce904214d57ef5d645a, e3364ba61da2cb8fb8fbd8ef295f7079dc87b8ca, 3e83ab48b1d45bbc1b2f1d10630bca2b9dd9586c]
 ---
 
 # Deliver the approved native line-number gutter
@@ -43,3 +44,11 @@ Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navi
 and [tracker](../../tracker/rev-input-navigation.md) as the other six current
 work items. Follow its assigned primary slices, lifecycle and controller-owned
 integration/acceptance; do not create a separate successor run for this ticket.
+
+## Slice 4 evidence
+
+The [native policy report](../../report/slices/rev-input-navigation/slice-4-gutter-policy.md)
+records independent view policy, split/rebind/close lifetime and checked integer/
+cell geometry. Twelve native groups cover real session paths, source/view
+invalidation and boundary partitions. Canonical PR: [#84](https://forge.adrianpk.com/adrianpk/rev/pulls/84).
+The ticket remains in progress through its remaining assigned primary slices 5-8.
