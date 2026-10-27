@@ -78,12 +78,19 @@ Development checks:
 - `cargo test --test commands palette::`: passed.
 - `cargo test --test editing kills::`: passed.
 - `cargo test --test search edges::`: passed.
+- `cargo test --test search replace::argument_bounds`: passed after updating its exact feedback assertion.
 - `cargo clippy --lib --test commands --test search -- -D warnings`: passed.
 - `cargo test --test editing preferences::`: passed; four configured behavior tests.
 - `cargo test --test commands preferences::`: passed; seven configured behavior tests.
 - `cargo test --test rectangles preferences::`: passed; compound rectangle under both targets.
 - `cargo clippy --lib --test editing --test commands --test rectangles -- -D warnings`: passed.
 - `cargo run --quiet --example source-check -- --source tests/editing/preferences.rs --source tests/commands/preferences.rs --source tests/rectangles/preferences.rs`: passed; nesting at most two.
+
+The first controller attempt `LBAREC6ODUGA3M6ZD6W2VWZ2GS` at
+`e859f23f185e052f5e59f884fa5cf9da731c8892` passed the six required commands,
+then failed shared search validation because one query-replace assertion still
+expected a numeric default in feedback. That assertion now checks the exact
+configurable-limit message; its focused regression passed.
 
 The controller records final evidence on the clean PR head after its
 PR-reference follow-up commit. Required commands precede the focused shared

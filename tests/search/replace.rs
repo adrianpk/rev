@@ -352,7 +352,7 @@ fn argument_bounds() {
     open(&mut session, false);
     query(&mut session, &"x".repeat(4096));
     query(&mut session, "界");
-    assert!(session.echo().contains("4096"));
+    assert_eq!(session.echo(), "Prompt input limit exceeded");
     key(&mut session, KeyCode::Backspace, KeyModifiers::NONE);
     query(&mut session, "z");
     assert_eq!(session.echo(), "");
