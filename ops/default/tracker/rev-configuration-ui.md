@@ -155,13 +155,15 @@ Details and checks: [Slice 5](../plan/rev-configuration-ui.md#slice-5-identify-b
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T5.1 `35b6faeb78529d279ebbbbd01a53499e38f030d7`;
-T5.2 `0cd0ebf2291267ad7bd509f20a7cfaaae16bbbaa`; T5.3 recorded after commit.
+T5.2 `0cd0ebf2291267ad7bd509f20a7cfaaae16bbbaa`;
+T5.3 `4c59dd552f6a0ac3cfcbefe45c7c80b3ccae7d83`.
 Development validation: five focused configuration association tests, two file
 association tests and the adapted syntax association regression passed. Focused
 library/configuration/file Clippy passed. Final exact-head evidence belongs to
 the controller.
 Report: [Slice 5](../report/slices/rev-configuration-ui/slice-5-file-associations.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#54](https://forge.adrianpk.com/adrianpk/rev/pulls/54);
+dev integration remains controller-owned.
 
 ### Slice 6: Project buffer tab policies
 

@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-05-file-associations`
-PR: pending
+PR: [#54](https://forge.adrianpk.com/adrianpk/rev/pulls/54)
 
 ## Purpose
 
@@ -38,7 +38,8 @@ file destinations independent of visiting names.
   built-in table and deterministic association selection with two focused tests.
 - T5.2: `0cd0ebf2291267ad7bd509f20a7cfaaae16bbbaa` retains visiting names,
   exposes buffer language queries and tests alias/grammar/save behavior.
-- T5.3 adds source-layer, literal Unicode/raw-name and observation-free
+- T5.3: `4c59dd552f6a0ac3cfcbefe45c7c80b3ccae7d83` adds source-layer,
+  literal Unicode/raw-name and observation-free
   resolution cases and this report. All seven new focused tests pass, plus the
   adapted syntax association regression.
 - Rule selection scans the admitted mapping and a fixed built-in table. Exact
