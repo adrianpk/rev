@@ -2,6 +2,8 @@
 
 #[path = "configuration/catalog.rs"]
 mod catalog;
+#[path = "configuration/parsing.rs"]
+mod parsing;
 
 use rev::config::{Document, Grammar, IndentStyle};
 

@@ -4,6 +4,21 @@ use serde::Deserialize;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Rgb(pub u8, pub u8, pub u8);
 
+impl Rgb {
+    /// Decode exactly six ASCII hexadecimal digits with a leading hash.
+    pub fn parse(value: &str) -> Option<Self> {
+        let digits = value.strip_prefix('#')?;
+        if digits.len() != 6 || !digits.is_ascii() {
+            return None;
+        }
+        Some(Self(
+            u8::from_str_radix(&digits[0..2], 16).ok()?,
+            u8::from_str_radix(&digits[2..4], 16).ok()?,
+            u8::from_str_radix(&digits[4..6], 16).ok()?,
+        ))
+    }
+}
+
 /// Fixed semantic UI roles with the accepted Tokyo Night night defaults.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Palette {

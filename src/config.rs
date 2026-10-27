@@ -7,9 +7,14 @@
 //! Effective sizes count their documented units, not allocation capacities.
 //! These records are preparatory: startup loading and consumers are separate.
 
+mod diagnostic;
 mod palette;
+mod parse;
+mod validate;
 
+pub use diagnostic::{Diagnostic, Position};
 pub use palette::{Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette};
+pub use parse::parse;
 
 use std::collections::BTreeMap;
 
