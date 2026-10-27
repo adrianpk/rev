@@ -102,11 +102,7 @@ impl Buffers {
             ));
         }
         self.target_available(buffer.id(), save.target())?;
-        let base = save
-            .target()
-            .file_name()
-            .unwrap_or(save.target().as_os_str())
-            .to_string_lossy();
+        let base = save.target.basename().to_string_lossy();
         if buffer.name() == base
             || buffer
                 .file

@@ -1,4 +1,4 @@
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io;
 use std::path::{Component, Path, PathBuf};
@@ -10,6 +10,7 @@ use super::{Observation, observe};
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Location {
     path: PathBuf,
+    basename: OsString,
     present: bool,
     observed: Option<Observation>,
 }
@@ -17,6 +18,12 @@ pub struct Location {
 impl Location {
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// The lossless name used on the first visit, before canonicalizing aliases.
+    /// It is independent of both destination identity and unique display labels.
+    pub fn basename(&self) -> &OsStr {
+        &self.basename
     }
 
     pub fn is_present(&self) -> bool {
@@ -30,21 +37,42 @@ impl Location {
     pub(crate) fn missing(&self) -> Self {
         Self {
             path: self.path.clone(),
+            basename: self.basename.clone(),
             present: false,
             observed: None,
         }
     }
 
     pub(crate) fn relocated(&self, path: PathBuf) -> Self {
+        let basename = if path.file_name() == self.path.file_name() {
+            self.basename.clone()
+        } else {
+            path.file_name().unwrap_or(path.as_os_str()).to_owned()
+        };
         Self {
             path,
+            basename,
             ..self.clone()
+        }
+    }
+
+    /// Refresh disk evidence for an existing destination without replacing the
+    /// first visiting alias. An alternate destination keeps its requested name.
+    pub(crate) fn refreshed(&self, observed: Self) -> Self {
+        if self.path == observed.path {
+            Self {
+                basename: self.basename.clone(),
+                ..observed
+            }
+        } else {
+            observed
         }
     }
 
     pub(crate) fn published(&self, observed: Option<Observation>) -> Self {
         Self {
             path: self.path.clone(),
+            basename: self.basename.clone(),
             present: true,
             observed,
         }
@@ -78,6 +106,7 @@ fn resolve_path(path: &Path) -> io::Result<Location> {
     let present = observed.is_some();
     Ok(Location {
         path: resolved,
+        basename: path.file_name().unwrap_or(path.as_os_str()).to_owned(),
         present,
         observed,
     })

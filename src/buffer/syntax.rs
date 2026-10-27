@@ -1,8 +1,20 @@
+use std::path::Path;
+
+use crate::config::{Grammar, Snapshot};
 use crate::syntax::Syntax;
 
 use super::Buffer;
 
 impl Buffer {
+    /// Resolve the first visiting basename from a supplied immutable snapshot.
+    /// This query performs no file IO, syntax work or text/history mutation.
+    pub fn language<'a>(&self, settings: &'a Snapshot) -> &'a str {
+        self.file
+            .as_ref()
+            .map(|file| settings.language(Path::new(file.basename())))
+            .unwrap_or("plain")
+    }
+
     pub fn syntax(&self) -> &Syntax {
         &self.syntax
     }
@@ -26,11 +38,8 @@ impl Buffer {
     }
 
     pub(super) fn select_syntax(&mut self) {
-        let rust = self.file.as_ref().is_some_and(|file| {
-            file.path()
-                .extension()
-                .is_some_and(|extension| extension == "rs")
-        });
+        let settings = Snapshot::default();
+        let rust = settings.grammar(self.language(&settings)) == Grammar::Rust;
         self.syntax = if rust {
             Syntax::rust(Some(tree_sitter_rust::HIGHLIGHTS_QUERY))
         } else {

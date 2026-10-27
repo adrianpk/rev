@@ -35,11 +35,7 @@ impl Buffers {
         }
         let mut buffer = visiting(&location)?;
         let path = location.path().to_path_buf();
-        buffer.name = path
-            .file_name()
-            .unwrap_or(path.as_os_str())
-            .to_string_lossy()
-            .into_owned();
+        buffer.name = location.basename().to_string_lossy().into_owned();
         buffer.file = Some(location);
         buffer.select_syntax();
         Ok(Visit::New(Box::new(buffer), path))

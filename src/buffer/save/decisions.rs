@@ -35,6 +35,10 @@ impl Buffers {
         writable(buffer)?;
         let path = requested_path(buffer, target)?;
         let location = file::resolve(path)?;
+        let location = match &buffer.file {
+            Some(prior) => prior.refreshed(location),
+            None => location,
+        };
         self.target_available(id, location.path())?;
         let reason = reason(buffer, &location, target.is_some());
         let save = Save::capture(buffer, location);

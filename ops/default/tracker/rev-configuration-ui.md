@@ -150,7 +150,7 @@ Contracts: CFG09, CFG18, CFG21. Tickets: TKT-20261027103709.
 Details and checks: [Slice 5](../plan/rev-configuration-ui.md#slice-5-identify-buffer-languages).
 
 - [x] T5.1: Implement the exact built-in basename/suffix map from the model, with user rules overriding built-ins, exact names before suffixes and longest suffix specificity. Identical patterns use normal layer precedence; overlapping extensions are valid.
-- [ ] T5.2: Keep language identity independent of bundled grammar availability; unknown identities inherit global editing preferences and default to plain syntax. Retain the visible visiting basename when canonical file identity uses an alias.
+- [x] T5.2: Keep language identity independent of bundled grammar availability; unknown identities inherit global editing preferences and default to plain syntax. Retain the visible visiting basename when canonical file identity uses an alias.
 - [ ] T5.3: Cover compound suffixes, .h overrides, exact names, unknown extensions and Go policies without a Go grammar. Association resolution must not read directories or open a new file.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

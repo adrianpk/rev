@@ -137,7 +137,7 @@ fn cell_projection() {
     assert_eq!(text(buffer), source);
 }
 
-// Recognition follows canonical referents and successful destination changes,
+// Recognition follows visiting basenames and successful destination changes,
 // never a unique display label. Rename/save keep all document/history owners.
 #[test]
 fn association_modes() {
@@ -150,8 +150,8 @@ fn association_modes() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&fixture.path("alias.txt")).unwrap();
     let second = buffers.visit(&other).unwrap();
-    assert_eq!(buffers.get(id).unwrap().mode(), "Rust");
-    assert_eq!(buffers.get(second).unwrap().name(), "main.rs<2>");
+    assert_eq!(buffers.get(id).unwrap().mode(), "Text");
+    assert_eq!(buffers.get(second).unwrap().name(), "main.rs");
     assert_eq!(buffers.get(second).unwrap().mode(), "Rust");
     let stamp = buffers.get(id).unwrap().stamp();
     buffers
