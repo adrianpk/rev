@@ -190,6 +190,17 @@ Details and exact checks: [Slice 11](../plan/rev-input-navigation.md#slice-11-fo
 - [x] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
+Slice 11 of 20 implemented. Canonical PR [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91) targets dev.
+The [canonical report](../report/slices/rev-input-navigation/slice-11-pointer-hit-focus.md)
+records composed live hit ownership, checked painted-cell mapping, independent
+view focus, native region/history preservation and two owned SGR PTYs. Required
+canonical and focused clean-head checks are recorded by the controller after
+PR-reference follow-up. Integration remains pending; the pointer ticket stays
+active through its assigned primary slices 10-15.
+T11.1: `0aafffa4001ed294d38904b0a11c392c521bb71d`.
+T11.2: `f3958d9fabf4eee353d205f5ba725151c56228aa`.
+T11.3: `89329d0f0199ea0ddfd71bb50a764c62e51160bc`.
+
 ### Slice 12: scroll the pointed pane without changing focus
 
 Contracts: PTR01 PTR02.

@@ -4,8 +4,8 @@ title: Add mouse and trackpad scrolling, selection and pane focus
 status: in_progress
 ready_at: 2026-10-27T23:05:50Z
 started_at: 2026-10-27T23:05:50Z
-branch: feat/rev-input-10-pointer-lifetime
-pr: https://forge.adrianpk.com/adrianpk/rev/pulls/90
+branch: feat/rev-input-11-pointer-hit-focus
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/91
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,7 +13,7 @@ scope: ui
 tags: mouse, scrolling, selection
 source: chat
 reported_at: 2026-10-27T19:06:29Z
-commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d]
+commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d, 0aafffa4001ed294d38904b0a11c392c521bb71d, f3958d9fabf4eee353d205f5ba725151c56228aa, 89329d0f0199ea0ddfd71bb50a764c62e51160bc]
 ---
 
 # Add mouse and trackpad scrolling, selection and pane focus
@@ -95,3 +95,11 @@ Slice 10 integrated into dev through canonical PR
 records native admission, reversible terminal ownership, failure/retry, keyboard
 continuity and thirteen owned PTYs. Exact-candidate canonical and focused checks
 passed. This ticket remains in progress until all primary slices 10-15 integrate.
+
+Slice 11 is implemented in canonical PR [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91), targeting dev. Its
+[report](../../report/slices/rev-input-navigation/slice-11-pointer-hit-focus.md)
+records current tree/pane focus, checked text boundaries, prompt isolation,
+layout changes and unchanged file/history/region semantics. Twenty native
+pointer groups and two owned SGR PTYs passed in development; final clean-head
+evidence is recorded by the controller after PR references. Integration is
+pending. This ticket remains in progress across the remaining primary slices.
