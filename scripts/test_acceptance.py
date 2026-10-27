@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from acceptance import COMMANDS, catalog, digest, execution, manifest, native, references, source, terminal
+from acceptance import COMMANDS, EVIDENCE_COMMANDS, catalog, digest, execution, manifest, native, references, source, terminal
 from acceptance_delivery import PLAN, TRACKER, integrated, maps
 
 
@@ -111,14 +111,14 @@ class AcceptanceTests(unittest.TestCase):
         current = {"head": "a" * 40, "tree": "b" * 40}
         run = {"identity": current, "checks": [
             {"command": command, "passed": True, "log": f"{index}.log", "sha256": digest(NATIVE)}
-            for index, command in enumerate(COMMANDS[:6])
+            for index, command in enumerate(EVIDENCE_COMMANDS)
         ]}
         with tempfile.TemporaryDirectory(prefix="rev-acceptance-test-") as temporary:
             directory = Path(temporary)
             for check in run["checks"]:
                 (directory / check["log"]).write_text(NATIVE)
             (directory / "run.json").write_text(json.dumps(run))
-            self.assertEqual(execution(directory, current), [NATIVE] * 6)
+            self.assertEqual(execution(directory, current), dict.fromkeys(EVIDENCE_COMMANDS, NATIVE))
             changes = {}
             bad = copy.deepcopy(run); bad["identity"]["head"] = "c" * 40; changes["stale"] = bad
             bad = copy.deepcopy(run); bad["checks"].pop(); changes["missing"] = bad
@@ -129,6 +129,110 @@ class AcceptanceTests(unittest.TestCase):
                 (directory / "run.json").write_text(json.dumps(bad))
                 with self.subTest(name=name), self.assertRaises(ValueError):
                     execution(directory, current)
+
+
+class ConfigurationAcceptanceTests(unittest.TestCase):
+    # Eight actual named terminal completions are required; a smaller selection
+    # or a copied footer cannot establish the complete configuration journey set.
+    def test_config_terminal(self):
+        from configuration_ui.evidence import PTY_CASES, terminal
+        good = ''.join(f'PASS configuration-ui {name}\n' for name in PTY_CASES)
+        good += 'Configuration/UI terminal suite: 8 sessions passed, 0 skipped.\n'
+        terminal(good)
+        for name, bad in {
+            'missing': good.replace('PASS configuration-ui unwind\n', ''),
+            'duplicate': good.replace('PASS configuration-ui unwind', 'PASS configuration-ui io'),
+            'skipped': good + 'SKIP unavailable PTY\n',
+            'focused': good.replace('8 sessions', '1 sessions'),
+        }.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                terminal(bad)
+
+    # The exact requirement set and real native/terminal/workload references
+    # must survive independent map edits, not merely a count of passing commands.
+    def test_config_manifest(self):
+        from configuration_ui.evidence import MAP, manifest
+        root = Path(__file__).resolve().parent.parent
+        document = manifest(root)
+        with tempfile.TemporaryDirectory(prefix='rev-config-map-') as directory:
+            fixture = Path(directory)
+            (fixture / 'tests').symlink_to(root / 'tests', target_is_directory=True)
+            path = fixture / MAP
+            path.parent.mkdir(parents=True)
+            mutations = ['missing', 'duplicate', 'native', 'terminal', 'performance']
+            for name in mutations:
+                bad = copy.deepcopy(document)
+                change_manifest(bad, name)
+                path.write_text(json.dumps(bad))
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    manifest(fixture)
+
+    # Successful process exit does not replace bounded samples, fixture identity,
+    # positive read/parser controls, exact limits or event-driven idle evidence.
+    def test_config_performance(self):
+        from configuration_ui.evidence import performance
+        good = performance_document()
+        footer = '\nConfiguration/UI performance suite: 7 native workloads, 1 PTY session passed, 0 skipped.\n'
+        performance(json.dumps(good, indent=2) + footer)
+        for name in ['missing', 'samples', 'time', 'rss', 'fixture', 'reads', 'recursive', 'parser', 'idle']:
+            bad = copy.deepcopy(good)
+            change_performance(bad, name)
+            with self.subTest(name=name), self.assertRaises((ValueError, AssertionError)):
+                performance(json.dumps(bad, indent=2) + footer)
+
+
+def change_manifest(document, name):
+    if name == 'missing':
+        document['cases'].pop()
+    elif name == 'duplicate':
+        document['cases'][0]['id'] = 'CFG02'
+    elif name == 'native':
+        document['cases'][0]['native'][0]['target'] = 'tests/absent.rs'
+    elif name == 'terminal':
+        document['cases'][0]['pty'] = ['unknown']
+    else:
+        document['cases'][0]['performance'] = ['unknown']
+
+
+def performance_document():
+    from configuration_ui.evidence import EXPECTED
+    from configuration_ui.performance import BUDGET_US, SAMPLES
+    names = [name for group in EXPECTED.values() for name in group]
+    values = [{'workload': name, 'samples': SAMPLES[name], 'median_us': 10.0,
+               'max_us': 11.0, 'peak_rss_kib': 8192} for name in names]
+    values[-1].update(admitted_callbacks=1, oversize_callbacks=0, unchanged_callbacks=0)
+    proof = {kind: {'setup_open_access_events': 1, 'work_open_access_events': 0,
+                    'recursive_events': 0} for kind in EXPECTED}
+    proof['graph']['work_open_access_events'] = 64
+    idle = {'elapsed_ms': 350.0, 'output_bytes': 0, 'cpu_ms': 0.0}
+    return {'hardware': {'profile': 'release'}, 'native': values, 'observation': proof,
+            'budgets_us': BUDGET_US, 'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096,
+            'clock_ticks_per_second': 100,
+            'fixtures': {'graph': {'sources': 64, 'edges': 16, 'total_bytes': 2097152, 'max_source_bytes': 262144}},
+            'fixture_identity': {'entries': 6280, 'sha256': 'a' * 64},
+            'terminal': {'startup_ms': 20, 'restored_reaped_closed': True, 'editing_idle': idle.copy(),
+                         'prompt_idle': idle.copy(), 'idle_open_access_events': 0, 'peak_rss_kib': 8192}}
+
+
+def change_performance(document, name):
+    changes = {
+        'samples': ('samples', 0), 'time': ('max_us', 2000000), 'rss': ('peak_rss_kib', 999999),
+    }
+    if name in changes:
+        key, value = changes[name]
+        document['native'][0][key] = value
+    elif name == 'missing':
+        document['native'].pop()
+    elif name == 'fixture':
+        document['fixture_identity']['sha256'] = ''
+    elif name == 'reads':
+        document['observation']['redraw']['work_open_access_events'] = 1
+    elif name == 'recursive':
+        document['observation']['redraw']['recursive_events'] = 1
+    elif name == 'parser':
+        document['native'][-1]['admitted_callbacks'] = 0
+    else:
+        document['terminal']['prompt_idle']['cpu_ms'] = 350
 
 
 if __name__ == "__main__":

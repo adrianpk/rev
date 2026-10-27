@@ -75,7 +75,7 @@ def run(selected):
     started = time.perf_counter()
     baseline = runpy.run_path(str(ROOT / 'scripts/check-performance.py'))
     result = {'hardware': baseline['hardware'](), 'budgets_us': BUDGET_US,
-              'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096, 'native': [], 'observation': {}}
+              'clock_ticks_per_second': os.sysconf('SC_CLK_TCK'), 'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096, 'native': [], 'observation': {}}
     with tempfile.TemporaryDirectory(prefix='rev-configuration-performance-') as directory:
         root = Path(directory)
         result['fixtures'] = fixture(root)

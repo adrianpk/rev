@@ -785,7 +785,7 @@ PR: [#78](https://forge.adrianpk.com/adrianpk/rev/pulls/78).
 Contracts: CFG01-CFG22, modified R01/R17/R20/R22, UI01-UI04, baseline A01-A20. Tickets: TKT-20261027103715.
 Details and checks: [Slice 30](../plan/rev-configuration-ui.md#slice-30-verify-delivery-acceptance-and-references).
 
-- [ ] T30.1: Add a requirement-to-native/PTY/performance evidence map for this delivery and require it from scripts/check-all.sh, retaining all original eight checks and A01-A20 evidence protections. Detect missing cases, skipped suites, stale candidate identity or absent slice reports.
+- [x] T30.1: Add a requirement-to-native/PTY/performance evidence map for this delivery and require it from scripts/check-all.sh, retaining all original eight checks and A01-A20 evidence protections. Detect missing cases, skipped suites, stale candidate identity or absent slice reports.
 - [ ] T30.2: Reconcile selected baseline statements/default tables and rectangle references with accepted config/interaction contracts, keeping baseline history distinct from the new implementation evidence. Verify sample, docs and all eleven ticket outcomes agree with actual delivered behavior.
 - [ ] T30.3: Prepare all 30 reports, resolved ticket paths and acceptance prerequisites; do not run the full gate in the worker. After controller-owned exact-dev full-gate success, close only approved artifacts using that evidence, record Acta outcome and stop without main promotion.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.

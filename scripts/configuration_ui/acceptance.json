@@ -1,0 +1,775 @@
+{
+  "version": 1,
+  "canonical_map_sha256": "7c5b9d234dc19de1df8c136f2f33fccd6c13704a2087af441a718e617ab69394",
+  "cases": [
+    {
+      "id": "CFG01",
+      "condition": "XDG locations and ownership",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "xdg::independent_roots"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "xdg::passive_locations"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution_contract::explicit_user_sources"
+        }
+      ],
+      "pty": [
+        "missing",
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG02",
+      "condition": "Declarative typed TOML",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "parsing::admitted_sources"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "parsing::rejected_sources"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::discovered_consumers"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG03",
+      "condition": "Built-in defaults and per-key overrides",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "parsing::rejected_shapes"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "scopes::rejected_scopes"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "boundaries::integer_bounds"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "candidate::whole_candidate_fallback"
+        }
+      ],
+      "pty": [
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG04",
+      "condition": "One configurable palette",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "catalog::palette_defaults"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution_contract::palette_projection"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "palette::safe_colors"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "palette::syntax_overrides"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "configured-no-color",
+        "io",
+        "unwind"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG05",
+      "condition": "Exhaustive self-documenting sample",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::sample_defaults"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::optional_language"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::optional_associations"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG06",
+      "condition": "Commented examples preserve fallback behavior",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::sample_maps"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::context_reference"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG07",
+      "condition": "Explicit ordered file composition",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "includes::declared_order"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "merging::present_values"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution::source_precedence"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution_contract::resolved_presence"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": [
+        "graph"
+      ]
+    },
+    {
+      "id": "CFG08",
+      "condition": "Bounded include graph",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::alias_cycles"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::depth_limit"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::occurrence_limit"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::source_byte_limit"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::total_byte_limit"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::denied_sources"
+        }
+      ],
+      "pty": [
+        "rejected"
+      ],
+      "performance": [
+        "graph"
+      ]
+    },
+    {
+      "id": "CFG09",
+      "condition": "Global and language-specific scope",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution::language_precedence"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "associations::user_precedence"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "associations::layered_patterns"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "associations::retained_alias"
+        }
+      ],
+      "pty": [
+        "workspace-rgb",
+        "workspace-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG10",
+      "condition": "Indentation and literal tab display",
+      "native": [
+        {
+          "target": "tests/coordinates.rs",
+          "test": "policy::tab_stops"
+        },
+        {
+          "target": "tests/coordinates.rs",
+          "test": "policy::policy_seams"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "indent::indent_stops"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "indent::literal_paste"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "workspace-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG11",
+      "condition": "Coherent display and rectangle policy",
+      "native": [
+        {
+          "target": "tests/windows.rs",
+          "test": "policy::shared_policy"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "transfer::cross_width"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "boundaries::formatted_transfer"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "configured::rename_history"
+        }
+      ],
+      "pty": [
+        "workspace-rgb"
+      ],
+      "performance": [
+        "redraw"
+      ]
+    },
+    {
+      "id": "CFG12",
+      "condition": "Context-specific keybindings",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::inherited_maps"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "context_keymaps::context_isolation"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "editor_keymaps::named_parity"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG13",
+      "condition": "Validate key sequences before activation",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::merged_conflict"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::cancel_guard"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::indistinguishable_chords"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::rejected_replacement"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG14",
+      "condition": "Startup errors keep usable defaults",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "candidate::whole_candidate_fallback"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::errors::unreadable_sources"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::errors::rejected_candidate"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::errors::missing_source"
+        }
+      ],
+      "pty": [
+        "missing",
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG15",
+      "condition": "Startup-only application",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "candidate::fixed_snapshot"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::lifetime::restart_snapshot"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG16",
+      "condition": "Preserve file-format and save guarantees",
+      "native": [
+        {
+          "target": "tests/files.rs",
+          "test": "format::existing_word_edit"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "format::new_file_journey"
+        },
+        {
+          "target": "tests/files.rs",
+          "test": "saving::policy::save_policy"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "boundaries::formatted_transfer"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "configured::rename_history"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "missing",
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG17",
+      "condition": "Bounded history and ring preferences",
+      "native": [
+        {
+          "target": "tests/editing.rs",
+          "test": "preferences::group_retention"
+        },
+        {
+          "target": "tests/editing.rs",
+          "test": "preferences::ring_eviction"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "preferences::compound_retention"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "preferences::command_retention"
+        }
+      ],
+      "pty": [
+        "workspace-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG18",
+      "condition": "Configure bundled syntax behavior",
+      "native": [
+        {
+          "target": "tests/syntax.rs",
+          "test": "preferences::parser_admission"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "preferences::byte_cutoff"
+        },
+        {
+          "target": "tests/syntax.rs",
+          "test": "preferences::grammar_policy"
+        }
+      ],
+      "pty": [
+        "workspace-rgb"
+      ],
+      "performance": [
+        "syntax"
+      ]
+    },
+    {
+      "id": "CFG19",
+      "condition": "Tree and layout preferences preserve state",
+      "native": [
+        {
+          "target": "tests/windows.rs",
+          "test": "preferences::ratio_minima"
+        },
+        {
+          "target": "tests/panels.rs",
+          "test": "workspace::workspace_grid"
+        },
+        {
+          "target": "tests/panels.rs",
+          "test": "rendering::workspace_tree"
+        }
+      ],
+      "pty": [
+        "workspace-rgb",
+        "workspace-no-color"
+      ],
+      "performance": [
+        "redraw"
+      ]
+    },
+    {
+      "id": "CFG20",
+      "condition": "Catalog scope and capability truthfulness",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::sample_defaults"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference_bounds::integer_bounds"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "preferences::bounded_command_names"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG21",
+      "condition": "Explicit source selection",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "resolution_contract::explicit_user_sources"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "include_bounds::literal_paths"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "associations::name_only"
+        }
+      ],
+      "pty": [
+        "missing",
+        "rejected"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG22",
+      "condition": "Acceptance and reference consistency",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::discovered_consumers"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "stale::changed_contents"
+        },
+        {
+          "target": "tests/recovery.rs",
+          "test": "configured::rename_history"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "configured-no-color",
+        "workspace-rgb",
+        "workspace-no-color",
+        "missing",
+        "rejected",
+        "io",
+        "unwind"
+      ],
+      "performance": [
+        "graph",
+        "redraw",
+        "syntax"
+      ]
+    },
+    {
+      "id": "R01",
+      "condition": "Product identity and runtime boundary",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::discovered_consumers"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "scopes::rejected_scopes"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "palette::catalog_reference"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "missing"
+      ],
+      "performance": []
+    },
+    {
+      "id": "R17",
+      "condition": "Direct insertion and deletion",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "indent::dispatch_admission"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "indent::indent_stops"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "paste::literal_payload"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "R20",
+      "condition": "Rectangle selection and block editing",
+      "native": [
+        {
+          "target": "tests/rectangles.rs",
+          "test": "capture::policy_kill"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "transfer::cross_width"
+        },
+        {
+          "target": "tests/rectangles.rs",
+          "test": "boundaries::formatted_transfer"
+        }
+      ],
+      "pty": [
+        "workspace-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "R22",
+      "condition": "One static command registry",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "keymaps::complete_defaults"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "editor_keymaps::named_parity"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "context_keymaps::guards::filesystem_consent"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": []
+    },
+    {
+      "id": "UI01",
+      "condition": "Common panel composition",
+      "native": [
+        {
+          "target": "tests/panels.rs",
+          "test": "rendering::crossed_frame"
+        },
+        {
+          "target": "tests/panels.rs",
+          "test": "workspace::auxiliary_workspace"
+        },
+        {
+          "target": "tests/windows.rs",
+          "test": "resize::tiny_interactions"
+        }
+      ],
+      "pty": [
+        "workspace-rgb",
+        "workspace-no-color"
+      ],
+      "performance": [
+        "redraw"
+      ]
+    },
+    {
+      "id": "UI02",
+      "condition": "Vertical command completion",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "vertical::vertical_rows"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "selection::acceptance_rules"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "selection::separate_history"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "vertical::geometry::workspace_resize"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "configured-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "UI03",
+      "condition": "Filesystem path completion",
+      "native": [
+        {
+          "target": "tests/path_completion.rs",
+          "test": "acceptance::typed_file"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "acceptance::directory_return"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "navigation::grapheme_prefixes"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "stale::changed_kind"
+        }
+      ],
+      "pty": [
+        "configured-rgb",
+        "configured-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "UI04",
+      "condition": "Bounded and safe candidate observation",
+      "native": [
+        {
+          "target": "tests/path_completion.rs",
+          "test": "observation::entry_limits"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "observation::name_limit"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "stale::changed_contents"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "failures::vanished_choice"
+        },
+        {
+          "target": "tests/path_completion.rs",
+          "test": "edges::bounded_completion"
+        }
+      ],
+      "pty": [
+        "configured-rgb"
+      ],
+      "performance": [
+        "entries_observe",
+        "entries_filter",
+        "names_observe",
+        "names_filter"
+      ]
+    }
+  ]
+}

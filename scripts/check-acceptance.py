@@ -11,6 +11,7 @@ import tempfile
 
 from acceptance import COMMANDS, catalog, digest, execution, identity, journeys, manifest, native, performance, references, source, terminal
 from acceptance_delivery import delivery
+from configuration_ui.evidence import prerequisites as configuration_prerequisites, validate as configuration_evidence
 
 
 def gate(root):
@@ -52,15 +53,18 @@ def main():
     if args.prerequisites:
         result = subprocess.run(["cargo", "test", "--all", "--", "--list"], cwd=root,
                                 text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True)
-        references(document["cases"], catalog(result.stdout, listing=True))
+        cases = catalog(result.stdout, listing=True)
+        references(document["cases"], cases)
+        configuration_prerequisites(root, cases)
         print("Acceptance prerequisites: A01-A20 map, native cases, four journeys, 48 fixed identities and report state resolved; no gate result claimed.")
         return
     logs = execution(os.environ.get("REV_ACCEPTANCE_RUN"), identity(root))
-    cases = native(logs[2])
+    cases = native(logs["cargo test --all"])
     references(document["cases"], cases)
-    source(logs[3])
-    terminal(logs[4])
-    performance(logs[5])
+    source(logs["python3 scripts/check-source.py"])
+    terminal(logs["python3 scripts/check-pty.py --suite acceptance"])
+    performance(logs["python3 scripts/check-performance.py"])
+    configuration_evidence(root, logs, cases)
     print(f"Acceptance evidence: A01-A20 passed on the same clean HEAD; {len(cases)} native tests, four PTY journeys, two performance fixtures; zero skips.")
 
 

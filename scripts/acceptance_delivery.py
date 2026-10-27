@@ -4,7 +4,7 @@ import re
 import subprocess
 import tomllib
 
-from acceptance import COMMANDS, digest, require
+from acceptance import BASELINE_COMMANDS as COMMANDS, digest, require
 
 
 PLAN = "ops/default/plan/rev-editor.md"
@@ -33,7 +33,8 @@ def maps(root, document):
 def scope(root):
     package = tomllib.loads((root / "Cargo.toml").read_text())
     expected = {"crossterm": "=0.29.0", "ropey": "=1.6.1", "unicode-segmentation": "=1.13.3",
-                "unicode-width": "=0.2.2", "tree-sitter": "=0.27.1", "tree-sitter-rust": "=0.24.2"}
+                "unicode-width": "=0.2.2", "tree-sitter": "=0.27.1", "tree-sitter-rust": "=0.24.2",
+                "toml": "=1.1.8", "serde": "=1.0.229"}
     dependencies = {name: value if isinstance(value, str) else value["version"]
                     for name, value in package["dependencies"].items()}
     require(dependencies == expected and not package.get("dev-dependencies") and not package.get("build-dependencies"), "approved direct dependency scope changed")

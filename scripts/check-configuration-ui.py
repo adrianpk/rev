@@ -8,6 +8,7 @@ import tempfile
 import time
 
 from configuration_ui.journeys import configured, fallback
+from configuration_ui.evidence import GROUPS, discover
 from configuration_ui.lifetime import fault
 from configuration_ui.performance import KINDS, run as performance
 from configuration_ui.support import ROOT
@@ -28,8 +29,9 @@ def terminal(selected):
     for name, scenario, variants in cases:
         if selected is not None and selected != name:
             continue
-        for variant in variants:
+        for variant, label in zip(variants, GROUPS[name], strict=True):
             run_scenario(scenario, variant)
+            print(f'PASS configuration-ui {label}')
             count += 1
     assert count > 0
     print(f'Configuration/UI terminal suite: {count} sessions passed, 0 skipped.')
@@ -43,10 +45,15 @@ def run_scenario(scenario, variant):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--suite', choices=['terminal', 'performance'], required=True)
+    parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
     parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
+    if args.suite == 'prerequisites':
+        if args.case is not None or args.workload is not None:
+            parser.error('prerequisites requires complete evidence discovery')
+        discover(ROOT)
+        return
     if args.suite == 'performance':
         if args.case is not None:
             parser.error('--case requires the terminal suite')

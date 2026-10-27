@@ -9,7 +9,7 @@ import re
 import subprocess
 
 
-COMMANDS = [
+BASELINE_COMMANDS = [
     "cargo fmt --all -- --check",
     "cargo clippy --all-targets --all-features -- -D warnings",
     "cargo test --all",
@@ -19,6 +19,13 @@ COMMANDS = [
     "python3 scripts/check-acceptance.py",
     "git diff --check",
 ]
+CONFIGURATION_COMMANDS = [
+    "python3 scripts/check-config-reference.py",
+    "python3 scripts/check-configuration-ui.py --suite terminal",
+    "python3 scripts/check-configuration-ui.py --suite performance",
+]
+COMMANDS = BASELINE_COMMANDS[:-2] + CONFIGURATION_COMMANDS + BASELINE_COMMANDS[-2:]
+EVIDENCE_COMMANDS = COMMANDS[:-2]
 JOURNEYS = {"acceptance_document", "acceptance_blocks", "acceptance_workspace", "acceptance_failure"}
 WORKLOADS = {"load", "search", "insert", "delete", "scroll", "split_redraw", "highlighting", "syntax_work"}
 
@@ -137,14 +144,14 @@ def execution(directory, current):
     run = json.loads((directory / "run.json").read_text())
     require(run["identity"] == current, "stale gate evidence: clean HEAD/tree changed")
     checks = run["checks"]
-    require([c["command"] for c in checks] == COMMANDS[:6], "missing or reordered gate checks")
+    require([c["command"] for c in checks] == EVIDENCE_COMMANDS, "missing or reordered gate checks")
     logs = []
     for index, check in enumerate(checks):
         require(check["passed"] is True and check["log"] == f"{index}.log", "failed or invalid gate record")
         log = (directory / check["log"]).read_text()
         require(digest(log) == check["sha256"], "changed gate log")
         logs.append(log)
-    return logs
+    return dict(zip(EVIDENCE_COMMANDS, logs, strict=True))
 
 
 def journeys(root):
