@@ -4,8 +4,8 @@ title: Add mouse and trackpad scrolling, selection and pane focus
 status: in_progress
 ready_at: 2026-10-27T23:05:50Z
 started_at: 2026-10-27T23:05:50Z
-branch: feat/rev-input-11-pointer-hit-focus
-pr: https://forge.adrianpk.com/adrianpk/rev/pulls/91
+branch: feat/rev-input-12-pointer-scroll
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/92
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,7 +13,7 @@ scope: ui
 tags: mouse, scrolling, selection
 source: chat
 reported_at: 2026-10-27T19:06:29Z
-commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d, 0aafffa4001ed294d38904b0a11c392c521bb71d, f3958d9fabf4eee353d205f5ba725151c56228aa, 89329d0f0199ea0ddfd71bb50a764c62e51160bc]
+commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d, 0aafffa4001ed294d38904b0a11c392c521bb71d, f3958d9fabf4eee353d205f5ba725151c56228aa, 89329d0f0199ea0ddfd71bb50a764c62e51160bc, 7d2c71c78fd591c6b8bc12bd55790424ec99c9d7, 9f4f1c199d829c2099ca0ab29c39233ddb8ac1dd, 265527a3237817182e791afde228bb31cef4d1a9]
 ---
 
 # Add mouse and trackpad scrolling, selection and pane focus
@@ -105,3 +105,11 @@ region/history preservation. Canonical evidence `IBT4WLILH3CAXCVW2IBSGQN2V6`
 and focused evidence `RCVKDXA4MARYXGAGBUIJICY374` passed on that candidate.
 Slice 12 is active; this ticket remains in progress until all primary slices
 10-15 integrate.
+
+Slice 12 is implemented in canonical PR [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92), targeting dev. Its
+[report](../../report/slices/rev-input-navigation/slice-12-pointer-scroll.md)
+records native hovered-pane/tree scrolling without focus changes, checked bounds,
+source fidelity, history continuity and real SGR/idle outcomes. Required and
+focused exact-head evidence is recorded by the controller after PR references.
+Integration remains pending. The ticket stays in progress through all assigned
+primary integrations.

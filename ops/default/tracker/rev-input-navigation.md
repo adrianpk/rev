@@ -212,6 +212,17 @@ Details and exact checks: [Slice 12](../plan/rev-input-navigation.md#slice-12-sc
 - [x] T12.3: Verify both directions, inactive targets, large/empty documents, tree and nested panes; add no simulated inertia, idle loop or competing scrolling owner.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
+Slice 12 of 20 implemented. Canonical PR [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92) targets dev.
+The [canonical report](../report/slices/rev-input-navigation/slice-12-pointer-scroll.md)
+records current viewport ownership, checked target adjustment, keyboard and
+shared-history continuity, tree fixture reconciliation and two owned wheel PTYs.
+Required canonical and focused exact-head checks are recorded through the
+controller after PR references. Integration remains pending; the pointer ticket
+stays active through its assigned primary slices 10-15.
+T12.1: `7d2c71c78fd591c6b8bc12bd55790424ec99c9d7`.
+T12.2: `9f4f1c199d829c2099ca0ab29c39233ddb8ac1dd`.
+T12.3: `265527a3237817182e791afde228bb31cef4d1a9`.
+
 ### Slice 13: select canonical text by dragging
 
 Contracts: PTR03 PTR04.
