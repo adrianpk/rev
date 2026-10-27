@@ -1,11 +1,12 @@
 # Slice 8: Preserve gutter geometry across editor surfaces
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `fix/rev-input-08-gutter-geometry`
 PR: [#88](https://forge.adrianpk.com/adrianpk/rev/pulls/88)
+Integrated: `36f51884dcb612d158f30e983e4bfc744a6b1425`
 
 ## Purpose
 
@@ -53,8 +54,8 @@ returns `Wait`. Two owned PTYs separately observe no output or process CPU ticks
 during a 120 ms idle sample. These are bounded functional/idle observations,
 not the later combined performance workload gate.
 
-The gutter ticket remains active until verified integration of its final primary
-Slice 8, preserving its assigned primary-slice closure condition.
+The gutter ticket is solved after verified integration of its final primary
+Slice 8, completing its assigned primary-slice closure condition.
 
 ## Contracts Added or Changed
 
@@ -93,7 +94,7 @@ projection; GUT14 verifies native and terminal editor boundaries.
   CPU-tick samples. Every owned child and terminal descriptor is restored/reaped;
   eight-second and one-MiB limits remain unchanged.
 
-The controller records final clean-HEAD results for this canonical list:
+PASS at the integrated candidate: canonical evidence `4A5ONRVDX3SWXO2BURK7XEQHND` records all five checks and 190 native tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -101,7 +102,7 @@ The controller records final clean-HEAD results for this canonical list:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Separate focused final evidence uses the same head and this ordered list:
+PASS on the same candidate: focused evidence `ZT6RD6WPWNZZWLVLV7CTY4VZ3G` records 70 native tests, reference checks and two owned PTYs:
 
 - `cargo test --test rectangles --test syntax`
 - `python3 scripts/check-config-reference.py`

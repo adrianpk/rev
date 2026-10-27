@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 8 - preserve gutter geometry across editor surfaces
+Active slice: Slice 9 - align pane status into left and right groups
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -134,9 +134,9 @@ Details and exact checks: [Slice 8](../plan/rev-input-navigation.md#slice-8-pres
 - [x] T8.1: Complete narrow/zero/resized geometry with the accepted degradation order, left/right placement, nested splits, tree and completion-region coexistence.
 - [x] T8.2: Audit every display-to-text consumer including rectangles, hit-test preparation, search overlays and status bounds; avoid independent coordinate recipes.
 - [x] T8.3: Exercise actual editing/reveal/save/history and mode switches, verify no idle gutter work or retained per-document label arrays, and close the gutter ticket only after its assigned integrations.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 8 implementation is complete; canonical PR [#88](https://forge.adrianpk.com/adrianpk/rev/pulls/88) targets dev. Final clean-HEAD evidence is recorded through the controller before handoff. Integration remains pending, including final gutter-ticket closure after its assigned primary integrations. The [canonical report](../report/slices/rev-input-navigation/slice-8-gutter-geometry.md) records decoded lane bounds, fixed coordinate consumers and owned terminal/history/idle evidence. T8.1: `5ce05ad03e318bdb03b742a1678f3f679488789c`. T8.2: `b859c68e3e388aa11c65874adbdde19a70f05c50`. T8.3: `3f9b595850797ef5064d0c833eebed4b07388c23`.
+Slice 8 of 20 completed. Canonical PR [#88](https://forge.adrianpk.com/adrianpk/rev/pulls/88) integrated into dev at `36f51884dcb612d158f30e983e4bfc744a6b1425`. Canonical evidence `4A5ONRVDX3SWXO2BURK7XEQHND` and focused evidence `ZT6RD6WPWNZZWLVLV7CTY4VZ3G` passed on that candidate. The gutter ticket is solved after its assigned primary integrations. Slice 9 is active. The [canonical report](../report/slices/rev-input-navigation/slice-8-gutter-geometry.md) records decoded lane bounds, fixed coordinate consumers and owned terminal/history/idle evidence. T8.1: `5ce05ad03e318bdb03b742a1678f3f679488789c`. T8.2: `b859c68e3e388aa11c65874adbdde19a70f05c50`. T8.3: `3f9b595850797ef5064d0c833eebed4b07388c23`.
 
 ### Slice 9: align pane status into left and right groups
 
