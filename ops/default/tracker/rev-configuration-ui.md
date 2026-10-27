@@ -682,10 +682,22 @@ PR: [#74](https://forge.adrianpk.com/adrianpk/rev/pulls/74).
 Contracts: CFG05-CFG06, CFG20, CFG22, UI01-UI04. Tickets: TKT-20261027103714.
 Details and checks: [Slice 26](../plan/rev-configuration-ui.md#slice-26-publish-exhaustive-configuration-reference).
 
-- [ ] T26.1: Create docs/reference/config.toml with every accepted option, all 25 palette values active, complete default bindings for all three contexts and commented supported optional include/language/association examples. Keep all comments English.
-- [ ] T26.2: Document types, bounds, units, scopes, defaults, precedence, invalid-config fallback, startup-only semantics, terminal limitations and the three new UI flows in existing docs. Keep future controls out of the operational sample.
-- [ ] T26.3: Add deterministic schema/default/sample and command-map consistency checks. Validate actual runtime effects separately; parsing a sample is not UI acceptance. Preserve the concise README product/build style.
+- [x] T26.1: Create docs/reference/config.toml with every accepted option, all 25 palette values active, complete default bindings for all three contexts and commented supported optional include/language/association examples. Keep all comments English.
+- [x] T26.2: Document types, bounds, units, scopes, defaults, precedence, invalid-config fallback, startup-only semantics, terminal limitations and the three new UI flows in existing docs. Keep future controls out of the operational sample.
+- [x] T26.3: Add deterministic schema/default/sample and command-map consistency checks. Validate actual runtime effects separately; parsing a sample is not UI acceptance. Preserve the concise README product/build style.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T26.1 `f71b106df0511709e9bbfe097fc55257f59b13a1`;
+T26.2 `030d2f2ed3d9231293a1a61e6a533944e14184f5`;
+T26.3 full report-introduction commit recorded in the PR follow-up.
+The complete sample has 25 active RGB roles and 109 default context bindings.
+All 59 catalog entries describe supported types, bounds, defaults and scopes.
+Eight native reference tests and seven named drift probes pass, along with
+focused Clippy/source and documentation-link checks; added Rust functions have
+nesting at most two. Schema/default evidence remains separate from UI acceptance.
+Final readiness requires controller evidence for the clean PR head; canonical
+PR creation and dev integration remain pending.
+Report: [Slice 26](../report/slices/rev-configuration-ui/slice-26-configuration-reference.md).
 
 ### Slice 27: Exercise combined terminal workflows
 

@@ -20,6 +20,10 @@ mod keymaps;
 mod merging;
 #[path = "configuration/parsing.rs"]
 mod parsing;
+#[path = "configuration/reference.rs"]
+mod reference;
+#[path = "configuration/reference_bounds.rs"]
+mod reference_bounds;
 #[path = "configuration/resolution.rs"]
 mod resolution;
 #[path = "configuration/resolution_contract.rs"]

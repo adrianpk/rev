@@ -81,6 +81,7 @@ bom = false
 # Optional associations: uncomment entries below to override built-in recognition.
 # "*.go" = "go"
 # "Buildfile" = "go"
+
 # Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
 # followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
 
@@ -245,5 +246,6 @@ punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
 # indent_width = 4
 # tab_width = 8
 # grammar = "plain"
+
 # Only "rust" and "plain" grammars exist. The rust ID defaults to "rust";
 # every other ID defaults to "plain". Language identity does not install a parser.
