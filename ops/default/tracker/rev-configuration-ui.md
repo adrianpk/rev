@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 29 - Bound startup and completion work
+Active slice: Slice 30 - Verify delivery acceptance and references
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -763,7 +763,7 @@ Details and checks: [Slice 29](../plan/rev-configuration-ui.md#slice-29-bound-st
 - [x] T29.1: Extend reproducible performance fixtures for maximal admitted include graphs, directory candidate limits/filter reuse, panel redraw with tabbed Unicode and syntax cutoff behavior.
 - [x] T29.2: Check event-driven idle behavior, bounded config/candidate allocations and absence of recursive directory work or filesystem reads on draw. Retain the original load/search/edit/scroll/syntax budgets and fixtures.
 - [x] T29.3: Record environment, workload sizes, measured values and enforced budgets. Fix demonstrated regressions within scope; do not add speculative tuning or weaken a failing budget.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T29.1 `651051c5f19fc716234a380255d7b9ebf64e5e49`; T29.2 `f6534d4974f24dcb244a14c29bc17b5ccae0e412`;
 T29.3 `7c2a072fb2d69ab4f5386ce9141f3cfed25a7056`.
@@ -772,8 +772,11 @@ configured PTY with editing/prompt idle. Exact graph/directory limits, zero
 cached/recursive fixture open/access events, parser cutoff controls, unchanged
 fixture hashes and timing/RSS budgets are enforced. The report records local
 hardware/compiler, sample counts, measurements and explicit evidence limits.
-Historical performance owners and budgets remain unchanged. Final readiness
-requires controller evidence for the clean PR head; dev integration is pending.
+Historical performance owners and budgets remain unchanged. All six ordered checks passed on `aa652074dbc9cf9d620bf7cf10fc25ec9a1499eb`, controller validation
+`N6IXWKSRAJCFDKXTA3ACRZI7V4`. Seven new native workloads and one PTY passed with
+zero skips; both historical fixtures/eight workloads each and two PTYs passed.
+Canonical PR #78 integrated that exact head by Rebase + Fast-forward into dev.
+Slice 29 of 30 completed.
 Report: [Slice 29](../report/slices/rev-configuration-ui/slice-29-configuration-ui-performance.md).
 PR: [#78](https://forge.adrianpk.com/adrianpk/rev/pulls/78).
 

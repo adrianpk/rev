@@ -1,6 +1,6 @@
 # Slice 29: Bound startup and completion work
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -135,8 +135,11 @@ Successful development commands:
   parameters, nesting one and cyclomatic complexity nine. Python AST syntax and
   parameter bounds passed for the runner and performance helper modules.
 
-Final readiness requires controller evidence for the clean PR head after the
-PR-reference follow-up commit, in this exact order:
+All six commands passed on clean head `aa652074dbc9cf9d620bf7cf10fc25ec9a1499eb`, controller validation
+`N6IXWKSRAJCFDKXTA3ACRZI7V4`. The new suite passed seven native workloads and
+one PTY with zero skips in 3.461 seconds excluding build. Both historical
+fixtures, eight workloads each and two PTYs passed unchanged. Canonical PR #78
+integrated that exact head into dev by Rebase + Fast-forward. Command order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
