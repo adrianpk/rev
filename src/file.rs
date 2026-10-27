@@ -82,6 +82,7 @@ pub(crate) fn write_text(
     }
     Ok(())
 }
+pub mod completion;
 mod delete;
 mod location;
 pub(crate) mod name;
