@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/boundaries.rs"]
+mod boundaries;
 #[path = "configuration/catalog.rs"]
 mod catalog;
 #[path = "configuration/parsing.rs"]

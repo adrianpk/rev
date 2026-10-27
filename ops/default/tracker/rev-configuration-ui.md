@@ -82,8 +82,16 @@ Details and checks: [Slice 2](../plan/rev-configuration-ui.md#slice-2-validate-t
 
 - [x] T2.1: Parse UTF-8 TOML 1.1 into typed partial documents, accepting omitted version as 1 and rejecting unknown explicit versions, unknown keys, bad types/enums, invalid RGB and out-of-range/nonfinite numbers.
 - [x] T2.2: Validate only accepted language leaves and pattern shapes; retain source/key and spans where available. Reject duplicate keys and non-command binding values without silently defaulting bad input.
-- [ ] T2.3: Exercise malformed input, Unicode positions, valid empty include arrays and every admitted bound, including soft history limits and zero syntax cutoff. Keep parsing independent of editor mutation.
+- [x] T2.3: Exercise malformed input, Unicode positions, valid empty include arrays and every admitted bound, including soft history limits and zero syntax cutoff. Keep parsing independent of editor mutation.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T2.1 `2b4ff0093157ca30bc540c935f12fd6f18b5ec87`;
+T2.2 `4c1512f370a0731c82e97ba30d250c1ab102057d`.
+Development validation: all 15 source-validation tests passed, including every
+numeric bound and all 25 RGB roles. Final exact-head slice evidence belongs to
+the controller.
+Report: [Slice 2](../report/slices/rev-configuration-ui/slice-2-toml-validation.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 3: Load bounded include graphs
 

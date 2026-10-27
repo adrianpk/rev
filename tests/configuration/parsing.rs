@@ -88,3 +88,40 @@ fn unicode_location() {
     assert!(error.to_string().contains("unicode.toml:1:"));
     assert!(!error.to_string().contains("界.rs"));
 }
+
+// The typed boundary rejects scalar coercions, malformed include arrays and
+// concern tables with the wrong shape before any candidate can be returned.
+#[test]
+fn rejected_shapes() {
+    let cases = [
+        ("version type", "version = '1'", vec!["version"]),
+        ("include element", "include = [1]", vec!["include"]),
+        (
+            "integer type",
+            "editor.indent_width = 2.0",
+            vec!["editor", "indent_width"],
+        ),
+        (
+            "boolean type",
+            "tree.visible = 'true'",
+            vec!["tree", "visible"],
+        ),
+        (
+            "float type",
+            "windows.split_ratio = '0.5'",
+            vec!["windows", "split_ratio"],
+        ),
+        ("concern table", "editor = 4", vec!["editor"]),
+        ("language table", "language = []", vec!["language"]),
+        (
+            "context table",
+            "[keys.unknown]\n'C-g' = 'keyboard-quit'",
+            vec!["keys", "unknown"],
+        ),
+    ];
+    for (name, source, key) in cases {
+        let error = parse(Path::new("shape.toml"), source.as_bytes()).unwrap_err();
+        assert_eq!(error.key, key, "{name}: {error}");
+        assert!(error.position.is_some(), "{name}");
+    }
+}

@@ -8,7 +8,7 @@ impl Rgb {
     /// Decode exactly six ASCII hexadecimal digits with a leading hash.
     pub fn parse(value: &str) -> Option<Self> {
         let digits = value.strip_prefix('#')?;
-        if digits.len() != 6 || !digits.is_ascii() {
+        if digits.len() != 6 || !digits.bytes().all(|byte| byte.is_ascii_hexdigit()) {
             return None;
         }
         Some(Self(
