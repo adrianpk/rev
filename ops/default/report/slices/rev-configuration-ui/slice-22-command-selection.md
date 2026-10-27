@@ -1,6 +1,6 @@
 # Slice 22: Navigate and execute command candidates
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -91,7 +91,10 @@ Successful development checks:
 
 Final readiness evidence belongs to the clean PR head after the PR-reference
 follow-up commit. The controller validation ledger records that head and these
-ordered commands; integration remains unchecked until the controller merges:
+ordered commands. Evidence `4VLTMTFP4447WUE5MDYDLQATXT` passed all eight
+checks at clean head `0bb5aadf82d19849857d0dea63c62dd58f7ee511`: 217 native
+tests and two terminal sessions, zero skips. PR #71 integrated into dev at the
+same head. Acta merge event: `01M5Z227PFE13YDWPTRSM0N4RR`.
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
