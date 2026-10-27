@@ -436,14 +436,15 @@ Details and checks: [Slice 16](../plan/rev-configuration-ui.md#slice-16-apply-bo
 
 Task commits: T16.1 `c9c6abca1aaf167768bc8810939bd7a3ea0199f7`;
 T16.2 `8da79cb8dcfd7cc0dce6e98f8d891b75469f8aff`;
-T16.3 is the Slice 16 report introduction commit.
+T16.3 `1afef71fbcbe9768b33cb9579169c2fdf46c3e48`.
 Focused configured checks passed for whole typing groups, logical byte equality,
 deferred pruning/redo branches, saved-state identity, compound rectangles,
 capacity-one ring rotation, eviction and directional coalescing. Unicode prompt
 limits, bounded completion/recall, command retention, literal search and both
 query-replace stages retain cancellation. Focused Clippy and source checks passed.
 Report: [Slice 16](../report/slices/rev-configuration-ui/slice-16-bounded-preferences.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#65](https://forge.adrianpk.com/adrianpk/rev/pulls/65);
+dev integration remains controller-owned.
 
 ### Slice 17: Validate context keymaps
 

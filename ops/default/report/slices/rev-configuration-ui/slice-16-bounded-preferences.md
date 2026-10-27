@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-16-bounded-preferences`
-PR: pending
+PR: [#65](https://forge.adrianpk.com/adrianpk/rev/pulls/65)
 
 ## Purpose
 
@@ -39,7 +39,7 @@ owners while preserving whole transactions, saved-state identity and cancellatio
 - T16.2: `8da79cb8dcfd7cc0dce6e98f8d891b75469f8aff` initializes session ring
   and input policy, threads scalar limits into every text prompt, and publishes
   completion/recall state only after bounded replacement succeeds.
-- T16.3: This report's introduction commit adds configured behavior regressions
+- T16.3: `1afef71fbcbe9768b33cb9579169c2fdf46c3e48` adds configured behavior regressions
   and documents bounds, units, eviction, deferred pruning and prompt recovery.
 - Existing revision-qualified edit admission, typing grouping, history transfer,
   precomposed kill fragments and grapheme cursor repair remain the owners of
