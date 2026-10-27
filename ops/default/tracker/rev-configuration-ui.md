@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 30 - Verify delivery acceptance and references
+Active slice: None - all 30 slices integrated; controller-owned full gate pending
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -788,7 +788,7 @@ Details and checks: [Slice 30](../plan/rev-configuration-ui.md#slice-30-verify-d
 - [x] T30.1: Add a requirement-to-native/PTY/performance evidence map for this delivery and require it from scripts/check-all.sh, retaining all original eight checks and A01-A20 evidence protections. Detect missing cases, skipped suites, stale candidate identity or absent slice reports.
 - [x] T30.2: Reconcile selected baseline statements/default tables and rectangle references with accepted config/interaction contracts, keeping baseline history distinct from the new implementation evidence. Verify sample, docs and all eleven ticket outcomes agree with actual delivered behavior.
 - [x] T30.3: Prepare all 30 reports, resolved ticket paths and acceptance prerequisites; do not run the full gate in the worker. After controller-owned exact-dev full-gate success, close only approved artifacts using that evidence, record Acta outcome and stop without main promotion.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T30.1 `63f8b9a3fbd4dba906dfe168a3a3c0a741872e02`; T30.2 `486a94c719a1eb029c97895f287b03e4681d9e32`;
 T30.3 `530437313969939016a873d9b873df8be2d41bd9`.
@@ -797,18 +797,19 @@ performance cases. Original A01-A20 and all eight baseline checks remain
 mandatory within eleven gate stages. Twelve negative guard tests and discovery
 pass; four complete amendments and eleven ticket outcomes are reconciled.
 T30.3 preparation is complete; its post-gate closure work remains pending below.
-There are ten solved tickets; the acceptance ticket is reviewing until this
-slice integrates. All 30 report paths are prepared and prior heads verified.
-Final exact-head validation, canonical PR integration and controller-owned full
-gate remain pending. Gate preparation closes this slice's integration entries
-and moves the acceptance ticket to solved after its merge is verified.
+All eight ordered checks passed on `d4450c013f3350d2a5268c35ca799cde560a70d1`, controller validation
+`QSZOEPTDW22LQ4HKPGSW6UCFRK`, including both prerequisite checks and twelve guard
+tests. Canonical PR #79 integrated that exact head by Rebase + Fast-forward
+into dev. Slice 30 of 30 completed. All 30 reports are delivered with verified
+integrated heads; all eleven assigned tickets are solved. The controller-owned
+full gate and final delivery closure remain pending.
 Report: [Slice 30](../report/slices/rev-configuration-ui/slice-30-configuration-ui-acceptance.md).
 PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79).
 
 ## Delivery-set closure
 
-- [ ] All 90 tasks and all 30 slice reports integrated through canonical PRs.
-- [ ] All eleven current tickets solved with actual task/PR/check evidence.
+- [x] All 90 tasks and all 30 slice reports integrated through canonical PRs.
+- [x] All eleven current tickets solved with actual task/PR/check evidence.
 - [ ] CFG01-CFG22, four modified baseline requirements and UI01-UI04 mapped to passing acceptance evidence.
 - [ ] Exhaustive sample/default/schema/keymap checks agree; unsupported future settings are absent.
 - [ ] Controller-owned scripts/check-all.sh passes on the clean exact dev candidate with zero skipped required checks.

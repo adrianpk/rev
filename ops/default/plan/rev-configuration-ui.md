@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 30 - Verify delivery acceptance and references
+Active slice: None - all 30 slices integrated; controller-owned full gate pending
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -558,7 +558,7 @@ status directory changes, update references in this delivery accordingly.
 | [TKT-20261027103712](../ticket/solved/20261027103712-configuration-retention.md) | CFG17, CFG20 | 16 |
 | [TKT-20261027103713](../ticket/solved/20261027103713-configuration-keybindings.md) | CFG06, CFG12-CFG13, modified R22 | 17, 18, 19 |
 | [TKT-20261027103714](../ticket/solved/20261027103714-configuration-reference.md) | CFG05-CFG06, CFG20 | 26 |
-| [TKT-20261027103715](../ticket/reviewing/20261027103715-configuration-acceptance.md) | CFG22, UI01-UI04 | 27, 28, 29, 30 |
+| [TKT-20261027103715](../ticket/solved/20261027103715-configuration-acceptance.md) | CFG22, UI01-UI04 | 27, 28, 29, 30 |
 | [TKT-20261027084156](../ticket/solved/20261027084156-vertical-command-completion.md) | UI02 | 21, 22 |
 | [TKT-20261027085102](../ticket/solved/20261027085102-panel-presentation-abstraction.md) | UI01 | 10, 11, 12, 13, 14 |
 | [TKT-20261027085234](../ticket/solved/20261027085234-file-path-completion.md) | UI03-UI04 | 23, 24, 25 |

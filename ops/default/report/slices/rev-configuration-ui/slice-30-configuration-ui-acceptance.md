@@ -1,11 +1,12 @@
 # Slice 30: Verify delivery acceptance and references
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `test/rev-config-ui-30-configuration-ui-acceptance`
 PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79)
+Integrated: `d4450c013f3350d2a5268c35ca799cde560a70d1`
 
 ## Purpose
 
@@ -43,13 +44,12 @@ terminal and performance evidence and prepare controller-owned final validation.
   implementation reports remain distinct from this delivery's evidence.
 - Defaults, rectangle copy/kill/yank semantics and model references now agree
   with effective buffer policies. Reference checks include rectangle links.
-- Ten tickets whose assigned slices are integrated are solved with full head,
-  canonical PR and report references. The acceptance ticket is reviewing until
-  Slice 30 integrates. All eleven identities and commit ancestry are checked;
-  the future conversion ticket remains open.
-- All 30 report paths are prepared. The first 29 have uniform immutable
-  integration markers; the current report and tracker retain pending integration
-  and final-gate state. No full gate has been run by this worker.
+- All eleven tickets are solved with full integrated heads, canonical PRs and
+  report references after verified integration of their assigned slices. The
+  future conversion ticket remains open.
+- All 30 reports are delivered with immutable integration markers. Slice 30
+  integrated through canonical PR #79. Final acceptance and delivery closure
+  remain pending the controller-owned full gate.
 
 ## Implementation Notes
 
@@ -102,8 +102,9 @@ Successful focused development checks:
   ticket metadata/status/identity records and 29 prior integrated heads passed.
   Acta returned complete bounded evidence for the 29 canonical merges.
 
-Final readiness requires controller evidence for the clean PR head after the
-PR-reference follow-up commit, in this exact order:
+Controller validation `QSZOEPTDW22LQ4HKPGSW6UCFRK` passed all eight checks on
+clean PR head `d4450c013f3350d2a5268c35ca799cde560a70d1`, after the PR-reference
+follow-up commit, in this exact order:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -116,11 +117,10 @@ PR-reference follow-up commit, in this exact order:
 
 ## Risks and Follow-ups
 
-After canonical Slice 30 integration, gate preparation must close this report/
-tracker integration entry, add the verified head, move the acceptance ticket
-from reviewing to its approved solved path with that head and update its plan
-link. The strict runtime evidence mode requires all 30 reports and eleven
-solved tickets; readiness alone allows this current unmerged slice.
+Canonical Slice 30 integration is verified. Gate preparation closes the
+report/tracker integration entry and moves the acceptance ticket to its approved
+solved path with the integrated head. All 30 reports and eleven solved tickets
+are prepared for strict gate prerequisites.
 
 The controller then runs the unchanged `scripts/check-all.sh` entry point on
 one clean exact dev candidate. Only after its success may the approved closure
