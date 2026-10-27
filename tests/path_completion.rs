@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "path_completion/identity.rs"]
 mod identity;
+#[path = "path_completion/observation.rs"]
+mod observation;
 
 use rev::file::completion::Provider;
 

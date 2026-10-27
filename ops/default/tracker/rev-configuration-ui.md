@@ -607,8 +607,17 @@ Details and checks: [Slice 23](../plan/rev-configuration-ui.md#slice-23-observe-
 
 - [x] T23.1: Create a filesystem candidate provider for one current directory component with 4096-entry and 512-KiB-name-byte limits, safe retained path identities, directories-first byte-name ordering and cached filtering.
 - [x] T23.2: Handle relative/absolute paths, leading ~/, spaces and Unicode without shell expansion; separate lossless path identity from clipped/control-safe labels. Report non-UTF-8 names explicitly instead of opening lossy paths.
-- [ ] T23.3: Create provider tests for ambiguous/common/unique prefixes, hidden names, symlinks, permission/disappearance errors and limits. No recursion, watcher or reads during rendering/filtering.
+- [x] T23.3: Create provider tests for ambiguous/common/unique prefixes, hidden names, symlinks, permission/disappearance errors and limits. No recursion, watcher or reads during rendering/filtering.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T23.1 `e08a241e09e1bdce280e4619a4839f42ee3f2dc8`;
+T23.2 `abb2f921ab3d4e553057ade991ff1347fd31fb34`.
+Thirteen native regressions cover cached literal filtering, ordered hidden names,
+explicit base/home roots, Unicode/control-safe and unsupported identities,
+refresh/error retention, child symlinks and entry/name-byte bounds. Focused Clippy
+and source checks pass with nesting at most two. Final readiness uses controller
+evidence for the clean PR head; dev integration remains pending.
+Report: [Slice 23](../report/slices/rev-configuration-ui/slice-23-path-candidates.md).
 
 ### Slice 24: Complete and navigate file paths
 
