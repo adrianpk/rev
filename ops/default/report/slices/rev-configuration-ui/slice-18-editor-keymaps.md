@@ -1,6 +1,6 @@
 # Slice 18: Dispatch configurable editor bindings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -89,10 +89,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/input/editor.rs --source src/input.rs --source src/input/keymap/sequence.rs --source src/session/events.rs --source tests/commands/editor_keymaps.rs`: passed.
 - `cargo run --quiet --example source-check -- --source src/input.rs --source tests/commands/editor_keymaps.rs`: passed after the phase correction; nesting at most two.
 
-The controller records final evidence on the clean PR head after its
-PR-reference follow-up commit. Required commands precede focused snapshot,
-search/query-replace and tree regressions. These protect the shared normalization,
-phase and workspace boundaries with only a few seconds of added runtime:
+Final evidence `6MGAJQQHEPCP2DO2K2K4H2AR5X` passed all nine ordered checks
+on clean head `acebc81731bb936cb14d5b13f6060546d167ca7c`: 344 native tests,
+zero skips. The controller integrated PR #67 into dev at that same commit.
+Acta merge event: `01M5YYS776WR2PCKDYPFA5EC46`.
+Required commands precede focused snapshot, search/query-replace and tree checks:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
