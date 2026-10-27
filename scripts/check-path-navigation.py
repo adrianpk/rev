@@ -66,10 +66,10 @@ def case(root, colored):
     source = work / "source.txt"
     session = PTY["Session"]([str(ROOT / "target/debug/rev"), str(source)], env=LIST["environment"](root, colored))
     try:
-        session.ready(b"> source.txt -- RW L1 C1 Text")
+        session.ready(b"> source.txt -- RW -- L1 C1 Text")
         candidates(session, colored)
         directories(session, work)
-        assert b"> source.txt -- RW L1 C1 Text" in PTY["last_frame"](session)
+        assert PTY['status_contains'](PTY["last_frame"](session), b"> source.txt -- RW -- L1 C1 Text")
         os.write(session.master, b"\x18\x03")
         session.finish(0)
         assert PTY["PASTE_OFF"] in session.output and PTY["LEAVE"] in session.output

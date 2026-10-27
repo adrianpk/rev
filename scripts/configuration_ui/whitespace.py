@@ -15,7 +15,7 @@ def run(root):
         path = write(fixture, 'source.txt', source.encode())
         session = PTY['Session']([str(BINARY), str(path)], env=environment(fixture))
         try:
-            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
+            session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Text')))
             step(session, b'\x1bxuntabify\r', b'Region is not active')
             status = f'L{line} C{column} Text'.encode()
             select = b'\x1b<\x00\x1b>'

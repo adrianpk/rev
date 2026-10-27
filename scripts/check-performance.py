@@ -89,7 +89,7 @@ def terminal(root, path, harness):
     start = time.perf_counter()
     session = harness.Session([str(root / "target/release/rev"), str(path)], colors=True)
     try:
-        session.wait(lambda: harness.frame_contains(session.output, b"-- RW L1 C1 Rust", None))
+        session.wait(lambda: harness.frame_contains(session.output, b"-- RW -- L1 C1 Rust", None))
         elapsed = (time.perf_counter() - start) * 1000
         flags = harness.termios.tcgetattr(session.slave)[3]
         assert not flags & (harness.termios.ICANON | harness.termios.ECHO), "raw mode missing"

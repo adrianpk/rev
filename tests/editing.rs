@@ -579,7 +579,8 @@ fn direct_input() {
     assert_eq!(frame.cursor(), Some(Position { column: 1, row: 1 }));
     assert!(frame.rows()[0].text().starts_with("é界e\u{301}    "));
     assert!(frame.rows()[1].text().starts_with('x'));
-    assert!(frame.rows()[6].text().contains("** RW L2 C2 Text"));
+    assert!(frame.rows()[6].text().contains("** RW -- L2 C2"));
+    assert!(frame.rows()[6].text().ends_with("Text"));
 }
 
 // Bound commands remove entire preceding/following graphemes and CRLF pairs.
@@ -672,10 +673,8 @@ fn readonly_input() {
             "{name}"
         );
         let frame = session.frame().unwrap();
-        assert!(
-            frame.rows()[6].text().contains("-- RO L1 C3 Text"),
-            "{name}"
-        );
+        assert!(frame.rows()[6].text().contains("-- RO -- L1 C3"), "{name}");
+        assert!(frame.rows()[6].text().ends_with("Text"), "{name}");
     }
 }
 

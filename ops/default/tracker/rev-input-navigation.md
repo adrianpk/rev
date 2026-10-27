@@ -145,8 +145,16 @@ Details and exact checks: [Slice 9](../plan/rev-input-navigation.md#slice-9-alig
 
 - [x] T9.1: Compose the existing identity/dirty/access/position facts on the left and syntax/Text on the right inside each pane's status area; retain one row and active styling.
 - [x] T9.2: Use cell-width-aware flexible space and the accepted compact/omit/clip order; preserve truthful independent points, RO/RW and clean/modified markers.
-- [ ] T9.3: Adapt existing native/PTY status expectations to semantic two-group rendering while preserving their substantive assertions; run display regressions and the affected historical acceptance journeys.
+- [x] T9.3: Adapt existing native/PTY status expectations to semantic two-group rendering while preserving their substantive assertions; run display regressions and the affected historical acceptance journeys.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 9 implementation is prepared. Native groups and owned RGB/NO_COLOR PTYs
+verify pane-local facts, width degradation/restoration and prompt isolation;
+four historical acceptance journeys pass with exact source/save assertions.
+T9.1: `5aa3d1ed4d6a46bc8825d29454c4eaa0681cb99c`.
+T9.2: `e85c4ea4dcd2496bbd4f37aae4aac2e7f98e82b4`.
+T9.3 and canonical PR references follow in the final reference commit. Exact
+clean-head validation and controller-owned integration remain pending.
 
 ### Slice 10: own native pointer reporting and input state
 

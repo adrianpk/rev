@@ -64,8 +64,8 @@ class Session:
             self.drain()
 
     def ready(self, marker):
-        self.wait(lambda: marker in self.output or self.process.poll() is not None)
-        assert marker in self.output, bytes(self.output)
+        self.wait(lambda: status_contains(self.output, marker) or self.process.poll() is not None)
+        assert status_contains(self.output, marker), bytes(self.output)
         flags = termios.tcgetattr(self.slave)[3]
         assert not flags & (termios.ICANON | termios.ECHO), "raw mode was not acquired"
 
@@ -174,10 +174,10 @@ def viewport(root):
     session = Session([str(root / "target/debug/rev")])
     try:
         session.ready(b"C-x C-c: exit")
-        status = b"> *scratch* -- RW L1 C1 Text"
+        status = b"> *scratch* -- RW -- L1 C1 Text"
         cursor = b"\x1b[1;1H" + SHOW
         session.wait(lambda: cursor in session.output)
-        assert status in session.output, bytes(session.output)
+        assert status_contains(session.output, status), bytes(session.output)
         # A rendered startup frame precedes event-reader registration. Observe
         # a handled key before the first SIGWINCH so the resize cannot be lost.
         session.output.clear()
@@ -195,7 +195,7 @@ def viewport(root):
         assert b";1H" not in session.output, bytes(session.output)
         session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
-        session.wait(lambda: status in session.output and cursor in session.output)
+        session.wait(lambda: status_contains(session.output, status) and cursor in session.output)
         os.write(session.master, b"\x18\x03")
         session.finish(0)
         assert SHOW in session.output and LEAVE in session.output, bytes(session.output)
@@ -211,18 +211,18 @@ def insertion(root):
         session.ready(b"C-x C-c: exit")
         source = "e\u0301界👩\u200d💻".encode()
         os.write(session.master, source)
-        session.wait(lambda: source in session.output and b"** RW L1 C6 Text" in session.output)
+        session.wait(lambda: source in session.output and status_contains(session.output, b"** RW -- L1 C6 Text"))
         session.output.clear()
         os.write(session.master, b"\x7f")
         prefix = "e\u0301界".encode()
-        session.wait(lambda: prefix in session.output and b"** RW L1 C4 Text" in session.output)
+        session.wait(lambda: prefix in session.output and status_contains(session.output, b"** RW -- L1 C4 Text"))
         assert "👩".encode() not in session.output, bytes(session.output)
         session.output.clear()
         os.write(session.master, b"\t")
-        session.wait(lambda: b"** RW L1 C5 Text" in session.output)
+        session.wait(lambda: status_contains(session.output, b"** RW -- L1 C5 Text"))
         session.output.clear()
         os.write(session.master, b"\rZ")
-        session.wait(lambda: b"\x1b[2;1HZ" in session.output and b"** RW L2 C2 Text" in session.output)
+        session.wait(lambda: b"\x1b[2;1HZ" in session.output and status_contains(session.output, b"** RW -- L2 C2 Text"))
         session.output.clear()
         os.write(session.master, b"\x04")
         session.wait(lambda: b"Buffer boundary" in session.output)
@@ -232,10 +232,10 @@ def insertion(root):
         session.wait(lambda: refusal in session.output)
         assert session.process.poll() is None, bytes(session.output)
         assert LEAVE not in session.output, bytes(session.output)
-        assert prefix in session.output and b"** RW L2 C2 Text" in session.output
+        assert prefix in session.output and status_contains(session.output, b"** RW -- L2 C2 Text")
         session.output.clear()
         os.write(session.master, b"\x07!")
-        session.wait(lambda: b"\x1b[2;1HZ!" in session.output and b"** RW L2 C3 Text" in session.output)
+        session.wait(lambda: b"\x1b[2;1HZ!" in session.output and status_contains(session.output, b"** RW -- L2 C3 Text"))
         session.output.clear()
         os.write(session.master, b"\x18\x03")
         session.wait(lambda: refusal in session.output)
@@ -253,7 +253,7 @@ def motion(root):
         session.ready(b"C-x C-c: exit")
         first = "e\u0301界👩\u200d💻 first".encode()
         os.write(session.master, first + b"\rlast")
-        session.wait(lambda: b"** RW L2 C5 Text" in session.output
+        session.wait(lambda: status_contains(session.output, b"** RW -- L2 C5 Text")
                      and b"\x1b[2;5H" + SHOW in session.output)
         cases = [
             (b"\x01", 2, 1), (b"\x02", 1, 12), (b"\x02", 1, 11),
@@ -265,9 +265,9 @@ def motion(root):
         for chord, row, column in cases:
             session.output.clear()
             os.write(session.master, chord)
-            status = f"** RW L{row} C{column} Text".encode()
+            status = f"** RW -- L{row} C{column} Text".encode()
             cursor = f"\x1b[{row};{column}H".encode() + SHOW
-            session.wait(lambda: status in session.output and cursor in session.output)
+            session.wait(lambda: status_contains(session.output, status) and cursor in session.output)
             assert b"\x1b[1;1H" + first in session.output, bytes(session.output)
             assert b"\x1b[2;1Hlast" in session.output, bytes(session.output)
         session.output.clear()
@@ -285,10 +285,10 @@ def scroll_step(session, chord, point, cursor):
     session.output.clear()
     os.write(session.master, chord)
     row, column = point
-    status = f"** RW L{row} C{column} Text".encode()
+    status = f"** RW -- L{row} C{column} Text".encode()
     row, column = cursor
     position = f"\x1b[{row};{column}H".encode() + SHOW
-    session.wait(lambda: status in session.output and position in session.output)
+    session.wait(lambda: status_contains(session.output, status) and position in session.output)
     assert session.process.poll() is None and LEAVE not in session.output
 
 
@@ -305,7 +305,7 @@ def scrolling(root):
         session.wait(lambda: b"\x1b[7;1HQuit" in session.output)
         lines = ["0123456789", "x", "a\t界e\u0301👩\u200d💻"] + ["0123456789"] * 12
         os.write(session.master, "\r".join(lines).encode())
-        session.wait(lambda: b"** RW L15 C11 Text" in session.output)
+        session.wait(lambda: status_contains(session.output, b"** RW -- L15 C11 Text"))
         scroll_step(session, b"\x1b<" + b"\x06" * 8, (1, 9), (1, 9))
         steps = [
             (b"\x0e", (2, 2), (2, 2)), (b"\x0e", (3, 8), (3, 8)),
@@ -328,7 +328,7 @@ def scrolling(root):
                      and b"\x1b[1;3H" + SHOW in session.output)
         session.output.clear()
         fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 7, 80, 0, 0))
-        session.wait(lambda: b"** RW L4 C9 Text" in session.output
+        session.wait(lambda: status_contains(session.output, b"** RW -- L4 C9 Text")
                      and b"\x1b[1;3H" + SHOW in session.output)
         scroll_step(session, b"\x10", (3, 8), (1, 2))
         scroll_step(session, b"\x0e", (4, 9), (2, 3))
@@ -354,29 +354,29 @@ def undo_history(root):
         # Explicit command boundaries keep these three encoding checks separate
         # from the adjacent-typing group exercised by its own terminal journey.
         os.write(session.master, b"e\x07" + "\u0301".encode() + b"\x07" + "界".encode())
-        session.wait(lambda: source in session.output and b"** RW L1 C4 Text" in session.output)
+        session.wait(lambda: source in session.output and status_contains(session.output, b"** RW -- L1 C4 Text"))
         session.output.clear()
         # CSI-u reports these exact Control combinations without the legacy
         # 0x1f ambiguity. C-x u remains the ordinary byte-sequence fallback.
         os.write(session.master, b"\x1b[47;5u")
-        session.wait(lambda: b"** RW L1 C2 Text" in session.output
+        session.wait(lambda: status_contains(session.output, b"** RW -- L1 C2 Text")
                      and "\x1b[1;1He\u0301 ".encode() in session.output)
         assert "界".encode() not in session.output, bytes(session.output)
         session.output.clear()
         os.write(session.master, b"\x1b[95;5u")
-        session.wait(lambda: b"** RW L1 C2 Text" in session.output
+        session.wait(lambda: status_contains(session.output, b"** RW -- L1 C2 Text")
                      and b"\x1b[1;1He " in session.output)
         assert "\u0301".encode() not in session.output, bytes(session.output)
         session.output.clear()
         os.write(session.master, b"\x18u")
-        session.wait(lambda: b"-- RW L1 C1 Text" in session.output
+        session.wait(lambda: status_contains(session.output, b"-- RW -- L1 C1 Text")
                      and b"\x1b[1;1H" + SHOW in session.output)
         session.output.clear()
         os.write(session.master, b"!")
-        session.wait(lambda: b"** RW L1 C2 Text" in session.output)
+        session.wait(lambda: status_contains(session.output, b"** RW -- L1 C2 Text"))
         session.output.clear()
         os.write(session.master, b"\x18u")
-        session.wait(lambda: b"-- RW L1 C1 Text" in session.output)
+        session.wait(lambda: status_contains(session.output, b"-- RW -- L1 C1 Text"))
         session.output.clear()
         os.write(session.master, b"\x18u")
         session.wait(lambda: b"Nothing to undo" in session.output)
@@ -395,6 +395,17 @@ def group_step(session, keys, marker, content=None):
     assert session.process.poll() is None and LEAVE not in session.output
 
 
+def status_contains(output, marker):
+    # Only the measured gap before the mode varies. Spaces cannot bridge a
+    # redraw, ANSI command, divider or another pane's status facts.
+    position = re.search(rb'L[0-9]+ C[0-9]+ (?:Text|Rust)', marker)
+    if position is None:
+        return marker in output
+    gap = marker.index(b' ', marker.index(b'C', position.start()))
+    pattern = re.escape(marker[:gap]) + rb' +' + re.escape(marker[gap + 1:])
+    return re.search(pattern, output) is not None
+
+
 def frame_contains(output, marker, content):
     # Markers and cursor must belong to one finished redraw. A previous SHOW
     # cannot complete a new frame whose bytes arrive in a later PTY read.
@@ -405,7 +416,7 @@ def frame_contains(output, marker, content):
     if start < 0:
         return False
     frame = output[start:end + len(SHOW)]
-    return marker in frame and (content is None or content in frame)
+    return status_contains(frame, marker) and (content is None or status_contains(frame, content))
 
 
 def typing_history(root):
@@ -413,22 +424,22 @@ def typing_history(root):
     try:
         session.ready(b"C-x C-c: exit")
         source = "ab e\u0301👩\u200d💻".encode()
-        group_step(session, source, b"** RW L1 C7 Text", source)
+        group_step(session, source, b"** RW -- L1 C7 Text", source)
         assert source in session.output, bytes(session.output)
-        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
         assert b"\x1b[1;1H " in session.output, bytes(session.output)
-        group_step(session, b"ab", b"** RW L1 C3 Text")
+        group_step(session, b"ab", b"** RW -- L1 C3 Text")
         group_step(session, b"\x07", b"Quit")
-        group_step(session, b"cd", b"** RW L1 C5 Text")
-        group_step(session, b"\x18u", b"** RW L1 C3 Text")
+        group_step(session, b"cd", b"** RW -- L1 C5 Text")
+        group_step(session, b"\x18u", b"** RW -- L1 C3 Text")
         assert b"\x1b[1;1Hab " in session.output, bytes(session.output)
-        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
-        group_step(session, b"ab\rcd", b"** RW L2 C3 Text")
-        group_step(session, b"\x18u", b"** RW L2 C1 Text")
-        group_step(session, b"\x18u", b"** RW L1 C3 Text")
-        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
-        group_step(session, b"new", b"** RW L1 C4 Text")
-        group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+        group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
+        group_step(session, b"ab\rcd", b"** RW -- L2 C3 Text")
+        group_step(session, b"\x18u", b"** RW -- L2 C1 Text")
+        group_step(session, b"\x18u", b"** RW -- L1 C3 Text")
+        group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
+        group_step(session, b"new", b"** RW -- L1 C4 Text")
+        group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
         group_step(session, b"\x18u", b"Nothing to undo")
         os.write(session.master, b"\x18\x03")
         session.finish(0)
@@ -445,16 +456,16 @@ def file_ingress(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"-- RW L1 C1 Text")
+            session.ready(b"-- RW -- L1 C1 Text")
             first = "\x1b[1;1He\u0301界".encode()
             assert first in session.output and b"\x1b[2;1Hlast" in session.output
             assert b"\xef\xbb\xbf" not in session.output, bytes(session.output)
             group_step(session, b"\x18u", b"Nothing to undo")
-            group_step(session, b"\x05", b"-- RW L1 C4 Text", first)
-            group_step(session, b"!", b"** RW L1 C5 Text", "e\u0301界!".encode())
-            group_step(session, b"\x18u", b"-- RW L1 C4 Text", first)
-            group_step(session, b"\r", b"** RW L2 C1 Text", b"\x1b[3;1Hlast")
-            group_step(session, b"\x18u", b"-- RW L1 C4 Text", b"\x1b[2;1Hlast")
+            group_step(session, b"\x05", b"-- RW -- L1 C4 Text", first)
+            group_step(session, b"!", b"** RW -- L1 C5 Text", "e\u0301界!".encode())
+            group_step(session, b"\x18u", b"-- RW -- L1 C4 Text", first)
+            group_step(session, b"\r", b"** RW -- L2 C1 Text", b"\x1b[3;1Hlast")
+            group_step(session, b"\x18u", b"-- RW -- L1 C4 Text", b"\x1b[2;1Hlast")
             assert path.read_bytes() == source, "editing changed the visited file"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -530,16 +541,16 @@ def file_visits(root):
         alias.symlink_to(first)
         session = Session([str(root / "target/debug/rev"), str(first)])
         try:
-            session.ready(b"> note.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text", b"\x1b[1;1H!alpha")
-            find_path(session, alias, b"> note.txt ** RW L1 C2 Text", b"\x1b[1;1H!alpha")
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text", b"\x1b[1;1Halpha")
-            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"\x1b[1;1Hbeta")
-            find_path(session, alias, b"> note.txt -- RW L1 C1 Text", b"\x1b[1;1Halpha")
+            session.ready(b"> note.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text", b"\x1b[1;1H!alpha")
+            find_path(session, alias, b"> note.txt ** RW -- L1 C2 Text", b"\x1b[1;1H!alpha")
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text", b"\x1b[1;1Halpha")
+            find_path(session, second, b"> note.txt<2> -- RW -- L1 C1 Text", b"\x1b[1;1Hbeta")
+            find_path(session, alias, b"> note.txt -- RW -- L1 C1 Text", b"\x1b[1;1Halpha")
             group_step(session, b"\x18\x06", b"Find file: ")
             assert b"\x1b[24;12H" + SHOW in session.output, bytes(session.output)
             group_step(session, str(second).encode(), b"two/note.txt")
-            group_step(session, b"\x07", b"Quit", b"> note.txt -- RW L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"> note.txt -- RW -- L1 C1 Text")
             assert b"\x1b[1;1Halpha" in session.output, bytes(session.output)
             assert first.read_bytes() == b"alpha" and second.read_bytes() == b"beta"
             os.write(session.master, b"\x18\x03")
@@ -557,15 +568,15 @@ def new_visit(root):
         alias = base / "unused/../missing/deep/./new.txt"
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> new.txt -- RW L1 C1 Text")
+            session.ready(b"> new.txt -- RW -- L1 C1 Text")
             assert not (base / "missing").exists()
             group_step(session, b"\x18\x06", b"Find file: ")
-            group_step(session, b"\r", b"empty file path", b"> new.txt -- RW L1 C1 Text")
-            group_step(session, b"\x07", b"Quit", b"> new.txt -- RW L1 C1 Text")
-            group_step(session, b"ab", b"** RW L1 C3 Text", b"ab     ")
-            find_path(session, alias, b"> new.txt ** RW L1 C3 Text", b"ab     ")
+            group_step(session, b"\r", b"empty file path", b"> new.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"> new.txt -- RW -- L1 C1 Text")
+            group_step(session, b"ab", b"** RW -- L1 C3 Text", b"ab     ")
+            find_path(session, alias, b"> new.txt ** RW -- L1 C3 Text", b"ab     ")
             assert b"\x1b[1;3H" + SHOW in session.output, bytes(session.output)
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
             assert not (base / "missing").exists() and not (base / "unused").exists()
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -585,17 +596,17 @@ def save_file(root):
         inode = path.stat().st_ino
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"-- RW L1 C1 Text")
-            group_step(session, b"\x05!", b"** RW L1 C5 Text", "e\u0301界!".encode())
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C5 Text")
+            session.ready(b"-- RW -- L1 C1 Text")
+            group_step(session, b"\x05!", b"** RW -- L1 C5 Text", "e\u0301界!".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C5 Text")
             assert path.read_bytes() == "\ufeffe\u0301界!\r\nlast".encode()
             assert path.stat().st_ino != inode
             assert path.stat().st_mode & 0o777 == 0o640
-            group_step(session, b"?", b"** RW L1 C6 Text")
-            group_step(session, b"\x18u", b"-- RW L1 C5 Text")
-            group_step(session, b"\x18u", b"** RW L1 C4 Text")
+            group_step(session, b"?", b"** RW -- L1 C6 Text")
+            group_step(session, b"\x18u", b"-- RW -- L1 C5 Text")
+            group_step(session, b"\x18u", b"** RW -- L1 C4 Text")
             assert path.read_bytes() != source, "undo unexpectedly saved itself"
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C4 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C4 Text")
             assert path.read_bytes() == source
             assert list(Path(directory).iterdir()) == [path]
             os.write(session.master, b"\x18\x03")
@@ -611,21 +622,21 @@ def save_failure(root):
         path = Path(directory) / "missing/new.txt"
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> new.txt -- RW L1 C1 Text")
-            group_step(session, b"ab", b"** RW L1 C3 Text")
-            group_step(session, b"\x18\x13", b"save: not published", b"** RW L1 C3 Text")
+            session.ready(b"> new.txt -- RW -- L1 C1 Text")
+            group_step(session, b"ab", b"** RW -- L1 C3 Text")
+            group_step(session, b"\x18\x13", b"save: not published", b"** RW -- L1 C3 Text")
             assert not path.parent.exists()
             group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
             group_step(session, b"\x07", b"Quit")
             path.parent.mkdir()
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C3 Text")
             assert path.read_bytes() == b"ab"
             path.write_bytes(b"external")
-            group_step(session, b"!", b"** RW L1 C4 Text")
+            group_step(session, b"!", b"** RW -- L1 C4 Text")
             group_step(session, b"\x18\x13", b"Destination changed on disk")
             group_step(session, b"n", b"Save canceled")
             assert path.read_bytes() == b"external"
-            group_step(session, b"?", b"** RW L1 C5 Text", b"\x1b[1;1Hab!?")
+            group_step(session, b"?", b"** RW -- L1 C5 Text", b"\x1b[1;1Hab!?")
             group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
             group_step(session, b"\x07", b"Quit")
             assert list(path.parent.iterdir()) == [path]
@@ -634,7 +645,7 @@ def save_failure(root):
             group_step(session, b"y", b"save: not published", b"changed since last observation")
             assert path.read_bytes() == b"changed while asking"
             group_step(session, b"\x18\x13", b"Destination changed on disk")
-            group_step(session, b"y", b"Saved ", b"-- RW L1 C5 Text")
+            group_step(session, b"y", b"Saved ", b"-- RW -- L1 C5 Text")
             assert path.read_bytes() == b"ab!?"
             path.unlink()
             group_step(session, b"\x18\x13", b"Destination changed on disk")
@@ -664,25 +675,25 @@ def save_decisions(root):
         session = Session([str(root / "target/debug/rev")])
         try:
             session.ready(b"C-x C-c: exit")
-            group_step(session, b"new", b"** RW L1 C4 Text")
+            group_step(session, b"new", b"** RW -- L1 C4 Text")
             group_step(session, b"\x18\x13", b"Write file: ")
             group_step(session, b"cancel", b"Write file: cancel")
-            group_step(session, b"\x07", b"Quit", b"** RW L1 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"** RW -- L1 C4 Text")
             assert not source.exists()
             group_step(session, b"\x18\x13", b"Write file: ")
             group_step(session, str(source).encode(), source.name.encode())
-            group_step(session, b"\r", b"Saved ", b"> first.txt -- RW L1 C4 Text")
+            group_step(session, b"\r", b"Saved ", b"> first.txt -- RW -- L1 C4 Text")
             assert source.read_bytes() == b"new"
             write_path(session, alias, b"Overwrite occupied destination? [y/n]")
             assert target.read_bytes() == b"keep"
-            group_step(session, b"n", b"Save canceled", b"> first.txt -- RW L1 C4 Text")
+            group_step(session, b"n", b"Save canceled", b"> first.txt -- RW -- L1 C4 Text")
             write_path(session, alias, b"Overwrite occupied destination? [y/n]")
-            group_step(session, b"y", b"Saved ", b"> referent.txt -- RW L1 C4 Text")
+            group_step(session, b"y", b"Saved ", b"> referent.txt -- RW -- L1 C4 Text")
             assert target.read_bytes() == b"new" and source.read_bytes() == b"new"
             assert alias.is_symlink() and alias.readlink() == target
-            group_step(session, b"\x18u", b"** RW L1 C1 Text")
+            group_step(session, b"\x18u", b"** RW -- L1 C1 Text")
             assert target.read_bytes() == b"new", "undo changed disk without save"
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C1 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C1 Text")
             assert target.read_bytes() == b""
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -702,13 +713,13 @@ def save_collision(root):
         alias.symlink_to(other)
         session = Session([str(root / "target/debug/rev"), str(source)])
         try:
-            session.ready(b"> source.txt -- RW L1 C1 Text")
-            find_path(session, other, b"> other.txt -- RW L1 C1 Text", b"other")
-            find_path(session, source, b"> source.txt -- RW L1 C1 Text", b"source")
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            session.ready(b"> source.txt -- RW -- L1 C1 Text")
+            find_path(session, other, b"> other.txt -- RW -- L1 C1 Text", b"other")
+            find_path(session, source, b"> source.txt -- RW -- L1 C1 Text", b"source")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             write_path(session, alias, b"another live buffer")
             assert other.read_bytes() == b"other" and source.read_bytes() == b"source"
-            group_step(session, b"?", b"** RW L1 C3 Text", b"\x1b[1;1H!?source")
+            group_step(session, b"?", b"** RW -- L1 C3 Text", b"\x1b[1;1H!?source")
             group_step(session, b"\x18\x13", b"Saved ")
             assert source.read_bytes() == b"!?source" and other.read_bytes() == b"other"
             os.write(session.master, b"\x18\x03")
@@ -736,25 +747,25 @@ def buffer_commands(root):
         second.write_bytes(b"beta")
         session = Session([str(root / "target/debug/rev"), str(first)])
         try:
-            session.ready(b"> note.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
-            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            session.ready(b"> note.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
+            find_path(session, second, b"> note.txt<2> -- RW -- L1 C1 Text", b"beta")
             group_step(session, b"\x18b", b"Switch to buffer: ")
             group_step(session, b"note.txt\t", b"2 matching buffer(s)")
-            group_step(session, b"\r", b"> note.txt ** RW L1 C1 Text", b"!alpha")
-            group_step(session, b"\x18u", b"> note.txt -- RW L1 C1 Text", b"alpha")
+            group_step(session, b"\r", b"> note.txt ** RW -- L1 C1 Text", b"!alpha")
+            group_step(session, b"\x18u", b"> note.txt -- RW -- L1 C1 Text", b"alpha")
             group_step(session, b"\x18\x02", b"Buffers: arrows move")
             assert b"note.txt<2> -- RW" in session.output
             assert b"one/note.txt" in session.output and b"two/note.txt" in session.output
             group_step(session, b"\x1b[B", b"> note.txt<2> -- RW")
-            group_step(session, b"\r", b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            group_step(session, b"\r", b"> note.txt<2> -- RW -- L1 C1 Text", b"beta")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"Buffer closed")
-            assert b"> *scratch* -- RW L1 C1 Text" in session.output
-            find_path(session, second, b"> note.txt<2> -- RW L1 C1 Text", b"beta")
+            assert status_contains(session.output, b"> *scratch* -- RW -- L1 C1 Text")
+            find_path(session, second, b"> note.txt<2> -- RW -- L1 C1 Text", b"beta")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"note.txt", b"Buffer closed")
-            assert b"> note.txt<2> -- RW L1 C1 Text" in session.output
+            assert status_contains(session.output, b"> note.txt<2> -- RW -- L1 C1 Text")
             assert first.read_bytes() == b"alpha" and second.read_bytes() == b"beta"
-            find_path(session, first, b"> note.txt -- RW L1 C1 Text", b"alpha")
+            find_path(session, first, b"> note.txt -- RW -- L1 C1 Text", b"alpha")
             os.write(session.master, b"\x18\x03")
             session.finish(0)
             print("PASS buffer completion, selectable duplicate-name inventory, retained history and inactive close")
@@ -768,13 +779,13 @@ def close_buffers(root):
         session = Session([str(root / "target/debug/rev")])
         try:
             session.ready(b"C-x C-c: exit")
-            group_step(session, b"new", b"** RW L1 C4 Text")
+            group_step(session, b"new", b"** RW -- L1 C4 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save, n=discard, C-g=cancel")
-            group_step(session, b"\x07", b"Quit", b"** RW L1 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"** RW -- L1 C4 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
             group_step(session, b"y", b"Write file: ")
             group_step(session, str(path).encode(), path.name.encode())
-            group_step(session, b"\r", b"save: not published", b"** RW L1 C4 Text")
+            group_step(session, b"\r", b"save: not published", b"** RW -- L1 C4 Text")
             group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
             group_step(session, b"\x07", b"Quit")
             assert not path.exists()
@@ -782,20 +793,20 @@ def close_buffers(root):
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
             group_step(session, b"y", b"Write file: ")
             group_step(session, str(path).encode(), path.name.encode())
-            group_step(session, b"\r", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            group_step(session, b"\r", b"Buffer closed", b"> *scratch* -- RW -- L1 C1 Text")
             assert path.read_bytes() == b"new"
-            find_path(session, path, b"> new.txt -- RW L1 C1 Text", b"new")
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            find_path(session, path, b"> new.txt -- RW -- L1 C1 Text", b"new")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             path.write_bytes(b"external")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
             group_step(session, b"y", b"Destination changed on disk")
-            group_step(session, b"n", b"Save canceled", b"** RW L1 C2 Text")
+            group_step(session, b"n", b"Save canceled", b"** RW -- L1 C2 Text")
             assert path.read_bytes() == b"external"
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
-            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
-            find_path(session, path, b"> new.txt -- RW L1 C1 Text", b"external")
+            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW -- L1 C1 Text")
+            find_path(session, path, b"> new.txt -- RW -- L1 C1 Text", b"external")
             path.chmod(0o444)
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
             group_step(session, b"y", b"Destination changed on disk")
             group_step(session, b"y", b"save: not published", b"Permission denied")
@@ -803,11 +814,11 @@ def close_buffers(root):
             path.chmod(0o600)
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
             group_step(session, b"y", b"Destination changed on disk")
-            group_step(session, b"y", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            group_step(session, b"y", b"Buffer closed", b"> *scratch* -- RW -- L1 C1 Text")
             assert path.read_bytes() == b"!external"
-            group_step(session, b"discard", b"** RW L1 C8 Text")
+            group_step(session, b"discard", b"** RW -- L1 C8 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
-            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW L1 C1 Text")
+            group_step(session, b"n", b"Buffer closed", b"> *scratch* -- RW -- L1 C1 Text")
             os.write(session.master, b"\x18\x03")
             session.finish(0)
             print("PASS close cancellation, failed required saves, nested consent, discard and final replacement")
@@ -824,7 +835,7 @@ def nested_splits(root):
             path.write_bytes(source)
             session = Session([str(root / "target/debug/rev"), str(path)])
             try:
-                session.ready(b"> split.txt -- RW L1 C1 Text")
+                session.ready(b"> split.txt -- RW -- L1 C1 Text")
                 if order == "below-right":
                     group_step(session, b"\x182", b"\x1b[11;1H> split.txt", b"\x1b[23;1H  split.txt")
                     group_step(session, b"\x183", b"\x1b[11;1H> split.txt", b"|")
@@ -834,10 +845,10 @@ def nested_splits(root):
                 assert b"\x1b[1;1H" in session.output and b"\x1b[12;1H" in session.output
                 assert "界e\u0301👩\u200d💻".encode() in session.output
                 group_step(session, b"\x05", b"L1 C113 Text")
-                group_step(session, b"\x0e", b"L2 C113 Text", b"-- RW L1 C1 Text")
-                group_step(session, b"!", b"L2 C114 Text", b"** RW L1 C1 Text")
+                group_step(session, b"\x0e", b"L2 C113 Text", b"-- RW -- L1 C1 Text")
+                group_step(session, b"!", b"L2 C114 Text", b"** RW -- L1 C1 Text")
                 assert path.read_bytes() == source, "shared editing unexpectedly saved disk"
-                group_step(session, b"\x18u", b"L2 C113 Text", b"-- RW L1 C1 Text")
+                group_step(session, b"\x18u", b"L2 C113 Text", b"-- RW -- L1 C1 Text")
                 # Selected pane width 39 fits three further right divisions;
                 # the fourth must refuse without leaving a stale shared view.
                 group_step(session, b"\x183\x183\x183\x183", b"Split does not fit")
@@ -856,21 +867,21 @@ def window_lifecycle(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> view.txt -- RW L1 C1 Text")
+            session.ready(b"> view.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x182", b"\x1b[11;1H> view.txt", b"\x1b[23;1H  view.txt")
             group_step(session, b"\x183", b"\x1b[11;1H> view.txt", b"|")
-            group_step(session, b"\x18o", b"|> view.txt -- RW L1 C1 Text", b"\x1b[1;41H" + SHOW)
-            group_step(session, b"\x05", b"|> view.txt -- RW L1 C6 Text", b"\x1b[1;46H" + SHOW)
-            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW L1 C1 Text", b"\x1b[12;1H" + SHOW)
-            group_step(session, b"\x18o", b"\x1b[11;1H> view.txt -- RW L1 C1 Text", b"\x1b[1;1H" + SHOW)
-            assert b"|  view.txt -- RW L1 C6 Text" in session.output
-            group_step(session, b"\x180", b"\x1b[11;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            group_step(session, b"\x18o", b"|> view.txt -- RW -- L1 C1 Text", b"\x1b[1;41H" + SHOW)
+            group_step(session, b"\x05", b"|> view.txt -- RW -- L1 C6 Text", b"\x1b[1;46H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW -- L1 C1 Text", b"\x1b[12;1H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[11;1H> view.txt -- RW -- L1 C1 Text", b"\x1b[1;1H" + SHOW)
+            assert status_contains(session.output, b"|  view.txt -- RW -- L1 C6 Text")
+            group_step(session, b"\x180", b"\x1b[11;1H> view.txt -- RW -- L1 C6 Text", b"\x1b[1;6H" + SHOW)
             end = session.output.rfind(SHOW)
             frame = session.output[session.output.rfind(HIDE, 0, end):end + len(SHOW)]
             assert b"|" not in frame, "deleted right division retained its separator"
-            group_step(session, b"\x181", b"\x1b[23;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            group_step(session, b"\x181", b"\x1b[23;1H> view.txt -- RW -- L1 C6 Text", b"\x1b[1;6H" + SHOW)
             group_step(session, b"\x180", b"Cannot delete the sole editing window", b"\x1b[1;6H" + SHOW)
-            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW L1 C6 Text", b"\x1b[1;6H" + SHOW)
+            group_step(session, b"\x18o", b"\x1b[23;1H> view.txt -- RW -- L1 C6 Text", b"\x1b[1;6H" + SHOW)
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -888,20 +899,20 @@ def hidden_window_buffers(root):
             hidden.write_bytes(b"hidden")
             session = Session([str(root / "target/debug/rev"), str(first)])
             try:
-                session.ready(b"> first.txt -- RW L1 C1 Text")
-                group_step(session, b"\x183", b"> first.txt -- RW L1 C1 Text", b"|")
-                group_step(session, b"\x18o", b"|> first.txt -- RW L1 C1 Text")
-                find_path(session, hidden, b"|> hidden.txt -- RW L1 C1 Text", b"hidden")
-                group_step(session, b"!", b"|> hidden.txt ** RW L1 C2 Text")
+                session.ready(b"> first.txt -- RW -- L1 C1 Text")
+                group_step(session, b"\x183", b"> first.txt -- RW -- L1 C1 Text", b"|")
+                group_step(session, b"\x18o", b"|> first.txt -- RW -- L1 C1 Text")
+                find_path(session, hidden, b"|> hidden.txt -- RW -- L1 C1 Text", b"hidden")
+                group_step(session, b"!", b"|> hidden.txt ** RW -- L1 C2 Text")
                 if action == b"1":
-                    group_step(session, b"\x18o", b"> first.txt -- RW L1 C1 Text", b"|  hidden.txt ** RW L1 C2 Text")
-                group_step(session, b"\x18" + action, b"\x1b[23;1H> first.txt -- RW L1 C1 Text")
+                    group_step(session, b"\x18o", b"> first.txt -- RW -- L1 C1 Text", b"|  hidden.txt ** RW -- L1 C2 Text")
+                group_step(session, b"\x18" + action, b"\x1b[23;1H> first.txt -- RW -- L1 C1 Text")
                 group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
                 group_step(session, b"\x07", b"Quit")
                 assert first.read_bytes() == b"first" and hidden.read_bytes() == b"hidden"
-                buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"hidden.txt", b"> hidden.txt ** RW L1 C1 Text")
+                buffer_prompt(session, b"\x18b", b"Switch to buffer: ", b"hidden.txt", b"> hidden.txt ** RW -- L1 C1 Text")
                 assert b"\x1b[1;1H!hidden" in session.output
-                group_step(session, b"\x18u", b"> hidden.txt -- RW L1 C1 Text", b"\x1b[1;1Hhidden")
+                group_step(session, b"\x18u", b"> hidden.txt -- RW -- L1 C1 Text", b"\x1b[1;1Hhidden")
                 assert hidden.read_bytes() == b"hidden"
                 os.write(session.master, b"\x18\x03")
                 session.finish(0)
@@ -920,19 +931,19 @@ def shared_view_mapping(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> shared.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"> shared.txt -- RW L1 C1 Text", b"|")
-            group_step(session, b"\x18o", b"|> shared.txt -- RW L1 C1 Text")
-            group_step(session, b"\x0e" * 30, b"|> shared.txt -- RW L31 C1 Text")
-            group_step(session, b"\x0c", b"|> shared.txt -- RW L31 C1 Text", b"|row-19")
-            group_step(session, b"\x18o", b"> shared.txt -- RW L1 C1 Text")
+            session.ready(b"> shared.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"> shared.txt -- RW -- L1 C1 Text", b"|")
+            group_step(session, b"\x18o", b"|> shared.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x0e" * 30, b"|> shared.txt -- RW -- L31 C1 Text")
+            group_step(session, b"\x0c", b"|> shared.txt -- RW -- L31 C1 Text", b"|row-19")
+            group_step(session, b"\x18o", b"> shared.txt -- RW -- L1 C1 Text")
             first_row = b"\x1b[1;1H" + b" " * 39 + b"|row-19"
-            group_step(session, b"\r", b"> shared.txt ** RW L2 C1 Text", first_row)
-            assert b"|  shared.txt ** RW L32 C1 Text" in session.output
-            group_step(session, b"\x18o", b"|> shared.txt ** RW L32 C1 Text")
+            group_step(session, b"\r", b"> shared.txt ** RW -- L2 C1 Text", first_row)
+            assert status_contains(session.output, b"|  shared.txt ** RW -- L32 C1 Text")
+            group_step(session, b"\x18o", b"|> shared.txt ** RW -- L32 C1 Text")
             first_row = b"\x1b[1;1Hrow-00 abcd" + b" " * 28 + b"|row-19"
-            group_step(session, b"\x18u", b"|> shared.txt -- RW L31 C1 Text", first_row)
-            assert b"  shared.txt -- RW L1 C1 Text" in session.output
+            group_step(session, b"\x18u", b"|> shared.txt -- RW -- L31 C1 Text", first_row)
+            assert status_contains(session.output, b"  shared.txt -- RW -- L1 C1 Text")
             assert b"\x1b[12;41H" + SHOW in session.output
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -950,15 +961,15 @@ def closed_view_history(root):
         path.write_bytes(b"abcdef")
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> history.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"> history.txt -- RW L1 C1 Text", b"|")
-            group_step(session, b"\x18o\x06\x06", b"|> history.txt -- RW L1 C3 Text")
-            group_step(session, b"X", b"|> history.txt ** RW L1 C4 Text", b"abXcdef")
-            group_step(session, b"\x180", b"\x1b[23;1H> history.txt ** RW L1 C1 Text")
-            group_step(session, b"\x182\x18o", b"\x1b[23;1H> history.txt ** RW L1 C1 Text",
-                       b"\x1b[11;1H  history.txt ** RW L1 C1 Text")
-            group_step(session, b"\x18u", b"\x1b[23;1H> history.txt -- RW L1 C3 Text",
-                       b"\x1b[11;1H  history.txt -- RW L1 C1 Text")
+            session.ready(b"> history.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"> history.txt -- RW -- L1 C1 Text", b"|")
+            group_step(session, b"\x18o\x06\x06", b"|> history.txt -- RW -- L1 C3 Text")
+            group_step(session, b"X", b"|> history.txt ** RW -- L1 C4 Text", b"abXcdef")
+            group_step(session, b"\x180", b"\x1b[23;1H> history.txt ** RW -- L1 C1 Text")
+            group_step(session, b"\x182\x18o", b"\x1b[23;1H> history.txt ** RW -- L1 C1 Text",
+                       b"\x1b[11;1H  history.txt ** RW -- L1 C1 Text")
+            group_step(session, b"\x18u", b"\x1b[23;1H> history.txt -- RW -- L1 C3 Text",
+                       b"\x1b[11;1H  history.txt -- RW -- L1 C1 Text")
             assert b"\x1b[12;3H" + SHOW in session.output
             assert path.read_bytes() == b"abcdef"
             os.write(session.master, b"\x18\x03")
@@ -976,16 +987,16 @@ def kill_shared_buffer(root):
         path.write_bytes(b"original")
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> kill.txt -- RW L1 C1 Text")
-            group_step(session, b"\x182\x183", b"\x1b[11;1H> kill.txt -- RW L1 C1 Text", b"|")
-            group_step(session, b"!", b"> kill.txt ** RW L1 C2 Text", b"|  kill.txt ** RW L1 C2 Text")
+            session.ready(b"> kill.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x182\x183", b"\x1b[11;1H> kill.txt -- RW -- L1 C1 Text", b"|")
+            group_step(session, b"!", b"> kill.txt ** RW -- L1 C2 Text", b"|  kill.txt ** RW -- L1 C2 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
-            group_step(session, b"\x07", b"Quit", b"\x1b[23;1H  kill.txt ** RW L1 C2 Text")
+            group_step(session, b"\x07", b"Quit", b"\x1b[23;1H  kill.txt ** RW -- L1 C2 Text")
             buffer_prompt(session, b"\x18k", b"Kill buffer: ", b"", b"y=save")
-            group_step(session, b"n", b"Buffer closed", b"|  *scratch* -- RW L1 C1 Text")
-            assert b"\x1b[23;1H  *scratch* -- RW L1 C1 Text" in session.output
-            find_path(session, path, b"> kill.txt -- RW L1 C1 Text", b"original")
-            assert b"|  *scratch* -- RW L1 C1 Text" in session.output
+            group_step(session, b"n", b"Buffer closed", b"|  *scratch* -- RW -- L1 C1 Text")
+            assert status_contains(session.output, b"\x1b[23;1H  *scratch* -- RW -- L1 C1 Text")
+            find_path(session, path, b"> kill.txt -- RW -- L1 C1 Text", b"original")
+            assert status_contains(session.output, b"|  *scratch* -- RW -- L1 C1 Text")
             assert path.read_bytes() == b"original"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1031,25 +1042,25 @@ def resizing_windows(root):
             path.write_bytes(source)
             session = Session([str(root / "target/debug/rev"), str(path)])
             try:
-                session.ready(b"> r.txt -- RW L1 C1 Text")
-                group_step(session, b"!", b"> r.txt ** RW L1 C2 Text")
+                session.ready(b"> r.txt -- RW -- L1 C1 Text")
+                group_step(session, b"!", b"> r.txt ** RW -- L1 C2 Text")
                 group_step(session, b"\x18" + direction + b"\x18" + direction,
-                           b"> r.txt ** RW L1 C2")
-                group_step(session, b"\x05\x07", b"Quit", b"> r.txt ** RW L1 C7")
+                           b"> r.txt ** RW -- L1 C2")
+                group_step(session, b"\x05\x07", b"Quit", b"> r.txt ** RW -- L1 C7")
                 dimensions = [minimum, (0, 0), (0, 24), (80, 0), (1, 1),
                               (65535, 1), (1, 65535), minimum, (80, 24)]
                 for width, height in dimensions:
                     fits = width >= minimum[0] and height >= minimum[1]
                     resize_surface(session, width, height, fits)
-                assert b"> r.txt ** RW L1 C7" in session.output
-                assert b"  r.txt ** RW L1 C2" in session.output
+                assert b"> r.txt ** RW -- L1 C7" in session.output
+                assert b"  r.txt ** RW -- L1 C2" in session.output
                 resize_surface(session, *minimum, True)
                 echo = f"\x1b[{minimum[1]};1H".encode() + b"Split does not fit"[:minimum[0]]
                 group_step(session, b"\x18" + direction, echo)
                 terminal_bounds(session.output, *minimum)
                 group_step(session, b"\x07", b"Quit"[:minimum[0]])
                 resize_surface(session, 80, 24, True)
-                group_step(session, b"\x18u", b"> r.txt -- RW L1 C1", b"  r.txt -- RW L1 C1")
+                group_step(session, b"\x18u", b"> r.txt -- RW -- L1 C1", b"  r.txt -- RW -- L1 C1")
                 assert path.read_bytes() == source
                 os.write(session.master, b"\x18\x03")
                 session.finish(0)
@@ -1068,15 +1079,15 @@ def resizing_prompt(root):
         chosen.write_bytes(b"destination")
         session = Session([str(root / "target/debug/rev"), str(first)])
         try:
-            session.ready(b"> first.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"> first.txt -- RW L1 C1 Text", b"|")
+            session.ready(b"> first.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"> first.txt -- RW -- L1 C1 Text", b"|")
             group_step(session, b"\x18\x06", b"Find file: ")
             group_step(session, str(chosen).encode(), b"Find file: " + str(chosen).encode())
             for width, height in [(0, 0), (1, 1), (3, 3), (80, 24)]:
                 resize_surface(session, width, height, True)
             assert b"Find file: " + str(chosen).encode() in session.output
-            group_step(session, b"\r", b"> chosen.txt -- RW L1 C1 Text", b"destination")
-            assert b"|  first.txt -- RW L1 C1 Text" in session.output
+            group_step(session, b"\r", b"> chosen.txt -- RW -- L1 C1 Text", b"destination")
+            assert status_contains(session.output, b"|  first.txt -- RW -- L1 C1 Text")
             assert first.read_bytes() == b"first" and chosen.read_bytes() == b"destination"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1100,7 +1111,7 @@ def linear_regions(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> region.txt -- RW L1 C1 Text")
+            session.ready(b"> region.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x00", b"Mark set")
             assert b"\x1b[7m" not in last_frame(session)
             group_step(session, b"\x06", b"L1 C2 Text", b"\x1b[7ma\x1b[27mb")
@@ -1110,9 +1121,9 @@ def linear_regions(root):
             assert b"\x1b[7m" not in last_frame(session)
             group_step(session, b"\x18\x18", b"L2 C5 Text", b"\x1b[7mlast\x1b[27m")
             group_step(session, b"\x00\x02", b"L2 C4 Text", b"las\x1b[7mt\x1b[27m")
-            group_step(session, b"!", b"** RW L2 C5 Text", b"las!t")
+            group_step(session, b"!", b"** RW -- L2 C5 Text", b"las!t")
             assert b"\x1b[7m" not in last_frame(session)
-            group_step(session, b"\x18u", b"-- RW L2 C4 Text", b"last")
+            group_step(session, b"\x18u", b"-- RW -- L2 C4 Text", b"last")
             assert b"\x1b[7m" not in last_frame(session)
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -1131,18 +1142,18 @@ def shared_regions(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> shared.txt -- RW L1 C1 Text")
+            session.ready(b"> shared.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x06\x06\x00\x05", b"L1 C7 Text", b"ab\x1b[7mcdef\x1b[27m")
-            group_step(session, b"\x183", b"> shared.txt -- RW L1 C7 Text", b"|abcdef")
+            group_step(session, b"\x183", b"> shared.txt -- RW -- L1 C7 Text", b"|abcdef")
             assert last_frame(session).count(b"\x1b[7m") == 1
-            group_step(session, b"\x18o\x01", b"|> shared.txt -- RW L1 C1 Text",
+            group_step(session, b"\x18o\x01", b"|> shared.txt -- RW -- L1 C1 Text",
                        b"|\x1b[7mab\x1b[27mcdef")
             assert last_frame(session).count(b"\x1b[7m") == 1
-            group_step(session, b"\x18\x18", b"|> shared.txt -- RW L1 C3 Text")
-            group_step(session, b"X", b"|> shared.txt ** RW L1 C4 Text", b"abXcdef")
+            group_step(session, b"\x18\x18", b"|> shared.txt -- RW -- L1 C3 Text")
+            group_step(session, b"X", b"|> shared.txt ** RW -- L1 C4 Text", b"abXcdef")
             assert b"\x1b[7m" not in last_frame(session)
-            assert b"  shared.txt ** RW L1 C8 Text" in session.output
-            group_step(session, b"\x18u", b"|> shared.txt -- RW L1 C3 Text", b"abcdef")
+            assert status_contains(session.output, b"  shared.txt ** RW -- L1 C8 Text")
+            group_step(session, b"\x18u", b"|> shared.txt -- RW -- L1 C3 Text", b"abcdef")
             assert b"\x1b[7m" not in last_frame(session)
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -1159,7 +1170,7 @@ def scrolling_regions(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> scroll.txt -- RW L1 C1 Text")
+            session.ready(b"> scroll.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x00\x1b>\x0c", b"L61 C1 Text", b"\x1b[1;1H\x1b[7mrow-49")
             assert last_frame(session).count(b"\x1b[7m") == 11
             resize_surface(session, 7, 5, True)
@@ -1186,13 +1197,13 @@ def line_kills(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> line.txt -- RW L1 C1 Text")
-            group_step(session, b"\x06\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Ha ")
-            group_step(session, b"\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Halast ")
-            group_step(session, b"\x18u", b"** RW L1 C2 Text", b"\x1b[2;1Hlast ")
-            group_step(session, b"\x18u", b"-- RW L1 C2 Text", "ab界".encode())
+            session.ready(b"> line.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x06\x0b", b"** RW -- L1 C2 Text", b"\x1b[1;1Ha ")
+            group_step(session, b"\x0b", b"** RW -- L1 C2 Text", b"\x1b[1;1Halast ")
+            group_step(session, b"\x18u", b"** RW -- L1 C2 Text", b"\x1b[2;1Hlast ")
+            group_step(session, b"\x18u", b"-- RW -- L1 C2 Text", "ab界".encode())
             assert path.read_bytes() == source
-            group_step(session, b"\x0b\x0b", b"** RW L1 C2 Text", b"\x1b[1;1Halast ")
+            group_step(session, b"\x0b\x0b", b"** RW -- L1 C2 Text", b"\x1b[1;1Halast ")
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == b"\xef\xbb\xbfalast"
             os.write(session.master, b"\x18\x03")
@@ -1211,17 +1222,17 @@ def word_kills(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> word.txt -- RW L1 C1 Text")
-            group_step(session, b"\x1bd", b"** RW L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
-            group_step(session, b"\x1bd", b"** RW L1 C1 Text", b"\x1b[1;1H ")
-            group_step(session, b"\x18u", b"** RW L1 C1 Text", "...👩\u200d💻 last".encode())
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text", source.split(b"\r\n")[0])
-            group_step(session, b"\x05", b"-- RW L1 C16 Text")
-            group_step(session, b"\x1b\x7f", b"** RW L1 C12 Text", "👩\u200d💻 ".encode())
-            group_step(session, b"\x1b\x7f", b"** RW L1 C1 Text", b"\x1b[1;1H ")
-            group_step(session, b"\x18u", b"** RW L1 C12 Text", "e\u0301界_2...👩\u200d💻 ".encode())
-            group_step(session, b"\x18u", b"-- RW L1 C16 Text", source.split(b"\r\n")[0])
-            group_step(session, b"\x1b<\x1bd", b"** RW L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
+            session.ready(b"> word.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x1bd", b"** RW -- L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
+            group_step(session, b"\x1bd", b"** RW -- L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"** RW -- L1 C1 Text", "...👩\u200d💻 last".encode())
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text", source.split(b"\r\n")[0])
+            group_step(session, b"\x05", b"-- RW -- L1 C16 Text")
+            group_step(session, b"\x1b\x7f", b"** RW -- L1 C12 Text", "👩\u200d💻 ".encode())
+            group_step(session, b"\x1b\x7f", b"** RW -- L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"** RW -- L1 C12 Text", "e\u0301界_2...👩\u200d💻 ".encode())
+            group_step(session, b"\x18u", b"-- RW -- L1 C16 Text", source.split(b"\r\n")[0])
+            group_step(session, b"\x1b<\x1bd", b"** RW -- L1 C1 Text", "\x1b[1;1H...👩\u200d💻 last".encode())
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == "...👩\u200d💻 last\r\nend".encode()
             os.write(session.master, b"\x18\x03")
@@ -1241,20 +1252,20 @@ def linear_ring(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> region.txt -- RW L1 C1 Text")
+            session.ready(b"> region.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x19", b"Kill ring is empty")
-            group_step(session, b"\x00\x1b>", b"-- RW L2 C5 Text")
+            group_step(session, b"\x00\x1b>", b"-- RW -- L2 C5 Text")
             group_step(session, b"\x1bw", b"Region copied")
-            assert b"-- RW L2 C5 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"-- RW -- L2 C5 Text")
             assert b"\x1b[7m" in last_frame(session)
             assert path.read_bytes() == source
-            group_step(session, b"\x17", b"** RW L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x17", b"** RW -- L1 C1 Text", b"\x1b[1;1H ")
             assert b"\x1b[7m" not in last_frame(session)
-            group_step(session, b"\x19", b"** RW L2 C5 Text", "界👩\u200d💻".encode())
-            group_step(session, b"\x18u", b"** RW L1 C1 Text", b"\x1b[1;1H ")
-            group_step(session, b"\x18u", b"-- RW L2 C5 Text", "界👩\u200d💻".encode())
+            group_step(session, b"\x19", b"** RW -- L2 C5 Text", "界👩\u200d💻".encode())
+            group_step(session, b"\x18u", b"** RW -- L1 C1 Text", b"\x1b[1;1H ")
+            group_step(session, b"\x18u", b"-- RW -- L2 C5 Text", "界👩\u200d💻".encode())
             assert path.read_bytes() == source
-            group_step(session, b"\x19", b"** RW L3 C5 Text")
+            group_step(session, b"\x19", b"** RW -- L3 C5 Text")
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == b"\xef\xbb\xbf" + text + text
             os.write(session.master, b"\x18\x03")
@@ -1275,13 +1286,13 @@ def cross_buffer_yank(root):
         target_path.write_bytes(b"TARGET")
         session = Session([str(root / "target/debug/rev"), str(source_path)])
         try:
-            session.ready(b"> source.txt -- RW L1 C1 Text")
-            group_step(session, b"\x00\x1b>", b"-- RW L2 C7 Text")
+            session.ready(b"> source.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x00\x1b>", b"-- RW -- L2 C7 Text")
             group_step(session, b"\x1bw", b"Region copied")
-            find_path(session, target_path, b"> target.txt -- RW L1 C1 Text", b"TARGET")
-            group_step(session, b"\x19", b"> target.txt ** RW L2 C7 Text", b"secondTARGET")
-            group_step(session, b"\x18u", b"> target.txt -- RW L1 C1 Text", b"\x1b[1;1HTARGET ")
-            group_step(session, b"\x19", b"> target.txt ** RW L2 C7 Text", b"secondTARGET")
+            find_path(session, target_path, b"> target.txt -- RW -- L1 C1 Text", b"TARGET")
+            group_step(session, b"\x19", b"> target.txt ** RW -- L2 C7 Text", b"secondTARGET")
+            group_step(session, b"\x18u", b"> target.txt -- RW -- L1 C1 Text", b"\x1b[1;1HTARGET ")
+            group_step(session, b"\x19", b"> target.txt ** RW -- L2 C7 Text", b"secondTARGET")
             group_step(session, b"\x18\x13", b"Saved ")
             assert target_path.read_bytes() == source + b"TARGET"
             assert source_path.read_bytes() == source
@@ -1293,11 +1304,11 @@ def cross_buffer_yank(root):
 
 
 def copy_rotation_lines(session, column):
-    group_step(session, b"\x00\x05", b"-- RW L1 C2 Text")
+    group_step(session, b"\x00\x05", b"-- RW -- L1 C2 Text")
     group_step(session, b"\x1bw", b"Region copied")
-    group_step(session, b"\x0e\x01\x00\x05", f"-- RW L2 C{column} Text".encode())
+    group_step(session, b"\x0e\x01\x00\x05", f"-- RW -- L2 C{column} Text".encode())
     group_step(session, b"\x1bw", b"Region copied")
-    group_step(session, b"\x07\x1b>", b"-- RW L3 C1 Text")
+    group_step(session, b"\x07\x1b>", b"-- RW -- L3 C1 Text")
 
 
 def yank_rotations(root):
@@ -1309,16 +1320,16 @@ def yank_rotations(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> rotate.txt -- RW L1 C1 Text")
+            session.ready(b"> rotate.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x1by", b"No current yank to replace")
             copy_rotation_lines(session, 8)
-            group_step(session, b"<>\x02\x19", b"** RW L3 C9 Text", "<long 界>".encode())
-            group_step(session, b"\x1by", b"** RW L3 C3 Text", b"<A>")
-            group_step(session, b"\x1by", b"** RW L3 C9 Text", "<long 界>".encode())
-            group_step(session, b"\x18u", b"** RW L3 C3 Text", b"<A>")
+            group_step(session, b"<>\x02\x19", b"** RW -- L3 C9 Text", "<long 界>".encode())
+            group_step(session, b"\x1by", b"** RW -- L3 C3 Text", b"<A>")
+            group_step(session, b"\x1by", b"** RW -- L3 C9 Text", "<long 界>".encode())
+            group_step(session, b"\x18u", b"** RW -- L3 C3 Text", b"<A>")
             group_step(session, b"\x1by", b"No current yank to replace", b"<A>")
-            group_step(session, b"\x19", b"** RW L3 C10 Text", "<Along 界>".encode())
-            group_step(session, b"\x1by", b"** RW L3 C4 Text", b"<AA>")
+            group_step(session, b"\x19", b"** RW -- L3 C10 Text", "<Along 界>".encode())
+            group_step(session, b"\x1by", b"** RW -- L3 C4 Text", b"<AA>")
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == source + b"<AA>"
             os.write(session.master, b"\x18\x03")
@@ -1337,15 +1348,15 @@ def yank_view_invalidation(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> shared.txt -- RW L1 C1 Text")
+            session.ready(b"> shared.txt -- RW -- L1 C1 Text")
             copy_rotation_lines(session, 5)
-            group_step(session, b"\x183", b"> shared.txt -- RW L3 C1 Text", b"|A ")
-            group_step(session, b"<>\x02\x19", b"> shared.txt ** RW L3 C6 Text", b"<LONG>")
-            group_step(session, b"\x1by", b"> shared.txt ** RW L3 C3 Text", b"<A>")
-            assert b"  shared.txt ** RW L3 C4 Text" in last_frame(session)
-            group_step(session, b"\x18oX", b"|> shared.txt ** RW L3 C5 Text", b"<A>X")
+            group_step(session, b"\x183", b"> shared.txt -- RW -- L3 C1 Text", b"|A ")
+            group_step(session, b"<>\x02\x19", b"> shared.txt ** RW -- L3 C6 Text", b"<LONG>")
+            group_step(session, b"\x1by", b"> shared.txt ** RW -- L3 C3 Text", b"<A>")
+            assert status_contains(last_frame(session), b"  shared.txt ** RW -- L3 C4 Text")
+            group_step(session, b"\x18oX", b"|> shared.txt ** RW -- L3 C5 Text", b"<A>X")
             group_step(session, b"\x18o\x1by", b"No current yank to replace", b"<A>X")
-            group_step(session, b"\x18u", b"> shared.txt ** RW L3 C3 Text", b"\x1b[3;1H<A> ")
+            group_step(session, b"\x18u", b"> shared.txt ** RW -- L3 C3 Text", b"\x1b[3;1H<A> ")
             group_step(session, b"\x1by", b"No current yank to replace", b"<A>")
             group_step(session, b"\x18\x13", b"Saved ")
             assert path.read_bytes() == source + b"<A>"
@@ -1365,10 +1376,10 @@ def terminal_key_reports(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> keys.txt -- RW L1 C1 Text")
+            session.ready(b"> keys.txt -- RW -- L1 C1 Text")
             for undo in [b"\x1f", b"\x1b[47;5u", b"\x1b[95;5u", b"\x18u"]:
-                group_step(session, b"X", b"** RW L1 C2 Text", b"Xabc")
-                group_step(session, undo, b"-- RW L1 C1 Text", b"\x1b[1;1Habc ")
+                group_step(session, b"X", b"** RW -- L1 C2 Text", b"Xabc")
+                group_step(session, undo, b"-- RW -- L1 C1 Text", b"\x1b[1;1Habc ")
             group_step(session, b"\x1b[32;5u", b"Mark set")
             group_step(session, b"\x06", b"L1 C2 Text", b"\x1b[7ma\x1b[27mbc")
             group_step(session, b"\x07", b"Quit")
@@ -1376,7 +1387,7 @@ def terminal_key_reports(root):
             group_step(session, b"\x1b<", b"L1 C1 Text")
             group_step(session, b"\x18r\x1bw", b"Rectangle is not active")
             group_step(session, b"\x18r\x07", b"Quit")
-            group_step(session, b"\x1b[999~\x0c", b"-- RW L1 C1 Text", b"\x1b[1;1Habc ")
+            group_step(session, b"\x1b[999~\x0c", b"-- RW -- L1 C1 Text", b"\x1b[1;1Habc ")
             group_step(session, b"\x1bq", b"Unbound key")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -1395,7 +1406,7 @@ def escape_deadlines(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> escape.txt -- RW L1 C1 Text")
+            session.ready(b"> escape.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x1b", b"ESC")
             group_step(session, b">", b"L2 C5 Text")
             group_step(session, b"\x1b", b"ESC")
@@ -1407,8 +1418,8 @@ def escape_deadlines(root):
             group_step(session, b"\x1b", b"ESC")
             session.output.clear()
             session.wait(lambda: frame_contains(session.output, b"Escape", None))
-            group_step(session, b"f", b"** RW L1 C2 Text", b"fabc")
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            group_step(session, b"f", b"** RW -- L1 C2 Text", b"fabc")
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
             group_step(session, b"\x18r", b"C-x r")
             group_step(session, b"\x1b", b"ESC")
             group_step(session, b"w", b"Rectangle is not active")
@@ -1416,11 +1427,11 @@ def escape_deadlines(root):
             group_step(session, b"\x1b", b"ESC")
             group_step(session, b"q", b"Unbound prompt key")
             group_step(session, b"\x07", b"Quit")
-            group_step(session, b"X", b"** RW L1 C2 Text", b"Xabc")
+            group_step(session, b"X", b"** RW -- L1 C2 Text", b"Xabc")
             group_step(session, b"\x1b", b"ESC")
             group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
             group_step(session, b"\x07", b"Quit")
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text")
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text")
             group_step(session, b"\x1b", b"ESC")
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1446,17 +1457,17 @@ def bracketed_paste(root):
         assert len(payload) > 4096
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> paste.txt -- RW L1 C1 Text")
+            session.ready(b"> paste.txt -- RW -- L1 C1 Text")
             assert PASTE_ON in session.output
-            group_step(session, b"\x06", b"-- RW L1 C2 Text")
-            group_step(session, paste_wire(b"ok\0bad"), b"Paste contains NUL", b"-- RW L1 C2 Text")
+            group_step(session, b"\x06", b"-- RW -- L1 C2 Text")
+            group_step(session, paste_wire(b"ok\0bad"), b"Paste contains NUL", b"-- RW -- L1 C2 Text")
             group_step(session, b"\x18r", b"C-x r")
-            group_step(session, paste_wire(payload), b"** RW L513 ", b"PASTE-END^X^C^[[31m^G>")
+            group_step(session, paste_wire(payload), b"** RW -- L513 ", b"PASTE-END^X^C^[[31m^G>")
             assert b"\x1b[31m" not in last_frame(session)
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L513 ")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L513 ")
             assert path.read_bytes() == b"\xef\xbb\xbf<" + payload + b">\r\nlast"
-            group_step(session, b"\x18u", b"** RW L1 C2 Text", b"\x1b[1;1H<> ")
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            group_step(session, b"\x18u", b"** RW -- L1 C2 Text", b"\x1b[1;1H<> ")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C2 Text")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1476,21 +1487,21 @@ def shared_paste(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> panes.txt -- RW L1 C1 Text")
-            group_step(session, b"\x06\x183", b"> panes.txt -- RW L1 C2 Text", b"|")
-            group_step(session, b"\x18o\x1b>", b"|> panes.txt -- RW L2 C5 Text")
-            group_step(session, b"\x18o", b"> panes.txt -- RW L1 C2 Text")
+            session.ready(b"> panes.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x06\x183", b"> panes.txt -- RW -- L1 C2 Text", b"|")
+            group_step(session, b"\x18o\x1b>", b"|> panes.txt -- RW -- L2 C5 Text")
+            group_step(session, b"\x18o", b"> panes.txt -- RW -- L1 C2 Text")
             group_step(session, b"\x18\x06", b"Find file:")
             group_step(session, paste_wire(str(path).encode()), b"Find file:", b"panes.txt")
             group_step(session, paste_wire(b"bad\ntext"), b"Control character", b"panes.txt")
-            group_step(session, b"\x07", b"Quit", b"-- RW L1 C2 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW -- L1 C2 Text")
             group_step(session, b"\x18r", b"C-x r")
-            group_step(session, paste_wire("x\r\n界\x18\x03\x07".encode()), b"> panes.txt ** RW L2 C9 Text", "界^X^C^Gbc".encode())
-            assert b"  panes.txt ** RW L3 C5 Text" in last_frame(session)
-            group_step(session, b"\x07", b"Quit", b"** RW L2 C9 Text")
-            group_step(session, b"\x18o", b"|> panes.txt ** RW L3 C5 Text")
-            group_step(session, b"\x18u", b"|> panes.txt -- RW L2 C5 Text", b"\x1b[1;1Habc ")
-            assert b"  panes.txt -- RW L1 C2 Text" in last_frame(session)
+            group_step(session, paste_wire("x\r\n界\x18\x03\x07".encode()), b"> panes.txt ** RW -- L2 C9 Text", "界^X^C^Gbc".encode())
+            assert status_contains(last_frame(session), b"  panes.txt ** RW -- L3 C5 Text")
+            group_step(session, b"\x07", b"Quit", b"** RW -- L2 C9 Text")
+            group_step(session, b"\x18o", b"|> panes.txt ** RW -- L3 C5 Text")
+            group_step(session, b"\x18u", b"|> panes.txt -- RW -- L2 C5 Text", b"\x1b[1;1Habc ")
+            assert status_contains(last_frame(session), b"  panes.txt -- RW -- L1 C2 Text")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1515,7 +1526,7 @@ def command_palette(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> cmd.txt -- RW L1 C1 Text")
+            session.ready(b"> cmd.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x1bx", b"M-x ", b"backward-delete-char")
             group_step(session, b"split-window", b"M-x split-window", b"split-window-right")
             resize_surface(session, 3, 1, True)
@@ -1523,22 +1534,22 @@ def command_palette(root):
             resize_surface(session, 80, 24, True)
             group_step(session, b"\t", b"M-x split-window-below")
             group_step(session, b"\x1b[B\t", b"M-x split-window-right")
-            group_step(session, b"\r", b"> cmd.txt -- RW L1 C1 Text", b"|")
-            named_step(session, "other-window", b"|> cmd.txt -- RW L1 C1 Text")
-            named_step(session, "newline", b"|> cmd.txt ** RW L2 C1 Text", b"abc")
-            named_step(session, "undo", b"|> cmd.txt -- RW L1 C1 Text")
-            named_step(session, "undo-redo", b"|> cmd.txt ** RW L2 C1 Text")
-            named_step(session, "undo", b"|> cmd.txt -- RW L1 C1 Text")
+            group_step(session, b"\r", b"> cmd.txt -- RW -- L1 C1 Text", b"|")
+            named_step(session, "other-window", b"|> cmd.txt -- RW -- L1 C1 Text")
+            named_step(session, "newline", b"|> cmd.txt ** RW -- L2 C1 Text", b"abc")
+            named_step(session, "undo", b"|> cmd.txt -- RW -- L1 C1 Text")
+            named_step(session, "undo-redo", b"|> cmd.txt ** RW -- L2 C1 Text")
+            named_step(session, "undo", b"|> cmd.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x1bx", b"M-x ")
             group_step(session, b"absent-command", b"M-x absent-command", b"No matching commands")
             group_step(session, b"\t", b"No matching command")
-            group_step(session, b"\r", b"Unknown command", b"-- RW L1 C1 Text")
+            group_step(session, b"\r", b"Unknown command", b"-- RW -- L1 C1 Text")
             group_step(session, b"\x1bx", b"M-x ")
             group_step(session, b"\x1bp", b"M-x undo  ")
             group_step(session, b"\x07", b"Quit")
             group_step(session, b"\x1bxkill-", b"M-x kill-")
-            group_step(session, b"\x07", b"Quit", b"-- RW L1 C1 Text")
-            named_step(session, "delete-other-windows", b"> cmd.txt -- RW L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW -- L1 C1 Text")
+            named_step(session, "delete-other-windows", b"> cmd.txt -- RW -- L1 C1 Text")
             assert b"|" not in last_frame(session)
             assert path.read_bytes() == source
             group_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
@@ -1565,24 +1576,24 @@ def command_arguments(root):
             session.ready(b"C-x C-c: exit")
             named_step(session, "find-file", b"Find file:")
             group_step(session, paste_wire(str(source).encode()), b"Find file:", b"source.txt")
-            group_step(session, b"\r", b"> source.txt -- RW L1 C1 Text", "é".encode())
+            group_step(session, b"\r", b"> source.txt -- RW -- L1 C1 Text", "é".encode())
             named_step(session, "write-file", b"Write file:")
             group_step(session, paste_wire(str(canceled).encode()), b"Write file:", b"unused.txt")
-            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW -- L1 C1 Text")
             assert not canceled.exists() and source.read_bytes() == original
-            group_step(session, b"\x05!", b"** RW L1 C3 Text", "é!".encode())
-            named_step(session, "save-buffer", b"Saved ", b"-- RW L1 C3 Text")
+            group_step(session, b"\x05!", b"** RW -- L1 C3 Text", "é!".encode())
+            named_step(session, "save-buffer", b"Saved ", b"-- RW -- L1 C3 Text")
             expected = "\ufeffé!\r\nlast".encode()
             assert source.read_bytes() == expected
             named_step(session, "write-file", b"Write file:")
             group_step(session, paste_wire(str(target).encode()), b"Write file:", b"copy.txt")
-            group_step(session, b"\r", b"Saved ", b"> copy.txt -- RW L1 C3 Text")
+            group_step(session, b"\r", b"Saved ", b"> copy.txt -- RW -- L1 C3 Text")
             assert target.read_bytes() == expected
             named_step(session, "find-file", b"Find file:")
             group_step(session, paste_wire(str(target).encode()), b"Find file:", b"copy.txt")
-            group_step(session, b"\r", b"> copy.txt -- RW L1 C3 Text", "é!".encode())
+            group_step(session, b"\r", b"> copy.txt -- RW -- L1 C3 Text", "é!".encode())
             named_step(session, "list-buffers", b"Buffers: arrows move")
-            group_step(session, b"\x07", b"Quit", b"> copy.txt -- RW L1 C3 Text")
+            group_step(session, b"\x07", b"Quit", b"> copy.txt -- RW -- L1 C3 Text")
             assert sorted(path.name for path in base.iterdir()) == ["copy.txt", "source.txt"]
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1605,7 +1616,7 @@ def focused_arguments(root):
         other.write_bytes("\ufeffé\r\nlast".encode())
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> source.txt -- RW L1 C1 Text")
+            session.ready(b"> source.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x06" * 8, b"L1 C9 Text")
             group_step(session, b"\x0e", b"L2 C2 Text")
             group_step(session, b"\x0c", b"L2 C2 Text", b"\x1b[2;2H" + SHOW)
@@ -1620,14 +1631,14 @@ def focused_arguments(root):
             group_step(session, b"\t", b"No matching paths", b"other.txtBAD")
             group_step(session, b"\x02" * 3 + b"\x04" * 3, b"other.txt  ")
             group_step(session, b"\x01\x06\x02\x05X\x08", b"other.txt  ")
-            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW L3 C9 Text")
-            find_path(session, other, b"> other.txt -- RW L1 C1 Text", "é".encode())
+            group_step(session, b"\x07", b"Quit", b"> source.txt -- RW -- L3 C9 Text")
+            find_path(session, other, b"> other.txt -- RW -- L1 C1 Text", "é".encode())
             group_step(session, b"\x18\x17", b"Write file:")
             group_step(session, paste_wire(str(unused).encode()), b"unused.txt")
-            group_step(session, b"\x07", b"Quit", b"> other.txt -- RW L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"> other.txt -- RW -- L1 C1 Text")
             assert not unused.exists()
-            group_step(session, b"!", b"** RW L1 C2 Text", "!é".encode())
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text", "!é".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C2 Text")
             assert path.read_bytes() == original
             assert other.read_bytes() == "\ufeff!é\r\nlast".encode()
             os.write(session.master, b"\x18\x03")
@@ -1649,10 +1660,10 @@ def focused_close(root):
         session = Session([str(root / "target/debug/rev")])
         try:
             session.ready(b"C-x C-c: exit")
-            group_step(session, b"draft", b"** RW L1 C6 Text", b"draft")
-            group_step(session, b"\x183", b"> *scratch* ** RW L1 C6 Text", b"|")
-            group_step(session, b"\x18o\x01", b"|> *scratch* ** RW L1 C1 Text")
-            group_step(session, b"\x18o", b"> *scratch* ** RW L1 C6 Text")
+            group_step(session, b"draft", b"** RW -- L1 C6 Text", b"draft")
+            group_step(session, b"\x183", b"> *scratch* ** RW -- L1 C6 Text", b"|")
+            group_step(session, b"\x18o\x01", b"|> *scratch* ** RW -- L1 C1 Text")
+            group_step(session, b"\x18o", b"> *scratch* ** RW -- L1 C6 Text")
             for stage in ["name", "question", "destination", "overwrite"]:
                 group_step(session, b"\x18k", b"Kill buffer:")
                 if stage != "name":
@@ -1665,14 +1676,14 @@ def focused_close(root):
                     resize_surface(session, 3, 1, True)
                     resize_surface(session, 0, 0, False)
                     resize_surface(session, 80, 24, True)
-                group_step(session, b"\x07", b"Quit", b"> *scratch* ** RW L1 C6 Text")
+                group_step(session, b"\x07", b"Quit", b"> *scratch* ** RW -- L1 C6 Text")
                 assert occupied.read_bytes() == b"keep" and not fresh.exists()
-                assert b"  *scratch* ** RW L1 C1 Text" in last_frame(session)
-            group_step(session, b"y", b"** RW L1 C7 Text", b"drafty")
+                assert status_contains(last_frame(session), b"  *scratch* ** RW -- L1 C1 Text")
+            group_step(session, b"y", b"** RW -- L1 C7 Text", b"drafty")
             group_step(session, b"\x18\x17", b"Write file:")
             group_step(session, paste_wire(str(fresh).encode()), b"fresh.txt")
-            group_step(session, b"\r", b"Saved ", b"> fresh.txt -- RW L1 C7 Text")
-            assert b"  fresh.txt -- RW L1 C1 Text" in last_frame(session)
+            group_step(session, b"\r", b"Saved ", b"> fresh.txt -- RW -- L1 C7 Text")
+            assert status_contains(last_frame(session), b"  fresh.txt -- RW -- L1 C1 Text")
             assert b"|drafty" in last_frame(session)
             assert fresh.read_bytes() == b"drafty" and occupied.read_bytes() == b"keep"
             assert sorted(path.name for path in base.iterdir()) == ["fresh.txt", "occupied.txt"]
@@ -1693,21 +1704,21 @@ def forward_search(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> search.txt -- RW L1 C1 Text")
+            session.ready(b"> search.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x13", b"I-search: ")
-            group_step(session, b"c", b"I-search: c", b"-- RW L1 C6 Text")
+            group_step(session, b"c", b"I-search: c", b"-- RW -- L1 C6 Text")
             group_step(session, b"at", b"I-search: cat", b"\x1b[4mcat\x1b[24m")
-            group_step(session, b"\x13", b"-- RW L47 C4 Text", b"I-search: cat")
+            group_step(session, b"\x13", b"-- RW -- L47 C4 Text", b"I-search: cat")
             assert b"\x1b[4mcat\x1b[24m" in last_frame(session)
-            group_step(session, b"z", b"No match", b"-- RW L47 C4 Text")
+            group_step(session, b"z", b"No match", b"-- RW -- L47 C4 Text")
             assert b"I-search: catz" in last_frame(session)
             assert b"\x1b[4m" not in last_frame(session)
             group_step(session, b"\x7f", b"I-search: cat", b"\x1b[4mcat\x1b[24m")
             assert b"No match" not in last_frame(session)
-            group_step(session, b"\r", b"-- RW L47 C4 Text")
+            group_step(session, b"\r", b"-- RW -- L47 C4 Text")
             assert b"I-search:" not in last_frame(session)
             assert b"\x1b[4m" not in last_frame(session)
-            group_step(session, b"\x18u", b"Nothing to undo", b"-- RW L47 C4 Text")
+            group_step(session, b"\x18u", b"Nothing to undo", b"-- RW -- L47 C4 Text")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1725,20 +1736,20 @@ def multiline_search(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> unicode.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"|", b"> unicode.txt -- RW L1 C1 Text")
-            group_step(session, b"\x18o", b"|> unicode.txt -- RW L1 C1 Text")
+            session.ready(b"> unicode.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> unicode.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x18o", b"|> unicode.txt -- RW -- L1 C1 Text")
             named_step(session, "isearch-forward", b"I-search: ")
-            group_step(session, paste_wire("界\r\nend".encode()), b"I-search:", b"|> unicode.txt -- RW L66 C4 Text")
+            group_step(session, paste_wire("界\r\nend".encode()), b"I-search:", b"|> unicode.txt -- RW -- L66 C4 Text")
             frame = last_frame(session)
             assert b"\x1b[4m" + "界".encode() in frame
             assert b"\x1b[4mend\x1b[24m" in frame
-            assert b"  unicode.txt -- RW L1 C1 Text" in frame
+            assert status_contains(frame, b"  unicode.txt -- RW -- L1 C1 Text")
             for width, height in [(0, 0), (1, 1), (3, 3), (80, 24)]:
                 resize_surface(session, width, height, True)
             assert b"I-search:" in last_frame(session)
-            assert b"|> unicode.txt -- RW L66 C4 Text" in last_frame(session)
-            group_step(session, b"\x07", b"Quit", b"|> unicode.txt -- RW L1 C1 Text")
+            assert status_contains(last_frame(session), b"|> unicode.txt -- RW -- L66 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"|> unicode.txt -- RW -- L1 C1 Text")
             assert b"I-search:" not in last_frame(session)
             assert b"\x1b[4m" not in last_frame(session)
             assert path.read_bytes() == source
@@ -1758,18 +1769,18 @@ def backward_search(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> back.txt -- RW L1 C1 Text")
-            group_step(session, b"\x1b>", b"-- RW L47 C8 Text")
+            session.ready(b"> back.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x1b>", b"-- RW -- L47 C8 Text")
             group_step(session, b"\x12", b"I-search backward:")
-            group_step(session, b"cat", b"-- RW L47 C5 Text", b"I-search backward: cat")
-            group_step(session, b"\x12", b"-- RW L47 C1 Text", b"\x1b[4mCAT\x1b[24m")
-            group_step(session, b"\x12", b"-- RW L1 C1 Text", b"\x1b[4mcat\x1b[24m")
-            group_step(session, b"\x12", b"No match", b"-- RW L1 C1 Text")
+            group_step(session, b"cat", b"-- RW -- L47 C5 Text", b"I-search backward: cat")
+            group_step(session, b"\x12", b"-- RW -- L47 C1 Text", b"\x1b[4mCAT\x1b[24m")
+            group_step(session, b"\x12", b"-- RW -- L1 C1 Text", b"\x1b[4mcat\x1b[24m")
+            group_step(session, b"\x12", b"No match", b"-- RW -- L1 C1 Text")
             assert b"\x1b[4m" not in last_frame(session)
-            group_step(session, b"\x13", b"I-search: cat", b"-- RW L1 C4 Text")
-            group_step(session, b"\x13", b"-- RW L47 C4 Text", b"\x1b[4mCAT\x1b[24m")
-            group_step(session, b"\r", b"-- RW L47 C4 Text")
-            group_step(session, b"\x07", b"Quit", b"-- RW L47 C4 Text")
+            group_step(session, b"\x13", b"I-search: cat", b"-- RW -- L1 C4 Text")
+            group_step(session, b"\x13", b"-- RW -- L47 C4 Text", b"\x1b[4mCAT\x1b[24m")
+            group_step(session, b"\r", b"-- RW -- L47 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW -- L47 C4 Text")
             group_step(session, b"\x18u", b"Nothing to undo")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -1788,21 +1799,21 @@ def smart_search(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> smart.txt -- RW L1 C1 Text")
-            group_step(session, b"\x1b>", b"-- RW L48 C4 Text")
+            session.ready(b"> smart.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x1b>", b"-- RW -- L48 C4 Text")
             original = last_frame(session).split(b"\x1b[23;1H")[0]
             named_step(session, "isearch-backward", b"I-search backward:")
-            group_step(session, b"strasse", b"-- RW L47 C1 Text")
-            group_step(session, b"\x12", b"-- RW L1 C5 Text", b"\x1b[4m" + "Straße".encode() + b"\x1b[24m")
-            group_step(session, b"\x01" + b"\x04" * 7 + paste_wire("i\u0307".encode()), b"-- RW L1 C1 Text", b"\x1b[4m" + "İ".encode() + b"\x1b[24m")
+            group_step(session, b"strasse", b"-- RW -- L47 C1 Text")
+            group_step(session, b"\x12", b"-- RW -- L1 C5 Text", b"\x1b[4m" + "Straße".encode() + b"\x1b[24m")
+            group_step(session, b"\x01" + b"\x04" * 7 + paste_wire("i\u0307".encode()), b"-- RW -- L1 C1 Text", b"\x1b[4m" + "İ".encode() + b"\x1b[24m")
             for width, height in [(0, 0), (1, 1), (80, 24)]:
                 resize_surface(session, width, height, True)
-            group_step(session, b"\x07", b"Quit", b"-- RW L48 C4 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW -- L48 C4 Text")
             assert last_frame(session).split(b"\x1b[23;1H")[0] == original
-            group_step(session, b"\x1b<", b"-- RW L1 C1 Text")
+            group_step(session, b"\x1b<", b"-- RW -- L1 C1 Text")
             group_step(session, b"\x13", b"I-search:")
-            group_step(session, b"STRASSE", b"-- RW L47 C8 Text", b"\x1b[4mSTRASSE\x1b[24m")
-            group_step(session, b"\r", b"-- RW L47 C8 Text")
+            group_step(session, b"STRASSE", b"-- RW -- L47 C8 Text", b"\x1b[4mSTRASSE\x1b[24m")
+            group_step(session, b"\r", b"-- RW -- L47 C8 Text")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1820,21 +1831,21 @@ def query_replace(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> replace.txt -- RW L1 C1 Text")
+            session.ready(b"> replace.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x1b%", b"Query replace: ")
             group_step(session, b"cat", b"Query replace: cat")
             group_step(session, b"\r", b"Replace with: ")
             group_step(session, paste_wire("界".encode()), b"Replace with: " + "界".encode())
             group_step(session, b"\r", b"Replace occurrence? [y/n/q]", b"\x1b[4mcat\x1b[24m")
-            group_step(session, paste_wire(b"y"), b"Paste is unavailable", b"-- RW L1 C4 Text")
-            group_step(session, b"\r", b"Answer y, n or q", b"-- RW L1 C4 Text")
-            group_step(session, b"y", b"1 replaced", b"** RW L1 C7 Text")
-            group_step(session, b"n", b"1 replaced", b"** RW L1 C11 Text")
-            group_step(session, b"q", b"Quit", b"** RW L1 C11 Text")
+            group_step(session, paste_wire(b"y"), b"Paste is unavailable", b"-- RW -- L1 C4 Text")
+            group_step(session, b"\r", b"Answer y, n or q", b"-- RW -- L1 C4 Text")
+            group_step(session, b"y", b"1 replaced", b"** RW -- L1 C7 Text")
+            group_step(session, b"n", b"1 replaced", b"** RW -- L1 C11 Text")
+            group_step(session, b"q", b"Quit", b"** RW -- L1 C11 Text")
             assert path.read_bytes() == source
-            group_step(session, b"\x18u", b"-- RW L1 C4 Text", source)
-            named_step(session, "undo-redo", b"** RW L1 C3 Text", "界 cat cat".encode())
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            group_step(session, b"\x18u", b"-- RW -- L1 C4 Text", source)
+            named_step(session, "undo-redo", b"** RW -- L1 C3 Text", "界 cat cat".encode())
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C3 Text")
             assert path.read_bytes() == "界 cat cat".encode()
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1852,8 +1863,8 @@ def replace_lines(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> lines.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"|", b"> lines.txt -- RW L1 C1 Text")
+            session.ready(b"> lines.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> lines.txt -- RW -- L1 C1 Text")
             named_step(session, "query-replace", b"Query replace: ")
             group_step(session, paste_wire("界\r\nend".encode()), b"Query replace:")
             group_step(session, b"\r", b"Replace with: ")
@@ -1887,21 +1898,21 @@ def rectangle_copy(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> block.txt -- RW L1 C1 Text")
+            session.ready(b"> block.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x00\x06\x1bw", b"Region copied")
             group_step(session, b"\x07\x06\x18 ", b"Rectangle mark set", b"L1 C3 Text")
-            group_step(session, b"\x1b>\x02", b"-- RW L6 C6 Text",
+            group_step(session, b"\x1b>\x02", b"-- RW -- L6 C6 Text",
                        "a \x1b[7m  界\x1b[27mz".encode())
             frame = last_frame(session)
             assert b"01\x1b[7m234\x1b[27m5" in frame
             assert "Q\x1b[7m👩\u200d💻e\u0301X\x1b[27m".encode() in frame
             assert b"\x1b[4;1Hx " in frame and b"\x1b[5;1H " in frame
-            group_step(session, b"\x18r\x1bw", b"Rectangle copied", b"-- RW L6 C6 Text")
-            group_step(session, b"\x18\x18", b"-- RW L1 C3 Text",
+            group_step(session, b"\x18r\x1bw", b"Rectangle copied", b"-- RW -- L6 C6 Text")
+            group_step(session, b"\x18\x18", b"-- RW -- L1 C3 Text",
                        b"01\x1b[7m234\x1b[27m5")
             assert path.read_bytes() == source
-            group_step(session, b"\x07\x19", b"** RW L1 C4 Text", b"0102345")
-            group_step(session, b"\x18u", b"-- RW L1 C3 Text", b"012345")
+            group_step(session, b"\x07\x19", b"** RW -- L1 C4 Text", b"0102345")
+            group_step(session, b"\x18u", b"-- RW -- L1 C3 Text", b"012345")
             group_step(session, b"\x18u", b"Nothing to undo")
             assert path.read_bytes() == source
             os.write(session.master, b"\x18\x03")
@@ -1922,15 +1933,15 @@ def rectangle_scroll(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> rows.txt -- RW L1 C1 Text")
-            group_step(session, b"\x05" + b"\x02" * 5, b"-- RW L1 C116 Text")
+            session.ready(b"> rows.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x05" + b"\x02" * 5, b"-- RW -- L1 C116 Text")
             named_step(session, "rectangle-mark-mode", b"Rectangle mark set")
-            group_step(session, b"\x1b>\x02\x02", b"-- RW L70 C119 Text",
+            group_step(session, b"\x1b>\x02\x02", b"-- RW -- L70 C119 Text",
                        "\x1b[7m👩\u200d💻z\x1b[27m".encode())
             named_step(session, "copy-rectangle-as-kill", b"Rectangle copied")
             for width, height in [(0, 0), (3, 3), (8, 5), (80, 24)]:
                 resize_surface(session, width, height, True)
-            assert b"-- RW L70 C119 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"-- RW -- L70 C119 Text")
             named_step(session, "copy-rectangle-as-kill", b"Rectangle copied")
             group_step(session, b"\x18rq", b"Undefined key sequence")
             group_step(session, b"\x07", b"Quit")
@@ -1956,21 +1967,21 @@ def rectangle_kill(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> kill.txt -- RW L1 C1 Text")
+            session.ready(b"> kill.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x06\x06\x18 ", b"Rectangle mark set")
-            group_step(session, b"\x1b>\x02", b"-- RW L6 C6 Text")
-            group_step(session, b"\x18rk", b"Rectangle killed", b"** RW L1 C3 Text")
+            group_step(session, b"\x1b>\x02", b"-- RW -- L6 C6 Text")
+            group_step(session, b"\x18rk", b"Rectangle killed", b"** RW -- L1 C3 Text")
             frame = last_frame(session)
             assert b"\x1b[1;1H015 " in frame and b"\x1b[2;1Ha z " in frame
             assert b"\x1b[3;1HQ " in frame and b"\x1b[7m" not in frame
             assert path.read_bytes() == source
-            group_step(session, b"\x18u", b"-- RW L6 C6 Text", "a   界z".encode())
+            group_step(session, b"\x18u", b"-- RW -- L6 C6 Text", "a   界z".encode())
             group_step(session, b"\x18rk", b"Rectangle is not active")
-            named_step(session, "undo-redo", b"** RW L1 C3 Text", b"\x1b[2;1Ha z ")
+            named_step(session, "undo-redo", b"** RW -- L1 C3 Text", b"\x1b[2;1Ha z ")
             group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
             assert path.read_bytes() == expected
-            group_step(session, b"\x18u", b"** RW L6 C6 Text", "Q👩\u200d💻e\u0301X".encode())
-            named_step(session, "undo-redo", b"-- RW L1 C3 Text", b"\x1b[1;1H015 ")
+            group_step(session, b"\x18u", b"** RW -- L6 C6 Text", "Q👩\u200d💻e\u0301X".encode())
+            named_step(session, "undo-redo", b"-- RW -- L1 C3 Text", b"\x1b[1;1H015 ")
             assert path.read_bytes() == expected
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -1988,17 +1999,17 @@ def shared_rectangle_kill(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> tabs.txt -- RW L1 C1 Text")
-            group_step(session, b"\x183", b"|", b"> tabs.txt -- RW L1 C1 Text")
-            group_step(session, b"\x06\x06\x06", b"> tabs.txt -- RW L1 C7 Text")
+            session.ready(b"> tabs.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x183", b"|", b"> tabs.txt -- RW -- L1 C1 Text")
+            group_step(session, b"\x06\x06\x06", b"> tabs.txt -- RW -- L1 C7 Text")
             named_step(session, "rectangle-mark-mode", b"Rectangle mark set")
-            group_step(session, b"\x0e\x01\x06\x06", b"> tabs.txt -- RW L2 C3 Text")
-            named_step(session, "kill-rectangle", b"Rectangle killed", b"> tabs.txt ** RW L1 C3 Text")
+            group_step(session, b"\x0e\x01\x06\x06", b"> tabs.txt -- RW -- L2 C3 Text")
+            named_step(session, "kill-rectangle", b"Rectangle killed", b"> tabs.txt ** RW -- L1 C3 Text")
             assert b"  z" in last_frame(session) and b"0167" in last_frame(session)
             group_step(session, b"\x19", b"Kill ring is empty")
-            group_step(session, b"\x18o\x18u", b"  tabs.txt -- RW L2 C3 Text",
-                       b"|> tabs.txt -- RW L1 C7 Text")
-            named_step(session, "undo-redo", b"> tabs.txt ** RW L1 C3 Text")
+            group_step(session, b"\x18o\x18u", b"  tabs.txt -- RW -- L2 C3 Text",
+                       b"|> tabs.txt -- RW -- L1 C7 Text")
+            named_step(session, "undo-redo", b"> tabs.txt ** RW -- L1 C3 Text")
             group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
             assert path.read_bytes() == b"  z\n0167\nend\tkeep"
             os.write(session.master, b"\x18\x03")
@@ -2021,20 +2032,20 @@ def rectangle_yank(root):
         expected = "\ufeff...AB.\n   界\n\n   e\u0301X".encode()
         session = Session([str(root / "target/debug/rev"), str(source)])
         try:
-            session.ready(b"> source.txt -- RW L1 C1 Text")
+            session.ready(b"> source.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x06\x18 ", b"Rectangle mark set")
             group_step(session, b"\x1b>\x02\x18r\x1bw", b"Rectangle copied")
-            find_path(session, target, b"> target.txt -- RW L1 C1 Text", b"....")
-            group_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW L4 C6 Text")
+            find_path(session, target, b"> target.txt -- RW -- L1 C1 Text", b"....")
+            group_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW -- L4 C6 Text")
             frame = last_frame(session)
             assert b"\x1b[1;1H...AB. " in frame and "\x1b[2;1H   界".encode() in frame
             assert b"\x1b[3;1H    " in frame
-            group_step(session, b"\x18u", b"-- RW L1 C4 Text", b"\x1b[1;1H.... ")
-            named_step(session, "undo-redo", b"** RW L4 C6 Text")
+            group_step(session, b"\x18u", b"-- RW -- L1 C4 Text", b"\x1b[1;1H.... ")
+            named_step(session, "undo-redo", b"** RW -- L4 C6 Text")
             group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
             assert target.read_bytes() == expected and source.read_bytes() == original
-            group_step(session, b"\x18u", b"** RW L1 C4 Text", b"\x1b[1;1H.... ")
-            named_step(session, "undo-redo", b"-- RW L4 C6 Text")
+            group_step(session, b"\x18u", b"** RW -- L1 C4 Text", b"\x1b[1;1H.... ")
+            named_step(session, "undo-redo", b"-- RW -- L4 C6 Text")
             assert target.read_bytes() == expected
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2054,17 +2065,17 @@ def shared_rectangle_yank(root):
         target.write_bytes("abcde\n界Z\n\tQ".encode())
         session = Session([str(root / "target/debug/rev"), str(source)])
         try:
-            session.ready(b"> block.txt -- RW L1 C1 Text")
+            session.ready(b"> block.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x06\x18 ", b"Rectangle mark set")
             group_step(session, b"\x1b>\x02\x18r\x1bw", b"Rectangle copied")
-            find_path(session, target, b"> views.txt -- RW L1 C1 Text", b"abcde")
-            group_step(session, b"\x183\x06", b"> views.txt -- RW L1 C2 Text", b"|")
-            named_step(session, "yank-rectangle", b"Rectangle yanked", b"> views.txt ** RW L3 C3 Text")
+            find_path(session, target, b"> views.txt -- RW -- L1 C1 Text", b"abcde")
+            group_step(session, b"\x183\x06", b"> views.txt -- RW -- L1 C2 Text", b"|")
+            named_step(session, "yank-rectangle", b"Rectangle yanked", b"> views.txt ** RW -- L3 C3 Text")
             frame = last_frame(session)
             assert "界界Z".encode() in frame and b"CD  Q" in frame
-            group_step(session, b"\x18o\x18u", b"  views.txt -- RW L1 C2 Text",
-                       b"|> views.txt -- RW L1 C1 Text")
-            named_step(session, "undo-redo", b"  views.txt ** RW L3 C3 Text")
+            group_step(session, b"\x18o\x18u", b"  views.txt -- RW -- L1 C2 Text",
+                       b"|> views.txt -- RW -- L1 C1 Text")
+            named_step(session, "undo-redo", b"  views.txt ** RW -- L3 C3 Text")
             group_step(session, b"\x19", b"Kill ring is empty")
             group_step(session, b"\x18\x13", b"Saved ", b"-- RW")
             assert target.read_bytes() == "aABbcde\n界界Z\nCD\tQ".encode()
@@ -2088,19 +2099,19 @@ def tree_pane(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> draft.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            session.ready(b"> draft.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused", b"> workspace/")
             frame = last_frame(session)
             assert b"\x1b[7m> workspace/" in frame and b"Tree *" in frame
             assert b"\x1b[1;1H" + SHOW in frame
-            group_step(session, b"bad", b"File tree owns input focus", b"** RW L1 C2 Text")
-            group_step(session, b"\t", b"Editing", b"** RW L1 C2 Text")
+            group_step(session, b"bad", b"File tree owns input focus", b"** RW -- L1 C2 Text")
+            group_step(session, b"\t", b"Editing", b"** RW -- L1 C2 Text")
             assert b"\x1b[1;27H" + SHOW in last_frame(session)
             named_step(session, "focus-file-tree", b"File tree focused")
-            named_step(session, "toggle-file-tree", b"File tree hidden", b"** RW L1 C2 Text")
+            named_step(session, "toggle-file-tree", b"File tree hidden", b"** RW -- L1 C2 Text")
             assert b"> workspace/" not in last_frame(session)
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text", "\x1b[1;1Hab界e\u0301".encode())
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text", "\x1b[1;1Hab界e\u0301".encode())
             assert path.read_bytes() == source and not (workspace / ".git").exists()
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2119,12 +2130,12 @@ def tree_resize(root):
         path.write_bytes(b"original")
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> geometry.txt -- RW L1 C1 Text")
+            session.ready(b"> geometry.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x18tt", b"File tree focused", "界e\u0301^[[31m/".encode())
             assert b"\x1b[31m" not in last_frame(session)
             resize_surface(session, 31, 8, True)
             assert b"Tree *" not in last_frame(session)
-            group_step(session, b"X", b"** RW L1 C2 Text")
+            group_step(session, b"X", b"** RW -- L1 C2 Text")
             resize_surface(session, 32, 8, True)
             assert "界e\u0301".encode() in last_frame(session)
             assert b"\x1b[1;13H" + SHOW in last_frame(session)
@@ -2138,7 +2149,7 @@ def tree_resize(root):
             group_step(session, b"\x07", b"Quit", b"Tree *")
             assert b"\x1b[1;1H" + SHOW in last_frame(session)
             named_step(session, "toggle-file-tree", b"File tree hidden")
-            group_step(session, b"\x18u", b"-- RW L1 C1 Text", b"\x1b[1;1Horiginal")
+            group_step(session, b"\x18u", b"-- RW -- L1 C1 Text", b"\x1b[1;1Horiginal")
             assert path.read_bytes() == b"original"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2164,7 +2175,7 @@ def tree_navigation(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> doc.txt -- RW L1 C1 Text")
+            session.ready(b"> doc.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x1b[C", b"File tree updated", b"> a/")
             assert b"invisible.txt" not in last_frame(session) and b"deep.txt" not in last_frame(session)
@@ -2178,7 +2189,7 @@ def tree_navigation(root):
             group_step(session, b"\x1b[D", b"File tree updated", b"\x1b[7m  > a/")
             group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  > closed/")
             group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m    doc.txt")
-            group_step(session, b"\r", b"> doc.txt -- RW L1 C1 Text")
+            group_step(session, b"\r", b"> doc.txt -- RW -- L1 C1 Text")
             assert b"Tree *" not in last_frame(session)
             named_step(session, "focus-file-tree", b"File tree focused", b"\x1b[7m    doc.txt")
             group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m  @ loop")
@@ -2190,7 +2201,7 @@ def tree_navigation(root):
             frame = last_frame(session)
             assert b"> renamed/" in frame and b"0-new.txt" in frame and b"z.txt" not in frame
             assert b"invisible.txt" not in frame and b"deep.txt" not in frame
-            assert b"> doc.txt -- RW L1 C1 Text" in frame and path.read_bytes() == source
+            assert status_contains(frame, b"> doc.txt -- RW -- L1 C1 Text") and path.read_bytes() == source
             group_step(session, b"\t", b"Editing")
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2212,7 +2223,7 @@ def tree_navigation_resize(root):
         locked = workspace / "a29"
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> doc.txt -- RW L1 C1 Text")
+            session.ready(b"> doc.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             resize_surface(session, 48, 8, True)
             group_step(session, b"\x1b[C", b"File tree updated", b"> a00/")
@@ -2236,7 +2247,7 @@ def tree_navigation_resize(root):
             terminal_bounds(frame, 48, 8)
             resize_surface(session, 0, 0, False)
             resize_surface(session, 80, 24, True)
-            group_step(session, b"\x07", b"Quit", b"-- RW L1 C1 Text")
+            group_step(session, b"\x07", b"Quit", b"-- RW -- L1 C1 Text")
             assert path.read_bytes() == b"retained" and control.read_bytes() == b"exact"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2259,21 +2270,21 @@ def tree_creation(root):
         (workspace / "alias").symlink_to(path)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> work.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            session.ready(b"> work.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x18tn", b"New file name: ")
             group_step(session, b"new.xyz", b"New file name: new.xyz")
             group_step(session, b"\r", b"Created ", b"\x1b[7m    new.xyz")
-            assert b"> work.txt ** RW L1 C2 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"> work.txt ** RW -- L1 C2 Text")
             assert (workspace / "new.xyz").read_bytes() == b""
-            group_step(session, b"\r", b"> new.xyz -- RW L1 C1 Text")
-            group_step(session, "界".encode(), b"** RW L1 C3 Text")
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
+            group_step(session, b"\r", b"> new.xyz -- RW -- L1 C1 Text")
+            group_step(session, "界".encode(), b"** RW -- L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C3 Text")
             group_step(session, b"\x18tf", b"File tree focused", b"\x1b[7m    new.xyz")
             group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  @ alias")
-            named_step(session, "tree-open", b"> work.txt ** RW L1 C1 Text", b"|!original")
-            group_step(session, b"\x18u", b"> work.txt -- RW L1 C1 Text", b"|original")
+            named_step(session, "tree-open", b"> work.txt ** RW -- L1 C1 Text", b"|!original")
+            group_step(session, b"\x18u", b"> work.txt -- RW -- L1 C1 Text", b"|original")
             group_step(session, b"\x18tf", b"File tree focused")
             group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  > folder/")
             group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7mv workspace/")
@@ -2281,7 +2292,7 @@ def tree_creation(root):
             group_step(session, b"made\r", b"Created ", b"\x1b[7m  > made/")
             group_step(session, b"\x18tn", b"New file name: ")
             group_step(session, b"inside.txt\r", b"Created ", b"\x1b[7m      inside.txt")
-            group_step(session, b"\r", b"> inside.txt -- RW L1 C1 Text")
+            group_step(session, b"\r", b"> inside.txt -- RW -- L1 C1 Text")
             assert (workspace / "new.xyz").read_bytes() == "界".encode()
             assert (workspace / "made/inside.txt").read_bytes() == b""
             assert path.read_bytes() == b"original" and (workspace / "alias").is_symlink()
@@ -2306,7 +2317,7 @@ def tree_creation_failures(root):
         moved = workspace / "moved"
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> keep.txt -- RW L1 C1 Text")
+            session.ready(b"> keep.txt -- RW -- L1 C1 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x18tn", b"New file name: ")
             group_step(session, b"canceled\x07", b"Quit", b"Tree *")
@@ -2362,31 +2373,31 @@ def tree_rename(root):
         child.write_bytes(b"child")
         session = Session([str(root / "target/debug/rev"), str(first)])
         try:
-            session.ready(b"> same.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
-            find_path(session, sibling, b"> same.txt<2> -- RW L1 C1 Text", b"second")
-            find_path(session, child, b"> child.txt -- RW L1 C1 Text", b"child")
-            group_step(session, b"#", b"** RW L1 C2 Text")
+            session.ready(b"> same.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
+            find_path(session, sibling, b"> same.txt<2> -- RW -- L1 C1 Text", b"second")
+            find_path(session, child, b"> child.txt -- RW -- L1 C1 Text", b"child")
+            group_step(session, b"#", b"** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused", b"> a/")
             group_step(session, b"\x1b[C", b"File tree updated", b"> sub/")
             group_step(session, b"\x18tR", b"Rename to: ")
             group_step(session, b"moved\r", b"Renamed ", b"\x1b[7mv moved/")
-            assert b"> child.txt ** RW L1 C2 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"> child.txt ** RW -- L1 C2 Text")
             group_step(session, b"\t", b"Editing")
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C2 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C2 Text")
             moved = workspace / "moved"
             assert (moved / "sub/child.txt").read_bytes() == b"#child"
-            find_path(session, moved / "same.txt", b"> same.txt ** RW L1 C1 Text", b"!first")
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C1 Text")
+            find_path(session, moved / "same.txt", b"> same.txt ** RW -- L1 C1 Text", b"!first")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C1 Text")
             group_step(session, b"\x18tf", b"File tree focused")
             group_step(session, b"\x1b[B" * 2, b"File tree updated", b"\x1b[7m    same.txt")
             named_step(session, "tree-rename", b"Rename to: ")
             group_step(session, b"final.txt\r", b"Renamed ", b"\x1b[7m    final.txt")
-            assert b"> final.txt -- RW L1 C1 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"> final.txt -- RW -- L1 C1 Text")
             group_step(session, b"\t", b"Editing")
-            group_step(session, "界".encode(), b"** RW L1 C3 Text")
-            group_step(session, b"\x18\x13", b"Saved ", b"-- RW L1 C3 Text")
-            find_path(session, sibling, b"> same.txt<2> -- RW L1 C1 Text", b"second")
+            group_step(session, "界".encode(), b"** RW -- L1 C3 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"-- RW -- L1 C3 Text")
+            find_path(session, sibling, b"> same.txt<2> -- RW -- L1 C1 Text", b"second")
             assert (moved / "final.txt").read_bytes() == "界!first".encode()
             assert not (workspace / "a").exists() and not (moved / "same.txt").exists()
             assert sibling.read_bytes() == b"second"
@@ -2410,8 +2421,8 @@ def tree_rename_failures(root):
         (workspace / "link").symlink_to("old.txt")
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> old.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
+            session.ready(b"> old.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x1b[C", b"File tree updated")
             group_step(session, b"\x1b[B" * 2, b"File tree updated", b"\x1b[7m    old.txt")
@@ -2419,7 +2430,7 @@ def tree_rename_failures(root):
             group_step(session, b"canceled", b"Rename to: canceled")
             resize_surface(session, 31, 8, True)
             resize_surface(session, 80, 24, True)
-            group_step(session, b"\x07", b"Quit", b"> old.txt ** RW L1 C2 Text")
+            group_step(session, b"\x07", b"Quit", b"> old.txt ** RW -- L1 C2 Text")
             named_step(session, "focus-file-tree", b"File tree focused")
             for name in [b"../escape", b"taken.txt"]:
                 group_step(session, b"\x18tR", b"Rename to: ")
@@ -2433,9 +2444,9 @@ def tree_rename_failures(root):
             group_step(session, b"\x1b[A", b"File tree updated", b"\x1b[7m  @ link")
             named_step(session, "tree-rename", b"Rename to: ")
             group_step(session, b"alias\r", b"Renamed ", b"\x1b[7m  @ alias")
-            assert b"> old.txt ** RW L1 C2 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"> old.txt ** RW -- L1 C2 Text")
             group_step(session, b"\t", b"Editing")
-            group_step(session, b"\x18\x13", b"Saved ", b"> old.txt -- RW L1 C2 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"> old.txt -- RW -- L1 C2 Text")
             assert path.read_bytes() == b"!original" and (workspace / "alias").readlink() == Path("old.txt")
             named_step(session, "focus-file-tree", b"File tree focused")
             group_step(session, b"\x1b[B", b"File tree updated", b"\x1b[7m    old.txt")
@@ -2445,7 +2456,7 @@ def tree_rename_failures(root):
             group_step(session, b"stale\r", b"rename ", b"Tree *")
             assert not (workspace / "stale").exists()
             assert path.read_bytes() == b"replacement" and (workspace / "held.txt").read_bytes() == b"!original"
-            group_step(session, b"\t", b"Editing", b"> old.txt -- RW L1 C2 Text")
+            group_step(session, b"\t", b"Editing", b"> old.txt -- RW -- L1 C2 Text")
             os.write(session.master, b"\x18\x03")
             session.finish(0)
             print("PASS rename cancel/resize, invalid/occupied names, write denial, symlink entry semantics and stale-source rejection")
@@ -2463,30 +2474,30 @@ def tree_delete(root):
         path.write_bytes(b"retained")
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> live.txt -- RW L1 C1 Text")
-            group_step(session, b"!", b"** RW L1 C2 Text")
-            group_step(session, b"\x182", b"> live.txt ** RW L1 C2 Text")
-            group_step(session, b"\x18o\x01", b"> live.txt ** RW L1 C1 Text")
-            group_step(session, b"\x18o", b"> live.txt ** RW L1 C2 Text")
+            session.ready(b"> live.txt -- RW -- L1 C1 Text")
+            group_step(session, b"!", b"** RW -- L1 C2 Text")
+            group_step(session, b"\x182", b"> live.txt ** RW -- L1 C2 Text")
+            group_step(session, b"\x18o\x01", b"> live.txt ** RW -- L1 C1 Text")
+            group_step(session, b"\x18o", b"> live.txt ** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x1b[C\x1b[B", b"File tree updated", b"\x1b[7m    live.txt")
             group_step(session, b"\x18tD", b"Delete ", b"Tree *")
-            group_step(session, b"z", b"Delete ", b"> live.txt ** RW L1 C2 Text")
+            group_step(session, b"z", b"Delete ", b"> live.txt ** RW -- L1 C2 Text")
             group_step(session, paste_wire(b"y"), b"Delete ")
             assert path.read_bytes() == b"retained"
             group_step(session, b"n", b"Delete canceled")
             named_step(session, "tree-delete", b"Delete ")
-            group_step(session, b"y", b"Deleted ", b"> live.txt ** RW L1 C2 Text")
+            group_step(session, b"y", b"Deleted ", b"> live.txt ** RW -- L1 C2 Text")
             assert not path.exists()
-            assert b"  live.txt ** RW L1 C1 Text" in last_frame(session)
+            assert status_contains(last_frame(session), b"  live.txt ** RW -- L1 C1 Text")
             group_step(session, b"\t", b"Editing")
             group_step(session, b"\x18\x03", b"y=save, n=discard, C-g=cancel")
             group_step(session, b"\x07", b"Quit")
-            group_step(session, b"\x18u", b"** RW L1 C1 Text", b"retained")
-            named_step(session, "undo-redo", b"** RW L1 C2 Text", b"!retained")
-            find_path(session, path, b"> live.txt ** RW L1 C2 Text", b"!retained")
+            group_step(session, b"\x18u", b"** RW -- L1 C1 Text", b"retained")
+            named_step(session, "undo-redo", b"** RW -- L1 C2 Text", b"!retained")
+            find_path(session, path, b"> live.txt ** RW -- L1 C2 Text", b"!retained")
             assert not path.exists() and b"live.txt<2>" not in last_frame(session)
-            group_step(session, b"\x18\x13", b"Saved ", b"> live.txt -- RW L1 C2 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"> live.txt -- RW -- L1 C2 Text")
             assert path.read_bytes() == b"!retained"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2509,8 +2520,8 @@ def tree_delete_decisions(root):
         (workspace / "link").symlink_to(external)
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> child.txt -- RW L1 C1 Text")
-            group_step(session, b"#", b"** RW L1 C2 Text")
+            session.ready(b"> child.txt -- RW -- L1 C1 Text")
+            group_step(session, b"#", b"** RW -- L1 C2 Text")
             group_step(session, b"\x18tt", b"File tree focused")
             group_step(session, b"\x18tD", b"Delete ")
             group_step(session, b"n", b"Delete canceled")
@@ -2530,18 +2541,18 @@ def tree_delete_decisions(root):
             group_step(session, b"\x18tD", b"Delete ")
             group_step(session, b"y", b"Directory contains children")
             workspace.chmod(0o500)
-            group_step(session, b"y", b"Delete failed; may be partial", b"> child.txt ** RW L1 C2 Text")
+            group_step(session, b"y", b"Delete failed; may be partial", b"> child.txt ** RW -- L1 C2 Text")
             workspace.chmod(0o700)
             assert path.read_bytes() == b"child" and external.read_bytes() == b"outside"
             group_step(session, b"\x18tD", b"Delete ")
             group_step(session, b"y", b"Directory contains children")
-            group_step(session, b"y", b"Deleted ", b"> child.txt ** RW L1 C2 Text")
+            group_step(session, b"y", b"Deleted ", b"> child.txt ** RW -- L1 C2 Text")
             assert not workspace.exists() and external.read_bytes() == b"outside"
             group_step(session, b"\t", b"Editing")
             group_step(session, b"\x18\x13", b"save: not published", b"#child")
             assert not workspace.exists()
             workspace.mkdir()
-            group_step(session, b"\x18\x13", b"Saved ", b"> child.txt -- RW L1 C2 Text")
+            group_step(session, b"\x18\x13", b"Saved ", b"> child.txt -- RW -- L1 C2 Text")
             assert path.read_bytes() == b"#child" and external.read_bytes() == b"outside"
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2562,18 +2573,18 @@ def rust_syntax(root):
         path.write_bytes(source)
         try:
             session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
-            session.ready(b"> main.rs -- RW L1 C1 Rust")
-            group_step(session, b"\x0c", b"> main.rs -- RW L1 C1 Rust")
+            session.ready(b"> main.rs -- RW -- L1 C1 Rust")
+            group_step(session, b"\x0c", b"> main.rs -- RW -- L1 C1 Rust")
             frame = last_frame(session)
             assert b"\x1b[38;2;157;124;216mfn\x1b[38;2;192;202;245m" in frame
             assert b"\x1b[38;2;122;162;247mmain\x1b[38;2;137;221;255m" in frame
             assert b"\x1b[38;2;158;206;106m" + '"界"'.encode() + b"\x1b[38;2;137;221;255m" in frame
             assert b"\x1b[38;2;86;95;137m// note\x1b[38;2;192;202;245m" in frame
-            group_step(session, b"// ", b"> main.rs ** RW L1 C4 Rust", b"\x1b[38;2;86;95;137m// fn main() {")
-            group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L1 C4 Rust")
+            group_step(session, b"// ", b"> main.rs ** RW -- L1 C4 Rust", b"\x1b[38;2;86;95;137m// fn main() {")
+            group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW -- L1 C4 Rust")
             assert path.read_bytes() == b"// " + source
-            group_step(session, b"\x18u", b"> main.rs ** RW L1 C1 Rust", b"\x1b[38;2;157;124;216mfn")
-            named_step(session, "undo-redo", b"> main.rs -- RW L1 C4 Rust")
+            group_step(session, b"\x18u", b"> main.rs ** RW -- L1 C1 Rust", b"\x1b[38;2;157;124;216mfn")
+            named_step(session, "undo-redo", b"> main.rs -- RW -- L1 C4 Rust")
             assert path.read_bytes() == b"// " + source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2595,14 +2606,14 @@ def syntax_fallback(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
         try:
-            session.ready(b"> source.txt -- RW L1 C1 Text")
-            group_step(session, b"// ", b"> source.txt ** RW L1 C4 Text")
+            session.ready(b"> source.txt -- RW -- L1 C1 Text")
+            group_step(session, b"// ", b"> source.txt ** RW -- L1 C4 Text")
             assert b"\x1b[38;2;157;124;216m" not in last_frame(session)
             assert b"\x1b[38;2;86;95;137m" not in last_frame(session)
             for target, mode in [(rust, b"Rust"), (plain, b"Text")]:
                 group_step(session, b"\x18\x17", b"Write file: ")
                 group_step(session, paste_wire(str(target).encode()), target.name.encode())
-                group_step(session, b"\r", b"Saved ", b"> " + target.name.encode() + b" -- RW L1 C4 " + mode)
+                group_step(session, b"\r", b"Saved ", b"> " + target.name.encode() + b" -- RW -- L1 C4 " + mode)
                 assert target.read_bytes() == b"// " + source
                 assert (b"\x1b[38;2;86;95;137m" in last_frame(session)) == (mode == b"Rust")
             assert path.read_bytes() == source
@@ -2624,21 +2635,21 @@ def incremental_shared(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
         try:
-            session.ready(b"> main.rs -- RW L1 C1 Rust")
-            group_step(session, b"\x183", b"> main.rs -- RW L1 C1 Rust", b"|")
-            group_step(session, paste_wire(prefix), b"> main.rs ** RW L2 C1 Rust")
+            session.ready(b"> main.rs -- RW -- L1 C1 Rust")
+            group_step(session, b"\x183", b"> main.rs -- RW -- L1 C1 Rust", b"|")
+            group_step(session, paste_wire(prefix), b"> main.rs ** RW -- L2 C1 Rust")
             assert last_frame(session).count(b"\x1b[38;2;157;124;216mfn") == 2
             group_step(session, b"\x00", b"Mark set")
-            group_step(session, b"\x06\x06", b"> main.rs ** RW L2 C3 Rust", b"\x1b[7m")
-            group_step(session, b"\x13alpha", b"I-search: alpha", b"> main.rs ** RW L2 C9 Rust")
+            group_step(session, b"\x06\x06", b"> main.rs ** RW -- L2 C3 Rust", b"\x1b[7m")
+            group_step(session, b"\x13alpha", b"I-search: alpha", b"> main.rs ** RW -- L2 C9 Rust")
             frame = last_frame(session)
             assert b"\x1b[38;2;157;124;216m" in frame and b"\x1b[38;2;122;162;247m" in frame
             assert b"\x1b[7m" in frame and b"\x1b[4m" in frame
-            group_step(session, b"\r", b"> main.rs ** RW L2 C9 Rust")
-            group_step(session, b"\x18u", b"> main.rs -- RW L1 C1 Rust")
+            group_step(session, b"\r", b"> main.rs ** RW -- L2 C9 Rust")
+            group_step(session, b"\x18u", b"> main.rs -- RW -- L1 C1 Rust")
             assert last_frame(session).count(b"\x1b[38;2;157;124;216mfn") == 2
-            named_step(session, "undo-redo", b"> main.rs ** RW L2 C1 Rust")
-            group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW L2 C1 Rust")
+            named_step(session, "undo-redo", b"> main.rs ** RW -- L2 C1 Rust")
+            group_step(session, b"\x18\x13", b"Saved ", b"> main.rs -- RW -- L2 C1 Rust")
             assert path.read_bytes() == prefix + source
             os.write(session.master, b"\x18\x03")
             session.finish(0)
@@ -2656,15 +2667,15 @@ def incremental_rectangles(root):
         path.write_bytes(source)
         session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
         try:
-            session.ready(b"> rect.rs -- RW L1 C1 Rust")
+            session.ready(b"> rect.rs -- RW -- L1 C1 Rust")
             group_step(session, b"\x06" * 3, b"L1 C4 Rust")
             group_step(session, b"\x18 ", b"Rectangle mark set")
             group_step(session, b"\x0e\x06\x06", b"L2 C6 Rust")
-            group_step(session, b"\x18rk", b"Rectangle killed", b"> rect.rs ** RW L1 C4 Rust")
+            group_step(session, b"\x18rk", b"Rectangle killed", b"> rect.rs ** RW -- L1 C4 Rust")
             assert b"\x1b[38;2;122;162;247m" not in last_frame(session)
-            group_step(session, b"\x18u", b"> rect.rs -- RW L2 C6 Rust")
+            group_step(session, b"\x18u", b"> rect.rs -- RW -- L2 C6 Rust")
             assert b"\x1b[38;2;122;162;247mab" in last_frame(session) and b"\x1b[38;2;122;162;247mcd" in last_frame(session)
-            named_step(session, "undo-redo", b"> rect.rs ** RW L1 C4 Rust")
+            named_step(session, "undo-redo", b"> rect.rs ** RW -- L1 C4 Rust")
             assert b"\x1b[38;2;122;162;247m" not in last_frame(session)
             group_step(session, b"\x18ry", b"Rectangle yanked")
             assert b"\x1b[38;2;122;162;247mab" in last_frame(session) and b"\x1b[38;2;122;162;247mcd" in last_frame(session)
@@ -2688,12 +2699,12 @@ def guarded_session_exit(root):
         try:
             session.ready(b"C-x C-c: exit")
             source = "draft界\r\nlast".encode()
-            group_step(session, paste_wire(source), b"** RW L2 C5 Text")
-            find_path(session, first, b"> first.txt -- RW L1 C1 Text", b"first")
-            group_step(session, b"!", b"> first.txt ** RW L1 C2 Text")
-            group_step(session, b"\x183", b"|", b"first.txt ** RW L1 C2 Text")
-            find_path(session, second, b"> second.txt -- RW L1 C1 Text", b"second")
-            group_step(session, b"?", b"> second.txt ** RW L1 C2 Text")
+            group_step(session, paste_wire(source), b"** RW -- L2 C5 Text")
+            find_path(session, first, b"> first.txt -- RW -- L1 C1 Text", b"first")
+            group_step(session, b"!", b"> first.txt ** RW -- L1 C2 Text")
+            group_step(session, b"\x183", b"|", b"first.txt ** RW -- L1 C2 Text")
+            find_path(session, second, b"> second.txt -- RW -- L1 C1 Text", b"second")
+            group_step(session, b"?", b"> second.txt ** RW -- L1 C2 Text")
             group_step(session, b"\x18\x03", b'Quit: "*scratch*"?')
             group_step(session, b"y", b"Write file: ")
             group_step(session, str(draft).encode(), b"draft.txt")
@@ -2701,10 +2712,10 @@ def guarded_session_exit(root):
             assert draft.read_bytes() == source
             group_step(session, b"y", b'Quit: "second.txt"?')
             assert first.read_bytes() == b"!first"
-            group_step(session, b"\x07", b"Quit", b"> second.txt ** RW L1 C2 Text")
-            assert b"|  first.txt -- RW L1 C2 Text" in last_frame(session)
+            group_step(session, b"\x07", b"Quit", b"> second.txt ** RW -- L1 C2 Text")
+            assert status_contains(last_frame(session), b"|  first.txt -- RW -- L1 C2 Text")
             assert second.read_bytes() == b"second"
-            group_step(session, b"!", b"> second.txt ** RW L1 C3 Text")
+            group_step(session, b"!", b"> second.txt ** RW -- L1 C3 Text")
             group_step(session, b"\x18\x03", b'Quit: "second.txt"?')
             os.write(session.master, b"n")
             session.finish(0)
@@ -2723,21 +2734,21 @@ def failed_session_exit(root):
         target.write_bytes(b"base")
         session = Session([str(root / "target/debug/rev"), str(target)])
         try:
-            session.ready(b"> target.txt -- RW L1 C1 Text")
-            group_step(session, b"new ", b"> target.txt ** RW L1 C5 Text")
+            session.ready(b"> target.txt -- RW -- L1 C1 Text")
+            group_step(session, b"new ", b"> target.txt ** RW -- L1 C5 Text")
             target.unlink()
             parent.rmdir()
             group_step(session, b"\x18\x03", b'Quit: "target.txt"?')
             group_step(session, b"y", b"Destination changed on disk")
-            group_step(session, b"n", b"Save canceled", b"> target.txt ** RW L1 C5 Text")
+            group_step(session, b"n", b"Save canceled", b"> target.txt ** RW -- L1 C5 Text")
             assert not target.exists()
             group_step(session, b"\x18\x03", b'Quit: "target.txt"?')
             group_step(session, b"y", b"Destination changed on disk")
-            group_step(session, b"y", b"save: not published", b"> target.txt ** RW L1 C5 Text")
+            group_step(session, b"y", b"save: not published", b"> target.txt ** RW -- L1 C5 Text")
             assert not parent.exists() and LEAVE not in session.output
             parent.mkdir()
             group_step(session, b"\x18\x13", b"Destination changed on disk")
-            group_step(session, b"y", b"Saved ", b"> target.txt -- RW L1 C5 Text")
+            group_step(session, b"y", b"Saved ", b"> target.txt -- RW -- L1 C5 Text")
             assert target.read_bytes() == b"new base"
             group_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
             os.write(session.master, b"\r")
@@ -2787,21 +2798,21 @@ def acceptance_document(root):
         session = Session([str(root / "target/debug/rev")], colors=True)
         try:
             session.ready(b"C-x C-c: exit")
-            journey_step(session, paste_wire(source), b"** RW L4 C1 Text")
+            journey_step(session, paste_wire(source), b"** RW -- L4 C1 Text")
             journey_step(session, b"\x18\x13", b"Write file: ")
             journey_step(session, str(path).encode(), b"main.rs")
-            journey_step(session, b"\r", b"Saved ", b"-- RW L4 C1 Rust")
+            journey_step(session, b"\r", b"Saved ", b"-- RW -- L4 C1 Rust")
             assert path.read_bytes() == source
             assert b"\x1b[38;2;157;124;216mfn" in last_frame(session)
-            journey_step(session, b"\x1b<\x1bf", b"-- RW L1 C3 Rust")
-            named_step(session, "backward-word", b"-- RW L1 C1 Rust")
+            journey_step(session, b"\x1b<\x1bf", b"-- RW -- L1 C3 Rust")
+            named_step(session, "backward-word", b"-- RW -- L1 C1 Rust")
             journey_step(session, b"\x183", "│".encode(), b"main.rs -- RW")
             named_step(session, "split-window-below", b"main.rs -- RW")
             assert last_frame(session).count(b"main.rs -- RW") == 3
             journey_step(session, b"\x13label", b"I-search: label", b"\x1b[4m")
-            journey_step(session, b"\r", b"-- RW L2 C14 Rust")
+            journey_step(session, b"\r", b"-- RW -- L2 C14 Rust")
             journey_step(session, b"\x1b>\x12label", b"I-search backward: label", b"\x1b[4m")
-            journey_step(session, b"\r", b"-- RW L2 C9 Rust")
+            journey_step(session, b"\r", b"-- RW -- L2 C9 Rust")
             journey_step(session, b"\x1b<\x1b%", b"Query replace: ")
             journey_step(session, b"label\r", b"Replace with: ")
             journey_step(session, b"name\r", b"Replace occurrence? [y/n/q]")
@@ -2822,10 +2833,10 @@ def acceptance_document(root):
             session.close()
         session = Session([str(root / "target/debug/rev"), str(path)], colors=True)
         try:
-            session.ready(b"> main.rs -- RW L1 C1 Rust")
+            session.ready(b"> main.rs -- RW -- L1 C1 Rust")
             assert b"\x1b[38;2;157;124;216mfn" in session.output
             journey_step(session, b"\x13name", b"I-search: name", b"\x1b[4m")
-            journey_step(session, b"\r", b"-- RW L2 C13 Rust")
+            journey_step(session, b"\r", b"-- RW -- L2 C13 Rust")
             journey_step(session, b"\x18u", b"Nothing to undo")
             journey_step(session, b"\x1bxsave-buffers-kill-terminal", b"M-x save-buffers-kill-terminal")
             accepted_exit(session, b"\r")
@@ -2847,24 +2858,24 @@ def acceptance_blocks(root):
         expected = b"\xef\xbb\xbf...A.\r\nq  loA"
         session = Session([str(root / "target/debug/rev"), str(source)])
         try:
-            session.ready(b"> blocks.txt -- RW L1 C1 Text")
+            session.ready(b"> blocks.txt -- RW -- L1 C1 Text")
             copy_rotation_lines(session, 8)
-            journey_step(session, b"\x19", b"** RW L3 C8 Text", "long 界".encode())
-            journey_step(session, b"\x1by", b"** RW L3 C2 Text")
-            journey_step(session, b"\x18u", b"** RW L3 C8 Text")
-            named_step(session, "undo-redo", b"** RW L3 C2 Text")
+            journey_step(session, b"\x19", b"** RW -- L3 C8 Text", "long 界".encode())
+            journey_step(session, b"\x1by", b"** RW -- L3 C2 Text")
+            journey_step(session, b"\x18u", b"** RW -- L3 C8 Text")
+            named_step(session, "undo-redo", b"** RW -- L3 C2 Text")
             journey_step(session, b"\x18\x13", b"Saved ")
             assert source.read_bytes() == original + b"A"
-            journey_step(session, b"\x1b<\x00\x05\x17", b"** RW L1 C1 Text")
+            journey_step(session, b"\x1b<\x00\x05\x17", b"** RW -- L1 C1 Text")
             journey_step(session, b"\x18u", b"blocks.txt -- RW")
             journey_step(session, b"\x1b<\x18 ", b"Rectangle mark set")
-            journey_step(session, b"\x0e\x06\x06", b"-- RW L2 C3 Text")
+            journey_step(session, b"\x0e\x06\x06", b"-- RW -- L2 C3 Text")
             journey_step(session, b"\x18r\x1bw", b"Rectangle copied")
-            find_path(session, target, b"> target.txt -- RW L1 C1 Text", b"....")
-            journey_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW L2 C6 Text")
-            journey_step(session, b"\x18u", b"-- RW L1 C4 Text", b"....")
-            named_step(session, "undo-redo", b"** RW L2 C6 Text")
-            journey_step(session, b"\x19", b"** RW L2 C7 Text", b"q  loA")
+            find_path(session, target, b"> target.txt -- RW -- L1 C1 Text", b"....")
+            journey_step(session, b"\x06\x06\x06\x18ry", b"Rectangle yanked", b"** RW -- L2 C6 Text")
+            journey_step(session, b"\x18u", b"-- RW -- L1 C4 Text", b"....")
+            named_step(session, "undo-redo", b"** RW -- L2 C6 Text")
+            journey_step(session, b"\x19", b"** RW -- L2 C7 Text", b"q  loA")
             journey_step(session, b"\x18\x13", b"Saved ")
             assert target.read_bytes() == expected
             assert source.read_bytes() == original + b"A"
@@ -2890,8 +2901,8 @@ def acceptance_workspace(root):
         draft = workspace / "notes/draft.txt"
         session = Session([str(root / "target/debug/rev"), str(original)], colors=True)
         try:
-            session.ready(b"> entry.rs -- RW L1 C1 Rust")
-            journey_step(session, paste_wire(b"// saved\n"), b"** RW L2 C1 Rust")
+            session.ready(b"> entry.rs -- RW -- L1 C1 Rust")
+            journey_step(session, paste_wire(b"// saved\n"), b"** RW -- L2 C1 Rust")
             journey_step(session, b"\x183", "│".encode(), b"entry.rs ** RW")
             journey_step(session, b"\x18tt", b"File tree focused", b"> workspace/")
             journey_step(session, b"\x1b[C\x1b[B", b"File tree updated", b"entry.rs")
@@ -2906,8 +2917,8 @@ def acceptance_workspace(root):
             journey_step(session, b"notes\r", b"Created ")
             journey_step(session, b"\x18tn", b"New file name: ")
             journey_step(session, b"draft.txt\r", b"Created ")
-            journey_step(session, b"\r", b"> draft.txt -- RW L1 C1")
-            journey_step(session, "note界".encode(), b"** RW L1 C7")
+            journey_step(session, b"\r", b"> draft.txt -- RW -- L1 C1")
+            journey_step(session, "note界".encode(), b"** RW -- L1 C7")
             journey_step(session, b"\x18\x13", b"Saved ")
             assert draft.read_bytes() == "note界".encode()
             journey_step(session, b"\x18\x02", b"Buffers: arrows move")
@@ -2960,10 +2971,10 @@ def acceptance_failure(root):
         expected = b"\xef\xbb\xbfx!" + original[3:]
         session = Session([str(root / "target/debug/rev"), str(path)])
         try:
-            session.ready(b"> live.txt -- RW L1 C1 Text")
+            session.ready(b"> live.txt -- RW -- L1 C1 Text")
             for code in (ENTER, HIDE, PASTE_ON):
                 assert code in session.output, bytes(session.output)
-            journey_step(session, b"x", b"** RW L1 C2 Text")
+            journey_step(session, b"x", b"** RW -- L1 C2 Text")
             journey_step(session, b"\x183", "│".encode(), b"live.txt ** RW")
             named_step(session, "split-window-below", b"live.txt ** RW")
             assert last_frame(session).count(b"live.txt ** RW") == 3
@@ -2984,7 +2995,14 @@ def acceptance_failure(root):
             journey_step(session, b"y", b"save: not published", b"live.txt ** RW")
             assert not parent.exists() and LEAVE not in session.output
             assert PASTE_OFF not in session.output
-            journey_step(session, b"!", b"** RW L1 C3 Text")
+            journey_step(session, b"!", b"** RW -- L1 C3")
+            # These 27-cell panes omit the mode under STA02. Check that exact
+            # exception, then recover all three full mode observations at width.
+            assert b"Text" not in last_frame(session)
+            journey_resize(session, 120, 24)
+            assert status_contains(last_frame(session), b"** RW -- L1 C3 Text")
+            assert last_frame(session).count(b"Text") == 3
+            journey_resize(session, 80, 24)
             parent.mkdir()
             journey_step(session, b"\x18\x13", b"Destination changed on disk")
             journey_step(session, b"y", b"Saved ", b"live.txt -- RW")

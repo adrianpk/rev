@@ -27,7 +27,7 @@ def run(root, idle):
         session = PTY['Session']([str(ROOT / 'target/release/rev'), str(root / 'work/main.rs')],
                                  colors=True, env=environment(root))
         try:
-            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Rust' in frame))
+            session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Rust')))
             elapsed = (time.perf_counter() - started) * 1000
             assert elapsed <= 2000, 'configured startup exceeded 2 seconds'
             step(session, b'\x07', b'Quit')

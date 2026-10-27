@@ -82,7 +82,7 @@ def case(root, colored):
     path.write_bytes(b"retained\n")
     session = PTY["Session"]([str(ROOT / "target/debug/rev"), str(path)], env=environment(root, colored))
     try:
-        session.ready(b"> list.txt -- RW L1 C1 Text")
+        session.ready(b"> list.txt -- RW -- L1 C1 Text")
         frame = step(session, b"\x1bxkill", b"M-x kill")
         ordered(frame, b"M-x kill", [b"kill-buffer", b"kill-line"])
         selected_style(frame, b"kill-buffer", colored)

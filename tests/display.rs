@@ -47,9 +47,10 @@ fn initial_frame() {
     assert!(
         frame.rows()[22]
             .text()
-            .starts_with("> *scratch* -- RW L1 C1 Text")
+            .starts_with("> *scratch* -- RW -- L1 C1")
     );
     assert_eq!(frame.rows()[23].band(), Band::Echo);
+    assert!(frame.rows()[22].text().ends_with("Text"));
     assert!(frame.rows()[23].text().starts_with("C-x C-c: exit"));
     for (index, row) in frame.rows().iter().enumerate() {
         assert_eq!(usize::from(row.row()), index);
@@ -151,7 +152,8 @@ fn safe_echo() {
     };
     let frame = Frame::project(buffer, &view, size, "Save failed: denied\x1b[2J\n").unwrap();
     assert!(frame.rows()[0].text().starts_with("   1 │x^[[2J<9B>"));
-    assert!(frame.rows()[2].text().contains("-- RW L1 C1 Text"));
+    assert!(frame.rows()[2].text().contains("-- RW -- L1 C1"));
+    assert!(frame.rows()[2].text().ends_with("Text"));
     assert!(
         frame.rows()[3]
             .text()
@@ -277,17 +279,19 @@ fn fresh_projection() {
     assert!(
         edited.rows()[2]
             .text()
-            .starts_with("> *scratch* ** RW L1 C8 Text")
+            .starts_with("> *scratch* ** RW -- L1 C8")
     );
     buffer.set_readonly(true);
+    assert!(edited.rows()[2].text().ends_with("Text"));
     let readonly = Frame::project(buffer, &view, size, "Save failed: denied").unwrap();
     assert_eq!(readonly.stamp(), edited.stamp());
     assert!(
         readonly.rows()[2]
             .text()
-            .starts_with("> *scratch* ** RO L1 C8 Text")
+            .starts_with("> *scratch* ** RO -- L1 C8")
     );
     assert_eq!(readonly.rows()[0].text(), edited.rows()[0].text());
+    assert!(readonly.rows()[2].text().ends_with("Text"));
     assert!(readonly.rows()[3].text().starts_with("Save failed: denied"));
     assert_eq!(buffer.history().len(), 1);
     bounded(&readonly, size);

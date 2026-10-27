@@ -273,7 +273,7 @@ geometry or runtime acceptance; those have separate native and terminal checks.
 | Indentation | Tab inserts spaces to the next four-column stop. Literal pasted tabs retain their bytes and use four-cell display stops. |
 | Movement | Whole graphemes; buffer positions, UTF-8 bytes and display cells remain separate. |
 | Display | No soft wrap. Horizontal scrolling reveals point. Tabs use four-cell stops; control text uses visible notation. |
-| Status | Buffer label, modified/read-only state, one-based logical line/display column and language mode. |
+| Status | [Pane-local groups](status.md): label, state, access and one-based logical line/display column on the left; language mode at the right edge. |
 | Visits | Canonical paths reuse one live buffer, including symlink aliases. Display names stay distinct. |
 | Save | Stage in the destination directory, flush/synchronize, recheck the observed destination and replace it, then synchronize/observe completion. |
 | Permissions | Copy an existing destination's access bits; new files use owner read/write access (`0600`). |

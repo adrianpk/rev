@@ -61,7 +61,7 @@ def monochrome():
         path.write_bytes(b"fn main() {}")
         session = PTY["Session"]([str(ROOT / "target/debug/rev"), str(path)], env={"NO_COLOR": "1"})
         try:
-            session.ready(b"> main.rs -- RW L1 C1 Rust")
+            session.ready(b"> main.rs -- RW -- L1 C1 Rust")
             PTY["group_step"](session, b"\x00\x06\x06", b"L1 C3 Rust", b"\x1b[7mfn")
             assert b"\x1b[38;2;" not in session.output and b"\x1b]12;" not in session.output
             os.write(session.master, b"\x18\x03")
@@ -78,7 +78,7 @@ def application():
         path.write_bytes(b"plain\n")
         session = PTY["Session"]([str(ROOT / "target/debug/rev"), str(path)], colors=True)
         try:
-            session.ready(b"> plain.txt -- RW L1 C1 Text")
+            session.ready(b"> plain.txt -- RW -- L1 C1 Text")
             wire = bytes(session.output)
             assert b"\x1b]12;#c0caf5\x07" in wire
             assert b"\x1b[48;2;26;27;38m" in wire and b"\x1b[38;2;192;202;245mplain" in wire

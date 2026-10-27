@@ -20,7 +20,7 @@ tab_width = 4
 
 
 def states(frame, name='main.rs'):
-    pattern = r'(>| ) ' + re.escape(name) + r' (--|\*\*) RW L(\d+) C(\d+)'
+    pattern = r'(>| ) ' + re.escape(name) + r' (--|\*\*) RW -- L(\d+) C(\d+)'
     return [(row, *match.groups()) for row, text in rows(frame).items() for match in re.finditer(pattern, text)]
 
 
@@ -47,43 +47,43 @@ def nested(session):
 
 
 def boundaries(session):
-    frame = step(session, b'\x05', b'> main.rs -- RW L1 C105 Rust')
+    frame = step(session, b'\x05', b'> main.rs -- RW -- L1 C105 Rust')
     assert 'end00' in panes(frame, 1)[0]
     assert panes(frame, 1)[1].startswith('        row00 界e\u0301 ')
-    frame = step(session, b'\x0e', b'> main.rs -- RW L2 C105 Rust')
+    frame = step(session, b'\x0e', b'> main.rs -- RW -- L2 C105 Rust')
     assert 'end01' in panes(frame, 2)[0]
-    frame = step(session, b'\x16', b'> main.rs -- RW L13 C105 Rust')
+    frame = step(session, b'\x16', b'> main.rs -- RW -- L13 C105 Rust')
     assert sum(state[3:] == ('1', '1') for state in states(frame)) == 2
     assert 'end11' in panes(frame, 1)[0]
-    frame = step(session, b'\x1b>', b'> main.rs -- RW L41 C1 Rust')
+    frame = step(session, b'\x1b>', b'> main.rs -- RW -- L41 C1 Rust')
     assert panes(frame, 1)[1].startswith('        row00 界e\u0301 ')
-    frame = step(session, b'\x1b<', b'> main.rs -- RW L1 C1 Rust')
+    frame = step(session, b'\x1b<', b'> main.rs -- RW -- L1 C1 Rust')
     assert panes(frame, 1)[0].startswith('        row00 界e\u0301 ')
 
 
 def shared_edit(session):
-    frame = step(session, b'!', b'> main.rs ** RW L1 C2 Rust')
+    frame = step(session, b'!', b'> main.rs ** RW -- L1 C2 Rust')
     assert len(states(frame)) == 3 and all(state[2] == '**' for state in states(frame))
     assert all(text.startswith('!       row00') for text in panes(frame, 1))
     assert panes(frame, 15)[0].startswith('!       row00')
-    frame = step(session, b'\x18u', b'> main.rs -- RW L1 C1 Rust')
+    frame = step(session, b'\x18u', b'> main.rs -- RW -- L1 C1 Rust')
     assert all(state[2] == '--' for state in states(frame))
 
 
 def buffer_policy(session):
-    frame = visit(session, 'alternate.go', b'> alternate.go -- RW L1 C1 Text')
+    frame = visit(session, 'alternate.go', b'> alternate.go -- RW -- L1 C1 Text')
     assert panes(frame, 1)[0].startswith('    go body')
     assert panes(frame, 1)[1].startswith('        row00')
     assert len(states(frame)) == 2 and len(states(frame, 'alternate.go')) == 1
-    frame = step(session, b'\x06', b'> alternate.go -- RW L1 C5 Text')
+    frame = step(session, b'\x06', b'> alternate.go -- RW -- L1 C5 Text')
     assert cursor(frame) == (1, 18)
-    frame = visit(session, 'main.rs', b'> main.rs -- RW L1 C1 Rust')
+    frame = visit(session, 'main.rs', b'> main.rs -- RW -- L1 C1 Rust')
     assert len(states(frame)) == 3
     assert all(text.startswith('        row00') for text in panes(frame, 1))
 
 
 def resized_prompt(session):
-    step(session, b'\x05\x0e', b'> main.rs -- RW L2 C105 Rust')
+    step(session, b'\x05\x0e', b'> main.rs -- RW -- L2 C105 Rust')
     frame = step(session, b'\x07', b'Quit')
     retained = canvas(frame)
     retained_cursor = cursor(frame)
@@ -113,7 +113,7 @@ def workspace(root, colored):
     before = snapshot(root)
     session = PTY['Session']([str(BINARY), str(source)], env=environment(root, colored))
     try:
-        session.ready(b'> main.rs -- RW L1 C1 Rust')
+        session.ready(b'> main.rs -- RW -- L1 C1 Rust')
         nested(session)
         boundaries(session)
         shared_edit(session)

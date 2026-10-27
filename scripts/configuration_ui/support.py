@@ -95,7 +95,8 @@ def send(session, keys, predicate):
 
 
 def step(session, keys, marker, content=None):
-    return send(session, keys, lambda frame: marker in frame and (content is None or content in frame))
+    return send(session, keys, lambda frame: PTY['status_contains'](frame, marker)
+                and (content is None or PTY['status_contains'](frame, content)))
 
 
 def canvas(frame, width=80, height=24):

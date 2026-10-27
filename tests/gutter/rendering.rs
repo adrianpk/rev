@@ -142,7 +142,22 @@ fn absolute_rows() {
             assert_eq!(frame.rows()[row].text().width(), 30);
         }
         assert_eq!(frame.cursor(), Some(Position { column: 6, row: 0 }));
-        assert!(frame.rows()[5].text().contains("-- RW L1 C1 Text"));
+        assert!(frame.rows()[5].text().contains("-- RW -- L1 C1"));
+        assert!(!frame.rows()[5].text().contains("Text"));
+        // The new groups omit mode at thirty cells; a wider projection restores
+        // that same buffer's complete language observation without moving point.
+        let wide = Frame::project(
+            buffer,
+            &view,
+            Size {
+                width: 40,
+                height: 7,
+            },
+            "notice",
+        )
+        .unwrap();
+        assert!(wide.rows()[5].text().contains("-- RW -- L1 C1"));
+        assert!(wide.rows()[5].text().ends_with("Text"));
         assert!(frame.rows()[6].text().starts_with("notice"));
         let mut bytes = Vec::new();
         rev::file::write(buffer, &mut bytes).unwrap();

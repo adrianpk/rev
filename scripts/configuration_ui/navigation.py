@@ -32,7 +32,7 @@ def repeat(session, key, count, rate, expected):
         frames = bytes(session.output).split(PTY['SHOW'])
         session.output[:] = frames[-1]
         for frame in frames[:-1]:
-            positions = re.findall(rb'-- RW L(\d+) C1 Text', frame)
+            positions = re.findall(rb'-- RW -- L(\d+) C1 +Text', frame)
             if not positions:
                 continue
             if first is None:
@@ -61,7 +61,7 @@ def run(root):
         path.write_bytes(source)
         session = PTY['Session']([str(BINARY), str(path)], env=environment(fixture))
         try:
-            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
+            session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Text')))
             if (width, height) != (80, 24):
                 PTY['resize_surface'](session, width, height, True)
             for direction, key, target in [('down', b'\x1b[B', count + 1), ('up', b'\x1b[A', 1)]:
@@ -69,15 +69,15 @@ def run(root):
                 print(f'PASS navigation {name} {direction}: {rate}/s, '
                       f'first={first} ms, release={tail} ms, budget={BUDGET_MS} ms', flush=True)
             # Ordered asymmetric reversal and text commands expose dropped input.
-            step(session, b'\x1b[B' * 120 + b'\x1b[A' * 60 + b'X', b'** RW L61 C2 Text', b'Xnavigation')
-            step(session, b'\x18u', b'-- RW L61 C1 Text')
-            step(session, b'\x1b<\x1b[A' * 3, b'-- RW L1 C1 Text')
-            step(session, b'\x1b>\x1b[B' * 3, f'-- RW L{lines + 1} C1 Text'.encode())
+            step(session, b'\x1b[B' * 120 + b'\x1b[A' * 60 + b'X', b'** RW -- L61 C2 Text', b'Xnavigation')
+            step(session, b'\x18u', b'-- RW -- L61 C1 Text')
+            step(session, b'\x1b<\x1b[A' * 3, b'-- RW -- L1 C1 Text')
+            step(session, b'\x1b>\x1b[B' * 3, f'-- RW -- L{lines + 1} C1 Text'.encode())
             step(session, b'\x1b', b'ESC')
             session.output.clear()
             session.wait(lambda: completed(session, lambda frame: b'Escape' in frame))
-            step(session, b'f', f'** RW L{lines + 1} C2 Text'.encode())
-            step(session, b'\x18u', f'-- RW L{lines + 1} C1 Text'.encode())
+            step(session, b'f', f'** RW -- L{lines + 1} C2 Text'.encode())
+            step(session, b'\x18u', f'-- RW -- L{lines + 1} C1 Text'.encode())
             step(session, b'\x18r', b'C-x r')
             step(session, b'\x07', b'Quit')
             finish(session)
@@ -100,13 +100,13 @@ def goto_line(root):
         path.write_bytes(source)
         session = PTY['Session']([str(BINARY), str(path)], env=environment(fixture))
         try:
-            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
+            session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Text')))
             step(session, b'\x1bg', b'M-g')
             step(session, b'g', b'Goto line: ')
             frame = step(session, b'37', b'Goto line: 37')
-            assert b'-- RW L1 C1 Text' in frame, 'draft moved document point'
+            assert PTY['status_contains'](frame, b'-- RW -- L1 C1 Text'), 'draft moved document point'
             target = 37 if source else 1
-            target_status = f'-- RW L{target} C1 Text'.encode()
+            target_status = f'-- RW -- L{target} C1 Text'.encode()
             frame = step(session, b'\r', target_status)
             assert cursor(frame)[0] < 23, 'goto did not reveal document cursor'
             before = {row: text for row, text in rows(frame).items() if row < 24}
@@ -114,15 +114,15 @@ def goto_line(root):
             step(session, b'78', b'Goto line: 78')
             frame = step(session, b'\x07', b'Quit')
             assert {row: text for row, text in rows(frame).items() if row < 24} == before
-            assert target_status in frame, 'cancel moved document point'
+            assert PTY['status_contains'](frame, target_status), 'cancel moved document point'
             step(session, b'\x1bxgoto-line\r', b'Goto line: ')
             draft = b'9223372036854775808'
             frame = step(session, draft + b'\r', b'Enter a signed 64-bit decimal line number')
-            assert b'Goto line: ' + draft in frame and target_status in frame
+            assert b'Goto line: ' + draft in frame and PTY['status_contains'](frame, target_status)
             corrected = b'\x01' + b'\x1b[3~' * len(draft) + b'+2\r'
-            step(session, corrected, f'-- RW L{2 if source else 1} C1 Text'.encode())
-            step(session, b'\x1bgg-1\r', b'-- RW L1 C1 Text')
-            step(session, b'\x1bgg999\r', f'-- RW L{last_line} C{last_column} Text'.encode())
+            step(session, corrected, f'-- RW -- L{2 if source else 1} C1 Text'.encode())
+            step(session, b'\x1bgg-1\r', b'-- RW -- L1 C1 Text')
+            step(session, b'\x1bgg999\r', f'-- RW -- L{last_line} C{last_column} Text'.encode())
             step(session, b'\x1bg', b'M-g')
             step(session, b'\x07', b'Quit')
             finish(session)

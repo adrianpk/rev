@@ -39,18 +39,18 @@ def idle(session):
 
 
 def views(session, root):
-    frame = send(session, b'\x18tt\x07\x183\x182', lambda f: f.count(b'RW L1 C1') == 3)
+    frame = send(session, b'\x18tt\x07\x183\x182', lambda f: f.count(b'RW -- L1 C1') == 3)
     field(frame, 1, 25, '   1 │')
     field(frame, 13, 25, '   1 │')
     field(frame, 1, 53, '   1 │')
-    frame = step(session, b'\x1bgg2\r', b'RW L2 C1')
+    frame = step(session, b'\x1bgg2\r', b'RW -- L2 C1')
     assert cursor(frame) == (2, 32)
     command(session, 'set-line-numbers-relative', lambda f: field(f, 3, 25, '   1 │'))
     frame = command(session, 'toggle-line-number-side', lambda f: field(f, 2, 46, '│   2 '))
     assert cursor(frame) == (2, 26)
     field(frame, 3, 53, '   3 │')
     send(session, b'\x18o', lambda f: cursor(f)[0] >= 13)
-    frame = step(session, b'\x1bgg3\r', b'RW L3 C1')
+    frame = step(session, b'\x1bgg3\r', b'RW -- L3 C1')
     assert cursor(frame) == (15, 32)
     frame = command(session, 'set-line-numbers-relative', lambda f: field(f, 13, 25, '   2 │'))
     field(frame, 2, 46, '│   2 ')
@@ -68,16 +68,16 @@ def views(session, root):
 
 
 def history(session, path):
-    step(session, PTY['paste_wire'](b'Z'), b'RW L3 C2')
+    step(session, PTY['paste_wire'](b'Z'), b'RW -- L3 C2')
     step(session, b'\x18\x13', b'Saved ')
     assert path.read_bytes() == SOURCE + b'Z'
-    step(session, b'\x18u', b'RW L3 C1')
+    step(session, b'\x18u', b'RW -- L3 C1')
     step(session, b'\x18\x13', b'Saved ')
     assert path.read_bytes() == SOURCE
-    step(session, b'\x1bxundo-redo\r', b'RW L3 C2')
+    step(session, b'\x1bxundo-redo\r', b'RW -- L3 C2')
     step(session, b'\x18\x13', b'Saved ')
     assert path.read_bytes() == SOURCE + b'Z'
-    step(session, b'\x18u', b'RW L3 C1')
+    step(session, b'\x18u', b'RW -- L3 C1')
     step(session, b'\x18\x13', b'Saved ')
     assert path.read_bytes() == SOURCE
 
@@ -88,7 +88,7 @@ def case(root, colored):
     write(root, 'alpine.txt', b'alpine')
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, colored))
     try:
-        session.wait(lambda: completed(session, lambda frame: b'RW L1 C1 Text' in frame))
+        session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'RW -- L1 C1 Text')))
         views(session, root)
         history(session, path)
         frame = command(session, 'set-line-numbers-absolute', lambda f: field(f, 13, 25, '   1 │'))

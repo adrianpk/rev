@@ -35,6 +35,8 @@ This project uses Semantic Versioning.
 
 ### Changed
 
+- Each pane groups its buffer name, clean/modified state, access and position on the left and aligns its language mode to the right. Narrow panes omit or compact whole fields and restore the complete status when space returns.
+
 - The terminal UI uses Tokyo Night RGB colors for document text, status, tree, separators, selections, search and messages. Supported terminals apply cursor color and restore their default colors on exit or failure.
 
 - Editing panes and the file tree share continuous Unicode separators and connected junctions. Stacked panes reserve a separator row in addition to their status rows.

@@ -10,6 +10,7 @@
 - [Search and replacement](search.md): smart-case queries, directions, confirmation and cancellation.
 - [File tree](file-tree.md): optional left pane, root selection and keyboard focus.
 - [Line numbers](gutter.md): logical labels, per-view modes and M-x controls, text geometry and current-line emphasis.
+- [Pane status](status.md): left identity/state/position, right language, independent points and narrow-width composition.
 - [Rectangles](rectangles.md): display-column selection, Unicode edges and separate retained rows.
 - [Terminal input](terminal-input.md): key reports, Escape timing and undo aliases.
 - [Syntax highlighting](syntax.md): language recognition, semantic palette and plain-text fallback.

@@ -32,8 +32,8 @@ def factory(root):
     config = root / 'user/rev/config.toml'
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, False))
     try:
-        session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
-        step(session, b'\x1bgg2\r', b'-- RW L2 C1 Text')
+        session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Text')))
+        step(session, b'\x1bgg2\r', b'-- RW -- L2 C1 Text')
         command(session, 'set-line-numbers-relative', lambda f: labels(f, ['   1 │', '   2 │', '   1 │']))
         command(session, 'toggle-line-numbers', hidden)
         command(session, 'cycle-line-number-mode', hidden)
@@ -50,10 +50,10 @@ def factory(root):
         frame = step(session, b'\x07', b'Quit')
         labels(frame, ['│   1 ', '│   2 ', '│   1 '], True)
         command(session, 'reset-numbering', lambda f: labels(f, ['   1 │', '   2 │', '   3 │']))
-        step(session, PTY['paste_wire'](b'Z'), b'** RW L2 C2 Text')
+        step(session, PTY['paste_wire'](b'Z'), b'** RW -- L2 C2 Text')
         step(session, b'\x18\x13', b'Saved ')
         assert path.read_bytes() == SOURCE.replace(b'last', b'Zlast')
-        step(session, b'\x18u', b'** RW L2 C1 Text')
+        step(session, b'\x18u', b'** RW -- L2 C1 Text')
         step(session, b'\x18\x13', b'Saved ')
         assert path.read_bytes() == SOURCE
         assert not config.exists(), 'runtime controls created configuration'
@@ -70,8 +70,8 @@ def configured(root):
     original = base.read_bytes()
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, True))
     try:
-        session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
-        frame = step(session, b'\x1bgg2\r', b'-- RW L2 C1 Text')
+        session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'-- RW -- L1 C1 Text')))
+        frame = step(session, b'\x1bgg2\r', b'-- RW -- L2 C1 Text')
         hidden(frame)
         expected = ['│  1  ', '│  0  ', '│  1  ']
         frame = command(session, 'set-line-numbers-relative', lambda f: labels(f, expected, True))
