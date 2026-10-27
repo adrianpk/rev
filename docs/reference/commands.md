@@ -6,11 +6,19 @@ same fixed command registry and handlers as keyboard bindings.
 
 ## Matching and invocation
 
-- Type a lowercase hyphenated name or part of it. Matching is case-sensitive:
-  prefixes come first, followed by other substrings; each group is alphabetical.
-  Up to three candidates appear beside the command text within available width.
+- Type a lowercase hyphenated name or part of it. Matching is case-sensitive.
+  `minibuffer.match` selects `prefix-then-substring` (the default), `prefix` or
+  `substring`. The default ranks prefixes before other substrings; each rank
+  retains the registry's alphabetical order. Substring mode has one alphabetical
+  rank; prefix mode excludes other substrings.
+- The query appears above a vertical list with one command per row. Up to
+  `minibuffer.candidate_limit` rows are shown (default 8, admitted range 1..=32),
+  clipped to geometry after complete editing minima. The selected command uses
+  the selection palette roles, with reverse video under `NO_COLOR`. No matches
+  display `No matching commands` in an unselected row.
 - Tab completes the first candidate. Further Tabs cycle that original matching
-  set and wrap. Editing the query starts a new matching set.
+  set and wrap. The selected row stays visible as the list scrolls. Editing the
+  query starts a new matching set and resets selection and scroll origin.
 - Return invokes the exact name when present, otherwise the first matching
   candidate. An empty query invokes nothing. Unknown names report `Unknown command`
   and return to editing without changing document text. Tab with no matches keeps
@@ -23,6 +31,12 @@ same fixed command registry and handlers as keyboard bindings.
 - C-g cancels command entry. Text, cursor edits and single-line paste remain in
   the prompt. The existing 4096-character prompt bound and control rejection apply.
   Releases and repeated Return do not invoke a command twice.
+
+Candidate space borrows presentation rows without scrolling the retained editing
+workspace. When no candidate rows fit, the query and cancellation remain usable.
+Resize preserves the draft and selection; growing restores a coherent list.
+Rendering reads only the fixed command registry and cannot execute a command or
+observe the filesystem.
 
 Argument-taking commands continue with their existing path, buffer or decision
 prompts. Named edits use the same read-only admission and history as bindings.

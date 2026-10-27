@@ -1,8 +1,10 @@
 # Focused prompts
 
-The bottom prompt owns keyboard input until its current stage accepts, reports
+The active prompt owns keyboard input until its current stage accepts, reports
 an error or is canceled. Command names, paths, buffer names and decisions use
 separate focused contexts. Their text does not enter the document underneath.
+The M-x query appears above its vertical candidates when surplus rows fit; other
+argument and decision prompts retain the bottom prompt row.
 
 ## Stages
 

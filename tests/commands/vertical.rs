@@ -1,3 +1,6 @@
+#[path = "vertical/geometry.rs"]
+mod geometry;
+
 use crossterm::event::{Event, KeyCode};
 use rev::buffer::Buffers;
 use rev::command::Command;

@@ -138,3 +138,30 @@ fn workspace_bounds(composition: &Composition, size: Size) {
         super::geometry::coverage(composition, area(0, 0, size.width, size.height));
     }
 }
+
+// Command queries precede candidates while preserving the outer extent and
+// complete editing minima, including native maximum auxiliary requests.
+#[test]
+fn command_region() {
+    let session = editor();
+    for (height, rows) in [(3, 0), (4, 0), (5, 1), (8, 4), (u16::MAX, u16::MAX - 4)] {
+        let size = Size { width: 61, height };
+        let composition =
+            Composition::command(session.windows(), session.tree(), size, u16::MAX).unwrap();
+        assert_eq!(composition.size(), size);
+        assert_eq!(
+            composition
+                .auxiliary()
+                .map_or(0, |panel| panel.content().height()),
+            rows
+        );
+        assert_eq!(
+            composition.panels()[0].1.content().height(),
+            if rows == 0 { height - 2 } else { 1 }
+        );
+        if let Some(panel) = composition.auxiliary() {
+            assert_eq!(composition.prompt().row() + 1, panel.content().row());
+            assert_eq!(panel.content().row() + panel.content().height(), height);
+        }
+    }
+}
