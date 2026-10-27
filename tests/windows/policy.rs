@@ -50,7 +50,12 @@ fn shared_policy() {
         assert_eq!(view.cell(buffer).unwrap(), Cell { row: 0, column: 8 });
         let row = frame.rows()[usize::from(area.row())].text();
         let column = usize::from(area.column());
-        assert_eq!(&row[column..column + 9], "!a      b");
+        // Every rendered fixture character occupies one cell, including the
+        // Unicode separator. Its UTF-8 bytes cannot index terminal columns.
+        assert_eq!(
+            row.chars().skip(column).take(9).collect::<String>(),
+            "!a      b"
+        );
         let mut synchronized = view.clone();
         synchronized.reveal(buffer, dimensions).unwrap();
         assert_eq!(synchronized.point, view.point);

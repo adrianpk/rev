@@ -72,6 +72,11 @@ separators and one source of placement for text, overlays and cursor cells.
 
 ## Validation
 
+The first controller validation passed panels/display and stopped at
+`cargo test --test windows`: `policy::shared_policy` used byte offsets across
+a Unicode separator. Its exact text assertion now indexes the fixture's
+one-cell characters; the focused policy regression passes.
+
 Development checks:
 
 - `cargo test --test windows mixed_layout`: passed.
@@ -85,6 +90,8 @@ Development checks:
 - `cargo test --test display initial_frame`: passed.
 - `cargo test --test panels rendering::`: passed; four rendered cases.
 - `cargo test --test windows resize::`: passed; six resize cases.
+- `cargo test --test windows policy::shared_policy`: passed after correcting
+  the rendered fixture's byte-versus-cell indexing.
 - `cargo clippy --lib --test panels --test display --test windows -- -D warnings`: passed.
 - `cargo clippy --test panels -- -D warnings`: passed after final test additions.
 - `cargo run --quiet --example source-check -- --source src/display.rs --source src/display/compose.rs --source src/display/search.rs --source src/session/search.rs --source src/window/layout.rs --source src/window/geometry.rs --root tests/panels.rs --source tests/panels/rendering.rs`: passed.

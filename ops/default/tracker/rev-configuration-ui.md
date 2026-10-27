@@ -309,6 +309,9 @@ Development validation: four rendered-panel cases, split admission/geometry,
 clipped cells, selected search, shared syntax and all six window resize
 regressions passed. Focused Clippy/source checks passed. Existing geometry
 fixtures now reserve horizontal separator rows explicitly.
+Controller validation initially stopped at the shared-policy fixture's byte
+slice across a Unicode separator. Its exact cell-text assertion is retained
+with character indexing for the one-cell fixture; focused regression passed.
 Final exact-head evidence belongs to the controller.
 Report: [Slice 11](../report/slices/rev-configuration-ui/slice-11-editor-panels.md).
 PR: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60);
