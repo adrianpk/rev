@@ -16,6 +16,8 @@ mod cells;
 mod config_fixture;
 #[path = "pointer/scroll.rs"]
 mod scroll;
+#[path = "pointer/scroll_bounds.rs"]
+mod scroll_bounds;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

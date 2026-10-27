@@ -291,7 +291,7 @@ fn scrolled_text() {
     assert!(session.buffer().unwrap().history().is_empty());
 }
 
-// Prompt/decision/inventory owners ignore presses over both text and auxiliary
+// Prompt/decision/inventory owners ignore presses/wheels over text and auxiliary
 // rows. Draft, cursor, focus, canonical point and cancellation remain theirs.
 #[test]
 fn prompt_isolation() {
@@ -315,11 +315,13 @@ fn prompt_isolation() {
         let before = session.view().point;
         let text = source(&session);
         let frame = session.frame().unwrap();
-        for target in [
-            Position { column: 8, row: 1 },
-            Position { column: 1, row: 11 },
+        for event in [
+            press(Position { column: 8, row: 1 }),
+            press(Position { column: 1, row: 11 }),
+            super::scroll::wheel(true, 8, 1),
+            super::scroll::wheel(false, 8, 1),
         ] {
-            assert_eq!(session.handle(press(target)), Action::Wait, "{command:?}");
+            assert_eq!(session.handle(event), Action::Wait, "{command:?}");
             let after = session.frame().unwrap();
             assert_eq!(
                 after
