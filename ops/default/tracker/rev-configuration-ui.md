@@ -299,8 +299,18 @@ Details and checks: [Slice 11](../plan/rev-configuration-ui.md#slice-11-compose-
 
 - [x] T11.1: Migrate editor rendering to panel content bounds and continuous shared Unicode separators/junctions, with no per-pane outer frame. Reserve horizontal border rows and status cells explicitly in layout minima.
 - [x] T11.2: Derive text, cursor, syntax, search, selection and status translations from the same geometry owner; remove repeated ASCII-pipe painting as an independent placement convention.
-- [ ] T11.3: Test nested split directions, active/inactive panes, same-buffer independent points, clipped Unicode and resize. Keep the baseline default split proportion and focus traversal.
+- [x] T11.3: Test nested split directions, active/inactive panes, same-buffer independent points, clipped Unicode and resize. Keep the baseline default split proportion and focus traversal.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T11.1 `d1ae49100a76035ddd9ea98a48484f1d4fd86e8c`;
+T11.2 `7b773d08b9dacd93e9da589f54220246c6c35c74`.
+Development validation: four rendered-panel cases, split admission/geometry,
+clipped cells, selected search, shared syntax and all six window resize
+regressions passed. Focused Clippy/source checks passed. Existing geometry
+fixtures now reserve horizontal separator rows explicitly.
+Final exact-head evidence belongs to the controller.
+Report: [Slice 11](../report/slices/rev-configuration-ui/slice-11-editor-panels.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 12: Compose tree and auxiliary panels
 

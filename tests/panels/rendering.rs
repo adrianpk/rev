@@ -150,3 +150,144 @@ fn projected_overlays() {
     assert!(buffer.history().is_empty());
     assert!(!buffer.is_modified());
 }
+
+// A fully shared crossing is painted once between four real editing surfaces,
+// with no boxed pane corners or overwriting of the adjacent content cells.
+#[test]
+fn crossed_frame() {
+    let mut session = editor();
+    session.execute(Command::Split(Split::Right));
+    let right = session.windows().order()[1];
+    session.execute(Command::Split(Split::Below));
+    session.select_view(right).unwrap();
+    session.execute(Command::Split(Split::Below));
+    session.handle(Event::Resize(15, 13));
+    let frame = session.frame().unwrap();
+    assert_eq!(drawn(&frame, 7, 5), "┼");
+    assert_eq!(drawn(&frame, 6, 5), "─");
+    assert_eq!(drawn(&frame, 8, 5), "─");
+    assert_eq!(drawn(&frame, 7, 4), "│");
+    assert_eq!(drawn(&frame, 7, 6), "│");
+    assert_eq!(drawn(&frame, 0, 0), "a");
+    assert_eq!(drawn(&frame, 8, 6), "a");
+}
+
+// Mixed-width text clips at a pane seam without a partial wide glyph. Focus
+// cycling and tiny/growing frames retain independent points, layout and clean
+// source state while cursors stay inside the selected panel's content bounds.
+#[test]
+fn resized_surfaces() {
+    use rev::command::{Motion, WindowCommand};
+
+    let mut session = nested(Split::Right, Split::Below, false);
+    session.handle(Event::Resize(11, 9));
+    let frame = session.frame().unwrap();
+    assert_eq!(drawn(&frame, 4, 0), " ");
+    assert_eq!(drawn(&frame, 5, 0), "│");
+    assert_eq!(drawn(&frame, 10, 0), " ");
+    let ids = session.windows().order();
+    for (index, id) in ids.iter().copied().enumerate() {
+        session.select_view(id).unwrap();
+        session.execute(Command::Motion(Motion::BufferStart));
+        for _ in 0..index {
+            session.execute(Command::Motion(Motion::ForwardChar));
+        }
+    }
+    let points = session
+        .windows()
+        .iter()
+        .map(|(id, view)| (id, view.point))
+        .collect::<Vec<_>>();
+    let layout = session.windows().layout().clone();
+    let before = (
+        session.buffer().unwrap().stamp(),
+        session.buffer().unwrap().state(),
+    );
+    let selected = session.windows().selected_id();
+    session.execute(Command::Window(WindowCommand::Other));
+    assert_eq!(session.windows().selected_id(), ids[0]);
+    session.select_view(selected).unwrap();
+    for dimensions in [
+        Size {
+            width: 0,
+            height: 0,
+        },
+        Size {
+            width: 1,
+            height: 1,
+        },
+        Size {
+            width: 7,
+            height: 5,
+        },
+        Size {
+            width: 7,
+            height: 6,
+        },
+        Size {
+            width: 11,
+            height: 9,
+        },
+        Size {
+            width: 31,
+            height: 13,
+        },
+    ] {
+        session.handle(Event::Resize(dimensions.width, dimensions.height));
+        bounded_surface(&mut session, dimensions);
+    }
+    assert_eq!(session.windows().layout(), &layout);
+    assert_eq!(session.windows().order(), ids);
+    assert_eq!(session.windows().selected_id(), selected);
+    assert_eq!(
+        session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.point))
+            .collect::<Vec<_>>(),
+        points
+    );
+    assert_eq!(
+        (
+            session.buffer().unwrap().stamp(),
+            session.buffer().unwrap().state()
+        ),
+        before
+    );
+    assert!(session.buffer().unwrap().history().is_empty());
+    assert!(!session.buffer().unwrap().is_modified());
+}
+
+fn bounded_surface(session: &mut Session, size: Size) {
+    let composition = Composition::new(session.windows(), area(0, 0, size.width, size.height), 0);
+    let frame = session.frame().unwrap();
+    assert_eq!(
+        frame.rows().len(),
+        if size.width == 0 {
+            0
+        } else {
+            usize::from(size.height)
+        }
+    );
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .all(|row| row.text().width() == usize::from(size.width))
+    );
+    if let Some(composition) = composition {
+        let panel = composition
+            .panels()
+            .iter()
+            .find(|(_, panel)| panel.active())
+            .unwrap()
+            .1;
+        let cursor = frame.cursor().unwrap();
+        assert!(cursor.column >= panel.content().column());
+        assert!(cursor.row >= panel.content().row());
+        assert!(cursor.column < panel.content().column() + panel.content().width());
+        assert!(cursor.row < panel.content().row() + panel.content().height());
+    } else {
+        assert!(frame.cursor().is_none());
+    }
+}
