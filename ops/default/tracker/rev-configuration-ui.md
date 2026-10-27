@@ -102,7 +102,7 @@ integrated by Rebase + Fast-forward into dev at
 Contracts: CFG01, CFG07-CFG08, CFG14, CFG21. Tickets: TKT-20261027103708.
 Details and checks: [Slice 3](../plan/rev-configuration-ui.md#slice-3-load-bounded-include-graphs).
 
-- [ ] T3.1: Resolve independent XDG roots and optional config.toml without creating files/directories; ignore relative XDG values, use HOME fallbacks, and return precise errors when a required root cannot be resolved.
+- [x] T3.1: Resolve independent XDG roots and optional config.toml without creating files/directories; ignore relative XDG values, use HOME fallbacks, and return precise errors when a required root cannot be resolved.
 - [ ] T3.2: Read explicit includes depth-first in declaration order relative to the declaring source; enforce root-depth zero, depth 16, 64 occurrences, 256 KiB per source and 2 MiB total before unbounded allocation. Detect active-stack symlink/hard-link cycles by file identity.
 - [ ] T3.3: Test shared acyclic leaves, duplicates counting toward bounds, permission/missing includes, alias cycles and read errors. A missing optional root alone selects defaults; a broken explicit source rejects the candidate.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.

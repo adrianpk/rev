@@ -4,10 +4,14 @@
 mod boundaries;
 #[path = "configuration/catalog.rs"]
 mod catalog;
+#[path = "configuration/fixture.rs"]
+mod fixture;
 #[path = "configuration/parsing.rs"]
 mod parsing;
 #[path = "configuration/scopes.rs"]
 mod scopes;
+#[path = "configuration/xdg.rs"]
+mod xdg;
 
 use rev::config::{Document, Grammar, IndentStyle};
 

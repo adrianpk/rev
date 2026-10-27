@@ -11,10 +11,12 @@ mod diagnostic;
 mod palette;
 mod parse;
 mod validate;
+mod xdg;
 
 pub use diagnostic::{Diagnostic, Position};
 pub use palette::{Palette, PartialPalette, PartialSyntaxPalette, Rgb, SyntaxPalette};
 pub use parse::parse;
+pub use xdg::Roots;
 
 use std::collections::BTreeMap;
 
