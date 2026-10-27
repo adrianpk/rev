@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-04-config-resolution`
-PR: pending
+PR: [#53](https://forge.adrianpk.com/adrianpk/rev/pulls/53)
 
 ## Purpose
 
@@ -33,7 +33,8 @@ one coherent snapshot, preserving source precedence and language inheritance.
   merging, complete projection, language policy resolution and source origins.
 - T4.2: `3a6b77457c047978871d7a01934fb39c5e114792` adds atomic preparation
   outcomes and tests for rollback, revalidation and fixed snapshots.
-- T4.3 adds complete catalog projection and explicit-source isolation coverage
+- T4.3: `5b7a40e088cf87acc0feaa00e4a66e6e98d5d7da` adds complete catalog
+  projection and explicit-source isolation coverage
   and this report. All 14 new focused configuration tests pass.
 - Fixed concern records and small Option helpers keep merge and projection
   explicit. `Settings::default()` remains the single compiled-default owner.
