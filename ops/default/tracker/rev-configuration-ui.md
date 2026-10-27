@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 2 - Validate TOML and diagnostics
+Active slice: Slice 3 - Load bounded include graphs
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -83,17 +83,19 @@ Details and checks: [Slice 2](../plan/rev-configuration-ui.md#slice-2-validate-t
 - [x] T2.1: Parse UTF-8 TOML 1.1 into typed partial documents, accepting omitted version as 1 and rejecting unknown explicit versions, unknown keys, bad types/enums, invalid RGB and out-of-range/nonfinite numbers.
 - [x] T2.2: Validate only accepted language leaves and pattern shapes; retain source/key and spans where available. Reject duplicate keys and non-command binding values without silently defaulting bad input.
 - [x] T2.3: Exercise malformed input, Unicode positions, valid empty include arrays and every admitted bound, including soft history limits and zero syntax cutoff. Keep parsing independent of editor mutation.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T2.1 `2b4ff0093157ca30bc540c935f12fd6f18b5ec87`;
 T2.2 `4c1512f370a0731c82e97ba30d250c1ab102057d`;
 T2.3 `22985c06620b209d1b906b73d5ba7b79a5140a92`.
 Development validation: all 15 source-validation tests passed, including every
-numeric bound and all 25 RGB roles. Final exact-head slice evidence belongs to
-the controller.
+numeric bound and all 25 RGB roles. All five ordered slice checks passed on
+`be0c8abfa16cf3993e52fade6e8aa55dba0a58f5`, controller validation
+`W37EBYETIZI3HCIS47HWPLO4UC`, including 20 configuration tests.
 Report: [Slice 2](../report/slices/rev-configuration-ui/slice-2-toml-validation.md).
 PR: [#51](https://forge.adrianpk.com/adrianpk/rev/pulls/51);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`be0c8abfa16cf3993e52fade6e8aa55dba0a58f5`. Slice 2 of 30 completed.
 
 ### Slice 3: Load bounded include graphs
 

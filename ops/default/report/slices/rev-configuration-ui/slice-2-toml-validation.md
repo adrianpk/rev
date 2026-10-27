@@ -1,11 +1,12 @@
 # Slice 2: Validate TOML and diagnostics
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-02-toml-validation`
 PR: [#51](https://forge.adrianpk.com/adrianpk/rev/pulls/51)
+Integrated: Rebase + Fast-forward into dev at `be0c8abfa16cf3993e52fade6e8aa55dba0a58f5`.
 
 ## Purpose
 
@@ -79,14 +80,15 @@ Development checks:
   after reproducing and correcting signed-channel RGB admission.
 - `cargo test --test configuration -- --skip catalog:: --skip partial_presence --skip language_presence --skip source_records`: passed; 15 source-validation tests.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All five ordered checks passed on clean PR head
+`be0c8abfa16cf3993e52fade6e8aa55dba0a58f5`, controller validation
+`W37EBYETIZI3HCIS47HWPLO4UC`. Commands, in canonical order:
 
-- `cargo fmt --all -- --check`
-- `cargo clippy --all-targets --all-features -- -D warnings`
-- `cargo test --test configuration`
-- `python3 scripts/check-source.py`
-- `git diff --check`
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --all-targets --all-features -- -D warnings`: passed.
+- `cargo test --test configuration`: passed; 20 tests.
+- `python3 scripts/check-source.py`: passed.
+- `git diff --check`: passed.
 
 ## Risks and Follow-ups
 
