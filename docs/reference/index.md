@@ -1,5 +1,8 @@
 # Reference
 
+- [Bindings](bindings.md): complete keys and names for editing and focused tree commands.
+- [Scope and defaults](defaults.md): runtime, file fidelity, history, interaction bounds and exclusions.
+
 - [Commands](commands.md): M-x matching, completion, session history and implemented names.
 - [Focused prompts](prompts.md): argument stages, editing, decisions and cancellation.
 - [Search and replacement](search.md): smart-case queries, directions, confirmation and cancellation.

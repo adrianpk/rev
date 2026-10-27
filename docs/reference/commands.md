@@ -38,6 +38,9 @@ with the same handlers as C-s and C-r.
 `query-replace` opens the same literal replacement prompts as M-% and requires
 an explicit decision for each occurrence.
 
+See [Bindings](bindings.md) for the complete key map and [Scope and defaults](defaults.md)
+for file, history and retained-text policies.
+
 ## Implemented catalog
 
 | Group | Names |

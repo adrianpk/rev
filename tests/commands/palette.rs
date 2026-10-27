@@ -510,23 +510,41 @@ fn admission_geometry() {
     assert_eq!(text(&session), "abc def\nlast");
 }
 
-// The user-facing catalog must contain every live name exactly once; removing
-// a name from either the registry or documentation cannot silently hide drift.
+// Public name and binding catalogs must match the live registry exactly once.
+// Both formats use this oracle so documentation cannot silently hide drift.
 #[test]
 fn catalog_reference() {
     use std::collections::BTreeSet;
-    let source = include_str!("../../docs/reference/commands.md");
-    let names = source
-        .lines()
-        .filter(|line| line.starts_with('|'))
-        .flat_map(|line| line.split('`').skip(1).step_by(2))
-        .collect::<Vec<_>>();
-    let documented = names.iter().copied().collect::<BTreeSet<_>>();
     let live = Command::ALL
         .into_iter()
         .map(Command::name)
         .collect::<BTreeSet<_>>();
-    assert_eq!(names.len(), documented.len(), "duplicate documented name");
     assert_eq!(Command::ALL.len(), live.len(), "duplicate registry name");
-    assert_eq!(documented, live);
+    let cases = [
+        (
+            "catalog",
+            include_str!("../../docs/reference/commands.md"),
+            None,
+        ),
+        (
+            "bindings",
+            include_str!("../../docs/reference/bindings.md"),
+            Some(2),
+        ),
+    ];
+    for (name, source, column) in cases {
+        let names = source
+            .lines()
+            .filter(|line| line.starts_with('|'))
+            .map(|line| column.map_or(line, |index| line.split('|').nth(index).unwrap()))
+            .flat_map(|line| line.split('`').skip(1).step_by(2))
+            .collect::<Vec<_>>();
+        let documented = names.iter().copied().collect::<BTreeSet<_>>();
+        assert_eq!(
+            names.len(),
+            documented.len(),
+            "{name}: duplicate documented name"
+        );
+        assert_eq!(documented, live, "{name}");
+    }
 }

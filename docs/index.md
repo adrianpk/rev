@@ -1,4 +1,4 @@
 # Documentation
 
-- [Reference](reference/index.md): implemented editor contracts.
-- [How-to guides](how-to/index.md): run editor validation workflows.
+- [Reference](reference/index.md): bindings, commands, defaults and editor contracts.
+- [How-to guides](how-to/index.md): edit/save files, recover edits and run terminal journeys.
