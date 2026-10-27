@@ -12,6 +12,9 @@ mod publication;
 #[path = "recovery/ingress.rs"]
 mod ingress;
 
+#[path = "recovery/configured.rs"]
+mod configured;
+
 #[path = "recovery/combined.rs"]
 mod combined;
 

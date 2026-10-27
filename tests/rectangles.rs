@@ -3,6 +3,9 @@
 #[path = "support/surface.rs"]
 mod surface;
 
+#[path = "rectangles/boundaries.rs"]
+mod boundaries;
+
 #[path = "rectangles/transfer.rs"]
 mod transfer;
 
