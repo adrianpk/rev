@@ -409,14 +409,16 @@ Details and checks: [Slice 15](../plan/rev-configuration-ui.md#slice-15-apply-pr
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T15.1 `44543334610ee49689442241acf984cfe071eadc`;
-T15.2 `1c8824ab576504d25c8be3f8bd7698406cb9bb93`.
+T15.2 `1c8824ab576504d25c8be3f8bd7698406cb9bb93`;
+T15.3 `5affaefc38d8ce4b58826685f06e1b51ba21f1fc`.
 Focused preference checks passed for ratio/page extremes, recursive minima,
 initial tree visibility/root, hidden/native filename ordering, refresh and
 memory-only redraw after observed paths disappear. Grammar/cutoff transitions,
 real parser admission and published destination policies preserve text/history.
 Focused Clippy and source checks passed after correcting the root conditional.
 Report: [Slice 15](../report/slices/rev-configuration-ui/slice-15-presentation-preferences.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#64](https://forge.adrianpk.com/adrianpk/rev/pulls/64);
+dev integration remains controller-owned.
 
 ### Slice 16: Apply bounded history and prompt preferences
 

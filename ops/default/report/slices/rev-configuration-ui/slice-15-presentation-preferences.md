@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-15-presentation-preferences`
-PR: pending
+PR: [#64](https://forge.adrianpk.com/adrianpk/rev/pulls/64)
 
 ## Purpose
 
@@ -40,7 +40,7 @@ existing owners, preserving canonical documents and retained workspace state.
 - T15.2: `1c8824ab576504d25c8be3f8bd7698406cb9bb93` moves grammar selection
   into snapshot policy application, adds parser cutoff transitions and corrects
   the root conditional flagged by the initial focused Clippy check.
-- T15.3 covers root contexts, tiny recursive geometry, pending tree focus after
+- T15.3: `5affaefc38d8ce4b58826685f06e1b51ba21f1fc` covers root contexts, tiny recursive geometry, pending tree focus after
   observed paths disappear, parser admission with a real progress callback and
   configured write-file grammar changes followed by undo/redo.
 - Buffers retain admitted derived parser policy beside their existing editor
