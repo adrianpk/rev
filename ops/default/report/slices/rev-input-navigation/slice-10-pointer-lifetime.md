@@ -1,6 +1,6 @@
 # Slice 10: Own native pointer reporting and input state
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -38,6 +38,10 @@ modes. It establishes format before tracking and restores tracking before format
 Undo is owned before a write can partially change the terminal. Acquisition
 failure attempts immediate rollback; failed obligations remain for cleanup retry.
 Terminal restoration still attempts every acquired operation and aggregates errors.
+Confirmed activation is separate from pending undo. A failed reset makes mode
+state uncertain; re-enable first finishes cleanup, then acquires a fresh pair.
+A native regression reproduced and corrected the former assumption that a retained
+undo flag established active tracking.
 
 ## Contracts Added or Changed
 
@@ -49,29 +53,57 @@ reporting without enabling hover or adding idle work.
 - `src/pointer.rs`: admitted native operations and finite capture identity.
 - `src/input.rs`: existing focus boundary and pointer outcomes.
 - `src/terminal.rs`, `src/terminal/mouse.rs`: reporting and restoration owner.
-- `tests/pointer.rs`: native admission and prompt isolation.
+- `tests/pointer.rs`, `tests/pointer/input_state.rs`: admission and keyboard/prompt isolation.
+- `src/terminal/mouse/tests.rs`: mode commands and failure/retry transitions.
+- `examples/terminal_probe/pointer.rs`, `scripts/configuration_ui/pointer_lifetime.py`: actual controlling-PTY decoder and lifetime checks.
+- `docs/reference/terminal-input.md`: reporting boundary and deferred activation.
 
 ## Validation
 
-- PASS: `cargo test --test pointer` checks eleven native event variants,
-  preserved cells/modifiers and argument/decision isolation.
+Development checks passed:
 
-- PASS: `python3 scripts/check-source.py` retains unchanged safe-Rust and source-quality limits.
+- `cargo test --test pointer`: five groups cover fourteen event variants,
+  preserved cells/modifiers, prompt/decision isolation, C-x continuation,
+  unchanged Escape deadlines, once-only native expiry, following text and C-g.
+- `cargo test --lib terminal::mouse`: five fault groups cover minimal modes,
+  idempotence, partial writes, failed rollback, selective undo retry and
+  fresh acquisition after uncertain cleanup.
+- `cargo test --test pointer --test commands --test panels --test recovery`:
+  190 native cases passed.
+- `cargo test --lib --test display --test pointer`: 46 native cases passed,
+  including the existing bounded ordered-input/history tests and all display
+  regressions.
+- `python3 scripts/check-pty.py --suite pointer-lifetime`: thirteen owned
+  sessions passed. Eleven exercise pre-entry, normal/toggle, acquisition,
+  rollback, release, combined cleanup, I/O and unwind. Actual SGR reports
+  cover press/drag/release/wheel, modifiers, coordinates above 223, unsupported
+  gestures and keyboard continuation. The ordinary binary verifies deferred
+  reporting with typing, undo, prefix cancellation and exit.
+- `python3 scripts/check-source.py`: unchanged safe-Rust and source-quality limits.
 
-- PASS: `cargo test --lib terminal::mouse` checks exact minimal modes,
-  idempotent disable/re-enable, partial-write acquisition rollback, all failed
-  undo obligations, aggregated diagnostics and selective cleanup retry.
-- PASS: `python3 scripts/check-pty.py --suite pointer-lifetime` checks eleven
-  owned sessions: pre-entry guard, normal/toggle, each acquisition failure,
-  failed rollback, each release failure, combined release failure, I/O and
-  unwind. Termios, paste/cursor/attributes/screen cleanup, passive filesystem,
-  descriptor closure and child reaping remain required.
+PTY owners retain the existing eight-second deadline and 1-MiB output limit,
+owned HOME/XDG roots, raw-input and full terminal cleanup assertions, passive
+filesystem, child reaping and descriptor closure. Idle decoder observation emits
+no output or process CPU ticks during the existing 120 ms sample. No runtime
+queue, timer or scheduling ceiling changes. The warm thirteen-session fixture
+cost is under one second locally, excluding a cold build.
 
 BufWriter may resend a failed buffered command while attempting subsequent
-cleanup. The retained-obligation assertion therefore observes fresh Drop resets
-after the cleanup checkpoint, while separately checking that raw input was
-already released and both operation diagnostics were retained. It does not infer
-mode state from a write's return value or omit any restoration assertion.
+cleanup. The retained-obligation assertion observes fresh Drop resets after a
+cleanup checkpoint, separately checking prior raw release and both diagnostics.
+It does not infer successful mode cleanup from a write's return value.
+
+Final clean-head canonical validation is recorded by the controller after PR
+reference commits, in this exact order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test commands --test panels --test recovery`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+The canonical PR and controller evidence identify the final candidate. Focused
+exact-head evidence additionally checks the library/display and owned PTY suite.
 
 ## Risks and Follow-ups
 

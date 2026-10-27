@@ -4,6 +4,9 @@ use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventK
 use rev::input::{Input, Outcome};
 use rev::pointer::{Event as PointerEvent, Kind};
 
+#[path = "pointer/input_state.rs"]
+mod input_state;
+
 fn mouse(kind: MouseEventKind) -> MouseEvent {
     MouseEvent {
         kind,
@@ -50,6 +53,21 @@ fn native_admission() {
         (
             "secondary drag",
             MouseEventKind::Drag(MouseButton::Right),
+            None,
+        ),
+        (
+            "secondary release",
+            MouseEventKind::Up(MouseButton::Right),
+            None,
+        ),
+        (
+            "middle press",
+            MouseEventKind::Down(MouseButton::Middle),
+            None,
+        ),
+        (
+            "middle drag",
+            MouseEventKind::Drag(MouseButton::Middle),
             None,
         ),
         (

@@ -4,7 +4,8 @@ import os
 import re
 import termios
 
-from .support import ROOT, PTY, close, environment, passive, restoration, snapshot
+from .gutter_geometry import idle
+from .support import BINARY, ROOT, PTY, close, environment, passive, restoration, snapshot, step
 
 SGR_ON = b'\x1b[?1006h'
 BUTTONS_ON = b'\x1b[?1002h'
@@ -93,6 +94,69 @@ def case(root, mode):
     print(f'PASS pointer lifetime {mode}: limited modes, termios, owned cleanup and passive filesystem')
 
 
+def decoder(root):
+    command = [str(ROOT / 'target/debug/examples/terminal-probe'), 'mouse-input']
+    session = PTY['Session'](command, env=environment(root, False))
+    try:
+        session.ready(b'probe-ready')
+        os.write(session.master, b'!')
+        for wire, expected in [
+            (b'\x1b[<0;18;5M', b'pointer Press 17 4 0'),
+            (b'\x1b[<32;18;5M', b'pointer Drag 17 4 0'),
+            (b'\x1b[<0;18;5m', b'pointer Release 17 4 0'),
+            (b'\x1b[<64;18;5M', b'pointer ScrollUp 17 4 0'),
+            (b'\x1b[<65;18;5M', b'pointer ScrollDown 17 4 0'),
+            (b'\x1b[<4;1;1M', b'pointer Press 0 0 1'),
+            (b'\x1b[<0;400;300M', b'pointer Press 399 299 0'),
+            (b'\x1b[<35;18;5M', b'ignored'),
+            (b'\x1b[<2;18;5M', b'ignored'),
+            (b'\x1b[<66;18;5M', b'ignored'),
+            (b'q', b'keyboard'),
+            (b'\x18', b'prefix C-x'),
+            (b'\x1b[<65;18;5M', b'pointer ScrollDown 17 4 0'),
+        ]:
+            session.output.clear()
+            os.write(session.master, wire)
+            session.wait(lambda: expected + b'\r\n' in session.output)
+            assert bytes(session.output) == expected + b'\r\n', bytes(session.output)
+        # The pointer report did not consume C-x. The next keyboard suffix exits
+        # through its original command, without an idle event or mode query.
+        session.output.clear()
+        idle(session)
+        os.write(session.master, b'\x03')
+        session.finish(0)
+        assert session.output.startswith(b'command save-buffers-kill-terminal\r\n')
+        assert BUTTONS_OFF in session.output and SGR_OFF in session.output
+        restoration(session, False)
+    finally:
+        close(session)
+    assert snapshot(root) == {}
+    passive(root)
+    print('PASS native SGR decoder: primary/drag/release/wheel, modifiers, >223 cells, exclusions, keyboard prefix and idle output/CPU')
+
+
+def factory(root):
+    session = PTY['Session']([str(BINARY)], env=environment(root, False))
+    try:
+        session.ready(b'C-x C-c: exit')
+        wire = bytes(session.output)
+        for keys, marker in [(b'x', b'** RW -- L1 C2 Text'),
+                             (b'\x18u', b'-- RW -- L1 C1 Text'),
+                             (b'\x18\x07', b'Quit')]:
+            step(session, keys, marker)
+            wire += bytes(session.output)
+        os.write(session.master, b'\x18\x03')
+        session.finish(0)
+        wire += bytes(session.output)
+        assert all(code not in wire for code in [SGR_ON, BUTTONS_ON, BUTTONS_OFF, SGR_OFF])
+        restoration(session, False)
+    finally:
+        close(session)
+    assert snapshot(root) == {}
+    passive(root)
+    print('PASS factory activation remains deferred: native typing, undo, prefix cancel and exit preserve unacquired reporting')
+
+
 def run(root):
     modes = ['mouse-before-entry', 'mouse-normal', 'mouse-toggle',
              'mouse-format', 'mouse-buttons', 'mouse-rollback',
@@ -102,4 +166,10 @@ def run(root):
         fixture = root / mode
         fixture.mkdir()
         case(fixture, mode)
-    print(f'Pointer lifetime PTY suite: {len(modes)} owned sessions passed, 0 skipped.')
+    fixture = root / 'decoder'
+    fixture.mkdir()
+    decoder(fixture)
+    fixture = root / 'factory'
+    fixture.mkdir()
+    factory(fixture)
+    print(f'Pointer lifetime PTY suite: {len(modes) + 2} owned sessions passed, 0 skipped.')

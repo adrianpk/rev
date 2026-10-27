@@ -3,6 +3,7 @@ use std::io::{self, Write};
 /// Independent undo obligations survive partial writes and failed restoration.
 #[derive(Default)]
 pub(super) struct Reporting {
+    active: bool,
     sgr: bool,
     buttons: bool,
 }
@@ -12,9 +13,17 @@ impl Reporting {
         if !enabled {
             return self.restore(output);
         }
+        if self.active {
+            return Ok(());
+        }
+        // Failed undo flags describe uncertain effects, not confirmed modes.
+        self.restore(output)?;
         let result = self.enable(output);
         match result {
-            Ok(()) => Ok(()),
+            Ok(()) => {
+                self.active = true;
+                Ok(())
+            }
             Err(error) => super::restoration([Err(error), self.restore(output)]),
         }
     }
@@ -32,6 +41,7 @@ impl Reporting {
     }
 
     fn restore(&mut self, output: &mut impl Write) -> io::Result<()> {
+        self.active = false;
         super::restoration([self.disable_buttons(output), self.disable_sgr(output)])
     }
 

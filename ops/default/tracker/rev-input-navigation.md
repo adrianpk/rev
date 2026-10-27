@@ -166,8 +166,15 @@ Details and exact checks: [Slice 10](../plan/rev-input-navigation.md#slice-10-ow
 
 - [x] T10.1: Add the pointer integration-test target, minimal native event/capture records and terminal reporting ownership using the existing crossterm decoder and cleanup owner.
 - [x] T10.2: Admit only required press/release/button-motion/scroll reporting, avoiding all-motion hover traffic and a device/plugin abstraction; undo partially acquired modes on failure.
-- [ ] T10.3: Verify enable/disable/unwind/idempotent restoration and preserve keyboard/prefix deadlines. Keep factory activation until the working handlers and settings are integrated.
+- [x] T10.3: Verify enable/disable/unwind/idempotent restoration and preserve keyboard/prefix deadlines. Keep factory activation until the working handlers and settings are integrated.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 10 implementation is prepared. Native pointer admission and keyboard
+continuity, reversible 1002/1006 modes, selective failure/retry and thirteen owned
+PTY sessions pass. Startup reporting remains inactive pending the recorded native
+handler/control integrations. The pointer ticket remains active across its
+primary slices 10-15. Canonical PR/task references and final exact-head evidence
+follow before controller-owned integration.
 
 ### Slice 11: focus panes and place point by pointer
 

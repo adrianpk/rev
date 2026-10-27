@@ -1,6 +1,10 @@
 use std::io::{self, Read, Write};
 
 use rev::terminal::Terminal;
+use rev::{
+    command::Command,
+    input::{Input, Outcome},
+};
 
 use super::Fault;
 
@@ -42,12 +46,45 @@ fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
             terminal.writer().flush()
         }
         "mouse-toggle" => toggle(terminal),
+        "mouse-input" => input(terminal),
         "mouse-restore" => super::restore_probe(terminal),
         _ => {
             terminal.restore()?;
             terminal.restore()
         }
     }
+}
+
+fn input(terminal: &mut Terminal<Fault>) -> io::Result<()> {
+    let mut input = Input::default();
+    for _ in 0..32 {
+        let outcome = input.handle(crossterm::event::read()?);
+        record(terminal, &outcome)?;
+        if outcome == Outcome::Command(Command::Quit) {
+            return terminal.restore();
+        }
+    }
+    Err(io::Error::other("pointer probe exceeded 32 native events"))
+}
+
+fn record(terminal: &mut Terminal<Fault>, outcome: &Outcome) -> io::Result<()> {
+    let output = terminal.writer();
+    match outcome {
+        Outcome::Pointer(event) => writeln!(
+            output,
+            "pointer {:?} {} {} {}\r",
+            event.kind,
+            event.position.column,
+            event.position.row,
+            event.modifiers.bits()
+        ),
+        Outcome::Ignored => writeln!(output, "ignored\r"),
+        Outcome::Prefix(prefix) => writeln!(output, "prefix {}\r", prefix.label()),
+        Outcome::Command(command) => writeln!(output, "command {}\r", command.name()),
+        Outcome::Editing(_) => writeln!(output, "keyboard\r"),
+        _ => Err(io::Error::other("unexpected pointer probe outcome")),
+    }?;
+    output.flush()
 }
 
 fn toggle(terminal: &mut Terminal<Fault>) -> io::Result<()> {

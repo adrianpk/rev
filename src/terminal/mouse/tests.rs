@@ -129,3 +129,22 @@ fn failed_rollback() {
     reporting.set(&mut output, false).unwrap();
     assert!(output.bytes.ends_with(&[BUTTONS_OFF, SGR_OFF].concat()));
 }
+
+// An undo obligation is not proof that a mode is active after failed cleanup.
+// Re-enable first releases uncertain modes, then acquires a confirmed pair.
+#[test]
+fn uncertain_reenable() {
+    for rejected in [vec![BUTTONS_OFF], vec![SGR_OFF], vec![BUTTONS_OFF, SGR_OFF]] {
+        let mut output = Fault::default();
+        let mut reporting = Reporting::default();
+        reporting.set(&mut output, true).unwrap();
+        output.reject = rejected.clone();
+        assert!(reporting.set(&mut output, false).is_err());
+        output.attempts.clear();
+        reporting.set(&mut output, true).unwrap();
+        let mut expected = rejected;
+        expected.extend([SGR_ON, BUTTONS_ON]);
+        assert_eq!(output.attempts, expected);
+        reporting.set(&mut output, false).unwrap();
+    }
+}

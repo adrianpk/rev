@@ -81,6 +81,22 @@ malformed terminal control sequences discarded by Crossterm do not enter text.
 Printable characters received after a standalone Escape has expired are ordinary
 new input, rather than an indefinitely pending Meta suffix.
 
+## Pointer reporting ownership
+
+The native terminal owner can acquire button-event tracking (DEC 1002) and SGR
+mouse coordinates (DEC 1006) together. It requests no all-motion hover or RXVT
+reporting. The existing decoder supplies primary press/drag/release and vertical
+wheel reports as zero-based terminal cells; these are not document positions.
+Focused prompts retain their input, and pointer reports do not consume keyboard
+prefixes or extend the existing Escape deadline.
+
+Ordinary startup currently leaves reporting disabled while native focus,
+scroll, selection and startup/runtime controls are integrated. Explicit mode
+ownership is reversible: disable, normal/error cleanup and unwind attempt every
+acquired reset. Failed resets remain owned for retry. A later enable first
+clears uncertain modes before acquiring a confirmed pair. Reporting adds no
+idle timer, polling loop or motion queue.
+
 ## Palette and cursor restoration
 
 The renderer supplies semantic RGB foreground/background colors through SGR.
