@@ -35,6 +35,7 @@ impl Session {
         if let Err(error) = self.input.decision("Save before quitting?") {
             return self.error(&error.to_string());
         }
+        self.echo_kind = crate::display::Message::Normal;
         self.echo = quit.question.clone();
         self.pending = Some(Pending::Quit(quit));
         Action::Redraw

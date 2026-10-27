@@ -38,7 +38,7 @@ impl Session {
                 self.saved(&outcome, after)
             }
             Ok(SaveRequest::Confirm(confirmation)) => self.confirm(confirmation, after),
-            Err(error) => self.message(&format!("save: {error}")),
+            Err(error) => self.error(&format!("save: {error}")),
         }
     }
 
@@ -46,6 +46,7 @@ impl Session {
         if let Err(error) = self.input.decision("Save? [y/n]") {
             return self.error(&error.to_string());
         }
+        self.echo_kind = crate::display::Message::Normal;
         self.echo = confirmation.message().into();
         self.pending = Some(Pending::Save {
             confirmation: Box::new(confirmation),
@@ -117,7 +118,9 @@ impl Session {
     }
 
     pub(super) fn focus_message(&mut self, message: &str) -> Action {
+        self.echo_kind = crate::display::Message::Normal;
         if let Some(Pending::TreeDelete(deletion)) = &self.pending {
+            self.echo_kind = crate::display::Message::Normal;
             self.echo = format!("{}; {message}", deletion.message());
             return Action::Redraw;
         }
@@ -131,6 +134,7 @@ impl Session {
             _ => None,
         };
         if let Some(question) = question {
+            self.echo_kind = crate::display::Message::Normal;
             self.echo = format!("{question}; {message}");
             return Action::Redraw;
         }

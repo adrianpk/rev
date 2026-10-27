@@ -377,8 +377,18 @@ Details and checks: [Slice 14](../plan/rev-configuration-ui.md#slice-14-render-u
 
 - [x] T14.1: Apply background/foreground, status, border/focus, tree, region, search, prompt, warning and error roles through composition. Ensure every selected role has a real consumer.
 - [x] T14.2: Apply cursor color through supported terminal sequences, with a documented capability fallback; restore cursor/text colors and terminal modes on normal exit and failures through the existing lifecycle owner.
-- [ ] T14.3: Test safe escape emission, no style leakage between panels, readable selections and restoration after errors. Keep idle rendering event-driven and do not add blinking.
+- [x] T14.3: Test safe escape emission, no style leakage between panels, readable selections and restoration after errors. Keep idle rendering event-driven and do not add blinking.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T14.1 `eea4858ae3c2b16e174091f53020867ef0f81c1c`;
+T14.2 `7a665f6f4394a487d8344290b866a1e934727f91`.
+Focused cell-color checks passed for mixed panels, focus borders, tree selection,
+search/region precedence, message severity and escape safety. Real PTYs passed
+cursor/text cleanup, partial color writes, failed resets, raw-mode release,
+capability/NO_COLOR fallback and executable defaults. Focused Clippy and source
+checks passed. Final exact-head evidence belongs to the controller.
+Report: [Slice 14](../report/slices/rev-configuration-ui/slice-14-ui-palette.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 15: Apply presentation and syntax preferences
 

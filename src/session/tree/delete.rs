@@ -1,3 +1,4 @@
+use crate::display::Message;
 use crate::file::{DeleteDecision, Deleted, Deletion};
 
 use super::super::{Action, Pending, Session};
@@ -9,7 +10,7 @@ impl Session {
         }
         match self.tree.prepare_delete() {
             Ok(deletion) => self.delete_question(deletion),
-            Err(error) => self.delete_notice(error.to_string()),
+            Err(error) => self.delete_notice(error.to_string(), Message::Error),
         }
     }
 
@@ -17,6 +18,7 @@ impl Session {
         if let Err(error) = self.input.decision("Delete entry? [y/n]") {
             return self.error(&error.to_string());
         }
+        self.echo_kind = crate::display::Message::Normal;
         self.echo = deletion.message();
         self.pending = Some(Pending::TreeDelete(deletion));
         Action::Redraw
@@ -36,7 +38,7 @@ impl Session {
                 let deleted = self.buffers.delete(deletion);
                 self.deleted(deleted)
             }
-            Err(error) => self.delete_notice(error.to_string()),
+            Err(error) => self.delete_notice(error.to_string(), Message::Error),
         }
     }
 
@@ -51,13 +53,27 @@ impl Session {
         if let Some(warning) = deleted.warning() {
             notice.push_str(&format!("; {warning}"));
         }
-        self.delete_notice(notice)
+        let severity = if deleted.error().is_some() {
+            Message::Error
+        } else if deleted.warning().is_some() {
+            Message::Warning
+        } else {
+            Message::Normal
+        };
+        self.delete_notice(notice, severity)
     }
 
-    fn delete_notice(&mut self, mut notice: String) -> Action {
+    fn delete_notice(&mut self, mut notice: String, mut severity: Message) -> Action {
         if let Err(error) = self.tree.refresh() {
             notice.push_str(&format!("; tree refresh failed: {error}"));
+            severity = if severity == Message::Error {
+                Message::Error
+            } else {
+                Message::Warning
+            };
         }
-        self.message(&notice)
+        let action = self.message(&notice);
+        self.echo_kind = severity;
+        action
     }
 }

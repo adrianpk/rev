@@ -22,6 +22,7 @@ impl Session {
         if let Err(error) = self.input.argument(label, "") {
             return self.error(&error.to_string());
         }
+        self.echo_kind = crate::display::Message::Normal;
         self.echo = format!("In {}", creation.directory().display());
         self.pending = Some(Pending::TreeCreate(creation));
         Action::Redraw

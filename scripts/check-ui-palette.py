@@ -72,13 +72,34 @@ def monochrome():
             session.close()
 
 
+def application():
+    with tempfile.TemporaryDirectory(prefix="rev-palette-app-") as directory:
+        path = Path(directory) / "plain.txt"
+        path.write_bytes(b"plain\n")
+        session = PTY["Session"]([str(ROOT / "target/debug/rev"), str(path)], colors=True)
+        try:
+            session.ready(b"> plain.txt -- RW L1 C1 Text")
+            wire = bytes(session.output)
+            assert b"\x1b]12;#c0caf5\x07" in wire
+            assert b"\x1b[48;2;26;27;38m" in wire and b"\x1b[38;2;192;202;245mplain" in wire
+            os.write(session.master, b"\x18\x03")
+            session.finish(0)
+            wire = bytes(session.output)
+            assert wire.index(RESET) < wire.rfind(PTY["LEAVE"])
+            assert path.read_bytes() == b"plain\n"
+            print("PASS executable UI/cursor defaults and ordinary restoration")
+        finally:
+            session.close()
+
+
 def main():
     subprocess.run(["cargo", "build", "--bin", "rev", "--example", "terminal-probe"], cwd=ROOT, check=True)
     for mode, expected in [("normal", 0), ("entered", 1), ("io", 1), ("unwind", 101), ("color-set", 1), ("color-stop", 1), ("attributes-stop", 1), ("restore", 1)]:
         restoration(mode, expected)
     fallback()
     monochrome()
-    print("UI palette PTYs: 11 cases passed, 0 skipped.")
+    application()
+    print("UI palette PTYs: 12 cases passed, 0 skipped.")
 
 
 if __name__ == "__main__":

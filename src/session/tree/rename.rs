@@ -18,6 +18,7 @@ impl Session {
         if let Err(error) = self.input.argument("Rename to: ", "") {
             return self.error(&error.to_string());
         }
+        self.echo_kind = crate::display::Message::Normal;
         self.echo = format!("Rename {}", rename.source().display());
         self.pending = Some(Pending::TreeRename(rename));
         Action::Redraw
@@ -33,12 +34,17 @@ impl Session {
             renamed.source().display(),
             renamed.target().display()
         );
+        let mut severity = crate::display::Message::Normal;
         if let Some(warning) = renamed.warning() {
+            severity = crate::display::Message::Warning;
             notice.push_str(&format!("; {warning}"));
         }
         if let Err(error) = self.tree.renamed(&renamed) {
+            severity = crate::display::Message::Warning;
             notice.push_str(&format!("; tree refresh failed: {error}"));
         }
-        self.message(&notice)
+        let action = self.message(&notice);
+        self.echo_kind = severity;
+        action
     }
 }

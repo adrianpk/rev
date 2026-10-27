@@ -49,7 +49,7 @@ impl Session {
             _ => self.tree.focus(self.size),
         };
         if let Err(error) = result {
-            return self.message(&format!("Open file tree: {error}"));
+            return self.error(&format!("Open file tree: {error}"));
         }
         self.tree_notice()
     }
