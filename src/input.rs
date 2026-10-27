@@ -69,6 +69,7 @@ pub enum Outcome {
     Editing(Key),
     Paste(String),
     Argument(String),
+    PathAccept,
     Decision(bool),
     Message(&'static str),
 }

@@ -10,6 +10,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 pub use candidate::Candidate;
+pub(crate) use navigation::Acceptance;
 pub use navigation::Navigation;
 pub use query::Query;
 

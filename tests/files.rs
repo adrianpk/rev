@@ -874,6 +874,9 @@ fn prompt_geometry() {
     assert!(session.echo().contains("empty file path"));
     assert_eq!(snapshot(&session), before);
     session.handle(press(KeyCode::Char('z')));
+    assert_eq!(snapshot(&session), before);
+    session.handle(chord('g'));
+    session.handle(press(KeyCode::Char('z')));
     assert_eq!(text(session.buffer().unwrap()), "z");
 }
 

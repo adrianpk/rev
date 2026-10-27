@@ -13,6 +13,7 @@ impl Input {
 
 pub(super) fn handle(prompt: &mut Prompt, key: Key) -> Outcome {
     match key.plain() {
+        Some(KeyCode::Enter) => Outcome::PathAccept,
         Some(KeyCode::Up) => Outcome::Selection(Selection::Previous),
         Some(KeyCode::Down) => Outcome::Selection(Selection::Next),
         _ if key.control('p') => Outcome::Selection(Selection::Previous),

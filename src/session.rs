@@ -245,6 +245,7 @@ impl Session {
             Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
             Outcome::Argument(path) => self.argument(path),
+            Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),

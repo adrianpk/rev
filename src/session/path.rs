@@ -1,7 +1,7 @@
 use std::io;
 use std::path::PathBuf;
 
-use crate::file::completion::Navigation;
+use crate::file::completion::{Acceptance, Navigation};
 use crate::input::Selection;
 
 use super::{Action, Pending, Session};
@@ -56,16 +56,27 @@ impl Session {
         self.select_buffer(selection)
     }
 
-    pub(super) fn open_draft(&mut self, navigation: Navigation, draft: &str) -> Action {
-        if draft.is_empty() {
-            let _ = self.load(std::path::Path::new(""));
-            return Action::Redraw;
-        }
-        let Some(path) = navigation.typed_path() else {
-            return self.error(navigation.diagnostic().unwrap_or("Invalid file path"));
+    pub(super) fn accept_path(&mut self) -> Action {
+        self.input.suppress_repeat();
+        let Some(navigation) = self.path_navigation() else {
+            return self.message("No path acceptance is pending");
         };
-        let _ = self.load(&path);
+        match navigation.accept() {
+            Ok(Acceptance::Directory(draft)) => return self.descend_path(&draft),
+            Ok(Acceptance::File(path)) => {
+                let _ = self.load(&path);
+            }
+            Err(error) => return self.error(&error.to_string()),
+        }
         Action::Redraw
+    }
+
+    fn descend_path(&mut self, draft: &str) -> Action {
+        if let Err(error) = self.input.complete(draft) {
+            return self.notice(&error.to_string());
+        }
+        self.sync_path();
+        self.message("")
     }
 
     pub(super) fn complete_path(&mut self) -> Action {
