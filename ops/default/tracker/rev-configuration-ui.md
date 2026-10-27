@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 20 - Activate startup configuration
+Active slice: Slice 21 - Present vertical M-x candidates
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -533,7 +533,7 @@ Details and checks: [Slice 20](../plan/rev-configuration-ui.md#slice-20-activate
 - [x] T20.1: Wire XDG discovery, bounded loading, whole-candidate validation and one immutable snapshot into the actual executable/session before buffer creation; connect every accepted consumer from prior slices.
 - [x] T20.2: On invalid or unreadable config, enter a usable editor with complete built-ins and a visible source/key diagnostic. Missing config stays silent. Never write config, create empty XDG roots or load project-local files.
 - [x] T20.3: Test new startup versus unchanged running session after disk edits, palette/tab/key behavior through session boundaries and rollback of otherwise valid settings when one leaf is invalid. No reload command, polling or watcher.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T20.1 `5360fd648c27305d4feef87a2b1e4955df9f71db`;
 T20.2 `190b2e22967c8826692b8e03f85a2ea73ce614c5`;
@@ -541,11 +541,14 @@ T20.3 `d9004750b8165e7db2deb580171f49da022fd5c1`.
 Seven native startup cases (twelve isolated children) and four executable PTY
 sessions pass for XDG discovery, includes, all context maps, palette/tab/format
 behavior, complete fallback, diagnostics, passive roots and restart-only effects.
-Focused Clippy/source checks pass with nesting at most two. Required exact-head
-validation follows the PR-reference commit through the controller.
+Focused Clippy/source checks pass with nesting at most two. Final evidence
+`HDKGXOS4KJGTRHA2HCIOXHQGUW` passed all nine ordered checks at clean head
+`2736cc112f04968c2780a496a18020397d373cb9`: 269 native tests and four terminal
+sessions, zero skips.
 Report: [Slice 20](../report/slices/rev-configuration-ui/slice-20-startup-configuration.md).
 PR: [#69](https://forge.adrianpk.com/adrianpk/rev/pulls/69);
-dev integration remains controller-owned.
+verified controller integration into dev at that same head.
+Acta merge event: `01M5Z0BTG0TPAP5B7TFEBPQMYG`.
 
 ### Slice 21: Present vertical M-x candidates
 

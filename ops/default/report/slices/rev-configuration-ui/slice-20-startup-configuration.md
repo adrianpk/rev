@@ -1,6 +1,6 @@
 # Slice 20: Activate startup configuration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -89,8 +89,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/session/startup.rs --source src/config/startup.rs --source tests/configuration/startup.rs --source tests/configuration/startup_errors.rs --source tests/configuration/startup_lifetime.rs`: passed; nesting at most two.
 - `python3 scripts/check-startup.py`: passed; four terminal sessions, zero skips.
 
-The controller records final evidence on the clean PR head after its PR-reference
-follow-up commit. Required checks precede the focused executable startup suite:
+Final evidence `HDKGXOS4KJGTRHA2HCIOXHQGUW` passed all nine ordered checks
+on clean head `2736cc112f04968c2780a496a18020397d373cb9`: 269 native tests
+and four terminal sessions, zero skips. The controller integrated PR #69 into dev
+at that same commit. Acta merge event: `01M5Z0BTG0TPAP5B7TFEBPQMYG`.
+Required checks precede the focused executable startup suite:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
