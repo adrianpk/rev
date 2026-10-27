@@ -39,7 +39,7 @@ All normal keyboard paths remain available.
 
 | Topic | Ticket | Primary slices |
 | --- | --- | --- |
-| Arrow responsiveness | [TKT-20261027190521](../ticket/in_progress/20261027190521-stop-arrow-key-navigation-inertia.md) | 1; repeated at 18-20 |
+| Arrow responsiveness | [TKT-20261027190521](../ticket/reviewing/20261027190521-stop-arrow-key-navigation-inertia.md) | 1; repeated at 18-20 |
 | Line navigation | [TKT-20261027191322](../ticket/open/20261027191322-add-emacs-style-goto-line.md) | 2 |
 | Whitespace conversion | [TKT-20261027092143](../ticket/open/20261027092143-convert-tabs-and-spaces.md) | 3 |
 | Gutter | [TKT-20261027193500](../ticket/open/20261027193500-deliver-native-line-number-gutter.md) | 4-8 |

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027190521
 title: Stop prolonged movement after repeated vertical arrow input
-status: in_progress
+status: reviewing
 kind: bug
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-27T19:05:21Z
 ready_at: 2026-10-27T20:20:54Z
 started_at: 2026-10-27T20:20:54Z
 branch: fix/rev-input-01-navigation-responsiveness
-commits: []
+reviewed_at: 2026-10-27T20:28:01Z
+commits: [db32befb12db284ed56958d719ac3843c3cb71e5, 6ae33afb14c6e0d6973d2bf9238970708e1b91cf]
 ---
 
 # Stop prolonged movement after repeated vertical arrow input
@@ -59,3 +60,12 @@ Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navi
 and [tracker](../../tracker/rev-input-navigation.md) as the other six current
 work items. Follow its assigned primary slices, lifecycle and controller-owned
 integration/acceptance; do not create a separate successor run for this ticket.
+
+## Implementation evidence
+
+The [Slice 1 report](../../report/slices/rev-input-navigation/slice-1-navigation-responsiveness.md)
+records the baseline and corrected timing measurements. Native event consumption
+retains ordered handlers and draws after at most 32 events or 4 ms of event work.
+The focused navigation PTY suite covers ordinary/large documents, Up/Down,
+release, reversal, bounds, editing/undo, Escape, cancellation and unchanged bytes.
+The ticket remains reviewing until canonical integration is verified.

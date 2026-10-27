@@ -3012,13 +3012,18 @@ def acceptance(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["terminal", "acceptance"], required=True)
+    parser.add_argument("--suite", choices=["terminal", "acceptance", "navigation"], required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     build = ["cargo", "build", "--bin", "rev"]
     if args.suite == "terminal":
         build.extend(["--example", "terminal-probe"])
     subprocess.run(build, cwd=root, check=True)
+    if args.suite == "navigation":
+        from configuration_ui.navigation import run
+        with tempfile.TemporaryDirectory(prefix="rev-navigation-") as directory:
+            run(Path(directory))
+        return
     if args.suite == "acceptance":
         acceptance(root)
         return

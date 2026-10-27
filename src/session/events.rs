@@ -77,3 +77,6 @@ impl Session {
         self.outcome(outcome)
     }
 }
+
+#[cfg(test)]
+mod tests;

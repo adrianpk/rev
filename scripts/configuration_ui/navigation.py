@@ -1,0 +1,87 @@
+"""Measure ordered vertical repeat through the existing controlling PTY owner."""
+
+import os
+import re
+import select
+import time
+
+from configuration_ui.support import (BINARY, PTY, close, completed, environment,
+                                      finish, step)
+
+
+BUDGET_MS = 150
+
+
+def repeat(session, key, count, rate, expected):
+    session.output.clear()
+    started = time.monotonic()
+    sent = 0
+    first = None
+    released = None
+    deadline = started + count / rate + 4
+    while time.monotonic() < deadline:
+        now = time.monotonic()
+        if sent < count and now >= started + sent / rate:
+            os.write(session.master, key)
+            sent += 1
+            if sent == count:
+                released = time.monotonic()
+        if not select.select([session.master], [], [], 0.001)[0]:
+            continue
+        session.output.extend(os.read(session.master, 65536))
+        frames = bytes(session.output).split(PTY['SHOW'])
+        session.output[:] = frames[-1]
+        for frame in frames[:-1]:
+            positions = re.findall(rb'-- RW L(\d+) C1 Text', frame)
+            if not positions:
+                continue
+            if first is None:
+                first = (time.monotonic() - started) * 1000
+            if sent == count and int(positions[-1]) == expected:
+                tail = (time.monotonic() - released) * 1000
+                assert first <= BUDGET_MS, f'first update {first:.1f} ms exceeds {BUDGET_MS} ms'
+                assert tail <= BUDGET_MS, f'release tail {tail:.1f} ms exceeds {BUDGET_MS} ms'
+                # No input follows release: any subsequent frame would expose drift.
+                assert not select.select([session.master], [], [], 0.15)[0], 'navigation drifted after release'
+                return round(first, 2), round(tail, 2)
+    raise AssertionError(f'ordered repeat did not reach line {expected}')
+
+
+def run(root):
+    for name, lines, width, height, rate, count in [
+        ('ordinary', 400, 80, 24, 30, 30),
+        ('ordinary-wide', 400, 240, 70, 120, 120),
+        ('large', 100000, 80, 24, 30, 30),
+        ('large-wide', 100000, 240, 70, 120, 120),
+    ]:
+        fixture = root / name
+        fixture.mkdir()
+        path = fixture / 'navigation.txt'
+        source = b'navigation row with ordinary text\n' * lines
+        path.write_bytes(source)
+        session = PTY['Session']([str(BINARY), str(path)], env=environment(fixture))
+        try:
+            session.wait(lambda: completed(session, lambda frame: b'-- RW L1 C1 Text' in frame))
+            if (width, height) != (80, 24):
+                PTY['resize_surface'](session, width, height, True)
+            for direction, key, target in [('down', b'\x1b[B', count + 1), ('up', b'\x1b[A', 1)]:
+                first, tail = repeat(session, key, count, rate, target)
+                print(f'PASS navigation {name} {direction}: {rate}/s, '
+                      f'first={first} ms, release={tail} ms, budget={BUDGET_MS} ms', flush=True)
+            # Ordered asymmetric reversal and text commands expose dropped input.
+            step(session, b'\x1b[B' * 120 + b'\x1b[A' * 60 + b'X', b'** RW L61 C2 Text', b'Xnavigation')
+            step(session, b'\x18u', b'-- RW L61 C1 Text')
+            step(session, b'\x1b<\x1b[A' * 3, b'-- RW L1 C1 Text')
+            step(session, b'\x1b>\x1b[B' * 3, f'-- RW L{lines + 1} C1 Text'.encode())
+            step(session, b'\x1b', b'ESC')
+            session.output.clear()
+            session.wait(lambda: completed(session, lambda frame: b'Escape' in frame))
+            step(session, b'f', f'** RW L{lines + 1} C2 Text'.encode())
+            step(session, b'\x18u', f'-- RW L{lines + 1} C1 Text'.encode())
+            step(session, b'\x18r', b'C-x r')
+            step(session, b'\x07', b'Quit')
+            finish(session)
+            assert path.read_bytes() == source, 'navigation modified document bytes'
+        finally:
+            close(session)
+    print('Navigation PTY suite: 4 owned sessions passed, 0 skipped.')
