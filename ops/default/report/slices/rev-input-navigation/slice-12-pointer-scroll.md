@@ -1,6 +1,6 @@
 # Slice 12: Scroll the pointed pane without changing focus
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -55,8 +55,12 @@ surface without selecting it or changing another pane's point.
 - `src/session/pointer/scroll.rs`: current target dispatch without focus changes.
 - `src/view/scroll.rs`: checked viewport-first movement.
 - `src/tree/navigation.rs`: loaded-preorder scrolling.
-- `tests/pointer/scroll.rs`, `tests/pointer/scroll_bounds.rs`: inactive targets,
+- `tests/pointer/scroll.rs`, `tests/pointer/scroll_bounds.rs`,
+  `tests/pointer/scroll_workspace.rs`: inactive targets,
   clamping, source fidelity, retained points/regions and native typing history.
+- `scripts/configuration_ui/pointer_scroll.py`: real SGR wheel ownership, native
+  frame/cursor and source/idle/cleanup checks through the existing PTY owner.
+- `docs/reference/terminal-input.md`: viewport, point and focus behavior.
 
 ## Validation
 
@@ -70,10 +74,57 @@ Development checks passed:
   current resized geometry and every existing pointer regression.
 - `cargo test --test pointer scroll_bounds::checked_columns`: widths 1/4/8/32,
   read-only tabbed Unicode/CRLF and retained horizontal offsets passed.
+- `cargo test --test pointer scroll_workspace::`: three groups passed for
+  nested right/relative gutters, different source buffers and loaded-tree
+  endpoint reversal after a child is removed externally. No wheel rereads
+  entries or changes the other leaf.
+- `python3 scripts/check-pty.py --suite pointer-scroll`: two owned sessions
+  passed for different tabbed Unicode/CRLF buffers, preserved keyboard prefix,
+  nested panes, inactive/focused tree, both directions, changed resize ownership
+  and a later primary focus transition.
+- `cargo clippy --test pointer -- -D warnings`: focused native lint passed.
+- `cargo test --test tree`: all 62 cases passed after reconciling the five
+  historical tree/display coordinate fixtures with the delivered gutter.
 - `python3 scripts/check-source.py`: unchanged safe-Rust and complexity limits.
 
-Final focused and required clean-head checks will be recorded through the
-controller after task and PR-reference commits.
+The process fixtures retain the existing eight-second deadline and 1-MiB output
+limit. They own HOME and every XDG root, compare the complete bounded filesystem
+snapshot, assert raw input and terminal restoration, and reap/close every owned
+child and descriptor. Each journey observes zero output and process CPU ticks
+at idle over 120 ms. The warm two-session suite takes under one second locally,
+excluding build cost. No runtime scheduling limit or idle work changes.
+
+Development oracles were corrected to include decimal row growth in the large
+fixture's exact EOF scalar, the tree's represented root row before its first
+child, and the existing all-shared-points typing context. These retain exact
+source/point/history assertions rather than changing the native contracts.
+
+The first tree regression run failed five historical coordinates on both the
+slice and unchanged dev `b0b3f6a014bef0b5df52091aed728f218e216e0b`: presentation,
+resize lifecycle, overlays, nested layout and configured initial visibility.
+Their editing coordinates omitted the already delivered six-cell factory field
+(four digits, one padding cell and one separator). Exact cursor origins and the
+same selection/search source intervals now include that field. The tree focus,
+visible-width, source text, cancellation and resize assertions remain intact;
+all 62 cases pass. No runtime behavior or acceptance limit was changed for these
+fixture corrections.
+
+Final focused and required clean-head evidence is recorded through the controller
+after task and PR-reference commits. Required ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test tree --test windows --test display --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final commands:
+
+- `cargo test --lib --test coordinates`
+- `python3 scripts/check-pty.py --suite pointer-focus`
+- `python3 scripts/check-pty.py --suite pointer-scroll`
+- `git diff --check`
+
 
 ## Risks and Follow-ups
 

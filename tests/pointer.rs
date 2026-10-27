@@ -18,6 +18,8 @@ mod config_fixture;
 mod scroll;
 #[path = "pointer/scroll_bounds.rs"]
 mod scroll_bounds;
+#[path = "pointer/scroll_workspace.rs"]
+mod scroll_workspace;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

@@ -102,6 +102,15 @@ select a pane. Tree hits focus without activating an entry. Prompts, completion,
 inventory and decisions retain ownership; clicks cannot accept or cancel them.
 Movement preserves an existing active mark/region and creates no undo item.
 
+Vertical wheel and terminal-reported trackpad events scroll the document pane
+or loaded file tree under the pointer by three logical rows. They retain
+keyboard focus, pending prefixes and other panes' points. A still-visible point
+or tree selection remains unchanged; crossing the new viewport edge clamps it
+to the nearest visible logical row. Source bytes and undo history are unchanged.
+Tree scrolling uses its loaded entries without reading or expanding directories.
+Native bounds include the final logical row, and suspended layouts have no
+scroll target. Wheel handling schedules no inertia, timer or idle work.
+
 Ordinary startup currently leaves reporting disabled while native focus,
 scroll, selection and startup/runtime controls are integrated. Explicit mode
 ownership is reversible: disable, normal/error cleanup and unwind attempt every

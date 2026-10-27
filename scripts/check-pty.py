@@ -3030,13 +3030,18 @@ def acceptance(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", choices=["terminal", "acceptance", "navigation", "goto-line", "whitespace", "absolute-gutter", "gutter-controls", "gutter-geometry", "pointer-lifetime", "pointer-focus"], required=True)
+    parser.add_argument("--suite", choices=["terminal", "acceptance", "navigation", "goto-line", "whitespace", "absolute-gutter", "gutter-controls", "gutter-geometry", "pointer-lifetime", "pointer-focus", "pointer-scroll"], required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     build = ["cargo", "build", "--bin", "rev"]
     if args.suite in ["terminal", "pointer-lifetime"]:
         build.extend(["--example", "terminal-probe"])
     subprocess.run(build, cwd=root, check=True)
+    if args.suite == "pointer-scroll":
+        from configuration_ui.pointer_scroll import run
+        with tempfile.TemporaryDirectory(prefix="rev-pointer-scroll-") as directory:
+            run(Path(directory))
+        return
     if args.suite == "pointer-focus":
         from configuration_ui.pointer_focus import run
         with tempfile.TemporaryDirectory(prefix="rev-pointer-focus-") as directory:
