@@ -31,6 +31,7 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
+- Rectangle copy expands selected tabs into retained spaces without changing source text; rectangle kill preserves complete tabs.
 - Visiting a file through an alias retains its visible basename for the buffer label and language selection, while saves and repeated visits share the canonical destination.
 - Terminal cleanup attempts every restoration step after an output error, reports failed steps together and still releases raw input.
 - Saving rechecks the destination after staging temporary output, preserving changed, removed or replaced external data observed before replacement and requiring a new decision.

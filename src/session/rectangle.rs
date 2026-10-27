@@ -1,6 +1,6 @@
 use crate::command::RectangleCommand;
 use crate::input::Focus;
-use crate::rectangle::{Rectangle, Selection};
+use crate::rectangle::{Capture, Rectangle, Selection};
 
 use super::{Action, Session};
 
@@ -63,7 +63,8 @@ impl Session {
         if selection.width() == 0 {
             return Ok("Rectangle is empty");
         }
-        let rectangle = Rectangle::copy(buffer, &selection)?;
+        let capture = if kill { Capture::Kill } else { Capture::Copy };
+        let rectangle = Rectangle::capture(buffer, &selection, capture)?;
         if kill {
             self.remove_rectangle(&selection)?;
         }

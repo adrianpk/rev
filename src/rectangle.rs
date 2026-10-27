@@ -9,6 +9,12 @@ use crate::buffer::{
 };
 use crate::coordinates::{Coordinates, Glyph};
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Capture {
+    Copy,
+    Kill,
+}
+
 /// One owned block, separate from linear kill text. Width is the requested
 /// display span; a touched wide cluster can make a row wider than that span.
 pub struct Rectangle {
@@ -25,12 +31,16 @@ impl Rectangle {
         self.width
     }
 
-    pub(crate) fn copy(buffer: &Buffer, selection: &Selection) -> Result<Self, Error> {
+    pub(crate) fn capture(
+        buffer: &Buffer,
+        selection: &Selection,
+        capture: Capture,
+    ) -> Result<Self, Error> {
         let mut rows = Vec::new();
         for row in selection.rows.clone() {
             let mut text = String::new();
             for part in selection.parts(buffer, row)? {
-                part?.append(buffer, &mut text)?;
+                part?.append(buffer, &mut text, capture)?;
             }
             rows.push(text);
         }
@@ -118,7 +128,8 @@ impl Selection {
             return Ok(None);
         }
         let source = buffer.span(glyph.source.start.0..glyph.source.end.0)?;
-        let partial_tab = columns != glyph.columns && buffer.slice(&source)?.as_str() == Some("\t");
+        let tab = buffer.slice(&source)?.as_str() == Some("\t");
+        let partial_tab = tab && columns != glyph.columns;
         Ok(Some(Part {
             padding: if partial_tab {
                 (glyph.columns.end - glyph.columns.start) - (columns.end - columns.start)
@@ -131,7 +142,7 @@ impl Selection {
                 0
             },
             source,
-            spaces: partial_tab.then_some(columns.end - columns.start),
+            tab,
             columns: if partial_tab { columns } else { glyph.columns },
         }))
     }
@@ -140,15 +151,20 @@ impl Selection {
 struct Part {
     source: Span,
     columns: Range<usize>,
-    spaces: Option<usize>,
+    tab: bool,
     padding: usize,
     prefix: usize,
 }
 
 impl Part {
-    fn append(&self, buffer: &Buffer, text: &mut String) -> Result<(), Error> {
-        if let Some(cells) = self.spaces {
-            text.extend(std::iter::repeat_n(' ', cells));
+    fn append(&self, buffer: &Buffer, text: &mut String, capture: Capture) -> Result<(), Error> {
+        // Partial tabs leave unselected padding; copy also expands complete
+        // tabs. A kill retains complete source tabs for destination-side stops.
+        if self.tab && (capture == Capture::Copy || self.padding > 0) {
+            text.extend(std::iter::repeat_n(
+                ' ',
+                self.columns.end - self.columns.start,
+            ));
         } else {
             for chunk in buffer.chunks(&self.source)? {
                 text.push_str(chunk);

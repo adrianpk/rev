@@ -13,12 +13,13 @@ keeps the previously retained rectangle. Read-only text can be copied.
 
 ## Cell boundaries
 
-- Columns follow the same four-cell tab stops and Unicode width as drawing.
+- Columns follow the buffer's tab stops and Unicode width, as drawing does.
+  The default tab width is four cells.
 - An edge touching a wide grapheme includes the complete cluster, including
   combining marks and joined emoji. A copied row can therefore be wider than
   the requested display span.
-- A partially selected tab contributes its selected existing cells as spaces.
-  A fully selected tab retains its original tab byte. Source tabs stay intact.
+- Copy expands selected tab cells into retained spaces, including a fully
+  selected tab. Source tabs stay intact.
 - Short or empty lines contribute only existing selected text, without trailing
   padding. Row fragments exclude LF/CRLF separators and preserve literal text,
   including visible control characters rather than their drawn notation.
@@ -36,8 +37,9 @@ while the selected pane's own point determines the visible rectangle.
 ## Killing rows
 
 `C-x r k` or `M-x kill-rectangle` removes and retains the selected rectangle.
-It uses the same cell boundaries as copy. A partially selected tab leaves its
-unselected cells as spaces; untouched tabs retain their bytes. Short and empty
+It uses the same cell boundaries as copy and retains complete selected tabs as
+literal tabs. A partially selected tab contributes selected cells as spaces and
+leaves its unselected cells as spaces; untouched tabs retain their bytes. Short and empty
 rows receive no padding, and LF/CRLF separators stay intact.
 
 Every changed row publishes together as one undo/redo step. The initiating

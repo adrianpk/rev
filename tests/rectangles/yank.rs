@@ -189,7 +189,7 @@ fn eof_offsets() {
 }
 
 // Copy-time short rows stay unpadded when inserted. Wide-cluster expansion and
-// partial-tab spaces retain their actual lengths; complete tabs stay literal.
+// selected tabs retain their expanded source width as spaces.
 #[test]
 fn copied_shapes() {
     let mut session = retained(
@@ -216,8 +216,8 @@ fn copied_shapes() {
     );
     super::at(&mut session, cell(0, 1));
     yank(&mut session);
-    assert_eq!(text(&session), "a0123\nb\t\nc0123");
-    assert_eq!(session.rectangle().unwrap().rows()[1], "\t");
+    assert_eq!(text(&session), "a0123\nb    \nc0123");
+    assert_eq!(session.rectangle().unwrap().rows()[1], "    ");
     assert_eq!(
         Coordinates::new(session.buffer().unwrap())
             .unwrap()
@@ -228,7 +228,7 @@ fn copied_shapes() {
                     .unwrap()
             )
             .unwrap(),
-        cell(1, 4)
+        cell(1, 5)
     );
 }
 

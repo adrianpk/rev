@@ -192,17 +192,17 @@ fn reversed_edges() {
     }
 }
 
-// Tabs follow absolute four-cell stops. Only partially selected tabs expand;
-// an unselected tab and complete selected tab retain their source bytes.
+// Copy expands selected tabs using absolute four-cell source stops, including
+// complete tabs. Every source tab remains intact in the original document.
 #[test]
 fn tab_edges() {
     let source = "0123456789\na\tb\tc\n0123456789";
     let cases = [
-        (1, 4, "\t"),
+        (1, 4, "   "),
         (2, 3, " "),
         (0, 2, "a "),
         (2, 5, "  b"),
-        (4, 8, "b\t"),
+        (4, 8, "b   "),
         (5, 7, "  "),
         (7, 9, " c"),
         (8, 10, "c"),
