@@ -8,7 +8,8 @@ pub enum Split {
     Right,
 }
 
-/// Validated pane rectangle, including its own status and excluding session echo.
+/// Half-open terminal-cell bounds shared by pane and panel projections.
+/// Construction rejects coordinate overflow; empty rectangles remain valid.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Area {
     column: u16,
@@ -68,6 +69,17 @@ impl Geometry {
 }
 
 impl Area {
+    pub fn new(column: u16, row: u16, width: u16, height: u16) -> Option<Self> {
+        column.checked_add(width)?;
+        row.checked_add(height)?;
+        Some(Self {
+            column,
+            row,
+            width,
+            height,
+        })
+    }
+
     pub fn column(self) -> u16 {
         self.column
     }
@@ -79,6 +91,20 @@ impl Area {
     }
     pub fn height(self) -> u16 {
         self.height
+    }
+
+    pub(crate) fn with_status(self, reserve: bool) -> (Self, Option<Self>) {
+        let height = u16::from(reserve && self.height > 0);
+        let content = Self {
+            height: self.height - height,
+            ..self
+        };
+        let status = (height > 0).then_some(Self {
+            row: self.row + content.height,
+            height,
+            ..self
+        });
+        (content, status)
     }
     /// The existing view projection reserves status plus echo. A pane supplies
     /// its status and borrows the global echo reservation for shared calculations.

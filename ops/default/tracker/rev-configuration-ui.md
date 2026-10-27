@@ -272,7 +272,7 @@ integrated by Rebase + Fast-forward into dev at
 Contracts: UI01, baseline R05-R07, R14-R15. Tickets: TKT-20261027103711, TKT-20261027085102.
 Details and checks: [Slice 10](../plan/rev-configuration-ui.md#slice-10-define-panel-geometry-contracts).
 
-- [ ] T10.1: Introduce the smallest common presentation records for panel outer/content bounds, reserved separator/status cells, clipping and active state; keep Layout, ViewId and buffer ownership authoritative.
+- [x] T10.1: Introduce the smallest common presentation records for panel outer/content bounds, reserved separator/status cells, clipping and active state; keep Layout, ViewId and buffer ownership authoritative.
 - [ ] T10.2: Derive separator topology and junctions for nested horizontal/vertical splits, including minimum geometry and future completion-area reservation. Avoid a second window tree or general UI registry.
 - [ ] T10.3: Create native panel-contract tests for no overlap, bounded coordinates, zero/tiny frames and stable identities. This preparatory layer must compile without changing input semantics.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
