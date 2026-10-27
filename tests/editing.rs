@@ -545,7 +545,7 @@ fn chord(character: char) -> crossterm::event::Event {
 }
 
 // Actual session events enter the canonical rope without a mode switch and
-// produce a mapped cursor, dirty status, visible tabs, and a new logical line.
+// produce a mapped cursor, dirty status, space indentation, and a new logical line.
 #[test]
 fn direct_input() {
     use crossterm::event::KeyCode;
@@ -562,10 +562,10 @@ fn direct_input() {
         assert_eq!(session.handle(press(code)), Action::Redraw);
     }
     let buffer = session.buffer().unwrap();
-    assert_eq!(text(buffer), "é界e\u{301}\t\nx");
+    assert_eq!(text(buffer), "é界e\u{301}    \nx");
     assert_eq!(buffer.history().len(), 4);
     assert_eq!(buffer.stamp().revision, 8);
-    assert_eq!(session.view().point.position, Scalar(7));
+    assert_eq!(session.view().point.position, Scalar(10));
     assert_eq!(session.view().point.stamp, buffer.stamp());
     let frame = session.frame().unwrap();
     assert_eq!(frame.cursor(), Some(Position { column: 1, row: 1 }));
@@ -693,7 +693,7 @@ fn editing_phases() {
     let cases = [
         ("text", "", 0, press(KeyCode::Char('é')), "éé", 1),
         ("newlines", "", 0, press(KeyCode::Enter), "\n\n", 2),
-        ("tabs", "", 0, press(KeyCode::Tab), "\t\t", 2),
+        ("indentation", "", 0, press(KeyCode::Tab), "        ", 2),
         ("backward", "abc", 3, press(KeyCode::Backspace), "a", 2),
         ("forward", "abc", 0, chord('d'), "c", 2),
     ];

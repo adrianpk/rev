@@ -5,8 +5,9 @@ terminal that supplies the [required key reports](../reference/terminal-input.md
 
 1. Run `./target/release/rev notes.txt`. An absent `notes.txt` opens empty without
    creating it. Run without a path for unnamed text.
-2. Type directly. Return inserts a line separator; Tab inserts a tab. Move with
-   the arrows or `C-f`/`C-b`, and use Backspace or `C-d` to delete whole graphemes.
+2. Type directly. Return inserts a line separator; Tab inserts spaces to the next
+   four-column indentation stop. Move with the arrows or `C-f`/`C-b`, and use
+   Backspace or `C-d` to delete whole graphemes.
    Bracketed paste inserts literal text as one undo unit.
 3. Press `C-x C-s`. An unnamed buffer asks for a destination; enter one path and
    Return. Use an existing writable parent directory. To choose another path

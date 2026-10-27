@@ -1,11 +1,26 @@
 use std::ops::Range;
 
 use crate::buffer::edit::{Cursor, Error, Replacement};
+use crate::config::IndentStyle;
 use crate::coordinates::{Coordinates, Scalar};
 
 use super::Session;
 
 impl Session {
+    pub(super) fn indent(&mut self) -> Result<bool, Error> {
+        let buffer = self.buffer()?;
+        let point = self.windows.selected().point.position;
+        let policy = buffer.policy();
+        let text = match policy.indent_style {
+            IndentStyle::Tabs => "\t".to_owned(),
+            IndentStyle::Spaces => {
+                let column = Coordinates::new(buffer)?.to_cell(point)?.column;
+                " ".repeat(policy.indent_width - column % policy.indent_width)
+            }
+        };
+        self.replace(point.0..point.0, &text)
+    }
+
     pub(super) fn line_break(&mut self) -> Result<bool, Error> {
         let newline = self.buffer()?.newline();
         let point = self.windows.selected().point.position.0;

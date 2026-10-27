@@ -26,7 +26,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x 0` | `delete-window` | Close the selected view, retaining its buffer. |
 | `C-x 1` | `delete-other-windows` | Keep only the selected view. |
 | Return | `newline` | Insert the buffer's preferred line separator. |
-| Tab | `insert-tab` | Insert a literal tab. |
+| Tab | `insert-tab` | Insert indentation; default spaces advance to the next four-column stop. |
 | Backspace | `backward-delete-char` | Delete the preceding grapheme. |
 | Delete, `C-d` | `delete-char` | Delete the following grapheme. |
 | Right, `C-f` | `forward-char` | Move over one grapheme. |

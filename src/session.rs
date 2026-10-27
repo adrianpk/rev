@@ -272,10 +272,9 @@ impl Session {
     }
 
     fn edit_command(&mut self, command: Command) -> Action {
-        let point = self.windows.selected().point.position.0;
         let result = match command {
             Command::Newline => self.line_break(),
-            Command::InsertTab => self.replace(point..point, "\t"),
+            Command::InsertTab => self.indent(),
             Command::BackwardDeleteChar => self.delete(true),
             Command::DeleteChar => self.delete(false),
             _ => return self.message("Command is not a text edit"),

@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "commands/indent.rs"]
+mod indent;
+
 #[path = "commands/flows.rs"]
 mod flows;
 #[path = "commands/palette.rs"]

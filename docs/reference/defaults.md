@@ -19,6 +19,7 @@ states the keyboard reports and Escape behavior.
 | Encoding | Strict UTF-8. Invalid UTF-8 and NUL-containing binary input reject before installing a buffer. |
 | BOM and separators | Preserve one recognized leading UTF-8 BOM, existing LF/CRLF and final-newline presence. Mixed separators remain mixed. |
 | Newline insertion | Follow the buffer's prevailing LF/CRLF style; new text defaults to LF. Literal paste retains supplied separators. |
+| Indentation | Tab inserts spaces to the next four-column stop. Literal pasted tabs retain their bytes and use four-cell display stops. |
 | Movement | Whole graphemes; buffer positions, UTF-8 bytes and display cells remain separate. |
 | Display | No soft wrap. Horizontal scrolling reveals point. Tabs use four-cell stops; control text uses visible notation. |
 | Status | Buffer label, modified/read-only state, one-based logical line/display column and language mode. |

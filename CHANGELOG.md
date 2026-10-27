@@ -25,6 +25,10 @@ This project uses Semantic Versioning.
 - Exit with `C-x C-c` or `M-x save-buffers-kill-terminal`, deciding save/discard/cancel for each modified buffer, including hidden and unnamed text. Cancel retains the live session and earlier completed saves. Failed or unresolved required saves stop exit.
 - Use reported Alt/Meta or a compatible Escape prefix with a 100-ms deadline. Standalone Escape clears pending key prefixes while preserving focused prompts; `C-g` cancels the active interaction. The [terminal input reference](docs/reference/terminal-input.md) documents supported reports and physical-terminal limits.
 
+### Changed
+
+- Tab inserts spaces to the next four-column indentation stop by default. Pasted tab characters remain literal.
+
 ### Fixed
 
 - Visiting a file through an alias retains its visible basename for the buffer label and language selection, while saves and repeated visits share the canonical destination.
