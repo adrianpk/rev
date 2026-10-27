@@ -58,4 +58,4 @@ Slice 4 integrated into dev at `db5006cb038a644b4786d015f80d83afeb33daaf`; canon
 The [absolute rendering report](../../report/slices/rev-input-navigation/slice-5-absolute-gutter.md)
 records real logical labels, final text/cursor/overlay bounds, semantic roles,
 ASCII output and native/owned-terminal fidelity. Canonical PR: [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85).
-The ticket remains active through Slice 5 integration and primary slices 6-8.
+Slice 5 integrated into dev at `d4707f0381b0a20b4c0558724c321710b3ef8f20`; canonical evidence `IEKFELNPRVBKZWGWRGSE5HA5SC` and focused evidence `6NOINAR4Q7ZBHZM5UCKOBJGA7J` passed. The ticket remains in progress through primary slices 6-8.

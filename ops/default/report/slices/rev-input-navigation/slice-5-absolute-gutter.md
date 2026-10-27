@@ -1,11 +1,12 @@
 # Slice 5: Render absolute logical line numbers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-05-absolute-gutter`
 PR: [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85)
+Integrated: `d4707f0381b0a20b4c0558724c321710b3ef8f20`
 
 ## Purpose
 
@@ -103,7 +104,7 @@ safe fixed separators, semantic colors and non-color current-line emphasis.
   after bold support exceeded cyclomatic ten, preserving every prior code and
   unexpected-code rejection.
 
-The controller records final clean-HEAD results for this ordered canonical list:
+PASS at the integrated candidate: controller evidence `IEKFELNPRVBKZWGWRGSE5HA5SC` records 85 native tests and this ordered canonical list:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -111,7 +112,7 @@ The controller records final clean-HEAD results for this ordered canonical list:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused final evidence uses this separate ordered list on the same clean HEAD:
+PASS on the same candidate: focused evidence `6NOINAR4Q7ZBHZM5UCKOBJGA7J` records 288 native tests, two owned PTYs and this ordered list:
 
 - `cargo test --test commands --test windows --test search --test rectangles --test syntax`
 - `python3 scripts/check-config-reference.py`

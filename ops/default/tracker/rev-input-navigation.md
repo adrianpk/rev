@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 5 - render absolute logical line numbers
+Active slice: Slice 6 - render independent relative numbering
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -98,9 +98,9 @@ Details and exact checks: [Slice 5](../plan/rev-input-navigation.md#slice-5-rend
 - [x] T5.1: Render absolute logical line labels with the accepted minimum digits, padding, separator fallback and semantic palette inside each panel.
 - [x] T5.2: Give text one checked origin after number allocation; align cursor, tabs, Unicode, syntax/search/regions and horizontal clipping without prefix-string geometry.
 - [x] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 5 implementation is complete; canonical PR [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-5-absolute-gutter.md) records native rendered cells, final-origin regressions and owned terminal outcomes. T5.1: `469b7f0a07fea889a24c94cb1f54e8316f84747b`. T5.2: `35c6006d2634764a37059590946d78b67a03cc44`. T5.3: `a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa`.
+Slice 5 of 20 completed. Canonical PR [#85](https://forge.adrianpk.com/adrianpk/rev/pulls/85) integrated into dev at `d4707f0381b0a20b4c0558724c321710b3ef8f20`. Canonical five-command evidence `IEKFELNPRVBKZWGWRGSE5HA5SC` and focused evidence `6NOINAR4Q7ZBHZM5UCKOBJGA7J` passed on that candidate. Slice 6 is active. The [canonical report](../report/slices/rev-input-navigation/slice-5-absolute-gutter.md) records native rendered cells, final-origin regressions and owned terminal outcomes. T5.1: `469b7f0a07fea889a24c94cb1f54e8316f84747b`. T5.2: `35c6006d2634764a37059590946d78b67a03cc44`. T5.3: `a90d4e9a12a3a7b6314a20dd058bde9dba04e2aa`.
 
 ### Slice 6: render independent relative numbering
 
