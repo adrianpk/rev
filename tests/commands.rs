@@ -536,7 +536,7 @@ fn prompt_limit() {
     input.argument("Path: ", &full).unwrap();
     assert_eq!(
         input.handle(character('é')),
-        Outcome::Message("Prompt limit is 4096 characters")
+        Outcome::Message("Prompt input limit exceeded")
     );
     assert_eq!(input.prompt().unwrap().text(), full);
     assert_eq!(input.prompt().unwrap().cursor(), full.len());

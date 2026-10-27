@@ -3,7 +3,10 @@ use unicode_segmentation::UnicodeSegmentation;
 
 use super::{Error, Key, Outcome};
 
+/// Compiled default; each prompt enforces its admitted scalar limit.
 pub const LIMIT: usize = 4096;
+
+pub(super) const LIMIT_MESSAGE: &str = "Prompt input limit exceeded";
 
 /// Single-line argument input; cursor is a byte offset at a grapheme boundary.
 /// The bounded string belongs to the prompt and never aliases document text.
@@ -12,11 +15,12 @@ pub struct Prompt {
     label: &'static str,
     text: String,
     cursor: usize,
+    limit: usize,
 }
 
 impl Prompt {
-    pub(super) fn new(label: &'static str, initial: &str) -> Result<Self, Error> {
-        if initial.chars().count() > LIMIT {
+    pub(super) fn new(label: &'static str, initial: &str, limit: usize) -> Result<Self, Error> {
+        if initial.chars().count() > limit {
             return Err(Error::Limit);
         }
         if initial.chars().any(char::is_control) {
@@ -24,9 +28,15 @@ impl Prompt {
         }
         Ok(Self {
             label,
+            limit,
             text: initial.into(),
             cursor: initial.len(),
         })
+    }
+
+    pub(super) fn replace(&mut self, text: &str) -> Result<(), Error> {
+        *self = Self::new(self.label, text, self.limit)?;
+        Ok(())
     }
 
     pub fn label(&self) -> &'static str {
@@ -70,8 +80,8 @@ impl Prompt {
             .chars()
             .count()
             .saturating_add(text.chars().count());
-        if count > LIMIT {
-            return Outcome::Message("Prompt limit is 4096 characters");
+        if count > self.limit {
+            return Outcome::Message(LIMIT_MESSAGE);
         }
         self.text.insert_str(self.cursor, text);
         self.cursor += text.len();
@@ -96,8 +106,8 @@ impl Prompt {
         if character.is_control() {
             return Outcome::Message("Control character rejected");
         }
-        if self.text.chars().count() == LIMIT {
-            return Outcome::Message("Prompt limit is 4096 characters");
+        if self.text.chars().count() == self.limit {
+            return Outcome::Message(LIMIT_MESSAGE);
         }
         self.text.insert(self.cursor, character);
         self.cursor += character.len_utf8();

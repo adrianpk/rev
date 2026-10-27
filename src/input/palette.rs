@@ -8,8 +8,6 @@ use crate::command::Command;
 
 use super::{Context, Error, Input, Key, Outcome, Prompt};
 
-const HISTORY_LIMIT: usize = 128;
-
 /// Owns bounded command text, completion cycling and history-navigation draft.
 /// Candidates are derived from the static registry, never interpreted as code.
 #[derive(Debug)]
@@ -22,9 +20,9 @@ pub struct Palette {
 }
 
 impl Palette {
-    fn new() -> Result<Self, Error> {
+    fn new(limit: usize) -> Result<Self, Error> {
         Ok(Self {
-            prompt: Prompt::new("M-x ", "")?,
+            prompt: Prompt::new("M-x ", "", limit)?,
             query: None,
             selected: 0,
             history: None,
@@ -89,13 +87,21 @@ impl Palette {
         if candidates.is_empty() {
             return Outcome::Message("No matching command");
         }
-        if self.query.is_some() {
-            self.selected = (self.selected + 1) % candidates.len();
+        let selected = if self.query.is_some() {
+            (self.selected + 1) % candidates.len()
         } else {
-            self.query = Some(self.prompt.text().to_owned());
-            self.selected = 0;
+            0
+        };
+        let query = self
+            .query
+            .clone()
+            .unwrap_or_else(|| self.prompt.text().to_owned());
+        let outcome = self.set_text(candidates[selected].name());
+        if outcome == Outcome::Changed {
+            self.query = Some(query);
+            self.selected = selected;
         }
-        self.set_text(candidates[self.selected].name())
+        outcome
     }
 
     fn accept(&self) -> Outcome {
@@ -111,12 +117,9 @@ impl Palette {
     }
 
     fn set_text(&mut self, text: &str) -> Outcome {
-        match Prompt::new("M-x ", text) {
-            Ok(prompt) => {
-                self.prompt = prompt;
-                Outcome::Changed
-            }
-            Err(_) => Outcome::Message("Invalid command history entry"),
+        match self.prompt.replace(text) {
+            Ok(()) => Outcome::Changed,
+            Err(_) => Outcome::Message(super::prompt::LIMIT_MESSAGE),
         }
     }
 }
@@ -125,7 +128,7 @@ impl Input {
     /// Opens command entry only from editing; session history survives cancel.
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Command(Palette::new()?);
+        self.context = Context::Command(Palette::new(self.policy.input_limit)?);
         self.prefix = None;
         self.meta_deadline = None;
         Ok(())
@@ -149,7 +152,7 @@ impl Input {
         if let Outcome::Command(command) = outcome {
             self.history.retain(|previous| *previous != command);
             self.history.push_front(command);
-            self.history.truncate(HISTORY_LIMIT);
+            self.history.truncate(self.policy.history_limit);
         }
         self.cancel();
         outcome

@@ -126,14 +126,16 @@ impl Session {
         )
         .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         let windows = Windows::with_settings(view, buffers.snapshot())?;
+        let kills = crate::kill::KillRing::with_settings(buffers.snapshot());
+        let input = Input::with_settings(buffers.snapshot());
         Ok(Self {
             buffers,
             windows,
             tree,
-            kills: crate::kill::KillRing::default(),
+            kills,
             rectangle: None,
             yank: None,
-            input: Input::default(),
+            input,
             size,
             echo: "C-x C-c: exit".into(),
             echo_kind: Message::Normal,

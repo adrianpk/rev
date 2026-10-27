@@ -28,22 +28,26 @@ impl Palette {
             return Outcome::Message("Command history is empty");
         }
         let index = match (self.history, previous) {
-            (None, true) => {
-                self.draft = self.prompt.text().to_owned();
-                Some(0)
-            }
+            (None, true) => Some(0),
             (Some(index), true) => Some((index + 1).min(history.len() - 1)),
             (Some(0), false) => None,
             (Some(index), false) => Some(index - 1),
             _ => return Outcome::Changed,
         };
-        self.history = index;
-        self.query = None;
-        self.selected = 0;
         let text = index.map_or_else(
             || self.draft.clone(),
             |index| history[index].name().to_owned(),
         );
-        self.set_text(&text)
+        let draft = self.prompt.text().to_owned();
+        let outcome = self.set_text(&text);
+        if outcome == Outcome::Changed {
+            if self.history.is_none() && previous {
+                self.draft = draft;
+            }
+            self.history = index;
+            self.query = None;
+            self.selected = 0;
+        }
+        outcome
     }
 }

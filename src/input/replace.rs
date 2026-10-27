@@ -9,7 +9,7 @@ pub(crate) const QUESTION: &str = "Replace occurrence? [y/n/q]";
 impl Input {
     pub(crate) fn replace_argument(&mut self, label: &'static str) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Literal(Prompt::new(label, "")?);
+        self.context = Context::Literal(Prompt::new(label, "", self.policy.input_limit)?);
         self.prefix = None;
         self.meta_deadline = None;
         Ok(())

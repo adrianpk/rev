@@ -16,6 +16,7 @@ struct Continuation {
 /// Owned linear text, newest first, with a fixed entry bound.
 pub(crate) struct KillRing {
     entries: VecDeque<Rope>,
+    policy: crate::config::KillRing,
     continuation: Option<Continuation>,
 }
 
@@ -25,16 +26,16 @@ pub(crate) struct Entry {
     coalesced: bool,
 }
 
-impl Default for KillRing {
-    fn default() -> Self {
+impl KillRing {
+    pub(crate) fn with_settings(settings: &crate::config::Snapshot) -> Self {
+        let policy = settings.settings().kill_ring.clone();
         Self {
-            entries: VecDeque::with_capacity(32),
+            entries: VecDeque::with_capacity(policy.capacity),
+            policy,
             continuation: None,
         }
     }
-}
 
-impl KillRing {
     pub(crate) fn text(&self) -> Option<&Rope> {
         self.entries.front()
     }
@@ -99,9 +100,10 @@ impl KillRing {
     }
 
     fn continues(&self, stamp: Stamp, view: ViewId, point: Scalar) -> bool {
-        self.continuation.is_some_and(|previous| {
-            previous.stamp == stamp && previous.view == view && previous.point == point
-        })
+        self.policy.coalesce
+            && self.continuation.is_some_and(|previous| {
+                previous.stamp == stamp && previous.view == view && previous.point == point
+            })
     }
 
     pub(crate) fn publish(&mut self, entry: Entry, stamp: Stamp, view: ViewId, point: Scalar) {
@@ -112,7 +114,7 @@ impl KillRing {
     fn store(&mut self, entry: Entry) {
         if entry.coalesced {
             self.entries.pop_front();
-        } else if self.entries.len() == 32 {
+        } else if self.entries.len() == self.policy.capacity {
             self.entries.pop_back();
         }
         self.entries.push_front(entry.text);

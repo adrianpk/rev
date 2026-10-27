@@ -1,6 +1,6 @@
 use crossterm::event::KeyCode;
 
-use super::{Context, Error, Input, Key, Outcome, Prompt};
+use super::{Context, Error, Input, Key, Outcome};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Selection {
@@ -22,10 +22,10 @@ impl Input {
 
     /// Completion replaces only the active bounded argument, keeping focus.
     pub fn complete(&mut self, text: &str) -> Result<(), Error> {
-        let Context::Argument(prompt) = &self.context else {
+        let Context::Argument(prompt) = &mut self.context else {
             return Err(Error::Busy);
         };
-        self.context = Context::Argument(Prompt::new(prompt.label(), text)?);
+        prompt.replace(text)?;
         Ok(())
     }
 }

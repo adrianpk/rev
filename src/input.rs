@@ -80,7 +80,7 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Busy => formatter.write_str("a prompt already owns input focus"),
-            Self::Limit => formatter.write_str("prompt limit is 4096 characters"),
+            Self::Limit => formatter.write_str("prompt input limit exceeded"),
             Self::Control => formatter.write_str("prompt initial text contains control characters"),
         }
     }
@@ -110,9 +110,19 @@ pub struct Input {
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
+    policy: crate::config::Minibuffer,
 }
 
 impl Input {
+    /// Uses an admitted snapshot for session-local prompt and command history
+    /// bounds. The default constructor retains the compiled preferences.
+    pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
+        Self {
+            policy: settings.settings().minibuffer.clone(),
+            ..Self::default()
+        }
+    }
+
     pub fn focus(&self) -> Focus {
         match self.context {
             Context::Editing => Focus::Editing,
@@ -151,7 +161,7 @@ impl Input {
 
     pub fn argument(&mut self, label: &'static str, initial: &str) -> Result<(), Error> {
         self.available()?;
-        let prompt = Prompt::new(label, initial)?;
+        let prompt = Prompt::new(label, initial, self.policy.input_limit)?;
         self.context = Context::Argument(prompt);
         self.prefix = None;
         self.meta_deadline = None;

@@ -17,7 +17,7 @@ fn input_owner() {
     assert_eq!(input.prompt().unwrap().text(), "界\r\n\x18\x03");
     assert_eq!(
         input.handle(Event::Paste("x".repeat(4096))),
-        Outcome::Message("Prompt limit is 4096 characters")
+        Outcome::Message("Prompt input limit exceeded")
     );
     assert_eq!(input.prompt().unwrap().text(), "界\r\n\x18\x03");
     let held = Event::Key(KeyEvent::new_with_kind(
