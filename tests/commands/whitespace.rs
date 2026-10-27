@@ -1,3 +1,6 @@
+#[path = "whitespace/policy.rs"]
+mod policy;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::buffer::Buffers;
 use rev::command::{Command, Motion, RegionCommand, Whitespace};

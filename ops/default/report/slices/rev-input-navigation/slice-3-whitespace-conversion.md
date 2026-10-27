@@ -27,9 +27,14 @@ without changing other text, settings or visual text columns.
 The buffer owner scans canonical graphemes from each selected line's beginning
 so Unicode and unselected prefixes contribute their real columns. Only wholly
 selected ASCII space/tab glyphs join a run. Line separators and all other
-characters stay outside replacement spans. The configured tab width bounds the
-maximum expansion per selected tab; tabify output never exceeds its input run.
-Temporary output is proportional to selected whitespace and produced spaces,
+characters stay outside replacement spans. The configured 1..=32 tab width bounds
+expansion per selected tab; tabify output never exceeds its input run.
+A following zero-width cluster can join the last expanded space. One additional
+space anchors that cluster's existing visible cell when required, preserving
+its and subsequent text columns without changing Unicode bytes. This uses one
+following grapheme of lookahead and at most one anchor space per run.
+Temporary output is proportional to selected whitespace, produced spaces and
+that following grapheme,
 with checked allocation and position arithmetic; no document-wide copy or
 retained per-line cache is introduced.
 
@@ -53,10 +58,16 @@ visual columns. WSP02 uses one checked transaction and ordinary safety/history.
 
 ## Validation
 
-- PASS: `cargo test --test commands whitespace::` (initial real-command cases).
+- PASS: `cargo test --test commands whitespace::` (three table-driven groups:
+  actual M-x/missing-region behavior, 13 explicit expected-byte cases and 36
+  width/prefix/run/direction cases with idempotence and non-whitespace columns).
 - Focused source analysis passes unchanged parameter, nesting and complexity
   limits for the new owners and command/session dispatch.
-- Unicode/policy, history/fidelity and final clean-HEAD checks are in progress.
+- A regression reproduced a lost presentation cell after a tab followed by a
+  combining mark. The selected replacement now anchors that existing cell,
+  retaining the WSP01 column assertion and original Unicode source bytes.
+- The width grid uses the existing 1..=32 admission range; no policy limit changes.
+- History/fidelity, provenance and final clean-HEAD checks are in progress.
 
 ## Risks and Follow-ups
 
