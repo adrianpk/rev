@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 11 - focus panes and place point by pointer
+Active slice: Slice 12 - scroll the pointed pane without changing focus
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -188,15 +188,16 @@ Details and exact checks: [Slice 11](../plan/rev-input-navigation.md#slice-11-fo
 - [x] T11.1: Resolve primary clicks through current composed pane/gutter/text geometry and reuse the ordinary focus transition and checked movement owner.
 - [x] T11.2: Map tabs, graphemes, wide glyphs, scrolling, clipping and EOF accurately; pane-owned decorations may focus without fabricating text positions.
 - [x] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 11 of 20 implemented. Canonical PR [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91) targets dev.
+Slice 11 of 20 completed. Canonical PR [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91)
+integrated into dev at `be336d69ef607bec7fb4a5ebdfed1f6aa5bdcb4a`.
+Canonical evidence `IBT4WLILH3CAXCVW2IBSGQN2V6` passed five ordered checks
+and 289 native cases. Focused evidence `RCVKDXA4MARYXGAGBUIJICY374` passed
+35 library/coordinate cases and fifteen owned PTYs on that same candidate.
 The [canonical report](../report/slices/rev-input-navigation/slice-11-pointer-hit-focus.md)
-records composed live hit ownership, checked painted-cell mapping, independent
-view focus, native region/history preservation and two owned SGR PTYs. Required
-canonical and focused clean-head checks are recorded by the controller after
-PR-reference follow-up. Integration remains pending; the pointer ticket stays
-active through its assigned primary slices 10-15.
+records checked hit ownership, focus, regions/history and terminal outcomes.
+The pointer ticket stays active through primary slices 10-15. Slice 12 is active.
 T11.1: `0aafffa4001ed294d38904b0a11c392c521bb71d`.
 T11.2: `f3958d9fabf4eee353d205f5ba725151c56228aa`.
 T11.3: `89329d0f0199ea0ddfd71bb50a764c62e51160bc`.

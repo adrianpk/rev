@@ -1,11 +1,12 @@
 # Slice 11: Focus panes and place point by pointer
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-11-pointer-hit-focus`
 PR: [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91)
+Integrated: `be336d69ef607bec7fb4a5ebdfed1f6aa5bdcb4a`
 
 ## Purpose
 
@@ -86,8 +87,9 @@ SGR-reset rows when a tiny frame hides the cursor. The older resize helper's
 bare-echo terminator was unsuitable for that frame. Tiny cell bounds, hidden
 cursor, retained points, input barrier and resource limits remain asserted.
 
-Final clean-head canonical and focused evidence will be recorded through the
-controller after task and PR-reference commits. Required ordered commands:
+Canonical evidence `IBT4WLILH3CAXCVW2IBSGQN2V6` passed all five ordered
+checks and 289 native cases on clean head
+`be336d69ef607bec7fb4a5ebdfed1f6aa5bdcb4a`, integrated into dev through PR #91:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -95,7 +97,8 @@ controller after task and PR-reference commits. Required ordered commands:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused final commands:
+Focused evidence `RCVKDXA4MARYXGAGBUIJICY374` passed 35 library/coordinate
+cases and fifteen owned PTYs on that same head:
 
 - `cargo test --lib --test coordinates`
 - `python3 scripts/check-pty.py --suite pointer-lifetime`

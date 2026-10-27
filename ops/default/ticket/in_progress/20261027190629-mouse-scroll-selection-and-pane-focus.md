@@ -96,10 +96,12 @@ records native admission, reversible terminal ownership, failure/retry, keyboard
 continuity and thirteen owned PTYs. Exact-candidate canonical and focused checks
 passed. This ticket remains in progress until all primary slices 10-15 integrate.
 
-Slice 11 is implemented in canonical PR [#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91), targeting dev. Its
+Slice 11 integrated into dev through canonical PR
+[#91](https://forge.adrianpk.com/adrianpk/rev/pulls/91) at
+`be336d69ef607bec7fb4a5ebdfed1f6aa5bdcb4a`. Its
 [report](../../report/slices/rev-input-navigation/slice-11-pointer-hit-focus.md)
-records current tree/pane focus, checked text boundaries, prompt isolation,
-layout changes and unchanged file/history/region semantics. Twenty native
-pointer groups and two owned SGR PTYs passed in development; final clean-head
-evidence is recorded by the controller after PR references. Integration is
-pending. This ticket remains in progress across the remaining primary slices.
+records current tree/pane focus, checked boundaries, prompt isolation and native
+region/history preservation. Canonical evidence `IBT4WLILH3CAXCVW2IBSGQN2V6`
+and focused evidence `RCVKDXA4MARYXGAGBUIJICY374` passed on that candidate.
+Slice 12 is active; this ticket remains in progress until all primary slices
+10-15 integrate.
