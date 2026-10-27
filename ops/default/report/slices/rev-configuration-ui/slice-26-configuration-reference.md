@@ -61,8 +61,11 @@ reference whose schema, defaults, bindings and examples are checked for drift.
 - Optional examples are extracted from the distributed comments and prepared in
   owned fixtures. Parser-bound tests derive cases from the published numeric and
   enum rows; endpoint neighbors and nonfinite values must reject appropriately.
-- Added Rust functions use at most five parameters, cyclomatic complexity six
-  and nesting two. Existing source-gate limits remain unchanged.
+- T26.3 follow-up `6cfd35d479d313662cbbdbaa514c871d4073aba5` updates the existing
+  isolated startup-consumer assertion to locate the Echo query above candidates
+  and verify its cursor; startup/palette/binding/tree checks remain intact.
+- Added or changed Rust functions use at most five parameters, cyclomatic
+  complexity six and nesting two. Existing source-gate limits remain unchanged.
 
 ## Contracts Added or Changed
 
@@ -83,6 +86,7 @@ reference whose schema, defaults, bindings and examples are checked for drift.
 - `scripts/check-config-reference.py`, `test_config_reference.py`: completeness and drift checks.
 - `tests/configuration/reference.rs`, `reference_bounds.rs`: eight typed integration tests.
 - `tests/configuration.rs`: register the focused test modules.
+- `tests/configuration/startup.rs`: startup consumer query geometry and cursor.
 
 ## Validation
 
@@ -92,6 +96,8 @@ Successful development checks:
 - A local documentation-link/anchor check passed for 48 references and 59 unique catalog entries.
 - `cargo test --test configuration reference`: eight native reference tests passed, zero skips.
 - `cargo clippy --test configuration -- -D warnings`: passed.
+- `cargo test --test configuration startup::discovered_consumers`: isolated startup consumers and query cursor passed.
+- `cargo run --quiet --example source-check -- --source tests/configuration/startup.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/configuration/reference.rs --source tests/configuration/reference_bounds.rs --root tests/configuration.rs`: passed; changed functions have nesting at most two.
 - `python3 scripts/check-config-reference.py`: complete schema/sample/catalog/maps/enums/examples and documentation links agreed.
 - `python3 scripts/test_config_reference.py`: all seven named drift subcases passed.
