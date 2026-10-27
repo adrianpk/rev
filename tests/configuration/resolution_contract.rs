@@ -159,6 +159,31 @@ fn palette_projection() {
     }
 }
 
+// Each leaf must replace just itself, even when its built-in value is shared
+// by another role. This catches accidental defaulting of omitted siblings.
+#[test]
+fn single_palette_leaf() {
+    let fixture = Fixture::new();
+    let defaults = Palette::default();
+    for (role, _) in colors(&defaults) {
+        let path = fixture.write("config.toml", &format!("palette.{role} = '#012345'"));
+        let startup = prepare(&path);
+        assert!(startup.diagnostic.is_none(), "{role}");
+        let actual = colors(&startup.snapshot.settings().palette);
+        let expected = colors(&defaults).map(|(name, inherited)| {
+            (
+                name,
+                if name == role {
+                    Rgb(1, 35, 69)
+                } else {
+                    inherited
+                },
+            )
+        });
+        assert_eq!(actual, expected, "{role}");
+    }
+}
+
 // False and zero override earlier positive values. Empty source-local include
 // arrays do not erase previous layers, while association and key tables merge.
 #[test]

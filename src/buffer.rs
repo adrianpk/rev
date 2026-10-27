@@ -341,6 +341,11 @@ pub struct Buffers {
 }
 
 impl Buffers {
+    /// The global palette is shared by all buffers and does not vary by path.
+    pub(crate) fn palette(&self) -> &crate::config::Palette {
+        &self.settings.settings().palette
+    }
+
     /// Creates a registry with one initially empty buffer.
     pub fn new() -> Result<Self, Error> {
         Self::with_settings(crate::config::Snapshot::default())

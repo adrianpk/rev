@@ -99,7 +99,11 @@ struct Attributes {
 }
 
 impl Row {
-    pub(super) fn write(&self, writer: &mut impl Write) -> io::Result<()> {
+    pub(super) fn write(
+        &self,
+        writer: &mut impl Write,
+        _palette: &crate::config::Palette,
+    ) -> io::Result<()> {
         if self.plain() {
             return writer.write_all(self.text.as_bytes());
         }

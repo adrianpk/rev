@@ -46,6 +46,7 @@ impl Frame {
         let mut frame = Self {
             size,
             stamp: selected.stamp(),
+            palette: buffers.palette().clone(),
             rows: Vec::new(),
             cursor: None,
         };

@@ -79,6 +79,7 @@ impl Row {
 pub struct Frame {
     size: Size,
     stamp: Stamp,
+    palette: crate::config::Palette,
     rows: Vec<Row>,
     cursor: Option<Position>,
 }
@@ -89,6 +90,7 @@ impl Frame {
         let mut frame = Self {
             size,
             stamp: buffer.stamp(),
+            palette: crate::config::Palette::default(),
             rows: Vec::new(),
             cursor: None,
         };
@@ -103,6 +105,14 @@ impl Frame {
             frame.panel(buffer, view, Panel::new(area, true, true))?;
         }
         Ok(frame)
+    }
+
+    /// Supply the global palette for a standalone projection. The frame owns
+    /// only a derived copy; captures, canonical text and buffer policy stay put.
+    /// Registry composition obtains this value from its admitted snapshot.
+    pub fn with_palette(mut self, palette: &crate::config::Palette) -> Self {
+        self.palette = palette.clone();
+        self
     }
 
     fn panel(&mut self, buffer: &Buffer, view: &View, panel: Panel) -> Result<(), Error> {
@@ -134,7 +144,7 @@ impl Frame {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
-            row.write(writer)?;
+            row.write(writer, &self.palette)?;
         }
         if let Some(cursor) = self.cursor {
             writer
