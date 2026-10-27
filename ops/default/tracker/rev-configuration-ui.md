@@ -200,8 +200,18 @@ Details and checks: [Slice 7](../plan/rev-configuration-ui.md#slice-7-apply-inde
 
 - [x] T7.1: Route Tab through the effective policy: literal U+0009 for tabs; enough spaces for the next indent_width stop for spaces. Bracketed paste remains literal and one normal undo operation.
 - [x] T7.2: Apply configured LF/CRLF and BOM only when creating a new buffer. Existing files retain recognized BOM, mixed/newline fidelity and final-newline absence through save.
-- [ ] T7.3: Test nonaligned columns, tabs already in text, wide Unicode, read-only refusal, undo/redo and existing-file save fidelity. Do not implement conversion commands.
+- [x] T7.3: Test nonaligned columns, tabs already in text, wide Unicode, read-only refusal, undo/redo and existing-file save fidelity. Do not implement conversion commands.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T7.1 `8800c20c6a6df0a1f0796dc26607d80faf30b111`;
+T7.2 `7c34b501f11ed17174d108dbdfc38419b817e3ee`; T7.3 recorded after commit.
+Development validation: three focused indentation/paste/dispatch tests and five
+file-format tests passed. Coverage includes Unicode display columns, opposing
+widths, read-only refusal, new-file Return/save/undo, existing format fidelity,
+settings replacement and final-buffer recreation. Focused Clippy passed.
+Final exact-head evidence belongs to the controller.
+Report: [Slice 7](../report/slices/rev-configuration-ui/slice-7-indentation-and-format.md).
+PR: pending; dev integration remains controller-owned.
 
 ### Slice 8: Capture Emacs-style rectangles
 

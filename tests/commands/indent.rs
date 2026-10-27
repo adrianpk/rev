@@ -109,3 +109,64 @@ fn literal_paste() {
         assert_eq!(text(&session), format!("<{payload}>"));
     }
 }
+
+// Bound Tab and real M-x dispatch share the configured handler and refusal
+// boundary. Read-only text retains its point, revision, state and history.
+#[test]
+fn dispatch_admission() {
+    let cases = [
+        ("editor.indent_width = 3\neditor.tab_width = 8", "a\t界  "),
+        (
+            "editor.indent_style = 'tabs'\neditor.tab_width = 2",
+            "a\t界\t",
+        ),
+    ];
+    for (configuration, expected) in cases {
+        for (readonly, named) in [(false, false), (false, true), (true, false), (true, true)] {
+            dispatch_case(configuration, readonly, named, expected);
+        }
+    }
+}
+
+fn dispatch_case(configuration: &str, readonly: bool, named: bool, expected: &str) {
+    use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
+    let source = "a\t界";
+    let mut session = editor(configuration, source, 3, readonly);
+    let before = (
+        session.buffer().unwrap().stamp(),
+        session.buffer().unwrap().state(),
+        session.view().point,
+    );
+    if named {
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Char('x'),
+            KeyModifiers::ALT,
+        )));
+        session.handle(Event::Paste("insert-tab".into()));
+        session.handle(super::key(KeyCode::Enter));
+    } else {
+        session.handle(super::key(KeyCode::Tab));
+    }
+    if readonly {
+        assert_eq!(text(&session), source);
+        assert_eq!(
+            (
+                session.buffer().unwrap().stamp(),
+                session.buffer().unwrap().state(),
+                session.view().point
+            ),
+            before
+        );
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert!(session.echo().contains("read-only"));
+    } else {
+        assert_eq!(text(&session), expected);
+        assert_eq!(
+            session.view().point.position,
+            Scalar(expected.chars().count())
+        );
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        assert!(session.echo().is_empty());
+    }
+}
