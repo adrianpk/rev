@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 27 - Exercise combined terminal workflows
+Active slice: Slice 28 - Harden cross-feature failure boundaries
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -714,7 +714,7 @@ Details and checks: [Slice 27](../plan/rev-configuration-ui.md#slice-27-exercise
 - [x] T27.1: Add real isolated PTY journeys for startup palette/tab/key overrides, missing and invalid config, M-x candidate/history selection, find-file directory/Unicode completion and new filename behavior.
 - [x] T27.2: Combine tree/nested panels, shared buffer policies, horizontal and vertical boundaries, focus and tiny/growing resize. Assert visible behavior and retained document text, not only escape substring presence.
 - [x] T27.3: Use bounded fixtures/timeouts, zero skips and explicit child cleanup after completion. Verify normal/error terminal color/mode restoration and no disk entry created by observation.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T27.1 `1389238803bfea95120cd4632784c3e354209100`;
 T27.2 `a9232206e549dad33269bd0740d366c9f2a97385`;
@@ -724,8 +724,10 @@ missing/invalid configuration, output error and unwind. Assertions cover visible
 rows/cursors, exact fixture bytes/entries, M-x/path ownership, shared policies,
 zero/tiny/growing geometry, restoration order and reaped children/closed PTYs.
 Session/output/snapshot bounds remain explicit; no cases are skipped.
-Final readiness requires controller evidence for the clean PR head;
-dev integration remains pending.
+All seven ordered checks passed on `27629069653ee043ff0cb5be935fa16f5353f76d`, controller validation
+`LKBX5GARCR45ND5OOC5K46TYG5`, including 119 native tests and eight PTY sessions
+with zero skips. Canonical PR #76 integrated by Rebase + Fast-forward into dev
+at `27629069653ee043ff0cb5be935fa16f5353f76d`. Slice 27 of 30 completed.
 Report: [Slice 27](../report/slices/rev-configuration-ui/slice-27-configuration-ui-journeys.md).
 PR: [#76](https://forge.adrianpk.com/adrianpk/rev/pulls/76).
 

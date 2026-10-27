@@ -1,6 +1,6 @@
 # Slice 27: Exercise combined terminal workflows
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -108,8 +108,11 @@ Successful focused development commands:
 - `python3 scripts/check-configuration-ui.py --suite terminal --case unwind`: expected unwind exit, ordered terminal restoration and owned resource cleanup passed.
 - Python AST parsing and function-bound checks passed for all five runner/helper modules.
 
-Final readiness uses controller evidence for the clean PR head after the
-PR-reference follow-up commit, in this exact order:
+All seven commands passed on clean PR head `27629069653ee043ff0cb5be935fa16f5353f76d` through controller
+validation `LKBX5GARCR45ND5OOC5K46TYG5`. Canonical PR #76 integrated that exact
+head into dev by Rebase + Fast-forward. The terminal suite passed eight sessions
+with zero skips in 3.063 seconds excluding compilation; 119 native tests passed.
+The exact ordered commands were:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
