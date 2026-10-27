@@ -144,7 +144,7 @@ Contracts: R05 STA01 STA02.
 Details and exact checks: [Slice 9](../plan/rev-input-navigation.md#slice-9-align-pane-status-into-left-and-right-groups).
 
 - [x] T9.1: Compose the existing identity/dirty/access/position facts on the left and syntax/Text on the right inside each pane's status area; retain one row and active styling.
-- [ ] T9.2: Use cell-width-aware flexible space and the accepted compact/omit/clip order; preserve truthful independent points, RO/RW and clean/modified markers.
+- [x] T9.2: Use cell-width-aware flexible space and the accepted compact/omit/clip order; preserve truthful independent points, RO/RW and clean/modified markers.
 - [ ] T9.3: Adapt existing native/PTY status expectations to semantic two-group rendering while preserving their substantive assertions; run display regressions and the affected historical acceptance journeys.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
