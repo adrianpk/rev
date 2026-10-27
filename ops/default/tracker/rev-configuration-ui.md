@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 1 - Model typed configuration
+Active slice: Slice 2 - Validate TOML and diagnostics
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -61,16 +61,19 @@ Details and checks: [Slice 1](../plan/rev-configuration-ui.md#slice-1-model-type
 - [x] T1.1: Establish a small configuration owner with complete defaults and partial input types for the entire accepted model catalog; absence must survive parsing and language/include merging. Document ownership and numeric semantics without introducing a generic framework.
 - [x] T1.2: Pin toml 1.1.8 and serde 1.0.229 with only required parser/derive features; commit Cargo.lock, preserve Rust 1.98 and first-party safe Rust. Create the configuration integration test target and verify explicit false, zero and absent values.
 - [x] T1.3: Record source/default/catalog invariants and preparatory status. Do not advertise operational configuration before Slice 20 wires all consumers.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T1.1 `64038cccf6332c17410ad4fe85e589adfcccd5d9`;
 T1.2 `21bd37e90d8cd48d93e37e4284cf511f4485a524`;
 T1.3 `b64a242bc6218d3d28c08aa0a6810118c0533db6`.
 Development validation: library/test compilation and focused presence/catalog
-checks passed. Final exact-head slice evidence belongs to the controller.
+checks passed. All five ordered slice checks passed on
+`9b2760232ac118abf381e9d043ed312d8e16745d`, controller validation
+`VOD75O22JC246SRCLXA6DED5RK`.
 Report: [Slice 1](../report/slices/rev-configuration-ui/slice-1-config-types.md).
 PR: [#50](https://forge.adrianpk.com/adrianpk/rev/pulls/50);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`9b2760232ac118abf381e9d043ed312d8e16745d`. Slice 1 of 30 completed.
 
 ### Slice 2: Validate TOML and diagnostics
 

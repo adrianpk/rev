@@ -1,11 +1,12 @@
 # Slice 1: Model typed configuration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-01-config-types`
 PR: [#50](https://forge.adrianpk.com/adrianpk/rev/pulls/50)
+Integrated: Rebase + Fast-forward into dev at `9b2760232ac118abf381e9d043ed312d8e16745d`.
 
 ## Purpose
 
@@ -75,14 +76,15 @@ Development checks:
 - `cargo test --test configuration -- --skip catalog::`: passed; three tests.
 - `cargo test --test configuration catalog::`: passed; two catalog tests.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Required commands, in canonical order:
+All five ordered checks passed on clean PR head
+`9b2760232ac118abf381e9d043ed312d8e16745d`, controller validation
+`VOD75O22JC246SRCLXA6DED5RK`. Commands, in canonical order:
 
-- `cargo fmt --all -- --check`
-- `cargo clippy --all-targets --all-features -- -D warnings`
-- `cargo test --test configuration`
-- `python3 scripts/check-source.py`
-- `git diff --check`
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --all-targets --all-features -- -D warnings`: passed.
+- `cargo test --test configuration`: passed; five tests.
+- `python3 scripts/check-source.py`: passed.
+- `git diff --check`: passed.
 
 ## Risks and Follow-ups
 
