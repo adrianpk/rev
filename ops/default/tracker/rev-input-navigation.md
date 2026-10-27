@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 6 - render independent relative numbering
+Active slice: Slice 7 - wire gutter settings and native commands
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -110,9 +110,9 @@ Details and exact checks: [Slice 6](../plan/rev-input-navigation.md#slice-6-rend
 - [x] T6.1: Add relative labels from each view's own logical point and absolute/zero/hidden current-line forms; keep digit width stable during origin movement.
 - [x] T6.2: Preserve independent points and overrides across shared splits, buffer switches, close and rebind; retain complete logical numbering through edits and history.
 - [x] T6.3: Verify both modes, current-line forms and shared-view lifecycle with render-level assertions and record bounded visible-row behavior.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 6 implementation is complete; canonical PR [#86](https://forge.adrianpk.com/adrianpk/rev/pulls/86) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-6-relative-gutter.md) records logical relative labels, all current-line forms and native shared-view lifecycle. T6.1: `6a1d15d697d76622bb3b397b1c3b50def73bced4`. T6.2: `9f491efaf72c48d9770ccfe4060ddd17bfa68c12`. T6.3: `cf4ebcd56703127cfd5cb8c24f1fe91e77c2126e`.
+Slice 6 of 20 completed. Canonical PR [#86](https://forge.adrianpk.com/adrianpk/rev/pulls/86) integrated into dev at `3e1f4b9651fed9306949ca2679c16859a5ed916d`. Canonical evidence `F47M2RWK5WRIAP3PNKT3GJTDUI` and focused evidence `X5QA4V5IQIY5WXOUYBMXEZ2WOP` passed on that candidate. Slice 7 is active. The [canonical report](../report/slices/rev-input-navigation/slice-6-relative-gutter.md) records logical relative labels, all current-line forms and native shared-view lifecycle. T6.1: `6a1d15d697d76622bb3b397b1c3b50def73bced4`. T6.2: `9f491efaf72c48d9770ccfe4060ddd17bfa68c12`. T6.3: `cf4ebcd56703127cfd5cb8c24f1fe91e77c2126e`.
 
 ### Slice 7: wire gutter settings and native commands
 

@@ -1,11 +1,12 @@
 # Slice 6: Render independent relative numbering
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-06-relative-gutter`
 PR: [#86](https://forge.adrianpk.com/adrianpk/rev/pulls/86)
+Integrated: `3e1f4b9651fed9306949ca2679c16859a5ed916d`
 
 ## Purpose
 
@@ -73,7 +74,7 @@ stable full-source digit width. GUT11 retains independent view policy and point.
   entries, 25 configurable RGB roles and 111 bindings with valid reference links.
   Native relative policy does not advertise unsupported terminal controls.
 
-The controller records final results on the clean PR head for this canonical list:
+PASS at the integrated candidate: canonical evidence `F47M2RWK5WRIAP3PNKT3GJTDUI` records all five checks and 91 native tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -81,7 +82,7 @@ The controller records final results on the clean PR head for this canonical lis
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Separate focused final evidence uses the same head and this ordered list:
+PASS on the same candidate: focused evidence `X5QA4V5IQIY5WXOUYBMXEZ2WOP` records configuration reference and two owned PTYs:
 
 - `python3 scripts/check-config-reference.py`
 - `python3 scripts/check-pty.py --suite absolute-gutter`

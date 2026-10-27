@@ -66,4 +66,4 @@ The [relative rendering report](../../report/slices/rev-input-navigation/slice-6
 records view-local logical distances, independent current-line forms, stable
 width, composed shared panes and native file/buffer/edit/history lifetime.
 Canonical PR: [#86](https://forge.adrianpk.com/adrianpk/rev/pulls/86).
-The ticket remains in progress through Slice 6 integration and primary slices 7-8.
+Slice 6 integrated into dev at `3e1f4b9651fed9306949ca2679c16859a5ed916d`; canonical evidence `F47M2RWK5WRIAP3PNKT3GJTDUI` and focused evidence `X5QA4V5IQIY5WXOUYBMXEZ2WOP` passed. The ticket remains in progress through primary slices 7-8.
