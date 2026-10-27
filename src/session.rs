@@ -8,6 +8,7 @@ mod kill;
 mod linear;
 mod motion;
 mod paste;
+mod path;
 mod prompt;
 mod quit;
 mod rectangle;
@@ -88,7 +89,7 @@ enum Pending {
     Replace(Box<replace::State>),
     Search(Box<search::State>),
     Command,
-    Argument(Command),
+    Path(Box<crate::file::completion::Navigation>),
     Save {
         confirmation: Box<Confirmation>,
         after: AfterSave,
@@ -168,6 +169,7 @@ impl Session {
             .and_then(|composition| composition.auxiliary())
             .map_or(0, |panel| panel.content().height());
         self.input.reveal_commands(candidate_rows);
+        self.reveal_paths(candidate_rows);
         self.reveal_workspace(composition.as_ref())?;
         let mut frame = match &composition {
             Some(composition) => Frame::compose_workspace(
@@ -191,7 +193,7 @@ impl Session {
     ) -> Result<(), view::Error> {
         // Completion borrows presentation rows. It cannot scroll the retained
         // editing/tree workspace while the query owns the visible cursor.
-        if self.input.palette().is_some() {
+        if self.input.palette().is_some() || self.path_navigation().is_some() {
             return Ok(());
         }
         let tree = composition.and_then(|composition| composition.tree());
@@ -207,11 +209,7 @@ impl Session {
         frame: &mut Frame,
         composition: Option<&crate::panel::Composition>,
     ) -> Result<(), view::Error> {
-        if let Some(palette) = self.input.palette() {
-            frame.commands(palette, composition, &self.echo)?;
-        } else if let Some(prompt) = self.input.prompt() {
-            frame.prompt(prompt, &self.echo)?;
-        }
+        self.input_frame(frame, composition)?;
         if let Some(Pending::Inventory(selected)) = &self.pending {
             frame.inventory(&self.buffers, *selected)?;
         }
@@ -219,6 +217,23 @@ impl Session {
             frame.decision();
         }
         Ok(())
+    }
+
+    fn input_frame(
+        &self,
+        frame: &mut Frame,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), view::Error> {
+        let Some(prompt) = self.input.prompt() else {
+            return Ok(());
+        };
+        if let Some(path) = self.path_navigation() {
+            return frame.paths(prompt, path, composition, &self.echo);
+        }
+        if let Some(palette) = self.input.palette() {
+            return frame.commands(palette, composition, &self.echo);
+        }
+        frame.prompt(prompt, &self.echo)
     }
 
     fn draw(&mut self, writer: &mut impl Write) -> io::Result<()> {
@@ -231,7 +246,7 @@ impl Session {
             Outcome::Command(command) => self.command_outcome(command),
             Outcome::Argument(path) => self.argument(path),
             Outcome::Decision(accepted) => self.decision(accepted),
-            Outcome::Selection(selection) => self.select_buffer(selection),
+            Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
             Outcome::Paste(text) => self.paste_text(&text),

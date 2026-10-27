@@ -6,6 +6,8 @@ mod fixture;
 mod identity;
 #[path = "path_completion/observation.rs"]
 mod observation;
+#[path = "path_completion/panel.rs"]
+mod panel;
 
 use rev::file::completion::Provider;
 

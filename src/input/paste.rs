@@ -10,7 +10,7 @@ impl Input {
             Context::Search(prompt) => prompt.literal_paste(&text),
             Context::Literal(prompt) => prompt.literal_paste(&text),
             Context::Command(palette) => palette.paste(&text),
-            Context::Argument(prompt) => prompt.paste(&text),
+            Context::Argument(prompt) | Context::Path(prompt) => prompt.paste(&text),
             _ => Outcome::Message("Paste is unavailable in this input context"),
         }
     }

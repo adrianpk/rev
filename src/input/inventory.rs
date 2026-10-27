@@ -21,7 +21,7 @@ impl Input {
 
     /// Completion replaces only the active bounded argument, keeping focus.
     pub fn complete(&mut self, text: &str) -> Result<(), Error> {
-        let Context::Argument(prompt) = &mut self.context else {
+        let (Context::Argument(prompt) | Context::Path(prompt)) = &mut self.context else {
             return Err(Error::Busy);
         };
         prompt.replace(text)?;

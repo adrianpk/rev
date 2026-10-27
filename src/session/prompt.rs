@@ -38,7 +38,7 @@ impl Session {
             Some(Pending::TreeCreate(_) | Pending::TreeRename(_)) => {
                 self.message("Enter one name; C-g cancels")
             }
-            Some(Pending::Argument(_) | Pending::Write { .. }) => {
+            Some(Pending::Path(_) | Pending::Write { .. }) => {
                 self.message("Enter a path; C-g cancels")
             }
             _ => self.message("No argument is active"),

@@ -1,7 +1,6 @@
 use std::io;
 use std::path::Path;
 
-use crate::command::Command;
 use crate::view::View;
 
 use super::{Action, Pending, Session};
@@ -45,28 +44,21 @@ impl Session {
     }
 
     pub(super) fn find_file(&mut self) -> Action {
-        self.file_argument(Command::FindFile, "Find file: ")
-    }
-
-    pub(super) fn file_argument(&mut self, command: Command, label: &'static str) -> Action {
-        match self.input.argument(label, "") {
-            Ok(()) => {
-                self.pending = Some(Pending::Argument(command));
-                self.message("")
-            }
-            Err(error) => self.error(&error.to_string()),
-        }
+        self.start_path()
     }
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::Path(navigation)) => {
+                let Some(path) = navigation.typed_path() else {
+                    return self.error(navigation.diagnostic().unwrap_or("Invalid file path"));
+                };
+                let _ = self.load(&path);
+                Action::Redraw
+            }
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
             Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
             Some(Pending::Replace(state)) => self.replace_argument(*state, path),
-            Some(Pending::Argument(Command::FindFile)) => {
-                let _ = self.load(Path::new(&path));
-                Action::Redraw
-            }
             Some(Pending::Write { buffer, after }) => {
                 self.save_to(buffer, Some(Path::new(&path)), after)
             }

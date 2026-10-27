@@ -444,7 +444,9 @@ fn argument_continuation() {
         let before = session.view().clone();
         named(&mut session, name);
         assert!(
-            surface(&mut session).last().unwrap().starts_with(label),
+            surface(&mut session)
+                .iter()
+                .any(|row| row.starts_with(label)),
             "{name}"
         );
         session.handle(Event::Paste("unused-é.txt".into()));

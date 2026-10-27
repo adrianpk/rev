@@ -16,11 +16,25 @@ impl Session {
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
         if let Some(palette) = self.input.palette() {
-            return crate::panel::Composition::command(
+            return crate::panel::Composition::completion(
                 &self.windows,
                 &self.tree,
                 self.size,
                 palette.requested_rows(),
+            );
+        }
+        if let Some(path) = self.path_navigation() {
+            return crate::panel::Composition::completion(
+                &self.windows,
+                &self.tree,
+                self.size,
+                path.requested_rows(
+                    self.buffers
+                        .snapshot()
+                        .settings()
+                        .minibuffer
+                        .candidate_limit,
+                ),
             );
         }
         crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, 0)

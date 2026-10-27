@@ -88,9 +88,9 @@ impl Composition {
         Some(composition)
     }
 
-    /// Put a command query before its candidate rows within the reserved
+    /// Put a completion query before its candidate rows within the reserved
     /// completion region. Editing, tree and shared separators retain their bounds.
-    pub fn command(windows: &Windows, tree: &Tree, size: Size, rows: u16) -> Option<Self> {
+    pub fn completion(windows: &Windows, tree: &Tree, size: Size, rows: u16) -> Option<Self> {
         let mut composition = Self::workspace(windows, tree, size, rows)?;
         if let Some(auxiliary) = composition.auxiliary {
             let content = auxiliary.content();

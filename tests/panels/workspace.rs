@@ -147,7 +147,7 @@ fn command_region() {
     for (height, rows) in [(3, 0), (4, 0), (5, 1), (8, 4), (u16::MAX, u16::MAX - 4)] {
         let size = Size { width: 61, height };
         let composition =
-            Composition::command(session.windows(), session.tree(), size, u16::MAX).unwrap();
+            Composition::completion(session.windows(), session.tree(), size, u16::MAX).unwrap();
         assert_eq!(composition.size(), size);
         assert_eq!(
             composition

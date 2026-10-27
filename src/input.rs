@@ -6,6 +6,7 @@ pub mod keymap;
 mod meta;
 mod palette;
 mod paste;
+mod path;
 mod prompt;
 mod replace;
 mod search;
@@ -98,6 +99,7 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    Path(Prompt),
     Literal(Prompt),
     ReplaceDecision,
     Decision(&'static str),
@@ -135,7 +137,7 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Argument(_) | Context::Literal(_) => Focus::Argument,
+            Context::Argument(_) | Context::Path(_) | Context::Literal(_) => Focus::Argument,
             Context::Decision(_) | Context::ReplaceDecision => Focus::Decision,
             Context::Inventory => Focus::Inventory,
         }
@@ -149,7 +151,9 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
-            Context::Argument(prompt) | Context::Literal(prompt) => Some(prompt),
+            Context::Argument(prompt) | Context::Path(prompt) | Context::Literal(prompt) => {
+                Some(prompt)
+            }
             _ => None,
         }
     }
@@ -158,7 +162,9 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
-            Context::Argument(prompt) | Context::Literal(prompt) => Some(prompt.label()),
+            Context::Argument(prompt) | Context::Path(prompt) | Context::Literal(prompt) => {
+                Some(prompt.label())
+            }
             Context::ReplaceDecision => Some(replace::QUESTION),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
@@ -252,6 +258,7 @@ impl Input {
             Context::Search(prompt) => search::handle(prompt, key),
             Context::Editing => self.literal(key),
             Context::Argument(prompt) => prompt.handle(key),
+            Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),
             Context::Decision(_) => decide(key),

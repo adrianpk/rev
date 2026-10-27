@@ -21,6 +21,7 @@ impl Session {
         if self.input.prompt().is_some() {
             self.echo.clear();
         }
+        self.sync_path();
         Action::Redraw
     }
 }
