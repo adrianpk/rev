@@ -25,6 +25,7 @@ impl View {
         scroll: Scroll,
     ) -> Result<(), Error> {
         let point = self.cell(buffer)?;
+        self.sync_policy(buffer);
         if scroll == Scroll::Recenter {
             self.recenter(point, size);
             return Ok(());

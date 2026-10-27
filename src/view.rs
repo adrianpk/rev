@@ -77,6 +77,7 @@ pub struct View {
     pub top: usize,
     pub left: usize,
     alignment: scroll::Alignment,
+    tab_width: usize,
 }
 
 impl View {
@@ -90,6 +91,7 @@ impl View {
             top: 0,
             left: 0,
             alignment: scroll::Alignment::Center,
+            tab_width: buffer.policy().tab_width,
         }
     }
 
@@ -104,11 +106,22 @@ impl View {
     /// Reveal point in usable geometry. Suspended presentation preserves scroll.
     pub fn reveal(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
         let point = self.cell(buffer)?;
+        self.sync_policy(buffer);
         if size.usable() {
             reveal(&mut self.top, point.row, usize::from(size.text_rows()));
             reveal(&mut self.left, point.column, usize::from(size.width));
         }
         Ok(())
+    }
+
+    // Goals are display columns, not canonical positions. Width comparison
+    // invalidates them before use without advancing the text publication stamp.
+    fn sync_policy(&mut self, buffer: &Buffer) {
+        let width = buffer.policy().tab_width;
+        if self.tab_width != width {
+            self.reset_navigation();
+            self.tab_width = width;
+        }
     }
 }
 

@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "windows/policy.rs"]
+mod policy;
+
 #[path = "windows/resize.rs"]
 mod resize;
 
