@@ -654,10 +654,22 @@ PR: [#73](https://forge.adrianpk.com/adrianpk/rev/pulls/73).
 Contracts: UI03-UI04, CFG09, CFG16. Tickets: TKT-20261027085234.
 Details and checks: [Slice 25](../plan/rev-configuration-ui.md#slice-25-open-selected-and-new-file-paths-safely).
 
-- [ ] T25.1: Unify C-x C-f and M-x find-file: explicit selected-candidate Return accepts that identity; freely typed Return accepts the draft/new filename; an accepted directory descends without visiting a text buffer.
-- [ ] T25.2: Open through existing canonical visit/file ownership, reusing dirty buffers and applying startup language/new-file policies. Candidate observation/completion cannot create files or publish saves.
-- [ ] T25.3: Test revisit through aliases, relative canonical reuse, nonexistent file creation only in memory, failed/unreadable paths retaining prompt and active buffer, symlink destinations and no accidental save. Scope stays find-file.
+- [x] T25.1: Unify C-x C-f and M-x find-file: explicit selected-candidate Return accepts that identity; freely typed Return accepts the draft/new filename; an accepted directory descends without visiting a text buffer.
+- [x] T25.2: Open through existing canonical visit/file ownership, reusing dirty buffers and applying startup language/new-file policies. Candidate observation/completion cannot create files or publish saves.
+- [x] T25.3: Test revisit through aliases, relative canonical reuse, nonexistent file creation only in memory, failed/unreadable paths retaining prompt and active buffer, symlink destinations and no accidental save. Scope stays find-file.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T25.1 `27b9fd9133d8a018a29a8ac2b47b7a64a98a00c2`;
+T25.2 `cb8e0aa1b0bb3bb9d87a1c499dd6cca46789f4ae`;
+T25.3 full report-introduction commit recorded in the PR follow-up.
+Fourteen new path journeys and two configured accept/bound regressions cover
+selected/typed paths, directory continuation, dirty canonical reuse, frozen
+policies, real permission errors, unsupported names and symlink destinations.
+Two RGB/NO_COLOR acceptance PTYs, two navigation PTYs and the focused absent-path
+PTY preserve exact fixture bytes and create no files. Focused source checks pass
+with nesting at most two. Final readiness requires controller evidence on the
+clean PR head; canonical PR creation and dev integration remain pending.
+Report: [Slice 25](../report/slices/rev-configuration-ui/slice-25-find-file-integration.md).
 
 ### Slice 26: Publish exhaustive configuration reference
 

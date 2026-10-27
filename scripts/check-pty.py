@@ -561,8 +561,9 @@ def new_visit(root):
             assert not (base / "missing").exists()
             group_step(session, b"\x18\x06", b"Find file: ")
             group_step(session, b"\r", b"empty file path", b"> new.txt -- RW L1 C1 Text")
-            group_step(session, b"ab", b"** RW L1 C3 Text", b"\x1b[1;1Hab")
-            find_path(session, alias, b"> new.txt ** RW L1 C3 Text", b"\x1b[1;1Hab")
+            group_step(session, b"\x07", b"Quit", b"> new.txt -- RW L1 C1 Text")
+            group_step(session, b"ab", b"** RW L1 C3 Text", b"ab     ")
+            find_path(session, alias, b"> new.txt ** RW L1 C3 Text", b"ab     ")
             assert b"\x1b[1;3H" + SHOW in session.output, bytes(session.output)
             group_step(session, b"\x18u", b"-- RW L1 C1 Text")
             assert not (base / "missing").exists() and not (base / "unused").exists()
@@ -570,7 +571,7 @@ def new_visit(root):
             session.finish(0)
             assert SHOW in session.output and LEAVE in session.output
             assert list(base.iterdir()) == [], "visiting created filesystem entries"
-            print("PASS absent startup paths, consumed empty argument and normalized live reuse")
+            print("PASS absent startup paths, retained empty-path prompt and normalized live reuse")
         finally:
             session.close()
 

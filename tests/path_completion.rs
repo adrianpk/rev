@@ -4,6 +4,8 @@
 mod acceptance;
 #[path = "path_completion/edges.rs"]
 mod edges;
+#[path = "path_completion/failures.rs"]
+mod failures;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "path_completion/identity.rs"]

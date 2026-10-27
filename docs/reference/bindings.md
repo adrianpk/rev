@@ -215,8 +215,9 @@ exactly these targets plus the text-motion, deletion, search and cancel command
 identities in this table. An unrelated command such as `save-buffer` rejects.
 
 A supplied alias such as `keys.minibuffer.'M-a' = 'minibuffer-accept'` accepts
-through the active owner: M-x records its command history, find-file consumes
-its path argument, and search accepts its current result. Completion aliases
+through the active owner: M-x records its command history, find-file opens the
+selected or typed file, descends into directories or retains failed drafts, and
+search accepts its current result. Completion aliases
 retain the table's stage behavior, including literal tabs in search/replacement.
 Custom text-motion/deletion aliases use the same grapheme cursor and prompt
 limit. Explicit previous/next aliases select the corresponding command candidate

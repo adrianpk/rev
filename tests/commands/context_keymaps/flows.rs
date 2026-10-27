@@ -1,5 +1,63 @@
 use super::*;
 
+// Configured acceptance and navigation retain the same directory/file stages.
+// Repeat/release aliases cannot descend again or insert text after acceptance.
+#[test]
+fn path_accept_aliases() {
+    let fixture = super::super::config_fixture::Fixture::new();
+    let source = fixture.write("root/source.txt", "retained");
+    let target = fixture.write("root/child/target.txt", "target");
+    let mut session = editor(
+        "[keys.minibuffer]\n'M-k' = 'minibuffer-previous'\n'M-a' = 'minibuffer-accept'",
+        "",
+    );
+    session.load(&source).unwrap();
+    let stamp = session.buffer().unwrap().stamp();
+    session.execute(Command::FindFile);
+    session.handle(meta('k'));
+    session.handle(meta('a'));
+    session.handle(phase(meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(meta('a'), KeyEventKind::Release));
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    session.handle(meta('k'));
+    session.handle(meta('a'));
+    assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
+    session.handle(phase(meta('a'), KeyEventKind::Repeat));
+    session.handle(phase(meta('a'), KeyEventKind::Release));
+    assert_eq!(text(&session), "target");
+    assert_eq!(std::fs::read(source).unwrap(), b"retained");
+    assert_eq!(std::fs::read(target).unwrap(), b"target");
+}
+
+// Directory Return uses the same atomic prompt bound as Tab. A selected name
+// that cannot fit retains the original draft and buffer rather than opening it.
+#[test]
+fn path_directory_bound() {
+    let fixture = super::super::config_fixture::Fixture::new();
+    let source = fixture.write("root/source.txt", "retained");
+    fixture.write("root/long directory/child.txt", "child");
+    let mut session = editor("minibuffer.input_limit = 3", "");
+    session.load(&source).unwrap();
+    let stamp = session.buffer().unwrap().stamp();
+    session.execute(Command::FindFile);
+    session.handle(key(KeyCode::Up));
+    session.handle(key(KeyCode::Enter));
+    assert!(session.echo().contains("prompt input limit exceeded"));
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    session.handle(Event::Paste("new".into()));
+    session.handle(key(KeyCode::Enter));
+    assert!(
+        session
+            .buffer()
+            .unwrap()
+            .file()
+            .unwrap()
+            .path()
+            .ends_with("new")
+    );
+    assert!(!fixture.0.join("root/new").exists());
+}
+
 // Configured candidate and completion aliases route to the active file prompt,
 // independently of editor commands, without visiting the highlighted identity.
 #[test]

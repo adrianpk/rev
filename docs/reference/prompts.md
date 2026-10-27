@@ -1,7 +1,8 @@
 # Focused prompts
 
 The active prompt owns keyboard input until its current stage accepts, reports
-an error or is canceled. Command names, paths, buffer names and decisions use
+an error or is canceled. Find-file retains focus on ingress errors so its path
+can be corrected. Command names, paths, buffer names and decisions use
 separate focused contexts. Their text does not enter the document underneath.
 M-x and find-file queries appear above their vertical candidates when surplus
 rows fit; other argument and decision prompts retain the bottom prompt row.
@@ -12,7 +13,7 @@ rows fit; other argument and decision prompts retain the bottom prompt row.
 | --- | --- |
 | M-x | Command query, then the selected command's handler and any arguments. |
 | Query replace | Literal query, literal replacement, then a fresh y/n/q decision for each occurrence. C-g stops at any stage; accepted edits remain independently undoable. |
-| Find file | Path, then open/reuse the file or report an ingress error. |
+| Find file | Selected or typed path; directories descend, files open/reuse, and ingress errors retain the draft. |
 | Write file | Destination path, then an explicit decision if the destination is occupied or a different referent requires consent, then save. |
 | Save buffer | Save the visited path, or request a destination if unnamed; external changes require a separate explicit decision. |
 | Switch buffer | Live buffer name; an empty argument selects the current buffer. |
@@ -36,6 +37,22 @@ refresh disk changes; drawing and resize do not read disk. Incomplete observatio
 show a warning and require an explicit selection for completion rather than
 assuming uniqueness from a partial list. No match or refused completion retains
 the draft and focus. C-g cancels without visiting a candidate or editing text.
+
+Return after explicit candidate navigation accepts that exact observed path,
+independently of its safe display label. With a freely typed draft, Return accepts
+the draft even when suggestions exist. The initial highlight alone does not
+choose a candidate. An accepted directory lists its next component within the
+same bounded prompt, retaining relative/home spelling and a trailing separator.
+Directory symlinks remain list leaves until explicitly accepted. A removed
+selected path reports an error instead of becoming a new file implicitly.
+
+File acceptance uses canonical visit ownership: aliases reuse existing dirty
+buffers and their history without rereading or saving. A new filename creates
+only an in-memory buffer with the startup language and new-file format defaults;
+it creates neither files nor missing parents. Existing files retain their bytes,
+separators, BOM and final-newline state. Failed ingress retains the path, focus
+and original buffer; edit and retry, or cancel with C-g. Unsupported byte names
+remain visible but cannot open under a replacement spelling.
 
 Write/save path arguments keep their draft on Tab and display
 `Enter a path; C-g cancels`. [M-x completion and history](commands.md) operate
@@ -61,9 +78,10 @@ Repeated Return or a held decision suffix cannot accept the next stage.
 
 ## Completion, failure and cancellation
 
-Return consumes each argument once before its handler continues. A failed open,
-unknown buffer or failed save returns to editing with its error and retains the
-source text. A failed required save keeps the buffer open. A later independent
+Return consumes ordinary arguments once before their handler continues. Find-file
+keeps its draft until file ingress succeeds or C-g cancels; directory acceptance
+continues within that prompt. An unknown buffer or failed save returns to editing
+with its error and retains the source text. A failed required save keeps the buffer open. A later independent
 save does not inherit an earlier canceled close request.
 
 C-g drops the current pending interaction, including nested path/decision stages.

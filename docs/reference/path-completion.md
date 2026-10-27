@@ -37,6 +37,15 @@ that limit; zero candidate rows retain selection and origin. The common display
 owner clips labels independently of paths. `typed_path()` resolves the retained
 literal draft against its explicit roots.
 
+Native Return resolves the explicitly navigated candidate from its original path;
+without navigation it uses the literal draft, including new names. Acceptance
+checks only that requested identity, following symlinks there rather than during
+listing. An accepted directory validates access and installs its bounded editable
+spelling before observing the next component. Files pass to the existing canonical
+visit owner. Missing selected paths, unsupported encodings, denied access and file
+ingress errors retain the prompt and active buffer. Observation, completion and
+acceptance never publish saves or create filesystem entries.
+
 ## Queries and identity
 
 Relative text uses the explicit absolute base. An absolute draft supplies its own
