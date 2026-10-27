@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::io;
 use std::path::{Path, PathBuf};
 
+use crate::config::Snapshot;
 use crate::file::{self, Location, Observation, Rename, Renamed};
 
 use super::{Buffer, BufferId, Buffers};
@@ -106,7 +107,7 @@ impl Buffers {
         let mut first_warning = None;
         for buffer in self.entries.values_mut() {
             if let Some(change) = changes.remove(&buffer.id()) {
-                let warning = apply(buffer, change);
+                let warning = apply(buffer, change, &self.settings);
                 if first_warning.is_none() {
                     first_warning = warning;
                 }
@@ -126,7 +127,7 @@ impl Buffers {
     }
 }
 
-fn apply(buffer: &mut Buffer, change: Relocation) -> Option<String> {
+fn apply(buffer: &mut Buffer, change: Relocation, settings: &Snapshot) -> Option<String> {
     let observed = file::observe(&change.target);
     let mut location = change.prior.relocated(change.target.clone());
     if let Ok(Some(after)) = &observed
@@ -135,6 +136,7 @@ fn apply(buffer: &mut Buffer, change: Relocation) -> Option<String> {
         location = location.published(Some(after.clone()));
     }
     buffer.file = Some(location);
+    buffer.apply_settings(settings);
     buffer.select_syntax();
     buffer.name = change.label;
     buffer.break_typing();

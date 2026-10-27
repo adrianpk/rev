@@ -249,7 +249,7 @@ Contracts: CFG09, CFG11, CFG16-CFG17. Tickets: TKT-20261027103709.
 Details and checks: [Slice 9](../plan/rev-configuration-ui.md#slice-9-keep-rectangle-and-path-transitions-coherent).
 
 - [x] T9.1: Yank retained rectangle rows at one left display column under destination tab policy; preserve retained literal tabs rather than forcing the source right edge. Pad only required left gaps and publish one reversible operation.
-- [ ] T9.2: Resolve policy after successful save-as/file reassociation and tree rename, including visited descendants of a renamed directory, from the same startup snapshot. Failed/cancelled operations retain prior policy.
+- [x] T9.2: Resolve policy after successful save-as/file reassociation and tree rename, including visited descendants of a renamed directory, from the same startup snapshot. Failed/cancelled operations retain prior policy.
 - [ ] T9.3: Test cross-width copy versus kill/yank, shared views, dirty saved-state truth, undo/redo, renamed directories, and existing file identity/fidelity; preserve all path-change guarantees.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 

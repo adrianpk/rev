@@ -12,6 +12,9 @@ use rev::view::{Size, View};
 
 use super::{Fixture, bytes, insert_text, text};
 
+#[path = "policy.rs"]
+mod policy;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Fault {
     None,

@@ -7,6 +7,9 @@ use rev::file::Rename;
 
 use super::{Fixture, choose};
 
+#[path = "rename_policy.rs"]
+mod policy;
+
 pub(super) fn insert(buffer: &mut Buffer, text: &str) {
     let edit = Replacement {
         source: buffer.span(0..0).unwrap(),

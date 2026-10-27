@@ -89,6 +89,7 @@ impl Buffers {
         let outcome = file::publish(&save, output);
         if outcome.publication() != Publication::NotPublished {
             reconcile(buffer, &mut self.files, &save, &outcome, label);
+            buffer.apply_settings(&self.settings);
         }
         outcome
     }
