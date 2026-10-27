@@ -187,7 +187,7 @@ Details and exact checks: [Slice 11](../plan/rev-input-navigation.md#slice-11-fo
 
 - [x] T11.1: Resolve primary clicks through current composed pane/gutter/text geometry and reuse the ordinary focus transition and checked movement owner.
 - [x] T11.2: Map tabs, graphemes, wide glyphs, scrolling, clipping and EOF accurately; pane-owned decorations may focus without fabricating text positions.
-- [ ] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
+- [x] T11.3: Verify tree and multiple shared/different-buffer panes, stale/resize geometry and prompt ownership; preserve file bytes, history and active-region movement rules.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
 ### Slice 12: scroll the pointed pane without changing focus

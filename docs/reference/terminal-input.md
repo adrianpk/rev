@@ -87,8 +87,20 @@ The native terminal owner can acquire button-event tracking (DEC 1002) and SGR
 mouse coordinates (DEC 1006) together. It requests no all-motion hover or RXVT
 reporting. The existing decoder supplies primary press/drag/release and vertical
 wheel reports as zero-based terminal cells; these are not document positions.
-Focused prompts retain their input, and pointer reports do not consume keyboard
-prefixes or extend the existing Escape deadline.
+Focused prompts retain their input. Wheel and unsupported reports preserve
+keyboard prefixes and the existing Escape deadline. An admitted primary press
+completes its focus transition and clears pending keyboard prefixes.
+
+Primary presses resolve against the current composed tree and editing panes.
+An editing text hit selects its live view and places point through checked
+movement. Tab, wide, combining, control and emoji cells select a complete source
+grapheme; scroll offsets and either gutter side use the rendering geometry.
+The exact end-of-line boundary is selectable, including an empty final row.
+Gutters, status rows, trailing fill, beyond-EOF rows and clipped glyph fragments
+may focus their owning pane without moving point. Shared separators do not
+select a pane. Tree hits focus without activating an entry. Prompts, completion,
+inventory and decisions retain ownership; clicks cannot accept or cancel them.
+Movement preserves an existing active mark/region and creates no undo item.
 
 Ordinary startup currently leaves reporting disabled while native focus,
 scroll, selection and startup/runtime controls are integrated. Explicit mode

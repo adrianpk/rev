@@ -88,6 +88,7 @@ fn text_focus() {
     );
     assert!(session.buffer().unwrap().history().is_empty());
     assert!(!session.buffer().unwrap().is_modified());
+    assert_eq!(session.buffer().unwrap().mark(), None);
     assert_eq!(
         session.frame().unwrap().cursor(),
         Some(Position {

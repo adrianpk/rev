@@ -1,6 +1,6 @@
 # Slice 11: Focus panes and place point by pointer
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -23,7 +23,11 @@ point through the existing checked movement owner.
 - Exact EOL and final-empty-row boundaries remain selectable. Trailing fill,
   beyond-EOF rows and clipped glyph fragments focus without moving point.
 - Tree and editing focus use existing focus owners; active prompt owners retain
-  their input. Source text and history remain canonical.
+  their input. Shared and different-file panes retain independent points.
+- Resize, pane deletion and suspended geometry resolve fresh live bounds.
+  Active marks survive point movement, including in read-only buffers.
+- A press ends an adjacent typing group without adding an undo item.
+  Undo/redo preserve the ordered edits around the new point.
 
 ## Implementation Notes
 
@@ -44,19 +48,60 @@ without treating decorations or padding as source positions.
 - `src/session/pointer.rs`: native press dispatch and existing focus transitions.
 - `src/session/motion.rs`: shared checked movement owner.
 - `src/coordinates/hit.rs`, `tests/pointer/cells.rs`: checked painted-cell boundaries.
-- `tests/pointer/focus.rs`: pane focus, text and decoration regressions.
+- `tests/pointer/focus.rs`, `tests/pointer/workspace.rs`: pane/tree focus,
+  prompt isolation, geometry lifecycle, active regions and typing history.
+- `scripts/configuration_ui/pointer_focus.py`: actual SGR reports through the
+  ordinary binary, current rendered cursor and owned terminal cleanup.
+- `docs/reference/terminal-input.md`: native hit semantics and activation boundary.
 
 ## Validation
 
 Development checks passed:
 
-- `cargo test --test pointer`: twelve groups passed, including shared-pane point
+- `cargo test --test pointer`: twenty groups passed, including shared-pane point
   placement, frame cursor agreement, decorations, literal glyph/EOF/clipping
   mappings, tab widths 1/4/8/32, nonzero origins and rejected stale/foreign or
-  overflowing candidates. Canonical source bytes and history remain unchanged.
+  overflowing candidates. Workspace cases cover tree prompts, different files,
+  nested right/relative gutters, changed/closed/tiny panes, scrolled text,
+  read-only active regions and typing undo/redo. Prompt/decision/inventory
+  owners retain rendered drafts, cursor and point. Canonical bytes are preserved.
+- `cargo test --test pointer workspace::tree_focus`: tree prompt cancellation
+  retains tree focus before a later press returns to editing.
+- `cargo clippy --test pointer -- -D warnings`: focused native lint passed.
+- `python3 scripts/check-pty.py --suite pointer-focus`: two owned sessions passed
+  for SGR tabbed Unicode point mapping, split/tree focus, number-field focus,
+  preserved goto-line draft, resized ownership, tiny suspension, restoration
+  and byte fidelity. The ordinary binary receives actual SGR reports directly;
+  factory reporting remains inactive.
 - `python3 scripts/check-source.py`: unchanged safe-Rust and complexity limits.
 
-Final clean-head evidence will be recorded after task and PR-reference commits.
+PTY fixtures retain the existing eight-second deadline, 1-MiB output bound,
+owned HOME/XDG paths, raw-mode assertion, unchanged filesystem snapshot, full
+terminal restoration, child reaping and descriptor closure. Idle observation
+checks zero output and CPU ticks over 120 ms. No runtime queue or timer is added.
+
+Development fixture corrections use the file-open status as readiness (opening
+a file clears the startup echo), and recognize the renderer's two completed
+SGR-reset rows when a tiny frame hides the cursor. The older resize helper's
+bare-echo terminator was unsuitable for that frame. Tiny cell bounds, hidden
+cursor, retained points, input barrier and resource limits remain asserted.
+
+Final clean-head canonical and focused evidence will be recorded through the
+controller after task and PR-reference commits. Required ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test gutter --test commands --test display --test panels --test windows`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final commands:
+
+- `cargo test --lib --test coordinates`
+- `python3 scripts/check-pty.py --suite pointer-lifetime`
+- `python3 scripts/check-pty.py --suite pointer-focus`
+- `git diff --check`
+
 
 ## Risks and Follow-ups
 

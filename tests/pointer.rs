@@ -14,6 +14,8 @@ mod focus;
 mod cells;
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "pointer/workspace.rs"]
+mod workspace;
 
 fn mouse(kind: MouseEventKind) -> MouseEvent {
     MouseEvent {
