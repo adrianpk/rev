@@ -1,66 +1,64 @@
 # rev
 
-A terminal text editor written in Rust, with direct Unicode editing and Emacs
-bindings. It supports multiple buffers and nested windows, guarded file saves,
-linear and rectangular selections, literal search/replacement, a keyboard file
-tree and bundled Rust highlighting. Normal editing works offline.
+rev is a small terminal text editor written in Rust. It takes its cues from
+Emacs's navigation and buffer workflow, with a focus on quick, comfortable
+editing.
 
-## Build and run
+Multiple buffers, split windows, search and replace, a file tree and
+[syntax highlighting](docs/reference/syntax.md) come built in. These are everyday
+comforts you can use from the start, without first assembling a set of editor
+packages. The goal is a light, responsive editor with a deliberately small scope.
 
-Use Linux, a terminal, Rust 1.98 or newer, Cargo and a C compiler for the bundled
-grammar. Building needs the pinned Cargo dependencies; running needs no network,
-interpreter, language server or grammar installation.
+![rev editing Rust source with the file tree open](docs/reference/images/rev.png)
+
+## Install
+
+Requires Linux, Rust 1.98 or newer, Cargo and a C compiler.
+
+From the repository root:
 
 ```sh
-cargo build --release --locked
-./target/release/rev
-./target/release/rev notes.txt
+cargo install --path .
 ```
 
-`rev` accepts zero arguments or one file path. An absent file opens an empty
-visiting buffer; saving creates it. Install the built executable on your PATH
-when you want to invoke it as `rev`.
+## Use
+
+Open a file:
+
+```sh
+rev notes.txt
+```
+
+Run `rev` without a path for an empty buffer. If the file does not exist, saving
+creates it. The editor runs offline.
 
 ## First commands
 
-Type ordinary text directly. `C-` means Control; `M-` means Alt/Meta or a
-compatible Escape prefix. A space between chords means press them in order.
+Type to insert text. `C-` means Control and `M-` means Alt/Meta. Press chords
+separated by spaces in sequence: `C-x C-s` means Control-x, then Control-s.
 
 | Keys | Action |
 | --- | --- |
-| `C-x C-f` | Find or revisit a file. |
-| `C-x C-s` | Save; unnamed text asks for a path. |
-| `C-x C-w` | Write to another path. |
-| `C-x b`, `C-x C-b` | Switch buffers or select from the buffer list. |
-| `C-x 2`, `C-x 3`, `C-x o` | Split below/right and cycle editing windows. |
-| `C-SPC`, `M-w`, `C-w`, `C-y` | Set mark, copy, kill and yank linear text. |
-| `C-s`, `C-r`, `M-%` | Search forward/backward or query-replace. |
-| `C-x u`, `M-x undo-redo` | Undo and redo. |
-| `M-x` | Find and run a command by name. |
-| `C-g` | Cancel the current interaction or clear the active region. |
-| `C-x C-c` | Exit after save/discard decisions for modified buffers. |
-
-Read the [edit/save procedure](docs/how-to/edit-files.md),
-[complete bindings](docs/reference/bindings.md) and
-[terminal input requirements](docs/reference/terminal-input.md). Save conflicts
-need explicit `y` or `n`; Return has no affirmative default. `C-g` cancels.
+| `C-x C-f` | Open a file. |
+| `C-x C-s` | Save the current buffer. |
+| `C-x b` | Switch buffers. |
+| `C-x t t` | Show or hide the file tree. |
+| `C-s`, `C-r` | Search forward or backward. |
+| `M-x` | Run a command by name. |
+| `C-g` | Cancel the current interaction. |
+| `C-x C-c` | Quit, with save prompts for modified buffers. |
 
 ## Documentation
 
-- [Documentation index](docs/index.md)
-- [Scope and defaults](docs/reference/defaults.md)
-- [Commands and M-x](docs/reference/commands.md)
-- [Recover a failed operation](docs/how-to/recover-edits.md)
-- [Change history](CHANGELOG.md)
-
-For contributors, the [accepted specification](ops/default/spec/rev-editor.md)
-and [state model](ops/default/spec/rev-editor-model.md) define the implementation
-contracts. [Terminal journeys](docs/how-to/terminal-journeys.md) describe native
-and real-terminal validation. Python 3 is needed for those scripts.
+Start with [editing files](docs/how-to/edit-files.md) or the
+[key bindings](docs/reference/bindings.md). The
+[documentation index](docs/index.md) links to the full reference, including
+terminal input, file handling and recovery. See the [changelog](CHANGELOG.md)
+for changes.
 
 ## License
 
-Copyright (C) 2026 rev contributors.
+Copyright (C) 2026 Adrian PK.
 
 Licensed under the GNU General Public License, version 3 only
 (`GPL-3.0-only`). See [LICENSE](LICENSE).
