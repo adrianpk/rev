@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 3 - add explicit tabify and untabify
+Active slice: Slice 4 - define native gutter view policy
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -74,9 +74,9 @@ Details and exact checks: [Slice 3](../plan/rev-input-navigation.md#slice-3-add-
 - [x] T3.1: Implement both native M-x operations on the existing admitted linear region; missing regions give feedback and never silently select the whole document.
 - [x] T3.2: Compute tab stops from the effective buffer policy and true starting display column, including Unicode prefixes and mixed whitespace; retain all nonselected bytes and line formats.
 - [x] T3.3: Publish one checked edit/undo operation, cover redo/no-op/read-only/shared views and document how to select the intended range; retain source fidelity and record focused evidence. Reconcile any historical open-future-ticket guard against the newly verified conversion delivery instead of deleting the provenance check.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 3 implementation is complete; canonical PR [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83) targets dev. Final clean-HEAD checks are recorded through the controller before handoff; integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-3-whitespace-conversion.md) records native conversion, history/fidelity, PTY outcomes and retained provenance checks. T3.1: `e015dcfb6104872696571df7f0e361209774c2f7`. T3.2: `28be1f4d52fd44c50ab92c9d586a4fe54b648d60`. T3.3: `86874577229ca5ec52eb00547f63a62a46d3da9f`.
+Slice 3 of 20 completed. Canonical PR [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83) integrated into dev at `bc94816edd96ef245310b892df24fe57edc8589a`. Canonical five-command evidence `ZH4LE3KVA6JWX6JFD3WHREEGRO` and focused evidence `JUHABZU63SQ2BX4KTIRZQHHWLB` passed on that candidate. Slice 4 is active. The [canonical report](../report/slices/rev-input-navigation/slice-3-whitespace-conversion.md) records native conversion, history/fidelity, PTY outcomes and retained provenance checks. T3.1: `e015dcfb6104872696571df7f0e361209774c2f7`. T3.2: `28be1f4d52fd44c50ab92c9d586a4fe54b648d60`. T3.3: `86874577229ca5ec52eb00547f63a62a46d3da9f`.
 
 ### Slice 4: define native gutter view policy
 

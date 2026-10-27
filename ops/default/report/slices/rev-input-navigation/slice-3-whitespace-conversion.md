@@ -1,11 +1,12 @@
 # Slice 3: Add explicit tabify and untabify
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-03-whitespace-conversion`
 PR: [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83)
+Integrated: `bc94816edd96ef245310b892df24fe57edc8589a`
 
 ## Purpose
 
@@ -102,7 +103,8 @@ visual columns. WSP02 uses one checked transaction and ordinary safety/history.
   publisher. Passing the existing borrowed span directly removes that warning;
   no lint or acceptance limit changes.
 
-The controller records final clean-HEAD results for this ordered canonical list:
+PASS: canonical controller evidence `ZH4LE3KVA6JWX6JFD3WHREEGRO` validates
+the integrated commit with this exact ordered list (337 native tests):
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -110,7 +112,8 @@ The controller records final clean-HEAD results for this ordered canonical list:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused final evidence uses this separate ordered list on the same clean HEAD:
+PASS: focused controller evidence `JUHABZU63SQ2BX4KTIRZQHHWLB` records
+this list on the same integrated commit (13 acceptance tests, two owned PTYs):
 
 - `python3 -m unittest discover -s scripts -p test_acceptance.py`
 - `python3 scripts/check-config-reference.py`

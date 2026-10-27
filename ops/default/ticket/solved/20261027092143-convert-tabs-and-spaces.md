@@ -1,7 +1,7 @@
 ---
 id: TKT-20261027092143
 title: Add explicit tabs-to-spaces and spaces-to-tabs commands
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,6 +12,8 @@ reported_at: 2026-10-27T09:21:43Z
 ready_at: 2026-10-27T20:51:03Z
 started_at: 2026-10-27T20:51:03Z
 reviewed_at: 2026-10-27T21:20:51Z
+resolution: fixed
+closed_at: 2026-10-27T21:26:24Z
 branch: feat/rev-input-03-whitespace-conversion
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/83
 commits: [e015dcfb6104872696571df7f0e361209774c2f7, 28be1f4d52fd44c50ab92c9d586a4fe54b648d60, 86874577229ca5ec52eb00547f63a62a46d3da9f]
@@ -59,4 +61,4 @@ Slice 3 implements both commands on the existing explicit linear region using
 true tab-stop columns, one transaction and ordinary shared-view history. Native
 and owned PTY checks cover exact bytes, Unicode/line-format fidelity, undo/redo,
 read-only/no-op admission and cancellation. See the [canonical report](../../report/slices/rev-input-navigation/slice-3-whitespace-conversion.md).
-Canonical PR: [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83). Final clean-HEAD evidence is recorded through the controller before handoff; integration remains pending.
+Canonical PR: [#83](https://forge.adrianpk.com/adrianpk/rev/pulls/83). Integrated into dev at `bc94816edd96ef245310b892df24fe57edc8589a`; canonical evidence `ZH4LE3KVA6JWX6JFD3WHREEGRO` and focused evidence `JUHABZU63SQ2BX4KTIRZQHHWLB` passed on that candidate.
