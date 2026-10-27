@@ -70,6 +70,10 @@ NAV02 retains ordinary per-view movement, C-g and shared-buffer history owners.
 - Initial `python3 scripts/check-config-reference.py` validation rejected an
   outdated editor-map count of 66. The defaults table now records 68 editor
   entries; all schema/map equality checks and commands remain unchanged.
+- `python3 scripts/check-source.py` found the added generic dispatch arm at
+  cyclomatic 11 against the existing limit of 10. Goto-line now enters the
+  existing interaction dispatcher beside search/replace, preserving its prompt
+  routing and cancellation; both dispatchers stay within the unchanged limit.
 - The reference sample includes both new aliases; the acceptance evidence guard
   retains its exact schema, palette and optional-example assertions and expects
   111 defaults instead of 109, accounting for these two inherited bindings.

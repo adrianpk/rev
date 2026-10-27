@@ -286,6 +286,7 @@ impl Session {
     fn active_command(&mut self, command: Command) -> Action {
         match command {
             Command::QueryReplace => self.query_replace(),
+            Command::GotoLine => self.goto_line(),
             Command::SearchForward => self.search(crate::search::Direction::Forward),
             Command::SearchBackward => self.search(crate::search::Direction::Backward),
             Command::Split(direction) => self.split(direction),
@@ -310,7 +311,6 @@ impl Session {
         match command {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
-            Command::GotoLine => self.goto_line(),
             Command::SaveBuffer => self.save_buffer(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
