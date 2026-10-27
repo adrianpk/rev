@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `fix/rev-config-ui-08-rectangle-capture`
-PR: pending
+PR: [#57](https://forge.adrianpk.com/adrianpk/rev/pulls/57)
 
 ## Purpose
 
@@ -35,7 +35,8 @@ source-policy geometry, whole graphemes, short rows and atomic history.
   contradictory whole-tab copy/insertion expectations and user reference.
 - T8.2: `d858fcd8bbf2e6eff2d6d1bbff02eeda4958aa8a` verifies configured
   source widths, Unicode, CRLF, short/read-only rows and independent stores.
-- T8.3 ports the accepted width-four row examples into original golden fixtures,
+- T8.3: `a74eff35b6f54c2b87066d2c15a0c96bc221b787` ports the accepted
+  width-four row examples into original golden fixtures,
   strengthens the partial-edge matrix and checks configured-width kill replay.
   All three new capture tests and the affected existing focused cases pass.
 - Each part records whether its source is a literal tab. Copy expands its actual

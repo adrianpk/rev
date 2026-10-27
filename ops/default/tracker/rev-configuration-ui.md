@@ -229,14 +229,16 @@ Details and checks: [Slice 8](../plan/rev-configuration-ui.md#slice-8-capture-em
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T8.1 `8271ccd8fa68ee05af02a412d3832088b5beedfe`;
-T8.2 `d858fcd8bbf2e6eff2d6d1bbff02eeda4958aa8a`; T8.3 recorded after commit.
+T8.2 `d858fcd8bbf2e6eff2d6d1bbff02eeda4958aa8a`;
+T8.3 `a74eff35b6f54c2b87066d2c15a0c96bc221b787`.
 Development validation: three new capture cases, strengthened copy/kill tab-edge
 and store-separation checks and the adapted copied-row insertion regression
 passed. Coverage includes configured widths 1/2/4/8/32, Unicode, short rows,
 CRLF, read-only copy and one-step kill/undo. Focused Clippy passed.
 Final exact-head evidence belongs to the controller.
 Report: [Slice 8](../report/slices/rev-configuration-ui/slice-8-rectangle-capture.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#57](https://forge.adrianpk.com/adrianpk/rev/pulls/57);
+dev integration remains controller-owned.
 
 ### Slice 9: Keep rectangle and path transitions coherent
 
