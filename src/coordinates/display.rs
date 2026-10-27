@@ -14,12 +14,17 @@ pub struct Glyph<'a> {
 }
 
 impl<'a> Glyph<'a> {
-    fn new(text: RopeSlice<'a>, source: Range<Scalar>, column: usize) -> Result<Self, Error> {
+    fn new(
+        text: RopeSlice<'a>,
+        source: Range<Scalar>,
+        column: usize,
+        tab_width: usize,
+    ) -> Result<Self, Error> {
         let text = text
             .as_str()
             .map(Cow::Borrowed)
             .unwrap_or_else(|| Cow::Owned(text.to_string()));
-        let (text, width) = presentation(text, column);
+        let (text, width) = presentation(text, column, tab_width);
         let end = column.checked_add(width).ok_or(Error::Overflow)?;
         Ok(Self {
             source,
@@ -36,21 +41,27 @@ pub struct Glyphs<'a> {
     byte: usize,
     point: Scalar,
     column: usize,
+    tab_width: usize,
     done: bool,
 }
 
 impl<'a> Glyphs<'a> {
     pub(crate) fn for_text(text: &'a str) -> Result<Self, Error> {
-        Self::new(RopeSlice::from(text), Scalar(0))
+        Self::new(
+            RopeSlice::from(text),
+            Scalar(0),
+            crate::config::Editor::default().tab_width,
+        )
     }
 
-    pub(super) fn new(text: RopeSlice<'a>, start: Scalar) -> Result<Self, Error> {
+    pub(super) fn new(text: RopeSlice<'a>, start: Scalar, tab_width: usize) -> Result<Self, Error> {
         Ok(Self {
             text,
             cursor: Cursor::new(text, 0)?,
             byte: 0,
             point: start,
             column: 0,
+            tab_width,
             done: false,
         })
     }
@@ -64,7 +75,7 @@ impl<'a> Glyphs<'a> {
             .get_byte_slice(self.byte..end)
             .ok_or(Error::Segmentation)?;
         let source = self.point..Scalar(self.point.0 + text.len_chars());
-        let glyph = Glyph::new(text, source.clone(), self.column)?;
+        let glyph = Glyph::new(text, source.clone(), self.column, self.tab_width)?;
         self.byte = end;
         self.point = source.end;
         self.column = glyph.columns.end;
@@ -93,9 +104,9 @@ impl<'a> Iterator for Glyphs<'a> {
     }
 }
 
-fn presentation(text: Cow<'_, str>, column: usize) -> (Cow<'_, str>, usize) {
+fn presentation(text: Cow<'_, str>, column: usize, tab_width: usize) -> (Cow<'_, str>, usize) {
     if text == "\t" {
-        let width = 4 - column % 4;
+        let width = tab_width - column % tab_width;
         return (Cow::Owned(" ".repeat(width)), width);
     }
     if let Some(control) = text.chars().next().filter(|ch| ch.is_control()) {

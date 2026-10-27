@@ -61,7 +61,11 @@ impl Buffer {
         let (_, target) = record.states(direction);
         let changes = record.replay(direction);
         let mut prepared = self.prepare_changes(changes, points, target)?;
-        let coordinates = Coordinates::for_text(prepared.text.slice(..), prepared.record.after);
+        let coordinates = Coordinates::for_text(
+            prepared.text.slice(..),
+            prepared.record.after,
+            self.policy.tab_width,
+        );
         prepared.record.after_mark = record.mark(direction);
         if let Some(mark) = prepared.record.after_mark {
             mapping::boundary(&coordinates, mark)?;

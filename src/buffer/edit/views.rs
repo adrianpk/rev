@@ -11,7 +11,8 @@ impl Prepared {
         }
         let position =
             mapping::mapped(&self.record.changes, top.position, mapping::Affinity::Left)?;
-        let coordinates = Coordinates::for_text(self.text.slice(..), self.record.after);
+        let coordinates =
+            Coordinates::for_text(self.text.slice(..), self.record.after, self.tab_width);
         Ok(coordinates.to_line(position)?.row)
     }
 

@@ -54,6 +54,7 @@ impl Buffers {
         }
         if let Some(mut buffer) = fresh {
             buffer.name = "*scratch*".into();
+            buffer.apply_settings(&self.settings);
             self.entries.insert(buffer.id(), buffer);
         }
         if self.initial == kill.id() {

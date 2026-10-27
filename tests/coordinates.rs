@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+#[path = "coordinates/policy.rs"]
+mod policy;
+
 use rev::buffer::Buffers;
 use rev::coordinates::{Byte, Cell, Coordinates, Error, LineByte, Scalar};
 use unicode_segmentation::UnicodeSegmentation;

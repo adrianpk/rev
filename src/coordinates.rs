@@ -63,6 +63,7 @@ impl std::error::Error for Error {}
 pub struct Coordinates<'a> {
     text: RopeSlice<'a>,
     stamp: Stamp,
+    tab_width: usize,
 }
 
 impl<'a> Coordinates<'a> {
@@ -71,11 +72,16 @@ impl<'a> Coordinates<'a> {
         Ok(Self {
             text: buffer.slice(&span)?,
             stamp: span.stamp,
+            tab_width: buffer.policy().tab_width,
         })
     }
 
-    pub(crate) fn for_text(text: RopeSlice<'a>, stamp: Stamp) -> Self {
-        Self { text, stamp }
+    pub(crate) fn for_text(text: RopeSlice<'a>, stamp: Stamp, tab_width: usize) -> Self {
+        Self {
+            text,
+            stamp,
+            tab_width,
+        }
     }
 
     pub fn stamp(&self) -> Stamp {
@@ -154,7 +160,7 @@ impl<'a> Coordinates<'a> {
 
     pub fn glyphs(&self, row: usize) -> Result<Glyphs<'a>, Error> {
         let (line, start) = self.body(row)?;
-        Glyphs::new(line, start)
+        Glyphs::new(line, start, self.tab_width)
     }
 
     /// Converts only grapheme boundaries; an interior cluster has no unique cell.
@@ -162,7 +168,7 @@ impl<'a> Coordinates<'a> {
         let row = self.to_line(point)?.row;
         let mut column = 0;
         let (line, start) = self.body(row)?;
-        for glyph in Glyphs::new(line, start)? {
+        for glyph in Glyphs::new(line, start, self.tab_width)? {
             let glyph = glyph?;
             if point.0 < glyph.source.end.0 {
                 return cluster_cell(point, &glyph, row);
@@ -178,7 +184,7 @@ impl<'a> Coordinates<'a> {
     /// Interior wide/tab cells map to their source start; columns past EOL clamp.
     pub fn from_cell(&self, cell: Cell) -> Result<Scalar, Error> {
         let (line, start) = self.body(cell.row)?;
-        for glyph in Glyphs::new(line, start)? {
+        for glyph in Glyphs::new(line, start, self.tab_width)? {
             let glyph = glyph?;
             if cell.column < glyph.columns.end {
                 return Ok(glyph.source.start);

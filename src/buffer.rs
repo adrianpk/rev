@@ -2,6 +2,7 @@ mod delete;
 pub mod edit;
 mod endings;
 mod lifecycle;
+mod policy;
 mod region;
 mod rename;
 mod save;
@@ -123,6 +124,7 @@ impl std::error::Error for Error {}
 pub struct Buffer {
     id: BufferId,
     name: String,
+    policy: crate::config::Editor,
     crlf: usize,
     revision: u64,
     text: Rope,
@@ -156,6 +158,7 @@ impl Buffer {
         Ok(Self {
             id,
             name: format!("*buffer-{id}*"),
+            policy: crate::config::Editor::default(),
             crlf: endings::count(text.slice(..)),
             revision: 1,
             text,
@@ -325,18 +328,27 @@ pub struct Buffers {
     entries: BTreeMap<BufferId, Buffer>,
     initial: BufferId,
     files: BTreeMap<PathBuf, BufferId>,
+    settings: crate::config::Snapshot,
 }
 
 impl Buffers {
     /// Creates a registry with one initially empty buffer.
     pub fn new() -> Result<Self, Error> {
+        Self::with_settings(crate::config::Snapshot::default())
+    }
+
+    /// Use one supplied, admitted snapshot for newly installed buffer policies.
+    /// Construction performs no configuration discovery or file reads.
+    pub fn with_settings(settings: crate::config::Snapshot) -> Result<Self, Error> {
         let mut buffer = Buffer::new("")?;
         buffer.name = "*scratch*".into();
+        buffer.apply_settings(&settings);
         let initial = buffer.id();
         Ok(Self {
             entries: BTreeMap::from([(initial, buffer)]),
             initial,
             files: BTreeMap::new(),
+            settings,
         })
     }
 
@@ -362,6 +374,7 @@ impl Buffers {
     }
 
     pub(crate) fn insert(&mut self, mut buffer: Buffer) -> BufferId {
+        buffer.apply_settings(&self.settings);
         buffer.name = self.label(&buffer.name);
         let id = buffer.id();
         self.entries.insert(id, buffer);

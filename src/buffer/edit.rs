@@ -174,6 +174,7 @@ pub struct Prepared {
     next_state: u64,
     group: Option<Transaction>,
     active: super::region::Mode,
+    tab_width: usize,
 }
 
 impl Buffer {
@@ -220,7 +221,11 @@ impl Buffer {
             sequence: self.next_state,
         };
         let mut prepared = self.prepare_changes(changes, points, state)?;
-        let coordinates = Coordinates::for_text(prepared.text.slice(..), prepared.record.after);
+        let coordinates = Coordinates::for_text(
+            prepared.text.slice(..),
+            prepared.record.after,
+            self.policy.tab_width,
+        );
         mapping::set_cursor(&mut prepared.record, cursor, &coordinates)?;
         prepared.next_state = next_state;
         Ok(prepared)
@@ -235,7 +240,7 @@ impl Buffer {
         let after = self.next_stamp()?;
         let text = self.candidate(&changes)?;
         let crlf = super::endings::update(&self.text, &text, &changes, self.crlf)?;
-        let coordinates = Coordinates::for_text(text.slice(..), after);
+        let coordinates = Coordinates::for_text(text.slice(..), after, self.policy.tab_width);
         let after_points = map_points(self, &changes, points, &coordinates)?;
         let mut record = Transaction {
             before: self.stamp(),
@@ -266,6 +271,7 @@ impl Buffer {
             next_state: self.next_state,
             group: None,
             active: self.mark_mode,
+            tab_width: self.policy.tab_width,
         })
     }
 
