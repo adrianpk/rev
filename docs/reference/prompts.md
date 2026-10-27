@@ -88,7 +88,7 @@ check, not a guarantee against changes in the final interval before replacement.
 
 ## Supplied prompt preferences
 
-Library sessions supplied with an admitted snapshot use
+Executable startup and library sessions supplied with an admitted snapshot use
 `minibuffer.input_limit` (1..=65536 Unicode scalars, default 4096) across command,
 argument, incremental-search and query-replace text. The bound covers initial
 text, typed keys, whole paste payloads, completion and history recall. An excess
@@ -100,5 +100,5 @@ name cannot be completed or recalled into text past the bound.
 `minibuffer.history_limit` admits 1..=4096 distinct accepted command names
 (default 128), newest first. Repeating a command promotes it without consuming
 another entry; overflow evicts the oldest. Cancellation retains session history
-and rejected input adds nothing. History is not persisted. Supplied preferences
-do not yet enable executable startup configuration discovery.
+and rejected input adds nothing. History is not persisted. Startup reads these
+preferences once; source edits take effect after restarting.

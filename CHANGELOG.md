@@ -8,6 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Configure existing editing, display, palette, history, file and context-keybinding preferences through startup TOML under the XDG configuration directory. Explicit includes and language overrides compose before startup; invalid sources show a diagnostic and retain complete defaults. Configuration changes take effect after restarting, and startup creates no settings files or empty XDG directories.
 - Edit Unicode text directly in the terminal, with whole-grapheme movement and deletion, literal tabs, visible controls and scrolling that retains the intended display column. The status shows position, modification, read-only state and language mode.
 - Open UTF-8 files at startup or with `C-x C-f`, preserving BOM, LF/CRLF and final-newline presence. Canonical paths reuse live buffers; absent paths start empty without creating files. Invalid UTF-8 and NUL-containing binary input reject without replacing live text.
 - Save with `C-x C-s` or write another path with `C-x C-w`. Occupied destinations and external changes require fresh consent; symlink saves preserve the link and write its resolved target. Saves preserve access permissions and distinguish rejected writes from published files whose completion remains unresolved.

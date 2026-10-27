@@ -32,6 +32,10 @@ rev notes.txt
 Run `rev` without a path for an empty buffer. If the file does not exist, saving
 creates it. The editor runs offline.
 
+Startup preferences load from `$XDG_CONFIG_HOME/rev/config.toml`, defaulting to
+`~/.config/rev/config.toml`. See [startup configuration](docs/reference/defaults.md#startup-configuration)
+for discovery, defaults and an example.
+
 ## First commands
 
 Type to insert text. `C-` means Control and `M-` means Alt/Meta. Press chords

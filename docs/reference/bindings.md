@@ -85,7 +85,7 @@ for retained text, history and file behavior.
 
 ## Supplied layout and scrolling preferences
 
-Library sessions supplied with an admitted snapshot use `scroll.page_overlap`
+Startup configuration and library sessions supplied with an admitted snapshot use `scroll.page_overlap`
 to compute page distance from the current pane's content height. Usable panes
 advance at least one row even when overlap exceeds that height; suspended pages
 retain point. The default overlap remains two rows.
@@ -94,8 +94,8 @@ retain point. The default overlap remains two rows.
 after its one-cell separator. Both axes and native panel composition use the
 same ratio, clamped to each subtree's complete recursive minima. Small resizes
 suspend the entire editing projection and retain view identities and history.
-The default remains equal halves. These supplied preferences do not yet enable
-executable startup configuration discovery.
+The default remains equal halves. Executable startup uses the admitted user
+configuration snapshot; source edits take effect after restarting.
 
 ## Configuration keymap contracts
 
@@ -182,7 +182,7 @@ require fresh presses. Releases do not dispatch. Every Enter alias requires a
 fresh prompt acceptance. Literal paste bypasses bindings, including printable
 characters assigned to commands, and publishes through the canonical edit owner.
 Read-only refusal, saved-state identity and undo use the same owners as M-x.
-Executable startup configuration discovery remains a separate integration step.
+Executable startup reads user configuration once; source edits require a restart.
 
 ### Minibuffer defaults and availability
 

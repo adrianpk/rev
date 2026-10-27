@@ -46,7 +46,7 @@ Each expansion reads only that directory's direct children. Collapsing removes
 its loaded descendants; expanding again observes fresh children. There is no
 recursive scan or implicit symlink traversal.
 
-Library sessions supplied with an admitted snapshot also apply `tree.visible`,
+Executable startup and supplied library snapshots apply `tree.visible`,
 `width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
 visibility preserves editing focus. Width is the lesser of the preferred
 columns and maximum frame share; frames narrower than 32 columns still hide
@@ -54,7 +54,7 @@ the tree and release its focus. `auto` and `file-parent` choose an initial
 file's parent, falling back to cwd; `cwd` always chooses cwd. Root selection
 reads no directory entries. Filtering and sorting apply only during expansion
 or refresh, with native case-sensitive filename ordering and symlinks as leaves.
-Executable startup configuration discovery is not active yet.
+Startup reads these preferences once; source edits take effect after restarting.
 
 `C-x t r` or `M-x tree-refresh` reloads the root and previously expanded
 branches. New directories stay collapsed. Selection follows its retained path;

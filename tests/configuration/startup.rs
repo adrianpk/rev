@@ -1,5 +1,7 @@
 #[path = "startup_errors.rs"]
 mod errors;
+#[path = "startup_lifetime.rs"]
+mod lifetime;
 
 use std::path::Path;
 use std::process::Command as Process;

@@ -9,8 +9,49 @@ The initial tree root is the file's parent, or the working directory without a
 file argument. The tree starts hidden.
 
 Linux terminals are the primary target. Ordinary execution is offline and uses
-compiled-in defaults and one fixed syntax palette. [Terminal input](terminal-input.md)
+compiled-in defaults unless startup configuration supplies supported overrides. [Terminal input](terminal-input.md)
 states the keyboard reports and Escape behavior.
+
+## Startup configuration
+
+The executable reads `$XDG_CONFIG_HOME/rev/config.toml` once before creating
+buffers or input owners. An unset, empty or relative `XDG_CONFIG_HOME` uses
+`$HOME/.config/rev/config.toml`; HOME must be absolute for that fallback.
+Data, state and cache locations resolve independently through their XDG variables
+with HOME defaults `.local/share/rev`, `.local/state/rev` and `.cache/rev`.
+Startup does not create these directories or a configuration file.
+
+Missing configuration silently uses complete built-ins. A present unreadable or
+invalid source shows `Configuration: ...` in the echo area and uses complete
+built-ins, including palette, formats and bindings. Diagnostics identify the
+source and key, with a line/column when available. Fix the source and start a new
+session to apply it. No settings from a rejected candidate become active.
+
+For example, this TOML overrides indentation, literal-tab display and one editor
+binding; all omitted settings and independent aliases retain their defaults:
+
+```toml
+[editor]
+indent_style = "spaces"
+indent_width = 2
+tab_width = 8
+
+[keys.editor]
+"M-j" = "next-line"
+```
+
+Sources use TOML 1.1, schema version 1 (also when omitted). Optional top-level
+`include = ["editing.toml", "colors.toml"]` loads paths relative to their declaring
+source in order, before the parent's leaves. Only explicit includes participate;
+project-local files and variable-looking paths receive no implicit discovery or
+shell expansion. Every source and the merged candidate validate before use.
+
+The session retains one immutable snapshot, including policies for buffers opened
+later. Editing or deleting a source does not change the running session; restart
+to read it again. Existing files retain their observed BOM/newlines, while new
+buffers use configured format defaults. [Bindings](bindings.md#configuration-keymap-contracts),
+[syntax](syntax.md#palette), [prompts](prompts.md#supplied-prompt-preferences) and
+[tree preferences](file-tree.md) describe the existing configurable owners.
 
 ## Text and files
 
@@ -73,8 +114,9 @@ or one third of the frame when shown.
 ## Product boundary
 
 The built-in language support is Rust syntax highlighting, with editable plain
-text for other files or syntax failures. This baseline has no user configuration
-language, plugins, macros, package runtime, LSP, language completion, automatic
+text for other files or syntax failures. TOML startup preferences configure
+existing actions. This baseline has no plugins, macros, package runtime, LSP,
+language completion, automatic
 indentation, OS clipboard bridge, regex/project search, soft wrap or session
 persistence. The command catalog describes the implemented editing subset.
 

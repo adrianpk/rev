@@ -530,10 +530,21 @@ Acta merge event: `01M5YZMECFWEPVPCMGFBGA550B`.
 Contracts: CFG01-CFG22, modified R01, R17, R20, R22. Tickets: TKT-20261027103708.
 Details and checks: [Slice 20](../plan/rev-configuration-ui.md#slice-20-activate-startup-configuration).
 
-- [ ] T20.1: Wire XDG discovery, bounded loading, whole-candidate validation and one immutable snapshot into the actual executable/session before buffer creation; connect every accepted consumer from prior slices.
-- [ ] T20.2: On invalid or unreadable config, enter a usable editor with complete built-ins and a visible source/key diagnostic. Missing config stays silent. Never write config, create empty XDG roots or load project-local files.
-- [ ] T20.3: Test new startup versus unchanged running session after disk edits, palette/tab/key behavior through session boundaries and rollback of otherwise valid settings when one leaf is invalid. No reload command, polling or watcher.
+- [x] T20.1: Wire XDG discovery, bounded loading, whole-candidate validation and one immutable snapshot into the actual executable/session before buffer creation; connect every accepted consumer from prior slices.
+- [x] T20.2: On invalid or unreadable config, enter a usable editor with complete built-ins and a visible source/key diagnostic. Missing config stays silent. Never write config, create empty XDG roots or load project-local files.
+- [x] T20.3: Test new startup versus unchanged running session after disk edits, palette/tab/key behavior through session boundaries and rollback of otherwise valid settings when one leaf is invalid. No reload command, polling or watcher.
 - [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+
+Task commits: T20.1 `5360fd648c27305d4feef87a2b1e4955df9f71db`;
+T20.2 `190b2e22967c8826692b8e03f85a2ea73ce614c5`;
+T20.3 is the Slice 20 report-introduction commit.
+Seven native startup cases (twelve isolated children) and four executable PTY
+sessions pass for XDG discovery, includes, all context maps, palette/tab/format
+behavior, complete fallback, diagnostics, passive roots and restart-only effects.
+Focused Clippy/source checks pass with nesting at most two. Required exact-head
+validation follows the PR-reference commit through the controller.
+Report: [Slice 20](../report/slices/rev-configuration-ui/slice-20-startup-configuration.md).
+PR: pending canonical creation; dev integration remains controller-owned.
 
 ### Slice 21: Present vertical M-x candidates
 

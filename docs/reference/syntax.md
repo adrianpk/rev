@@ -53,8 +53,9 @@ The standard `NO_COLOR` environment preference suppresses RGB sequences while
 retaining reverse-video selection and search underlining. RGB fidelity depends
 on the terminal's true-color support.
 
-Executable startup configuration loading is not active yet; it uses the
-compiled defaults. The [terminal input reference](terminal-input.md#palette-and-cursor-restoration)
+Executable startup applies the admitted user palette, grammar associations and
+syntax policy. Missing or rejected configuration uses complete built-ins.
+The [terminal input reference](terminal-input.md#palette-and-cursor-restoration)
 describes cursor color capability fallback and restoration.
 
 ## Source and display coordinates

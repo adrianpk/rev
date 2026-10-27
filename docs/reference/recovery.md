@@ -6,6 +6,7 @@ not promise rollback after publication.
 
 | Result | Retained state | Next action |
 | --- | --- | --- |
+| Invalid or unreadable startup configuration | Usable editor with complete built-ins and a source/key diagnostic; no partial configured leaves apply. | Correct the source and start a new session; running sessions retain their snapshot. |
 | Failed file read or invalid UTF-8/binary input | Current buffers, history and shared views. No partial file becomes a buffer. | Correct the file/path or cancel the pending interaction. |
 | Save not published | Current text, history, association and unsaved state. The save has not replaced the destination. | Resolve the reported error and request a fresh save. |
 | Save published, completion unresolved | The replacement exists and the actual target remains associated. A warning keeps the buffer modified; required close/quit saving is not satisfied. | Inspect the target and explicitly retry saving; changed or unobserved disk state needs fresh consent. |
