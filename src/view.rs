@@ -108,6 +108,14 @@ impl View {
         }
     }
 
+    /// Switch canonical text using the ordinary new-buffer navigation state,
+    /// retaining only this view's independent presentation policy and provenance.
+    pub fn rebind(&mut self, buffer: &Buffer) {
+        let gutter = self.gutter;
+        *self = Self::new(buffer);
+        self.gutter = gutter;
+    }
+
     pub fn cell(&self, buffer: &Buffer) -> Result<Cell, Error> {
         buffer.slice(&Span {
             stamp: self.point.stamp,

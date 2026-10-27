@@ -100,6 +100,17 @@ pub struct Overrides {
     pub side: Option<Side>,
 }
 
+/// Native leaf updates. Mode updates here retain visibility; command-specific
+/// show/cycle behavior composes these updates in the command owner.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Change {
+    Visible(bool),
+    Mode(Mode),
+    CurrentLine(CurrentLine),
+    Side(Side),
+    Reset,
+}
+
 /// Small value owned by one editing view. Cloning a view copies both its
 /// startup values and override metadata without retaining a buffer reference.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -133,5 +144,19 @@ impl Policy {
             side: self.overrides.side.unwrap_or(self.startup.side),
             format: self.startup.format,
         }
+    }
+
+    /// Return whether values or explicit provenance changed, for the existing
+    /// redraw owner. Reset restores this view's immutable startup values.
+    pub fn apply(&mut self, change: Change) -> bool {
+        let before = self.overrides;
+        match change {
+            Change::Visible(value) => self.overrides.visible = Some(value),
+            Change::Mode(value) => self.overrides.mode = Some(value),
+            Change::CurrentLine(value) => self.overrides.current_line = Some(value),
+            Change::Side(value) => self.overrides.side = Some(value),
+            Change::Reset => self.overrides = Overrides::default(),
+        }
+        self.overrides != before
     }
 }

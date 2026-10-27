@@ -94,6 +94,17 @@ impl Windows {
     pub fn get(&self, id: ViewId) -> Result<&View, Error> {
         self.views.get(&id).ok_or(Error::Missing(id))
     }
+
+    /// Change one live view's native presentation leaves without touching point,
+    /// text, layout or other views. The caller owns event-driven redraw scheduling.
+    pub fn change_gutter(
+        &mut self,
+        id: ViewId,
+        change: crate::gutter::Change,
+    ) -> Result<bool, Error> {
+        let view = self.views.get_mut(&id).ok_or(Error::Missing(id))?;
+        Ok(view.gutter.apply(change))
+    }
     pub fn iter(&self) -> impl ExactSizeIterator<Item = (ViewId, &View)> {
         self.views.iter().map(|(id, view)| (*id, view))
     }
@@ -158,7 +169,7 @@ impl Windows {
             .values_mut()
             .filter(|view| view.point.stamp.buffer == closed)
         {
-            *view = View::new(replacement);
+            view.rebind(replacement);
         }
     }
 }

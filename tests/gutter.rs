@@ -1,5 +1,13 @@
 #![forbid(unsafe_code)]
 
+#[path = "configuration/fixture.rs"]
+mod config_fixture;
+
+#[path = "gutter/lifecycle.rs"]
+mod lifecycle;
+#[path = "gutter/policy.rs"]
+mod policy;
+
 use rev::buffer::Buffers;
 use rev::gutter::{CurrentLine, Mode, Overrides, Settings, Side};
 use rev::panel::Composition;

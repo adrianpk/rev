@@ -5,7 +5,7 @@ mod geometry;
 mod policy;
 
 pub use geometry::{Error, Geometry};
-pub use policy::{CurrentLine, Format, Mode, Overrides, Policy, Settings, Side};
+pub use policy::{Change, CurrentLine, Format, Mode, Overrides, Policy, Settings, Side};
 
 use crate::buffer::{Buffer, Span, Stamp};
 use crate::coordinates::Coordinates;

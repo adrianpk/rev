@@ -1,8 +1,6 @@
 use std::io;
 use std::path::Path;
 
-use crate::view::View;
-
 use super::{Action, Pending, Session};
 
 impl Session {
@@ -22,7 +20,8 @@ impl Session {
         let visit = self.buffers.prepare_visit(path)?;
         let buffer = visit.buffer(&self.buffers).map_err(io::Error::other)?;
         let observed = buffer.file().map(|file| file.path().to_path_buf());
-        let view = View::new(buffer);
+        let mut view = self.windows.selected().clone();
+        view.rebind(buffer);
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
         let id = self.buffers.publish_visit(visit);

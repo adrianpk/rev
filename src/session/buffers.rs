@@ -3,7 +3,6 @@ mod inventory;
 
 use crate::buffer::{BufferId, Kill};
 use crate::command::BufferCommand;
-use crate::view::View;
 
 use super::{Action, AfterSave, Pending, Session};
 
@@ -53,7 +52,7 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         if self.windows.selected().point.stamp.buffer != id {
-            *self.windows.selected_mut() = View::new(buffer);
+            self.windows.selected_mut().rebind(buffer);
         }
         self.input.cancel();
         self.pending = None;

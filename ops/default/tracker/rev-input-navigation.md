@@ -84,7 +84,7 @@ Contracts: GUT01 GUT04 GUT11.
 Details and exact checks: [Slice 4](../plan/rev-input-navigation.md#slice-4-define-native-gutter-view-policy).
 
 - [x] T4.1: Introduce the bounded native gutter projection/view-policy records using existing buffer, ViewId, line index and panel owners; add the gutter integration-test target.
-- [ ] T4.2: Model independent visibility/mode/current-line/side overrides, split inheritance, reset and lifecycle without per-line retained number arrays or new persistent stores.
+- [x] T4.2: Model independent visibility/mode/current-line/side overrides, split inheritance, reset and lifecycle without per-line retained number arrays or new persistent stores.
 - [ ] T4.3: Verify checked width arithmetic, decimal boundaries and view invalidation; keep preparatory policy distinct from advertised operational TOML/commands and record its contracts.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
