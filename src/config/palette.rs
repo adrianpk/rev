@@ -41,6 +41,8 @@ pub struct Palette {
     pub warning: Rgb,
     pub error: Rgb,
     pub syntax: SyntaxPalette,
+    /// Native gutter roles; startup parsing is wired with the gutter settings.
+    pub gutter: GutterPalette,
 }
 
 impl Default for Palette {
@@ -65,6 +67,27 @@ impl Default for Palette {
             warning: Rgb(0xe0, 0xaf, 0x68),
             error: Rgb(0xdb, 0x4b, 0x4b),
             syntax: SyntaxPalette::default(),
+            gutter: GutterPalette::default(),
+        }
+    }
+}
+
+/// Compiled number-field roles in the same immutable renderer palette snapshot.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GutterPalette {
+    pub background: Rgb,
+    pub foreground: Rgb,
+    pub current_line: Rgb,
+    pub separator: Rgb,
+}
+
+impl Default for GutterPalette {
+    fn default() -> Self {
+        Self {
+            background: Rgb(0x1a, 0x1b, 0x26),
+            foreground: Rgb(0x56, 0x5f, 0x89),
+            current_line: Rgb(0x7a, 0xa2, 0xf7),
+            separator: Rgb(0x3b, 0x42, 0x61),
         }
     }
 }

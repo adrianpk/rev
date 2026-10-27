@@ -11,6 +11,10 @@ mod invalidation;
 mod lifecycle;
 #[path = "gutter/policy.rs"]
 mod policy;
+#[path = "gutter/rendering.rs"]
+mod rendering;
+#[path = "support/surface.rs"]
+mod surface;
 
 use rev::buffer::Buffers;
 use rev::gutter::{CurrentLine, Mode, Overrides, Settings, Side};

@@ -28,6 +28,7 @@ pub(super) enum Tone {
     Status(bool),
     Border(bool),
     Tree,
+    Gutter(crate::gutter::Role),
     Message(Message),
 }
 
@@ -78,9 +79,21 @@ impl Tone {
             Self::Border(true) => Colors::new(palette.border_active, palette.background),
             Self::Border(false) => Colors::new(palette.border, palette.background),
             Self::Tree => Colors::new(palette.foreground, palette.tree),
+            Self::Gutter(role) => Colors::new(
+                gutter_color(role, &palette.gutter),
+                palette.gutter.background,
+            ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
             Self::Document => Colors::new(palette.foreground, palette.background),
         }
+    }
+}
+
+fn gutter_color(role: crate::gutter::Role, palette: &crate::config::GutterPalette) -> Rgb {
+    match role {
+        crate::gutter::Role::Number => palette.foreground,
+        crate::gutter::Role::CurrentLine => palette.current_line,
+        crate::gutter::Role::Separator => palette.separator,
     }
 }
 
@@ -95,13 +108,16 @@ impl Message {
 }
 
 impl Row {
-    pub(super) fn colors(&self, column: usize, palette: &Palette) -> Colors {
-        let tone = self
-            .faces
+    pub(super) fn tone(&self, column: usize) -> Tone {
+        self.faces
             .iter()
             .rev()
             .find(|face| covers(&face.columns, column))
-            .map_or(self.tone, |face| face.tone);
+            .map_or(self.tone, |face| face.tone)
+    }
+
+    pub(super) fn colors(&self, column: usize, palette: &Palette) -> Colors {
+        let tone = self.tone(column);
         if self
             .selection
             .as_ref()

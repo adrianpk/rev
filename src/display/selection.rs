@@ -96,6 +96,8 @@ struct Attributes {
     colors: Option<super::style::Colors>,
     underlined: bool,
     reversed: bool,
+    bold: bool,
+    separator: crate::gutter::Separator,
 }
 
 impl Row {
@@ -103,8 +105,12 @@ impl Row {
         &self,
         writer: &mut impl Write,
         palette: &crate::config::Palette,
+        separator: crate::gutter::Separator,
     ) -> io::Result<()> {
-        let mut attributes = Attributes::default();
+        let mut attributes = Attributes {
+            separator,
+            ..Attributes::default()
+        };
         for glyph in Glyphs::for_text(&self.text).map_err(io::Error::other)? {
             self.write_glyph(
                 writer,
@@ -115,6 +121,7 @@ impl Row {
         }
         underline(writer, false, &mut attributes.underlined)?;
         reverse(writer, false, &mut attributes.reversed)?;
+        bold(writer, false, &mut attributes.bold)?;
         super::style::reset(writer)
     }
 
@@ -126,6 +133,7 @@ impl Row {
         palette: &crate::config::Palette,
     ) -> io::Result<()> {
         let column = glyph.columns.start;
+        let tone = self.tone(column);
         self.colors(column, palette)
             .write(writer, &mut attributes.colors)?;
         let monochrome = crossterm::style::Colored::ansi_color_disabled_memoized();
@@ -139,7 +147,17 @@ impl Row {
             covers(&self.search, column),
             &mut attributes.underlined,
         )?;
-        writer.write_all(glyph.text.as_bytes())
+        bold(
+            writer,
+            tone == super::Tone::Gutter(crate::gutter::Role::CurrentLine),
+            &mut attributes.bold,
+        )?;
+        let text = if tone == super::Tone::Gutter(crate::gutter::Role::Separator) {
+            attributes.separator.text()
+        } else {
+            &glyph.text
+        };
+        writer.write_all(text.as_bytes())
     }
 }
 
@@ -177,6 +195,19 @@ fn reverse(writer: &mut impl Write, selected: bool, reversed: &mut bool) -> io::
         };
         writer.queue(SetAttribute(attribute))?;
         *reversed = selected;
+    }
+    Ok(())
+}
+
+fn bold(writer: &mut impl Write, emphasized: bool, current: &mut bool) -> io::Result<()> {
+    if emphasized != *current {
+        let attribute = if emphasized {
+            Attribute::Bold
+        } else {
+            Attribute::NormalIntensity
+        };
+        writer.queue(SetAttribute(attribute))?;
+        *current = emphasized;
     }
     Ok(())
 }

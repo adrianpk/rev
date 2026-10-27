@@ -1,6 +1,7 @@
 mod clip;
 mod completion;
 mod compose;
+mod gutter;
 mod inventory;
 mod prompt;
 mod search;
@@ -124,11 +125,14 @@ impl Frame {
 
     fn panel(&mut self, buffer: &Buffer, view: &View, panel: Panel) -> Result<(), Error> {
         let point = view.cell(buffer)?;
+        let geometry = view.gutter_geometry(buffer, panel.content())?;
+        let text = Panel::new(geometry.text(), false, panel.active());
         let highlight = selection::Highlight::new(buffer, view, panel.active())?;
-        self.document(buffer, view, panel, highlight)?;
+        self.document(buffer, view, text, highlight)?;
+        self.numbers(buffer, view, geometry, point.row)?;
         self.status(buffer, point, panel)?;
         if panel.active() {
-            self.cursor = Self::position(point, view, panel);
+            self.cursor = Self::position(point, view, text);
         }
         Ok(())
     }
@@ -148,10 +152,20 @@ impl Frame {
     /// Writes only projected rows and an admitted cursor, then flushes once.
     /// Explicit row moves prevent a full-width row from wrapping into its peer.
     pub fn write(&self, writer: &mut impl Write) -> io::Result<()> {
+        self.write_with_separator(writer, crate::gutter::Separator::default())
+    }
+
+    /// Select the printable one-cell fallback when the frontend cannot display
+    /// the primary separator. Frame cells and document coordinates stay fixed.
+    pub fn write_with_separator(
+        &self,
+        writer: &mut impl Write,
+        separator: crate::gutter::Separator,
+    ) -> io::Result<()> {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
-            row.write(writer, &self.palette)?;
+            row.write(writer, &self.palette, separator)?;
         }
         if let Some(cursor) = self.cursor {
             writer

@@ -93,6 +93,19 @@ pub struct View {
 }
 
 impl View {
+    /// One number/text partition shared by rendering, overlays and reveal.
+    pub fn gutter_geometry(
+        &self,
+        buffer: &Buffer,
+        content: crate::window::Area,
+    ) -> Result<crate::gutter::Geometry, Error> {
+        Ok(crate::gutter::Geometry::new(
+            content,
+            buffer.len_lines(),
+            self.gutter.effective(),
+        )?)
+    }
+
     pub fn new(buffer: &Buffer) -> Self {
         Self {
             point: Point {

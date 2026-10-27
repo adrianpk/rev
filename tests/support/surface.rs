@@ -12,12 +12,24 @@ pub struct Cell {
     pub foreground: Option<Rgb>,
     pub background: Option<Rgb>,
     pub underline: bool,
+    pub bold: bool,
 }
 
 pub fn draw(frame: &Frame) -> BTreeMap<(usize, usize), Cell> {
+    draw_with_separator(frame, rev::gutter::Separator::default())
+}
+
+pub fn draw_with_separator(
+    frame: &Frame,
+    separator: rev::gutter::Separator,
+) -> BTreeMap<(usize, usize), Cell> {
     crossterm::style::force_color_output(true);
     let mut output = Vec::new();
-    frame.write(&mut output).unwrap();
+    frame.write_with_separator(&mut output, separator).unwrap();
+    decode(output)
+}
+
+fn decode(output: Vec<u8>) -> BTreeMap<(usize, usize), Cell> {
     let output = String::from_utf8(output).unwrap();
     let mut cells = BTreeMap::new();
     let mut state = Cell::default();
@@ -60,14 +72,22 @@ fn sgr(parameters: &str, state: &mut Cell) {
     while let Some((&code, tail)) = remaining.split_first() {
         remaining = tail;
         match code {
-            0 => *state = Cell::default(),
-            4 => state.underline = true,
-            24 => state.underline = false,
-            39 => state.foreground = None,
-            49 => state.background = None,
             38 | 48 => remaining = rgb(tail, code, state),
-            other => panic!("unexpected SGR {other}"),
+            other => attribute(other, state),
         }
+    }
+}
+
+fn attribute(code: u16, state: &mut Cell) {
+    match code {
+        0 => *state = Cell::default(),
+        1 => state.bold = true,
+        22 => state.bold = false,
+        4 => state.underline = true,
+        24 => state.underline = false,
+        39 => state.foreground = None,
+        49 => state.background = None,
+        other => panic!("unexpected SGR {other}"),
     }
 }
 

@@ -139,7 +139,9 @@ impl Frame {
         if source.search.is_some() {
             target.search = source.search;
         }
-        target.band = if area.width() == self.size.width {
+        target.band = if area.width() == self.size.width
+            || source.band == Band::Document && target.band == Band::Document
+        {
             source.band
         } else {
             Band::Mixed

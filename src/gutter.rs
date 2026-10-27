@@ -1,5 +1,5 @@
-//! Native view policy and disposable number geometry. These records prepare
-//! numbering without enabling rendering, TOML keys or command identities.
+//! Native view policy, checked number geometry and absolute logical row labels.
+//! Startup TOML and command identities remain owned by their integration layer.
 //!
 //! Source and point lookup reuse the rope's logical line index. Geometry uses
 //! bounded integer digit metadata and panel-cell bounds; it never scans all
@@ -8,9 +8,11 @@
 
 mod geometry;
 mod policy;
+mod row;
 
 pub use geometry::{Error, Geometry};
 pub use policy::{Change, CurrentLine, Format, Mode, Overrides, Policy, Settings, Side};
+pub use row::{NumberRow, Role, Separator};
 
 use crate::buffer::{Buffer, Span, Stamp};
 use crate::coordinates::Coordinates;
@@ -50,7 +52,7 @@ impl Projection {
             lines: buffer.len_lines(),
             current,
             policy,
-            geometry: Geometry::new(content, buffer.len_lines(), policy)?,
+            geometry: view.gutter_geometry(buffer, content)?,
         })
     }
 }
