@@ -1,6 +1,6 @@
 # Slice 11: Compose editing panes through panels
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
@@ -97,8 +97,11 @@ Development checks:
 - `cargo run --quiet --example source-check -- --source src/display.rs --source src/display/compose.rs --source src/display/search.rs --source src/session/search.rs --source src/window/layout.rs --source src/window/geometry.rs --root tests/panels.rs --source tests/panels/rendering.rs`: passed.
 - `cargo run --quiet --example source-check -- --source tests/panels/rendering.rs`: passed after final test additions.
 
-The controller stores final results for the exact clean PR head after its
-PR-reference follow-up commit. Commands, in canonical order, with focused
+All ten ordered checks passed on the clean final PR head
+`167a49e33369d48cf5fcb009019ccd9303dde736`, controller validation
+`RDUTP3PB6OJIW3ZR5GPRNFFAWB`: 13 panel, 20 display, 38 window, 30 search,
+21 syntax and 58 tree tests; zero skips. PR #60 integrated that exact commit
+into dev by Rebase + Fast-forward. Commands, in canonical order, with focused
 search/syntax/tree consumer regressions after the required prefix:
 
 - `cargo fmt --all -- --check`

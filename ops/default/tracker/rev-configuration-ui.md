@@ -4,7 +4,7 @@ Status: Approved
 Approved: product owner, 2026-10-27; one combined plan/tracker, all slices and autonomous Looper startup and dev integration authorized.
 Delivery set: rev-configuration-ui
 Slice strategy: layered
-Active slice: Slice 11 - Compose editing panels
+Active slice: Slice 12 - Compose tree and auxiliary panels
 Full gate: `scripts/check-all.sh`
 Spec: [Editor Configuration](../spec/editor-configuration.md)
 Model: [Editor Configuration Model](../spec/editor-configuration-model.md)
@@ -300,7 +300,7 @@ Details and checks: [Slice 11](../plan/rev-configuration-ui.md#slice-11-compose-
 - [x] T11.1: Migrate editor rendering to panel content bounds and continuous shared Unicode separators/junctions, with no per-pane outer frame. Reserve horizontal border rows and status cells explicitly in layout minima.
 - [x] T11.2: Derive text, cursor, syntax, search, selection and status translations from the same geometry owner; remove repeated ASCII-pipe painting as an independent placement convention.
 - [x] T11.3: Test nested split directions, active/inactive panes, same-buffer independent points, clipped Unicode and resize. Keep the baseline default split proportion and focus traversal.
-- [ ] Record successful exact-head checks, report, canonical PR and verified dev integration.
+- [x] Record successful exact-head checks, report, canonical PR and verified dev integration.
 
 Task commits: T11.1 `d1ae49100a76035ddd9ea98a48484f1d4fd86e8c`;
 T11.2 `7b773d08b9dacd93e9da589f54220246c6c35c74`;
@@ -312,10 +312,13 @@ fixtures now reserve horizontal separator rows explicitly.
 Controller validation initially stopped at the shared-policy fixture's byte
 slice across a Unicode separator. Its exact cell-text assertion is retained
 with character indexing for the one-cell fixture; focused regression passed.
-Final exact-head evidence belongs to the controller.
+All ten ordered checks passed on `167a49e33369d48cf5fcb009019ccd9303dde736`,
+controller validation `RDUTP3PB6OJIW3ZR5GPRNFFAWB`, including 180 native tests
+with zero skips across panels, display, windows, search, syntax and tree.
 Report: [Slice 11](../report/slices/rev-configuration-ui/slice-11-editor-panels.md).
 PR: [#60](https://forge.adrianpk.com/adrianpk/rev/pulls/60);
-dev integration remains controller-owned.
+integrated by Rebase + Fast-forward into dev at
+`167a49e33369d48cf5fcb009019ccd9303dde736`. Slice 11 of 30 completed.
 
 ### Slice 12: Compose tree and auxiliary panels
 
