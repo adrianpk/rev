@@ -1,6 +1,6 @@
 # Slice 5: Render absolute logical line numbers
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -55,25 +55,68 @@ safe fixed separators, semantic colors and non-color current-line emphasis.
 - `src/display.rs`, `compose.rs`, `style.rs`, `selection.rs`: separate field/text
   painting and semantic terminal output.
 - `src/config/palette.rs`: four native semantic gutter colors.
-- `tests/gutter/rendering.rs`, `tests/support/surface.rs`: actual row and SGR cells.
+- `tests/gutter/rendering.rs`, `tests/gutter/alignment.rs`, `tests/support/surface.rs`:
+  actual row/SGR cells, decimal-width and final-origin assertions.
+- Existing display, panel, search, rectangle, syntax and window regressions:
+  retained source contracts with final text-cell expectations.
+- `scripts/configuration_ui/gutter.py`: two owned controlling PTY journeys.
+- `docs/reference/gutter.md`: delivered absolute numbering behavior.
 
 ## Validation
 
-- PASS: `cargo test --test gutter` (15 native groups, zero skipped).
-  New groups cover actual absolute frames, real/padding-row boundaries including
-  `usize::MAX`, semantic colors/current emphasis and the real ASCII output path.
-- Focused source analysis passes unchanged safe-Rust, parameter, nesting and
-  complexity limits. The SGR fixture decoder delegates non-RGB attributes to a
-  small owner after adding bold support exceeded the cyclomatic-ten limit;
-  every prior supported code and unexpected-code rejection remains asserted.
+- PASS: `cargo test --test gutter --test display --test panels` (61 native tests,
+  including 17 gutter groups, zero skipped).
+- Absolute frames cover empty/final-empty source rows, unnumbered EOF padding,
+  CRLF, Unicode/tabs and checked integer labels through `usize::MAX`. Actual SGR
+  cells verify all four palette roles, non-color emphasis, style reset and the
+  typed ASCII separator output path without changing literal document separators.
 - PASS: `cargo test --test gutter alignment::` reproduces and corrects reveal
   using full panel width instead of final text width. Six left/right and narrow/
-  wide cases assert exact tab/Unicode clipping, cursor placement and hidden-state
-  geometry with unchanged canonical text/history.
-- PASS: `cargo test --test panels projected_overlays` retains the existing real
-  nested-panel syntax/selection/search/cursor assertions at the final text origin;
-  peer points, border/status cells and source bytes remain protected.
-- Broader display regressions and exact clean-HEAD evidence are in progress.
+  wide cases retain exact tab/Unicode clipping and hidden-state cursor placement.
+- PASS: `cargo test --test panels projected_overlays` retains nested-panel
+  syntax/selection/search/cursor, peer-point, border/status and source assertions
+  at the final text origin. Native rendered edit/undo/redo cases cross 9999/10000
+  coherently using ordinary viewport mapping and canonical logical points.
+- Initial historical render assertions addressed the former full-width document
+  origin. Expected ranges/colors now address final text cells; raw source,
+  copied rectangle contents, logical endpoints, history and dirty-state checks
+  remain. Tab goldens retain their exact original text extent. The seam fixture
+  removes six prefix cells so its wide glyph still crosses the same protected
+  edge after reserving the six-cell field.
+- The syntax-color oracle previously replaced every equal RGB escape globally.
+  Native gutter colors share two syntax defaults, so it now recolors only the
+  baseline's captured source cells and compares the complete decoded cell map.
+  Registry/standalone raw output equality and all source/cursor/history assertions
+  remain; an explicit capture assertion prevents a gutter color proving syntax.
+- PASS: `cargo test --test search selected_surface` verifies region precedence,
+  search underline and reset at actual document cells alongside shared views.
+- PASS: `python3 scripts/check-pty.py --suite absolute-gutter` (two owned sessions,
+  zero skipped). Unicode/BOM/mixed separators and an empty monochrome file verify
+  real/padding labels, current emphasis, physical cursor, edit/save/undo, exact
+  source bytes and terminal/descriptor restoration. Existing eight-second and
+  one-MiB PTY limits remain unchanged.
+- PASS: `python3 scripts/check-config-reference.py` retains the currently admitted
+  59 catalog entries, 25 configurable RGB roles and 111 bindings. The four native
+  gutter roles do not advertise unsupported startup keys.
+- Focused source analysis passes unchanged safe-Rust, parameter, nesting and
+  complexity limits. The SGR fixture decoder separates RGB and other attributes
+  after bold support exceeded cyclomatic ten, preserving every prior code and
+  unexpected-code rejection.
+
+The controller records final clean-HEAD results for this ordered canonical list:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test gutter --test display --test coordinates --test panels`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final evidence uses this separate ordered list on the same clean HEAD:
+
+- `cargo test --test commands --test windows --test search --test rectangles --test syntax`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-pty.py --suite absolute-gutter`
+- `git diff --check`
 
 ## Risks and Follow-ups
 

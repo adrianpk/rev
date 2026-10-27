@@ -53,7 +53,7 @@ fn shared_policy() {
         // Every rendered fixture character occupies one cell, including the
         // Unicode separator. Its UTF-8 bytes cannot index terminal columns.
         assert_eq!(
-            row.chars().skip(column).take(9).collect::<String>(),
+            row.chars().skip(column + 6).take(9).collect::<String>(),
             "!a      b"
         );
         let mut synchronized = view.clone();

@@ -13,7 +13,8 @@ fn rendered(frame: &Frame) -> String {
 }
 
 // Real captures must resolve through every RGB leaf. Replacing one role changes
-// only that role's escape sequences, with identical source/cells/cursor/history.
+// only that role's cells, retaining other roles even when their RGB values match.
+// Registry and standalone output, source, cursor and history remain identical.
 #[test]
 fn syntax_overrides() {
     crossterm::style::force_color_output(true);
@@ -22,15 +23,20 @@ fn syntax_overrides() {
     let path = fixture.file("main.rs", source);
     let mut defaults = Buffers::new().unwrap();
     let id = defaults.visit(&path).unwrap();
-    let baseline = rendered(&frame(defaults.get(id).unwrap()));
-    for (role, channels) in [
-        ("keyword", "157;124;216"),
-        ("string", "158;206;106"),
-        ("comment", "86;95;137"),
-        ("type", "42;195;222"),
-        ("function", "122;162;247"),
-        ("number", "255;158;100"),
-        ("punctuation", "137;221;255"),
+    let baseline_frame = frame(defaults.get(id).unwrap());
+    let baseline = rendered(&baseline_frame);
+    for (role, style, channels) in [
+        ("keyword", rev::syntax::Style::Keyword, "157;124;216"),
+        ("string", rev::syntax::Style::String, "158;206;106"),
+        ("comment", rev::syntax::Style::Comment, "86;95;137"),
+        ("type", rev::syntax::Style::Type, "42;195;222"),
+        ("function", rev::syntax::Style::Function, "122;162;247"),
+        ("number", rev::syntax::Style::Number, "255;158;100"),
+        (
+            "punctuation",
+            rev::syntax::Style::Punctuation,
+            "137;221;255",
+        ),
     ] {
         let original = format!("\x1b[38;2;{channels}m");
         assert!(
@@ -55,9 +61,16 @@ fn syntax_overrides() {
         )
         .unwrap();
         let actual = rendered(&composition);
+        assert!(
+            baseline_frame
+                .rows()
+                .iter()
+                .flat_map(|row| row.syntax())
+                .any(|paint| paint.style == style)
+        );
         assert_eq!(
-            actual,
-            baseline.replace(&original, "\x1b[38;2;1;35;69m"),
+            super::surface::draw(&composition),
+            recolored(&baseline_frame, style),
             "{role}"
         );
         assert_eq!(
@@ -129,4 +142,23 @@ fn mode_transitions() {
     assert_eq!(text(buffer), expected);
     assert_eq!(buffer.state(), state);
     assert!(buffer.is_modified());
+}
+
+// Recolor only captured source cells; matching gutter RGB is an independent role.
+fn recolored(
+    frame: &Frame,
+    style: rev::syntax::Style,
+) -> std::collections::BTreeMap<(usize, usize), super::surface::Cell> {
+    let mut cells = super::surface::draw(frame);
+    for row in frame.rows() {
+        for paint in row.syntax().iter().filter(|paint| paint.style == style) {
+            for column in paint.columns.clone() {
+                cells
+                    .get_mut(&(usize::from(row.row()), usize::from(column)))
+                    .unwrap()
+                    .foreground = Some(rev::config::Rgb(1, 35, 69));
+            }
+        }
+    }
+    cells
 }

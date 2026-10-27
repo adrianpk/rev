@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Show absolute logical line numbers beside editing text, including empty lines, with current-line emphasis and stable widths that preserve document columns. Narrow views retain their text area.
+
 - Convert marked tabs and spaces with `M-x tabify` and `M-x untabify`, preserving text columns, Unicode and file line endings. Each conversion undoes or redoes as one change; an unselected document stays untouched.
 
 - Go to a logical line with `M-g g`, `M-g M-g` or `M-x goto-line`. Cancel without moving the current view, correct invalid numbers in place, and navigate read-only text without changing its history.

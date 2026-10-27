@@ -7,6 +7,76 @@ use unicode_width::UnicodeWidthStr;
 
 use super::{Buffers, surface};
 
+// A real edit moves the renderer across the four/five-digit boundary. Labels,
+// text origin and hardware cursor change together, then undo restores all three.
+#[test]
+fn rendered_decimal() {
+    use crossterm::event::Event;
+    use rev::command::{Command, History, Motion};
+    use rev::session::Session;
+
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&"\n".repeat(9_998)).unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 30,
+            height: 8,
+        },
+    )
+    .unwrap();
+    session.execute(Command::Motion(Motion::BufferEnd));
+    let before = session.frame().unwrap();
+    let cursor = before.cursor().unwrap();
+    assert_eq!(cursor.column, 6);
+    assert!(
+        before.rows()[usize::from(cursor.row)]
+            .text()
+            .starts_with("9999 │")
+    );
+    session.handle(Event::Paste("\n".into()));
+    let edited = session.frame().unwrap();
+    let cursor = edited.cursor().unwrap();
+    assert_eq!(cursor.column, 7);
+    assert!(
+        edited.rows()[usize::from(cursor.row)]
+            .text()
+            .starts_with("10000 │")
+    );
+    assert_ne!(edited.stamp(), before.stamp());
+    session.execute(Command::History(History::Undo));
+    let undone = session.frame().unwrap();
+    assert_eq!(
+        undone.cursor().unwrap().column,
+        before.cursor().unwrap().column
+    );
+    assert_eq!(
+        session.view().cell(session.buffer().unwrap()).unwrap().row,
+        9_998
+    );
+    assert_eq!(
+        undone.rows()[usize::from(undone.cursor().unwrap().row)].text(),
+        before.rows()[usize::from(before.cursor().unwrap().row)].text()
+    );
+    assert!(!session.buffer().unwrap().is_modified());
+    session.execute(Command::History(History::Redo));
+    let redone = session.frame().unwrap();
+    assert_eq!(
+        redone.cursor().unwrap().column,
+        edited.cursor().unwrap().column
+    );
+    assert_eq!(
+        session.view().cell(session.buffer().unwrap()).unwrap().row,
+        9_999
+    );
+    assert_eq!(
+        redone.rows()[usize::from(redone.cursor().unwrap().row)].text(),
+        edited.rows()[usize::from(edited.cursor().unwrap().row)].text()
+    );
+}
+
 // The actual frame numbers only real logical rows, including the editable empty
 // row. Tabs and Unicode/CRLF remain source text rather than synthetic rows.
 #[test]

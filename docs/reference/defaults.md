@@ -12,6 +12,10 @@ Linux terminals are the primary target. Ordinary execution is offline and uses
 compiled-in defaults unless startup configuration supplies supported overrides. [Terminal input](terminal-input.md)
 states the keyboard reports and Escape behavior.
 
+Editing views show [absolute logical line numbers](gutter.md) with current-line
+emphasis and a stable four-digit minimum field. Numbering does not change text
+columns, copied data or saved bytes. Narrow views preserve their text area.
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported

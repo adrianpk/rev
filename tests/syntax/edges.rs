@@ -189,12 +189,12 @@ fn surface_layers() {
     session.execute(Command::Region(RegionCommand::Set));
     session.execute(Command::Motion(Motion::ForwardWord));
     let first = session.frame().unwrap();
-    assert_eq!(first.rows()[0].selection(), Some(0..2));
+    assert_eq!(first.rows()[0].selection(), Some(6..8));
     assert!(!first.rows()[0].syntax().is_empty());
     session.execute(Command::SearchForward);
     session.handle(Event::Paste("alpha".into()));
     let searched = session.frame().unwrap();
-    assert_eq!(searched.rows()[0].search(), Some(3..8));
+    assert_eq!(searched.rows()[0].search(), Some(9..14));
     assert!(!searched.rows()[0].syntax().is_empty());
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Enter,
@@ -207,7 +207,7 @@ fn surface_layers() {
         tree.rows()
             .iter()
             .flat_map(|row| row.syntax())
-            .all(|paint| paint.columns.start >= 25 && paint.columns.end <= 80)
+            .all(|paint| paint.columns.start >= 31 && paint.columns.end <= 80)
     );
     assert!(
         tree.rows()

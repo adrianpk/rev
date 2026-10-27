@@ -17,7 +17,7 @@ use rev::view::View;
 use unicode_width::UnicodeWidthStr;
 
 // The initial frame borrows the canonical empty buffer, reserves distinct
-// document/status/echo rows, and places the active cursor at the first cell.
+// document/status/echo rows, and places the active cursor at the first text cell after numbering.
 #[test]
 fn initial_frame() {
     let buffers = Buffers::new().unwrap();
@@ -34,13 +34,13 @@ fn initial_frame() {
     )
     .unwrap();
     assert_eq!(frame.stamp(), buffer.stamp());
-    assert_eq!(frame.cursor(), Some(Position { column: 0, row: 0 }));
+    assert_eq!(frame.cursor(), Some(Position { column: 6, row: 0 }));
     assert_eq!(frame.rows().len(), 24);
-    assert!(
-        frame.rows()[..22]
-            .iter()
-            .all(|row| row.band() == Band::Document && row.text().trim().is_empty())
-    );
+    for (index, row) in frame.rows()[..22].iter().enumerate() {
+        let prefix = if index == 0 { "   1 │" } else { "     │" };
+        assert_eq!(row.band(), Band::Document);
+        assert!(row.text().strip_prefix(prefix).unwrap().trim().is_empty());
+    }
     assert_eq!(frame.rows()[22].band(), Band::Status);
     assert!(
         frame.rows()[22]
@@ -148,7 +148,7 @@ fn safe_echo() {
         height: 4,
     };
     let frame = Frame::project(buffer, &view, size, "Save failed: denied\x1b[2J\n").unwrap();
-    assert!(frame.rows()[0].text().starts_with("x^[[2J<9B>"));
+    assert!(frame.rows()[0].text().starts_with("   1 │x^[[2J<9B>"));
     assert!(frame.rows()[2].text().contains("-- RW L1 C1 Text"));
     assert!(
         frame.rows()[3]
@@ -271,7 +271,7 @@ fn fresh_projection() {
     let edited = Frame::project(buffer, &view, size, "Save failed: denied").unwrap();
     assert_ne!(before.stamp(), edited.stamp());
     assert_eq!(edited.stamp(), buffer.stamp());
-    assert!(edited.rows()[0].text().starts_with("a   界e\u{301}"));
+    assert!(edited.rows()[0].text().starts_with("   1 │a   界e\u{301}"));
     assert!(
         edited.rows()[2]
             .text()

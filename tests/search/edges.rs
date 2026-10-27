@@ -83,7 +83,11 @@ fn grapheme_projection() {
         query(&mut session, needle);
         assert_eq!(session.search_match().unwrap().range, raw, "{name}");
         assert_eq!(session.view().point.position, Scalar(point), "{name}");
-        assert_eq!(session.frame().unwrap().rows()[0].search(), paint, "{name}");
+        assert_eq!(
+            session.frame().unwrap().rows()[0].search(),
+            paint.map(|range| range.start + 6..(range.end + 6).min(80)),
+            "{name}"
+        );
         assert_eq!(text(&session), source, "{name}");
     }
 }
@@ -151,8 +155,8 @@ fn multiline_resize() {
     query(&mut session, "界\r\nend");
     let point = session.view().point;
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[1].search(), Some(4..80));
-    assert_eq!(frame.rows()[2].search(), Some(0..3));
+    assert_eq!(frame.rows()[1].search(), Some(10..80));
+    assert_eq!(frame.rows()[2].search(), Some(6..9));
     for (width, height) in [(0, 0), (0, 8), (1, 1), (3, 3), (80, 10)] {
         session.handle(Event::Resize(width, height));
         let frame = session.frame().unwrap();
@@ -163,7 +167,7 @@ fn multiline_resize() {
     }
     let frame = session.frame().unwrap();
     let visible_end = u16::try_from(3usize.saturating_sub(session.view().left)).unwrap();
-    assert_eq!(frame.rows()[0].search(), Some(0..visible_end));
+    assert_eq!(frame.rows()[0].search(), Some(6..6 + visible_end));
     assert!(frame.rows().last().unwrap().text().contains("I-search:"));
     assert!(frame.rows().iter().all(|row| !row.text().contains('\x1b')));
     assert_eq!(text(&session), "before\na\t界\r\nend\nlast");

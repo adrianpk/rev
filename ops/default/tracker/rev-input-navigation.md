@@ -97,8 +97,10 @@ Details and exact checks: [Slice 5](../plan/rev-input-navigation.md#slice-5-rend
 
 - [x] T5.1: Render absolute logical line labels with the accepted minimum digits, padding, separator fallback and semantic palette inside each panel.
 - [x] T5.2: Give text one checked origin after number allocation; align cursor, tabs, Unicode, syntax/search/regions and horizontal clipping without prefix-string geometry.
-- [ ] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
+- [x] T5.3: Cover empty/final-empty lines, beyond-EOF padding, safe glyphs, decimal-width changes and actual rendered cells; run display regressions with the new gutter cases.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 5 implementation is complete; canonical PR references and final exact-HEAD evidence are being prepared. The [canonical report](../report/slices/rev-input-navigation/slice-5-absolute-gutter.md) records native rendered cells, final-origin regressions and owned terminal outcomes. T5.1: `469b7f0a07fea889a24c94cb1f54e8316f84747b`. T5.2: `35c6006d2634764a37059590946d78b67a03cc44`.
 
 ### Slice 6: render independent relative numbering
 

@@ -28,11 +28,14 @@ fn policy_clipping() {
         let buffer = buffers.get(id).unwrap();
         let mut view = View::new(buffer);
         view.left = left;
-        let size = Size { width, height: 4 };
+        let size = Size {
+            width: width + 6,
+            height: 4,
+        };
         let frame = Frame::project(buffer, &view, size, "").unwrap();
         assert_eq!(
             frame.rows()[0].text(),
-            expected,
+            format!("   1 │{expected}"),
             "tab {tab_width}, left {left}"
         );
         bounded(&frame, size);
@@ -61,7 +64,7 @@ fn marked_geometry() {
             buffers,
             view,
             Size {
-                width: 40,
+                width: 46,
                 height: 6,
             },
         )
@@ -72,8 +75,8 @@ fn marked_geometry() {
         assert_eq!(session.search_match().unwrap().range, 2..4);
         assert_eq!(session.view().point.position, Scalar(5));
         let frame = session.frame().unwrap();
-        assert_eq!(frame.rows()[0].search(), Some(stop..stop + 3));
-        assert_eq!(frame.rows()[0].selection(), Some(1..stop + 3));
+        assert_eq!(frame.rows()[0].search(), Some(stop + 6..stop + 9));
+        assert_eq!(frame.rows()[0].selection(), Some(7..stop + 9));
         assert_eq!(
             session
                 .view()
@@ -84,12 +87,12 @@ fn marked_geometry() {
         );
         let cells = super::surface::draw(&frame);
         let palette = rev::config::Palette::default();
-        let cell = cells[&(0, usize::from(stop))];
+        let cell = cells[&(0, usize::from(stop + 6))];
         assert_eq!(cell.foreground, Some(palette.selection_text));
         assert_eq!(cell.background, Some(palette.selection));
         assert!(cell.underline);
         assert_eq!(
-            cells[&(0, usize::from(stop + 3))].background,
+            cells[&(0, usize::from(stop + 9))].background,
             Some(palette.background)
         );
         assert!(!session.buffer().unwrap().is_modified());

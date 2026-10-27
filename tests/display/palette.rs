@@ -110,7 +110,7 @@ fn panel_colors() {
         .collect();
     assert!(borders.contains(&Some(palette.border_active)));
     assert!(borders.contains(&Some(palette.border)));
-    colors(&cells[&(0, 2)], palette.foreground, palette.background);
+    colors(&cells[&(0, 8)], palette.foreground, palette.background);
     session.execute(Command::Tree(TreeCommand::Focus));
     let frame = session.frame().unwrap();
     let cells = surface::draw(&frame);
@@ -143,14 +143,14 @@ fn search_colors() {
     session.execute(Command::SearchForward);
     session.handle(Event::Paste("alpha".into()));
     let cells = surface::draw(&session.frame().unwrap());
-    colors(&cells[&(0, 3)], palette.search_text, palette.search);
-    assert!(cells[&(0, 3)].underline);
+    colors(&cells[&(0, 9)], palette.search_text, palette.search);
+    assert!(cells[&(0, 9)].underline);
     colors(
-        &cells[&(0, 8)],
+        &cells[&(0, 14)],
         palette.syntax.punctuation,
         palette.background,
     );
-    assert!(!cells[&(0, 8)].underline);
+    assert!(!cells[&(0, 14)].underline);
     key(&mut session, KeyCode::Enter);
     session.execute(Command::Motion(Motion::BufferStart));
     session.execute(Command::Region(RegionCommand::Set));
@@ -158,8 +158,8 @@ fn search_colors() {
     session.handle(Event::Paste("alpha".into()));
     let frame = session.frame().unwrap();
     let cells = surface::draw(&frame);
-    colors(&cells[&(0, 3)], palette.selection_text, palette.selection);
-    assert!(cells[&(0, 3)].underline);
+    colors(&cells[&(0, 9)], palette.selection_text, palette.selection);
+    assert!(cells[&(0, 9)].underline);
     colors(&cells[&(10, 0)], palette.status_text, palette.status);
     colors(&cells[&(11, 0)], palette.message, palette.background);
     assert!(!cells[&(10, 0)].underline && !cells[&(11, 0)].underline);
@@ -240,7 +240,7 @@ fn safe_colors() {
     assert!(!frame.rows()[0].text().contains('\x1b'));
     let cells = surface::draw(&frame);
     let palette = Palette::default();
-    colors(&cells[&(0, 0)], palette.foreground, palette.background);
+    colors(&cells[&(0, 6)], palette.foreground, palette.background);
     colors(&cells[&(3, 0)], palette.message, palette.background);
     assert_eq!(
         buffer
@@ -285,17 +285,20 @@ fn selected_syntax() {
         )
         .unwrap()
         .with_palette(&startup.snapshot.settings().palette);
-        assert_eq!(frame.rows()[0].selection(), Some(start as u16..end as u16));
+        assert_eq!(
+            frame.rows()[0].selection(),
+            Some(start as u16 + 6..end as u16 + 6)
+        );
         assert!(!frame.rows()[0].syntax().is_empty());
         let cells = surface::draw(&frame);
         let palette = &startup.snapshot.settings().palette;
         assert_eq!(
-            cells[&(0, start)].foreground,
+            cells[&(0, start + 6)].foreground,
             Some(palette.selection_text),
             "{name}"
         );
         assert_eq!(
-            cells[&(0, start)].background,
+            cells[&(0, start + 6)].background,
             Some(palette.selection),
             "{name}"
         );
@@ -304,9 +307,9 @@ fn selected_syntax() {
         } else {
             palette.foreground
         };
-        assert_eq!(cells[&(0, end)].foreground, Some(after), "{name}");
+        assert_eq!(cells[&(0, end + 6)].foreground, Some(after), "{name}");
         assert_eq!(
-            cells[&(0, end)].background,
+            cells[&(0, end + 6)].background,
             Some(palette.background),
             "{name}"
         );

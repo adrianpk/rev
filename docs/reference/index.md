@@ -9,6 +9,7 @@
 - [Filesystem candidate provider](path-completion.md): library path queries, bounded observations and retained identities.
 - [Search and replacement](search.md): smart-case queries, directions, confirmation and cancellation.
 - [File tree](file-tree.md): optional left pane, root selection and keyboard focus.
+- [Absolute line numbers](gutter.md): logical labels, text geometry and current-line emphasis.
 - [Rectangles](rectangles.md): display-column selection, Unicode edges and separate retained rows.
 - [Terminal input](terminal-input.md): key reports, Escape timing and undo aliases.
 - [Syntax highlighting](syntax.md): language recognition, semantic palette and plain-text fallback.

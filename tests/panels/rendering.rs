@@ -37,8 +37,12 @@ fn shared_separators() {
         assert_eq!(drawn(&frame, 7, 5), junction.to_string());
         assert_eq!(frame.rows().len(), 13);
         assert!(frame.rows().iter().all(|row| row.text().width() == 15));
-        for (_, panel) in composition.panels() {
-            let content = panel.content();
+        for (id, panel) in composition.panels() {
+            let view = session.windows().get(*id).unwrap();
+            let content = view
+                .gutter_geometry(session.buffer().unwrap(), panel.content())
+                .unwrap()
+                .text();
             assert_eq!(drawn(&frame, content.column(), content.row()), "a");
             let status = panel.status().unwrap();
             assert_eq!(
@@ -350,14 +354,14 @@ fn workspace_tree() {
     session.execute(Command::SearchForward);
     session.handle(Event::Paste("target".into()));
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].selection(), Some(25..34));
-    assert_eq!(frame.rows()[0].search(), Some(28..34));
-    assert_eq!(drawn(&frame, 28, 0), "t");
+    assert_eq!(frame.rows()[0].selection(), Some(30..39));
+    assert_eq!(frame.rows()[0].search(), Some(33..39));
+    assert_eq!(drawn(&frame, 33, 0), "t");
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Enter,
         KeyModifiers::NONE,
     )));
-    assert_eq!(session.frame().unwrap().cursor(), Some(position(34, 0)));
+    assert_eq!(session.frame().unwrap().cursor(), Some(position(39, 0)));
     assert_eq!(session.windows().order(), ids);
     let buffer = session.buffer().unwrap();
     assert_eq!(
@@ -377,7 +381,7 @@ fn workspace_lifecycle() {
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use rev::command::{History, Motion, TreeCommand};
 
-    let source = format!("{}界e\u{301}", "a".repeat(18));
+    let source = format!("{}界e\u{301}", "a".repeat(12));
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(&source).unwrap();
     let view = View::new(buffers.get(id).unwrap());

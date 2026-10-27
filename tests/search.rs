@@ -144,8 +144,8 @@ fn selected_surface() {
     assert_eq!(session.search_match().unwrap().range, 2..4);
     assert_eq!(session.view().point.position, Scalar(5));
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].search(), Some(4..7));
-    assert_eq!(frame.rows()[0].selection(), Some(1..7));
+    assert_eq!(frame.rows()[0].search(), Some(10..13));
+    assert_eq!(frame.rows()[0].selection(), Some(7..13));
     assert!(
         frame
             .rows()
@@ -155,11 +155,11 @@ fn selected_surface() {
     );
     let cells = surface::draw(&frame);
     let palette = rev::config::Palette::default();
-    assert_eq!(cells[&(0, 4)].foreground, Some(palette.selection_text));
-    assert_eq!(cells[&(0, 4)].background, Some(palette.selection));
-    assert!(cells[&(0, 4)].underline);
-    assert_eq!(cells[&(0, 7)].background, Some(palette.background));
-    assert!(!cells[&(0, 7)].underline);
+    assert_eq!(cells[&(0, 10)].foreground, Some(palette.selection_text));
+    assert_eq!(cells[&(0, 10)].background, Some(palette.selection));
+    assert!(cells[&(0, 10)].underline);
+    assert_eq!(cells[&(0, 13)].background, Some(palette.background));
+    assert!(!cells[&(0, 13)].underline);
     assert_eq!(session.windows().get(other).unwrap(), &other_view);
     key(&mut session, KeyCode::Enter, KeyModifiers::NONE);
     assert!(session.search_match().is_none());

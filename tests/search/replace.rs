@@ -21,7 +21,7 @@ fn confirmed_flow() {
     let stamp = session.buffer().unwrap().stamp();
     begin(&mut session, "cat", "界");
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
-    assert_eq!(session.frame().unwrap().rows()[0].search(), Some(0..3));
+    assert_eq!(session.frame().unwrap().rows()[0].search(), Some(6..9));
     answer(&mut session, 'y');
     assert_eq!(text(&session), "界 cat cat");
     assert_eq!(session.buffer().unwrap().history().len(), 1);
