@@ -1,10 +1,10 @@
 use std::io;
 use std::ops::ControlFlow;
 use std::path::Path;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
-use rev::buffer::Buffers;
 use rev::buffer::edit::{History, Replacement};
+use rev::buffer::{Buffer, BufferId, Buffers};
 use rev::command::{Command, Split, TreeCommand};
 use rev::session::Session;
 use rev::view::{Size, View};
@@ -33,8 +33,7 @@ fn session(root: &Path) -> Result<Session> {
     Ok(session)
 }
 
-pub(super) fn redraw(root: &Path) -> Result<()> {
-    let mut session = session(root)?;
+fn canvas(session: &mut Session) -> Result<Vec<String>> {
     let frame = session.frame()?;
     let rows: Vec<_> = frame
         .rows()
@@ -53,29 +52,41 @@ pub(super) fn redraw(root: &Path) -> Result<()> {
         session.windows().iter().len() == 3,
         "nested shared panes missing",
     )?;
-    let stamp = session.buffer()?.stamp();
-    let state = session.buffer()?.state();
+    Ok(rows)
+}
+
+fn draw(session: &mut Session, rows: &[String]) -> Result<Duration> {
+    let start = Instant::now();
+    let frame = session.frame()?;
+    frame.write(&mut io::sink())?;
+    let elapsed = start.elapsed();
+    require(
+        frame
+            .rows()
+            .iter()
+            .map(|row| row.text())
+            .eq(rows.iter().map(String::as_str)),
+        "retained panel canvas changed",
+    )?;
+    require(frame.cursor().is_some(), "prompt cursor missing")?;
+    Ok(elapsed)
+}
+
+fn identity(session: &Session) -> Result<(rev::buffer::Stamp, rev::buffer::State)> {
+    let buffer = session.buffer()?;
+    Ok((buffer.stamp(), buffer.state()))
+}
+
+pub(super) fn redraw(root: &Path) -> Result<()> {
+    let mut session = session(root)?;
+    let rows = canvas(&mut session)?;
+    let before = identity(&session)?;
     barrier()?;
     let mut samples = Vec::new();
     for _ in 0..64 {
-        let start = Instant::now();
-        let frame = session.frame()?;
-        frame.write(&mut io::sink())?;
-        samples.push(start.elapsed());
-        require(
-            frame
-                .rows()
-                .iter()
-                .map(|row| row.text())
-                .eq(rows.iter().map(String::as_str)),
-            "retained panel canvas changed",
-        )?;
-        require(frame.cursor().is_some(), "prompt cursor missing")?;
+        samples.push(draw(&mut session, &rows)?);
     }
-    require(
-        (session.buffer()?.stamp(), session.buffer()?.state()) == (stamp, state),
-        "draw mutated document",
-    )?;
+    require(identity(&session)? == before, "draw mutated document")?;
     emit(
         "redraw",
         samples,
@@ -93,10 +104,13 @@ fn progress(buffer: &mut rev::buffer::Buffer) -> usize {
     calls
 }
 
-pub(super) fn syntax(root: &Path) -> Result<()> {
+fn cutoff_buffer(root: &Path) -> Result<(Buffers, BufferId)> {
     let mut buffers = Buffers::with_settings(graph::settings(root)?)?;
     let id = buffers.visit(&root.join("work/cutoff.rs"))?;
-    let buffer = buffers.get_mut(id)?;
+    Ok((buffers, id))
+}
+
+fn exceed(buffer: &mut Buffer) -> Result<()> {
     require(
         buffer.len_bytes() == 65536 && buffer.mode() == "Rust",
         "exact cutoff not admitted",
@@ -107,7 +121,10 @@ pub(super) fn syntax(root: &Path) -> Result<()> {
     };
     let prepared = buffer.prepare(&[change], &[], None)?;
     buffer.publish(prepared, &mut [])?;
-    barrier()?;
+    Ok(())
+}
+
+fn oversize(buffer: &mut Buffer) -> Result<Vec<Duration>> {
     let mut samples = Vec::new();
     for _ in 0..32 {
         let start = Instant::now();
@@ -117,6 +134,10 @@ pub(super) fn syntax(root: &Path) -> Result<()> {
         )?;
         samples.push(start.elapsed());
     }
+    Ok(samples)
+}
+
+fn restore(buffer: &mut Buffer) -> Result<usize> {
     buffer.navigate(History::Undo, &mut [], None)?;
     let admitted = progress(buffer);
     require(
@@ -125,6 +146,16 @@ pub(super) fn syntax(root: &Path) -> Result<()> {
     )?;
     require(progress(buffer) == 0, "unchanged parser repeated work")?;
     require(!buffer.is_modified(), "cutoff undo lost saved identity")?;
+    Ok(admitted)
+}
+
+pub(super) fn syntax(root: &Path) -> Result<()> {
+    let (mut buffers, id) = cutoff_buffer(root)?;
+    let buffer = buffers.get_mut(id)?;
+    exceed(buffer)?;
+    barrier()?;
+    let samples = oversize(buffer)?;
+    let admitted = restore(buffer)?;
     emit(
         "syntax",
         samples,

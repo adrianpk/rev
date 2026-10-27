@@ -60,6 +60,10 @@ def documents(root):
 
 
 def fixture(root):
+    (root / 'small/nested/grandchild').mkdir(parents=True)
+    (root / 'small/nested/grandchild/hidden').write_text('must not be observed')
+    (root / 'small/visible').write_text('retained')
+    (root / 'small/alias').symlink_to('nested', target_is_directory=True)
     return {'graph': graph(root), 'entries': candidates(root, 'entries'),
             'names': candidates(root, 'names'), 'documents': documents(root)}
 

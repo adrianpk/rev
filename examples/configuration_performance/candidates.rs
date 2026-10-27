@@ -7,6 +7,11 @@ use rev::file::completion::{ENTRY_LIMIT, NAME_BYTE_LIMIT, Provider};
 use super::{Result, barrier, emit, require};
 
 pub(super) fn run(root: &Path, kind: &str) -> Result<()> {
+    let shallow = Provider::observe(&root.join("small"))?;
+    require(
+        shallow.entries().len() == 3,
+        "shallow traversal control missing",
+    )?;
     let directory = root.join(kind);
     let mut samples = Vec::new();
     for _ in 0..3 {
