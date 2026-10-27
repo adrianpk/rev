@@ -462,14 +462,15 @@ Details and checks: [Slice 17](../plan/rev-configuration-ui.md#slice-17-validate
 
 Task commits: T17.1 `9e7d05767b363d99cf26eb6b649dab21634a2b20`;
 T17.2 `921c5038bb8d56c732a7f1b1d2e2e650e53e369b`;
-T17.3 is the Slice 17 report introduction commit.
+T17.3 `4a758356c05bfbb0aea9e0d482d0d6effc4ae289`.
 Focused native/default and configuration checks passed for chord limits, terminal
 aliases, normalized replacement, provenance, context availability, inherited and
 merged prefix conflicts, cancellation and complete-default fallback. Fixed action
 identities and every native default mapping are documented. Focused Clippy and
 source checks passed after correcting ordering, alias match and fixed-array forms.
 Report: [Slice 17](../report/slices/rev-configuration-ui/slice-17-keymap-contracts.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#66](https://forge.adrianpk.com/adrianpk/rev/pulls/66);
+dev integration remains controller-owned.
 
 ### Slice 18: Dispatch configurable editor bindings
 

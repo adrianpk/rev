@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-17-keymap-contracts`
-PR: pending
+PR: [#66](https://forge.adrianpk.com/adrianpk/rev/pulls/66)
 
 ## Purpose
 
@@ -41,7 +41,7 @@ fixed Rust action identities and the same normalized chord vocabulary as input.
 - T17.2: `921c5038bb8d56c732a7f1b1d2e2e650e53e369b` compiles complete maps,
   validates context availability and prefixes, preserves normalized layer
   replacement/provenance and publishes the admitted maps with the snapshot.
-- T17.3: This report's introduction commit protects cancellation, tests rejected
+- T17.3: `4a758356c05bfbb0aea9e0d482d0d6effc4ae289` protects cancellation, tests rejected
   replacements and terminal collisions, and documents every default mapping and
   stage-specific operation.
 - Ordered normalized keys make prefix validation a scan of adjacent entries
