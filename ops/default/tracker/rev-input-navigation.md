@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 9 - align pane status into left and right groups
+Active slice: Slice 10 - own native pointer reporting and input state
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -146,18 +146,18 @@ Details and exact checks: [Slice 9](../plan/rev-input-navigation.md#slice-9-alig
 - [x] T9.1: Compose the existing identity/dirty/access/position facts on the left and syntax/Text on the right inside each pane's status area; retain one row and active styling.
 - [x] T9.2: Use cell-width-aware flexible space and the accepted compact/omit/clip order; preserve truthful independent points, RO/RW and clean/modified markers.
 - [x] T9.3: Adapt existing native/PTY status expectations to semantic two-group rendering while preserving their substantive assertions; run display regressions and the affected historical acceptance journeys.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 9 implementation is prepared. Native groups and owned RGB/NO_COLOR PTYs
-verify pane-local facts, width degradation/restoration and prompt isolation;
-four historical acceptance journeys pass with exact source/save assertions.
+Slice 9 of 20 completed. Canonical PR [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89)
+integrated into dev at `1823e723e7aa275641c89eb72156f961cbd25679`.
+Canonical evidence `AGAAA3CW2WLBUAS7KIQI7LLAXG` and focused evidence
+`JXSFXREVUYBJGFADNHQI63VR5H` passed on that candidate. The status ticket is
+solved after its primary integration. Slice 10 is active. The
+[canonical report](../report/slices/rev-input-navigation/slice-9-status-layout.md)
+records complete/narrow groups, independent points, palette and terminal proof.
 T9.1: `5aa3d1ed4d6a46bc8825d29454c4eaa0681cb99c`.
 T9.2: `e85c4ea4dcd2496bbd4f37aae4aac2e7f98e82b4`.
 T9.3: `6e16780043d3181e43085c0777f2f49e4922b20e`.
-Canonical PR [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89) targets dev;
-the [canonical report](../report/slices/rev-input-navigation/slice-9-status-layout.md)
-is reviewing. Exact clean-head validation and controller-owned integration remain
-pending.
 
 ### Slice 10: own native pointer reporting and input state
 

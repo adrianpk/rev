@@ -1,11 +1,12 @@
 # Slice 9: Align pane status into left and right groups
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-09-status-layout`
 PR: [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89)
+Integrated: `1823e723e7aa275641c89eb72156f961cbd25679`
 
 ## Purpose
 
@@ -77,8 +78,9 @@ Development checks passed:
   111 bindings and published links remain valid.
 - `python3 scripts/check-source.py`: safe Rust and unchanged complexity limits.
 
-Final clean-head canonical validation is recorded by the controller after PR
-reference commits, in this exact order:
+Canonical evidence `AGAAA3CW2WLBUAS7KIQI7LLAXG` passed on clean final head
+`1823e723e7aa275641c89eb72156f961cbd25679`, now integrated into dev through PR #89.
+All six ordered checks passed, including 237 native cases and four PTY journeys:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -87,8 +89,16 @@ reference commits, in this exact order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-The canonical PR and controller evidence identify the final candidate; these
-implementation observations do not substitute for that exact-head record.
+Focused evidence `JXSFXREVUYBJGFADNHQI63VR5H` passed on that same head:
+
+- `cargo test --test gutter`
+- `cargo test --test editing readonly_input`
+- `python3 scripts/check-status.py`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-pty.py --suite gutter-geometry`
+- `git diff --check`
+
+The status ticket is solved after verified integration of its primary Slice 9.
 
 ## Risks and Follow-ups
 

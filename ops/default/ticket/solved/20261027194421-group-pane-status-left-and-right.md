@@ -1,10 +1,12 @@
 ---
 id: TKT-20261027194421
 title: Group pane status information on the left and right
-status: reviewing
+status: solved
 ready_at: 2026-10-27T22:46:43Z
 started_at: 2026-10-27T22:46:43Z
-reviewed_at: 2026-10-27T23:00:09Z
+reviewed_at: 2026-10-27T23:03:35Z
+closed_at: 2026-10-27T23:03:35Z
+resolution: fixed
 branch: feat/rev-input-09-status-layout
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/89
 kind: task
@@ -64,9 +66,9 @@ integration/acceptance; do not create a separate successor run for this ticket.
 
 ## Implementation evidence
 
-Primary Slice 9 is prepared in canonical PR [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89).
+Primary Slice 9 integrated into dev through canonical PR
+[#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89) at
+`1823e723e7aa275641c89eb72156f961cbd25679`.
 The [Slice 9 report](../../report/slices/rev-input-navigation/slice-9-status-layout.md)
-records native group/degradation/state checks, two RGB/NO_COLOR status PTYs, four
-historical acceptance journeys and source/reference checks. The controller
-records final exact-head evidence after this reference commit. Integration and
-solved closure remain pending canonical merge.
+records the delivered groups and successful exact-candidate canonical/focused
+checks. Its assigned primary integration is complete; resolution is fixed.
