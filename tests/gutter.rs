@@ -23,6 +23,8 @@ mod rendering;
 mod shared;
 #[path = "support/surface.rs"]
 mod surface;
+#[path = "gutter/workspace.rs"]
+mod workspace;
 
 use rev::buffer::Buffers;
 use rev::gutter::{CurrentLine, Mode, Overrides, Settings, Side};
