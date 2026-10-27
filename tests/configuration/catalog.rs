@@ -45,6 +45,7 @@ fn scalar_defaults() {
     assert_eq!(settings.tree.root, TreeRoot::Auto);
     assert!(settings.tree.show_hidden);
     assert!(settings.tree.directories_first);
+    assert_eq!(settings.gutter, rev::gutter::Settings::default());
     assert!(settings.language.is_empty());
     assert!(settings.files.associations.is_empty());
     assert!(settings.keys.editor.is_empty());
@@ -52,7 +53,7 @@ fn scalar_defaults() {
     assert!(settings.keys.tree.is_empty());
 }
 
-// Keep all 25 accepted semantic colors, including inherited tree text and the
+// Keep all 29 accepted semantic colors, including inherited tree text and the
 // existing combined syntax capture groups, pinned to the accepted night palette.
 #[test]
 fn palette_defaults() {
@@ -83,6 +84,14 @@ fn palette_defaults() {
         ("syntax.function", palette.syntax.function, "#7aa2f7"),
         ("syntax.number", palette.syntax.number, "#ff9e64"),
         ("syntax.punctuation", palette.syntax.punctuation, "#89ddff"),
+        ("gutter.background", palette.gutter.background, "#1a1b26"),
+        ("gutter.foreground", palette.gutter.foreground, "#565f89"),
+        (
+            "gutter.current_line",
+            palette.gutter.current_line,
+            "#7aa2f7",
+        ),
+        ("gutter.separator", palette.gutter.separator, "#3b4261"),
     ];
     for (name, color, expected) in cases {
         let actual = format!("#{:02x}{:02x}{:02x}", color.0, color.1, color.2);

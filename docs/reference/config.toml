@@ -27,6 +27,21 @@ page_overlap = 2
 # Finite float 0.1..=0.9; preferred first-child share after the split separator.
 split_ratio = 0.5
 
+[gutter]
+# Boolean; initial per-view number visibility, subject to narrow-pane geometry.
+visible = true
+# "absolute" or "relative" logical line calculation.
+mode = "absolute"
+# "absolute", "zero" or "hidden" current-line label, independent of mode.
+current_line = "absolute"
+# "left" or "right" of the editing text.
+side = "left"
+# Integer 1..=20 minimum digits; complete source labels are never truncated.
+minimum_digits = 4
+# Integer 0..=4 terminal cells on either side of the number digits.
+left_padding = 0
+right_padding = 1
+
 [minibuffer]
 # Integer 1..=32 candidate rows, clipped to the available terminal geometry.
 candidate_limit = 8
@@ -85,7 +100,7 @@ bom = false
 # Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
 # followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
 
-# Tokyo Night night defaults. All 25 roles are active six-digit #RRGGBB strings.
+# Tokyo Night night defaults. All 29 roles are active six-digit #RRGGBB strings.
 # Terminal true-color/cursor support and NO_COLOR determine visible capability.
 [palette]
 background = "#1a1b26"          # Document and ordinary prompt background.
@@ -115,6 +130,12 @@ type = "#2ac3de"                # Types and constructors.
 function = "#7aa2f7"            # Functions, methods and macros.
 number = "#ff9e64"              # Constants, booleans and numeric literals.
 punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
+
+[palette.gutter]
+background = "#1a1b26"          # Number-field background.
+foreground = "#565f89"          # Ordinary logical labels.
+current_line = "#7aa2f7"        # Current-line label, also emphasized without color.
+separator = "#3b4261"           # One-cell number/text separator.
 
 # Complete built-in maps follow. Use existing fixed command/action names only.
 # Missing entries inherit; exact normalized overrides replace one chord.

@@ -19,7 +19,7 @@ columns, copied data or saved bytes. Narrow views preserve their text area.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 25 active RGB roles and all three default binding maps. Its
+global default, all 29 active RGB roles and all three default binding maps. Its
 optional include, language and association examples are commented out. Copy only
 the overrides you need; a configuration file is optional.
 
@@ -125,6 +125,21 @@ reserved C-g, prefix conflicts and stage admission rules apply to every layer.
 The sample declares the complete default targets explicitly; omit its key tables
 to inherit native stage-specific distinctions, or copy only desired overrides.
 
+### Line numbers
+
+Startup values initialize each editing view. Runtime [gutter commands](gutter.md)
+change only that view's overrides and never reload or write this snapshot.
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `gutter.visible` | Boolean | `true` | Initial number visibility, subject to protected text geometry. |
+| `gutter.mode` | String: "absolute" or "relative" | `"absolute"` | Logical line calculation from each view's own point. |
+| `gutter.current_line` | String: "absolute", "zero" or "hidden" | `"absolute"` | Current-row label, independent of calculation mode. |
+| `gutter.side` | String: "left" or "right" | `"left"` | Number field placement inside its editing pane. |
+| `gutter.minimum_digits` | Integer 1..=20 | `4` | Minimum reserved digits; full source line count may require more. |
+| `gutter.left_padding` | Integer 0..=4 | `0` | Cells before digits, excluding the separator. |
+| `gutter.right_padding` | Integer 0..=4 | `1` | Cells after digits, excluding the separator. |
+
 ### Editing, presentation and retention
 
 | Key | Type and bounds | Default | Scope and effect |
@@ -206,6 +221,10 @@ All palette roles are global, with no language-scoped color override.
 | `palette.message` | RGB string | `"#c0caf5"` | Normal echo/message foreground. |
 | `palette.warning` | RGB string | `"#e0af68"` | Warning foreground. |
 | `palette.error` | RGB string | `"#db4b4b"` | Error foreground. |
+| `palette.gutter.background` | RGB string | `"#1a1b26"` | Number-field background. |
+| `palette.gutter.foreground` | RGB string | `"#565f89"` | Ordinary logical labels. |
+| `palette.gutter.current_line` | RGB string | `"#7aa2f7"` | Current-line label; bold emphasis remains without color. |
+| `palette.gutter.separator` | RGB string | `"#3b4261"` | Number/text separator foreground. |
 | `palette.syntax.keyword` | RGB string | `"#9d7cd8"` | Keyword captures. |
 | `palette.syntax.string` | RGB string | `"#9ece6a"` | String/escape captures. |
 | `palette.syntax.comment` | RGB string | `"#565f89"` | Comment/documentation captures. |

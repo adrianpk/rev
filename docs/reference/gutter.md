@@ -22,9 +22,11 @@ saving and undo use canonical document text; labels and separators never become
 file bytes, history entries or dirty-state changes. Borders, status rows, prompts,
 completion candidates and the file tree keep their own presentation bounds.
 
-## Native view policy
+## Per-view modes and controls
 
-The native `gutter::Policy` also supports relative mode. Each noncurrent label
+Use `M-x gutter-set-line-numbers-relative` to show relative numbers in the
+active editing view. `M-x gutter-set-line-numbers-absolute` restores absolute
+calculation and shows numbers. Each noncurrent label
 shows its logical distance from that view's point. With point on line 42, lines
 40 through 44 show `2, 1, 42, 1, 2`. Focus changes do not move the relative origin
 of an inactive pane sharing the same buffer.
@@ -41,6 +43,29 @@ restoring the field retain the selected mode. Closing a view releases its own
 policy, and closing a buffer rebinds its live views through ordinary buffer
 lifetime rules.
 
-These native policy values are available to Rust view consumers. Factory terminal
-sessions currently display absolute numbers; startup TOML and M-x gutter controls
-are not exposed yet.
+`M-x gutter-toggle-line-numbers` hides or restores the field while retaining its
+mode. `M-x gutter-cycle-line-number-mode` alternates modes without changing
+visibility. `M-x gutter-cycle-current-line` cycles absolute, zero and hidden;
+`M-x gutter-toggle-line-number-side` alternates left/right. These commands have
+no additional factory keybinding; editor keymaps can bind their exact names.
+They require editing focus, and C-g cancels M-x without changing policy.
+
+`M-x gutter-inspect-numbering` reports effective values and whether each mutable
+leaf comes from startup or an explicit view override. Width and padding retain
+the startup source. `M-x gutter-reset-numbering` clears this view's overrides,
+restoring its immutable startup policy, including visibility. Other views and
+text remain unchanged. No command reloads, edits or persists configuration.
+
+## Startup settings
+
+The optional `[gutter]` table sets `visible`, `mode`, `current_line`, `side`,
+`minimum_digits`, `left_padding` and `right_padding`. Its factory values are
+`true`, `"absolute"`, `"absolute"`, `"left"`, `4`, `0` and `1`, respectively.
+Minimum digits admit 1..20 and padding 0..4 cells. Width always accommodates
+the complete source count. `[palette.gutter]` supplies `background`, `foreground`,
+`current_line` and `separator` as six-digit RGB values.
+
+See the [complete sample](config.toml) and [value catalog](defaults.md#line-numbers)
+for all supported values. Includes and root leaves merge independently. Invalid
+preferences reject the complete candidate. Editing TOML affects the next startup;
+runtime reset continues using the running session's snapshot.

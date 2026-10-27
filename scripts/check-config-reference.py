@@ -17,6 +17,7 @@ TABLES = {
     "editor": "PartialEditor",
     "scroll": "PartialScroll",
     "windows": "PartialWindows",
+    "gutter": "PartialGutter",
     "minibuffer": "PartialMinibuffer",
     "history": "PartialHistory",
     "kill_ring": "PartialKillRing",
@@ -26,6 +27,7 @@ TABLES = {
     "keys": "Keymaps",
     "palette": "PartialPalette",
     "palette.syntax": "PartialSyntaxPalette",
+    "palette.gutter": "PartialGutterPalette",
 }
 
 
@@ -69,7 +71,7 @@ def check_schema(document, models):
     require(document["language"] == {}, "language overrides must stay optional")
     require(document["files"]["associations"] == {}, "associations must stay optional")
     palette = document["palette"]
-    require(len(palette) - 1 + len(palette["syntax"]) == 25, "expected 25 active RGB roles")
+    require(len(palette) - 2 + len(palette["syntax"]) + len(palette["gutter"]) == 29, "expected 29 active RGB roles")
 
 
 def example(sample, heading):
@@ -146,6 +148,9 @@ def type_label(kind):
         "Option<TreeRoot>": "String:",
         "Option<Newline>": "String:",
         "Option<Grammar>": "String:",
+        "Option<crate::gutter::Mode>": "String:",
+        "Option<crate::gutter::CurrentLine>": "String:",
+        "Option<crate::gutter::Side>": "String:",
     }
     if kind.startswith("BTreeMap<"):
         return "Map"
@@ -180,17 +185,18 @@ def enum_choices(source, name):
     body = re.search(r"^pub enum " + name + r" \{(.*?)^\}", source, re.M | re.S)
     require(body is not None, f"missing enum {name}")
     variants = re.findall(r"^    (\w+),$", body[1], re.M)
-    lines = [line for line in body[1].splitlines() if line.strip()]
+    lines = [line for line in body[1].splitlines() if line.strip() and not line.strip().startswith("#[")]
     require(len(variants) == len(lines) > 0, f"unrecognized enum {name}")
     return [re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower() for name in variants]
 
 
 def check_enums(root, models, rows):
     source = (root / "src/config.rs").read_text()
+    source += (root / "src/gutter/policy.rs").read_text()
     for key, kind in leaves(models).items():
         if type_label(kind) != "String:":
             continue
-        expected = enum_choices(source, kind.removeprefix("Option<").removesuffix(">"))
+        expected = enum_choices(source, kind.removeprefix("Option<").removesuffix(">").removeprefix("crate::gutter::"))
         actual = re.findall(r'"([^"\n]+)"', rows[key][0])
         require(sorted(actual) == sorted(expected), f"{key}: enum documentation drift")
 
@@ -227,7 +233,7 @@ def main():
     check_enums(ROOT, models, rows)
     check_links(ROOT)
     bindings = sum(len(entries) for entries in document["keys"].values())
-    print(f"Configuration reference: {len(rows)} schema/catalog entries, 25 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
+    print(f"Configuration reference: {len(rows)} schema/catalog entries, 29 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
     print("Typed defaults and published parser bounds are checked by cargo test --test configuration; UI effects require separate native/terminal evidence.")
 
 

@@ -121,8 +121,10 @@ Details and exact checks: [Slice 7](../plan/rev-input-navigation.md#slice-7-wire
 
 - [x] T7.1: Wire every accepted gutter/model key, palette role, type/bound and default into the existing partial/resolved settings path without a second preference store.
 - [x] T7.2: Implement all eight accepted compiled gutter command identities, per-view overrides, inspect and reset; no placeholder handlers or new factory key conflicts.
-- [ ] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
+- [x] T7.3: Update the complete sample/default references only with supported keys and verify includes, invalid candidates, no-config defaults, runtime resets and no document edits.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 7 implementation is complete; canonical PR and final clean-HEAD evidence are recorded before handoff. Integration remains pending. The [canonical report](../report/slices/rev-input-navigation/slice-7-gutter-controls.md) records admitted startup leaves, eight native commands, complete references and owned PTY outcomes. T7.1: `013feb78180384d6cbec1deedecb89862f4c8986`. T7.2: `51f117014706d884eb4115250f683243223ad8da`.
 
 ### Slice 8: preserve gutter geometry across editor surfaces
 

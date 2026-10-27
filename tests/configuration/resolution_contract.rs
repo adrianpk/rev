@@ -87,7 +87,7 @@ files.bom = true
     assert_eq!(startup.snapshot.editor("unknown"), expected.editor);
 }
 
-fn colors(palette: &Palette) -> [(&str, Rgb); 25] {
+fn colors(palette: &Palette) -> [(&str, Rgb); 29] {
     [
         ("background", palette.background),
         ("foreground", palette.foreground),
@@ -114,10 +114,14 @@ fn colors(palette: &Palette) -> [(&str, Rgb); 25] {
         ("syntax.function", palette.syntax.function),
         ("syntax.number", palette.syntax.number),
         ("syntax.punctuation", palette.syntax.punctuation),
+        ("gutter.background", palette.gutter.background),
+        ("gutter.foreground", palette.gutter.foreground),
+        ("gutter.current_line", palette.gutter.current_line),
+        ("gutter.separator", palette.gutter.separator),
     ]
 }
 
-// Unique channel values for all 25 roles detect swapped or forgotten leaves
+// Unique channel values for all 29 roles detect swapped or forgotten leaves
 // during both partial merging and typed projection. Root changes one role only.
 #[test]
 fn palette_projection() {

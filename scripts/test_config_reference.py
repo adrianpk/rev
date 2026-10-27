@@ -17,6 +17,9 @@ class ReferenceDrift(unittest.TestCase):
     def test_drift(self):
         for name, owner, key, change, message in [
             ("omitted active leaf", "sample", "editor", lambda value: value.pop("tab_width"), "editor: missing"),
+            ("omitted gutter leaf", "sample", "gutter", lambda value: value.pop("minimum_digits"), "gutter: missing"),
+            ("omitted gutter palette", "catalog", "", lambda value: value.pop("palette.gutter.current_line"), "catalog: missing"),
+            ("missing gutter enum", "catalog", "gutter.current_line", lambda value: value.__setitem__(0, 'String: "absolute" or "zero"'), "enum documentation drift"),
             ("new schema leaf", "model", "PartialEditor", lambda value: value.update(future_width="Option<i64>"), "editor: missing"),
             ("changed command", "sample", "keys.editor", lambda value: value.update({"C-x C-f": "save-buffer"}), "command target drift"),
             ("omitted palette row", "catalog", "", lambda value: value.pop("palette.cursor"), "catalog: missing"),

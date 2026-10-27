@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Show absolute logical line numbers beside editing text, including empty lines, with current-line emphasis and stable widths that preserve document columns. Narrow views retain their text area.
+- Show absolute or relative logical line numbers with independent settings in each editing view. Use M-x to switch modes, hide numbers, change the current-line label or side, inspect overrides and restore startup defaults. Stable widths preserve document columns, and narrow views retain their text area.
 
 - Convert marked tabs and spaces with `M-x tabify` and `M-x untabify`, preserving text columns, Unicode and file line endings. Each conversion undoes or redoes as one change; an unselected document stays untouched.
 
