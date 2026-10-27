@@ -115,21 +115,7 @@ follow-up commit, in this exact order:
 - `python3 -m unittest discover -s scripts -p test_acceptance.py`
 - `git diff --check`
 
-## Risks and Follow-ups
-
-Canonical Slice 30 integration is verified. Gate preparation closes the
-report/tracker integration entry and moves the acceptance ticket to its approved
-solved path with the integrated head. All 30 reports and eleven solved tickets
-are prepared for strict gate prerequisites.
-
-The controller then runs the unchanged `scripts/check-all.sh` entry point on
-one clean exact dev candidate. Only after its success may the approved closure
-paths record the gate identity/candidate, close this delivery's plan/tracker/
-spec/model/interaction status and remaining closure checkboxes, and record Acta.
-The historical baseline candidate, gate candidate and later documentation-only
-closure commit remain distinct. No main promotion or publication is included.
-
-## Final-gate palette regression
+Final-gate palette regression.
 
 The first final gate stopped at `palette::message_colors`: the assertion still
 addressed the bottom terminal row after find-file completion moved its query
@@ -147,6 +133,29 @@ Focused reproduction after correction:
 - `cargo fmt --all -- --check`: passed.
 - `git diff --check`: passed.
 
-The repair requires exact-head display, path-completion, command and panel
-regressions, Clippy and source validation before controller-owned integration.
-The complete `scripts/check-all.sh` gate and delivery closure remain pending.
+Canonical repair [PR #80](https://forge.adrianpk.com/adrianpk/rev/pulls/80),
+branch `fix/rev-configuration-ui-validation-1`, integrated by Rebase +
+Fast-forward into dev at `db5885640fb3592e844e3ec198346a99415c32ca`. Controller validation
+`7SBZYXAIGU5Z3P6ANNC3UFFTLN` passed all five ordered checks on that clean
+head, including 218 display, path-completion, command and panel tests with zero
+failures or ignored tests:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test display --test path_completion --test commands --test panels`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+## Risks and Follow-ups
+
+Canonical Slice 30 integration is verified. Gate preparation closes the
+report/tracker integration entry and moves the acceptance ticket to its approved
+solved path with the integrated head. All 30 reports and eleven solved tickets
+are prepared for strict gate prerequisites.
+
+The controller then runs the unchanged `scripts/check-all.sh` entry point on
+one clean exact dev candidate. Only after its success may the approved closure
+paths record the gate identity/candidate, close this delivery's plan/tracker/
+spec/model/interaction status and remaining closure checkboxes, and record Acta.
+The historical baseline candidate, gate candidate and later documentation-only
+closure commit remain distinct. No main promotion or publication is included.

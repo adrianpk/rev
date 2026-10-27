@@ -806,6 +806,14 @@ full gate and final delivery closure remain pending.
 Report: [Slice 30](../report/slices/rev-configuration-ui/slice-30-configuration-ui-acceptance.md).
 PR: [#79](https://forge.adrianpk.com/adrianpk/rev/pulls/79).
 
+Final-gate repair 1: [PR #80](https://forge.adrianpk.com/adrianpk/rev/pulls/80),
+branch `fix/rev-configuration-ui-validation-1`, integrated at
+`db5885640fb3592e844e3ec198346a99415c32ca`. All five focused checks passed under
+controller validation `7SBZYXAIGU5Z3P6ANNC3UFFTLN`, including 218 native
+tests with zero failures or ignored tests. The palette regression now locates
+query/candidate rows by their semantic identities. The controller-owned full
+gate and final delivery closure remain pending.
+
 ## Delivery-set closure
 
 - [x] All 90 tasks and all 30 slice reports integrated through canonical PRs.
