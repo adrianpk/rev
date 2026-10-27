@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Convert marked tabs and spaces with `M-x tabify` and `M-x untabify`, preserving text columns, Unicode and file line endings. Each conversion undoes or redoes as one change; an unselected document stays untouched.
+
 - Go to a logical line with `M-g g`, `M-g M-g` or `M-x goto-line`. Cancel without moving the current view, correct invalid numbers in place, and navigate read-only text without changing its history.
 
 - Configure existing editing, display, palette, history, file and context-keybinding preferences through startup TOML under the XDG configuration directory. Explicit includes and language overrides compose before startup; invalid sources show a diagnostic and retain complete defaults. Configuration changes take effect after restarting, and startup creates no settings files or empty XDG directories. The [complete reference sample](docs/reference/config.toml) lists every supported value and default context binding.

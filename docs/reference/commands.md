@@ -69,7 +69,7 @@ for file, history and retained-text policies.
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |
-| Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char` |
+| Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
 | Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer`, `goto-line` |
 | Scrolling | `next-line`, `previous-line`, `scroll-up-command`, `scroll-down-command`, `recenter-top-bottom` |
 | History | `undo`, `undo-redo` |
@@ -99,6 +99,35 @@ to exact buffer end. A final newline therefore admits a final empty logical
 line. Navigation reveals the destination in the selected view, preserves other
 views and uses the existing mark/region rules. Read-only text remains navigable;
 no edit, undo entry, dirty change or save occurs.
+
+## Whitespace conversion
+
+`M-x tabify` and `M-x untabify` act on the marked region. Set mark with `C-SPC`,
+move to the other endpoint, then invoke the desired command. To select the whole
+document explicitly, use `M-<`, `C-SPC`, `M->` in that order. Without an active
+region the command reports `Region is not active`; it never selects the document
+implicitly. An empty or already unchanged region reports `No whitespace changed`
+and creates no edit, undo entry or dirty-state change.
+
+Untabify expands selected literal tabs to spaces using the buffer's effective
+`editor.tab_width` (1..=32), including language overrides. Tabify replaces eligible
+selected runs of spaces/tabs with a shorter representation at those same stops.
+A one-cell run cannot shorten. Both commands use actual display columns,
+including wide/combining text and any unselected prefix of the current line.
+Whitespace inside strings or comments participates when selected.
+
+Only selected whitespace changes. Other text, BOM, LF/CRLF separators and final
+newline presence remain intact, and non-whitespace text keeps its display columns.
+A space can anchor an otherwise zero-width grapheme following an expanded tab,
+preserving its existing visible cell. Settings, the Tab key's insertion policy,
+other buffers and the kill ring remain separate from conversion.
+
+Each conversion is one checked edit across all selected lines. One undo restores
+the original bytes and redo restores conversion; shared views use ordinary point
+and viewport mapping. Read-only buffers reject nonempty conversion. C-g while
+entering the M-x command cancels without editing and retains normal region
+cancellation. There are no factory shortcuts for these commands; an existing
+validated editor keymap may bind either name.
 
 ## Supplied retention preferences
 

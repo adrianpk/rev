@@ -45,6 +45,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-l` | `recenter-top-bottom` | Cycle point's line through center/top/bottom. |
 | `C-x u`, reported `C-/` or `C-_` | `undo` | Undo a buffer-local group. |
 | `M-x undo-redo` | `undo-redo` | Reapply the next redo group. |
+| `M-x tabify` | `tabify` | Compress the marked whitespace at effective tab stops when shorter. |
+| `M-x untabify` | `untabify` | Expand marked literal tabs while preserving text columns. |
 | `C-s` | `isearch-forward` | Incremental literal forward search. |
 | `C-r` | `isearch-backward` | Incremental literal backward search. |
 | `M-%` | `query-replace` | Confirm each literal replacement. |

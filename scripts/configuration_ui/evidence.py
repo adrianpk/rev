@@ -50,7 +50,7 @@ def delivery(root, document, readiness):
         fields = [part.strip().strip('`') for part in line.strip('|').split('|')]
         report(root, fields, number, readiness)
     tickets(root, document, readiness)
-    reconciled(root)
+    reconciled(root, readiness)
 
 
 def report(root, fields, number, readiness):

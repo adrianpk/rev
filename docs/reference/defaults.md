@@ -282,6 +282,10 @@ characters ignores Unicode case; uppercase queries match case-sensitively.
 Search cancellation restores its starting view. Accepted query-replace
 occurrences are independent undo steps. See [Search and replacement](search.md).
 
+Explicit [tabify/untabify](commands.md#whitespace-conversion) commands convert
+only the admitted marked region. Loading settings and changing Tab insertion
+policy never retabulate existing text.
+
 ## Interaction bounds
 
 Prompt input is bounded at 4096 Unicode scalars, with whole-payload rejection

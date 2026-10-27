@@ -41,7 +41,7 @@ All normal keyboard paths remain available.
 | --- | --- | --- |
 | Arrow responsiveness | [TKT-20261027190521](../ticket/solved/20261027190521-stop-arrow-key-navigation-inertia.md) | 1; repeated at 18-20 |
 | Line navigation | [TKT-20261027191322](../ticket/solved/20261027191322-add-emacs-style-goto-line.md) | 2 |
-| Whitespace conversion | [TKT-20261027092143](../ticket/in_progress/20261027092143-convert-tabs-and-spaces.md) | 3 |
+| Whitespace conversion | [TKT-20261027092143](../ticket/reviewing/20261027092143-convert-tabs-and-spaces.md) | 3 |
 | Gutter | [TKT-20261027193500](../ticket/open/20261027193500-deliver-native-line-number-gutter.md) | 4-8 |
 | Status layout | [TKT-20261027194421](../ticket/open/20261027194421-group-pane-status-left-and-right.md) | 9 |
 | Pointer interaction | [TKT-20261027190629](../ticket/open/20261027190629-mouse-scroll-selection-and-pane-focus.md) | 10-15 |

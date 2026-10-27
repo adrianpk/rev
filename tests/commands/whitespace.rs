@@ -1,3 +1,6 @@
+#[path = "whitespace/history.rs"]
+mod history;
+
 #[path = "whitespace/policy.rs"]
 mod policy;
 

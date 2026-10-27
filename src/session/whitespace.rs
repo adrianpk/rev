@@ -13,7 +13,8 @@ impl Session {
             return self.message("a prompt owns input focus");
         }
         match self.convert_whitespace(operation) {
-            Ok(changed) => self.finish(Ok(changed)),
+            Ok(true) => self.message(""),
+            Ok(false) => self.message("No whitespace changed"),
             Err(error) => self.error(&error.to_string()),
         }
     }

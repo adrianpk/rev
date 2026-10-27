@@ -6,7 +6,7 @@ Date: 2026-10-27
 Format: OpenSpec capability additions
 Baseline: [rev Editor](rev-editor.md), R09, R10, R18, R21 and R22
 Configuration: [Editor Configuration](editor-configuration.md), CFG10 and CFG11
-Ticket: [Convert tabs and spaces](../ticket/in_progress/20261027092143-convert-tabs-and-spaces.md)
+Ticket: [Convert tabs and spaces](../ticket/reviewing/20261027092143-convert-tabs-and-spaces.md)
 
 ## Purpose
 

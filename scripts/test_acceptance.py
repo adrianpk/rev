@@ -2,6 +2,8 @@
 
 import copy
 import json
+import subprocess
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -208,6 +210,49 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'approved configuration slice identities changed'):
                 delivery(fixture, document, readiness=True)
 
+    # The historical future ticket now requires the actual conversion outcome.
+    # Readiness may inspect reviewing work; a full gate still requires delivery.
+    def test_conversion_provenance(self):
+        from configuration_ui.delivery import conversion
+        with tempfile.TemporaryDirectory(prefix='rev-conversion-proof-') as directory:
+            root = Path(directory)
+            ticket, report = conversion_fixture(root)
+            ticket_text, report_text = ticket.read_text(), report.read_text()
+            conversion(root)
+            cases = {
+                'identity': (ticket_text.replace('TKT-20261027092143', 'TKT-20261027092144'), report_text),
+                'status': (ticket_text.replace('status: solved', 'status: reviewing'), report_text),
+                'resolution': (ticket_text.replace('resolution: fixed', 'resolution: moved'), report_text),
+                'task evidence': (ticket_text.replace('commits:', 'missing_commits:'), report_text),
+                'unknown task': (ticket_text.replace('commits: [', 'commits: [' + 'f' * 40 + ', '), report_text),
+                'branch': (ticket_text, report_text.replace('feat/rev-input-03-whitespace-conversion', 'changed-branch')),
+                'PR': (ticket_text, report_text.replace('pulls/1234', 'pulls/1235')),
+                'report status': (ticket_text, report_text.replace('Status: delivered', 'Status: reviewing')),
+                'integration': (ticket_text, report_text.replace('Integrated:', 'Missing integration:')),
+                'unknown integration': (ticket_text, re.sub(r'Integrated: `[^`]+`', 'Integrated: `' + 'f' * 40 + '`', report_text)),
+            }
+            for name, (candidate_ticket, candidate_report) in cases.items():
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    ticket.write_text(candidate_ticket)
+                    report.write_text(candidate_report)
+                    conversion(root)
+            ticket.write_text(ticket_text)
+            report.write_text(report_text)
+            report.unlink()
+            with self.assertRaisesRegex(ValueError, 'missing conversion slice report'):
+                conversion(root)
+            report.write_text(report_text)
+            duplicate = root / 'ops/default/ticket/reviewing' / ticket.name
+            duplicate.parent.mkdir(parents=True)
+            duplicate.write_text(ticket_text.replace('status: solved', 'status: reviewing'))
+            with self.assertRaisesRegex(ValueError, 'duplicate conversion ticket'):
+                conversion(root, readiness=True)
+            ticket.unlink()
+            report.write_text(report_text.replace('Status: delivered', 'Status: reviewing'))
+            conversion(root, readiness=True)
+            with self.assertRaisesRegex(ValueError, 'conversion outcome not integrated'):
+                conversion(root)
+
     # Successful process exit does not replace bounded samples, fixture identity,
     # positive read/parser controls, exact limits or event-driven idle evidence.
     def test_config_performance(self):
@@ -274,6 +319,27 @@ def change_performance(document, name):
         document['native'][-1]['admitted_callbacks'] = 0
     else:
         document['terminal']['prompt_idle']['cpu_ms'] = 350
+
+
+def conversion_fixture(root):
+    from acceptance_delivery import SECTIONS
+    def git(*arguments):
+        return subprocess.check_output(['git', '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false',
+            '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.org', *arguments], cwd=root, text=True).strip()
+    git('init', '--quiet', '--initial-branch=dev')
+    commits = []
+    for number in range(3):
+        (root / 'source.txt').write_text(f'fixture {number}')
+        git('add', 'source.txt')
+        git('commit', '--quiet', '-m', f'fixture {number}')
+        commits.append(git('rev-parse', 'HEAD'))
+    ticket = root / 'ops/default/ticket/solved/20261027092143-convert-tabs-and-spaces.md'
+    ticket.parent.mkdir(parents=True)
+    ticket.write_text('---\nid: TKT-20261027092143\nreported_at: 2026-10-27T09:21:43Z\nstatus: solved\nkind: task\nscope: domain\nresolution: fixed\nclosed_at: 2026-10-27T12:00:00Z\nbranch: feat/rev-input-03-whitespace-conversion\npr: https://forge.adrianpk.com/adrianpk/rev/pulls/1234\ncommits: [' + ', '.join(commits) + ']\n---\n')
+    report = root / 'ops/default/report/slices/rev-input-navigation/slice-3-whitespace-conversion.md'
+    report.parent.mkdir(parents=True)
+    report.write_text('# Slice 3: Add explicit tabify and untabify\n\nStatus: delivered\nDelivery set: rev-input-navigation\nBranch: `feat/rev-input-03-whitespace-conversion`\nPR: [#1234](https://forge.adrianpk.com/adrianpk/rev/pulls/1234)\nIntegrated: `' + commits[-1] + '`\n' + ''.join('\n## ' + section + '\n\nFixture evidence.\n' for section in SECTIONS))
+    return ticket, report
 
 
 if __name__ == "__main__":
