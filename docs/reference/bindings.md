@@ -99,6 +99,10 @@ configuration snapshot; source edits take effect after restarting.
 
 ## Configuration keymap contracts
 
+The [complete reference sample](config.toml) spells out every default target in
+all three contexts. Copy only desired overrides to preserve inherited stage
+distinctions; explicit mappings select their named action at the active owner.
+
 `keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
 maps. Omitted entries keep their built-in command. An exact normalized override
 replaces that chord, including an earlier spelling from another included layer.

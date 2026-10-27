@@ -1,10 +1,12 @@
 # Syntax highlighting
 
-Files whose canonical destination ends in the case-sensitive `.rs` extension use
-the bundled Rust grammar and highlight query. No runtime grammar installation,
-network access or external language service is required. Unsupported extensions,
-unnamed buffers and unavailable syntax use plain `Text` presentation. Display
-labels such as `main.rs<2>` do not determine the language.
+By default, a visiting basename with the case-sensitive `.rs` suffix selects
+the bundled Rust grammar and highlight query. User associations and the selected
+language table can override recognition and choose either `rust` or `plain`.
+Canonical reuse retains the first visiting alias; display labels such as
+`main.rs<2>` do not determine the language. No runtime grammar installation,
+network access or external language service is required. Other identities default
+to plain `Text` presentation; see the [complete language rules](defaults.md#language-rules).
 
 The status line shows `Rust` only for a prepared syntax tree of the current
 buffer revision. A failed or missing query uses `Text`; incomplete Rust source

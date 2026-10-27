@@ -14,6 +14,11 @@ states the keyboard reports and Escape behavior.
 
 ## Startup configuration
 
+The [complete English reference sample](config.toml) contains every supported
+global default, all 25 active RGB roles and all three default binding maps. Its
+optional include, language and association examples are commented out. Copy only
+the overrides you need; a configuration file is optional.
+
 The executable reads `$XDG_CONFIG_HOME/rev/config.toml` once before creating
 buffers or input owners. An unset, empty or relative `XDG_CONFIG_HOME` uses
 `$HOME/.config/rev/config.toml`; HOME must be absolute for that fallback.
@@ -52,6 +57,188 @@ to read it again. Existing files retain their observed BOM/newlines, while new
 buffers use configured format defaults. [Bindings](bindings.md#configuration-keymap-contracts),
 [syntax](syntax.md#palette), [prompts](prompts.md#supplied-prompt-preferences) and
 [tree preferences](file-tree.md) describe the existing configurable owners.
+
+## Source precedence and limits
+
+Settings resolve in this order:
+
+1. Compiled built-in defaults.
+2. Explicit includes, depth-first in declaration order. Each child's includes
+   apply before that child. A later sibling source overrides an earlier sibling.
+3. The declaring source's own leaves, with the selected user root last.
+4. The selected language's editing leaves, after all global layers.
+
+Only explicitly present leaves override earlier values. False, zero and empty
+arrays are values; an omitted leaf or empty concern table inherits siblings.
+Arrays replace rather than append. Maps merge by key, and keymap layers replace
+an earlier spelling by normalized sequence identity. Includes are source-local
+traversal metadata, not a merged list used for another discovery pass.
+
+Relative include paths resolve against the declaring source's selected path;
+absolute local paths are also accepted. Tilde, variables and shell expressions
+are not expanded. A source can be included more than once outside the active
+stack; each occurrence counts toward the limits. Symlink/hard-link aliases on
+the active stack are cycles and reject. Limits are fixed, not configurable:
+
+| Limit | Bound |
+| --- | --- |
+| Include depth | 16 edges; the root is depth zero. |
+| Source occurrences | 64, including the root and repeated acyclic includes. |
+| One source | 256 KiB of UTF-8 TOML bytes. |
+| Complete graph | 2 MiB across source occurrences. |
+
+Sources must be regular files. A missing optional root alone is silent; a missing
+explicit include, directory, unreadable file, invalid UTF-8, malformed/duplicate
+TOML key, unknown option, wrong type, invalid bound/color/enum or conflicting
+keymap rejects the complete candidate. A bad included value cannot be hidden by
+a later valid override. The editor remains usable with complete built-ins and
+one source/key diagnostic. No settings source is executed, generated or repaired.
+
+## Configuration value catalog
+
+The tables below describe every accepted schema leaf or map. All settings are
+read once at startup. Global values apply throughout that session; the four
+`language.<id>` leaves are the only language overrides. Integers and finite
+floats have distinct types; use `0.5`, not `0`, for a float share. Widths describe
+terminal display columns/cells, never bytes or Unicode scalar positions.
+
+### Source metadata and maps
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `version` | Integer, exactly 1 | `1` | Per source; omitted means schema 1. |
+| `include` | Array of nonempty local path strings | `[]` | Per source; explicit ordered include graph, with fixed limits above. Empty paths, NUL and URL forms reject. |
+| `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
+| `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 66 entries are active in the sample. |
+| `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
+| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
+
+Only the fixed implemented [commands and context actions](bindings.md) are
+accepted as keymap values. No value unbinds a key or supplies code or consent.
+Sequences contain 1..=8 normalized chords. The conservative terminal aliases,
+reserved C-g, prefix conflicts and stage admission rules apply to every layer.
+The sample declares the complete default targets explicitly; omit its key tables
+to inherit native stage-specific distinctions, or copy only desired overrides.
+
+### Editing, presentation and retention
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `editor.indent_style` | String: "spaces" or "tabs" | `"spaces"` | Buffer policy; Tab emits the selected indentation form. Language-overridable. |
+| `editor.indent_width` | Integer 1..=32 | `4` | Buffer policy; indentation-stop display columns, independently of tab display width. Language-overridable. |
+| `editor.tab_width` | Integer 1..=32 | `4` | Buffer policy; literal-tab display cells. Shared views use the same width. Language-overridable. |
+| `scroll.page_overlap` | Integer 0..=1000 | `2` | Session; overlap in page rows, clamped so a usable pane advances at least one row. |
+| `windows.split_ratio` | Finite float 0.1..=0.9 | `0.5` | Session; preferred first-child share after the separator, clamped by both recursive subtree minima. |
+| `minibuffer.candidate_limit` | Integer 1..=32 | `8` | Session; maximum visible command/path candidate rows, including any list diagnostic, clipped to geometry. |
+| `minibuffer.match` | String: "prefix-then-substring", "prefix" or "substring" | `"prefix-then-substring"` | Session; M-x matching only. File candidates retain literal component-prefix matching. |
+| `minibuffer.history_limit` | Integer 1..=4096 | `128` | Session; distinct accepted command names in memory, newest first. No persisted history. |
+| `minibuffer.input_limit` | Integer 1..=65536 | `4096` | Session; Unicode scalars per prompt, including paste, completion and history recall. Excess rejects wholly. |
+| `history.group_limit` | Integer 1..=65536 | `512` | Per buffer; maximum retained coherent undo/redo groups. Pruning never splits an operation. |
+| `history.payload_target_bytes` | Integer 1..=1073741824 | `67108864` | Per buffer; soft logical fragment-payload target in bytes, not resident memory. The newest complete group survives excess. |
+| `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |
+| `kill_ring.coalesce` | Boolean | `true` | Session; consecutive compatible directional kills join; unrelated commands still end the chain. |
+| `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
+| `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
+| `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |
+| `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
+| `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
+| `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `syntax.enabled` | Boolean | `true` | Session; enable derived syntax styling where a bundled grammar is selected. Text remains editable on fallback. |
+| `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and a larger buffer uses plain presentation. |
+| `files.newline` | String: "lf" or "crlf" | `"lf"` | Creation default for new buffers only; existing separators and final-newline state are preserved. |
+| `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
+
+Indentation, tab display, syntax and retained history use each buffer's policy
+across shared windows. Startup source changes do not update existing or later
+buffers in that session. A successful rename or published write-file reassociation
+re-evaluates language preferences from the same snapshot; a failed or canceled
+path change retains the old policy. Reassociation never converts text or resets
+history, revision or saved-state identity. [Rectangles](rectangles.md) retain copy
+versus kill tab semantics across source/destination policies.
+
+### Language rules
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `language.<id>.indent_style` | String: "spaces" or "tabs" | Inherit global | Selected language's buffer policy; replace only this editing leaf. |
+| `language.<id>.indent_width` | Integer 1..=32 | Inherit global | Selected language's indentation-stop display columns. |
+| `language.<id>.tab_width` | Integer 1..=32 | Inherit global | Selected language's literal-tab display cells. |
+| `language.<id>.grammar` | String: "rust" or "plain" | Rust for rust; plain otherwise | Selected language's grammar; no external parser download or installation. |
+
+Association keys are literal basenames or a leading `*.suffix`, including
+compound suffixes. Other wildcards, separators and controls reject. Matching is
+case-sensitive: any user match precedes all built-ins; within each class, exact
+basename wins, then the longest suffix. Recognition uses the visiting basename,
+retaining the first alias when canonical reuse finds an existing buffer; unique
+buffer-label suffixes do not participate. No language table is required for an
+identity. Unmatched or unnamed text is `plain`; only the `rust` identity defaults
+to the bundled Rust grammar. Other identities can use indentation without a
+parser, or explicitly select either admitted grammar.
+
+### Palette roles
+
+Every value is a string of exactly `#RRGGBB` with six ASCII hexadecimal digits;
+hexadecimal letter case is accepted. Each present leaf overrides only that role.
+All palette roles are global, with no language-scoped color override.
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `palette.background` | RGB string | `"#1a1b26"` | Document and ordinary prompt background. |
+| `palette.foreground` | RGB string | `"#c0caf5"` | Document foreground; ordinary tree text inherits it. |
+| `palette.cursor` | RGB string | `"#c0caf5"` | Terminal cursor when the terminal owner supports color/reset. |
+| `palette.selection` | RGB string | `"#283457"` | Document and vertical candidate selection background. |
+| `palette.selection_text` | RGB string | `"#c0caf5"` | Selected document/candidate foreground. |
+| `palette.search` | RGB string | `"#3d59a1"` | Current search-match background. |
+| `palette.search_text` | RGB string | `"#c0caf5"` | Search-match foreground; underlining remains. |
+| `palette.status` | RGB string | `"#16161e"` | Active status background. |
+| `palette.status_text` | RGB string | `"#a9b1d6"` | Active/inactive status foreground. |
+| `palette.status_inactive` | RGB string | `"#1a1b26"` | Inactive status background. |
+| `palette.border` | RGB string | `"#3b4261"` | Inactive separator foreground. |
+| `palette.border_active` | RGB string | `"#7aa2f7"` | Active separator foreground. |
+| `palette.tree` | RGB string | `"#16161e"` | Tree background. |
+| `palette.tree_selected` | RGB string | `"#283457"` | Selected tree entry background. |
+| `palette.tree_selected_text` | RGB string | `"#c0caf5"` | Selected tree entry foreground. |
+| `palette.message` | RGB string | `"#c0caf5"` | Normal echo/message foreground. |
+| `palette.warning` | RGB string | `"#e0af68"` | Warning foreground. |
+| `palette.error` | RGB string | `"#db4b4b"` | Error foreground. |
+| `palette.syntax.keyword` | RGB string | `"#9d7cd8"` | Keyword captures. |
+| `palette.syntax.string` | RGB string | `"#9ece6a"` | String/escape captures. |
+| `palette.syntax.comment` | RGB string | `"#565f89"` | Comment/documentation captures. |
+| `palette.syntax.type` | RGB string | `"#2ac3de"` | Type/constructor captures. |
+| `palette.syntax.function` | RGB string | `"#7aa2f7"` | Function/method/macro captures. |
+| `palette.syntax.number` | RGB string | `"#ff9e64"` | Constant, boolean and numeric captures. |
+| `palette.syntax.punctuation` | RGB string | `"#89ddff"` | Grammar-provided punctuation/operator captures. |
+
+Selection takes precedence over search, which takes precedence over syntax;
+row boundaries reset colors/attributes. Unknown syntax groups inherit document
+foreground. A nonempty `NO_COLOR` suppresses RGB and retains selection reverse
+video/search underlining. Terminal true-color fidelity, intercepted key reports
+and cursor OSC support remain terminal capabilities. Cursor color is untouched
+for unknown terminal families or NO_COLOR; normal/error/unwind cleanup resets
+an attempted cursor color to the terminal default. It does not reconstruct a
+previous application's cursor color. See [Terminal input](terminal-input.md#palette-and-cursor-restoration).
+
+## Command, panel and file-completion flows
+
+- [M-x](commands.md) keeps a query above a bounded vertical command list, with
+  selection, Tab completion and separate M-p/M-n session history. Return invokes
+  the selected or exact/nonempty matching command once; C-g cancels.
+- Editing panes, tree and completion rows share composition rules. The tree has
+  no editing-window identity, so `C-x o` cycles editing panes only. Candidate rows
+  borrow space without scrolling retained document views; tiny/zero geometry
+  retains prompts, selection and view identities. No panes are created by completion.
+- [Find-file](prompts.md) starts at the visiting file's parent or cwd. Tab completes
+  selected/unique names or a shared component prefix; accepted directories descend.
+  Return uses an explicit selection, otherwise the freely typed filename, including
+  a new name. Canonical aliases reuse dirty buffers; new names remain in memory
+  until save. Errors retain the draft and original buffer. Observation is bounded
+  to 4096 entries/512 KiB per component and never creates files or traverses child
+  symlinks recursively. Rendering/filtering reuse the retained snapshot.
+
+The sample and consistency checks establish schema/default agreement. Parsing a
+sample does not prove rendered colors, physical key availability, interaction
+geometry or runtime acceptance; those have separate native and terminal checks.
 
 ## Text and files
 

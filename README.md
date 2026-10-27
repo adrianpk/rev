@@ -34,7 +34,7 @@ creates it. The editor runs offline.
 
 Startup preferences load from `$XDG_CONFIG_HOME/rev/config.toml`, defaulting to
 `~/.config/rev/config.toml`. See [startup configuration](docs/reference/defaults.md#startup-configuration)
-for discovery, defaults and an example.
+for discovery, defaults and the [complete reference sample](docs/reference/config.toml).
 
 ## First commands
 
