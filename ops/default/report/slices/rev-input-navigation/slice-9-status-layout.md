@@ -5,7 +5,7 @@ Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-09-status-layout`
-PR: pending
+PR: [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89)
 
 ## Purpose
 

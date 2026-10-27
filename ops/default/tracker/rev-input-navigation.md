@@ -153,8 +153,11 @@ verify pane-local facts, width degradation/restoration and prompt isolation;
 four historical acceptance journeys pass with exact source/save assertions.
 T9.1: `5aa3d1ed4d6a46bc8825d29454c4eaa0681cb99c`.
 T9.2: `e85c4ea4dcd2496bbd4f37aae4aac2e7f98e82b4`.
-T9.3 and canonical PR references follow in the final reference commit. Exact
-clean-head validation and controller-owned integration remain pending.
+T9.3: `6e16780043d3181e43085c0777f2f49e4922b20e`.
+Canonical PR [#89](https://forge.adrianpk.com/adrianpk/rev/pulls/89) targets dev;
+the [canonical report](../report/slices/rev-input-navigation/slice-9-status-layout.md)
+is reviewing. Exact clean-head validation and controller-owned integration remain
+pending.
 
 ### Slice 10: own native pointer reporting and input state
 

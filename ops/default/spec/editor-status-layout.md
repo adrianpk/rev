@@ -7,7 +7,7 @@ Format: OpenSpec change
 Baseline: [rev Editor](rev-editor.md), R05 and R07
 Panel owner: [Editor Interaction](editor-interaction.md), UI01
 Related geometry: [Editor Gutter](editor-gutter.md)
-Ticket: [Group pane status left and right](../ticket/in_progress/20261027194421-group-pane-status-left-and-right.md)
+Ticket: [Group pane status left and right](../ticket/reviewing/20261027194421-group-pane-status-left-and-right.md)
 Delivery boundary: selected combined input/navigation/presentation delivery
 
 ## Purpose
