@@ -98,6 +98,9 @@ visual columns. WSP02 uses one checked transaction and ordinary safety/history.
   combining mark. The selected replacement now anchors that existing cell,
   retaining the WSP01 column assertion and original Unicode source bytes.
 - The width grid uses the existing 1..=32 admission range; no policy limit changes.
+- Initial canonical Clippy validation rejected a redundant reference in the new
+  publisher. Passing the existing borrowed span directly removes that warning;
+  no lint or acceptance limit changes.
 
 The controller records final clean-HEAD results for this ordered canonical list:
 

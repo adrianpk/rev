@@ -47,7 +47,7 @@ impl Session {
         let points = self.windows.points(buffer)?;
         let cursor = Cursor {
             index: points.initiator,
-            position: endpoint(&edits, &source, points.values[points.initiator].position)?,
+            position: endpoint(&edits, source, points.values[points.initiator].position)?,
         };
         let mut prepared = buffer.prepare(&edits, &points.values, Some(cursor))?;
         prepared.set_origin(self.windows.selected_id());
