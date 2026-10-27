@@ -528,7 +528,10 @@ fn catalog_reference() {
         ),
         (
             "bindings",
-            include_str!("../../docs/reference/bindings.md"),
+            include_str!("../../docs/reference/bindings.md")
+                .split("## Configuration keymap contracts")
+                .next()
+                .unwrap(),
             Some(2),
         ),
     ];
@@ -546,5 +549,54 @@ fn catalog_reference() {
             "{name}: duplicate documented name"
         );
         assert_eq!(documented, live, "{name}");
+    }
+}
+
+// Independent context tables may share global command names. Each table must
+// still document its own complete default target set exactly once.
+#[test]
+fn context_reference() {
+    use rev::input::keymap::Context;
+    use std::collections::BTreeSet;
+    let source = include_str!("../../docs/reference/bindings.md");
+    for (context, heading) in [
+        (
+            Context::Minibuffer,
+            "### Minibuffer defaults and availability",
+        ),
+        (Context::Tree, "### Tree defaults and availability"),
+    ] {
+        let section = source
+            .split_once(heading)
+            .unwrap()
+            .1
+            .split("\n### ")
+            .next()
+            .unwrap();
+        let names = section
+            .lines()
+            .filter(|line| line.starts_with('|'))
+            .flat_map(|line| {
+                line.split('|')
+                    .nth(2)
+                    .unwrap()
+                    .split('`')
+                    .skip(1)
+                    .step_by(2)
+            })
+            .collect::<Vec<_>>();
+        let documented = names.iter().copied().collect::<BTreeSet<_>>();
+        let expected = context
+            .defaults()
+            .iter()
+            .map(|(_, target)| *target)
+            .collect::<BTreeSet<_>>();
+        assert_eq!(
+            names.len(),
+            documented.len(),
+            "{}: duplicate target",
+            context.name()
+        );
+        assert_eq!(documented, expected, "{}", context.name());
     }
 }

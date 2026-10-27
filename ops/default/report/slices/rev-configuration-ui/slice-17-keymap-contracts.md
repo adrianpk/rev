@@ -86,9 +86,18 @@ Development checks:
 - `cargo test --test configuration keymaps::`: passed; eight map/admission tests.
 - `cargo test --test configuration binding_values`: passed with a valid chord replacing the old placeholder key.
 - `cargo test --test commands terminal::`: passed; eleven Meta, phase and cancellation regressions.
+- `cargo test --test commands reference`: passed; global and per-context documentation catalogs plus matching prompt regressions.
+- `cargo run --quiet --example source-check -- --source tests/commands/palette.rs`: passed.
 - `cargo clippy --lib --test commands -- -D warnings`: passed after correcting fixed-array use.
 - `cargo clippy --lib --test configuration --test commands -- -D warnings`: passed.
 - `cargo run --quiet --example source-check -- --source src/input/key.rs --source src/input/keymap/cancellation.rs --source src/input/keymap/map.rs --source tests/configuration/keymaps.rs --source tests/commands/keymap.rs`: passed; nesting at most two.
+
+The first controller attempt `NUSJYRY6UUSG2DHIL2OSCOESYY` at
+`baf501d3b5d96c9954d8c13c6ff7db4c55bc1ae1` passed formatting, Clippy and all
+63 configuration tests. Command validation found the old documentation oracle
+counted shared targets across independent context tables as duplicates. The
+corrected oracle preserves the global catalog check and adds exact, unique
+per-context default target coverage; its focused check passed.
 
 The controller records final evidence on the clean PR head after its
 PR-reference follow-up commit. Required commands precede focused shared input
