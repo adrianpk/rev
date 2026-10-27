@@ -5,7 +5,7 @@ Delivery set: rev-configuration-ui
 Plan: [Configuration and Interaction Delivery](../../../plan/rev-configuration-ui.md)
 Tracker: [Configuration and Interaction Tracker](../../../tracker/rev-configuration-ui.md)
 Branch: `feat/rev-config-ui-18-editor-keymaps`
-PR: pending
+PR: [#67](https://forge.adrianpk.com/adrianpk/rev/pulls/67)
 
 ## Purpose
 
@@ -42,7 +42,7 @@ preserving inherited aliases, input phases, transient ownership and canonical ed
 - T18.2: `2422f5d109f74ebdd0b818854a45368b367c1711` preserves exact replacement
   and native aliases, synchronizes workspace ownership after direct commands and
   resize, and covers prompt/workspace prefix reset and context isolation.
-- T18.3: This report's introduction commit covers phase boundaries, maximum
+- T18.3: `3967342f2753d44ec19a5f528df94a852010f2d6` covers phase boundaries, maximum
   sequences, literal paste, invalid candidates, read-only admission and M-x parity.
 - A focused regression reproduced held Control-m/j accepting a prompt because
   repeat admission inspected the raw key. Phase admission now checks the

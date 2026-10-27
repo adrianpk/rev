@@ -488,14 +488,15 @@ Details and checks: [Slice 18](../plan/rev-configuration-ui.md#slice-18-dispatch
 
 Task commits: T18.1 `a6ecace9ee64235fe8ec324fa63d418d4985efe7`;
 T18.2 `2422f5d109f74ebdd0b818854a45368b367c1711`;
-T18.3 is the Slice 18 report introduction commit.
+T18.3 `3967342f2753d44ec19a5f528df94a852010f2d6`.
 Focused configured dispatch checks passed for aliases, exact replacement,
 inherited defaults, bounded prefixes, cancellation, context resets, literal paste,
 rejected candidates, read-only refusal, phases and M-x parity. A focused regression
 caught held Enter aliases bypassing acceptance guards; normalized phase admission
 corrects it. Focused Clippy and source checks passed; supplied behavior is documented.
 Report: [Slice 18](../report/slices/rev-configuration-ui/slice-18-editor-keymaps.md).
-PR: pending; dev integration remains controller-owned.
+PR: [#67](https://forge.adrianpk.com/adrianpk/rev/pulls/67);
+dev integration remains controller-owned.
 
 ### Slice 19: Dispatch transient and tree bindings
 
