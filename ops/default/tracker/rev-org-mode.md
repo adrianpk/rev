@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 15 effort-priorities
+Active slice: Slice 16 civil-time
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -360,17 +360,20 @@ Details and exact checks: [Slice 15](../plan/rev-org-mode.md#slice-15-record-org
 - [x] T15.1: Deliver native priority and EFFORT editing with Org duration forms and factory choices.
 - [x] T15.2: Keep workflow metadata compatible and expose operational commands in Org and agenda contexts.
 - [x] T15.3: Verify numeric/duration rejection, source spelling preservation and atomic undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR [#116](https://forge.adrianpk.com/adrianpk/rev/pulls/116) targets dev;
-[Slice 15 report](../report/slices/rev-org-mode/slice-15-effort-priorities.md) is reviewing.
+[Slice 15 report](../report/slices/rev-org-mode/slice-15-effort-priorities.md) is delivered.
 Task commits:
 - T15.1: `06ba3495029d20fdab3fedf63469b005d862297d`.
 - T15.2: `d6f6d45f850a79abcbe8aa91cb709205da75a4fb`.
 - T15.3: `53813b06e6f1ddefcb5ca064948f2fcee5e8b047`.
 
-Required exact-head validation follows the PR-reference push. Integration
-remains controller-owned.
+Integration: PR #116 merged into dev at `9fc8e30500b6916f3dc2119dd8da69962fa54d24`.
+Required receipt `YEVUSWWZWDPVUCPGHHFWNR7ES7` passed all five ordered checks,
+including 383 integration tests. Focused receipt `CR64ENK5CQM66T6BCG4E2XSW37`
+passed 59 source tests, configuration reference checks and four owned task PTYs.
+Canonical Forgejo, controller merge evidence and Acta were verified before closure.
 
 ### Slice 16: model Org calendar dates and durations
 

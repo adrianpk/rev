@@ -1,6 +1,6 @@
 # Slice 15: record Org effort estimates and priorities
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -123,8 +123,9 @@ Canonical PR [#116](https://forge.adrianpk.com/adrianpk/rev/pulls/116) targets
 `dev` with the approved literal title. Its immutable report link uses full
 introduction commit `06ba3495029d20fdab3fedf63469b005d862297d`.
 
-After this PR-reference follow-up is committed and pushed, required readiness
-checks will be recorded through the controller at the exact clean HEAD:
+Controller receipt `YEVUSWWZWDPVUCPGHHFWNR7ES7` passed all five required
+checks at clean HEAD `9fc8e30500b6916f3dc2119dd8da69962fa54d24`, including
+383 command/configuration/editing tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -132,13 +133,13 @@ checks will be recorded through the controller at the exact clean HEAD:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused same-HEAD evidence additionally covers public source observations,
-configuration schema/template agreement and the extended owned task terminal
-journey. Final receipt identities belong in Acta and the controller checkpoint,
-without changing the validated report HEAD.
+Focused same-HEAD receipt `CR64ENK5CQM66T6BCG4E2XSW37` passed 59 public source
+tests, configuration schema/template agreement and all four owned task terminal
+sessions. Acta note `01M61PRAMND1XVZXYD02WB7WG7` records readiness. Canonical
+Forgejo confirms PR #116 merged into dev at that exact candidate; the controller
+recorded merge activity, and primary dev matches origin/dev.
 
 ## Risks and Follow-ups
 
-Required exact-head validation and PR references precede readiness.
 Active-clock estimate routing remains with the recorded clock slice; no
 clock-dependent command is exposed before its owner exists.
