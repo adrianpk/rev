@@ -443,6 +443,8 @@ are reviewing. Controller receipts bind final required/focused checks to the
 clean PR head; verified dev integration remains pending. Final configuration
 regression exposed calendar inherited-action availability; focused default-map,
 host-role and native prompt regressions pass after the admission correction.
+Required command tests also exposed incomplete binding-reference tables; both
+existing complete catalog/context assertions pass after reconciliation.
 
 ### Slice 19: reschedule repeated Org tasks correctly
 

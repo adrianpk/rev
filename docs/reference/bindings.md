@@ -13,6 +13,32 @@ Every command below is also available as `M-x` followed by its exact name.
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
+| `C-c .` in Org | `org-timestamp` | Insert or edit an active timestamp through a native date/calendar prompt. |
+| `C-c !` in Org | `org-timestamp-inactive` | Insert or edit an inactive timestamp. |
+| `C-c C-s` in Org | `org-schedule` | Set the current heading's SCHEDULED timestamp. |
+| `C-c C-d` in Org | `org-deadline` | Set the current heading's DEADLINE timestamp. |
+| `C-c >` in Org | `org-goto-calendar` | Inspect the calendar and retain a selected date. |
+| `C-c <` in Org | `org-date-from-calendar` | Insert the previously selected calendar date. |
+| `S-Left` in Org | `org-shiftleft` | Move a timestamp back one day, or select the previous heading task state. |
+| `S-Right` in Org | `org-shiftright` | Move a timestamp forward one day, or select the next heading task state. |
+| M-x org-timestamp-up | `org-timestamp-up` | Increase the selected timestamp field. |
+| M-x org-timestamp-down | `org-timestamp-down` | Decrease the selected timestamp field. |
+| M-x org-timestamp-up-day | `org-timestamp-up-day` | Move the selected timestamp forward one civil day. |
+| M-x org-timestamp-down-day | `org-timestamp-down-day` | Move the selected timestamp back one civil day. |
+| M-x org-priority-up | `org-priority-up` | Cycle the current heading priority upward. |
+| M-x org-priority-down | `org-priority-down` | Cycle the current heading priority downward. |
+| Return in date prompt | `org-calendar-select` | Accept the interpreted date/time with any required offset choice. |
+| S-Right in date prompt | `org-calendar-forward-day` | Select the next day. |
+| S-Left in date prompt | `org-calendar-backward-day` | Select the previous day. |
+| S-Down in date prompt | `org-calendar-forward-week` | Select one week later. |
+| S-Up in date prompt | `org-calendar-backward-week` | Select one week earlier. |
+| M-S-Right or > in date prompt | `org-calendar-forward-month` | Select one month later, clamping its day. |
+| M-S-Left or < in date prompt | `org-calendar-backward-month` | Select one month earlier, clamping its day. |
+| M-S-Down in date prompt | `org-calendar-forward-year` | Select one year later, clamping its day. |
+| M-S-Up in date prompt | `org-calendar-backward-year` | Select one year earlier, clamping its day. |
+| C-v in date prompt | `org-calendar-scroll-three-months-left` | Advance by three months. |
+| M-v in date prompt | `org-calendar-scroll-three-months-right` | Move back by three months. |
+| C-. in date prompt | `org-calendar-goto-today` | Select the operation's captured current date. |
 | `C-c C-x p` in Org | `org-set-property` | Set a local property through name/value prompts. |
 | `M-x org-delete-property` | `org-delete-property` | Remove the named local base or additive form. |
 | `M-x org-inspect-property` | `org-inspect-property` | Inspect effective data and source owners. |
@@ -50,7 +76,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
-| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Edit tags on an actual heading; toggle a precise checkbox and verify list numbering in list context. |
+| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
 | C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
 | C-c C-x C-r in Org | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
 | C-c # in Org | `org-update-statistics-cookies` | Update current item/heading statistics. |
@@ -201,13 +227,14 @@ No keymap edits the underlying document from a prompt.
 
 Org editing, capture and special-edit roles use `keys.org`, `keys.org_capture`
 and `keys.org_source_edit`, inheriting the admitted editor map before local
-overrides. Capture and special-edit factory local overlays are empty. Agenda and calendar
-roles use independent `keys.org_agenda` and `keys.org_calendar` maps, consuming
-unbound text and paste. They admit implemented motion, scroll, quit, command-entry
+overrides. Capture and special-edit factory local overlays are empty. Agenda
+uses an independent `keys.org_agenda` map. The native date prompt inherits the
+minibuffer map before `keys.org_calendar` controls. Host agenda/calendar roles
+consume unbound text and paste. They admit implemented motion, scroll, quit, command-entry
 and cancellation targets. The agenda role also admits the implemented priority/effort
 source commands: comma selects priority and e sets effort. Switching roles clears pending chords and Escape timing
 without accepting a prompt. Feature owners activate their role when delivered;
-these maps do not create an agenda, calendar or draft.
+role selection alone does not create an agenda or draft.
 
 ### Org agenda defaults and availability
 
@@ -220,10 +247,40 @@ these maps do not create an agenda, calendar or draft.
 
 ### Org calendar defaults and availability
 
+The active date prompt inherits the admitted minibuffer map before these local
+calendar controls. Local overrides admit calendar/navigation commands; inherited
+prompt-editing aliases belong in `keys.minibuffer`. Host calendar roles without
+an active date prompt cannot dispatch inherited deletion or prompt-only actions.
+
 | Keys | Target | Behavior |
 | --- | --- | --- |
-| `C-g` | `keyboard-quit` | Cancel current input. |
-| `M-x` | `execute-extended-command` | Enter the compiled command query. |
+| `RET` | `org-calendar-select` | Accept the interpreted date/time; offset selection may follow. |
+| `S-Right` | `org-calendar-forward-day` | Select the next day. |
+| `S-Left` | `org-calendar-backward-day` | Select the previous day. |
+| `S-Down` | `org-calendar-forward-week` | Select one week later. |
+| `S-Up` | `org-calendar-backward-week` | Select one week earlier. |
+| `M-S-Right`, `>` | `org-calendar-forward-month` | Select one month later. |
+| `M-S-Left`, `<` | `org-calendar-backward-month` | Select one month earlier. |
+| `M-S-Down` | `org-calendar-forward-year` | Select one year later. |
+| `M-S-Up` | `org-calendar-backward-year` | Select one year earlier. |
+| `M-v` | `org-calendar-scroll-three-months-right` | Move back three months. |
+| `C-v` | `org-calendar-scroll-three-months-left` | Advance three months. |
+| `C-.` | `org-calendar-goto-today` | Select the captured current date. |
+| `C-g` | `keyboard-quit` | Discard the draft. |
+| `M-x` | `execute-extended-command` | Command entry in a host calendar role; active date prompts retain input focus. |
+| `TAB` | `minibuffer-complete` | Expand a valid date draft to timestamp spelling. |
+| Backspace | `backward-delete-char` | Delete the previous prompt grapheme. |
+| Delete, `C-d` | `delete-char` | Delete the next prompt grapheme. |
+| Left, `C-b` | `backward-char` | Move back in prompt text. |
+| Right, `C-f` | `forward-char` | Move forward in prompt text. |
+| Home, `C-a` | `move-beginning-of-line` | Move to the draft start. |
+| End, `C-e` | `move-end-of-line` | Move to the draft end. |
+| Up, `C-p` | `minibuffer-previous` | Retain the argument-stage candidate policy. |
+| Down, `C-n` | `minibuffer-next` | Retain the argument-stage candidate policy. |
+| `M-p` | `minibuffer-history-previous` | History applies only to command prompts. |
+| `M-n` | `minibuffer-history-next` | History applies only to command prompts. |
+| `C-s` | `isearch-forward` | Search repetition applies only to search prompts. |
+| `C-r` | `isearch-backward` | Search repetition applies only to search prompts. |
 
 ### Native mode selection
 

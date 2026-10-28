@@ -142,6 +142,13 @@ existing local-edit rejection checks remain intact. Focused regressions passed:
 - `cargo test --test commands --test org_editing inherited_edit -- --nocapture`:
   two native input/session regressions passed, zero skips.
 
+Required command-registry validation then exposed incomplete global timestamp
+binding rows and calendar default targets. Both existing catalog/reference
+assertions pass after reconciling the published tables:
+
+- `cargo test --test commands reference -- --nocapture`: nine tests passed,
+  including both complete catalog and context-reference checks, zero skips.
+
 [Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) records
 required ordered checks against its final clean HEAD through controller
 validation before handoff:
