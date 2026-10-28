@@ -1,11 +1,12 @@
 # Slice 6: Color native Org source semantically
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-06-semantic-colors`
 PR: [#107](https://forge.adrianpk.com/adrianpk/rev/pulls/107)
+Integrated: `c8c2189b1a09e90b3847461f8b2aab35eb6cd0c6`
 
 ## Purpose
 
@@ -92,8 +93,9 @@ Focused source-quality checks passed for changed native owners and fixtures.
 The first controller batch stopped at Clippy's single-range-vector fixture lint.
 The fixture now asserts one paint and its exact range directly; expected spans,
 runtime behavior and the required command list are unchanged.
-After the PR-reference follow-up, the controller records the final clean pushed
-candidate and outcomes for this exact ordered batch in its validation ledger:
+Controller receipt `FN2QUFG2U6DIDUYUTCEJKAG52X` passed the following exact
+ordered batch at clean head `c8c2189b1a09e90b3847461f8b2aab35eb6cd0c6`,
+subsequently integrated through PR #107. All 128 tests passed with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -101,9 +103,9 @@ candidate and outcomes for this exact ordered batch in its validation ledger:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-A separate focused exact-head controller batch covers configuration tests and
-`python3 scripts/check-config-reference.py`. Final receipts are recorded in Acta;
-the integration follow-up retains their exact candidate and outcome here.
+Controller receipt `ZEW4YBTP577HOQTYVDBZIMJJJH` passed 96 configuration tests,
+`python3 scripts/check-config-reference.py` and `git diff --check` at the same
+head. The reference confirmed 46 RGB roles and the compiled template.
 
 ## Risks and Follow-ups
 

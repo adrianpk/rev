@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 6 semantic-colors
+Active slice: Slice 7 fold-projection
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -192,12 +192,13 @@ Details and exact checks: [Slice 6](../plan/rev-org-mode.md#slice-6-color-native
 - [x] T6.1: Project native Org spans through existing palette and display owners, including literal-block boundaries.
 - [x] T6.2: Define typed semantic Org roles with complete factory/sample coverage as each role activates.
 - [x] T6.3: Verify incremental coloring, shared views, malformed source and usable no-color rendering.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#107](https://forge.adrianpk.com/adrianpk/rev/pulls/107).
-T6.1, T6.2 and T6.3 are committed; final validation is recorded against the
-clean pushed PR-reference candidate through the controller ledger. Integration
-remains controller-owned.
+Integrated into `dev` at `c8c2189b1a09e90b3847461f8b2aab35eb6cd0c6`.
+Controller receipt `FN2QUFG2U6DIDUYUTCEJKAG52X` passed the required five-command
+batch and 128 tests; focused receipt `ZEW4YBTP577HOQTYVDBZIMJJJH` passed
+96 configuration tests and reference/template checks at that same head.
 
 ### Slice 7: map folded Org views to canonical source
 
