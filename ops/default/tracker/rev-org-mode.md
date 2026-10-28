@@ -380,7 +380,7 @@ Canonical Forgejo, controller merge evidence and Acta were verified before closu
 Contracts: ORG07 ORG18 ORG21.
 Details and exact checks: [Slice 16](../plan/rev-org-mode.md#slice-16-model-org-calendar-dates-and-durations).
 
-- [ ] T16.1: Introduce org_time with checked Gregorian civil dates, intervals and Org duration units.
+- [x] T16.1: Introduce org_time with checked Gregorian civil dates, intervals and Org duration units.
 - [ ] T16.2: Separate scheduling calendar arithmetic from elapsed work durations and formatting.
 - [ ] T16.3: Verify leap years, month ends, overflow, duration forms and an injected operation clock.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

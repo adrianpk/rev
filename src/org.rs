@@ -2,7 +2,6 @@
 //! configuration, execution or edit authority of their own.
 
 mod color;
-mod duration;
 mod form;
 mod index;
 mod inline;
@@ -10,7 +9,8 @@ mod job;
 mod list;
 pub(crate) mod priority;
 mod property;
-pub use duration::Duration;
+pub use time::Duration;
+pub mod time;
 pub(crate) use list::ListEdit;
 pub(crate) use property::{PropertyValue, derived_property, property_name};
 mod query;
