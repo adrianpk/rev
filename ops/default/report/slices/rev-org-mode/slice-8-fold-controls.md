@@ -36,6 +36,13 @@ intent and owned work, including requests made with syntax coloring disabled.
 View choices retain immutable shared model data and independent requested states.
 State and interval projection remain view metadata, outside canonical text/history.
 
+Targeted motion and search reveal only the ancestor path and target entry;
+sibling folds and peer views keep their requested choices. Search cancellation
+restores the saved complete view state, and resize preserves live choices.
+Visible-row movement skips folded source. Native edits/undo/redo retire obsolete
+choices instead of requalifying stale byte offsets. Read-only controls remain
+usable. Requests whose source, view or prompt owner changes cannot publish late.
+
 ## Contracts Added or Changed
 
 - ORG03: local/global cycles and exact drawer visibility through native views.
@@ -48,6 +55,8 @@ State and interval projection remain view metadata, outside canonical text/histo
 - `src/view/visibility.rs`: checked view-only publication.
 - `src/session/visibility.rs`, `src/session/org.rs`: request and observation lifetime.
 - `tests/org_editing/visibility.rs`, `tests/commands/org_visibility.rs`: native controls.
+- `tests/org_editing/visibility_reveal.rs`: hierarchy, saved state, read-only,
+  named equivalence, incomplete observations and retired-request behavior.
 - `docs/reference/config.toml`, `commands.md`, `bindings.md`: active control catalog.
 
 ## Validation
@@ -57,6 +66,7 @@ Implementation checks passed:
 - `cargo check --lib`
 - `cargo test --test org_editing visibility::`: four passed.
 - `cargo test --test commands org_visibility::`: one passed.
+- `cargo test --test org_editing visibility_reveal::`: six passed.
 - `cargo test --test commands catalog_reference`
 - `python3 scripts/check-config-reference.py`
 
@@ -66,5 +76,4 @@ canonical PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-Hierarchy-aware reveal/session-state regressions and the owned outline terminal
-journey remain in T8.2 and T8.3. Existing edits release obsolete view choices.
+The owned outline terminal journey remains in T8.3. Existing edits release obsolete view choices.

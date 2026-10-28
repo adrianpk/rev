@@ -13,16 +13,23 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
             result.coverage = Coverage::Cancelled;
             break;
         }
-        collect(&mut result, node);
-        if result.headings.len() + result.drawers.len() > 4096 {
+        if at_limit(&result, node) {
             result.coverage = Coverage::Incomplete(Limit::SourceNodes);
             break;
         }
+        collect(&mut result, node);
     }
     result.headings.sort_by_key(|h| h.start);
     result.drawers.sort_by_key(|d| d.start);
     parents(&mut result.headings);
     result
+}
+
+fn at_limit(result: &Outline, node: &crate::org::structure::Raw) -> bool {
+    matches!(
+        node.kind,
+        StructureKind::Heading { .. } | StructureKind::Drawer | StructureKind::PropertyDrawer
+    ) && result.headings.len() + result.drawers.len() == 4096
 }
 
 fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {

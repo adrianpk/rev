@@ -14,6 +14,8 @@ mod folds;
 mod projection;
 #[path = "org_editing/visibility.rs"]
 mod visibility;
+#[path = "org_editing/visibility_reveal.rs"]
+mod visibility_reveal;
 
 use std::time::Instant;
 

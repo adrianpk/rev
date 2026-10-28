@@ -3,15 +3,15 @@ use rev::coordinates::{Cell, Coordinates};
 
 use super::*;
 
-const OUTLINE: &str = "* Root\nbody\n** Child\nchild body\n*** Grand\ngrand body\n** Sibling\nsib body\n* Peer\npeer body\n";
+pub(super) const OUTLINE: &str = "* Root\nbody\n** Child\nchild body\n*** Grand\ngrand body\n** Sibling\nsib body\n* Peer\npeer body\n";
 
-fn visible(session: &Session) -> Vec<usize> {
+pub(super) fn visible(session: &Session) -> Vec<usize> {
     let buffer = session.buffer().unwrap();
     (0..session.view().visible_lines(buffer))
         .map(|row| session.view().source_row(buffer, row).unwrap())
         .collect()
 }
-fn action(session: &mut Session, command: OrgCommand) {
+pub(super) fn action(session: &mut Session, command: OrgCommand) {
     session.execute(Command::Org(command));
     settle(session);
 }
