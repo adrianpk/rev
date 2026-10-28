@@ -355,8 +355,14 @@ Slice 18 of 20 implemented. Its
 [canonical report](../report/slices/rev-input-navigation/slice-18-combined-terminal.md)
 records RGB/NO_COLOR combined native journeys, exact cell/file/history outcomes,
 bounded capture/resize cleanup and preserved baseline evidence with new contract
-and stage admission. Canonical PR and exact clean-head evidence follow task and
-PR-reference commits; integration remains pending.
+and stage admission. Canonical PR
+[#98](https://forge.adrianpk.com/adrianpk/rev/pulls/98) targets dev. Required and
+focused exact-head evidence is recorded through the controller after PR-reference
+commits; integration remains pending.
+
+T18.1: `6bc75aecfcff4bf5d41ccde77486e49c184129a1`.
+T18.2: `cb35e09ca0ff7515175b3da902e5eb6961e2aa4a`.
+T18.3: `4416e22b2dc10474e9bbfb34450984c1fbde2a41`.
 
 ### Slice 19: verify bounded input gutter and pointer work
 
