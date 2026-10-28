@@ -47,6 +47,12 @@ activated controls. The reference checker now recognizes empty Rust slice
 catalogs for inherited local overlays while retaining exact schema, defaults,
 command-target and duplicate-entry checks.
 
+The first controller batch exposed an accessor mismatch: inherited Org maps had
+all 68 editor bindings, but the factory-default accessor returned their empty
+local overlay. The correction preserves the existing complete-map assertion and
+its public accessor; sample and map construction use a separate local-layer
+accessor. Runtime inheritance and acceptance assertions remain intact.
+
 ## Contracts Added or Changed
 
 - ORG01: native activation by admitted file identity or compiled command.

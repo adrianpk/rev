@@ -104,7 +104,7 @@ impl Map {
 
     fn builtins(context: Context) -> Self {
         let entries = context
-            .defaults()
+            .local_defaults()
             .iter()
             .map(|(sequence, name)| {
                 let key = Sequence::parse(sequence).expect("audited built-in sequence");

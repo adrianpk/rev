@@ -48,10 +48,18 @@ impl Context {
         }
     }
 
-    /// Local configurable defaults. Org editing, capture and source-edit maps
-    /// additionally inherit the admitted editor map. Literal text, decisions and Escape's
-    /// finite Meta timing remain operations of their existing owners.
+    /// Complete factory bindings, including inherited editor entries. Literal
+    /// text, decisions and Escape timing remain with their existing owners.
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
+        match self {
+            Self::Org | Self::OrgCapture | Self::OrgSourceEdit => Self::Editor.local_defaults(),
+            _ => self.local_defaults(),
+        }
+    }
+
+    /// Local layer only; empty Org editing overlays inherit the admitted editor
+    /// map. The exhaustive sample declares these entries without duplicating it.
+    pub fn local_defaults(self) -> &'static [(&'static str, &'static str)] {
         defaults::bindings(self)
     }
 }

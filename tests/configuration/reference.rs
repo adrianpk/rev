@@ -61,7 +61,7 @@ fn sample_maps() {
     let defaults = rev::config::Snapshot::default();
     for context in Context::ALL {
         let expected: BTreeMap<_, _> = context
-            .defaults()
+            .local_defaults()
             .iter()
             .map(|(key, name)| (key.to_string(), name.to_string()))
             .collect();
