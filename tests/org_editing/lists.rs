@@ -33,6 +33,7 @@ fn item_insertion() {
             "-  :: \n- term :: value\n",
         ),
         ("checkbox", "- [X] done\n", 10, "- [X] done\n- [ ] \n"),
+        ("unicode EOF", "- 界e\u{301}", 4, "- 界e\u{301}\n- "),
     ] {
         let (_fixture, mut session) = editor("", "notes.org", source);
         for _ in 0..column {

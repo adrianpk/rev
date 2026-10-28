@@ -62,10 +62,22 @@ fn insertion(
     }
     text.push_str(prefix);
     let offset = text.chars().count() - if prefix.ends_with(" :: ") { 4 } else { 0 };
-    if above || at == buffer.len_bytes() && source_text(buffer, at.saturating_sub(1)..at)? == "\n" {
+    if above || at == buffer.len_bytes() && terminated(buffer)? {
         text.push_str(buffer.newline());
     }
     Ok((text, offset))
+}
+
+fn terminated(buffer: &Buffer) -> Result<bool, String> {
+    let tail = buffer
+        .span(buffer.len_chars().saturating_sub(1)..buffer.len_chars())
+        .map_err(|e| e.to_string())?;
+    Ok(buffer
+        .slice(&tail)
+        .map_err(|e| e.to_string())?
+        .chars()
+        .next()
+        == Some('\n'))
 }
 
 fn merge(edits: &mut Vec<Replacement>, insertion: Replacement) {

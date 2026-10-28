@@ -111,6 +111,10 @@ Focused source-quality checks passed for changed Rust owners and tests.
 The first required controller batch caught two Clippy collapsible-condition
 findings in progress-state guards. They were converted to let chains without
 changing the retained behavior assertions.
+The required catalog regression also identified missing explicit M-x binding
+rows, now documented without changing the catalog assertion. Unicode EOF
+continuation coverage reproduced an interior-byte tail lookup; scalar-qualified
+tail access fixes it while retaining exact source and full undo/redo assertions.
 After the canonical PR-reference follow-up is pushed, the controller records
 these required commands against the clean HEAD, in order:
 

@@ -43,6 +43,17 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-Right in Org | `org-metaright` | Demote a subtree or indent the precise list item. |
 | M-Up in Org | `org-metaup` | Move a complete subtree or list item before its previous sibling. |
 | M-Down in Org | `org-metadown` | Move a complete subtree or list item after its next sibling. |
+| M-x org-promote-subtree | `org-promote-subtree` | Promote a complete heading subtree. |
+| M-x org-demote-subtree | `org-demote-subtree` | Demote a complete heading subtree. |
+| M-x org-move-subtree-up | `org-move-subtree-up` | Move a complete heading subtree before its previous sibling. |
+| M-x org-move-subtree-down | `org-move-subtree-down` | Move a complete heading subtree after its next sibling. |
+| M-x org-insert-item | `org-insert-item` | Split or continue an admitted list item. |
+| M-x org-indent-item | `org-indent-item` | Indent the item while retaining child indentation. |
+| M-x org-outdent-item | `org-outdent-item` | Outdent an admitted item without detaching children. |
+| M-x org-move-item-up | `org-move-item-up` | Move complete item source before its previous sibling. |
+| M-x org-move-item-down | `org-move-item-down` | Move complete item source after its next sibling. |
+| M-x org-renumber-list | `org-renumber-list` | Renumber ordered siblings with retained explicit resets. |
+| M-x org-toggle-checkbox-presence | `org-toggle-checkbox-presence` | Add or remove checkbox source explicitly. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |
