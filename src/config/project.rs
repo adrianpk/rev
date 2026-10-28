@@ -247,6 +247,7 @@ pub(super) fn time(base: &mut super::Time, partial: &super::PartialTime) {
     if let Some(zone) = &partial.zone {
         base.zone.clone_from(zone);
     }
+    count(&mut base.extend_today_until, partial.extend_today_until);
     scalar(&mut base.ambiguous, partial.ambiguous);
     scalar(&mut base.nonexistent, partial.nonexistent);
 }

@@ -162,6 +162,7 @@ pub struct PartialOrg {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Time {
     pub zone: String,
+    pub extend_today_until: usize,
     pub ambiguous: LocalTimePolicy,
     pub nonexistent: LocalTimePolicy,
 }
@@ -169,6 +170,7 @@ impl Default for Time {
     fn default() -> Self {
         Self {
             zone: "local".into(),
+            extend_today_until: 0,
             ambiguous: LocalTimePolicy::Prompt,
             nonexistent: LocalTimePolicy::Prompt,
         }
@@ -183,6 +185,7 @@ pub enum LocalTimePolicy {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTime {
     pub zone: Option<String>,
+    pub extend_today_until: Option<i64>,
     pub ambiguous: Option<LocalTimePolicy>,
     pub nonexistent: Option<LocalTimePolicy>,
 }

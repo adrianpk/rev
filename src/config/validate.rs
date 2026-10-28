@@ -388,6 +388,11 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
 }
 
 fn time(document: &Document) -> Result<(), Failure> {
+    integer(
+        "org.time.extend_today_until",
+        document.org.time.extend_today_until,
+        0..=23,
+    )?;
     if let Some(zone) = &document.org.time.zone {
         crate::org::time::ZoneSelection::parse(zone)
             .map_err(|e| Failure::new("org.time.zone", e))?;

@@ -581,7 +581,7 @@ reference agreement, zero skips. The Slice 23 report is delivered.
 Contracts: ORG20 ORG07.
 Details and exact checks: [Slice 24](../plan/rev-org-mode.md#slice-24-maintain-org-habit-schedules-and-history).
 
-- [ ] T24.1: Recognize STYLE habit and integrate logged completion, interval ranges and Org day semantics.
+- [x] T24.1: Recognize STYLE habit and integrate logged completion, interval ranges and Org day semantics.
 - [ ] T24.2: Preserve compatible histories and distinguish missing observations from actual failed/completed days.
 - [ ] T24.3: Verify recurrence types, source-local declarations and coherent completion undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

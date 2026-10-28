@@ -2,6 +2,7 @@ mod clocks;
 pub(crate) use clocks::{ClockInsertion, ClockObservation};
 mod blocking;
 mod edit;
+mod habits;
 mod logging;
 mod model;
 pub(super) mod repeat;

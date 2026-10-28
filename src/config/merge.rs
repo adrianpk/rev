@@ -572,6 +572,11 @@ impl Merge {
     fn time(&mut self, base: &mut super::PartialTime, later: &super::PartialTime) {
         self.leaf(&["org", "time", "zone"], &mut base.zone, &later.zone);
         self.leaf(
+            &["org", "time", "extend_today_until"],
+            &mut base.extend_today_until,
+            &later.extend_today_until,
+        );
+        self.leaf(
             &["org", "time", "ambiguous"],
             &mut base.ambiguous,
             &later.ambiguous,

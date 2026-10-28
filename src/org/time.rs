@@ -31,3 +31,6 @@ pub use clock::RecordedClock;
 pub use clock::{ClockInterval, ClockRecord};
 mod timer;
 pub use timer::{Timer, TimerDuration, TimerMode, TimerReading};
+
+mod habit;
+pub use habit::{HabitSchedule, OrgDay};

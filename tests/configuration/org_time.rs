@@ -9,13 +9,24 @@ fn time_layers() {
     let fixture = Fixture::new();
     let base = fixture.write(
         "base.toml",
-        "org.time.zone='Area/Place'\norg.time.ambiguous='prompt'",
+        "org.time.zone='Area/Place'\norg.time.ambiguous='prompt'\norg.time.extend_today_until=4",
     );
     let root = fixture.write("config.toml", "include=['base.toml']\norg.time.zone='UTC'");
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let time = &startup.snapshot.settings().org.time;
     assert_eq!(time.zone, "UTC");
+    assert_eq!(time.extend_today_until, 4);
+    assert_eq!(
+        startup
+            .snapshot
+            .origin(&["org", "time", "extend_today_until"]),
+        Some(base.as_path())
+    );
+    assert_eq!(
+        Snapshot::default().settings().org.time.extend_today_until,
+        0
+    );
     assert_eq!(time.ambiguous, LocalTimePolicy::Prompt);
     assert_eq!(time.nonexistent, LocalTimePolicy::Prompt);
     assert_eq!(
@@ -55,6 +66,9 @@ fn time_rejection() {
         "org.time.nonexistent='shift-forward'",
         "org.time.unknown=true",
         "org.time.zone=12",
+        "org.time.extend_today_until=-1",
+        "org.time.extend_today_until=24",
+        "org.time.extend_today_until=4.5",
         "palette.foreground='bad'\norg.time.zone='UTC'",
     ] {
         let path = fixture.write("config.toml", source);

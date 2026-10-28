@@ -108,6 +108,9 @@ zone = "local"
 ambiguous = "prompt"
 nonexistent = "prompt"
 
+# Hour 0..23 at which the Org day starts; midnight by default.
+extend_today_until = 0
+
 [org.priority]
 # Ordered single uppercase A-Z characters; highest <= default <= lowest.
 highest = "A"

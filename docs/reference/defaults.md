@@ -199,6 +199,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.clock.out_when_done` | Boolean | `true` | Complete a clocked task and close its interval in one source transaction; repeating completion also closes the selected task interval. |
 | `org.clock.drawer` | String | `"LOGBOOK"` | Task-owned clock drawer. Empty places records after planning/properties. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER, then this setting. |
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
+| `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
 | `org.time.zone` | String | `"local"` | local honors captured TZ; system uses localtime; UTC or a validated relative IANA name overrides TZ. Zone data is checked when the operation is selected. |
 | `org.time.ambiguous` | String: "prompt" | `"prompt"` | Require a selected observed offset for repeated local times; never guess. |
 | `org.time.nonexistent` | String: "prompt" | `"prompt"` | Require a valid replacement local time for a forward gap; never normalize silently. |

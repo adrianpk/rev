@@ -8,6 +8,7 @@ pub(crate) struct RepeatChange {
     pub state: String,
     pub values: Vec<RepeatSource>,
     pub record: bool,
+    pub habit: bool,
 }
 pub(crate) struct RepeatSource {
     pub source: Span,
@@ -28,11 +29,13 @@ impl Outline {
         if !change.workflow.state(&change.next).is_some_and(|s| s.done) {
             return Ok(());
         }
+        let habit = self.habit_schedule(buffer, change.index, policy)?.is_some();
         let values = observe::timestamps(self, buffer, change.index)?;
         if values.is_empty() {
             return Ok(());
         }
         let state = self.repeat_state(buffer, change)?;
+        change.habit_reset(habit, &state)?;
         let log = self.repeat_logging(buffer, change.index, policy)?;
         change.logging.closed = false;
         if log == Log::Note {
@@ -45,6 +48,7 @@ impl Outline {
             state,
             values,
             record: log != Log::None,
+            habit,
         });
         Ok(())
     }

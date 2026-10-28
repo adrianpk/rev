@@ -69,10 +69,18 @@ impl Session {
             .repeat
             .as_mut()
             .ok_or("Missing Org repeat transition")?;
+        let day = crate::org::time::OrgDay::new(
+            self.buffers
+                .snapshot()
+                .settings()
+                .org
+                .time
+                .extend_today_until as u8,
+        )?;
         for value in &mut repeat.values {
             value.value = value
                 .value
-                .advance_repeat(operation.now())?
+                .advance_habit_repeat(operation.now(), repeat.habit.then_some(day))?
                 .ok_or("Org recurrence lost its active repeater")?;
         }
         transition.stamp = operation.now().format_timestamp(false);
