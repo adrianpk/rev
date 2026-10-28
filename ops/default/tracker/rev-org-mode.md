@@ -137,6 +137,13 @@ Details and exact checks: [Slice 3](../plan/rev-org-mode.md#slice-3-recognize-in
 - [x] T3.3: Verify Unicode boundaries, nested forms and recovery without normalizing unknown source.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T3.1 `31c01cebd212d488717d5503fd41bdaa9d20c836`,
+T3.2 `7a186ffd60ec59746527474732e63b3d9a084a37`,
+T3.3 `5e4cd90dae99bed02f5070e66d62f3ab3e682267`.
+Canonical PR: [#104](https://forge.adrianpk.com/adrianpk/rev/pulls/104).
+Report: [Slice 3](../report/slices/rev-org-mode/slice-3-inline-syntax.md).
+Integration: pending controller verification.
+
 ### Slice 4: recognize Org headings metadata and blocks
 
 Contracts: ORG02 ORG04 ORG05 ORG12.
