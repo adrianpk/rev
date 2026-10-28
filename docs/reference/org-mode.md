@@ -1,4 +1,4 @@
-# Native Org visibility
+# Native Org outline
 
 An admitted `.org` file or `M-x org-mode` uses native Org mode. Source starts
 fully visible. These controls change only the selected editing view; they also
@@ -55,3 +55,34 @@ Visibility works with syntax coloring disabled and with NO_COLOR.
 An incomplete observation rejects folding and keeps source readable. At most
 4096 heading/drawer records participate, within the ordinary native Org source
 observation limits. `org-show-all` remains available without an observation.
+
+## Heading insertion and motion
+
+| Key | Command | Behavior |
+| --- | --- | --- |
+| M-RET | `org-meta-return` | Insert a heading in ordinary heading/paragraph context. |
+| C-c C-n | `org-next-visible-heading` | Visit the next visible heading. |
+| C-c C-p | `org-previous-visible-heading` | Visit the previous visible heading. |
+| C-c C-f | `org-forward-heading-same-level` | Visit the next sibling, skipping descendants. |
+| C-c C-b | `org-backward-heading-same-level` | Visit the previous sibling, skipping descendants. |
+| C-c C-u | `org-up-heading-safe` | Visit the parent heading. |
+
+M-x exposes every name above and `org-insert-heading`, which uses the same
+insertion handler. A new heading has the current heading's level, or level one
+before the first heading. At the start of a heading, insertion creates a heading
+above it. In a title or paragraph, insertion splits at point; at a paragraph
+start it prefixes the existing line. Following section text remains after the
+new heading. Drawers, blocks, descendants and blank separators retain their
+original bytes and order. BOM, LF/CRLF and final-newline presence are preserved.
+Point stays on the new title. Insertion is one ordinary undo/redo operation.
+
+Lists, tables, drawers, literal bodies and other admitted deeper forms report
+that heading insertion is unavailable in that context. M-RET does not fall
+through to editing a containing heading. C-g can cancel an observation request
+before insertion, just as for visibility commands.
+
+Heading motion also works on read-only source and never creates history.
+Next/previous motion skips folded headings even outside the viewport. Same-level
+motion stops at a parent boundary; parent motion visits the nearest structural
+parent, including skipped numerical levels. These targeted moves use ordinary
+hierarchy reveal. A missing target reports unavailability and keeps the view.

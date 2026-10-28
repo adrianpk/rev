@@ -26,6 +26,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x org-show-drawer | `org-show-drawer` | Show the current drawer body. |
 | M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
 | M-x org-insert-heading | `org-insert-heading` | Insert a heading at the current level through one checked edit. |
+| M-RET in Org | `org-meta-return` | Insert a heading in admitted heading/paragraph context. |
 | C-c C-n in Org | `org-next-visible-heading` | Visit the next visible heading. |
 | C-c C-p in Org | `org-previous-visible-heading` | Visit the previous visible heading. |
 | C-c C-f in Org | `org-forward-heading-same-level` | Visit the next sibling without crossing a parent boundary. |

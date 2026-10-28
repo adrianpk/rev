@@ -14,15 +14,29 @@ impl Outline {
         crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
         let coordinates = Coordinates::new(buffer).map_err(|e| e.to_string())?;
         let byte = coordinates.to_byte(point).map_err(|e| e.to_string())?.0;
-        let blocked = self.blocked.partition_point(|range| range.end <= byte);
-        if self
-            .blocked
-            .get(blocked)
-            .is_some_and(|range| range.contains(&byte))
-        {
+        let in_line = coordinates
+            .to_line(point)
+            .map_err(|e| e.to_string())?
+            .column
+            != 0;
+        if self.unavailable(byte, byte == buffer.len_bytes(), in_line) {
             return Err("Org heading insertion is unavailable in this source context".into());
         }
         self.at_point(buffer, &coordinates, point)
+    }
+
+    fn unavailable(&self, byte: usize, at_eof: bool, in_line: bool) -> bool {
+        let index = self.blocked.partition_point(|range| range.end <= byte);
+        if self
+            .blocked
+            .get(index)
+            .is_some_and(|range| range.contains(&byte))
+        {
+            return true;
+        }
+        at_eof
+            && (self.blocked_eof
+                || in_line && self.blocked.last().is_some_and(|range| range.end == byte))
     }
 
     fn at_point(

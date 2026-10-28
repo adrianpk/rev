@@ -161,6 +161,7 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-f", "org-forward-heading-same-level"),
     ("C-c C-b", "org-backward-heading-same-level"),
     ("C-c C-u", "org-up-heading-safe"),
+    ("M-RET", "org-meta-return"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

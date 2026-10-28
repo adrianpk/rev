@@ -37,6 +37,7 @@ pub(crate) struct Outline {
     headings: Vec<Heading>,
     drawers: Vec<Drawer>,
     blocked: Vec<Range<usize>>,
+    blocked_eof: bool,
 }
 
 impl Outline {

@@ -8,6 +8,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         headings: Vec::new(),
         drawers: Vec::new(),
         blocked: Vec::new(),
+        blocked_eof: false,
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {
@@ -19,7 +20,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
             break;
         }
         collect(&mut result, node);
-        block(&mut result, node);
+        block(&mut result, node, structure.covered_bytes().0);
     }
     result.headings.sort_by_key(|h| h.start);
     result.drawers.sort_by_key(|d| d.start);
@@ -61,7 +62,7 @@ fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {
 
 // Deeper source forms cannot fall through to a destructive ancestor insertion.
 // These offsets share the existing source-node bound and live only in the worker result.
-fn block(result: &mut Outline, node: &crate::org::structure::Raw) {
+fn block(result: &mut Outline, node: &crate::org::structure::Raw, eof: usize) {
     use StructureKind::*;
     if matches!(node.kind, Heading { .. } | Section | Paragraph) {
         return;
@@ -70,6 +71,7 @@ fn block(result: &mut Outline, node: &crate::org::structure::Raw) {
         .closing
         .as_ref()
         .map_or(node.source.end, |close| close.end);
+    result.blocked_eof |= node.source.end == eof && node.closing.is_none();
     result.blocked.push(node.source.start..end);
 }
 

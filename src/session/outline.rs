@@ -72,7 +72,7 @@ impl Session {
     ) -> Result<(), String> {
         use OrgCommand::*;
         match command {
-            InsertHeading => self.insert_heading(model),
+            InsertHeading | MetaReturn => self.insert_heading(model),
             NextHeading | PreviousHeading | ForwardHeading | BackwardHeading | ParentHeading => {
                 self.heading_motion(&model, command)
             }

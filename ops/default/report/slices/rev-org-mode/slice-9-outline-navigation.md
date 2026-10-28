@@ -24,6 +24,11 @@ text at point, converting a paragraph start, or inserting above a heading at its
 start. Existing source sections remain byte-for-byte intact. One checked edit
 records the initiating point and reconciles shared views for undo/redo.
 
+Native M-RET and `org-meta-return` share that handler. Lists, tables, metadata,
+drawers, literal bodies and admitted unclosed delimiters reject insertion in
+their exact context, including EOF. Attached source, blank separators, BOM,
+LF/CRLF and final-newline presence remain intact; point stays on the new title.
+
 ## Implementation Notes
 
 The existing temporary observation worker prepares the stamped heading model
@@ -47,6 +52,9 @@ uses ordinary reveal. Edits use the canonical buffer prepare/publish boundary.
 - `src/session/outline.rs`, `outline/operation.rs`: owned request and publication.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: activated keys.
 - `tests/org_editing/headings.rs`: motion, insertion and observation admission.
+- `tests/org_editing/heading_context.rs`: native/named equivalence, attached
+  source, byte fidelity and precise-context rejection.
+- `docs/reference/org-mode.md`: active keys and insertion/motion behavior.
 
 ## Validation
 
@@ -54,6 +62,8 @@ Implementation checks passed:
 
 - `cargo check --lib`
 - `cargo test --test org_editing headings::`: three tests passed.
+- `cargo test --test org_editing heading_context::`: three tests passed.
+- `cargo test --test commands org_visibility::`
 - `cargo test --test commands catalog_reference`
 - `python3 scripts/check-config-reference.py`
 
@@ -64,4 +74,4 @@ canonical PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-Contextual M-RET and broader native boundary coverage remain in T9.2 and T9.3.
+Read-only, transient context and broader source-boundary coverage remain in T9.3.

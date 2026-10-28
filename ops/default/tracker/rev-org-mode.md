@@ -239,7 +239,7 @@ Contracts: ORG04 ORG17.
 Details and exact checks: [Slice 9](../plan/rev-org-mode.md#slice-9-insert-and-navigate-org-headings).
 
 - [x] T9.1: Deliver sibling insertion and next/previous/same-level/parent heading movement.
-- [ ] T9.2: Handle contextual M-RET while preserving attached sections, blank lines and final newline state.
+- [x] T9.2: Handle contextual M-RET while preserving attached sections, blank lines and final newline state.
 - [ ] T9.3: Verify read-only navigation, inactive context behavior, undo and logical source bounds.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

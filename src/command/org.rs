@@ -19,9 +19,10 @@ pub enum OrgCommand {
     ForwardHeading,
     BackwardHeading,
     ParentHeading,
+    MetaReturn,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 17] = [
+    pub const ALL: [Self; 18] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -39,6 +40,7 @@ impl OrgCommand {
         Self::ForwardHeading,
         Self::BackwardHeading,
         Self::ParentHeading,
+        Self::MetaReturn,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -59,6 +61,7 @@ impl OrgCommand {
             "org-forward-heading-same-level",
             "org-backward-heading-same-level",
             "org-up-heading-safe",
+            "org-meta-return",
         ][self as usize]
     }
 }
