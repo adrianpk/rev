@@ -435,8 +435,12 @@ T18.1: `3da11bf31957afb061b8a9b8c487a74ce4b801a1`; focused clean-head receipt
 `Z7ZXSK5BB3YHKS4ZJ5ED5K7JAA` passed all four commands. T18.2 development
 checks passed 27 focused timestamp tests, library Clippy, configuration reference
 agreement and changed-source quality. T18.3 passed 22 editing, 12 time and two
-display timestamp tests plus four owned RGB/NO_COLOR task PTYs. The canonical
-PR and exact-HEAD validation follow; integration remains controller-owned.
+display timestamp tests plus four owned RGB/NO_COLOR task PTYs.
+T18.2: `7b6dff79c380`; T18.3: `538691d2e1ae`.
+[Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) and
+[Slice 18 report](../report/slices/rev-org-mode/slice-18-timestamp-entry.md)
+are reviewing. Controller receipts bind final required/focused checks to the
+clean PR head; verified dev integration remains pending.
 
 ### Slice 19: reschedule repeated Org tasks correctly
 

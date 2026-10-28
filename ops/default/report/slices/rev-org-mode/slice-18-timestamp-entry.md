@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-18-timestamp-entry`
-PR: pending
+PR: `#119`
 
 ## Purpose
 
@@ -109,6 +109,8 @@ T18.2 development checks passed:
 
 T18.2 commit: `7b6dff79c380e128c2525fd8e29ebcdc7739fdf4`.
 
+T18.3 commit: `538691d2e1aee65f399be084156be1959b66c24a`.
+
 T18.3 acceptance checks passed:
 
 - `cargo test --test org_editing --test org_time --test display timestamp -- --nocapture`:
@@ -130,8 +132,18 @@ ownership, with schedule/deadline CRLF line-end regressions. Driver corrections
 clear calendar-filled drafts, accept stale drafts directly and use the observed
 end-of-line column; acceptance assertions and deadlines remain intact.
 
-The canonical PR records the required ordered checks against its final clean
-HEAD through controller validation before handoff.
+[Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) records
+required ordered checks against its final clean HEAD through controller
+validation before handoff:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test org_editing --test display --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final evidence additionally covers the full configuration regression
+suite, configuration-reference agreement and the four owned task PTYs.
 
 ## Risks and Follow-ups
 
