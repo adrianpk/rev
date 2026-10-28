@@ -1,6 +1,6 @@
 # Slice 25: render native Org habit consistency graphs
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -125,3 +125,9 @@ commands, and the main binding catalogue omitted five controls. Retained failure
 receipt: `MZSQR7T53B5PTB3IEFW7STGIXJ`. Both catalogues now cover the compiled set;
 the complete-set assertion remains unchanged and passes. Fresh required/focused
 controller evidence binds the corrected clean head.
+
+Verified integration: canonical PR #126 merged into dev at
+`f1603b6e934166845ad4739ed8d727e55b7ffd88`. Required controller receipt
+`SYVH5LSTFUPY5N2AAHCNV2DPHB` passed all five ordered checks and 245 tests.
+Focused receipt `37I2IPU4S4F5PJFTYT2JDRMGKX` passed 377 tests and the
+configuration reference. Both had zero skips.

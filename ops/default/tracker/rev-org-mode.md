@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 25 habit-graphs
+Active slice: Slice 26 agenda-sources
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -614,7 +614,7 @@ Details and exact checks: [Slice 25](../plan/rev-org-mode.md#slice-25-render-nat
 - [x] T25.1: Render bounded habit graphs with verified defaults, completion/today markers and semantic palette states.
 - [x] T25.2: Deliver agenda visibility, all-today/today-only and graph controls through native commands.
 - [x] T25.3: Verify narrow panes, late completions, dirty source observations and idle immutability.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T25.1: `60428ea7e251`. Bounded graph data, verified preferences and semantic
 pane rendering pass fifteen selected checks. T25.2 adds the explicit native
@@ -629,6 +629,12 @@ T25.3: `5f32a30d3fe59bd71d7636f74205fad7eccae829`. [Canonical PR #126](https://f
 and the [Slice 25 report](../report/slices/rev-org-mode/slice-25-habit-graphs.md) are
 reviewing. Final required/focused controller receipts bind the clean PR-reference
 head; verified dev integration remains pending.
+
+Canonical PR #126 merged into dev at
+`f1603b6e934166845ad4739ed8d727e55b7ffd88`. Required receipt
+`SYVH5LSTFUPY5N2AAHCNV2DPHB` passed five ordered checks and 245 tests.
+Focused receipt `37I2IPU4S4F5PJFTYT2JDRMGKX` passed 377 tests and the
+configuration reference, zero skips. The Slice 25 report is delivered.
 
 ### Slice 26: discover bounded canonical Org agenda sources
 
