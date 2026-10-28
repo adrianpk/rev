@@ -102,6 +102,20 @@ select a pane. Tree hits focus without activating an entry. Prompts, completion,
 inventory and decisions retain ownership; clicks cannot accept or cancel them.
 Movement preserves an existing active mark/region and creates no undo item.
 
+A primary press arms its checked text point. Moving to a different represented
+text boundary while held starts the ordinary linear mark/region. Release ends
+capture and leaves that region available to copy, kill and other native editing
+commands. A click or same-cell motion creates no new selection, and gestures
+never copy implicitly to the kill ring or terminal clipboard.
+
+Capture stays with its source pane across gutters, status, gaps and neighboring
+panes. Non-text cells retain the last checked endpoint; returning to source
+text continues from the same anchor. Wheel reports do not transfer scrolling
+during capture. Keyboard input, C-g, resize, reported focus loss, source/view
+changes and host mode disable end capture. C-g keeps its normal region
+cancellation; the mode-owner hook retains the canonical region. Orphan motion
+and release cannot revive capture. There is no idle selection timer.
+
 Vertical wheel and terminal-reported trackpad events scroll the document pane
 or loaded file tree under the pointer by three logical rows. They retain
 keyboard focus, pending prefixes and other panes' points. A still-visible point

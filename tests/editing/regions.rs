@@ -50,8 +50,8 @@ fn multiline_surface() {
     region(&mut session, RegionCommand::Set);
     session.execute(Command::Motion(Motion::BufferEnd));
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].selection(), Some(1..48));
-    assert_eq!(frame.rows()[1].selection(), Some(0..4));
+    assert_eq!(frame.rows()[0].selection(), Some(7..48));
+    assert_eq!(frame.rows()[1].selection(), Some(6..10));
     assert!(
         frame
             .rows()
@@ -61,10 +61,10 @@ fn multiline_surface() {
     );
     let cells = super::surface::draw(&frame);
     let palette = rev::config::Palette::default();
-    assert_eq!(cells[&(0, 1)].foreground, Some(palette.selection_text));
-    assert_eq!(cells[&(0, 1)].background, Some(palette.selection));
-    assert_eq!(cells[&(1, 0)].background, Some(palette.selection));
-    assert_eq!(cells[&(1, 4)].background, Some(palette.background));
+    assert_eq!(cells[&(0, 7)].foreground, Some(palette.selection_text));
+    assert_eq!(cells[&(0, 7)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 6)].background, Some(palette.selection));
+    assert_eq!(cells[&(1, 10)].background, Some(palette.background));
     assert!(frame.rows().iter().all(|row| !row.text().contains('\x1b')));
     assert!(!session.buffer().unwrap().is_modified());
 }
@@ -98,11 +98,11 @@ fn shared_focus() {
     let first = session.windows().selected_id();
     session.execute(Command::Split(Split::Right));
     let second = session.windows().order()[1];
-    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(2..6));
+    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(8..12));
     session.select_view(second).unwrap();
     session.execute(Command::Motion(Motion::LineStart));
     assert_eq!(range(&session), Some(0..2));
-    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(24..26));
+    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(30..32));
     region(&mut session, RegionCommand::Exchange);
     assert_eq!(
         session.windows().get(first).unwrap().point.position,
@@ -130,7 +130,7 @@ fn shared_focus() {
     );
     region(&mut session, RegionCommand::Exchange);
     assert_eq!(range(&session), Some(0..2));
-    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(24..26));
+    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(30..32));
 }
 
 // Selection follows display cells across clipped tabs, complete combining

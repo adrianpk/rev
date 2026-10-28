@@ -576,9 +576,9 @@ fn direct_input() {
     assert_eq!(session.view().point.position, Scalar(10));
     assert_eq!(session.view().point.stamp, buffer.stamp());
     let frame = session.frame().unwrap();
-    assert_eq!(frame.cursor(), Some(Position { column: 1, row: 1 }));
-    assert!(frame.rows()[0].text().starts_with("é界e\u{301}    "));
-    assert!(frame.rows()[1].text().starts_with('x'));
+    assert_eq!(frame.cursor(), Some(Position { column: 7, row: 1 }));
+    assert!(frame.rows()[0].text().starts_with("   1 │é界e\u{301}    "));
+    assert!(frame.rows()[1].text().starts_with("   2 │x"));
     assert!(frame.rows()[6].text().contains("** RW -- L2 C2"));
     assert!(frame.rows()[6].text().ends_with("Text"));
 }
