@@ -75,8 +75,8 @@ fn org_map_admission() {
         ),
         ("cancel", "[keys.org]\n'C-g' = 'org-mode'", "org"),
         (
-            "future action",
-            "[keys.org]\n'C-c C-c' = 'org-clock-in'",
+            "unknown action",
+            "[keys.org]\n'C-c C-c' = 'org-command-absent'",
             "org",
         ),
     ];
@@ -88,5 +88,36 @@ fn org_map_admission() {
         let startup = prepare(&path);
         assert!(startup.diagnostic.is_some(), "{name}");
         assert_eq!(startup.snapshot, rev::config::Snapshot::default(), "{name}");
+    }
+}
+
+// Delivered clock commands are admitted as explicit editing aliases, while
+// unknown command rejection and transient role restrictions remain intact.
+#[test]
+fn clock_map_admission() {
+    let fixture = Fixture::new();
+    for command in [
+        "org-clock-in",
+        "org-clock-out",
+        "org-clock-cancel",
+        "org-clock-goto",
+    ] {
+        let source = format!("[keys.org]\n'M-j' = '{command}'");
+        let path = fixture.write("config.toml", &source);
+        let startup = prepare(&path);
+        assert!(
+            startup.diagnostic.is_none(),
+            "{command}: {:?}",
+            startup.diagnostic
+        );
+        assert_eq!(
+            startup
+                .snapshot
+                .keymaps()
+                .map(Context::Org)
+                .lookup(&Sequence::parse("M-j").unwrap()),
+            Binding::named(command),
+            "{command}"
+        );
     }
 }

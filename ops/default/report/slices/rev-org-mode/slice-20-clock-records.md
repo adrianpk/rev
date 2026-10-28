@@ -115,6 +115,15 @@ PR head, in the approved order:
 Final focused evidence also covers full configuration/display regressions,
 configuration-reference agreement and the four owned task PTYs.
 
+Final focused receipt `QJ2KXRM5CKINNO4OG5PBD24MWN` rejected the earlier head
+because a pre-existing keymap test classified `org-clock-in` as a future unknown
+command. The unknown-command case now names an absent command, and a positive
+case verifies all four delivered clock aliases reach their compiled targets.
+Reserved cancellation, role admission and prefix assertions remain unchanged.
+`cargo test --test configuration org_keymaps` passed three cases after correction;
+affected configuration Clippy and changed-test source quality also passed.
+Final successful receipts are regenerated for the corrected clean head.
+
 ## Risks and Follow-ups
 
 Active-clock switching, completion/quit/close recovery and optional persistence
