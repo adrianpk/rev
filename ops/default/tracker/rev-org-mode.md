@@ -99,6 +99,13 @@ Details and exact checks: [Slice 1](../plan/rev-org-mode.md#slice-1-define-nativ
 - [x] T1.3: Introduce the org_source target and verify UTF-8, CRLF, malformed input and checked-range failures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T1.1 `78dac679f1cfda33e32bb841ed6c4220bb75aa88`,
+T1.2 `a30dfbe6f753bf8b6d444c59d8658dfadd4c263e`,
+T1.3 `1cb2d944a403a5059f559b64844ab7c7564e3bac`.
+Canonical PR: [#102](https://forge.adrianpk.com/adrianpk/rev/pulls/102).
+Report: [Slice 1](../report/slices/rev-org-mode/slice-1-source-contract.md).
+Integration: pending controller verification.
+
 ### Slice 2: index Org structure with bounded work
 
 Contracts: ORG02 ORG18.
