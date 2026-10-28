@@ -266,6 +266,21 @@ fn phase(mut event: Event, kind: crossterm::event::KeyEventKind) -> Event {
 fn prefix_recovery() {
     let cases = [
         (
+            "agenda completed",
+            vec![control('c'), character('a')],
+            Outcome::Command(Command::Org(rev::command::OrgCommand::Agenda)),
+        ),
+        (
+            "agenda cancel",
+            vec![control('c'), control('g')],
+            Outcome::Command(Command::KeyboardQuit),
+        ),
+        (
+            "agenda invalid",
+            vec![control('c'), character('z')],
+            Outcome::Message("Undefined key sequence"),
+        ),
+        (
             "nested cancel",
             vec![control('x'), character('r'), control('g')],
             Outcome::Command(Command::KeyboardQuit),
@@ -311,7 +326,7 @@ fn prefix_recovery() {
             "{name}"
         );
         assert_eq!(
-            input.handle(control('c')),
+            input.handle(control('q')),
             Outcome::Message("Unbound key"),
             "{name}"
         );

@@ -122,3 +122,10 @@ The delivery-set full gate has not run.
 [Canonical PR #127](https://forge.adrianpk.com/adrianpk/rev/pulls/127) targets dev.
 Final required and focused controller receipts bind the clean PR-reference head;
 verified integration remains pending.
+
+The first final focused batch at `bdde65f5fe84` stopped in prefix_recovery:
+its unbound-key assertion still used C-c, which now owns the approved C-c a
+sequence. Failure receipt: `BMNRRNHJ2IZLMW2KON7BJ7EOPT`. The fixture now uses
+unbound C-q and also verifies completed, cancelled and invalid agenda prefixes.
+The unbound-key and prefix-retirement assertions remain intact. Fresh evidence
+binds the corrected clean head.
