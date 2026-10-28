@@ -5,6 +5,9 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.timestamp_command(command) {
+            return Some(action);
+        }
         if command == Command::ExecuteExtended {
             self.org.cancel_request();
             return Some(self.extended());
@@ -14,7 +17,8 @@ impl Session {
             if matches!(
                 self.pending,
                 Some(
-                    Pending::Property(_)
+                    Pending::Timestamp(_)
+                        | Pending::Property(_)
                         | Pending::Tags(_)
                         | Pending::Task(_)
                         | Pending::Estimate(_)
@@ -48,7 +52,13 @@ impl Session {
     pub(super) fn complete_argument(&mut self) -> Action {
         if matches!(
             self.pending,
-            Some(Pending::Task(_) | Pending::Tags(_) | Pending::Property(_) | Pending::Estimate(_))
+            Some(
+                Pending::Timestamp(_)
+                    | Pending::Task(_)
+                    | Pending::Tags(_)
+                    | Pending::Property(_)
+                    | Pending::Estimate(_)
+            )
         ) {
             return self.complete_org_argument();
         }
@@ -67,6 +77,7 @@ impl Session {
     }
     fn complete_org_argument(&mut self) -> Action {
         match self.pending {
+            Some(Pending::Timestamp(_)) => self.complete_timestamp(),
             Some(Pending::Estimate(_)) => self.complete_estimate(),
             Some(Pending::Task(_)) => {
                 self.message("Enter a task state/selection key or note; C-g cancels")

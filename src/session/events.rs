@@ -93,6 +93,11 @@ impl Session {
             self.sync_input_context();
             return action;
         }
+        if let Event::Mouse(mouse) = event
+            && let Some(action) = self.timestamp_pointer(mouse)
+        {
+            return action;
+        }
         let outcome = self.input.handle_at(event, now);
         let action = self.outcome(outcome, now);
         if action == Action::Wait {

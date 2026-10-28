@@ -426,7 +426,7 @@ task PTYs. Canonical Forgejo, controller merge evidence and Acta were verified.
 Contracts: ORG07 ORG17.
 Details and exact checks: [Slice 18](../plan/rev-org-mode.md#slice-18-enter-and-edit-org-timestamps).
 
-- [ ] T18.1: Deliver native date/time/calendar prompts for active/inactive timestamps, ranges, schedule and deadline.
+- [x] T18.1: Deliver native date/time/calendar prompts for active/inactive timestamps, ranges, schedule and deadline.
 - [ ] T18.2: Use familiar context actions and cancellation, retaining weekday/source formatting where untouched.
 - [ ] T18.3: Verify invalid dates, ambiguous local times, Unicode prompts and one-command undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

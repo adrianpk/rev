@@ -15,6 +15,9 @@ impl Session {
     }
 
     pub(super) fn input_changed(&mut self) -> Action {
+        if let Some(action) = self.refresh_timestamp() {
+            return action;
+        }
         if self.input.focus() == crate::input::Focus::Search {
             return self.search_step();
         }

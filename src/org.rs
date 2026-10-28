@@ -31,3 +31,5 @@ pub use color::{ColorScan, Coloring, Highlights, Role};
 
 mod visibility;
 pub(crate) use visibility::{Insertion, Outline, SubtreeEdit, TaskChange, Visibility};
+
+pub(crate) mod timestamp;

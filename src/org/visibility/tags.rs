@@ -3,6 +3,7 @@ mod matching;
 mod model;
 mod priority;
 mod tasks;
+mod timestamps;
 pub(crate) use tasks::TaskChange;
 
 use super::Outline;

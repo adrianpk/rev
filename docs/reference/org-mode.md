@@ -421,3 +421,49 @@ examines at most eight events per lookup; local resolution checks at most
 258 candidate offsets against that same observation. A blocked filesystem
 operation has no hard kernel deadline; there is no idle polling or unbounded
 recurrence expansion.
+
+
+## Timestamp entry
+
+`C-c .` and `C-c !` open a native date prompt for active `<...>` and inactive
+`[...]` timestamps. At an existing timestamp, they edit its checked source range.
+The calendar shows three months when 88 columns fit and one month on narrower
+surfaces; small surfaces clip it. Navigation and mouse selection retain the
+canonical source point. Enter publishes one undoable edit; C-g discards every
+stage. `C-c >` inspects the calendar without editing; after accepting a date,
+`C-c <` inserts that retained date at point. Calendar inspection works read-only.
+
+Empty input retains the current timestamp. Input accepts ISO dates, short
+`3-2-5` or `2/5/3` dates, day numbers, English month/weekday names, and ISO week
+dates such as `2012-w04-5`. An omitted month/year prefers the next matching date
+relative to the captured current date. Short years use the captured current century's
+30-year future window; four-digit source years remain explicit within 0001..9999.
+`.` selects the captured current date. A single `+`/`-` shifts from that date;
+`++`/`--` shifts from the prompt default. Units are h/d/w/m/y; a missing unit
+means days. Relative weekday forms such as `+2tue` select later occurrences,
+while `-Tue` selects the previous one. No host time is reread while typing.
+
+Times accept `12:45`, `11am`, `13h15`, compact `22sept0:34`, and clock ranges
+such as `11am-1:15pm` or `11am+2:15`. A clock range crossing midnight carries its
+end to the next civil day. Date ranges accept `2024-02-29--2024-03-02` or complete
+`<...>--<...>` forms. Editing the end checks the complete observed range.
+Weekday spelling, whitespace, clocks and repeat/warning suffixes remain exact
+when their fields are untouched. A changed date receives its correct English
+weekday. Date entry validates suffix syntax without advancing recurrence.
+
+`C-c C-s` and `C-c C-d` edit the current heading's SCHEDULED and DEADLINE facts.
+They preserve adjacent CLOSED/planning facts, drawers, body text and line endings.
+New planning lines follow their heading and retain an unterminated EOF.
+Malformed/duplicate facts and unavailable structural contexts reject without
+falling through to a different heading. Every publication rechecks its original
+buffer revision, selected view and read-only state.
+
+One `org.time` zone observation belongs to the entire operation. Repeated local
+times prompt for a 1-based choice among observed UTC offsets; invalid choices
+retain the prompt. Missing local times return to date entry for an explicit
+replacement. A selected range must be ordered in the captured zone. Source
+remains an Org civil timestamp; choosing an offset does not add a zone directive.
+Invalid dates, unknown words, controls and overlong drafts cannot insert text.
+Free date entry is bounded to 256 UTF-8 bytes, complete timestamp ranges to 514,
+and source observation to one logical line of at most 4096 bytes. The calendar
+projects at most three fixed six-week grids and owns no editable document.

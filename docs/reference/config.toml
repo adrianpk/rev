@@ -335,6 +335,12 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c ." = "org-timestamp"
+"C-c !" = "org-timestamp-inactive"
+"C-c C-s" = "org-schedule"
+"C-c C-d" = "org-deadline"
+"C-c >" = "org-goto-calendar"
+"C-c <" = "org-date-from-calendar"
 "C-c ," = "org-priority"
 "S-Up" = "org-priority-up"
 "S-Down" = "org-priority-down"
@@ -370,7 +376,22 @@ separator = "#3b4261"           # One-cell number/text separator.
 "," = "org-priority"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
+# The native date prompt inherits keys.minibuffer, then these calendar actions.
 [keys.org_calendar]
+"RET" = "org-calendar-select"
+"S-Right" = "org-calendar-forward-day"
+"S-Left" = "org-calendar-backward-day"
+"S-Down" = "org-calendar-forward-week"
+"S-Up" = "org-calendar-backward-week"
+"M-S-Right" = "org-calendar-forward-month"
+"M-S-Left" = "org-calendar-backward-month"
+"M-S-Down" = "org-calendar-forward-year"
+"M-S-Up" = "org-calendar-backward-year"
+">" = "org-calendar-forward-month"
+"<" = "org-calendar-backward-month"
+"M-v" = "org-calendar-scroll-three-months-right"
+"C-v" = "org-calendar-scroll-three-months-left"
+"C-." = "org-calendar-goto-today"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 

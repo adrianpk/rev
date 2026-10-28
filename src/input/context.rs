@@ -7,6 +7,9 @@ use super::{Focus, Input, Key, Outcome};
 
 impl Input {
     pub(super) fn map_context(&self) -> MapContext {
+        if matches!(self.context, super::Context::Calendar(_)) {
+            return MapContext::OrgCalendar;
+        }
         if self.focus() != Focus::Editing {
             return MapContext::Minibuffer;
         }
@@ -22,9 +25,24 @@ impl Input {
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
+        if matches!(self.context, super::Context::Calendar(_)) {
+            if let Binding::Command(command @ Command::Org(c)) = binding
+                && c.calendar()
+            {
+                return Outcome::Command(command);
+            }
+            if !MapContext::Minibuffer.available(binding) {
+                return Outcome::Message("Calendar prompt owns input focus");
+            }
+        }
         if self.focus() == Focus::Editing {
+            if self.workspace_org == Some(super::OrgContext::Calendar)
+                && !MapContext::OrgCalendar.available(binding)
+            {
+                return Outcome::Message("Prompt action requires an active prompt");
+            }
             let Binding::Command(command) = binding else {
-                unreachable!("workspace maps admit command targets only")
+                return Outcome::Message("Prompt action requires an active prompt");
             };
             return Outcome::Command(command);
         }

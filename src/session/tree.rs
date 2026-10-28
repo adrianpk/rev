@@ -37,7 +37,12 @@ impl Session {
                 ),
             );
         }
-        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, 0)
+        let rows = if self.timestamp_calendar().is_some() {
+            8
+        } else {
+            0
+        };
+        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, rows)
     }
 
     pub(super) fn editing_size(&self) -> Size {

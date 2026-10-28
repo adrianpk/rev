@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 136] = [
+    pub const ALL: [Self; 154] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -150,6 +150,24 @@ impl Command {
         Self::Org(OrgCommand::SetEffort),
         Self::Org(OrgCommand::IncEffort),
         Self::Org(OrgCommand::InspectEffort),
+        Self::Org(OrgCommand::Timestamp),
+        Self::Org(OrgCommand::TimestampInactive),
+        Self::Org(OrgCommand::Schedule),
+        Self::Org(OrgCommand::Deadline),
+        Self::Org(OrgCommand::GotoCalendar),
+        Self::Org(OrgCommand::DateFromCalendar),
+        Self::Org(OrgCommand::CalendarForwardDay),
+        Self::Org(OrgCommand::CalendarBackwardDay),
+        Self::Org(OrgCommand::CalendarForwardWeek),
+        Self::Org(OrgCommand::CalendarBackwardWeek),
+        Self::Org(OrgCommand::CalendarForwardMonth),
+        Self::Org(OrgCommand::CalendarBackwardMonth),
+        Self::Org(OrgCommand::CalendarForwardYear),
+        Self::Org(OrgCommand::CalendarBackwardYear),
+        Self::Org(OrgCommand::CalendarScrollThreeMonthsLeft),
+        Self::Org(OrgCommand::CalendarScrollThreeMonthsRight),
+        Self::Org(OrgCommand::CalendarGotoToday),
+        Self::Org(OrgCommand::CalendarSelect),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

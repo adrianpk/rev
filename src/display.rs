@@ -1,3 +1,4 @@
+mod calendar;
 mod clip;
 mod completion;
 mod compose;

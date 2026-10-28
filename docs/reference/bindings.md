@@ -377,3 +377,32 @@ changing `C-n` does not change Down. Navigation aliases can repeat; open, refres
 mutation and workspace transitions require fresh presses. Pending prefixes are
 cleared by prompt acquisition, cancellation and workspace changes. Tree text
 and paste never enter the visiting buffer while tree focus is retained.
+
+### Org date entry and calendar
+
+| Keys in Org | Target | Behavior |
+| --- | --- | --- |
+| `C-c .` | `org-timestamp` | Insert or edit an active timestamp with a native date/calendar prompt. |
+| `C-c !` | `org-timestamp-inactive` | Insert or edit an inactive timestamp. |
+| `C-c C-s` | `org-schedule` | Set the current heading's SCHEDULED fact. |
+| `C-c C-d` | `org-deadline` | Set the current heading's DEADLINE fact. |
+| `C-c >` | `org-goto-calendar` | Inspect a calendar and retain its selected date. |
+| `C-c <` | `org-date-from-calendar` | Insert the retained calendar date at point. |
+
+The transient date prompt inherits `keys.minibuffer` text editing and completion.
+`keys.org_calendar` supplies the following context actions. Its local overrides
+admit calendar/navigation commands; prompt editing aliases belong in
+`keys.minibuffer`. A host calendar role without a prompt cannot edit document text.
+
+| Keys in the date prompt | Target | Behavior |
+| --- | --- | --- |
+| `RET` | `org-calendar-select` | Accept the interpreted date/time; an offset choice may follow. |
+| `TAB` | `minibuffer-complete` | Expand a valid draft into timestamp spelling. |
+| `S-Right`, `S-Left` | `org-calendar-forward-day`, `org-calendar-backward-day` | Select the next/previous day. |
+| `S-Down`, `S-Up` | `org-calendar-forward-week`, `org-calendar-backward-week` | Select the next/previous week. |
+| `M-S-Right`, `M-S-Left`, `>`, `<` | `org-calendar-forward-month`, `org-calendar-backward-month` | Select the next/previous month. |
+| `M-S-Down`, `M-S-Up` | `org-calendar-forward-year`, `org-calendar-backward-year` | Select the next/previous year. |
+| `M-v`, `C-v` | `org-calendar-scroll-three-months-right`, `org-calendar-scroll-three-months-left` | Move backward/forward by three months. |
+| `C-.` | `org-calendar-goto-today` | Select the command's captured current date. |
+| Left click | Calendar date cell | Select a visible day without accepting the source edit. |
+| `C-g` | `keyboard-quit` | Discard the entire draft and return to the original workspace. |

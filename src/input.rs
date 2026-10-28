@@ -103,6 +103,7 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    Calendar(Prompt),
     Path(Prompt),
     Literal(Prompt),
     ReplaceDecision,
@@ -142,7 +143,10 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Argument(_) | Context::Path(_) | Context::Literal(_) => Focus::Argument,
+            Context::Calendar(_)
+            | Context::Argument(_)
+            | Context::Path(_)
+            | Context::Literal(_) => Focus::Argument,
             Context::Decision(_) | Context::ReplaceDecision => Focus::Decision,
             Context::Inventory => Focus::Inventory,
         }
@@ -156,9 +160,10 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
-            Context::Argument(prompt) | Context::Path(prompt) | Context::Literal(prompt) => {
-                Some(prompt)
-            }
+            Context::Calendar(prompt)
+            | Context::Argument(prompt)
+            | Context::Path(prompt)
+            | Context::Literal(prompt) => Some(prompt),
             _ => None,
         }
     }
@@ -167,9 +172,10 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
-            Context::Argument(prompt) | Context::Path(prompt) | Context::Literal(prompt) => {
-                Some(prompt.label())
-            }
+            Context::Calendar(prompt)
+            | Context::Argument(prompt)
+            | Context::Path(prompt)
+            | Context::Literal(prompt) => Some(prompt.label()),
             Context::ReplaceDecision => Some(replace::QUESTION),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
@@ -272,7 +278,7 @@ impl Input {
         match &mut self.context {
             Context::Search(prompt) => search::handle(prompt, key),
             Context::Editing => self.literal(key),
-            Context::Argument(prompt) => prompt.handle(key),
+            Context::Argument(prompt) | Context::Calendar(prompt) => prompt.handle(key),
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),
@@ -321,5 +327,18 @@ fn decide(key: Key) -> Outcome {
         Some(KeyCode::Char('y' | 'Y')) => Outcome::Decision(true),
         Some(KeyCode::Char('n' | 'N')) => Outcome::Decision(false),
         _ => Outcome::Message("Answer y or n"),
+    }
+}
+
+impl Input {
+    pub(crate) fn calendar_argument(&mut self, initial: &str) -> Result<(), Error> {
+        self.available()?;
+        self.context = Context::Calendar(Prompt::new(
+            "Org date: ",
+            initial,
+            self.policy.input_limit.min(514),
+        )?);
+        self.clear_prefix();
+        Ok(())
     }
 }

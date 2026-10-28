@@ -135,11 +135,11 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 68 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 26 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 32 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation and estimate commands | Compiled map | Agenda role consumes unbound text; all 4 entries are active in the sample. |
-| `keys.org_calendar` | Map of chord sequences to admitted navigation commands | Compiled map | Calendar role consumes unbound text; all 2 entries are active in the sample. |
+| `keys.org_calendar` | Map of chord sequences to admitted calendar and navigation commands | Compiled map | The date prompt inherits keys.minibuffer, then all 16 entries in its local map active in the sample. The host calendar role consumes unbound text. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.

@@ -11,6 +11,7 @@ pub(super) mod property;
 mod subtree;
 pub(super) mod tags;
 pub(super) mod tasks;
+pub(super) mod timestamps;
 
 use super::{Action, Session};
 
@@ -64,39 +65,33 @@ impl Session {
     }
 
     fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if let Err(error) = self.dispatch_outline(model, request) {
+            self.error(&error);
+        }
+    }
+    fn dispatch_outline(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        request: Request,
+    ) -> Result<(), String> {
+        if request.command.timestamp() {
+            return self.start_timestamp(model, request);
+        }
         if request.command.estimate() {
-            if let Err(error) = self.start_estimate(model, request) {
-                self.error(&error);
-            }
-            return;
+            return self.start_estimate(model, request);
         }
         if request.command.task() {
-            if let Err(error) = self.start_task(model, request) {
-                self.error(&error);
-            }
-            return;
+            return self.start_task(model, request);
         }
         if request.command.property() {
-            if let Err(error) = self.start_property(model, request) {
-                self.error(&error);
-            }
-            return;
+            return self.start_property(model, request);
         }
         if self.tag_request(&model, request.command) {
-            if let Err(error) = self.start_tags(model, request) {
-                self.error(&error);
-            }
-            return;
+            return self.start_tags(model, request);
         }
-        let result = self.org_operation(model, request.command);
-        match result {
-            Ok(()) => {
-                self.message(request.command.name());
-            }
-            Err(error) => {
-                self.error(&error);
-            }
-        }
+        self.org_operation(model, request.command)?;
+        self.message(request.command.name());
+        Ok(())
     }
 
     fn org_operation(
@@ -142,12 +137,14 @@ impl Session {
         }
     }
     fn org_request_current(&self, request: &Request) -> bool {
+        self.org_source_current(request) && self.input.focus() == Focus::Editing
+    }
+    pub(super) fn org_source_current(&self, request: &Request) -> bool {
         self.windows.selected_id() == request.view
             && self.view() == &request.origin
             && self
                 .buffer()
                 .is_ok_and(|b| b.is_org() && b.stamp() == request.origin.point.stamp)
-            && self.input.focus() == Focus::Editing
             && !self.tree.focused()
     }
 }

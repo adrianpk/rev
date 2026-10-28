@@ -32,7 +32,7 @@ impl Context {
                 org_navigation(target)
                     || matches!(target, Binding::Command(Command::Org(command)) if command.estimate())
             }
-            Self::OrgCalendar => org_navigation(target),
+            Self::OrgCalendar => calendar(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
         }
@@ -93,4 +93,8 @@ fn org_navigation(target: Binding) -> bool {
                 | Command::Quit
         )
     )
+}
+
+fn calendar(target: Binding) -> bool {
+    org_navigation(target) || matches!(target, Binding::Command(Command::Org(c)) if c.calendar())
 }

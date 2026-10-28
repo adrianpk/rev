@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Enter active or inactive Org timestamps, date/time ranges, schedules and deadlines through a native calendar prompt. Relative dates, English month/weekday forms and explicit DST offset choices retain checked source edits and single-step undo.
+
 - Set and cycle Org priorities, inspect implicit defaults, and store effort estimates in native duration forms. Effort choices, original value spelling and unrelated task metadata survive checked edits and single-step undo.
 
 - Change Org task states with `C-c C-t` or M-x using configured or file-local workflows. Selected completion timestamps, state notes and progress cookies change together, respect task dependencies, and undo in one step. Set `org.time.zone` to use local, system, UTC or a named zone for task logging; each operation retains one captured time and diagnoses invalid zone data before editing.

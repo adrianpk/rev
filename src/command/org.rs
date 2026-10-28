@@ -62,9 +62,27 @@ pub enum OrgCommand {
     SetEffort,
     IncEffort,
     InspectEffort,
+    Timestamp,
+    TimestampInactive,
+    Schedule,
+    Deadline,
+    GotoCalendar,
+    DateFromCalendar,
+    CalendarForwardDay,
+    CalendarBackwardDay,
+    CalendarForwardWeek,
+    CalendarBackwardWeek,
+    CalendarForwardMonth,
+    CalendarBackwardMonth,
+    CalendarForwardYear,
+    CalendarBackwardYear,
+    CalendarScrollThreeMonthsLeft,
+    CalendarScrollThreeMonthsRight,
+    CalendarGotoToday,
+    CalendarSelect,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 60] = [
+    pub const ALL: [Self; 78] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -125,6 +143,24 @@ impl OrgCommand {
         Self::SetEffort,
         Self::IncEffort,
         Self::InspectEffort,
+        Self::Timestamp,
+        Self::TimestampInactive,
+        Self::Schedule,
+        Self::Deadline,
+        Self::GotoCalendar,
+        Self::DateFromCalendar,
+        Self::CalendarForwardDay,
+        Self::CalendarBackwardDay,
+        Self::CalendarForwardWeek,
+        Self::CalendarBackwardWeek,
+        Self::CalendarForwardMonth,
+        Self::CalendarBackwardMonth,
+        Self::CalendarForwardYear,
+        Self::CalendarBackwardYear,
+        Self::CalendarScrollThreeMonthsLeft,
+        Self::CalendarScrollThreeMonthsRight,
+        Self::CalendarGotoToday,
+        Self::CalendarSelect,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -188,6 +224,24 @@ impl OrgCommand {
             "org-set-effort",
             "org-inc-effort",
             "org-inspect-effort",
+            "org-timestamp",
+            "org-timestamp-inactive",
+            "org-schedule",
+            "org-deadline",
+            "org-goto-calendar",
+            "org-date-from-calendar",
+            "org-calendar-forward-day",
+            "org-calendar-backward-day",
+            "org-calendar-forward-week",
+            "org-calendar-backward-week",
+            "org-calendar-forward-month",
+            "org-calendar-backward-month",
+            "org-calendar-forward-year",
+            "org-calendar-backward-year",
+            "org-calendar-scroll-three-months-left",
+            "org-calendar-scroll-three-months-right",
+            "org-calendar-goto-today",
+            "org-calendar-select",
         ][self as usize]
     }
 
@@ -298,5 +352,15 @@ impl OrgCommand {
                 | Self::MoveSubtreeUp
                 | Self::MoveSubtreeDown
         )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn timestamp(self) -> bool {
+        (Self::Timestamp as usize..=Self::DateFromCalendar as usize).contains(&(self as usize))
+    }
+    pub(crate) fn calendar(self) -> bool {
+        (Self::CalendarForwardDay as usize..=Self::CalendarSelect as usize)
+            .contains(&(self as usize))
     }
 }

@@ -4,19 +4,27 @@ use std::sync::LazyLock;
 use super::{Context, Sequence};
 
 pub(super) fn org_complete() -> &'static [(&'static str, &'static str)] {
-    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| {
-        EDITOR
-            .iter()
-            .chain(ORG)
-            .map(|entry| {
-                let key = Sequence::parse(entry.0).expect("audited built-in sequence");
-                (key, *entry)
-            })
-            .collect::<BTreeMap<_, _>>()
-            .into_values()
-            .collect()
-    });
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, ORG));
     &COMPLETE
+}
+pub(super) fn calendar_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> =
+        LazyLock::new(|| complete(MINIBUFFER, ORG_CALENDAR));
+    &COMPLETE
+}
+fn complete(
+    base: &'static [(&'static str, &'static str)],
+    local: &'static [(&'static str, &'static str)],
+) -> Vec<(&'static str, &'static str)> {
+    base.iter()
+        .chain(local)
+        .map(|entry| {
+            let key = Sequence::parse(entry.0).expect("audited built-in sequence");
+            (key, *entry)
+        })
+        .collect::<BTreeMap<_, _>>()
+        .into_values()
+        .collect()
 }
 
 pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static str)] {
@@ -154,6 +162,12 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const ORG: &[(&str, &str)] = &[
+    ("C-c .", "org-timestamp"),
+    ("C-c !", "org-timestamp-inactive"),
+    ("C-c C-s", "org-schedule"),
+    ("C-c C-d", "org-deadline"),
+    ("C-c >", "org-goto-calendar"),
+    ("C-c <", "org-date-from-calendar"),
     ("C-c ,", "org-priority"),
     ("S-Up", "org-priority-up"),
     ("S-Down", "org-priority-down"),
@@ -192,6 +206,20 @@ const ORG_AGENDA: &[(&str, &str)] = &[
     ("M-x", "execute-extended-command"),
 ];
 const ORG_CALENDAR: &[(&str, &str)] = &[
+    ("RET", "org-calendar-select"),
+    ("S-Right", "org-calendar-forward-day"),
+    ("S-Left", "org-calendar-backward-day"),
+    ("S-Down", "org-calendar-forward-week"),
+    ("S-Up", "org-calendar-backward-week"),
+    ("M-S-Right", "org-calendar-forward-month"),
+    ("M-S-Left", "org-calendar-backward-month"),
+    ("M-S-Down", "org-calendar-forward-year"),
+    ("M-S-Up", "org-calendar-backward-year"),
+    (">", "org-calendar-forward-month"),
+    ("<", "org-calendar-backward-month"),
+    ("M-v", "org-calendar-scroll-three-months-right"),
+    ("C-v", "org-calendar-scroll-three-months-left"),
+    ("C-.", "org-calendar-goto-today"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
 ];

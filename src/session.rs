@@ -75,6 +75,8 @@ pub struct Session {
     echo_kind: Message,
     pending: Option<Pending>,
     task_clock: Option<fn() -> Result<String, String>>,
+    org_clock: Option<outline::timestamps::Clock>,
+    calendar_date: Option<crate::org::time::Date>,
 }
 
 enum AfterSave {
@@ -84,6 +86,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Timestamp(Box<outline::timestamps::Prompt>),
     Estimate(Box<outline::estimates::Prompt>),
     Task(Box<outline::tasks::Prompt>),
     Tags(Box<outline::tags::Prompt>),
@@ -171,6 +174,8 @@ impl Session {
             echo_kind: Message::Normal,
             pending: None,
             task_clock: None,
+            org_clock: None,
+            calendar_date: None,
         })
     }
 
@@ -231,7 +236,10 @@ impl Session {
     ) -> Result<(), view::Error> {
         // Completion borrows presentation rows. It cannot scroll the retained
         // editing/tree workspace while the query owns the visible cursor.
-        if self.input.palette().is_some() || self.path_navigation().is_some() {
+        if self.input.palette().is_some()
+            || self.path_navigation().is_some()
+            || self.timestamp_calendar().is_some()
+        {
             return Ok(());
         }
         let tree = composition.and_then(|composition| composition.tree());
@@ -270,6 +278,9 @@ impl Session {
         }
         if let Some(palette) = self.input.palette() {
             return frame.commands(palette, composition, &self.echo);
+        }
+        if let Some(date) = self.timestamp_calendar() {
+            return frame.calendar(prompt, date, composition, &self.echo);
         }
         frame.prompt(prompt, &self.echo)
     }

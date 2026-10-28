@@ -53,6 +53,7 @@ impl Context {
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
         match self {
             Self::Org => defaults::org_complete(),
+            Self::OrgCalendar => defaults::calendar_complete(),
             Self::OrgCapture | Self::OrgSourceEdit => Self::Editor.local_defaults(),
             _ => self.local_defaults(),
         }
@@ -103,14 +104,16 @@ impl Effective {
 /// survive. No map escapes this boundary before context and prefix validation.
 pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
     let editor = Map::compile(Context::Editor, &keys.editor)?;
+    let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
+    let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
     Ok(Effective {
         org: Map::inherit(&editor, Context::Org, &keys.org)?,
         org_capture: Map::inherit(&editor, Context::OrgCapture, &keys.org_capture)?,
         org_source_edit: Map::inherit(&editor, Context::OrgSourceEdit, &keys.org_source_edit)?,
         editor,
-        minibuffer: Map::compile(Context::Minibuffer, &keys.minibuffer)?,
+        minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda)?,
-        org_calendar: Map::compile(Context::OrgCalendar, &keys.org_calendar)?,
+        org_calendar,
     })
 }

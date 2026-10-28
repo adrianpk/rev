@@ -29,3 +29,6 @@ mod zone_resolution;
 
 #[path = "org_time/zone_bounds.rs"]
 mod zone_bounds;
+
+#[path = "org_time/timestamps.rs"]
+mod timestamps;
