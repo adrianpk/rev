@@ -5,7 +5,7 @@ Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-14-drag-autoscroll`
-PR: pending
+PR: [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94)
 
 ## Purpose
 
@@ -82,7 +82,7 @@ The PTYs retain the existing eight-second deadline, 1-MiB output ceiling,
 owned HOME/XDG roots, 32-entry/64-KiB snapshot bounds, raw-input assertion,
 terminal restoration, child reaping and descriptor closure. Snapshots return to
 their original bytes, no preference directory is created, and no observed
-stage writes OSC 52. The warm fixture takes under two seconds excluding build.
+stage writes OSC 52. The fixture uses the existing bounded PTY harness without changing resource limits.
 
 Final canonical and focused evidence is recorded through the controller on the
 clean candidate after task and PR-reference commits. Required ordered commands:

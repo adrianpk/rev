@@ -256,12 +256,16 @@ Details and exact checks: [Slice 14](../plan/rev-input-navigation.md#slice-14-ex
 - [x] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 14 of 20 implemented. Its
+Slice 14 of 20 implemented. Canonical PR [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94) targets dev. Its
 [canonical report](../report/slices/rev-input-navigation/slice-14-drag-autoscroll.md)
 records native deadline ownership, canonical source-edge selection, controlled
 clock/height bounds, input priority, source validation and two owned SGR PTYs.
-Canonical PR and final exact-head evidence follow task and PR-reference commits;
+Final exact-head evidence is recorded through the controller after PR-reference commits;
 integration remains pending. The pointer ticket stays active through slices 10-15.
+
+T14.1: `c769de9e0cfc48308b59cd8dc48cdbaa65b61d74`.
+T14.2: `e0fca7a6e88b34e4eea84813cdd4d424e34465e9`.
+T14.3: `148a326f351d78bda33867623cd697712caaa0ee`.
 
 ### Slice 15: activate native mouse defaults and runtime control
 
