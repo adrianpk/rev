@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 21 clock-lifecycle
+Active slice: Slice 22 clock-reports
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -508,7 +508,7 @@ Details and exact checks: [Slice 21](../plan/rev-org-mode.md#slice-21-switch-and
 - [x] T21.1: Enforce one active session clock, checked task switching and completion-triggered clock-out.
 - [x] T21.2: Handle quit/close, stale edits, undo and explicit incomplete-clock resolution without losing source.
 - [x] T21.3: Introduce org_io and verify optional state persistence, failed recovery and no unsolicited startup scans.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T21.1: `b22d7b7236875c57860d43ed2ce3368ff7000c88`; 16 clock tests,
 two configuration cases and 137 editing/window regressions passed. T21.2 passed
@@ -520,10 +520,11 @@ and policy cases, affected all-target Clippy/source quality, configuration
 reference agreement and eight owned task/restart PTYs. Final exact-head required
 and focused receipts remain tied to the PR-reference head.
 
-[Canonical PR #122](https://forge.adrianpk.com/adrianpk/rev/pulls/122) and the
-[Slice 21 report](../report/slices/rev-org-mode/slice-21-clock-lifecycle.md) are
-reviewing. Controller receipts bind final required/focused checks to the clean
-PR head; verified dev integration remains pending.
+[Canonical PR #122](https://forge.adrianpk.com/adrianpk/rev/pulls/122) merged
+into dev at `55f5a763eac4817f1eb8560211beed27ece30455`.
+Required receipt `74YUR2Z7JMGBCWZ6BDBWNKUXF4` passed five checks and 95 tests.
+Focused receipt `KDLOGSJDKZERJ3EPAAZ32HPBLV` passed 623 tests, configuration
+reference agreement and eight owned PTYs. The Slice 21 report is delivered.
 
 ### Slice 22: compare Org clock totals and effort
 

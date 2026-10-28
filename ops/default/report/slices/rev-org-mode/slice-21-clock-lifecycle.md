@@ -1,6 +1,6 @@
 # Slice 21: switch and recover Org task clocks
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -179,3 +179,12 @@ command, configuration and display targets, reference agreement and eight PTYs.
 ## Risks and Follow-ups
 
 The delivery-set full gate has not run.
+
+## Integration
+
+Canonical PR #122 merged into dev at
+`55f5a763eac4817f1eb8560211beed27ece30455`; live Forgejo and Git agree.
+Required controller receipt `74YUR2Z7JMGBCWZ6BDBWNKUXF4` passed all five ordered
+checks, including 95 tests. Focused receipt `KDLOGSJDKZERJ3EPAAZ32HPBLV` passed
+623 affected tests, configuration reference agreement and eight owned task and
+restart PTYs. Both receipts bind that exact clean head; no checks were skipped.
