@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-19-repeaters`
-PR: pending
+PR: `#120`
 
 ## Purpose
 
@@ -108,7 +108,11 @@ T19.2 development checks passed:
 Development checks exposed complexity boundaries, an iterator lint and enum
 reference formatting drift. Responsibilities were split at calculation,
 observation and planning ownership boundaries; the original checks pass after
-correction. No check was weakened. T19.3 acceptance checks passed:
+correction. No check was weakened.
+
+T19.3 commit: `73ecd1db9ecd79cb797a1332baf9d77a346575cf`.
+
+T19.3 acceptance checks passed:
 
 - `cargo test --test org_editing repeat_edges -- --nocapture`: five native
   read-only, atomic-rejection, range-bound, captured-clock and shared-save tests
@@ -125,7 +129,8 @@ the native prompt correctly rejected that form. The driver now uses the admitted
 complete timestamp spelling. Assertions, fixture ownership and deadlines remain
 unchanged.
 
-Final required checks run against the clean canonical PR head through controller
+[Canonical PR #120](https://forge.adrianpk.com/adrianpk/rev/pulls/120) records
+final required checks against its clean head through controller
 validation in this exact order:
 
 - `cargo fmt --all -- --check`

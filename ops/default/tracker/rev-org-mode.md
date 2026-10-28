@@ -465,7 +465,11 @@ and `git diff --check`. T19.2 passed 21 focused repeat/time tests, 15 shared
 task/configuration regressions, library Clippy, configuration reference agreement
 and changed-source quality. T19.2: `553f20ea028f`. T19.3 passed five additional
 native boundary/save checks and four owned RGB/NO_COLOR task PTYs with exact
-source/save/undo assertions. Canonical PR and final exact-HEAD checks follow.
+source/save/undo assertions. T19.3: `73ecd1db9ecd`.
+[Canonical PR #120](https://forge.adrianpk.com/adrianpk/rev/pulls/120) and the
+[Slice 19 report](../report/slices/rev-org-mode/slice-19-repeaters.md) are
+reviewing. Controller receipts bind final required/focused checks to the clean
+PR head; verified dev integration remains pending.
 
 ### Slice 20: record native Org task clock intervals
 
