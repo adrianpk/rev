@@ -1,11 +1,12 @@
 # Slice 3: Recognize inline Org source forms
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-03-inline-syntax`
 PR: [#104](https://forge.adrianpk.com/adrianpk/rev/pulls/104)
+Integrated: `6f286b086857056fe3c09e9eb0aca2eec3586ddd`
 
 ## Purpose
 
@@ -79,8 +80,9 @@ Implementation checks passed:
 - `git diff --check`
 
 Focused source-quality checks passed for all new recognizers and tests.
-The final clean PR head requires this exact controller-recorded batch. Its receipt
-and the canonical PR retain the final candidate and check outcomes:
+Controller receipt `WVGRL3W5TZU3RFM6UXYBPFTHXQ` passed this exact ordered
+batch at clean head `6f286b086857056fe3c09e9eb0aca2eec3586ddd`, subsequently
+integrated through PR #104. All 56 tests passed with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

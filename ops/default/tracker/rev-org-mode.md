@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 3 inline-syntax
+Active slice: Slice 4 structural-syntax
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -135,14 +135,16 @@ Details and exact checks: [Slice 3](../plan/rev-org-mode.md#slice-3-recognize-in
 - [x] T3.1: Recognize emphasis, code, entities, links, targets and footnotes with exact source spans.
 - [x] T3.2: Keep escaping, malformed delimiters and literal/code contexts distinct from structural markup.
 - [x] T3.3: Verify Unicode boundaries, nested forms and recovery without normalizing unknown source.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T3.1 `31c01cebd212d488717d5503fd41bdaa9d20c836`,
 T3.2 `7a186ffd60ec59746527474732e63b3d9a084a37`,
 T3.3 `5e4cd90dae99bed02f5070e66d62f3ab3e682267`.
 Canonical PR: [#104](https://forge.adrianpk.com/adrianpk/rev/pulls/104).
 Report: [Slice 3](../report/slices/rev-org-mode/slice-3-inline-syntax.md).
-Integration: pending controller verification.
+Integration: PR #104 merged into dev at `6f286b086857056fe3c09e9eb0aca2eec3586ddd`.
+Validation: controller receipt `WVGRL3W5TZU3RFM6UXYBPFTHXQ` passed all five
+ordered checks at that exact candidate, including 56 tests with zero skips.
 
 ### Slice 4: recognize Org headings metadata and blocks
 
