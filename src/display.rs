@@ -12,6 +12,7 @@ mod style;
 mod syntax;
 pub use style::Message;
 use style::{Face, Tone};
+mod timer;
 mod tree;
 pub use syntax::Paint;
 

@@ -846,5 +846,7 @@ fn without_sgr(text: &str) -> String {
     result
 }
 
+#[path = "display/org_timers.rs"]
+mod org_timers;
 #[path = "display/org_timestamps.rs"]
 mod org_timestamps;

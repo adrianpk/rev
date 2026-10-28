@@ -80,3 +80,33 @@ No assertions, deadlines or resource limits were weakened.
 
 Native deadline integration and terminal lifecycle acceptance remain in T23.2
 and T23.3. The delivery-set full gate has not run.
+
+T23.1 commit: `37ee7a7ac5c3`.
+
+T23.2 integrates the selected countdown deadline with the existing native wait
+owner. A queued stop wins at the timeout boundary before expiry is serviced.
+Relative, paused, stopped and expired states retain indefinite idle waiting.
+Delayed expiry emits one in-editor notice and removes its deadline. Ordinary
+frames derive the selected-pane status value without scheduling redraws.
+Small/suspended frames retain their native clipping and cursor bounds.
+
+Prompt/draft and quit/save questions remain intact when expiry occurs. A status
+done marker remains until new input. Normal completed exit and the terminal
+run boundary both discard the timer; no canceled timer can later wake the host.
+Terminal acquisition/restoration remain with the existing terminal owner.
+
+T23.2 development checks passed:
+
+- `cargo test --lib timer_`: native inactive/relative/paused/stopped wait case.
+- `cargo test --lib countdown_input_priority`: actual Org stop chord wins queued
+  input and timeout-boundary cases; an uncancelled delayed wake signals once.
+- `cargo test --test display --test recovery --test org_editing timer --no-fail-fast`:
+  two display, two recovery and two editing cases passed, zero skips.
+- `cargo clippy --lib --test org_time --test org_editing --test configuration --test commands --test display --test recovery -- -D warnings`.
+- Changed-source quality passed at original limits. A precommit whitespace check
+  found an extra trailing blank line in the defaults reference; it is removed.
+
+The native recovery fixture now uses the existing compiled `Command::Quit`
+identity. Countdown controls are tested directly without treating an armed
+countdown as background structural work in a settling helper; all original
+source, deadline and cancellation assertions remain.

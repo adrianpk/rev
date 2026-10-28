@@ -31,6 +31,7 @@ impl Session {
 
     fn ask_quit(&mut self, mut quit: Quit) -> Action {
         let Some(id) = quit.buffers.front() else {
+            self.end_timer_session();
             return Action::Exit;
         };
         let buffer = match self.buffers.get(*id) {

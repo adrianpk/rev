@@ -32,6 +32,7 @@ impl Session {
             self.input.remaining(now),
             self.pointer_remaining(now),
             self.org.remaining(now),
+            self.timer_remaining(now),
         ]
         .into_iter()
         .flatten()
@@ -83,6 +84,7 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        self.timer_notice = false;
         if !matches!(event, Event::Mouse(_)) {
             self.cancel_pointer_capture();
         }
@@ -109,14 +111,16 @@ impl Session {
     /// Service native deadlines after the host has processed ready input.
     /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
-        let action = self.expire_escape(now);
-        let org = self.expire_org(now);
-        let pointer = self.expire_pointer(now);
-        if pointer == Action::Wait {
-            if org == Action::Wait { action } else { org }
-        } else {
-            pointer
-        }
+        [
+            self.expire_escape(now),
+            self.expire_org(now),
+            self.expire_pointer(now),
+            self.expire_timer(now),
+        ]
+        .into_iter()
+        .rev()
+        .find(|a| *a != Action::Wait)
+        .unwrap_or(Action::Wait)
     }
 
     fn expire_escape(&mut self, now: Instant) -> Action {

@@ -249,3 +249,94 @@ fn timeout_release() {
         assert_eq!(session.view().top, if ready { 0 } else { 3 }, "{name}");
     }
 }
+
+// Queued cancellation is read before a due countdown, including the timeout
+// boundary. A delayed, uncancelled wake produces one notice and no new deadline.
+#[test]
+fn countdown_input_priority() {
+    use crate::org::time::TimerDuration;
+    for (name, answers) in [
+        ("ready", vec![true]),
+        ("boundary", vec![false, true]),
+        ("due", vec![false, false]),
+    ] {
+        let mut session = session();
+        let now = Instant::now();
+        let due = now + Duration::from_secs(1);
+        let id = session.view().point.stamp.buffer;
+        session
+            .buffers
+            .get_mut(id)
+            .unwrap()
+            .select_mode(crate::buffer::Mode::Org)
+            .unwrap();
+        session
+            .timer
+            .countdown(now, TimerDuration::parse("0:00:01").unwrap())
+            .unwrap();
+        let mut answers = VecDeque::from(answers);
+        let ready = session
+            .input_ready(due, |wait| {
+                assert_eq!(wait, Duration::ZERO);
+                Ok(answers.pop_front().unwrap())
+            })
+            .unwrap();
+        if ready {
+            for event in [
+                key(KeyCode::Char('c'), KeyModifiers::CONTROL),
+                key(KeyCode::Char('x'), KeyModifiers::CONTROL),
+                key(KeyCode::Char('_'), KeyModifiers::NONE),
+            ] {
+                session.handle_at(event, due);
+            }
+        }
+        let outcome = session.expire_input(due + Duration::from_secs(10));
+        assert_eq!(
+            outcome,
+            if ready { Action::Wait } else { Action::Redraw },
+            "{name}"
+        );
+        assert_eq!(session.timer_notice, !ready, "{name}");
+        assert_eq!(session.remaining_input(due), None, "{name}");
+        assert_eq!(
+            session.expire_input(due + Duration::from_secs(20)),
+            Action::Wait,
+            "{name}"
+        );
+    }
+}
+// Running relatives, paused/stopped countdowns and idle sessions never poll the
+// native event source. Only a selected active countdown supplies a wait duration.
+#[test]
+fn timer_idle_wait() {
+    use crate::org::time::TimerDuration;
+    let mut session = session();
+    let now = Instant::now();
+    session.timer.start(now).unwrap();
+    assert!(
+        session
+            .input_ready(now, |_| panic!("relative idle poll"))
+            .unwrap()
+    );
+    session.timer.stop().unwrap();
+    session
+        .timer
+        .countdown(now, TimerDuration::parse("0:00:03").unwrap())
+        .unwrap();
+    assert_eq!(session.remaining_input(now), Some(Duration::from_secs(3)));
+    session
+        .timer
+        .pause_or_continue(now + Duration::from_secs(1))
+        .unwrap();
+    assert!(
+        session
+            .input_ready(now, |_| panic!("paused idle poll"))
+            .unwrap()
+    );
+    session.timer.stop().unwrap();
+    assert!(
+        session
+            .input_ready(now, |_| panic!("stopped idle poll"))
+            .unwrap()
+    );
+}

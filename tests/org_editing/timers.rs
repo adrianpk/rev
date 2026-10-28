@@ -5,7 +5,14 @@ fn frozen() -> Instant {
     *BASE.get_or_init(Instant::now)
 }
 fn action(session: &mut Session, command: C) {
-    visibility::action(session, command);
+    if matches!(
+        command,
+        C::TimerStart | C::TimerSet | C::TimerPause | C::TimerStop | C::TimerShow
+    ) {
+        session.execute(Command::Org(command));
+    } else {
+        visibility::action(session, command);
+    }
 }
 // The native source owner preserves CRLF/Unicode and one history unit. M-RET
 // recognizes a timed description while non-timer list semantics remain intact.

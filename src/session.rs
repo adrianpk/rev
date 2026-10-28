@@ -86,6 +86,7 @@ pub struct Session {
     timestamp_repeat: Option<outline::timestamps::Repeat>,
     timer: crate::org::time::Timer,
     timer_clock: Option<fn() -> std::time::Instant>,
+    timer_notice: bool,
 }
 
 enum AfterSave {
@@ -138,6 +139,11 @@ impl Session {
     /// Run native input, deadlines and drawing for this host-owned session.
     /// The caller owns terminal acquisition, entry and restoration on return.
     pub fn run_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        let result = self.drive_terminal(terminal);
+        self.end_timer_session();
+        result
+    }
+    fn drive_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         self.start_terminal(terminal)?;
         loop {
             let action = self.read_input()?;
@@ -196,6 +202,7 @@ impl Session {
             timestamp_repeat: None,
             timer: crate::org::time::Timer::default(),
             timer_clock: None,
+            timer_notice: false,
         })
     }
 
@@ -244,6 +251,7 @@ impl Session {
             )?,
             None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
         };
+        self.timer_frame(&mut frame)?;
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame, composition.as_ref())?;

@@ -1,3 +1,4 @@
+mod events;
 mod prompt;
 mod source;
 use super::{Action, Session};
@@ -20,6 +21,7 @@ impl Session {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message("Editing owns timer commands");
         }
+        self.timer_notice = false;
         if command == OrgCommand::TimerSet {
             return self.open_countdown();
         }

@@ -39,6 +39,7 @@ impl Session {
         };
         self.publish_timer_source(plan).map_err(|e| e.to_string())?;
         self.timer = next;
+        self.timer_notice = false;
         self.message("Org timer inserted");
         Ok(())
     }

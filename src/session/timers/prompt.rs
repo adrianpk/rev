@@ -90,7 +90,10 @@ impl Session {
             };
         }
         match self.timer.countdown(self.timer_now(), value) {
-            Ok(()) => self.message("Org countdown started"),
+            Ok(()) => {
+                self.timer_notice = false;
+                self.message("Org countdown started")
+            }
             Err(error) => self.error(&error),
         }
     }

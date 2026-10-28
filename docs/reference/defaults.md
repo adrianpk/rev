@@ -411,4 +411,3 @@ persistence. The command catalog describes the implemented editing subset.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),
 [Failure recovery](recovery.md) and [File tree](file-tree.md) for exact behavior.
-

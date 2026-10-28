@@ -629,3 +629,12 @@ running relative timer must stop before selecting a countdown, and vice versa.
 Replacing a countdown asks yes/no; C-g preserves the previous timer. Pause keeps
 its precise elapsed/remaining value; continue excludes paused time. Stop prevents
 resumption of the old timer. Timers have no persisted state or implicit restart.
+
+Only an active countdown arms a native deadline. Relative and paused/stopped
+states add no wait or repaint loop. Ready input is drained before due work, so
+a stop queued at the deadline cancels expiry. A delayed wake signals once and
+clears the timer. The selected pane shows a disposable timer value on ordinary
+frames; narrow status lines retain their normal tokens. Expiry shows an in-editor
+notice, including during a prompt or save question without replacing that draft
+or question. The done marker remains until input. Clean exit and terminal I/O
+failure discard the session timer; reopening the editor starts unarmed.

@@ -148,3 +148,5 @@ mod paths;
 
 #[path = "recovery/clocks.rs"]
 mod clocks;
+#[path = "recovery/timers.rs"]
+mod timers;
