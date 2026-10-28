@@ -32,12 +32,18 @@ fn clock(text: &str) -> Result<f64, String> {
     let values: Vec<_> = text
         .split(':')
         .take(4)
-        .map(number)
+        .map(clock_number)
         .collect::<Result<_, _>>()?;
     if !(2..=3).contains(&values.len()) {
         return Err("Org duration requires H:MM or H:MM:SS".into());
     }
     Ok(values[0] * 60.0 + values[1] + values.get(2).copied().unwrap_or(0.0) / 60.0)
+}
+fn clock_number(text: &str) -> Result<f64, String> {
+    if !text.bytes().all(|b| b.is_ascii_digit()) {
+        return Err("Org clock duration components must be unsigned integers".into());
+    }
+    number(text)
 }
 fn number_byte(byte: u8) -> bool {
     byte.is_ascii_digit() || byte == b'.'
@@ -62,7 +68,7 @@ fn terms(mut text: &str, units: &DurationUnits) -> Result<f64, String> {
         }
         let end = text.bytes().take_while(|b| number_byte(*b)).count();
         let value = number(&text[..end])?;
-        let rest = &text[end..];
+        let rest = text[end..].trim_start();
         let (name, scale) = unit(rest, units)?;
         total += value * scale;
         text = rest[name.len()..].trim_start();

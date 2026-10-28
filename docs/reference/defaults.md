@@ -138,7 +138,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 26 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
-| `keys.org_agenda` | Map of chord sequences to admitted navigation commands | Compiled map | Agenda role consumes unbound text; all 4 entries are active in the sample. |
+| `keys.org_agenda` | Map of chord sequences to admitted navigation and estimate commands | Compiled map | Agenda role consumes unbound text; all 4 entries are active in the sample. |
 | `keys.org_calendar` | Map of chord sequences to admitted navigation commands | Compiled map | Calendar role consumes unbound text; all 2 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are

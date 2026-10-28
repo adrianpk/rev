@@ -337,3 +337,55 @@ reads at most 1 MiB from the local TZif file; TZ can select UTC or a TZif zone
 name/absolute path. Leap-aware, malformed, unsupported or uncovered local time
 rejects before publication. No source directive can execute code or select a
 process, and task logging invokes no external date command.
+
+## Priorities and effort estimates
+
+`C-c ,` (`org-priority`) prompts for a priority character; empty input or a space
+removes the explicit cookie. `S-Up` and `S-Down` cycle through the admitted
+range and unmarked. Up from an unmarked heading inserts the lowest priority;
+down inserts the highest. Passing an endpoint removes the cookie.
+`org-inspect-priority` identifies an explicit value or the implicit default
+without inserting text. These keys act on the current heading, including plain
+headings without task keywords; deeper literal/list contexts reject.
+
+The single-character native range uses uppercase A-Z. Startup
+`org.priority.highest`, `lowest` and `default` are A, C and B, with
+highest <= default <= lowest. Direct `#+PRIORITIES: D F E` data overrides that
+buffer's range. Malformed declarations or unsupported existing cookies reject
+before mutation. Priority insertion follows an actual recognized task keyword;
+unknown words remain title text. Task transitions preserve cookies. Derived
+PRIORITY matching sees the effective default while ITEM excludes only actual
+state/cookie prefixes.
+
+`C-c C-x e` (`org-set-effort`) edits the current heading's local EFFORT property.
+Enter a nonnegative decimal number of minutes, integer `H:MM`/`H:MM:SS`, or unit
+components such as `1d3h5min`, `1.5h` or `1 h 2min`. Values remain in their entered
+spelling, including fractional work units; they are not normalized on storage.
+Empty input removes the local base estimate. `org-inspect-effort` shows source
+spelling and elapsed minutes, honoring only selected EFFORT inheritance.
+Ordinary set/delete never silently rewrites an inherited owner.
+
+EFFORT_ALL properties/declarations supply up to 64 validated choices through
+explicit source inheritance. Tab completes a unique choice; free duration entry
+remains available. `org-inc-effort` cycles those choices, retaining their source
+spelling. The factory has no implicit allowed-value list; cycling without a list
+reports that condition without changing source.
+
+Duration entry is bounded to 128 UTF-8 bytes and 32 components. Signed values,
+scientific notation, unknown units, fractional colon components and non-finite
+results reject the whole edit. Typed positive finite scales under
+`org.duration.units` default to min=1, h=60, d=1440, w=10080, m=43200 and y=525960
+elapsed minutes. Colon forms retain canonical hour/minute/second arithmetic.
+Work-unit scales do not perform calendar scheduling and source directives cannot
+alter them or execute programs.
+
+All edits use the existing checked transaction and history owner. Priority edits
+replace only their cookie; effort edits replace only the owned property value or
+record, preserving key case, indentation, tags, planning, unknown metadata,
+BOM/line endings and unrelated EOF spelling. Undo restores the whole operation
+and independently mapped peer points. C-g cancels drafts; changed source/view
+qualifiers and read-only mutations reject. Read-only inspection stays usable.
+
+The agenda role admits e/comma for these same operational source handlers.
+Agenda row construction and checked source-row routing are defined by the
+agenda owner; adding a keymap does not create a report or a task copy.

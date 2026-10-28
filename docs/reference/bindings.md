@@ -201,10 +201,11 @@ No keymap edits the underlying document from a prompt.
 
 Org editing, capture and special-edit roles use `keys.org`, `keys.org_capture`
 and `keys.org_source_edit`, inheriting the admitted editor map before local
-overrides. Their complete factory local overlays are empty. Agenda and calendar
+overrides. Capture and special-edit factory local overlays are empty. Agenda and calendar
 roles use independent `keys.org_agenda` and `keys.org_calendar` maps, consuming
 unbound text and paste. They admit implemented motion, scroll, quit, command-entry
-and cancellation targets. Switching roles clears pending chords and Escape timing
+and cancellation targets. The agenda role also admits the implemented priority/effort
+source commands: comma selects priority and e sets effort. Switching roles clears pending chords and Escape timing
 without accepting a prompt. Feature owners activate their role when delivered;
 these maps do not create an agenda, calendar or draft.
 
@@ -212,6 +213,8 @@ these maps do not create an agenda, calendar or draft.
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
+| `e` | `org-set-effort` | Set the checked source entry estimate. |
+| `,` | `org-priority` | Set the checked source heading priority. |
 | `C-g` | `keyboard-quit` | Cancel current input. |
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
 

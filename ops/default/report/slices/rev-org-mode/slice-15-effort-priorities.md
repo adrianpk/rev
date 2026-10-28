@@ -1,6 +1,6 @@
 # Slice 15: record Org effort estimates and priorities
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -90,8 +90,31 @@ remain intact across task transitions and undo. Agenda keymap e/comma admit thes
 same operational source commands; calendar maps and prompt cancellation retain
 separate admission. Revision-qualified agenda rows belong to their recorded slice.
 
+T15.3 focused checks passed:
+
+- `cargo test --test org_editing --test configuration estimate -- --nocapture`:
+  14 native estimate tests and two configuration tests passed at initial boundary
+  coverage; replacement/removal and shared-view checks were then added.
+- `cargo test --test org_editing estimate_edges -- --nocapture`: all eight
+  boundary tests passed, including exact 128-byte/32-component limits, finite
+  overflow, malformed numeric/priority forms, cancellation, stale drafts,
+  read-only source, Unicode EOF, original property spelling and peer anchors.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  all four owned RGB/NO_COLOR editing/read-only sessions passed, zero skips.
+  Every prior task assertion remains. New priority/effort steps verify native
+  chords/M-x, invalid input, real saves, atomic undo/redo and exact BOM/CRLF/EOF
+  restoration; original snapshot and child/descriptor cleanup checks remain.
+- Focused changed-source quality passed with the original parameter, nesting,
+  complexity and safe-Rust limits.
+
+An independent rejection fixture first reproduced fractional colon components
+being admitted. The parser now requires integer colon components, as the owned
+reference observation confirmed; decimal work units remain valid. Whitespace
+between a number and its unit is accepted without normalizing the stored value.
+No assertion or acceptance threshold was weakened.
+
 ## Risks and Follow-ups
 
-T15.3 boundary/terminal verification is in progress. Required exact-head validation and PR references precede readiness.
+Required exact-head validation and PR references precede readiness.
 Active-clock estimate routing remains with the recorded clock slice; no
 clock-dependent command is exposed before its owner exists.
