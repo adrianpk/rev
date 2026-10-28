@@ -1,7 +1,7 @@
 # rev startup configuration reference, schema 1.
 # Every active value below is a compiled default. Omitted leaves also use defaults.
-# Read defaults.md for precedence, bounds and startup/error behavior.
-# Copy only the overrides you need to your user config.toml; restart to apply them.
+# The comments below describe supported types, bounds and optional examples.
+# Retain or change the values you need; restart the editor to apply changes.
 # All paths are literal. No shell expansion or implicit project config is used.
 
 # Integer schema version; only 1 is accepted. Omission also means 1.

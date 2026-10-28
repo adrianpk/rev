@@ -6,7 +6,7 @@ use rev::input::keymap::Context;
 
 use super::fixture::Fixture;
 
-const SAMPLE: &str = include_str!("../../docs/reference/config.toml");
+const SAMPLE: &str = rev::config::default_template();
 
 fn document() -> Document {
     parse(Path::new("reference/config.toml"), SAMPLE.as_bytes()).unwrap()
@@ -32,10 +32,13 @@ fn example(heading: &str) -> String {
     text
 }
 
-// The distributed active sample must use compiled scalar, format and palette
-// defaults through the real loader/resolver, independent of optional examples.
+// Packaged and on-disk bytes must agree, then resolve through the real loader
+// to compiled scalar, format and palette defaults independently of examples.
 #[test]
 fn sample_defaults() {
+    let reference =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("docs/reference/config.toml");
+    assert_eq!(SAMPLE.as_bytes(), std::fs::read(reference).unwrap());
     let fixture = Fixture::new();
     let root = fixture.write("config.toml", SAMPLE);
     let startup = prepare(&root);

@@ -43,8 +43,17 @@ and immutable startup application.
 Development `cargo test --test configuration template::` passed packaged-source
 admission. `cargo build --quiet --example configuration-template` built the
 native fixture. A copied fixture executed in an owned directory without reference
-or configuration files emitted exactly 10,013 sample bytes within five seconds
+or configuration files emitted the complete sample bytes within five seconds
 and created no HOME/XDG files or directories. Its exit and stderr were clean.
+
+Development `cargo test --test configuration` passed 87 groups. The existing
+sample/default, complete context-map, optional-example and bounds checks now
+consume the packaged accessor. The resolved scalar/format/palette settings equal
+compiled defaults, all 111 context bindings equal their compiled targets, all 29
+RGB roles are explicit, gutter/mouse fields are complete, and unused includes,
+language rules and file associations remain inactive. Independent on-disk bytes
+must equal the packaged resource. The English header describes the standalone
+file without requiring a neighboring documentation file.
 
 Final ordered and focused evidence will be recorded through the controller on
 the clean candidate after task and PR-reference commits.
