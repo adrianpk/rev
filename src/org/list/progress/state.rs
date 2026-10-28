@@ -58,14 +58,14 @@ impl State {
         index: usize,
         edits: &mut Vec<Replacement>,
     ) -> Result<(), String> {
-        if let Some((range, old)) = &item.checkbox {
-            if let Some(state) = self.values[index].filter(|state| state != old) {
-                edits.push(replacement(
-                    buffer,
-                    range.start + 1..range.end - 1,
-                    char::from(state).to_string(),
-                )?);
-            }
+        if let Some((range, old)) = &item.checkbox
+            && let Some(state) = self.values[index].filter(|state| state != old)
+        {
+            edits.push(replacement(
+                buffer,
+                range.start + 1..range.end - 1,
+                char::from(state).to_string(),
+            )?);
         }
         Ok(())
     }
@@ -73,10 +73,10 @@ impl State {
     pub(super) fn heading_counts(&self, model: &Lists) -> Vec<Count> {
         let mut counts = vec![Count::default(); model.headings.len()];
         for index in 0..self.values.len() {
-            if self.parents[index].is_none() {
-                if let Some(heading) = model.heading_at(self.positions[index]) {
-                    counts[heading].add(self.values[index]);
-                }
+            if self.parents[index].is_none()
+                && let Some(heading) = model.heading_at(self.positions[index])
+            {
+                counts[heading].add(self.values[index]);
             }
         }
         counts

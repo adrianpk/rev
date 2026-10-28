@@ -105,6 +105,9 @@ Development checks passed:
   cleanup checked.
 
 Focused source-quality checks passed for changed Rust owners and tests.
+The first required controller batch caught two Clippy collapsible-condition
+findings in progress-state guards. They were converted to let chains without
+changing the retained behavior assertions.
 After the canonical PR-reference follow-up is pushed, the controller records
 these required commands against the clean HEAD, in order:
 
