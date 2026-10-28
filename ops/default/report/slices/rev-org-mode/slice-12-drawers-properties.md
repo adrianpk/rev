@@ -14,6 +14,10 @@ Deliver checked property edits and inspection with explicit source ownership.
 ## Delivered Behavior
 
 Local property set/delete, additive storage and inspection use native prompts.
+Selective `org.properties.inherit` defaults to empty and resolves nearest bases,
+additions, nil barriers and file declarations without inserting inherited text.
+Inspection reports source-owner provenance; explicit owner editing targets those
+exact stored value ranges.
 New drawers follow heading/planning metadata. Existing drawer folding retains
 its independent view behavior and ordinary/property distinction.
 
@@ -38,9 +42,13 @@ observations reject property operations.
 
 ## Validation
 
-- `cargo test --test org_editing properties::`: three tests passed.
+- `cargo test --test org_editing properties::`: five tests passed.
+- `cargo test --test configuration org_properties::`: two policy tests passed.
+- `python3 scripts/check-config-reference.py`: schema/sample/template agree.
+- Owned clean Emacs observations confirmed selective file defaults, additive
+  ordering and file-base resets; no editor runtime dependency was introduced.
 - Focused source-quality checks passed for the new owners and tests.
 
 ## Risks and Follow-ups
 
-Selective inheritance and directive precedence remain active T12.2 work.
+T12.3 boundary and owner-edit validation remains active.

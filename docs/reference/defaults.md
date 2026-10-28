@@ -193,6 +193,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.properties.inherit` | Array of property names | `[]` | At most 128 unique case-insensitive stored names, 1..128 UTF-8 bytes each; no +, derived fields or drawer delimiters. Arrays replace on merge, including empty. Only these names inherit ancestor and file defaults. |
 | `org.enabled` | Boolean | `true` | Session; admit automatic Org file recognition and explicit org-mode. Per-buffer text-mode selects plain editing. |
 | `syntax.enabled` | Boolean | `true` | Session; enable derived syntax styling where a bundled grammar is selected. Text remains editable on fallback. |
 | `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and a larger buffer uses plain presentation. |

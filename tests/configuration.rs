@@ -160,3 +160,6 @@ mod org_keymaps;
 
 #[path = "configuration/org_palette.rs"]
 mod org_palette;
+
+#[path = "configuration/org_properties.rs"]
+mod org_properties;

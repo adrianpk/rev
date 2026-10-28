@@ -179,3 +179,45 @@ bounded derived model. Other entries' cookie spelling stays untouched.
 The [Org list reference](https://orgmode.org/manual/Plain-Lists.html) and
 [checkbox reference](https://orgmode.org/manual/Checkboxes.html) describe the
 corresponding source forms and familiar interactions.
+
+## Properties and source owners
+
+`C-c C-x p` and `M-x org-set-property` prompt for a name and local value.
+New drawers follow the heading and its planning line. Before the first heading,
+they precede non-comment content. Existing key spelling, indentation, unknown
+properties and surrounding source remain intact. Names are case-insensitive;
+new names use uppercase. Append `+` to add a value without replacing its base.
+
+`org-delete-property` removes only the named local base; a name ending in `+`
+removes its local additions. It preserves ancestors, file declarations and the
+other form. Removing the final field retains the empty drawer. `org-inspect-property`
+shows the effective value and source line for each local, inherited or file
+contribution. Derived fields such as ITEM, TODO, PRIORITY, TAGS and FILE are
+identified as derived and cannot be stored through these commands.
+
+`org-edit-property-owner` explicitly edits an effective source contribution.
+It identifies the source line before asking for a value. When there are several
+contributions, select their 1-based number first. This action can edit an ancestor
+or a file directive; ordinary local set/delete never silently changes that owner.
+One accepted edit forms one undo group and maps shared views through canonical
+source. C-g cancels either prompt without changing the document.
+
+Factory property inheritance is off. Set `org.properties.inherit = ["PROJECT",
+"CUSTOM"]` to inherit only those stored names, including file defaults. A local
+base wins over the nearest ancestor, then the file drawer and `#+PROPERTY:`
+declarations. Local `NAME+` lines extend the selected inherited base. A `nil`
+value stops the search and represents an explicitly undefined value. File
+`#+PROPERTY: NAME value` declarations apply in source order; a later base resets
+its earlier file additions. A file drawer base overrides file declarations.
+Recognized keywords change data semantics only. They cannot alter inheritance
+policy, editor configuration or process authority, and keywords inside literal
+or nested forms do not become file property defaults.
+
+Names are 1..128 UTF-8 bytes without whitespace, colons or interior `+`.
+Inheritance accepts at most 128 unique stored names; an empty array replaces an
+included array and disables inheritance. Property prompts use the existing
+minibuffer input limit. The observation retains at most 4096 source entries and
+8192 stored/declaration records. Incomplete observations, ambiguous duplicate
+local bases, malformed metadata, literal/deeper contexts and read-only mutation
+reject before publication. Inspection does not insert inherited text. Existing
+ordinary and property drawers fold independently through the drawer commands.

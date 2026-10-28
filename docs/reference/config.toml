@@ -90,6 +90,11 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.properties]
+# Up to 128 unique stored names (1..128 UTF-8 bytes each); empty disables inheritance.
+# Names are case-insensitive; arrays replace on merge, including empty arrays.
+inherit = []
+
 [syntax]
 # Boolean; enable the existing bundled grammar/query, with plain-text fallback.
 enabled = true

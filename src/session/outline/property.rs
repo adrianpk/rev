@@ -100,14 +100,21 @@ impl Session {
     }
     fn effective_property(&self, prompt: &Prompt) -> Result<crate::org::PropertyValue, String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
-        prompt
-            .model
-            .property_value(buffer, prompt.entry, &prompt.key, &[])
+        prompt.model.property_value(
+            buffer,
+            prompt.entry,
+            &prompt.key,
+            &self.buffers.snapshot().settings().org.properties.inherit,
+        )
     }
     fn inspect_property(&mut self, prompt: &Prompt) -> Result<Action, String> {
         let value = self.effective_property(prompt)?;
         let origins = self.property_origins(prompt, &value.records)?;
-        let value: String = value.text.chars().take(512).collect();
+        let value: String = if value.undefined {
+            "<undefined>".into()
+        } else {
+            value.text.chars().take(512).collect()
+        };
         Ok(self.message(&format!("{} = {value:?}; {origins}", prompt.key)))
     }
     fn property_origins(&self, prompt: &Prompt, records: &[usize]) -> Result<String, String> {

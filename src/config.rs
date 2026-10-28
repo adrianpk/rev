@@ -118,11 +118,15 @@ pub enum Newline {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Org {
     pub enabled: bool,
+    pub properties: Properties,
 }
 
 impl Default for Org {
     fn default() -> Self {
-        Self { enabled: true }
+        Self {
+            enabled: true,
+            properties: Properties::default(),
+        }
     }
 }
 
@@ -130,6 +134,18 @@ impl Default for Org {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrg {
     pub enabled: Option<bool>,
+    pub properties: PartialProperties,
+}
+
+/// Selective, case-insensitive source-property inheritance; no general inheritance.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Properties {
+    pub inherit: Vec<String>,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialProperties {
+    pub inherit: Option<Vec<String>>,
 }
 
 /// Only the existing bundled Rust grammar or plain text may be selected.

@@ -20,6 +20,7 @@ struct Entry {
     end: usize,
     anchor: usize,
     parent: Option<usize>,
+    invalid: bool,
     drawer: Option<Drawer>,
     records: Vec<usize>,
 }
@@ -41,6 +42,7 @@ struct Record {
 
 pub(crate) struct PropertyValue {
     pub(crate) text: String,
+    pub(crate) undefined: bool,
     pub(crate) records: Vec<usize>,
 }
 
@@ -88,19 +90,19 @@ impl Outline {
             .to_byte(point)
             .map_err(|e| e.to_string())?
             .0;
-        let admitted = self
-            .properties
-            .contexts
-            .iter()
-            .any(|r| r.contains(&byte) || byte == buffer.len_bytes() && r.end == byte);
+        let admitted = self.properties.admits(byte, byte == buffer.len_bytes());
         if !admitted && self.unavailable(byte, byte == buffer.len_bytes(), byte > 0) {
             return Err("Org property operation is unavailable in this source context".into());
         }
-        Ok(self
+        let entry = self
             .properties
             .entries
             .partition_point(|entry| entry.start <= byte)
-            .saturating_sub(1))
+            .saturating_sub(1);
+        if self.properties.entries[entry].invalid {
+            return Err("Malformed Org property metadata; correct source before editing".into());
+        }
+        Ok(entry)
     }
     pub(crate) fn property_edit(
         &self,
@@ -170,4 +172,12 @@ fn text(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
 fn replacement(buffer: &Buffer, range: Range<usize>, text: String) -> Result<Replacement, String> {
     let source = buffer.byte_span(range).map_err(|e| e.to_string())?;
     Ok(Replacement { source, text })
+}
+
+impl Properties {
+    fn admits(&self, byte: usize, at_eof: bool) -> bool {
+        self.contexts
+            .iter()
+            .any(|r| r.contains(&byte) || at_eof && r.end == byte)
+    }
 }

@@ -119,3 +119,104 @@ fn property_admission() {
     assert_eq!(text(&session), "* H\n");
     assert!(session.buffer().unwrap().history().is_empty());
 }
+
+// Only selected names inherit; bases override ancestors and local additions
+// retain all source contributors. Neither inspection nor inheritance inserts text.
+#[test]
+fn selective_properties() {
+    let source = "#+PROPERTY: X file\n#+PROPERTY: X+ default\n* Parent\n:PROPERTIES:\n:X: parent\n:Y: secret\n:END:\n** Child\n:PROPERTIES:\n:X+: child\n:END:\nbody\n";
+    for (name, config, property, value, origin) in [
+        ("factory", "", "X", "child", "local X+ at line 10"),
+        (
+            "selected",
+            "[org.properties]\ninherit = ['x']",
+            "X",
+            "parent child",
+            "inherited X at line 5",
+        ),
+        (
+            "excluded",
+            "[org.properties]\ninherit = ['X']",
+            "Y",
+            "",
+            "absent",
+        ),
+    ] {
+        let (_fixture, mut session) = editor(config, "notes.org", source);
+        goto(&mut session, 8);
+        action(&mut session, OrgCommand::InspectProperty);
+        argument(&mut session, property);
+        assert!(
+            session.echo().contains(&format!("= {value:?}")),
+            "{name}: {}",
+            session.echo()
+        );
+        assert!(
+            session.echo().contains(origin),
+            "{name}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), source, "{name}");
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}
+
+// File declarations are data defaults, superseded by drawer/nearest local bases.
+// Additions before a local base still extend it; nil stops the ancestor search.
+#[test]
+fn property_precedence() {
+    for (name, source, row, expected, origin) in [
+        (
+            "file",
+            "#+PROPERTY: X file\n#+PROPERTY: X+ extra\n* H\n",
+            3,
+            "file extra",
+            "file directive X at line 1",
+        ),
+        (
+            "reset",
+            "#+PROPERTY: X old\n#+PROPERTY: X+ gone\n#+PROPERTY: X fresh\n* H\n",
+            4,
+            "fresh",
+            "file directive X at line 3",
+        ),
+        (
+            "drawer",
+            ":PROPERTIES:\n:X: drawer\n:END:\n#+PROPERTY: X file\n* H\n",
+            5,
+            "drawer",
+            "file drawer X at line 2",
+        ),
+        (
+            "local",
+            "#+PROPERTY: X file\n* H\n:PROPERTIES:\n:X+: extra\n:X: local\n:END:\n",
+            2,
+            "local extra",
+            "local X at line 5",
+        ),
+        (
+            "nil",
+            "* P\n:PROPERTIES:\n:X: parent\n:END:\n** C\n:PROPERTIES:\n:X: nil\n:END:\n*** Grand\n",
+            9,
+            "<undefined>",
+            "inherited X at line 7",
+        ),
+    ] {
+        let (_fixture, mut session) =
+            editor("[org.properties]\ninherit = ['X']", "notes.org", source);
+        goto(&mut session, row);
+        action(&mut session, OrgCommand::InspectProperty);
+        argument(&mut session, "x");
+        assert!(
+            session.echo().contains(&format!("= {expected:?}")),
+            "{name}: {}",
+            session.echo()
+        );
+        assert!(
+            session.echo().contains(origin),
+            "{name}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), source, "{name}");
+    }
+}

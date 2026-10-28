@@ -18,10 +18,12 @@ impl Properties {
             end: text.len_bytes(),
             anchor: 0,
             parent: None,
+            invalid: false,
             drawer: None,
             records: Vec::new(),
         });
         let mut owners = BTreeMap::new();
+        let mut root_prefix = true;
         for (id, node) in structure.raw_nodes().enumerate() {
             if cancel.is_cancelled() || result.records.len() >= 8192 || result.entries.len() >= 4096
             {
@@ -34,6 +36,8 @@ impl Properties {
                 .unwrap_or(0);
             let direct = node.parent.is_none_or(|p| owners.contains_key(&p));
             let owner = if direct {
+                result.root_anchor(node, &mut root_prefix);
+                result.metadata(node, text, owner);
                 result.collect(node, text, owner)
             } else {
                 owner
@@ -52,6 +56,29 @@ impl Properties {
         }
         result
     }
+    fn root_anchor(&mut self, node: &crate::org::structure::Raw, prefix: &mut bool) {
+        if !*prefix || node.kind == StructureKind::Section {
+            return;
+        }
+        if node.kind == StructureKind::Comment {
+            self.entries[0].anchor = node.source.end;
+        } else {
+            *prefix = false;
+        }
+    }
+    fn metadata(&mut self, node: &crate::org::structure::Raw, text: &Rope, owner: usize) {
+        if node.source.start != self.entries[owner].anchor {
+            return;
+        }
+        let malformed = node.kind == StructureKind::Malformed;
+        let ordinary_properties = node.kind == StructureKind::Drawer
+            && node.name.as_ref().is_some_and(|r| {
+                text.byte_slice(r.clone())
+                    .to_string()
+                    .eq_ignore_ascii_case("PROPERTIES")
+            });
+        self.entries[owner].invalid |= malformed || ordinary_properties;
+    }
     fn collect(&mut self, node: &crate::org::structure::Raw, text: &Rope, owner: usize) -> usize {
         match node.kind {
             StructureKind::Heading { .. } => {
@@ -60,6 +87,7 @@ impl Properties {
                     end: node.source.end,
                     anchor: node.opening.as_ref().expect("heading opening").end,
                     parent: Some(owner),
+                    invalid: false,
                     drawer: None,
                     records: Vec::new(),
                 };
@@ -69,9 +97,6 @@ impl Properties {
             StructureKind::Planning => {
                 self.entries[owner].anchor = node.source.end;
                 self.contexts.push(node.source.clone());
-            }
-            StructureKind::Comment if owner == 0 && self.entries.len() == 1 => {
-                self.entries[0].anchor = node.source.end
             }
             StructureKind::PropertyDrawer => self.drawer(node, text, owner),
             StructureKind::Property { additive } => self.property(node, text, owner, additive),

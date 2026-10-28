@@ -79,7 +79,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     for (key, value, range) in fields {
         integer(key, value, range)?;
     }
-    Ok(())
+    properties(&document.org.properties)
 }
 
 fn retention(document: &Document) -> Result<(), Failure> {
@@ -303,6 +303,30 @@ fn org_palette(palette: &PartialOrgPalette) -> Result<(), Failure> {
     ];
     for (key, value) in colors {
         color(&format!("palette.org.{key}"), value.as_deref())?;
+    }
+    Ok(())
+}
+
+fn properties(partial: &super::PartialProperties) -> Result<(), Failure> {
+    let Some(names) = &partial.inherit else {
+        return Ok(());
+    };
+    if names.len() > 128 {
+        return Err(Failure::new(
+            "org.properties.inherit",
+            "expected at most 128 property names".into(),
+        ));
+    }
+    let mut unique = std::collections::BTreeSet::new();
+    for name in names {
+        let key = crate::org::property_name(name)
+            .map_err(|e| Failure::new("org.properties.inherit", e))?;
+        if name.ends_with('+') || crate::org::derived_property(&key) || !unique.insert(key) {
+            return Err(Failure::new(
+                "org.properties.inherit",
+                "expected unique stored property names without + or derived fields".into(),
+            ));
+        }
     }
     Ok(())
 }
