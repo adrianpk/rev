@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 17 time-zones
+Active slice: Slice 18 timestamp-entry
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -406,17 +406,20 @@ Details and exact checks: [Slice 17](../plan/rev-org-mode.md#slice-17-resolve-or
 - [x] T17.1: Implement bounded native TZif/POSIX-zone observations and system/local/UTC/IANA selection.
 - [x] T17.2: Capture effective date/zone once per operation; resolve folds/gaps explicitly without guessing.
 - [x] T17.3: Verify DST transitions, invalid zones and external zone changes with owned fixtures.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR [#118](https://forge.adrianpk.com/adrianpk/rev/pulls/118) targets dev;
-[Slice 17 report](../report/slices/rev-org-mode/slice-17-time-zones.md) is reviewing.
+[Slice 17 report](../report/slices/rev-org-mode/slice-17-time-zones.md) is delivered.
 Task commits:
 - T17.1: `2aa2110ec2f78dbc9136f72becaba82c5ea12431`.
 - T17.2: `1384f20c768c19a05a992197162ddee3f8299850`.
 - T17.3: `cdef5c9ae706b0e61a03c596ae72300d5b79ca95`.
 
-Required exact-head validation follows the PR-reference push. Integration
-remains controller-owned.
+Integration: PR #118 merged into dev at `5e6a50d5b0e0c68aa2ad3cc36f09c247860edba7`.
+Required receipt `KHVWYQBX4J3NFOKDGJFSKFH3UP` passed all five ordered checks,
+including 144 configuration/time tests. Focused `6Y3W4L6CVCY6WMAUEYZFCT3OBF`
+passed 126 editing tests, configuration reference agreement and four owned
+task PTYs. Canonical Forgejo, controller merge evidence and Acta were verified.
 
 ### Slice 18: enter and edit Org timestamps
 

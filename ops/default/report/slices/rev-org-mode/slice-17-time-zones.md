@@ -1,6 +1,6 @@
 # Slice 17: resolve Org local times and zone changes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -124,8 +124,9 @@ Canonical PR [#118](https://forge.adrianpk.com/adrianpk/rev/pulls/118) targets
 `dev` with the approved title and full report-introduction commit
 `2aa2110ec2f78dbc9136f72becaba82c5ea12431`.
 
-Final required ordered checks will be recorded through the controller after
-this PR-reference follow-up is committed and pushed:
+Controller receipt `KHVWYQBX4J3NFOKDGJFSKFH3UP` passed all five ordered checks
+at clean HEAD `5e6a50d5b0e0c68aa2ad3cc36f09c247860edba7`, including 105
+configuration and 39 time tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -133,18 +134,19 @@ this PR-reference follow-up is committed and pushed:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused same-HEAD
-checks also cover native Org editing, configuration reference agreement and
-four owned task terminal sessions. Receipt identities belong in Acta and the
-checkpoint without moving the validated candidate afterward.
+Focused same-HEAD receipt `6Y3W4L6CVCY6WMAUEYZFCT3OBF` passed 126 editing
+tests, configuration reference checks and four owned task terminal sessions.
+Acta note `01M61S6NJSSE7BCT0VJQX5GVKE` records readiness. Canonical Forgejo
+confirms PR #118 merged into dev at that candidate; controller merge activity
+is recorded and clean primary dev matches origin/dev.
 
 The first required controller run at PR-reference HEAD
 `b634dbf1babc1cedf6e59e5a501dce9c1209fc36` stopped at Clippy, receipt
 `FEA4RDCIANTLYW45Z44B5OXQDT`: the pinned Rust 1.98 lint requires as_chunks
 for constant-size byte groups. The TZif reader now uses checked array chunks
 for header counts and type records. Parser bounds and observable assertions
-are unchanged. Both focused and required evidence will be regenerated at the
-corrected clean candidate; earlier successful evidence is not relabeled.
+are unchanged. Both focused and required evidence were regenerated at the final
+corrected clean candidate; earlier successful evidence was not relabeled.
 
 The next required run at `ec63d4a586de776ae4cb28a5b054346f6df77b60`, receipt
 `HHMBNU3KLL3IA6L6WNAVI4J336`, passed the library lint and exposed one test-table
