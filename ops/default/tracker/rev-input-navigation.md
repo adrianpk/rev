@@ -230,7 +230,7 @@ Contracts: PTR03 PTR04.
 Details and exact checks: [Slice 13](../plan/rev-input-navigation.md#slice-13-select-canonical-text-by-dragging).
 
 - [x] T13.1: Use primary-button press/drag/release to establish and extend the existing linear mark/region; a click without drag only moves point.
-- [ ] T13.2: Keep capture on the originating view across gutter, status and neighboring panes; cancel on C-g, invalidation, mode disable and reported focus loss.
+- [x] T13.2: Keep capture on the originating view across gutter, status and neighboring panes; cancel on C-g, invalidation, mode disable and reported focus loss.
 - [ ] T13.3: Verify selection/copy/kill/undo integration, Unicode/tab endpoints and byte fidelity; retain selection after release without implicit clipboard writes.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 

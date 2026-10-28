@@ -7,6 +7,7 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
+        self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();
         let result = self.ingress(path);

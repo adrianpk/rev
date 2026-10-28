@@ -277,6 +277,7 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        self.cancel_pointer_capture();
         if let Some(action) = self.prepare_command(command) {
             return action;
         }
@@ -373,6 +374,7 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        self.cancel_pointer_capture();
         if self.tree.focused() {
             return self.message("File tree owns input focus");
         }

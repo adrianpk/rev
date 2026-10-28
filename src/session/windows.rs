@@ -13,6 +13,7 @@ impl Session {
     /// Native view selection shares normal command continuity and validates the
     /// live destination. A transient interaction retains its own input focus.
     pub fn select_view(&mut self, id: ViewId) -> Result<(), Error> {
+        self.cancel_pointer_capture();
         self.yank = None;
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return Err(crate::window::Error::Focus.into());

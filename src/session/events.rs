@@ -56,6 +56,9 @@ impl Session {
 
     /// Process timers before an event without consuming or delaying that event.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        if !matches!(event, Event::Mouse(_)) {
+            self.cancel_pointer_capture();
+        }
         self.input.set_tree_focus(self.tree.focused());
         let expired = self.expire_input(now);
         if let Event::Resize(width, height) = event {

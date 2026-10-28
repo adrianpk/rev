@@ -22,6 +22,12 @@ impl Selection {
 }
 
 impl Session {
+    /// End native pointer capture on host mode disable or ownership loss.
+    /// The canonical region remains available to ordinary editor commands.
+    pub fn cancel_pointer_capture(&mut self) -> bool {
+        self.selection.take().is_some()
+    }
+
     pub(super) fn drag_pointer(&mut self, position: Position) -> Action {
         let Some(mut selection) = self.selection.take() else {
             return Action::Wait;

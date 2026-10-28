@@ -10,6 +10,8 @@ mod input_state;
 #[path = "pointer/focus.rs"]
 mod focus;
 
+#[path = "pointer/capture.rs"]
+mod capture;
 #[path = "pointer/cells.rs"]
 mod cells;
 #[path = "configuration/fixture.rs"]

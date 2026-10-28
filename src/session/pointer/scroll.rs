@@ -10,6 +10,9 @@ const SCROLL_LINES: usize = 3;
 
 impl Session {
     pub(super) fn pointer_scroll(&mut self, event: Event) -> Action {
+        if self.selection.is_some() {
+            return Action::Wait;
+        }
         let Some(target) = self
             .composition()
             .and_then(|composition| Target::resolve(&composition, event.position))
