@@ -484,13 +484,18 @@ Details and exact checks: [Slice 20](../plan/rev-org-mode.md#slice-20-record-nat
 - [x] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-T20.2: `8395add8fb79`. T20.3 passed five additional native boundary/save/deadline
+T20.2: `8395add8fb79`; T20.3: `4cc89289a740`. T20.3 passed five additional native boundary/save/deadline
 cases and four owned task PTYs, with affected-test Clippy and source quality.
 
 T20.1: `8a6a6d74d279`; native interval/command checks, library Clippy,
 configuration reference and source quality passed. T20.2 passed eight focused
 clock editing/configuration tests, typed policy provenance/bounds, library and
 affected-test Clippy, reference agreement and changed-source quality.
+
+[Canonical PR #121](https://forge.adrianpk.com/adrianpk/rev/pulls/121) and the
+[Slice 20 report](../report/slices/rev-org-mode/slice-20-clock-records.md) are
+reviewing. Controller receipts bind final required/focused checks to the clean
+PR head; verified dev integration remains pending.
 
 ### Slice 21: switch and recover Org task clocks
 

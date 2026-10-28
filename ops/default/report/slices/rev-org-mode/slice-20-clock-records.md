@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-20-clock-records`
-PR: pending
+PR: `#121`
 
 ## Purpose
 
@@ -100,6 +100,9 @@ T20.3 development checks passed:
 Terminal assertions retain all prior task/timestamp/repeat journeys, exact source
 snapshots, normal save/history, isolated HOME/XDG/cwd, deadlines and owned cleanup.
 
+T20.3 commit: `4cc89289a740cdb97a8a4f35ed1f9875aeabb1fa`.
+
+[Canonical PR #121](https://forge.adrianpk.com/adrianpk/rev/pulls/121) targets dev.
 Final required validation is recorded by the controller against the final clean
 PR head, in the approved order:
 
