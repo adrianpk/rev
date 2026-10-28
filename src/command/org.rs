@@ -49,9 +49,10 @@ pub enum OrgCommand {
     SetTags,
     RemoveTag,
     InspectTags,
+    MatchTags,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 47] = [
+    pub const ALL: [Self; 48] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -99,6 +100,7 @@ impl OrgCommand {
         Self::SetTags,
         Self::RemoveTag,
         Self::InspectTags,
+        Self::MatchTags,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -149,11 +151,15 @@ impl OrgCommand {
             "org-set-tags-command",
             "org-remove-tag",
             "org-inspect-tags",
+            "org-match-tags",
         ][self as usize]
     }
 
     pub(crate) fn tags(self) -> bool {
-        matches!(self, Self::SetTags | Self::RemoveTag | Self::InspectTags)
+        matches!(
+            self,
+            Self::SetTags | Self::RemoveTag | Self::InspectTags | Self::MatchTags
+        )
     }
     pub(crate) fn property(self) -> bool {
         matches!(

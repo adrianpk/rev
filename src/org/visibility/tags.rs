@@ -1,4 +1,5 @@
 mod edit;
+mod matching;
 mod model;
 
 use super::Outline;
@@ -16,11 +17,17 @@ pub(in crate::org) struct Tags {
     candidates: BTreeSet<String>,
     contexts: Vec<Range<usize>>,
     count: usize,
+    workflow: Vec<(String, bool)>,
+    workflow_declared: bool,
+    workflow_valid: bool,
 }
 #[derive(Debug, PartialEq, Eq)]
 struct Header {
     span: Range<usize>,
     valid: bool,
+    title: Range<usize>,
+    word: String,
+    priority: Option<String>,
     local: Vec<Tag>,
 }
 #[derive(Debug, PartialEq, Eq)]

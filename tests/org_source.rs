@@ -284,3 +284,6 @@ fn edit_authority() {
         assert!(buffer.history().is_empty(), "{name}");
     }
 }
+
+#[path = "org_source/matching.rs"]
+mod matching;

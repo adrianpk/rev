@@ -19,6 +19,12 @@ ancestor and FILETAGS owners. Completion uses observed tags and data-only TAGS
 candidates; cancellation leaves source unchanged. Native `org.tags.inherit`
 defaults to true and never inserts inherited text into child headings.
 
+`org-match-tags` evaluates the current heading through a reusable compiled
+Boolean grammar with parentheses, implicit AND/NOT, TODO suffixes and typed
+numeric/string comparisons. Requested properties project from actual source,
+including admitted inheritance and derived heading metadata. Source remains
+unchanged.
+
 ## Implementation Notes
 
 The existing temporary observation worker derives suffixes and membership;
@@ -36,6 +42,8 @@ is introduced.
 
 - `src/org/visibility/tags/`: native tag observations and checked suffix plans.
 - `src/session/outline/tags.rs`: qualified prompts, completion and publication.
+- `src/org/query/`: bounded compilation and iterative typed evaluation.
+- `tests/org_source/matching.rs`: grammar/escaping/type/limit contracts.
 - `tests/org_editing/tags.rs`: source preservation and local/inherited behavior.
 
 ## Validation
@@ -43,10 +51,12 @@ is introduced.
 - `cargo test --test org_editing tags::`: four tests passed.
 - `python3 scripts/check-config-reference.py`: 97 schema/catalog entries and
   136 default bindings agree; packaged template bytes and native copy pass.
+- `cargo test --test org_source --test org_editing matching`: one native
+  integration test and three public parser/evaluator tests passed.
 - Focused source-quality checks passed for changed owners and tests.
 - An owned clean Emacs observation confirmed factory ancestor/file inheritance
   and local-only membership when inheritance is disabled.
 
 ## Risks and Follow-ups
 
-T13.2 matching and T13.3 boundary verification remain active.
+T13.3 boundary verification remains active.

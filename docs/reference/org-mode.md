@@ -221,3 +221,64 @@ minibuffer input limit. The observation retains at most 4096 source entries and
 local bases, malformed metadata, literal/deeper contexts and read-only mutation
 reject before publication. Inspection does not insert inherited text. Existing
 ordinary and property drawers fold independently through the drawer commands.
+
+## Tags and membership
+
+`C-c C-q`, `M-x org-set-tags-command` and `C-c C-c` on an actual heading
+replace that heading's local tags. Enter colon-separated, comma-separated or
+space-separated names. Empty input clears local tags. Names are case-sensitive;
+`Work` and `work` remain distinct. Each name permits letters, numbers, `_`, `@`,
+`#` and `%`, up to 128 UTF-8 bytes. Each heading admits at most 128 local names.
+Duplicate entered names are collapsed without changing their order. The edit
+replaces only the suffix: existing title spacing, unknown source, line endings
+and EOF spelling remain intact. A new suffix uses two spaces before its colons.
+
+`org-remove-tag` removes one exact local name and leaves inherited owners alone.
+`org-inspect-tags` identifies local, ancestor and FILETAGS source lines. Factory
+`org.tags.inherit = true` includes ancestors and file membership; false selects
+local tags only. Inheritance never inserts text. Tab completes case-sensitive
+names from observed tags and direct `#+TAGS:` declarations, extending their common
+prefix and showing up to 16 candidates. Completion changes only the prompt.
+Return publishes one checked undo group; C-g cancels without publication.
+
+The observation retains at most 4096 heading records, 8192 tag/candidate
+occurrences and 8192 metadata contexts. Incomplete observations and invalid or
+excessive suffixes reject. Literal/deeper contexts do not fall through to an
+ancestor tag action. Read-only source admits inspection and matching but rejects
+tag mutation. Prompt acceptance rechecks its originating view and source revision.
+
+## Tag and property matches
+
+`M-x org-match-tags` prompts for an expression and reports whether the current
+heading matches. It uses that heading's actual effective tags, configured inherited
+properties and source task declarations. Matching changes neither text nor history.
+
+The native data grammar uses `&` for AND, `|` for OR and leading `-` or `!` for
+NOT. Leading `+` selects positively; subsequent `+` or `-` implies AND. AND binds
+more strongly than OR; parentheses group expressions. For example,
+`(Work|home)+urgent-boss` selects an urgent heading with Work or home membership
+and excludes boss. Tag and TODO state spelling remains case-sensitive.
+
+Property comparisons use `=`, `==`, `<>`, `!=`, `/=`, `<`, `<=`, `>` and `>=`.
+Property names are case-insensitive. Bare finite numbers use numerical comparison;
+double-quoted literals use case-sensitive string ordering. Signs, decimal points
+and exponents are admitted in numbers. Missing numeric/string values compare as
+zero/empty text; append `*` to the operator to require a present value instead,
+as in `EFFORT<*2`. Invalid or non-finite stored numbers do not match numerical
+comparisons. Strings admit `\"`, `\\`, `\n`, `\r` and `\t` escapes; unknown
+escapes reject. Backslashes escape punctuation in property names, for example
+`OWNER\-ROLE="lead"`. Unknown stored property names remain data.
+
+Derived TODO, LEVEL, PRIORITY, ITEM, TAGS and ALLTAGS values come from the actual
+heading and effective membership. A suffix `/WAITING|NEXT` applies a separate
+Boolean expression to TODO states; `/!` additionally requires an unfinished task.
+`Work/!-WAITING` selects unfinished Work tasks outside WAITING. Factory states
+are TODO/DONE; direct TODO/SEQ_TODO/TYP_TODO data declarations identify configured
+states for matching. Their fast-key/log annotations do not execute anything.
+
+Compilation admits at most 4096 UTF-8 bytes, 32 nested forms and 512 nodes.
+Evaluation is iterative, with at most 8192 tag and 512 property records and a
+1048576-byte temporary metadata projection. Regexp/function forms are not scalar
+comparison operands; they reject rather than being evaluated as code. Malformed
+syntax, unsupported operators and excess input reject with a source-byte
+location. There is no Lisp, predicate callback or external process evaluation.

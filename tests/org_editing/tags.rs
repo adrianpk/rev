@@ -127,3 +127,31 @@ fn tag_command_paths() {
         assert_eq!(text(&session), "* H  :tag:\n", "{path}: {}", session.echo());
     }
 }
+
+// Native matching projects the actual current heading, its configured inherited
+// metadata and source TODO declarations without editing or materializing a task.
+#[test]
+fn tag_property_matching() {
+    let source = "#+TODO: WAITING NEXT | FINISHED\n#+FILETAGS: :File:\n* Parent :Work:\n:PROPERTIES:\n:CUSTOM: inherited\n:END:\n** WAITING [#A] Child :local:\n:PROPERTIES:\n:EFFORT: 2.5\n:OWNER-ROLE: lead\n:END:\nbody\n";
+    let (_fixture, mut session) =
+        editor("org.properties.inherit = ['CUSTOM']", "notes.org", source);
+    goto(&mut session, 7);
+    for (query, expected) in [
+        ("(Work|absent)+local+File", "yes"),
+        ("work", "no"),
+        ("local/WAITING", "yes"),
+        ("local/FINISHED", "no"),
+        ("EFFORT>=2+CUSTOM=\"inherited\"", "yes"),
+        (
+            "OWNER\\-ROLE=\"lead\"+LEVEL=2+TODO=\"WAITING\"+PRIORITY=\"A\"",
+            "yes",
+        ),
+        ("ITEM=\"Child\"", "yes"),
+    ] {
+        action(&mut session, OrgCommand::MatchTags);
+        argument(&mut session, query);
+        assert_eq!(session.echo(), format!("Org match: {expected}"), "{query}");
+        assert_eq!(text(&session), source);
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}

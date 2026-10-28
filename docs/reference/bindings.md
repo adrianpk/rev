@@ -20,6 +20,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-c C-q` in Org | `org-set-tags-command` | Replace locally stored tags; empty clears them. |
 | `M-x org-remove-tag` | `org-remove-tag` | Remove exactly one local, case-sensitive tag. |
 | `M-x org-inspect-tags` | `org-inspect-tags` | Inspect local, ancestor and file memberships with source lines. |
+| `M-x org-match-tags` | `org-match-tags` | Test a bounded tag/property expression against the current heading. |
 | M-x org-mode | `org-mode` | Select native Org for the current buffer. |
 | TAB in Org | `org-cycle` | Cycle heading or drawer visibility in native Org. |
 | S-TAB in Org | `org-shifttab` | Cycle overview, contents and show-all in this view. |

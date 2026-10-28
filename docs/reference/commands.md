@@ -68,7 +68,7 @@ for file, history and retained-text policies.
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
-| Org tags | `org-set-tags-command`, `org-remove-tag`, `org-inspect-tags` |
+| Org tags | `org-set-tags-command`, `org-remove-tag`, `org-inspect-tags`, `org-match-tags` |
 | Org properties | `org-set-property`, `org-delete-property`, `org-inspect-property`, `org-edit-property-owner` |
 | Org headings | `org-insert-heading`, `org-meta-return`, `org-next-visible-heading`, `org-previous-visible-heading`, `org-forward-heading-same-level`, `org-backward-heading-same-level`, `org-up-heading-safe` |
 | Org list context | `org-metaleft`, `org-metaright`, `org-metaup`, `org-metadown` |

@@ -68,6 +68,7 @@ pub(crate) fn derived_property(key: &str) -> bool {
     matches!(
         key.trim_end_matches('+'),
         "ITEM"
+            | "LEVEL"
             | "TODO"
             | "PRIORITY"
             | "TAGS"

@@ -10,6 +10,8 @@ impl Tags {
     ) -> Self {
         let mut tags = Self {
             complete: structure.coverage() == Coverage::Complete,
+            workflow: vec![("TODO".into(), false), ("DONE".into(), true)],
+            workflow_valid: true,
             ..Self::default()
         };
         let sections: BTreeSet<_> = structure
@@ -72,7 +74,23 @@ impl Tags {
         let valid = local.is_some();
         let local = local.unwrap_or_default();
         self.count += local.len();
-        self.headers.push(Header { span, valid, local });
+        let mut words = title.split_whitespace();
+        let first = words.next().unwrap_or("");
+        let word = if first.len() <= 128 {
+            first.into()
+        } else {
+            String::new()
+        };
+        let priority = priority(first).or_else(|| words.next().and_then(priority));
+        let content = node.content.start..span.start;
+        self.headers.push(Header {
+            span,
+            valid,
+            local,
+            title: content,
+            word,
+            priority,
+        });
     }
     fn keyword(&mut self, node: &crate::org::structure::Raw, text: &Rope) {
         let Some(name) = &node.name else {
@@ -80,16 +98,45 @@ impl Tags {
         };
         let name = text.byte_slice(name.clone()).to_string();
         let value = text.byte_slice(node.content.clone()).to_string();
-        if name.eq_ignore_ascii_case("FILETAGS") {
-            if let Some(tags) = parse_suffix(value.trim(), node.content.start) {
-                self.count += tags.len();
-                self.candidates.extend(tags.iter().map(|t| t.name.clone()));
-                self.file.extend(tags);
+        match name.to_ascii_uppercase().as_str() {
+            "FILETAGS" => self.file_tags(&value, node.content.start),
+            "TAGS" => {
+                for token in value.split_whitespace().take(8193) {
+                    self.candidate(token);
+                }
             }
-        } else if name.eq_ignore_ascii_case("TAGS") {
-            for token in value.split_whitespace().take(8193) {
-                self.candidate(token);
+            "TODO" | "SEQ_TODO" | "TYP_TODO" => self.workflow(&value),
+            _ => (),
+        }
+    }
+    fn file_tags(&mut self, value: &str, offset: usize) {
+        if let Some(tags) = parse_suffix(value.trim(), offset) {
+            self.count += tags.len();
+            self.candidates.extend(tags.iter().map(|t| t.name.clone()));
+            self.file.extend(tags);
+        }
+    }
+    fn workflow(&mut self, value: &str) {
+        if !self.workflow_declared {
+            self.workflow.clear();
+            self.workflow_declared = true;
+        }
+        let mut finished = false;
+        let explicit = value.split_whitespace().any(|w| w == "|");
+        for token in value.split_whitespace().take(66) {
+            if token == "|" {
+                finished = true;
+                continue;
             }
+            let word = token.split('(').next().unwrap_or(token);
+            if !valid_tag(word) || self.workflow.len() == 64 {
+                self.workflow_valid = false;
+                return;
+            }
+            self.workflow.push((word.into(), finished));
+        }
+        if !explicit && let Some(last) = self.workflow.last_mut() {
+            last.1 = true;
         }
     }
     fn candidate(&mut self, token: &str) {
@@ -115,4 +162,9 @@ fn parse_suffix(value: &str, offset: usize) -> Option<Vec<Tag>> {
         start += name.len() + 1;
     }
     Some(tags)
+}
+
+fn priority(word: &str) -> Option<String> {
+    let letter = word.strip_prefix("[#")?.strip_suffix(']')?;
+    (letter.len() == 1 && letter.as_bytes()[0].is_ascii_uppercase()).then(|| letter.into())
 }
