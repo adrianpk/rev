@@ -4,6 +4,8 @@ mod gutter;
 mod kill;
 mod linear;
 mod motion;
+mod org;
+pub use org::OrgCommand;
 mod rectangle;
 mod region;
 mod scroll;
@@ -39,6 +41,7 @@ pub enum Command {
     GotoLine,
     MouseMode,
     Mode(Mode),
+    Org(OrgCommand),
     Gutter(GutterCommand),
     Whitespace(Whitespace),
     SaveBuffer,
@@ -61,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 76] = [
+    pub const ALL: [Self; 87] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -87,6 +90,17 @@ impl Command {
         Self::FindFile,
         Self::GotoLine,
         Self::MouseMode,
+        Self::Org(OrgCommand::Cycle),
+        Self::Org(OrgCommand::GlobalCycle),
+        Self::Org(OrgCommand::Overview),
+        Self::Org(OrgCommand::Contents),
+        Self::Org(OrgCommand::ShowAll),
+        Self::Org(OrgCommand::HideSubtree),
+        Self::Org(OrgCommand::ShowChildren),
+        Self::Org(OrgCommand::ShowSubtree),
+        Self::Org(OrgCommand::HideDrawer),
+        Self::Org(OrgCommand::ShowDrawer),
+        Self::Org(OrgCommand::ToggleDrawer),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
@@ -185,6 +199,7 @@ impl Command {
     fn edit_name(self) -> &'static str {
         match self {
             Self::Mode(mode) => mode.name(),
+            Self::Org(command) => command.name(),
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",

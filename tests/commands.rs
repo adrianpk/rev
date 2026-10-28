@@ -10,6 +10,8 @@ mod editor_keymaps;
 mod indent;
 #[path = "commands/keymap.rs"]
 mod keymap;
+#[path = "commands/org_visibility.rs"]
+mod org_visibility;
 #[path = "commands/preferences.rs"]
 mod preferences;
 

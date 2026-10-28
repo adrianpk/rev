@@ -42,7 +42,7 @@ fn open(input: &mut Input, stage: &str) {
 fn operational_catalog() {
     let mut input = Input::default();
     input.commands().unwrap();
-    input.handle(Event::Paste("org-".into()));
+    input.handle(Event::Paste("org-mo".into()));
     assert_eq!(
         input.palette().unwrap().candidates(),
         [Command::Mode(Mode::Org)]
@@ -56,7 +56,7 @@ fn operational_catalog() {
     for absent in [
         "org-agenda",
         "org-capture",
-        "org-cycle",
+        "org-export-dispatch",
         "org-ctrl-c-ctrl-c",
         "org-edit-special",
     ] {

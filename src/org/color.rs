@@ -65,14 +65,15 @@ impl Highlights {
 pub struct Coloring {
     pub(in crate::org) index: Index,
     pub(in crate::org) highlights: Highlights,
+    outline: std::sync::Arc<super::Outline>,
 }
 
 impl Coloring {
     pub fn highlights(&self) -> &Highlights {
         &self.highlights
     }
-    pub(crate) fn into_parts(self) -> (Index, Highlights) {
-        (self.index, self.highlights)
+    pub(crate) fn into_parts(self) -> (Index, Highlights, std::sync::Arc<super::Outline>) {
+        (self.index, self.highlights, self.outline)
     }
 }
 
@@ -128,6 +129,11 @@ impl ColorScan {
             self.limits,
             cancellation,
         );
-        Coloring { index, highlights }
+        let outline = std::sync::Arc::new(super::Outline::observe(&structure, cancellation));
+        Coloring {
+            index,
+            highlights,
+            outline,
+        }
     }
 }

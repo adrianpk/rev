@@ -46,10 +46,11 @@ impl Buffer {
     }
 
     pub fn install_org_coloring(&mut self, coloring: crate::org::Coloring) -> Result<(), Error> {
-        let (index, highlights) = coloring.into_parts();
+        let (index, highlights, outline) = coloring.into_parts();
         index.check(self)?;
         highlights.check(self)?;
         self.org = Some(index);
+        self.org_outline = Some(outline);
         self.org_attempt = Some(highlights.stamp());
         self.org_highlights = Some(highlights);
         Ok(())
@@ -76,5 +77,13 @@ impl Buffer {
 
     pub(crate) fn attempted_org_colors(&mut self) {
         self.org_attempt = Some(self.stamp());
+    }
+}
+
+impl Buffer {
+    pub(crate) fn org_outline(&self) -> Option<&std::sync::Arc<crate::org::Outline>> {
+        self.org_outline
+            .as_ref()
+            .filter(|outline| self.is_org() && outline.stamp == self.stamp())
     }
 }

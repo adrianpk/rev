@@ -14,6 +14,17 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | M-x org-mode | `org-mode` | Select native Org for the current buffer. |
+| TAB in Org | `org-cycle` | Cycle heading or drawer visibility in native Org. |
+| S-TAB in Org | `org-shifttab` | Cycle overview, contents and show-all in this view. |
+| M-x org-overview | `org-overview` | Show top-level headings. |
+| M-x org-content | `org-content` | Show every heading without section bodies. |
+| M-x org-show-all | `org-show-all` | Show all source in this view. |
+| M-x org-hide-subtree | `org-hide-subtree` | Hide the containing heading body and descendants. |
+| M-x org-show-children | `org-show-children` | Show direct child headings. |
+| M-x org-show-subtree | `org-show-subtree` | Show the entire containing subtree. |
+| M-x org-hide-drawer | `org-hide-drawer` | Hide only the current drawer body. |
+| M-x org-show-drawer | `org-show-drawer` | Show the current drawer body. |
+| M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |

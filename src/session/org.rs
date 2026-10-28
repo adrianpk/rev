@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
 use crate::buffer::{BufferId, Stamp};
-use crate::org::{ColorScan, Coloring, Job, Limits};
+use crate::org::{ColorScan, Coloring, Job, JobError, Limits};
 
 use super::{Action, Session};
 
@@ -12,15 +12,22 @@ const POLL: Duration = Duration::from_millis(10);
 #[derive(Default)]
 pub(super) struct Work {
     job: Job<Coloring>,
+    pub(super) request: Option<super::visibility::Request>,
     source: Option<Stamp>,
     deadline: Option<Instant>,
 }
 
 impl Work {
-    pub(super) fn cancel(&self) {
+    pub(super) fn cancel(&mut self) {
+        self.request = None;
         self.job.cancel();
     }
 
+    pub(super) fn cancel_visibility(&mut self) {
+        if self.request.take().is_some() {
+            self.job.cancel();
+        }
+    }
     pub(super) fn remaining(&self, now: Instant) -> Option<Duration> {
         self.deadline
             .map(|deadline| deadline.saturating_duration_since(now))
@@ -30,7 +37,13 @@ impl Work {
 impl Session {
     pub(super) fn refresh_org(&mut self) {
         self.poll_org();
+        self.finish_visibility();
         if self.org.job.is_active() {
+            return;
+        }
+        if let Some(request) = &self.org.request {
+            let id = request.origin.point.stamp.buffer;
+            self.start_org(id);
             return;
         }
         let Some(id) = self.visible_org().into_iter().find(|id| {
@@ -76,16 +89,23 @@ impl Session {
                 self.org.deadline = Some(Instant::now() + POLL);
             }
             Err(error) => {
+                self.org.request = None;
                 self.error(&error.to_string());
             }
         }
     }
 
     fn org_source_live(&self, source: Stamp) -> bool {
-        self.buffers
-            .get(source.buffer)
-            .is_ok_and(|buffer| buffer.stamp() == source && buffer.org_colors_admitted())
-            && self.visible_org().contains(&source.buffer)
+        self.buffers.get(source.buffer).is_ok_and(|buffer| {
+            buffer.stamp() == source
+                && buffer.is_org()
+                && (buffer.org_colors_admitted()
+                    || self
+                        .org
+                        .request
+                        .as_ref()
+                        .is_some_and(|r| r.origin.point.stamp == source))
+        }) && self.visible_org().contains(&source.buffer)
     }
 
     fn poll_org(&mut self) -> bool {
@@ -93,7 +113,7 @@ impl Session {
             return false;
         };
         if !self.org_source_live(source) {
-            self.org.cancel();
+            self.org.job.cancel();
         }
         // A removed buffer is polled against the live selected buffer solely
         // to reap ownership; the job rejects the foreign source before publish.
@@ -107,8 +127,17 @@ impl Session {
         };
         self.org.source = None;
         self.org.deadline = None;
-        if let Ok(coloring) = result {
-            self.publish_org(source.buffer, coloring);
+        match result {
+            Ok(coloring) => {
+                self.publish_org(source.buffer, coloring);
+                self.finish_visibility();
+            }
+            Err(JobError::Cancelled) => {
+                self.finish_visibility();
+            }
+            Err(_) => {
+                self.org.request = None;
+            }
         }
         true
     }

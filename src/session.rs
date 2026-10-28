@@ -23,6 +23,7 @@ mod save;
 mod search;
 mod startup;
 mod tree;
+mod visibility;
 mod whitespace;
 mod windows;
 mod yank;
@@ -329,6 +330,7 @@ impl Session {
             Command::Gutter(command) => self.gutter_command(command),
             Command::MouseMode => self.toggle_mouse(),
             Command::Mode(mode) => self.select_mode(mode),
+            Command::Org(command) => self.visibility_command(command),
             _ => self.dispatch(command),
         }
     }
@@ -351,6 +353,9 @@ impl Session {
 
     fn command_boundary(&mut self, command: Command) {
         self.echo_kind = Message::Normal;
+        if !matches!(command, Command::Org(_)) {
+            self.org.cancel_visibility();
+        }
         if !command.is_kill() {
             self.kills.break_chain();
         }

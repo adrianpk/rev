@@ -6,6 +6,7 @@ use super::{Action, Pending, Session};
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
         if command == Command::ExecuteExtended {
+            self.org.cancel_visibility();
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {

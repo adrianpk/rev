@@ -25,7 +25,7 @@ impl View {
         if !size.usable() {
             return Ok(());
         }
-        self.reveal_fold(buffer, point.row);
+        self.reveal_fold(buffer, point.row)?;
         let last = self.visible_lines(buffer) - 1;
         let top = destination(self.projected_top(buffer), distance, backward).min(last);
         self.top = self
@@ -62,7 +62,7 @@ impl View {
         distance: usize,
     ) -> Result<(), Error> {
         let point = self.cell(buffer)?;
-        self.reveal_fold(buffer, point.row);
+        self.reveal_fold(buffer, point.row)?;
         self.sync_policy(buffer);
         self.alignment = Alignment::Center;
         if distance == 0 {
@@ -97,7 +97,7 @@ impl View {
 
     pub(crate) fn recenter(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
         let point = self.cell(buffer)?;
-        self.reveal_fold(buffer, point.row);
+        self.reveal_fold(buffer, point.row)?;
         self.sync_policy(buffer);
         self.align(point, size, buffer)
     }

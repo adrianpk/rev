@@ -12,6 +12,8 @@ mod fold_edges;
 mod folds;
 #[path = "org_editing/projection.rs"]
 mod projection;
+#[path = "org_editing/visibility.rs"]
+mod visibility;
 
 use std::time::Instant;
 

@@ -100,11 +100,13 @@ impl View {
             return Err(FoldError::PointHidden(self.point.position).into());
         }
         self.folds = Some(folds);
+        self.visibility = None;
         self.reset_navigation();
         Ok(())
     }
 
     pub fn clear_folds(&mut self) -> bool {
+        self.visibility = None;
         self.folds.take().is_some()
     }
 
@@ -154,14 +156,17 @@ impl View {
             .map_or(Some(row), |folds| folds.project(row))
     }
 
-    pub(super) fn reveal_fold(&mut self, buffer: &Buffer, row: usize) {
+    pub(super) fn reveal_fold(&mut self, buffer: &Buffer, row: usize) -> Result<(), Error> {
+        if self.reveal_visibility(buffer, row)? {
+            return Ok(());
+        }
         if self.active_folds(buffer).is_none() {
             self.clear_folds();
-            return;
+            return Ok(());
         }
         let folds = self.folds.as_ref().expect("active folds are installed");
         if folds.project(row).is_some() {
-            return;
+            return Ok(());
         }
         let ranges = folds
             .hidden
@@ -169,5 +174,6 @@ impl View {
             .filter(|h| !h.rows.contains(&row))
             .map(|h| h.rows.clone());
         self.folds = Some(build::from_rows(buffer.stamp(), ranges));
+        Ok(())
     }
 }

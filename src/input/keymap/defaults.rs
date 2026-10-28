@@ -134,7 +134,10 @@ const TREE: &[(&str, &str)] = &[
 ];
 
 // Editing roles inherit the admitted editor map before these local entries.
-const ORG: &[(&str, &str)] = &[];
+const ORG: &[(&str, &str)] = &[
+    ("TAB", "org-cycle"),        // The exact heading/drawer at point.
+    ("BackTab", "org-shifttab"), // The whole view.
+];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 

@@ -18,3 +18,6 @@ pub use source::{Source, SourceRange};
 pub use structure::{BlockKind, Structure, StructureKind, StructureNode, StructureScan};
 
 pub use color::{ColorScan, Coloring, Highlights, Role};
+
+mod visibility;
+pub(crate) use visibility::{Outline, Visibility};

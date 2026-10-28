@@ -2,6 +2,7 @@ mod fold;
 mod hit;
 pub use fold::FoldError;
 mod scroll;
+mod visibility;
 
 use std::fmt;
 
@@ -94,6 +95,7 @@ pub struct View {
     pub top: usize,
     pub left: usize,
     folds: Option<fold::Folds>,
+    visibility: Option<std::sync::Arc<crate::org::Visibility>>,
     alignment: scroll::Alignment,
     tab_width: usize,
 }
@@ -123,6 +125,7 @@ impl View {
             top: 0,
             left: 0,
             folds: None,
+            visibility: None,
             alignment: scroll::Alignment::Center,
             tab_width: buffer.policy().tab_width,
         }
@@ -155,7 +158,7 @@ impl View {
     /// Reveal point in usable geometry. Suspended presentation preserves scroll.
     pub fn reveal(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
         let point = self.cell(buffer)?;
-        self.reveal_fold(buffer, point.row);
+        self.reveal_fold(buffer, point.row)?;
         self.sync_policy(buffer);
         if size.usable() {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
