@@ -25,6 +25,12 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x org-hide-drawer | `org-hide-drawer` | Hide only the current drawer body. |
 | M-x org-show-drawer | `org-show-drawer` | Show the current drawer body. |
 | M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
+| M-x org-insert-heading | `org-insert-heading` | Insert a heading at the current level through one checked edit. |
+| C-c C-n in Org | `org-next-visible-heading` | Visit the next visible heading. |
+| C-c C-p in Org | `org-previous-visible-heading` | Visit the previous visible heading. |
+| C-c C-f in Org | `org-forward-heading-same-level` | Visit the next sibling without crossing a parent boundary. |
+| C-c C-b in Org | `org-backward-heading-same-level` | Visit the previous sibling without crossing a parent boundary. |
+| C-c C-u in Org | `org-up-heading-safe` | Visit the parent heading. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |

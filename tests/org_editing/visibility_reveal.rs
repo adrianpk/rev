@@ -108,7 +108,19 @@ fn readonly_controls() {
 #[test]
 fn named_controls() {
     let source = "* Root\n:LOGBOOK:\nentry\n:END:\n** Child\nbody\n";
-    for command in OrgCommand::ALL {
+    for command in [
+        OrgCommand::Cycle,
+        OrgCommand::GlobalCycle,
+        OrgCommand::Overview,
+        OrgCommand::Contents,
+        OrgCommand::ShowAll,
+        OrgCommand::HideSubtree,
+        OrgCommand::ShowChildren,
+        OrgCommand::ShowSubtree,
+        OrgCommand::HideDrawer,
+        OrgCommand::ShowDrawer,
+        OrgCommand::ToggleDrawer,
+    ] {
         let (_a, mut direct) = editor("", "notes.org", source);
         let (_b, mut by_name) = editor("", "notes.org", source);
         for session in [&mut direct, &mut by_name] {

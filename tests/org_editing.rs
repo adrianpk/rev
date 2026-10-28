@@ -10,6 +10,8 @@ mod fixture;
 mod fold_edges;
 #[path = "org_editing/folds.rs"]
 mod folds;
+#[path = "org_editing/headings.rs"]
+mod headings;
 #[path = "org_editing/projection.rs"]
 mod projection;
 #[path = "org_editing/visibility.rs"]

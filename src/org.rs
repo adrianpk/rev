@@ -20,4 +20,4 @@ pub use structure::{BlockKind, Structure, StructureKind, StructureNode, Structur
 pub use color::{ColorScan, Coloring, Highlights, Role};
 
 mod visibility;
-pub(crate) use visibility::{Outline, Visibility};
+pub(crate) use visibility::{Insertion, Outline, Visibility};

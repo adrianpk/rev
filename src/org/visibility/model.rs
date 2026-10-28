@@ -7,6 +7,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         coverage: structure.coverage(),
         headings: Vec::new(),
         drawers: Vec::new(),
+        blocked: Vec::new(),
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {
@@ -18,10 +19,12 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
             break;
         }
         collect(&mut result, node);
+        block(&mut result, node);
     }
     result.headings.sort_by_key(|h| h.start);
     result.drawers.sort_by_key(|d| d.start);
     parents(&mut result.headings);
+    merge(&mut result.blocked);
     result
 }
 
@@ -42,6 +45,7 @@ fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {
             section: node.source.end,
             parent: None,
             level,
+            title: node.content.clone(),
         }),
         StructureKind::Drawer | StructureKind::PropertyDrawer => result.drawers.push(Drawer {
             start: open.start,
@@ -53,6 +57,33 @@ fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {
         }),
         _ => {}
     }
+}
+
+// Deeper source forms cannot fall through to a destructive ancestor insertion.
+// These offsets share the existing source-node bound and live only in the worker result.
+fn block(result: &mut Outline, node: &crate::org::structure::Raw) {
+    use StructureKind::*;
+    if matches!(node.kind, Heading { .. } | Section | Paragraph) {
+        return;
+    }
+    let end = node
+        .closing
+        .as_ref()
+        .map_or(node.source.end, |close| close.end);
+    result.blocked.push(node.source.start..end);
+}
+
+fn merge(ranges: &mut Vec<std::ops::Range<usize>>) {
+    ranges.sort_by_key(|range| range.start);
+    let mut merged: Vec<std::ops::Range<usize>> = Vec::new();
+    for range in ranges.drain(..) {
+        if let Some(last) = merged.last_mut().filter(|last| range.start <= last.end) {
+            last.end = last.end.max(range.end);
+        } else {
+            merged.push(range);
+        }
+    }
+    *ranges = merged;
 }
 fn parents(headings: &mut [Heading]) {
     let mut stack: Vec<usize> = Vec::new();

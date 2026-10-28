@@ -151,7 +151,7 @@ impl View {
             .map_or(self.top, |folds| folds.boundary(self.top))
     }
 
-    pub(super) fn project_row(&self, buffer: &Buffer, row: usize) -> Option<usize> {
+    pub(crate) fn project_row(&self, buffer: &Buffer, row: usize) -> Option<usize> {
         self.active_folds(buffer)
             .map_or(Some(row), |folds| folds.project(row))
     }

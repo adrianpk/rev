@@ -156,6 +156,11 @@ const TREE: &[(&str, &str)] = &[
 const ORG: &[(&str, &str)] = &[
     ("TAB", "org-cycle"),        // The exact heading/drawer at point.
     ("BackTab", "org-shifttab"), // The whole view.
+    ("C-c C-n", "org-next-visible-heading"),
+    ("C-c C-p", "org-previous-visible-heading"),
+    ("C-c C-f", "org-forward-heading-same-level"),
+    ("C-c C-b", "org-backward-heading-same-level"),
+    ("C-c C-u", "org-up-heading-safe"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

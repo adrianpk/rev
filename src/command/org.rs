@@ -1,4 +1,4 @@
-/// Implemented native outline/drawer presentation operations.
+/// Implemented native Org outline operations.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(usize)]
 pub enum OrgCommand {
@@ -13,9 +13,15 @@ pub enum OrgCommand {
     HideDrawer,
     ShowDrawer,
     ToggleDrawer,
+    InsertHeading,
+    NextHeading,
+    PreviousHeading,
+    ForwardHeading,
+    BackwardHeading,
+    ParentHeading,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 11] = [
+    pub const ALL: [Self; 17] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -27,6 +33,12 @@ impl OrgCommand {
         Self::HideDrawer,
         Self::ShowDrawer,
         Self::ToggleDrawer,
+        Self::InsertHeading,
+        Self::NextHeading,
+        Self::PreviousHeading,
+        Self::ForwardHeading,
+        Self::BackwardHeading,
+        Self::ParentHeading,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -41,6 +53,12 @@ impl OrgCommand {
             "org-hide-drawer",
             "org-show-drawer",
             "org-toggle-drawer",
+            "org-insert-heading",
+            "org-next-visible-heading",
+            "org-previous-visible-heading",
+            "org-forward-heading-same-level",
+            "org-backward-heading-same-level",
+            "org-up-heading-safe",
         ][self as usize]
     }
 }

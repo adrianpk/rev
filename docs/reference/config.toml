@@ -293,6 +293,11 @@ separator = "#3b4261"           # One-cell number/text separator.
 [keys.org]
 "TAB" = "org-cycle"
 "BackTab" = "org-shifttab"
+"C-c C-n" = "org-next-visible-heading"
+"C-c C-p" = "org-previous-visible-heading"
+"C-c C-f" = "org-forward-heading-same-level"
+"C-c C-b" = "org-backward-heading-same-level"
+"C-c C-u" = "org-up-heading-safe"
 [keys.org_capture]
 [keys.org_source_edit]
 

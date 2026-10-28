@@ -1,5 +1,8 @@
+mod insertion;
 mod model;
+mod navigation;
 mod state;
+pub(crate) use insertion::Insertion;
 
 use std::ops::Range;
 use std::sync::Arc;
@@ -17,6 +20,7 @@ struct Heading {
     section: usize,
     parent: Option<usize>,
     level: usize,
+    title: Range<usize>,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Drawer {
@@ -32,6 +36,7 @@ pub(crate) struct Outline {
     coverage: Coverage,
     headings: Vec<Heading>,
     drawers: Vec<Drawer>,
+    blocked: Vec<Range<usize>>,
 }
 
 impl Outline {
@@ -48,6 +53,13 @@ impl Outline {
         self.drawers
             .iter()
             .position(|d| d.start <= byte && byte < d.end)
+    }
+
+    fn complete(&self) -> Result<(), &'static str> {
+        if self.coverage != Coverage::Complete {
+            return Err("Org structural observation is incomplete");
+        }
+        Ok(())
     }
 }
 

@@ -12,7 +12,7 @@ const POLL: Duration = Duration::from_millis(10);
 #[derive(Default)]
 pub(super) struct Work {
     job: Job<Coloring>,
-    pub(super) request: Option<super::visibility::Request>,
+    pub(super) request: Option<super::outline::Request>,
     source: Option<Stamp>,
     deadline: Option<Instant>,
 }
@@ -23,7 +23,7 @@ impl Work {
         self.job.cancel();
     }
 
-    pub(super) fn cancel_visibility(&mut self) {
+    pub(super) fn cancel_request(&mut self) {
         if self.request.take().is_some() {
             self.job.cancel();
         }
@@ -37,7 +37,7 @@ impl Work {
 impl Session {
     pub(super) fn refresh_org(&mut self) {
         self.poll_org();
-        self.finish_visibility();
+        self.finish_org_request();
         if self.org.job.is_active() {
             return;
         }
@@ -130,10 +130,10 @@ impl Session {
         match result {
             Ok(coloring) => {
                 self.publish_org(source.buffer, coloring);
-                self.finish_visibility();
+                self.finish_org_request();
             }
             Err(JobError::Cancelled) => {
-                self.finish_visibility();
+                self.finish_org_request();
             }
             Err(_) => {
                 self.org.request = None;

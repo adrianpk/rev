@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 87] = [
+    pub const ALL: [Self; 93] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -101,6 +101,12 @@ impl Command {
         Self::Org(OrgCommand::HideDrawer),
         Self::Org(OrgCommand::ShowDrawer),
         Self::Org(OrgCommand::ToggleDrawer),
+        Self::Org(OrgCommand::InsertHeading),
+        Self::Org(OrgCommand::NextHeading),
+        Self::Org(OrgCommand::PreviousHeading),
+        Self::Org(OrgCommand::ForwardHeading),
+        Self::Org(OrgCommand::BackwardHeading),
+        Self::Org(OrgCommand::ParentHeading),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
