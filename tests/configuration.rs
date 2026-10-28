@@ -173,3 +173,6 @@ mod org_tasks;
 
 #[path = "configuration/org_time.rs"]
 mod org_time;
+
+#[path = "configuration/org_clocks.rs"]
+mod org_clocks;

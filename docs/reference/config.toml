@@ -90,6 +90,10 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.clock]
+drawer = "LOGBOOK"
+remove_zero = false
+
 [org.time]
 # local honors TZ; system uses localtime; UTC or a relative IANA name overrides TZ.
 zone = "local"

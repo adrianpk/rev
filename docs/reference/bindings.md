@@ -498,3 +498,8 @@ can address the active source from another buffer without changing the current
 view. Goto selects and reveals its heading. A changed source revision rejects
 these commands and retains the open source; it never relocates by guessed text.
 An active clock adds no idle deadline, repaint loop or periodic source write.
+
+`org.clock.drawer` selects default source placement. `org.clock.remove_zero`
+defaults false: a same-minute out retains a `0:00` record. Selecting true removes
+that record. Cancel removes its open record. Either removal also removes an
+otherwise empty clock drawer; unrelated logs and drawer text remain exact.

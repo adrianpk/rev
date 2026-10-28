@@ -6,42 +6,76 @@ pub(crate) struct ClockInsertion {
     pub edit: Replacement,
     pub record: Range<usize>,
     pub owner: Scalar,
+    pub cleanup: Option<Range<usize>>,
 }
 impl Outline {
     pub(crate) fn clock_insertion(
         &self,
         buffer: &Buffer,
         index: usize,
-        record: &str,
+        data: (&str, &str),
     ) -> Result<ClockInsertion, String> {
         crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
         self.clock_source_clear(buffer, index)?;
-        let drawer = self.clock_drawer(buffer, index)?;
+        let drawer = self.clock_drawer(buffer, index, data.1)?;
         let entry = &self.tags.metadata.entries[index];
         let at = clock_anchor(buffer, entry, &drawer)?;
         let found = at != entry.anchor || entry.drawers.iter().any(|d| d.body.start == at);
         let (prefix, suffix) = clock_wrapper(buffer, at, &drawer, found)?;
-        let line = format!("{record}{}", buffer.newline());
+        let line = format!("{}{}", data.0, buffer.newline());
         let edit = Replacement {
             source: buffer.byte_span(at..at).map_err(|e| e.to_string())?,
             text: format!("{prefix}{line}{suffix}"),
         };
         let start = edit.source.range.start + prefix.chars().count();
-        let c = Coordinates::new(buffer).map_err(|e| e.to_string())?;
         Ok(ClockInsertion {
             record: start..start + line.chars().count(),
-            owner: c
-                .from_byte(Byte(self.headings[index].start))
-                .map_err(|e| e.to_string())?,
+            cleanup: self.clock_cleanup(buffer, &edit, found)?,
+            owner: Scalar(
+                buffer
+                    .byte_span(self.headings[index].start..self.headings[index].start)
+                    .map_err(|e| e.to_string())?
+                    .range
+                    .start,
+            ),
             edit,
         })
     }
-    fn clock_drawer(&self, buffer: &Buffer, index: usize) -> Result<String, String> {
+    fn clock_cleanup(
+        &self,
+        buffer: &Buffer,
+        edit: &Replacement,
+        found: bool,
+    ) -> Result<Option<Range<usize>>, String> {
+        let added = edit.text.chars().count();
+        if !found {
+            return Ok(Some(
+                edit.source.range.start..edit.source.range.start + added,
+            ));
+        }
+        let byte = Coordinates::new(buffer)
+            .map_err(|e| e.to_string())?
+            .to_byte(Scalar(edit.source.range.start))
+            .map_err(|e| e.to_string())?
+            .0;
+        let Some(drawer) = self.drawers.iter().find(|d| d.body.start == byte) else {
+            return Ok(None);
+        };
+        if !edit::source(buffer, drawer.body.clone())?.trim().is_empty() {
+            return Ok(None);
+        }
+        let span = buffer
+            .byte_span(drawer.start..drawer.end)
+            .map_err(|e| e.to_string())?;
+        Ok(Some(span.range.start..span.range.end + added))
+    }
+    fn clock_drawer(&self, buffer: &Buffer, index: usize, default: &str) -> Result<String, String> {
         let clock = self.task_logging_property(buffer, index, "CLOCK_INTO_DRAWER")?;
         let log = self.task_logging_property(buffer, index, "LOG_INTO_DRAWER")?;
         let value = if clock.is_empty() { log } else { clock };
         let drawer = match value.as_str() {
-            "" | "t" => "LOGBOOK".into(),
+            "" => default.into(),
+            "t" => "LOGBOOK".into(),
             "nil" => String::new(),
             _ => value,
         };
@@ -54,6 +88,13 @@ impl Outline {
         let heading = &self.headings[index];
         if heading.section - heading.start > 262144 {
             return Err("Org clock entry exceeds 262144 UTF-8 bytes".into());
+        }
+        if self
+            .malformed
+            .iter()
+            .any(|r| r.start < heading.section && r.end > heading.body)
+        {
+            return Err("Malformed Org clock entry; correct source first".into());
         }
         let text = edit::source(buffer, heading.body..heading.section)?;
         let mut byte = heading.body;

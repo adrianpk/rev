@@ -11,6 +11,7 @@ pub(in crate::session) struct Active {
     source: Span,
     owner: Point,
     interval: ClockInterval,
+    cleanup: Option<Span>,
 }
 impl Session {
     pub(super) fn start_clock(
@@ -29,7 +30,8 @@ impl Session {
         let policy = &self.buffers.snapshot().settings().org.time;
         let operation = self.org_clock.unwrap_or(super::timestamps::capture)(policy)?;
         let interval = ClockInterval::new(operation);
-        let insertion = model.clock_insertion(buffer, index, &interval.open_source())?;
+        let drawer = &self.buffers.snapshot().settings().org.clock.drawer;
+        let insertion = model.clock_insertion(buffer, index, (&interval.open_source(), drawer))?;
         self.publish_clock_in(insertion, interval)?;
         self.message("Org clock started");
         Ok(())
@@ -46,6 +48,9 @@ impl Session {
             source: buffer
                 .span(insertion.record)
                 .expect("published clock range"),
+            cleanup: insertion
+                .cleanup
+                .map(|range| buffer.span(range).expect("published clock wrapper")),
             owner: Point {
                 stamp: buffer.stamp(),
                 position: insertion.owner,
@@ -80,7 +85,11 @@ impl Session {
         let text = self.clock_end_source(command)?;
         let active = self.active_clock.as_ref().expect("checked active clock");
         let edit = Replacement {
-            source: active.source.clone(),
+            source: if text.is_empty() {
+                active.cleanup.as_ref().unwrap_or(&active.source).clone()
+            } else {
+                active.source.clone()
+            },
             text,
         };
         self.publish_clock_edit(edit)?;
@@ -95,6 +104,11 @@ impl Session {
         let policy = &self.buffers.snapshot().settings().org.time;
         let operation = self.org_clock.unwrap_or(super::timestamps::capture)(policy)?;
         let record = active.interval.close(operation.instant())?;
+        if self.buffers.snapshot().settings().org.clock.remove_zero
+            && record.duration.minutes() == 0.0
+        {
+            return Ok(String::new());
+        }
         let buffer = self
             .buffers
             .get(active.source.stamp.buffer)

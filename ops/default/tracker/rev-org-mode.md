@@ -480,9 +480,14 @@ Contracts: ORG19 ORG21.
 Details and exact checks: [Slice 20](../plan/rev-org-mode.md#slice-20-record-native-org-task-clock-intervals).
 
 - [x] T20.1: Deliver clock-in/out/cancel/goto with compatible CLOCK source and task-owned interval durations.
-- [ ] T20.2: Preserve document transactions and remove or retain zero intervals according to the frozen defaults.
+- [x] T20.2: Preserve document transactions and remove or retain zero intervals according to the frozen defaults.
 - [ ] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T20.1: `8a6a6d74d279`; native interval/command checks, library Clippy,
+configuration reference and source quality passed. T20.2 passed eight focused
+clock editing/configuration tests, typed policy provenance/bounds, library and
+affected-test Clippy, reference agreement and changed-source quality.
 
 ### Slice 21: switch and recover Org task clocks
 

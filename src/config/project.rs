@@ -33,6 +33,7 @@ pub(super) fn settings(document: &Document) -> Settings {
         &document.org.duration.units,
     );
     time(&mut settings.org.time, &document.org.time);
+    clock(&mut settings.org.clock, &document.org.clock);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -245,4 +246,11 @@ pub(super) fn time(base: &mut super::Time, partial: &super::PartialTime) {
     }
     scalar(&mut base.ambiguous, partial.ambiguous);
     scalar(&mut base.nonexistent, partial.nonexistent);
+}
+
+pub(super) fn clock(base: &mut super::Clock, partial: &super::PartialClock) {
+    if let Some(value) = &partial.drawer {
+        base.drawer.clone_from(value);
+    }
+    scalar(&mut base.remove_zero, partial.remove_zero);
 }

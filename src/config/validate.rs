@@ -82,6 +82,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     properties(&document.org.properties)?;
     todo(document)?;
     time(document)?;
+    clock(document)?;
     estimates(document)
 }
 
@@ -389,6 +390,16 @@ fn time(document: &Document) -> Result<(), Failure> {
     if let Some(zone) = &document.org.time.zone {
         crate::org::time::ZoneSelection::parse(zone)
             .map_err(|e| Failure::new("org.time.zone", e))?;
+    }
+    Ok(())
+}
+
+fn clock(document: &Document) -> Result<(), Failure> {
+    if let Some(drawer) = &document.org.clock.drawer
+        && !drawer.is_empty()
+        && !crate::org::task::drawer_name(drawer)
+    {
+        return Err(Failure::new("org.clock.drawer", "Use an empty value or a drawer name of 1..64 ASCII letters, digits, _ or -; PROPERTIES and END are reserved".into()));
     }
     Ok(())
 }

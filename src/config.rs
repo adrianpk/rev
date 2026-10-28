@@ -124,6 +124,7 @@ pub struct Org {
     pub priority: Priority,
     pub duration: Duration,
     pub time: Time,
+    pub clock: Clock,
 }
 
 impl Default for Org {
@@ -136,6 +137,7 @@ impl Default for Org {
             priority: Priority::default(),
             duration: Duration::default(),
             time: Time::default(),
+            clock: Clock::default(),
         }
     }
 }
@@ -150,6 +152,7 @@ pub struct PartialOrg {
     pub priority: PartialPriority,
     pub duration: PartialDuration,
     pub time: PartialTime,
+    pub clock: PartialClock,
 }
 
 /// Effective Org operation zone; fold/gap policies require explicit selection.
@@ -644,4 +647,25 @@ impl Default for Mouse {
 pub struct PartialMouse {
     pub enabled: Option<bool>,
     pub scroll_lines: Option<i64>,
+}
+
+/// Canonical clock source placement and zero-minute retention.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Clock {
+    pub drawer: String,
+    pub remove_zero: bool,
+}
+impl Default for Clock {
+    fn default() -> Self {
+        Self {
+            drawer: "LOGBOOK".into(),
+            remove_zero: false,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialClock {
+    pub drawer: Option<String>,
+    pub remove_zero: Option<bool>,
 }

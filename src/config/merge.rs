@@ -50,6 +50,7 @@ impl Document {
         merge.priority(&mut self.org.priority, &later.org.priority);
         merge.duration(&mut self.org.duration.units, &later.org.duration.units);
         merge.time(&mut self.org.time, &later.org.time);
+        merge.clock(&mut self.org.clock, &later.org.clock);
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);
@@ -574,6 +575,17 @@ impl Merge {
             &["org", "time", "nonexistent"],
             &mut base.nonexistent,
             &later.nonexistent,
+        );
+    }
+}
+
+impl Merge {
+    fn clock(&mut self, base: &mut super::PartialClock, later: &super::PartialClock) {
+        self.leaf(&["org", "clock", "drawer"], &mut base.drawer, &later.drawer);
+        self.leaf(
+            &["org", "clock", "remove_zero"],
+            &mut base.remove_zero,
+            &later.remove_zero,
         );
     }
 }

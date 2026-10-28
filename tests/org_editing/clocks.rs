@@ -93,3 +93,91 @@ fn clock_placement() {
         assert!(session.buffer().unwrap().history().is_empty());
     }
 }
+
+// Same-minute records are retained by default. Explicit removal and cancel
+// remove only their interval and an otherwise empty drawer in one transaction.
+#[test]
+fn zero_and_cancel() {
+    for (name, config, source) in [
+        ("default", "", "* Task\nbody"),
+        ("remove", "org.clock.remove_zero=true", "* Task\nbody"),
+        ("EOF", "org.clock.remove_zero=true", "* Task"),
+        (
+            "empty drawer",
+            "org.clock.remove_zero=true",
+            "* Task\n:LOGBOOK:\n:END:\nbody",
+        ),
+        (
+            "other log",
+            "org.clock.remove_zero=true",
+            "* Task\n:LOGBOOK:\nold log\n:END:\nbody",
+        ),
+    ] {
+        let (_fixture, session) = editor(config, "clock.org", source);
+        let mut session = session.with_org_clock(clock);
+        action(&mut session, C::ClockIn);
+        let opened = text(&session);
+        action(&mut session, C::ClockOut);
+        let expected = if name == "default" {
+            opened.replace(
+                "[2024-03-01 Fri 14:30]",
+                "[2024-03-01 Fri 14:30]--[2024-03-01 Fri 14:30] =>  0:00",
+            )
+        } else if name == "empty drawer" {
+            "* Task\nbody".into()
+        } else {
+            source.into()
+        };
+        assert_eq!(text(&session), expected, "{name}: {}", session.echo());
+        assert_eq!(session.buffer().unwrap().history().len(), 2);
+        session.execute(Command::History(History::Undo));
+        assert_eq!(text(&session), opened, "{name}");
+    }
+    cancel_cases();
+}
+fn cancel_cases() {
+    for (source, expected) in [
+        ("* Task", "* Task"),
+        ("* Task\nbody", "* Task\nbody"),
+        (
+            "* Task\n:LOGBOOK:\nold log\n:END:\n",
+            "* Task\n:LOGBOOK:\nold log\n:END:\n",
+        ),
+    ] {
+        let (_fixture, session) = editor("", "clock.org", source);
+        let mut session = session.with_org_clock(clock);
+        action(&mut session, C::ClockIn);
+        let opened = text(&session);
+        action(&mut session, C::ClockCancel);
+        assert_eq!(text(&session), expected, "{}", session.echo());
+        session.execute(Command::History(History::Undo));
+        assert_eq!(text(&session), opened);
+    }
+}
+
+// Configured placement is live. Source properties retain their explicit
+// precedence and nil placement does not manufacture a drawer.
+#[test]
+fn clock_policy() {
+    for (config, source, wanted) in [
+        ("org.clock.drawer='WORK'", "* Task\nbody", ":WORK:\nCLOCK:"),
+        ("org.clock.drawer=''", "* Task\nbody", "* Task\nCLOCK:"),
+        (
+            "org.clock.drawer='WORK'",
+            "* Task\n:PROPERTIES:\n:LOG_INTO_DRAWER: LOG\n:CLOCK_INTO_DRAWER: CLOCKS\n:END:\nbody",
+            ":CLOCKS:\nCLOCK:",
+        ),
+    ] {
+        let (_fixture, session) = editor(config, "clock.org", source);
+        let mut session = session.with_org_clock(clock);
+        action(&mut session, C::ClockIn);
+        assert!(
+            text(&session).contains(wanted),
+            "{}: {}",
+            text(&session),
+            session.echo()
+        );
+        action(&mut session, C::ClockCancel);
+        assert_eq!(text(&session), source);
+    }
+}

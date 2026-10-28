@@ -22,6 +22,12 @@ inactive timestamps and elapsed H:MM. Minute endpoints follow source precision;
 offset changes do not become elapsed-time errors. Default placement is LOGBOOK;
 CLOCK_INTO_DRAWER and LOG_INTO_DRAWER select checked local/inherited ownership.
 
+T20.2 adds effective `org.clock.drawer` and `org.clock.remove_zero` policy through
+normal configuration layering, exact provenance and validated source-safe names.
+Zero-minute intervals remain by default. Explicit removal and cancel delete the
+owned interval and an otherwise empty drawer; other logs and metadata remain
+exact. Newline wrappers added at unterminated EOF are removed with the interval.
+
 ## Implementation Notes
 
 Clock values are separate from source authority. Native locators carry the exact
@@ -60,6 +66,19 @@ T20.1 development checks passed:
 - `cargo clippy --lib -- -D warnings`.
 - `python3 scripts/check-config-reference.py`: 115 schema/catalog entries, 46 RGB roles, 169 default bindings and 14706 packaged template bytes agree.
 - `python3 scripts/check-source.py`: existing source quality thresholds passed.
+
+T20.1 commit: `8a6a6d74d2797e381e31d299a243b064ef08c5c5`.
+
+T20.2 development checks passed:
+
+- `cargo test --test org_editing --test configuration clock`: eight selected tests, zero skips.
+- `cargo clippy --lib --test org_editing --test configuration -- -D warnings`.
+- `python3 scripts/check-config-reference.py`: 117 schema/catalog entries, 46 RGB roles, 169 default bindings and 14758 packaged template bytes agree.
+- Changed-source quality passed at the original limits.
+
+Development validation caught a missing initializer, a collapsible conditional
+and a complexity boundary. The initializer and conditional were corrected, and
+source owner conversion now uses the existing qualified span. Checks were retained.
 
 ## Risks and Follow-ups
 
