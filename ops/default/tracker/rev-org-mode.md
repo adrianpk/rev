@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 10 subtree-edits
+Active slice: Slice 11 lists-checkboxes
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -259,15 +259,18 @@ Details and exact checks: [Slice 10](../plan/rev-org-mode.md#slice-10-move-and-p
 - [x] T10.1: Implement checked promote/demote and sibling subtree moves over complete owned source.
 - [x] T10.2: Retain descendants, affiliated metadata, marks and independent views through one atomic history change.
 - [x] T10.3: Verify boundary rejections, malformed parents, regional edits and full undo/redo fidelity.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 PR: [#111](https://forge.adrianpk.com/adrianpk/rev/pulls/111).
 Report: [Slice 10](../report/slices/rev-org-mode/slice-10-subtree-edits.md).
 Task commits: T10.1 `108eb180cc51e646143b0b07336449375b3eba93`,
 T10.2 `442f5de871c7faf32f091a8764ae2fa3fae03530`,
 T10.3 `ad4c1a46af165a10f9f20e01e5e34a491f17a6ce`.
-Required and focused exact-head receipts are recorded by the controller after
-this PR-reference follow-up is pushed; integration remains pending.
+Integrated at `243764fbeaa687596c1be9869df6e974d626c709` through PR #111.
+Required receipt `NMHRAJ25SXERYSWRLIORRQHZDU`: five checks, 192 Rust tests,
+zero skipped. Focused receipt `A3YXJEV7CJZC2H3Q7IX2PWGEQN`: 249 tests,
+reference/template checks and two owned PTY sessions at the same HEAD.
+Canonical title/body/report/head and exact dev integration verified.
 
 ### Slice 11: edit Org lists and progress cookies
 

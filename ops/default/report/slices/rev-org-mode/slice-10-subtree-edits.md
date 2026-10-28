@@ -1,6 +1,6 @@
 # Slice 10: Move and promote coherent Org subtrees
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -93,8 +93,8 @@ The first required batch caught a stale palette expectation: `org-mo` now
 matches both delivered move commands as well as `org-mode`. The regression now
 asserts all three identities before narrowing mode completion to `org-mod`.
 
-After the canonical PR-reference follow-up is pushed, the controller records
-these required commands against that clean HEAD, in order:
+Controller receipt `NMHRAJ25SXERYSWRLIORRQHZDU` passed these five commands
+at `243764fbeaa687596c1be9869df6e974d626c709` (192 Rust tests, zero skipped):
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -102,10 +102,16 @@ these required commands against that clean HEAD, in order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-A separate focused controller batch records `cargo test --test configuration
---test commands`, `python3 scripts/check-config-reference.py`, the owned terminal
-command above and `git diff --check` at the same HEAD. Receipt IDs and final
-outcomes are retained in controller evidence and Acta.
+Focused receipt `A3YXJEV7CJZC2H3Q7IX2PWGEQN` passed at the same HEAD:
+
+- `cargo test --test configuration --test commands`: 249 tests, zero skipped.
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions, zero skipped.
+- `git diff --check`
+
+Canonical title, body, branch, base, report introduction and candidate verified.
+PR #111 merged into `dev` at the exact validated candidate above.
 
 ## Risks and Follow-ups
 
