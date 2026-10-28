@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-26-agenda-sources`
-PR: pending
+PR: `#127`
 
 ## Purpose
 
@@ -64,7 +64,9 @@ iteration/read boundaries; they cannot interrupt a blocked kernel operation.
 
 ## Validation
 
-T26.1: `09ff6bd06713`. T26.2: `42c96d7e0be0`.
+T26.1: `09ff6bd06713041e3f52f1cc594fe75f480afa89`.
+T26.2: `42c96d7e0be0d9dfce31862e2718638da6e85aeb`.
+T26.3: `61ae680593ef1c0c33aac0521eeefa243c5594e0`.
 
 
 - `cargo check`: passed.
@@ -116,3 +118,7 @@ Final controller evidence binds the clean canonical PR head. Required order:
 
 Calendar/day/week result presentation follows its recorded slice.
 The delivery-set full gate has not run.
+
+[Canonical PR #127](https://forge.adrianpk.com/adrianpk/rev/pulls/127) targets dev.
+Final required and focused controller receipts bind the clean PR-reference head;
+verified integration remains pending.

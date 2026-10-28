@@ -661,6 +661,12 @@ open sources, directory cycles, cancelled results and buffer-only count limits.
 Sixteen selected native/IO/configuration checks pass; focused Clippy and source
 quality preserve their original limits. Final canonical PR and receipts follow.
 
+T26.3: `61ae680593ef1c0c33aac0521eeefa243c5594e0`.
+[Canonical PR #127](https://forge.adrianpk.com/adrianpk/rev/pulls/127) and the
+[Slice 26 report](../report/slices/rev-org-mode/slice-26-agenda-sources.md) are
+reviewing. Final required/focused controller receipts bind the clean
+PR-reference head; verified dev integration remains pending.
+
 ### Slice 27: display native day and week Org agendas
 
 Contracts: ORG08 ORG09.
