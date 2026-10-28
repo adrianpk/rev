@@ -46,7 +46,15 @@ No data, state or cache creation accompanies startup.
 explicit-XDG and HOME-fallback native startup, complete packaged bytes, ordinary
 validation, retained factory editing, repeat startup and passive other roots.
 `python3 scripts/check-source.py` passed the initial publication owner.
-Exact clean-HEAD evidence will be recorded after the remaining tasks.
+`cargo test --lib config::publication::tests` passed four groups covering
+six injected IO stages, a partial-write unwind, four synchronized real-filesystem
+publishers and preservation/ordinary validation of custom or invalid concurrent
+winners. Cleanup retains unrelated files. `cargo test --test configuration startup::publication`
+passed absent-root XDG/HOME startup, seven existing-entry kinds and blocked or
+unwritable parents. Entry identity, permissions, timestamps, exact bytes/link
+referents and native editable defaults remain checked. Later sync/cleanup errors
+retain the complete published file and still return a truthful failure.
+Exact clean-HEAD evidence will be recorded after the remaining task.
 
 ## Risks and Follow-ups
 

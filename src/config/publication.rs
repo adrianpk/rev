@@ -86,3 +86,7 @@ fn install(temporary: &mut Temporary, root: &Path, output: &mut impl Output) -> 
 fn operation<T>(name: &str, result: io::Result<T>) -> io::Result<T> {
     result.map_err(|error| io::Error::new(error.kind(), format!("{name}: {error}")))
 }
+
+#[cfg(test)]
+#[path = "publication/tests.rs"]
+mod tests;

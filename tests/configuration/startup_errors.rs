@@ -109,7 +109,7 @@ fn unreadable_sources() {
     }
 }
 
-fn broken(fixture: &Fixture, kind: &str) {
+pub(super) fn broken(fixture: &Fixture, kind: &str) {
     let root = fixture.write("user/rev/config.toml", "");
     match kind {
         "directory" => {

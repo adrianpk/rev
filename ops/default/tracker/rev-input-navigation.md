@@ -322,7 +322,7 @@ Contracts: CFG01 CFG14 CFG15 CFG24.
 Details and exact checks: [Slice 17](../plan/rev-input-navigation.md#slice-17-create-absent-user-configuration-safely).
 
 - [x] T17.1: Provision the implicit user root during normal editor startup only when no destination entry exists; honor existing XDG resolution and create only necessary configuration parents.
-- [ ] T17.2: Publish a complete template without clobbering concurrent winners, links, invalid/empty files or other entries; keep pure resolution/loading read-only and retain usable defaults with truthful diagnostics on failure.
+- [x] T17.2: Publish a complete template without clobbering concurrent winners, links, invalid/empty files or other entries; keep pure resolution/loading read-only and retain usable defaults with truthful diagnostics on failure.
 - [ ] T17.3: Verify real filesystem races and fault paths, isolate HOME/all XDG roots in every process-based fixture, and adapt missing-root startup assertions while retaining their recovery/fidelity guarantees.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
