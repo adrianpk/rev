@@ -20,9 +20,13 @@ pub enum OrgCommand {
     BackwardHeading,
     ParentHeading,
     MetaReturn,
+    PromoteSubtree,
+    DemoteSubtree,
+    MoveSubtreeUp,
+    MoveSubtreeDown,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 18] = [
+    pub const ALL: [Self; 22] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -41,6 +45,10 @@ impl OrgCommand {
         Self::BackwardHeading,
         Self::ParentHeading,
         Self::MetaReturn,
+        Self::PromoteSubtree,
+        Self::DemoteSubtree,
+        Self::MoveSubtreeUp,
+        Self::MoveSubtreeDown,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -62,6 +70,20 @@ impl OrgCommand {
             "org-backward-heading-same-level",
             "org-up-heading-safe",
             "org-meta-return",
+            "org-promote-subtree",
+            "org-demote-subtree",
+            "org-move-subtree-up",
+            "org-move-subtree-down",
         ][self as usize]
+    }
+
+    pub(crate) fn edits_subtree(self) -> bool {
+        matches!(
+            self,
+            Self::PromoteSubtree
+                | Self::DemoteSubtree
+                | Self::MoveSubtreeUp
+                | Self::MoveSubtreeDown
+        )
     }
 }

@@ -1,8 +1,10 @@
 mod grouping;
 mod history;
 mod mapping;
+mod reorder;
 mod syntax;
 mod views;
+use reorder::Permutation;
 
 pub use history::History;
 use history::Operation;
@@ -147,6 +149,7 @@ pub struct Transaction {
     bytes: usize,
     cursor: Option<usize>,
     origin: Option<crate::window::ViewId>,
+    permutation: Option<Permutation>,
 }
 
 impl Transaction {
@@ -213,6 +216,16 @@ impl Buffer {
         points: &[Point],
         cursor: Option<Cursor>,
     ) -> Result<Prepared, Error> {
+        self.prepare_ordered(edits, points, cursor, None)
+    }
+
+    fn prepare_ordered(
+        &self,
+        edits: &[Replacement],
+        points: &[Point],
+        cursor: Option<Cursor>,
+        permutation: Option<Permutation>,
+    ) -> Result<Prepared, Error> {
         self.admit(self.stamp())?;
         let next_state = self.next_state.checked_add(1).ok_or(Error::Capacity)?;
         let changes = self.changes(edits)?;
@@ -220,7 +233,7 @@ impl Buffer {
             buffer: self.id,
             sequence: self.next_state,
         };
-        let mut prepared = self.prepare_changes(changes, points, state)?;
+        let mut prepared = self.prepare_changes(changes, points, state, permutation)?;
         let coordinates = Coordinates::for_text(
             prepared.text.slice(..),
             prepared.record.after,
@@ -236,12 +249,13 @@ impl Buffer {
         changes: Vec<Change>,
         points: &[Point],
         state: State,
+        permutation: Option<Permutation>,
     ) -> Result<Prepared, Error> {
         let after = self.next_stamp()?;
         let text = self.candidate(&changes)?;
         let crlf = super::endings::update(&self.text, &text, &changes, self.crlf)?;
         let coordinates = Coordinates::for_text(text.slice(..), after, self.policy.tab_width);
-        let after_points = map_points(self, &changes, points, &coordinates)?;
+        let after_points = map_points(self, &changes, points, &coordinates, permutation.as_ref())?;
         let mut record = Transaction {
             before: self.stamp(),
             after,
@@ -255,6 +269,7 @@ impl Buffer {
             bytes: 0,
             cursor: None,
             origin: None,
+            permutation,
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
         record.bytes = record

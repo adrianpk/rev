@@ -69,6 +69,7 @@ for file, history and retained-text policies.
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
 | Org headings | `org-insert-heading`, `org-meta-return`, `org-next-visible-heading`, `org-previous-visible-heading`, `org-forward-heading-same-level`, `org-backward-heading-same-level`, `org-up-heading-safe` |
+| Org subtrees | `org-promote-subtree`, `org-demote-subtree`, `org-move-subtree-up`, `org-move-subtree-down` |
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |

@@ -9,8 +9,12 @@ impl Prepared {
         if top.stamp != self.record.before {
             return Err(Error::ChangedPositions);
         }
-        let position =
-            mapping::mapped(&self.record.changes, top.position, mapping::Affinity::Left)?;
+        let position = mapping::mapped(
+            &self.record.changes,
+            top.position,
+            mapping::Affinity::Left,
+            self.record.permutation.as_ref(),
+        )?;
         let coordinates =
             Coordinates::for_text(self.text.slice(..), self.record.after, self.tab_width);
         Ok(coordinates.to_line(position)?.row)
@@ -26,6 +30,16 @@ impl Prepared {
         {
             self.group = None;
         }
+    }
+
+    /// Record the already mapped initiating point for ordinary history replay.
+    pub(crate) fn retain_initiator(&mut self, index: usize) -> Result<(), Error> {
+        self.record
+            .after_points
+            .get(index)
+            .ok_or(Error::Cursor(index))?;
+        self.record.cursor = Some(index);
+        Ok(())
     }
 }
 

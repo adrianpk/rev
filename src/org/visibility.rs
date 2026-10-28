@@ -2,7 +2,9 @@ mod insertion;
 mod model;
 mod navigation;
 mod state;
+mod subtree;
 pub(crate) use insertion::Insertion;
+pub(crate) use subtree::SubtreeEdit;
 
 use std::ops::Range;
 use std::sync::Arc;
@@ -38,6 +40,7 @@ pub(crate) struct Outline {
     drawers: Vec<Drawer>,
     blocked: Vec<Range<usize>>,
     blocked_eof: bool,
+    malformed: Vec<Range<usize>>,
 }
 
 impl Outline {

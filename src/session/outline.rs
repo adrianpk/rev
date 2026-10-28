@@ -5,6 +5,7 @@ use crate::window::ViewId;
 use std::sync::Arc;
 
 mod operation;
+mod subtree;
 
 use super::{Action, Session};
 
@@ -70,6 +71,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         command: OrgCommand,
     ) -> Result<(), String> {
+        if command.edits_subtree() {
+            return self.edit_subtree(&model, command);
+        }
         use OrgCommand::*;
         match command {
             InsertHeading | MetaReturn => self.insert_heading(model),

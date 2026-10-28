@@ -43,7 +43,11 @@ pub(super) fn mapped(
     changes: &[Change],
     mut point: Scalar,
     affinity: Affinity,
+    permutation: Option<&super::Permutation>,
 ) -> Result<Scalar, Error> {
+    if let Some(order) = permutation {
+        return Ok(order.position(point));
+    }
     for change in changes.iter().rev() {
         point = through(change, point, affinity)?;
     }
@@ -78,13 +82,14 @@ pub(super) fn map_points(
     changes: &[Change],
     points: &[Point],
     coordinates: &Coordinates<'_>,
+    permutation: Option<&super::Permutation>,
 ) -> Result<Vec<Point>, Error> {
     let source = Coordinates::new(buffer)?;
     let mut mapped_points = Vec::with_capacity(points.len());
     for point in points {
         buffer.current(point.stamp)?;
         boundary(&source, point.position)?;
-        let position = mapped(changes, point.position, Affinity::Right)?;
+        let position = mapped(changes, point.position, Affinity::Right, permutation)?;
         mapped_points.push(Point {
             stamp: coordinates.stamp(),
             position: adjust(coordinates, position, Affinity::Right)?,
@@ -100,7 +105,12 @@ pub(super) fn map_mark(
     let Some(mark) = record.before_mark else {
         return Ok(None);
     };
-    let mapped = mapped(&record.changes, mark, Affinity::Left)?;
+    let mapped = mapped(
+        &record.changes,
+        mark,
+        Affinity::Left,
+        record.permutation.as_ref(),
+    )?;
     Ok(Some(adjust(coordinates, mapped, Affinity::Left)?))
 }
 

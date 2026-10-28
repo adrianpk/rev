@@ -25,7 +25,7 @@ impl Outline {
         self.at_point(buffer, &coordinates, point)
     }
 
-    fn unavailable(&self, byte: usize, at_eof: bool, in_line: bool) -> bool {
+    pub(super) fn unavailable(&self, byte: usize, at_eof: bool, in_line: bool) -> bool {
         let index = self.blocked.partition_point(|range| range.end <= byte);
         if self
             .blocked

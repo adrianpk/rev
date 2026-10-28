@@ -9,6 +9,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         drawers: Vec::new(),
         blocked: Vec::new(),
         blocked_eof: false,
+        malformed: Vec::new(),
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {
@@ -21,11 +22,15 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         }
         collect(&mut result, node);
         block(&mut result, node, structure.covered_bytes().0);
+        if node.kind == StructureKind::Malformed {
+            result.malformed.push(node.source.clone());
+        }
     }
     result.headings.sort_by_key(|h| h.start);
     result.drawers.sort_by_key(|d| d.start);
     parents(&mut result.headings);
     merge(&mut result.blocked);
+    merge(&mut result.malformed);
     result
 }
 

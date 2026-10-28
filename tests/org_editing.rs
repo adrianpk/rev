@@ -18,6 +18,8 @@ mod heading_edges;
 mod headings;
 #[path = "org_editing/projection.rs"]
 mod projection;
+#[path = "org_editing/subtrees.rs"]
+mod subtrees;
 #[path = "org_editing/visibility.rs"]
 mod visibility;
 #[path = "org_editing/visibility_reveal.rs"]

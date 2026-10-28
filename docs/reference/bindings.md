@@ -32,6 +32,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-f in Org | `org-forward-heading-same-level` | Visit the next sibling without crossing a parent boundary. |
 | C-c C-b in Org | `org-backward-heading-same-level` | Visit the previous sibling without crossing a parent boundary. |
 | C-c C-u in Org | `org-up-heading-safe` | Visit the parent heading. |
+| M-Left in Org | `org-promote-subtree` | Promote a complete subtree and its descendants. |
+| M-Right in Org | `org-demote-subtree` | Demote a complete subtree under its preceding sibling. |
+| M-Up in Org | `org-move-subtree-up` | Move a complete subtree before its previous sibling. |
+| M-Down in Org | `org-move-subtree-down` | Move a complete subtree after its next sibling. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |

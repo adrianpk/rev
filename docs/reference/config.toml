@@ -299,6 +299,10 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-b" = "org-backward-heading-same-level"
 "C-c C-u" = "org-up-heading-safe"
 "M-RET" = "org-meta-return"
+"M-Left" = "org-promote-subtree"
+"M-Right" = "org-demote-subtree"
+"M-Up" = "org-move-subtree-up"
+"M-Down" = "org-move-subtree-down"
 [keys.org_capture]
 [keys.org_source_edit]
 

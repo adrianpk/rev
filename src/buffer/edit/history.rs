@@ -60,7 +60,11 @@ impl Buffer {
         let record = self.history_record(direction, points.len(), initiator)?;
         let (_, target) = record.states(direction);
         let changes = record.replay(direction);
-        let mut prepared = self.prepare_changes(changes, points, target)?;
+        let permutation = record
+            .permutation
+            .as_ref()
+            .map(|order| order.replay(direction));
+        let mut prepared = self.prepare_changes(changes, points, target, permutation)?;
         let coordinates = Coordinates::for_text(
             prepared.text.slice(..),
             prepared.record.after,
