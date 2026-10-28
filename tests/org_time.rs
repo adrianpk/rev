@@ -45,6 +45,8 @@ mod clock_tables;
 mod clock_totals;
 #[path = "org_time/clocks.rs"]
 mod clocks;
+#[path = "org_time/habit_graphs.rs"]
+mod habit_graphs;
 #[path = "org_time/habit_history.rs"]
 mod habit_history;
 #[path = "org_time/habits.rs"]

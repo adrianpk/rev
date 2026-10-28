@@ -25,6 +25,10 @@ impl Date {
     pub fn day(self) -> u8 {
         self.parts().2
     }
+    /// Signed civil day distance, independent of zones and elapsed seconds.
+    pub fn days_since(self, other: Self) -> i64 {
+        i64::from(self.days) - i64::from(other.days)
+    }
     /// Monday is 1, Sunday is 7, independently of locale and host time zone.
     pub fn weekday(self) -> u8 {
         (self.days + 3).rem_euclid(7) as u8 + 1

@@ -35,7 +35,7 @@ fn explicit_defaults() {
             roles += 1;
         }
     }
-    assert_eq!(roles, 46);
+    assert_eq!(roles, 54);
     assert_eq!(raw["gutter"].as_table().unwrap().len(), 7);
     assert_eq!(raw["mouse"].as_table().unwrap().len(), 2);
     let document = parse(Path::new("packaged/config.toml"), text.as_bytes()).unwrap();

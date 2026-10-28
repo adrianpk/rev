@@ -25,6 +25,7 @@ pub enum Message {
 pub(super) enum Tone {
     #[default]
     Document,
+    Habit(crate::org::agenda::HabitState, bool),
     Status(bool),
     Border(bool),
     Tree,
@@ -85,6 +86,9 @@ impl Tone {
             ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
             Self::Document => Colors::new(palette.foreground, palette.background),
+            Self::Habit(state, future) => {
+                Colors::new(palette.foreground, habit_color(state, future, &palette.org))
+            }
         }
     }
 }
@@ -181,5 +185,23 @@ pub(super) fn append(faces: &mut Vec<Face>, column: u16, tone: Tone) {
             columns: column..column + 1,
             tone,
         });
+    }
+}
+
+fn habit_color(
+    state: crate::org::agenda::HabitState,
+    future: bool,
+    p: &crate::config::OrgPalette,
+) -> Rgb {
+    use crate::org::agenda::HabitState::*;
+    match (state, future) {
+        (Clear, false) => p.habit_clear,
+        (Clear, true) => p.habit_clear_future,
+        (Ready, false) => p.habit_ready,
+        (Ready, true) => p.habit_ready_future,
+        (Alert, false) => p.habit_alert,
+        (Alert, true) => p.habit_alert_future,
+        (Overdue, false) => p.habit_overdue,
+        (Overdue, true) => p.habit_overdue_future,
     }
 }

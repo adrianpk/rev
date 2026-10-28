@@ -26,7 +26,7 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 46 active RGB roles and all three default binding maps. Its
+global default, all 54 active RGB roles and all three default binding maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -200,6 +200,12 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.clock.drawer` | String | `"LOGBOOK"` | Task-owned clock drawer. Empty places records after planning/properties. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER, then this setting. |
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
+| `org.habit.preceding_days` | Integer | `21` | Days before today, 0..366. |
+| `org.habit.following_days` | Integer | `7` | Days after today, 0..366. |
+| `org.habit.graph_column` | Integer | `40` | Preferred graph column, 0..4096; clip to the pane. |
+| `org.habit.today_only` | Boolean | `true` | Show graphs only on today's agenda. |
+| `org.habit.show_all_today` | Boolean | `false` | Include habits not yet scheduled on today's agenda. |
+| `org.habit.done_always_green` | Boolean | `false` | Color late completed days as ready when explicitly enabled. |
 | `org.time.zone` | String | `"local"` | local honors captured TZ; system uses localtime; UTC or a validated relative IANA name overrides TZ. Zone data is checked when the operation is selected. |
 | `org.time.ambiguous` | String: "prompt" | `"prompt"` | Require a selected observed offset for repeated local times; never guess. |
 | `org.time.nonexistent` | String: "prompt" | `"prompt"` | Require a valid replacement local time for a forward gap; never normalize silently. |
@@ -308,6 +314,14 @@ All palette roles are global, with no language-scoped color override.
 | `palette.org.footnote` | RGB string | `"#ff9e64"` | Footnote objects. |
 | `palette.org.entity` | RGB string | `"#2ac3de"` | Recognized entity source. |
 | `palette.org.malformed` | RGB string | `"#e0af68"` | Malformed structural delimiters. |
+| `palette.org.habit_clear` | RGB string | `"#0000ff"` | Habit consistency background, clear. |
+| `palette.org.habit_clear_future` | RGB string | `"#191970"` | Habit consistency background, clear future. |
+| `palette.org.habit_ready` | RGB string | `"#228b22"` | Habit consistency background, ready. |
+| `palette.org.habit_ready_future` | RGB string | `"#006400"` | Habit consistency background, ready future. |
+| `palette.org.habit_alert` | RGB string | `"#ffd700"` | Habit consistency background, alert. |
+| `palette.org.habit_alert_future` | RGB string | `"#b8860b"` | Habit consistency background, alert future. |
+| `palette.org.habit_overdue` | RGB string | `"#b22222"` | Habit consistency background, overdue. |
+| `palette.org.habit_overdue_future` | RGB string | `"#8b0000"` | Habit consistency background, overdue future. |
 
 Selection takes precedence over search, which takes precedence over syntax;
 row boundaries reset colors/attributes. Unknown syntax groups inherit document

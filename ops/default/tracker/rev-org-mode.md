@@ -611,7 +611,7 @@ agreement, zero skips. The Slice 24 report is delivered.
 Contracts: ORG20 ORG16.
 Details and exact checks: [Slice 25](../plan/rev-org-mode.md#slice-25-render-native-org-habit-consistency-graphs).
 
-- [ ] T25.1: Render bounded habit graphs with verified defaults, completion/today markers and semantic palette states.
+- [x] T25.1: Render bounded habit graphs with verified defaults, completion/today markers and semantic palette states.
 - [ ] T25.2: Deliver agenda visibility, all-today/today-only and graph controls through native commands.
 - [ ] T25.3: Verify narrow panes, late completions, dirty source observations and idle immutability.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

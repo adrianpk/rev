@@ -55,3 +55,6 @@ impl HabitRecord {
         }
     }
 }
+
+mod graph;
+pub use graph::{HabitCell, HabitGraph, HabitState};

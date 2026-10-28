@@ -94,6 +94,15 @@ enabled = true
 # Minutes or H:MM:SS; zero stays unarmed until explicit positive entry.
 default = "0"
 
+[org.habit]
+# Bounded daily graph, including today. Rendering never changes source history.
+preceding_days = 21
+following_days = 7
+graph_column = 40
+today_only = true
+show_all_today = false
+done_always_green = false
+
 [org.clock]
 persist = false
 history_limit = 32
@@ -219,6 +228,15 @@ target = "#2ac3de" # Ordinary and radio targets.
 footnote = "#ff9e64" # Footnote objects.
 entity = "#2ac3de" # Recognized entity source.
 malformed = "#e0af68" # Malformed structural delimiters.
+
+habit_clear = "#0000ff"
+habit_clear_future = "#191970"
+habit_ready = "#228b22"
+habit_ready_future = "#006400"
+habit_alert = "#ffd700"
+habit_alert_future = "#b8860b"
+habit_overdue = "#b22222"
+habit_overdue_future = "#8b0000"
 
 [palette.gutter]
 background = "#1a1b26"          # Number-field background.

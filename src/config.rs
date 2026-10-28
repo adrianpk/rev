@@ -126,6 +126,7 @@ pub struct Org {
     pub time: Time,
     pub clock: Clock,
     pub timer: Timer,
+    pub habit: Habit,
 }
 
 impl Default for Org {
@@ -140,6 +141,7 @@ impl Default for Org {
             time: Time::default(),
             clock: Clock::default(),
             timer: Timer::default(),
+            habit: Habit::default(),
         }
     }
 }
@@ -156,6 +158,7 @@ pub struct PartialOrg {
     pub time: PartialTime,
     pub clock: PartialClock,
     pub timer: PartialTimer,
+    pub habit: PartialHabit,
 }
 
 /// Effective Org operation zone; fold/gap policies require explicit selection.
@@ -701,4 +704,37 @@ impl Default for Timer {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTimer {
     pub default: Option<String>,
+}
+
+/// Bounded native habit graph preferences; source history remains canonical.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Habit {
+    pub preceding_days: usize,
+    pub following_days: usize,
+    pub graph_column: usize,
+    pub today_only: bool,
+    pub show_all_today: bool,
+    pub done_always_green: bool,
+}
+impl Default for Habit {
+    fn default() -> Self {
+        Self {
+            preceding_days: 21,
+            following_days: 7,
+            graph_column: 40,
+            today_only: true,
+            show_all_today: false,
+            done_always_green: false,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialHabit {
+    pub preceding_days: Option<i64>,
+    pub following_days: Option<i64>,
+    pub graph_column: Option<i64>,
+    pub today_only: Option<bool>,
+    pub show_all_today: Option<bool>,
+    pub done_always_green: Option<bool>,
 }

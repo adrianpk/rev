@@ -35,6 +35,7 @@ TABLES = {
     "org.time": "PartialTime",
     "org.clock": "PartialClock",
     "org.timer":"PartialTimer",
+    "org.habit":"PartialHabit",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",
     "org.properties": "PartialProperties",
@@ -87,7 +88,7 @@ def check_schema(document, models):
     require(document["language"] == {}, "language overrides must stay optional")
     require(document["files"]["associations"] == {}, "associations must stay optional")
     palette = document["palette"]
-    require(len(palette) - 3 + len(palette["syntax"]) + len(palette["gutter"]) + len(palette["org"]) == 46, "expected 46 active RGB roles")
+    require(len(palette) - 3 + len(palette["syntax"]) + len(palette["gutter"]) + len(palette["org"]) == 54, "expected 54 active RGB roles")
 
 
 def example(sample, heading):
@@ -278,7 +279,7 @@ def main():
     check_enums(ROOT, models, rows)
     check_links(ROOT)
     bindings = sum(len(entries) for entries in document["keys"].values())
-    print(f"Configuration reference: {len(rows)} schema/catalog entries, 46 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
+    print(f"Configuration reference: {len(rows)} schema/catalog entries, 54 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
     print(f"Packaged template: {len(asset)} exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation.")
     print("Typed defaults and published parser bounds are checked by cargo test --test configuration; UI effects require separate native/terminal evidence.")
 

@@ -190,6 +190,14 @@ pub struct OrgPalette {
     pub footnote: Rgb,
     pub entity: Rgb,
     pub malformed: Rgb,
+    pub habit_clear: Rgb,
+    pub habit_clear_future: Rgb,
+    pub habit_ready: Rgb,
+    pub habit_ready_future: Rgb,
+    pub habit_alert: Rgb,
+    pub habit_alert_future: Rgb,
+    pub habit_overdue: Rgb,
+    pub habit_overdue_future: Rgb,
 }
 
 impl Default for OrgPalette {
@@ -212,6 +220,14 @@ impl Default for OrgPalette {
             footnote: Rgb(0xff, 0x9e, 0x64),
             entity: Rgb(0x2a, 0xc3, 0xde),
             malformed: Rgb(0xe0, 0xaf, 0x68),
+            habit_clear: Rgb(0x00, 0x00, 0xff),
+            habit_clear_future: Rgb(0x19, 0x19, 0x70),
+            habit_ready: Rgb(0x22, 0x8b, 0x22),
+            habit_ready_future: Rgb(0x00, 0x64, 0x00),
+            habit_alert: Rgb(0xff, 0xd7, 0x00),
+            habit_alert_future: Rgb(0xb8, 0x86, 0x0b),
+            habit_overdue: Rgb(0xb2, 0x22, 0x22),
+            habit_overdue_future: Rgb(0x8b, 0x00, 0x00),
         }
     }
 }
@@ -237,4 +253,12 @@ pub struct PartialOrgPalette {
     pub footnote: Option<String>,
     pub entity: Option<String>,
     pub malformed: Option<String>,
+    pub habit_clear: Option<String>,
+    pub habit_clear_future: Option<String>,
+    pub habit_ready: Option<String>,
+    pub habit_ready_future: Option<String>,
+    pub habit_alert: Option<String>,
+    pub habit_alert_future: Option<String>,
+    pub habit_overdue: Option<String>,
+    pub habit_overdue_future: Option<String>,
 }

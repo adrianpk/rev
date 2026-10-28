@@ -305,6 +305,14 @@ fn org_palette(palette: &PartialOrgPalette) -> Result<(), Failure> {
         ("footnote", &palette.footnote),
         ("entity", &palette.entity),
         ("malformed", &palette.malformed),
+        ("habit_clear", &palette.habit_clear),
+        ("habit_clear_future", &palette.habit_clear_future),
+        ("habit_ready", &palette.habit_ready),
+        ("habit_ready_future", &palette.habit_ready_future),
+        ("habit_alert", &palette.habit_alert),
+        ("habit_alert_future", &palette.habit_alert_future),
+        ("habit_overdue", &palette.habit_overdue),
+        ("habit_overdue_future", &palette.habit_overdue_future),
     ];
     for (key, value) in colors {
         color(&format!("palette.org.{key}"), value.as_deref())?;
@@ -388,6 +396,7 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
 }
 
 fn time(document: &Document) -> Result<(), Failure> {
+    habit(&document.org.habit)?;
     integer(
         "org.time.extend_today_until",
         document.org.time.extend_today_until,
@@ -420,5 +429,12 @@ fn timer(document: &Document) -> Result<(), Failure> {
         crate::org::time::TimerDuration::parse(value)
             .map_err(|e| Failure::new("org.timer.default", e))?;
     }
+    Ok(())
+}
+
+fn habit(partial: &super::PartialHabit) -> Result<(), Failure> {
+    integer("org.habit.preceding_days", partial.preceding_days, 0..=366)?;
+    integer("org.habit.following_days", partial.following_days, 0..=366)?;
+    integer("org.habit.graph_column", partial.graph_column, 0..=4096)?;
     Ok(())
 }

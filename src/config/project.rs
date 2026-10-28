@@ -33,6 +33,7 @@ pub(super) fn settings(document: &Document) -> Settings {
         &document.org.duration.units,
     );
     time(&mut settings.org.time, &document.org.time);
+    habit(&mut settings.org.habit, &document.org.habit);
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);
@@ -206,6 +207,17 @@ fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {
     color(&mut base.footnote, &partial.footnote);
     color(&mut base.entity, &partial.entity);
     color(&mut base.malformed, &partial.malformed);
+    color(&mut base.habit_clear, &partial.habit_clear);
+    color(&mut base.habit_clear_future, &partial.habit_clear_future);
+    color(&mut base.habit_ready, &partial.habit_ready);
+    color(&mut base.habit_ready_future, &partial.habit_ready_future);
+    color(&mut base.habit_alert, &partial.habit_alert);
+    color(&mut base.habit_alert_future, &partial.habit_alert_future);
+    color(&mut base.habit_overdue, &partial.habit_overdue);
+    color(
+        &mut base.habit_overdue_future,
+        &partial.habit_overdue_future,
+    );
 }
 
 pub(super) fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
@@ -260,4 +272,13 @@ pub(super) fn clock(base: &mut super::Clock, partial: &super::PartialClock) {
         base.drawer.clone_from(value);
     }
     scalar(&mut base.remove_zero, partial.remove_zero);
+}
+
+fn habit(base: &mut super::Habit, partial: &super::PartialHabit) {
+    count(&mut base.preceding_days, partial.preceding_days);
+    count(&mut base.following_days, partial.following_days);
+    count(&mut base.graph_column, partial.graph_column);
+    scalar(&mut base.today_only, partial.today_only);
+    scalar(&mut base.show_all_today, partial.show_all_today);
+    scalar(&mut base.done_always_green, partial.done_always_green);
 }

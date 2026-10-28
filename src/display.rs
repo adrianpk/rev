@@ -3,6 +3,7 @@ mod clip;
 mod completion;
 mod compose;
 mod gutter;
+mod habit;
 mod inventory;
 mod prompt;
 mod search;

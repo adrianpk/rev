@@ -50,6 +50,7 @@ impl Document {
         merge.priority(&mut self.org.priority, &later.org.priority);
         merge.duration(&mut self.org.duration.units, &later.org.duration.units);
         merge.time(&mut self.org.time, &later.org.time);
+        merge.habit(&mut self.org.habit, &later.org.habit);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -565,6 +566,46 @@ impl Merge {
             &mut base.malformed,
             &later.malformed,
         );
+        self.leaf(
+            &["palette", "org", "habit_clear"],
+            &mut base.habit_clear,
+            &later.habit_clear,
+        );
+        self.leaf(
+            &["palette", "org", "habit_clear_future"],
+            &mut base.habit_clear_future,
+            &later.habit_clear_future,
+        );
+        self.leaf(
+            &["palette", "org", "habit_ready"],
+            &mut base.habit_ready,
+            &later.habit_ready,
+        );
+        self.leaf(
+            &["palette", "org", "habit_ready_future"],
+            &mut base.habit_ready_future,
+            &later.habit_ready_future,
+        );
+        self.leaf(
+            &["palette", "org", "habit_alert"],
+            &mut base.habit_alert,
+            &later.habit_alert,
+        );
+        self.leaf(
+            &["palette", "org", "habit_alert_future"],
+            &mut base.habit_alert_future,
+            &later.habit_alert_future,
+        );
+        self.leaf(
+            &["palette", "org", "habit_overdue"],
+            &mut base.habit_overdue,
+            &later.habit_overdue,
+        );
+        self.leaf(
+            &["palette", "org", "habit_overdue_future"],
+            &mut base.habit_overdue_future,
+            &later.habit_overdue_future,
+        );
     }
 }
 
@@ -611,6 +652,41 @@ impl Merge {
             &["org", "clock", "remove_zero"],
             &mut base.remove_zero,
             &later.remove_zero,
+        );
+    }
+}
+
+impl Merge {
+    fn habit(&mut self, base: &mut super::PartialHabit, later: &super::PartialHabit) {
+        self.leaf(
+            &["org", "habit", "preceding_days"],
+            &mut base.preceding_days,
+            &later.preceding_days,
+        );
+        self.leaf(
+            &["org", "habit", "following_days"],
+            &mut base.following_days,
+            &later.following_days,
+        );
+        self.leaf(
+            &["org", "habit", "graph_column"],
+            &mut base.graph_column,
+            &later.graph_column,
+        );
+        self.leaf(
+            &["org", "habit", "today_only"],
+            &mut base.today_only,
+            &later.today_only,
+        );
+        self.leaf(
+            &["org", "habit", "show_all_today"],
+            &mut base.show_all_today,
+            &later.show_all_today,
+        );
+        self.leaf(
+            &["org", "habit", "done_always_green"],
+            &mut base.done_always_green,
+            &later.done_always_green,
         );
     }
 }
