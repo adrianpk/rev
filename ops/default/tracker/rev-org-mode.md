@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 7 fold-projection
+Active slice: Slice 8 fold-controls
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -208,11 +208,12 @@ Details and exact checks: [Slice 7](../plan/rev-org-mode.md#slice-7-map-folded-o
 - [x] T7.1: Add view-local visibility projection over source ranges, retaining independent shared-buffer views.
 - [x] T7.2: Map cursor, gutter, search, mouse and selections through hidden ranges without aliasing source positions.
 - [x] T7.3: Verify tiny panes, Unicode, hit testing, stale folds and edit-driven reveal.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#108](https://forge.adrianpk.com/adrianpk/rev/pulls/108).
-T7.1, T7.2 and T7.3 are committed; exact-head validation follows the clean pushed
-PR-reference candidate. Integration remains controller-owned.
+Integrated into `dev` at `40b0399c60144a1b5b95f0709ed63c10f3124e0c`.
+Controller receipt `ZLMY2P2DZQMCCWWZZ6MDWQNZQ3` passed the required five-command
+batch with 147 tests and zero skips. Canonical title/body/report/head verified.
 
 ### Slice 8: deliver native Org visibility controls
 

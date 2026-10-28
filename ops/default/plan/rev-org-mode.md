@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; native Org, then clocking/habits/effort, followed by Org-in-Emacs behavior for remaining choices, retaining the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 7 fold-projection
+Active slice: Slice 8 fold-controls
 Full gate: `scripts/check-all.sh`
 Planning baseline: `887feeb6c8dfec2a616d7943ac6f2a298d133bbf`
 Spec: [Org Mode](../spec/editor-org-mode.md)

@@ -1,11 +1,12 @@
 # Slice 7: Map folded Org views to canonical source
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-07-fold-projection`
 PR: [#108](https://forge.adrianpk.com/adrianpk/rev/pulls/108)
+Integrated: `40b0399c60144a1b5b95f0709ed63c10f3124e0c`
 
 ## Purpose
 
@@ -84,8 +85,9 @@ returned no target when viewport-row addition overflowed. The projected hit path
 now checks that addition before source lookup. The existing error assertion,
 EOF no-target behavior and required command list are preserved.
 
-After the pushed PR-reference follow-up, the controller records the final clean
-candidate and outcomes for this exact ordered batch in its validation ledger:
+Controller receipt `ZLMY2P2DZQMCCWWZZ6MDWQNZQ3` passed this exact ordered
+batch at clean head `40b0399c60144a1b5b95f0709ed63c10f3124e0c`, subsequently
+integrated through PR #108. All 147 tests passed with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -93,8 +95,7 @@ candidate and outcomes for this exact ordered batch in its validation ledger:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Final receipts are recorded in Acta; the integration follow-up retains their
-exact candidate and outcome here.
+The canonical PR contract and pushed head were verified before integration.
 
 ## Risks and Follow-ups
 
