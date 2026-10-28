@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-08-fold-controls`
-PR: pending
+PR: [#109](https://forge.adrianpk.com/adrianpk/rev/pulls/109)
 
 ## Purpose
 
@@ -40,6 +40,10 @@ intent and owned work, including requests made with syntax coloring disabled.
 
 View choices retain immutable shared model data and independent requested states.
 State and interval projection remain view metadata, outside canonical text/history.
+
+Task commits: T8.1 `f989a86eddfde326e52544d7b4b2c3224b363078`,
+T8.2 `8e799f9335e6bcda550e91a898f6973049273ced`,
+T8.3 `23f5d8fb5e71164e3707e8afec5517bc8136e760`.
 
 Targeted motion and search reveal only the ancestor path and target entry;
 sibling folds and peer views keep their requested choices. Search cancellation

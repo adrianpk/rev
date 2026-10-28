@@ -225,6 +225,11 @@ Details and exact checks: [Slice 8](../plan/rev-org-mode.md#slice-8-deliver-nati
 - [x] T8.3: Exercise native keys, M-x, cancellation and source immutability in an owned outline PTY journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#109](https://forge.adrianpk.com/adrianpk/rev/pulls/109).
+Report: [Slice 8](../report/slices/rev-org-mode/slice-8-fold-controls.md).
+PR-reference follow-up precedes exact-head validation; integration remains
+controller-owned.
+
 ### Slice 9: insert and navigate Org headings
 
 Contracts: ORG04 ORG17.
