@@ -393,24 +393,37 @@ Details and exact checks: [Slice 20](../plan/rev-input-navigation.md#slice-20-re
 - [x] T20.1: Reconcile complete approved specification replacements/additions into their actual baseline, configuration model and user references without rewriting historical validation provenance.
 - [x] T20.2: Extend existing acceptance evidence for all new requirements and the current plan/ticket/report ancestry; preserve original protections, zero-skip checks and same-clean-candidate evidence.
 - [x] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Prepared [PR #100](https://forge.adrianpk.com/adrianpk/rev/pulls/100) against dev.
+Slice 20 of 20 completed. Canonical
+[PR #100](https://forge.adrianpk.com/adrianpk/rev/pulls/100) integrated into dev at
+`d569eb1c0315756e527db43790d8bf25f2a1a90e`.
 The [Slice 20 report](../report/slices/rev-input-navigation/slice-20-delivery-acceptance.md)
-records all three task commits, complete contract reconciliation and final
-ordered validation commands. The controller records final checks on the clean
-PR head after these reference updates.
+records all three task commits and complete contract reconciliation. Canonical
+evidence `35MA3YIHU5T4LLVDUCFWJHR4Z5` passed all nine ordered commands on that
+clean PR head: 512 native tests, nineteen guards, 58 requirement mappings and
+packaged/reference checks, in 75.1 seconds. Later documentation-only closure
+does not relabel that evidence as validation of another candidate.
 
 The nineteen earlier canonical PRs (#81-#99), all configured titles/branches and
 Rebase + Fast-forward heads were verified on Forgejo and in Git ancestry. Acta
 records each merge. All seven solved tickets retain their assigned primary task
-commits, canonical PR and report outcomes. Slice 20 integration, the unchanged
-full gate and documentation-only closure remain controller-owned and pending.
+commits, canonical PR and report outcomes. PR #100 and its matching dev/remote
+head are also verified on Forgejo, in Git and in Acta. All twenty assigned
+reports are delivered and all slice task/integration entries are complete.
+The unchanged full gate and final delivery documentation closure remain
+controller-owned and pending.
+
+Gate preparation uses the existing prerequisite collectors and delivery-state
+guards. The terminal/resource collectors own their temporary fixtures and
+isolated HOME/XDG roots; no persistent fixture or external service is required.
+The controller must run `scripts/check-all.sh` on the clean pushed dev candidate
+after this documentation-only preparation.
 
 ## Delivery closure
 
 - [x] All seven tickets reflect verified primary-slice integration and actual implementation evidence.
-- [ ] Every assigned slice report is delivered; source/model/reference links and complete baseline amendments agree.
+- [x] Every assigned slice report is delivered; source/model/reference links and complete baseline amendments agree.
 - [ ] Controller full gate passed the exact clean integrated dev candidate, including new real terminal/resource evidence and retained protections.
 - [ ] Only approved documentation closure paths changed afterward; record candidate and validation identity without relabeling evidence.
 - [ ] Final plan/tracker/spec/model metadata, canonical push and Acta outcome match actual completion.

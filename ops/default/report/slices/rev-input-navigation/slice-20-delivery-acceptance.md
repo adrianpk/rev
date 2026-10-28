@@ -1,11 +1,12 @@
 # Slice 20: Reconcile combined delivery acceptance and references
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `test/rev-input-20-delivery-acceptance`
 PR: [#100](https://forge.adrianpk.com/adrianpk/rev/pulls/100)
+Integrated: `d569eb1c0315756e527db43790d8bf25f2a1a90e`
 
 ## Purpose
 
@@ -47,8 +48,10 @@ configured exact title, branch, dev base and Rebase + Fast-forward head. Each
 head is an ancestor of this worktree and Acta has the corresponding merge event.
 All seven ticket outcomes are solved/fixed with their actual primary task
 commits and report/PR identities. No ticket was moved or its earlier evidence
-replaced. The tracker records that verified primary closure while leaving the
-current PR, integrated gate and delivery documentation closure pending.
+replaced. PR #100 is also verified merged on Forgejo at the exact validated
+head above, matching primary dev and its canonical remote; Acta records the
+merge. All twenty slice reports and task records are delivered. The integrated
+gate and final delivery documentation closure remain pending.
 
 Task commits:
 
@@ -86,9 +89,15 @@ Both ticket commit-list representations are exercised with actual read-only Git
 ancestry. These checks add approximately two seconds on a warm candidate.
 The eleven full-gate stage identities/order, original runtime/native/terminal/
 resource protections and exact-candidate log admission remain unchanged.
-Final exact-head controller validation is recorded after PR-reference updates.
+Final controller evidence `35MA3YIHU5T4LLVDUCFWJHR4Z5` passed all nine ordered
+commands below on clean head `d569eb1c0315756e527db43790d8bf25f2a1a90e`
+after the PR-reference updates, in 75.1 seconds. It includes 512 native tests,
+nineteen acceptance guards, 58 requirement mappings, 72 schema/catalog entries,
+29 active RGB roles, 111 default bindings and the exact 10013-byte packaged
+template. This is the integrated PR candidate; the later documentation-only
+report/tracker closure does not inherit its runtime validation identity.
 
-Required final ordered commands:
+Successful ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -101,10 +110,14 @@ Required final ordered commands:
 - `git diff --check`
 
 These focused/native/reference/prerequisite checks prepare the PR. They do not
-run or replace `scripts/check-all.sh`. The controller integrates the final PR,
-closes its integrated report state and runs the unchanged eleven-stage gate on
-the exact clean pushed dev candidate. Only the configured documentation paths
-may close afterward, retaining tested and closure identities as distinct facts.
+run or replace `scripts/check-all.sh`. PR #100 is integrated and its report state
+is closed before the controller runs the unchanged eleven-stage gate on the
+exact clean pushed dev candidate. The prerequisite collectors discover named
+cases without running terminal/resource workloads. Those workloads create and
+clean their own temporary fixtures, including isolated HOME and XDG roots;
+no persistent service or external fixture needs to be started. Only the
+configured documentation paths may close after the gate, retaining tested and
+closure identities as distinct facts.
 
 ## Risks and Follow-ups
 
