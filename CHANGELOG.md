@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Fold Org headings with TAB and cycle overview, contents and show-all with S-TAB. M-x provides direct subtree and drawer choices. Each pane keeps independent visibility, searches reveal the target path, and canceling search restores the starting view without changing source text.
+
 - First startup creates the complete editable default configuration at the resolved user XDG path when absent. Existing files, links and other entries remain untouched; creation failures show a diagnostic and keep editing usable with factory defaults.
 
 - Click to focus panes and place point, scroll the pointed pane or file tree without changing keyboard focus, and drag to select text with bounded autoscroll. Mouse support starts enabled; configure `mouse.enabled` and `mouse.scroll_lines`, or toggle the current session with `M-x mouse-mode` without writing settings. Copy and kill use the ordinary native region.

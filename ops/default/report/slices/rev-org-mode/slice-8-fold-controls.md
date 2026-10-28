@@ -1,6 +1,6 @@
 # Slice 8: Deliver native Org visibility controls
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -23,6 +23,11 @@ Native structural observations exclude literal block text from outline targets.
 A missing exact TAB target reports unavailability without folding an ancestor or
 editing source. Drawer boundaries remain visible. Explicit folding of a point's
 body moves that view to its checked visible owner; no display row aliases source.
+
+The owned outline terminal journey exercises native keys, M-x, independent panes,
+targeted search and cancellation in RGB and NO_COLOR. It saves the unchanged
+BOM/CRLF/unterminated Unicode source, verifies fixture identity, and reaps its
+child after terminal restoration with both PTY descriptors closed.
 
 ## Implementation Notes
 
@@ -57,7 +62,9 @@ usable. Requests whose source, view or prompt owner changes cannot publish late.
 - `tests/org_editing/visibility.rs`, `tests/commands/org_visibility.rs`: native controls.
 - `tests/org_editing/visibility_reveal.rs`: hierarchy, saved state, read-only,
   named equivalence, incomplete observations and retired-request behavior.
-- `docs/reference/config.toml`, `commands.md`, `bindings.md`: active control catalog.
+- `scripts/configuration_ui/org_outline.py`: owned native outline journey.
+- `docs/reference/org-mode.md`, `config.toml`, `commands.md`, `bindings.md`:
+  active controls and reference catalog.
 
 ## Validation
 
@@ -69,11 +76,29 @@ Implementation checks passed:
 - `cargo test --test org_editing visibility_reveal::`: six passed.
 - `cargo test --test commands catalog_reference`
 - `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned sessions passed, zero skipped.
 
 Focused source-quality checks passed for changed visibility owners.
-Required exact-head controller validation follows the remaining tasks and pushed
-canonical PR-reference follow-up.
+The terminal driver's show-all predicate was corrected to the handler's actual
+`Org show-all` echo. Expected source rows, byte fidelity and cleanup assertions
+were preserved.
+
+Required exact-head controller validation follows the pushed PR-reference
+follow-up, in this order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test commands --test display`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused configuration tests and reference checks are recorded separately at the
+same candidate. Exact-head receipts are retained by the controller; integration
+evidence will close this report after the canonical merge is verified.
 
 ## Risks and Follow-ups
 
-The owned outline terminal journey remains in T8.3. Existing edits release obsolete view choices.
+Existing edits release obsolete view choices. Incomplete structural observations
+reject folding; show-all and editing remain available.

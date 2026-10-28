@@ -14,4 +14,5 @@
 - [Rectangles](rectangles.md): display-column selection, Unicode edges and separate retained rows.
 - [Terminal input](terminal-input.md): key reports, Escape timing and undo aliases.
 - [Syntax highlighting](syntax.md): language recognition, semantic palette and plain-text fallback.
+- [Native Org visibility](org-mode.md): heading and drawer controls, independent views and targeted reveal.
 - [Failure recovery](recovery.md): retained state, publication outcomes and terminal restoration.

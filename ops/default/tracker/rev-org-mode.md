@@ -222,7 +222,7 @@ Details and exact checks: [Slice 8](../plan/rev-org-mode.md#slice-8-deliver-nati
 
 - [x] T8.1: Implement heading TAB cycle, whole-view S-TAB cycle and direct visibility/drawer commands.
 - [x] T8.2: Integrate hierarchy-aware reveal with ordinary motion, searches and saved independent view state.
-- [ ] T8.3: Exercise native keys, M-x, cancellation and source immutability in an owned outline PTY journey.
+- [x] T8.3: Exercise native keys, M-x, cancellation and source immutability in an owned outline PTY journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 9: insert and navigate Org headings

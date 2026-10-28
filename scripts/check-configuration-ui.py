@@ -14,6 +14,7 @@ from configuration_ui.lifetime import fault
 from configuration_ui.performance import KINDS, run as performance
 from configuration_ui.support import ROOT
 from configuration_ui.workspace import workspace
+from configuration_ui.org_outline import outline
 
 
 def terminal(selected):
@@ -48,7 +49,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -68,6 +69,12 @@ def main():
     if args.case in [None, 'io', 'unwind']:
         build.extend(['--example', 'terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-outline':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            run_scenario(outline, colored)
+            print(f'PASS org-outline {label}')
+        print('Org outline terminal suite: 2 owned sessions passed, 0 skipped.')
+        return
     terminal(args.case)
 
 

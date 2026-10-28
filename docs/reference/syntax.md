@@ -159,7 +159,9 @@ ordinary coordinate rules.
 
 Vertical/page/wheel/autoscroll input advances visible rows. A targeted source
 navigation or search reveals its containing hidden interval before displaying
-the point; canceled search restores the original view choice. Canonical text
+the point. The [native Org visibility controls](org-mode.md) retain hierarchy
+choices and reveal only the target entry and ancestor path. Canceled search
+restores the original view choice. Canonical text
 publication, undo and redo release obsolete fold offsets in all affected views.
 Standalone stale maps also fall back to visible source; stale view points remain
 invalid until the caller supplies a current canonical point. Tiny geometry
