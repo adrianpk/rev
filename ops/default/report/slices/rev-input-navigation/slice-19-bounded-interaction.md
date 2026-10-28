@@ -5,7 +5,7 @@ Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `perf/rev-input-19-bounded-interaction`
-PR: pending
+PR: [#99](https://forge.adrianpk.com/adrianpk/rev/pulls/99)
 
 ## Purpose
 
@@ -41,6 +41,12 @@ The large-buffer pointer fixture targets the actual glyph at column eight:
 padding after a one-character line does not establish canonical text capture.
 Outside release intentionally produces no redundant frame, so its completion
 is checked by retained point and a quiet interval rather than expecting repaint.
+
+Task commits:
+
+- T19.1: `2947eb51e339a2ff68a6c21c57ff7de59e083f53`
+- T19.2: `57d681ced9614b4f00f8d3223ff48a117a8d0666`
+- T19.3: `79b903edd9acef3e30196cd2a00374dac002cafa`
 
 ## Contracts Added or Changed
 
