@@ -191,7 +191,7 @@ Details and exact checks: [Slice 6](../plan/rev-org-mode.md#slice-6-color-native
 
 - [x] T6.1: Project native Org spans through existing palette and display owners, including literal-block boundaries.
 - [x] T6.2: Define typed semantic Org roles with complete factory/sample coverage as each role activates.
-- [ ] T6.3: Verify incremental coloring, shared views, malformed source and usable no-color rendering.
+- [x] T6.3: Verify incremental coloring, shared views, malformed source and usable no-color rendering.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 7: map folded Org views to canonical source

@@ -159,3 +159,42 @@ fn finite_colors() {
         .run(&cancel);
     assert_eq!(colors.highlights().coverage(), Coverage::Cancelled);
 }
+
+// All literal block kinds color original body bytes as one opaque semantic role,
+// including fake metadata, links and comma quoting. Read-only is not an obstacle
+// to derived presentation and never becomes authority to edit canonical source.
+#[test]
+fn literal_colors() {
+    let mut buffers = Buffers::new().unwrap();
+    for (name, opening, closing, role) in [
+        ("source", "src rust", "src", Role::Code),
+        ("example", "example", "example", Role::Code),
+        ("export", "export html", "export", Role::Code),
+        ("comment", "comment", "comment", Role::Comment),
+    ] {
+        let body = ",* Fake\n:PROPERTIES:\n[[file:a]] *bold*\n";
+        let source = format!("* Root\n#+begin_{opening}\n{body}#+end_{closing}\n* Tail\n");
+        let id = buffers.create(&source).unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        buffer.select_mode(Mode::Org).unwrap();
+        buffer.set_readonly(true);
+        let stamp = buffer.stamp();
+        paint(buffer);
+        let start = source.find(body).unwrap();
+        let captures = buffer.org_captures(start..start + body.len());
+        assert_eq!(
+            captures,
+            [Capture {
+                bytes: start..start + body.len(),
+                style: Style::Org(role)
+            }],
+            "{name}"
+        );
+        assert_eq!(super::bytes(buffer), source.as_bytes(), "{name}");
+        assert_eq!(buffer.stamp(), stamp, "{name}");
+        assert!(
+            buffer.is_readonly() && buffer.history().is_empty(),
+            "{name}"
+        );
+    }
+}

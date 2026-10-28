@@ -44,6 +44,10 @@ impl Painter<'_> {
     fn finish(&mut self) {
         // Sorting has a finite capture bound; cancellation is checked on both
         // sides and throughout the prefix table before any result is exposed.
+        if !self.tick() {
+            self.result.captures.clear();
+            return;
+        }
         self.result
             .captures
             .sort_by_key(|capture| capture.bytes.start);

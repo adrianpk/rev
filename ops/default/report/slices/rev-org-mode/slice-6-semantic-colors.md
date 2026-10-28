@@ -1,6 +1,6 @@
 # Slice 6: Color native Org source semantically
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -37,9 +37,18 @@ line indexes resume at the existing invalidated source scope. Structural and
 inline ownership is re-observed from the snapshot to recover delimiters crossing
 that scope. The exposed reindexed-byte count measures only index suffix work.
 Finite byte/node/depth bounds and cancellation retain explicit coverage states.
+Capture finalization checks cancellation before sorting and while building its
+bounded query table.
 
 The existing byte-to-grapheme/cell projection clips complete glyphs and keeps
 selection/search precedence. Org source never enters the Rust grammar owner.
+
+Combined native fixtures cover pending-result edits, shared panes, history,
+BOM/CRLF safe-save, exact UTF-8 cutoff recovery, C-g, hidden/tiny panes and idle
+cleanup. Read-only literal source receives colors without edit authority. An
+isolated NO_COLOR process verifies original delimiters, no RGB output, selection
+reverse video and search underlining. Clipped tab/wide-glyph fragments retain the
+existing unstyled edge-cell contract.
 
 ## Contracts Added or Changed
 
@@ -57,23 +66,41 @@ selection/search precedence. Org source never enters the Rust grammar owner.
 - `tests/configuration/org_palette.rs`, `tests/syntax/org_palette.rs`: default,
   inheritance, provenance, admission and actual rendered-cell coverage.
 - `tests/org_source/color.rs`: ownership, stale results, suffix recovery and limits.
+- `tests/org_editing/colors.rs`, `tests/display/org_colors.rs`: combined native
+  revision/worker lifecycles, byte-safe saves, clipping, selection and NO_COLOR.
 
 ## Validation
 
 Implementation checks passed:
 
 - `cargo check --lib`
-- `cargo test --test org_source color::`: four passed.
-- `cargo test --test org_editing`: eight passed.
+- `cargo test --test org_source color::`: five passed.
+- `cargo test --test org_editing`: eight baseline tests passed during T6.1.
+- `cargo test --test org_editing colors::`: four combined tests passed.
+- `cargo test --test display org_colors::`: three display tests passed, including
+  isolated NO_COLOR selection/search rendering.
 - `cargo test --test configuration org_palette::`: two passed.
 - `cargo test --test syntax org_palette::`: one test covers all 17 roles.
 - `python3 scripts/check-config-reference.py`: 95 schema/catalog entries, 46 RGB
   roles, 115 default bindings and compiled-template/link checks passed.
 
-Required ordered exact-head controller validation will be recorded after the
-palette and combined session tasks and PR-reference follow-up are committed.
+Focused source-quality checks passed for changed native owners and fixtures.
+After the PR-reference follow-up, the controller records the final clean pushed
+candidate and outcomes for this exact ordered batch in its validation ledger:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test org_editing --test syntax --test display`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+A separate focused exact-head controller batch covers configuration tests and
+`python3 scripts/check-config-reference.py`. Final receipts are recorded in Acta;
+the integration follow-up retains their exact candidate and outcome here.
 
 ## Risks and Follow-ups
 
-Combined rendering/session verification remains in recorded T6.3. Task-state and timestamp-specific roles activate
-with their later semantic owners; planning lines currently use one role.
+Semantic ownership is re-observed within the bounded snapshot; index suffix
+reuse does not establish suffix-only semantic work. Task-state, tag and timestamp
+roles activate with their later semantic owners. Planning and heading source
+currently retain their enclosing roles.

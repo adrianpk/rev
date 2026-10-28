@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "display/org_colors.rs"]
+mod org_colors;
 #[path = "display/policy.rs"]
 mod policy;
 #[path = "display/status.rs"]
