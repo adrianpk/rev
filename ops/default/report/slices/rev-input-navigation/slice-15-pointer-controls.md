@@ -91,6 +91,12 @@ Every session retains owned HOME/XDG roots, bounded 32-entry/64-KiB snapshots,
 terminal restoration, child reaping, descriptor closure, no created preference
 files and no implicit OSC 52 clipboard writes.
 
+The first required run at `43e0c23f982d8c70215a9be09ca48abffe45743c` caught
+an omitted `mouse-mode` entry in `docs/reference/commands.md`. The independent
+catalog equality assertion remained unchanged; adding the delivered command to
+that second reference corrected the omission. Final evidence is regenerated for
+the corrected clean candidate.
+
 Final canonical and focused evidence is recorded through the controller on the
 clean candidate after task and PR-reference commits. Required ordered commands:
 
