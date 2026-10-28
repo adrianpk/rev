@@ -138,6 +138,14 @@ checks also cover native Org editing, configuration reference agreement and
 four owned task terminal sessions. Receipt identities belong in Acta and the
 checkpoint without moving the validated candidate afterward.
 
+The first required controller run at PR-reference HEAD
+`b634dbf1babc1cedf6e59e5a501dce9c1209fc36` stopped at Clippy, receipt
+`FEA4RDCIANTLYW45Z44B5OXQDT`: the pinned Rust 1.98 lint requires as_chunks
+for constant-size byte groups. The TZif reader now uses checked array chunks
+for header counts and type records. Parser bounds and observable assertions
+are unchanged. Both focused and required evidence will be regenerated at the
+corrected clean candidate; earlier successful evidence is not relabeled.
+
 ## Risks and Follow-ups
 
 Filesystem reads are bounded; a blocked kernel filesystem operation has no hard

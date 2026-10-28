@@ -18,8 +18,10 @@ impl Header {
             return Err("Nonzero TZif reserved header bytes".into());
         }
         let counts: Vec<_> = bytes[20..]
-            .chunks_exact(4)
-            .map(|v| u32::from_be_bytes(v.try_into().expect("four bytes")) as usize)
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|v| u32::from_be_bytes(*v) as usize)
             .collect();
         checked_counts(&counts)?;
         Ok(Self {
@@ -103,7 +105,9 @@ fn offsets(data: &[u8], h: &Header, width: usize) -> Result<Vec<Option<i32>>, St
     let names = &data[end..end + h.chars];
     indicators(&data[end + h.chars..], h)?;
     data[start..end]
-        .chunks_exact(6)
+        .as_chunks::<6>()
+        .0
+        .iter()
         .map(|record| offset(record, names))
         .collect()
 }
