@@ -51,14 +51,14 @@ impl Date {
         (y as u16, m as u8, d as u8)
     }
 }
-fn month_days(year: u16, month: u8) -> u8 {
+pub(super) fn month_days(year: u16, month: u8) -> u8 {
     match month {
         2 => 28 + u8::from(leap_year(year)),
         4 | 6 | 9 | 11 => 30,
         _ => 31,
     }
 }
-fn leap_year(year: u16) -> bool {
+pub(super) fn leap_year(year: u16) -> bool {
     year.is_multiple_of(4) && (!year.is_multiple_of(100) || year.is_multiple_of(400))
 }
 fn ordinal(year: u16, month: u8, day: u8) -> i32 {

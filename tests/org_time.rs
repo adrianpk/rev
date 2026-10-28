@@ -13,3 +13,13 @@ mod calendar;
 mod bounds;
 #[path = "org_time/operation.rs"]
 mod operation;
+
+#[path = "org_time/zone_fixture.rs"]
+mod zone_fixture;
+#[path = "org_time/zones.rs"]
+mod zones;
+
+#[path = "configuration/fixture.rs"]
+mod fixture;
+#[path = "org_time/zone_observation.rs"]
+mod zone_observation;

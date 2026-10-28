@@ -403,7 +403,7 @@ merge evidence and Acta were verified before closure.
 Contracts: ORG07 ORG18.
 Details and exact checks: [Slice 17](../plan/rev-org-mode.md#slice-17-resolve-org-local-times-and-zone-changes).
 
-- [ ] T17.1: Implement bounded native TZif/POSIX-zone observations and system/local/UTC/IANA selection.
+- [x] T17.1: Implement bounded native TZif/POSIX-zone observations and system/local/UTC/IANA selection.
 - [ ] T17.2: Capture effective date/zone once per operation; resolve folds/gaps explicitly without guessing.
 - [ ] T17.3: Verify DST transitions, invalid zones and external zone changes with owned fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
