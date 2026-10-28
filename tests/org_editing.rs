@@ -308,3 +308,6 @@ mod repeaters;
 
 #[path = "org_editing/repeat_times.rs"]
 mod repeat_times;
+
+#[path = "org_editing/repeat_edges.rs"]
+mod repeat_edges;

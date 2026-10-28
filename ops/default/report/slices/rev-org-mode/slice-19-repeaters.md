@@ -1,6 +1,6 @@
 # Slice 19: reschedule repeated Org tasks correctly
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -73,8 +73,12 @@ Native recurrence invokes no reference editor or external date process.
 - `src/org/time/repeat*`: suffix values, calendar calculations and bounded catch-up.
 - `src/org/time/timestamp*`: source-preserving suffix admission and formatting.
 - `tests/org_time/repeaters.rs`: independent mode, boundary, range and preservation cases.
+- `src/org/visibility/tags/tasks/repeat*`, `src/session/outline/tasks/repeat*`: qualified observation, atomic planning and retained completion stages.
+- `tests/org_editing/repeat*`, `scripts/configuration_ui/org_repeats.py`: native and terminal acceptance.
 
 ## Validation
+
+T19.2 commit: `553f20ea028f8af8d9d19ee7946c933e19a1b0c1`.
 
 T19.1 development checks passed:
 
@@ -104,9 +108,35 @@ T19.2 development checks passed:
 Development checks exposed complexity boundaries, an iterator lint and enum
 reference formatting drift. Responsibilities were split at calculation,
 observation and planning ownership boundaries; the original checks pass after
-correction. No check was weakened. No final canonical PR validation or terminal
-evidence is claimed at this stage.
+correction. No check was weakened. T19.3 acceptance checks passed:
+
+- `cargo test --test org_editing repeat_edges -- --nocapture`: five native
+  read-only, atomic-rejection, range-bound, captured-clock and shared-save tests
+  passed, zero skips.
+- `cargo clippy --test org_editing -- -D warnings`.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  four owned editing/read-only RGB/NO_COLOR sessions passed, zero skips.
+- Focused changed-test source quality passed at the existing thresholds.
+
+The terminal extension retains exact source snapshots, Unicode notes, parent
+progress, delay removal, LAST_REPEAT/state history, BOM/CRLF save, one-operation
+undo/redo and normal cleanup. Its first setup used free date input with suffixes;
+the native prompt correctly rejected that form. The driver now uses the admitted
+complete timestamp spelling. Assertions, fixture ownership and deadlines remain
+unchanged.
+
+Final required checks run against the clean canonical PR head through controller
+validation in this exact order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test org_editing`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final evidence additionally covers full configuration/command/display
+regressions, configuration-reference agreement and the four owned task PTYs.
 
 ## Risks and Follow-ups
 
-T19.3 broader native/terminal acceptance and canonical PR preparation remain pending. The full delivery-set gate has not run.
+The full delivery-set gate has not run.

@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timezone
 from .org_estimates import estimates
 from .org_timestamps import timestamps, readonly_calendar
+from .org_repeats import repeats
 
 from .support import (BINARY, PTY, ROOT, canvas, close, completed, environment,
                       finish, send, snapshot, step, write)
@@ -97,6 +98,7 @@ def tasks(root, colored):
         send(session, b'cancelled\x07', lambda frame: b'Quit' in frame and exact(frame, LINES))
         estimates(session, source, LINES, goto, exact)
         timestamps(session, source, LINES, goto, exact)
+        repeats(session, source, LINES, goto, exact, document)
         assert source.read_bytes() == SOURCE
         if not colored:
             assert b"\x1b[38;2;" not in session.output and b"\x1b[48;2;" not in session.output

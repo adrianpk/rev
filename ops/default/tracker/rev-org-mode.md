@@ -456,14 +456,16 @@ Details and exact checks: [Slice 19](../plan/rev-org-mode.md#slice-19-reschedule
 
 - [x] T19.1: Implement distinct +, ++ and .+ recurrence, warning delays and habit interval ranges.
 - [x] T19.2: Apply repeat completion, state history, LAST_REPEAT and planning changes coherently.
-- [ ] T19.3: Verify overdue/backlog, calendar boundaries, duplicate completion dates and full undo.
+- [x] T19.3: Verify overdue/backlog, calendar boundaries, duplicate completion dates and full undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T19.1: `b0479ab5f842c5117530f18f52cf28c3754df8f3`; clean-head receipt
 `BJXI7CB4LF5H5CV54ZPCNAEUGB` passed 59 time tests, 23 timestamp editing tests
 and `git diff --check`. T19.2 passed 21 focused repeat/time tests, 15 shared
 task/configuration regressions, library Clippy, configuration reference agreement
-and changed-source quality. T19.3 acceptance and canonical PR remain pending.
+and changed-source quality. T19.2: `553f20ea028f`. T19.3 passed five additional
+native boundary/save checks and four owned RGB/NO_COLOR task PTYs with exact
+source/save/undo assertions. Canonical PR and final exact-HEAD checks follow.
 
 ### Slice 20: record native Org task clock intervals
 
