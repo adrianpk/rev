@@ -54,30 +54,41 @@ impl Session {
         self.handle_at(event, Instant::now())
     }
 
-    /// Process timers before an event without consuming or delaying that event.
+    /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
         if !matches!(event, Event::Mouse(_)) {
             self.cancel_pointer_capture();
         }
         self.input.set_tree_focus(self.tree.focused());
-        let expired = self.expire_input(now);
+        let expired = self.expire_escape(now);
         if let Event::Resize(width, height) = event {
             let action = self.resize(width, height);
             self.input.set_tree_focus(self.tree.focused());
             return action;
         }
         let outcome = self.input.handle_at(event, now);
-        let action = self.outcome(outcome);
+        let action = self.outcome(outcome, now);
         if action == Action::Wait {
             return expired;
         }
         action
     }
 
-    /// Present an expired Escape once when a native host's deadline becomes due.
+    /// Service native deadlines after the host has processed ready input.
+    /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
+        let action = self.expire_escape(now);
+        let pointer = self.expire_pointer(now);
+        if pointer == Action::Wait {
+            action
+        } else {
+            pointer
+        }
+    }
+
+    fn expire_escape(&mut self, now: Instant) -> Action {
         let outcome = self.input.expire(now);
-        self.outcome(outcome)
+        self.outcome(outcome, now)
     }
 }
 

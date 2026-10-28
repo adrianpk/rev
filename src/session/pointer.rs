@@ -4,19 +4,20 @@ use crate::view::Error;
 
 use super::{Action, Session};
 
+mod autoscroll;
 mod scroll;
 mod selection;
 pub(super) use selection::Selection;
 
 impl Session {
-    pub(super) fn pointer(&mut self, event: Event) -> Action {
+    pub(super) fn pointer(&mut self, event: Event, now: std::time::Instant) -> Action {
         if self.input.focus() != Focus::Editing {
             return Action::Wait;
         }
         match event.kind {
             Kind::Press => self.press(event.position),
-            Kind::Drag => self.drag_pointer(event.position),
-            Kind::Release => self.release_pointer(event.position),
+            Kind::Drag => self.drag_pointer(event.position, now),
+            Kind::Release => self.release_pointer(event.position, now),
             Kind::ScrollUp | Kind::ScrollDown => self.pointer_scroll(event),
         }
     }

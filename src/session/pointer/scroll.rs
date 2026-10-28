@@ -6,7 +6,7 @@ use crate::window::ViewId;
 use super::{Action, Session};
 
 // Native factory step; the recorded controls slice admits its startup setting.
-const SCROLL_LINES: usize = 3;
+pub(super) const SCROLL_LINES: usize = 3;
 
 impl Session {
     pub(super) fn pointer_scroll(&mut self, event: Event) -> Action {

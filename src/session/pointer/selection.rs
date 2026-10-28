@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use crate::buffer::edit::Point;
 use crate::display::Position;
 use crate::panel::Panel;
@@ -8,8 +10,9 @@ use super::{Action, Session};
 
 /// One live source and the distinction between an armed click and a text drag.
 pub(crate) struct Selection {
-    capture: Capture,
+    pub(super) capture: Capture,
     dragging: bool,
+    pub(super) autoscroll: Option<super::autoscroll::Autoscroll>,
 }
 
 impl Selection {
@@ -17,6 +20,7 @@ impl Selection {
         Self {
             capture,
             dragging: false,
+            autoscroll: None,
         }
     }
 }
@@ -28,13 +32,14 @@ impl Session {
         self.selection.take().is_some()
     }
 
-    pub(super) fn drag_pointer(&mut self, position: Position) -> Action {
+    pub(super) fn drag_pointer(&mut self, position: Position, now: Instant) -> Action {
         let Some(mut selection) = self.selection.take() else {
             return Action::Wait;
         };
         let Some(panel) = self.capture_panel(selection.capture) else {
             return Action::Wait;
         };
+        selection.track(position, panel.content(), now);
         match self.extend_selection(&mut selection, panel, position) {
             Ok(changed) => {
                 self.selection = Some(selection);
@@ -48,13 +53,13 @@ impl Session {
         }
     }
 
-    pub(super) fn release_pointer(&mut self, position: Position) -> Action {
+    pub(super) fn release_pointer(&mut self, position: Position, now: Instant) -> Action {
         let action = if self
             .selection
             .as_ref()
             .is_some_and(|selection| selection.dragging)
         {
-            self.drag_pointer(position)
+            self.drag_pointer(position, now)
         } else {
             Action::Wait
         };
@@ -62,7 +67,7 @@ impl Session {
         action
     }
 
-    fn capture_panel(&self, capture: Capture) -> Option<Panel> {
+    pub(super) fn capture_panel(&self, capture: Capture) -> Option<Panel> {
         if self.windows.selected_id() != capture.view || self.tree.focused() {
             return None;
         }
@@ -95,7 +100,7 @@ impl Session {
         Ok(true)
     }
 
-    fn start_selection(&mut self, selection: &mut Selection) -> Result<(), Error> {
+    pub(super) fn start_selection(&mut self, selection: &mut Selection) -> Result<(), Error> {
         if !selection.dragging {
             let Point { stamp, .. } = selection.capture.anchor;
             self.buffers

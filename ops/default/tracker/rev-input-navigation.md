@@ -251,7 +251,7 @@ T13.3: `17ff0de8cbff3f9a122f8d9d014a810eb04759fc`.
 Contracts: PTR04 PTR05.
 Details and exact checks: [Slice 14](../plan/rev-input-navigation.md#slice-14-extend-pointer-selection-with-bounded-autoscroll).
 
-- [ ] T14.1: Implement source-view autoscroll above/below its visible text only during a valid captured drag; pause inside and stop on release/cancellation/invalidation.
+- [x] T14.1: Implement source-view autoscroll above/below its visible text only during a valid captured drag; pause inside and stop on release/cancellation/invalidation.
 - [ ] T14.2: Use a minimum 100 ms tick and at most min(mouse.scroll_lines, text-area height) rows per tick; process cancellation before due work and never accumulate timer/motion debt.
 - [ ] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

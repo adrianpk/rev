@@ -140,3 +140,6 @@ fn prompt_ownership() {
         );
     }
 }
+
+#[path = "pointer/autoscroll.rs"]
+mod autoscroll;

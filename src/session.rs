@@ -250,7 +250,7 @@ impl Session {
         self.frame().map_err(io::Error::other)?.write(writer)
     }
 
-    fn outcome(&mut self, outcome: Outcome) -> Action {
+    fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
         match outcome {
             Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
@@ -261,13 +261,13 @@ impl Session {
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
             Outcome::Paste(text) => self.paste_text(&text),
-            _ => self.input_feedback(outcome),
+            _ => self.input_feedback(outcome, now),
         }
     }
 
-    fn input_feedback(&mut self, outcome: Outcome) -> Action {
+    fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
         match outcome {
-            Outcome::Pointer(event) => self.pointer(event),
+            Outcome::Pointer(event) => self.pointer(event, now),
             Outcome::Editing(key) => self.typing(key),
             Outcome::Prefix(prefix) => self.prefix_notice(prefix),
             Outcome::Message(message) => self.notice(message),
