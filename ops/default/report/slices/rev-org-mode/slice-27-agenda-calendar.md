@@ -113,6 +113,11 @@ The range, hourly-duration and cancellation-completeness assertions first
 reproduced defects, then passed with the corrections. Fixtures and acceptance
 bounds remain unchanged.
 
+The first final focused batch stopped at the command-reference equality check:
+`org-agenda-redo` was present in the local-context table but absent from the
+main command catalogue. The catalogue now includes the actual refresh target;
+the equality assertion remains unchanged.
+
 Final controller evidence binds the clean canonical PR head. Required order:
 
 - `cargo fmt --all -- --check`

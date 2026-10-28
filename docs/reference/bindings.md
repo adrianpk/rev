@@ -197,6 +197,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x t R` | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `C-x t D` | `tree-delete` | Confirm removal, including separate recursive consent. |
 
+| g in calendar/habit agenda | `org-agenda-redo` | Refresh current sources and captured time. |
 | v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
 | v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
 | f / Right in calendar agenda | `org-agenda-later` | Move a span forward. |
