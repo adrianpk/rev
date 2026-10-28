@@ -9,6 +9,7 @@ pub mod file;
 pub mod gutter;
 pub mod input;
 mod kill;
+pub mod org;
 pub mod panel;
 pub mod pointer;
 pub mod rectangle;
