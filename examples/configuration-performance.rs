@@ -11,6 +11,8 @@ mod candidates;
 mod graph;
 #[path = "configuration_performance/interaction.rs"]
 mod interaction;
+#[path = "configuration_performance/metrics.rs"]
+mod metrics;
 #[path = "configuration_performance/presentation.rs"]
 mod presentation;
 
@@ -30,7 +32,8 @@ fn barrier() -> Result<()> {
     io::stdout().flush()?;
     let mut line = String::new();
     io::stdin().read_line(&mut line)?;
-    require(line == "go\n", "expected workload barrier")
+    require(line == "go\n", "expected workload barrier")?;
+    metrics::reset()
 }
 
 fn emit(name: &str, mut samples: Vec<Duration>, details: &str) -> Result<()> {
@@ -38,6 +41,7 @@ fn emit(name: &str, mut samples: Vec<Duration>, details: &str) -> Result<()> {
     require(!samples.is_empty(), "empty measurement")?;
     let median = samples[samples.len() / 2].as_secs_f64() * 1_000_000.0;
     let maximum = samples.last().unwrap().as_secs_f64() * 1_000_000.0;
+    let usage = metrics::interval()?;
     let status = std::fs::read_to_string("/proc/self/status")?;
     let peak = status
         .lines()
@@ -48,13 +52,14 @@ fn emit(name: &str, mut samples: Vec<Duration>, details: &str) -> Result<()> {
         .ok_or("missing memory value")?
         .parse::<usize>()?;
     println!(
-        "{{\"workload\":\"{name}\",\"samples\":{},\"median_us\":{median:.3},\"max_us\":{maximum:.3},\"peak_rss_kib\":{peak},{details}}}",
+        "{{\"workload\":\"{name}\",\"samples\":{},\"median_us\":{median:.3},\"max_us\":{maximum:.3},\"peak_rss_kib\":{peak},{usage},{details}}}",
         samples.len()
     );
     Ok(())
 }
 
 fn main() -> Result<()> {
+    metrics::reset()?;
     let args: Vec<_> = std::env::args_os().collect();
     require(args.len() == 3, "expected workload and fixture root")?;
     let root = Path::new(&args[2]);

@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import time
 
+from acceptance import identity
 from configuration_ui.observation import Observation, evidence
 from configuration_ui.interaction_terminal import run as interaction_terminal
 from configuration_ui.performance_terminal import run as terminal
@@ -27,6 +28,9 @@ SAMPLES.update(gutter_absolute=64, gutter_relative=64, drag_active=64, drag_idle
 EXPECTED = {'graph': ['graph'], 'entries': ['entries_observe', 'entries_filter'],
             'names': ['names_observe', 'names_filter'], 'redraw': ['redraw'], 'syntax': ['syntax']}
 EXPECTED.update(gutter=['gutter_absolute', 'gutter_relative'], drag=['drag_active', 'drag_idle'])
+INTERACTION_LIMITS = {'native_elapsed_ms': 1000, 'native_cpu_ms': 500,
+                      'repeat_update_ms': 150, 'repeat_cpu_ms': 200,
+                      'drag_first_tick_ms': 250, 'drag_cpu_ms': 100}
 
 
 def records(lines, kind):
@@ -37,6 +41,12 @@ def records(lines, kind):
         assert math.isfinite(value['median_us']) and value['median_us'] > 0
         assert value['median_us'] <= value['max_us'] <= BUDGET_US[value['workload']], value
         assert 0 < value['peak_rss_kib'] <= 131072, value
+        assert math.isfinite(value['elapsed_ms']) and value['elapsed_ms'] > 0, value
+        assert type(value['cpu_ticks']) is int and value['cpu_ticks'] >= 0, value
+        if kind in ['gutter', 'drag']:
+            assert value['elapsed_ms'] <= INTERACTION_LIMITS['native_elapsed_ms'], value
+            cpu_ms = value['cpu_ticks'] * 1000 / os.sysconf('SC_CLK_TCK')
+            assert cpu_ms <= INTERACTION_LIMITS['native_cpu_ms'], value
     if kind in ['entries', 'names']:
         assert values[1]['peak_rss_kib'] - values[0]['peak_rss_kib'] <= 4096, values
     return values
@@ -77,8 +87,10 @@ def watched(root, kind):
 
 def run(selected):
     started = time.perf_counter()
+    candidate = identity(ROOT)
     baseline = runpy.run_path(str(ROOT / 'scripts/check-performance.py'))
-    result = {'hardware': baseline['hardware'](), 'budgets_us': BUDGET_US,
+    result = {'candidate': candidate, 'interaction_limits': INTERACTION_LIMITS,
+              'hardware': baseline['hardware'](), 'budgets_us': BUDGET_US,
               'clock_ticks_per_second': os.sysconf('SC_CLK_TCK'), 'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096, 'native': [], 'observation': {}}
     with tempfile.TemporaryDirectory(prefix='rev-configuration-performance-') as directory:
         root = Path(directory)
@@ -91,13 +103,14 @@ def run(selected):
             result['observation'][kind] = measured['observation']
         if selected is None or selected == 'idle':
             result['terminal'] = terminal(root, baseline['idle'])
-            result['interaction'] = interaction_terminal(root, baseline['idle'])
+            result['interaction'] = interaction_terminal(root, baseline)
         assert fingerprint(root) == before, 'performance work changed fixture entries/bytes'
         result['fixture_identity'] = before
         expected = sum(map(len, EXPECTED.values())) if selected is None else len(EXPECTED.get(selected, []))
         assert len(result['native']) == expected, 'missing required native workload'
         assert ('terminal' in result) == (selected is None or selected == 'idle'), 'missing PTY evidence'
     result['measurement_elapsed_ms'] = round((time.perf_counter() - started) * 1000, 3)
+    assert identity(ROOT) == candidate, 'performance candidate changed during measurements'
     print(json.dumps(result, indent=2))
     sessions = 2 if 'terminal' in result else 0
     print(f'Configuration/UI performance suite: {len(result["native"])} native workloads, {sessions} PTY sessions passed, 0 skipped.')

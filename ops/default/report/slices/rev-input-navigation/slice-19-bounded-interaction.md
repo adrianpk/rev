@@ -59,6 +59,23 @@ was 101.435 ms. All idle intervals emitted zero bytes and measured zero CPU.
 Native and PTY peak RSS remained below 9 MiB. These are development measurements;
 final exact clean-HEAD controller evidence is recorded after PR references.
 
+Each native record includes a measured wall interval and process user/system CPU
+ticks in addition to latency samples and RSS. The interval starts at process
+entry for setup observations and resets at the workload barrier and each record.
+New native interaction batches allow at most 1,000 ms wall and 500 ms CPU;
+visible frame/active tick maxima retain the existing 100-ms redraw ceiling and
+released expiry retains the 10-ms cached-work ceiling. Arrow updates retain the
+150-ms first/release budget, with 200-ms CPU per 30-report direction. The real
+first drag tick allows 100-250 ms wall and 100 ms CPU. These finite new bounds
+leave the original 128-MiB RSS, 64-KiB native output, 15-second native deadline,
+eight-second PTY lifetime, 1-MiB PTY output and all prior workload limits intact.
+
+Development measured the 64-frame batches at 17.7-18.2 ms wall and 20 ms CPU
+(two accounting ticks); active drag took 17.5 ms wall and 20 ms CPU. Released
+expiry took 0.077 ms with zero ticks. A clean HEAD/tree identity is captured
+before collection and checked again afterward; dirty or changed candidates
+cannot emit successful performance evidence.
+
 ## Risks and Follow-ups
 
 Linux process accounting has clock-tick resolution. Controlled native time proves
