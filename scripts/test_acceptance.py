@@ -378,6 +378,132 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
                 performance(bad, good['candidate'])
 
 
+    # Current capability text must retain every approved scenario, precise startup
+    # exception and typed model default without relabeling earlier gate evidence.
+    def test_current_contracts(self):
+        from configuration_ui.delivery import navigation_contracts, requirement
+        root = Path(__file__).resolve().parent.parent
+        paths = ['ops/default/spec/' + name + '.md' for name in [
+            'rev-editor', 'rev-editor-model', 'editor-configuration', 'editor-configuration-model',
+            'editor-gutter', 'editor-pointer-interaction', 'editor-line-navigation',
+            'editor-whitespace-conversion', 'editor-status-layout', 'editor-configuration-bootstrap']]
+        paths += ['docs/reference/config.toml']
+        with tempfile.TemporaryDirectory(prefix='rev-current-contracts-') as directory:
+            fixture = Path(directory); navigation_fixture(root, fixture, paths)
+            navigation_contracts(fixture)
+            changes = [
+                ('missing gutter', 'rev-editor', '### Requirement: GUT13 ', '### Requirement: GUT99 '),
+                ('partial status', 'rev-editor', '- **AND** the document and its dirty indication remain visible.', ''),
+                ('line scenario', 'rev-editor', '#### Scenario: Visit an admitted logical line', '#### Scenario: Missing line coverage'),
+                ('partial startup', 'editor-configuration', 'No existing destination entry SHALL be rewritten or replaced by provisioning.', ''),
+                ('historical candidate', 'rev-editor-model', 'b56d705c7a84b823bf069fc874bc762938d6d897', 'a' * 40),
+                ('historical gate', 'editor-configuration-model', 'FWDUCVRJCYBKFXEWEFLKPKA35E', 'different-gate'),
+                ('model default', 'editor-configuration-model', '| `mouse.scroll_lines` | Integer, `3` |', '| `mouse.scroll_lines` | Integer, `4` |'),
+                ('model palette', 'editor-configuration-model', '| `palette.gutter.background` | `#1a1b26` |', '| `palette.gutter.background` | `#000000` |'),
+            ]
+            for name, file, old, new in changes:
+                path = fixture / ('ops/default/spec/' + file + '.md'); original = path.read_text()
+                self.assertIn(old, original)
+                path.write_text(original.replace(old, new))
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    navigation_contracts(fixture)
+                path.write_text(original)
+            path = fixture / 'ops/default/spec/rev-editor.md'; original = path.read_text()
+            path.write_text(original + '\n' + requirement(original, 'PTR01') + '\n')
+            with self.assertRaisesRegex(ValueError, 'missing/duplicate requirement'):
+                navigation_contracts(fixture)
+
+    # Agreement between edited tables or a reachable unrelated commit cannot
+    # replace the approved current map and the nineteen verified PR identities.
+    def test_current_delivery(self):
+        from configuration_ui.delivery import NAVIGATION_PLAN, NAVIGATION_TRACKER, navigation_maps, navigation_report, navigation_tasks
+        from configuration_ui.evidence import manifest
+        root = Path(__file__).resolve().parent.parent; document = manifest(root)
+        slices = navigation_maps(root, document)
+        with tempfile.TemporaryDirectory(prefix='rev-current-delivery-') as directory:
+            fixture = Path(directory)
+            paths = [NAVIGATION_PLAN, NAVIGATION_TRACKER] + [row[4] for row in slices]
+            navigation_fixture(root, fixture, paths)
+            navigation_maps(fixture, document)
+            for path in [NAVIGATION_PLAN, NAVIGATION_TRACKER]:
+                target = fixture / path
+                target.write_text(target.read_text().replace('test/rev-input-20-delivery-acceptance', 'test/rev-input-20-altered'))
+            with self.assertRaisesRegex(ValueError, 'approved current slice identities'):
+                navigation_maps(fixture, document)
+            bad = copy.deepcopy(document); bad['input_navigation']['integrations'][0]['head'] = 'a' * 40
+            with self.assertRaisesRegex(ValueError, 'prior integration identities'):
+                navigation_maps(root, bad)
+            fields = slices[3]; path = fixture / fields[4]; original = path.read_text()
+            expected = document['input_navigation']['integrations'][3]
+            navigation_report(fixture, fields, 4, expected, True)
+            for name, text in {
+                'branch': original.replace(fields[2], 'changed-branch'),
+                'PR': original.replace('pulls/84', 'pulls/999'),
+                'integration': original.replace(expected['head'], 'a' * 40),
+                'state': original.replace('Status: delivered', 'Status: reviewing'),
+                'sections': original.replace('## Validation', '## Missing validation'),
+            }.items():
+                path.write_text(text)
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    navigation_report(fixture, fields, 4, expected, True)
+            path.write_text(original)
+            current = slices[-1]
+            current_path = fixture / current[4]
+            current_path.write_text(current_path.read_text().replace('Status: delivered', 'Status: reviewing'))
+            navigation_report(fixture, current, 20, None, True)
+            with self.assertRaisesRegex(ValueError, 'current report not ready'):
+                navigation_report(fixture, current, 20, None, False)
+            tracker = (root / NAVIGATION_TRACKER).read_text()
+            navigation_tasks(tracker, 1, False)
+            for bad in [tracker.replace('[x] T1.1:', '[ ] T1.1:'), tracker.replace('T1.1:', 'T1.4:')]:
+                with self.assertRaises(ValueError):
+                    navigation_tasks(bad, 1, False)
+
+    # Both inline and block commit arrays must prove the assigned task outcomes;
+    # duplicate locations, stale commits or changing a solved ticket cannot pass.
+    def test_current_tickets(self):
+        from configuration_ui.delivery import navigation_maps, navigation_ticket
+        from configuration_ui.evidence import manifest
+        root = Path(__file__).resolve().parent.parent; document = manifest(root)
+        slices = navigation_maps(root, document)
+        rows = document['input_navigation']['tickets']
+        with tempfile.TemporaryDirectory(prefix='rev-current-tickets-') as directory:
+            fixture = Path(directory)
+            paths = [row[4] for row in slices] + ['ops/default/ticket/solved/' + row['file'] for row in rows]
+            navigation_fixture(root, fixture, paths)
+            for row in rows:
+                navigation_ticket(fixture, row, slices)
+            row = next(row for row in rows if row['slices'] == [9])
+            path = fixture / 'ops/default/ticket/solved' / row['file']; original = path.read_text()
+            head = re.search(r'\b[a-f0-9]{40}\b', original)[0]
+            for name, text in {
+                'resolution': original.replace('resolution: fixed', 'resolution: moved'),
+                'capture': original.replace('2026-10-27T19:44:21Z', '2026-10-27T19:44:22Z'),
+                'branch': original.replace('feat/rev-input-09-status-layout', 'changed-branch'),
+                'PR': original.replace('pulls/89', 'pulls/999'),
+                'unknown commit': original.replace(head, 'f' * 40),
+                'wrong task commit': original.replace(head, subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()),
+                'missing commits': re.sub(r'^  - [a-f0-9]{40}\n', '', original, flags=re.M),
+            }.items():
+                path.write_text(text)
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    navigation_ticket(fixture, row, slices)
+            path.write_text(original)
+            duplicate = fixture / 'ops/default/ticket/reviewing' / path.name
+            duplicate.parent.mkdir(parents=True); duplicate.write_text(original)
+            with self.assertRaisesRegex(ValueError, 'missing/duplicate/unsolved'):
+                navigation_ticket(fixture, row, slices)
+
+
+def navigation_fixture(root, fixture, paths):
+    for name in paths:
+        path = fixture / name; path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes((root / name).read_bytes())
+    # Only read-only ancestry/show commands use this live identity. No test
+    # writes Git state or treats these document mutations as a gate candidate.
+    (fixture / '.git').symlink_to(root / '.git', target_is_directory=(root / '.git').is_dir())
+
+
 def change_manifest(document, name):
     if name == 'missing':
         document['cases'].pop()

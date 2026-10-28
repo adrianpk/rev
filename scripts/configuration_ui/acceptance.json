@@ -1119,6 +1119,229 @@
         "gutter_relative",
         "drag_active"
       ]
+    },
+    {
+      "id": "GUT01",
+      "condition": "View-owned presentation preserves canonical text and file/history identity",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "factory_projection"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "workspace::native_workspace"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT02",
+      "condition": "Independent absolute/relative calculations and current-line form",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "relative::current_forms"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "shared::divergent_modes"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT03",
+      "condition": "Logical lines, final empty source lines and unnumbered viewport padding",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "rendering::row_boundaries"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "relative::logical_rows"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT04",
+      "condition": "Checked stable digit geometry across source-count changes",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "geometry::decimal_width"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "rendering::rendered_decimal"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT05",
+      "condition": "One text origin for tabs, overlays, cursor and clipping",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "alignment::text_origin"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "workspace::native_workspace"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT06",
+      "condition": "Protect text geometry and restore hidden requested numbering",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "geometry::partition_grid"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "workspace::native_workspace"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT10",
+      "condition": "Terminal-safe fallback and semantic current-line palette",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "rendering::semantic_cells"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT11",
+      "condition": "Independent split policy, buffer rebind and close lifecycle",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "policy::split_policy"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "lifecycle::file_rebind"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "lifecycle::buffer_lifetime"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "GUT12",
+      "condition": "Complete startup defaults and concrete view-local native controls",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "controls::native_operations"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "controls::inspect_reset"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "controls::context_admission"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "R05",
+      "condition": "Pane-local aligned status groups preserve state and errors",
+      "native": [
+        {
+          "target": "tests/display.rs",
+          "test": "status::complete_groups"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "status::narrow_order"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "status::shared_panes"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": [
+        "redraw"
+      ]
+    },
+    {
+      "id": "R16",
+      "condition": "Ordered responsive vertical movement, repeat, reversal and logical bounds",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "key_phases"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "desired_column"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "navigation_reset"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
     }
   ],
   "tickets": [
@@ -1212,5 +1435,161 @@
         25
       ]
     }
-  ]
+  ],
+  "input_navigation": {
+    "plan": "ops/default/plan/rev-input-navigation.md",
+    "tracker": "ops/default/tracker/rev-input-navigation.md",
+    "canonical_map_sha256": "d299928a1bbc47e6a20f620c57a86b1cbc316ab75fb81f00a09311325efdc2bb",
+    "integrations": [
+      {
+        "slice": 1,
+        "pr": 81,
+        "head": "44edc37bcb15d5bb9ff1ed2456c5f5381515ad26"
+      },
+      {
+        "slice": 2,
+        "pr": 82,
+        "head": "9fdd5ab5c0e66a85c560060c586823f2abbeaacb"
+      },
+      {
+        "slice": 3,
+        "pr": 83,
+        "head": "bc94816edd96ef245310b892df24fe57edc8589a"
+      },
+      {
+        "slice": 4,
+        "pr": 84,
+        "head": "db5006cb038a644b4786d015f80d83afeb33daaf"
+      },
+      {
+        "slice": 5,
+        "pr": 85,
+        "head": "d4707f0381b0a20b4c0558724c321710b3ef8f20"
+      },
+      {
+        "slice": 6,
+        "pr": 86,
+        "head": "3e1f4b9651fed9306949ca2679c16859a5ed916d"
+      },
+      {
+        "slice": 7,
+        "pr": 87,
+        "head": "aee53c1ba94b57d331dc7f28429c408972db49a7"
+      },
+      {
+        "slice": 8,
+        "pr": 88,
+        "head": "36f51884dcb612d158f30e983e4bfc744a6b1425"
+      },
+      {
+        "slice": 9,
+        "pr": 89,
+        "head": "1823e723e7aa275641c89eb72156f961cbd25679"
+      },
+      {
+        "slice": 10,
+        "pr": 90,
+        "head": "7b3e61401c9da9d56caf54ea2cb8cd9739676932"
+      },
+      {
+        "slice": 11,
+        "pr": 91,
+        "head": "be336d69ef607bec7fb4a5ebdfed1f6aa5bdcb4a"
+      },
+      {
+        "slice": 12,
+        "pr": 92,
+        "head": "ba2dc0dc6eb279a4a574b59220c4325a29ced1d4"
+      },
+      {
+        "slice": 13,
+        "pr": 93,
+        "head": "1203b49f2f4fc9ef8a8bfa1e1605623c289aff3e"
+      },
+      {
+        "slice": 14,
+        "pr": 94,
+        "head": "f45fddcbf6944ab069f11ff88760ea9e946f9da6"
+      },
+      {
+        "slice": 15,
+        "pr": 95,
+        "head": "40d8e252917229ec01e245192819d98f5cd4b71f"
+      },
+      {
+        "slice": 16,
+        "pr": 96,
+        "head": "120101a17b85a7775a6afccda618cd59709428fe"
+      },
+      {
+        "slice": 17,
+        "pr": 97,
+        "head": "b682ccb3bfd1a2df5752354354fc09d2cc606a58"
+      },
+      {
+        "slice": 18,
+        "pr": 98,
+        "head": "e57f63379a9e49d7cf4846c587e176c088581d82"
+      },
+      {
+        "slice": 19,
+        "pr": 99,
+        "head": "fb59cf9f8fc643a5257714ef1b54acac1bca2538"
+      }
+    ],
+    "tickets": [
+      {
+        "file": "20261027190521-stop-arrow-key-navigation-inertia.md",
+        "slices": [
+          1
+        ]
+      },
+      {
+        "file": "20261027191322-add-emacs-style-goto-line.md",
+        "slices": [
+          2
+        ]
+      },
+      {
+        "file": "20261027092143-convert-tabs-and-spaces.md",
+        "slices": [
+          3
+        ]
+      },
+      {
+        "file": "20261027193500-deliver-native-line-number-gutter.md",
+        "slices": [
+          4,
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "file": "20261027194421-group-pane-status-left-and-right.md",
+        "slices": [
+          9
+        ]
+      },
+      {
+        "file": "20261027190629-mouse-scroll-selection-and-pane-focus.md",
+        "slices": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      {
+        "file": "20261027193636-create-missing-user-configuration.md",
+        "slices": [
+          16,
+          17
+        ]
+      }
+    ]
+  }
 }

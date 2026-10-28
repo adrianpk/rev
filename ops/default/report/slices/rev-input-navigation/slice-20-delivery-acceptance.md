@@ -1,6 +1,6 @@
 # Slice 20: Reconcile combined delivery acceptance and references
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -22,6 +22,15 @@ one absent-entry startup exception and preservation of pure loader behavior.
 The configuration model includes the nine gutter/mouse leaves and four semantic
 gutter palette roles already present in the native catalog and sample. View,
 terminal and pointer ownership now describe the actual session-local state.
+
+The existing configuration/UI acceptance map now covers 58 requirements. Its
+original thirty entries are preserved exactly and independently pinned, with
+named native and combined-journey references for all current additions. The
+same acceptance owner checks the approved twenty-row map, nineteen earlier
+canonical integration identities, delivered report/checkbox state and all seven
+solved tickets. Inline and block commit arrays both resolve their assigned
+primary task outcomes through actual Git ancestry and Conventional Commit task
+identities. Listing prerequisites remain distinct from full runtime admission.
 
 ## Implementation Notes
 
@@ -45,12 +54,24 @@ WSP and STA additions are reconciled with their existing state owners.
 - `ops/default/spec/editor-configuration-model.md`: native gutter/mouse catalog and state.
 - `ops/default/spec/rev-editor-model.md`: view/capture/reporting ownership.
 - `docs/reference/terminal-input.md`: ordered repeat and measured decoder limit.
+- `scripts/configuration_ui/acceptance.json`: complete current mapping and pinned integration evidence.
+- `scripts/configuration_ui/delivery.py`: current requirements, models, reports, tickets and ancestry admission.
+- `scripts/test_acceptance.py`: rejection of incomplete and inconsistent delivery evidence.
 
 ## Validation
 
 Focused block reconciliation checks compare every approved replacement and
 addition, including scenarios, with its current target. Earlier full-gate
 identities remain historical; this slice does not run the combined gate.
+Development `python3 -m unittest discover -s scripts -p test_acceptance.py`
+passed nineteen guard tests in 1.578 seconds. New mutations cover partial or
+duplicate requirements/scenarios, incorrect model defaults, rewritten historical
+provenance, changed approved maps/integrations, missing/altered report state,
+current final-slice readiness versus delivery and mismatched ticket outcomes.
+Both ticket commit-list representations are exercised with actual read-only Git
+ancestry. These checks add approximately two seconds on a warm candidate.
+The eleven full-gate stage identities/order, original runtime/native/terminal/
+resource protections and exact-candidate log admission remain unchanged.
 Final exact-head controller validation is recorded after PR-reference updates.
 
 ## Risks and Follow-ups

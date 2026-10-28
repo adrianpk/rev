@@ -8,7 +8,7 @@ import subprocess
 
 from acceptance import CONFIGURATION_COMMANDS, digest, identity, references, require
 from acceptance_delivery import integrated
-from configuration_ui.delivery import ancestor, reconciled, tickets
+from configuration_ui.delivery import ancestor, navigation, reconciled, tickets
 from configuration_ui.performance import BUDGET_US, EXPECTED, INTERACTION_LIMITS, records
 from configuration_ui.interaction_evidence import validate as interaction
 
@@ -22,7 +22,8 @@ COMBINED_CASES = ['combined-rgb', 'combined-no-color']
 COMBINED_STAGES = ['bootstrap', 'navigation', 'workspace', 'selection', 'whitespace',
                    'failures', 'overlays', 'capture-resize', 'mouse-control', 'restoration']
 ADDITIONS = ['GUT14'] + [f'PTR{i:02}' for i in range(1, 7)] + ['NAV01', 'NAV02', 'WSP01', 'WSP02', 'CFG23', 'CFG24', 'STA01', 'STA02']
-IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS + ['GUT13', 'R07']
+GUTTER_ADDITIONS = [f'GUT{i:02}' for i in [1, 2, 3, 4, 5, 6, 10, 11, 12]]
+IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS + ['GUT13', 'R07'] + GUTTER_ADDITIONS + ['R05', 'R16']
 MAP = 'scripts/configuration_ui/acceptance.json'
 PLAN = 'ops/default/plan/rev-configuration-ui.md'
 TRACKER = 'ops/default/tracker/rev-configuration-ui.md'
@@ -33,6 +34,7 @@ SECTIONS = ['Purpose', 'Delivered Behavior', 'Implementation Notes', 'Contracts 
 def manifest(root):
     document = json.loads((root / MAP).read_text())
     require(document['version'] == 1, 'unknown configuration acceptance map')
+    require(digest(json.dumps(document['cases'][:30], sort_keys=True, separators=(',', ':'))) == '26ce0576cd41a30ccad2c1bd2a2c5f500d4ee359a113f12661c091165caaa0d6', 'historical configuration protections changed')
     require([row['id'] for row in document['cases']] == IDS, 'configuration requirement identities changed')
     for row in document['cases']:
         require(row['condition'] and row['native'], f"{row['id']}: empty requirement evidence")
@@ -41,7 +43,7 @@ def manifest(root):
         for target, name in pairs:
             require(target.startswith('tests/') and '..' not in Path(target).parts and (root / target).is_file(), f'missing native target {target}')
             require(re.fullmatch(r'[a-z_][a-z_0-9:]*', name), 'invalid native test identity')
-        if row['id'] in ADDITIONS:
+        if row['id'] in ADDITIONS + GUTTER_ADDITIONS + ['R05', 'R16']:
             require(row['pty'] == COMBINED_CASES, 'missing combined requirement journey')
         require(set(row['pty']) <= set(PTY_CASES) and len(set(row['pty'])) == len(row['pty']), 'unknown/duplicate configuration PTY reference')
         require(set(row['performance']) <= set(PERFORMANCE) and len(set(row['performance'])) == len(row['performance']), 'unknown/duplicate configuration performance reference')
@@ -59,6 +61,7 @@ def delivery(root, document, readiness):
         report(root, fields, number, readiness)
     tickets(root, document, readiness)
     reconciled(root, readiness)
+    navigation(root, document, readiness)
 
 
 def report(root, fields, number, readiness):
@@ -81,7 +84,7 @@ def prerequisites(root, cases):
     document = manifest(root)
     delivery(root, document, readiness=True)
     references(document['cases'], cases)
-    print('Configuration/UI prerequisites: 47 requirements, named native cases, ten PTY cases, thirteen performance workloads and 30 historical slice identities resolved; no gate result claimed.')
+    print('Configuration/UI prerequisites: 58 requirements, named native cases, ten PTY cases, thirteen performance workloads, 30 historical and 20 current slice identities resolved; no gate result claimed.')
 
 
 def terminal(text):
