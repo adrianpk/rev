@@ -2,13 +2,14 @@
 
 Status: accepted
 Approved: product owner, 2026-10-27; specification and model accepted, with the explicitly listed open decisions retained.
+Scope refinement: product owner, 2026-10-28; clocking, habits and effort approved; remaining choices follow Org in Emacs without further feature-by-feature questions. Advanced spreadsheet evaluation remains excluded.
 Date: 2026-10-27
 Format: OpenSpec capability proposal
 Source: product-owner discussion and confirmed interaction decisions
 Model: [Org Mode Model](editor-org-mode-model.md)
 Baseline: [rev Editor](rev-editor.md)
 Related: [Editor Configuration](editor-configuration.md), [Editor Gutter](editor-gutter.md), [Native Autocompletion](editor-autocompletion.md)
-Delivery boundary: future work; the active configuration/UI delivery is unchanged
+Delivery boundary: approved rev-org-mode delivery; one complete 64-slice Looper cycle, requested by the product owner on 2026-10-28.
 
 ## Purpose
 
@@ -33,6 +34,8 @@ prescribe another editor's architecture, runtime composition or module layout.
   useful factory behavior and appropriate TOML/runtime controls.
 - Folds and other presentation choices belong to each view, not document text.
 - Agenda and capture operate on real document locations and preserve unsaved work.
+- Task time tracking includes native clock-in and clock-out operations.
+- Habits follow Org's source conventions, completion history and agenda consistency display.
 - Tables support arithmetic, parentheses, cell/range references, sum, mean,
   minimum, maximum, rounding, decimal formatting and explicit recalculation.
 - Full Calc and Emacs Lisp evaluation are outside the agreed table scope.
@@ -40,10 +43,10 @@ prescribe another editor's architecture, runtime composition or module layout.
 - CPU/memory costs must be bounded and measured; compatibility complexity is
   not itself evidence of high runtime resource consumption.
 
-The numbered requirements define the accepted behavioral direction. Exact
-factory defaults and remaining scope choices are listed explicitly at the end.
-Those decisions remain open; specification approval is not implementation
-authorization.
+The numbered requirements define the selected scope. The product owner has
+authorized Org-in-Emacs behavior for the remaining choices; the profile below
+and paired model resolve those choices. Implementation still requires the
+approved, committed delivery plan and tracker.
 
 ## Familiar interaction
 
@@ -406,7 +409,8 @@ and cancellation where work can be long. Limits SHALL produce truthful
 incomplete/failure states without losing source.
 
 Org SHALL add no permanent analysis process or idle agenda/recalculation loop.
-Work SHALL occur in response to the selected editing/query/recalculation action.
+Work SHALL occur in response to selected editing/query/recalculation actions,
+explicit jobs or an armed timer deadline.
 Large-document, multi-file and idle behavior SHALL be measured separately;
 implementation complexity SHALL NOT be reported as measured CPU or memory cost.
 
@@ -417,59 +421,386 @@ implementation complexity SHALL NOT be reported as measured CPU or memory cost.
 - **THEN** the operation stops with a truthful cancelled/incomplete result
 - **AND** documents, unsaved buffers and normal editor interaction remain usable.
 
-## Control coverage to refine
+### Requirement: ORG19 Native task time tracking
+
+Task time tracking SHALL include compiled clock-in and clock-out operations
+available through M-x and the reviewed Org bindings. Starting and closing a
+clock SHALL record its task-owned interval in canonical Org source, retaining
+start/end timestamps and duration according to the finalized storage policy.
+Each operation SHALL preserve ordinary read-only, source-validation and
+undo/redo guarantees. An active clock SHALL NOT require periodic source writes
+or an idle repaint loop.
+
+#### Scenario: Record time against a task
+
+- **GIVEN** an editable Org task and a valid selected clock policy
+- **WHEN** the user clocks into that task and later clocks out
+- **THEN** the recorded interval belongs to that task and retains its elapsed time
+- **AND** the source edits remain independently undoable without changing unrelated text.
+
+### Requirement: ORG20 Habits compatible with Org behavior
+
+Habits SHALL use unfinished tasks with `STYLE: habit`, repeating `SCHEDULED`
+timestamps and completion history. Repeaters and minimum/maximum intervals,
+including `.+2d/3d`, SHALL retain their Org meaning. Completion SHALL preserve
+compatible history, `LAST_REPEAT` and coherent rescheduling under ORG06/ORG07.
+Missing history SHALL NOT be replaced with invented completions.
+
+The agenda SHALL derive a bounded daily consistency graph from current source,
+distinguishing not-yet-due, available, imminent and overdue days, with completion
+and current-day markers. Factory defaults SHALL use 21 preceding days, 7
+following days, preferred graph column 40, today's agenda only, and no forced
+green status for late completions. Native agenda controls SHALL toggle habit
+visibility and display options; TOML SHALL expose appropriate graph preferences.
+Graph inspection SHALL NOT rewrite source or introduce idle analysis.
+
+#### Scenario: Complete a habit with an interval range
+
+- **GIVEN** a habit scheduled with a minimum/maximum interval
+- **WHEN** the user completes it
+- **THEN** history and its next schedule follow the admitted Org recurrence
+- **AND** undo restores the complete source transition.
+
+#### Scenario: Inspect consistency without changing the document
+
+- **GIVEN** recorded habit completions, including unsaved changes
+- **WHEN** the user refreshes today's agenda
+- **THEN** the graph reflects those observations and its configured date window
+- **AND** absent history remains absent and the source is unchanged.
+
+Behavior reference: [Org habit tracking](https://orgmode.org/manual/Tracking-your-habits.html).
+Factory-default reference: [Org habit implementation](https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/org/org-habit.el).
+
+### Requirement: ORG21 Effort estimates and clock reports
+
+Native commands SHALL edit EFFORT duration properties, compare estimates with
+recorded task/subtree time, and produce bounded clock tables for selected
+sources/date ranges. Reports SHALL derive from actual intervals, distinguish
+open/incomplete records and change dynamic report bodies only on explicit
+update. Source and agenda actions SHALL use the same checked handlers.
+
+#### Scenario: Compare estimated and recorded effort
+
+- **GIVEN** a task has an effort estimate and recorded clock intervals
+- **WHEN** the user requests its time report
+- **THEN** the report distinguishes planned and actual durations
+- **AND** opening the report does not rewrite task source.
+
+### Requirement: ORG22 Relative timers and countdowns
+
+Native Org timers SHALL support start/reset, pause/continue, stop, relative-time
+insertion/list items and explicit countdowns. A countdown SHALL signal once in
+the editor at its deadline. Only an armed deadline or active user operation may
+schedule wakeups; stopped timers SHALL add no idle polling or source writes.
+
+#### Scenario: Finish and stop a countdown
+
+- **GIVEN** the user has explicitly armed a countdown
+- **WHEN** it expires or the user stops it first
+- **THEN** expiry produces at most one notification and stop cancels it
+- **AND** inactive timers retain no repaint loop.
+
+### Requirement: ORG23 Agenda queries columns and bulk operations
+
+Native agenda SHALL include date-span, TODO, text, tag/property and configured
+block views, filtering, sorting, property columns and selected bulk actions.
+The declared match grammar and typed view definitions SHALL not evaluate Lisp.
+Each action SHALL preserve source provenance and disclose per-target failures;
+projected columns SHALL not become another task database.
+
+#### Scenario: Apply an action to selected agenda entries
+
+- **GIVEN** selected entries include a stale or read-only source
+- **WHEN** the user invokes a bulk action
+- **THEN** the editor identifies the outcome for every selected target
+- **AND** rejected targets and unrelated source remain unchanged.
+
+### Requirement: ORG24 Native heading attachments
+
+Native attachment commands SHALL resolve ID/DIR-based attachment locations,
+copy/move/link/list/open selected files and retain compatible attachment links.
+Destination collisions, symlinks and partial source/file publication SHALL use
+checked native file safeguards. Recognition SHALL not create or open resources.
+
+#### Scenario: Reject a conflicting attachment destination
+
+- **GIVEN** the selected attachment would replace an existing file
+- **WHEN** the user declines replacement
+- **THEN** both file and heading source remain unchanged
+- **AND** the dispatcher remains usable.
+
+### Requirement: ORG25 Native document export
+
+Explicit export SHALL support text, Org, Markdown, HTML, LaTeX, Beamer, ODT,
+Texinfo, man and iCalendar from checked source snapshots, including declared
+metadata, structure, links, tables, footnotes, blocks and bounded includes.
+Native rendering SHALL not evaluate code. Optional PDF/tool conversions SHALL
+be separate explicit jobs with truthful availability and destination checks.
+
+#### Scenario: Export unsaved source without executing it
+
+- **GIVEN** a dirty Org buffer containing a source block
+- **WHEN** the user exports it to HTML
+- **THEN** output reflects the checked current buffer snapshot
+- **AND** neither block execution nor an implicit save occurs.
+
+### Requirement: ORG26 Checked project publishing
+
+Typed project definitions SHALL select bounded Org sources, export formats,
+assets and publication destinations. Publication SHALL be explicit and retain
+per-file outcomes, overwrite decisions and source fidelity. Optional upload
+uses an explicitly configured tool; publishing SHALL not start a server or
+remove unowned destination files.
+
+#### Scenario: Publish a partially failing project
+
+- **GIVEN** an explicit project with one unavailable source
+- **WHEN** the user publishes
+- **THEN** the result identifies successful and failed files truthfully
+- **AND** it does not claim complete publication or discard source.
+
+### Requirement: ORG27 Document conveniences and data interchange
+
+Native Org SHALL provide footnote actions, entities, markup, affiliated data,
+property columns, explicit dynamic reports and table/list/CSV/TSV interchange.
+Unknown macros and dynamic forms SHALL remain source, with unsupported actions
+identified. Supported transformations SHALL preserve unrelated text and provide
+coherent undo or checked file publication.
+
+#### Scenario: Import quoted table data
+
+- **GIVEN** valid CSV with quoted delimiters and Unicode values
+- **WHEN** the user explicitly imports it into an Org table
+- **THEN** cell values retain their meaning and source boundaries
+- **AND** undo restores the previous document in one operation.
+
+### Requirement: ORG28 Source editing tangling and explicit execution
+
+Native source-block support SHALL provide special editing, checked named/header
+resolution, bounded noweb expansion and explicit tangling. Selected block/call
+execution SHALL require confirmation by default and use a declared optional
+external program, not an embedded editor language. Results SHALL publish only
+against current source and retain prior content on failure. Child lifetime,
+output, time and expansion SHALL be bounded and cancellable.
+
+#### Scenario: Cancel a selected block execution
+
+- **GIVEN** a confirmed block job is running in an owned temporary workspace
+- **WHEN** the user cancels it
+- **THEN** owned child work is stopped and reaped and the draft remains available
+- **AND** existing results and unrelated documents remain unchanged.
+
+### Requirement: ORG29 Explicit feed import
+
+Native feed support SHALL parse bounded RSS/Atom observations and import items
+into explicitly selected Org targets using compatible FEEDSTATUS identity.
+Updates SHALL be on demand, use optional declared transport when needed, and
+neither poll in the background nor treat fetched text as executable settings.
+
+#### Scenario: Refresh the same feed twice
+
+- **GIVEN** an imported feed item has a recorded stable identity
+- **WHEN** the user explicitly refreshes an unchanged feed
+- **THEN** the item is not duplicated
+- **AND** unavailable transport or invalid data produces a truthful failure.
+
+### Requirement: ORG30 Native previews and rich source presentation
+
+Explicit link/image previews SHALL preserve canonical source and normal view
+coordinates. Supported terminal PNG presentation SHALL stay within admitted
+geometry and restore its output state; other resources SHALL retain readable
+links and an explicit external-viewer path. Merely visiting source SHALL not
+fetch remote content or launch viewers.
+
+#### Scenario: Preview without terminal image capability
+
+- **GIVEN** an Org image link in a terminal without admitted image support
+- **WHEN** the user requests its preview
+- **THEN** source remains readable and the editor identifies the available viewer path
+- **AND** it does not emit unsupported graphics or lose the current view.
+
+### Requirement: ORG31 Complete controls and measured delivery
+
+Every delivered capability SHALL have working native commands, compatible
+context bindings where applicable, typed bounded preferences, reference/default
+coverage and meaningful acceptance evidence. The model's resource profile SHALL
+bound source analysis, jobs and retained projections. The single delivery SHALL
+finish with all assigned slices integrated and its exact clean candidate passing
+the controller gate; catalog entries or prerequisite listings are not runtime proof.
+
+#### Scenario: Verify the complete selected delivery
+
+- **GIVEN** all assigned native Org slices are integrated
+- **WHEN** the controller runs the full selected gate
+- **THEN** required native, terminal and resource evidence covers the current candidate
+- **AND** closure preserves earlier delivery provenance and reports every failure.
+
+## Control coverage
 
 | Concern | Configuration and/or native runtime control |
 | --- | --- |
 | Mode activation, default visibility, coloring and display | Startup defaults; explicit mode/visibility commands. |
 | Task sequences, finished states, priorities, logging and dependency policy | Typed defaults and admitted document directives; transition/inspection commands. |
+| Task time tracking | Native clock-in/clock-out commands; frozen clock defaults and explicit recovery controls. |
+| Habits | Native agenda visibility/display controls; typed graph preferences and palette roles. |
 | Tags and properties | Typed inheritance/default policies; set/remove/search/inspect commands. |
 | Time zone, timestamp entry and repeaters | Typed policy defaults; explicit timestamp/schedule/deadline commands. |
 | Agenda sources, span, filters, sort and limits | Configurable sources/defaults; native dispatcher, refresh and runtime view controls. |
 | Capture | Native factory/configured templates; choose, edit, finalize and abort commands. |
 | Refile and archive | Configurable target policy; explicit selection and action commands. |
 | Tables and formulas | Native editing/recalculation commands; documented numeric/format/limit preferences. |
+| Effort and reports | Native EFFORT/clock-table/property-column commands and typed report controls. |
+| Timers | Native relative/countdown actions, inactive by default. |
+| Attachments and feeds | Typed destinations/sources; explicit native dispatch/update. |
+| Export and publishing | Native formats, typed project/options data and explicit checked publication. |
+| Source blocks and optional tools | Native edit/tangle/actions, confirmation and bounded executable/argv profiles. |
+| Previews | View-local native controls and admitted optional viewer paths. |
 | Bindings and named operations | Validated context keymaps and one compiled M-x catalog. |
 
-This matrix records the agreed control principle. Exact keys and defaults are
-not frozen by this specification. The paired model records the source and preference
-shapes that must stay consistent.
+This matrix records the agreed control principle. The selected profile and
+paired model define the defaults, typed fields and bounded policies; shipped
+commands, parser/catalog and the complete sample must agree.
 
-## Choices still owned by the product owner
+## Selected Org behavior
 
-### Scope to confirm
+The remaining product choices follow Org in Emacs as authorized on 2026-10-28.
+The reproducible local reference is Emacs 31.1 with Org 9.8.7, loaded with no user
+configuration. Manual/source references explain behavior; no Org implementation
+code or cross-project Org crate is reused.
 
-- How far to take clocking/time reports, effort estimates, habits, timers and
-  reminders. Their source should remain readable regardless of selected actions.
-- Additional agenda views, property columns, Boolean/query syntax and bulk actions.
-- Attachments, feeds, export, publishing, source-block execution and rich previews.
-  These remain discussion topics, not automatically included or removed.
-- Detailed list/table import/export, footnotes and other document conveniences.
+The selected scope includes the numbered requirements, including time reports,
+effort, timers, advanced agenda views, attachments, feeds, export/publishing,
+source editing/tangling and explicit optional tool execution. The earlier
+spreadsheet decision remains: native arithmetic/aggregates/rounding only, with
+no complete Calc or table-formula Lisp evaluator. A reference to Org does not
+turn its Emacs runtime, arbitrary Lisp hooks or third-party extensions into a
+new editor programming layer.
 
-### Behavior to finalize
+### Factory behavior
 
-- Factory task sequence, logging/dependency defaults and admitted source-local
-  settings. Preserve existing user workflow declarations without guessing them.
-- Default agenda view/source selection, archive location and capture templates/
-  target selection when no user config exists.
-- Calendar/zone selection precedence, ambiguous/invalid dates and formatting.
-- The exact basic formula grammar, function names, mixed multiplication/division
-  precedence, rounding mode/precision, empty-cell treatment and cycle handling.
-- Contextual `TAB`/`M-RET` behavior in lists, plain text and tables; capture,
-  agenda and recalculation shortcuts; link-follow/source-result precedence.
-- Full command names and context bindings, without inventing another prefix
-  family or exposing functional-looking unsupported commands.
-- Finite source/result/time/memory bounds and representative performance budgets.
+- TODO workflow: TODO then DONE; A/B/C priorities, default B. Normal completion
+  logging is off; repeating-task completion records time. Tag inheritance is
+  on and general property inheritance off. Recognized local declarations win
+  for their data semantics; they cannot grant executable authority.
+- Initial outline visibility is show-all. TAB and S-TAB use contextual/local
+  and whole-view cycling. M-RET, heading moves and the previously listed keys
+  follow their actual structural context, including lists, tables and timers.
+- Agenda starts with a Monday-based week. No directory is scanned implicitly.
+  With no agenda sources configured, the dispatcher asks for source selection;
+  current eligible buffers can be selected without first saving them.
+- Capture uses the native Task fallback when no custom template exists. A
+  missing destination is requested explicitly; no sample path is manufactured.
+  Data-only tokens include %?, %i, %a, %l, %t/%T, %u/%U, %n, %c, %x,
+  %^{prompt} and bounded time formatting. Function/Lisp template escapes are
+  retained and rejected explicitly, not executed as editor configuration.
+- Archive destination is %s_archive::. Refile targets use admitted agenda/source
+  headings and explicit selection; ambiguity never picks an arbitrary heading.
+- One active task clock belongs to the editor session. Clocking another task
+  closes the previous interval; reaching DONE closes its clock. LOGBOOK is the
+  default clock drawer, zero-minute intervals are retained, persistence is off.
+  Quit offers closing the clock or preserving its open source interval. Optional
+  persistence and explicit incomplete/idle/overlap resolution retain checked
+  source identity and never silently count time the user rejected.
+- Durations accept clock notation and Org min/h/d/w/m/y units: 1, 60, 1440,
+  10080, 43200 and 525960 minutes. Scheduling month/year arithmetic remains
+  calendar arithmetic; habit graph duration/day semantics follow Org.
+- Timers provide relative and countdown modes, insertion and description-list
+  continuation, pause/continue and stop. No countdown is armed by default;
+  expiry is an in-editor notice, not a new desktop-notification dependency.
+- Date entry captures the system zone by default; explicit configured IANA/UTC
+  policy wins. Gregorian invalid dates reject. Ambiguous/nonexistent local
+  times request an offset/valid time instead of inventing one. Untouched date
+  spelling remains source, and completion/agenda operations capture time once.
+- Habit graph defaults remain those in ORG20. K toggles agenda habits; named
+  native controls expose today-only and all-today options without adding a
+  general scripting or numeric-prefix language.
+- Effort, clock tables, property columns, custom/block agendas and bulk actions
+  follow their native Org meanings. The supported query language admits tag
+  Boolean expressions, parentheses, TODO suffixes and typed property comparisons;
+  regexp search is bounded and cannot invoke Lisp predicates.
+- Attachments use ID/DIR and the ordinary attachment dispatcher. Feed updates
+  use RSS/Atom plus FEEDSTATUS. Both are explicit operations; configured sources
+  are never discovered by a background service.
+- Native export formats are text/ASCII, UTF-8, Org, Markdown, HTML, LaTeX,
+  Beamer, ODT, Texinfo, man and iCalendar. Region/subtree options, safe includes,
+  text-only macros, names/captions and declared attributes are supported. PDF,
+  upload, network fetch and external preview use optional configured tools.
+- Source blocks support native editing, names/headers, noweb and tangling.
+  Optional confirmed execution can use installed language programs, including
+  Emacs for a selected emacs-lisp block; none becomes rev's editor runtime.
+  No file visit, highlighting, export, include or table recalculation executes a
+  block. Explicit :eval no/never restrictions always apply.
 
-No item in these lists is decided solely because it was recognized in source
-syntax or appeared in another editor. Resolve choices through discussion before
-finalizing the corresponding implementation scope.
+### Basic formula profile
+
+TBLFM admits field/column assignments, absolute/relative cell references,
+rectangular ranges, + - * / ^, parentheses, unary signs, vsum/vmean/vmin/vmax,
+round and abs. Exponentiation associates right; multiplication/division precede
+addition/subtraction. round halves away from zero, matching the reference.
+Finite binary64 arithmetic is the bounded native numeric representation;
+default result text uses at most 12 significant decimal digits. Supported
+fixed decimal formatting is explicit and bounded; this is not arbitrary-
+precision Calc compatibility. Empty cells are zero for aggregates and direct
+arithmetic; nonnumeric cells are omitted by aggregates and reject direct
+numeric use. Division by zero, non-finite results, invalid references, cycles
+and exhausted budgets reject the complete selected update. Existing results
+and unsupported formula source remain intact. Structural table changes rewrite
+only understood references or reject before mutation.
+
+### Native command families and bindings
+
+Compiled command families cover org-mode/visibility; heading/list/drawer/tag/
+property/task operations; timestamp/schedule/deadline; clock/effort/timer/habit;
+agenda/source/query/columns/bulk; capture/refile/archive; links/attachments/
+footnotes; table/formula/interchange; export/publish; source-edit/tangle/execute/
+results; feeds and previews. Use source-compatible org-* spellings and native
+context dispatchers, not commands whose bodies are arbitrary configured code.
+Only operational commands may enter M-x, defaults or the shipped reference.
+
+In addition to the established bindings, add:
+
+| Context | Keys | Native action |
+| --- | --- | --- |
+| Org | C-c C-x C-i / C-c C-x C-o / C-c C-x C-q | Clock in / out / cancel. |
+| Org | C-c C-x e / C-c C-x C-e | Set effort / modify the active task estimate. |
+| Org | C-c C-x 0 / C-c C-x ; | Relative timer / countdown. |
+| Org | C-c C-x . / C-c C-x - | Insert relative time / timed list item. |
+| Org | C-c C-x , / C-c C-x _ | Pause/continue / stop timer. |
+| Org | C-c C-e / C-c C-a | Export / attachment dispatcher. |
+| Org | C-c C-l / C-c C-o / C-c C-x f | Insert link / follow / footnote action. |
+| Org | C-c C-v t / C-c C-v e / C-c ' | Tangle / execute selected block / special edit. |
+| Org | C-c C-x g / C-c C-x G | Update feeds / visit selected feed target. |
+| Agenda | r / g / q / RET / TAB | Refresh current/all, return, switch source, visit source. |
+| Agenda | d / w / f / b / . | Day / week / next span / previous span / today. |
+| Agenda | t / e / K / ; | State / effort / habits / countdown. |
+| Agenda | C-c C-x C-i / C-c C-x C-o | Clock into/out of the checked source task. |
+| Capture or source edit | C-c C-c / C-c C-k | Finalize / abort the current checked draft. |
+
+C-c C-c is precise-context dispatch, not an ancestor fallback. C-g always wins
+in transient interaction. C-c C-x C-r is Org's radio-checkbox action in the
+reference; do not repurpose it as a guessed clock-report binding. Optional
+prefix variants are finite reviewed context bindings; do not introduce an
+unbounded universal-argument subsystem as an incidental requirement.
+
+### Behavior references
+
+- [Effort estimates](https://orgmode.org/manual/Effort-Estimates.html)
+- [Clocking](https://orgmode.org/manual/Clocking-Work-Time.html)
+- [Timers](https://orgmode.org/manual/Timers.html)
+- [Agenda commands](https://orgmode.org/manual/Agenda-Commands.html)
+- [Capture templates](https://orgmode.org/manual/Capture-templates.html)
+- [Attachments](https://orgmode.org/manual/Attachments.html)
+- [Feeds](https://orgmode.org/manual/RSS-Feeds.html)
+- [Export](https://orgmode.org/manual/Exporting.html)
+- [Publishing](https://orgmode.org/manual/Publishing.html)
+- [Code blocks](https://orgmode.org/manual/Evaluating-Code-Blocks.html)
+- [Images](https://orgmode.org/manual/Images.html)
 
 ## Validation obligations
 
 Cover plain-text fidelity, malformed recovery, Unicode/tab/CRLF boundaries,
 independent folding, exact structural edits and their undo/redo, inheritance,
-task/log transitions, repeaters and time-zone edge cases. Verify real-file
+task/log transitions, habit history/graphs, repeaters and time-zone edge cases. Verify real-file
 agenda/capture/refile failures, dirty buffers, stale destinations, cancellation
 and truthful incomplete/partial outcomes. Verify table structural edits,
 formula success/failure, unsupported-expression preservation, numeric policy
@@ -481,8 +812,8 @@ This specification contains acceptance obligations, not runtime test results.
 
 ## Delivery state
 
-The specification and model are accepted and remain isolated from the active
-delivery. The listed open decisions must be resolved before implementation
-planning depends on them.
-No implementation, dependencies, slice plan, tracker, controller, commit,
-publication or remote copy is created by writing these documents.
+The original specification/model and later behavior refinements record the
+product decisions. The approved [delivery plan](../plan/rev-org-mode.md) and
+[tracker](../tracker/rev-org-mode.md) organize one 64-slice cycle. The product owner explicitly requested starting this single cycle on
+2026-10-28. Planning checks are not implementation evidence. Technical defaults and bounds are explicit in the
+paired model, and the advanced-spreadsheet exclusion is unchanged.
