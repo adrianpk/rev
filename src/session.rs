@@ -92,6 +92,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    ClockReport(Box<outline::reports::Prompt>),
     Clock(Box<outline::clocks::Prompt>),
     Timestamp(Box<outline::timestamps::Prompt>),
     Estimate(Box<outline::estimates::Prompt>),

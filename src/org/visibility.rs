@@ -236,3 +236,5 @@ impl Outline {
                 .is_some_and(|i| self.headings[i].body == byte.0)
     }
 }
+
+mod reports;

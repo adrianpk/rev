@@ -76,6 +76,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
+| M-x in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
 | C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
@@ -560,3 +561,16 @@ Native hosts initialize a selected state path explicitly with
 Accepting an empty clock end uses the captured operation instant. A minute-valued
 end within the starting UTC minute records zero; backwards operation clocks still
 reject independently.
+
+`org-clock-display` reads actual task, subtree or file intervals without editing.
+Enter `task`, `subtree` (the empty default) or `file`, optionally followed by
+`YYYY-MM-DD YYYY-MM-DD` date bounds; the end date is exclusive. Each operation
+captures its zone once. Totals clip actual minute endpoints to that window,
+exclude open/unresolved records, and disclose both counts and overlapping
+intervals. Overlapping recorded intervals sum separately; overlap is visible.
+Stored duration spelling never substitutes for actual resolvable endpoints.
+Fold/gap source timestamps remain unresolved rather than inventing an offset.
+A task/subtree compares its root EFFORT; a file compares top-level estimates.
+Reports admit 262144 source bytes, 4096 CLOCK candidates and the native 4096
+heading/drawer bound. Incomplete observations reject. Read-only inspection is
+available; C-g or a changed source/view cancels the request without edits.

@@ -83,3 +83,6 @@ fn source_clock(source: &str) -> Result<super::Timestamp, String> {
 fn same_minute(a: super::CivilDateTime, b: super::CivilDateTime) -> bool {
     a.date == b.date && a.time.hour() == b.time.hour() && a.time.minute() == b.time.minute()
 }
+
+mod observe;
+pub use observe::RecordedClock;

@@ -9,6 +9,7 @@ pub(super) mod estimates;
 mod list;
 mod operation;
 pub(super) mod property;
+pub(super) mod reports;
 mod subtree;
 pub(super) mod tags;
 pub(super) mod tasks;
@@ -79,11 +80,11 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
-        if request.command == OrgCommand::ResolveClocks {
-            return self.resolve_clocks(model, request);
-        }
-        if request.command == OrgCommand::ClockIn {
-            return self.start_clock(model, request);
+        if matches!(
+            request.command,
+            OrgCommand::ClockDisplay | OrgCommand::ClockIn | OrgCommand::ResolveClocks
+        ) {
+            return self.dispatch_source_clock(model, request);
         }
         if request.command.timestamp() || request.command.timestamp_context() {
             return self.dispatch_timestamp(model, request);
@@ -105,6 +106,18 @@ impl Session {
         Ok(())
     }
 
+    fn dispatch_source_clock(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        request: Request,
+    ) -> Result<(), String> {
+        match request.command {
+            OrgCommand::ClockDisplay => self.start_clock_report(model, request),
+            OrgCommand::ClockIn => self.start_clock(model, request),
+            OrgCommand::ResolveClocks => self.resolve_clocks(model, request),
+            _ => unreachable!("qualified source clock request"),
+        }
+    }
     fn org_operation(
         &mut self,
         model: Arc<crate::org::Outline>,

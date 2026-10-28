@@ -19,7 +19,8 @@ impl Session {
             if matches!(
                 self.pending,
                 Some(
-                    Pending::Clock(_)
+                    Pending::ClockReport(_)
+                        | Pending::Clock(_)
                         | Pending::Timestamp(_)
                         | Pending::Property(_)
                         | Pending::Tags(_)
@@ -56,7 +57,8 @@ impl Session {
         if matches!(
             self.pending,
             Some(
-                Pending::Clock(_)
+                Pending::ClockReport(_)
+                    | Pending::Clock(_)
                     | Pending::Timestamp(_)
                     | Pending::Task(_)
                     | Pending::Tags(_)
@@ -83,7 +85,7 @@ impl Session {
         match self.pending {
             Some(Pending::Timestamp(_)) => self.complete_timestamp(),
             Some(Pending::Estimate(_)) => self.complete_estimate(),
-            Some(Pending::Clock(_)) => {
+            Some(Pending::ClockReport(_) | Pending::Clock(_)) => {
                 self.message("Choose the explicit clock action; C-g cancels")
             }
             Some(Pending::Task(_)) => {

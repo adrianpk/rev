@@ -37,3 +37,5 @@ pub(crate) mod timestamp;
 pub(crate) use visibility::{ClockInsertion, ClockObservation};
 
 pub mod io;
+
+pub mod agenda;

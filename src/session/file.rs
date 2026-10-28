@@ -65,6 +65,7 @@ impl Session {
     }
     fn org_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
+            Pending::ClockReport(prompt) => self.clock_report_argument(*prompt, draft),
             Pending::Clock(prompt) => self.clock_argument(*prompt, draft),
             Pending::Timestamp(prompt) => self.timestamp_argument(*prompt, draft),
             Pending::Estimate(prompt) => self.estimate_argument(*prompt, draft),
@@ -80,7 +81,8 @@ impl Pending {
     fn org_argument(&self) -> bool {
         matches!(
             self,
-            Self::Clock(_)
+            Self::ClockReport(_)
+                | Self::Clock(_)
                 | Self::Timestamp(_)
                 | Self::Estimate(_)
                 | Self::Task(_)

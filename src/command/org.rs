@@ -94,9 +94,10 @@ pub enum OrgCommand {
     ClockGoto,
     ResolveClocks,
     ClockInLast,
+    ClockDisplay,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 92] = [
+    pub const ALL: [Self; 93] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -189,6 +190,7 @@ impl OrgCommand {
         Self::ClockGoto,
         Self::ResolveClocks,
         Self::ClockInLast,
+        Self::ClockDisplay,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -284,6 +286,7 @@ impl OrgCommand {
             "org-clock-goto",
             "org-resolve-clocks",
             "org-clock-in-last",
+            "org-clock-display",
         ][self as usize]
     }
 

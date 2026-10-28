@@ -27,4 +27,5 @@ mod repeat;
 pub use repeat::{RepeatInterval, RepeatMode, RepeatUnit, Repeater, WarningDelay};
 
 mod clock;
+pub use clock::RecordedClock;
 pub use clock::{ClockInterval, ClockRecord};
