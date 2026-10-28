@@ -248,7 +248,8 @@ uses an independent `keys.org_agenda` map. The native date prompt inherits the
 minibuffer map before `keys.org_calendar` controls. Host agenda/calendar roles
 consume unbound text and paste. They admit implemented motion, scroll, quit, command-entry
 and cancellation targets. The agenda role also admits the implemented priority/effort
-source commands: comma selects priority and e sets effort. Switching roles clears pending chords and Escape timing
+source commands: comma selects priority, e sets effort and semicolon starts
+the session countdown prompt. Switching roles clears pending chords and Escape timing
 without accepting a prompt. Feature owners activate their role when delivered;
 role selection alone does not create an agenda or draft.
 
@@ -256,6 +257,7 @@ role selection alone does not create an agenda or draft.
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
+| `;` | `org-timer-set-timer` | Enter an explicit session countdown. |
 | `e` | `org-set-effort` | Set the checked source entry estimate. |
 | `,` | `org-priority` | Set the checked source heading priority. |
 | `C-g` | `keyboard-quit` | Cancel current input. |

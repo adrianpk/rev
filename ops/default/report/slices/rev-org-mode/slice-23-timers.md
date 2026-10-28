@@ -160,3 +160,10 @@ in this exact order:
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-time`
 - `python3 scripts/check-source.py`
 - `git diff --check`
+
+The first final required batch at `1995bd5d1747` stopped at
+`cargo test --test org_time --test commands --test display --test recovery`:
+`palette::context_reference` found the agenda semicolon target missing from its
+independent defaults table. The complete target-set assertion remains unchanged;
+the documentation now lists the implemented countdown binding. Focused reference
+verification passes, and fresh controller receipts bind the corrected head.
