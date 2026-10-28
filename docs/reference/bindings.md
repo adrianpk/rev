@@ -13,6 +13,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
+| `C-c C-x p` in Org | `org-set-property` | Set a local property through name/value prompts. |
+| `M-x org-delete-property` | `org-delete-property` | Remove the named local base or additive form. |
+| `M-x org-inspect-property` | `org-inspect-property` | Inspect effective data and source owners. |
+| `M-x org-edit-property-owner` | `org-edit-property-owner` | Explicitly edit a selected effective source owner. |
 | M-x org-mode | `org-mode` | Select native Org for the current buffer. |
 | TAB in Org | `org-cycle` | Cycle heading or drawer visibility in native Org. |
 | S-TAB in Org | `org-shifttab` | Cycle overview, contents and show-all in this view. |

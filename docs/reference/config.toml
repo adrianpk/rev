@@ -291,6 +291,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-x p" = "org-set-property"
 "TAB" = "org-cycle"
 "BackTab" = "org-shifttab"
 "C-c C-n" = "org-next-visible-heading"

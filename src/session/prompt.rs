@@ -11,6 +11,9 @@ impl Session {
         }
         if command == Command::KeyboardQuit {
             self.org.cancel();
+            if matches!(self.pending, Some(Pending::Property(_))) {
+                self.pending = None;
+            }
             if self.cancel_quit() {
                 return Some(self.message("Quit"));
             }
@@ -37,6 +40,7 @@ impl Session {
     pub(super) fn complete_argument(&mut self) -> Action {
         match self.pending {
             Some(Pending::Path(_)) => self.complete_path(),
+            Some(Pending::Property(_)) => self.message("Enter the property argument; C-g cancels"),
             Some(Pending::GotoLine { .. }) => {
                 self.message("Enter a signed decimal line number; C-g cancels")
             }

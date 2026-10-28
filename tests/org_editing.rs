@@ -24,6 +24,8 @@ mod list_edges;
 mod lists;
 #[path = "org_editing/projection.rs"]
 mod projection;
+#[path = "org_editing/properties.rs"]
+mod properties;
 #[path = "org_editing/subtree_bounds.rs"]
 mod subtree_bounds;
 #[path = "org_editing/subtree_positions.rs"]

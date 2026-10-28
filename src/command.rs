@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 116] = [
+    pub const ALL: [Self; 120] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -130,6 +130,10 @@ impl Command {
         Self::Org(OrgCommand::ToggleCheckboxPresence),
         Self::Org(OrgCommand::UpdateStatisticsCookies),
         Self::Org(OrgCommand::InsertCheckboxItem),
+        Self::Org(OrgCommand::SetProperty),
+        Self::Org(OrgCommand::DeleteProperty),
+        Self::Org(OrgCommand::InspectProperty),
+        Self::Org(OrgCommand::EditPropertyOwner),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

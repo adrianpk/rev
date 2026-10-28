@@ -7,7 +7,9 @@ mod index;
 mod inline;
 mod job;
 mod list;
+mod property;
 pub(crate) use list::ListEdit;
+pub(crate) use property::{PropertyValue, derived_property, property_name};
 mod source;
 mod structure;
 

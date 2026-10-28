@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 mod list;
 mod operation;
+pub(super) mod property;
 mod subtree;
 
 use super::{Action, Session};
@@ -56,6 +57,12 @@ impl Session {
             return;
         };
         let request = self.org.request.take().expect("checked Org request");
+        if request.command.property() {
+            if let Err(error) = self.start_property(model, request) {
+                self.error(&error);
+            }
+            return;
+        }
         let result = self.org_operation(model, request.command);
         match result {
             Ok(()) => {

@@ -298,7 +298,7 @@ local and canonical `dev` match that validated candidate.
 Contracts: ORG05 ORG17.
 Details and exact checks: [Slice 12](../plan/rev-org-mode.md#slice-12-edit-org-drawers-and-inherited-properties).
 
-- [ ] T12.1: Implement property set/remove/inspect and drawer folding without confusing ordinary and property drawers.
+- [x] T12.1: Implement property set/remove/inspect and drawer folding without confusing ordinary and property drawers.
 - [ ] T12.2: Resolve local/additive/inherited values with source-owner provenance and safe directive precedence.
 - [ ] T12.3: Verify selective inheritance, unknown properties and edits to the actual owner.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

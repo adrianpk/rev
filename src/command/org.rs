@@ -42,9 +42,13 @@ pub enum OrgCommand {
     ToggleCheckboxPresence,
     UpdateStatisticsCookies,
     InsertCheckboxItem,
+    SetProperty,
+    DeleteProperty,
+    InspectProperty,
+    EditPropertyOwner,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 40] = [
+    pub const ALL: [Self; 44] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -85,6 +89,10 @@ impl OrgCommand {
         Self::ToggleCheckboxPresence,
         Self::UpdateStatisticsCookies,
         Self::InsertCheckboxItem,
+        Self::SetProperty,
+        Self::DeleteProperty,
+        Self::InspectProperty,
+        Self::EditPropertyOwner,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -128,7 +136,21 @@ impl OrgCommand {
             "org-toggle-checkbox-presence",
             "org-update-statistics-cookies",
             "org-insert-item-checkbox",
+            "org-set-property",
+            "org-delete-property",
+            "org-inspect-property",
+            "org-edit-property-owner",
         ][self as usize]
+    }
+
+    pub(crate) fn property(self) -> bool {
+        matches!(
+            self,
+            Self::SetProperty
+                | Self::DeleteProperty
+                | Self::InspectProperty
+                | Self::EditPropertyOwner
+        )
     }
 
     pub(crate) fn list_insertion(self) -> bool {

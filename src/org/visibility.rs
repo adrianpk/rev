@@ -43,6 +43,7 @@ pub(crate) struct Outline {
     blocked_eof: bool,
     malformed: Vec<Range<usize>>,
     pub(super) lists: super::list::Lists,
+    pub(super) properties: super::property::Properties,
 }
 
 impl Outline {
@@ -53,6 +54,7 @@ impl Outline {
     ) -> Self {
         let mut model = model::observe(structure, cancel);
         model.lists = super::list::Lists::observe(structure, text, cancel);
+        model.properties = super::property::Properties::observe(structure, text, cancel);
         model
     }
     fn heading(&self, byte: usize) -> Option<usize> {
