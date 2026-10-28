@@ -129,3 +129,10 @@ sequence. Failure receipt: `BMNRRNHJ2IZLMW2KON7BJ7EOPT`. The fixture now uses
 unbound C-q and also verifies completed, cancelled and invalid agenda prefixes.
 The unbound-key and prefix-retirement assertions remain intact. Fresh evidence
 binds the corrected clean head.
+
+The next focused batch at `386fef94f324` passed command checks and reached an
+outdated operational_catalog assumption that org-agenda was still unavailable.
+Failure receipt: `LJHXUWMHE5FKE27XC7SYDPU4QC`. That contract now checks the
+implemented palette command positively; capture/export/special-edit commands
+remain rejected until their recorded slices. Native source-selection behavior
+is covered by the real session journeys above.

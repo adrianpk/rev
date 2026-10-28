@@ -64,12 +64,13 @@ fn operational_catalog() {
         input.handle(key(KeyCode::Enter)),
         Outcome::Command(Command::Mode(Mode::Org))
     );
-    for absent in [
-        "org-agenda",
-        "org-capture",
-        "org-export-dispatch",
-        "org-edit-special",
-    ] {
+    input.commands().unwrap();
+    input.handle(Event::Paste("org-agenda".into()));
+    assert_eq!(
+        input.handle(key(KeyCode::Enter)),
+        Outcome::Command(Command::Org(OrgCommand::Agenda))
+    );
+    for absent in ["org-capture", "org-export-dispatch", "org-edit-special"] {
         assert_eq!(Command::named(absent), None, "{absent}");
     }
 }
