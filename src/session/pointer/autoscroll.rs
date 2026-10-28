@@ -18,6 +18,12 @@ pub(super) struct Autoscroll {
     due: Instant,
 }
 
+impl Autoscroll {
+    fn blocked(&self, top: usize, last: usize) -> bool {
+        if self.backward { top == 0 } else { top == last }
+    }
+}
+
 impl Selection {
     pub(super) fn track(&mut self, position: Position, content: Area, now: Instant) {
         let Some(backward) = direction(position, content) else {
@@ -48,6 +54,18 @@ fn direction(position: Position, content: Area) -> Option<bool> {
 }
 
 impl Session {
+    pub(in crate::session) fn pointer_remaining(&self, now: Instant) -> Option<Duration> {
+        let selection = self.selection.as_ref()?;
+        self.capture_panel(selection.capture)?;
+        Some(
+            selection
+                .autoscroll
+                .as_ref()?
+                .due
+                .saturating_duration_since(now),
+        )
+    }
+
     pub(in crate::session) fn expire_pointer(&mut self, now: Instant) -> Action {
         let Some(mut selection) = self.selection.take() else {
             return Action::Wait;
@@ -95,7 +113,7 @@ impl Session {
         };
         let before = self.view();
         let changed = candidate != *before;
-        if candidate.top == before.top {
+        if pending.blocked(candidate.top, self.buffer()?.len_lines() - 1) {
             selection.autoscroll = None;
         }
         if changed {

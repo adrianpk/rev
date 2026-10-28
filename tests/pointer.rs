@@ -143,3 +143,6 @@ fn prompt_ownership() {
 
 #[path = "pointer/autoscroll.rs"]
 mod autoscroll;
+
+#[path = "pointer/autoscroll_bounds.rs"]
+mod autoscroll_bounds;

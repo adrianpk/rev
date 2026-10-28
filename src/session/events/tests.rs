@@ -187,3 +187,65 @@ fn escape_in_batch() {
         assert_eq!(session.input.remaining(Instant::now()), None, "{name}");
     }
 }
+
+// Native waiting is indefinite when no deadline exists. A click and an inside
+// drag must retain that behavior instead of introducing periodic mouse polling.
+#[test]
+fn no_idle_poll() {
+    let mut session = session();
+    session.handle(Event::Paste("a\nb\n".to_owned()));
+    session.execute(Command::Motion(Motion::BufferStart));
+    for kind in [
+        crossterm::event::MouseEventKind::Down(crossterm::event::MouseButton::Left),
+        crossterm::event::MouseEventKind::Drag(crossterm::event::MouseButton::Left),
+    ] {
+        session.handle(mouse(kind, 0));
+        assert!(
+            session
+                .input_ready(Instant::now(), |_| panic!("idle polling"))
+                .unwrap()
+        );
+    }
+}
+
+fn mouse(kind: crossterm::event::MouseEventKind, row: u16) -> Event {
+    Event::Mouse(crossterm::event::MouseEvent {
+        kind,
+        column: 6,
+        row,
+        modifiers: KeyModifiers::NONE,
+    })
+}
+
+// A release arriving at the timeout boundary is read before servicing the due
+// tick. The same injected native poll boundary also covers ordinary ready input.
+#[test]
+fn timeout_release() {
+    use crossterm::event::{MouseButton, MouseEventKind};
+    for (name, answers) in [
+        ("ready", vec![true]),
+        ("boundary", vec![false, true]),
+        ("timeout", vec![false, false]),
+    ] {
+        let mut session = session();
+        session.handle(Event::Paste("row\n".repeat(100)));
+        session.execute(Command::Motion(Motion::BufferStart));
+        let now = Instant::now();
+        session.handle_at(mouse(MouseEventKind::Down(MouseButton::Left), 0), now);
+        session.handle_at(mouse(MouseEventKind::Drag(MouseButton::Left), 23), now);
+        let due = now + Duration::from_millis(100);
+        let mut answers = VecDeque::from(answers);
+        let ready = session
+            .input_ready(due, |wait| {
+                assert_eq!(wait, Duration::ZERO);
+                Ok(answers.pop_front().unwrap())
+            })
+            .unwrap();
+        assert!(answers.is_empty(), "{name}");
+        if ready {
+            session.handle_at(mouse(MouseEventKind::Up(MouseButton::Left), 23), due);
+        }
+        session.expire_input(due);
+        assert_eq!(session.view().top, if ready { 0 } else { 3 }, "{name}");
+    }
+}

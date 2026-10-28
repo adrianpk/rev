@@ -10,9 +10,7 @@ const INPUT_BATCH_TIME: Duration = Duration::from_millis(4);
 
 impl Session {
     pub(super) fn read_input(&mut self) -> io::Result<Action> {
-        if let Some(wait) = self.input.remaining(Instant::now())
-            && !event::poll(wait)?
-        {
+        if !self.input_ready(Instant::now(), event::poll)? {
             return Ok(self.expire_input(Instant::now()));
         }
         let event = event::read()?;
@@ -25,6 +23,32 @@ impl Session {
                 Ok(None)
             }
         })
+    }
+
+    /// The native owner blocks indefinitely without deadlines or ready input.
+    /// No periodic wake is introduced by an armed click or an inside drag.
+    pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
+        match (self.input.remaining(now), self.pointer_remaining(now)) {
+            (Some(escape), Some(pointer)) => Some(escape.min(pointer)),
+            (Some(wait), None) | (None, Some(wait)) => Some(wait),
+            (None, None) => None,
+        }
+    }
+
+    fn input_ready(
+        &self,
+        now: Instant,
+        mut poll: impl FnMut(Duration) -> io::Result<bool>,
+    ) -> io::Result<bool> {
+        let Some(wait) = self.remaining_input(now) else {
+            return Ok(true);
+        };
+        if poll(wait)? {
+            return Ok(true);
+        }
+        // Recheck native input after timeout: queued release/cancellation wins
+        // over due pointer work, even when it arrives at the deadline boundary.
+        poll(Duration::ZERO)
     }
 
     // Keep every handler transition in order. Only intermediate presentation is
