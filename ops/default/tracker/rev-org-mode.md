@@ -688,8 +688,10 @@ and fifteen existing source/agenda cases pass; focused Clippy, changed-source
 quality and the complete configuration reference agree. T27.3 verifies real
 refresh, captured clocks, checked source return, shared-pane ownership, endpoint
 and hourly-range times, zone ambiguity and retained cancellation incompleteness.
-Ten calendar-focused cases, focused Clippy and source quality pass. Final clean
-PR-head validation and canonical PR reference follow.
+Ten calendar-focused cases, focused Clippy and source quality pass. Canonical
+[PR #128](https://forge.adrianpk.com/adrianpk/rev/pulls/128) targets dev; the
+report is reviewing. Controller evidence will bind its final clean pushed head.
+Integration remains controller-owned.
 
 ### Slice 28: query Org tasks tags and properties
 

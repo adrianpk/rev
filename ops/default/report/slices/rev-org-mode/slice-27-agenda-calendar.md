@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-27-agenda-calendar`
-PR: pending
+PR: `#128`
 
 ## Purpose
 
@@ -74,6 +74,10 @@ remains incomplete when cached facts are projected onto another date.
 
 ## Validation
 
+T27.1: `fec273d62a9a93bda6ae8325e16bc5c300ff3f6c`.
+T27.2: `b014ce01ea31043b4c36f6f29522accd1eb3805b`.
+T27.3: `290ecd6a434677d655ed5539e38af7ff76de7d1e`.
+
 - `cargo test --test org_agenda --test configuration calendar_`: four focused
   cases passed, zero failures or ignored cases.
 - `cargo clippy --lib --test org_agenda --test configuration -- -D warnings`:
@@ -120,3 +124,5 @@ Final controller evidence binds the clean canonical PR head. Required order:
 ## Risks and Follow-ups
 
 The delivery-set full gate has not run.
+
+[Canonical PR #128](https://forge.adrianpk.com/adrianpk/rev/pulls/128) targets dev.
