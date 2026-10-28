@@ -1,6 +1,6 @@
 # Slice 23: deliver native Org relative and countdown timers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -167,3 +167,10 @@ The first final required batch at `1995bd5d1747` stopped at
 independent defaults table. The complete target-set assertion remains unchanged;
 the documentation now lists the implemented countdown binding. Focused reference
 verification passes, and fresh controller receipts bind the corrected head.
+
+PR #124 merged into dev at `2cc50fe81a469178fb44a2c361b40d10558158a3`,
+verified on the canonical forge and remote. Required receipt
+`IKLOANP42NTQUAQD7IJ7TBDALH` passed all six ordered checks, 287 tests and
+nine owned terminal sessions, zero skips. Focused receipt
+`RJGSEJETDJE6ST7ZY4DOD3CB5N` passed 340 tests and configuration reference
+agreement. Slice 24 is now active; no delivery-set full gate ran.

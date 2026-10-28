@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 23 timers
+Active slice: Slice 24 habit-records
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -557,7 +557,7 @@ Details and exact checks: [Slice 23](../plan/rev-org-mode.md#slice-23-deliver-na
 - [x] T23.1: Implement relative time insertion/list items, pause/resume/stop and countdown entry with familiar bindings.
 - [x] T23.2: Arm only selected deadlines in the existing native event owner; cancel before due work and retain terminal cleanup.
 - [x] T23.3: Verify one-shot expiry, restart, exit and no inactive wakeups in the owned Org time journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T23.1: `37ee7a7ac5c3`; T23.2: `899689081195`. Native timers, checked
 source notes and selected deadlines pass focused core/command/display/recovery
@@ -569,6 +569,12 @@ T23.3: `2777a34834d158595fa7b64359f4b4a452fbe17a`. [Canonical PR #124](https://f
 and the [Slice 23 report](../report/slices/rev-org-mode/slice-23-timers.md) are
 reviewing. Final required/focused controller receipts bind the clean PR-reference
 head; verified dev integration remains pending.
+
+PR #124 merged into dev at `2cc50fe81a469178fb44a2c361b40d10558158a3`,
+verified against the canonical forge and remote. Required receipt
+`IKLOANP42NTQUAQD7IJ7TBDALH` passed six checks, 287 tests and nine owned PTYs.
+Focused receipt `RJGSEJETDJE6ST7ZY4DOD3CB5N` passed 340 tests and configuration
+reference agreement, zero skips. The Slice 23 report is delivered.
 
 ### Slice 24: maintain Org habit schedules and history
 
