@@ -454,7 +454,7 @@ existing complete catalog/context assertions pass after reconciliation.
 Contracts: ORG07 ORG20.
 Details and exact checks: [Slice 19](../plan/rev-org-mode.md#slice-19-reschedule-repeated-org-tasks-correctly).
 
-- [ ] T19.1: Implement distinct +, ++ and .+ recurrence, warning delays and habit interval ranges.
+- [x] T19.1: Implement distinct +, ++ and .+ recurrence, warning delays and habit interval ranges.
 - [ ] T19.2: Apply repeat completion, state history, LAST_REPEAT and planning changes coherently.
 - [ ] T19.3: Verify overdue/backlog, calendar boundaries, duplicate completion dates and full undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

@@ -55,6 +55,18 @@ impl Timestamp {
         result.end_civil()?;
         Ok(result)
     }
+    pub(super) fn suffix(&self) -> &str {
+        &self.spelling.suffix
+    }
+    pub(super) fn remove_first_delay(&mut self) {
+        let text = &self.spelling.suffix;
+        if let Some(start) = text.find("--") {
+            let tail = &text[start..];
+            let end = start + tail.find(char::is_whitespace).unwrap_or(tail.len());
+            let start = text[..start].trim_end().len();
+            self.spelling.suffix.replace_range(start..end, "");
+        }
+    }
     pub fn date(&self) -> Date {
         self.date
     }

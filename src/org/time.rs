@@ -22,3 +22,6 @@ mod entry;
 
 mod month;
 pub(crate) use month::{Month, calendar_hit};
+
+mod repeat;
+pub use repeat::{RepeatInterval, RepeatMode, RepeatUnit, Repeater, WarningDelay};
