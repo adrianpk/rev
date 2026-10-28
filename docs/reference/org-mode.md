@@ -284,3 +284,56 @@ Evaluation is iterative, with at most 8192 tag and 512 property records and a
 comparison operands; they reject rather than being evaluated as code. Malformed
 syntax, unsupported operators and excess input reject with a source-byte
 location. There is no Lisp, predicate callback or external process evaluation.
+
+## Task workflows and logs
+
+`C-c C-t` and `M-x org-todo` use the same native task transition. With no fast
+keys they cycle the current sequence through its states and then unmarked.
+With declared selection keys they open a state prompt; enter the key or full
+keyword and Return. `org-todo-set` always opens that prompt; empty or `-` clears
+the state. `org-todo-next` and `org-todo-previous` cycle without selection.
+`org-inspect-todo` reports the current recognized state and available choices,
+including on read-only source. Unknown leading words remain ordinary title text.
+
+Typed `org.todo.sequence` and `org.todo.finished` default to TODO/DONE with DONE
+finished. File-local TODO, SEQ_TODO and TYP_TODO declarations replace that workflow.
+Each declaration has a separate sequence; `|` begins its finished states, or the
+last state is finished when no separator appears. There are at most 64 unique
+keywords across the file, each 1..128 UTF-8 bytes without whitespace, controls,
+`|`, `(` or `)`. Duplicate keys/keywords and malformed annotations reject editing
+and matching before mutation.
+
+For example, `#+TODO: TODO(t) WAIT(w@/!) | DONE(d!)` selects keys and state
+logging. `!` requests a timestamp and `@` a one-line note, with `/` selecting
+logging on departure. Entry logging takes precedence over departure logging.
+`org.todo.log_done = true` additionally records CLOSED on completion; factory
+ordinary completion logging is off. A state note can be empty to record only
+time. C-g cancels every pending part of the transition.
+
+The inherited LOGGING property resets the default logging policy and annotations
+when nonempty. Supported data tokens are `nil`, `logdone`, `lognotedone` and
+annotations on declared keywords, such as `WAIT(!)` or `DONE(@)`. Unsupported
+tokens reject before mutation. State notes use normal source placement after
+planning/properties by default. `org.todo.log_drawer` selects an explicit drawer;
+inherited LOG_INTO_DRAWER overrides it with a drawer name, `nil` for normal
+placement or `t` for LOGBOOK. Existing selected drawers receive newest entries
+first; unrelated drawers retain their contents.
+
+`org.todo.block_children` optionally blocks completion while a descendant task
+is unfinished. An ORDERED parent additionally requires earlier sibling tasks
+to finish. Local NOBLOCKING=t exempts an entry. The refusal explains the condition
+before any state, log or history changes.
+
+A checked transaction publishes the keyword, selected CLOSED/state log/note and
+applicable immediate-parent TODO progress cookies together. COOKIE_DATA selects
+TODO or checkbox ownership as before. Priorities, tags, unrelated planning and
+properties stay intact. Reopening removes CLOSED and preserves an adjacent
+property drawer's ownership. Undo/redo restore the entire transaction and shared
+source anchors. Deeper literal/list contexts never fall through to an ancestor
+task action; drafts recheck their originating view, source and read-only state.
+
+Logging captures local time once before opening its note prompt. The session
+reads at most 1 MiB from the local TZif file; TZ can select UTC or a TZif zone
+name/absolute path. Leap-aware, malformed, unsupported or uncovered local time
+rejects before publication. No source directive can execute code or select a
+process, and task logging invokes no external date command.

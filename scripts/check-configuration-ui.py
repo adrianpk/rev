@@ -15,6 +15,7 @@ from configuration_ui.performance import KINDS, run as performance
 from configuration_ui.support import ROOT
 from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
+from configuration_ui.org_tasks import tasks, readonly
 
 
 def terminal(selected):
@@ -49,7 +50,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -68,7 +69,16 @@ def main():
     build = ['cargo', 'build', '--bin', 'rev']
     if args.case in [None, 'io', 'unwind']:
         build.extend(['--example', 'terminal-probe'])
+    if args.case == 'org-tasks':
+        build.extend(['--example', 'org-task-session'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-tasks':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            for scenario, mode in [(tasks, 'editing'), (readonly, 'read-only')]:
+                run_scenario(scenario, colored)
+                print(f'PASS org-tasks {mode} {label}')
+        print('Org task terminal suite: 4 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-outline':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
             run_scenario(outline, colored)

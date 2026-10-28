@@ -1,6 +1,6 @@
 # Slice 14: deliver Org task workflows and logging
 
-Status: in progress
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -54,6 +54,8 @@ recurrence remain assigned to their recorded later slices.
 - `src/org/list/progress.rs`: shared custom-workflow cookie counting.
 - `src/session/outline/tasks.rs`: source-qualified state/note drafts and publication.
 - `src/session/outline/tasks/clock/`: bounded current local timestamp support.
+- `scripts/configuration_ui/org_tasks.py`, `examples/org-task-session.rs`: owned
+  native terminal and canonical read-only admission fixtures.
 - `tests/org_editing/tasks.rs`, `tests/configuration/org_tasks.rs`: native behavior
   and typed configuration layering, provenance and bounds.
 
@@ -88,8 +90,25 @@ other fields. EOF prefix detection uses scalar boundaries, including multibyte
 final titles. Only the immediate parent's applicable task cookies change;
 checkbox-owned COOKIE_DATA retains its own statistics policy.
 
+T14.3 terminal checks passed:
+
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  four owned sessions, editing/read-only in RGB and NO_COLOR, zero skipped.
+  Native C-c C-t, M-x and an alias produce the same complete metadata. Blocking,
+  note cancellation, real saves and single-step undo/redo preserve exact
+  BOM/CRLF/EOF source. Every child is reaped and PTY descriptors close.
+
+The read-only fixture sets the existing canonical buffer admission flag before
+Session construction, since the normal executable has no read-only startup
+option. It uses the extracted production session loop, including native input
+batching/deadlines, rather than an alternate event driver. All fixture HOME/XDG
+paths and cwd are owned; snapshots admit no incidental file changes. The example
+initially attempted a private settings accessor; it now retains the same startup
+snapshot for its explicit host-owned view. Separating fixture construction from
+terminal ownership also keeps its source complexity within the existing limit.
+
 ## Risks and Follow-ups
 
-The T14.3 owned terminal journey remains in progress. Required exact-head controller validation and canonical PR references
+Required exact-head controller validation and canonical PR references
 will be recorded before readiness. Rebase + Fast-forward integration belongs to
 the external controller.

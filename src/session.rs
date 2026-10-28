@@ -42,17 +42,7 @@ use crate::view::{self, View};
 use crate::window::Windows;
 
 pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
-    let mut session = initial(path)?;
-    session.start_terminal(terminal)?;
-    loop {
-        let action = session.read_input()?;
-        terminal.set_mouse_reporting(session.mouse_enabled())?;
-        match action {
-            Action::Exit => return Ok(()),
-            Action::Redraw => session.draw(terminal.writer())?,
-            Action::Wait => {}
-        }
-    }
+    initial(path)?.run_terminal(terminal)
 }
 
 fn initial(path: Option<&Path>) -> io::Result<Session> {
@@ -129,6 +119,21 @@ enum Pending {
 }
 
 impl Session {
+    /// Run native input, deadlines and drawing for this host-owned session.
+    /// The caller owns terminal acquisition, entry and restoration on return.
+    pub fn run_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        self.start_terminal(terminal)?;
+        loop {
+            let action = self.read_input()?;
+            terminal.set_mouse_reporting(self.mouse_enabled())?;
+            match action {
+                Action::Exit => return Ok(()),
+                Action::Redraw => self.draw(terminal.writer())?,
+                Action::Wait => {}
+            }
+        }
+    }
+
     fn start_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         terminal.set_mouse_reporting(self.mouse_enabled())?;
         terminal.set_cursor_color(self.buffers.palette().cursor)?;
