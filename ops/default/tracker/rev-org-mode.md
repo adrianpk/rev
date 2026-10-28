@@ -324,6 +324,14 @@ Details and exact checks: [Slice 13](../plan/rev-org-mode.md#slice-13-edit-and-m
 - [x] T13.3: Verify case sensitivity, escaping, malformed queries and unchanged unrelated source.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+PR: [#114](https://forge.adrianpk.com/adrianpk/rev/pulls/114).
+Report: [Slice 13](../report/slices/rev-org-mode/slice-13-tags-matching.md).
+Task commits: T13.1 `22fa841590398823ddbba052379bc5d436ccd365`,
+T13.2 `cc6bc81ce9d5f8374f004aec52bd29aa8be42c20`,
+T13.3 `b264270aad53655e0b22772380e4cc03bc9bc118`.
+Required and focused exact-head receipts are recorded by the controller after
+this PR-reference follow-up is pushed; integration remains pending.
+
 ### Slice 14: deliver Org task workflows and logging
 
 Contracts: ORG06 ORG17.

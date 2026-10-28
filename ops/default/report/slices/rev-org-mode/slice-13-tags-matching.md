@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-13-tags-matching`
-PR: pending
+PR: [#114](https://forge.adrianpk.com/adrianpk/rev/pulls/114)
 
 ## Purpose
 
