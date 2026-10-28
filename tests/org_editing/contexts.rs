@@ -1,5 +1,5 @@
 use rev::buffer::Mode;
-use rev::command::Command;
+use rev::command::{Command, OrgCommand};
 use rev::input::{Focus, Input, OrgContext, Outcome};
 
 use super::{Event, KeyCode, control, key};
@@ -36,13 +36,22 @@ fn open(input: &mut Input, stage: &str) {
     }
 }
 
-// The public palette contains the working mode command and no future feature
-// placeholders. Completion and acceptance select its actual compiled identity.
+// The public palette contains working mode/move commands and no future feature
+// placeholders. A narrowed mode prefix completes to its compiled identity.
 #[test]
 fn operational_catalog() {
     let mut input = Input::default();
     input.commands().unwrap();
     input.handle(Event::Paste("org-mo".into()));
+    assert_eq!(
+        input.palette().unwrap().candidates(),
+        [
+            Command::Mode(Mode::Org),
+            Command::Org(OrgCommand::MoveSubtreeDown),
+            Command::Org(OrgCommand::MoveSubtreeUp),
+        ]
+    );
+    input.handle(Event::Paste("d".into()));
     assert_eq!(
         input.palette().unwrap().candidates(),
         [Command::Mode(Mode::Org)]

@@ -89,6 +89,9 @@ Development checks passed:
 Focused source-quality checks passed for the changed edit and subtree owners.
 The subtree coverage checks whole sibling regions in both directions, negative
 admission and undo/redo at every grapheme boundary of Unicode/CRLF/EOF source.
+The first required batch caught a stale palette expectation: `org-mo` now
+matches both delivered move commands as well as `org-mode`. The regression now
+asserts all three identities before narrowing mode completion to `org-mod`.
 
 After the canonical PR-reference follow-up is pushed, the controller records
 these required commands against that clean HEAD, in order:
