@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-09-outline-navigation`
-PR: pending
+PR: [#110](https://forge.adrianpk.com/adrianpk/rev/pulls/110)
 
 ## Purpose
 
@@ -50,6 +50,10 @@ finite structural-node budget and 256-level native profile remain in force.
 Source targets convert checked byte offsets to canonical scalar positions.
 View projection filters only visible-heading motion; targeted hierarchy motion
 uses ordinary reveal. Edits use the canonical buffer prepare/publish boundary.
+
+Task commits: T9.1 `c1c4b4d4d58c81935f9b3d0bb8a89be2dbcd0d52`,
+T9.2 `0669ab418a49a0a2be0bbdd84de40b0b809f0707`,
+T9.3 `e86f7769b7183f40b2ae0370a2db007224812b75`.
 
 ## Contracts Added or Changed
 

@@ -243,6 +243,11 @@ Details and exact checks: [Slice 9](../plan/rev-org-mode.md#slice-9-insert-and-n
 - [x] T9.3: Verify read-only navigation, inactive context behavior, undo and logical source bounds.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#110](https://forge.adrianpk.com/adrianpk/rev/pulls/110).
+Report: [Slice 9](../report/slices/rev-org-mode/slice-9-outline-navigation.md).
+PR-reference follow-up precedes exact-head validation; integration remains
+controller-owned.
+
 ### Slice 10: move and promote coherent Org subtrees
 
 Contracts: ORG04 ORG02.
