@@ -1,6 +1,6 @@
 # Slice 20: record native Org task clock intervals
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -27,6 +27,14 @@ normal configuration layering, exact provenance and validated source-safe names.
 Zero-minute intervals remain by default. Explicit removal and cancel delete the
 owned interval and an otherwise empty drawer; other logs and metadata remain
 exact. Newline wrappers added at unterminated EOF are removed with the interval.
+
+T20.3 verifies read-only admission before time acquisition, late capture failures,
+literal/child ownership, revision-stale rejection, source bounds and hidden-buffer
+commands. Native deadline tests advance the host across one second through a day:
+no clock capture, source revision, history entry or redraw appears. Shared-view
+save tests preserve BOM, CRLF, Unicode and unterminated EOF through both operations
+and complete undo. The existing task PTY journey now exercises clock keys/M-x,
+goto, cancel, exact interval/save contents and undo/redo in RGB and NO_COLOR.
 
 ## Implementation Notes
 
@@ -79,6 +87,30 @@ T20.2 development checks passed:
 Development validation caught a missing initializer, a collapsible conditional
 and a complexity boundary. The initializer and conditional were corrected, and
 source owner conversion now uses the existing qualified span. Checks were retained.
+
+T20.2 commit: `8395add8fb79eb215a3e1c78880fb5bdeb664152`.
+
+T20.3 development checks passed:
+
+- `cargo test --test org_editing clock_edges -- --nocapture`: five native boundary/save/deadline cases passed, zero skips.
+- `cargo clippy --test org_editing --test org_time --test commands -- -D warnings`.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`: four owned editing/read-only RGB/NO_COLOR task PTYs passed, zero skips.
+- Changed-test source quality passed at the original thresholds.
+
+Terminal assertions retain all prior task/timestamp/repeat journeys, exact source
+snapshots, normal save/history, isolated HOME/XDG/cwd, deadlines and owned cleanup.
+
+Final required validation is recorded by the controller against the final clean
+PR head, in the approved order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test org_editing --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Final focused evidence also covers full configuration/display regressions,
+configuration-reference agreement and the four owned task PTYs.
 
 ## Risks and Follow-ups
 

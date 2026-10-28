@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Record task time with native Org clock-in, clock-out, cancel and goto commands. Compatible CLOCK intervals retain elapsed minutes across midnight and zone transitions, use task-owned drawers, and undo through normal history without periodic source changes.
+- Record task time with native Org clock-in, clock-out, cancel and goto commands. Compatible CLOCK intervals retain elapsed minutes across midnight and zone transitions, use task-owned drawers, and undo through normal history without periodic source changes. Configure drawer placement and optional zero-minute removal with `org.clock.drawer` and `org.clock.remove_zero`.
 
 - Complete repeating Org tasks with distinct `+`, `++` and `.+` schedules. Reset state, planning dates, selected history and LAST_REPEAT change together and undo in one step. Configure repeat time/note logging with `org.todo.log_repeat`; notes and local-time choices remain cancellable.
 

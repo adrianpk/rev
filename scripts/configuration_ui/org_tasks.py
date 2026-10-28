@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from .org_estimates import estimates
 from .org_timestamps import timestamps, readonly_calendar
 from .org_repeats import repeats
+from .org_clocks import clocks
 
 from .support import (BINARY, PTY, ROOT, canvas, close, completed, environment,
                       finish, send, snapshot, step, write)
@@ -99,6 +100,7 @@ def tasks(root, colored):
         estimates(session, source, LINES, goto, exact)
         timestamps(session, source, LINES, goto, exact)
         repeats(session, source, LINES, goto, exact, document)
+        clocks(session, source, LINES, goto, exact, document)
         assert source.read_bytes() == SOURCE
         if not colored:
             assert b"\x1b[38;2;" not in session.output and b"\x1b[48;2;" not in session.output
@@ -120,7 +122,7 @@ def readonly(root, colored):
         goto(session, 3)
         named(session, 'org-inspect-todo', b'Org task: TODO')
         for wire in [b'\x03\x14', b'\x1bxorg-todo\r', b'\x1bxorg-todo-set\r', b'\x03,', b'\x03\x18e', b'\x03.', b'\x03!',
-                     b'\x03\x13', b'\x03\x04', b'\x1bxorg-timestamp-up-day\r']:
+                     b'\x03\x13', b'\x03\x04', b'\x1bxorg-timestamp-up-day\r', b'\x03\x18\x09', b'\x1bxorg-clock-in\r']:
             send(session, wire, lambda frame: b'buffer is read-only' in frame
                  and b'-- RO --' in frame and exact(frame, LINES))
         readonly_calendar(session, LINES, exact)

@@ -481,8 +481,11 @@ Details and exact checks: [Slice 20](../plan/rev-org-mode.md#slice-20-record-nat
 
 - [x] T20.1: Deliver clock-in/out/cancel/goto with compatible CLOCK source and task-owned interval durations.
 - [x] T20.2: Preserve document transactions and remove or retain zero intervals according to the frozen defaults.
-- [ ] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
+- [x] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T20.2: `8395add8fb79`. T20.3 passed five additional native boundary/save/deadline
+cases and four owned task PTYs, with affected-test Clippy and source quality.
 
 T20.1: `8a6a6d74d279`; native interval/command checks, library Clippy,
 configuration reference and source quality passed. T20.2 passed eight focused
