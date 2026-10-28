@@ -96,7 +96,7 @@ Details and exact checks: [Slice 1](../plan/rev-org-mode.md#slice-1-define-nativ
 
 - [x] T1.1: Introduce the in-house Org owner and revision-qualified source ranges; keep canonical rope bytes authoritative.
 - [x] T1.2: Represent recognized and unknown forms without executing directives or retaining a second editable document.
-- [ ] T1.3: Introduce the org_source target and verify UTF-8, CRLF, malformed input and checked-range failures.
+- [x] T1.3: Introduce the org_source target and verify UTF-8, CRLF, malformed input and checked-range failures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 2: index Org structure with bounded work

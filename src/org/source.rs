@@ -46,7 +46,7 @@ impl SourceRange {
     }
 
     /// Reuse the canonical scalar range for editor transactions. The edit owner
-    /// still checks freshness, grapheme boundaries, read-only state and history.
+    /// still checks freshness, read-only state, view-point boundaries and history.
     pub fn span(&self) -> &Span {
         &self.span
     }
