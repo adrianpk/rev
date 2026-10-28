@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-12-drawers-properties`
-PR: pending
+PR: [#113](https://forge.adrianpk.com/adrianpk/rev/pulls/113)
 
 ## Purpose
 

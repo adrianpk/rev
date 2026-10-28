@@ -303,6 +303,14 @@ Details and exact checks: [Slice 12](../plan/rev-org-mode.md#slice-12-edit-org-d
 - [x] T12.3: Verify selective inheritance, unknown properties and edits to the actual owner.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+PR: [#113](https://forge.adrianpk.com/adrianpk/rev/pulls/113).
+Report: [Slice 12](../report/slices/rev-org-mode/slice-12-drawers-properties.md).
+Task commits: T12.1 `725c0fd9c5a633d878e8793d1bd745aae4caad6b`,
+T12.2 `fa51a5569d2cc301c23b369a5a137562b2f20c53`,
+T12.3 `5de7b9d26d8d64e9b6de8f76b3bde6d90e4edad2`.
+Required and focused exact-head validation receipts are recorded by the controller
+after this PR-reference follow-up is pushed; integration remains pending.
+
 ### Slice 13: edit and match Org task tags
 
 Contracts: ORG05 ORG23.
