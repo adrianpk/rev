@@ -12,6 +12,18 @@ impl Properties {
         key: &str,
         inherit: &[String],
     ) -> Result<PropertyValue, String> {
+        let text = crate::org::Source::new(buffer)
+            .snapshot()
+            .map_err(|e| e.to_string())?;
+        self.resolve_rope(&text, entry, key, inherit)
+    }
+    fn resolve_rope(
+        &self,
+        text: &ropey::Rope,
+        entry: usize,
+        key: &str,
+        inherit: &[String],
+    ) -> Result<PropertyValue, String> {
         let key = key.trim_end_matches('+');
         let selected = inherit.iter().any(|name| name.eq_ignore_ascii_case(key));
         let mut chain = Vec::new();
@@ -31,7 +43,7 @@ impl Properties {
             undefined: false,
         };
         for layer in chain.into_iter().rev() {
-            self.combine(buffer, layer, &mut value)?;
+            self.combine(text, layer, &mut value)?;
         }
         Ok(value)
     }
@@ -76,17 +88,17 @@ impl Properties {
     }
     fn combine(
         &self,
-        buffer: &Buffer,
+        rope: &ropey::Rope,
         layer: Layer,
         value: &mut PropertyValue,
     ) -> Result<(), String> {
         if let Some(base) = layer.base {
-            value.text = text(buffer, self.records[base].value.clone())?;
+            value.text = rope_text(rope, self.records[base].value.clone())?;
             value.undefined = value.text == "nil";
             value.records = vec![base];
         }
         for index in layer.additions {
-            let addition = text(buffer, self.records[index].value.clone())?;
+            let addition = rope_text(rope, self.records[index].value.clone())?;
             if !value.text.is_empty() && !addition.is_empty() {
                 value.text.push(' ');
             }
@@ -95,5 +107,30 @@ impl Properties {
         }
         value.undefined = value.text == "nil";
         Ok(())
+    }
+}
+
+fn rope_text(text: &ropey::Rope, range: Range<usize>) -> Result<String, String> {
+    text.get_byte_slice(range)
+        .map(|v| v.to_string())
+        .ok_or_else(|| "Invalid property source range".into())
+}
+impl Properties {
+    pub(in crate::org) fn query_value(
+        &self,
+        text: &ropey::Rope,
+        byte: usize,
+        key: &str,
+        inherit: &[String],
+    ) -> Result<Option<String>, String> {
+        let index = self
+            .entries
+            .partition_point(|e| e.start <= byte)
+            .saturating_sub(1);
+        if !self.complete || self.entries[index].invalid {
+            return Err("Incomplete or malformed Org property metadata".into());
+        }
+        let value = self.resolve_rope(text, index, key, inherit)?;
+        Ok((!value.undefined && !value.records.is_empty()).then_some(value.text))
     }
 }

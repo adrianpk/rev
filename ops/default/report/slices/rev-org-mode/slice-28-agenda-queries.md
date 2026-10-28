@@ -23,7 +23,7 @@ have admitted typed limits. Parsing has no discovery or execution authority.
 
 The existing tag/property parser retains Boolean precedence, parentheses, TODO
 suffixes, numeric/string comparisons, escaped names and missing-value rules.
-Effort comparisons interpret native durations as hours with the selected units;
+Effort comparisons interpret native durations as minutes with the selected units;
 quoted comparisons retain original text. Search phrases tolerate whitespace and
 case changes. Leading + selects signed Boolean terms; braced regexps use a
 finite Thompson automaton with at most 512 states and no backtracking.
@@ -37,6 +37,14 @@ Query byte/depth defaults are 4096/32 and maxima 65536/128.
 Behavior references: [search view](https://orgmode.org/manual/Search-view.html),
 [TODO lists](https://orgmode.org/manual/Global-TODO-list.html), and
 [tag/property matching](https://orgmode.org/manual/Matching-tags-and-properties.html).
+
+Result observations use real unqualified structural facts and the existing
+property resolver for local, file and inherited values. They retain canonical
+buffer revisions or checked disk observations and original heading offsets.
+Local workflows, priority declarations, file tags, selective inheritance,
+additive properties and native durations feed the same typed match plan.
+COMMENT/archive subtrees are excluded; malformed metadata and excess rows stay
+explicitly incomplete. Text search covers each entry's section, not descendants.
 
 ## Contracts Added or Changed
 
@@ -63,7 +71,15 @@ Development checks exposed the missing duration interpretation, reference rows
 and an over-complex transition function. They are corrected without relaxing
 assertions or resource limits.
 
+- `cargo test --test org_agenda query_ -- --nocapture`: four query cases passed.
+- `cargo test --test org_editing propert`: fourteen existing property cases
+  passed, zero ignored cases. One first exposed an incorrect hours assumption;
+  effort comparisons now use duration minutes, preserving the original numeric
+  scalar assertion. New clock-duration fixtures use a 120-minute threshold.
+- Focused Clippy and changed-source quality pass without exceptions after
+  separating per-document and per-heading observation.
+
 ## Risks and Follow-ups
 
-Canonical metadata evaluation and native query views follow in T28.2/T28.3.
+Native query views and end-to-end ownership checks follow in T28.3.
 The delivery-set full gate has not run.

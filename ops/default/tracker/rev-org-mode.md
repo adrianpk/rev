@@ -700,13 +700,15 @@ Contracts: ORG08 ORG23.
 Details and exact checks: [Slice 28](../plan/rev-org-mode.md#slice-28-query-org-tasks-tags-and-properties).
 
 - [x] T28.1: Deliver TODO/search/tag/property views with declared Boolean/comparison grammar and source scopes.
-- [ ] T28.2: Evaluate bounded parsed queries against canonical metadata, including inheritance and effort.
+- [x] T28.2: Evaluate bounded parsed queries against canonical metadata, including inheritance and effort.
 - [ ] T28.3: Verify escaping, invalid operators, completeness and stable result identity.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T28.1 delivers typed query plans and the bounded Boolean/text/regexp language.
 Two parameterized grammar cases, focused Clippy, changed-source quality and the
-complete configuration reference pass. Native observations follow in T28.2.
+complete configuration reference pass. T28.2 adds canonical metadata evaluation,
+qualified row locations and truthful partial results. Four query cases and
+fourteen existing property cases pass; native query controls follow in T28.3.
 
 ### Slice 29: configure native Org agenda views
 

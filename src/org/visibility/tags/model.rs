@@ -52,7 +52,7 @@ impl Tags {
             _ => (),
         }
     }
-    fn header(&mut self, node: &crate::org::structure::Raw, text: &Rope) {
+    pub(super) fn header(&mut self, node: &crate::org::structure::Raw, text: &Rope) {
         let title = text.byte_slice(node.content.clone()).to_string();
         let suffix = title
             .rsplit_once(char::is_whitespace)
@@ -126,7 +126,7 @@ impl Tags {
         }
     }
 }
-fn parse_suffix(value: &str, offset: usize) -> Option<Vec<Tag>> {
+pub(super) fn parse_suffix(value: &str, offset: usize) -> Option<Vec<Tag>> {
     let inner = value.strip_prefix(':')?.strip_suffix(':')?;
     let mut tags = Vec::new();
     let mut start = offset + 1;

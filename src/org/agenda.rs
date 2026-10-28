@@ -30,4 +30,4 @@ mod navigation;
 pub(crate) use navigation::{Navigation, NavigationCandidate};
 
 mod query;
-pub use query::{AgendaQuery, QueryKind};
+pub use query::{AgendaQuery, QueryKind, QueryResult, QueryRow};

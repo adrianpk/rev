@@ -9,8 +9,21 @@ impl Properties {
         text: &Rope,
         cancel: &Cancellation,
     ) -> Self {
+        Self::observe_nodes(
+            structure.raw_nodes(),
+            structure.coverage() == Coverage::Complete,
+            text,
+            cancel,
+        )
+    }
+    pub(in crate::org) fn observe_nodes<'a>(
+        nodes: impl Iterator<Item = &'a crate::org::structure::Raw>,
+        complete: bool,
+        text: &Rope,
+        cancel: &Cancellation,
+    ) -> Self {
         let mut result = Self {
-            complete: structure.coverage() == Coverage::Complete,
+            complete,
             ..Self::default()
         };
         result.entries.push(Entry {
@@ -24,7 +37,7 @@ impl Properties {
         });
         let mut owners = BTreeMap::new();
         let mut root_prefix = true;
-        for (id, node) in structure.raw_nodes().enumerate() {
+        for (id, node) in nodes.enumerate() {
             if cancel.is_cancelled() || result.records.len() >= 8192 || result.entries.len() >= 4096
             {
                 result.complete = false;

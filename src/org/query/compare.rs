@@ -22,7 +22,7 @@ impl Comparison {
             return value.map_or(Some(0.0), |s| {
                 crate::org::time::Duration::parse(s, units)
                     .ok()
-                    .map(|v| v.minutes() / 60.0)
+                    .map(|v| v.minutes())
             });
         }
         number(value)

@@ -1,3 +1,4 @@
+pub(in crate::org) use tags::{query_file_tags, query_header};
 mod insertion;
 pub(crate) use tags::{ClockInsertion, ClockObservation};
 mod model;

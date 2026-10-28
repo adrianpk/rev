@@ -166,10 +166,6 @@ impl Outline {
             .map(|edit| vec![edit])
     }
 }
-fn text(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
-    let span = buffer.byte_span(range).map_err(|e| e.to_string())?;
-    Ok(buffer.slice(&span).map_err(|e| e.to_string())?.to_string())
-}
 fn replacement(buffer: &Buffer, range: Range<usize>, text: String) -> Result<Replacement, String> {
     let source = buffer.byte_span(range).map_err(|e| e.to_string())?;
     Ok(Replacement { source, text })

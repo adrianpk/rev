@@ -1,4 +1,6 @@
-//! Typed query plans. Parsing completes before any source discovery or worker.
+mod observe;
+pub use observe::{QueryResult, QueryRow};
+// Typed query plans parse before source discovery or worker launch.
 use crate::{
     config::OrgLimits,
     org::{Cancellation, MatchData, MatchQuery, SearchQuery},
@@ -61,6 +63,18 @@ impl AgendaQuery {
         match &self.plan {
             Plan::Tags(query) => query.properties(),
             _ => ["TODO"].into_iter().collect(),
+        }
+    }
+    pub(crate) fn matches_with_policy(
+        &self,
+        data: &MatchData,
+        text: RopeSlice<'_>,
+        cancel: &Cancellation,
+        policy: &crate::config::Org,
+    ) -> Result<bool, String> {
+        match &self.plan {
+            Plan::Tags(query) => query.matches_with_units(data, &policy.duration.units),
+            _ => self.matches(data, text, cancel),
         }
     }
     pub fn matches(

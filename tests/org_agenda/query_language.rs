@@ -69,7 +69,7 @@ fn query_match_bounds() {
     assert!(MatchQuery::bounded("work", 3, 32).is_err());
     assert!(MatchQuery::bounded("(((work)))", 4096, 2).is_err());
     assert!(Regexp::parse("((x))", 1).is_err());
-    let query = MatchQuery::parse("work+EFFORT<*2").unwrap();
+    let query = MatchQuery::parse("work+EFFORT<*120").unwrap();
     let data = MatchData {
         tags: vec!["work".into()],
         properties: [("EFFORT".into(), "1:30".into())].into_iter().collect(),
