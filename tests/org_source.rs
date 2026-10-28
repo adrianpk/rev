@@ -1,7 +1,11 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_source/incremental.rs"]
+mod incremental;
 #[path = "org_source/index.rs"]
 mod index;
+#[path = "org_source/jobs.rs"]
+mod jobs;
 
 use rev::buffer::edit::{self, History, Point, Replacement};
 use rev::buffer::{Buffer, Buffers, Error};

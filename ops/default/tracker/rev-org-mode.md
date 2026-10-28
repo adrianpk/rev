@@ -115,7 +115,7 @@ Details and exact checks: [Slice 2](../plan/rev-org-mode.md#slice-2-index-org-st
 
 - [x] T2.1: Build bounded line/ancestor indexes with explicit parse observations and truthful incomplete states.
 - [x] T2.2: Invalidate affected scopes after canonical edits and introduce the shared bounded cancellable observation-job owner; never copy the full rope per key.
-- [ ] T2.3: Verify large edits, stale observations and bounded worker cancellation while preserving ordinary editing.
+- [x] T2.3: Verify large edits, stale observations and bounded worker cancellation while preserving ordinary editing.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 3: recognize inline Org source forms
