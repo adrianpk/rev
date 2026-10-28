@@ -1,4 +1,6 @@
 mod calendar;
+mod context;
+pub(in crate::session) use context::Repeat;
 mod resolution;
 use super::Request;
 use crate::buffer::edit::{Cursor, Error};
@@ -42,13 +44,7 @@ impl Session {
             operation.now(),
             request.command != OrgCommand::TimestampInactive,
         )?;
-        if request.command != OrgCommand::GotoCalendar {
-            let active = request.command != OrgCommand::TimestampInactive;
-            original.start.set_active(active);
-            if let Some(end) = &mut original.end {
-                end.set_active(active);
-            }
-        }
+        context::mode(&mut original, request.command);
         let mut prompt = Prompt {
             request,
             target,
@@ -57,6 +53,11 @@ impl Session {
             original,
             stage: Stage::Date,
         };
+        if prompt.request.command.timestamp_step()
+            || prompt.request.command == OrgCommand::CtrlCCtrlC
+        {
+            return self.adjust_timestamp(prompt).map(|_| ());
+        }
         if prompt.request.command == OrgCommand::DateFromCalendar {
             prompt.value.start.set_date(
                 self.calendar_date
@@ -75,8 +76,9 @@ impl Session {
     }
     fn timestamp_target(&self, model: &Outline, request: &Request) -> Result<Target, String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
-        if request.command != OrgCommand::GotoCalendar && buffer.is_readonly() {
-            return Err(Error::ReadOnly.to_string());
+        self.timestamp_admitted(model, request)?;
+        if self.repeating_timestamp(request) {
+            return Target::append_end(buffer, request.origin.point.position);
         }
         match request.command {
             OrgCommand::Schedule => {
@@ -90,6 +92,18 @@ impl Session {
             }
             _ => Target::at(buffer, request.origin.point.position),
         }
+    }
+    fn timestamp_admitted(&self, model: &Outline, request: &Request) -> Result<(), String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        if request.command != OrgCommand::GotoCalendar && buffer.is_readonly() {
+            return Err(Error::ReadOnly.to_string());
+        }
+        if request.command.timestamp_step()
+            && !model.timestamp_context(buffer, request.origin.point.position)?
+        {
+            return Err("Org timestamp context is unavailable here".into());
+        }
+        Ok(())
     }
     fn timestamp_prompt(
         &mut self,
@@ -138,12 +152,9 @@ impl Session {
         self.validate_timestamp(prompt)
     }
     fn validate_timestamp(&mut self, mut prompt: Prompt) -> Result<Action, String> {
-        let active = prompt.request.command != OrgCommand::TimestampInactive;
-        prompt.value.start.set_active(active);
-        if let Some(end) = &mut prompt.value.end {
-            end.set_active(active);
-        }
-        let validation = resolution::Validation::new(&prompt.value)?;
+        context::mode(&mut prompt.value, prompt.request.command);
+        let validation =
+            resolution::Validation::new(&prompt.target.for_resolution(&prompt.value)?)?;
         self.resolve_timestamp(prompt, validation)
     }
     fn timestamp_offset(
@@ -181,7 +192,7 @@ impl Session {
         let Some(edit) = prompt.target.replacement(buffer, &prompt.value)? else {
             return Ok(self.message("Org timestamp unchanged"));
         };
-        let cursor = (edit.source.range.is_empty()
+        let cursor = ((edit.source.range.is_empty() || prompt.target.appending())
             && !matches!(
                 prompt.request.command,
                 OrgCommand::Schedule | OrgCommand::Deadline
@@ -189,6 +200,9 @@ impl Session {
         .then_some(crate::coordinates::Scalar(
             edit.source.range.start + edit.text.chars().count(),
         ));
+        let cursor = cursor.or(prompt
+            .target
+            .cursor(&prompt.value, prompt.request.origin.point.position)?);
         let buffer = self
             .buffers
             .get_mut(edit.source.stamp.buffer)
@@ -207,6 +221,7 @@ impl Session {
             .map_err(|e| e.to_string())?;
         self.windows.selected_mut().reset_navigation();
         self.calendar_date = Some(prompt.value.start.date());
+        self.remember_timestamp(&prompt);
         Ok(self.message("Org timestamp changed"))
     }
     pub(in crate::session) fn refresh_timestamp(&mut self) -> Option<Action> {

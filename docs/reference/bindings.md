@@ -18,8 +18,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x org-inspect-property` | `org-inspect-property` | Inspect effective data and source owners. |
 | `M-x org-edit-property-owner` | `org-edit-property-owner` | Explicitly edit a selected effective source owner. |
 | `C-c ,` in Org | `org-priority` | Set a priority character; empty/space removes the cookie. |
-| `S-Up` in Org | `org-priority-up` | Cycle upward through the priority range and unmarked. |
-| `S-Down` in Org | `org-priority-down` | Cycle downward through the priority range and unmarked. |
+| `S-Up` in Org | `org-shiftup` | Increase the timestamp field at point, or cycle heading priority. |
+| `S-Down` in Org | `org-shiftdown` | Decrease the timestamp field at point, or cycle heading priority. |
 | `M-x org-inspect-priority` | `org-inspect-priority` | Show explicit or implicit default priority. |
 | `C-c C-x e` in Org, `e` in agenda role | `org-set-effort` | Store a validated Org duration in local EFFORT. |
 | `M-x org-inc-effort` | `org-inc-effort` | Cycle declared EFFORT_ALL choices. |
@@ -406,3 +406,21 @@ admit calendar/navigation commands; prompt editing aliases belong in
 | `C-.` | `org-calendar-goto-today` | Select the command's captured current date. |
 | Left click | Calendar date cell | Select a visible day without accepting the source edit. |
 | `C-g` | `keyboard-quit` | Discard the entire draft and return to the original workspace. |
+
+### Org timestamp context actions
+
+| Keys in Org | Target | Behavior |
+| --- | --- | --- |
+| `S-Up`, `S-Down` | `org-shiftup`, `org-shiftdown` | Adjust the timestamp's selected year/month/day/hour/minute; otherwise cycle the current heading priority. |
+| `S-Right`, `S-Left` | `org-shiftright`, `org-shiftleft` | Adjust a timestamp by one day; otherwise select the next/previous task state on its heading. |
+| `C-c C-c` on a timestamp | `org-ctrl-c-ctrl-c` | Repair the selected weekday, retaining other source fields. |
+| `M-x org-timestamp-up`, `org-timestamp-down` | Same name | Adjust the selected timestamp field without a priority fallback. |
+| `M-x org-timestamp-up-day`, `org-timestamp-down-day` | Same name | Adjust the selected timestamp by one civil day. |
+
+At a timestamp bracket, field adjustment toggles active/inactive status for the
+connected range. Moving the first clock moves its end equally; moving an end
+clock changes the range length. Literal contexts cannot select an ancestor task.
+Explicit priority commands retain their priority meaning. On other contexts,
+`C-c C-c` retains its heading-tag and list-checkbox behavior. Two successive
+`C-c .` commands, or two `C-c !` commands, enter a checked date range; another
+editing command or cancellation retires that succession.

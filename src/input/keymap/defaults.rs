@@ -162,6 +162,8 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const ORG: &[(&str, &str)] = &[
+    ("S-Left", "org-shiftleft"),
+    ("S-Right", "org-shiftright"),
     ("C-c .", "org-timestamp"),
     ("C-c !", "org-timestamp-inactive"),
     ("C-c C-s", "org-schedule"),
@@ -169,8 +171,8 @@ const ORG: &[(&str, &str)] = &[
     ("C-c >", "org-goto-calendar"),
     ("C-c <", "org-date-from-calendar"),
     ("C-c ,", "org-priority"),
-    ("S-Up", "org-priority-up"),
-    ("S-Down", "org-priority-down"),
+    ("S-Up", "org-shiftup"),
+    ("S-Down", "org-shiftdown"),
     ("C-c C-x e", "org-set-effort"),
     ("C-c C-t", "org-todo"),
     ("C-c C-q", "org-set-tags-command"),

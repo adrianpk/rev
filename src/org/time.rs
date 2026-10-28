@@ -16,7 +16,7 @@ mod zone;
 pub use zone::{Resolution, ResolvedTime, Zone, ZoneEnvironment, ZoneSelection, ZonedOperation};
 
 mod timestamp;
-pub use timestamp::{Timestamp, TimestampRange};
+pub use timestamp::{Timestamp, TimestampField, TimestampRange};
 
 mod entry;
 

@@ -77,6 +77,7 @@ pub struct Session {
     task_clock: Option<fn() -> Result<String, String>>,
     org_clock: Option<outline::timestamps::Clock>,
     calendar_date: Option<crate::org::time::Date>,
+    timestamp_repeat: Option<outline::timestamps::Repeat>,
 }
 
 enum AfterSave {
@@ -176,6 +177,7 @@ impl Session {
             task_clock: None,
             org_clock: None,
             calendar_date: None,
+            timestamp_repeat: None,
         })
     }
 
@@ -316,6 +318,7 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self.prepare_command(command) {
             return action;
@@ -436,6 +439,7 @@ impl Session {
     }
 
     fn typing(&mut self, key: Key) -> Action {
+        self.timestamp_repeat = None;
         if let KeyCode::Char(character) = key.code
             && key.modifiers.is_empty()
         {

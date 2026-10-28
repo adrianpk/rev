@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 154] = [
+    pub const ALL: [Self; 162] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -168,6 +168,14 @@ impl Command {
         Self::Org(OrgCommand::CalendarScrollThreeMonthsRight),
         Self::Org(OrgCommand::CalendarGotoToday),
         Self::Org(OrgCommand::CalendarSelect),
+        Self::Org(OrgCommand::TimestampUp),
+        Self::Org(OrgCommand::TimestampDown),
+        Self::Org(OrgCommand::TimestampUpDay),
+        Self::Org(OrgCommand::TimestampDownDay),
+        Self::Org(OrgCommand::ShiftUp),
+        Self::Org(OrgCommand::ShiftDown),
+        Self::Org(OrgCommand::ShiftLeft),
+        Self::Org(OrgCommand::ShiftRight),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
@@ -298,6 +306,10 @@ impl Command {
     /// Repetition belongs to the resolved action, independent of its chord.
     /// Prefix completions and session/prompt transitions require fresh presses.
     pub(crate) fn repeatable(self) -> bool {
+        if let Self::Org(command) = self {
+            return command.timestamp_step()
+                || command.calendar() && command != OrgCommand::CalendarSelect;
+        }
         matches!(
             self,
             Self::Newline

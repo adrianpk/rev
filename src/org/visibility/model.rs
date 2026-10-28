@@ -10,6 +10,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         blocked: Vec::new(),
         blocked_eof: false,
         malformed: Vec::new(),
+        literals: Vec::new(),
         lists: Default::default(),
         properties: Default::default(),
         tags: Default::default(),
@@ -25,6 +26,11 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         }
         collect(&mut result, node);
         block(&mut result, node, structure.covered_bytes().0);
+        if node.context == Some(crate::org::InlineContext::Literal)
+            || node.kind == StructureKind::Malformed
+        {
+            result.literals.push(node.source.clone());
+        }
         if node.kind == StructureKind::Malformed {
             result.malformed.push(node.source.clone());
         }
@@ -34,6 +40,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
     parents(&mut result.headings);
     merge(&mut result.blocked);
     merge(&mut result.malformed);
+    merge(&mut result.literals);
     result
 }
 

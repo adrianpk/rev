@@ -2,6 +2,7 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn paste_text(&mut self, text: &str) -> Action {
+        self.timestamp_repeat = None;
         if self.tree.focused() {
             return self.message("File tree owns input focus");
         }

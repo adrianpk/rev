@@ -74,8 +74,8 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
-        if request.command.timestamp() {
-            return self.start_timestamp(model, request);
+        if request.command.timestamp() || request.command.timestamp_context() {
+            return self.dispatch_timestamp(model, request);
         }
         if request.command.estimate() {
             return self.start_estimate(model, request);

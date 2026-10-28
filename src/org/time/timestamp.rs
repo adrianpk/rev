@@ -1,6 +1,8 @@
 //! Bounded Org timestamp data. Observing or formatting a value never authorizes
 //! a source edit; callers retain canonical revision-qualified source ranges.
+mod adjust;
 mod parse;
+pub use adjust::TimestampField;
 mod suffix;
 use super::{CivilDateTime, CivilTime, Date};
 
@@ -134,9 +136,17 @@ impl Timestamp {
         let Some(time) = self.time else {
             return String::new();
         };
-        let start = format!("{:02}:{:02}", time.hour(), time.minute());
+        let (old_start, old_end) = self
+            .spelling
+            .clock
+            .split_once('-')
+            .unwrap_or((self.spelling.clock.as_str(), ""));
+        let start = clock_part(time, self.spelling.time, old_start);
         match self.end_time {
-            Some(end) => format!("{start}-{:02}:{:02}", end.hour(), end.minute()),
+            Some(end) => format!(
+                "{start}-{}",
+                clock_part(end, self.spelling.end_time, old_end)
+            ),
             None => start,
         }
     }
@@ -192,4 +202,19 @@ fn needs_separator(left: &str, right: &str) -> bool {
     !right.is_empty()
         && !right.starts_with(char::is_whitespace)
         && !left.ends_with(char::is_whitespace)
+}
+
+fn clock_part(time: CivilTime, previous: Option<CivilTime>, source: &str) -> String {
+    let (old_hour, old_minute) = source.split_once(':').unwrap_or(("", ""));
+    let hour = if previous.is_some_and(|old| old.hour() == time.hour()) {
+        old_hour.to_owned()
+    } else {
+        format!("{:02}", time.hour())
+    };
+    let minute = if previous.is_some_and(|old| old.minute() == time.minute()) {
+        old_minute.to_owned()
+    } else {
+        format!("{:02}", time.minute())
+    };
+    format!("{hour}:{minute}")
 }

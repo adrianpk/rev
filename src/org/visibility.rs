@@ -45,6 +45,7 @@ pub(crate) struct Outline {
     blocked: Vec<Range<usize>>,
     blocked_eof: bool,
     malformed: Vec<Range<usize>>,
+    literals: Vec<Range<usize>>,
     pub(super) lists: super::list::Lists,
     pub(super) properties: super::property::Properties,
     tags: tags::Tags,
@@ -180,5 +181,57 @@ impl Visibility {
             }
             parent = self.model.headings[index].parent;
         }
+    }
+}
+
+impl Outline {
+    pub(crate) fn timestamp_context(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        point: crate::coordinates::Scalar,
+    ) -> Result<bool, String> {
+        self.complete().map_err(str::to_owned)?;
+        crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
+        let byte = crate::coordinates::Coordinates::new(buffer)
+            .map_err(|e| e.to_string())?
+            .to_byte(point)
+            .map_err(|e| e.to_string())?
+            .0;
+        let index = self.literals.partition_point(|range| range.end <= byte);
+        let inside = self
+            .literals
+            .get(index)
+            .is_some_and(|range| range.contains(&byte));
+        let eof = byte == buffer.len_bytes()
+            && self.literals.last().is_some_and(|range| range.end == byte);
+        Ok(!inside && !eof)
+    }
+}
+
+impl Outline {
+    pub(crate) fn timestamp_task_header(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        point: crate::coordinates::Scalar,
+    ) -> bool {
+        if self.tag_header_at(buffer, point) {
+            return true;
+        }
+        if point.0 != buffer.len_chars() {
+            return false;
+        }
+        let Ok(c) = crate::coordinates::Coordinates::new(buffer) else {
+            return false;
+        };
+        let Ok(byte) = c.to_byte(point) else {
+            return false;
+        };
+        let Ok(line) = c.to_line(point) else {
+            return false;
+        };
+        line.column > 0
+            && self
+                .heading(byte.0)
+                .is_some_and(|i| self.headings[i].body == byte.0)
     }
 }

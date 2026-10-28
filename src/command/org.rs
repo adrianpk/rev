@@ -80,9 +80,17 @@ pub enum OrgCommand {
     CalendarScrollThreeMonthsRight,
     CalendarGotoToday,
     CalendarSelect,
+    TimestampUp,
+    TimestampDown,
+    TimestampUpDay,
+    TimestampDownDay,
+    ShiftUp,
+    ShiftDown,
+    ShiftLeft,
+    ShiftRight,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 78] = [
+    pub const ALL: [Self; 86] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -161,6 +169,14 @@ impl OrgCommand {
         Self::CalendarScrollThreeMonthsRight,
         Self::CalendarGotoToday,
         Self::CalendarSelect,
+        Self::TimestampUp,
+        Self::TimestampDown,
+        Self::TimestampUpDay,
+        Self::TimestampDownDay,
+        Self::ShiftUp,
+        Self::ShiftDown,
+        Self::ShiftLeft,
+        Self::ShiftRight,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -242,6 +258,14 @@ impl OrgCommand {
             "org-calendar-scroll-three-months-right",
             "org-calendar-goto-today",
             "org-calendar-select",
+            "org-timestamp-up",
+            "org-timestamp-down",
+            "org-timestamp-up-day",
+            "org-timestamp-down-day",
+            "org-shiftup",
+            "org-shiftdown",
+            "org-shiftleft",
+            "org-shiftright",
         ][self as usize]
     }
 
@@ -358,9 +382,23 @@ impl OrgCommand {
 impl OrgCommand {
     pub(crate) fn timestamp(self) -> bool {
         (Self::Timestamp as usize..=Self::DateFromCalendar as usize).contains(&(self as usize))
+            || (Self::TimestampUp as usize..=Self::TimestampDownDay as usize)
+                .contains(&(self as usize))
     }
     pub(crate) fn calendar(self) -> bool {
         (Self::CalendarForwardDay as usize..=Self::CalendarSelect as usize)
             .contains(&(self as usize))
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn timestamp_step(self) -> bool {
+        (Self::TimestampUp as usize..=Self::ShiftRight as usize).contains(&(self as usize))
+    }
+    pub(crate) fn timestamp_context(self) -> bool {
+        matches!(
+            self,
+            Self::ShiftUp | Self::ShiftDown | Self::ShiftLeft | Self::ShiftRight | Self::CtrlCCtrlC
+        )
     }
 }

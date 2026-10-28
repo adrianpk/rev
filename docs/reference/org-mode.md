@@ -341,11 +341,11 @@ process, and task logging invokes no external date command.
 ## Priorities and effort estimates
 
 `C-c ,` (`org-priority`) prompts for a priority character; empty input or a space
-removes the explicit cookie. `S-Up` and `S-Down` cycle through the admitted
+removes the explicit cookie. Away from timestamps, `S-Up` and `S-Down` cycle through the admitted
 range and unmarked. Up from an unmarked heading inserts the lowest priority;
 down inserts the highest. Passing an endpoint removes the cookie.
 `org-inspect-priority` identifies an explicit value or the implicit default
-without inserting text. These keys act on the current heading, including plain
+without inserting text. The priority fallback acts on the current heading, including plain
 headings without task keywords; deeper literal/list contexts reject.
 
 The single-character native range uses uppercase A-Z. Startup
@@ -467,3 +467,28 @@ Invalid dates, unknown words, controls and overlong drafts cannot insert text.
 Free date entry is bounded to 256 UTF-8 bytes, complete timestamp ranges to 514,
 and source observation to one logical line of at most 4096 bytes. The calendar
 projects at most three fixed six-week grids and owns no editable document.
+
+
+`S-Up`/`S-Down` adjust the timestamp field under point; at a bracket they toggle
+the connected range's active status. `S-Right`/`S-Left` change its date by one day.
+The named `org-timestamp-up`, `org-timestamp-down`, `org-timestamp-up-day` and
+`org-timestamp-down-day` require a timestamp instead of selecting a heading
+fallback. The first clock adjustment retains the block's civil length by moving
+its end equally; end-clock adjustment changes only the length. Untouched hour,
+weekday and suffix spelling stay exact. Point remains in the same field when
+weekday or hour spelling changes width. Civil month/year field adjustment uses
+excess-day normalization, independently of the calendar picker's clamping.
+
+`C-c C-c` repairs the selected timestamp's weekday without changing its date,
+clock or suffixes. When no timestamp owns point, it retains heading-tag and
+checkbox actions. S-Up/Down retain priority fallback; S-Right/Left change task
+state only on the current heading, including its unterminated EOF. Literal
+blocks/comments never route to an ancestor heading through these actions.
+
+Invoking the same timestamp command again immediately after a new insertion
+prompts for the range's end. That prompt owns a fresh source-qualified operation;
+accepting it validates the whole range and publishes one undoable replacement.
+Canceling it retains the first timestamp. Intervening editing, movement, window
+commands or cancellation retire the successive-command anchor. M-x entry alone
+does not retire it. A saved anchor cannot authorize an edit after a revision or
+selected-view change.
