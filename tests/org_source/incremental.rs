@@ -85,30 +85,36 @@ fn retained_prefix() {
 // correct source scope rather than retaining an obsolete or duplicate line.
 #[test]
 fn edit_seams() {
-    let cases: [(&str, &str, Range<usize>, &str, &[&str]); 6] = [
-        ("empty insertion", "", 0..0, "* Root", &["* Root"]),
+    let cases = [
+        ("empty insertion", "", 0..0, "* Root", &["* Root"][..]),
         (
             "append after LF",
             "* Root\n",
             7..7,
             "tail",
-            &["* Root\n", "tail"],
+            &["* Root\n", "tail"][..],
         ),
         (
             "split EOF",
             "* Root",
             6..6,
             "\r\nbody",
-            &["* Root\r\n", "body"],
+            &["* Root\r\n", "body"][..],
         ),
-        ("join CRLF", "first\r\nsecond", 5..7, "", &["firstsecond"]),
-        ("erase document", "* Root\r\nbody", 0..12, "", &[""]),
+        (
+            "join CRLF",
+            "first\r\nsecond",
+            5..7,
+            "",
+            &["firstsecond"][..],
+        ),
+        ("erase document", "* Root\r\nbody", 0..12, "", &[""][..]),
         (
             "UTF-8 seam",
             "* 界\r\nbody",
             2..5,
             "λ",
-            &["* λ\r\n", "body"],
+            &["* λ\r\n", "body"][..],
         ),
     ];
     let mut buffers = Buffers::new().unwrap();

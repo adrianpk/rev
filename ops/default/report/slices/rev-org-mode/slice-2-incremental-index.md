@@ -72,7 +72,12 @@ Implementation checks passed:
 
 - `cargo check --lib`
 - `cargo test --test org_source`: 22 passed, zero failed or ignored.
+- `cargo clippy --test org_source -- -D warnings`
 - `git diff --check`
+
+The first controller batch stopped at Clippy's type-complexity warning for a
+new test table. Removing its redundant tuple annotation and using inferred
+slices fixed the declaration while preserving all six cases and assertions.
 
 The final clean PR head requires the following exact controller-recorded batch.
 Its receipt and the canonical PR retain the final candidate and check outcomes:
