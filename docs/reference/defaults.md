@@ -135,10 +135,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 68 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 43 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 49 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
-| `keys.org_agenda` | Map of chord sequences to admitted navigation and estimate commands | Compiled map | Agenda role consumes unbound text; all 4 entries are active in the sample. |
+| `keys.org_agenda` | Map of chord sequences to admitted navigation and estimate commands | Compiled map | Agenda role consumes unbound text; all 5 entries are active in the sample. |
 | `keys.org_calendar` | Map of chord sequences to admitted calendar and navigation commands | Compiled map | The date prompt inherits keys.minibuffer, then all 16 entries in its local map active in the sample. The host calendar role consumes unbound text. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
@@ -193,6 +193,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.timer.default` | String | `"0"` | Countdown prompt default in unsigned minutes or H:MM:SS, 0..365 days and 64 UTF-8 bytes. Zero arms nothing. Native timers are session-local and never restored at startup. |
 | `org.clock.persist` | Boolean | `false` | Opt-in checked clock state under the selected XDG state root; no state directory or startup source scan when false. Recovery asks before visiting the recorded source. |
 | `org.clock.history_limit` | Integer | `32` | 0..256 checked recent task locators; zero disables recent goto/re-clock. |
 | `org.clock.out_when_done` | Boolean | `true` | Complete a clocked task and close its interval in one source transaction; repeating completion also closes the selected task interval. |
@@ -410,3 +411,4 @@ persistence. The command catalog describes the implemented editing subset.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),
 [Failure recovery](recovery.md) and [File tree](file-tree.md) for exact behavior.
+

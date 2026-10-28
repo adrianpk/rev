@@ -326,3 +326,5 @@ mod clock_recovery;
 
 #[path = "org_editing/clock_recent.rs"]
 mod clock_recent;
+#[path = "org_editing/timers.rs"]
+mod timers;

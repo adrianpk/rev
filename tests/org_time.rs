@@ -45,3 +45,5 @@ mod clock_tables;
 mod clock_totals;
 #[path = "org_time/clocks.rs"]
 mod clocks;
+#[path = "org_time/timers.rs"]
+mod timers;

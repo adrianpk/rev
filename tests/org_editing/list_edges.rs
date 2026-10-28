@@ -80,15 +80,15 @@ fn list_rejections() {
     }
 }
 
-// Relative timer spelling is a description item, not a heading or live timer.
-// Splitting it preserves the source term and does not manufacture elapsed time.
+// Native timer continuation retains the original source term, starts a new
+// session timer when needed, and publishes its new description in one step.
 #[test]
 fn timed_description() {
     let source = "- 0:01:02 :: note\n  continuation\n- ordinary :: next\n";
     let (_fixture, mut session) = editor("", "notes.org", source);
     session.execute(Command::Motion(Motion::LineEnd));
     action(&mut session, OrgCommand::MetaReturn);
-    let expected = "- 0:01:02 :: note\n-  :: \n  continuation\n- ordinary :: next\n";
+    let expected = "- 0:01:02 :: note\n- 0:00:00 :: \n  continuation\n- ordinary :: next\n";
     assert_eq!(text(&session), expected, "{}", session.echo());
     assert_eq!(session.buffer().unwrap().history().len(), 1);
     session.execute(Command::History(History::Undo));

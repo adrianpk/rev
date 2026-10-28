@@ -28,7 +28,10 @@ impl Session {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message("Editing owns Org commands");
         }
-        if command.clock() && !matches!(command, OrgCommand::ClockIn | OrgCommand::ResolveClocks) {
+        if command.timer_control() {
+            return self.timer_command(command);
+        }
+        if command.session_clock() {
             return self.clock_command(command);
         }
         if !self.buffer().is_ok_and(|b| b.is_org()) {
@@ -90,6 +93,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
+        if request.command.timer_insertion() {
+            return self.insert_timer(&model, request.command);
+        }
         if request.command.clock_source() {
             return self.dispatch_source_clock(model, request);
         }
@@ -133,6 +139,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         command: OrgCommand,
     ) -> Result<(), String> {
+        if self.timer_list_request(&model, command)? {
+            return self.insert_timer(&model, OrgCommand::TimerItem);
+        }
         if command.list_only()
             || command.contextual_list()
                 && model.list_at(

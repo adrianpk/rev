@@ -34,6 +34,9 @@ pub(super) fn settings(document: &Document) -> Settings {
     );
     time(&mut settings.org.time, &document.org.time);
     clock(&mut settings.org.clock, &document.org.clock);
+    if let Some(value) = &document.org.timer.default {
+        settings.org.timer.default.clone_from(value);
+    }
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);

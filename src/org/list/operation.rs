@@ -51,7 +51,11 @@ impl Outline {
             &workflow,
         )
     }
-    fn admit_list(&self, buffer: &Buffer, point: Scalar) -> Result<(usize, bool), String> {
+    pub(in crate::org::list) fn admit_list(
+        &self,
+        buffer: &Buffer,
+        point: Scalar,
+    ) -> Result<(usize, bool), String> {
         self.complete().map_err(str::to_owned)?;
         crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
         if !self.lists.complete {

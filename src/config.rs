@@ -125,6 +125,7 @@ pub struct Org {
     pub duration: Duration,
     pub time: Time,
     pub clock: Clock,
+    pub timer: Timer,
 }
 
 impl Default for Org {
@@ -138,6 +139,7 @@ impl Default for Org {
             duration: Duration::default(),
             time: Time::default(),
             clock: Clock::default(),
+            timer: Timer::default(),
         }
     }
 }
@@ -153,6 +155,7 @@ pub struct PartialOrg {
     pub duration: PartialDuration,
     pub time: PartialTime,
     pub clock: PartialClock,
+    pub timer: PartialTimer,
 }
 
 /// Effective Org operation zone; fold/gap policies require explicit selection.
@@ -677,4 +680,22 @@ pub struct PartialClock {
     pub out_when_done: Option<bool>,
     pub drawer: Option<String>,
     pub remove_zero: Option<bool>,
+}
+
+/// Explicit countdown default; constructing settings never arms a timer.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Timer {
+    pub default: String,
+}
+impl Default for Timer {
+    fn default() -> Self {
+        Self {
+            default: "0".into(),
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTimer {
+    pub default: Option<String>,
 }

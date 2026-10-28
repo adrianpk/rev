@@ -83,6 +83,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     todo(document)?;
     time(document)?;
     clock(document)?;
+    timer(document)?;
     estimates(document)
 }
 
@@ -405,6 +406,14 @@ fn clock(document: &Document) -> Result<(), Failure> {
         && !crate::org::task::drawer_name(drawer)
     {
         return Err(Failure::new("org.clock.drawer", "Use an empty value or a drawer name of 1..64 ASCII letters, digits, _ or -; PROPERTIES and END are reserved".into()));
+    }
+    Ok(())
+}
+
+fn timer(document: &Document) -> Result<(), Failure> {
+    if let Some(value) = &document.org.timer.default {
+        crate::org::time::TimerDuration::parse(value)
+            .map_err(|e| Failure::new("org.timer.default", e))?;
     }
     Ok(())
 }

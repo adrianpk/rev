@@ -37,10 +37,7 @@ impl Context {
             Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit => {
                 matches!(target, Binding::Command(_))
             }
-            Self::OrgAgenda => {
-                org_navigation(target)
-                    || matches!(target, Binding::Command(Command::Org(command)) if command.estimate())
-            }
+            Self::OrgAgenda => org_navigation(target) || agenda_action(target),
             Self::OrgCalendar => calendar(target) || minibuffer(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
@@ -106,4 +103,8 @@ fn org_navigation(target: Binding) -> bool {
 
 fn calendar(target: Binding) -> bool {
     org_navigation(target) || matches!(target, Binding::Command(Command::Org(c)) if c.calendar())
+}
+
+fn agenda_action(target: Binding) -> bool {
+    matches!(target,Binding::Command(Command::Org(command)) if command.estimate() || command==crate::command::OrgCommand::TimerSet)
 }

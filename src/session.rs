@@ -23,6 +23,7 @@ mod replace;
 mod save;
 mod search;
 mod startup;
+mod timers;
 mod tree;
 mod whitespace;
 mod windows;
@@ -83,6 +84,8 @@ pub struct Session {
     recent_clocks: std::collections::VecDeque<crate::buffer::edit::Point>,
     calendar_date: Option<crate::org::time::Date>,
     timestamp_repeat: Option<outline::timestamps::Repeat>,
+    timer: crate::org::time::Timer,
+    timer_clock: Option<fn() -> std::time::Instant>,
 }
 
 enum AfterSave {
@@ -92,6 +95,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Timer(timers::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
     Clock(Box<outline::clocks::Prompt>),
     Timestamp(Box<outline::timestamps::Prompt>),
@@ -190,6 +194,8 @@ impl Session {
             recent_clocks: std::collections::VecDeque::new(),
             calendar_date: None,
             timestamp_repeat: None,
+            timer: crate::org::time::Timer::default(),
+            timer_clock: None,
         })
     }
 

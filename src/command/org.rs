@@ -97,9 +97,16 @@ pub enum OrgCommand {
     ClockDisplay,
     ClockReport,
     UpdateDynamicBlock,
+    TimerStart,
+    TimerSet,
+    TimerInsert,
+    TimerItem,
+    TimerPause,
+    TimerStop,
+    TimerShow,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 95] = [
+    pub const ALL: [Self; 102] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -195,6 +202,13 @@ impl OrgCommand {
         Self::ClockDisplay,
         Self::ClockReport,
         Self::UpdateDynamicBlock,
+        Self::TimerStart,
+        Self::TimerSet,
+        Self::TimerInsert,
+        Self::TimerItem,
+        Self::TimerPause,
+        Self::TimerStop,
+        Self::TimerShow,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -293,6 +307,13 @@ impl OrgCommand {
             "org-clock-display",
             "org-clock-report",
             "org-dblock-update",
+            "org-timer-start",
+            "org-timer-set-timer",
+            "org-timer",
+            "org-timer-item",
+            "org-timer-pause-or-continue",
+            "org-timer-stop",
+            "org-timer-show-remaining-time",
         ][self as usize]
     }
 
@@ -454,5 +475,27 @@ impl OrgCommand {
                 | Self::ClockIn
                 | Self::ResolveClocks
         )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn timer_control(self) -> bool {
+        matches!(
+            self,
+            Self::TimerStart
+                | Self::TimerSet
+                | Self::TimerPause
+                | Self::TimerStop
+                | Self::TimerShow
+        )
+    }
+    pub(crate) fn timer_insertion(self) -> bool {
+        matches!(self, Self::TimerInsert | Self::TimerItem)
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn session_clock(self) -> bool {
+        self.clock() && !matches!(self, Self::ClockIn | Self::ResolveClocks)
     }
 }

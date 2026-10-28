@@ -554,7 +554,7 @@ and eight owned PTYs. The Slice 22 report is delivered.
 Contracts: ORG22 ORG18.
 Details and exact checks: [Slice 23](../plan/rev-org-mode.md#slice-23-deliver-native-org-relative-and-countdown-timers).
 
-- [ ] T23.1: Implement relative time insertion/list items, pause/resume/stop and countdown entry with familiar bindings.
+- [x] T23.1: Implement relative time insertion/list items, pause/resume/stop and countdown entry with familiar bindings.
 - [ ] T23.2: Arm only selected deadlines in the existing native event owner; cancel before due work and retain terminal cleanup.
 - [ ] T23.3: Verify one-shot expiry, restart, exit and no inactive wakeups in the owned Org time journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

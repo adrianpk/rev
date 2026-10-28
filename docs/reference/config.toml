@@ -90,6 +90,10 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.timer]
+# Minutes or H:MM:SS; zero stays unarmed until explicit positive entry.
+default = "0"
+
 [org.clock]
 persist = false
 history_limit = 32
@@ -387,12 +391,19 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x C-d" = "org-clock-display"
 "C-c C-x C-c" = "org-clock-report"
 "C-c C-x C-u" = "org-dblock-update"
+"C-c C-x 0" = "org-timer-start"
+"C-c C-x ;" = "org-timer-set-timer"
+"C-c C-x ." = "org-timer"
+"C-c C-x -" = "org-timer-item"
+"C-c C-x ," = "org-timer-pause-or-continue"
+"C-c C-x _" = "org-timer-stop"
 
 [keys.org_capture]
 [keys.org_source_edit]
 
 # These workspace roles consume unbound text. Feature owners add their own actions.
 [keys.org_agenda]
+";" = "org-timer-set-timer"
 "e" = "org-set-effort"
 "," = "org-priority"
 "C-g" = "keyboard-quit"

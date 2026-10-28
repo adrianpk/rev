@@ -205,12 +205,19 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-d", "org-clock-display"),
     ("C-c C-x C-c", "org-clock-report"),
     ("C-c C-x C-u", "org-dblock-update"),
+    ("C-c C-x 0", "org-timer-start"),
+    ("C-c C-x ;", "org-timer-set-timer"),
+    ("C-c C-x .", "org-timer"),
+    ("C-c C-x -", "org-timer-item"),
+    ("C-c C-x ,", "org-timer-pause-or-continue"),
+    ("C-c C-x _", "org-timer-stop"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
 // Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[
+    (";", "org-timer-set-timer"),
     ("e", "org-set-effort"),
     (",", "org-priority"),
     ("C-g", "keyboard-quit"),

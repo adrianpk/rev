@@ -51,6 +51,11 @@ impl Document {
         merge.duration(&mut self.org.duration.units, &later.org.duration.units);
         merge.time(&mut self.org.time, &later.org.time);
         merge.clock(&mut self.org.clock, &later.org.clock);
+        merge.leaf(
+            &["org", "timer", "default"],
+            &mut self.org.timer.default,
+            &later.org.timer.default,
+        );
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);

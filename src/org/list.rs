@@ -73,3 +73,4 @@ fn source_text(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
         .map_err(|error| error.to_string())?
         .to_string())
 }
+mod timer;

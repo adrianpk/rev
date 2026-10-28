@@ -79,6 +79,13 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-d in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
 | C-c C-x C-c in Org | `org-clock-report` | Insert or explicitly update a clocktable. |
 | C-c C-x C-u in Org | `org-dblock-update` | Refresh the selected clocktable body. |
+| C-c C-x 0 in Org | `org-timer-start` | Start or reset the relative timer. |
+| C-c C-x ; in Org | `org-timer-set-timer` | Enter an explicit countdown. |
+| C-c C-x . in Org | `org-timer` | Insert the current timer value. |
+| C-c C-x - in Org | `org-timer-item` | Insert or continue a timed description list. |
+| C-c C-x , in Org | `org-timer-pause-or-continue` | Pause or continue the session timer. |
+| C-c C-x _ in Org | `org-timer-stop` | Stop and discard the session timer. |
+| M-x | `org-timer-show-remaining-time` | Inspect the session timer without source changes. |
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
 | C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
@@ -605,3 +612,20 @@ cannot publish a report. Completion retires the worker deadline; idle reports
 add no polling or source writes. `org::agenda::ClockScan` exposes the same
 bounded native snapshot/result contracts for explicit host analysis without
 file discovery or edit authority.
+
+Native timers use one session-owned monotonic observation, independent of task
+clocks, civil zones and file changes. Start/reset selects zero relative time.
+Insertion starts a relative timer only after its source edit succeeds when no
+timer exists. H:MM:SS values and `- H:MM:SS :: ` description items use ordinary
+checked edits and single-step undo. M-RET in a timed item continues that list;
+ordinary lists retain their existing behavior and explicit timer-item rejects a
+non-timer list. Literal/unclosed source and read-only edits reject. Undo changes
+source without rewinding the session timer.
+
+Countdown entry accepts unsigned whole minutes or H:MM:SS, at most 365 days and
+64 UTF-8 bytes. `org.timer.default` is "0" and arms nothing at startup. Enter
+accepts a configured positive default; zero/invalid input stays editable. A
+running relative timer must stop before selecting a countdown, and vice versa.
+Replacing a countdown asks yes/no; C-g preserves the previous timer. Pause keeps
+its precise elapsed/remaining value; continue excludes paused time. Stop prevents
+resumption of the old timer. Timers have no persisted state or implicit restart.
