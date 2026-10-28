@@ -392,12 +392,18 @@ Details and exact checks: [Slice 20](../plan/rev-input-navigation.md#slice-20-re
 
 - [x] T20.1: Reconcile complete approved specification replacements/additions into their actual baseline, configuration model and user references without rewriting historical validation provenance.
 - [x] T20.2: Extend existing acceptance evidence for all new requirements and the current plan/ticket/report ancestry; preserve original protections, zero-skip checks and same-clean-candidate evidence.
-- [ ] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
+- [x] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+The nineteen earlier canonical PRs (#81-#99), all configured titles/branches and
+Rebase + Fast-forward heads were verified on Forgejo and in Git ancestry. Acta
+records each merge. All seven solved tickets retain their assigned primary task
+commits, canonical PR and report outcomes. Slice 20 integration, the unchanged
+full gate and documentation-only closure remain controller-owned and pending.
 
 ## Delivery closure
 
-- [ ] All seven tickets reflect verified primary-slice integration and actual implementation evidence.
+- [x] All seven tickets reflect verified primary-slice integration and actual implementation evidence.
 - [ ] Every assigned slice report is delivered; source/model/reference links and complete baseline amendments agree.
 - [ ] Controller full gate passed the exact clean integrated dev candidate, including new real terminal/resource evidence and retained protections.
 - [ ] Only approved documentation closure paths changed afterward; record candidate and validation identity without relabeling evidence.

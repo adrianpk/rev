@@ -42,6 +42,14 @@ invented. Existing command/default/gutter/status references already describe the
 native controls. Terminal input now connects the bounded repeat behavior and
 the measured decoder burst limitation to the actual declared workload.
 
+All nineteen earlier canonical PRs (#81-#99) were checked live against their
+configured exact title, branch, dev base and Rebase + Fast-forward head. Each
+head is an ancestor of this worktree and Acta has the corresponding merge event.
+All seven ticket outcomes are solved/fixed with their actual primary task
+commits and report/PR identities. No ticket was moved or its earlier evidence
+replaced. The tracker records that verified primary closure while leaving the
+current PR, integrated gate and delivery documentation closure pending.
+
 ## Contracts Added or Changed
 
 R05/R07/R16, CFG01/CFG14/CFG15/CFG23/CFG24 and the accepted GUT, PTR, NAV,
@@ -73,6 +81,24 @@ ancestry. These checks add approximately two seconds on a warm candidate.
 The eleven full-gate stage identities/order, original runtime/native/terminal/
 resource protections and exact-candidate log admission remain unchanged.
 Final exact-head controller validation is recorded after PR-reference updates.
+
+Required final ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test gutter --test commands --test display --test configuration --test panels --test windows --test editing`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite prerequisites`
+- `python3 scripts/check-acceptance.py --prerequisites`
+- `python3 -m unittest discover -s scripts -p test_acceptance.py`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+These focused/native/reference/prerequisite checks prepare the PR. They do not
+run or replace `scripts/check-all.sh`. The controller integrates the final PR,
+closes its integrated report state and runs the unchanged eleven-stage gate on
+the exact clean pushed dev candidate. Only the configured documentation paths
+may close afterward, retaining tested and closure identities as distinct facts.
 
 ## Risks and Follow-ups
 
