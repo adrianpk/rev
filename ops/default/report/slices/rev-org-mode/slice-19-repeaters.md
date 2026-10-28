@@ -1,6 +1,6 @@
 # Slice 19: reschedule repeated Org tasks correctly
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -141,6 +141,13 @@ validation in this exact order:
 
 Focused final evidence additionally covers full configuration/command/display
 regressions, configuration-reference agreement and the four owned task PTYs.
+
+Final clean head `aa5fad3ef7870ae1b29ecc31661f09a440f3ba20` integrated through canonical PR #120.
+Required controller receipt `EYXTNPTDAGE6TVSCEV3CHCCKLT` passed all five checks
+and 224 tests. Focused receipt `WOSCCVGU5ZFLCL3WOYW7EX2I22` passed 295
+configuration/command/display tests, configuration-reference agreement and four
+owned RGB/NO_COLOR task PTYs, with zero skips. Acta readiness
+`01M61ZRZT18P9GT0MV9QY8VF33` and the canonical merge were verified.
 
 ## Risks and Follow-ups
 

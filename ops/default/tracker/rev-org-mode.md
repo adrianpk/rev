@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 19 repeaters
+Active slice: Slice 20 clock-records
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -457,7 +457,7 @@ Details and exact checks: [Slice 19](../plan/rev-org-mode.md#slice-19-reschedule
 - [x] T19.1: Implement distinct +, ++ and .+ recurrence, warning delays and habit interval ranges.
 - [x] T19.2: Apply repeat completion, state history, LAST_REPEAT and planning changes coherently.
 - [x] T19.3: Verify overdue/backlog, calendar boundaries, duplicate completion dates and full undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T19.1: `b0479ab5f842c5117530f18f52cf28c3754df8f3`; clean-head receipt
 `BJXI7CB4LF5H5CV54ZPCNAEUGB` passed 59 time tests, 23 timestamp editing tests
@@ -468,8 +468,11 @@ native boundary/save checks and four owned RGB/NO_COLOR task PTYs with exact
 source/save/undo assertions. T19.3: `73ecd1db9ecd`.
 [Canonical PR #120](https://forge.adrianpk.com/adrianpk/rev/pulls/120) and the
 [Slice 19 report](../report/slices/rev-org-mode/slice-19-repeaters.md) are
-reviewing. Controller receipts bind final required/focused checks to the clean
-PR head; verified dev integration remains pending.
+delivered at `aa5fad3ef7870ae1b29ecc31661f09a440f3ba20`. Required receipt
+`EYXTNPTDAGE6TVSCEV3CHCCKLT` passed 5/5 checks and 224 native tests. Focused
+`WOSCCVGU5ZFLCL3WOYW7EX2I22` passed 295 configuration/command/display tests,
+reference agreement and four owned task PTYs. Canonical merge and exact dev
+integration were verified. Slice 19 of 64 completed.
 
 ### Slice 20: record native Org task clock intervals
 
