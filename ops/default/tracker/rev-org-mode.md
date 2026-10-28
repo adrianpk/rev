@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 20 clock-records
+Active slice: Slice 21 clock-lifecycle
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -482,7 +482,7 @@ Details and exact checks: [Slice 20](../plan/rev-org-mode.md#slice-20-record-nat
 - [x] T20.1: Deliver clock-in/out/cancel/goto with compatible CLOCK source and task-owned interval durations.
 - [x] T20.2: Preserve document transactions and remove or retain zero intervals according to the frozen defaults.
 - [x] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T20.2: `8395add8fb79`; T20.3: `4cc89289a740`. T20.3 passed five additional native boundary/save/deadline
 cases and four owned task PTYs, with affected-test Clippy and source quality.
@@ -494,8 +494,11 @@ affected-test Clippy, reference agreement and changed-source quality.
 
 [Canonical PR #121](https://forge.adrianpk.com/adrianpk/rev/pulls/121) and the
 [Slice 20 report](../report/slices/rev-org-mode/slice-20-clock-records.md) are
-reviewing. Controller receipts bind final required/focused checks to the clean
-PR head; verified dev integration remains pending.
+delivered at `e9ef28d9500d9cb31bc997afb93c76dbc5bc647e`. Required receipt
+`A7FX2E7IS7S3U2MYC7CISUDDQT` passed 5/5 checks and 391 tests. Focused
+`PZSSQFVN42UJEFUYPGEXV52QCA` passed 143 configuration/display tests, reference
+agreement and four owned task PTYs. Canonical merge and exact dev integration
+were verified. Slice 20 of 64 completed.
 
 ### Slice 21: switch and recover Org task clocks
 

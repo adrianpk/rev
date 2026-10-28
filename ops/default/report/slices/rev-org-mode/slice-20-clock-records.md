@@ -1,6 +1,6 @@
 # Slice 20: record native Org task clock intervals
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -131,6 +131,12 @@ exactly 262145 UTF-8 bytes and unchanged rejection/source/view/history outcomes,
 using ordinary comment rows to avoid unrelated markup work. The existing
 five-second observation deadline and production limits remain unchanged. Focused
 admission passed in 1.07 seconds; catalog, affected Clippy and source quality pass.
+
+Final clean head `e9ef28d9500d9cb31bc997afb93c76dbc5bc647e` integrated through canonical PR #121.
+Required receipt `A7FX2E7IS7S3U2MYC7CISUDDQT` passed five checks and 391 tests.
+Focused receipt `PZSSQFVN42UJEFUYPGEXV52QCA` passed 143 configuration/display
+tests, reference agreement and four owned task PTYs, zero skips. Acta readiness
+`01M620VRR584JSEWSAKTZWDF8J` and the canonical merge were verified.
 
 ## Risks and Follow-ups
 
