@@ -395,6 +395,12 @@ Details and exact checks: [Slice 20](../plan/rev-input-navigation.md#slice-20-re
 - [x] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
+Prepared [PR #100](https://forge.adrianpk.com/adrianpk/rev/pulls/100) against dev.
+The [Slice 20 report](../report/slices/rev-input-navigation/slice-20-delivery-acceptance.md)
+records all three task commits, complete contract reconciliation and final
+ordered validation commands. The controller records final checks on the clean
+PR head after these reference updates.
+
 The nineteen earlier canonical PRs (#81-#99), all configured titles/branches and
 Rebase + Fast-forward heads were verified on Forgejo and in Git ancestry. Acta
 records each merge. All seven solved tickets retain their assigned primary task

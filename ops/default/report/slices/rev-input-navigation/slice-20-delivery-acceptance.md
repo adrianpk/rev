@@ -5,7 +5,7 @@ Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `test/rev-input-20-delivery-acceptance`
-PR: pending
+PR: [#100](https://forge.adrianpk.com/adrianpk/rev/pulls/100)
 
 ## Purpose
 
@@ -49,6 +49,12 @@ All seven ticket outcomes are solved/fixed with their actual primary task
 commits and report/PR identities. No ticket was moved or its earlier evidence
 replaced. The tracker records that verified primary closure while leaving the
 current PR, integrated gate and delivery documentation closure pending.
+
+Task commits:
+
+- T20.1: `6fbd2e67920d9a85ebd9f5d02be42a79a2b6ac32`
+- T20.2: `6fff1b349a48b41e0b087b80d541037f14e837a2`
+- T20.3: `253161872a1f2c067ea204f72bc458617dc5c339`
 
 ## Contracts Added or Changed
 
