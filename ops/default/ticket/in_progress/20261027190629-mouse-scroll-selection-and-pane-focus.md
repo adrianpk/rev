@@ -115,10 +115,11 @@ source/history/idle outcomes. Canonical `BYQCHD5JLJJXDW5YPZWVZT45Q6` and
 focused `GJ65LOWS4MV3U32T6I2ULSHDZQ` evidence passed on that candidate.
 Slice 13 is active; the ticket stays in progress through primary slices 10-15.
 
-Slice 13 is implemented in canonical PR [#93](https://forge.adrianpk.com/adrianpk/rev/pulls/93), targeting dev. Its
+Slice 13 integrated into dev through canonical PR
+[#93](https://forge.adrianpk.com/adrianpk/rev/pulls/93) at
+`1203b49f2f4fc9ef8a8bfa1e1605623c289aff3e`. Its
 [report](../../report/slices/rev-input-navigation/slice-13-pointer-selection.md)
-records native canonical drag regions, source-owned capture/cancellation,
-Unicode boundaries, copy/kill/yank/history integration and exact saved-byte PTYs.
-Required and focused exact-head evidence is recorded by the controller after
-PR references. Integration is pending; the ticket stays in progress through
-all its assigned primary integrations.
+records canonical drag regions, cancellation, Unicode and native editing/history.
+Canonical `HJL3RO2I34C6RF7LELHPNF4DQ4` and focused
+`4NCW4Q36NYOUM2XHZ7VYTQEXGF` evidence passed on that candidate.
+Slice 14 is active; this ticket stays in progress through primary slices 10-15.

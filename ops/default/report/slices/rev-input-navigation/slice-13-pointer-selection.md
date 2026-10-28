@@ -1,11 +1,13 @@
 # Slice 13: Select canonical text by dragging
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-13-pointer-selection`
 PR: [#93](https://forge.adrianpk.com/adrianpk/rev/pulls/93)
+
+Integrated: `1203b49f2f4fc9ef8a8bfa1e1605623c289aff3e`
 
 ## Purpose
 
@@ -103,8 +105,10 @@ cases and exposed the remaining direct-input text-prefix expectation; its
 focused rerun passed after including the same gutter field. Required final
 validation covers all 96 cases on the final candidate.
 
-Final canonical and focused clean-head evidence is recorded through the controller
-after task and PR-reference commits. Required ordered commands:
+Canonical controller evidence `HJL3RO2I34C6RF7LELHPNF4DQ4` passed all five
+ordered checks and 345 native cases at the integrated commit above. Focused
+evidence `4NCW4Q36NYOUM2XHZ7VYTQEXGF` passed 138 native cases and six
+owned PTYs at that same clean candidate. Required ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

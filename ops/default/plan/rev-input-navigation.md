@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 13 - select canonical text by dragging
+Active slice: Slice 14 - extend pointer selection with bounded autoscroll
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
