@@ -3,7 +3,7 @@
 from .gutter_geometry import idle
 from .pointer_focus import report as press
 from .support import (BINARY, PTY, close, cursor, environment, finish, rows,
-                      passive, snapshot, step, visit, write)
+                      passive, snapshot, startup_snapshot, step, visit, write)
 
 SOURCE = '\ufeffa\t界e\u0301👩‍💻\r\nlast\n'.encode()
 PAYLOAD = '\t界e\u0301👩‍💻\r\nla'.encode()
@@ -76,7 +76,7 @@ def case(root, journey):
     write(root, 'source.txt', SOURCE if journey == editing else b'alpha\nbeta\n')
     if journey == cancellation:
         write(root, 'other.txt', b'other\r\n')
-    before = snapshot(root)
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(root / 'source.txt')], env=environment(root, False))
     try:
         session.ready(b'-- RW -- L1 C1')

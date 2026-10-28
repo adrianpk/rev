@@ -47,7 +47,12 @@ def hardware():
 
 def native(root, path):
     result = subprocess.run([str(root / "target/release/examples/performance"), str(path)],
-                            cwd=root, capture_output=True, text=True, timeout=120)
+                            cwd=root, capture_output=True, text=True, timeout=120,
+                            env=dict(os.environ, HOME=str(path.parent / "home"),
+                                     XDG_CONFIG_HOME=str(path.parent / "user"),
+                                     XDG_DATA_HOME=str(path.parent / "data"),
+                                     XDG_STATE_HOME=str(path.parent / "state"),
+                                     XDG_CACHE_HOME=str(path.parent / "cache")))
     if result.returncode:
         raise AssertionError(f"native measurement failed:\n{result.stderr[-4000:]}\n{result.stdout[-4000:]}")
     records = [json.loads(line) for line in result.stdout.splitlines()]

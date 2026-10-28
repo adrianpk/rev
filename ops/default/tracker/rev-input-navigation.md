@@ -323,8 +323,18 @@ Details and exact checks: [Slice 17](../plan/rev-input-navigation.md#slice-17-cr
 
 - [x] T17.1: Provision the implicit user root during normal editor startup only when no destination entry exists; honor existing XDG resolution and create only necessary configuration parents.
 - [x] T17.2: Publish a complete template without clobbering concurrent winners, links, invalid/empty files or other entries; keep pure resolution/loading read-only and retain usable defaults with truthful diagnostics on failure.
-- [ ] T17.3: Verify real filesystem races and fault paths, isolate HOME/all XDG roots in every process-based fixture, and adapt missing-root startup assertions while retaining their recovery/fidelity guarantees.
+- [x] T17.3: Verify real filesystem races and fault paths, isolate HOME/all XDG roots in every process-based fixture, and adapt missing-root startup assertions while retaining their recovery/fidelity guarantees.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 17 of 20 implemented. The
+[canonical report](../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
+records startup-only complete publication, preserved existing/concurrent entries,
+truthful failure fallback and bounded native race/fixture checks. Canonical PR
+and exact clean-head evidence follow task commits. Integration is pending; the
+configuration ticket stays in progress through primary slices 16-17.
+
+T17.1: `bd888985abd2db85433b5d41130c740c9ad62eee`.
+T17.2: `81348a8a6657`.
 
 ### Slice 18: exercise the complete combined terminal workflow
 

@@ -7,7 +7,7 @@ import termios
 
 from .gutter_geometry import idle
 from .support import (BINARY, PTY, close, cursor, environment, finish, passive,
-                      rows, send, snapshot, step, write)
+                      rows, send, snapshot, startup_snapshot, step, write)
 
 SOURCE = 'a\t界e\u0301\r\nlast\r\n'.encode()
 
@@ -76,7 +76,7 @@ def hidden_frame(session):
 
 def case(root, journey):
     path = write(root, 'source.txt', SOURCE)
-    before = snapshot(root)
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, False))
     try:
         session.ready(b'-- RW -- L1 C1')

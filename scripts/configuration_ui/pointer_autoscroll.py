@@ -6,7 +6,7 @@ from .gutter_geometry import idle
 from .pointer_focus import report as press
 from .pointer_selection import report as drag
 from .support import (BINARY, PTY, close, cursor, environment, finish, passive,
-                      rows, send, snapshot, step, visit, write)
+                      rows, send, snapshot, startup_snapshot, step, visit, write)
 
 BODY = ''.join(f'row-{index:02}\r\n' for index in range(80)).encode()
 SOURCE = b'\xef\xbb\xbf' + BODY
@@ -82,7 +82,7 @@ def case(root, journey):
     path = write(root, 'source.txt', SOURCE)
     if journey == ownership:
         write(root, 'peer.txt', BODY)
-    before = snapshot(root)
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, False))
     try:
         session.ready(b'-- RW -- L1 C1')

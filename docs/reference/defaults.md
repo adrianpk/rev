@@ -27,18 +27,27 @@ supported reports, cleanup and terminal-owned selection bypass.
 
 The [complete English reference sample](config.toml) contains every supported
 global default, all 29 active RGB roles and all three default binding maps. Its
-optional include, language and association examples are commented out. Copy only
-the overrides you need; a configuration file is optional.
+optional include, language and association examples are commented out. First
+startup installs these complete defaults; a customized file may retain only the
+overrides you need.
 
 The executable reads `$XDG_CONFIG_HOME/rev/config.toml` once before creating
 buffers or input owners. An unset, empty or relative `XDG_CONFIG_HOME` uses
 `$HOME/.config/rev/config.toml`; HOME must be absolute for that fallback.
 Data, state and cache locations resolve independently through their XDG variables
 with HOME defaults `.local/share/rev`, `.local/state/rev` and `.cache/rev`.
-Startup does not create these directories or a configuration file.
+When no entry exists at the configuration path, normal editor startup creates
+only its missing parents and the complete packaged sample, then validates it
+through the ordinary loader. It does not need installed reference files or a
+checkout. Data, state and cache directories remain absent.
 
-Missing configuration silently uses complete built-ins. A present unreadable or
-invalid source shows `Configuration: ...` in the echo area and uses complete
+Publication exposes a complete synchronized file without replacing a concurrent
+winner. Every existing entry is preserved, including empty/invalid files,
+directories and dangling symbolic links. Pure location, parsing, loading and
+preparation helpers remain read-only. A provisioning failure shows its operation
+and source in `Configuration: ...` and retains complete usable built-ins.
+
+A present unreadable or invalid source shows `Configuration: ...` in the echo area and uses complete
 built-ins, including palette, formats and bindings. Diagnostics identify the
 source and key, with a line/column when available. Fix the source and start a new
 session to apply it. No settings from a rejected candidate become active.
@@ -98,12 +107,14 @@ the active stack are cycles and reject. Limits are fixed, not configurable:
 | One source | 256 KiB of UTF-8 TOML bytes. |
 | Complete graph | 2 MiB across source occurrences. |
 
-Sources must be regular files. A missing optional root alone is silent; a missing
+Sources must be regular files. Explicit read-only loading of an absent optional
+root is silent; native startup first attempts provisioning as described above. A missing
 explicit include, directory, unreadable file, invalid UTF-8, malformed/duplicate
 TOML key, unknown option, wrong type, invalid bound/color/enum or conflicting
 keymap rejects the complete candidate. A bad included value cannot be hidden by
 a later valid override. The editor remains usable with complete built-ins and
-one source/key diagnostic. No settings source is executed, generated or repaired.
+one source/key diagnostic. No settings source is executed or repaired; creation
+is confined to the absent implicit root during normal startup.
 
 ## Configuration value catalog
 

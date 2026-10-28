@@ -5,7 +5,7 @@ import re
 import termios
 
 from .gutter_geometry import idle
-from .support import BINARY, ROOT, PTY, close, environment, passive, restoration, snapshot, step
+from .support import BINARY, ROOT, PTY, close, environment, passive, restoration, snapshot, startup_snapshot, step
 
 SGR_ON = b'\x1b[?1006h'
 BUTTONS_ON = b'\x1b[?1002h'
@@ -139,6 +139,7 @@ def decoder(root):
 
 
 def factory(root):
+    expected = startup_snapshot(root)
     session = PTY['Session']([str(BINARY)], env=environment(root, False))
     try:
         session.ready(b'C-x C-c: exit')
@@ -157,7 +158,7 @@ def factory(root):
         restoration(session, False)
     finally:
         close(session)
-    assert snapshot(root) == {}
+    assert snapshot(root) == expected
     passive(root)
     print('PASS factory activation: native typing, undo, prefix cancel and exit retain one reversible reporting pair')
 

@@ -30,7 +30,7 @@ def attach():
 
 
 class Session:
-    def __init__(self, command, colors=False, env=None):
+    def __init__(self, command, colors=False, env=None, cwd=None):
         self.master, self.slave = pty.openpty()
         self.before = termios.tcgetattr(self.slave)
         fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 24, 80, 0, 0))
@@ -38,14 +38,28 @@ class Session:
         self.output = bytearray()
         self.deadline = time.monotonic() + 8
         environment = dict(os.environ, TERM="xterm-256color")
+        names = {"HOME": "home", "XDG_CONFIG_HOME": "user", "XDG_DATA_HOME": "data",
+                 "XDG_STATE_HOME": "state", "XDG_CACHE_HOME": "cache"}
+        self.locations = None
+        if not env or not names.keys() <= env.keys():
+            self.locations = tempfile.TemporaryDirectory(prefix="rev-pty-locations-")
+            environment.update({key: str(Path(self.locations.name) / name)
+                                for key, name in names.items()})
         if colors:
             environment["NO_COLOR"] = ""
         if env:
             environment.update(env)
-        self.process = subprocess.Popen(
-            command, stdin=self.slave, stdout=self.slave, stderr=self.slave,
-            env=environment, preexec_fn=attach,
-        )
+        try:
+            self.process = subprocess.Popen(
+                command, stdin=self.slave, stdout=self.slave, stderr=self.slave,
+                env=environment, cwd=cwd, preexec_fn=attach,
+            )
+        except BaseException:
+            os.close(self.master)
+            os.close(self.slave)
+            if self.locations is not None:
+                self.locations.cleanup()
+            raise
 
     def drain(self):
         if select.select([self.master], [], [], 0.02)[0]:
@@ -86,6 +100,8 @@ class Session:
                 self.process.wait(timeout=1)
         os.close(self.master)
         os.close(self.slave)
+        if self.locations is not None:
+            self.locations.cleanup()
 
 
 def lifecycle(root):

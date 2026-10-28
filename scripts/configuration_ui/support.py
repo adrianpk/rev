@@ -63,6 +63,17 @@ def snapshot(root):
     return result
 
 
+def startup_snapshot(root):
+    # Permit only the approved absent-root startup write, with exact complete
+    # bytes. Existing entries retain the original full snapshot expectation.
+    expected = snapshot(root)
+    if 'user/rev/config.toml' not in expected:
+        expected.setdefault('user', None)
+        expected.setdefault('user/rev', None)
+        expected['user/rev/config.toml'] = read(ROOT / 'docs/reference/config.toml')
+    return expected
+
+
 def read(path):
     with path.open('rb') as stream:
         data = stream.read(65537)
@@ -157,5 +168,5 @@ def close(session):
 
 
 def passive(root):
-    for name in ['data', 'state', 'cache']:
+    for name in ['home', 'data', 'state', 'cache']:
         assert not (root / name).exists(), name

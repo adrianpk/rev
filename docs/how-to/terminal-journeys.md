@@ -38,7 +38,7 @@ owned PTY sessions with isolated HOME and XDG paths:
 | Sessions | Checks |
 | --- | --- |
 | Configured RGB and NO_COLOR | Visible tab cells and cursor columns, palette/key overrides, M-x candidate/completion/history aliases, retained path errors, directory/Unicode completion, freely typed new filenames and an explicit BOM/CRLF save. |
-| Missing and invalid configuration | Silent missing sources or a nonfatal diagnostic, complete default tab/key/palette/format behavior and passive XDG roots. |
+| Missing and invalid configuration | Exact complete first-start configuration or a nonfatal invalid-source diagnostic, complete default tab/key/palette/format behavior and passive data/state/cache roots. |
 | Workspace RGB and NO_COLOR | Configured tree and nested split geometry, shared edit/undo, distinct buffer tab policies, horizontal/page/EOF boundaries, completion through zero/tiny/growing resize, exact canceled canvas/cursor restoration and editing-pane cycling. |
 | Output error and unwind | Expected nonzero fault-probe exits, ordered cursor/text color reset, termios/paste/screen restoration and complete owned-child/PTY cleanup. |
 

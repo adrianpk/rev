@@ -13,7 +13,7 @@ import time
 from configuration_ui.observation import Observation, evidence
 from configuration_ui.performance_terminal import run as terminal
 from configuration_ui.performance_fixtures import fixture, fingerprint
-from configuration_ui.support import ROOT
+from configuration_ui.support import ROOT, environment
 
 
 KINDS = ['graph', 'entries', 'names', 'redraw', 'syntax', 'idle']
@@ -41,7 +41,7 @@ def records(lines, kind):
 def native(root, kind, watch):
     command = [str(ROOT / 'target/release/examples/configuration-performance'), kind, str(root)]
     process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+                               stderr=subprocess.PIPE, env=dict(os.environ, **environment(root)))
     prefix = bytearray()
     deadline = time.monotonic() + 15
     try:

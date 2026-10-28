@@ -3,7 +3,7 @@
 from .gutter_geometry import idle
 from .pointer_focus import report as press
 from .support import (BINARY, PTY, close, cursor, environment, finish, passive,
-                      rows, send, snapshot, step, visit, write)
+                      rows, send, snapshot, startup_snapshot, step, visit, write)
 
 
 def source(prefix):
@@ -61,17 +61,19 @@ def nested(session, root):
 
 
 def case(root, journey):
-    path = write(root, 'a.txt' if journey == document else 'zz.txt', source('row-'))
+    # XDG publication belongs outside the project tree whose row order is tested.
+    project = root / 'work'
+    path = write(project, 'a.txt' if journey == document else 'zz.txt', source('row-'))
     if journey == document:
-        write(root, 'b.txt', ''.join(f'other-{index:02}\t界e\u0301\r\n' for index in range(40)).encode())
+        write(project, 'b.txt', ''.join(f'other-{index:02}\t界e\u0301\r\n' for index in range(40)).encode())
     else:
         for index in range(25):
-            write(root, f'file-{index:02}', b'retained')
-    before = snapshot(root)
+            write(project, f'file-{index:02}', b'retained')
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, False))
     try:
         session.ready(b'-- RW -- L1 C1')
-        journey(session, root)
+        journey(session, project)
         finish(session, False)
     finally:
         close(session)

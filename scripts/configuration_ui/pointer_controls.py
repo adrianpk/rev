@@ -8,7 +8,7 @@ from .pointer_scroll import report as wheel
 from .pointer_selection import report as drag
 from .pointer_lifetime import SGR_ON, SGR_OFF, BUTTONS_ON, BUTTONS_OFF, raw
 from .support import (BINARY, PTY, close, cursor, environment, finish, passive,
-                      rows, send, snapshot, step, write)
+                      rows, send, snapshot, startup_snapshot, step, write)
 
 SOURCE = b'\xef\xbb\xbf' + ''.join(f'row-{index:03}\r\n' for index in range(150)).encode()
 
@@ -100,7 +100,7 @@ def invalid(session, root):
 
 
 def owned(root, journey, initially_enabled):
-    before = snapshot(root)
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(root / 'source.txt')], env=environment(root, False))
     try:
         session.ready(b'-- RW -- L1 C1')

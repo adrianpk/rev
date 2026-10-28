@@ -1,6 +1,6 @@
 """Connected startup, command and file-prompt journeys on real terminals."""
 
-from .support import BINARY, CONFIG, LIST, PTY, canvas, close, cursor, environment, finish, fixtures, passive, query, snapshot, step, visit, write
+from .support import BINARY, CONFIG, LIST, PTY, canvas, close, completed, cursor, environment, finish, fixtures, passive, query, snapshot, startup_snapshot, step, visit, write
 
 
 def commands(session, colored):
@@ -11,14 +11,14 @@ def commands(session, colored):
     frame = step(session, b'\x1bj\x1bc', b'M-x forward-word')
     LIST['selected_style'](frame, b'forward-word', colored)
     frame = step(session, b'\x1ba', b'> main.rs -- RW -- L1 C12 Rust')
-    assert cursor(frame) == (1, 12)
+    assert cursor(frame) == (1, 18)
     step(session, b'\x1bxdraft', b'M-x draft')
     step(session, b'\x1bp', b'M-x forward-word')
     frame = step(session, b'\x1bn', b'M-x draft')
     query(frame, 'M-x draft')
     step(session, b'\x07', b'Quit')
     frame = step(session, b'\x1b<', b'> main.rs -- RW -- L1 C1 Rust')
-    assert cursor(frame) == (1, 1)
+    assert cursor(frame) == (1, 7)
 
 
 def paths(session, source):
@@ -27,7 +27,7 @@ def paths(session, source):
     LIST['ordered'](frame, b'Find file: space dir/', ['界 name.txt'.encode()])
     query(frame, 'Find file: space dir/')
     frame = step(session, b'\x1bk\x1ba', b'> ' + '界 name.txt -- RW -- L1 C1 Text'.encode())
-    assert canvas(frame)[1].startswith('chosen 界e\u0301')
+    assert canvas(frame)[1][6:].startswith('chosen 界e\u0301')
     visit(session, '../main.rs', b'> main.rs -- RW -- L1 C1 Rust')
     step(session, b'\x18\x06', b'Find file: ')
     frame = step(session, b'al', b'Find file: al')
@@ -38,11 +38,11 @@ def paths(session, source):
 def ingress_error(session):
     frame = visit(session, 'alpha.txt/child', b'Find file: alpha.txt/child  visit "')
     query(frame, 'Find file: alpha.txt/child')
-    assert canvas(frame)[1].startswith('        let label')
+    assert canvas(frame)[1][6:].startswith('        let label')
     frame = step(session, b'x', b'Find file: alpha.txt/childx')
     query(frame, 'Find file: alpha.txt/childx')
     frame = step(session, b'\x07', b'Quit')
-    assert cursor(frame) == (1, 1)
+    assert cursor(frame) == (1, 7)
 
 
 def configured(root, colored):
@@ -51,15 +51,16 @@ def configured(root, colored):
     session = PTY['Session']([str(BINARY), str(source)], env=environment(root, colored))
     try:
         session.ready(b'> main.rs -- RW -- L1 C1 Rust')
+        session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'> main.rs -- RW -- L1 C1 Rust')))
         frame = PTY['last_frame'](session)
-        assert canvas(frame)[1].startswith('        let label = "界e\u0301";')
+        assert canvas(frame)[1][6:].startswith('        let label = "界e\u0301";')
         assert (b'\x1b]12;#112233\x07' in session.output) == colored
         assert (b'\x1b[38;2;1;2;3m' in frame) == colored
         assert (b'\x1b[48;2;16;17;18m' in frame) == colored
         if not colored:
             assert b'\x1b[38;2;' not in frame and b'\x1b[48;2;' not in frame
         frame = step(session, b'\x06', b'> main.rs -- RW -- L1 C9 Rust')
-        assert cursor(frame) == (1, 9)
+        assert cursor(frame) == (1, 15)
         step(session, b'\x1b<', b'> main.rs -- RW -- L1 C1 Rust')
         commands(session, colored)
         ingress_error(session)
@@ -69,7 +70,7 @@ def configured(root, colored):
         target = root / 'work/al'
         assert not target.exists(), 'visit created a file'
         frame = step(session, b'\t' + 'é'.encode() + b'\x1bj', b'> al ** RW -- L2 C1 Text')
-        assert canvas(frame)[1].startswith('  é') and cursor(frame) == (2, 1)
+        assert canvas(frame)[1][6:].startswith('  é') and cursor(frame) == (2, 7)
         assert not target.exists(), 'editing published a save'
         step(session, b'\x18\x13', b'Saved ')
         assert target.read_bytes() == b'\xef\xbb\xbf  \xc3\xa9\r\n'
@@ -86,18 +87,20 @@ def fallback(root, rejected):
     source = fixtures(root, False)
     if rejected:
         write(root, 'user/rev/config.toml', CONFIG.replace('editor.tab_width = 8', 'editor.tab_width = 0').encode())
-    before = snapshot(root)
+    before = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(source)], env=environment(root))
     try:
-        session.ready(b'Configuration:' if rejected else b'> main.rs -- RW -- L1 C1 Rust')
+        marker = b'Configuration:' if rejected else b'> main.rs -- RW -- L1 C1 Rust'
+        session.ready(marker)
+        session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, marker)))
         frame = PTY['last_frame'](session)
-        assert canvas(frame)[1].startswith('    let label')
+        assert canvas(frame)[1][6:].startswith('    let label')
         assert b'\x1b[38;2;1;2;3m' not in frame
         assert b'\x1b[38;2;192;202;245m' in frame
         assert b'\x1b]12;#c0caf5\x07' in session.output
         assert (b'Configuration:' in frame) == rejected
         frame = step(session, b'\x06', b'> main.rs -- RW -- L1 C5 Rust')
-        assert cursor(frame) == (1, 5)
+        assert cursor(frame) == (1, 11)
         step(session, b'\x1bj', b'Unbound key')
         visit(session, 'fallback-new', b'> fallback-new -- RW -- L1 C1 Text')
         assert snapshot(root) == before
@@ -110,5 +113,5 @@ def fallback(root, rejected):
     expected = dict(before, **{'work/fallback-new': b'    Q\n'})
     assert snapshot(root) == expected
     passive(root)
-    assert (root / 'user').exists() == rejected
-    print(f"PASS {'invalid configuration rollback' if rejected else 'silent missing configuration'} with visible default tab/key/palette behavior, new-file formats and passive XDG roots")
+    assert (root / 'user/rev/config.toml').is_file()
+    print(f"PASS {'invalid configuration rollback' if rejected else 'complete first-start configuration'} with visible default tab/key/palette behavior, new-file formats and passive XDG roots")

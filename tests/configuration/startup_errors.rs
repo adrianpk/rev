@@ -3,7 +3,7 @@ use super::*;
 use rev::config::Snapshot;
 
 // A missing implicit source is silent, even beside malformed project sources.
-// Starting and editing create neither an XDG root nor a configuration file.
+// Startup creates the complete user root; editing leaves all other roots absent.
 #[test]
 fn missing_source() {
     if isolated() {
@@ -23,7 +23,17 @@ fn missing_source() {
     fixture.write("project/config.toml", "invalid project configuration");
     fixture.write("project/.rev/config.toml", "invalid hidden configuration");
     child("startup::errors::missing_source", &fixture);
-    for name in ["home", "user", "data", "state", "cache"] {
+    assert_eq!(
+        std::fs::read(fixture.0.join("user/rev/config.toml")).unwrap(),
+        rev::config::default_template().as_bytes()
+    );
+    assert_eq!(
+        std::fs::read_dir(fixture.0.join("user/rev"))
+            .unwrap()
+            .count(),
+        1
+    );
+    for name in ["home", "data", "state", "cache"] {
         assert!(!fixture.0.join(name).exists(), "{name}");
     }
 }

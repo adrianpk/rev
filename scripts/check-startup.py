@@ -4,8 +4,12 @@
 import os
 from pathlib import Path
 import runpy
+import shutil
 import subprocess
 import tempfile
+
+
+from configuration_ui.support import snapshot, startup_snapshot
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -91,16 +95,21 @@ def restarted(root, target):
 
 
 def missing(root):
-    session = PTY["Session"]([str(BINARY)], colors=True, env=environment(root))
-    try:
-        session.ready(b"C-x C-c: exit")
-        assert b"Configuration:" not in session.output
-        finish(session)
-    finally:
-        session.close()
+    expected = startup_snapshot(root)
+    with tempfile.TemporaryDirectory(prefix="rev-standalone-") as directory:
+        binary = Path(directory) / 'rev'
+        shutil.copy2(BINARY, binary)
+        session = PTY["Session"]([str(binary)], colors=True, env=environment(root), cwd=directory)
+        try:
+            session.ready(b"C-x C-c: exit")
+            assert b"Configuration:" not in session.output
+            finish(session)
+        finally:
+            session.close()
+        assert list(Path(directory).iterdir()) == [binary]
     passive(root)
-    assert not (root / "user").exists()
-    print("PASS silent missing configuration and passive XDG startup")
+    assert snapshot(root) == expected
+    print("PASS standalone first-start complete configuration and passive other XDG roots")
 
 
 def rejected(root):

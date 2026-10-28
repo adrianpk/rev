@@ -5,7 +5,7 @@ import select
 
 from configuration_ui.gutter_controls import command
 from configuration_ui.support import (BINARY, PTY, canvas, cells, close, completed,
-                                      cursor, environment, finish, send, step, write)
+                                      cursor, environment, finish, send, snapshot, startup_snapshot, step, write)
 
 SOURCE = '\ufeff\t界e\u0301\r\nlast\n'.encode()
 
@@ -86,6 +86,7 @@ def case(root, colored):
     path = write(root, 'g.txt', SOURCE)
     write(root, 'alpha.txt', b'alpha')
     write(root, 'alpine.txt', b'alpine')
+    expected = startup_snapshot(root)
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, colored))
     try:
         session.wait(lambda: completed(session, lambda frame: PTY['status_contains'](frame, b'RW -- L1 C1 Text')))
@@ -97,7 +98,7 @@ def case(root, colored):
         field(frame, 2, 46, '│   2 ')
         idle(session)
         assert path.read_bytes() == SOURCE
-        assert not (root / 'user/rev/config.toml').exists()
+        assert snapshot(root) == expected
         finish(session, colored)
     finally:
         close(session)

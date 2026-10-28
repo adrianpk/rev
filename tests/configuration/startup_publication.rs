@@ -181,3 +181,74 @@ fn creation_failure() {
         }
     }
 }
+
+// Independent native processes rendezvous before first startup. Each loads the
+// sole complete winner and exits; all owned children are reaped even on failure.
+#[test]
+fn concurrent_startup() {
+    if isolated() {
+        let marker = format!("ready-{}", std::process::id());
+        std::fs::write(marker, "ready").unwrap();
+        wait_for(|| Path::new("release").exists());
+        let session = launch(None);
+        assert_eq!(session.echo(), "C-x C-c: exit");
+        let root = Roots::from_env().unwrap().config_file();
+        assert_eq!(std::fs::read(root).unwrap(), default_template().as_bytes());
+        return;
+    }
+    let fixture = Fixture::new();
+    fixture.write("project/kept.txt", "kept");
+    let mut children = Children(Vec::new());
+    for _ in 0..4 {
+        children.0.push(
+            process("startup::publication::concurrent_startup", &fixture)
+                .stdout(std::process::Stdio::piped())
+                .stderr(std::process::Stdio::piped())
+                .spawn()
+                .unwrap(),
+        );
+    }
+    wait_for(|| ready_count(&fixture) == 4);
+    fixture.write("project/release", "go");
+    while let Some(child) = children.0.pop() {
+        success(child.wait_with_output().unwrap());
+    }
+    let root = fixture.0.join("user/rev/config.toml");
+    assert_eq!(std::fs::read(&root).unwrap(), default_template().as_bytes());
+    assert_eq!(
+        std::fs::read_dir(root.parent().unwrap()).unwrap().count(),
+        1
+    );
+    for name in ["home", "data", "state", "cache"] {
+        assert!(!fixture.0.join(name).exists(), "{name}");
+    }
+}
+
+fn ready_count(fixture: &Fixture) -> usize {
+    std::fs::read_dir(fixture.0.join("project"))
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name())
+        .filter(|name| name.to_string_lossy().starts_with("ready-"))
+        .count()
+}
+
+fn wait_for(ready: impl Fn() -> bool) {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    while !ready() {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "startup rendezvous timed out"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
+}
+
+struct Children(Vec<std::process::Child>);
+impl Drop for Children {
+    fn drop(&mut self) {
+        for child in &mut self.0 {
+            let _ = child.kill();
+            let _ = child.wait();
+        }
+    }
+}

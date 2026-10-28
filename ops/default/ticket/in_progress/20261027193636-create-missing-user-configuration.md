@@ -4,7 +4,7 @@ title: Create the complete user configuration when missing
 status: in_progress
 ready_at: 2026-10-28T00:45:40Z
 started_at: 2026-10-28T00:45:40Z
-branch: feat/rev-input-16-bootstrap-template
+branch: feat/rev-input-17-bootstrap-publication
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/96
 kind: task
 severity: unclassified
@@ -29,8 +29,8 @@ optional examples. Existing user content must remain untouched.
 
 [Configuration Bootstrap](../../spec/editor-configuration-bootstrap.md) defines
 the required CFG01/CFG14/CFG15 replacements and generated-template guarantees.
-The completed configuration contract currently forbids this startup write;
-this is an explicit new capability, not an already implemented setting.
+It replaces the former prohibition on startup creation while retaining read-only
+configuration resolution/loading and startup-only settings application.
 
 ## Acceptance direction
 
@@ -63,3 +63,9 @@ loading guards. Canonical evidence `BFCV7FDE46KJARMTSXDNHKRZJF` and focused evid
 `EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed on that candidate. Slice 17 is active for
 absent-file publication and race/failure guarantees. This ticket remains in
 progress until both primary slices have integrated.
+
+Slice 17 implements native absent-root publication, no-clobber preservation,
+complete fallback diagnostics and isolated real filesystem/process fault and
+race fixtures. Its [report](../../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
+records the checks. Canonical PR and exact clean-head evidence follow task
+commits. Integration remains pending; this ticket stays in progress.
