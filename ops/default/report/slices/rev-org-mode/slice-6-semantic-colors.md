@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-06-semantic-colors`
-PR: pending
+PR: [#107](https://forge.adrianpk.com/adrianpk/rev/pulls/107)
 
 ## Purpose
 
@@ -29,6 +29,10 @@ Seventeen independent `palette.org` RGB leaves use the ordinary typed validation
 leaf merge, provenance and immutable frame palette. Factory defaults, the
 compiled template, complete sample and catalog cover all 46 active RGB roles.
 Every activated Org role has a real capture and a renderer-visible override test.
+
+Task commits: T6.1 `89959a0f2e958560cd85713784ae93708bd84081`, T6.2
+`92a42b6638ae1d2ef0a35af3983e4405db8c6f22`, T6.3
+`d84c5f5c20af5e7c356e70935b3fb4a7094fa4c8`.
 
 ## Implementation Notes
 

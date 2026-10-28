@@ -194,6 +194,11 @@ Details and exact checks: [Slice 6](../plan/rev-org-mode.md#slice-6-color-native
 - [x] T6.3: Verify incremental coloring, shared views, malformed source and usable no-color rendering.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#107](https://forge.adrianpk.com/adrianpk/rev/pulls/107).
+T6.1, T6.2 and T6.3 are committed; final validation is recorded against the
+clean pushed PR-reference candidate through the controller ledger. Integration
+remains controller-owned.
+
 ### Slice 7: map folded Org views to canonical source
 
 Contracts: ORG03 ORG18.
