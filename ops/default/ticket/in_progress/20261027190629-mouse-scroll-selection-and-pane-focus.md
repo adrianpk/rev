@@ -4,8 +4,8 @@ title: Add mouse and trackpad scrolling, selection and pane focus
 status: in_progress
 ready_at: 2026-10-27T23:05:50Z
 started_at: 2026-10-27T23:05:50Z
-branch: feat/rev-input-14-drag-autoscroll
-pr: https://forge.adrianpk.com/adrianpk/rev/pulls/94
+branch: feat/rev-input-15-pointer-controls
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/95
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,7 +13,7 @@ scope: ui
 tags: mouse, scrolling, selection
 source: chat
 reported_at: 2026-10-27T19:06:29Z
-commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d, 0aafffa4001ed294d38904b0a11c392c521bb71d, f3958d9fabf4eee353d205f5ba725151c56228aa, 89329d0f0199ea0ddfd71bb50a764c62e51160bc, 7d2c71c78fd591c6b8bc12bd55790424ec99c9d7, 9f4f1c199d829c2099ca0ab29c39233ddb8ac1dd, 265527a3237817182e791afde228bb31cef4d1a9, 9ce11b32d0a97e6930ed073e362949c8a07f4f69, 812ac03c0b0a7b3bb46c63d3b0a8f760c1c5d885, 17ff0de8cbff3f9a122f8d9d014a810eb04759fc, c769de9e0cfc48308b59cd8dc48cdbaa65b61d74, e0fca7a6e88b34e4eea84813cdd4d424e34465e9, 148a326f351d78bda33867623cd697712caaa0ee]
+commits: [0e3fa967691c1be21295efe00b22a2b3f0e520d9, 5ea8db194ddf83b11f38623d0af256a22e65d3a0, b9e7ec37a13d42cc3a7e594b608c638ad8af7b8d, 0aafffa4001ed294d38904b0a11c392c521bb71d, f3958d9fabf4eee353d205f5ba725151c56228aa, 89329d0f0199ea0ddfd71bb50a764c62e51160bc, 7d2c71c78fd591c6b8bc12bd55790424ec99c9d7, 9f4f1c199d829c2099ca0ab29c39233ddb8ac1dd, 265527a3237817182e791afde228bb31cef4d1a9, 9ce11b32d0a97e6930ed073e362949c8a07f4f69, 812ac03c0b0a7b3bb46c63d3b0a8f760c1c5d885, 17ff0de8cbff3f9a122f8d9d014a810eb04759fc, c769de9e0cfc48308b59cd8dc48cdbaa65b61d74, e0fca7a6e88b34e4eea84813cdd4d424e34465e9, 148a326f351d78bda33867623cd697712caaa0ee, cb4c73f7047978c8066dce029a154546a2ef599a, e24a13281532842e0447152848f7b122d9f1fc5d, 3da0fcc042c44cc0f9cc8a4e75ac9629bc5100bf]
 ---
 
 # Add mouse and trackpad scrolling, selection and pane focus
@@ -133,3 +133,12 @@ bounds and owned terminal/history/idle outcomes. Canonical
 `ADDCSIPZUL2YT4FJNH3FSTRT3T` and focused `37K54UBNOIHCV27VWZOYXWP6ZP`
 evidence passed on that candidate. Slice 15 is active; the ticket stays in
 progress through its final primary integration.
+
+Slice 15 is implemented in canonical PR [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95), targeting dev. Its
+[report](../../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
+records activated native defaults, typed bounded preferences, session-only mode
+control, immutable startup behavior, complete references and owned native
+startup/runtime/restart/capture/failure cleanup journeys. Required and focused
+exact-head evidence follows PR-reference commits through the controller. The
+ticket stays in progress until this final primary slice integrates; closure
+then records the actual integration and all primary evidence.

@@ -279,12 +279,16 @@ Details and exact checks: [Slice 15](../plan/rev-input-navigation.md#slice-15-ac
 - [x] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 15 of 20 implemented. Its
+Slice 15 of 20 implemented. Canonical PR [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95) targets dev. Its
 [canonical report](../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
 records admitted startup defaults, session-only control, complete native reporting,
-configured distances and owned startup/runtime/cleanup PTYs. Canonical PR and
-exact-head evidence follow task and reference commits. Integration is pending;
+configured distances and owned startup/runtime/cleanup PTYs. Final exact-head evidence is recorded through the controller after PR-reference
+commits. Integration is pending;
 the pointer ticket stays in progress until its final primary integration.
+
+T15.1: `cb4c73f7047978c8066dce029a154546a2ef599a`.
+T15.2: `e24a13281532842e0447152848f7b122d9f1fc5d`.
+T15.3: `3da0fcc042c44cc0f9cc8a4e75ac9629bc5100bf`.
 
 ### Slice 16: package the complete startup configuration template
 
