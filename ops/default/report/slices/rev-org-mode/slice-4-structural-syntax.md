@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-04-structural-syntax`
-PR: pending
+PR: [#105](https://forge.adrianpk.com/adrianpk/rev/pulls/105)
 
 ## Purpose
 

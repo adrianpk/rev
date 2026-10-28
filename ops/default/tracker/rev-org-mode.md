@@ -156,6 +156,13 @@ Details and exact checks: [Slice 4](../plan/rev-org-mode.md#slice-4-recognize-or
 - [x] T4.3: Verify subtree ownership, malformed drawers and apparent headings inside blocks.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T4.1 `0b6bf91c2f3bc1260cd9a60d85311facd89b2288`,
+T4.2 `08c400135626913eb197cc2cbaa3e4b3429b5b5d`,
+T4.3 `f6277f82d149f93e5049040e2a09980c51b98514`.
+Canonical PR: [#105](https://forge.adrianpk.com/adrianpk/rev/pulls/105).
+Report: [Slice 4](../report/slices/rev-org-mode/slice-4-structural-syntax.md).
+Integration: pending controller verification.
+
 ### Slice 5: activate native Org mode and contexts
 
 Contracts: ORG01 ORG17.
