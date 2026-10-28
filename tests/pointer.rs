@@ -20,6 +20,8 @@ mod scroll;
 mod scroll_bounds;
 #[path = "pointer/scroll_workspace.rs"]
 mod scroll_workspace;
+#[path = "pointer/selection.rs"]
+mod selection;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

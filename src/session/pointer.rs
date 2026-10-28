@@ -5,6 +5,8 @@ use crate::view::Error;
 use super::{Action, Session};
 
 mod scroll;
+mod selection;
+pub(super) use selection::Selection;
 
 impl Session {
     pub(super) fn pointer(&mut self, event: Event) -> Action {
@@ -13,12 +15,14 @@ impl Session {
         }
         match event.kind {
             Kind::Press => self.press(event.position),
+            Kind::Drag => self.drag_pointer(event.position),
+            Kind::Release => self.release_pointer(event.position),
             Kind::ScrollUp | Kind::ScrollDown => self.pointer_scroll(event),
-            _ => Action::Wait,
         }
     }
 
     fn press(&mut self, position: crate::display::Position) -> Action {
+        self.selection = None;
         match self.pointer_press(position) {
             Ok(Some(hit)) => self.focus_hit(hit),
             Ok(None) => Action::Wait,
@@ -69,6 +73,10 @@ impl Session {
         self.input.cancel();
         if let Some(point) = point {
             self.place_point(point)?;
+            self.selection = Some(Selection::new(crate::pointer::Capture {
+                view,
+                anchor: point,
+            }));
         }
         Ok(())
     }
