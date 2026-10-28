@@ -90,6 +90,10 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.tags]
+# Boolean; include ancestor and FILETAGS membership without inserting text.
+inherit = true
+
 [org.properties]
 # Up to 128 unique stored names (1..128 UTF-8 bytes each); empty disables inheritance.
 # Names are case-insensitive; arrays replace on merge, including empty arrays.
@@ -296,6 +300,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-q" = "org-set-tags-command"
 "C-c C-x p" = "org-set-property"
 "TAB" = "org-cycle"
 "BackTab" = "org-shifttab"

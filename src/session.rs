@@ -93,6 +93,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Tags(Box<outline::tags::Prompt>),
     Property(Box<outline::property::Prompt>),
     Quit(quit::Quit),
     TreeDelete(crate::file::Deletion),

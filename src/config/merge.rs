@@ -41,6 +41,11 @@ impl Document {
             &mut self.org.properties.inherit,
             &later.org.properties.inherit,
         );
+        merge.leaf(
+            &["org", "tags", "inherit"],
+            &mut self.org.tags.inherit,
+            &later.org.tags.inherit,
+        );
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);

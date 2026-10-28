@@ -3,6 +3,7 @@ mod model;
 mod navigation;
 mod state;
 mod subtree;
+mod tags;
 pub(crate) use insertion::Insertion;
 pub(crate) use subtree::SubtreeEdit;
 pub(super) use subtree::movement_pieces;
@@ -44,6 +45,7 @@ pub(crate) struct Outline {
     malformed: Vec<Range<usize>>,
     pub(super) lists: super::list::Lists,
     pub(super) properties: super::property::Properties,
+    tags: tags::Tags,
 }
 
 impl Outline {
@@ -55,6 +57,7 @@ impl Outline {
         let mut model = model::observe(structure, cancel);
         model.lists = super::list::Lists::observe(structure, text, cancel);
         model.properties = super::property::Properties::observe(structure, text, cancel);
+        model.tags = tags::Tags::observe(structure, text, cancel);
         model
     }
     fn heading(&self, byte: usize) -> Option<usize> {

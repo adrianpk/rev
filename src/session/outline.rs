@@ -8,6 +8,7 @@ mod list;
 mod operation;
 pub(super) mod property;
 mod subtree;
+pub(super) mod tags;
 
 use super::{Action, Session};
 
@@ -57,8 +58,18 @@ impl Session {
             return;
         };
         let request = self.org.request.take().expect("checked Org request");
+        self.dispatch_org_request(model, request);
+    }
+
+    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
         if request.command.property() {
             if let Err(error) = self.start_property(model, request) {
+                self.error(&error);
+            }
+            return;
+        }
+        if self.tag_request(&model, request.command) {
+            if let Err(error) = self.start_tags(model, request) {
                 self.error(&error);
             }
             return;

@@ -135,7 +135,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 68 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 20 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 21 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation commands | Compiled map | Agenda role consumes unbound text; all 2 entries are active in the sample. |
@@ -193,6 +193,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.tags.inherit` | Boolean | `true` | Include ancestor tags and FILETAGS with source provenance; no inherited text is inserted. |
 | `org.properties.inherit` | Array of property names | `[]` | At most 128 unique case-insensitive stored names, 1..128 UTF-8 bytes each; no +, derived fields or drawer delimiters. Arrays replace on merge, including empty. Only these names inherit ancestor and file defaults. |
 | `org.enabled` | Boolean | `true` | Session; admit automatic Org file recognition and explicit org-mode. Per-buffer text-mode selects plain editing. |
 | `syntax.enabled` | Boolean | `true` | Session; enable derived syntax styling where a bundled grammar is selected. Text remains editable on fallback. |

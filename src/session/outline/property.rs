@@ -175,7 +175,7 @@ impl Session {
         let edits = prompt
             .model
             .property_edit(buffer, prompt.entry, &prompt.key, None)?;
-        self.publish_property(&edits).map_err(|e| e.to_string())?;
+        self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
         Ok(self.message("Local Org property removed; inherited owners retained"))
     }
     fn property_changed(
@@ -191,10 +191,13 @@ impl Session {
                 .model
                 .property_edit(buffer, prompt.entry, &prompt.key, Some(value))?,
         };
-        self.publish_property(&edits).map_err(|e| e.to_string())?;
+        self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
         Ok(self.message("Org property changed"))
     }
-    fn publish_property(&mut self, edits: &[Replacement]) -> Result<(), Error> {
+    pub(in crate::session) fn publish_org_edits(
+        &mut self,
+        edits: &[Replacement],
+    ) -> Result<(), Error> {
         if edits.is_empty() {
             return Ok(());
         }

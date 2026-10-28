@@ -46,9 +46,12 @@ pub enum OrgCommand {
     DeleteProperty,
     InspectProperty,
     EditPropertyOwner,
+    SetTags,
+    RemoveTag,
+    InspectTags,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 44] = [
+    pub const ALL: [Self; 47] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -93,6 +96,9 @@ impl OrgCommand {
         Self::DeleteProperty,
         Self::InspectProperty,
         Self::EditPropertyOwner,
+        Self::SetTags,
+        Self::RemoveTag,
+        Self::InspectTags,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -140,9 +146,15 @@ impl OrgCommand {
             "org-delete-property",
             "org-inspect-property",
             "org-edit-property-owner",
+            "org-set-tags-command",
+            "org-remove-tag",
+            "org-inspect-tags",
         ][self as usize]
     }
 
+    pub(crate) fn tags(self) -> bool {
+        matches!(self, Self::SetTags | Self::RemoveTag | Self::InspectTags)
+    }
     pub(crate) fn property(self) -> bool {
         matches!(
             self,

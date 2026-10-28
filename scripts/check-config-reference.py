@@ -29,6 +29,7 @@ TABLES = {
     "tree": "PartialTree",
     "syntax": "PartialSyntax",
     "org": "PartialOrg",
+    "org.tags": "PartialTags",
     "org.properties": "PartialProperties",
     "files": "PartialFiles",
     "keys": "Keymaps",

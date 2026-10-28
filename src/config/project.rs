@@ -22,6 +22,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     syntax(&mut settings.syntax, &document.syntax);
     files(&mut settings.files, &document.files);
     scalar(&mut settings.org.enabled, document.org.enabled);
+    scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {
         settings.org.properties.inherit.clone_from(names);
     }

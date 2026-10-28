@@ -119,6 +119,7 @@ pub enum Newline {
 pub struct Org {
     pub enabled: bool,
     pub properties: Properties,
+    pub tags: Tags,
 }
 
 impl Default for Org {
@@ -126,6 +127,7 @@ impl Default for Org {
         Self {
             enabled: true,
             properties: Properties::default(),
+            tags: Tags::default(),
         }
     }
 }
@@ -135,6 +137,23 @@ impl Default for Org {
 pub struct PartialOrg {
     pub enabled: Option<bool>,
     pub properties: PartialProperties,
+    pub tags: PartialTags,
+}
+
+/// Effective tags include ancestors and FILETAGS by factory policy.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Tags {
+    pub inherit: bool,
+}
+impl Default for Tags {
+    fn default() -> Self {
+        Self { inherit: true }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTags {
+    pub inherit: Option<bool>,
 }
 
 /// Selective, case-insensitive source-property inheritance; no general inheritance.

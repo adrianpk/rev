@@ -319,7 +319,7 @@ local and canonical `dev` match the validated candidate.
 Contracts: ORG05 ORG23.
 Details and exact checks: [Slice 13](../plan/rev-org-mode.md#slice-13-edit-and-match-org-task-tags).
 
-- [ ] T13.1: Deliver tag entry, removal, completion and local/inherited membership inspection.
+- [x] T13.1: Deliver tag entry, removal, completion and local/inherited membership inspection.
 - [ ] T13.2: Implement the declared Org tag/property match grammar with typed comparisons and bounded parsing.
 - [ ] T13.3: Verify case sensitivity, escaping, malformed queries and unchanged unrelated source.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

@@ -12,6 +12,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         malformed: Vec::new(),
         lists: Default::default(),
         properties: Default::default(),
+        tags: Default::default(),
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {
