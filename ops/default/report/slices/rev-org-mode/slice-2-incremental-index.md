@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-02-incremental-index`
-PR: pending
+PR: [#103](https://forge.adrianpk.com/adrianpk/rev/pulls/103)
 
 ## Purpose
 

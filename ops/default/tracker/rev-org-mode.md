@@ -118,6 +118,13 @@ Details and exact checks: [Slice 2](../plan/rev-org-mode.md#slice-2-index-org-st
 - [x] T2.3: Verify large edits, stale observations and bounded worker cancellation while preserving ordinary editing.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T2.1 `37dbf80bc6cbc268ba508e5e0c17a85db0e6f278`,
+T2.2 `f7e2c648754453805ad03572223953f26bddd83d`,
+T2.3 `5bf669cb3f2cf826983f729bf0f8248df3948d6f`.
+Canonical PR: [#103](https://forge.adrianpk.com/adrianpk/rev/pulls/103).
+Report: [Slice 2](../report/slices/rev-org-mode/slice-2-incremental-index.md).
+Integration: pending controller verification.
+
 ### Slice 3: recognize inline Org source forms
 
 Contracts: ORG02 ORG15 ORG16 ORG30.
