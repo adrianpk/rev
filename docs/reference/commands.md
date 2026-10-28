@@ -66,6 +66,7 @@ for file, history and retained-text policies.
 | Group | Names |
 | --- | --- |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
+| Native mode | `org-mode`, `text-mode` |
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |

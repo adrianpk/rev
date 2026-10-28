@@ -13,6 +13,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
+| M-x org-mode | `org-mode` | Select native Org for the current buffer. |
+| M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
