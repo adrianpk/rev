@@ -5,7 +5,7 @@ use rev::org::time::Zone;
 // V2+ footer recurrence supplies future rules instead of freezing the last type.
 #[test]
 fn tzif_transitions() {
-    for version in [b'2', b'3', b'4'] {
+    for version in *b"234" {
         let bytes = tzif(
             version,
             &[(1711846800, 1), (1729990800, 0)],

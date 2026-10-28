@@ -146,6 +146,12 @@ for header counts and type records. Parser bounds and observable assertions
 are unchanged. Both focused and required evidence will be regenerated at the
 corrected clean candidate; earlier successful evidence is not relabeled.
 
+The next required run at `ec63d4a586de776ae4cb28a5b054346f6df77b60`, receipt
+`HHMBNU3KLL3IA6L6WNAVI4J336`, passed the library lint and exposed one test-table
+byte_char_slices finding. Its byte-character array is now a byte string with
+the same three version values. `cargo clippy --test org_time -- -D warnings` passed before fresh
+exact-candidate readiness checks.
+
 ## Risks and Follow-ups
 
 Filesystem reads are bounded; a blocked kernel filesystem operation has no hard
