@@ -29,6 +29,15 @@ impl Date {
     pub fn weekday(self) -> u8 {
         (self.days + 3).rem_euclid(7) as u8 + 1
     }
+    pub(super) fn from_days(days: i64) -> Result<Self, String> {
+        if !(-719162..=2932896).contains(&days) {
+            return Err("Org date is outside 0001..9999".into());
+        }
+        Ok(Self { days: days as i32 })
+    }
+    pub(super) fn days(self) -> i64 {
+        i64::from(self.days)
+    }
     fn parts(self) -> (u16, u8, u8) {
         let civil = i64::from(self.days) + 719468;
         let era = civil.div_euclid(146097);
@@ -59,4 +68,11 @@ fn ordinal(year: u16, month: u8, day: u8) -> i32 {
     let m = i32::from(month) + if month > 2 { -3 } else { 9 };
     let d = (153 * m + 2) / 5 + i32::from(day) - 1;
     era * 146097 + yr * 365 + yr / 4 - yr / 100 + d - 719468
+}
+
+impl std::fmt::Display for Date {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let (y, m, d) = self.parts();
+        write!(f, "{y:04}-{m:02}-{d:02}")
+    }
 }

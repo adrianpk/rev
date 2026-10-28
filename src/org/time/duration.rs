@@ -19,6 +19,9 @@ impl Duration {
         } else {
             terms(text, units)?
         };
+        Self::from_minutes(minutes)
+    }
+    pub fn from_minutes(minutes: f64) -> Result<Self, String> {
         if !minutes.is_finite() || minutes < 0.0 {
             return Err("Org duration must be finite and nonnegative".into());
         }
@@ -26,6 +29,30 @@ impl Duration {
     }
     pub fn minutes(self) -> f64 {
         self.minutes
+    }
+    pub fn checked_add(self, other: Self) -> Result<Self, String> {
+        Self::from_minutes(self.minutes + other.minutes)
+    }
+    /// Unbounded hours and two-digit minute/second fields, without calendar
+    /// units. Fractions below the selected precision truncate, as in Org.
+    /// Values requiring 2^64 or more displayed ticks reject before conversion.
+    pub fn format_clock(self, seconds: bool) -> Result<String, String> {
+        let scale = if seconds { 60.0 } else { 1.0 };
+        let ticks = (self.minutes * scale).floor();
+        if ticks >= u64::MAX as f64 {
+            return Err("Org duration is too large to format".into());
+        }
+        let ticks = ticks as u64;
+        if seconds {
+            Ok(format!(
+                "{}:{:02}:{:02}",
+                ticks / 3600,
+                ticks / 60 % 60,
+                ticks % 60
+            ))
+        } else {
+            Ok(format!("{}:{:02}", ticks / 60, ticks % 60))
+        }
     }
 }
 fn clock(text: &str) -> Result<f64, String> {

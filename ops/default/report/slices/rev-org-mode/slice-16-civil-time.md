@@ -24,7 +24,23 @@ the public org::Duration contract and stored source spelling remain intact.
 Dates use a checked serial-day identity and constant-time Gregorian conversion.
 Civil values carry no implicit host zone. Ordered civil bounds do not claim an
 elapsed duration across offset changes. Work-unit minute scales remain separate.
-There is no dependency, idle job, source parser or editable shadow document.
+Signed minute/hour/day/week shifts use checked civil arithmetic. Month/year
+shifts normalize excess days forward, matching a clean, owned Org timestamp
+adjustment observation: 2024-01-31 + one month becomes 2024-03-02;
+2024-02-29 + one year becomes 2025-03-01. Entered invalid dates still reject.
+No unit scale participates in a calendar shift.
+
+OperationTime captures an injected fallible SystemTime clock once and retains
+whole Unix seconds, flooring subsecond instants even before the epoch. Known
+offset projection is explicit; it does not resolve a zone. Elapsed subtraction
+uses instants, not wall-time subtraction. Task logging now uses this shared
+capture and checked formatter with its existing bounded offset observation.
+Selected timestamp output uses minute precision and English weekdays.
+
+Work durations support checked totals and H:MM[:SS] display with unbounded
+hours. Sub-precision fractions truncate, matching the owned Org observation;
+values too large for displayed u64 ticks reject. Original entered spelling
+remains unchanged. There is no dependency, idle job or editable shadow document.
 
 ## Contracts Added or Changed
 
@@ -45,7 +61,14 @@ T16.1 development checks passed:
 - Focused changed-source quality passed: original parameter/nesting/complexity
   and safe-Rust constraints remain enforced.
 
+T16.2 development checks passed:
+
+- `cargo test --test org_time`: ten tests passed, zero skips.
+- Focused changed-source quality passed with all original thresholds.
+- Owned `emacs -Q --batch` observations established month/year rollover and
+  minute/second duration display semantics; no reference implementation is copied.
+
 ## Risks and Follow-ups
 
-Calendar arithmetic, shared formatting and operation-clock integration continue
-in T16.2. Zone resolution belongs to the recorded Slice 17.
+Boundary and injected-clock verification continue in T16.3. Zone resolution
+belongs to the recorded Slice 17.
