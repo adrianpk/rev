@@ -90,6 +90,19 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.todo]
+# Ordered 1..64 unique keywords; finished must be a subset. Source TODO,
+# SEQ_TODO and TYP_TODO declarations override the workflow for that buffer.
+sequence = ["TODO", "DONE"]
+finished = ["DONE"]
+# Add CLOSED on completion; ordinary completion logging is off by default.
+log_done = false
+# Empty places state notes after planning/properties; otherwise 1..64 ASCII
+# letters/digits/_/-, excluding PROPERTIES and END, selects a log drawer.
+log_drawer = ""
+# Refuse completion while a descendant task remains unfinished.
+block_children = false
+
 [org.tags]
 # Boolean; include ancestor and FILETAGS membership without inserting text.
 inherit = true
@@ -300,6 +313,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-t" = "org-todo"
 "C-c C-q" = "org-set-tags-command"
 "C-c C-x p" = "org-set-property"
 "TAB" = "org-cycle"

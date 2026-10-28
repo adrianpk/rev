@@ -84,6 +84,7 @@ pub struct Session {
     echo: String,
     echo_kind: Message,
     pending: Option<Pending>,
+    task_clock: fn() -> Result<String, String>,
 }
 
 enum AfterSave {
@@ -93,6 +94,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Task(Box<outline::tasks::Prompt>),
     Tags(Box<outline::tags::Prompt>),
     Property(Box<outline::property::Prompt>),
     Quit(quit::Quit),
@@ -162,6 +164,7 @@ impl Session {
             echo: "C-x C-c: exit".into(),
             echo_kind: Message::Normal,
             pending: None,
+            task_clock: outline::tasks::native_clock,
         })
     }
 

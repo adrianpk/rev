@@ -19,7 +19,7 @@ pub(super) struct Heading {
     pub(super) title: Range<usize>,
     pub(super) parent: Option<usize>,
     pub(super) level: usize,
-    pub(super) task: Option<bool>,
+    pub(super) task: String,
     pub(super) ordered: bool,
     pub(super) data: Data,
     pub(super) cookies: Vec<Cookie>,
@@ -71,6 +71,7 @@ impl Lists {
         &self,
         buffer: &Buffer,
         state: &mut State,
+        workflow: &crate::org::task::Workflow,
     ) -> Result<Vec<Replacement>, String> {
         state.propagate();
         let mut edits = Vec::new();
@@ -90,13 +91,19 @@ impl Lists {
             .enumerate()
             .filter(|(index, _)| state.affected.contains(&Some(*index)))
         {
-            let count = self.heading_count(index, heading, counts[index]);
+            let count = self.heading_count(index, heading, counts[index], workflow);
             update(buffer, &heading.cookies, count, &mut edits)?;
         }
         Ok(edits)
     }
 
-    fn heading_count(&self, index: usize, heading: &Heading, checkbox: Count) -> Count {
+    fn heading_count(
+        &self,
+        index: usize,
+        heading: &Heading,
+        checkbox: Count,
+        workflow: &crate::org::task::Workflow,
+    ) -> Count {
         if heading.data == Data::Checkbox || heading.data == Data::Auto && checkbox.total > 0 {
             return checkbox;
         }
@@ -106,7 +113,11 @@ impl Lists {
             .iter()
             .filter(|child| child.parent == Some(index))
         {
-            count.add(child.task.map(|done| if done { b'X' } else { b' ' }));
+            count.add(
+                workflow
+                    .state(&child.task)
+                    .map(|s| if s.done { b'X' } else { b' ' }),
+            );
         }
         count
     }
@@ -129,4 +140,48 @@ fn update(
         }
     }
     Ok(())
+}
+
+impl Lists {
+    pub(in crate::org) fn task_statistics(
+        &self,
+        buffer: &Buffer,
+        changed: usize,
+        next: &str,
+        workflow: &crate::org::task::Workflow,
+    ) -> Result<Vec<Replacement>, String> {
+        if !self.complete {
+            return Err("Org list statistics observation is incomplete".into());
+        }
+        let state = State::new(self, self.headings[changed].source.start);
+        let checkbox = state.heading_counts(self);
+        let mut edits = Vec::new();
+        let Some(index) = self.headings[changed].parent else {
+            return Ok(edits);
+        };
+        let heading = &self.headings[index];
+        if heading.data == Data::Checkbox || heading.data == Data::Auto && checkbox[index].total > 0
+        {
+            return Ok(edits);
+        }
+        let mut count = Count::default();
+        for (child, word) in self.task_children(index) {
+            let word = if child == changed { next } else { &word };
+            count.add(
+                workflow
+                    .state(word)
+                    .map(|s| if s.done { b'X' } else { b' ' }),
+            );
+        }
+        update(buffer, &heading.cookies, count, &mut edits)?;
+        Ok(edits)
+    }
+    fn task_children(&self, parent: usize) -> Vec<(usize, String)> {
+        self.headings
+            .iter()
+            .enumerate()
+            .filter(|(_, h)| h.parent == Some(parent))
+            .map(|(i, h)| (i, h.task.clone()))
+            .collect()
+    }
 }

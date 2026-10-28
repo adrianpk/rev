@@ -50,9 +50,14 @@ pub enum OrgCommand {
     RemoveTag,
     InspectTags,
     MatchTags,
+    Todo,
+    NextTodo,
+    PreviousTodo,
+    SetTodo,
+    InspectTodo,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 48] = [
+    pub const ALL: [Self; 53] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -101,6 +106,11 @@ impl OrgCommand {
         Self::RemoveTag,
         Self::InspectTags,
         Self::MatchTags,
+        Self::Todo,
+        Self::NextTodo,
+        Self::PreviousTodo,
+        Self::SetTodo,
+        Self::InspectTodo,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -152,9 +162,20 @@ impl OrgCommand {
             "org-remove-tag",
             "org-inspect-tags",
             "org-match-tags",
+            "org-todo",
+            "org-todo-next",
+            "org-todo-previous",
+            "org-todo-set",
+            "org-inspect-todo",
         ][self as usize]
     }
 
+    pub(crate) fn task(self) -> bool {
+        matches!(
+            self,
+            Self::Todo | Self::NextTodo | Self::PreviousTodo | Self::SetTodo | Self::InspectTodo
+        )
+    }
     pub(crate) fn tags(self) -> bool {
         matches!(
             self,

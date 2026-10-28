@@ -49,6 +49,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::Task(prompt)) => self.task_argument(*prompt, &path),
             Some(Pending::Tags(prompt)) => self.tag_argument(*prompt, &path),
             Some(Pending::Property(prompt)) => self.property_argument(*prompt, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),

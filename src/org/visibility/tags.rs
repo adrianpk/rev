@@ -1,6 +1,8 @@
 mod edit;
 mod matching;
 mod model;
+mod tasks;
+pub(crate) use tasks::TaskChange;
 
 use super::Outline;
 use crate::buffer::{Buffer, edit::Replacement};
@@ -17,9 +19,8 @@ pub(in crate::org) struct Tags {
     candidates: BTreeSet<String>,
     contexts: Vec<Range<usize>>,
     count: usize,
-    workflow: Vec<(String, bool)>,
-    workflow_declared: bool,
-    workflow_valid: bool,
+    workflow: crate::org::task::Workflow,
+    metadata: tasks::Metadata,
 }
 #[derive(Debug, PartialEq, Eq)]
 struct Header {

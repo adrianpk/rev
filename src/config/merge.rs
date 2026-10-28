@@ -46,6 +46,7 @@ impl Document {
             &mut self.org.tags.inherit,
             &later.org.tags.inherit,
         );
+        merge.todo(&mut self.org.todo, &later.org.todo);
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);
@@ -55,6 +56,33 @@ impl Document {
 }
 
 impl Merge {
+    fn todo(&mut self, base: &mut super::PartialTodo, later: &super::PartialTodo) {
+        self.leaf(
+            &["org", "todo", "sequence"],
+            &mut base.sequence,
+            &later.sequence,
+        );
+        self.leaf(
+            &["org", "todo", "finished"],
+            &mut base.finished,
+            &later.finished,
+        );
+        self.leaf(
+            &["org", "todo", "log_done"],
+            &mut base.log_done,
+            &later.log_done,
+        );
+        self.leaf(
+            &["org", "todo", "log_drawer"],
+            &mut base.log_drawer,
+            &later.log_drawer,
+        );
+        self.leaf(
+            &["org", "todo", "block_children"],
+            &mut base.block_children,
+            &later.block_children,
+        );
+    }
     fn mouse(&mut self, base: &mut PartialMouse, later: &PartialMouse) {
         self.leaf(&["mouse", "enabled"], &mut base.enabled, &later.enabled);
         self.leaf(

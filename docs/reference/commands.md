@@ -68,6 +68,7 @@ for file, history and retained-text policies.
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
+| Org tasks | `org-todo`, `org-todo-next`, `org-todo-previous`, `org-todo-set`, `org-inspect-todo` |
 | Org tags | `org-set-tags-command`, `org-remove-tag`, `org-inspect-tags`, `org-match-tags` |
 | Org properties | `org-set-property`, `org-delete-property`, `org-inspect-property`, `org-edit-property-owner` |
 | Org headings | `org-insert-heading`, `org-meta-return`, `org-next-visible-heading`, `org-previous-visible-heading`, `org-forward-heading-same-level`, `org-backward-heading-same-level`, `org-up-heading-safe` |
@@ -158,3 +159,34 @@ at capacity one. With `kill_ring.coalesce = true` (the default), consecutive
 compatible kills append forward or prepend backward. Setting it false retains
 separate entries. Copy and intervening commands still end continuity. Rectangular
 text retains its separate owner. These preferences retain only session memory.
+
+## Native task workflows
+
+C-c C-t (`org-todo`) cycles the current heading through its declared sequence,
+including the unmarked state. Declarations with fast selection keys instead
+open a state prompt. `org-todo-set` always prompts: enter a full keyword, its
+selection key, or `-`/empty for unmarked. `org-todo-next` and
+`org-todo-previous` cycle without fast selection; `org-inspect-todo` reports
+current state and the admitted choices without editing.
+
+TODO, SEQ_TODO and TYP_TODO declarations are data. Each declaration defines a
+separate sequence, `|` begins finished states, and without `|` the last state
+is finished. Keywords must be unique across the file (at most 64). Annotations
+such as `WAIT(w@/!)` select a key, entry note and departure timestamp. Target
+entry logging takes precedence over departure logging. Unknown leading words
+remain title text. Malformed declarations reject task editing and matching.
+
+A transition preserves priorities, tags, planning, properties and unrelated
+bytes. Selected CLOSED timestamps, state logs/one-line notes and the immediate
+parent's task progress cookies publish in the same transaction. Empty notes
+record time only; C-g cancels the entire transition. Undo restores all its
+metadata, including shared-view anchors. Read-only buffers admit inspection
+and reject transitions before opening an edit prompt.
+
+LOGGING and LOG_INTO_DRAWER inherit explicitly from source ancestors/file
+properties. A nonempty LOGGING value resets defaults and annotations; `nil`,
+`logdone`, `lognotedone`, and declared keyword annotations are supported.
+LOG_INTO_DRAWER accepts `nil`, `t` (LOGBOOK) or an explicit drawer name.
+Task timestamps capture the local operation time once, before a note prompt.
+The session reads at most 1 MiB of TZif data; UTC or a TZif name/path in TZ is
+supported. Unsupported or uncovered local time rejects before mutation.

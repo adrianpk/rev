@@ -13,16 +13,9 @@ impl Outline {
             tags: self.tag_membership(index, policy.tags.inherit),
             ..MatchData::default()
         };
-        if !self.tags.workflow_valid {
-            return Err("Malformed or excessive Org task declaration".into());
-        }
+        let workflow = self.tags.workflow.effective(&policy.todo)?;
         let header = &self.tags.headers[index];
-        let task = self
-            .tags
-            .workflow
-            .iter()
-            .find(|(word, _)| word == &header.word);
-        data.finished = task.is_some_and(|(_, done)| *done);
+        data.finished = workflow.state(&header.word).is_some_and(|s| s.done);
         for key in query.properties() {
             if let Some(value) = self.match_property(buffer, index, key, policy)? {
                 data.properties.insert(key.into(), value);
@@ -42,16 +35,16 @@ impl Outline {
             "TODO" => Ok(self
                 .tags
                 .workflow
-                .iter()
-                .find(|(word, _)| word == &header.word)
-                .map(|(word, _)| word.clone())),
+                .effective(&policy.todo)?
+                .state(&header.word)
+                .map(|s| s.name.clone())),
             "LEVEL" => Ok(Some(self.headings[index].level.to_string())),
-            "PRIORITY" => Ok(self.match_priority(index)),
+            "PRIORITY" => Ok(self.match_priority(index, &policy.todo)?),
             "TAGS" => Ok(tag_text(
                 header.local.iter().map(|t| t.name.clone()).collect(),
             )),
             "ALLTAGS" => Ok(tag_text(self.tag_membership(index, policy.tags.inherit))),
-            "ITEM" => self.match_title(buffer, index).map(Some),
+            "ITEM" => self.match_title(buffer, index, &policy.todo).map(Some),
             _ => self.match_stored_property(buffer, index, key, policy),
         }
     }
@@ -70,7 +63,12 @@ impl Outline {
         let value = self.property_value(buffer, entry, key, &policy.properties.inherit)?;
         Ok((!value.undefined && !value.records.is_empty()).then_some(value.text))
     }
-    fn match_title(&self, buffer: &Buffer, index: usize) -> Result<String, String> {
+    fn match_title(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+        policy: &crate::config::Todo,
+    ) -> Result<String, String> {
         let header = &self.tags.headers[index];
         if header.title.len() > 1048576 {
             return Err("Org match title exceeds 1048576 UTF-8 bytes".into());
@@ -82,8 +80,9 @@ impl Outline {
         let task = self
             .tags
             .workflow
-            .iter()
-            .any(|(word, _)| word == &header.word);
+            .effective(policy)?
+            .state(&header.word)
+            .is_some();
         let title = if task {
             title
                 .strip_prefix(&header.word)
@@ -92,7 +91,7 @@ impl Outline {
         } else {
             title.trim()
         };
-        let title = if self.match_priority(index).is_some() {
+        let title = if self.match_priority(index, policy)?.is_some() {
             title.get(4..).unwrap_or("").trim()
         } else {
             title.trim()
@@ -102,12 +101,21 @@ impl Outline {
 }
 
 impl Outline {
-    fn match_priority(&self, index: usize) -> Option<String> {
+    fn match_priority(
+        &self,
+        index: usize,
+        policy: &crate::config::Todo,
+    ) -> Result<Option<String>, String> {
         let h = &self.tags.headers[index];
-        let task = self.tags.workflow.iter().any(|(word, _)| word == &h.word);
-        (task || h.word.starts_with("[#"))
+        let task = self
+            .tags
+            .workflow
+            .effective(policy)?
+            .state(&h.word)
+            .is_some();
+        Ok((task || h.word.starts_with("[#"))
             .then(|| h.priority.clone())
-            .flatten()
+            .flatten())
     }
 }
 

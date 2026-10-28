@@ -79,7 +79,8 @@ fn editing(document: &Document) -> Result<(), Failure> {
     for (key, value, range) in fields {
         integer(key, value, range)?;
     }
-    properties(&document.org.properties)
+    properties(&document.org.properties)?;
+    todo(document)
 }
 
 fn retention(document: &Document) -> Result<(), Failure> {
@@ -327,6 +328,16 @@ fn properties(partial: &super::PartialProperties) -> Result<(), Failure> {
                 "expected unique stored property names without + or derived fields".into(),
             ));
         }
+    }
+    Ok(())
+}
+
+fn todo(document: &Document) -> Result<(), Failure> {
+    let policy = super::project::settings(document).org.todo;
+    crate::org::task::Workflow::configured(&policy)
+        .map_err(|e| Failure::new("org.todo.sequence", e))?;
+    if !policy.log_drawer.is_empty() && !crate::org::task::drawer_name(&policy.log_drawer) {
+        return Err(Failure::new("org.todo.log_drawer", "Use an empty value or a drawer name of 1..64 ASCII letters, digits, _ or -; PROPERTIES and END are reserved".into()));
     }
     Ok(())
 }

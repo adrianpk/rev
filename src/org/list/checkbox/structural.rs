@@ -12,6 +12,7 @@ impl Lists {
         buffer: &Buffer,
         target: Target,
         mut plan: ListEdit,
+        workflow: &crate::org::task::Workflow,
     ) -> Result<ListEdit, String> {
         let Target {
             index,
@@ -29,7 +30,7 @@ impl Lists {
             .0;
         let mut state = State::new(self, item.source.start);
         self.layout(&mut state, index, command, byte);
-        let statistics = self.statistics(buffer, &mut state)?;
+        let statistics = self.statistics(buffer, &mut state, workflow)?;
         self.admit_ordered(&state)?;
         if let Some(value) = state.values.get(self.items.len()).copied().flatten() {
             for edit in &mut plan.edits {
@@ -117,6 +118,7 @@ impl Lists {
         buffer: &Buffer,
         point: Scalar,
         byte: usize,
+        workflow: &crate::org::task::Workflow,
     ) -> Result<ListEdit, String> {
         if buffer.mark_active() {
             return Err("Org checkbox insertion requires an unselected item".into());
@@ -136,6 +138,7 @@ impl Lists {
                 point,
             },
             plan,
+            workflow,
         )
     }
 }

@@ -26,6 +26,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     if let Some(names) = &document.org.properties.inherit {
         settings.org.properties.inherit.clone_from(names);
     }
+    todo(&mut settings.org.todo, &document.org.todo);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -195,4 +196,18 @@ fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {
     color(&mut base.footnote, &partial.footnote);
     color(&mut base.entity, &partial.entity);
     color(&mut base.malformed, &partial.malformed);
+}
+
+fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
+    if let Some(value) = &partial.sequence {
+        base.sequence.clone_from(value);
+    }
+    if let Some(value) = &partial.finished {
+        base.finished.clone_from(value);
+    }
+    if let Some(value) = &partial.log_drawer {
+        base.log_drawer.clone_from(value);
+    }
+    scalar(&mut base.log_done, partial.log_done);
+    scalar(&mut base.block_children, partial.block_children);
 }

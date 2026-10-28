@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Change Org task states with `C-c C-t` or M-x using configured or file-local workflows. Selected completion timestamps, state notes and progress cookies change together, respect task dependencies, and undo in one step.
+
 - Edit and complete Org tags with `C-c C-q`, inspect local and inherited tag owners, and test Boolean tag/property expressions against the current heading without changing source.
 
 - Edit Org properties with `C-c C-x p`, inspect local and inherited values with source owners, and explicitly edit an inherited owner. Selective property inheritance preserves additive values and keeps inherited text out of child entries.

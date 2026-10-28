@@ -60,10 +60,11 @@ impl Lists {
 
     fn heading_node(&mut self, node: &Raw, text: &ropey::Rope, level: usize) {
         let title = text.byte_slice(node.content.clone()).to_string();
-        let task = match title.split_whitespace().next() {
-            Some("TODO") => Some(false),
-            Some("DONE") => Some(true),
-            _ => None,
+        let word = title.split_whitespace().next().unwrap_or("");
+        let task = if word.len() <= 128 {
+            word.into()
+        } else {
+            String::new()
         };
         let cookies = cookies(
             text,

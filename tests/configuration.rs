@@ -166,3 +166,5 @@ mod org_properties;
 
 #[path = "configuration/org_tags.rs"]
 mod org_tags;
+#[path = "configuration/org_tasks.rs"]
+mod org_tasks;

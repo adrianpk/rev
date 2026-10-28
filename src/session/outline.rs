@@ -9,6 +9,7 @@ mod operation;
 pub(super) mod property;
 mod subtree;
 pub(super) mod tags;
+pub(super) mod tasks;
 
 use super::{Action, Session};
 
@@ -62,6 +63,12 @@ impl Session {
     }
 
     fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if request.command.task() {
+            if let Err(error) = self.start_task(model, request) {
+                self.error(&error);
+            }
+            return;
+        }
         if request.command.property() {
             if let Err(error) = self.start_property(model, request) {
                 self.error(&error);

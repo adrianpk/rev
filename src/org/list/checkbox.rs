@@ -12,6 +12,7 @@ impl Lists {
         buffer: &Buffer,
         command: OrgCommand,
         point: Scalar,
+        workflow: &crate::org::task::Workflow,
     ) -> Result<ListEdit, String> {
         if !self.complete {
             return Err("Org list observation is incomplete".into());
@@ -22,12 +23,12 @@ impl Lists {
             .map_err(|e| e.to_string())?
             .0;
         if command == OrgCommand::InsertCheckboxItem {
-            return self.insert_checkbox(buffer, point, byte);
+            return self.insert_checkbox(buffer, point, byte, workflow);
         }
         let selected = self.checkbox_selection(buffer, command, point)?;
         let mut state = State::new(self, byte);
         let mut edits = self.change_checkboxes(buffer, &mut state, &selected, command)?;
-        edits.extend(self.statistics(buffer, &mut state)?);
+        edits.extend(self.statistics(buffer, &mut state, workflow)?);
         self.admit_ordered(&state)?;
         edits.sort_by_key(|edit| edit.source.range.start);
         Ok(ListEdit {

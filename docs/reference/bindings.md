@@ -17,6 +17,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x org-delete-property` | `org-delete-property` | Remove the named local base or additive form. |
 | `M-x org-inspect-property` | `org-inspect-property` | Inspect effective data and source owners. |
 | `M-x org-edit-property-owner` | `org-edit-property-owner` | Explicitly edit a selected effective source owner. |
+| `C-c C-t` in Org | `org-todo` | Cycle task state or select an annotated fast key. |
+| `M-x org-todo-next` | `org-todo-next` | Next state in the current sequence, including unmarked. |
+| `M-x org-todo-previous` | `org-todo-previous` | Previous state in the current sequence, including unmarked. |
+| `M-x org-todo-set` | `org-todo-set` | Select an admitted state or clear it. |
+| `M-x org-inspect-todo` | `org-inspect-todo` | Inspect task state and choices without editing. |
 | `C-c C-q` in Org | `org-set-tags-command` | Replace locally stored tags; empty clears them. |
 | `M-x org-remove-tag` | `org-remove-tag` | Remove exactly one local, case-sensitive tag. |
 | `M-x org-inspect-tags` | `org-inspect-tags` | Inspect local, ancestor and file memberships with source lines. |

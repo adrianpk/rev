@@ -120,6 +120,7 @@ pub struct Org {
     pub enabled: bool,
     pub properties: Properties,
     pub tags: Tags,
+    pub todo: Todo,
 }
 
 impl Default for Org {
@@ -128,6 +129,7 @@ impl Default for Org {
             enabled: true,
             properties: Properties::default(),
             tags: Tags::default(),
+            todo: Todo::default(),
         }
     }
 }
@@ -138,6 +140,37 @@ pub struct PartialOrg {
     pub enabled: Option<bool>,
     pub properties: PartialProperties,
     pub tags: PartialTags,
+    pub todo: PartialTodo,
+}
+
+/// Native task defaults; source declarations override only the workflow.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Todo {
+    pub sequence: Vec<String>,
+    pub finished: Vec<String>,
+    pub log_done: bool,
+    pub log_drawer: String,
+    pub block_children: bool,
+}
+impl Default for Todo {
+    fn default() -> Self {
+        Self {
+            sequence: vec!["TODO".into(), "DONE".into()],
+            finished: vec!["DONE".into()],
+            log_done: false,
+            log_drawer: String::new(),
+            block_children: false,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTodo {
+    pub sequence: Option<Vec<String>>,
+    pub finished: Option<Vec<String>>,
+    pub log_done: Option<bool>,
+    pub log_drawer: Option<String>,
+    pub block_children: Option<bool>,
 }
 
 /// Effective tags include ancestors and FILETAGS by factory policy.

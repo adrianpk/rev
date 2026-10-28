@@ -21,14 +21,16 @@ impl Outline {
         buffer: &Buffer,
         command: OrgCommand,
         point: Scalar,
+        policy: &crate::config::Todo,
     ) -> Result<ListEdit, String> {
         let (byte, eof_line) = self.admit_list(buffer, point)?;
+        let workflow = self.task_workflow(policy)?;
         if command.checkbox() {
             let selected = self.lists.checkbox_selection(buffer, command, point)?;
             for index in selected {
                 self.admit_list_scope(self.lists.items[index].source.start)?;
             }
-            return self.lists.checkbox_edit(buffer, command, point);
+            return self.lists.checkbox_edit(buffer, command, point, &workflow);
         }
         let index = self
             .lists
@@ -46,6 +48,7 @@ impl Outline {
                 point,
             },
             plan,
+            &workflow,
         )
     }
     fn admit_list(&self, buffer: &Buffer, point: Scalar) -> Result<(usize, bool), String> {

@@ -10,8 +10,7 @@ impl Tags {
     ) -> Self {
         let mut tags = Self {
             complete: structure.coverage() == Coverage::Complete,
-            workflow: vec![("TODO".into(), false), ("DONE".into(), true)],
-            workflow_valid: true,
+            metadata: super::tasks::Metadata::observe(structure, cancel),
             ..Self::default()
         };
         let sections: BTreeSet<_> = structure
@@ -104,7 +103,7 @@ impl Tags {
                     self.candidate(token);
                 }
             }
-            "TODO" | "SEQ_TODO" | "TYP_TODO" => self.workflow(&value),
+            "TODO" | "SEQ_TODO" | "TYP_TODO" => self.workflow.declaration(&value),
             _ => (),
         }
     }
@@ -113,29 +112,6 @@ impl Tags {
             self.count += tags.len();
             self.candidates.extend(tags.iter().map(|t| t.name.clone()));
             self.file.extend(tags);
-        }
-    }
-    fn workflow(&mut self, value: &str) {
-        if !self.workflow_declared {
-            self.workflow.clear();
-            self.workflow_declared = true;
-        }
-        let mut finished = false;
-        let explicit = value.split_whitespace().any(|w| w == "|");
-        for token in value.split_whitespace().take(66) {
-            if token == "|" {
-                finished = true;
-                continue;
-            }
-            let word = token.split('(').next().unwrap_or(token);
-            if !crate::org::query::task_keyword(word) || self.workflow.len() == 64 {
-                self.workflow_valid = false;
-                return;
-            }
-            self.workflow.push((word.into(), finished));
-        }
-        if !explicit && let Some(last) = self.workflow.last_mut() {
-            last.1 = true;
         }
     }
     fn candidate(&mut self, token: &str) {

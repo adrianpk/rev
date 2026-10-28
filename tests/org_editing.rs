@@ -38,6 +38,8 @@ mod subtrees;
 mod tag_edges;
 #[path = "org_editing/tags.rs"]
 mod tags;
+#[path = "org_editing/tasks.rs"]
+mod tasks;
 #[path = "org_editing/visibility.rs"]
 mod visibility;
 #[path = "org_editing/visibility_reveal.rs"]

@@ -12,6 +12,7 @@ pub(crate) use list::ListEdit;
 pub(crate) use property::{PropertyValue, derived_property, property_name};
 mod query;
 mod source;
+pub(crate) mod task;
 pub use query::{MatchData, MatchQuery};
 mod structure;
 
@@ -26,4 +27,4 @@ pub use structure::{BlockKind, Structure, StructureKind, StructureNode, Structur
 pub use color::{ColorScan, Coloring, Highlights, Role};
 
 mod visibility;
-pub(crate) use visibility::{Insertion, Outline, SubtreeEdit, Visibility};
+pub(crate) use visibility::{Insertion, Outline, SubtreeEdit, TaskChange, Visibility};

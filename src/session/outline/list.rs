@@ -16,7 +16,12 @@ impl Session {
         if buffer.is_readonly() {
             return Err(Error::ReadOnly.to_string());
         }
-        let plan = model.list_edit(buffer, command, self.view().point.position)?;
+        let plan = model.list_edit(
+            buffer,
+            command,
+            self.view().point.position,
+            &self.buffers.snapshot().settings().org.todo,
+        )?;
         self.publish_list(plan).map_err(|error| error.to_string())
     }
 
