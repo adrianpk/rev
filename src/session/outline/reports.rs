@@ -54,3 +54,32 @@ impl Session {
             .feedback()
     }
 }
+
+impl Session {
+    pub(super) fn publish_clock_table(
+        &mut self,
+        model: &Outline,
+        request: &Request,
+    ) -> Result<(), String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        if buffer.is_readonly() {
+            return Err(crate::buffer::edit::Error::ReadOnly.to_string());
+        }
+        if request.command == OrgCommand::UpdateDynamicBlock
+            && !model.clock_table_at(buffer, request.origin.point.position)
+        {
+            return Err("No dynamic clocktable at point".into());
+        }
+        let policy = &self.buffers.snapshot().settings().org;
+        let operation = self.org_clock.unwrap_or(super::timestamps::capture)(&policy.time)?;
+        let edit =
+            model.clock_table_edit(buffer, request.origin.point.position, &operation, policy)?;
+        if buffer.slice(&edit.source).map_err(|e| e.to_string())? == edit.text {
+            self.message("Org clocktable unchanged");
+            return Ok(());
+        }
+        self.publish_org_edits(&[edit]).map_err(|e| e.to_string())?;
+        self.message("Org clocktable updated");
+        Ok(())
+    }
+}

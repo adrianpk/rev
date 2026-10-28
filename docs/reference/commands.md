@@ -70,7 +70,7 @@ for file, history and retained-text policies.
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
 | Org estimates | `org-priority`, `org-priority-up`, `org-priority-down`, `org-inspect-priority`, `org-set-effort`, `org-inc-effort`, `org-inspect-effort` |
 | Org timestamps | `org-timestamp`, `org-timestamp-inactive`, `org-schedule`, `org-deadline`, `org-goto-calendar`, `org-date-from-calendar` |
-| Org task clock | `org-clock-in`, `org-clock-out`, `org-clock-cancel`, `org-clock-goto`, `org-resolve-clocks`, `org-clock-in-last`, `org-clock-display` |
+| Org task clock | `org-clock-in`, `org-clock-out`, `org-clock-cancel`, `org-clock-goto`, `org-resolve-clocks`, `org-clock-in-last`, `org-clock-display`, `org-clock-report`, `org-dblock-update` |
 | Org timestamp adjustment | `org-timestamp-up`, `org-timestamp-down`, `org-timestamp-up-day`, `org-timestamp-down-day`, `org-shiftup`, `org-shiftdown`, `org-shiftleft`, `org-shiftright` |
 | Org calendar | `org-calendar-select`, `org-calendar-forward-day`, `org-calendar-backward-day`, `org-calendar-forward-week`, `org-calendar-backward-week`, `org-calendar-forward-month`, `org-calendar-backward-month`, `org-calendar-forward-year`, `org-calendar-backward-year`, `org-calendar-scroll-three-months-left`, `org-calendar-scroll-three-months-right`, `org-calendar-goto-today` |
 | Org tasks | `org-todo`, `org-todo-next`, `org-todo-previous`, `org-todo-set`, `org-inspect-todo` |

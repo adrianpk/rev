@@ -384,6 +384,9 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x C-j" = "org-clock-goto"
 "C-c C-x C-z" = "org-resolve-clocks"
 "C-c C-x C-x" = "org-clock-in-last"
+"C-c C-x C-d" = "org-clock-display"
+"C-c C-x C-c" = "org-clock-report"
+"C-c C-x C-u" = "org-dblock-update"
 
 [keys.org_capture]
 [keys.org_source_edit]

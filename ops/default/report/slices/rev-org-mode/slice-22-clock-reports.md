@@ -67,3 +67,42 @@ assertions or resource limits.
 
 The delivery-set full gate has not run. Explicit dynamic report publication and
 broader report contracts remain in T22.2 and T22.3.
+
+T22.1 commit: `4d45e7957e9c`.
+
+T22.2 adds native opaque dynamic-block observations and compiled
+`org-clock-report` / `org-dblock-update` handlers. C-c C-x C-c inserts/updates;
+C-c C-x C-u and contextual C-c C-c explicitly refresh a selected body.
+C-c C-x C-d invokes the read-only comparison. Existing radio-checkbox bindings
+retain their identities. Header, closing delimiter and other blocks remain exact.
+One normal transaction replaces the body; identical output adds no history.
+
+The finite parameter profile admits file/nil/subtree scope, maxlevel 1..256,
+paired explicit civil date/time bounds, and documented day/week/month/year
+blocks. The default range is the captured current year; untilnow selects all
+closed records. Unsupported/duplicate/conflicting options reject before any
+source change. No code, formatter or source-discovery hook is interpreted.
+Tables roll descendant minutes into visible ancestors, count intervals once in
+the grand total, distinguish effort/open/unresolved values and disclose overlaps.
+Output admits 1048576 UTF-8 bytes.
+
+The [Org clock-table reference](https://orgmode.org/manual/The-clock-table.html)
+defines compatible dynamic block delimiters, scope, maxlevel and explicit bounds.
+The implemented finite options and preserved unsupported source are documented
+in the command/key reference.
+
+T22.2 development checks passed:
+
+- `cargo test --test org_time --test org_editing clock --no-fail-fast`: 28 editing
+  and ten time tests passed, zero skips.
+- `cargo test --test org_source --test commands`: 60 structure/source and 156
+  command cases passed, zero skips.
+- `cargo clippy --lib --test org_time --test org_source --test org_editing --test commands -- -D warnings`.
+- `python3 scripts/check-config-reference.py`: 120 catalog/schema entries,
+  46 RGB roles, 174 default bindings and 14994 template bytes agree.
+- Changed-source quality passed at the original limits.
+
+Checks caught native coordinate/date API mismatches and parameter-parser
+complexity. The implementation now uses the existing scalar line boundaries and
+calendar operations, and separates option/boundary/calendar responsibilities.
+The CRLF fixture also verifies a closing delimiter with trailing spaces.

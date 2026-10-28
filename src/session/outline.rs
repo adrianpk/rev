@@ -70,7 +70,14 @@ impl Session {
         self.dispatch_org_request(model, request);
     }
 
-    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, mut request: Request) {
+        if request.command == OrgCommand::CtrlCCtrlC
+            && self
+                .buffer()
+                .is_ok_and(|b| model.clock_table_at(b, request.origin.point.position))
+        {
+            request.command = OrgCommand::UpdateDynamicBlock;
+        }
         if let Err(error) = self.dispatch_outline(model, request) {
             self.error(&error);
         }
@@ -80,10 +87,7 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
-        if matches!(
-            request.command,
-            OrgCommand::ClockDisplay | OrgCommand::ClockIn | OrgCommand::ResolveClocks
-        ) {
+        if request.command.clock_source() {
             return self.dispatch_source_clock(model, request);
         }
         if request.command.timestamp() || request.command.timestamp_context() {
@@ -113,6 +117,9 @@ impl Session {
     ) -> Result<(), String> {
         match request.command {
             OrgCommand::ClockDisplay => self.start_clock_report(model, request),
+            OrgCommand::ClockReport | OrgCommand::UpdateDynamicBlock => {
+                self.publish_clock_table(&model, &request)
+            }
             OrgCommand::ClockIn => self.start_clock(model, request),
             OrgCommand::ResolveClocks => self.resolve_clocks(model, request),
             _ => unreachable!("qualified source clock request"),

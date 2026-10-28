@@ -21,6 +21,7 @@ pub enum BlockKind {
     Comment,
     Verse,
     Greater,
+    Dynamic,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -11,7 +11,7 @@ pub enum ClockScope {
 #[derive(Clone, Copy, Debug)]
 pub struct ClockQuery {
     pub scope: ClockScope,
-    pub dates: Option<(Date, Date)>,
+    pub window: Option<crate::org::time::CivilInterval>,
 }
 impl ClockQuery {
     pub fn parse(source: &str) -> Result<Self, String> {
@@ -25,8 +25,16 @@ impl ClockQuery {
             "file" => ClockScope::File,
             _ => return Err("Clock scope requires task, subtree or file".into()),
         };
-        let dates = dates(&words)?;
-        Ok(Self { scope, dates })
+        let window = dates(&words)?
+            .map(|(start, end)| {
+                let time = crate::org::time::CivilTime::new(0, 0, 0)?;
+                crate::org::time::CivilInterval::new(
+                    crate::org::time::CivilDateTime { date: start, time },
+                    crate::org::time::CivilDateTime { date: end, time },
+                )
+            })
+            .transpose()?;
+        Ok(Self { scope, window })
     }
 }
 pub(super) fn date(source: &str) -> Result<Date, String> {

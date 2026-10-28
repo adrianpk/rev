@@ -76,7 +76,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
-| M-x in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
+| C-c C-x C-d in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
+| C-c C-x C-c in Org | `org-clock-report` | Insert or explicitly update a clocktable. |
+| C-c C-x C-u in Org | `org-dblock-update` | Refresh the selected clocktable body. |
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
 | C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
@@ -574,3 +576,23 @@ A task/subtree compares its root EFFORT; a file compares top-level estimates.
 Reports admit 262144 source bytes, 4096 CLOCK candidates and the native 4096
 heading/drawer bound. Incomplete observations reject. Read-only inspection is
 available; C-g or a changed source/view cancels the request without edits.
+
+`org-clock-report` inserts a compatible `#+BEGIN: clocktable` / `#+END:` block
+on a blank line or empty EOF, or updates the selected existing block.
+`org-dblock-update` and C-c C-c in a dynamic block explicitly refresh that body.
+The opening/closing lines, other blocks and unrelated source remain exact.
+A successful change uses one ordinary transaction; an unchanged result adds no
+history entry. Read-only source rejects before publication. Rendering alone
+never refreshes a report.
+
+Clocktable options are data only: `:scope file` (or nil) / subtree,
+`:maxlevel 1..256` (default 2), `:tstart` and `:tend` (quoted Org date/time
+strings or YYYY-MM-DD; end exclusive), or `:block` with today, yesterday,
+thisweek, lastweek, thismonth, lastmonth, thisyear, lastyear, untilnow or one
+YYYY-MM-DD day. Default scope is file and default range is the captured current
+year. `:block untilnow` selects all recorded closed time. Duplicate, unsupported,
+conflicting or incomplete options reject without rewriting the original body.
+No Lisp, formatter, formula or implicit source discovery is evaluated.
+Tables show subtree totals up to maxlevel, root effort and record diagnostics;
+deep descendant time contributes to its visible ancestors and the grand total
+counts each interval once. Output admits 1048576 UTF-8 bytes.

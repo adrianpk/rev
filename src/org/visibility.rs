@@ -43,6 +43,7 @@ pub(crate) struct Outline {
     coverage: Coverage,
     headings: Vec<Heading>,
     drawers: Vec<Drawer>,
+    dynamic: Vec<reports::Dynamic>,
     blocked: Vec<Range<usize>>,
     blocked_eof: bool,
     malformed: Vec<Range<usize>>,

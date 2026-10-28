@@ -158,6 +158,9 @@ impl Lex<'_, '_, '_> {
     }
 
     fn hash(&mut self) -> Parsed<Option<Token>> {
+        if let Some(block) = self.dynamic()? {
+            return Ok(Some(block));
+        }
         if let Some(block) = self.block()? {
             return Ok(Some(block));
         }
@@ -186,6 +189,29 @@ impl Lex<'_, '_, '_> {
         Ok(name)
     }
 
+    fn dynamic(&mut self) -> Parsed<Option<Token>> {
+        let range = self.trim(self.body.clone())?;
+        let body = &self.line[range];
+        if body.eq_ignore_ascii_case("#+end:") {
+            return Ok(Some(Token::EndBlock("dynamic".into())));
+        }
+        if !body
+            .get(..8)
+            .is_some_and(|v| v.eq_ignore_ascii_case("#+begin:"))
+        {
+            return Ok(None);
+        }
+        let value = self.trim(self.body.start + 8..self.body.end)?;
+        let end = self.word_end(value.start)?;
+        if value.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(Token::Block(
+            BlockKind::Dynamic,
+            "dynamic".into(),
+            value.start..end,
+        )))
+    }
     fn block(&mut self) -> Parsed<Option<Token>> {
         let body = &self.line[self.body.clone()];
         let closing = body

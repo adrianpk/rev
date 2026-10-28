@@ -136,3 +136,35 @@ fn enclosing_contexts() {
         .unwrap();
     assert_eq!(verse.context, Some(InlineContext::Standard));
 }
+
+// Dynamic blocks preserve generic names, opaque bodies and exact delimiter
+// ranges; missing closers stay malformed rather than permitting body edits.
+#[test]
+fn dynamic_blocks() {
+    for (name, source, complete) in [
+        (
+            "clocktable",
+            "* H\r\n#+BEGIN: clocktable :scope file\r\nCLOCK: ignored\r\n#+END:  \r\n",
+            true,
+        ),
+        ("unknown", "#+BEGIN: custom :x keep\n*bold*\n#+END:\n", true),
+        ("incomplete", "#+BEGIN: clocktable\nkeep\n", false),
+    ] {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(source).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let structure = parse(buffer);
+        let nodes = nodes(buffer, &structure);
+        let node = nodes
+            .iter()
+            .find(|n| n.kind == Kind::Block(BlockKind::Dynamic));
+        assert_eq!(node.is_some(), complete, "{name}");
+        if let Some(node) = node {
+            assert_eq!(node.context, Some(InlineContext::Literal), "{name}");
+            assert!(node.opening.is_some() && node.closing.is_some(), "{name}");
+            assert!(text(buffer, node).contains("#+END:"), "{name}");
+        } else {
+            assert!(nodes.iter().any(|n| n.kind == Kind::Malformed), "{name}");
+        }
+    }
+}

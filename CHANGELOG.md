@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Compare recorded Org task, subtree or file time with effort estimates using `org-clock-display`. Date windows clip actual intervals, while open, unresolved and overlapping records remain visible without changing source.
+- Compare recorded Org task, subtree or file time with effort estimates using `org-clock-display`. Date windows clip actual intervals, while open, unresolved and overlapping records remain visible without changing source. Explicitly insert or refresh compatible clock tables; updates preserve surrounding source and undo in one step.
 
 - Record task time with native Org clock-in, clock-out, cancel and goto commands. Compatible CLOCK intervals retain elapsed minutes across midnight and zone transitions, use task-owned drawers, and undo through normal history without periodic source changes. Configure drawer placement and optional zero-minute removal with `org.clock.drawer` and `org.clock.remove_zero`. Switching tasks closes the previous interval; completing a clocked task closes its interval with the task changes, including cancellable notes. Quit and buffer close offer closing or preserving an open interval; `org-resolve-clocks` explicitly resumes, closes or cancels incomplete time with checked local-time choices. Opt into checked restart recovery with `org.clock.persist`, and re-clock recent tasks within the configured history limit.
 

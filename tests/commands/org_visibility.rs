@@ -25,7 +25,7 @@ fn visibility_keys() {
         input.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::SHIFT))),
         Outcome::Command(Command::Org(OrgCommand::GlobalCycle))
     );
-    assert_eq!(Command::matching("org-").len(), 94);
+    assert_eq!(Command::matching("org-").len(), 96);
     for command in OrgCommand::ALL {
         assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
     }
@@ -54,6 +54,9 @@ fn clock_keys() {
         ('j', OrgCommand::ClockGoto),
         ('z', OrgCommand::ResolveClocks),
         ('x', OrgCommand::ClockInLast),
+        ('d', OrgCommand::ClockDisplay),
+        ('c', OrgCommand::ClockReport),
+        ('u', OrgCommand::UpdateDynamicBlock),
         ('r', OrgCommand::ToggleRadioButton),
     ] {
         let mut input = Input::default();

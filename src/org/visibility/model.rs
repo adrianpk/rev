@@ -7,6 +7,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         coverage: structure.coverage(),
         headings: Vec::new(),
         drawers: Vec::new(),
+        dynamic: Vec::new(),
         blocked: Vec::new(),
         blocked_eof: false,
         malformed: Vec::new(),
@@ -48,8 +49,11 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
 fn at_limit(result: &Outline, node: &crate::org::structure::Raw) -> bool {
     matches!(
         node.kind,
-        StructureKind::Heading { .. } | StructureKind::Drawer | StructureKind::PropertyDrawer
-    ) && result.headings.len() + result.drawers.len() == 4096
+        StructureKind::Heading { .. }
+            | StructureKind::Drawer
+            | StructureKind::PropertyDrawer
+            | StructureKind::Block(crate::org::BlockKind::Dynamic)
+    ) && result.headings.len() + result.drawers.len() + result.dynamic.len() == 4096
 }
 
 fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {
@@ -72,6 +76,17 @@ fn collect(result: &mut Outline, node: &crate::org::structure::Raw) {
                 .as_ref()
                 .map_or(node.source.end, |close| close.end),
         }),
+        StructureKind::Block(crate::org::BlockKind::Dynamic) => {
+            if let (Some(close), Some(name)) = (&node.closing, &node.name) {
+                result.dynamic.push(super::reports::Dynamic {
+                    start: open.start,
+                    end: close.end,
+                    body: node.content.clone(),
+                    header: open.clone(),
+                    name: name.clone(),
+                });
+            }
+        }
         _ => {}
     }
 }

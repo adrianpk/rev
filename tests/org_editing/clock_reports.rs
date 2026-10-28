@@ -72,3 +72,75 @@ fn clock_report_boundaries() {
     session.handle(control('g'));
     assert_eq!(text(&session), source);
 }
+fn at(session: &mut Session, needle: &str) {
+    let row = text(session)
+        .lines()
+        .position(|s| s.contains(needle))
+        .unwrap()
+        + 1;
+    headings::goto(session, row);
+}
+// Dynamic reports are opaque observations until explicitly updated; only the
+// selected body changes, with exact CRLF/Unicode/unknown blocks and one undo.
+#[test]
+fn clock_table_publication() {
+    let source = "* Task é\r\nCLOCK: [2024-01-01 Mon 10:00]--[2024-01-01 Mon 11:00] => 1:00\r\n#+BEGIN: unknown :keep yes\r\nCLOCK: [2024-01-01 Mon 10:00]--[2024-01-01 Mon 12:00] => 2:00\r\n#+END:\r\n#+bEgIn: clocktable :scope file :block untilnow :maxlevel 1\r\nold | report\r\n#+eNd:\r\nlast";
+    let (_fixture, mut session) = editor("[org.time]\nzone='UTC'", "report.org", source);
+    settle(&mut session);
+    let stamp = session.buffer().unwrap().stamp();
+    session.frame().unwrap();
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    at(&mut session, "#+bEgIn:");
+    visibility::action(&mut session, OrgCommand::UpdateDynamicBlock);
+    assert!(session.echo().contains("updated"), "{}", session.echo());
+    let updated = text(&session);
+    assert!(updated.contains("| *Total time* | *1:00* |"), "{updated}");
+    assert!(updated.starts_with(source.split("old | report").next().unwrap()));
+    assert!(updated.ends_with("#+eNd:\r\nlast"));
+    assert!(!updated.replace("\r\n", "").contains('\n'));
+    let revision = session.buffer().unwrap().stamp();
+    at(&mut session, "#+bEgIn:");
+    visibility::action(&mut session, OrgCommand::CtrlCCtrlC);
+    assert_eq!(
+        session.buffer().unwrap().stamp(),
+        revision,
+        "idempotent refresh"
+    );
+    session.execute(Command::History(rev::command::History::Undo));
+    assert_eq!(text(&session), source);
+    session.execute(Command::History(rev::command::History::Redo));
+    assert_eq!(text(&session), updated);
+}
+// Unknown/malformed blocks and unsupported options retain source and history;
+// a plain blank-line insertion preserves the existing absence of a final newline.
+#[test]
+fn clock_table_rejections() {
+    for (name, block) in [
+        ("unknown", "#+BEGIN: unknown\nkeep\n#+END:"),
+        (
+            "unsupported",
+            "#+BEGIN: clocktable :formatter arbitrary\nkeep\n#+END:",
+        ),
+        ("incomplete", "#+BEGIN: clocktable\nkeep"),
+        (
+            "duplicate",
+            "#+BEGIN: clocktable :scope file :scope subtree\nkeep\n#+END:",
+        ),
+    ] {
+        let source = format!("* Task\n{block}");
+        let (_fixture, mut session) = editor("[org.time]\nzone='UTC'", "reject.org", &source);
+        settle(&mut session);
+        at(&mut session, "#+BEGIN:");
+        let stamp = session.buffer().unwrap().stamp();
+        visibility::action(&mut session, OrgCommand::UpdateDynamicBlock);
+        assert_eq!(text(&session), source, "{name}");
+        assert_eq!(session.buffer().unwrap().stamp(), stamp, "{name}");
+    }
+    let (_fixture, mut session) = editor("[org.time]\nzone='UTC'", "insert.org", "* Task\n");
+    settle(&mut session);
+    headings::goto(&mut session, 2);
+    visibility::action(&mut session, OrgCommand::ClockReport);
+    assert!(text(&session).ends_with("#+END:"), "{}", session.echo());
+    session.execute(Command::History(rev::command::History::Undo));
+    assert_eq!(text(&session), "* Task\n");
+}

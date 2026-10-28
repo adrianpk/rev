@@ -3,7 +3,7 @@ use super::*;
 use crate::buffer::Buffer;
 use crate::coordinates::{Coordinates, Scalar};
 use crate::org::agenda::{ClockQuery, ClockRow, ClockScope, ClockSummary};
-use crate::org::time::{CivilDateTime, CivilTime, RecordedClock, Resolution, Zone};
+use crate::org::time::{CivilDateTime, RecordedClock, Resolution, Zone};
 
 impl Outline {
     pub(crate) fn clock_summary(
@@ -31,8 +31,10 @@ impl Outline {
             overlaps: 0,
         };
         let mut records = Vec::new();
+        let base = selected.first().copied().unwrap_or(0);
         for index in selected {
-            let row = self.clock_row(buffer, index, data.0)?;
+            let mut row = self.clock_row(buffer, index, data.0)?;
+            row.parent = row.parent.and_then(|i| i.checked_sub(base));
             summary.rows.push(row);
         }
         self.report_records(buffer, window, data.1, (&mut summary, &mut records))?;
@@ -140,13 +142,12 @@ fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
         .map_err(|e| e.to_string())
 }
 fn date_window(query: ClockQuery, zone: &Zone) -> Result<Option<RecordedClock>, String> {
-    let Some((start, end)) = query.dates else {
+    let Some(window) = query.window else {
         return Ok(None);
     };
-    let time = CivilTime::new(0, 0, 0)?;
     Ok(Some(RecordedClock {
-        start: midnight(CivilDateTime { date: start, time }, zone)?,
-        end: midnight(CivilDateTime { date: end, time }, zone)?,
+        start: midnight(window.start(), zone)?,
+        end: midnight(window.end(), zone)?,
     }))
 }
 fn midnight(value: CivilDateTime, zone: &Zone) -> Result<i64, String> {
@@ -154,4 +155,14 @@ fn midnight(value: CivilDateTime, zone: &Zone) -> Result<i64, String> {
         Resolution::Unique(value) => Ok(value.unix_seconds.div_euclid(60)),
         _ => Err("Clock date boundary is ambiguous or nonexistent in the selected zone".into()),
     }
+}
+
+mod dynamic;
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct Dynamic {
+    pub(super) start: usize,
+    pub(super) end: usize,
+    pub(super) body: Range<usize>,
+    pub(super) header: Range<usize>,
+    pub(super) name: Range<usize>,
 }

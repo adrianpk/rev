@@ -202,6 +202,9 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-j", "org-clock-goto"),
     ("C-c C-x C-z", "org-resolve-clocks"),
     ("C-c C-x C-x", "org-clock-in-last"),
+    ("C-c C-x C-d", "org-clock-display"),
+    ("C-c C-x C-c", "org-clock-report"),
+    ("C-c C-x C-u", "org-dblock-update"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

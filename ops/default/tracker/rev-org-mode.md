@@ -532,7 +532,7 @@ Contracts: ORG19 ORG21 ORG23.
 Details and exact checks: [Slice 22](../plan/rev-org-mode.md#slice-22-compare-org-clock-totals-and-effort).
 
 - [x] T22.1: Deliver bounded task/subtree/file/date-range clock totals and effort comparisons.
-- [ ] T22.2: Generate compatible clock-table reports only on explicit refresh and preserve unrelated dynamic-block source.
+- [x] T22.2: Generate compatible clock-table reports only on explicit refresh and preserve unrelated dynamic-block source.
 - [ ] T22.3: Introduce org_agenda contracts and verify overlaps, open intervals and transactional report replacement.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

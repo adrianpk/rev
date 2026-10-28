@@ -95,9 +95,11 @@ pub enum OrgCommand {
     ResolveClocks,
     ClockInLast,
     ClockDisplay,
+    ClockReport,
+    UpdateDynamicBlock,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 93] = [
+    pub const ALL: [Self; 95] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -191,6 +193,8 @@ impl OrgCommand {
         Self::ResolveClocks,
         Self::ClockInLast,
         Self::ClockDisplay,
+        Self::ClockReport,
+        Self::UpdateDynamicBlock,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -287,6 +291,8 @@ impl OrgCommand {
             "org-resolve-clocks",
             "org-clock-in-last",
             "org-clock-display",
+            "org-clock-report",
+            "org-dblock-update",
         ][self as usize]
     }
 
@@ -434,6 +440,19 @@ impl OrgCommand {
                 | Self::ClockGoto
                 | Self::ResolveClocks
                 | Self::ClockInLast
+        )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn clock_source(self) -> bool {
+        matches!(
+            self,
+            Self::ClockDisplay
+                | Self::ClockReport
+                | Self::UpdateDynamicBlock
+                | Self::ClockIn
+                | Self::ResolveClocks
         )
     }
 }
