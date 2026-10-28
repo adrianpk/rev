@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_source/blocks.rs"]
+mod blocks;
 #[path = "org_source/incremental.rs"]
 mod incremental;
 #[path = "org_source/index.rs"]

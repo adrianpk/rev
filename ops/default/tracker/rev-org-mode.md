@@ -152,7 +152,7 @@ Contracts: ORG02 ORG04 ORG05 ORG12.
 Details and exact checks: [Slice 4](../plan/rev-org-mode.md#slice-4-recognize-org-headings-metadata-and-blocks).
 
 - [x] T4.1: Recognize headings, sections, lists, drawers, planning lines, affiliated keywords and tables.
-- [ ] T4.2: Treat source/example/export blocks as owned literal regions with valid delimiter recovery.
+- [x] T4.2: Treat source/example/export blocks as owned literal regions with valid delimiter recovery.
 - [ ] T4.3: Verify subtree ownership, malformed drawers and apparent headings inside blocks.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

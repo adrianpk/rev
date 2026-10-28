@@ -1,3 +1,4 @@
+mod blocks;
 mod elements;
 mod lists;
 mod outline;
@@ -145,7 +146,7 @@ fn qualify(source: Source<'_>, raw: &Raw, complete: bool) -> Result<StructureNod
         affiliated: raw.affiliated.as_ref().map(span).transpose()?,
         parent: raw.parent,
         context: raw.context,
-        complete,
+        complete: complete && raw.kind != StructureKind::Malformed,
     })
 }
 

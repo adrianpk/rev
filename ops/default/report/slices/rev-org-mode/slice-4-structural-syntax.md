@@ -19,6 +19,12 @@ nested list ownership, ordinary/property drawers, property values and additive
 spelling, planning lines, keywords and affiliated metadata. Tables retain cells,
 separator rows, captions, names and contiguous formula lines in their owned source.
 
+Source, example, export and comment blocks own literal body regions, including
+comma-quoted apparent headings and delimiters. Verse exposes a standard inline
+context; greater blocks own structural children. Only a matching closing line
+without trailing non-whitespace validates a block. A raw heading bounds recovery
+from an unterminated block or drawer.
+
 ## Implementation Notes
 
 The recognizer retains a shared immutable rope snapshot and derived offsets.
@@ -49,7 +55,8 @@ use independent expected ranges and require no reference runtime.
 
 - `cargo check --lib`
 - `cargo test --test org_source structure::`: four tests passed.
+- `cargo test --test org_source blocks::`: three tests passed.
 
 ## Risks and Follow-ups
 
-T4.2 block ownership and T4.3 recovery/observation validation remain in progress.
+T4.3 recovery and observation validation remain in progress.

@@ -56,6 +56,7 @@ impl Parser<'_> {
         let row = self.affiliation(start, frame.rows.end);
         match self.rows[row].token {
             Token::Bullet { .. } => self.list(frame, start, row),
+            Token::Block(..) => self.block(frame, start, row),
             Token::Drawer(_) if frame.drawers => self.drawer(frame, start, row),
             _ => {
                 self.leaf(frame, start, row)?;
@@ -88,7 +89,7 @@ impl Parser<'_> {
         }
     }
 
-    fn malformed(&mut self, frame: &mut Frame, row: usize) -> Parsed<()> {
+    pub(super) fn malformed(&mut self, frame: &mut Frame, row: usize) -> Parsed<()> {
         let mut node = Raw::new(
             StructureKind::Malformed,
             self.rows[row].source.clone(),
