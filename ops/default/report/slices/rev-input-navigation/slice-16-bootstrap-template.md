@@ -1,6 +1,6 @@
 # Slice 16: Package the complete startup configuration template
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -36,7 +36,10 @@ and immutable startup application.
 
 - `src/config/template.rs`: bounded compiled resource and borrowed accessor.
 - `examples/configuration-template.rs`: standalone native packaging fixture.
-- `tests/configuration/template.rs`: source bound, exact sample and parser admission.
+- `tests/configuration/template.rs`: source bounds, complete defaults and native event/frame equivalence.
+- `tests/configuration/reference.rs`: packaged typed defaults, context maps and optional examples.
+- `tests/configuration/candidate.rs`: pure packaged/resolve/load/prepare behavior.
+- `scripts/check-config-reference.py`: actual compiled/reference/schema/catalog comparison.
 
 ## Validation
 
@@ -55,8 +58,41 @@ language rules and file associations remain inactive. Independent on-disk bytes
 must equal the packaged resource. The English header describes the standalone
 file without requiring a neighboring documentation file.
 
-Final ordered and focused evidence will be recorded through the controller on
-the clean candidate after task and PR-reference commits.
+`python3 scripts/check-config-reference.py` passed all 72 schema/catalog entries,
+29 RGB roles, 111 default bindings and three optional examples after comparing
+actual compiled output with the reference. It builds the native fixture, copies
+only that executable into an owned directory and executes it there with isolated
+HOME and all four XDG roots. The five-second producer deadline, compile-time
+256-KiB output bound, empty stderr and exact directory-entry assertion cover
+runtime reference independence and no filesystem creation.
+
+`cargo test --test configuration candidate::missing_candidate` passed with the
+original missing-root/default assertions retained. Packaged access and parsing,
+location resolution, explicit loading, projection and preparation also leave all
+owned destinations absent and the fixture empty.
+
+`cargo test --test configuration template::native_equivalence` passed identical
+native actions and complete emitted frames for the packaged and built-in
+snapshots through wheel/click/drag/release, cancellation, editing/undo, mouse-mode
+on/off and gutter mode changes. Both paths retain truthful point/history and
+the owned configuration bytes. This exercises semantics in addition to shared
+source provenance. `cargo clippy --test configuration --example configuration-template -- -D warnings`
+passed for the completed native checks and fixture.
+
+Final canonical and focused evidence is recorded through the controller on the
+clean candidate after task and PR-reference commits. Required ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test configuration --test gutter --test pointer`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final commands:
+
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
 
 ## Risks and Follow-ups
 

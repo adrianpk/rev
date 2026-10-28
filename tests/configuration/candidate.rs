@@ -1,4 +1,6 @@
-use rev::config::{Document, Settings, Snapshot, load, prepare, resolve};
+use rev::config::{
+    Document, Roots, Settings, Snapshot, default_template, load, parse, prepare, resolve,
+};
 
 use crate::fixture::Fixture;
 
@@ -46,15 +48,32 @@ fn whole_candidate_fallback() {
 }
 
 // A missing optional root is the successful built-in candidate, with no error
-// and no filesystem creation, rather than a rejected explicit source.
+// and no filesystem creation, rather than a rejected explicit source. Packaged
+// access, parsing, path resolution, loading and projection remain pure helpers.
 #[test]
 fn missing_candidate() {
     let fixture = Fixture::new();
     let root = fixture.0.join("settings/config.toml");
+    let roots =
+        Roots::resolve(|name| (name == "HOME").then(|| fixture.0.join("home").into_os_string()))
+            .unwrap();
+    let document = parse(
+        std::path::Path::new("packaged/config.toml"),
+        default_template().as_bytes(),
+    )
+    .unwrap();
+    assert_eq!(document.include, Some(Vec::new()));
+    let sources = load(&root).unwrap();
+    assert!(sources.sources.is_empty());
+    assert_eq!(resolve(&sources).unwrap(), Snapshot::default());
     let startup = prepare(&root);
     assert_eq!(startup.snapshot, Snapshot::default());
     assert!(startup.diagnostic.is_none());
     assert!(!root.parent().unwrap().exists());
+    for path in [roots.config, roots.data, roots.state, roots.cache] {
+        assert!(!path.exists());
+    }
+    assert_eq!(std::fs::read_dir(&fixture.0).unwrap().count(), 0);
 }
 
 // Sources are public data, so projection revalidates them. An invalid lower

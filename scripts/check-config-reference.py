@@ -7,7 +7,11 @@ Neither check establishes rendered UI effects or physical terminal capability.
 """
 
 from pathlib import Path
+import os
 import re
+import shutil
+import subprocess
+import tempfile
 import tomllib
 
 
@@ -222,8 +226,34 @@ def check_link(path, target):
         require(anchor in slugs, f"{path.name}: missing anchor {target}")
 
 
+def packaged(root):
+    subprocess.run(["cargo", "build", "--quiet", "--example", "configuration-template"],
+                   cwd=root, check=True, timeout=180)
+    binary = root / "target/debug/examples/configuration-template"
+    with tempfile.TemporaryDirectory(prefix="rev-template-") as directory:
+        fixture = Path(directory)
+        standalone = fixture / "template"
+        shutil.copy2(binary, standalone)
+        environment = dict(os.environ, HOME=str(fixture / "home"),
+                           XDG_CONFIG_HOME=str(fixture / "user"),
+                           XDG_DATA_HOME=str(fixture / "data"),
+                           XDG_STATE_HOME=str(fixture / "state"),
+                           XDG_CACHE_HOME=str(fixture / "cache"))
+        result = subprocess.run([str(standalone)], cwd=fixture, env=environment,
+                                stdin=subprocess.DEVNULL, capture_output=True,
+                                check=True, timeout=5)
+        require(not result.stderr, "packaged template emitted diagnostics")
+        require(0 < len(result.stdout) <= 256 * 1024, "packaged template source bound")
+        require({entry.name for entry in fixture.iterdir()} == {"template"},
+                "packaged source created files or directories")
+        return result.stdout
+
+
 def main():
-    sample = (ROOT / "docs/reference/config.toml").read_text()
+    reference = (ROOT / "docs/reference/config.toml").read_bytes()
+    asset = packaged(ROOT)
+    require(asset == reference, "packaged/reference template bytes differ")
+    sample = asset.decode("utf-8")
     document = tomllib.loads(sample)
     models = model(ROOT)
     rows = catalog((ROOT / "docs/reference/defaults.md").read_text())
@@ -235,6 +265,7 @@ def main():
     check_links(ROOT)
     bindings = sum(len(entries) for entries in document["keys"].values())
     print(f"Configuration reference: {len(rows)} schema/catalog entries, 29 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
+    print(f"Packaged template: {len(asset)} exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation.")
     print("Typed defaults and published parser bounds are checked by cargo test --test configuration; UI effects require separate native/terminal evidence.")
 
 
