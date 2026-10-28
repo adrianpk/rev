@@ -2,6 +2,7 @@ use std::io;
 use std::time::{Duration, Instant};
 
 use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+use rev::command::Command;
 use rev::session::{Action, Session};
 
 use super::{Result, emit, require};
@@ -84,5 +85,45 @@ pub(super) fn run(session: &mut Session) -> Result<()> {
         samples,
         "\"iterations\":64,\"ticks\":64,\"tick_ms\":100,\"step_rows\":3,\"scrolled_rows\":192",
     )?;
-    idle(session, now + TICK * 64)
+    idle(session, now + TICK * 64)?;
+    disabled(session, now + TICK * 128)
+}
+
+fn ignored(session: &mut Session, now: Instant) -> Result<Duration> {
+    let started = Instant::now();
+    for kind in [
+        MouseEventKind::Down(MouseButton::Left),
+        MouseEventKind::Drag(MouseButton::Left),
+        MouseEventKind::ScrollDown,
+        MouseEventKind::Up(MouseButton::Left),
+    ] {
+        require(
+            session.handle_at(mouse(kind, 0), now) == Action::Wait,
+            "disabled pointer redrew",
+        )?;
+    }
+    require(
+        session.remaining_input(now).is_none(),
+        "disabled pointer armed deadline",
+    )?;
+    Ok(started.elapsed())
+}
+
+fn disabled(session: &mut Session, now: Instant) -> Result<()> {
+    session.execute(Command::MouseMode);
+    require(!session.mouse_enabled(), "disabled control was enabled")?;
+    let view = session.view().clone();
+    let mut samples = Vec::new();
+    for _ in 0..64 {
+        samples.push(ignored(session, now)?);
+    }
+    require(
+        session.view() == &view,
+        "disabled pointer moved point or viewport",
+    )?;
+    emit(
+        "mouse_disabled",
+        samples,
+        "\"iterations\":64,\"reports\":256,\"redraws\":0,\"deadlines\":0",
+    )
 }

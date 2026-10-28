@@ -891,7 +891,11 @@
         "combined-rgb",
         "combined-no-color"
       ],
-      "performance": []
+      "performance": [
+        "drag_active",
+        "drag_idle",
+        "mouse_disabled"
+      ]
     },
     {
       "id": "PTR06",
@@ -1075,6 +1079,46 @@
         "combined-no-color"
       ],
       "performance": []
+    },
+    {
+      "id": "GUT13",
+      "condition": "Visible-row-only large-buffer gutter work and hidden projection",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "relative::visible_bound"
+        }
+      ],
+      "pty": [],
+      "performance": [
+        "gutter_absolute",
+        "gutter_relative",
+        "gutter_hidden"
+      ]
+    },
+    {
+      "id": "R07",
+      "condition": "Bounded reveal and retained independent viewport navigation",
+      "native": [
+        {
+          "target": "tests/display.rs",
+          "test": "viewport_reveal"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "cell_goals"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "scroll_state"
+        }
+      ],
+      "pty": [],
+      "performance": [
+        "gutter_absolute",
+        "gutter_relative",
+        "drag_active"
+      ]
     }
   ],
   "tickets": [

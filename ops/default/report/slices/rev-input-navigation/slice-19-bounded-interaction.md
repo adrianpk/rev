@@ -1,6 +1,6 @@
 # Slice 19: Verify bounded input gutter and pointer work
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -21,6 +21,15 @@ expiry executes 64 single three-row steps, rejects immediate catch-up and
 retains neither a deadline nor movement after release. A release-binary PTY
 measures both arrow directions at 120 reports per second, release drift and
 actual drag-edge expiry followed by quiet idle.
+
+Hidden numbering projects the same 64 moving frames with zero rendered number
+rows. Mouse-disabled admission ignores 256 press/drag/wheel/release reports
+without moving point, creating a deadline or repainting. The PTY independently
+feeds the same 256 reports at 120 reports per second, checks no output during
+feeding and then measures quiet idle and a retained-point keyboard barrier. Two additional owned PTYs
+observe first and second startup: exactly one final-name publication and four
+creation/write/cleanup events occur on first start, with no mutation on second
+start, unchanged complete bytes/inode/metadata and no idle filesystem activity.
 
 ## Implementation Notes
 
@@ -44,6 +53,9 @@ Measurements exercise GUT13, PTR05, R07 and CFG23 without changing native behavi
 - `examples/configuration_performance/interaction/pointer.rs`: controlled tick and release work.
 - `scripts/configuration_ui/interaction_terminal.py`: real input release and drag lifetime.
 - `scripts/configuration_ui/performance.py`: existing collector integration.
+- `scripts/configuration_ui/performance_bootstrap.py`: observed first/second startup.
+- `scripts/configuration_ui/interaction_evidence.py`: exact candidate and bounded-work admission.
+- `scripts/test_acceptance.py`: missing, skipped, stale and excessive-work rejection.
 
 ## Validation
 
@@ -76,7 +88,43 @@ expiry took 0.077 ms with zero ticks. A clean HEAD/tree identity is captured
 before collection and checked again afterward; dirty or changed candidates
 cannot emit successful performance evidence.
 
+The focused source checker passed all five changed Rust example files within
+safe Rust, five parameters, three nesting levels and cyclomatic ten. Development
+`python3 -m unittest discover -s scripts -p test_acceptance.py` passed sixteen
+guard tests, retaining all prior checks and adding mutation cases for stale
+HEAD/tree, changed limits, CPU/wall growth, missing/duplicate workloads, hidden
+rows, drag cadence/step/idle, disabled repaint, repeat order/count/release,
+cleanup and absent/repeated/stale bootstrap evidence. The acceptance map retains
+all thirty original entries and historical identity metadata, adds GUT13/R07
+and connects pointer work to PTR05. Its complete performance set is now thirteen
+native workloads and four owned PTYs; focused runs cannot establish completion.
+The full-gate entrypoint and ordered command list remain unchanged.
+
+Final required ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test gutter --test commands --test display --test configuration`
+- `python3 scripts/check-configuration-ui.py --suite performance`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Final focused commands:
+
+- `python3 -m unittest discover -s scripts -p test_acceptance.py`
+- `python3 scripts/check-configuration-ui.py --suite prerequisites`
+- `git diff --check`
+
 ## Risks and Follow-ups
 
 Linux process accounting has clock-tick resolution. Controlled native time proves
 cadence and work bounds; the real PTY separately measures event-loop latency.
+
+The disabled PTY feed is bounded at 2,500 ms wall and 200 ms CPU, followed by
+the unchanged 350-ms idle check. A development multi-kilobyte instantaneous
+report burst exposed a stall in the dependency's terminal decoder before the
+keyboard barrier. The measured driver sends the complete same report count in
+four-report groups at the declared rate, within the unchanged eight-second
+session deadline. Controlled native admission still checks all 256 reports.
+This slice makes no dependency or runtime change and does not establish support
+for an instantaneous multi-kilobyte pointer burst.

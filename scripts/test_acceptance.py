@@ -311,13 +311,71 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
     def test_config_performance(self):
         from configuration_ui.evidence import performance
         good = performance_document()
-        footer = '\nConfiguration/UI performance suite: 7 native workloads, 1 PTY session passed, 0 skipped.\n'
-        performance(json.dumps(good, indent=2) + footer)
+        footer = '\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
+        performance(json.dumps(good, indent=2) + footer, good['candidate'])
         for name in ['missing', 'samples', 'time', 'rss', 'fixture', 'reads', 'recursive', 'parser', 'idle']:
             bad = copy.deepcopy(good)
             change_performance(bad, name)
             with self.subTest(name=name), self.assertRaises((ValueError, AssertionError)):
-                performance(json.dumps(bad, indent=2) + footer)
+                performance(json.dumps(bad, indent=2) + footer, good['candidate'])
+
+    # A complete old workload set or copied footer cannot replace the new
+    # bounded controls, exact candidate, release lifetime or one-time publication.
+    def test_interaction_performance(self):
+        from configuration_ui.evidence import performance
+        good = performance_document()
+        footer = '\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
+        indices = {row['workload']: index for index, row in enumerate(good['native'])}
+        changes = [
+            ('stale HEAD', ['candidate', 'head'], 'c' * 40),
+            ('stale tree', ['candidate', 'tree'], 'c' * 40),
+            ('changed ceiling', ['interaction_limits', 'native_cpu_ms'], 501),
+            ('CPU growth', ['native', indices['gutter_absolute'], 'cpu_ticks'], 9999),
+            ('wall growth', ['native', indices['drag_active'], 'elapsed_ms'], 1001),
+            ('hidden rows', ['native', indices['gutter_hidden'], 'number_rows_per_frame'], 22),
+            ('small buffer', ['native', indices['gutter_relative'], 'logical_lines'], 10),
+            ('tick cadence', ['native', indices['drag_active'], 'tick_ms'], 99),
+            ('tick step', ['native', indices['drag_active'], 'step_rows'], 4),
+            ('released tick', ['native', indices['drag_idle'], 'ticks'], 1),
+            ('idle deadline', ['native', indices['drag_idle'], 'deadlines'], 1),
+            ('disabled redraw', ['native', indices['mouse_disabled'], 'redraws'], 1),
+            ('disabled reports', ['native', indices['mouse_disabled'], 'reports'], 0),
+            ('release tail', ['interaction', 'repeat', 0, 'release_ms'], 151),
+            ('repeat CPU', ['interaction', 'repeat', 0, 'cpu_ms'], 201),
+            ('repeat iterations', ['interaction', 'repeat', 1, 'reports'], 0),
+            ('duplicate direction', ['interaction', 'repeat', 1, 'direction'], 'down'),
+            ('early drag tick', ['interaction', 'drag_first_tick_ms'], 99),
+            ('late drag tick', ['interaction', 'drag_first_tick_ms'], 251),
+            ('released output', ['interaction', 'drag_idle', 'output_bytes'], 1),
+            ('idle CPU', ['interaction', 'release_idle', 'cpu_ms'], 350),
+            ('disabled output', ['interaction', 'disabled_idle', 'output_bytes'], 1),
+            ('disabled feed CPU', ['interaction', 'disabled_feed', 'cpu_ms'], 201),
+            ('disabled feed count', ['interaction', 'disabled_feed', 'reports'], 0),
+            ('missing cleanup', ['interaction', 'restored_reaped_closed'], False),
+            ('absent publication', ['bootstrap', 'starts', 0, 'publication_events'], 0),
+            ('repeated publication', ['bootstrap', 'starts', 1, 'publication_events'], 1),
+            ('repeated write', ['bootstrap', 'starts', 1, 'mutation_events'], 1),
+            ('missing start', ['bootstrap', 'starts'], good['bootstrap']['starts'][:1]),
+            ('stale template', ['bootstrap', 'template_sha256'], 'a' * 64),
+        ]
+        for name, path, value in changes:
+            bad = copy.deepcopy(good)
+            target = bad
+            for part in path[:-1]:
+                target = target[part]
+            target[path[-1]] = value
+            with self.subTest(name=name), self.assertRaises((ValueError, AssertionError)):
+                performance(json.dumps(bad, indent=2) + footer, good['candidate'])
+        missing = copy.deepcopy(good)
+        missing['native'] = missing['native'][:7]
+        for name, bad in {
+            'old workloads': json.dumps(missing, indent=2) + footer,
+            'skipped': json.dumps(good, indent=2) + footer + 'SKIP pointer\n',
+            'failed': json.dumps(good, indent=2) + footer + 'FAIL startup\n',
+            'old summary': json.dumps(good, indent=2) + footer.replace('4 PTY sessions', '1 PTY session'),
+        }.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                performance(bad, good['candidate'])
 
 
 def change_manifest(document, name):
@@ -338,19 +396,49 @@ def performance_document():
     from configuration_ui.performance import BUDGET_US, SAMPLES
     names = [name for group in EXPECTED.values() for name in group]
     values = [{'workload': name, 'samples': SAMPLES[name], 'median_us': 10.0,
-               'max_us': 11.0, 'peak_rss_kib': 8192} for name in names]
-    values[-1].update(admitted_callbacks=1, oversize_callbacks=0, unchanged_callbacks=0)
+               'max_us': 11.0, 'peak_rss_kib': 8192, 'elapsed_ms': 10, 'cpu_ticks': 0} for name in names]
+    next(row for row in values if row['workload'] == 'syntax').update(admitted_callbacks=1, oversize_callbacks=0, unchanged_callbacks=0)
     proof = {kind: {'setup_open_access_events': 1, 'work_open_access_events': 0,
                     'recursive_events': 0} for kind in EXPECTED}
     proof['graph']['work_open_access_events'] = 64
     idle = {'elapsed_ms': 350.0, 'output_bytes': 0, 'cpu_ms': 0.0}
     return {'hardware': {'profile': 'release'}, 'native': values, 'observation': proof,
+            **interaction_document(values),
             'budgets_us': BUDGET_US, 'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096,
             'clock_ticks_per_second': 100,
             'fixtures': {'graph': {'sources': 64, 'edges': 16, 'total_bytes': 2097152, 'max_source_bytes': 262144}},
             'fixture_identity': {'entries': 6280, 'sha256': 'a' * 64},
             'terminal': {'startup_ms': 20, 'restored_reaped_closed': True, 'editing_idle': idle.copy(),
                          'prompt_idle': idle.copy(), 'idle_open_access_events': 0, 'peak_rss_kib': 8192}}
+
+
+def interaction_document(values):
+    from configuration_ui.performance import INTERACTION_LIMITS
+    from configuration_ui.support import ROOT
+    import hashlib
+    rows = {row['workload']: row for row in values}
+    for name in ['gutter_absolute', 'gutter_relative', 'gutter_hidden']:
+        rows[name].update(logical_lines=100001, frames=64, viewport_rows=22,
+                          number_rows_per_frame=0 if name == 'gutter_hidden' else 22)
+    rows['drag_active'].update(iterations=64, ticks=64, tick_ms=100, step_rows=3, scrolled_rows=192)
+    rows['drag_idle'].update(iterations=64, ticks=0, deadlines=0)
+    rows['mouse_disabled'].update(iterations=64, reports=256, redraws=0, deadlines=0)
+    quiet = {'elapsed_ms': 350, 'output_bytes': 0, 'cpu_ms': 0}
+    lifetime = {'peak_rss_kib': 8192, 'restored_reaped_closed': True}
+    start = {**lifetime, 'startup_ms': 5, 'cpu_ms': 0, 'idle': quiet.copy()}
+    template = (ROOT / 'docs/reference/config.toml').read_bytes()
+    return {'candidate': {'head': 'a' * 40, 'tree': 'b' * 40}, 'interaction_limits': INTERACTION_LIMITS,
+            'interaction': {**lifetime, 'repeat': [
+                {'direction': direction, 'reports': 30, 'rate_per_second': 120,
+                 'first_ms': 1, 'release_ms': 1, 'elapsed_ms': 400, 'cpu_ms': 20}
+                for direction in ['down', 'up']], 'release_idle': quiet.copy(),
+                'drag_first_tick_ms': 105, 'drag_cpu_ms': 0, 'drag_idle': quiet.copy(),
+                'disabled_idle': quiet.copy(), 'disabled_feed': {'reports': 256, 'rate_per_second': 120,
+                                                               'elapsed_ms': 2101, 'cpu_ms': 0}},
+            'bootstrap': {'starts': [{**start, 'publication_events': 1, 'mutation_events': 4},
+                                     {**start, 'publication_events': 0, 'mutation_events': 0}],
+                          'template_bytes': len(template), 'template_sha256': hashlib.sha256(template).hexdigest(),
+                          'existing_preserved': True}}
 
 
 def change_performance(document, name):
@@ -369,7 +457,7 @@ def change_performance(document, name):
     elif name == 'recursive':
         document['observation']['redraw']['recursive_events'] = 1
     elif name == 'parser':
-        document['native'][-1]['admitted_callbacks'] = 0
+        next(row for row in document['native'] if row['workload'] == 'syntax')['admitted_callbacks'] = 0
     else:
         document['terminal']['prompt_idle']['cpu_ms'] = 350
 

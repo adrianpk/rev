@@ -373,7 +373,7 @@ Details and exact checks: [Slice 19](../plan/rev-input-navigation.md#slice-19-ve
 
 - [x] T19.1: Extend the existing native performance example/collector with large-buffer gutter, repeat-input release/stop and active-drag/idle workloads; reuse its process/fixture measurement ownership.
 - [x] T19.2: Record latency, CPU, memory, iterations and candidate identity; preserve the existing ceilings and give new workloads finite measured bounds without raising limits to mask failures.
-- [ ] T19.3: Check hidden-gutter and mouse-disabled paths, no idle ticks and one-time bootstrap work; add guard coverage so missing/skipped/stale workloads cannot establish acceptance.
+- [x] T19.3: Check hidden-gutter and mouse-disabled paths, no idle ticks and one-time bootstrap work; add guard coverage so missing/skipped/stale workloads cannot establish acceptance.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
 ### Slice 20: reconcile combined delivery acceptance and references

@@ -6,10 +6,11 @@ from pathlib import Path
 import re
 import subprocess
 
-from acceptance import CONFIGURATION_COMMANDS, digest, references, require
+from acceptance import CONFIGURATION_COMMANDS, digest, identity, references, require
 from acceptance_delivery import integrated
 from configuration_ui.delivery import ancestor, reconciled, tickets
-from configuration_ui.performance import BUDGET_US, EXPECTED, records
+from configuration_ui.performance import BUDGET_US, EXPECTED, INTERACTION_LIMITS, records
+from configuration_ui.interaction_evidence import validate as interaction
 
 GROUPS = {'configured': ['configured-rgb', 'configured-no-color'], 'missing': ['missing'],
           'rejected': ['rejected'], 'workspace': ['workspace-rgb', 'workspace-no-color'],
@@ -21,7 +22,7 @@ COMBINED_CASES = ['combined-rgb', 'combined-no-color']
 COMBINED_STAGES = ['bootstrap', 'navigation', 'workspace', 'selection', 'whitespace',
                    'failures', 'overlays', 'capture-resize', 'mouse-control', 'restoration']
 ADDITIONS = ['GUT14'] + [f'PTR{i:02}' for i in range(1, 7)] + ['NAV01', 'NAV02', 'WSP01', 'WSP02', 'CFG23', 'CFG24', 'STA01', 'STA02']
-IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS
+IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS + ['GUT13', 'R07']
 MAP = 'scripts/configuration_ui/acceptance.json'
 PLAN = 'ops/default/plan/rev-configuration-ui.md'
 TRACKER = 'ops/default/tracker/rev-configuration-ui.md'
@@ -80,7 +81,7 @@ def prerequisites(root, cases):
     document = manifest(root)
     delivery(root, document, readiness=True)
     references(document['cases'], cases)
-    print('Configuration/UI prerequisites: 45 requirements, named native cases, ten PTY cases, seven performance workloads and 30 historical slice identities resolved; no gate result claimed.')
+    print('Configuration/UI prerequisites: 47 requirements, named native cases, ten PTY cases, thirteen performance workloads and 30 historical slice identities resolved; no gate result claimed.')
 
 
 def terminal(text):
@@ -96,7 +97,7 @@ def terminal(text):
     require(not re.search(r'\b(?:SKIP|FAIL)\b', text), 'configuration PTY skip/failure')
 
 
-def performance(text):
+def performance(text, candidate):
     start = text.find('{\n')
     require(start >= 0, 'missing configuration performance records')
     result, _ = json.JSONDecoder().raw_decode(text[start:])
@@ -127,7 +128,9 @@ def performance(text):
         budget = max(2, math.ceil(idle['elapsed_ms'] / 1000 * rate * 0.1)) * 1000 / rate
         require(idle['elapsed_ms'] >= 350 and idle['output_bytes'] == 0 and 0 <= idle['cpu_ms'] <= budget, 'missing configured idle evidence')
     require(terminal['idle_open_access_events'] == 0 and 0 < terminal['peak_rss_kib'] <= 131072, 'configured idle/memory guard failed')
-    require('Configuration/UI performance suite: 7 native workloads, 1 PTY session passed, 0 skipped.' in text, 'missing configuration performance completion')
+    interaction(result, candidate, INTERACTION_LIMITS)
+    require('Configuration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.' in text, 'missing configuration performance completion')
+    require(not re.search(r'\b(?:SKIP|FAIL)\b', text), 'configuration performance skip/failure')
 
 
 def reference(text):
@@ -143,8 +146,8 @@ def validate(root, logs, cases):
     reference_text, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
     reference(reference_text)
     terminal(pty)
-    performance(measured)
-    print('Configuration/UI acceptance: CFG01-CFG24, R01/R17/R20/R22, UI01-UI04 and combined gutter/pointer/navigation/whitespace/status contracts passed on the same clean HEAD; zero skips.')
+    performance(measured, identity(root))
+    print('Configuration/UI acceptance: CFG01-CFG24, R01/R17/R20/R22, UI01-UI04 and combined GUT13/GUT14, R07, pointer/navigation/whitespace/status contracts passed on the same clean HEAD; zero skips.')
 
 
 def discover(root):

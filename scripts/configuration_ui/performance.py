@@ -13,8 +13,10 @@ import time
 from acceptance import identity
 from configuration_ui.observation import Observation, evidence
 from configuration_ui.interaction_terminal import run as interaction_terminal
+from configuration_ui.performance_bootstrap import run as bootstrap
 from configuration_ui.performance_terminal import run as terminal
 from configuration_ui.performance_fixtures import fixture, fingerprint
+from configuration_ui.interaction_evidence import validate as validate_interaction
 from configuration_ui.support import ROOT, environment
 
 
@@ -22,15 +24,18 @@ KINDS = ['graph', 'entries', 'names', 'redraw', 'syntax', 'gutter', 'drag', 'idl
 BUDGET_US = {'graph': 1_000_000, 'entries_observe': 250_000, 'names_observe': 250_000,
              'entries_filter': 10_000, 'names_filter': 10_000, 'redraw': 100_000, 'syntax': 10_000}
 BUDGET_US.update(gutter_absolute=100_000, gutter_relative=100_000, drag_active=100_000, drag_idle=10_000)
+BUDGET_US.update(gutter_hidden=100_000, mouse_disabled=10_000)
 SAMPLES = {'graph': 3, 'entries_observe': 3, 'names_observe': 3, 'entries_filter': 256,
            'names_filter': 256, 'redraw': 64, 'syntax': 32}
 SAMPLES.update(gutter_absolute=64, gutter_relative=64, drag_active=64, drag_idle=64)
+SAMPLES.update(gutter_hidden=64, mouse_disabled=64)
 EXPECTED = {'graph': ['graph'], 'entries': ['entries_observe', 'entries_filter'],
             'names': ['names_observe', 'names_filter'], 'redraw': ['redraw'], 'syntax': ['syntax']}
-EXPECTED.update(gutter=['gutter_absolute', 'gutter_relative'], drag=['drag_active', 'drag_idle'])
+EXPECTED.update(gutter=['gutter_absolute', 'gutter_relative', 'gutter_hidden'], drag=['drag_active', 'drag_idle', 'mouse_disabled'])
 INTERACTION_LIMITS = {'native_elapsed_ms': 1000, 'native_cpu_ms': 500,
                       'repeat_update_ms': 150, 'repeat_cpu_ms': 200,
-                      'drag_first_tick_ms': 250, 'drag_cpu_ms': 100}
+                      'drag_first_tick_ms': 250, 'drag_cpu_ms': 100,
+                      'disabled_feed_ms': 2500, 'disabled_feed_cpu_ms': 200}
 
 
 def records(lines, kind):
@@ -104,6 +109,7 @@ def run(selected):
         if selected is None or selected == 'idle':
             result['terminal'] = terminal(root, baseline['idle'])
             result['interaction'] = interaction_terminal(root, baseline)
+            result['bootstrap'] = bootstrap(baseline)
         assert fingerprint(root) == before, 'performance work changed fixture entries/bytes'
         result['fixture_identity'] = before
         expected = sum(map(len, EXPECTED.values())) if selected is None else len(EXPECTED.get(selected, []))
@@ -111,6 +117,8 @@ def run(selected):
         assert ('terminal' in result) == (selected is None or selected == 'idle'), 'missing PTY evidence'
     result['measurement_elapsed_ms'] = round((time.perf_counter() - started) * 1000, 3)
     assert identity(ROOT) == candidate, 'performance candidate changed during measurements'
+    if selected is None:
+        validate_interaction(result, candidate, INTERACTION_LIMITS)
     print(json.dumps(result, indent=2))
-    sessions = 2 if 'terminal' in result else 0
+    sessions = 4 if 'terminal' in result else 0
     print(f'Configuration/UI performance suite: {len(result["native"])} native workloads, {sessions} PTY sessions passed, 0 skipped.')

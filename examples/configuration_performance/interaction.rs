@@ -42,12 +42,11 @@ pub(super) fn run(root: &Path, kind: &str) -> Result<()> {
         "drag" => pointer::run(&mut session)?,
         _ => return Err("unknown interaction workload".into()),
     }
-    require(
-        session.buffer()?.stamp() == stamp,
-        "interaction changed source",
-    )?;
-    require(
-        session.buffer()?.history().is_empty(),
-        "interaction changed history",
-    )
+    unchanged(&session, stamp)
+}
+
+fn unchanged(session: &Session, stamp: rev::buffer::Stamp) -> Result<()> {
+    let buffer = session.buffer()?;
+    require(buffer.stamp() == stamp, "interaction changed source")?;
+    require(buffer.history().is_empty(), "interaction changed history")
 }

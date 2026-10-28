@@ -14,7 +14,7 @@ DIRECTORIES = ['user/rev', 'entries', 'entries/nested', 'names', 'names/nested',
 
 
 class Observation:
-    def __init__(self, root):
+    def __init__(self, root, directories=DIRECTORIES, mask=OPEN | ACCESS):
         self.libc = ctypes.CDLL(None, use_errno=True)
         self.libc.inotify_init1.argtypes = [ctypes.c_int]
         self.libc.inotify_add_watch.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32]
@@ -22,15 +22,16 @@ class Observation:
         if self.fd < 0:
             raise OSError(ctypes.get_errno(), 'inotify initialization failed')
         self.paths = {}
+        self.mask = mask
         try:
-            for relative in DIRECTORIES:
+            for relative in directories:
                 self.add(root, relative)
         except BaseException:
             os.close(self.fd)
             raise
 
     def add(self, root, relative):
-        watch = self.libc.inotify_add_watch(self.fd, os.fsencode(root / relative), OPEN | ACCESS)
+        watch = self.libc.inotify_add_watch(self.fd, os.fsencode(root / relative), self.mask)
         if watch < 0:
             raise OSError(ctypes.get_errno(), 'fixture watch failed')
         self.paths[watch] = relative
