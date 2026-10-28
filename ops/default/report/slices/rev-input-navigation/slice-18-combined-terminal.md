@@ -1,11 +1,12 @@
 # Slice 18: Exercise the complete combined terminal workflow
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `test/rev-input-18-combined-terminal`
 PR: [#98](https://forge.adrianpk.com/adrianpk/rev/pulls/98)
+Integrated: `e57f63379a9e49d7cf4846c587e176c088581d82`
 
 ## Purpose
 
@@ -106,8 +107,13 @@ Focused final commands:
 - `python3 scripts/check-config-reference.py`
 - `git diff --check`
 
-Exact clean-HEAD validation follows all task and PR-reference commits through
-the controller.
+Canonical evidence `5WCYJHMJ2HFZZTKNTKDYAEOBIL` passed six commands, 375 native
+tests and ten PTY sessions with twenty combined-stage receipts at the integrated
+clean candidate `e57f63379a9e49d7cf4846c587e176c088581d82`. Focused evidence
+`UJM3SPBC6JK3JRW34L54DRMRVF` passed four commands, fifteen guard tests, 45
+requirement/native mappings and packaged/reference checks on that same HEAD.
+Actual controller logs satisfy complete terminal-stage and reference admission;
+the full ten-session terminal run took 9.385 seconds excluding build.
 
 ## Risks and Follow-ups
 

@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 18 - exercise the complete combined terminal workflow
+Active slice: Slice 19 - verify bounded input gutter and pointer work
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -349,16 +349,18 @@ Details and exact checks: [Slice 18](../plan/rev-input-navigation.md#slice-18-ex
 - [x] T18.1: Extend the existing configuration/UI PTY harness with a named combined journey covering first-start creation, splits/tree, both gutter modes, status groups, line navigation, whitespace conversion and pointer events.
 - [x] T18.2: Use actual decoded terminal screen cells and file/history outcomes, including cancel, resize, capture cleanup and reported failures; no schema-only success or skipped path counts as acceptance.
 - [x] T18.3: Extend the existing evidence map/checker for the admitted additional terminal cases while preserving all prior cases and assertions; keep the unchanged full-gate command sequence coherent.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 18 of 20 implemented. Its
+Slice 18 of 20 completed. Canonical PR [#98](https://forge.adrianpk.com/adrianpk/rev/pulls/98)
+integrated into dev at `e57f63379a9e49d7cf4846c587e176c088581d82`.
+Canonical evidence `5WCYJHMJ2HFZZTKNTKDYAEOBIL` passed six commands, 375 native tests
+and ten PTY sessions with twenty combined-stage receipts. Focused evidence
+`UJM3SPBC6JK3JRW34L54DRMRVF` passed four commands, fifteen guard tests, 45
+requirement/native mappings and packaged/reference checks on that same candidate.
+Actual controller logs passed evidence admission. The
 [canonical report](../report/slices/rev-input-navigation/slice-18-combined-terminal.md)
-records RGB/NO_COLOR combined native journeys, exact cell/file/history outcomes,
-bounded capture/resize cleanup and preserved baseline evidence with new contract
-and stage admission. Canonical PR
-[#98](https://forge.adrianpk.com/adrianpk/rev/pulls/98) targets dev. Required and
-focused exact-head evidence is recorded through the controller after PR-reference
-commits; integration remains pending.
+records real cells/file/history outcomes, capture cleanup and preserved limits.
+Slice 19 is active for bounded input, gutter and pointer measurements.
 
 T18.1: `6bc75aecfcff4bf5d41ccde77486e49c184129a1`.
 T18.2: `cb35e09ca0ff7515175b3da902e5eb6961e2aa4a`.
