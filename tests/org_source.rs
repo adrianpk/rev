@@ -6,6 +6,8 @@ mod incremental;
 mod index;
 #[path = "org_source/inline.rs"]
 mod inline;
+#[path = "org_source/inline_bounds.rs"]
+mod inline_bounds;
 #[path = "org_source/jobs.rs"]
 mod jobs;
 

@@ -14,7 +14,7 @@ pub(super) struct Read<'a> {
     pub end: usize,
     pub depth: usize,
     pub max_depth: usize,
-    pub failed: [bool; 8],
+    pub failed_until: [usize; 8],
 }
 
 impl<'a> Read<'a> {
@@ -32,7 +32,7 @@ impl<'a> Read<'a> {
             end: range.end,
             depth: 0,
             max_depth,
-            failed: [false; 8],
+            failed_until: [0; 8],
         }
     }
 

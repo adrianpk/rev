@@ -10,13 +10,12 @@ pub(super) fn recognize(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>
     }
     let mut found = None;
     for name in NAMES.split_ascii_whitespace() {
-        if let Some(node) = named(read, start, name)? {
-            if found
+        if let Some(node) = named(read, start, name)?
+            && found
                 .as_ref()
                 .is_none_or(|old: &Raw| old.source.end < node.source.end)
-            {
-                found = Some(node);
-            }
+        {
+            found = Some(node);
         }
     }
     Ok(found)

@@ -184,6 +184,22 @@ fn delimiter_recovery() {
         ),
         (r"\_   ", &[(InlineKind::Entity, "\\_   ")][..]),
         (
+            "HTTPS://example.test/a",
+            &[(InlineKind::Link(LinkKind::Plain), "HTTPS://example.test/a")][..],
+        ),
+        (
+            "<HTTP://example.test/a>",
+            &[(InlineKind::Link(LinkKind::Angle), "<HTTP://example.test/a>")][..],
+        ),
+        (
+            "*first\nsecond*",
+            &[(InlineKind::Bold, "*first\nsecond*")][..],
+        ),
+        (
+            r"[fn::x \] y]",
+            &[(InlineKind::FootnoteInline, r"[fn::x \]")][..],
+        ),
+        (
             "[[x][a ] b]]",
             &[(InlineKind::Link(LinkKind::Bracket), "[[x][a ] b]]")][..],
         ),
@@ -225,6 +241,8 @@ fn excluded_forms() {
         "<< space>>",
         "<<bad\nline>>",
         "[[x]",
+        "[[x][]]",
+        "*first\n\nsecond*",
         "[fn:bad label]",
         "<unknown:thing>",
         r"\alphabeta",

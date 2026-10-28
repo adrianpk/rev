@@ -29,7 +29,7 @@ pub(super) fn angle(
     start: usize,
     context: InlineContext,
 ) -> Result<Option<Raw>, Stop> {
-    if read.failed[7] {
+    if start < read.failed_until[7] {
         return Ok(None);
     }
     if read.starts(start, b"<<")? {
@@ -38,16 +38,16 @@ pub(super) fn angle(
     if context != InlineContext::Standard {
         return Ok(None);
     }
-    let Some(end) = read.find(start + 1, b'>')? else {
-        read.failed[7] = true;
-        return Ok(None);
-    };
-    let Some(colon) = colon(read, start + 1, end)? else {
+    let Some(colon) = colon(read, start + 1, read.end)? else {
         return Ok(None);
     };
     if !scheme(read, start + 1..colon)? {
         return Ok(None);
     }
+    let Some(end) = read.find(colon + 1, b'>')? else {
+        read.failed_until[7] = read.end;
+        return Ok(None);
+    };
     Ok(Some(Raw::new(
         InlineKind::Link(LinkKind::Angle),
         start..end + 1,
@@ -65,8 +65,7 @@ fn target(read: &mut Read<'_>, start: usize, context: InlineContext) -> Result<O
 
 fn target_body(read: &mut Read<'_>, start: usize, radio: bool) -> Result<Option<Raw>, Stop> {
     let width = if radio { 3 } else { 2 };
-    let Some(end) = read.find(start + width, b'>')? else {
-        read.failed[7] = true;
+    let Some(end) = target_end(read, start + width)? else {
         return Ok(None);
     };
     if !valid_target(read, start + width, end)? {
@@ -86,6 +85,18 @@ fn target_body(read: &mut Read<'_>, start: usize, radio: bool) -> Result<Option<
         InlineKind::Target
     };
     Ok(Some(Raw::new(kind, start..end + width, start + width..end)))
+}
+
+fn target_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<usize>, Stop> {
+    while let Some(byte) = read.byte(position)? {
+        match byte {
+            b'>' => return Ok(Some(position)),
+            b'<' | b'\n' => return Ok(None),
+            _ => position += 1,
+        }
+    }
+    read.failed_until[7] = read.end;
+    Ok(None)
 }
 
 fn valid_target(read: &mut Read<'_>, start: usize, end: usize) -> Result<bool, Stop> {

@@ -53,7 +53,7 @@ fn path_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<usize>, S
 }
 
 fn description_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<usize>, Stop> {
-    if read.failed[6] {
+    if position < read.failed_until[6] {
         return Ok(None);
     }
     while let Some(byte) = read.byte(position)? {
@@ -62,7 +62,7 @@ fn description_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<us
         }
         position += 1;
     }
-    read.failed[6] = true;
+    read.failed_until[6] = read.end;
     Ok(None)
 }
 

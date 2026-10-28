@@ -9,7 +9,7 @@ struct Frame {
     context: InlineContext,
     parent: Option<usize>,
     depth: usize,
-    failed: [bool; 8],
+    failed_until: [usize; 8],
 }
 
 impl Frame {
@@ -25,7 +25,7 @@ impl Frame {
             context,
             parent,
             depth,
-            failed: [false; 8],
+            failed_until: [0; 8],
         }
     }
 }
@@ -45,7 +45,7 @@ pub(super) fn scan(
         read.start = frame.range.start;
         read.end = frame.range.end;
         read.depth = frame.depth;
-        read.failed = frame.failed;
+        read.failed_until = frame.failed_until;
         process(read, result, &mut frames, &mut frame, limits)?;
     }
     Ok(())
@@ -79,7 +79,7 @@ fn process(
                 frames,
                 frame,
                 (range, context, parent),
-                read.failed,
+                read.failed_until,
                 limits.depth,
             )?;
             return Ok(());
@@ -92,7 +92,7 @@ fn descend(
     frames: &mut Vec<Frame>,
     frame: &Frame,
     child: (Range<usize>, InlineContext, usize),
-    failed: [bool; 8],
+    failed_until: [usize; 8],
     limit: usize,
 ) -> Result<(), Stop> {
     if frame.depth + 1 > limit {
@@ -104,7 +104,7 @@ fn descend(
         context: frame.context,
         parent: frame.parent,
         depth: frame.depth,
-        failed,
+        failed_until,
     };
     frames.push(resume);
     frames.push(Frame::new(child.0, child.1, Some(child.2), frame.depth + 1));
