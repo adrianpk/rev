@@ -5,7 +5,7 @@ status: in_progress
 ready_at: 2026-10-28T00:45:40Z
 started_at: 2026-10-28T00:45:40Z
 branch: feat/rev-input-17-bootstrap-publication
-pr: https://forge.adrianpk.com/adrianpk/rev/pulls/96
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/97
 kind: task
 severity: unclassified
 priority: unclassified
@@ -13,7 +13,7 @@ scope: domain
 tags: configuration, startup
 source: chat
 reported_at: 2026-10-27T19:36:36Z
-commits: [43119ca646bfc23b105f0126d056d9acd7674a17, 554cc86bf72d7ce5851b9a67947a5a8cd7fd2107, cb3b791c7f258c4aca9aafb8378f3d099a795883]
+commits: [43119ca646bfc23b105f0126d056d9acd7674a17, 554cc86bf72d7ce5851b9a67947a5a8cd7fd2107, cb3b791c7f258c4aca9aafb8378f3d099a795883, bd888985abd2db85433b5d41130c740c9ad62eee, 81348a8a665727d9f26277ccb6c95f02f62ea0b5, 7be5674e876dd3a9cdefb0ff7ce6b4587120a726]
 ---
 
 # Create the complete user configuration when missing
@@ -67,5 +67,6 @@ progress until both primary slices have integrated.
 Slice 17 implements native absent-root publication, no-clobber preservation,
 complete fallback diagnostics and isolated real filesystem/process fault and
 race fixtures. Its [report](../../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
-records the checks. Canonical PR and exact clean-head evidence follow task
-commits. Integration remains pending; this ticket stays in progress.
+records the checks. Canonical PR
+[#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97) targets dev. Required and
+focused exact-head evidence is recorded through the controller after PR references. Integration remains pending; this ticket stays in progress.

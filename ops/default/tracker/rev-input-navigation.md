@@ -330,11 +330,13 @@ Slice 17 of 20 implemented. The
 [canonical report](../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
 records startup-only complete publication, preserved existing/concurrent entries,
 truthful failure fallback and bounded native race/fixture checks. Canonical PR
-and exact clean-head evidence follow task commits. Integration is pending; the
+[#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97) targets dev. Exact clean-head
+evidence is recorded through the controller after PR-reference commits. Integration is pending; the
 configuration ticket stays in progress through primary slices 16-17.
 
 T17.1: `bd888985abd2db85433b5d41130c740c9ad62eee`.
-T17.2: `81348a8a6657`.
+T17.2: `81348a8a665727d9f26277ccb6c95f02f62ea0b5`.
+T17.3: `7be5674e876dd3a9cdefb0ff7ce6b4587120a726`.
 
 ### Slice 18: exercise the complete combined terminal workflow
 
