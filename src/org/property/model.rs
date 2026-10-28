@@ -98,6 +98,7 @@ impl Properties {
                 self.entries[owner].anchor = node.source.end;
                 self.contexts.push(node.source.clone());
             }
+            StructureKind::Comment => self.contexts.push(node.source.clone()),
             StructureKind::PropertyDrawer => self.drawer(node, text, owner),
             StructureKind::Property { additive } => self.property(node, text, owner, additive),
             StructureKind::Keyword => self.directive(node, text),

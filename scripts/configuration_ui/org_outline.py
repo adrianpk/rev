@@ -3,6 +3,7 @@
 from .support import (BINARY, PTY, canvas, close, completed, environment, finish,
                       send, snapshot, step, write)
 from .org_lists import SOURCE as LIST_SOURCE, list_journey
+from .org_properties import SOURCE as PROPERTY_SOURCE, property_journey
 
 LINES = ['* Root 界e\u0301', ':LOGBOOK:', 'clock note', ':END:', 'root body',
          '** Child', 'child body', '*** Grand', 'grand body', '** Sibling',
@@ -123,9 +124,10 @@ def subtrees(session):
 
 
 def outline(root, colored):
-    write(root, 'user/rev/config.toml', b'')
+    write(root, 'user/rev/config.toml', b'org.properties.inherit = ["PROJECT", "CUSTOM"]')
     source = write(root, 'work/notes.org', SOURCE)
     list_source = write(root, 'work/lists.org', LIST_SOURCE)
+    property_source = write(root, 'work/properties.org', PROPERTY_SOURCE)
     before = snapshot(root)
     session = PTY['Session']([str(BINARY), str(source)], env=environment(root, colored))
     try:
@@ -139,6 +141,7 @@ def outline(root, colored):
         step(session, b'\x18\x13', b'Saved')
         assert source.read_bytes() == SOURCE, 'folding changed BOM/CRLF/EOF bytes'
         list_journey(session, list_source, goto, document)
+        property_journey(session, property_source, goto, document)
         frame = PTY['last_frame'](session)
         assert b'-- RW --' in frame and b'** RW --' not in frame
         if not colored:

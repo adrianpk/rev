@@ -300,7 +300,7 @@ Details and exact checks: [Slice 12](../plan/rev-org-mode.md#slice-12-edit-org-d
 
 - [x] T12.1: Implement property set/remove/inspect and drawer folding without confusing ordinary and property drawers.
 - [x] T12.2: Resolve local/additive/inherited values with source-owner provenance and safe directive precedence.
-- [ ] T12.3: Verify selective inheritance, unknown properties and edits to the actual owner.
+- [x] T12.3: Verify selective inheritance, unknown properties and edits to the actual owner.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 13: edit and match Org task tags

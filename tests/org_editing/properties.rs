@@ -3,7 +3,7 @@ use super::visibility::{action, visible};
 use super::*;
 use rev::command::{History, OrgCommand};
 
-fn argument(session: &mut Session, value: &str) {
+pub(super) fn argument(session: &mut Session, value: &str) {
     session.handle(Event::Paste(value.into()));
     session.handle(key(KeyCode::Enter));
 }
@@ -219,4 +219,113 @@ fn property_precedence() {
         );
         assert_eq!(text(&session), source, "{name}");
     }
+}
+
+// Ordinary local edits shadow inherited data. The explicit owner action asks
+// which contribution to edit and rewrites exactly that source value atomically.
+#[test]
+fn actual_property_owner() {
+    let source =
+        "* Parent\n:PROPERTIES:\n:X: parent\n:END:\n** Child\n:PROPERTIES:\n:X+: child\n:END:\n";
+    for (number, before, after) in [
+        ("1", ":X: parent", ":X: changed"),
+        ("2", ":X+: child", ":X+: changed"),
+    ] {
+        let (_fixture, mut session) = editor("org.properties.inherit = ['X']", "notes.org", source);
+        goto(&mut session, 5);
+        action(&mut session, OrgCommand::EditPropertyOwner);
+        argument(&mut session, "X");
+        assert!(session.echo().contains("inherited X at line 3"));
+        assert!(session.echo().contains("local X+ at line 7"));
+        argument(&mut session, number);
+        assert!(
+            session
+                .echo()
+                .contains(if number == "1" { "line 3" } else { "line 7" })
+        );
+        argument(&mut session, "changed");
+        assert_eq!(text(&session), source.replace(before, after));
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+        session.execute(Command::History(History::Undo));
+        assert_eq!(text(&session), source);
+        assert!(!session.buffer().unwrap().is_modified());
+    }
+    let (_fixture, mut session) = editor("org.properties.inherit = ['X']", "notes.org", source);
+    goto(&mut session, 5);
+    set(&mut session, "X", "local");
+    assert_eq!(
+        text(&session),
+        source.replace(":X+: child\n", ":X+: child\n:X: local\n")
+    );
+    action(&mut session, OrgCommand::DeleteProperty);
+    argument(&mut session, "X");
+    assert_eq!(text(&session), source);
+}
+
+// Explicit inherited-owner edits can target file directives without creating a
+// child drawer, and undo restores shared cursors against the canonical source.
+#[test]
+fn file_property_owner() {
+    let source = "#+PROPERTY: X default\n* Head\nbody\n* Peer\nmarker\n";
+    let (_fixture, mut session) = editor("org.properties.inherit = ['X']", "notes.org", source);
+    goto(&mut session, 5);
+    session.execute(Command::Split(Split::Right));
+    session.execute(Command::Window(WindowCommand::Other));
+    let peer = session
+        .windows()
+        .order()
+        .iter()
+        .copied()
+        .find(|id| *id != session.windows().selected_id())
+        .unwrap();
+    goto(&mut session, 2);
+    action(&mut session, OrgCommand::EditPropertyOwner);
+    argument(&mut session, "X");
+    assert!(session.echo().contains("file directive X at line 1"));
+    argument(&mut session, "longer value 界");
+    let expected = source.replace("default", "longer value 界");
+    assert_eq!(text(&session), expected);
+    assert_eq!(
+        session.windows().get(peer).unwrap().point.position.0,
+        expected[..expected.find("marker").unwrap()].chars().count()
+    );
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), source);
+    assert_eq!(
+        session.windows().get(peer).unwrap().point.position.0,
+        source.find("marker").unwrap()
+    );
+    session.execute(Command::History(History::Redo));
+    assert_eq!(text(&session), expected);
+}
+
+// A draft is never authority after its source revision changes. Prompt-owned
+// keys cannot move to another window; cancel does not retain an active draft.
+#[test]
+fn property_draft_source() {
+    let source = "* Head\n";
+    let (_fixture, mut session) = editor("", "notes.org", source);
+    session.execute(Command::Split(Split::Right));
+    let other = session
+        .windows()
+        .order()
+        .iter()
+        .copied()
+        .find(|id| *id != session.windows().selected_id())
+        .unwrap();
+    action(&mut session, OrgCommand::SetProperty);
+    argument(&mut session, "X");
+    assert!(session.select_view(other).is_err());
+    session.replace(0..0, "prefix\n").unwrap();
+    argument(&mut session, "stale");
+    assert!(session.echo().contains("source or view changed"));
+    assert_eq!(text(&session), "prefix\n* Head\n");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), source);
+    action(&mut session, OrgCommand::SetProperty);
+    argument(&mut session, "X");
+    session.execute(Command::KeyboardQuit);
+    session.handle(Event::Paste("ordinary".into()));
+    assert_eq!(text(&session), "ordinary* Head\n");
 }
