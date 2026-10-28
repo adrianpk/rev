@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Insert Org headings with M-RET and navigate visible headings, siblings and parents with the familiar C-c chords or M-x. Insertion preserves source separators and attached text, undoes as one change, and keeps shared panes aligned. Heading motion also works on read-only files.
+
 - Fold Org headings with TAB and cycle overview, contents and show-all with S-TAB. M-x provides direct subtree and drawer choices. Each pane keeps independent visibility, searches reveal the target path, and canceling search restores the starting view without changing source text.
 
 - First startup creates the complete editable default configuration at the resolved user XDG path when absent. Existing files, links and other entries remain untouched; creation failures show a diagnostic and keep editing usable with factory defaults.

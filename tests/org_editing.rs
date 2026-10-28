@@ -12,6 +12,8 @@ mod fold_edges;
 mod folds;
 #[path = "org_editing/heading_context.rs"]
 mod heading_context;
+#[path = "org_editing/heading_edges.rs"]
+mod heading_edges;
 #[path = "org_editing/headings.rs"]
 mod headings;
 #[path = "org_editing/projection.rs"]

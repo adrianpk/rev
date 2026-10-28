@@ -74,6 +74,23 @@ def search_cancel(session):
     named(session, 'org-show-all', list(range(13)))
 
 
+def headings(session):
+    goto(session, 1)
+    for wire, line in [(b'\x03\x0e', 6), (b'\x03\x06', 10),
+                       (b'\x03\x02', 6), (b'\x03\x15', 1)]:
+        step(session, wire, f'-- RW -- L{line} C1'.encode())
+    step(session, b'\x05', b'-- RW -- L1 C11')
+    expected = [LINES[0], '*'] + LINES[1:]
+    frame = send(session, b'\x1b\r', lambda frame:
+                 canvas(frame)[24].rstrip() == 'org-meta-return'
+                 and document(frame)[:14] == expected
+                 and not any(document(frame)[14:]))
+    assert b'** RW -- L2 C3' in frame, 'new heading point or dirty state missing'
+    send(session, b'\x18u', lambda frame: visible(frame, list(range(13)))
+         and b'-- RW --' in frame)
+    goto(session, 1)
+
+
 def outline(root, colored):
     write(root, 'user/rev/config.toml', b'')
     source = write(root, 'work/notes.org', SOURCE)
@@ -85,6 +102,7 @@ def outline(root, colored):
         cycles(session)
         shared(session)
         search_cancel(session)
+        headings(session)
         step(session, b'\x18\x13', b'Saved')
         assert source.read_bytes() == SOURCE, 'folding changed BOM/CRLF/EOF bytes'
         frame = PTY['last_frame'](session)
