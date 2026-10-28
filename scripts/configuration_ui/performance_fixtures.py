@@ -56,6 +56,7 @@ def documents(root):
     code = b'fn item() { let value = 42; }\n'
     content = code * (65536 // len(code))
     (directory / 'cutoff.rs').write_bytes(content + b' ' * (65536 - len(content)))
+    (directory / 'large.txt').write_bytes(b'x\n' * 100000)
     return {'panel_lines': 512, 'panel_bytes': len(text.encode()), 'syntax_cutoff_bytes': 65536}
 
 

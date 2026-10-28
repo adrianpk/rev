@@ -9,6 +9,8 @@ use std::time::Duration;
 mod candidates;
 #[path = "configuration_performance/graph.rs"]
 mod graph;
+#[path = "configuration_performance/interaction.rs"]
+mod interaction;
 #[path = "configuration_performance/presentation.rs"]
 mod presentation;
 
@@ -61,6 +63,7 @@ fn main() -> Result<()> {
         Some("entries" | "names") => candidates::run(root, args[1].to_str().unwrap()),
         Some("redraw") => presentation::redraw(root),
         Some("syntax") => presentation::syntax(root),
+        Some("gutter" | "drag") => interaction::run(root, args[1].to_str().unwrap()),
         _ => Err("unknown workload".into()),
     }
 }

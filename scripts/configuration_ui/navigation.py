@@ -18,6 +18,7 @@ def repeat(session, key, count, rate, expected):
     sent = 0
     first = None
     released = None
+    received = 0
     deadline = started + count / rate + 4
     while time.monotonic() < deadline:
         now = time.monotonic()
@@ -28,7 +29,11 @@ def repeat(session, key, count, rate, expected):
                 released = time.monotonic()
         if not select.select([session.master], [], [], 0.001)[0]:
             continue
-        session.output.extend(os.read(session.master, 65536))
+        data = os.read(session.master, 65536)
+        assert data, 'native input stream closed during repeat'
+        received += len(data)
+        assert received <= 1048576, 'repeat output exceeded 1 MiB'
+        session.output.extend(data)
         frames = bytes(session.output).split(PTY['SHOW'])
         session.output[:] = frames[-1]
         for frame in frames[:-1]:
