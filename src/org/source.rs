@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use ropey::RopeSlice;
+use ropey::{Rope, RopeSlice};
 
 use crate::buffer::{Buffer, Error, Span, Stamp};
 use crate::coordinates::Byte;
@@ -37,6 +37,12 @@ impl<'a> Source<'a> {
     /// Retaining a range after an edit never makes it authority over newer text.
     pub fn text(&self, source: &SourceRange) -> Result<RopeSlice<'a>, Error> {
         self.buffer.slice(&source.span)
+    }
+
+    /// Retain shared immutable rope nodes for owned work, without flattening.
+    pub(super) fn snapshot(&self) -> Result<Rope, Error> {
+        let whole = self.buffer.span(0..self.buffer.len_chars())?;
+        Ok(self.buffer.slice(&whole)?.into())
     }
 }
 

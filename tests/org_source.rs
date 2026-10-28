@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_source/index.rs"]
+mod index;
+
 use rev::buffer::edit::{self, History, Point, Replacement};
 use rev::buffer::{Buffer, Buffers, Error};
 use rev::coordinates::{self, Byte, Scalar};
