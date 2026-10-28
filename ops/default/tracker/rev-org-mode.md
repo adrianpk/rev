@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 24 habit-records
+Active slice: Slice 25 habit-graphs
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -584,7 +584,7 @@ Details and exact checks: [Slice 24](../plan/rev-org-mode.md#slice-24-maintain-o
 - [x] T24.1: Recognize STYLE habit and integrate logged completion, interval ranges and Org day semantics.
 - [x] T24.2: Preserve compatible histories and distinguish missing observations from actual failed/completed days.
 - [x] T24.3: Verify recurrence types, source-local declarations and coherent completion undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T24.1: `5adee7cd157a`. Habit source admission, checked calendar ranges and
 Org day recurrence pass focused arithmetic, configuration and native editing
@@ -597,8 +597,14 @@ zero skips. Canonical PR reference and final exact-head receipts follow.
 
 T24.3: `922b9101d7f49beb1ec167b030c17e7043c13110`. [Canonical PR #125](https://forge.adrianpk.com/adrianpk/rev/pulls/125)
 and the [Slice 24 report](../report/slices/rev-org-mode/slice-24-habit-records.md) are
-reviewing. Final required/focused controller receipts bind the clean PR-reference
-head; verified dev integration remains pending.
+delivered. Final controller receipts bind the merged head; verified integration
+is recorded below.
+
+PR #125 merged into dev at `411ba869fa1d4e2f3852f6caa8a0761e731e3f45`,
+verified against the canonical forge and remote. Required receipt
+`5E75KWPZSAPBNQ7VNSTOQ74DWJ` passed five checks and 271 tests. Focused receipt
+`M5DOBIW7MT5UQRT7EN4P473YWM` passed 119 tests and configuration reference
+agreement, zero skips. The Slice 24 report is delivered.
 
 ### Slice 25: render native Org habit consistency graphs
 

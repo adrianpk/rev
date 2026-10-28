@@ -1,6 +1,6 @@
 # Slice 24: maintain Org habit schedules and history
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -115,3 +115,9 @@ gate has not run.
 [Canonical PR #125](https://forge.adrianpk.com/adrianpk/rev/pulls/125) targets dev.
 Final required/focused controller receipts bind the clean PR-reference head;
 verified integration remains pending.
+
+PR #125 merged into dev at `411ba869fa1d4e2f3852f6caa8a0761e731e3f45`,
+verified on the canonical forge and remote. Required receipt
+`5E75KWPZSAPBNQ7VNSTOQ74DWJ` passed five checks and 271 tests. Focused receipt
+`M5DOBIW7MT5UQRT7EN4P473YWM` passed 119 tests and configuration reference
+agreement, zero skips. Slice 25 is active; the delivery-set full gate has not run.
