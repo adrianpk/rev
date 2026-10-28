@@ -106,10 +106,11 @@ and focused evidence `RCVKDXA4MARYXGAGBUIJICY374` passed on that candidate.
 Slice 12 is active; this ticket remains in progress until all primary slices
 10-15 integrate.
 
-Slice 12 is implemented in canonical PR [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92), targeting dev. Its
+Slice 12 integrated into dev through canonical PR
+[#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92) at
+`ba2dc0dc6eb279a4a574b59220c4325a29ced1d4`. Its
 [report](../../report/slices/rev-input-navigation/slice-12-pointer-scroll.md)
-records native hovered-pane/tree scrolling without focus changes, checked bounds,
-source fidelity, history continuity and real SGR/idle outcomes. Required and
-focused exact-head evidence is recorded by the controller after PR references.
-Integration remains pending. The ticket stays in progress through all assigned
-primary integrations.
+records pointed-pane/tree scrolling without focus changes, native bounds and
+source/history/idle outcomes. Canonical `BYQCHD5JLJJXDW5YPZWVZT45Q6` and
+focused `GJ65LOWS4MV3U32T6I2ULSHDZQ` evidence passed on that candidate.
+Slice 13 is active; the ticket stays in progress through primary slices 10-15.

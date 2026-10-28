@@ -1,11 +1,12 @@
 # Slice 12: Scroll the pointed pane without changing focus
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-12-pointer-scroll`
 PR: [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92)
+Integrated: `ba2dc0dc6eb279a4a574b59220c4325a29ced1d4`
 
 ## Purpose
 
@@ -109,8 +110,9 @@ visible-width, source text, cancellation and resize assertions remain intact;
 all 62 cases pass. No runtime behavior or acceptance limit was changed for these
 fixture corrections.
 
-Final focused and required clean-head evidence is recorded through the controller
-after task and PR-reference commits. Required ordered commands:
+Canonical evidence `BYQCHD5JLJJXDW5YPZWVZT45Q6` passed all five ordered
+checks and 311 native cases on clean head
+`ba2dc0dc6eb279a4a574b59220c4325a29ced1d4`, integrated into dev through PR #92:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -118,7 +120,8 @@ after task and PR-reference commits. Required ordered commands:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused final commands:
+Focused evidence `GJ65LOWS4MV3U32T6I2ULSHDZQ` passed 35 library/coordinate
+cases and four owned PTYs on that same head:
 
 - `cargo test --lib --test coordinates`
 - `python3 scripts/check-pty.py --suite pointer-focus`

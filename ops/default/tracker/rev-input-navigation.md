@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 12 - scroll the pointed pane without changing focus
+Active slice: Slice 13 - select canonical text by dragging
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -210,15 +210,16 @@ Details and exact checks: [Slice 12](../plan/rev-input-navigation.md#slice-12-sc
 - [x] T12.1: Route vertical wheel/trackpad events to the document view or tree beneath the pointer without stealing keyboard focus.
 - [x] T12.2: Clamp native scroll bounds and adjust only necessary target-view state using existing view contracts; keep other view points and shared canonical text coherent.
 - [x] T12.3: Verify both directions, inactive targets, large/empty documents, tree and nested panes; add no simulated inertia, idle loop or competing scrolling owner.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 12 of 20 implemented. Canonical PR [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92) targets dev.
+Slice 12 of 20 completed. Canonical PR [#92](https://forge.adrianpk.com/adrianpk/rev/pulls/92)
+integrated into dev at `ba2dc0dc6eb279a4a574b59220c4325a29ced1d4`.
+Canonical evidence `BYQCHD5JLJJXDW5YPZWVZT45Q6` passed five ordered checks
+and 311 native cases. Focused evidence `GJ65LOWS4MV3U32T6I2ULSHDZQ` passed
+35 library/coordinate cases and four owned PTYs on that same candidate.
 The [canonical report](../report/slices/rev-input-navigation/slice-12-pointer-scroll.md)
-records current viewport ownership, checked target adjustment, keyboard and
-shared-history continuity, tree fixture reconciliation and two owned wheel PTYs.
-Required canonical and focused exact-head checks are recorded through the
-controller after PR references. Integration remains pending; the pointer ticket
-stays active through its assigned primary slices 10-15.
+records native viewport ownership, source/history fidelity and terminal proof.
+The pointer ticket remains active through primary slices 10-15. Slice 13 is active.
 T12.1: `7d2c71c78fd591c6b8bc12bd55790424ec99c9d7`.
 T12.2: `9f4f1c199d829c2099ca0ab29c39233ddb8ac1dd`.
 T12.3: `265527a3237817182e791afde228bb31cef4d1a9`.
