@@ -18,7 +18,7 @@ fn environment(tz: &str) -> ZoneEnvironment {
         tz: Some(tz.into()),
     }
 }
-fn dst_clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
+pub(super) fn dst_clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
     ZonedOperation::capture(
         &ZoneSelection::Local,
         &environment("CET-1CEST,M3.5.0,M10.5.0/3"),

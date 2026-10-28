@@ -299,3 +299,6 @@ mod timestamps;
 
 #[path = "org_editing/timestamp_contexts.rs"]
 mod timestamp_contexts;
+
+#[path = "org_editing/timestamp_edges.rs"]
+mod timestamp_edges;

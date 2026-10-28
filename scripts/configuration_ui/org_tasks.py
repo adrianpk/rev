@@ -2,6 +2,7 @@
 import re
 from datetime import datetime, timezone
 from .org_estimates import estimates
+from .org_timestamps import timestamps, readonly_calendar
 
 from .support import (BINARY, PTY, ROOT, canvas, close, completed, environment,
                       finish, send, snapshot, step, write)
@@ -95,6 +96,7 @@ def tasks(root, colored):
         step(session, b'd\r', b'Org state note: ')
         send(session, b'cancelled\x07', lambda frame: b'Quit' in frame and exact(frame, LINES))
         estimates(session, source, LINES, goto, exact)
+        timestamps(session, source, LINES, goto, exact)
         assert source.read_bytes() == SOURCE
         if not colored:
             assert b"\x1b[38;2;" not in session.output and b"\x1b[48;2;" not in session.output
@@ -115,9 +117,11 @@ def readonly(root, colored):
         session.wait(lambda: completed(session, lambda frame: exact(frame, LINES)))
         goto(session, 3)
         named(session, 'org-inspect-todo', b'Org task: TODO')
-        for wire in [b'\x03\x14', b'\x1bxorg-todo\r', b'\x1bxorg-todo-set\r', b'\x03,', b'\x03\x18e']:
+        for wire in [b'\x03\x14', b'\x1bxorg-todo\r', b'\x1bxorg-todo-set\r', b'\x03,', b'\x03\x18e', b'\x03.', b'\x03!',
+                     b'\x03\x13', b'\x03\x04', b'\x1bxorg-timestamp-up-day\r']:
             send(session, wire, lambda frame: b'buffer is read-only' in frame
                  and b'-- RO --' in frame and exact(frame, LINES))
+        readonly_calendar(session, LINES, exact)
         assert source.read_bytes() == SOURCE
         if not colored:
             assert b"\x1b[38;2;" not in session.output and b"\x1b[48;2;" not in session.output

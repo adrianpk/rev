@@ -428,13 +428,15 @@ Details and exact checks: [Slice 18](../plan/rev-org-mode.md#slice-18-enter-and-
 
 - [x] T18.1: Deliver native date/time/calendar prompts for active/inactive timestamps, ranges, schedule and deadline.
 - [x] T18.2: Use familiar context actions and cancellation, retaining weekday/source formatting where untouched.
-- [ ] T18.3: Verify invalid dates, ambiguous local times, Unicode prompts and one-command undo.
+- [x] T18.3: Verify invalid dates, ambiguous local times, Unicode prompts and one-command undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T18.1: `3da11bf31957afb061b8a9b8c487a74ce4b801a1`; focused clean-head receipt
 `Z7ZXSK5BB3YHKS4ZJ5ED5K7JAA` passed all four commands. T18.2 development
 checks passed 27 focused timestamp tests, library Clippy, configuration reference
-agreement and changed-source quality. Acceptance and canonical PR remain pending.
+agreement and changed-source quality. T18.3 passed 22 editing, 12 time and two
+display timestamp tests plus four owned RGB/NO_COLOR task PTYs. The canonical
+PR and exact-HEAD validation follow; integration remains controller-owned.
 
 ### Slice 19: reschedule repeated Org tasks correctly
 

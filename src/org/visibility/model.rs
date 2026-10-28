@@ -26,7 +26,8 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         }
         collect(&mut result, node);
         block(&mut result, node, structure.covered_bytes().0);
-        if node.context == Some(crate::org::InlineContext::Literal)
+        if (node.context == Some(crate::org::InlineContext::Literal)
+            && node.kind != StructureKind::Planning)
             || node.kind == StructureKind::Malformed
         {
             result.literals.push(node.source.clone());

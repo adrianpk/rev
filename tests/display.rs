@@ -845,3 +845,6 @@ fn without_sgr(text: &str) -> String {
     result.push_str(tail);
     result
 }
+
+#[path = "display/org_timestamps.rs"]
+mod org_timestamps;

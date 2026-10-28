@@ -1,6 +1,6 @@
 # Slice 18: enter and edit Org timestamps
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -107,9 +107,32 @@ T18.2 development checks passed:
   46 RGB roles, 165 default bindings and 14486 packaged template bytes agree.
 - Focused changed-source quality passed at the existing thresholds.
 
-No final controller validation or terminal fixture evidence is claimed yet.
+T18.2 commit: `7b6dff79c380e128c2525fd8e29ebcdc7739fdf4`.
+
+T18.3 acceptance checks passed:
+
+- `cargo test --test org_editing --test org_time --test display timestamp -- --nocapture`:
+  22 native editing, 12 time and two calendar display tests passed, zero skips.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  four owned editing/read-only RGB/NO_COLOR sessions passed, zero skips.
+- `cargo clippy --all-targets --all-features -- -D warnings` passed during development.
+- Focused changed-source quality passed at the existing thresholds.
+
+Acceptance covers invalid dates/Unicode drafts, fold/gap offset selection,
+complete-range UTC order, one retained clock observation, stale revisions,
+read-only admission, bounded UTF-8 observations, shared-view undo, clipped/tiny
+calendar frames and visible mouse cells. The task PTYs retain source snapshots,
+BOM/CRLF saves, exact undo/redo and normal terminal cleanup assertions.
+
+The native PTY exposed planning timestamp context rejection because planning
+metadata uses literal inline coloring. Context admission now retains planning
+ownership, with schedule/deadline CRLF line-end regressions. Driver corrections
+clear calendar-filled drafts, accept stale drafts directly and use the observed
+end-of-line column; acceptance assertions and deadlines remain intact.
+
+The canonical PR records the required ordered checks against its final clean
+HEAD through controller validation before handoff.
 
 ## Risks and Follow-ups
 
-T18.3 broader native/display/terminal acceptance and final canonical PR validation
-remain pending. The full delivery-set gate has not run.
+The full delivery-set gate has not run.
