@@ -210,6 +210,10 @@ Details and exact checks: [Slice 7](../plan/rev-org-mode.md#slice-7-map-folded-o
 - [x] T7.3: Verify tiny panes, Unicode, hit testing, stale folds and edit-driven reveal.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#108](https://forge.adrianpk.com/adrianpk/rev/pulls/108).
+T7.1, T7.2 and T7.3 are committed; exact-head validation follows the clean pushed
+PR-reference candidate. Integration remains controller-owned.
+
 ### Slice 8: deliver native Org visibility controls
 
 Contracts: ORG03 ORG17.

@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-07-fold-projection`
-PR: pending
+PR: [#108](https://forge.adrianpk.com/adrianpk/rev/pulls/108)
 
 ## Purpose
 
@@ -25,6 +25,10 @@ Vertical/page/viewport scrolling and pointer autoscroll advance visible rows.
 Status and relative/absolute numbering continue to identify original source.
 Canonical regions include their hidden source instead of substituting visible
 text. Targeted navigation/search reveals its containing hidden interval.
+
+Task commits: T7.1 `24018c71cda02a70db9e371bcdbf56806c566f8a`, T7.2
+`b8a12209f31c2d3209c77cec5d7048bdff1b9feb`, T7.3
+`8ef64c23b0dd982bf0ead9a9e523fc692a976005`.
 
 ## Implementation Notes
 
