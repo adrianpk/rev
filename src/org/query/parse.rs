@@ -116,7 +116,12 @@ impl<'a> Parser<'a> {
                 value,
             }));
         }
-        if !crate::org::visibility::tag_name(&name) {
+        let valid = if todo {
+            super::task_keyword(&name)
+        } else {
+            crate::org::visibility::tag_name(&name)
+        };
+        if !valid {
             return self.fail("invalid tag or TODO name");
         }
         self.push(if todo {

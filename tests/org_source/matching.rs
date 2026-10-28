@@ -119,3 +119,18 @@ fn query_boundaries() {
     data.properties.get_mut("X").unwrap().push('x');
     assert!(MatchQuery::parse("absent").unwrap().matches(&data).is_err());
 }
+
+// TODO keywords have their own spelling rules. Escaped punctuation in a TODO
+// suffix must not be rejected by the more restrictive heading-tag grammar.
+#[test]
+fn query_todo_names() {
+    for (state, escaped) in [
+        ("NEXT-ACTION", "NEXT\\-ACTION"),
+        ("REVIEW.NOW", "REVIEW\\.NOW"),
+    ] {
+        let mut values = data();
+        values.properties.insert("TODO".into(), state.into());
+        let query = MatchQuery::parse(&format!("work/{escaped}")).unwrap();
+        assert!(query.matches(&values).unwrap());
+    }
+}

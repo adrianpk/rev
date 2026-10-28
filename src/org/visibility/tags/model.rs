@@ -129,7 +129,7 @@ impl Tags {
                 continue;
             }
             let word = token.split('(').next().unwrap_or(token);
-            if !valid_tag(word) || self.workflow.len() == 64 {
+            if !crate::org::query::task_keyword(word) || self.workflow.len() == 64 {
                 self.workflow_valid = false;
                 return;
             }

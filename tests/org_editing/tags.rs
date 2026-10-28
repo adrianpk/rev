@@ -151,3 +151,17 @@ fn tag_property_matching() {
         assert!(session.buffer().unwrap().history().is_empty());
     }
 }
+
+// Data-only task declarations and TODO suffixes preserve punctuation in actual
+// state names; their spelling does not make matching depend on tag-name rules.
+#[test]
+fn punctuated_todos() {
+    let source = "#+TODO: TODO NEXT-ACTION | FINISHED\n* NEXT-ACTION H :Work:\n";
+    let (_fixture, mut session) = editor("", "notes.org", source);
+    goto(&mut session, 2);
+    action(&mut session, OrgCommand::MatchTags);
+    argument(&mut session, "Work/NEXT\\-ACTION");
+    assert_eq!(session.echo(), "Org match: yes");
+    assert_eq!(text(&session), source);
+    assert!(session.buffer().unwrap().history().is_empty());
+}

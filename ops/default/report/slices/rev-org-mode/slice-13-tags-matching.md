@@ -78,6 +78,11 @@ nesting. Completion computes a shared Unicode prefix in linear candidate text
 work, and evaluation indexes tag membership instead of rescanning all tags per
 atom. No backtracking evaluator, callback, dependency or permanent worker is added.
 
+Punctuated TODO regression fixtures first reproduced tag-name validation rejecting
+`NEXT-ACTION`. Task declarations and TODO suffixes now share bounded task-keyword
+admission while heading tags retain their stricter spelling. Both public and
+actual-session regressions pass; unrelated source and history remain unchanged.
+
 An owned clean Emacs observation confirmed factory ancestor/file inheritance
 and local-only membership when inheritance is disabled. Native semantics were
 checked against [tags](https://orgmode.org/manual/Tags.html),

@@ -119,3 +119,11 @@ impl MatchData {
         Ok(())
     }
 }
+
+pub(super) fn task_keyword(word: &str) -> bool {
+    !word.is_empty()
+        && word.len() <= 128
+        && !word
+            .chars()
+            .any(|c| c.is_whitespace() || c.is_control() || "|()".contains(c))
+}

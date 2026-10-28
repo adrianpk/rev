@@ -274,7 +274,9 @@ heading and effective membership. A suffix `/WAITING|NEXT` applies a separate
 Boolean expression to TODO states; `/!` additionally requires an unfinished task.
 `Work/!-WAITING` selects unfinished Work tasks outside WAITING. Factory states
 are TODO/DONE; direct TODO/SEQ_TODO/TYP_TODO data declarations identify configured
-states for matching. Their fast-key/log annotations do not execute anything.
+states for matching. Task keywords retain their own punctuation rules; escape
+punctuation in a TODO suffix, as in `/NEXT\-ACTION`. Their fast-key/log
+annotations do not execute anything.
 
 Compilation admits at most 4096 UTF-8 bytes, 32 nested forms and 512 nodes.
 Evaluation is iterative, with at most 8192 tag and 512 property records and a
