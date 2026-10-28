@@ -81,6 +81,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-u in Org | `org-dblock-update` | Refresh the selected clocktable body. |
 | C-c C-x 0 in Org | `org-timer-start` | Start or reset the relative timer. |
 | C-c C-x h in Org | `org-habit-show-graph` | Open or refresh the native habit agenda for this buffer. |
+| K in habit agenda | `org-habit-toggle-habits` | Toggle habit graph visibility. |
+| C-u K in habit agenda | `org-habit-toggle-habits-only-for-today` | Toggle graphs only for today. |
+| A in habit agenda | `org-habit-toggle-show-all-today` | Include all habits on today's agenda. |
+| d in habit agenda | `org-habit-graph-date` | Select a view date without editing source. |
+| G in habit agenda | `org-habit-set-graph-window` | Set graph days and preferred column. |
 | C-c C-x ; in Org | `org-timer-set-timer` | Enter an explicit countdown. |
 | C-c C-x . in Org | `org-timer` | Insert the current timer value. |
 | C-c C-x - in Org | `org-timer-item` | Insert or continue a timed description list. |

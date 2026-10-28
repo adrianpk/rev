@@ -117,3 +117,11 @@ calendar agenda follow their recorded slices.
 [Canonical PR #126](https://forge.adrianpk.com/adrianpk/rev/pulls/126) targets dev.
 Final required/focused controller receipts bind the clean PR-reference head;
 verified integration remains pending.
+
+
+The first final focused batch at `52df6d810882` stopped in
+`palette::catalog_reference`: the main commands catalogue omitted the six habit
+commands, and the main binding catalogue omitted five controls. Retained failure
+receipt: `MZSQR7T53B5PTB3IEFW7STGIXJ`. Both catalogues now cover the compiled set;
+the complete-set assertion remains unchanged and passes. Fresh required/focused
+controller evidence binds the corrected clean head.
