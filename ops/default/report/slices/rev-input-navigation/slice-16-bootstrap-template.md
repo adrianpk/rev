@@ -1,11 +1,12 @@
 # Slice 16: Package the complete startup configuration template
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-16-bootstrap-template`
 PR: [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96)
+Integrated: `120101a17b85a7775a6afccda618cd59709428fe`
 
 ## Purpose
 
@@ -79,8 +80,10 @@ the owned configuration bytes. This exercises semantics in addition to shared
 source provenance. `cargo clippy --test configuration --example configuration-template -- -D warnings`
 passed for the completed native checks and fixture.
 
-Final canonical and focused evidence is recorded through the controller on the
-clean candidate after task and PR-reference commits. Required ordered commands:
+Canonical evidence `BFCV7FDE46KJARMTSXDNHKRZJF` passed five commands and 175 native
+checks on the integrated candidate `120101a17b85a7775a6afccda618cd59709428fe`.
+Focused evidence `EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed compiled/reference verification
+on that same clean HEAD. Required ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

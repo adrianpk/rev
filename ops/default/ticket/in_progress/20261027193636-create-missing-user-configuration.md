@@ -55,10 +55,11 @@ integration/acceptance; do not create a separate successor run for this ticket.
 
 ## Primary slice progress
 
-Slice 16 is implemented in canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96), targeting dev. Its
+Slice 16 integrated through canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96)
+at `120101a17b85a7775a6afccda618cd59709428fe`. Its
 [report](../../report/slices/rev-input-navigation/slice-16-bootstrap-template.md)
-records the bounded compiled resource, complete default-equivalent values,
-standalone native verification and pure loading guards. Required and focused
-exact-head evidence follows PR-reference commits through the controller.
-Integration is pending. This ticket stays in progress through primary slices
-16-17; absent-file publication remains with the recorded next slice.
+records the bounded compiled resource, native default equivalence and read-only
+loading guards. Canonical evidence `BFCV7FDE46KJARMTSXDNHKRZJF` and focused evidence
+`EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed on that candidate. Slice 17 is active for
+absent-file publication and race/failure guarantees. This ticket remains in
+progress until both primary slices have integrated.

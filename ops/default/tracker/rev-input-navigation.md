@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 16 - package the complete startup configuration template
+Active slice: Slice 17 - create absent user configuration safely
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -301,15 +301,16 @@ Details and exact checks: [Slice 16](../plan/rev-input-navigation.md#slice-16-pa
 - [x] T16.1: Embed the supported complete sample in the binary and expose a bounded template source without needing a checkout, documentation file or network at runtime.
 - [x] T16.2: Ensure every active generated leaf equals compiled defaults, explicit palette values are complete and unused optional examples stay commented.
 - [x] T16.3: Extend existing catalog/reference guards to cover packaged/reference/default equality including delivered gutter/mouse controls; do not create user files in pure loading helpers.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 16 of 20 implemented. Canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96) targets dev. Its
+Slice 16 of 20 completed. Canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96)
+integrated into dev at `120101a17b85a7775a6afccda618cd59709428fe`.
+Canonical evidence `BFCV7FDE46KJARMTSXDNHKRZJF` passed five commands and 175 native
+checks; focused evidence `EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed compiled/reference
+verification on that same candidate. The
 [canonical report](../report/slices/rev-input-navigation/slice-16-bootstrap-template.md)
-records the bounded compiled resource, typed/native default equivalence and
-standalone packaging/reference checks with passive filesystem behavior.
-Final exact-head evidence is recorded through the controller after PR-reference commits;
-integration remains pending. The configuration ticket stays active through
-primary slices 16-17.
+records the complete packaged defaults, native equivalence and read-only helpers.
+Slice 17 is active. The configuration ticket stays in progress through slices 16-17.
 
 T16.1: `43119ca646bfc23b105f0126d056d9acd7674a17`.
 T16.2: `554cc86bf72d7ce5851b9a67947a5a8cd7fd2107`.
