@@ -333,7 +333,8 @@ fn properties(partial: &super::PartialProperties) -> Result<(), Failure> {
 }
 
 fn todo(document: &Document) -> Result<(), Failure> {
-    let policy = super::project::settings(document).org.todo;
+    let mut policy = super::Todo::default();
+    super::project::todo(&mut policy, &document.org.todo);
     crate::org::task::Workflow::configured(&policy)
         .map_err(|e| Failure::new("org.todo.sequence", e))?;
     if !policy.log_drawer.is_empty() && !crate::org::task::drawer_name(&policy.log_drawer) {

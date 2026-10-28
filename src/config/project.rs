@@ -198,7 +198,7 @@ fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {
     color(&mut base.malformed, &partial.malformed);
 }
 
-fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
+pub(super) fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
     if let Some(value) = &partial.sequence {
         base.sequence.clone_from(value);
     }

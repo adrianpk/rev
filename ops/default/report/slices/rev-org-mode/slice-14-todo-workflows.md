@@ -113,6 +113,13 @@ initially attempted a private settings accessor; it now retains the same startup
 snapshot for its explicit host-owned view. Separating fixture construction from
 terminal ownership also keeps its source complexity within the existing limit.
 
+The first required batch passed formatting/Clippy, then existing invalid-source
+configuration cases exposed TODO validation projecting unrelated, unvalidated
+palette/gutter values. TODO validation now projects only its own fields onto
+factory task defaults, preserving the validate-before-projection contract.
+Existing rejection fixtures provide the regression signal; no checks are weakened.
+Final receipts are regenerated after this correction.
+
 Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) targets
 `dev` with the approved literal title. Its immutable report link uses full
 introduction commit `a1350e3dc561dee6d28c01b2ba5d7982de042676`.
