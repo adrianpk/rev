@@ -84,6 +84,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Estimate(Box<outline::estimates::Prompt>),
     Task(Box<outline::tasks::Prompt>),
     Tags(Box<outline::tags::Prompt>),
     Property(Box<outline::property::Prompt>),

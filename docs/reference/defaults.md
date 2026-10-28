@@ -135,10 +135,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 68 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 22 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 26 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
-| `keys.org_agenda` | Map of chord sequences to admitted navigation commands | Compiled map | Agenda role consumes unbound text; all 2 entries are active in the sample. |
+| `keys.org_agenda` | Map of chord sequences to admitted navigation commands | Compiled map | Agenda role consumes unbound text; all 4 entries are active in the sample. |
 | `keys.org_calendar` | Map of chord sequences to admitted navigation commands | Compiled map | Calendar role consumes unbound text; all 2 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
@@ -193,6 +193,15 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.priority.highest` | String | `"A"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |
+| `org.priority.lowest` | String | `"C"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |
+| `org.priority.default` | String | `"B"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |
+| `org.duration.units.min` | Finite float, positive | `1.0` | Elapsed work minutes for the min suffix, independent of calendar arithmetic. |
+| `org.duration.units.h` | Finite float, positive | `60.0` | Elapsed work minutes for the h suffix, independent of calendar arithmetic. |
+| `org.duration.units.d` | Finite float, positive | `1440.0` | Elapsed work minutes for the d suffix, independent of calendar arithmetic. |
+| `org.duration.units.w` | Finite float, positive | `10080.0` | Elapsed work minutes for the w suffix, independent of calendar arithmetic. |
+| `org.duration.units.m` | Finite float, positive | `43200.0` | Elapsed work minutes for the m suffix, independent of calendar arithmetic. |
+| `org.duration.units.y` | Finite float, positive | `525960.0` | Elapsed work minutes for the y suffix, independent of calendar arithmetic. |
 | `org.todo.sequence` | Array of keywords | `["TODO", "DONE"]` | Ordered 1..64 unique task words, each 1..128 UTF-8 bytes without whitespace, controls or task delimiters. Source declarations override this sequence. |
 | `org.todo.finished` | Array of keywords | `["DONE"]` | Unique subset of sequence; empty permits workflows without finished states. |
 | `org.todo.log_done` | Boolean | `false` | Add CLOSED on completion. Source state annotations or LOGGING select additional logging. |

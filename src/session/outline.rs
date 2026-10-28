@@ -4,6 +4,7 @@ use crate::view::View;
 use crate::window::ViewId;
 use std::sync::Arc;
 
+pub(super) mod estimates;
 mod list;
 mod operation;
 pub(super) mod property;
@@ -63,6 +64,12 @@ impl Session {
     }
 
     fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if request.command.estimate() {
+            if let Err(error) = self.start_estimate(model, request) {
+                self.error(&error);
+            }
+            return;
+        }
         if request.command.task() {
             if let Err(error) = self.start_task(model, request) {
                 self.error(&error);

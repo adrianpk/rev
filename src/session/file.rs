@@ -49,9 +49,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
-            Some(Pending::Task(prompt)) => self.task_argument(*prompt, &path),
-            Some(Pending::Tags(prompt)) => self.tag_argument(*prompt, &path),
-            Some(Pending::Property(prompt)) => self.property_argument(*prompt, &path),
+            Some(pending) if pending.org_argument() => self.org_argument(pending, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
             Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
@@ -64,5 +62,23 @@ impl Session {
             }
             _ => self.message("No file argument is pending"),
         }
+    }
+    fn org_argument(&mut self, pending: Pending, draft: &str) -> Action {
+        match pending {
+            Pending::Estimate(prompt) => self.estimate_argument(*prompt, draft),
+            Pending::Task(prompt) => self.task_argument(*prompt, draft),
+            Pending::Tags(prompt) => self.tag_argument(*prompt, draft),
+            Pending::Property(prompt) => self.property_argument(*prompt, draft),
+            _ => unreachable!("qualified Org argument"),
+        }
+    }
+}
+
+impl Pending {
+    fn org_argument(&self) -> bool {
+        matches!(
+            self,
+            Self::Estimate(_) | Self::Task(_) | Self::Tags(_) | Self::Property(_)
+        )
     }
 }

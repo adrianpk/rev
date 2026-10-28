@@ -28,7 +28,11 @@ impl Context {
             Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit => {
                 matches!(target, Binding::Command(_))
             }
-            Self::OrgAgenda | Self::OrgCalendar => org_navigation(target),
+            Self::OrgAgenda => {
+                org_navigation(target)
+                    || matches!(target, Binding::Command(Command::Org(command)) if command.estimate())
+            }
+            Self::OrgCalendar => org_navigation(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
         }

@@ -68,6 +68,7 @@ for file, history and retained-text policies.
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
+| Org estimates | `org-priority`, `org-priority-up`, `org-priority-down`, `org-inspect-priority`, `org-set-effort`, `org-inc-effort`, `org-inspect-effort` |
 | Org tasks | `org-todo`, `org-todo-next`, `org-todo-previous`, `org-todo-set`, `org-inspect-todo` |
 | Org tags | `org-set-tags-command`, `org-remove-tag`, `org-inspect-tags`, `org-match-tags` |
 | Org properties | `org-set-property`, `org-delete-property`, `org-inspect-property`, `org-edit-property-owner` |

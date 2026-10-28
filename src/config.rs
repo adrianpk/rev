@@ -115,12 +115,14 @@ pub enum Newline {
 }
 
 /// Native Org availability; individual buffers retain explicit mode choices.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Org {
     pub enabled: bool,
     pub properties: Properties,
     pub tags: Tags,
     pub todo: Todo,
+    pub priority: Priority,
+    pub duration: Duration,
 }
 
 impl Default for Org {
@@ -130,17 +132,86 @@ impl Default for Org {
             properties: Properties::default(),
             tags: Tags::default(),
             todo: Todo::default(),
+            priority: Priority::default(),
+            duration: Duration::default(),
         }
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrg {
     pub enabled: Option<bool>,
     pub properties: PartialProperties,
     pub tags: PartialTags,
     pub todo: PartialTodo,
+    pub priority: PartialPriority,
+    pub duration: PartialDuration,
+}
+
+/// Ordered native priority characters, with implicit default for absent cookies.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Priority {
+    pub highest: String,
+    pub lowest: String,
+    pub default: String,
+}
+impl Default for Priority {
+    fn default() -> Self {
+        Self {
+            highest: "A".into(),
+            lowest: "C".into(),
+            default: "B".into(),
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialPriority {
+    pub highest: Option<String>,
+    pub lowest: Option<String>,
+    pub default: Option<String>,
+}
+/// Duration unit scales are elapsed work minutes, not calendar arithmetic.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Duration {
+    pub units: DurationUnits,
+}
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialDuration {
+    pub units: PartialDurationUnits,
+}
+#[derive(Clone, Debug, PartialEq)]
+pub struct DurationUnits {
+    pub min: f64,
+    pub h: f64,
+    pub d: f64,
+    pub w: f64,
+    pub m: f64,
+    pub y: f64,
+}
+impl Default for DurationUnits {
+    fn default() -> Self {
+        Self {
+            min: 1.0,
+            h: 60.0,
+            d: 1440.0,
+            w: 10080.0,
+            m: 43200.0,
+            y: 525960.0,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialDurationUnits {
+    pub min: Option<f64>,
+    pub h: Option<f64>,
+    pub d: Option<f64>,
+    pub w: Option<f64>,
+    pub m: Option<f64>,
+    pub y: Option<f64>,
 }
 
 /// Native task defaults; source declarations override only the workflow.

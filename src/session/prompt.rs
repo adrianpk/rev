@@ -13,7 +13,12 @@ impl Session {
             self.org.cancel();
             if matches!(
                 self.pending,
-                Some(Pending::Property(_) | Pending::Tags(_) | Pending::Task(_))
+                Some(
+                    Pending::Property(_)
+                        | Pending::Tags(_)
+                        | Pending::Task(_)
+                        | Pending::Estimate(_)
+                )
             ) {
                 self.pending = None;
             }
@@ -41,13 +46,14 @@ impl Session {
     }
 
     pub(super) fn complete_argument(&mut self) -> Action {
+        if matches!(
+            self.pending,
+            Some(Pending::Task(_) | Pending::Tags(_) | Pending::Property(_) | Pending::Estimate(_))
+        ) {
+            return self.complete_org_argument();
+        }
         match self.pending {
-            Some(Pending::Task(_)) => {
-                self.message("Enter a task state/selection key or note; C-g cancels")
-            }
-            Some(Pending::Tags(_)) => self.complete_tag(),
             Some(Pending::Path(_)) => self.complete_path(),
-            Some(Pending::Property(_)) => self.message("Enter the property argument; C-g cancels"),
             Some(Pending::GotoLine { .. }) => {
                 self.message("Enter a signed decimal line number; C-g cancels")
             }
@@ -57,6 +63,17 @@ impl Session {
             }
             Some(Pending::Write { .. }) => self.message("Enter a path; C-g cancels"),
             _ => self.message("No argument is active"),
+        }
+    }
+    fn complete_org_argument(&mut self) -> Action {
+        match self.pending {
+            Some(Pending::Estimate(_)) => self.complete_estimate(),
+            Some(Pending::Task(_)) => {
+                self.message("Enter a task state/selection key or note; C-g cancels")
+            }
+            Some(Pending::Tags(_)) => self.complete_tag(),
+            Some(Pending::Property(_)) => self.message("Enter the property argument; C-g cancels"),
+            _ => unreachable!("qualified Org completion"),
         }
     }
 }

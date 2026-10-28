@@ -357,7 +357,7 @@ and 59 source tests, reference and two outline PTYs), all on that exact HEAD.
 Contracts: ORG06 ORG21.
 Details and exact checks: [Slice 15](../plan/rev-org-mode.md#slice-15-record-org-effort-estimates-and-priorities).
 
-- [ ] T15.1: Deliver native priority and EFFORT editing with Org duration forms and factory choices.
+- [x] T15.1: Deliver native priority and EFFORT editing with Org duration forms and factory choices.
 - [ ] T15.2: Keep workflow metadata compatible and expose operational commands in Org and agenda contexts.
 - [ ] T15.3: Verify numeric/duration rejection, source spelling preservation and atomic undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

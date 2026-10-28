@@ -164,6 +164,8 @@ mod org_palette;
 #[path = "configuration/org_properties.rs"]
 mod org_properties;
 
+#[path = "configuration/org_estimates.rs"]
+mod org_estimates;
 #[path = "configuration/org_tags.rs"]
 mod org_tags;
 #[path = "configuration/org_tasks.rs"]

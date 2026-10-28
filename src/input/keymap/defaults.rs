@@ -154,6 +154,10 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const ORG: &[(&str, &str)] = &[
+    ("C-c ,", "org-priority"),
+    ("S-Up", "org-priority-up"),
+    ("S-Down", "org-priority-down"),
+    ("C-c C-x e", "org-set-effort"),
     ("C-c C-t", "org-todo"),
     ("C-c C-q", "org-set-tags-command"),
     ("C-c C-x p", "org-set-property"),
@@ -180,8 +184,10 @@ const ORG: &[(&str, &str)] = &[
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
-// Non-text workspace owners admit only implemented navigation/cancel targets.
+// Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[
+    ("e", "org-set-effort"),
+    (",", "org-priority"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
 ];

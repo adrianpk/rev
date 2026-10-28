@@ -55,9 +55,16 @@ pub enum OrgCommand {
     PreviousTodo,
     SetTodo,
     InspectTodo,
+    Priority,
+    PriorityUp,
+    PriorityDown,
+    InspectPriority,
+    SetEffort,
+    IncEffort,
+    InspectEffort,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 53] = [
+    pub const ALL: [Self; 60] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -111,6 +118,13 @@ impl OrgCommand {
         Self::PreviousTodo,
         Self::SetTodo,
         Self::InspectTodo,
+        Self::Priority,
+        Self::PriorityUp,
+        Self::PriorityDown,
+        Self::InspectPriority,
+        Self::SetEffort,
+        Self::IncEffort,
+        Self::InspectEffort,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -167,9 +181,29 @@ impl OrgCommand {
             "org-todo-previous",
             "org-todo-set",
             "org-inspect-todo",
+            "org-priority",
+            "org-priority-up",
+            "org-priority-down",
+            "org-inspect-priority",
+            "org-set-effort",
+            "org-inc-effort",
+            "org-inspect-effort",
         ][self as usize]
     }
 
+    pub(crate) fn effort(self) -> bool {
+        matches!(
+            self,
+            Self::SetEffort | Self::IncEffort | Self::InspectEffort
+        )
+    }
+    pub(crate) fn estimate(self) -> bool {
+        self.effort()
+            || matches!(
+                self,
+                Self::Priority | Self::PriorityUp | Self::PriorityDown | Self::InspectPriority
+            )
+    }
     pub(crate) fn task(self) -> bool {
         matches!(
             self,

@@ -68,7 +68,7 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
         }
     }
     origins.retain(|key, _| retained_origin(&document, key));
-    let keymaps = validate::document(&document).map_err(|failure| {
+    let keymaps = validate::candidate(&document).map_err(|failure| {
         let path = origins
             .get(&failure.key)
             .map(|id| sources.sources[*id].path.as_path())

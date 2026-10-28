@@ -90,6 +90,21 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.priority]
+# Ordered single uppercase A-Z characters; highest <= default <= lowest.
+highest = "A"
+lowest = "C"
+default = "B"
+
+[org.duration.units]
+# Positive finite elapsed work minutes; source-local text cannot change scales.
+min = 1.0
+h = 60.0
+d = 1440.0
+w = 10080.0
+m = 43200.0
+y = 525960.0
+
 [org.todo]
 # Ordered 1..64 unique keywords; finished must be a subset. Source TODO,
 # SEQ_TODO and TYP_TODO declarations override the workflow for that buffer.
@@ -313,6 +328,10 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c ," = "org-priority"
+"S-Up" = "org-priority-up"
+"S-Down" = "org-priority-down"
+"C-c C-x e" = "org-set-effort"
 "C-c C-t" = "org-todo"
 "C-c C-q" = "org-set-tags-command"
 "C-c C-x p" = "org-set-property"
@@ -340,6 +359,8 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # These workspace roles consume unbound text. Feature owners add their own actions.
 [keys.org_agenda]
+"e" = "org-set-effort"
+"," = "org-priority"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 [keys.org_calendar]

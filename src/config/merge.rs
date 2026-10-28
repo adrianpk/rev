@@ -47,6 +47,8 @@ impl Document {
             &later.org.tags.inherit,
         );
         merge.todo(&mut self.org.todo, &later.org.todo);
+        merge.priority(&mut self.org.priority, &later.org.priority);
+        merge.duration(&mut self.org.duration.units, &later.org.duration.units);
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);
@@ -56,6 +58,39 @@ impl Document {
 }
 
 impl Merge {
+    fn priority(&mut self, base: &mut super::PartialPriority, later: &super::PartialPriority) {
+        self.leaf(
+            &["org", "priority", "highest"],
+            &mut base.highest,
+            &later.highest,
+        );
+        self.leaf(
+            &["org", "priority", "lowest"],
+            &mut base.lowest,
+            &later.lowest,
+        );
+        self.leaf(
+            &["org", "priority", "default"],
+            &mut base.default,
+            &later.default,
+        );
+    }
+    fn duration(
+        &mut self,
+        base: &mut super::PartialDurationUnits,
+        later: &super::PartialDurationUnits,
+    ) {
+        self.leaf(
+            &["org", "duration", "units", "min"],
+            &mut base.min,
+            &later.min,
+        );
+        self.leaf(&["org", "duration", "units", "h"], &mut base.h, &later.h);
+        self.leaf(&["org", "duration", "units", "d"], &mut base.d, &later.d);
+        self.leaf(&["org", "duration", "units", "w"], &mut base.w, &later.w);
+        self.leaf(&["org", "duration", "units", "m"], &mut base.m, &later.m);
+        self.leaf(&["org", "duration", "units", "y"], &mut base.y, &later.y);
+    }
     fn todo(&mut self, base: &mut super::PartialTodo, later: &super::PartialTodo) {
         self.leaf(
             &["org", "todo", "sequence"],

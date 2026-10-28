@@ -27,6 +27,11 @@ pub(super) fn settings(document: &Document) -> Settings {
         settings.org.properties.inherit.clone_from(names);
     }
     todo(&mut settings.org.todo, &document.org.todo);
+    priority(&mut settings.org.priority, &document.org.priority);
+    duration(
+        &mut settings.org.duration.units,
+        &document.org.duration.units,
+    );
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -210,4 +215,24 @@ pub(super) fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
     }
     scalar(&mut base.log_done, partial.log_done);
     scalar(&mut base.block_children, partial.block_children);
+}
+
+pub(super) fn priority(base: &mut super::Priority, partial: &super::PartialPriority) {
+    if let Some(value) = &partial.highest {
+        base.highest.clone_from(value);
+    }
+    if let Some(value) = &partial.lowest {
+        base.lowest.clone_from(value);
+    }
+    if let Some(value) = &partial.default {
+        base.default.clone_from(value);
+    }
+}
+pub(super) fn duration(base: &mut super::DurationUnits, partial: &super::PartialDurationUnits) {
+    scalar(&mut base.min, partial.min);
+    scalar(&mut base.h, partial.h);
+    scalar(&mut base.d, partial.d);
+    scalar(&mut base.w, partial.w);
+    scalar(&mut base.m, partial.m);
+    scalar(&mut base.y, partial.y);
 }

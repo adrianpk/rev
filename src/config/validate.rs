@@ -80,7 +80,8 @@ fn editing(document: &Document) -> Result<(), Failure> {
         integer(key, value, range)?;
     }
     properties(&document.org.properties)?;
-    todo(document)
+    todo(document)?;
+    estimates(document)
 }
 
 fn retention(document: &Document) -> Result<(), Failure> {
@@ -341,4 +342,44 @@ fn todo(document: &Document) -> Result<(), Failure> {
         return Err(Failure::new("org.todo.log_drawer", "Use an empty value or a drawer name of 1..64 ASCII letters, digits, _ or -; PROPERTIES and END are reserved".into()));
     }
     Ok(())
+}
+
+fn estimates(document: &Document) -> Result<(), Failure> {
+    let priority = &document.org.priority;
+    for (key, value) in [
+        ("highest", &priority.highest),
+        ("lowest", &priority.lowest),
+        ("default", &priority.default),
+    ] {
+        if let Some(value) = value {
+            crate::org::priority::Priority::new(value, value, value)
+                .map_err(|e| Failure::new(&format!("org.priority.{key}"), e))?;
+        }
+    }
+    let units = &document.org.duration.units;
+    for (key, value) in [
+        ("min", units.min),
+        ("h", units.h),
+        ("d", units.d),
+        ("w", units.w),
+        ("m", units.m),
+        ("y", units.y),
+    ] {
+        if value.is_some_and(|v| !v.is_finite() || v <= 0.0) {
+            return Err(Failure::new(
+                &format!("org.duration.units.{key}"),
+                "Duration units must be positive finite minutes".into(),
+            ));
+        }
+    }
+    Ok(())
+}
+
+pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> {
+    let keymaps = document(value)?;
+    let mut priority = super::Priority::default();
+    super::project::priority(&mut priority, &value.org.priority);
+    crate::org::priority::Priority::configured(&priority)
+        .map_err(|e| Failure::new("org.priority.default", e))?;
+    Ok(keymaps)
 }

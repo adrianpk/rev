@@ -1,6 +1,7 @@
 mod edit;
 mod matching;
 mod model;
+mod priority;
 mod tasks;
 pub(crate) use tasks::TaskChange;
 
@@ -21,6 +22,7 @@ pub(in crate::org) struct Tags {
     count: usize,
     workflow: crate::org::task::Workflow,
     metadata: tasks::Metadata,
+    priorities: Option<Result<crate::org::priority::Priority, String>>,
 }
 #[derive(Debug, PartialEq, Eq)]
 struct Header {
@@ -28,6 +30,7 @@ struct Header {
     valid: bool,
     title: Range<usize>,
     word: String,
+    words: Vec<(Range<usize>, String)>,
     priority: Option<String>,
     local: Vec<Tag>,
 }

@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Set and cycle Org priorities, inspect implicit defaults, and store effort estimates in native duration forms. Effort choices, original value spelling and unrelated task metadata survive checked edits and single-step undo.
+
 - Change Org task states with `C-c C-t` or M-x using configured or file-local workflows. Selected completion timestamps, state notes and progress cookies change together, respect task dependencies, and undo in one step.
 
 - Edit and complete Org tags with `C-c C-q`, inspect local and inherited tag owners, and test Boolean tag/property expressions against the current heading without changing source.

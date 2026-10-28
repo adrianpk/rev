@@ -81,12 +81,14 @@ impl Tags {
         };
         let priority = priority(first).or_else(|| words.next().and_then(priority));
         let content = node.content.start..span.start;
+        let words = heading_words(&title[..content.len()], node.content.start);
         self.headers.push(Header {
             span,
             valid,
             local,
             title: content,
             word,
+            words,
             priority,
         });
     }
@@ -104,6 +106,7 @@ impl Tags {
                 }
             }
             "TODO" | "SEQ_TODO" | "TYP_TODO" => self.workflow.declaration(&value),
+            "PRIORITIES" => self.priorities = Some(priority::declaration(&value)),
             _ => (),
         }
     }
@@ -142,4 +145,21 @@ fn parse_suffix(value: &str, offset: usize) -> Option<Vec<Tag>> {
 fn priority(word: &str) -> Option<String> {
     let letter = word.strip_prefix("[#")?.strip_suffix(']')?;
     (letter.len() == 1 && letter.as_bytes()[0].is_ascii_uppercase()).then(|| letter.into())
+}
+
+fn heading_words(title: &str, offset: usize) -> Vec<(std::ops::Range<usize>, String)> {
+    let mut words = Vec::new();
+    let mut at = 0;
+    for word in title.split_whitespace().take(2) {
+        let start = at + title[at..].find(word).expect("source word");
+        let end = start + word.len();
+        let value = if word.len() <= 128 {
+            word.into()
+        } else {
+            String::new()
+        };
+        words.push((offset + start..offset + end, value));
+        at = end;
+    }
+    words
 }

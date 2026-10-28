@@ -17,6 +17,13 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x org-delete-property` | `org-delete-property` | Remove the named local base or additive form. |
 | `M-x org-inspect-property` | `org-inspect-property` | Inspect effective data and source owners. |
 | `M-x org-edit-property-owner` | `org-edit-property-owner` | Explicitly edit a selected effective source owner. |
+| `C-c ,` in Org | `org-priority` | Set a priority character; empty/space removes the cookie. |
+| `S-Up` in Org | `org-priority-up` | Cycle upward through the priority range and unmarked. |
+| `S-Down` in Org | `org-priority-down` | Cycle downward through the priority range and unmarked. |
+| `M-x org-inspect-priority` | `org-inspect-priority` | Show explicit or implicit default priority. |
+| `C-c C-x e` in Org, `e` in agenda role | `org-set-effort` | Store a validated Org duration in local EFFORT. |
+| `M-x org-inc-effort` | `org-inc-effort` | Cycle declared EFFORT_ALL choices. |
+| `M-x org-inspect-effort` | `org-inspect-effort` | Show original effort spelling and elapsed minutes. |
 | `C-c C-t` in Org | `org-todo` | Cycle task state or select an annotated fast key. |
 | `M-x org-todo-next` | `org-todo-next` | Next state in the current sequence, including unmarked. |
 | `M-x org-todo-previous` | `org-todo-previous` | Previous state in the current sequence, including unmarked. |

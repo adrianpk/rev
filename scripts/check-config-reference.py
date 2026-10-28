@@ -31,6 +31,9 @@ TABLES = {
     "org": "PartialOrg",
     "org.tags": "PartialTags",
     "org.todo": "PartialTodo",
+    "org.priority": "PartialPriority",
+    "org.duration": "PartialDuration",
+    "org.duration.units": "PartialDurationUnits",
     "org.properties": "PartialProperties",
     "files": "PartialFiles",
     "keys": "Keymaps",
@@ -187,7 +190,7 @@ def check_catalog(document, models, rows):
     expected = leaves(models)
     same_keys(rows, expected, "configuration catalog")
     for key, row in rows.items():
-        label = "String" if key == "org.todo.log_drawer" else type_label(expected[key])
+        label = "String" if key == "org.todo.log_drawer" or key.startswith("org.priority.") else type_label(expected[key])
         require(row[0].startswith(label), f"{key}: type documentation drift")
         check_default(document, key, row)
 
