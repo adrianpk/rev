@@ -26,7 +26,7 @@ impl Parser<'_> {
         self.rest = &self.rest[len..];
         Ok(n)
     }
-    pub fn name(&mut self) -> Result<(), String> {
+    pub fn name(&mut self) -> Result<String, String> {
         let name = if let Some(rest) = self.rest.strip_prefix('<') {
             let (name, tail) = rest.split_once('>').ok_or("Unclosed POSIX zone name")?;
             if !name.bytes().all(quoted_name) {
@@ -44,10 +44,13 @@ impl Parser<'_> {
             self.rest = &self.rest[len..];
             name
         };
+        if name == "-00" {
+            return Err("POSIX zone designation marks local time as unspecified".into());
+        }
         if !(3..=64).contains(&name.len()) {
             return Err("POSIX zone name requires 3..64 ASCII bytes".into());
         }
-        Ok(())
+        Ok(name.into())
     }
     pub fn clock(&mut self, hours: i32, signed: bool) -> Result<i32, String> {
         let sign = self.sign(signed)?;

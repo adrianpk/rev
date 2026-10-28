@@ -106,3 +106,13 @@ fn posix_rules() {
         assert!(Zone::from_posix(text).is_err(), "{text}");
     }
 }
+
+// A POSIX unknown designation cannot claim a real zero offset through either a
+// direct TZ value or a TZif footer. No valid civil instant may be fabricated.
+#[test]
+fn unknown_posix_designation() {
+    assert!(Zone::from_posix("<-00>0").is_err());
+    assert!(Zone::from_posix("STD0<-00>,M3.1.0,M10.1.0").is_err());
+    let bytes = tzif(b'3', &[], &[(0, 0, 0)], b"UTC\0", "<-00>0");
+    assert!(Zone::from_tzif(&bytes).is_err());
+}

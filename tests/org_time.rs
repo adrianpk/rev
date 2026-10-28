@@ -26,3 +26,6 @@ mod zone_observation;
 
 #[path = "org_time/zone_resolution.rs"]
 mod zone_resolution;
+
+#[path = "org_time/zone_bounds.rs"]
+mod zone_bounds;

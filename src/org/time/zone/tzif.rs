@@ -64,7 +64,7 @@ pub(super) fn parse(bytes: &[u8]) -> Result<Zone, String> {
         transitions,
         future,
     };
-    consistent_footer(&zone)?;
+    consistent_footer(&zone, data, &header, width)?;
     Ok(zone)
 }
 fn block<'a>(bytes: &'a [u8], first: &Header) -> Result<(&'a [u8], usize), String> {
@@ -113,19 +113,24 @@ fn offset(record: &[u8], names: &[u8]) -> Result<Option<i32>, String> {
     if record[4] > 1 {
         return Err("Invalid TZif DST indicator".into());
     }
+    let name = designation(names, record[5])?;
+    Ok(if name == b"-00" { None } else { Some(seconds) })
+}
+fn designation(names: &[u8], index: u8) -> Result<&[u8], String> {
     let name = names
-        .get(usize::from(record[5])..)
+        .get(usize::from(index)..)
         .ok_or("Invalid TZif designation index")?;
     let end = name
         .iter()
         .position(|b| *b == 0)
         .ok_or("Unterminated TZif designation")?;
     let name = &name[..end];
-    if !name.iter().all(|b| (32..=126).contains(b)) {
-        return Err("Invalid TZif designation bytes".into());
+    if name.len() > 64 || !name.iter().all(|b| (32..=126).contains(b)) {
+        return Err("TZif designation requires at most 64 printable ASCII bytes".into());
     }
-    Ok(if name == b"-00" { None } else { Some(seconds) })
+    Ok(name)
 }
+
 fn indicators(data: &[u8], h: &Header) -> Result<(), String> {
     let (standard, utc) = data.split_at(h.standard);
     for i in 0..h.types {
@@ -161,12 +166,20 @@ fn instant(bytes: &[u8]) -> i64 {
         i64::from_be_bytes(bytes.try_into().expect("eight bytes"))
     }
 }
-fn consistent_footer(zone: &Zone) -> Result<(), String> {
+fn consistent_footer(zone: &Zone, data: &[u8], h: &Header, width: usize) -> Result<(), String> {
     let (Some(last), Some(future)) = (zone.transitions.last(), &zone.future) else {
         return Ok(());
     };
-    if Some(future.offset_at(last.at)?) != zone.offsets[last.kind] {
-        return Err("TZif footer disagrees with its last transition".into());
+    let record_start = h.times * (width + 1);
+    let record = &data[record_start + last.kind * 6..record_start + (last.kind + 1) * 6];
+    let names_start = record_start + h.types * 6;
+    let name = designation(&data[names_start..names_start + h.chars], record[5])?;
+    let expected = future.type_at(last.at)?;
+    if Some(expected.offset) != zone.offsets[last.kind]
+        || expected.daylight != (record[4] == 1)
+        || expected.name.as_bytes() != name
+    {
+        return Err("TZif footer disagrees with its last time type".into());
     }
     Ok(())
 }

@@ -1,5 +1,6 @@
 """Native task transitions and atomic metadata on owned RGB/NO_COLOR PTYs."""
 import re
+from datetime import datetime, timezone
 from .org_estimates import estimates
 
 from .support import (BINARY, PTY, ROOT, canvas, close, completed, environment,
@@ -9,7 +10,7 @@ LINES = ['#+SEQ_TODO: TODO(t) WAIT(w@/!) | DONE(d@)', '* Parent [0/1]',
          '** TODO [#A] Child :work:', 'SCHEDULED: <2026-10-29 Thu>',
          ':PROPERTIES:', ':OWNER: keep', ':END:', 'body 界', '* Peer', 'peer EOF']
 SOURCE = ('\ufeff' + '\r\n'.join(LINES)).encode()
-POLICY = b'org.todo.log_done=true\norg.todo.log_drawer="LOGBOOK"\norg.todo.block_children=true\n[keys.org]\n"M-j"="org-todo"\n'
+POLICY = b'org.time.zone="UTC"\norg.todo.log_done=true\norg.todo.log_drawer="LOGBOOK"\norg.todo.block_children=true\n[keys.org]\n"M-j"="org-todo"\n'
 STAMP = re.compile(r'\[\d{4}-\d{2}-\d{2} [A-Z][a-z]{2} \d{2}:\d{2}\]')
 
 
@@ -41,6 +42,7 @@ def changed(stamp):
 
 
 def transition(session, wire, source):
+    before = datetime.now(timezone.utc)
     goto(session, 3)
     step(session, wire, b'Org task state: ')
     step(session, b'd\r', b'Org state note: ')
@@ -49,6 +51,7 @@ def transition(session, wire, source):
                  and any('CLOSED:' in line for line in document(frame)))
     stamps = STAMP.findall(document(frame)[3])
     assert len(stamps) == 1, document(frame)
+    assert_utc_stamp(stamps[0], before, datetime.now(timezone.utc))
     expected = changed(stamps[0])
     assert exact(frame, expected), document(frame)
     assert b'** RW --' in frame
@@ -62,11 +65,23 @@ def transition(session, wire, source):
     assert source.read_bytes() == SOURCE
 
 
+def assert_utc_stamp(stamp, before, after):
+    value = datetime.fromisoformat(f'{stamp[1:11]}T{stamp[16:21]}:00').replace(tzinfo=timezone.utc)
+    assert before.replace(second=0, microsecond=0) <= value <= after.replace(second=0, microsecond=0), stamp
+
+
+def task_environment(root, colored):
+    env = environment(root, colored)
+    # A wrong local environment must not override the explicit UTC preference.
+    env['TZ'] = 'Invalid/OwnedFixture'
+    return env
+
+
 def tasks(root, colored):
     write(root, 'user/rev/config.toml', POLICY)
     source = write(root, 'work/tasks.org', SOURCE)
     before = snapshot(root)
-    session = PTY['Session']([str(BINARY), str(source)], env=environment(root, colored), cwd=source.parent)
+    session = PTY['Session']([str(BINARY), str(source)], env=task_environment(root, colored), cwd=source.parent)
     try:
         session.ready(b'> tasks.org -- RW -- L1 C1')
         session.wait(lambda: completed(session, lambda frame: exact(frame, LINES)))
@@ -94,7 +109,7 @@ def readonly(root, colored):
     source = write(root, 'work/tasks.org', SOURCE)
     before = snapshot(root)
     binary = ROOT / 'target/debug/examples/org-task-session'
-    session = PTY['Session']([str(binary), str(source)], env=environment(root, colored), cwd=source.parent)
+    session = PTY['Session']([str(binary), str(source)], env=task_environment(root, colored), cwd=source.parent)
     try:
         session.ready(b'> tasks.org -- RO -- L1 C1')
         session.wait(lambda: completed(session, lambda frame: exact(frame, LINES)))

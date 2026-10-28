@@ -5,13 +5,20 @@ use parse::{Parser, Rule};
 #[derive(Clone, Debug)]
 pub(super) struct Posix {
     pub standard: i32,
+    name: String,
     pub daylight: Option<Daylight>,
 }
 #[derive(Clone, Debug)]
 pub(super) struct Daylight {
     pub offset: i32,
+    name: String,
     start: Rule,
     end: Rule,
+}
+pub(super) struct TimeType<'a> {
+    pub offset: i32,
+    pub daylight: bool,
+    pub name: &'a str,
 }
 impl Posix {
     pub fn parse(text: &str, extended: bool) -> Result<Self, String> {
@@ -19,18 +26,40 @@ impl Posix {
             return Err("POSIX zone requires at most 1024 ASCII bytes".into());
         }
         let mut parser = Parser { rest: text };
-        parser.name()?;
+        let name = parser.name()?;
         let standard = -parser.clock(24, true)?;
         checked_offset(standard)?;
         let daylight = daylight(&mut parser, standard, extended)?;
-        Ok(Self { standard, daylight })
+        Ok(Self {
+            standard,
+            name,
+            daylight,
+        })
     }
     pub fn offset_at(&self, seconds: i64) -> Result<i32, String> {
+        Ok(self.type_at(seconds)?.offset)
+    }
+    pub fn type_at(&self, seconds: i64) -> Result<TimeType<'_>, String> {
+        let daylight = self.daylight_at(seconds)?;
+        if let Some(dst) = self.daylight.as_ref().filter(|_| daylight) {
+            return Ok(TimeType {
+                offset: dst.offset,
+                daylight: true,
+                name: &dst.name,
+            });
+        }
+        Ok(TimeType {
+            offset: self.standard,
+            daylight: false,
+            name: &self.name,
+        })
+    }
+    fn daylight_at(&self, seconds: i64) -> Result<bool, String> {
         let Some(daylight) = &self.daylight else {
-            return Ok(self.standard);
+            return Ok(false);
         };
         let year = civil_year(seconds)?;
-        let mut latest = (i64::MIN, 0, self.standard);
+        let mut latest = (i64::MIN, 0, false);
         // Four years suffice even when signed rule times spill a week into an
         // adjacent year. No recurrence expansion is retained between operations.
         for year in year - 2..=year + 1 {
@@ -42,10 +71,10 @@ impl Posix {
         }
         Ok(latest.2)
     }
-    fn events(&self, dst: &Daylight, year: i32) -> Result<[(i64, u8, i32); 2], String> {
+    fn events(&self, dst: &Daylight, year: i32) -> Result<[(i64, u8, bool); 2], String> {
         Ok([
-            (dst.start.instant(year, self.standard)?, 1, dst.offset),
-            (dst.end.instant(year, dst.offset)?, 0, self.standard),
+            (dst.start.instant(year, self.standard)?, 1, true),
+            (dst.end.instant(year, dst.offset)?, 0, false),
         ])
     }
 }
@@ -64,7 +93,7 @@ fn daylight(
     if parser.rest.is_empty() {
         return Ok(None);
     }
-    parser.name()?;
+    let name = parser.name()?;
     let offset = if parser.rest.starts_with(',') {
         standard + 3600
     } else {
@@ -78,6 +107,7 @@ fn daylight(
         .ok_or("POSIX daylight zone requires start and end rules")?;
     Ok(Some(Daylight {
         offset,
+        name,
         start: Rule::parse(start, extended)?,
         end: Rule::parse(end, extended)?,
     }))

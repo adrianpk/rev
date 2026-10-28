@@ -1,6 +1,6 @@
 # Slice 17: resolve Org local times and zone changes
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -58,7 +58,10 @@ select a zone file or execute a program.
 ## Files of Interest
 
 - `src/org/time/zone/`: native TZif/POSIX parsing and explicit observation inputs.
-- `tests/org_time/zones.rs`, `zone_observation.rs`: owned format/selection fixtures.
+- `tests/org_time/zone_*.rs`, `zones.rs`: independent format, operation and IO fixtures.
+- `src/config.rs`, `src/config/`: typed time policy, validation and provenance.
+- `src/session/outline/tasks/clock.rs`: selected native task-log zone consumer.
+- `scripts/configuration_ui/org_tasks.py`: real configured-UTC task transitions.
 
 ## Validation
 
@@ -84,7 +87,43 @@ T17.2 development checks passed:
   143 default bindings and 13624 exact packaged template bytes agree.
 - Focused changed-source quality passed with the original thresholds.
 
+T17.3 development checks passed:
+
+- `cargo test --test org_time zone -- --nocapture`: all 20 focused zone tests
+  passed, zero skips, including exact parser limits and every truncated prefix.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  all four owned RGB/NO_COLOR editing/read-only sessions passed, zero skips.
+  Explicit configured UTC overrides an invalid child TZ. Captured completion
+  stamps lie within independently observed UTC minute bounds; all prior note,
+  source-byte, save, undo/redo, snapshot and child/descriptor cleanup assertions
+  remain intact. No operator environment or document is mutated.
+- Focused changed-source quality passed with the original thresholds.
+
+Independent failing fixtures reproduced unknown POSIX -00 designations being
+admitted and footer agreement checking only the numerical offset. Unknown
+POSIX designations now reject, and the footer must agree with the last offset,
+DST indicator and designation. The fixtures now pass without weakening their
+observable expectations. Valid generated fixture labels were made consistent
+with that published rule; their transition instants, offsets and fold choices
+remain unchanged.
+
+Additional fixtures cover malformed headers/counts/records, reserved bytes,
+unused invalid types, version mismatches, indicator ordering, leap data,
+regular-file/size/path limits, invalid source selection and clock failure.
+Half-hour and negative-DST folds/gaps, a full skipped day, three simultaneous
+fold choices, boundary years and external file replacement remain explicit.
+The existing task-log release note now documents selectable operation zones.
+
+Final required ordered checks will be recorded through the controller after
+the canonical PR-reference follow-up is committed and pushed. Focused same-HEAD
+checks also cover native Org editing, configuration reference agreement and
+four owned task terminal sessions. Receipt identities belong in Acta and the
+checkpoint without moving the validated candidate afterward.
+
 ## Risks and Follow-ups
 
-Adversarial format/IO boundaries and native task-zone evidence continue in
-T17.3. Timestamp entry remains with the recorded Slice 18.
+Filesystem reads are bounded; a blocked kernel filesystem operation has no hard
+execution deadline. Leap-second TZif and implicit POSIX DST defaults remain
+explicit diagnosed outcomes, as documented. Timestamp entry and its interactive
+offset/replacement choices belong to the recorded Slice 18; the native time
+owner already retains all valid candidates and rejects invalid forced offsets.

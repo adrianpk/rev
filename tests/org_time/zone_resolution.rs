@@ -14,29 +14,37 @@ fn zone() -> Zone {
 // Gaps offer no manufactured instant, including when an offset is forced.
 #[test]
 fn explicit_fold_gap() {
-    let zone = zone();
-    let fold = local((2024, 10, 27), (2, 30, 0));
-    let result = zone.resolve(fold).unwrap();
-    let expected = [
-        ResolvedTime {
-            unix_seconds: 1729989000,
-            offset_seconds: 7200,
-        },
-        ResolvedTime {
-            unix_seconds: 1729992600,
-            offset_seconds: 3600,
-        },
-    ];
-    assert_eq!(result, Resolution::Ambiguous(expected.to_vec()));
-    for choice in expected {
-        assert_eq!(result.choose_offset(choice.offset_seconds).unwrap(), choice);
-        assert_eq!(zone.civil_at(choice.unix_seconds).unwrap(), fold);
+    let bytes = super::zone_fixture::tzif(
+        b'3',
+        &[(1711846800, 1), (1729990800, 0)],
+        &[(3600, 0, 0), (7200, 1, 4)],
+        b"CET\0CEST\0",
+        "CET-1CEST,M3.5.0,M10.5.0/3",
+    );
+    for zone in [zone(), Zone::from_tzif(&bytes).unwrap()] {
+        let fold = local((2024, 10, 27), (2, 30, 0));
+        let result = zone.resolve(fold).unwrap();
+        let expected = [
+            ResolvedTime {
+                unix_seconds: 1729989000,
+                offset_seconds: 7200,
+            },
+            ResolvedTime {
+                unix_seconds: 1729992600,
+                offset_seconds: 3600,
+            },
+        ];
+        assert_eq!(result, Resolution::Ambiguous(expected.to_vec()));
+        for choice in expected {
+            assert_eq!(result.choose_offset(choice.offset_seconds).unwrap(), choice);
+            assert_eq!(zone.civil_at(choice.unix_seconds).unwrap(), fold);
+        }
+        assert!(result.choose_offset(0).is_err());
+        let gap = zone.resolve(local((2024, 3, 31), (2, 30, 0))).unwrap();
+        assert_eq!(gap, Resolution::Nonexistent);
+        assert!(gap.choose_offset(3600).is_err());
+        assert!(gap.choose_offset(7200).is_err());
     }
-    assert!(result.choose_offset(0).is_err());
-    let gap = zone.resolve(local((2024, 3, 31), (2, 30, 0))).unwrap();
-    assert_eq!(gap, Resolution::Nonexistent);
-    assert!(gap.choose_offset(3600).is_err());
-    assert!(gap.choose_offset(7200).is_err());
 }
 
 // Exact civil transition edges resolve and project through one observation.
@@ -71,4 +79,88 @@ fn unresolved_coverage() {
     assert!(unknown.resolve(local((2024, 1, 1), (0, 0, 0))).is_err());
     let exhausted = Zone::from_tzif(&tzif(b'2', &[(0, 0)], &[(0, 0, 0)], b"UTC\0", "")).unwrap();
     assert!(exhausted.resolve(local((2024, 1, 1), (0, 0, 0))).is_err());
+}
+
+// More than two valid offsets must remain visible. A constructed historical
+// sequence repeats one civil time three times, exercising the full candidate set.
+#[test]
+fn multiple_fold_choices() {
+    let bytes = super::zone_fixture::tzif(
+        b'3',
+        &[(3600, 1), (7200, 2)],
+        &[(7200, 0, 0), (3600, 0, 0), (0, 0, 0)],
+        b"UTC\0",
+        "UTC0",
+    );
+    let zone = Zone::from_tzif(&bytes).unwrap();
+    let value = local((1970, 1, 1), (2, 30, 0));
+    let result = zone.resolve(value).unwrap();
+    assert!(matches!(result, Resolution::Ambiguous(_)));
+    let choices: Vec<_> = result
+        .candidates()
+        .iter()
+        .map(|c| (c.unix_seconds, c.offset_seconds))
+        .collect();
+    assert_eq!(choices, [(1800, 7200), (5400, 3600), (9000, 0)]);
+}
+
+// Offset changes need not be one hour or positive DST. Both half-hour folds and
+// negative-DST folds/gaps retain exactly the offsets actually observed by rules.
+#[test]
+fn irregular_dst_changes() {
+    for (rule, date, time, offsets) in [
+        (
+            "STD-10:30DST-11,M10.1.0/2,M4.1.0/2",
+            (2024, 4, 7),
+            (1, 45, 0),
+            vec![39600, 37800],
+        ),
+        (
+            "STD-10:30DST-11,M10.1.0/2,M4.1.0/2",
+            (2024, 10, 6),
+            (2, 15, 0),
+            vec![],
+        ),
+        (
+            "STD-1DST0,M3.5.0/2,M10.5.0/2",
+            (2024, 3, 31),
+            (1, 30, 0),
+            vec![3600, 0],
+        ),
+        (
+            "STD-1DST0,M3.5.0/2,M10.5.0/2",
+            (2024, 10, 27),
+            (2, 30, 0),
+            vec![],
+        ),
+    ] {
+        let zone = Zone::from_posix(rule).unwrap();
+        let result = zone.resolve(local(date, time)).unwrap();
+        let actual: Vec<_> = result
+            .candidates()
+            .iter()
+            .map(|c| c.offset_seconds)
+            .collect();
+        assert_eq!(actual, offsets, "{rule}: {date:?} {time:?}");
+    }
+}
+
+// A constructed date-line change skips a full civil day. Resolution must not
+// assume gaps fit within an hour, nor derive elapsed time by subtracting dates.
+#[test]
+fn date_line_gap() {
+    let bytes = super::zone_fixture::tzif(
+        b'3',
+        &[(1325239200, 1)],
+        &[(-36000, 0, 0), (50400, 0, 4)],
+        b"OLD\0+14\0",
+        "<+14>-14",
+    );
+    let zone = Zone::from_tzif(&bytes).unwrap();
+    let gap = zone.resolve(local((2011, 12, 30), (12, 0, 0))).unwrap();
+    assert_eq!(gap, Resolution::Nonexistent);
+    let before = zone.resolve(local((2011, 12, 29), (12, 0, 0))).unwrap();
+    assert_eq!(before.candidates()[0].offset_seconds, -36000);
+    let after = zone.resolve(local((2011, 12, 31), (12, 0, 0))).unwrap();
+    assert_eq!(after.candidates()[0].offset_seconds, 50400);
 }
