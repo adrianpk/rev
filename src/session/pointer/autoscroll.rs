@@ -73,30 +73,32 @@ impl Session {
         let Some(panel) = self.capture_panel(selection.capture) else {
             return Action::Wait;
         };
-        let action = self.pointer_tick(&mut selection, panel, now);
-        self.selection = Some(selection);
-        action
-    }
-
-    fn pointer_tick(&mut self, selection: &mut Selection, panel: Panel, now: Instant) -> Action {
-        let Some(pending) = selection.autoscroll.as_ref() else {
-            return Action::Wait;
-        };
-        if now < pending.due {
-            return Action::Wait;
-        }
-        match self.scroll_selection(selection, panel) {
+        match self.pointer_tick(&mut selection, panel, now) {
             Ok(action) => {
-                if let Some(pending) = selection.autoscroll.as_mut() {
-                    pending.due = now + INTERVAL;
-                }
+                self.selection = Some(selection);
                 action
             }
-            Err(error) => {
-                selection.autoscroll = None;
-                self.error(&error.to_string())
-            }
+            Err(error) => self.error(&error.to_string()),
         }
+    }
+
+    fn pointer_tick(
+        &mut self,
+        selection: &mut Selection,
+        panel: Panel,
+        now: Instant,
+    ) -> Result<Action, Error> {
+        let Some(pending) = selection.autoscroll.as_ref() else {
+            return Ok(Action::Wait);
+        };
+        if now < pending.due {
+            return Ok(Action::Wait);
+        }
+        let action = self.scroll_selection(selection, panel)?;
+        if let Some(pending) = selection.autoscroll.as_mut() {
+            pending.due = now + INTERVAL;
+        }
+        Ok(action)
     }
 
     fn scroll_selection(
@@ -169,5 +171,70 @@ fn edge_cell(
     Cell {
         row,
         column: view.left.saturating_add(usize::from(local)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::command::{Command, Motion};
+    use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventKind};
+
+    fn mouse(kind: MouseEventKind, row: u16) -> Event {
+        Event::Mouse(MouseEvent {
+            kind,
+            column: 7,
+            row,
+            modifiers: KeyModifiers::NONE,
+        })
+    }
+
+    // Every due tick must independently reject a stale source, even if a host
+    // changes ownership or the document stamp without the ordinary cancel hook.
+    #[test]
+    fn stale_capture() {
+        for fault in ["view", "document", "point"] {
+            let mut session = Session::empty(crate::view::Size {
+                width: 80,
+                height: 12,
+            })
+            .unwrap();
+            session.handle(Event::Paste("row\n".repeat(50)));
+            session.execute(Command::Motion(Motion::BufferStart));
+            let now = Instant::now();
+            session.handle_at(mouse(MouseEventKind::Down(MouseButton::Left), 0), now);
+            session.handle_at(mouse(MouseEventKind::Drag(MouseButton::Left), 10), now);
+            if fault == "document" {
+                let id = session.view().point.stamp.buffer;
+                let buffer = session.buffers.get_mut(id).unwrap();
+                let point = session.windows.selected().point;
+                let prepared = buffer
+                    .prepare(
+                        &[crate::buffer::edit::Replacement {
+                            source: buffer.span(0..0).unwrap(),
+                            text: "X".into(),
+                        }],
+                        &[point],
+                        None,
+                    )
+                    .unwrap();
+                buffer.publish(prepared, &mut [point]).unwrap();
+            } else if fault == "view" {
+                session.windows.selected_mut().point.stamp.revision += 1;
+            } else {
+                session.windows.selected_mut().point.position =
+                    crate::coordinates::Scalar(usize::MAX);
+            }
+            let before = session.view().clone();
+            let action = if fault == "point" {
+                Action::Redraw
+            } else {
+                Action::Wait
+            };
+            assert_eq!(session.expire_input(now + INTERVAL), action, "{fault}");
+            assert_eq!(session.remaining_input(now + INTERVAL), None);
+            assert!(session.selection.is_none());
+            assert_eq!(session.view(), &before);
+        }
     }
 }

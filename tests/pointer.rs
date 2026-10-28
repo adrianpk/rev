@@ -146,3 +146,6 @@ mod autoscroll;
 
 #[path = "pointer/autoscroll_bounds.rs"]
 mod autoscroll_bounds;
+
+#[path = "pointer/autoscroll_source.rs"]
+mod autoscroll_source;

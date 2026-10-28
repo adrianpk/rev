@@ -253,8 +253,15 @@ Details and exact checks: [Slice 14](../plan/rev-input-navigation.md#slice-14-ex
 
 - [x] T14.1: Implement source-view autoscroll above/below its visible text only during a valid captured drag; pause inside and stop on release/cancellation/invalidation.
 - [x] T14.2: Use a minimum 100 ms tick and at most min(mouse.scroll_lines, text-area height) rows per tick; process cancellation before due work and never accumulate timer/motion debt.
-- [ ] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
+- [x] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 14 of 20 implemented. Its
+[canonical report](../report/slices/rev-input-navigation/slice-14-drag-autoscroll.md)
+records native deadline ownership, canonical source-edge selection, controlled
+clock/height bounds, input priority, source validation and two owned SGR PTYs.
+Canonical PR and final exact-head evidence follow task and PR-reference commits;
+integration remains pending. The pointer ticket stays active through slices 10-15.
 
 ### Slice 15: activate native mouse defaults and runtime control
 
