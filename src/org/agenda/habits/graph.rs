@@ -20,6 +20,11 @@ pub struct HabitCell {
 impl HabitCell {
     /// ASCII status remains readable with NO_COLOR; actual completions and today
     /// have Org's familiar markers. Completion takes precedence on today.
+    /// Org dims past unmarked non-overdue days as well as future days, so an
+    /// available day cannot visually claim that a completion was recorded.
+    pub fn subdued(&self) -> bool {
+        self.future || !self.today && !self.completed && self.state != HabitState::Overdue
+    }
     pub fn glyph(&self) -> char {
         if self.completed {
             return '*';

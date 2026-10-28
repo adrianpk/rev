@@ -22,8 +22,8 @@ fn graph() -> HabitGraph {
         .map(|(i, state)| HabitCell {
             date: date.add_days(i as i64).unwrap(),
             state,
-            completed: i == 1,
-            today: i == 3,
+            completed: i < 2,
+            today: i == 2,
             future: i >= 4,
         })
         .collect(),
@@ -102,5 +102,5 @@ fn habit_graph_palette() {
     {
         assert_eq!(cells[&(1, 50 + i)].background, Some(rgb), "role {i}");
     }
-    assert!(frame.rows()[1].text().contains(".*?!"));
+    assert!(frame.rows()[1].text().contains("**!-"));
 }

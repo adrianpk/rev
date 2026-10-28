@@ -1,6 +1,6 @@
 use super::*;
 use rev::org::time::{ZoneEnvironment, ZoneSelection, ZonedOperation};
-fn clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
+pub(super) fn clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
     ZonedOperation::capture(
         &ZoneSelection::Utc,
         &ZoneEnvironment {
@@ -11,7 +11,7 @@ fn clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
         || Ok(std::time::UNIX_EPOCH + std::time::Duration::from_secs(1709303400)),
     )
 }
-const SOURCE: &str = "* TODO Due habit\nSCHEDULED: <2024-02-28 Wed .+2d/3d>\n:PROPERTIES:\n:STYLE: habit\n:END:\n- State \"DONE\" from \"TODO\" [2024-02-25 Sun]\n* TODO Future habit\nSCHEDULED: <2024-03-03 Sun .+2d/3d>\n:PROPERTIES:\n:STYLE: habit\n:END:\n";
+pub(super) const SOURCE: &str = "* TODO Due habit\nSCHEDULED: <2024-02-28 Wed .+2d/3d>\n:PROPERTIES:\n:STYLE: habit\n:END:\n- State \"DONE\" from \"TODO\" [2024-02-25 Sun]\n* TODO Future habit\nSCHEDULED: <2024-03-03 Sun .+2d/3d>\n:PROPERTIES:\n:STYLE: habit\n:END:\n";
 fn visible(s: &mut Session, needle: &str) -> bool {
     s.frame()
         .unwrap()

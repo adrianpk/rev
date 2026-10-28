@@ -613,12 +613,17 @@ Details and exact checks: [Slice 25](../plan/rev-org-mode.md#slice-25-render-nat
 
 - [x] T25.1: Render bounded habit graphs with verified defaults, completion/today markers and semantic palette states.
 - [x] T25.2: Deliver agenda visibility, all-today/today-only and graph controls through native commands.
-- [ ] T25.3: Verify narrow panes, late completions, dirty source observations and idle immutability.
+- [x] T25.3: Verify narrow panes, late completions, dirty source observations and idle immutability.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T25.1: `60428ea7e251`. Bounded graph data, verified preferences and semantic
 pane rendering pass fifteen selected checks. T25.2 adds the explicit native
 habit agenda and compiled controls using the existing report worker.
+
+T25.2: `78bbf7e8d2c3db3f74366863fb5e951b12a4a56e`. T25.3 verifies native
+narrow/peer geometry, late status, exact source bytes, NO_COLOR, dirty completion
+refresh, new-day capture, no idle graph work and 128/129 row admission. Twenty-one
+selected cases pass, zero skips. Canonical PR and final receipts follow.
 
 ### Slice 26: discover bounded canonical Org agenda sources
 

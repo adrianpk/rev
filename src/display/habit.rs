@@ -19,7 +19,7 @@ impl Frame {
             style::append(
                 &mut faces,
                 area.column() + (column + i) as u16,
-                Tone::Habit(cell.state, cell.future),
+                Tone::Habit(cell.state, cell.subdued()),
             );
         }
         text.push_str(&" ".repeat(width - column - count));

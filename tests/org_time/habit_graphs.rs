@@ -37,6 +37,8 @@ fn habit_graph_states() {
         assert_eq!(cell.state, state, "{name}");
         assert!(!cell.completed, "{name}");
     }
+    assert!(at(&graph, Date::new(2024, 2, 28).unwrap()).subdued());
+    assert!(!at(&graph, Date::new(2024, 2, 28).unwrap()).future);
     assert_eq!(graph.cells.len(), 29);
     assert_eq!(graph.column, 40);
     assert_eq!(at(&graph, today).glyph(), '!');

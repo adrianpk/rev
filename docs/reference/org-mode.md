@@ -590,7 +590,9 @@ today-only true, all-today false and done-always-green false. Each side permits
 today. Four semantic states use `.` before due, `+` available, `?` imminent and
 `-` overdue; actual completions use `*`, and today uses `!` when not completed.
 These markers remain readable with NO_COLOR. Eight configurable
-`palette.org.habit_*` backgrounds distinguish past/future states. Late
+`palette.org.habit_*` backgrounds distinguish past/future states. Past unmarked
+non-overdue days use the subdued future background, preserving the difference
+between availability and an actual completion. Late
 completions retain overdue color unless explicitly configured always green.
 
 One selected-buffer agenda admits 128 habit rows, each with the existing entry
