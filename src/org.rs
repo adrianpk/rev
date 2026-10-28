@@ -6,9 +6,12 @@ mod index;
 mod inline;
 mod job;
 mod source;
+mod structure;
 
 pub use form::{Form, FormKind};
 pub use index::{Coverage, Index, Limit, Limits, Line, Scan};
 pub use inline::{InlineContext, InlineKind, InlineNode, InlineObservation, InlineScan, LinkKind};
 pub use job::{Cancellation, Job, JobError};
 pub use source::{Source, SourceRange};
+
+pub use structure::{BlockKind, Structure, StructureKind, StructureNode, StructureScan};
