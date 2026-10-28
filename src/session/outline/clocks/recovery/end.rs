@@ -7,6 +7,10 @@ impl Session {
         active: Active,
         draft: &str,
     ) -> Result<Action, String> {
+        if draft.trim().is_empty() {
+            let end = recovery.operation.instant();
+            return self.accept_clock_end(recovery, active, end, draft);
+        }
         match end_resolution(&recovery, draft) {
             Ok(Resolution::Unique(choice)) => {
                 let instant = OperationTime::from_unix_seconds(choice.unix_seconds);
@@ -55,18 +59,28 @@ impl Session {
         end: OperationTime,
         draft: &str,
     ) -> Result<Action, String> {
-        let result = if end > recovery.operation.instant() {
-            Err("Org clock end is after the captured operation time".into())
+        let start = active.interval.started();
+        // Entered source ends have minute precision; matching the start minute
+        // is a zero interval even when persisted start seconds were retained.
+        let end = if end < start
+            && end.unix_seconds().div_euclid(60) == start.unix_seconds().div_euclid(60)
+        {
+            start
         } else {
-            self.close_observed(&active, end)
+            end
         };
-        match result {
-            Ok(action) => Ok(action),
-            Err(error) => {
-                recovery.stage = Stage::End(active);
-                self.recovery_retry(recovery, &error, draft)
-            }
+        let error = if end > recovery.operation.instant() {
+            Some("Org clock end is after the captured operation time")
+        } else if end < active.interval.started() {
+            Some("Org clock ends before it starts")
+        } else {
+            None
+        };
+        if let Some(error) = error {
+            recovery.stage = Stage::End(active);
+            return self.recovery_retry(recovery, error, draft);
         }
+        self.close_observed(&active, end)
     }
     fn close_observed(&mut self, active: &Active, end: OperationTime) -> Result<Action, String> {
         let record = active.interval.close(end)?;
@@ -89,6 +103,8 @@ impl Session {
         };
         self.publish_clock_edit(edit)?;
         self.active_clock = None;
+        self.retained_clock = None;
+        self.checkpoint_clock()?;
         Ok(self.message("Org incomplete interval closed at the accepted end"))
     }
 }

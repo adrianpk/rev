@@ -507,13 +507,18 @@ Details and exact checks: [Slice 21](../plan/rev-org-mode.md#slice-21-switch-and
 
 - [x] T21.1: Enforce one active session clock, checked task switching and completion-triggered clock-out.
 - [x] T21.2: Handle quit/close, stale edits, undo and explicit incomplete-clock resolution without losing source.
-- [ ] T21.3: Introduce org_io and verify optional state persistence, failed recovery and no unsolicited startup scans.
+- [x] T21.3: Introduce org_io and verify optional state persistence, failed recovery and no unsolicited startup scans.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T21.1: `b22d7b7236875c57860d43ed2ce3368ff7000c88`; 16 clock tests,
 two configuration cases and 137 editing/window regressions passed. T21.2 passed
 native source/time/recovery boundaries, exact 64/65 record admission, complete
 catalog/key parity, affected Clippy/source quality and four owned task PTYs.
+
+T21.2: `a1df24f58a3c`. T21.3 passed eleven org_io cases, bounded recent-task
+and policy cases, affected all-target Clippy/source quality, configuration
+reference agreement and eight owned task/restart PTYs. Final exact-head required
+and focused receipts remain tied to the PR-reference head.
 
 ### Slice 22: compare Org clock totals and effort
 

@@ -1,0 +1,100 @@
+#![forbid(unsafe_code)]
+#[path = "org_io/failures.rs"]
+mod failures;
+#[path = "configuration/fixture.rs"]
+mod fixture;
+#[path = "org_io/state.rs"]
+mod state;
+
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use fixture::Fixture;
+use rev::buffer::Buffers;
+use rev::command::{Command, OrgCommand as C};
+use rev::config::prepare;
+use rev::org::time::{ZoneEnvironment, ZoneSelection, ZonedOperation};
+use rev::session::{Action, Session};
+use rev::view::{Size, View};
+use std::path::Path;
+use std::time::{Duration, Instant, UNIX_EPOCH};
+
+fn clock(_: &rev::config::Time) -> Result<ZonedOperation, String> {
+    ZonedOperation::capture(&ZoneSelection::Utc, &ZoneEnvironment::system(), || {
+        Ok(UNIX_EPOCH + Duration::from_secs(1709303437))
+    })
+}
+fn later(_: &rev::config::Time) -> Result<ZonedOperation, String> {
+    ZonedOperation::capture(&ZoneSelection::Utc, &ZoneEnvironment::system(), || {
+        Ok(UNIX_EPOCH + Duration::from_secs(1709307061))
+    })
+}
+fn host(fixture: &Fixture, path: Option<&Path>, persist: bool) -> Session {
+    let config = fixture.write(
+        "config.toml",
+        &format!("org.clock.persist={persist}\norg.time.zone='UTC'"),
+    );
+    let startup = prepare(&config);
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    let id = path
+        .map(|p| buffers.visit(p).unwrap())
+        .unwrap_or(buffers.initial());
+    let view = View::new(buffers.get(id).unwrap());
+    Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock)
+}
+fn settle(session: &mut Session) {
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        session.frame().unwrap();
+        if session.remaining_input(Instant::now()).is_none() {
+            break;
+        }
+        assert!(Instant::now() < deadline);
+        session.expire_input(Instant::now() + Duration::from_millis(10));
+        std::thread::yield_now();
+    }
+}
+fn action(session: &mut Session, command: C) {
+    session.execute(Command::Org(command));
+    settle(session);
+}
+fn argument(session: &mut Session, text: &str) {
+    session.handle(Event::Paste(text.into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    settle(session);
+}
+fn text(session: &Session) -> String {
+    let buffer = session.buffer().unwrap();
+    buffer
+        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+        .unwrap()
+        .to_string()
+}
+fn cancel(session: &mut Session) {
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('g'),
+        KeyModifiers::CONTROL,
+    )));
+}
+fn saved(fixture: &Fixture) -> (Session, std::path::PathBuf, std::path::PathBuf) {
+    let source = fixture.write("clock-\"-\\-界.org", "\u{feff}* Task 界\r\nbody");
+    let state = fixture.0.join("state/org-clock.toml");
+    let mut session = host(fixture, Some(&source), true);
+    assert_eq!(session.restore_clock_state(&state).unwrap(), Action::Wait);
+    action(&mut session, C::ClockIn);
+    assert!(session.echo().contains("started"), "{}", session.echo());
+    session.execute(Command::SaveBuffer);
+    assert!(session.echo().contains("Saved"), "{}", session.echo());
+    (session, source, state)
+}

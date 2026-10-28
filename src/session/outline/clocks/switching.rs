@@ -75,9 +75,12 @@ impl Session {
             stamp: insertion.edit.source.stamp,
             position: insertion.owner,
         };
+        let previous = end.owner;
         let mut edits = vec![end.edit, insertion.edit];
         edits.sort_by_key(|e| (e.source.stamp.buffer, e.source.range.start));
-        let mapped = self.publish_clock_batch(&edits, owner)?;
+        let mapped = self.publish_clock_batch(&edits, &[owner, previous])?;
+        self.remember_clock(mapped[1]);
+        let mapped = mapped[0];
         let buffer = self
             .buffers
             .get(mapped.stamp.buffer)
@@ -90,9 +93,12 @@ impl Session {
                 .cleanup
                 .map(|r| buffer.span(r).expect("prepared switched clock wrapper")),
             owner: mapped,
+            acknowledged: interval.started(),
             interval,
         });
-        Ok(())
+        self.retained_clock = None;
+        self.remember_clock(mapped);
+        self.checkpoint_clock()
     }
 }
 fn adjust_insertion(insertion: &mut ClockInsertion, closed: &Replacement) -> Result<(), String> {

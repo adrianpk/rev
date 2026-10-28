@@ -1,6 +1,6 @@
 # Slice 21: switch and recover Org task clocks
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -31,6 +31,18 @@ choices and gaps reject. Close asks for the accepted end, excluding rejected idl
 time. Invalid end drafts remain editable. Source/view changes cannot publish an
 old recovery draft. Undo/redo can be followed by fresh explicit source adoption.
 
+T21.3 adds opt-in checked XDG clock state and bounded recent-task actions.
+Persistence defaults off; opening a selected missing store creates no directory.
+Startup reads the bounded state file and asks before visiting its one pinned
+source. Recovery separately checks file observation, canonical path, actual
+heading/CLOCK text, native structural context and the selected start instant.
+A matching file observation cannot establish source or time equivalence.
+
+Recent locators default to 32, admit 0..256 and retain exact source revisions.
+Zero disables them. Recent goto/re-clock reject stale sources and remove closed
+buffers. State stores the captured start and acknowledged operation instant,
+including seconds, while compatible CLOCK text retains minute precision.
+
 ## Implementation Notes
 
 The existing buffer publication owner now admits source, points, marks and
@@ -51,6 +63,19 @@ instant against parsed source. Source, end-time and zone validation precede ever
 edit; no failed or cancelled step silently creates a running clock or counts time.
 The [Org idle-time reference](https://orgmode.org/manual/Resolving-idle-time.html)
 provides the explicit resolution and accepted-time behavior.
+
+State admits 65536 bytes, 4096-byte path/source fields and a 1048576-byte explicit
+source visit. It uses the existing owned temporary/output boundary and checked
+atomic replacement, distinguishing failed replacement from published-but-unresolved
+completion. File saves refresh the checked locator. State checkpoint failure never
+rolls back a published canonical clock operation or rewrites external state.
+No state polling or source-directory startup scan is introduced.
+
+The existing TOML dependency has no writer feature. A finite state-schema encoder
+quotes strings and emits checked integers without adding dependencies or changing
+Cargo features. Native round trips cover escaped paths and Unicode. The ordinary
+source file still requires explicit saving; recovery retains a missing/unsaved
+interval as unresolved instead of fabricating source text.
 
 ## Contracts Added or Changed
 
@@ -110,6 +135,44 @@ routing overlap and complexity boundaries. Existing date entry and native
 rendered prompt assertions now exercise the owning APIs; parsing and recovery
 responsibilities were split while preserving all bounds and assertions.
 
+T21.2 commit: `a1df24f58a3c04d43d0578c30caf1c5c0447df58`.
+
+T21.3 development checks passed:
+
+- `cargo test --test org_io`: eleven native persistence, mismatch, source-context,
+  publication-failure and restart cases passed, zero skips.
+- `cargo test --test org_editing --test recovery --test configuration clock`:
+  24 editing, three recovery and three configuration cases passed, zero skips.
+- `cargo clippy --all-targets --all-features -- -D warnings`.
+- `python3 scripts/check-config-reference.py`: 120 schema/catalog entries,
+  46 RGB roles, 171 default bindings and 14887 packaged template bytes agree.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`:
+  eight owned sessions passed, zero skips, including RGB/NO_COLOR startup/keep/
+  restart recovery with real XDG state, exact CLOCK/duration/source saves,
+  terminal restoration and owned cleanup. Four additional restart sessions
+  establish the real persistence boundary without multiplying core variants.
+- Changed-source quality passed at the original thresholds.
+
+Development checks exposed the disabled TOML writer feature, a redundant return,
+and complexity boundaries. The finite encoder and separate admission/identity/
+source responsibilities preserve the dependency and resource contracts. A literal
+state fixture originally used an unescaped heading, which resynchronizes blocks
+under the approved source contract. Its comma-escaped heading now exercises the
+intended literal context with unchanged rejection/source/state assertions.
+Recovery end selection also retains a captured current instant at sub-minute
+precision, avoiding a rounded earlier second for zero-minute restart intervals.
+
+Final required controller validation binds the final clean PR head in this order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test org_io --test recovery`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Final focused evidence also covers all affected editing/window, Org editing,
+command, configuration and display targets, reference agreement and eight PTYs.
+
 ## Risks and Follow-ups
 
-T21.3 remains in progress. The delivery-set full gate has not run.
+The delivery-set full gate has not run.

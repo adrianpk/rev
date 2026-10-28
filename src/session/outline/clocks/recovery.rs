@@ -12,6 +12,7 @@ pub(in crate::session) struct Recovery {
     records: Vec<ClockObservation>,
     operation: ZonedOperation,
     stage: Stage,
+    stored: Option<crate::org::io::ClockState>,
 }
 enum Stage {
     Record,
@@ -32,15 +33,7 @@ impl Session {
                     .into(),
             );
         }
-        let buffer = self.buffer().map_err(|e| e.to_string())?;
-        if buffer.is_readonly() {
-            return Err(Error::ReadOnly.to_string());
-        }
-        let index = model.tag_target(buffer, request.origin.point.position)?;
-        let records = model.clock_observations(buffer, index)?;
-        if records.is_empty() {
-            return Err("No incomplete Org CLOCK in this entry".into());
-        }
+        let (records, stored) = self.clock_recovery_records(&model, &request)?;
         let operation = self.org_clock.unwrap_or(super::super::timestamps::capture)(
             &self.buffers.snapshot().settings().org.time,
         )?;
@@ -49,12 +42,46 @@ impl Session {
             records,
             operation,
             stage: Stage::Record,
+            stored,
         };
         self.recovery_prompt(
             recovery,
             "Choose a 1-based incomplete clock number; C-g cancels",
         )
         .map(|_| ())
+    }
+    fn clock_recovery_records(
+        &mut self,
+        model: &Outline,
+        request: &Request,
+    ) -> Result<(Vec<ClockObservation>, Option<crate::org::io::ClockState>), String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        if buffer.is_readonly() {
+            return Err(Error::ReadOnly.to_string());
+        }
+        let index = model.tag_target(buffer, request.origin.point.position)?;
+        let mut records = model.clock_observations(buffer, index)?;
+        let stored = self.clock_recovery_pin.take();
+        if let Some(pin) = &stored {
+            self.pin_clock_records(&mut records, pin)?;
+        }
+        if records.is_empty() {
+            return Err("No incomplete Org CLOCK in this entry".into());
+        }
+        Ok((records, stored))
+    }
+    fn pin_clock_records(
+        &self,
+        records: &mut Vec<ClockObservation>,
+        pin: &crate::org::io::ClockState,
+    ) -> Result<(), String> {
+        self.verify_stored_source(pin)?;
+        records.retain(|r| {
+            r.line.range == (pin.line_start..pin.line_end)
+                && r.owner.position.0 == pin.heading
+                && r.raw == pin.source
+        });
+        Ok(())
     }
     fn recovery_prompt(&mut self, recovery: Recovery, feedback: &str) -> Result<Action, String> {
         self.recovery_retry(recovery, feedback, "")
@@ -89,6 +116,9 @@ impl Session {
         if !self.org_source_current(&recovery.request) {
             return Err("Org clock source or view changed; recovery cancelled".into());
         }
+        if let Some(pin) = &recovery.stored {
+            self.verify_stored_source(pin)?;
+        }
         let stage = std::mem::replace(&mut recovery.stage, Stage::Record);
         match stage {
             Stage::Record => self.recovery_record(recovery, draft),
@@ -117,7 +147,7 @@ impl Session {
     ) -> Result<Action, String> {
         match draft.trim() {
             "keep" => {
-                self.active_clock = None;
+                self.retained_clock = self.active_clock.take();
                 Ok(self.message("Org interval remains open and unresolved"))
             }
             "cancel" => self.cancel_observed(&recovery.records[index]),
@@ -134,13 +164,11 @@ impl Session {
         index: usize,
         closing: bool,
     ) -> Result<Action, String> {
+        if recovery.stored.is_some() {
+            return self.begin_stored_clock(recovery, index, closing);
+        }
         let record = &recovery.records[index];
-        let civil = record
-            .value
-            .start
-            .civil()
-            .ok_or("Org CLOCK requires a source time")?;
-        let result = recovery.operation.zone().resolve(civil)?;
+        let result = start_resolution(&recovery, index)?;
         let choices = result.candidates().to_vec();
         if choices.len() != 1 {
             if choices.is_empty() {
@@ -166,7 +194,7 @@ impl Session {
             );
         }
         if !closing {
-            self.active_clock = Some(active);
+            self.adopt_clock(active, recovery.operation.instant())?;
             return Ok(self.message("Org clock resumed from checked source"));
         }
         recovery.stage = Stage::End(active);
@@ -174,6 +202,43 @@ impl Session {
             recovery,
             "Enter the accepted end date/time; excluded idle time is not counted; C-g cancels",
         )
+    }
+    fn begin_stored_clock(
+        &mut self,
+        mut recovery: Recovery,
+        index: usize,
+        closing: bool,
+    ) -> Result<Action, String> {
+        let selected = self.stored_operation(&recovery);
+        let active = selected.and_then(|operation| resumed(&recovery.records[index], operation));
+        let active = match active {
+            Ok(active) => active,
+            Err(error) => {
+                recovery.stage = Stage::Action(index);
+                return self.recovery_prompt(recovery, &error);
+            }
+        };
+        if closing {
+            recovery.stage = Stage::End(active);
+            return self.recovery_prompt(recovery, "Enter the accepted end; the saved unaccounted interval is not accepted automatically; C-g cancels");
+        }
+        self.adopt_clock(active, recovery.operation.instant())?;
+        Ok(self.message("Org saved clock resumed after source and instant checks"))
+    }
+    fn stored_operation(&self, recovery: &Recovery) -> Result<ZonedOperation, String> {
+        let record = recovery
+            .stored
+            .as_ref()
+            .ok_or("Missing saved clock selection")?;
+        if record.acknowledged_seconds > recovery.operation.instant().unix_seconds() {
+            return Err("Saved Org clock is after the captured operation time".into());
+        }
+        let zone = recovery.operation.zone();
+        let value = crate::org::time::ResolvedTime {
+            unix_seconds: record.start_seconds,
+            offset_seconds: zone.offset_at(record.start_seconds)?,
+        };
+        ZonedOperation::from_resolved(value, zone.clone())
     }
     fn recovery_start_offset(
         &mut self,
@@ -203,7 +268,7 @@ impl Session {
                 "Start is after the captured operation time; choose cancel or keep",
             );
         }
-        self.active_clock = Some(active);
+        self.adopt_clock(active, recovery.operation.instant())?;
         Ok(self.message("Org clock resumed with selected start offset"))
     }
     fn cancel_observed(&mut self, record: &ClockObservation) -> Result<Action, String> {
@@ -213,6 +278,8 @@ impl Session {
         };
         self.publish_clock_edit(edit)?;
         self.active_clock = None;
+        self.retained_clock = None;
+        self.checkpoint_clock()?;
         Ok(self.message("Org incomplete interval cancelled"))
     }
 }
@@ -221,6 +288,7 @@ fn resumed(record: &ClockObservation, operation: ZonedOperation) -> Result<Activ
     Ok(Active {
         source: record.line.clone(),
         owner: record.owner,
+        acknowledged: interval.started(),
         interval,
         cleanup: record.cleanup.clone(),
     })
@@ -242,4 +310,13 @@ fn offsets(choices: &[crate::org::time::ResolvedTime]) -> String {
         .collect::<Vec<_>>()
         .join("; ");
     format!("Choose an observed offset number: {text}; C-g cancels")
+}
+
+fn start_resolution(recovery: &Recovery, index: usize) -> Result<Resolution, String> {
+    let civil = recovery.records[index]
+        .value
+        .start
+        .civil()
+        .ok_or("Org CLOCK requires a source time")?;
+    recovery.operation.zone().resolve(civil)
 }

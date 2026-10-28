@@ -79,6 +79,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
 | C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
+| C-c C-x C-x in Org | `org-clock-in-last` | Re-clock the most recent qualified task. |
 | C-c C-x C-z in Org | `org-resolve-clocks` | Explicitly resolve incomplete intervals in the selected entry. |
 | C-c C-x C-j in Org | `org-clock-goto` | Reveal the active task heading. |
 | C-c C-c in Org | `org-ctrl-c-ctrl-c` | Normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
@@ -533,3 +534,29 @@ Undo/redo retains ordinary source/history behavior. A previously captured clock
 locator becomes stale when its source revision changes, including history replay.
 Use explicit resolution to adopt a freshly observed incomplete interval; similar
 text in another revision never authorizes an automatic clock edit.
+
+Recent goto uses the last qualified task when no clock is active. C-c C-x C-x
+re-clocks that task. `org.clock.history_limit` defaults 32 and admits 0..256;
+zero disables recent actions. Closed buffers are removed, and stale revisions
+require fresh task selection instead of guessed relocation.
+
+`org.clock.persist` defaults false. When selected, application startup reads only
+`org-clock.toml` under the resolved XDG state namespace and asks before visiting
+its recorded source. The state directory is created only by an explicit clock
+checkpoint. Source files still require ordinary explicit saving. A missing or
+changed saved interval remains unresolved; recovery never recreates source text.
+Recovery checks file identity/metadata, canonical path, heading/line positions,
+actual source bytes, native Org context and the selected start instant separately.
+
+State contains one bounded clock locator, its original source, captured start and
+last acknowledged operation time. State admits 65536 UTF-8 bytes, 4096-byte path/
+source fields and a 1048576-byte source visit. Checkpoints use checked atomic
+replacement and report published-but-unresolved completion separately. A failed
+state checkpoint retains canonical source/tracking and never rolls back a real
+clock operation. Active clocks add no state polling or periodic source writes.
+
+Native hosts initialize a selected state path explicitly with
+`Session::restore_clock_state`; library constructors perform no implicit state IO.
+Accepting an empty clock end uses the captured operation instant. A minute-valued
+end within the starting UTC minute records zero; backwards operation clocks still
+reject independently.

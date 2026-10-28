@@ -87,6 +87,11 @@ impl Session {
         } else {
             Ok(())
         };
+        if outcome.is_complete()
+            && let Err(error) = self.checkpoint_saved_clock(outcome.target())
+        {
+            return self.error(&format!("Source saved; {error}"));
+        }
         let action = self.after_saved(outcome, after);
         if let Err(error) = refreshed {
             self.echo

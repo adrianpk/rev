@@ -9,10 +9,12 @@ impl Session {
             return Some(action);
         }
         if command == Command::ExecuteExtended {
+            self.clock_recovery_pin = None;
             self.org.cancel_request();
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {
+            self.clock_recovery_pin = None;
             self.org.cancel();
             if matches!(
                 self.pending,

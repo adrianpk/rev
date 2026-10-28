@@ -21,7 +21,10 @@ impl ClockInterval {
     /// zone. Original source spelling remains authoritative through clock-out.
     pub fn resume(source: &str, start: ZonedOperation) -> Result<Self, String> {
         let value = source_clock(source)?;
-        if value.civil() != Some(start.now()) {
+        if !value
+            .civil()
+            .is_some_and(|civil| same_minute(civil, start.now()))
+        {
             return Err("Org CLOCK source does not identify the selected start instant".into());
         }
         Ok(Self {
@@ -75,4 +78,8 @@ fn source_clock(source: &str) -> Result<super::Timestamp, String> {
         return Err("Org CLOCK cannot contain recurrence or delay data".into());
     }
     Ok(value)
+}
+
+fn same_minute(a: super::CivilDateTime, b: super::CivilDateTime) -> bool {
+    a.date == b.date && a.time.hour() == b.time.hour() && a.time.minute() == b.time.minute()
 }

@@ -14,8 +14,8 @@ impl Session {
     pub(super) fn publish_clock_batch(
         &mut self,
         edits: &[Replacement],
-        anchor: Point,
-    ) -> Result<Point, String> {
+        anchors: &[Point],
+    ) -> Result<Vec<Point>, String> {
         let mut ids = edits
             .iter()
             .map(|e| e.source.stamp.buffer)
@@ -26,7 +26,7 @@ impl Session {
             return Err("Org clock operation exceeds two source buffers".into());
         }
         let mut batch = Vec::new();
-        let mut mapped = anchor;
+        let mut mapped = anchors.to_vec();
         for id in ids {
             let edits = edits
                 .iter()
@@ -34,10 +34,10 @@ impl Session {
                 .cloned()
                 .collect::<Vec<_>>();
             let participant = self.prepare_clock_participant(id, &edits)?;
-            if id == anchor.stamp.buffer {
-                mapped = participant
+            for anchor in mapped.iter_mut().filter(|a| a.stamp.buffer == id) {
+                *anchor = participant
                     .prepared
-                    .map_anchor(anchor)
+                    .map_anchor(*anchor)
                     .map_err(|e| e.to_string())?;
             }
             batch.push(participant);

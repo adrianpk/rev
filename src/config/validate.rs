@@ -395,6 +395,11 @@ fn time(document: &Document) -> Result<(), Failure> {
 }
 
 fn clock(document: &Document) -> Result<(), Failure> {
+    integer(
+        "org.clock.history_limit",
+        document.org.clock.history_limit,
+        0..=256,
+    )?;
     if let Some(drawer) = &document.org.clock.drawer
         && !drawer.is_empty()
         && !crate::org::task::drawer_name(drawer)

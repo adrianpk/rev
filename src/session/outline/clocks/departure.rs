@@ -9,6 +9,7 @@ pub(in crate::session) enum Departure {
 pub(in crate::session) enum Prompt {
     Departure(Departure),
     Recovery(Box<super::recovery::Recovery>),
+    Stored(crate::org::io::ClockState),
 }
 impl Session {
     pub(in crate::session) fn clock_departure(&mut self, departure: Departure) -> Action {
@@ -46,6 +47,7 @@ impl Session {
         let result = match prompt {
             Prompt::Departure(departure) => self.depart_clock(departure, draft),
             Prompt::Recovery(recovery) => self.recover_clock(*recovery, draft),
+            Prompt::Stored(record) => self.restore_stored_clock(record, draft),
         };
         match result {
             Ok(action) => action,
@@ -56,7 +58,7 @@ impl Session {
         match draft.trim() {
             "close" => self.finish_clock(OrgCommand::ClockOut)?,
             "keep" => {
-                self.active_clock = None;
+                self.retained_clock = self.active_clock.take();
             }
             _ => {
                 return self.ask_clock(

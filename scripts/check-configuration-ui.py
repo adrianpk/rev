@@ -16,6 +16,7 @@ from configuration_ui.support import ROOT
 from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
+from configuration_ui.org_clock_state import persistence
 
 
 def terminal(selected):
@@ -74,10 +75,10 @@ def main():
     subprocess.run(build, cwd=ROOT, check=True)
     if args.case == 'org-tasks':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
-            for scenario, mode in [(tasks, 'editing'), (readonly, 'read-only')]:
+            for scenario, mode in [(tasks, 'editing'), (readonly, 'read-only'), (persistence, 'clock-restart')]:
                 run_scenario(scenario, colored)
                 print(f'PASS org-tasks {mode} {label}')
-        print('Org task terminal suite: 4 owned sessions passed, 0 skipped.')
+        print('Org task terminal suite: 8 owned sessions passed, 0 skipped.')
         return
     if args.case == 'org-outline':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:

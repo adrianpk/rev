@@ -582,6 +582,16 @@ impl Merge {
 impl Merge {
     fn clock(&mut self, base: &mut super::PartialClock, later: &super::PartialClock) {
         self.leaf(
+            &["org", "clock", "persist"],
+            &mut base.persist,
+            &later.persist,
+        );
+        self.leaf(
+            &["org", "clock", "history_limit"],
+            &mut base.history_limit,
+            &later.history_limit,
+        );
+        self.leaf(
             &["org", "clock", "out_when_done"],
             &mut base.out_when_done,
             &later.out_when_done,

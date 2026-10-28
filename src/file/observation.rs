@@ -5,13 +5,14 @@ use std::path::Path;
 
 /// Conservative disk identity/content/permission observation, not a content hash
 /// or a guarantee against changes between the check and replacement.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Observation {
-    device: u64,
-    inode: u64,
-    length: u64,
-    modified: (i64, i64),
-    changed: (i64, i64),
+    pub(crate) device: u64,
+    pub(crate) inode: u64,
+    pub(crate) length: u64,
+    pub(crate) modified: (i64, i64),
+    pub(crate) changed: (i64, i64),
     pub(crate) mode: u32,
 }
 

@@ -73,7 +73,7 @@ def lifecycle(session, source, lines, goto, exact, document):
     step(session, b'\x18\x03', b'Org active clock: ')
     step(session, b'keep\r', b'y=save')
     send(session, b'\x07', lambda frame: b'Quit' in frame and exact(frame, expected))
-    send(session, b'\x1bxorg-clock-goto\r', lambda frame: b'No active' in frame and exact(frame, expected))
+    send(session, b'\x1bxorg-clock-out\r', lambda frame: b'No active' in frame and exact(frame, expected))
     step(session, b'\x03\x18\x1a', b'Org incomplete clock: ')
     step(session, b'1\r', b'Org clock action: ')
     step(session, b'close\r', b'Org clock end: ')

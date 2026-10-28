@@ -58,6 +58,7 @@ impl Session {
             return;
         };
         if !self.org_request_current(request) {
+            self.clock_recovery_pin = None;
             self.org.request = None;
             return;
         }

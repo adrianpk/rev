@@ -1,5 +1,7 @@
 mod departure;
+mod recent;
 mod recovery;
+mod state;
 pub(in crate::session) use departure::{Departure, Prompt};
 mod batch;
 mod completion;
@@ -19,6 +21,7 @@ pub(in crate::session) struct Active {
     owner: Point,
     interval: ClockInterval,
     cleanup: Option<Span>,
+    acknowledged: crate::org::time::OperationTime,
 }
 impl Session {
     pub(super) fn start_clock(
@@ -63,11 +66,25 @@ impl Session {
                 stamp: buffer.stamp(),
                 position: insertion.owner,
             },
+            acknowledged: interval.started(),
             interval,
         });
-        Ok(())
+        self.retained_clock = None;
+        self.remember_clock(
+            self.active_clock
+                .as_ref()
+                .expect("published active clock")
+                .owner,
+        );
+        self.checkpoint_clock()
     }
     pub(super) fn clock_command(&mut self, command: OrgCommand) -> Action {
+        if command == OrgCommand::ClockInLast {
+            return self.clock_in_last();
+        }
+        if command == OrgCommand::ClockGoto && self.active_clock.is_none() {
+            return self.clock_recent_goto();
+        }
         match self.finish_clock(command) {
             Ok(()) => self.message(command.name()),
             Err(error) => self.error(&error),
@@ -100,9 +117,17 @@ impl Session {
             },
             text,
         };
+        let owner = active.owner;
         self.publish_clock_edit(edit)?;
+        let stamp = self
+            .buffers
+            .get(owner.stamp.buffer)
+            .map_err(|e| e.to_string())?
+            .stamp();
+        self.remember_clock(Point { stamp, ..owner });
         self.active_clock = None;
-        Ok(())
+        self.retained_clock = None;
+        self.checkpoint_clock()
     }
     fn clock_end_source(&self, command: OrgCommand) -> Result<String, String> {
         if command == OrgCommand::ClockCancel {

@@ -77,6 +77,10 @@ pub struct Session {
     task_clock: Option<fn() -> Result<String, String>>,
     org_clock: Option<outline::timestamps::Clock>,
     active_clock: Option<outline::clocks::Active>,
+    retained_clock: Option<outline::clocks::Active>,
+    clock_store: Option<crate::org::io::ClockStore>,
+    clock_recovery_pin: Option<crate::org::io::ClockState>,
+    recent_clocks: std::collections::VecDeque<crate::buffer::edit::Point>,
     calendar_date: Option<crate::org::time::Date>,
     timestamp_repeat: Option<outline::timestamps::Repeat>,
 }
@@ -179,6 +183,10 @@ impl Session {
             task_clock: None,
             org_clock: None,
             active_clock: None,
+            retained_clock: None,
+            clock_store: None,
+            clock_recovery_pin: None,
+            recent_clocks: std::collections::VecDeque::new(),
             calendar_date: None,
             timestamp_repeat: None,
         })

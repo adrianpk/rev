@@ -91,6 +91,8 @@ directories_first = true
 enabled = true
 
 [org.clock]
+persist = false
+history_limit = 32
 out_when_done = true
 drawer = "LOGBOOK"
 remove_zero = false
@@ -381,6 +383,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x C-q" = "org-clock-cancel"
 "C-c C-x C-j" = "org-clock-goto"
 "C-c C-x C-z" = "org-resolve-clocks"
+"C-c C-x C-x" = "org-clock-in-last"
 
 [keys.org_capture]
 [keys.org_source_edit]

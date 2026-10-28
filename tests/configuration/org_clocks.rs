@@ -8,7 +8,7 @@ fn clock_layers() {
     let fixture = Fixture::new();
     let included = fixture.write(
         "base.toml",
-        "org.clock.drawer='WORK'\norg.clock.remove_zero=true",
+        "org.clock.drawer='WORK'\norg.clock.remove_zero=true\norg.clock.persist=true\norg.clock.history_limit=256",
     );
     let root = fixture.write(
         "config.toml",
@@ -20,6 +20,12 @@ fn clock_layers() {
     assert_eq!(clock.drawer, "WORK");
     assert!(!clock.remove_zero);
     assert!(!clock.out_when_done);
+    assert!(clock.persist);
+    assert_eq!(clock.history_limit, 256);
+    assert_eq!(
+        startup.snapshot.origin(&["org", "clock", "persist"]),
+        Some(included.as_path())
+    );
     assert_eq!(
         startup.snapshot.origin(&["org", "clock", "drawer"]),
         Some(included.as_path())
@@ -31,6 +37,8 @@ fn clock_layers() {
     let clock = Snapshot::default().settings().org.clock.clone();
     assert_eq!(clock.drawer, "LOGBOOK");
     assert!(clock.out_when_done);
+    assert!(!clock.persist);
+    assert_eq!(clock.history_limit, 32);
     assert!(!clock.remove_zero);
 }
 
@@ -48,6 +56,11 @@ fn clock_bounds() {
         ("drawer='a:b'".into(), false),
         ("drawer=true".into(), false),
         ("remove_zero='false'".into(), false),
+        ("history_limit=0".into(), true),
+        ("history_limit=256".into(), true),
+        ("history_limit=257".into(), false),
+        ("history_limit=-1".into(), false),
+        ("persist='true'".into(), false),
         ("unknown=false".into(), false),
     ] {
         let path = fixture.write("config.toml", &format!("[org.clock]\n{body}"));

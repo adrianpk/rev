@@ -323,3 +323,6 @@ mod clock_switching;
 
 #[path = "org_editing/clock_recovery.rs"]
 mod clock_recovery;
+
+#[path = "org_editing/clock_recent.rs"]
+mod clock_recent;

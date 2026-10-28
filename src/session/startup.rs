@@ -19,6 +19,7 @@ impl Session {
         );
         let mut session = Self::new(buffers, view, size).map_err(io::Error::other)?;
         session.startup_file(path)?;
+        session.startup_clock_state();
         if let Some(diagnostic) = startup.diagnostic {
             session.notice(&format!("Configuration: {diagnostic}"));
         }

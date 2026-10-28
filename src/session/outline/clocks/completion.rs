@@ -51,9 +51,11 @@ impl Session {
         edits.push(clock);
         edits.sort_by_key(|e| e.source.range.start);
         let edits = coalesce(edits)?;
-        self.publish_clock_batch(&edits, end.owner)?;
+        let mapped = self.publish_clock_batch(&edits, &[end.owner])?;
+        self.remember_clock(mapped[0]);
         self.active_clock = None;
-        Ok(())
+        self.retained_clock = None;
+        self.checkpoint_clock()
     }
 }
 fn coalesce(edits: Vec<Replacement>) -> Result<Vec<Replacement>, String> {

@@ -101,7 +101,7 @@ fn clock_close_buffer() {
         opened
     );
     assert!(!text(&session).contains("CLOCK:"));
-    command(&mut session, C::ClockGoto);
+    command(&mut session, C::ClockOut);
     assert!(session.echo().contains("No active"));
 }
 
@@ -122,6 +122,6 @@ fn clock_stale_exit() {
     argument(&mut session, "keep");
     cancel(&mut session);
     assert_eq!(text(&session), source);
-    command(&mut session, C::ClockGoto);
+    command(&mut session, C::ClockOut);
     assert!(session.echo().contains("No active"));
 }
