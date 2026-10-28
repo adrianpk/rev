@@ -282,6 +282,14 @@ Details and exact checks: [Slice 11](../plan/rev-org-mode.md#slice-11-edit-org-l
 - [x] T11.3: Verify nested lists, timer-item contexts, literal blocks and one-operation undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+PR: [#112](https://forge.adrianpk.com/adrianpk/rev/pulls/112).
+Report: [Slice 11](../report/slices/rev-org-mode/slice-11-lists-checkboxes.md).
+Task commits: T11.1 `548ff5a88f7b6e74c56cf0e8390291c3df30bee6`,
+T11.2 `5a9ad119c441d3e473b56536a009f5a014300461`,
+T11.3 `97150fd852bdc708e4c7adc137824f7a037dcbee`.
+Required and focused exact-head receipts are recorded by the controller after
+this PR-reference follow-up is pushed; integration remains pending.
+
 ### Slice 12: edit Org drawers and inherited properties
 
 Contracts: ORG05 ORG17.
