@@ -389,3 +389,35 @@ qualifiers and read-only mutations reject. Read-only inspection stays usable.
 The agenda role admits e/comma for these same operational source handlers.
 Agenda row construction and checked source-row routing are defined by the
 agenda owner; adding a keymap does not create a report or a task copy.
+
+## Operation time zones
+
+`org.time.zone` defaults to `local`: capture `TZ` once, or use the system
+localtime file when it is unset. `system` always selects system localtime.
+`UTC` and relative IANA names such as `Europe/Paris` override `TZ`. Named data is
+validated when an operation is selected; an unknown or unreadable zone reports
+an error before source changes. Task logging uses this policy and retains its
+one timestamp through note entry. The next operation observes external zone
+changes; an already captured operation retains its original date and rules.
+
+Local `TZ` accepts named zones, absolute TZif paths and explicit POSIX rules.
+An empty value selects UTC. POSIX daylight zones require explicit start/end
+rules instead of an implementation-defined fallback. Native code evaluates
+TZif v1/v2/v3/v4 and available future footer rules, without an external process,
+FFI or a permanent watcher. Unknown `-00` records, missing future coverage,
+malformed data and leap-second TZif files report errors under the Unix-time
+profile. These outcomes do not alter source.
+
+`org.time.ambiguous` and `org.time.nonexistent` admit `prompt`. The time API
+returns every valid offset for a repeated local time; callers must select an
+observed offset. A forward gap requires a valid replacement local time. Forcing
+an invalid offset cannot create a result. Civil shifts remain separate from
+elapsed instant subtraction and configured work-duration units.
+
+Each observation reads at most 1 MiB from a regular file and admits at most
+65536 transitions, 256 types, 4096 designation bytes, 1024 POSIX bytes and
+64 abbreviation bytes. Offsets are bounded to 24 hours. Future recurrence
+examines at most eight events per lookup; local resolution checks at most
+258 candidate offsets against that same observation. A blocked filesystem
+operation has no hard kernel deadline; there is no idle polling or unbounded
+recurrence expansion.

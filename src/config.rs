@@ -123,6 +123,7 @@ pub struct Org {
     pub todo: Todo,
     pub priority: Priority,
     pub duration: Duration,
+    pub time: Time,
 }
 
 impl Default for Org {
@@ -134,6 +135,7 @@ impl Default for Org {
             todo: Todo::default(),
             priority: Priority::default(),
             duration: Duration::default(),
+            time: Time::default(),
         }
     }
 }
@@ -147,6 +149,36 @@ pub struct PartialOrg {
     pub todo: PartialTodo,
     pub priority: PartialPriority,
     pub duration: PartialDuration,
+    pub time: PartialTime,
+}
+
+/// Effective Org operation zone; fold/gap policies require explicit selection.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Time {
+    pub zone: String,
+    pub ambiguous: LocalTimePolicy,
+    pub nonexistent: LocalTimePolicy,
+}
+impl Default for Time {
+    fn default() -> Self {
+        Self {
+            zone: "local".into(),
+            ambiguous: LocalTimePolicy::Prompt,
+            nonexistent: LocalTimePolicy::Prompt,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LocalTimePolicy {
+    Prompt,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTime {
+    pub zone: Option<String>,
+    pub ambiguous: Option<LocalTimePolicy>,
+    pub nonexistent: Option<LocalTimePolicy>,
 }
 
 /// Ordered native priority characters, with implicit default for absent cookies.

@@ -49,6 +49,7 @@ impl Document {
         merge.todo(&mut self.org.todo, &later.org.todo);
         merge.priority(&mut self.org.priority, &later.org.priority);
         merge.duration(&mut self.org.duration.units, &later.org.duration.units);
+        merge.time(&mut self.org.time, &later.org.time);
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);
@@ -552,6 +553,22 @@ impl Merge {
             &["palette", "org", "malformed"],
             &mut base.malformed,
             &later.malformed,
+        );
+    }
+}
+
+impl Merge {
+    fn time(&mut self, base: &mut super::PartialTime, later: &super::PartialTime) {
+        self.leaf(&["org", "time", "zone"], &mut base.zone, &later.zone);
+        self.leaf(
+            &["org", "time", "ambiguous"],
+            &mut base.ambiguous,
+            &later.ambiguous,
+        );
+        self.leaf(
+            &["org", "time", "nonexistent"],
+            &mut base.nonexistent,
+            &later.nonexistent,
         );
     }
 }

@@ -37,6 +37,19 @@ local selection uses documented [TZ formats](https://sourceware.org/glibc/manual
 Independent fixture encoders use the published byte format; no external reader
 or copied implementation is part of native operation.
 
+T17.2 adds ZonedOperation, which owns one fallible injected clock capture, its
+effective civil date and a complete immutable zone. Local resolution checks at
+most 258 distinct observed offsets, orders fold choices by UTC instant, and
+rejects invalid forced offsets. A forward gap returns Nonexistent; unknown
+coverage returns an error rather than a manufactured gap.
+
+Typed org.time settings use normal include layering/provenance. local is the
+factory selection, system ignores TZ, and UTC/named policy overrides it. Only
+prompt is admitted for ambiguous/nonexistent policies. Task logging now consumes
+this policy through the shared owner, retaining a single timestamp through note
+entry. The former private task-zone reader is removed. No source directive can
+select a zone file or execute a program.
+
 ## Contracts Added or Changed
 
 - ORG07: native explicit zone offsets and known/unknown coverage.
@@ -60,7 +73,18 @@ Fixtures cover exact transition boundaries, future footer recurrence, empty
 coverage, unknown types, both hemispheres, negative/all-year DST, leap rules,
 quoted names, fractional offsets and real owned system/named zone files.
 
+T17.2 development checks passed:
+
+- `cargo test --test org_time --test configuration time -- --nocapture`: four
+  configuration and two civil-format/time tests passed.
+- `cargo test --test org_time zone -- --nocapture`: nine zone tests passed,
+  including explicit fold/gap results, civil-year edges and immutable operation
+  snapshots after owned zone-file replacement and captured-TZ changes.
+- `python3 scripts/check-config-reference.py`: 114 schema/catalog entries,
+  143 default bindings and 13624 exact packaged template bytes agree.
+- Focused changed-source quality passed with the original thresholds.
+
 ## Risks and Follow-ups
 
-Operation snapshots, explicit fold/gap resolution and configuration integration
-continue in T17.2. Timestamp entry remains with the recorded Slice 18.
+Adversarial format/IO boundaries and native task-zone evidence continue in
+T17.3. Timestamp entry remains with the recorded Slice 18.

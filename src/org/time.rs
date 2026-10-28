@@ -13,4 +13,4 @@ pub use calendar::CalendarInterval;
 pub use operation::OperationTime;
 
 mod zone;
-pub use zone::{Zone, ZoneEnvironment, ZoneSelection};
+pub use zone::{Resolution, ResolvedTime, Zone, ZoneEnvironment, ZoneSelection, ZonedOperation};

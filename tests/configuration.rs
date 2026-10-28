@@ -170,3 +170,6 @@ mod org_estimates;
 mod org_tags;
 #[path = "configuration/org_tasks.rs"]
 mod org_tasks;
+
+#[path = "configuration/org_time.rs"]
+mod org_time;

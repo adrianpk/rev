@@ -32,6 +32,7 @@ pub(super) fn settings(document: &Document) -> Settings {
         &mut settings.org.duration.units,
         &document.org.duration.units,
     );
+    time(&mut settings.org.time, &document.org.time);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);
@@ -235,4 +236,12 @@ pub(super) fn duration(base: &mut super::DurationUnits, partial: &super::Partial
     scalar(&mut base.w, partial.w);
     scalar(&mut base.m, partial.m);
     scalar(&mut base.y, partial.y);
+}
+
+pub(super) fn time(base: &mut super::Time, partial: &super::PartialTime) {
+    if let Some(zone) = &partial.zone {
+        base.zone.clone_from(zone);
+    }
+    scalar(&mut base.ambiguous, partial.ambiguous);
+    scalar(&mut base.nonexistent, partial.nonexistent);
 }

@@ -1,6 +1,10 @@
 //! Immutable bounded TZif/POSIX observations, independent of source text.
 mod observe;
+mod operation;
+mod resolve;
 pub use observe::{ZoneEnvironment, ZoneSelection};
+pub use operation::ZonedOperation;
+pub use resolve::{Resolution, ResolvedTime};
 mod posix;
 mod tzif;
 use posix::Posix;

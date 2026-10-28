@@ -32,6 +32,7 @@ TABLES = {
     "org.tags": "PartialTags",
     "org.todo": "PartialTodo",
     "org.priority": "PartialPriority",
+    "org.time": "PartialTime",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",
     "org.properties": "PartialProperties",
@@ -160,6 +161,7 @@ def type_label(kind):
         "Option<Match>": "String:",
         "Option<TreeRoot>": "String:",
         "Option<Newline>": "String:",
+        "Option<LocalTimePolicy>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",
         "Option<crate::gutter::CurrentLine>": "String:",
@@ -190,7 +192,7 @@ def check_catalog(document, models, rows):
     expected = leaves(models)
     same_keys(rows, expected, "configuration catalog")
     for key, row in rows.items():
-        label = "String" if key == "org.todo.log_drawer" or key.startswith("org.priority.") else type_label(expected[key])
+        label = "String" if key == "org.todo.log_drawer" or (key.startswith("org.priority.") or key == "org.time.zone") else type_label(expected[key])
         require(row[0].startswith(label), f"{key}: type documentation drift")
         check_default(document, key, row)
 

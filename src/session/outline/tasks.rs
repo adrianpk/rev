@@ -22,7 +22,7 @@ impl Session {
     /// Supply an operation clock without changing process environment or source.
     /// The provider is called once for a logging transition, before its note prompt.
     pub fn with_task_clock(mut self, clock: fn() -> Result<String, String>) -> Self {
-        self.task_clock = clock;
+        self.task_clock = Some(clock);
         self
     }
     pub(super) fn start_task(
@@ -111,7 +111,7 @@ impl Session {
         }
         let stamp =
             if change.logging.closed || change.logging.state != Log::None || change.logging.note {
-                (self.task_clock)()?
+                self.task_timestamp()?
             } else {
                 String::new()
             };
@@ -177,6 +177,11 @@ fn select(workflow: &Workflow, draft: &str) -> Result<String, String> {
         .ok_or_else(|| "Unknown Org task state or selection key".into())
 }
 
-pub(in crate::session) fn native_clock() -> Result<String, String> {
-    clock::now()
+impl Session {
+    fn task_timestamp(&self) -> Result<String, String> {
+        if let Some(clock) = self.task_clock {
+            return clock();
+        }
+        clock::now(&self.buffers.snapshot().settings().org.time)
+    }
 }

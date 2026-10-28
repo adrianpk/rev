@@ -51,3 +51,40 @@ fn observed_selection() {
         3600
     );
 }
+
+// File replacement and captured-TZ changes affect later operations only. The
+// retained operation never reopens zone files or rereads the injected clock.
+#[test]
+fn operation_snapshot() {
+    use rev::org::time::ZonedOperation;
+    use std::time::UNIX_EPOCH;
+    let fixture = Fixture::new();
+    let mut env = environment(&fixture);
+    let mut calls = 0;
+    let operation = ZonedOperation::capture(&ZoneSelection::Local, &env, || {
+        calls += 1;
+        Ok(UNIX_EPOCH)
+    })
+    .unwrap();
+    std::fs::write(
+        &env.localtime,
+        tzif(b'2', &[], &[(7200, 0, 0)], b"NEW\0", ""),
+    )
+    .unwrap();
+    assert_eq!(
+        operation.now().format_timestamp(false),
+        "[1970-01-01 Thu 01:00]"
+    );
+    assert_eq!(operation.zone().offset_at(4102444800).unwrap(), 3600);
+    assert_eq!(operation.instant().unix_seconds(), 0);
+    assert_eq!(calls, 1);
+    let next = ZonedOperation::capture(&ZoneSelection::Local, &env, || Ok(UNIX_EPOCH)).unwrap();
+    assert_eq!(next.now().format_timestamp(false), "[1970-01-01 Thu 02:00]");
+    env.tz = Some("EST5".into());
+    let next = ZonedOperation::capture(&ZoneSelection::Local, &env, || Ok(UNIX_EPOCH)).unwrap();
+    assert_eq!(next.now().format_timestamp(false), "[1969-12-31 Wed 19:00]");
+    assert_eq!(
+        operation.now().format_timestamp(false),
+        "[1970-01-01 Thu 01:00]"
+    );
+}

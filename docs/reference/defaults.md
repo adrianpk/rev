@@ -193,6 +193,9 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.time.zone` | String | `"local"` | local honors captured TZ; system uses localtime; UTC or a validated relative IANA name overrides TZ. Zone data is checked when the operation is selected. |
+| `org.time.ambiguous` | String: "prompt" | `"prompt"` | Require a selected observed offset for repeated local times; never guess. |
+| `org.time.nonexistent` | String: "prompt" | `"prompt"` | Require a valid replacement local time for a forward gap; never normalize silently. |
 | `org.priority.highest` | String | `"A"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |
 | `org.priority.lowest` | String | `"C"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |
 | `org.priority.default` | String | `"B"` | One uppercase A-Z character; highest <= default <= lowest. File PRIORITIES data may select the buffer range. |

@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 /// observation/resolution is separate; no ambient zone is read by this value.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct OperationTime {
-    seconds: i64,
+    pub(super) seconds: i64,
 }
 impl OperationTime {
     pub fn capture(clock: impl FnOnce() -> Result<SystemTime, String>) -> Result<Self, String> {

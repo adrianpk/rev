@@ -81,6 +81,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     }
     properties(&document.org.properties)?;
     todo(document)?;
+    time(document)?;
     estimates(document)
 }
 
@@ -382,4 +383,12 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
     crate::org::priority::Priority::configured(&priority)
         .map_err(|e| Failure::new("org.priority.default", e))?;
     Ok(keymaps)
+}
+
+fn time(document: &Document) -> Result<(), Failure> {
+    if let Some(zone) = &document.org.time.zone {
+        crate::org::time::ZoneSelection::parse(zone)
+            .map_err(|e| Failure::new("org.time.zone", e))?;
+    }
+    Ok(())
 }

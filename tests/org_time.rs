@@ -23,3 +23,6 @@ mod zones;
 mod fixture;
 #[path = "org_time/zone_observation.rs"]
 mod zone_observation;
+
+#[path = "org_time/zone_resolution.rs"]
+mod zone_resolution;
