@@ -1,11 +1,12 @@
 # Slice 4: Recognize Org headings metadata and blocks
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-04-structural-syntax`
 PR: [#105](https://forge.adrianpk.com/adrianpk/rev/pulls/105)
+Integrated: `4bc3e524e5088d592c4127215ab6c4e70f6e71b0`
 
 ## Purpose
 
@@ -76,8 +77,9 @@ Implementation checks passed:
 - `git diff --check`
 
 Focused source-quality checks passed for the structural modules and fixtures.
-The final clean PR head requires this exact controller-recorded batch. Its receipt
-and the canonical PR retain the final candidate and check outcomes:
+Controller receipt `E5AMDDY6ER5WIALLDGYXL5Y2CS` passed this exact ordered
+batch at clean head `4bc3e524e5088d592c4127215ab6c4e70f6e71b0`, subsequently
+integrated through PR #105. All 70 tests passed with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

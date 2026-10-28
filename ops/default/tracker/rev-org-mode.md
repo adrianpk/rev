@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 4 structural-syntax
+Active slice: Slice 5 mode-contexts
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -154,14 +154,16 @@ Details and exact checks: [Slice 4](../plan/rev-org-mode.md#slice-4-recognize-or
 - [x] T4.1: Recognize headings, sections, lists, drawers, planning lines, affiliated keywords and tables.
 - [x] T4.2: Treat source/example/export blocks as owned literal regions with valid delimiter recovery.
 - [x] T4.3: Verify subtree ownership, malformed drawers and apparent headings inside blocks.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T4.1 `0b6bf91c2f3bc1260cd9a60d85311facd89b2288`,
 T4.2 `08c400135626913eb197cc2cbaa3e4b3429b5b5d`,
 T4.3 `f6277f82d149f93e5049040e2a09980c51b98514`.
 Canonical PR: [#105](https://forge.adrianpk.com/adrianpk/rev/pulls/105).
 Report: [Slice 4](../report/slices/rev-org-mode/slice-4-structural-syntax.md).
-Integration: pending controller verification.
+Integration: PR #105 merged into dev at `4bc3e524e5088d592c4127215ab6c4e70f6e71b0`.
+Validation: controller receipt `E5AMDDY6ER5WIALLDGYXL5Y2CS` passed all five
+ordered checks at that exact candidate, including 70 tests with zero skips.
 
 ### Slice 5: activate native Org mode and contexts
 
