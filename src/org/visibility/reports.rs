@@ -1,46 +1,46 @@
-mod collect;
 use super::*;
 use crate::buffer::Buffer;
 use crate::coordinates::{Coordinates, Scalar};
-use crate::org::agenda::{ClockQuery, ClockRow, ClockScope, ClockSummary};
-use crate::org::time::{CivilDateTime, RecordedClock, Resolution, Zone};
+use crate::org::agenda::{ClockQuery, ClockRow, ClockScan, ClockScope};
 
 impl Outline {
-    pub(crate) fn clock_summary(
+    pub(crate) fn clock_scan(
         &self,
         buffer: &Buffer,
         point: Scalar,
         query: ClockQuery,
-        data: (&crate::config::Org, &Zone),
-    ) -> Result<ClockSummary, String> {
+        policy: &crate::config::Org,
+    ) -> Result<ClockScan, String> {
         self.report_current(buffer)?;
         let selected = self.report_headings(buffer, point, query.scope)?;
         let range = self.report_range(&selected, query.scope, buffer.len_bytes());
         if range.len() > 262144 {
             return Err("Clock report exceeds 262144 UTF-8 bytes".into());
         }
-        let source = buffer.byte_span(range).map_err(|e| e.to_string())?;
-        let window = date_window(query, data.1)?;
-        let mut summary = ClockSummary {
-            source,
-            rows: Vec::new(),
-            minutes: 0,
-            effort: None,
-            open: 0,
-            unresolved: 0,
-            overlaps: 0,
-        };
-        let mut records = Vec::new();
+        let offset = range.start;
+        let text = source(buffer, range.clone())?;
+        let source = buffer.byte_span(range.clone()).map_err(|e| e.to_string())?;
+        let literals = self
+            .literals
+            .iter()
+            .filter(|r| r.start < range.end && r.end > range.start)
+            .cloned()
+            .collect();
+        let mut rows = Vec::new();
         let base = selected.first().copied().unwrap_or(0);
         for index in selected {
-            let mut row = self.clock_row(buffer, index, data.0)?;
+            let mut row = self.clock_row(buffer, index, policy)?;
             row.parent = row.parent.and_then(|i| i.checked_sub(base));
-            summary.rows.push(row);
+            rows.push(row);
         }
-        self.report_records(buffer, window, data.1, (&mut summary, &mut records))?;
-        summary.overlaps = crate::org::agenda::clocks::overlaps(&mut records);
-        self.sum_rows(&mut summary)?;
-        Ok(summary)
+        Ok(ClockScan {
+            source,
+            text,
+            offset,
+            literals,
+            rows,
+            window: query.window,
+        })
     }
     fn report_current(&self, buffer: &Buffer) -> Result<(), String> {
         self.complete().map_err(str::to_owned)?;
@@ -96,6 +96,7 @@ impl Outline {
             )?)
         };
         Ok(ClockRow {
+            byte: h.start,
             source: buffer
                 .byte_span(h.start..h.section)
                 .map_err(|e| e.to_string())?,
@@ -108,32 +109,8 @@ impl Outline {
             unresolved: 0,
         })
     }
-    fn sum_rows(&self, summary: &mut ClockSummary) -> Result<(), String> {
-        for row in &summary.rows {
-            summary.minutes = summary
-                .minutes
-                .checked_add(row.minutes)
-                .ok_or("Clock total overflow")?;
-            summary.open += row.open;
-            summary.unresolved += row.unresolved;
-        }
-        // Compare a selected task/subtree with its own estimate; a file compares
-        // top-level estimates, avoiding duplicate inherited parent estimates.
-        for row in &summary.rows {
-            if (row.parent.is_none() || row.source.range.start == summary.source.range.start)
-                && let Some(effort) = row.effort
-            {
-                summary.effort = Some(
-                    summary
-                        .effort
-                        .unwrap_or(crate::org::Duration::from_minutes(0.0)?)
-                        .checked_add(effort)?,
-                );
-            }
-        }
-        Ok(())
-    }
 }
+
 fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
     let span = buffer.byte_span(range).map_err(|e| e.to_string())?;
     buffer
@@ -141,22 +118,6 @@ fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
         .map(|s| s.to_string())
         .map_err(|e| e.to_string())
 }
-fn date_window(query: ClockQuery, zone: &Zone) -> Result<Option<RecordedClock>, String> {
-    let Some(window) = query.window else {
-        return Ok(None);
-    };
-    Ok(Some(RecordedClock {
-        start: midnight(window.start(), zone)?,
-        end: midnight(window.end(), zone)?,
-    }))
-}
-fn midnight(value: CivilDateTime, zone: &Zone) -> Result<i64, String> {
-    match zone.resolve(value)? {
-        Resolution::Unique(value) => Ok(value.unix_seconds.div_euclid(60)),
-        _ => Err("Clock date boundary is ambiguous or nonexistent in the selected zone".into()),
-    }
-}
-
 mod dynamic;
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct Dynamic {

@@ -3,9 +3,10 @@ use rev::command::OrgCommand;
 const SOURCE: &str = "* Parent\n:PROPERTIES:\n:EFFORT: 3:00\n:END:\nCLOCK: [2024-01-01 Mon 23:00]--[2024-01-02 Tue 01:00] => 2:00\n** Child\nCLOCK: [2024-01-02 Tue 00:30]--[2024-01-02 Tue 01:30] => 1:00\nCLOCK: [2024-01-02 Tue 10:00]\nCLOCK: broken\n* Other\nCLOCK: [2024-01-02 Tue 12:00]--[2024-01-02 Tue 12:15] => 0:15\n";
 fn query(session: &mut Session, draft: &str) {
     settle(session);
-    visibility::action(session, OrgCommand::ClockDisplay);
+    action(session, OrgCommand::ClockDisplay);
     assert!(session.echo().contains("C-g cancels"), "{}", session.echo());
-    properties::argument(session, draft);
+    argument(session, draft);
+    settle(session);
 }
 fn feedback(session: &mut Session, expected: &str) {
     assert!(
@@ -68,7 +69,7 @@ fn clock_report_boundaries() {
     feedback(&mut session, "actual 0:00");
     query(&mut session, "file 2024-02-01 2024-01-01");
     feedback(&mut session, "start before end");
-    visibility::action(&mut session, OrgCommand::ClockDisplay);
+    action(&mut session, OrgCommand::ClockDisplay);
     session.handle(control('g'));
     assert_eq!(text(&session), source);
 }
@@ -78,7 +79,7 @@ fn at(session: &mut Session, needle: &str) {
         .position(|s| s.contains(needle))
         .unwrap()
         + 1;
-    headings::goto(session, row);
+    goto(session, row);
 }
 // Dynamic reports are opaque observations until explicitly updated; only the
 // selected body changes, with exact CRLF/Unicode/unknown blocks and one undo.
@@ -91,7 +92,7 @@ fn clock_table_publication() {
     session.frame().unwrap();
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     at(&mut session, "#+bEgIn:");
-    visibility::action(&mut session, OrgCommand::UpdateDynamicBlock);
+    action(&mut session, OrgCommand::UpdateDynamicBlock);
     assert!(session.echo().contains("updated"), "{}", session.echo());
     let updated = text(&session);
     assert!(updated.contains("| *Total time* | *1:00* |"), "{updated}");
@@ -100,7 +101,7 @@ fn clock_table_publication() {
     assert!(!updated.replace("\r\n", "").contains('\n'));
     let revision = session.buffer().unwrap().stamp();
     at(&mut session, "#+bEgIn:");
-    visibility::action(&mut session, OrgCommand::CtrlCCtrlC);
+    action(&mut session, OrgCommand::CtrlCCtrlC);
     assert_eq!(
         session.buffer().unwrap().stamp(),
         revision,
@@ -132,14 +133,14 @@ fn clock_table_rejections() {
         settle(&mut session);
         at(&mut session, "#+BEGIN:");
         let stamp = session.buffer().unwrap().stamp();
-        visibility::action(&mut session, OrgCommand::UpdateDynamicBlock);
+        action(&mut session, OrgCommand::UpdateDynamicBlock);
         assert_eq!(text(&session), source, "{name}");
         assert_eq!(session.buffer().unwrap().stamp(), stamp, "{name}");
     }
     let (_fixture, mut session) = editor("[org.time]\nzone='UTC'", "insert.org", "* Task\n");
     settle(&mut session);
-    headings::goto(&mut session, 2);
-    visibility::action(&mut session, OrgCommand::ClockReport);
+    goto(&mut session, 2);
+    action(&mut session, OrgCommand::ClockReport);
     assert!(text(&session).ends_with("#+END:"), "{}", session.echo());
     session.execute(Command::History(rev::command::History::Undo));
     assert_eq!(text(&session), "* Task\n");

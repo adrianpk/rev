@@ -596,3 +596,12 @@ No Lisp, formatter, formula or implicit source discovery is evaluated.
 Tables show subtree totals up to maxlevel, root effort and record diagnostics;
 deep descendant time contributes to its visible ancestors and the grand total
 counts each interval once. Output admits 1048576 UTF-8 bytes.
+
+Clock interval calculation and table rendering share the native Org worker
+slot. C-g cancels pending work; compute checks cancellation and yields at 10ms
+boundaries. A completed result must retain the initiating source revision,
+selected view and editing focus. Changed source, moved point or canceled work
+cannot publish a report. Completion retires the worker deadline; idle reports
+add no polling or source writes. `org::agenda::ClockScan` exposes the same
+bounded native snapshot/result contracts for explicit host analysis without
+file discovery or edit authority.

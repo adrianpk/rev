@@ -4,8 +4,8 @@ use super::super::{CivilDateTime, Resolution, Timestamp, Zone};
 /// establish an instant when a zone-less source timestamp is ambiguous.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RecordedClock {
-    pub start: i64,
-    pub end: i64,
+    pub(crate) start: i64,
+    pub(crate) end: i64,
 }
 impl RecordedClock {
     /// Observe one compatible CLOCK line; None denotes a valid open interval.

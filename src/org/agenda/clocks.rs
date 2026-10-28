@@ -47,6 +47,7 @@ pub(super) fn date(source: &str) -> Result<Date, String> {
 /// A row retains exact source revision and heading identity for later refresh.
 #[derive(Clone, Debug)]
 pub struct ClockRow {
+    pub(crate) byte: usize,
     pub source: Span,
     pub title: String,
     pub level: usize,
@@ -101,4 +102,28 @@ fn dates(words: &[&str]) -> Result<Option<(Date, Date)>, String> {
         return Err("Clock date window requires start before end".into());
     }
     Ok(dates)
+}
+
+impl ClockSummary {
+    pub(crate) fn finish(&mut self, records: &mut [RecordedClock]) -> Result<(), String> {
+        self.overlaps = overlaps(records);
+        for row in &self.rows {
+            self.minutes = self
+                .minutes
+                .checked_add(row.minutes)
+                .ok_or("Clock total overflow")?;
+            self.open += row.open;
+            self.unresolved += row.unresolved;
+            if row.parent.is_none()
+                && let Some(effort) = row.effort
+            {
+                self.effort = Some(
+                    self.effort
+                        .unwrap_or(Duration::from_minutes(0.0)?)
+                        .checked_add(effort)?,
+                );
+            }
+        }
+        Ok(())
+    }
 }

@@ -533,8 +533,14 @@ Details and exact checks: [Slice 22](../plan/rev-org-mode.md#slice-22-compare-or
 
 - [x] T22.1: Deliver bounded task/subtree/file/date-range clock totals and effort comparisons.
 - [x] T22.2: Generate compatible clock-table reports only on explicit refresh and preserve unrelated dynamic-block source.
-- [ ] T22.3: Introduce org_agenda contracts and verify overlaps, open intervals and transactional report replacement.
+- [x] T22.3: Introduce org_agenda contracts and verify overlaps, open intervals and transactional report replacement.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T22.1: `4d45e7957e9c`; T22.2: `3ca4d3d4461a`. Native comparisons, explicit
+clocktable publication and shared-job contracts pass focused checks. T22.3
+adds ten org_agenda cases, exact source/record/output bounds, checked shared-view
+history and eight owned task/restart PTYs. Final exact-head validation and
+canonical PR reference remain pending; verified integration remains open.
 
 ### Slice 23: deliver native Org relative and countdown timers
 

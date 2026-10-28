@@ -1,15 +1,15 @@
 use super::*;
-use crate::buffer::edit::Replacement;
 use crate::org::agenda::ClockTable;
+use crate::org::agenda::ClockUpdate;
 use crate::org::time::ZonedOperation;
 impl Outline {
-    pub(crate) fn clock_table_edit(
+    pub(crate) fn clock_table_update(
         &self,
         buffer: &Buffer,
         point: Scalar,
         operation: &ZonedOperation,
         policy: &crate::config::Org,
-    ) -> Result<Replacement, String> {
+    ) -> Result<ClockUpdate, String> {
         self.report_current(buffer)?;
         let c = Coordinates::new(buffer).map_err(|e| e.to_string())?;
         let byte = c.to_byte(point).map_err(|e| e.to_string())?.0;
@@ -39,39 +39,46 @@ impl Outline {
         point: Scalar,
         block: &Dynamic,
         data: (&ZonedOperation, &crate::config::Org),
-    ) -> Result<Replacement, String> {
+    ) -> Result<ClockUpdate, String> {
         let name = source(buffer, block.name.clone())?;
         if !name.eq_ignore_ascii_case("clocktable") {
             return Err("Selected dynamic block is not a clocktable".into());
         }
         let header = source(buffer, block.name.end..block.header.end)?;
         let table = ClockTable::parse(header.trim(), data.0.now())?;
-        let summary = self.clock_summary(buffer, point, table.query, (data.1, data.0.zone()))?;
-        Ok(Replacement {
+        let scan = self.clock_scan(buffer, point, table.query, data.1)?;
+        Ok(ClockUpdate {
+            scan,
             source: buffer
                 .byte_span(block.body.clone())
                 .map_err(|e| e.to_string())?,
-            text: summary.table(table.maxlevel, buffer.newline())?,
+            prefix: String::new(),
+            suffix: String::new(),
+            maxlevel: table.maxlevel,
+            newline: buffer.newline().into(),
         })
     }
+
     fn insert_clock_table(
         &self,
         buffer: &Buffer,
         point: Scalar,
         data: (&ZonedOperation, &crate::config::Org),
-    ) -> Result<Replacement, String> {
+    ) -> Result<ClockUpdate, String> {
         let span = self.report_insertion(buffer, point)?;
         let table = ClockTable::parse("", data.0.now())?;
-        let summary = self.clock_summary(buffer, point, table.query, (data.1, data.0.zone()))?;
+        let scan = self.clock_scan(buffer, point, table.query, data.1)?;
         let nl = buffer.newline();
-        Ok(Replacement {
+        Ok(ClockUpdate {
+            scan,
             source: span,
-            text: format!(
-                "#+BEGIN: clocktable :maxlevel 2 :scope file{nl}{}#+END:",
-                summary.table(2, nl)?
-            ),
+            prefix: format!("#+BEGIN: clocktable :maxlevel 2 :scope file{nl}"),
+            suffix: "#+END:".into(),
+            maxlevel: 2,
+            newline: nl.into(),
         })
     }
+
     fn report_insertion(
         &self,
         buffer: &Buffer,

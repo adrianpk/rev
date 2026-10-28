@@ -5,6 +5,7 @@ from .org_estimates import estimates
 from .org_timestamps import timestamps, readonly_calendar
 from .org_repeats import repeats
 from .org_clocks import clocks, lifecycle
+from .org_reports import reports
 
 from .support import (BINARY, PTY, ROOT, canvas, close, completed, environment,
                       finish, send, snapshot, step, write)
@@ -102,6 +103,7 @@ def tasks(root, colored):
         repeats(session, source, LINES, goto, exact, document)
         clocks(session, source, LINES, goto, exact, document)
         lifecycle(session, source, LINES, goto, exact, document)
+        reports(session, source, LINES, goto, exact, document)
         assert source.read_bytes() == SOURCE
         if not colored:
             assert b"\x1b[38;2;" not in session.output and b"\x1b[48;2;" not in session.output
@@ -123,9 +125,11 @@ def readonly(root, colored):
         goto(session, 3)
         named(session, 'org-inspect-todo', b'Org task: TODO')
         for wire in [b'\x03\x14', b'\x1bxorg-todo\r', b'\x1bxorg-todo-set\r', b'\x03,', b'\x03\x18e', b'\x03.', b'\x03!',
-                     b'\x03\x13', b'\x03\x04', b'\x1bxorg-timestamp-up-day\r', b'\x03\x18\x09', b'\x1bxorg-clock-in\r']:
+                     b'\x03\x13', b'\x03\x04', b'\x1bxorg-timestamp-up-day\r', b'\x03\x18\x09', b'\x1bxorg-clock-in\r', b'\x1bxorg-clock-report\r', b'\x1bxorg-dblock-update\r']:
             send(session, wire, lambda frame: b'buffer is read-only' in frame
                  and b'-- RO --' in frame and exact(frame, LINES))
+        step(session, b'\x1bxorg-clock-display\r', b'Clock scope [start-date end-date]: ')
+        send(session, b'file\r', lambda frame: b'actual 0:00' in frame and exact(frame, LINES))
         readonly_calendar(session, LINES, exact)
         assert source.read_bytes() == SOURCE
         if not colored:

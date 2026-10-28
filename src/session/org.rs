@@ -11,20 +11,27 @@ const POLL: Duration = Duration::from_millis(10);
 /// native event owner wakes only while work is owned, and never joins live work.
 #[derive(Default)]
 pub(super) struct Work {
-    job: Job<Coloring>,
+    job: Job<Observation>,
+    pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
     source: Option<Stamp>,
     deadline: Option<Instant>,
 }
 
+enum Observation {
+    Color(Coloring),
+    Report(Result<super::outline::reports::Output, String>),
+}
 impl Work {
     pub(super) fn cancel(&mut self) {
         self.request = None;
+        self.report = None;
         self.job.cancel();
     }
 
     pub(super) fn cancel_request(&mut self) {
-        if self.request.take().is_some() {
+        let report = self.report.take();
+        if self.request.take().is_some() || report.is_some() {
             self.job.cancel();
         }
     }
@@ -83,7 +90,11 @@ impl Session {
         buffer.attempted_org_colors();
         let Ok(scan) = scan else { return };
         let stamp = buffer.stamp();
-        match self.org.job.start(stamp, move |cancel| scan.run(cancel)) {
+        match self
+            .org
+            .job
+            .start(stamp, move |cancel| Observation::Color(scan.run(cancel)))
+        {
             Ok(()) => {
                 self.org.source = Some(stamp);
                 self.org.deadline = Some(Instant::now() + POLL);
@@ -128,14 +139,17 @@ impl Session {
         self.org.source = None;
         self.org.deadline = None;
         match result {
-            Ok(coloring) => {
+            Ok(Observation::Color(coloring)) => {
                 self.publish_org(source.buffer, coloring);
                 self.finish_org_request();
             }
+            Ok(Observation::Report(result)) => self.finish_clock_report(result),
             Err(JobError::Cancelled) => {
+                self.org.report = None;
                 self.finish_org_request();
             }
             Err(_) => {
+                self.org.report = None;
                 self.org.request = None;
             }
         }
@@ -157,5 +171,28 @@ impl Session {
         }
         self.org.deadline = Some(now + POLL);
         Action::Wait
+    }
+}
+
+impl Work {
+    pub(super) fn busy(&self) -> bool {
+        self.job.is_active()
+    }
+    pub(super) fn start_report(
+        &mut self,
+        request: super::outline::Request,
+        work: super::outline::reports::Work,
+        operation: crate::org::time::ZonedOperation,
+    ) -> Result<(), String> {
+        let stamp = request.origin.point.stamp;
+        self.job
+            .start(stamp, move |cancel| {
+                Observation::Report(work.run(operation.zone(), cancel))
+            })
+            .map_err(|e| e.to_string())?;
+        self.source = Some(stamp);
+        self.report = Some(request);
+        self.deadline = Some(Instant::now() + POLL);
+        Ok(())
     }
 }

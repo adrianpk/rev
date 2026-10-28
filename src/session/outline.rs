@@ -39,7 +39,7 @@ impl Session {
             self.windows.selected_mut().clear_folds();
             return self.message("Org show-all");
         }
-        if self.org.request.is_some() {
+        if self.org.request.is_some() || self.org.report.is_some() {
             return self.message("Org structural observation is pending; C-g cancels");
         }
         self.org.request = Some(Request {
@@ -55,6 +55,9 @@ impl Session {
     }
 
     pub(super) fn finish_org_request(&mut self) {
+        if self.org.busy() {
+            return;
+        }
         let Some(request) = &self.org.request else {
             return;
         };
@@ -118,7 +121,7 @@ impl Session {
         match request.command {
             OrgCommand::ClockDisplay => self.start_clock_report(model, request),
             OrgCommand::ClockReport | OrgCommand::UpdateDynamicBlock => {
-                self.publish_clock_table(&model, &request)
+                self.publish_clock_table(&model, request)
             }
             OrgCommand::ClockIn => self.start_clock(model, request),
             OrgCommand::ResolveClocks => self.resolve_clocks(model, request),
