@@ -345,6 +345,14 @@ Details and exact checks: [Slice 14](../plan/rev-org-mode.md#slice-14-deliver-or
 - [x] T14.3: Verify key/M-x equivalence, read-only behavior and task/metadata history in an owned PTY journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) targets dev;
+[Slice 14 report](../report/slices/rev-org-mode/slice-14-todo-workflows.md) is reviewing.
+Task commits: T14.1 `a1350e3dc561dee6d28c01b2ba5d7982de042676`,
+T14.2 `0eb2ad95aaaacab8c321d28d4c695ee8f5c1d115`,
+T14.3 `8161231d1127cc26cb6848ae2206d13fa993f8ab`.
+Required exact-head validation is pending the PR-reference follow-up push;
+Rebase + Fast-forward integration remains controller-owned.
+
 ### Slice 15: record Org effort estimates and priorities
 
 Contracts: ORG06 ORG21.

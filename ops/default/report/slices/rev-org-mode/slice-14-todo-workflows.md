@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-14-todo-workflows`
-PR: pending
+PR: [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115)
 
 ## Purpose
 
@@ -40,6 +40,12 @@ zones reject before publication. No shell, external date process, unsafe code,
 new dependency, permanent worker or input/render source parser is introduced.
 This is the timestamp capture needed by task logging; civil-time editing and
 recurrence remain assigned to their recorded later slices.
+
+Task commits:
+
+- T14.1: [a1350e3dc561dee6d28c01b2ba5d7982de042676](https://forge.adrianpk.com/adrianpk/rev/commit/a1350e3dc561dee6d28c01b2ba5d7982de042676).
+- T14.2: [0eb2ad95aaaacab8c321d28d4c695ee8f5c1d115](https://forge.adrianpk.com/adrianpk/rev/commit/0eb2ad95aaaacab8c321d28d4c695ee8f5c1d115).
+- T14.3: [8161231d1127cc26cb6848ae2206d13fa993f8ab](https://forge.adrianpk.com/adrianpk/rev/commit/8161231d1127cc26cb6848ae2206d13fa993f8ab).
 
 ## Contracts Added or Changed
 
@@ -106,6 +112,26 @@ paths and cwd are owned; snapshots admit no incidental file changes. The example
 initially attempted a private settings accessor; it now retains the same startup
 snapshot for its explicit host-owned view. Separating fixture construction from
 terminal ownership also keeps its source complexity within the existing limit.
+
+Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) targets
+`dev` with the approved literal title. Its immutable report link uses full
+introduction commit `a1350e3dc561dee6d28c01b2ba5d7982de042676`.
+
+After this PR-reference follow-up is committed and pushed, required readiness
+checks will be recorded through the controller against the exact clean HEAD:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test configuration --test commands`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tasks`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused same-HEAD evidence will additionally cover the task clock unit tests,
+public source observations, configuration reference and the unchanged outline
+terminal journey, since the shared declaration/cookie observations and native
+session loop are affected. Final receipt identities belong in Acta and the
+controller checkpoint, without changing a validated report HEAD.
 
 ## Risks and Follow-ups
 
