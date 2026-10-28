@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-25-habit-graphs`
-PR: pending
+PR: `#126`
 
 ## Purpose
 
@@ -72,6 +72,7 @@ and [Org habit implementation](https://raw.githubusercontent.com/emacs-mirror/em
 
 T25.1: `60428ea7e25156b6ca292a24fd83b28f88be6860`.
 T25.2: `78bbf7e8d2c3db3f74366863fb5e951b12a4a56e`.
+T25.3: `5f32a30d3fe59bd71d7636f74205fad7eccae829`.
 
 Development checks passed:
 
@@ -112,3 +113,7 @@ Final controller receipts bind the clean canonical PR head. Required order:
 
 The delivery-set full gate has not run. Source discovery and the complete
 calendar agenda follow their recorded slices.
+
+[Canonical PR #126](https://forge.adrianpk.com/adrianpk/rev/pulls/126) targets dev.
+Final required/focused controller receipts bind the clean PR-reference head;
+verified integration remains pending.

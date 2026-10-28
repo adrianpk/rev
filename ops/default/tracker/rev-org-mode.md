@@ -625,6 +625,11 @@ narrow/peer geometry, late status, exact source bytes, NO_COLOR, dirty completio
 refresh, new-day capture, no idle graph work and 128/129 row admission. Twenty-one
 selected cases pass, zero skips. Canonical PR and final receipts follow.
 
+T25.3: `5f32a30d3fe59bd71d7636f74205fad7eccae829`. [Canonical PR #126](https://forge.adrianpk.com/adrianpk/rev/pulls/126)
+and the [Slice 25 report](../report/slices/rev-org-mode/slice-25-habit-graphs.md) are
+reviewing. Final required/focused controller receipts bind the clean PR-reference
+head; verified dev integration remains pending.
+
 ### Slice 26: discover bounded canonical Org agenda sources
 
 Contracts: ORG08 ORG18.
