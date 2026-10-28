@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-15-effort-priorities`
-PR: pending
+PR: [#116](https://forge.adrianpk.com/adrianpk/rev/pulls/116)
 
 ## Purpose
 
@@ -40,6 +40,12 @@ include layering. The first include test exposed why partial leaf overrides
 cannot be compared with factory bounds before their included bounds are merged.
 The existing whole-candidate owner now validates the resolved priority range
 before settings projection.
+
+Task commits:
+
+- T15.1: [06ba3495029d20fdab3fedf63469b005d862297d](https://forge.adrianpk.com/adrianpk/rev/commit/06ba3495029d20fdab3fedf63469b005d862297d).
+- T15.2: [d6f6d45f850a79abcbe8aa91cb709205da75a4fb](https://forge.adrianpk.com/adrianpk/rev/commit/d6f6d45f850a79abcbe8aa91cb709205da75a4fb).
+- T15.3: [53813b06e6f1ddefcb5ca064948f2fcee5e8b047](https://forge.adrianpk.com/adrianpk/rev/commit/53813b06e6f1ddefcb5ca064948f2fcee5e8b047).
 
 ## Contracts Added or Changed
 
@@ -112,6 +118,24 @@ being admitted. The parser now requires integer colon components, as the owned
 reference observation confirmed; decimal work units remain valid. Whitespace
 between a number and its unit is accepted without normalizing the stored value.
 No assertion or acceptance threshold was weakened.
+
+Canonical PR [#116](https://forge.adrianpk.com/adrianpk/rev/pulls/116) targets
+`dev` with the approved literal title. Its immutable report link uses full
+introduction commit `06ba3495029d20fdab3fedf63469b005d862297d`.
+
+After this PR-reference follow-up is committed and pushed, required readiness
+checks will be recorded through the controller at the exact clean HEAD:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test configuration --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused same-HEAD evidence additionally covers public source observations,
+configuration schema/template agreement and the extended owned task terminal
+journey. Final receipt identities belong in Acta and the controller checkpoint,
+without changing the validated report HEAD.
 
 ## Risks and Follow-ups
 

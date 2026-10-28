@@ -362,6 +362,16 @@ Details and exact checks: [Slice 15](../plan/rev-org-mode.md#slice-15-record-org
 - [x] T15.3: Verify numeric/duration rejection, source spelling preservation and atomic undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR [#116](https://forge.adrianpk.com/adrianpk/rev/pulls/116) targets dev;
+[Slice 15 report](../report/slices/rev-org-mode/slice-15-effort-priorities.md) is reviewing.
+Task commits:
+- T15.1: `06ba3495029d20fdab3fedf63469b005d862297d`.
+- T15.2: `d6f6d45f850a79abcbe8aa91cb709205da75a4fb`.
+- T15.3: `53813b06e6f1ddefcb5ca064948f2fcee5e8b047`.
+
+Required exact-head validation follows the PR-reference push. Integration
+remains controller-owned.
+
 ### Slice 16: model Org calendar dates and durations
 
 Contracts: ORG07 ORG18 ORG21.
