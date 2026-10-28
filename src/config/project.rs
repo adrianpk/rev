@@ -288,6 +288,8 @@ fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
     scalar(&mut base.agenda.span, partial.agenda.span);
     count(&mut base.agenda.week_start, partial.agenda.week_start);
     count(&mut base.limits.agenda_rows, partial.limits.agenda_rows);
+    count(&mut base.limits.query_bytes, partial.limits.query_bytes);
+    count(&mut base.limits.query_depth, partial.limits.query_depth);
     if let Some(paths) = &partial.agenda.sources {
         base.agenda.sources.clone_from(paths);
     }

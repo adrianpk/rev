@@ -443,6 +443,7 @@ fn habit(partial: &super::PartialHabit) -> Result<(), Failure> {
 fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
     integer("org.agenda.week_start", org.agenda.week_start, 1..=7)?;
     integer("org.limits.agenda_rows", org.limits.agenda_rows, 1..=100000)?;
+    query_limits(&org.limits)?;
     let limits = &org.limits;
     integer("org.limits.agenda_files", limits.agenda_files, 1..=4096)?;
     integer(
@@ -461,4 +462,9 @@ fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
             .map_err(|e| Failure::new("org.agenda.sources", e))?;
     }
     Ok(())
+}
+
+fn query_limits(limits: &super::PartialOrgLimits) -> Result<(), Failure> {
+    integer("org.limits.query_bytes", limits.query_bytes, 1..=65536)?;
+    integer("org.limits.query_depth", limits.query_depth, 1..=128)
 }

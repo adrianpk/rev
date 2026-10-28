@@ -1,15 +1,31 @@
 use super::{Comparison, Operator, Value};
 use std::cmp::Ordering;
 impl Comparison {
-    pub(super) fn matches(&self, actual: Option<&String>) -> bool {
+    pub(super) fn matches(
+        &self,
+        actual: Option<&String>,
+        units: &crate::config::DurationUnits,
+    ) -> bool {
         if self.present && actual.is_none() {
             return false;
         }
         let order = match &self.value {
             Value::Text(wanted) => Some(actual.map_or("", String::as_str).cmp(wanted)),
-            Value::Number(wanted) => number(actual).and_then(|n| n.partial_cmp(wanted)),
+            Value::Number(wanted) => self
+                .number(actual, units)
+                .and_then(|n| n.partial_cmp(wanted)),
         };
         order.is_some_and(|order| self.operator.accepts(order))
+    }
+    fn number(&self, value: Option<&String>, units: &crate::config::DurationUnits) -> Option<f64> {
+        if self.key == "EFFORT" {
+            return value.map_or(Some(0.0), |s| {
+                crate::org::time::Duration::parse(s, units)
+                    .ok()
+                    .map(|v| v.minutes() / 60.0)
+            });
+        }
+        number(value)
     }
 }
 fn number(value: Option<&String>) -> Option<f64> {

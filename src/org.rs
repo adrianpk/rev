@@ -16,7 +16,8 @@ pub(crate) use property::{PropertyValue, derived_property, property_name};
 mod query;
 mod source;
 pub(crate) mod task;
-pub use query::{MatchData, MatchQuery};
+pub use query::regexp::Regexp;
+pub use query::{MatchData, MatchQuery, SearchQuery};
 mod structure;
 
 pub use form::{Form, FormKind};

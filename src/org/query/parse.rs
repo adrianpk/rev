@@ -4,14 +4,16 @@ pub(super) struct Parser<'a> {
     pub(super) source: &'a str,
     pub(super) position: usize,
     depth: usize,
+    maximum: usize,
     nodes: Vec<Node>,
 }
 impl<'a> Parser<'a> {
-    pub(super) fn new(source: &'a str) -> Self {
+    pub(super) fn new(source: &'a str, maximum: usize) -> Self {
         Self {
             source,
             position: 0,
             depth: 0,
+            maximum,
             nodes: Vec::new(),
         }
     }
@@ -75,8 +77,8 @@ impl<'a> Parser<'a> {
         self.eat('&') || matches!(self.peek(), Some('+' | '-' | '!'))
     }
     fn unary(&mut self, todo: bool) -> Result<usize, String> {
-        if self.depth > 32 {
-            return self.fail("match exceeds depth 32");
+        if self.depth >= self.maximum {
+            return self.fail("match exceeds query depth");
         }
         self.depth += 1;
         let result = self.signed(todo);

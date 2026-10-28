@@ -93,3 +93,5 @@ mod calendar_native;
 
 #[path = "org_agenda/calendar_views.rs"]
 mod calendar_views;
+#[path = "org_agenda/query_language.rs"]
+mod query_language;

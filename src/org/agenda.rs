@@ -28,3 +28,6 @@ pub use calendar::{
 pub(crate) use calendar::CalendarProjection;
 mod navigation;
 pub(crate) use navigation::{Navigation, NavigationCandidate};
+
+mod query;
+pub use query::{AgendaQuery, QueryKind};

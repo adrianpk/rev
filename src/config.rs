@@ -781,6 +781,8 @@ pub struct PartialAgenda {
 pub struct OrgLimits {
     pub agenda_files: usize,
     pub agenda_rows: usize,
+    pub query_bytes: usize,
+    pub query_depth: usize,
     pub agenda_file_bytes: usize,
     pub agenda_total_bytes: usize,
     pub job_seconds: usize,
@@ -790,6 +792,8 @@ impl Default for OrgLimits {
         Self {
             agenda_files: 512,
             agenda_rows: 20000,
+            query_bytes: 4096,
+            query_depth: 32,
             agenda_file_bytes: 8388608,
             agenda_total_bytes: 67108864,
             job_seconds: 30,
@@ -801,6 +805,8 @@ impl Default for OrgLimits {
 pub struct PartialOrgLimits {
     pub agenda_files: Option<i64>,
     pub agenda_rows: Option<i64>,
+    pub query_bytes: Option<i64>,
+    pub query_depth: Option<i64>,
     pub agenda_file_bytes: Option<i64>,
     pub agenda_total_bytes: Option<i64>,
     pub job_seconds: Option<i64>,

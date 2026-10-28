@@ -719,6 +719,17 @@ impl Merge {
             &later.agenda_rows,
         );
         self.leaf(
+            &["org", "limits", "query_bytes"],
+            &mut base.query_bytes,
+            &later.query_bytes,
+        );
+        self.leaf(
+            &["org", "limits", "query_depth"],
+            &mut base.query_depth,
+            &later.query_depth,
+        );
+
+        self.leaf(
             &["org", "limits", "agenda_files"],
             &mut base.agenda_files,
             &later.agenda_files,
