@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 16 civil-time
+Active slice: Slice 17 time-zones
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -383,17 +383,20 @@ Details and exact checks: [Slice 16](../plan/rev-org-mode.md#slice-16-model-org-
 - [x] T16.1: Introduce org_time with checked Gregorian civil dates, intervals and Org duration units.
 - [x] T16.2: Separate scheduling calendar arithmetic from elapsed work durations and formatting.
 - [x] T16.3: Verify leap years, month ends, overflow, duration forms and an injected operation clock.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR [#117](https://forge.adrianpk.com/adrianpk/rev/pulls/117) targets dev;
-[Slice 16 report](../report/slices/rev-org-mode/slice-16-civil-time.md) is reviewing.
+[Slice 16 report](../report/slices/rev-org-mode/slice-16-civil-time.md) is delivered.
 Task commits:
 - T16.1: `3673caad6299791f0dc6031e0e2ae373d033e184`.
 - T16.2: `b28f51447f890482d4e4dc3cb6df4483b950a8a6`.
 - T16.3: `dd34455e73e76770e9e3139e92811c282f864f53`.
 
-Required exact-head validation follows the PR-reference push. Integration
-remains controller-owned.
+Integration: PR #117 merged into dev at `b056990f1c1e2231ba02a0c0117be574b3ac1bb7`.
+Required receipt `I5IHIQRKVH4XSTVI4DKS2WSUY7` passed all five ordered checks,
+including 78 source/time tests. Focused receipt `RBECIIFXDEG6Q5M2GG6LI56SDE`
+passed 126 editing tests and four owned task PTYs. Canonical Forgejo, controller
+merge evidence and Acta were verified before closure.
 
 ### Slice 17: resolve Org local times and zone changes
 

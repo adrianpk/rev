@@ -1,6 +1,6 @@
 # Slice 16: model Org calendar dates and durations
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -98,19 +98,21 @@ Canonical PR [#117](https://forge.adrianpk.com/adrianpk/rev/pulls/117) targets
 `dev` with the approved title. Its report link uses full introduction commit
 `3673caad6299791f0dc6031e0e2ae373d033e184`.
 
-The final required ordered checks will run through the controller after this
-PR-reference follow-up is committed and pushed:
+Controller receipt `I5IHIQRKVH4XSTVI4DKS2WSUY7` passed all five ordered
+checks at clean HEAD `b056990f1c1e2231ba02a0c0117be574b3ac1bb7`, including
+59 source tests and 19 time tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
 - `cargo test --test org_time --test org_source`
 - `python3 scripts/check-source.py`
 - `git diff --check`
- Focused same-HEAD
-checks will additionally cover native editing and the existing four owned
-RGB/NO_COLOR task terminal sessions because logging now uses the shared clock.
-Receipt identities belong in Acta and the checkpoint without moving the
-validated candidate afterward.
+
+Focused same-HEAD receipt `RBECIIFXDEG6Q5M2GG6LI56SDE` passed 126 editing
+tests and four owned RGB/NO_COLOR task terminal sessions. Acta note
+`01M61QK609QRZNQG90KZ1ZWCN2` records readiness. Canonical Forgejo confirms
+PR #117 merged into dev at that candidate; controller merge activity is recorded
+and clean primary dev matches origin/dev.
 
 ## Risks and Follow-ups
 
