@@ -83,6 +83,11 @@ Punctuated TODO regression fixtures first reproduced tag-name validation rejecti
 admission while heading tags retain their stricter spelling. Both public and
 actual-session regressions pass; unrelated source and history remain unchanged.
 
+The first required controller batch reported a Clippy `manual_inspect` finding
+in tag candidate collection. The observation now uses `inspect` for its side
+effects, preserving source observations and all behavior assertions. Final
+receipts are regenerated after that correction.
+
 An owned clean Emacs observation confirmed factory ancestor/file inheritance
 and local-only membership when inheritance is disabled. Native semantics were
 checked against [tags](https://orgmode.org/manual/Tags.html),

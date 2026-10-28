@@ -65,11 +65,10 @@ impl Tags {
         } else {
             (node.content.end..node.content.end, Some(Vec::new()))
         };
-        let local = local.map(|local| {
-            for tag in &local {
+        let local = local.inspect(|local| {
+            for tag in local {
                 self.candidates.insert(tag.name.clone());
             }
-            local
         });
         let valid = local.is_some();
         let local = local.unwrap_or_default();
