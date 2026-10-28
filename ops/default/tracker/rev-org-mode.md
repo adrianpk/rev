@@ -479,7 +479,7 @@ integration were verified. Slice 19 of 64 completed.
 Contracts: ORG19 ORG21.
 Details and exact checks: [Slice 20](../plan/rev-org-mode.md#slice-20-record-native-org-task-clock-intervals).
 
-- [ ] T20.1: Deliver clock-in/out/cancel/goto with compatible CLOCK source and task-owned interval durations.
+- [x] T20.1: Deliver clock-in/out/cancel/goto with compatible CLOCK source and task-owned interval durations.
 - [ ] T20.2: Preserve document transactions and remove or retain zero intervals according to the frozen defaults.
 - [ ] T20.3: Verify normal save/read-only/history boundaries and no per-second idle source updates.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

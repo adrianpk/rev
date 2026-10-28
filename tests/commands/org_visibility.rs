@@ -25,7 +25,7 @@ fn visibility_keys() {
         input.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::SHIFT))),
         Outcome::Command(Command::Org(OrgCommand::GlobalCycle))
     );
-    assert_eq!(Command::matching("org-").len(), 87);
+    assert_eq!(Command::matching("org-").len(), 91);
     for command in OrgCommand::ALL {
         assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
     }
@@ -40,5 +40,35 @@ fn visibility_keys() {
     assert_eq!(
         input.handle(key(KeyCode::Tab)),
         Outcome::Command(Command::InsertTab)
+    );
+}
+
+// Clock chords and M-x share compiled identities. The reserved radio checkbox
+// chord keeps its existing meaning, and C-g cancels the clock prefix normally.
+#[test]
+fn clock_keys() {
+    for (letter, command) in [
+        ('i', OrgCommand::ClockIn),
+        ('o', OrgCommand::ClockOut),
+        ('q', OrgCommand::ClockCancel),
+        ('j', OrgCommand::ClockGoto),
+        ('r', OrgCommand::ToggleRadioButton),
+    ] {
+        let mut input = Input::default();
+        input.set_org_context(Some(OrgContext::Editing));
+        input.handle(control('c'));
+        input.handle(control('x'));
+        assert_eq!(
+            input.handle(control(letter)),
+            Outcome::Command(Command::Org(command))
+        );
+    }
+    let mut input = Input::default();
+    input.set_org_context(Some(OrgContext::Editing));
+    input.handle(control('c'));
+    input.handle(control('x'));
+    assert_eq!(
+        input.handle(control('g')),
+        Outcome::Command(Command::KeyboardQuit)
     );
 }

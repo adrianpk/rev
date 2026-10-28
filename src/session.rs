@@ -76,6 +76,7 @@ pub struct Session {
     pending: Option<Pending>,
     task_clock: Option<fn() -> Result<String, String>>,
     org_clock: Option<outline::timestamps::Clock>,
+    active_clock: Option<outline::clocks::Active>,
     calendar_date: Option<crate::org::time::Date>,
     timestamp_repeat: Option<outline::timestamps::Repeat>,
 }
@@ -176,6 +177,7 @@ impl Session {
             pending: None,
             task_clock: None,
             org_clock: None,
+            active_clock: None,
             calendar_date: None,
             timestamp_repeat: None,
         })

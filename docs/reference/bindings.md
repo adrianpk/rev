@@ -76,6 +76,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
+| C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
+| C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
+| C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
+| C-c C-x C-j in Org | `org-clock-goto` | Reveal the active task heading. |
 | C-c C-c in Org | `org-ctrl-c-ctrl-c` | Normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
 | C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
 | C-c C-x C-r in Org | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
@@ -481,3 +485,16 @@ Explicit priority commands retain their priority meaning. On other contexts,
 `C-c C-c` retains its heading-tag and list-checkbox behavior. Two successive
 `C-c .` commands, or two `C-c !` commands, enter a checked date range; another
 editing command or cancellation retires that succession.
+
+Native task clocks insert `CLOCK: [YYYY-MM-DD Ddd HH:MM]` in LOGBOOK by
+factory policy. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER; either accepts a
+selected drawer, t for LOGBOOK or nil for normal source placement. Clock-out
+adds `--[end] =>  H:MM`. Both endpoints have minute precision. Elapsed minutes
+subtract captured UTC minute endpoints, including across offset transitions.
+The interval retains the zone selected at clock-in for consistent source dates.
+
+Clock commands publish one ordinary undoable transaction each. Clock-out/cancel
+can address the active source from another buffer without changing the current
+view. Goto selects and reveals its heading. A changed source revision rejects
+these commands and retains the open source; it never relocates by guessed text.
+An active clock adds no idle deadline, repaint loop or periodic source write.

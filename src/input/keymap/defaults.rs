@@ -196,6 +196,10 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-b", "org-toggle-checkbox"),
     ("C-c C-x C-r", "org-toggle-radio-button"),
     ("C-c #", "org-update-statistics-cookies"),
+    ("C-c C-x C-i", "org-clock-in"),
+    ("C-c C-x C-o", "org-clock-out"),
+    ("C-c C-x C-q", "org-clock-cancel"),
+    ("C-c C-x C-j", "org-clock-goto"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

@@ -371,6 +371,11 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x C-b" = "org-toggle-checkbox"
 "C-c C-x C-r" = "org-toggle-radio-button"
 "C-c #" = "org-update-statistics-cookies"
+"C-c C-x C-i" = "org-clock-in"
+"C-c C-x C-o" = "org-clock-out"
+"C-c C-x C-q" = "org-clock-cancel"
+"C-c C-x C-j" = "org-clock-goto"
+
 [keys.org_capture]
 [keys.org_source_edit]
 

@@ -88,9 +88,13 @@ pub enum OrgCommand {
     ShiftDown,
     ShiftLeft,
     ShiftRight,
+    ClockIn,
+    ClockOut,
+    ClockCancel,
+    ClockGoto,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 86] = [
+    pub const ALL: [Self; 90] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -177,6 +181,10 @@ impl OrgCommand {
         Self::ShiftDown,
         Self::ShiftLeft,
         Self::ShiftRight,
+        Self::ClockIn,
+        Self::ClockOut,
+        Self::ClockCancel,
+        Self::ClockGoto,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -266,6 +274,10 @@ impl OrgCommand {
             "org-shiftdown",
             "org-shiftleft",
             "org-shiftright",
+            "org-clock-in",
+            "org-clock-out",
+            "org-clock-cancel",
+            "org-clock-goto",
         ][self as usize]
     }
 
@@ -399,6 +411,15 @@ impl OrgCommand {
         matches!(
             self,
             Self::ShiftUp | Self::ShiftDown | Self::ShiftLeft | Self::ShiftRight | Self::CtrlCCtrlC
+        )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn clock(self) -> bool {
+        matches!(
+            self,
+            Self::ClockIn | Self::ClockOut | Self::ClockCancel | Self::ClockGoto
         )
     }
 }

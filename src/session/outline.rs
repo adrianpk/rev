@@ -4,6 +4,7 @@ use crate::view::View;
 use crate::window::ViewId;
 use std::sync::Arc;
 
+pub(super) mod clocks;
 pub(super) mod estimates;
 mod list;
 mod operation;
@@ -25,6 +26,9 @@ impl Session {
     pub(super) fn org_command(&mut self, command: OrgCommand) -> Action {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message("Editing owns Org commands");
+        }
+        if command.clock() && command != OrgCommand::ClockIn {
+            return self.clock_command(command);
         }
         if !self.buffer().is_ok_and(|b| b.is_org()) {
             return self.message("Native Org mode is not active");
@@ -74,6 +78,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
+        if request.command == OrgCommand::ClockIn {
+            return self.start_clock(model, request);
+        }
         if request.command.timestamp() || request.command.timestamp_context() {
             return self.dispatch_timestamp(model, request);
         }

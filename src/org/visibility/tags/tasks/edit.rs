@@ -212,7 +212,7 @@ pub(super) fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, Str
         .map(|s| s.to_string())
         .map_err(|e| e.to_string())
 }
-fn prefix(buffer: &Buffer, at: usize) -> Result<&'static str, String> {
+pub(super) fn prefix(buffer: &Buffer, at: usize) -> Result<&'static str, String> {
     if at == 0 {
         return Ok("");
     }

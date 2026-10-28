@@ -311,3 +311,6 @@ mod repeat_times;
 
 #[path = "org_editing/repeat_edges.rs"]
 mod repeat_edges;
+
+#[path = "org_editing/clocks.rs"]
+mod clocks;

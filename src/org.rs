@@ -33,3 +33,5 @@ mod visibility;
 pub(crate) use visibility::{Insertion, Outline, SubtreeEdit, TaskChange, Visibility};
 
 pub(crate) mod timestamp;
+
+pub(crate) use visibility::ClockInsertion;
