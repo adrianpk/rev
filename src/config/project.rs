@@ -215,6 +215,7 @@ pub(super) fn todo(base: &mut super::Todo, partial: &super::PartialTodo) {
         base.log_drawer.clone_from(value);
     }
     scalar(&mut base.log_done, partial.log_done);
+    scalar(&mut base.log_repeat, partial.log_repeat);
     scalar(&mut base.block_children, partial.block_children);
 }
 

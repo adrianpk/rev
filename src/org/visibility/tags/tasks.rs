@@ -2,6 +2,7 @@ mod blocking;
 mod edit;
 mod logging;
 mod model;
+pub(super) mod repeat;
 
 use super::*;
 use crate::org::task::{Log, Workflow};
@@ -13,6 +14,7 @@ pub(crate) struct TaskChange {
     pub next: String,
     pub workflow: Workflow,
     pub logging: Logging,
+    pub repeat: Option<repeat::RepeatChange>,
 }
 pub(crate) struct Logging {
     pub closed: bool,
@@ -45,13 +47,16 @@ impl Outline {
             .to_owned();
         self.task_blocked(buffer, index, next, (&workflow, policy))?;
         let logging = self.task_logging(buffer, index, (&old, next), (&workflow, policy))?;
-        Ok(TaskChange {
+        let mut change = TaskChange {
             index,
             old,
             next: next.into(),
             workflow,
             logging,
-        })
+            repeat: None,
+        };
+        self.task_repeat(buffer, &mut change, policy)?;
+        Ok(change)
     }
     fn task_property(&self, buffer: &Buffer, index: usize, name: &str) -> Result<String, String> {
         let point = Coordinates::new(buffer)

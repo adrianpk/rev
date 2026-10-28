@@ -119,6 +119,8 @@ sequence = ["TODO", "DONE"]
 finished = ["DONE"]
 # Add CLOSED on completion; ordinary completion logging is off by default.
 log_done = false
+# Repeated completion records no history, time, or a prompted note.
+log_repeat = "time"
 # Empty places state notes after planning/properties; otherwise 1..64 ASCII
 # letters/digits/_/-, excluding PROPERTIES and END, selects a log drawer.
 log_drawer = ""

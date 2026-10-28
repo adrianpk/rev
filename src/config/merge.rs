@@ -104,6 +104,11 @@ impl Merge {
             &later.finished,
         );
         self.leaf(
+            &["org", "todo", "log_repeat"],
+            &mut base.log_repeat,
+            &later.log_repeat,
+        );
+        self.leaf(
             &["org", "todo", "log_done"],
             &mut base.log_done,
             &later.log_done,

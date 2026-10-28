@@ -104,6 +104,9 @@ impl Tags {
                 }
             }
             "TODO" | "SEQ_TODO" | "TYP_TODO" => self.workflow.declaration(&value),
+            "STARTUP" => {
+                self.repeat_log = super::tasks::repeat::repeat_log(&value).or(self.repeat_log);
+            }
             "PRIORITIES" => self.priorities = Some(priority::declaration(&value)),
             _ => (),
         }

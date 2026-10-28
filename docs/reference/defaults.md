@@ -208,6 +208,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.todo.sequence` | Array of keywords | `["TODO", "DONE"]` | Ordered 1..64 unique task words, each 1..128 UTF-8 bytes without whitespace, controls or task delimiters. Source declarations override this sequence. |
 | `org.todo.finished` | Array of keywords | `["DONE"]` | Unique subset of sequence; empty permits workflows without finished states. |
 | `org.todo.log_done` | Boolean | `false` | Add CLOSED on completion. Source state annotations or LOGGING select additional logging. |
+| `org.todo.log_repeat` | String: "none", "time" or "note" | `"time"` | Repeated completion logging; time/note also record LAST_REPEAT. STARTUP repeat options and LOGGING properties can override it. |
 | `org.todo.log_drawer` | String | `""` | Empty means normal source placement; otherwise 1..64 ASCII letters, digits, _ or -, excluding PROPERTIES and END. LOG_INTO_DRAWER overrides locally or by inheritance. |
 | `org.todo.block_children` | Boolean | `false` | Block completion when a descendant task is unfinished. ORDERED parents additionally require earlier siblings to finish; local NOBLOCKING=t exempts an entry. |
 | `org.tags.inherit` | Boolean | `true` | Include ancestor tags and FILETAGS with source provenance; no inherited text is inserted. |

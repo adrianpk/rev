@@ -49,7 +49,7 @@ impl Outline {
         }
         Ok(drawer)
     }
-    fn task_logging_property(
+    pub(super) fn task_logging_property(
         &self,
         buffer: &Buffer,
         index: usize,
@@ -72,7 +72,7 @@ fn apply(
 ) -> Result<(), String> {
     for token in text.split_whitespace() {
         match token {
-            "nil" => (),
+            "nil" | "logrepeat" | "lognoterepeat" | "nologrepeat" => (),
             "logdone" => *closed = true,
             "lognotedone" => {
                 *closed = true;

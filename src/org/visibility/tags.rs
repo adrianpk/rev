@@ -24,6 +24,7 @@ pub(in crate::org) struct Tags {
     workflow: crate::org::task::Workflow,
     metadata: tasks::Metadata,
     priorities: Option<Result<crate::org::priority::Priority, String>>,
+    repeat_log: Option<crate::org::task::Log>,
 }
 #[derive(Debug, PartialEq, Eq)]
 struct Header {

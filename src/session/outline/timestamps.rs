@@ -1,7 +1,7 @@
 mod calendar;
 mod context;
 pub(in crate::session) use context::Repeat;
-mod resolution;
+pub(super) mod resolution;
 use super::Request;
 use crate::buffer::edit::{Cursor, Error};
 use crate::command::OrgCommand;
@@ -280,7 +280,7 @@ impl Session {
         }
     }
 }
-fn capture(policy: &crate::config::Time) -> Result<ZonedOperation, String> {
+pub(super) fn capture(policy: &crate::config::Time) -> Result<ZonedOperation, String> {
     let selection = ZoneSelection::parse(&policy.zone)?;
     let env = ZoneEnvironment::system();
     ZonedOperation::capture(&selection, &env, || Ok(SystemTime::now()))

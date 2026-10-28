@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Complete repeating Org tasks with distinct `+`, `++` and `.+` schedules. Reset state, planning dates, selected history and LAST_REPEAT change together and undo in one step. Configure repeat time/note logging with `org.todo.log_repeat`; notes and local-time choices remain cancellable.
+
 - Enter active or inactive Org timestamps, date/time ranges, schedules and deadlines through a native calendar prompt. Use shifted arrows to adjust timestamp fields or dates, normalize weekdays with `C-c C-c`, and enter a range with successive timestamp commands. Relative dates, English month/weekday forms and explicit DST offset choices retain checked source edits and single-step undo.
 
 - Set and cycle Org priorities, inspect implicit defaults, and store effort estimates in native duration forms. Effort choices, original value spelling and unrelated task metadata survive checked edits and single-step undo.

@@ -27,8 +27,13 @@ when repeating. Habit minimum/maximum intervals retain calendar units and
 reject an inverted window at use. Unknown or malformed source remains in the
 document and receives a diagnostic when interpreted.
 
-These are calculation-layer APIs. Native task-state completion, logging and
-LAST_REPEAT integration remain T19.2 work; no completed command is claimed yet.
+T19.2 connects native task completion to one transaction: advance owned active
+repeaters, reset to the first unfinished or selected REPEAT_TO_STATE keyword,
+remove stale CLOSED/non-repeating SCHEDULED, record selected history/LAST_REPEAT
+and derive parent progress from the reset state. Configured repeat logging and
+STARTUP/LOGGING overrides retain cancellable notes and ordinary drawer ownership.
+One captured clock/zone survives all offset, missing-time correction and note
+stages. Stale drafts and read-only source cannot publish partial changes.
 
 ## Implementation Notes
 
@@ -42,9 +47,12 @@ Fixed-unit catch-up uses arithmetic rather than a backlog-sized loop. Calendar
 catch-up normalizes month-end anchors before jumping across safe months. Its
 normalization loop is bounded to 4800 steps, one full Gregorian month cycle;
 source years remain 0001..9999 and interval counts are positive checked u32.
-No operation observes ambient time, resolves a zone, writes source or starts
-background work. Callers supply their captured completion observation and must
-resolve local-time candidates before publication.
+The calculation layer observes no ambient time and writes no source. Native
+completion supplies one captured observation and resolves every next endpoint
+before publication. A selected entry admits 262144 UTF-8 bytes and 64 repeating
+ranges; literals and child entries do not contribute. Planning edits share their
+existing bounded source owner, property edits use the existing property owner,
+and all edits publish through the canonical buffer/history transaction.
 
 Behavior follows the [repeated-task reference](https://orgmode.org/manual/Repeated-tasks.html),
 [scheduling delays](https://orgmode.org/manual/Deadlines-and-Scheduling.html)
@@ -77,9 +85,28 @@ T19.1 development checks passed:
 - Focused changed-source quality passed with the existing safe-Rust, parameter,
   nesting and complexity thresholds after splitting calculation responsibilities.
 
-No final canonical PR validation or native task-completion evidence is claimed.
+T19.1 commit `b0479ab5f842c5117530f18f52cf28c3754df8f3` also passed clean-head
+controller receipt `BJXI7CB4LF5H5CV54ZPCNAEUGB`: all 59 time tests, 23 timestamp
+editing tests and `git diff --check`.
+
+T19.2 development checks passed:
+
+- `cargo test --test org_editing --test org_time repeat -- --nocapture`: 12
+  editing and nine time tests passed, including eleven new completion/offset/
+  correction/logging cases and the retained repeated-minute regression; zero skips.
+- `cargo test --test org_editing --test configuration task -- --nocapture`:
+  13 shared editing and two configuration tests passed, zero skips.
+- `cargo clippy --lib -- -D warnings`.
+- `python3 scripts/check-config-reference.py`: 115 schema/catalog entries,
+  46 RGB roles, 165 default bindings and 14574 packaged template bytes agree.
+- Focused changed-source quality passed at the existing thresholds.
+
+Development checks exposed complexity boundaries, an iterator lint and enum
+reference formatting drift. Responsibilities were split at calculation,
+observation and planning ownership boundaries; the original checks pass after
+correction. No check was weakened. No final canonical PR validation or terminal
+evidence is claimed at this stage.
 
 ## Risks and Follow-ups
 
-T19.2 task completion/logging/LAST_REPEAT publication and T19.3 native acceptance
-remain pending. The full delivery-set gate has not run.
+T19.3 broader native/terminal acceptance and canonical PR preparation remain pending. The full delivery-set gate has not run.

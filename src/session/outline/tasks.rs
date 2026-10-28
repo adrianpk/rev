@@ -1,9 +1,11 @@
 mod clock;
+mod repeat;
+use repeat::Transition;
 
 use super::Request;
 use crate::buffer::edit::Error;
 use crate::command::OrgCommand;
-use crate::org::task::{Log, Workflow};
+use crate::org::task::Workflow;
 use crate::org::{Outline, TaskChange};
 use crate::session::{Action, Pending, Session};
 use std::sync::Arc;
@@ -16,7 +18,9 @@ pub(in crate::session) struct Prompt {
 }
 enum Stage {
     State(Workflow),
-    Note(TaskChange, String),
+    Note(Box<Transition>),
+    Offset(Box<Transition>, super::timestamps::resolution::Validation),
+    Repair(Box<Transition>),
 }
 impl Session {
     /// Supply an operation clock without changing process environment or source.
@@ -85,22 +89,29 @@ impl Session {
         self.pending = Some(Pending::Task(Box::new(prompt)));
         Ok(self.message(feedback))
     }
-    pub(in crate::session) fn task_argument(&mut self, prompt: Prompt, draft: &str) -> Action {
+    pub(in crate::session) fn task_argument(&mut self, mut prompt: Prompt, draft: &str) -> Action {
         if !self.org_request_current(&prompt.request) {
             return self.message("Org task source or view changed; request cancelled");
         }
-        let result = match &prompt.stage {
+        let stage = std::mem::replace(&mut prompt.stage, Stage::State(Workflow::default()));
+        let result = match stage {
             Stage::State(workflow) => {
-                select(workflow, draft).and_then(|next| self.task_selected(prompt, &next))
+                select(&workflow, draft).and_then(|next| self.task_selected(prompt, &next))
             }
-            Stage::Note(change, stamp) => self.publish_task(&prompt.model, change, stamp, draft),
+            Stage::Note(transition) => {
+                self.publish_task(&prompt.model, &transition.change, &transition.stamp, draft)
+            }
+            Stage::Offset(transition, validation) => {
+                self.repeat_offset(prompt, *transition, validation, draft)
+            }
+            Stage::Repair(transition) => self.repeat_repaired(prompt, *transition, draft),
         };
         match result {
             Ok(action) => action,
             Err(error) => self.error(&error),
         }
     }
-    fn task_selected(&mut self, mut prompt: Prompt, next: &str) -> Result<Action, String> {
+    fn task_selected(&mut self, prompt: Prompt, next: &str) -> Result<Action, String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         let policy = &self.buffers.snapshot().settings().org.todo;
         let change = prompt
@@ -109,21 +120,8 @@ impl Session {
         if change.old == change.next {
             return Ok(self.message("Org task state unchanged"));
         }
-        let stamp =
-            if change.logging.closed || change.logging.state != Log::None || change.logging.note {
-                self.task_timestamp()?
-            } else {
-                String::new()
-            };
-        if change.logging.note {
-            prompt.stage = Stage::Note(change, stamp);
-            return self.task_prompt(
-                prompt,
-                "Org state note: ",
-                "One-line note; empty records time only; C-g cancels the entire transition",
-            );
-        }
-        self.publish_task(&prompt.model, &change, &stamp, "")
+        let transition = self.task_transition(change)?;
+        self.resolve_repeat(prompt, transition)
     }
     fn publish_task(
         &mut self,

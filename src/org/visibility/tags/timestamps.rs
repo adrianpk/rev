@@ -22,7 +22,11 @@ impl Outline {
         Ok(Target::new(buffer, at..at)?.decorated(format!("{prefix}{name}: "), suffix.into()))
     }
 }
-fn in_planning(buffer: &Buffer, range: Range<usize>, name: &str) -> Result<Target, String> {
+pub(super) fn in_planning(
+    buffer: &Buffer,
+    range: Range<usize>,
+    name: &str,
+) -> Result<Target, String> {
     let text = planning_text(buffer, range.clone())?;
     let marker = format!("{name}:");
     let mut matches = text.match_indices(&marker);

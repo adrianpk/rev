@@ -247,11 +247,21 @@ pub struct PartialDurationUnits {
 }
 
 /// Native task defaults; source declarations override only the workflow.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum RepeatLogging {
+    None,
+    #[default]
+    Time,
+    Note,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Todo {
     pub sequence: Vec<String>,
     pub finished: Vec<String>,
     pub log_done: bool,
+    pub log_repeat: RepeatLogging,
     pub log_drawer: String,
     pub block_children: bool,
 }
@@ -261,6 +271,7 @@ impl Default for Todo {
             sequence: vec!["TODO".into(), "DONE".into()],
             finished: vec!["DONE".into()],
             log_done: false,
+            log_repeat: RepeatLogging::Time,
             log_drawer: String::new(),
             block_children: false,
         }
@@ -272,6 +283,7 @@ pub struct PartialTodo {
     pub sequence: Option<Vec<String>>,
     pub finished: Option<Vec<String>>,
     pub log_done: Option<bool>,
+    pub log_repeat: Option<RepeatLogging>,
     pub log_drawer: Option<String>,
     pub block_children: Option<bool>,
 }

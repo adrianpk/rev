@@ -162,6 +162,7 @@ def type_label(kind):
         "Option<TreeRoot>": "String:",
         "Option<Newline>": "String:",
         "Option<LocalTimePolicy>": "String:",
+        "Option<RepeatLogging>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",
         "Option<crate::gutter::CurrentLine>": "String:",

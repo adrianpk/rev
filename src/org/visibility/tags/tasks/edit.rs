@@ -3,11 +3,11 @@ use crate::buffer::edit::Replacement;
 use std::collections::BTreeMap;
 
 #[derive(Default)]
-struct Plan {
+pub(super) struct Plan {
     edits: BTreeMap<usize, (usize, String)>,
 }
 impl Plan {
-    fn add(&mut self, range: Range<usize>, text: String) -> Result<(), String> {
+    pub(super) fn add(&mut self, range: Range<usize>, text: String) -> Result<(), String> {
         if let Some((end, value)) = self.edits.get_mut(&range.start) {
             if *end != range.end || !range.is_empty() {
                 return Err("Overlapping Org task metadata".into());
@@ -17,6 +17,18 @@ impl Plan {
             self.edits.insert(range.start, (range.end, text));
         }
         Ok(())
+    }
+    pub(super) fn import(&mut self, buffer: &Buffer, value: Replacement) -> Result<(), String> {
+        let c = Coordinates::new(buffer).map_err(|e| e.to_string())?;
+        let start = c
+            .to_byte(crate::coordinates::Scalar(value.source.range.start))
+            .map_err(|e| e.to_string())?
+            .0;
+        let end = c
+            .to_byte(crate::coordinates::Scalar(value.source.range.end))
+            .map_err(|e| e.to_string())?
+            .0;
+        self.add(start..end, value.text)
     }
     fn finish(self, buffer: &Buffer) -> Result<Vec<Replacement>, String> {
         self.edits
@@ -44,13 +56,16 @@ impl Outline {
         }
         let mut plan = Plan::default();
         self.task_keyword_edit(buffer, change, &mut plan)?;
-        self.task_closed_edit(buffer, change, stamp, &mut plan)?;
+        if change.repeat.is_none() {
+            self.task_closed_edit(buffer, change, stamp, &mut plan)?;
+        }
+        self.repeat_edits(buffer, change, stamp, &mut plan)?;
         self.task_log_edit(buffer, change, (stamp, note), &mut plan)?;
         let mut edits = plan.finish(buffer)?;
         edits.extend(self.lists.task_statistics(
             buffer,
             change.index,
-            &change.next,
+            change.result_state(),
             &change.workflow,
         )?);
         edits.sort_by_key(|e| e.source.range.start);
@@ -64,15 +79,15 @@ impl Outline {
     ) -> Result<(), String> {
         let start = self.tags.headers[change.index].title.start;
         let mut end = start + change.old.len();
-        let text = match (change.old.is_empty(), change.next.is_empty()) {
-            (true, false) => format!("{} ", change.next),
+        let text = match (change.old.is_empty(), change.result_state().is_empty()) {
+            (true, false) => format!("{} ", change.result_state()),
             (false, true) => {
                 if source(buffer, end..(end + 1).min(buffer.len_bytes()))? == " " {
                     end += 1;
                 }
                 String::new()
             }
-            _ => change.next.clone(),
+            _ => change.result_state().to_owned(),
         };
         plan.add(start..end, text)
     }
@@ -190,7 +205,7 @@ fn record(change: &TaskChange, data: (&str, &str), nl: &str) -> String {
         format!("{head} \\\\{nl}  {note}{nl}")
     }
 }
-fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
+pub(super) fn source(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
     let span = buffer.byte_span(range).map_err(|e| e.to_string())?;
     buffer
         .slice(&span)

@@ -1,12 +1,12 @@
 use crate::org::time::{CivilDateTime, Resolution, ResolvedTime, TimestampRange, Zone};
 
-pub(super) struct Validation {
+pub(in crate::session::outline) struct Validation {
     times: Vec<CivilDateTime>,
     instants: Vec<i64>,
     candidates: Vec<ResolvedTime>,
 }
 impl Validation {
-    pub(super) fn new(value: &TimestampRange) -> Result<Self, String> {
+    pub(in crate::session::outline) fn new(value: &TimestampRange) -> Result<Self, String> {
         value.check()?;
         let mut times = Vec::new();
         for stamp in std::iter::once(&value.start).chain(value.end.iter()) {
@@ -19,7 +19,7 @@ impl Validation {
             candidates: Vec::new(),
         })
     }
-    pub(super) fn advance(&mut self, zone: &Zone) -> Result<bool, String> {
+    pub(in crate::session::outline) fn advance(&mut self, zone: &Zone) -> Result<bool, String> {
         self.candidates.clear();
         while let Some(value) = self.times.get(self.instants.len()) {
             match zone.resolve(*value)? {
@@ -41,7 +41,7 @@ impl Validation {
         }
         Ok(true)
     }
-    pub(super) fn select(&mut self, text: &str) -> Result<(), String> {
+    pub(in crate::session::outline) fn select(&mut self, text: &str) -> Result<(), String> {
         let choice = text
             .trim()
             .parse::<usize>()
@@ -52,7 +52,7 @@ impl Validation {
         self.instants.push(choice.unix_seconds);
         Ok(())
     }
-    pub(super) fn choices(&self) -> String {
+    pub(in crate::session::outline) fn choices(&self) -> String {
         let choices = self
             .candidates
             .iter()

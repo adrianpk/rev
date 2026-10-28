@@ -6,10 +6,10 @@ use rev::config::{Snapshot, prepare};
 #[test]
 fn task_policy_layers() {
     let fixture = Fixture::new();
-    let included = fixture.write("base.toml", "[org.todo]\nsequence=['OPEN','FINISHED']\nfinished=['FINISHED']\nlog_done=true\nlog_drawer='LOGBOOK'\nblock_children=true");
+    let included = fixture.write("base.toml", "[org.todo]\nsequence=['OPEN','FINISHED']\nfinished=['FINISHED']\nlog_done=true\nlog_repeat='note'\nlog_drawer='LOGBOOK'\nblock_children=true");
     let root = fixture.write(
         "config.toml",
-        "include=['base.toml']\n[org.todo]\nfinished=[]\nlog_done=false",
+        "include=['base.toml']\n[org.todo]\nfinished=[]\nlog_done=false\nlog_repeat='none'",
     );
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
@@ -17,6 +17,15 @@ fn task_policy_layers() {
     assert_eq!(policy.sequence, ["OPEN", "FINISHED"]);
     assert!(policy.finished.is_empty());
     assert!(!policy.log_done);
+    assert_eq!(policy.log_repeat, rev::config::RepeatLogging::None);
+    assert_eq!(
+        Snapshot::default().settings().org.todo.log_repeat,
+        rev::config::RepeatLogging::Time
+    );
+    assert_eq!(
+        startup.snapshot.origin(&["org", "todo", "log_repeat"]),
+        Some(root.as_path())
+    );
     assert!(policy.block_children);
     assert_eq!(policy.log_drawer, "LOGBOOK");
     assert_eq!(
@@ -50,6 +59,11 @@ fn task_policy_bounds() {
         ("log_drawer='PROPERTIES'".into(), false),
         ("log_drawer='END'".into(), false),
         ("log_drawer='x\\n:END:'".into(), false),
+        ("log_repeat='none'".into(), true),
+        ("log_repeat='time'".into(), true),
+        ("log_repeat='note'".into(), true),
+        ("log_repeat='state'".into(), false),
+        ("log_repeat=true".into(), false),
         ("unknown=true".into(), false),
     ] {
         let path = fixture.write("config.toml", &format!("[org.todo]\n{body}"));

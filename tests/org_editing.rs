@@ -302,3 +302,9 @@ mod timestamp_contexts;
 
 #[path = "org_editing/timestamp_edges.rs"]
 mod timestamp_edges;
+
+#[path = "org_editing/repeaters.rs"]
+mod repeaters;
+
+#[path = "org_editing/repeat_times.rs"]
+mod repeat_times;

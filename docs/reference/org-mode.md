@@ -492,3 +492,48 @@ Canceling it retains the first timestamp. Intervening editing, movement, window
 commands or cancellation retire the successive-command anchor. M-x entry alone
 does not retire it. A saved anchor cannot authorize an edit after a revision or
 selected-view change.
+
+## Repeating task completion
+
+Completing an active repeating task with the ordinary task controls advances
+its own repeated timestamps and resets its state. `+N` advances once from the
+stored base, `++N` advances whole intervals until future, and `.+N` advances
+from completion. Counts use calendar h/d/w/m/y units. Monthly/yearly excess days
+normalize as timestamp adjustments do. An hourly repeater requires a clock;
+hourly restart uses the captured completion minute, while larger units retain
+the source clock. Timed catch-up may select a later time today.
+
+Only active timestamps in the selected heading's own section participate.
+Inactive timestamps, literal blocks and child entries remain unchanged. Connected
+date-range endpoints repeat independently; a resulting inverted range rejects
+the entire transition. Ordinary warning/delay `-N` cookies remain, while
+first-only `--N` delays disappear after repetition. Habit interval maxima such as
+`.+2d/3d` retain calendar units and cannot precede their minimum. Deadline warning
+boundaries precede the date; scheduled display delays follow it.
+
+The reset state is the first unfinished state in the selected workflow sequence.
+A local `REPEAT_TO_STATE` property can select another declared keyword. Completion
+removes obsolete CLOSED and non-repeating SCHEDULED facts, advances each
+participating timestamp, records selected history and LAST_REPEAT, and updates
+parent progress from the reset state. All source changes form one undo unit.
+Two explicit backlog completions on one day remain two actual history events.
+
+`org.todo.log_repeat` defaults to `"time"`; `"none"` suppresses repeat history and
+LAST_REPEAT, and `"note"` requests a cancellable one-line note. Existing state
+logging annotations still apply. `#+STARTUP: logrepeat`, `lognoterepeat` and
+`nologrepeat` override the preference. Local/inherited LOGGING can select the
+same choices or use `nil` to disable logging. LOG_INTO_DRAWER and the configured
+log drawer retain their ordinary source ownership.
+
+Completion captures its clock and zone once before offset or note input. Every
+next local-time endpoint must resolve: repeated local times require an observed
+offset; missing times request a valid date/time. Correction retains active
+status, cookies and clock/range fields. Cancellation or a changed source revision
+rejects the complete transition. No query advances source dates.
+
+One completion observes at most 262144 UTF-8 bytes in its own entry and 64
+repeating timestamp ranges. Individual timestamp/range and logical-line bounds
+remain 256/514/4096 bytes. Fixed-unit catch-up skips backlog arithmetically;
+calendar normalization has a finite 4800-step bound before a safe calendar jump.
+Exhausted bounds, unavailable zone data, malformed metadata and read-only source
+report a diagnostic before publication. No recurrence worker or idle timer is added.
