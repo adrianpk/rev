@@ -69,8 +69,8 @@ impl<W: Write> Terminal<W> {
         ])
     }
 
-    /// Reversibly owns only button-event tracking and SGR coordinates. Default
-    /// entry leaves reporting disabled until native handlers select it.
+    /// Reversibly owns only button-event tracking and SGR coordinates. The
+    /// native session supplies startup preference and runtime mode changes.
     pub fn set_mouse_reporting(&mut self, enabled: bool) -> io::Result<()> {
         if enabled && !self.screen {
             return Err(io::Error::other(

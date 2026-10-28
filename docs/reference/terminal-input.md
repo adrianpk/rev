@@ -83,8 +83,8 @@ new input, rather than an indefinitely pending Meta suffix.
 
 ## Pointer reporting ownership
 
-The native terminal owner can acquire button-event tracking (DEC 1002) and SGR
-mouse coordinates (DEC 1006) together. It requests no all-motion hover or RXVT
+Native startup enables button-event tracking (DEC 1002) and SGR mouse
+coordinates (DEC 1006) together when `mouse.enabled` is true (the default). It requests no all-motion hover or RXVT
 reporting. The existing decoder supplies primary press/drag/release and vertical
 wheel reports as zero-based terminal cells; these are not document positions.
 Focused prompts retain their input. Wheel and unsupported reports preserve
@@ -109,15 +109,22 @@ commands. A click or same-cell motion creates no new selection, and gestures
 never copy implicitly to the kill ring or terminal clipboard.
 
 Capture stays with its source pane across gutters, status, gaps and neighboring
-panes. Non-text cells retain the last checked endpoint; returning to source
-text continues from the same anchor. Wheel reports do not transfer scrolling
+panes. Non-text cells within the source's visible rows retain the last checked
+endpoint; returning to source text continues from the same anchor. Above or
+below its visible text, a captured drag scrolls only its originating view and
+extends the canonical region. Each step waits at least 100 ms and advances at
+most the lesser of `mouse.scroll_lines` and the source text-area height.
+Returning inside pauses the deadline; release, cancellation, invalidation and
+document bounds remove pending work. Late wakes perform one step without
+catch-up or simulated momentum. Wheel reports do not transfer scrolling
 during capture. Keyboard input, C-g, resize, reported focus loss, source/view
 changes and host mode disable end capture. C-g keeps its normal region
 cancellation; the mode-owner hook retains the canonical region. Orphan motion
 and release cannot revive capture. There is no idle selection timer.
 
 Vertical wheel and terminal-reported trackpad events scroll the document pane
-or loaded file tree under the pointer by three logical rows. They retain
+or loaded file tree under the pointer by `mouse.scroll_lines` logical rows
+(default three, integer 1..=100). They retain
 keyboard focus, pending prefixes and other panes' points. A still-visible point
 or tree selection remains unchanged; crossing the new viewport edge clamps it
 to the nearest visible logical row. Source bytes and undo history are unchanged.
@@ -125,12 +132,28 @@ Tree scrolling uses its loaded entries without reading or expanding directories.
 Native bounds include the final logical row, and suspended layouts have no
 scroll target. Wheel handling schedules no inertia, timer or idle work.
 
-Ordinary startup currently leaves reporting disabled while native focus,
-scroll, selection and startup/runtime controls are integrated. Explicit mode
-ownership is reversible: disable, normal/error cleanup and unwind attempt every
-acquired reset. Failed resets remain owned for retry. A later enable first
-clears uncertain modes before acquiring a confirmed pair. Reporting adds no
-idle timer, polling loop or motion queue.
+`M-x mouse-mode` toggles native pointer support for the entire session, from
+editing or tree focus. Disabling ends capture and pending drag work, retains the
+native region, restores the acquired reporting pair and ignores late pointer
+reports. Keyboard editing and other terminal owners stay active. Enabling
+restores native gestures using the same owner. The startup snapshot is frozen:
+neither toggle reloads or writes TOML, and a new process uses `mouse.enabled`
+again. Set that Boolean to false to start without reporting.
+
+Mouse and trackpad input depends on reports delivered by the terminal. Trackpads
+work when the terminal translates them into vertical wheel/pointer events;
+physical gesture or modifier support is terminal-specific. While reporting is
+active, the terminal may reserve a bypass gesture (often holding Shift) for its
+own text selection and copy behavior. Check the terminal's configuration; no
+physical modifier is universal. `M-x mouse-mode` is the native disable path when
+the terminal provides no usable bypass. Native selection copies only through
+ordinary editor commands such as M-w, never implicitly to a system clipboard.
+
+Disable, normal/error cleanup and unwind attempt every acquired reset. Failed
+resets remain owned for retry. A later enable clears uncertain modes before
+acquiring a confirmed pair. Only a valid captured outside drag owns a deadline;
+ordinary idle, clicks, inside drags, disabled mode and released/cancelled gestures
+add no polling, repaint timer or motion queue.
 
 ## Palette and cursor restoration
 

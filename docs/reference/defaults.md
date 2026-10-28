@@ -16,6 +16,13 @@ Editing views show [absolute logical line numbers](gutter.md) with current-line
 emphasis and a stable four-digit minimum field. Numbering does not change text
 columns, copied data or saved bytes. Narrow views preserve their text area.
 
+Native mouse support starts enabled: primary clicks focus/place point, the wheel
+scrolls the pointed pane or tree without changing keyboard focus, and a primary
+drag selects canonical text with bounded source-edge autoscroll. Use
+`M-x mouse-mode` to toggle only this session. The startup step is three logical
+rows; [terminal input](terminal-input.md#pointer-reporting-ownership) documents
+supported reports, cleanup and terminal-owned selection bypass.
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported

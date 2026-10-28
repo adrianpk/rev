@@ -26,8 +26,13 @@ the current text-area height.
 
 The session owns one effective enabled flag. The frozen snapshot owns the
 startup preference and step. The command catalog and context admission use the
-same native handler as M-x. Terminal reporting activation and complete lifecycle
-verification follow in the remaining recorded tasks.
+same native handler as M-x. The native loop applies that flag through the existing terminal reporting owner
+before the initial frame and after each bounded input batch. It acquires only
+DEC 1002/1006, rejects pointer input immediately when disabled, and propagates
+reporting failures through the ordinary full terminal cleanup path. Repeated
+state synchronization emits no redundant mode writes. Documentation describes
+the terminal-dependent bypass gesture, native disable path and bounded active
+drag behavior without promising a universal physical modifier.
 
 ## Contracts Added or Changed
 
@@ -50,6 +55,14 @@ origins, both integer endpoints and whole-candidate rejection, real M-x in edito
 and tree focus, configured wheel/drag steps, disable during live capture,
 retained native region and frozen settings after a root-file change.
 `python3 scripts/check-config-reference.py` passed sample/model/catalog equality.
+
+`python3 scripts/check-pty.py --suite pointer-lifetime` passed 13 owned PTYs,
+including actual factory activation with one reporting pair, unchanged keyboard
+editing, decoder coverage, partial acquisition/rollback, disable failure/retry,
+normal/error/unwind restoration and passive filesystem behavior. The historical
+factory assertion now checks the delivered enabled default and exact restoration
+counts/order; its typing, history, prefix and resource assertions are retained.
+The exhaustive reference guard passed all 72 catalog leaves and 111 bindings.
 
 Final ordered and focused evidence will be recorded through the controller on
 the clean candidate after task and PR-reference commits.

@@ -151,13 +151,15 @@ def factory(root):
         os.write(session.master, b'\x18\x03')
         session.finish(0)
         wire += bytes(session.output)
-        assert all(code not in wire for code in [SGR_ON, BUTTONS_ON, BUTTONS_OFF, SGR_OFF])
+        assert all(wire.count(code) == 1 for code in [SGR_ON, BUTTONS_ON, BUTTONS_OFF, SGR_OFF])
+        assert wire.index(SGR_ON) < wire.index(BUTTONS_ON)
+        assert wire.index(BUTTONS_OFF) < wire.index(SGR_OFF) < wire.index(PTY['PASTE_OFF'])
         restoration(session, False)
     finally:
         close(session)
     assert snapshot(root) == {}
     passive(root)
-    print('PASS factory activation remains deferred: native typing, undo, prefix cancel and exit preserve unacquired reporting')
+    print('PASS factory activation: native typing, undo, prefix cancel and exit retain one reversible reporting pair')
 
 
 def run(root):

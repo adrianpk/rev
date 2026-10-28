@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Click to focus panes and place point, scroll the pointed pane or file tree without changing keyboard focus, and drag to select text with bounded autoscroll. Mouse support starts enabled; configure `mouse.enabled` and `mouse.scroll_lines`, or toggle the current session with `M-x mouse-mode` without writing settings. Copy and kill use the ordinary native region.
+
 - Show absolute or relative logical line numbers with independent settings in each editing view. Use M-x to switch modes, hide numbers, change the current-line label or side, inspect overrides and restore startup defaults. Stable widths preserve document columns, and narrow views retain their text area.
 
 - Convert marked tabs and spaces with `M-x tabify` and `M-x untabify`, preserving text columns, Unicode and file line endings. Each conversion undoes or redoes as one change; an unselected document stays untouched.

@@ -40,10 +40,11 @@ use crate::window::Windows;
 
 pub(crate) fn run(terminal: &mut Terminal<impl Write>, path: Option<&Path>) -> io::Result<()> {
     let mut session = initial(path)?;
-    terminal.set_cursor_color(session.buffers.palette().cursor)?;
-    session.draw(terminal.writer())?;
+    session.start_terminal(terminal)?;
     loop {
-        match session.read_input()? {
+        let action = session.read_input()?;
+        terminal.set_mouse_reporting(session.mouse_enabled())?;
+        match action {
             Action::Exit => return Ok(()),
             Action::Redraw => session.draw(terminal.writer())?,
             Action::Wait => {}
@@ -120,6 +121,12 @@ enum Pending {
 }
 
 impl Session {
+    fn start_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        terminal.set_mouse_reporting(self.mouse_enabled())?;
+        terminal.set_cursor_color(self.buffers.palette().cursor)?;
+        self.draw(terminal.writer())
+    }
+
     /// Takes ownership of canonical buffers and a qualified initial view.
     pub fn new(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
         let buffer = buffers.get(view.point.stamp.buffer)?;
