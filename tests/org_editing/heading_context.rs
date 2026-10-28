@@ -76,8 +76,8 @@ fn source_fidelity() {
     }
 }
 
-// Lists, tables, metadata, delimiters and literal bodies require their own
-// contextual owner. M-RET cannot fall through to editing a containing heading.
+// Explicit heading insertion rejects deeper owners. M-RET continues real list
+// source while tables, metadata and literal bodies retain their own admission.
 #[test]
 fn precise_context() {
     let cases = [
@@ -103,7 +103,39 @@ fn precise_context() {
             goto(&mut session, line);
         }
         let before = session.view().clone();
+        action(&mut session, OrgCommand::InsertHeading);
+        assert!(
+            session.echo().contains("unavailable"),
+            "{name}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), source, "{name}");
+        assert_eq!(session.view(), &before, "{name}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
         meta_return(&mut session);
+        if name.starts_with("list") {
+            let expected = if line == 0 {
+                "* Root\n- item\n- "
+            } else {
+                "* Root\n- \n- item\n"
+            };
+            assert_eq!(text(&session), expected, "{name}");
+            assert_eq!(session.buffer().unwrap().history().len(), 1);
+            session.execute(Command::History(History::Undo));
+            assert_eq!(text(&session), source, "{name}");
+            assert_eq!(
+                session.view().point.position,
+                before.point.position,
+                "{name}"
+            );
+            assert_eq!(
+                session.view().point.stamp,
+                session.buffer().unwrap().stamp()
+            );
+            assert_eq!(session.view().top, before.top, "{name}");
+            assert!(!session.buffer().unwrap().is_modified(), "{name}");
+            continue;
+        }
         assert!(
             session.echo().contains("unavailable"),
             "{name}: {}",

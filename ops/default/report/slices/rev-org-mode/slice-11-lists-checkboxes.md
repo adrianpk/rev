@@ -115,6 +115,9 @@ The required catalog regression also identified missing explicit M-x binding
 rows, now documented without changing the catalog assertion. Unicode EOF
 continuation coverage reproduced an interior-byte tail lookup; scalar-qualified
 tail access fixes it while retaining exact source and full undo/redo assertions.
+The older precise-context regression now retains explicit heading-insertion
+rejections and additionally checks exact list M-RET continuation and undo.
+All non-list context rejection assertions remain intact.
 After the canonical PR-reference follow-up is pushed, the controller records
 these required commands against the clean HEAD, in order:
 
