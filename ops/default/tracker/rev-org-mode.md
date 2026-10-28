@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 12 drawers-properties
+Active slice: Slice 13 tags-matching
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -301,15 +301,18 @@ Details and exact checks: [Slice 12](../plan/rev-org-mode.md#slice-12-edit-org-d
 - [x] T12.1: Implement property set/remove/inspect and drawer folding without confusing ordinary and property drawers.
 - [x] T12.2: Resolve local/additive/inherited values with source-owner provenance and safe directive precedence.
 - [x] T12.3: Verify selective inheritance, unknown properties and edits to the actual owner.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 PR: [#113](https://forge.adrianpk.com/adrianpk/rev/pulls/113).
 Report: [Slice 12](../report/slices/rev-org-mode/slice-12-drawers-properties.md).
 Task commits: T12.1 `725c0fd9c5a633d878e8793d1bd745aae4caad6b`,
 T12.2 `fa51a5569d2cc301c23b369a5a137562b2f20c53`,
 T12.3 `5de7b9d26d8d64e9b6de8f76b3bde6d90e4edad2`.
-Required and focused exact-head validation receipts are recorded by the controller
-after this PR-reference follow-up is pushed; integration remains pending.
+Required receipt `BAOIBKP7ZP3THSKGOQAS7572LO` passed all five commands and
+239 Rust tests. Focused receipt `NM33OJCTV54QWA7NWVJEANDEHM` passed 154 command
+tests, configuration references and two owned terminal sessions with zero skipped.
+Canonical PR #113 merged at `6c7052a31fbbe76b90f892a34c37223fe767c9d1`;
+local and canonical `dev` match the validated candidate.
 
 ### Slice 13: edit and match Org task tags
 

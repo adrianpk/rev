@@ -1,6 +1,6 @@
 # Slice 12: edit Org drawers and inherited properties
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -72,8 +72,10 @@ against [property syntax](https://orgmode.org/manual/Property-Syntax.html) and
 [property inheritance](https://orgmode.org/manual/Property-Inheritance.html).
 No runtime dependency was introduced.
 
-After the PR-reference follow-up is pushed, the controller records these required
-commands against its exact clean HEAD, in order:
+Canonical PR [#113](https://forge.adrianpk.com/adrianpk/rev/pulls/113)
+merged into `dev` at `6c7052a31fbbe76b90f892a34c37223fe767c9d1`.
+Required receipt `BAOIBKP7ZP3THSKGOQAS7572LO` passed all five commands at that
+exact clean HEAD, including 239 Rust tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -81,10 +83,14 @@ commands against its exact clean HEAD, in order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-A separate focused batch records `cargo test --test commands`,
-`python3 scripts/check-config-reference.py`, the terminal command above and
-`git diff --check` against the same HEAD. Canonical receipt IDs and exact outcomes
-are retained in controller evidence and Acta.
+Focused receipt `NM33OJCTV54QWA7NWVJEANDEHM` at the same HEAD passed:
+
+- `cargo test --test commands`: 154 tests.
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions, zero skipped, original assertions retained,
+  exact source bytes and terminal/fd/child cleanup checked.
+- `git diff --check`
 
 ## Risks and Follow-ups
 
