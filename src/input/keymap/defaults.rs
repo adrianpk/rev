@@ -1,4 +1,23 @@
-use super::Context;
+use std::collections::BTreeMap;
+use std::sync::LazyLock;
+
+use super::{Context, Sequence};
+
+pub(super) fn org_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| {
+        EDITOR
+            .iter()
+            .chain(ORG)
+            .map(|entry| {
+                let key = Sequence::parse(entry.0).expect("audited built-in sequence");
+                (key, *entry)
+            })
+            .collect::<BTreeMap<_, _>>()
+            .into_values()
+            .collect()
+    });
+    &COMPLETE
+}
 
 pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {

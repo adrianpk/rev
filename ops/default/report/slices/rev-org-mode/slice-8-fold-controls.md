@@ -84,6 +84,10 @@ Implementation checks passed:
   two owned sessions passed, zero skipped.
 
 Focused source-quality checks passed for changed visibility owners.
+The first focused controller batch (`7XPCH6ZFWUABSIEYVNBH7WZWLX`) failed
+`cargo test --test configuration`: the complete-default catalog still omitted
+the new Org overlay. The catalog now composes normalized inherited/local entries;
+the existing complete-map assertion passes unchanged in focused reproduction.
 The terminal driver's show-all predicate was corrected to the handler's actual
 `Org show-all` echo. Expected source rows, byte fidelity and cleanup assertions
 were preserved.

@@ -52,7 +52,8 @@ impl Context {
     /// text, decisions and Escape timing remain with their existing owners.
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
         match self {
-            Self::Org | Self::OrgCapture | Self::OrgSourceEdit => Self::Editor.local_defaults(),
+            Self::Org => defaults::org_complete(),
+            Self::OrgCapture | Self::OrgSourceEdit => Self::Editor.local_defaults(),
             _ => self.local_defaults(),
         }
     }
