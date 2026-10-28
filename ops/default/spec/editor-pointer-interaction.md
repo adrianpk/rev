@@ -1,6 +1,9 @@
 # Pointer Interaction
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; finalize the selected seven-topic scope and start one combined Looper cycle.
 Date: 2026-10-27
 Format: OpenSpec capability additions
@@ -9,7 +12,7 @@ Panel contract: [Editor Interaction](editor-interaction.md), UI01
 Gutter: [Editor Gutter](editor-gutter.md)
 Controls: [Editor Configuration](editor-configuration.md)
 Ticket: [Mouse, scrolling and pane focus](../ticket/solved/20261027190629-mouse-scroll-selection-and-pane-focus.md)
-Delivery boundary: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
+Delivery boundary: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
 
 ## Purpose
 

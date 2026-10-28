@@ -3,6 +3,9 @@
 Status: implemented
 Implemented: 2026-10-27; completed rev-editor delivery
 Validated candidate: `b56d705c7a84b823bf069fc874bc762938d6d897`
+Input/navigation completed: 2026-10-28
+Input/navigation validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Input/navigation gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-26
 Date: 2026-10-26
 Specification: [rev Editor](rev-editor.md)
@@ -14,6 +17,8 @@ The validated candidate above belongs to the original delivery. The accepted
 [configuration model](editor-configuration-model.md) supplies immutable startup
 settings, effective buffer policies, context maps and semantic palette roles;
 its separate delivery owns the configuration/interaction acceptance evidence.
+The input/navigation fields above record the later complete gate for the
+current view, pointer and terminal ownership amendments.
 
 Define the state and persistence contracts needed by the paired specification.
 Tables name semantic responsibilities. They do not mandate public Rust types,

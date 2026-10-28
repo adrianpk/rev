@@ -1,6 +1,9 @@
 # Editor Gutter
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; specification and model accepted.
 Date: 2026-10-27
 Format: OpenSpec capability additions
@@ -8,7 +11,7 @@ Baseline: [rev Editor](rev-editor.md), R05-R07, R09, R14-R15, R18-R20 and R35
 Related contract: [Editor Interaction](editor-interaction.md), UI01
 Configuration: [Editor Configuration](editor-configuration.md)
 Rev baseline revision: `756e540b0830866fb0dfd59c045dff5958c11095`
-Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
+Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
 Scope clarified: product owner, 2026-10-27; native numbering now, bookmarks and LSP completion later
 Controls clarified: user settings, compiled M-x commands, or both according to the concern
 Model: [Editor Gutter Model](editor-gutter-model.md)

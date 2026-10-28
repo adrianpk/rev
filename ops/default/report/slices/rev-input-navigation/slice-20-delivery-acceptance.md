@@ -36,7 +36,7 @@ identities. Listing prerequisites remain distinct from full runtime admission.
 ## Implementation Notes
 
 Earlier validated candidate and gate identities remain unchanged as historical
-facts. Current amendments link to this delivery and retain pending integrated
+facts. Current amendments link to this delivery's separate integrated
 acceptance. Complete approved requirement blocks and scenarios are copied into
 their actual owners; no new requirement identities or runtime capability are
 invented. Existing command/default/gutter/status references already describe the
@@ -51,7 +51,8 @@ commits and report/PR identities. No ticket was moved or its earlier evidence
 replaced. PR #100 is also verified merged on Forgejo at the exact validated
 head above, matching primary dev and its canonical remote; Acta records the
 merge. All twenty slice reports and task records are delivered. The integrated
-gate and final delivery documentation closure remain pending.
+gate subsequently passed on the prepared dev candidate; the evidence below
+closes the delivery through the approved documentation paths.
 
 Task commits:
 
@@ -79,7 +80,8 @@ WSP and STA additions are reconciled with their existing state owners.
 
 Focused block reconciliation checks compare every approved replacement and
 addition, including scenarios, with its current target. Earlier full-gate
-identities remain historical; this slice does not run the combined gate.
+identities remain historical; the slice-level checks were focused. The
+controller's later combined gate is recorded separately below.
 Development `python3 -m unittest discover -s scripts -p test_acceptance.py`
 passed nineteen guard tests in 1.578 seconds. New mutations cover partial or
 duplicate requirements/scenarios, incorrect model defaults, rewritten historical
@@ -110,14 +112,25 @@ Successful ordered commands:
 - `git diff --check`
 
 These focused/native/reference/prerequisite checks prepare the PR. They do not
-run or replace `scripts/check-all.sh`. PR #100 is integrated and its report state
-is closed before the controller runs the unchanged eleven-stage gate on the
+run or replace `scripts/check-all.sh`. PR #100 was integrated and its report state
+closed before the controller ran the unchanged eleven-stage gate on the
 exact clean pushed dev candidate. The prerequisite collectors discover named
 cases without running terminal/resource workloads. Those workloads create and
 clean their own temporary fixtures, including isolated HOME and XDG roots;
 no persistent service or external fixture needs to be started. Only the
-configured documentation paths may close after the gate, retaining tested and
-closure identities as distinct facts.
+configured documentation paths changed after the gate, retaining tested and
+closure identities as distinct facts in Git and Acta.
+
+The controller passed `scripts/check-all.sh` on immutable candidate
+`dedd85064cb5565a5382a9d8e2e2902daae24d88`, evidence
+`PZ4OIPXA6GUBSWDH5ZS7MJUOGX`, in 77.6 seconds. All eleven stages passed,
+including 856 native tests, four baseline PTY journeys, two baseline resource
+fixtures, ten configuration/UI terminal sessions with twenty combined-stage
+receipts, thirteen interaction/resource workloads and four measured PTY sessions.
+Acceptance admitted the actual same-candidate logs with zero skips and retained
+all existing ceilings. This final result is distinct from the focused PR and
+prerequisite evidence above. The collectors cleaned their owned temporary
+fixtures; no test process remains running.
 
 ## Risks and Follow-ups
 

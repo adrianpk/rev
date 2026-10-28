@@ -1,11 +1,14 @@
 # Input, Navigation and Presentation Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; complete all seven selected topics in one autonomous Looper cycle after reconciling their contracts and slicing. Startup and canonical dev integration requested.
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 20 - reconcile combined delivery acceptance and references
+Active slice: none; all 20 slices completed
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -532,6 +535,27 @@ Required validation, exact order:
 - `git diff --check`
 
 ## Final integration and closure
+
+All twenty canonical slice PRs (#81-#100) are integrated into dev. Every assigned
+report is delivered, all sixty task outcomes and integration records are
+complete, and all seven tickets are solved with their primary implementation
+evidence. The selected specification/model completion metadata now records this
+delivery separately from earlier editor and configuration/UI validation.
+
+The controller passed `scripts/check-all.sh` on the exact clean pushed candidate
+`dedd85064cb5565a5382a9d8e2e2902daae24d88`, evidence
+`PZ4OIPXA6GUBSWDH5ZS7MJUOGX`, in 77.6 seconds. All eleven stages passed:
+856 native tests, four baseline PTY journeys, two baseline resource fixtures,
+ten configuration/UI terminal sessions, thirteen interaction/resource workloads
+and four measured PTY sessions, with zero skips. Existing ceilings and all
+historical acceptance protections were retained. The final report and tracker
+record the evidence and the documented decoder burst limitation.
+
+Only configured documentation closure paths differ afterward. The gate remains
+evidence for the candidate above; the later closure commit has its own Git and
+Acta identity. Owned fixtures were cleaned by their collectors and no test
+process remains to stop. The following approved closure procedure is retained
+as the delivery's authority record.
 
 After Slice 20 integrates, run the full gate on clean pushed dev. A failed gate
 keeps the set open; the delegated repair route does not add numbered slices.

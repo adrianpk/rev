@@ -1,11 +1,14 @@
 # Input, Navigation and Presentation Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; complete all seven selected topics in one autonomous Looper cycle after reconciling their contracts and slicing. Startup and canonical dev integration requested.
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 20 - reconcile combined delivery acceptance and references
+Active slice: none; all 20 slices completed
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -411,19 +414,34 @@ records each merge. All seven solved tickets retain their assigned primary task
 commits, canonical PR and report outcomes. PR #100 and its matching dev/remote
 head are also verified on Forgejo, in Git and in Acta. All twenty assigned
 reports are delivered and all slice task/integration entries are complete.
-The unchanged full gate and final delivery documentation closure remain
-controller-owned and pending.
+The controller subsequently passed the unchanged full gate on the prepared
+integrated candidate; its evidence is recorded below. Final delivery closure
+changes only the configured documentation paths.
 
 Gate preparation uses the existing prerequisite collectors and delivery-state
 guards. The terminal/resource collectors own their temporary fixtures and
 isolated HOME/XDG roots; no persistent fixture or external service is required.
-The controller must run `scripts/check-all.sh` on the clean pushed dev candidate
-after this documentation-only preparation.
+The controller ran `scripts/check-all.sh` on the clean pushed dev candidate
+after that documentation-only preparation. All owned fixtures were cleaned and
+no test process remains to stop.
 
 ## Delivery closure
 
 - [x] All seven tickets reflect verified primary-slice integration and actual implementation evidence.
 - [x] Every assigned slice report is delivered; source/model/reference links and complete baseline amendments agree.
-- [ ] Controller full gate passed the exact clean integrated dev candidate, including new real terminal/resource evidence and retained protections.
-- [ ] Only approved documentation closure paths changed afterward; record candidate and validation identity without relabeling evidence.
-- [ ] Final plan/tracker/spec/model metadata, canonical push and Acta outcome match actual completion.
+- [x] Controller full gate passed the exact clean integrated dev candidate, including new real terminal/resource evidence and retained protections.
+- [x] Only approved documentation closure paths changed afterward; record candidate and validation identity without relabeling evidence.
+- [x] Final plan/tracker/spec/model metadata, canonical push and Acta outcome match actual completion.
+
+Controller evidence `PZ4OIPXA6GUBSWDH5ZS7MJUOGX` passed all eleven stages of
+`scripts/check-all.sh` on clean pushed candidate
+`dedd85064cb5565a5382a9d8e2e2902daae24d88`, in 77.6 seconds. It admits
+856 native tests, four baseline PTY journeys, two baseline resource fixtures,
+ten configuration/UI terminal sessions, thirteen interaction/resource workloads
+and four measured PTY sessions, with zero skips. The twenty combined-stage
+receipts and existing ceilings remain required. The decoder burst limitation
+recorded in Slices 19-20 remains distinct from the admitted bounded stream.
+
+All twenty slices and the delivery set are complete on dev. This later
+documentation-only closure is recorded separately in Git and Acta; it does not
+change the tested candidate or relabel its full-gate result.

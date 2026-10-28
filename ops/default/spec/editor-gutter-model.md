@@ -1,12 +1,15 @@
 # Editor Gutter Model
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; specification and model accepted.
 Date: 2026-10-27
 Specification: [Editor Gutter](editor-gutter.md)
 Configuration owner: [Editor Configuration Model](editor-configuration-model.md)
 View owner: [rev Editor Model](rev-editor-model.md)
-Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
+Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
 
 ## Control model
 

@@ -3,6 +3,9 @@
 Status: implemented
 Implemented: 2026-10-27; completed rev-editor delivery
 Validated candidate: `b56d705c7a84b823bf069fc874bc762938d6d897`
+Input/navigation completed: 2026-10-28
+Input/navigation validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Input/navigation gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-26
 Date: 2026-10-26
 Format: OpenSpec baseline requirements and scenarios
@@ -17,8 +20,8 @@ The validated candidate above records the original rev-editor delivery. The
 R22 completely; their separate configuration/interaction gate is recorded there.
 The approved [input and navigation delivery](../plan/rev-input-navigation.md)
 now reconciles the complete R05 replacement and GUT, PTR, NAV, WSP and STA
-additions below. Its final integrated gate remains controller-owned and pending;
-these amendments do not relabel either earlier validated candidate.
+additions below. Its controller-owned integrated gate passed on the separate
+input/navigation candidate above; neither earlier validated candidate is relabeled.
 
 Define the complete reference implementation of `rev`: a small, non-modal,
 terminal text editor written in Rust, with Emacs-style editing, rope-backed

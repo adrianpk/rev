@@ -1,6 +1,9 @@
 # Configuration Bootstrap
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-28
+Validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; finalize the selected seven-topic scope and start one combined Looper cycle.
 Date: 2026-10-27
 Format: OpenSpec change
@@ -8,7 +11,7 @@ Direction: product owner requested automatic creation of absent user configurati
 Baseline: [Editor Configuration](editor-configuration.md), CFG01, CFG05, CFG14 and CFG15
 Existing model: [Editor Configuration Model](editor-configuration-model.md)
 Ticket: [Create missing user configuration](../ticket/solved/20261027193636-create-missing-user-configuration.md)
-Delivery boundary: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
+Delivery boundary: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
 
 ## Purpose
 

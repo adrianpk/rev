@@ -4,6 +4,9 @@ Status: Completed
 Completed: 2026-10-27
 Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
 Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
+Input/navigation completed: 2026-10-28
+Input/navigation validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Input/navigation gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; unified configuration and interaction delivery authorized.
 Date: 2026-10-27
 Format: OpenSpec capability proposal with explicit baseline amendments
@@ -28,7 +31,8 @@ That identity and gate remain historical configuration/interaction evidence.
 The current [input and navigation delivery](../plan/rev-input-navigation.md)
 reconciles CFG01/CFG14/CFG15 with [configuration bootstrap](editor-configuration-bootstrap.md),
 adds CFG23/CFG24, and activates the gutter/mouse catalog in the companion model.
-Its complete integrated gate remains pending.
+Its complete integrated gate passed on the separate input/navigation candidate
+recorded above, preserving the earlier validation identity.
 
 OpenSpec is the shared workspace Markdown format. Reading or validating this
 proposal does not require the OpenSpec CLI or another runtime service.

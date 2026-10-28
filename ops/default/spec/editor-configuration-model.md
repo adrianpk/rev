@@ -4,6 +4,9 @@ Status: Completed
 Completed: 2026-10-27
 Validated candidate: `95713efb7f79fbc72417615a921841f8d49730ed`
 Gate validation: `FWDUCVRJCYBKFXEWEFLKPKA35E`
+Input/navigation completed: 2026-10-28
+Input/navigation validated candidate: `dedd85064cb5565a5382a9d8e2e2902daae24d88`
+Input/navigation gate validation: `PZ4OIPXA6GUBSWDH5ZS7MJUOGX`
 Approved: product owner, 2026-10-27; unified configuration and interaction delivery authorized.
 Date: 2026-10-27
 Specification: [Editor Configuration](editor-configuration.md)
@@ -21,7 +24,8 @@ general extension/configuration framework.
 The validated candidate and gate above retain the historical configuration/UI
 result. The [input/navigation delivery](../plan/rev-input-navigation.md) adds the
 implemented gutter/mouse leaves and packaged first-start publication described
-here; its own integrated gate remains pending.
+here; its own integrated gate passed on the separate input/navigation
+candidate recorded above. The earlier validation identity remains unchanged.
 
 The option inventory is deliberately broader than the selected delivery.
 Configuration targets existing editor capabilities and the agreed indentation
