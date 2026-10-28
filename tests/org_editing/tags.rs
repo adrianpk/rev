@@ -47,12 +47,8 @@ fn local_tags() {
 fn inherited_tags() {
     let source = "#+FILETAGS: :File:\n* Parent :Work:\n** Child :work:local:\nbody\n";
     for (config, included, excluded) in [
-        ("", "Work (inherited, line 2)", "missing"),
-        (
-            "org.tags.inherit = false",
-            "work (local, line 3)",
-            "inherited",
-        ),
+        ("", "inherited [L2] Work", "missing"),
+        ("org.tags.inherit = false", "local [L3] work", "inherited"),
     ] {
         let (_fixture, mut session) = editor(config, "notes.org", source);
         goto(&mut session, 4);

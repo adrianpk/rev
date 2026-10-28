@@ -75,7 +75,7 @@ impl<'a> Parser<'a> {
         self.eat('&') || matches!(self.peek(), Some('+' | '-' | '!'))
     }
     fn unary(&mut self, todo: bool) -> Result<usize, String> {
-        if self.depth == 32 {
+        if self.depth > 32 {
             return self.fail("match exceeds depth 32");
         }
         self.depth += 1;

@@ -321,7 +321,7 @@ Details and exact checks: [Slice 13](../plan/rev-org-mode.md#slice-13-edit-and-m
 
 - [x] T13.1: Deliver tag entry, removal, completion and local/inherited membership inspection.
 - [x] T13.2: Implement the declared Org tag/property match grammar with typed comparisons and bounded parsing.
-- [ ] T13.3: Verify case sensitivity, escaping, malformed queries and unchanged unrelated source.
+- [x] T13.3: Verify case sensitivity, escaping, malformed queries and unchanged unrelated source.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 14: deliver Org task workflows and logging

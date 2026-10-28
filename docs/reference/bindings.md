@@ -38,7 +38,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
-| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Toggle a precise checkbox and verify list numbering. |
+| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Edit tags on an actual heading; toggle a precise checkbox and verify list numbering in list context. |
 | C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
 | C-c C-x C-r in Org | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
 | C-c # in Org | `org-update-statistics-cookies` | Update current item/heading statistics. |

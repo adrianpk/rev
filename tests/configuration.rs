@@ -163,3 +163,6 @@ mod org_palette;
 
 #[path = "configuration/org_properties.rs"]
 mod org_properties;
+
+#[path = "configuration/org_tags.rs"]
+mod org_tags;

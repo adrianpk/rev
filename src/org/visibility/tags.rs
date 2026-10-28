@@ -142,7 +142,6 @@ impl Outline {
         index: usize,
         inherit: bool,
     ) -> Result<String, String> {
-        let distinct = self.tag_membership(index, inherit).len();
         let mut parts = Vec::new();
         for (tag, owner) in self.tag_contributions(index, inherit).iter().take(32) {
             let kind = match owner {
@@ -155,15 +154,12 @@ impl Outline {
                 .from_byte(crate::coordinates::Byte(tag.source.start))
                 .map_err(|e| e.to_string())?;
             let row = c.to_line(point).map_err(|e| e.to_string())?.row + 1;
-            parts.push(format!("{} ({kind}, line {row})", tag.name));
+            parts.push(format!("{kind} [L{row}] {}", tag.name));
         }
         Ok(if parts.is_empty() {
             "Org tags: none".into()
         } else {
-            format!(
-                "Org tags ({distinct} distinct, up to 32 origins): {}",
-                parts.join("; ")
-            )
+            format!("Org tags: {}", parts.join("; "))
         })
     }
     pub(crate) fn tag_completion(
@@ -186,12 +182,16 @@ impl Outline {
         let Some(first) = candidates.first() else {
             return Err("No matching Org tag".into());
         };
-        let common: String = first
-            .chars()
-            .enumerate()
-            .take_while(|(i, c)| candidates.iter().all(|s| s.chars().nth(*i) == Some(*c)))
-            .map(|(_, c)| c)
-            .collect();
+        let mut common = first.as_str();
+        for candidate in &candidates {
+            let shared: usize = common
+                .chars()
+                .zip(candidate.chars())
+                .take_while(|(a, b)| a == b)
+                .map(|(c, _)| c.len_utf8())
+                .sum();
+            common = &common[..shared];
+        }
         let text = format!("{}{}{}", &draft[..start], common, &draft[cursor..]);
         let shown = candidates
             .iter()

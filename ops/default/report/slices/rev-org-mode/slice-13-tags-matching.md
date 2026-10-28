@@ -1,6 +1,6 @@
 # Slice 13: edit and match Org task tags
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -44,19 +44,68 @@ is introduced.
 - `src/session/outline/tags.rs`: qualified prompts, completion and publication.
 - `src/org/query/`: bounded compilation and iterative typed evaluation.
 - `tests/org_source/matching.rs`: grammar/escaping/type/limit contracts.
-- `tests/org_editing/tags.rs`: source preservation and local/inherited behavior.
+- `tests/org_editing/tags.rs`, `tag_edges.rs`: actual editing, provenance,
+  read-only/stale/deeper-context rejection, shared views and source preservation.
+- `tests/configuration/org_tags.rs`: typed include policy and provenance.
+- `scripts/configuration_ui/org_tags.py`: tag/query steps within the existing
+  owned RGB/NO_COLOR outline journey.
 
 ## Validation
 
-- `cargo test --test org_editing tags::`: four tests passed.
-- `python3 scripts/check-config-reference.py`: 97 schema/catalog entries and
-  136 default bindings agree; packaged template bytes and native copy pass.
-- `cargo test --test org_source --test org_editing matching`: one native
-  integration test and three public parser/evaluator tests passed.
-- Focused source-quality checks passed for changed owners and tests.
-- An owned clean Emacs observation confirmed factory ancestor/file inheritance
-  and local-only membership when inheritance is disabled.
+Development checks passed:
+
+- `cargo check`
+- `cargo test --test org_editing tags::`: four initial tag tests passed.
+- `cargo test --test org_source --test org_editing matching`: one actual-session
+  test and three public parser/evaluator tests passed during grammar delivery.
+- `cargo test --test org_editing --test org_source --test configuration tag`:
+  11 native tag tests and one configuration policy test passed.
+- `cargo test --test org_source matching::`: all four grammar/type/boundary tests
+  passed, including exact byte/depth/node/projection caps and their successors.
+- `python3 scripts/check-config-reference.py`: schema/catalog, sample bindings,
+  template bytes, native copying and links agree.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions passed, zero skipped. Original outline, list
+  and property assertions remain intact. Tag entry/completion, local/inherited
+  inspection, queries, malformed-input rejection and cancellation restore exact
+  BOM/CRLF/EOF bytes and preserve cleanup assertions.
+
+Focused source-quality checks passed for changed Rust owners and tests.
+The first check exposed excess dispatch complexity and declaration nesting;
+small parser, prompt and declaration helpers retain the same assertions.
+Exact-cap coverage admitted 32 nested groups with the atom excluded from group
+nesting. Completion computes a shared Unicode prefix in linear candidate text
+work, and evaluation indexes tag membership instead of rescanning all tags per
+atom. No backtracking evaluator, callback, dependency or permanent worker is added.
+
+An owned clean Emacs observation confirmed factory ancestor/file inheritance
+and local-only membership when inheritance is disabled. Native semantics were
+checked against [tags](https://orgmode.org/manual/Tags.html),
+[setting tags](https://orgmode.org/manual/Setting-Tags.html),
+[tag inheritance](https://orgmode.org/manual/Tag-Inheritance.html) and
+[matching](https://orgmode.org/manual/Matching-tags-and-properties.html).
+Parentheses follow the approved native grammar.
+
+After the PR-reference follow-up is pushed, the controller records these required
+commands against the exact clean HEAD, in order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test org_source --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+A separate focused batch records `cargo test --test configuration`,
+`python3 scripts/check-config-reference.py`, the terminal command above and
+`git diff --check` at the same HEAD. Exact receipt IDs and outcomes remain in
+controller evidence and Acta.
 
 ## Risks and Follow-ups
 
-T13.3 boundary verification remains active.
+Tag observations admit at most 4096 headings, 8192 tag/candidate occurrences and
+8192 metadata contexts; each heading admits 128 local names. Queries admit 4096
+UTF-8 bytes, 32 nested forms and 512 nodes. Temporary metadata is capped at
+1048576 bytes. Incomplete or malformed input rejects without changing source.
+Inspection displays at most 32 source origins and completion shows at most 16
+candidates. Numeric operands use finite f64 comparison; string operands compare
+case-sensitively. No other follow-up is recorded.

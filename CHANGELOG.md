@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Edit and complete Org tags with `C-c C-q`, inspect local and inherited tag owners, and test Boolean tag/property expressions against the current heading without changing source.
+
 - Edit Org properties with `C-c C-x p`, inspect local and inherited values with source owners, and explicitly edit an inherited owner. Selective property inheritance preserves additive values and keeps inherited text out of child entries.
 
 - Continue, indent, move and renumber Org lists with their nested source. Toggle ordinary or radio checkboxes, respect ordered completion, and update parent states and progress cookies together in one undoable change. Familiar Meta-arrow and C-c keys select the actual list context.

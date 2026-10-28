@@ -99,3 +99,23 @@ fn query_value_types() {
         .insert("LARGE".into(), "x".repeat(1048577));
     assert!(MatchQuery::parse("work").unwrap().matches(&values).is_err());
 }
+
+// Admission accepts the exact byte/depth/node/projection boundaries as well as
+// rejecting their successors. This detects off-by-one cuts in the public grammar.
+#[test]
+fn query_boundaries() {
+    let values = data();
+    let depth = format!("{}work{}", "(".repeat(32), ")".repeat(32));
+    assert!(MatchQuery::parse(&depth).unwrap().matches(&values).unwrap());
+    let nodes = format!("!{}", vec!["absent"; 256].join("|"));
+    assert!(MatchQuery::parse(&nodes).unwrap().matches(&values).unwrap());
+    let literal = "x".repeat(4096 - 4);
+    let bytes = format!("X=\"{literal}\"");
+    let mut data = MatchData::default();
+    data.properties.insert("X".into(), literal);
+    assert!(MatchQuery::parse(&bytes).unwrap().matches(&data).unwrap());
+    data.properties.insert("X".into(), "x".repeat(1048575));
+    assert!(!MatchQuery::parse("absent").unwrap().matches(&data).unwrap());
+    data.properties.get_mut("X").unwrap().push('x');
+    assert!(MatchQuery::parse("absent").unwrap().matches(&data).is_err());
+}

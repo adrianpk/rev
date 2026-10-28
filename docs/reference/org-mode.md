@@ -134,7 +134,7 @@ edits, publication releases active selection and obsolete folds in affected view
 | M-S-Left / M-S-Right | `org-outdent-item-tree` / `org-indent-item-tree` | Change indentation with complete nested source. |
 | M-Up / M-Down | `org-metaup` / `org-metadown` | Exchange complete adjacent items and renumber ordered siblings. |
 | M-S-RET | `org-insert-item-checkbox` | Insert a new unchecked checkbox item. |
-| C-c C-c | `org-ctrl-c-ctrl-c` | Toggle an existing checkbox and verify current list numbering. |
+| C-c C-c | `org-ctrl-c-ctrl-c` | Edit heading tags, or toggle an existing checkbox and verify current list numbering in list context. |
 | C-c C-x C-b | `org-toggle-checkbox` | Toggle the current checkbox, selected checkboxes, or the current heading section. |
 | C-c C-x C-r | `org-toggle-radio-button` | Select a checkbox and clear same-level radio peers. |
 | C-c # | `org-update-statistics-cookies` | Refresh existing item/heading fraction and percentage cookies. |

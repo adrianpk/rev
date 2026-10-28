@@ -34,6 +34,8 @@ mod subtree_bounds;
 mod subtree_positions;
 #[path = "org_editing/subtrees.rs"]
 mod subtrees;
+#[path = "org_editing/tag_edges.rs"]
+mod tag_edges;
 #[path = "org_editing/tags.rs"]
 mod tags;
 #[path = "org_editing/visibility.rs"]
