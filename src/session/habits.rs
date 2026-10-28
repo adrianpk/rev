@@ -52,13 +52,16 @@ impl Session {
             view: self.windows.selected_id(),
             agenda,
         };
+        self.calendar_agenda = None;
         self.habit_agenda = Some(state);
         self.sync_input_context();
         self.message("Habit agenda: K visibility; A all today; C-u K today-only; d date; G graph; g refresh; C-g source");
     }
     pub(super) fn habit_paste(&mut self, text: &str) -> Action {
-        if self.habit_agenda.is_some() && self.input.focus() == crate::input::Focus::Editing {
-            return self.message("Read-only habit agenda; C-g returns to source");
+        if (self.habit_agenda.is_some() || self.calendar_active())
+            && self.input.focus() == crate::input::Focus::Editing
+        {
+            return self.message("Read-only Org agenda; C-g returns to source");
         }
         self.paste_text(text)
     }

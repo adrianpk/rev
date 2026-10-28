@@ -220,6 +220,14 @@ suspend the entire editing projection and retain view identities and history.
 The default remains equal halves. Executable startup uses the admitted user
 configuration snapshot; source edits take effect after restarting.
 
+| v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
+| v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
+| f / Right in calendar agenda | `org-agenda-later` | Move a span forward. |
+| b / Left in calendar agenda | `org-agenda-earlier` | Move a span backward. |
+| . in calendar agenda | `org-agenda-goto-today` | Show captured effective today. |
+| j in calendar agenda | `org-agenda-goto-date` | Choose an explicit date. |
+| RET in calendar agenda | `org-agenda-switch-to` | Check and visit selected source. |
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -265,7 +273,7 @@ role selection alone does not create an agenda or draft.
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
-| `g` | `org-habit-show-graph` | Explicitly refresh from current source and time. |
+| `g` | `org-agenda-redo` | Explicitly refresh from current source and time. |
 | `K` | `org-habit-toggle-habits` | Toggle graph visibility. |
 | `C-u K` | `org-habit-toggle-habits-only-for-today` | Toggle today's agenda only. |
 | `A` | `org-habit-toggle-show-all-today` | Toggle all habits on today's agenda. |
@@ -278,6 +286,14 @@ role selection alone does not create an agenda or draft.
 | `,` | `org-priority` | Set the checked source heading priority. |
 | `C-g` / `q` | `keyboard-quit` | Cancel current input or return to canonical source. |
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
+
+| `v d` | `org-agenda-day-view` | Show one captured calendar day. |
+| `v w` | `org-agenda-week-view` | Show the configured calendar week. |
+| `f`, `Right` | `org-agenda-later` | Move one displayed span forward. |
+| `b`, `Left` | `org-agenda-earlier` | Move one displayed span backward. |
+| `.` | `org-agenda-goto-today` | Return to the captured effective today. |
+| `j` | `org-agenda-goto-date` | Choose YYYY-MM-DD in the retained span. |
+| `RET` | `org-agenda-switch-to` | Check and visit the selected real source. |
 
 ### Org calendar defaults and availability
 
@@ -671,3 +687,26 @@ Conflicting live hard-link buffers require explicit buffer selection. Missing,
 unreadable, binary, changed or over-limit sources remain reported as incomplete;
 available whole sources remain retained. Source discovery does not save, create
 or edit files. Normal editing remains available during the one owned worker.
+
+### Native day and week calendars
+
+C-c a shows a read-only native calendar after explicit source selection. Use
+v d/v w for day/week, f/b or Right/Left for span movement, . for the captured
+effective today, and j for a date. These controls reuse captured source facts
+and zone rules. g explicitly refreshes sources and captures time once again.
+The same g binding refreshes a habit agenda.
+
+Up/Down and page commands select/scroll derived lines. RET visits an entry only
+after checking its source revision. Disk sources are reread within the owned
+IO budget and their actual text must agree before normal canonical ingress.
+Changed sources require refresh. q/C-g closes the calendar; prompt cancellation
+returns to the calendar. Ordinary text, paste, editing commands and pointer
+input cannot mutate source through the calendar. Other-window permits editing
+an independent peer pane while the calendar keeps its own pane.
+
+Planning sections show scheduled/deadline dates, unfinished overdue reminders
+and approaching deadlines. Explicit source warning/delay suffixes apply; the
+default deadline warning is fourteen days. Time grids retain wall-clock times;
+ambiguous/nonexistent local times remain marked unresolved. Partial sources,
+malformed data and limits stay visible as incomplete results. Date navigation
+and rendering never advance repeating source or poll a clock while idle.

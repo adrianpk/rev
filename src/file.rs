@@ -15,6 +15,9 @@ pub struct Loaded {
 }
 
 impl Loaded {
+    pub(crate) fn observed_text(&self) -> RopeSlice<'_> {
+        self.text.slice(..)
+    }
     /// Decode strict UTF-8 incrementally. No candidate survives a read, encoding
     /// or NUL-policy failure; exactly one leading BOM becomes format metadata.
     pub fn read(reader: impl Read) -> io::Result<Self> {

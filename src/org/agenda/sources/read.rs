@@ -2,7 +2,6 @@ use crate::{
     file::{self, Observation},
     org::Cancellation,
 };
-use ropey::Rope;
 use std::{
     fs::File,
     io::{self, Read},
@@ -10,7 +9,7 @@ use std::{
     time::Instant,
 };
 
-pub(super) struct Budget<'a> {
+pub(in crate::org::agenda) struct Budget<'a> {
     pub cancel: &'a Cancellation,
     pub deadline: Instant,
 }
@@ -49,11 +48,11 @@ impl Read for Reader<'_> {
 }
 /// Count bytes even when decoding or consistency checks fail. Each source is
 /// published only after whole UTF-8/NUL/BOM ingress and checked disk evidence.
-pub(super) fn source(
+pub(in crate::org::agenda) fn source(
     path: &Path,
     limit: usize,
     budget: &Budget<'_>,
-) -> (Result<(Rope, Observation), String>, usize) {
+) -> (Result<(file::Loaded, Observation), String>, usize) {
     let opened = open(path);
     let (file, before) = match opened {
         Ok(value) => value,
@@ -75,7 +74,7 @@ pub(super) fn source(
         {
             return Err("Agenda file changed while reading; refresh required".into());
         }
-        Ok((loaded.into_parts().0, before))
+        Ok((loaded, before))
     });
     (result, reader.used)
 }

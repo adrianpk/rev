@@ -41,6 +41,37 @@ impl Buffers {
         Ok(Visit::New(Box::new(buffer), path))
     }
 
+    pub(crate) fn prepare_observed_visit(
+        &self,
+        path: &Path,
+        loaded: file::Loaded,
+        expected: &file::Observation,
+    ) -> io::Result<Visit> {
+        let location = file::resolve(path)?;
+        if location.observation() != Some(expected) {
+            return Err(io::Error::other(
+                "Agenda disk source changed before visiting; refresh required",
+            ));
+        }
+        if let Some(id) = self.files.get(location.path()) {
+            let buffer = self.get(*id).map_err(io::Error::other)?;
+            let span = buffer
+                .span(0..buffer.len_chars())
+                .map_err(io::Error::other)?;
+            if buffer.slice(&span).map_err(io::Error::other)? != loaded.observed_text() {
+                return Err(io::Error::other(
+                    "Open source differs from the agenda; refresh required",
+                ));
+            }
+            return Ok(Visit::Existing(*id));
+        }
+        let mut buffer = Buffer::from_loaded(loaded).map_err(io::Error::other)?;
+        let path = location.path().to_owned();
+        buffer.name = location.basename().to_string_lossy().into_owned();
+        buffer.file = Some(location);
+        buffer.apply_settings(&self.settings);
+        Ok(Visit::New(Box::new(buffer), path))
+    }
     pub(crate) fn publish_visit(&mut self, visit: Visit) -> BufferId {
         match visit {
             Visit::Existing(id) => id,

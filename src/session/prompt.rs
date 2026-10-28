@@ -5,6 +5,9 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.cancel_calendar_prompt(command) {
+            return Some(action);
+        }
         if let Some(action) = self.cancel_agenda_discovery(command) {
             return Some(action);
         }
@@ -26,6 +29,7 @@ impl Session {
                 self.pending,
                 Some(
                     Pending::AgendaSources
+                        | Pending::AgendaDate
                         | Pending::Habit(_)
                         | Pending::Timer(_)
                         | Pending::ClockReport(_)
@@ -67,6 +71,7 @@ impl Session {
             self.pending,
             Some(
                 Pending::AgendaSources
+                    | Pending::AgendaDate
                     | Pending::Habit(_)
                     | Pending::Timer(_)
                     | Pending::ClockReport(_)
@@ -121,7 +126,7 @@ impl Session {
 impl Session {
     fn complete_observation_argument(&mut self) -> Action {
         match self.pending {
-            Some(Pending::AgendaSources) => {
+            Some(Pending::AgendaSources | Pending::AgendaDate) => {
                 self.message("Enter current, buffers or one literal local path; C-g cancels")
             }
             Some(Pending::Habit(_)) => {

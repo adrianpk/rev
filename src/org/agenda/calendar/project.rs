@@ -25,8 +25,8 @@ pub(super) fn calendar(facts: Arc<Facts>, query: CalendarQuery, cancel: &Cancell
         }
         std::thread::yield_now();
     }
-    view.cancelled = cancel.is_cancelled() && !cancel.expired();
-    if cancel.expired() {
+    view.cancelled = bounded.is_cancelled() && !bounded.expired();
+    if bounded.expired() {
         view.truncated = true;
         view.issue(None, "Calendar job time limit reached".into());
     }

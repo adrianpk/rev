@@ -87,3 +87,6 @@ mod sources;
 
 #[path = "org_agenda/calendar_rows.rs"]
 mod calendar_rows;
+
+#[path = "org_agenda/calendar_native.rs"]
+mod calendar_native;

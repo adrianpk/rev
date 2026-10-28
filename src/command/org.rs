@@ -111,9 +111,17 @@ pub enum OrgCommand {
     HabitDate,
     HabitWindow,
     Agenda,
+    AgendaDay,
+    AgendaWeek,
+    AgendaNext,
+    AgendaPrevious,
+    AgendaToday,
+    AgendaRefresh,
+    AgendaVisit,
+    AgendaDate,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 109] = [
+    pub const ALL: [Self; 117] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -223,6 +231,14 @@ impl OrgCommand {
         Self::HabitDate,
         Self::HabitWindow,
         Self::Agenda,
+        Self::AgendaDay,
+        Self::AgendaWeek,
+        Self::AgendaNext,
+        Self::AgendaPrevious,
+        Self::AgendaToday,
+        Self::AgendaRefresh,
+        Self::AgendaVisit,
+        Self::AgendaDate,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -335,6 +351,14 @@ impl OrgCommand {
             "org-habit-graph-date",
             "org-habit-set-graph-window",
             "org-agenda",
+            "org-agenda-day-view",
+            "org-agenda-week-view",
+            "org-agenda-later",
+            "org-agenda-earlier",
+            "org-agenda-goto-today",
+            "org-agenda-redo",
+            "org-agenda-switch-to",
+            "org-agenda-goto-date",
         ][self as usize]
     }
 
@@ -532,5 +556,11 @@ impl OrgCommand {
                 | Self::HabitDate
                 | Self::HabitWindow
         )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn agenda_control(self) -> bool {
+        (Self::AgendaDay as usize..=Self::AgendaDate as usize).contains(&(self as usize))
     }
 }

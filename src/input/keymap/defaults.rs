@@ -219,7 +219,7 @@ const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
 // Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[
-    ("g", "org-habit-show-graph"),
+    ("g", "org-agenda-redo"),
     ("K", "org-habit-toggle-habits"),
     ("C-u K", "org-habit-toggle-habits-only-for-today"),
     ("A", "org-habit-toggle-show-all-today"),
@@ -233,6 +233,15 @@ const ORG_AGENDA: &[(&str, &str)] = &[
     (",", "org-priority"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
+    ("v d", "org-agenda-day-view"),
+    ("v w", "org-agenda-week-view"),
+    ("f", "org-agenda-later"),
+    ("b", "org-agenda-earlier"),
+    ("Right", "org-agenda-later"),
+    ("Left", "org-agenda-earlier"),
+    (".", "org-agenda-goto-today"),
+    ("j", "org-agenda-goto-date"),
+    ("RET", "org-agenda-switch-to"),
 ];
 const ORG_CALENDAR: &[(&str, &str)] = &[
     ("RET", "org-calendar-select"),

@@ -24,3 +24,7 @@ mod calendar;
 pub use calendar::{
     Calendar, CalendarKind, CalendarLine, CalendarQuery, CalendarRow, CalendarSource,
 };
+
+pub(crate) use calendar::CalendarProjection;
+mod navigation;
+pub(crate) use navigation::{Navigation, NavigationCandidate};

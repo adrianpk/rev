@@ -211,6 +211,9 @@ impl Session {
 
 impl Session {
     fn org_session_command(&mut self, command: OrgCommand) -> Option<Action> {
+        if command.agenda_control() {
+            return Some(self.message("Open a calendar agenda with org-agenda first"));
+        }
         if command == OrgCommand::Agenda {
             return Some(self.agenda_command());
         }

@@ -22,7 +22,7 @@ pub(super) struct Work {
 
 enum Observation {
     Color(Coloring),
-    Sources(crate::org::agenda::SourceSet),
+    Sources(Result<super::agenda::Output, String>),
     Report(Result<super::outline::reports::Output, String>),
 }
 impl Work {
@@ -214,10 +214,10 @@ impl Work {
     pub(super) fn start_sources(
         &mut self,
         stamp: Stamp,
-        scan: crate::org::agenda::SourceScan,
+        work: super::agenda::Work,
     ) -> Result<(), String> {
         self.job
-            .start(stamp, move |cancel| Observation::Sources(scan.run(cancel)))
+            .start(stamp, move |cancel| Observation::Sources(work.run(cancel)))
             .map_err(|e| e.to_string())?;
         self.sources_running = true;
         self.source = Some(stamp);
@@ -234,11 +234,7 @@ impl Session {
         self.org.deadline = None;
         self.org.sources_running = false;
         match result {
-            Ok((_, Observation::Sources(mut sources))) => {
-                sources.revalidate(&self.buffers);
-                self.message(&sources.feedback());
-                self.agenda_sources = Some(sources);
-            }
+            Ok((_, Observation::Sources(result))) => self.finish_agenda_sources(result),
             Err(JobError::Cancelled) => {}
             Err(error) => {
                 self.error(&error.to_string());

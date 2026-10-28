@@ -21,6 +21,12 @@ pub struct CalendarQuery {
     pub zone: String,
 }
 impl CalendarQuery {
+    pub(crate) fn parse_date(value: &str) -> Result<Date, String> {
+        if value.len() != 10 {
+            return Err("Agenda date requires YYYY-MM-DD or today".into());
+        }
+        crate::org::time::Timestamp::parse(&format!("[{value}]")).map(|v| v.date())
+    }
     pub fn new(operation: ZonedOperation, policy: &Org) -> Result<Self, String> {
         let today = OrgDay::new(policy.time.extend_today_until as u8)?.date_at(operation.now())?;
         let value = Self {
@@ -200,6 +206,24 @@ impl Calendar {
             self.issues.push(SourceIssue { path, message });
         } else {
             self.truncated = true;
+        }
+    }
+}
+
+pub(crate) struct CalendarProjection {
+    facts: Arc<Facts>,
+    query: CalendarQuery,
+}
+impl CalendarProjection {
+    pub(crate) fn run(self, cancel: &Cancellation) -> Calendar {
+        project::calendar(self.facts, self.query, cancel)
+    }
+}
+impl Calendar {
+    pub(crate) fn projection(&self, query: CalendarQuery) -> CalendarProjection {
+        CalendarProjection {
+            facts: self.facts.clone(),
+            query,
         }
     }
 }

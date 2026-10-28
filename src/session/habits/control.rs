@@ -20,6 +20,9 @@ impl Session {
         }
     }
     fn habit_org(&mut self, command: C) -> Option<Action> {
+        if command == C::AgendaRefresh {
+            return Some(self.org_command(C::HabitGraph));
+        }
         if command == C::HabitGraph || command.timer_control() {
             return None;
         }

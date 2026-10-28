@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Select native Org agenda sources with `C-c a`: use configured local files or immediate `.org` directory entries, or explicitly choose current open buffers. Unsaved text takes precedence; source failures and resource limits remain visible, and discovery stays cancellable while normal editing continues.
+- Browse native Org day and week agendas with `C-c a`, including appointments, time grids, scheduled tasks, overdue reminders and deadline warnings. Select configured local sources or open buffers; unsaved text takes precedence. Move between dates, refresh explicitly with `g`, visit checked source with Enter, and close with `q` without editing the agenda. Source failures and resource limits remain visible.
 
 - Complete native Org habits with repeating schedules and minimum/maximum calendar intervals. Existing task controls preserve compatible history, logging choices and single-step undo. Set `org.time.extend_today_until` for date-only habit recurrence before your day starts; completion logs keep their actual time. Inspect bounded consistency graphs with `C-c C-x h`, refresh explicitly, and toggle visibility, today-only or all-today display. Graphs retain actual completion markers and late status, clip safely in narrow panes and remain readable without color.
 

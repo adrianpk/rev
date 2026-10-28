@@ -185,7 +185,8 @@ impl SourceScan {
         );
         self.result.truncated |= used > self.limits.agenda_file_bytes.min(remaining);
         self.spent = self.spent.saturating_add(used);
-        let (text, observed) = result?;
+        let (loaded, observed) = result?;
+        let text = loaded.into_parts().0;
         self.result.bytes += text.len_bytes();
         self.result.documents.push(AgendaSource {
             path: Some(resolved.path().to_owned()),

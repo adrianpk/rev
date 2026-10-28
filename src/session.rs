@@ -1,3 +1,4 @@
+mod agenda;
 mod agenda_sources;
 mod buffers;
 mod edit;
@@ -91,6 +92,7 @@ pub struct Session {
     timer_notice: bool,
     habit_agenda: Option<habits::State>,
     agenda_sources: Option<crate::org::agenda::SourceSet>,
+    calendar_agenda: Option<agenda::State>,
 }
 
 enum AfterSave {
@@ -101,6 +103,7 @@ enum AfterSave {
 
 enum Pending {
     AgendaSources,
+    AgendaDate,
     Timer(timers::Prompt),
     Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
@@ -211,6 +214,7 @@ impl Session {
             timer_notice: false,
             habit_agenda: None,
             agenda_sources: None,
+            calendar_agenda: None,
         })
     }
 
@@ -272,7 +276,8 @@ impl Session {
         composition: Option<&crate::panel::Composition>,
     ) -> Result<(), view::Error> {
         self.timer_frame(frame)?;
-        self.habit_frame(frame, composition)
+        self.habit_frame(frame, composition)?;
+        self.agenda_frame(frame, composition)
     }
 
     fn reveal_workspace(
@@ -350,10 +355,10 @@ impl Session {
     }
 
     fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
-        if self.habit_agenda.is_some()
+        if (self.habit_agenda.is_some() || self.calendar_active())
             && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
         {
-            return self.message("Read-only habit agenda; C-g returns to source");
+            return self.message("Read-only Org agenda; C-g returns to source");
         }
         match outcome {
             Outcome::Pointer(event) => self.pointer(event, now),
@@ -375,7 +380,10 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        let action = match self.habit_command(command) {
+        let action = match self
+            .agenda_view_command(command)
+            .or_else(|| self.habit_command(command))
+        {
             Some(action) => action,
             None => self.active_command(command),
         };

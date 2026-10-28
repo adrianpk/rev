@@ -74,7 +74,7 @@ impl Session {
             buffers: ids,
         })
     }
-    fn queue_agenda_sources(&mut self, selection: SourceSelection) -> Action {
+    pub(super) fn queue_agenda_sources(&mut self, selection: SourceSelection) -> Action {
         self.org.sources_pending = Some(selection);
         self.refresh_org();
         // A worker can finish during subsequent normal editing. It never owns
@@ -89,12 +89,9 @@ impl Session {
         let Some(selection) = self.org.sources_pending.take() else {
             return false;
         };
-        let result = SourceScan::new(
-            &self.buffers,
-            selection,
-            &self.buffers.snapshot().settings().org.limits,
-        )
-        .and_then(|scan| self.org.start_sources(self.view().point.stamp, scan));
+        let result = self
+            .prepare_agenda_refresh(selection)
+            .and_then(|work| self.org.start_sources(self.view().point.stamp, work));
         if let Err(error) = result {
             self.error(&error);
         }
@@ -112,6 +109,52 @@ impl Session {
         if let Some(result) = &mut self.agenda_sources {
             result.cancelled = true;
         }
+        if let Some(state) = &mut self.calendar_agenda {
+            state.calendar.cancelled = true;
+        }
         Some(self.message("Org agenda source discovery cancelled; result incomplete"))
+    }
+}
+
+impl Session {
+    fn prepare_agenda_refresh(
+        &self,
+        selection: SourceSelection,
+    ) -> Result<super::agenda::Work, String> {
+        let policy = &self.buffers.snapshot().settings().org;
+        let operation = self
+            .org_clock
+            .unwrap_or(super::outline::timestamps::capture)(&policy.time)?;
+        let mut query = crate::org::agenda::CalendarQuery::new(operation, policy)?;
+        if let Some(state) = &self.calendar_agenda {
+            let old = &state.calendar.query;
+            let showing_today =
+                old.start <= old.today && old.end().is_ok_and(|end| old.today <= end);
+            query = query.at(
+                if showing_today {
+                    query.today
+                } else {
+                    old.start
+                },
+                old.span,
+            )?;
+        }
+        let scan = SourceScan::new(&self.buffers, selection.clone(), &policy.limits)?;
+        Ok(super::agenda::Work::Refresh {
+            scan: Box::new(scan),
+            selection,
+            query,
+            policy: Box::new(policy.clone()),
+            view: self.windows.selected_id(),
+        })
+    }
+    pub(super) fn refresh_calendar(&mut self) -> Action {
+        let Some(state) = &self.calendar_agenda else {
+            return self.agenda_command();
+        };
+        if self.org.busy() {
+            return self.message("Org observation pending; C-g cancels");
+        }
+        self.queue_agenda_sources(state.selection.clone())
     }
 }

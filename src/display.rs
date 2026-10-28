@@ -1,9 +1,11 @@
+mod agenda;
 mod calendar;
 mod clip;
 mod completion;
 mod compose;
 mod gutter;
 mod habit;
+pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
 mod inventory;
 mod prompt;

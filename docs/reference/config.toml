@@ -441,7 +441,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # These workspace roles consume unbound text. Feature owners add their own actions.
 [keys.org_agenda]
-"g" = "org-habit-show-graph"
+"g" = "org-agenda-redo"
 "K" = "org-habit-toggle-habits"
 "C-u K" = "org-habit-toggle-habits-only-for-today"
 "A" = "org-habit-toggle-show-all-today"
@@ -456,6 +456,16 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 # The native date prompt inherits keys.minibuffer, then these calendar actions.
+"v d" = "org-agenda-day-view"
+"v w" = "org-agenda-week-view"
+"f" = "org-agenda-later"
+"b" = "org-agenda-earlier"
+"Right" = "org-agenda-later"
+"Left" = "org-agenda-earlier"
+"." = "org-agenda-goto-today"
+"j" = "org-agenda-goto-date"
+"RET" = "org-agenda-switch-to"
+
 [keys.org_calendar]
 "RET" = "org-calendar-select"
 "S-Right" = "org-calendar-forward-day"

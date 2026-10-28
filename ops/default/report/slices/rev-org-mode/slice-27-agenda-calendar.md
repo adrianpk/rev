@@ -44,6 +44,13 @@ Behavior references: [weekly/daily agendas](https://orgmode.org/manual/Weekly_00
 [planning semantics](https://orgmode.org/manual/Deadlines-and-Scheduling.html),
 and [literal escaping](https://orgmode.org/manual/Literal-Examples.html).
 
+The calendar owns one native pane and shares the existing cancellable job slot
+for refresh, cached projection and bounded disk return. Compiled local controls
+select spans/dates, scroll rows, refresh and visit source. Canonical buffer rows
+check the exact revision. Disk return compares reread text as well as metadata,
+then publishes normal BOM/CRLF-aware ingress. Changed view ownership rejects
+pending source return. Peers retain their ordinary editing context.
+
 ## Contracts Added or Changed
 
 - ORG08: canonical source facts, finite calendar rows and visible incompleteness.
@@ -54,6 +61,9 @@ and [literal escaping](https://orgmode.org/manual/Literal-Examples.html).
 - `src/org/agenda/calendar/`: source facts, planning rules and bounded projection.
 - `src/org/structure.rs`: shared structural observation without false identity.
 - `tests/org_agenda/calendar_rows.rs`: dates, planning, literal scope and limits.
+- `src/session/agenda/`: native view controls and pane ownership.
+- `src/org/agenda/navigation.rs`: bounded checked disk source return.
+- `tests/org_agenda/calendar_native.rs`: native controls and real file return.
 
 ## Validation
 
@@ -67,11 +77,21 @@ and [literal escaping](https://orgmode.org/manual/Literal-Examples.html).
   192 bindings and 16924 packaged bytes agree. The enum catalogue now recognizes
   the actual closed agenda-span type and its exact documented choices.
 
+- `cargo test --test org_agenda native_calendar -- --nocapture`: two native
+  calendar journeys passed. Stale-disk coverage uses an unopened target;
+  an already open buffer correctly takes precedence over external disk edits.
+- `cargo test --test org_agenda --test org_io agenda_ -- --nocapture`: fifteen
+  existing source/agenda journeys passed.
+- `cargo clippy --lib --test org_agenda --test org_io --test commands -- -D warnings`:
+  passed after boxing the owned scan request and splitting control/visit helpers.
+- The complete configuration reference now agrees on 201 bindings and 17182
+  packaged bytes. Changed-source quality passes without exceptions.
+
 The literal-block fixture initially contained an unescaped heading. It now uses
 Org's comma escaping so the same exclusion assertion tests a valid literal
 block. Malformed structure remains diagnosed. No assertion or limit was weakened.
 
 ## Risks and Follow-ups
 
-Native projection, checked source return and real refresh follow in T27.2/T27.3.
+Real refresh, shared-pane and stale-buffer boundary coverage follows in T27.3.
 The delivery-set full gate has not run.

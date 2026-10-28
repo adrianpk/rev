@@ -23,7 +23,7 @@ impl Frame {
             );
         }
         text.push_str(&" ".repeat(width - column - count));
-        self.habit_clear(area);
+        self.clear_projection(area);
         self.blit(
             area,
             Row {
@@ -43,7 +43,7 @@ impl Frame {
 }
 
 impl Frame {
-    fn habit_clear(&mut self, area: Area) {
+    pub(super) fn clear_projection(&mut self, area: Area) {
         let Some(row) = self.rows.get_mut(usize::from(area.row())) else {
             return;
         };
@@ -78,7 +78,7 @@ impl Frame {
         for row in 0..area.height() {
             let line = Area::new(area.column(), area.row() + row, area.width(), 1)
                 .ok_or(crate::coordinates::Error::Overflow)?;
-            self.habit_text(if row == 0 { &label } else { "" }, line)?;
+            self.projection_text(if row == 0 { &label } else { "" }, line)?;
         }
         for (i, row) in display
             .agenda
@@ -99,8 +99,8 @@ impl Frame {
         self.cursor = None;
         Ok(())
     }
-    fn habit_text(&mut self, text: &str, area: Area) -> Result<(), Error> {
-        self.habit_clear(area);
+    pub(super) fn projection_text(&mut self, text: &str, area: Area) -> Result<(), Error> {
+        self.clear_projection(area);
         let text = clip::line(Glyphs::for_text(text)?, 0, area.width())?;
         self.blit(
             area,
