@@ -70,3 +70,29 @@ gate has not run.
 Source checks identified two over-complex admission functions. Schedule parsing
 and unfinished reset validation now have separate owners; assertions and limits
 are unchanged.
+
+
+T24.1 commit: `5adee7cd157a`.
+
+T24.2 adds `HabitRecord`, a revision-qualified disposable observation. Only the
+selected task's own section contributes, including ordinary task drawers;
+literal examples, child entries and nonfinished states do not. Source-local
+workflow declarations define finished keywords. Completion order and duplicate
+same-day events remain intact; LAST_REPEAT remains independent metadata.
+Missing observations remain Unrecorded, and malformed actual history contributes
+an unresolved count rather than an invented completion or failed day.
+
+Observation admits at most 262144 entry bytes, 4096 completion records and
+4096 bytes per history line. Completion uses the same admission before source
+publication. No independent store, clock read, periodic scan or history rewrite
+is added. Compatible source lines survive ordinary completion byte-for-byte.
+
+T24.2 development checks passed:
+
+- `cargo test --test org_time --test org_editing habit --no-fail-fast`: eight
+  selected cases passed, zero skips, including exact 4096/4097 record boundaries.
+- `cargo clippy --lib --test org_time --test org_editing -- -D warnings`.
+- Changed-source quality and `git diff --check` passed at original limits.
+
+An initial fixture consumed its LAST_REPEAT value before querying the same
+observation; it now borrows that value. No behavior assertion was removed.

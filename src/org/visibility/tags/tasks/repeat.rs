@@ -29,7 +29,7 @@ impl Outline {
         if !change.workflow.state(&change.next).is_some_and(|s| s.done) {
             return Ok(());
         }
-        let habit = self.habit_schedule(buffer, change.index, policy)?.is_some();
+        let habit = self.habit_record(buffer, change.index, policy)?.is_some();
         let values = observe::timestamps(self, buffer, change.index)?;
         if values.is_empty() {
             return Ok(());

@@ -9,3 +9,6 @@ mod scan;
 pub use scan::{ClockRequest, ClockScan};
 mod update;
 pub(crate) use update::ClockUpdate;
+mod habits;
+pub use habits::{HabitObservation, HabitRecord};
+pub(crate) use habits::{completion as habit_completion, inactive as habit_inactive};

@@ -582,9 +582,13 @@ Contracts: ORG20 ORG07.
 Details and exact checks: [Slice 24](../plan/rev-org-mode.md#slice-24-maintain-org-habit-schedules-and-history).
 
 - [x] T24.1: Recognize STYLE habit and integrate logged completion, interval ranges and Org day semantics.
-- [ ] T24.2: Preserve compatible histories and distinguish missing observations from actual failed/completed days.
+- [x] T24.2: Preserve compatible histories and distinguish missing observations from actual failed/completed days.
 - [ ] T24.3: Verify recurrence types, source-local declarations and coherent completion undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T24.1: `5adee7cd157a`. Habit source admission, checked calendar ranges and
+Org day recurrence pass focused arithmetic, configuration and native editing
+checks. T24.2 adds bounded canonical history observations without source writes.
 
 ### Slice 25: render native Org habit consistency graphs
 
