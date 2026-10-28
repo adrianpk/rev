@@ -563,7 +563,12 @@ T23.1: `37ee7a7ac5c3`; T23.2: `899689081195`. Native timers, checked
 source notes and selected deadlines pass focused core/command/display/recovery
 checks. T23.3 adds nine owned timer PTYs, actual output-error cleanup, restart,
 inactive waiting and stale replacement guards. Final exact-head validation and
-canonical PR reference remain pending; verified integration remains open.
+canonical PR reference follow below; verified integration remains open.
+
+T23.3: `2777a34834d158595fa7b64359f4b4a452fbe17a`. [Canonical PR #124](https://forge.adrianpk.com/adrianpk/rev/pulls/124)
+and the [Slice 23 report](../report/slices/rev-org-mode/slice-23-timers.md) are
+reviewing. Final required/focused controller receipts bind the clean PR-reference
+head; verified dev integration remains pending.
 
 ### Slice 24: maintain Org habit schedules and history
 

@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-23-timers`
-PR: pending
+PR: `#124`
 
 ## Purpose
 
@@ -112,6 +112,8 @@ source, deadline and cancellation assertions remain.
 
 T23.2 commit: `899689081195`.
 
+T23.3 commit: `2777a34834d158595fa7b64359f4b4a452fbe17a`.
+
 T23.3 adds the required `org-time` terminal selection and extends the existing
 terminal probe with an actual native Session output failure. The fixture invokes
 the production event loop with an armed countdown, fails its first timer status
@@ -122,7 +124,7 @@ is introduced.
 The owned journey covers RGB/NO_COLOR editing and read-only timers, precise saved
 BOM/CRLF notes, timed-list continuation, full undo, pause/continue, one-shot expiry,
 stop past the old deadline, clean exit and a second process with no restored
-clock. A bounded quiescence observation separates existing completed source
+timer. A bounded quiescence observation separates existing completed source
 coloring from timer inactivity; paused/stopped/expired states produce no output.
 Positive countdown defaults still arm nothing on startup.
 
@@ -148,6 +150,7 @@ byte-for-byte saved-file assertion still retains that space. The terminal fault
 pattern is owned by the timer probe to preserve source complexity bounds.
 No original assertions, deadlines, resource limits or gate identities changed.
 
+[Canonical PR #124](https://forge.adrianpk.com/adrianpk/rev/pulls/124) targets dev.
 Final controller receipts bind the clean PR-reference head. Required checks run
 in this exact order:
 
