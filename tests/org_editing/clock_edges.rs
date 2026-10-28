@@ -34,6 +34,14 @@ fn clock_admission() {
     assert!(session.echo().contains("read-only"), "{}", session.echo());
     assert_eq!(text(&session), source);
     assert!(session.buffer().unwrap().history().is_empty());
+    // Keep the over-limit source exact, with ordinary comment rows so the
+    // fixture tests entry admission without spending its deadline on markup.
+    let excess = format!(
+        "* Task\n{}{}",
+        ("# ".to_owned() + &"x".repeat(125) + "\n").repeat(2047),
+        "#".repeat(122)
+    );
+    assert_eq!(excess.len(), 262145);
     for (name, source, row, wanted) in [
         (
             "literal point",
@@ -53,12 +61,7 @@ fn clock_admission() {
             1,
             "Duplicate",
         ),
-        (
-            "source cap",
-            &format!("* Task\n{}", "x".repeat(262145)),
-            1,
-            "262144",
-        ),
+        ("source cap", &excess, 1, "262144"),
     ] {
         let (_fixture, session) = editor("", "clock.org", source);
         let mut session = session.with_org_clock(clock);

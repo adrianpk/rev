@@ -36,7 +36,7 @@ fn open(input: &mut Input, stage: &str) {
     }
 }
 
-// The public palette contains working mode/move commands and no future feature
+// The public palette contains working mode/move/clock commands and no future feature
 // placeholders. A narrowed mode prefix completes to its compiled identity.
 #[test]
 fn operational_catalog() {
@@ -68,7 +68,6 @@ fn operational_catalog() {
         "org-agenda",
         "org-capture",
         "org-export-dispatch",
-        "org-clock-in",
         "org-edit-special",
     ] {
         assert_eq!(Command::named(absent), None, "{absent}");

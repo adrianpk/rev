@@ -124,6 +124,14 @@ Reserved cancellation, role admission and prefix assertions remain unchanged.
 affected configuration Clippy and changed-test source quality also passed.
 Final successful receipts are regenerated for the corrected clean head.
 
+Required receipt `XEU6NEXRVS4VDATLV3WRKGKA3O` exposed the equivalent historical
+catalog absence assertion and an over-limit fixture timeout under suite load.
+The catalog now retains only absent commands. The entry fixture still asserts
+exactly 262145 UTF-8 bytes and unchanged rejection/source/view/history outcomes,
+using ordinary comment rows to avoid unrelated markup work. The existing
+five-second observation deadline and production limits remain unchanged. Focused
+admission passed in 1.07 seconds; catalog, affected Clippy and source quality pass.
+
 ## Risks and Follow-ups
 
 Active-clock switching, completion/quit/close recovery and optional persistence
