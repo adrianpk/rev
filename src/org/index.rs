@@ -51,6 +51,10 @@ pub struct Index {
 }
 
 impl Index {
+    pub fn limits(&self) -> Limits {
+        self.limits
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }

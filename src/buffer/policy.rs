@@ -19,6 +19,9 @@ impl Buffer {
         let language = self.language(settings);
         self.policy = settings.editor(language);
         self.history_policy = settings.settings().history.clone();
+        if self.syntax_policy != settings.settings().syntax {
+            self.org_attempt = None;
+        }
         self.syntax_policy = settings.settings().syntax.clone();
         self.grammar = settings.grammar(language);
         self.apply_mode(settings);

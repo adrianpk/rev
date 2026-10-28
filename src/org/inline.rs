@@ -82,6 +82,12 @@ pub struct InlineObservation {
 }
 
 impl InlineObservation {
+    pub(super) fn raw_styles(&self) -> impl Iterator<Item = (InlineKind, Range<usize>)> + '_ {
+        self.nodes
+            .iter()
+            .map(|node| (node.kind, node.source.clone()))
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }
@@ -127,6 +133,22 @@ pub struct InlineScan {
 }
 
 impl InlineScan {
+    pub(super) fn from_snapshot(
+        text: ropey::Rope,
+        stamp: Stamp,
+        range: Range<usize>,
+        context: InlineContext,
+        limits: Limits,
+    ) -> Self {
+        Self {
+            text,
+            stamp,
+            range,
+            context,
+            limits,
+        }
+    }
+
     pub fn new(
         buffer: &Buffer,
         range: &SourceRange,

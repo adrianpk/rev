@@ -63,16 +63,16 @@ pub struct StructureNode {
     pub complete: bool,
 }
 
-struct Raw {
-    kind: StructureKind,
-    source: Range<usize>,
-    content: Range<usize>,
-    opening: Option<Range<usize>>,
-    closing: Option<Range<usize>>,
+pub(super) struct Raw {
+    pub(super) kind: StructureKind,
+    pub(super) source: Range<usize>,
+    pub(super) content: Range<usize>,
+    pub(super) opening: Option<Range<usize>>,
+    pub(super) closing: Option<Range<usize>>,
     name: Option<Range<usize>>,
     affiliated: Option<Range<usize>>,
     parent: Option<usize>,
-    context: Option<InlineContext>,
+    pub(super) context: Option<InlineContext>,
     depth: usize,
 }
 
@@ -103,6 +103,10 @@ pub struct Structure {
 }
 
 impl Structure {
+    pub(super) fn raw_nodes(&self) -> impl Iterator<Item = &Raw> {
+        self.nodes.iter()
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }

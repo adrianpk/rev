@@ -105,6 +105,7 @@ fn activation_paths() {
         assert_eq!(text(&session), "\nab", "{name}");
         session.handle(key(KeyCode::Char('!')));
         assert_eq!(text(&session), "\na!b", "{name}");
+        settle(&mut session);
         assert_eq!(session.remaining_input(Instant::now()), None);
         assert!(session.buffer().unwrap().org_index().is_none());
     }
@@ -228,4 +229,19 @@ fn workspace_precedence() {
     assert!(!session.tree().focused());
     session.handle(meta('j'));
     assert_eq!(text(&session), "\nab");
+}
+
+// Wait for only the session-owned observation, preserving the idle assertion
+// after mode cancellation rather than assuming a background job ends inline.
+fn settle(session: &mut Session) {
+    let until = Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        session.frame().unwrap();
+        if session.remaining_input(Instant::now()).is_none() {
+            return;
+        }
+        assert!(Instant::now() < until, "owned Org work did not finish");
+        session.expire_input(Instant::now() + std::time::Duration::from_millis(10));
+        std::thread::yield_now();
+    }
 }

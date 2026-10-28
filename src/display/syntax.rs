@@ -22,7 +22,7 @@ pub(super) fn row(
     row: usize,
     width: u16,
 ) -> Result<Vec<Paint>, Error> {
-    if buffer.mode() != "Rust" || row >= buffer.len_lines() {
+    if row >= buffer.len_lines() || !colored(buffer) {
         return Ok(Vec::new());
     }
     let coordinates = Coordinates::new(buffer)?;
@@ -31,7 +31,11 @@ pub(super) fn row(
         return Ok(Vec::new());
     };
     let bytes = coordinates.to_byte(first.source.start)?.0..coordinates.to_byte(last.source.end)?.0;
-    let captures = buffer.syntax().captures(buffer, bytes);
+    let captures = if buffer.is_org() {
+        buffer.org_captures(bytes)
+    } else {
+        buffer.syntax().captures(buffer, bytes)
+    };
     paint(&coordinates, &visible, &captures, view.left)
 }
 
@@ -99,6 +103,7 @@ fn append(result: &mut Vec<Paint>, paint: Paint) {
 // presentation against the one frame palette, including grouped captures.
 pub(super) fn foreground(style: Style, palette: &SyntaxPalette) -> Rgb {
     match style {
+        Style::Org(role) => foreground(role.fallback(), palette),
         Style::Keyword => palette.keyword,
         Style::String => palette.string,
         Style::Comment => palette.comment,
@@ -119,4 +124,8 @@ impl super::Row {
             })
             .map(|paint| paint.style)
     }
+}
+
+fn colored(buffer: &Buffer) -> bool {
+    buffer.has_org_colors() || buffer.mode() == "Rust"
 }

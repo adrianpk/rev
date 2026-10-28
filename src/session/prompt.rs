@@ -9,6 +9,7 @@ impl Session {
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {
+            self.org.cancel();
             if self.cancel_quit() {
                 return Some(self.message("Quit"));
             }

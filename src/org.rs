@@ -1,6 +1,7 @@
 //! Native Org observations borrow canonical buffer text. They have no file,
 //! configuration, execution or edit authority of their own.
 
+mod color;
 mod form;
 mod index;
 mod inline;
@@ -15,3 +16,5 @@ pub use job::{Cancellation, Job, JobError};
 pub use source::{Source, SourceRange};
 
 pub use structure::{BlockKind, Structure, StructureKind, StructureNode, StructureScan};
+
+pub use color::{ColorScan, Coloring, Highlights, Role};

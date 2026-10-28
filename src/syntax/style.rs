@@ -8,6 +8,7 @@ pub enum Style {
     Function,
     Number,
     Punctuation,
+    Org(crate::org::Role),
 }
 
 impl Style {

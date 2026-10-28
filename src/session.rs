@@ -10,6 +10,7 @@ mod kill;
 mod linear;
 mod mode;
 mod motion;
+mod org;
 mod paste;
 mod path;
 mod pointer;
@@ -69,6 +70,7 @@ pub enum Action {
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
     buffers: Buffers,
+    org: org::Work,
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
@@ -144,6 +146,7 @@ impl Session {
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         Ok(Self {
             buffers,
+            org: org::Work::default(),
             windows,
             tree,
             kills,
@@ -183,6 +186,7 @@ impl Session {
                 .get_mut(view.point.stamp.buffer)?
                 .refresh_syntax();
         }
+        self.refresh_org();
         self.invalidate_search();
         self.invalidate_replace();
         let composition = self.composition();

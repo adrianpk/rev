@@ -28,11 +28,14 @@ impl Session {
     /// The native owner blocks indefinitely without deadlines or ready input.
     /// No periodic wake is introduced by an armed click or an inside drag.
     pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
-        match (self.input.remaining(now), self.pointer_remaining(now)) {
-            (Some(escape), Some(pointer)) => Some(escape.min(pointer)),
-            (Some(wait), None) | (None, Some(wait)) => Some(wait),
-            (None, None) => None,
-        }
+        [
+            self.input.remaining(now),
+            self.pointer_remaining(now),
+            self.org.remaining(now),
+        ]
+        .into_iter()
+        .flatten()
+        .min()
     }
 
     fn input_ready(
@@ -102,9 +105,10 @@ impl Session {
     /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
         let action = self.expire_escape(now);
+        let org = self.expire_org(now);
         let pointer = self.expire_pointer(now);
         if pointer == Action::Wait {
-            action
+            if org == Action::Wait { action } else { org }
         } else {
             pointer
         }

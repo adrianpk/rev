@@ -62,6 +62,8 @@ impl Buffer {
         self.org_active = active;
         if !active {
             self.org = None;
+            self.org_highlights = None;
+            self.org_attempt = None;
         }
     }
 }
