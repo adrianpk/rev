@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 17 - create absent user configuration safely
+Active slice: Slice 18 - exercise the complete combined terminal workflow
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -324,15 +324,18 @@ Details and exact checks: [Slice 17](../plan/rev-input-navigation.md#slice-17-cr
 - [x] T17.1: Provision the implicit user root during normal editor startup only when no destination entry exists; honor existing XDG resolution and create only necessary configuration parents.
 - [x] T17.2: Publish a complete template without clobbering concurrent winners, links, invalid/empty files or other entries; keep pure resolution/loading read-only and retain usable defaults with truthful diagnostics on failure.
 - [x] T17.3: Verify real filesystem races and fault paths, isolate HOME/all XDG roots in every process-based fixture, and adapt missing-root startup assertions while retaining their recovery/fidelity guarantees.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 17 of 20 implemented. The
+Slice 17 of 20 completed. Canonical PR [#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97)
+integrated into dev at `b682ccb3bfd1a2df5752354354fc09d2cc606a58`.
+Canonical evidence `2SKMXAMP6SD6BZWF3F5Q6Q5HS3` passed six commands, 328 native tests
+and eight connected PTY sessions. Focused evidence `DZVKE2NXRHA4SDAMCWOALZV2SU`
+passed eleven commands, four publication groups, packaged/reference checks and
+32 PTY sessions on that same candidate. The
 [canonical report](../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
-records startup-only complete publication, preserved existing/concurrent entries,
-truthful failure fallback and bounded native race/fixture checks. Canonical PR
-[#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97) targets dev. Exact clean-head
-evidence is recorded through the controller after PR-reference commits. Integration is pending; the
-configuration ticket stays in progress through primary slices 16-17.
+records complete no-clobber publication, fallback and bounded fixture ownership.
+Both configuration primary slices are integrated and its ticket is solved.
+Slice 18 is active for the combined terminal workflow.
 
 T17.1: `bd888985abd2db85433b5d41130c740c9ad62eee`.
 T17.2: `81348a8a665727d9f26277ccb6c95f02f62ea0b5`.

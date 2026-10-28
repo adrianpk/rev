@@ -1,7 +1,10 @@
 ---
 id: TKT-20261027193636
 title: Create the complete user configuration when missing
-status: in_progress
+status: solved
+reviewed_at: 2026-10-28T01:18:47Z
+closed_at: 2026-10-28T01:18:47Z
+resolution: fixed
 ready_at: 2026-10-28T00:45:40Z
 started_at: 2026-10-28T00:45:40Z
 branch: feat/rev-input-17-bootstrap-publication
@@ -60,13 +63,15 @@ at `120101a17b85a7775a6afccda618cd59709428fe`. Its
 [report](../../report/slices/rev-input-navigation/slice-16-bootstrap-template.md)
 records the bounded compiled resource, native default equivalence and read-only
 loading guards. Canonical evidence `BFCV7FDE46KJARMTSXDNHKRZJF` and focused evidence
-`EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed on that candidate. Slice 17 is active for
-absent-file publication and race/failure guarantees. This ticket remains in
-progress until both primary slices have integrated.
+`EE7VWXG2W7Z6PXYSFJLI5IXVPA` passed on that candidate. Slice 17 subsequently integrated the absent-file
+publication and race/failure guarantees. Both primary slices are complete.
 
-Slice 17 implements native absent-root publication, no-clobber preservation,
-complete fallback diagnostics and isolated real filesystem/process fault and
-race fixtures. Its [report](../../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
-records the checks. Canonical PR
-[#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97) targets dev. Required and
-focused exact-head evidence is recorded through the controller after PR references. Integration remains pending; this ticket stays in progress.
+Slice 17 integrated through canonical PR [#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97)
+at `b682ccb3bfd1a2df5752354354fc09d2cc606a58`. Its
+[report](../../report/slices/rev-input-navigation/slice-17-bootstrap-publication.md)
+records native absent-root publication, no-clobber preservation, complete
+fallback diagnostics and isolated filesystem/process fault and race checks.
+Canonical evidence `2SKMXAMP6SD6BZWF3F5Q6Q5HS3` and focused evidence
+`DZVKE2NXRHA4SDAMCWOALZV2SU` passed on that candidate. The ticket is solved after
+both assigned primary integrations; combined terminal and resource acceptance
+continues under the existing delivery plan.

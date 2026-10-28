@@ -1,11 +1,12 @@
 # Slice 17: Create absent user configuration safely
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-17-bootstrap-publication`
 PR: [#97](https://forge.adrianpk.com/adrianpk/rev/pulls/97)
+Integrated: `b682ccb3bfd1a2df5752354354fc09d2cc606a58`
 
 ## Purpose
 
@@ -81,8 +82,12 @@ fixtures isolate HOME and all XDG roots; the shared PTY owner supplies owned
 locations when a caller supplies none. Native performance producers receive
 explicit isolated locations without changing their workloads or budgets.
 
-Final canonical and focused evidence is recorded through the controller on the
-clean candidate after task and PR-reference commits. Required ordered commands:
+Canonical evidence `2SKMXAMP6SD6BZWF3F5Q6Q5HS3` passed six commands, 328 native
+tests and eight connected PTY sessions on the integrated clean candidate
+`b682ccb3bfd1a2df5752354354fc09d2cc606a58`. Focused evidence
+`DZVKE2NXRHA4SDAMCWOALZV2SU` passed eleven commands, four publication groups,
+packaged/reference checks and 32 PTY sessions on that same HEAD.
+Required ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
