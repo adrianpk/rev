@@ -105,3 +105,40 @@ fn block(bytes: &[u8]) -> Result<(&[u8], usize), String> {
     };
     Ok((bytes, width))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Small synthetic TZif files distinguish covered transitions, fixed offsets
+    // and invalid/truncated inputs without relying on installed zone databases.
+    #[test]
+    fn covered_offsets() {
+        let mut bytes = vec![0; 44];
+        bytes[..4].copy_from_slice(b"TZif");
+        bytes[35] = 2;
+        bytes[39] = 2;
+        bytes.extend_from_slice(&0_i32.to_be_bytes());
+        bytes.extend_from_slice(&100_i32.to_be_bytes());
+        bytes.extend_from_slice(&[0, 1]);
+        bytes.extend_from_slice(&3600_i32.to_be_bytes());
+        bytes.extend_from_slice(&[0, 0]);
+        bytes.extend_from_slice(&7200_i32.to_be_bytes());
+        bytes.extend_from_slice(&[1, 0]);
+        for (at, expected) in [(-1, 3600), (0, 3600), (99, 3600), (100, 7200)] {
+            assert_eq!(offset(&bytes, at).unwrap(), expected);
+        }
+        assert!(offset(&bytes, 101).is_err());
+        let mut bad = bytes.clone();
+        bad[53] = 2;
+        assert!(offset(&bad, 100).is_err());
+        assert!(offset(&bytes[..bytes.len() - 1], 100).is_err());
+        bytes[31] = 1;
+        assert!(offset(&bytes, 50).is_err());
+        let mut fixed = vec![0; 50];
+        fixed[..4].copy_from_slice(b"TZif");
+        fixed[39] = 1;
+        fixed[44..48].copy_from_slice(&(-18000_i32).to_be_bytes());
+        assert_eq!(offset(&fixed, 1793207100).unwrap(), -18000);
+    }
+}

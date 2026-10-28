@@ -76,3 +76,22 @@ fn format(seconds: i64) -> Result<String, String> {
         time / 60 % 60
     ))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Calendar conversion covers the epoch, leap day and day rollover using
+    // fixed instants; it neither reads the host clock nor changes TZ globally.
+    #[test]
+    fn civil_stamp() {
+        for (seconds, expected) in [
+            (0, "[1970-01-01 Thu 00:00]"),
+            (-1, "[1969-12-31 Wed 23:59]"),
+            (951782400, "[2000-02-29 Tue 00:00]"),
+            (1793207100, "[2026-10-28 Wed 17:05]"),
+        ] {
+            assert_eq!(format(seconds).unwrap(), expected);
+        }
+    }
+}

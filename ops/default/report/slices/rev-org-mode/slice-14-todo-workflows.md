@@ -73,9 +73,23 @@ The logging fixture initially selected its drawer line; it now targets the actua
 heading. Initial source checks required separate logging policy and TZif block
 helpers; the same assertions pass after that decomposition.
 
+T14.2 boundary checks passed:
+
+- `cargo test --lib session::outline::tasks::clock -- --nocapture`: two focused
+  calendar/TZif tests passed using fixed instants and bounded synthetic zones.
+- `cargo test --test org_editing task -- --nocapture`: 12 tests passed, including
+  prior checkbox statistics, reopening, exact workflow caps, malformed/deeper
+  rejection, shared UTF-8 EOF anchors and read-only inspection/admission.
+- Focused source quality passed for the added boundary owners and tests.
+
+Reopening removes an otherwise empty CLOSED planning line so an adjacent
+property drawer retains its structural ownership. Mixed planning retains its
+other fields. EOF prefix detection uses scalar boundaries, including multibyte
+final titles. Only the immediate parent's applicable task cookies change;
+checkbox-owned COOKIE_DATA retains its own statistics policy.
+
 ## Risks and Follow-ups
 
-T14.2 boundary/history coverage and the T14.3 owned terminal journey remain in
-progress. Required exact-head controller validation and canonical PR references
+The T14.3 owned terminal journey remains in progress. Required exact-head controller validation and canonical PR references
 will be recorded before readiness. Rebase + Fast-forward integration belongs to
 the external controller.

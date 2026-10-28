@@ -341,7 +341,7 @@ Contracts: ORG06 ORG17.
 Details and exact checks: [Slice 14](../plan/rev-org-mode.md#slice-14-deliver-org-task-workflows-and-logging).
 
 - [x] T14.1: Admit TODO/SEQ_TODO/TYP_TODO declarations and complete native state transitions with selected logging.
-- [ ] T14.2: Integrate priorities, blocking rules, CLOSED/state notes and cookies into coherent transactions.
+- [x] T14.2: Integrate priorities, blocking rules, CLOSED/state notes and cookies into coherent transactions.
 - [ ] T14.3: Verify key/M-x equivalence, read-only behavior and task/metadata history in an owned PTY journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
