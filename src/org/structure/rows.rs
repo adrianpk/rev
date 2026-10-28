@@ -39,6 +39,7 @@ fn read_rows(
 ) -> Parsed<()> {
     let mut line = String::new();
     let mut position = 0;
+    let mut allowance = limits.nodes;
     for character in text.chars() {
         work.tick()?;
         if position + character.len_utf8() > limits.bytes {
@@ -47,40 +48,35 @@ fn read_rows(
         line.push(character);
         position += character.len_utf8();
         if character == '\n' {
-            push(rows, &mut line, position, limits.nodes)?;
+            push(rows, &mut line, position, &mut allowance, work)?;
         }
     }
     if !line.is_empty() {
-        push(rows, &mut line, position, limits.nodes)?;
+        push(rows, &mut line, position, &mut allowance, work)?;
     }
     Ok(())
 }
 
-fn push(rows: &mut Vec<Row>, line: &mut String, end: usize, limit: usize) -> Parsed<()> {
-    if rows.len() == limit {
+fn push(
+    rows: &mut Vec<Row>,
+    line: &mut String,
+    end: usize,
+    allowance: &mut usize,
+    work: &mut Work<'_>,
+) -> Parsed<()> {
+    if *allowance == 0 {
         return Err(Stop(Coverage::Incomplete(Limit::SourceNodes)));
     }
-    let token = tokens::classify(line);
-    let trimmed = line.trim_start_matches([' ', '\t']);
-    let indent = line[..line.len() - trimmed.len()]
-        .chars()
-        .fold(0, |column, character| {
-            if character == '\t' {
-                column + 8 - column % 8
-            } else {
-                column + 1
-            }
-        });
+    let facts = tokens::classify(line, work)?;
+    *allowance -= 1;
     rows.push(Row {
         source: end - line.len()..end,
-        token,
-        indent,
+        token: facts.token,
+        indent: facts.indent,
         close: None,
-        properties: trimmed.trim_end().eq_ignore_ascii_case(":PROPERTIES:"),
+        properties: facts.properties,
         valid_properties: false,
-        formula: trimmed
-            .get(..8)
-            .is_some_and(|key| key.eq_ignore_ascii_case("#+TBLFM:")),
+        formula: facts.formula,
     });
     line.clear();
     Ok(())
@@ -111,7 +107,10 @@ fn pair(rows: &mut [Row], work: &mut Work<'_>) -> Parsed<()> {
             }
             _ => (),
         }
-        if !matches!(row.token, Token::Property { .. } | Token::Blank) {
+        if !matches!(
+            row.token,
+            Token::Property { .. } | Token::Drawer(_) | Token::Blank
+        ) {
             invalid += 1;
         }
     }

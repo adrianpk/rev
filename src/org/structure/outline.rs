@@ -57,14 +57,14 @@ impl Parser<'_> {
             self.work.tick()?;
             end += 1;
         }
-        let first = (start..end).find(|row| !matches!(self.rows[*row].token, Token::Blank));
-        if let Some(first) = first {
+        let first = self.postblank(start, end)?;
+        if first < end {
             let section = self.push(Raw::new(
                 StructureKind::Section,
                 self.range(first..end),
                 heading,
             ))?;
-            let properties = self.property_position(start, heading);
+            let properties = self.property_position(start, heading, end)?;
             let mut frame = Frame::new(first..end, section, properties);
             frame.planning = heading
                 .filter(|_| matches!(self.rows[start].token, Token::Planning))
@@ -74,12 +74,24 @@ impl Parser<'_> {
         Ok(end)
     }
 
-    fn property_position(&self, start: usize, heading: Option<usize>) -> Option<usize> {
+    fn property_position(
+        &mut self,
+        start: usize,
+        heading: Option<usize>,
+        end: usize,
+    ) -> Parsed<Option<usize>> {
         if heading.is_some() {
             let planning = matches!(self.rows[start].token, Token::Planning);
-            return Some(start + usize::from(planning));
+            return Ok(Some(start + usize::from(planning)));
         }
-        (start..self.rows.len())
-            .find(|row| !matches!(self.rows[*row].token, Token::Blank | Token::Comment))
+        let mut row = start;
+        while row < end {
+            self.work.tick()?;
+            if !matches!(self.rows[row].token, Token::Blank | Token::Comment) {
+                return Ok(Some(row));
+            }
+            row += 1;
+        }
+        Ok(None)
     }
 }

@@ -153,7 +153,7 @@ Details and exact checks: [Slice 4](../plan/rev-org-mode.md#slice-4-recognize-or
 
 - [x] T4.1: Recognize headings, sections, lists, drawers, planning lines, affiliated keywords and tables.
 - [x] T4.2: Treat source/example/export blocks as owned literal regions with valid delimiter recovery.
-- [ ] T4.3: Verify subtree ownership, malformed drawers and apparent headings inside blocks.
+- [x] T4.3: Verify subtree ownership, malformed drawers and apparent headings inside blocks.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 5: activate native Org mode and contexts

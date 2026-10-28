@@ -13,7 +13,7 @@ impl Parser<'_> {
     ) -> Parsed<Vec<Frame>> {
         let items = self.item_ranges(row, frame.rows.end)?;
         let end = items.last().expect("starting item").end;
-        let tail = self.postblank(end, frame.rows.end);
+        let tail = self.postblank(end, frame.rows.end)?;
         let ordered = matches!(self.rows[row].token, Token::Bullet { ordered: true, .. });
         let mut node = Raw::new(
             StructureKind::List { ordered },
@@ -27,6 +27,7 @@ impl Parser<'_> {
         for item in items {
             let mut child = Frame::new(item, id, None);
             child.pending_item = true;
+            child.drawers = frame.drawers;
             children.push(child);
         }
         frame.position = tail;

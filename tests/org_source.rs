@@ -14,6 +14,8 @@ mod inline_bounds;
 mod jobs;
 #[path = "org_source/structure.rs"]
 mod structure;
+#[path = "org_source/structure_bounds.rs"]
+mod structure_bounds;
 
 use rev::buffer::edit::{self, History, Point, Replacement};
 use rev::buffer::{Buffer, Buffers, Error};

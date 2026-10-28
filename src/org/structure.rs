@@ -109,6 +109,8 @@ impl Structure {
     pub fn coverage(&self) -> Coverage {
         self.coverage
     }
+    /// End of the fully read logical-line prefix. Semantic coverage and target
+    /// completeness remain explicit when a node or ownership limit is reached.
     pub fn covered_bytes(&self) -> Byte {
         Byte(self.covered)
     }
@@ -180,6 +182,7 @@ impl StructureScan {
         };
         let rows = rows::collect(&self.text, self.limits, &mut work, &mut result);
         let mut parser = Parser {
+            text: self.text,
             rows,
             result,
             work,
@@ -214,6 +217,7 @@ impl Work<'_> {
 }
 
 struct Parser<'a> {
+    text: ropey::Rope,
     rows: Vec<Row>,
     result: Structure,
     work: Work<'a>,

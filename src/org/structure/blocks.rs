@@ -10,13 +10,13 @@ impl Parser<'_> {
         row: usize,
     ) -> Parsed<Vec<Frame>> {
         let Some(close) = self.rows[row].close.filter(|end| *end < frame.rows.end) else {
-            self.malformed(frame, row)?;
+            self.malformed(frame, start, row)?;
             return Ok(Vec::new());
         };
         let Token::Block(kind, _, name) = self.rows[row].token.clone() else {
             unreachable!("block candidate");
         };
-        let end = self.postblank(close + 1, frame.rows.end);
+        let end = self.postblank(close + 1, frame.rows.end)?;
         let mut node = Raw::new(
             StructureKind::Block(kind),
             self.range(row..end),

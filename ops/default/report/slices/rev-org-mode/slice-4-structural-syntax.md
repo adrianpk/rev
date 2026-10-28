@@ -1,6 +1,6 @@
 # Slice 4: Recognize Org headings metadata and blocks
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -31,7 +31,19 @@ The recognizer retains a shared immutable rope snapshot and derived offsets.
 Heading source includes descendants; section source stops before the next
 heading. Heading titles, paragraph text and table cells expose explicit inline
 contexts. Property drawers require their valid heading/planning or zeroth-section
-position and valid property contents.
+position and valid property contents. Empty values and additive property names
+retain their exact local source. A malformed opener does not own a later heading.
+
+Line scratch text is temporary. Character searches, line collection and owner
+traversal observe cancellation and yield after 10ms of native work. One reverse
+pass pairs delimiter candidates within heading boundaries; repeated malformed
+openers do not rescan a suffix. Only admitted table owners request cell ranges,
+and cell allocation shares the finite node budget. Byte limits retain complete
+UTF-8 lines. Incomplete results never certify a complete semantic target.
+
+The shared observation job validates its original buffer/revision before a result
+can publish. Analysis, cancellation and stale-result rejection leave canonical
+text and history unchanged.
 
 Reference boundary observations use clean Emacs 31.1 / Org 9.8.7 and the
 [Org syntax reference](https://orgmode.org/worg/org-syntax.html). Native tests
@@ -49,14 +61,30 @@ use independent expected ranges and require no reference runtime.
 
 - `src/org/structure.rs`: public structural observations and explicit owned scan.
 - `src/org/structure/`: native classification, outline, element and list ownership.
-- `tests/org_source/structure.rs`: source ranges and structural context fixtures.
+- `tests/org_source/structure.rs`: ownership and structural context fixtures.
+- `tests/org_source/blocks.rs`: literal regions and delimiter recovery.
+- `tests/org_source/structure_bounds.rs`: malformed drawers, local metadata,
+  Unicode/BOM/CRLF fidelity, stale observations, limits and dense-line admission.
 
 ## Validation
 
+Implementation checks passed:
+
 - `cargo check --lib`
-- `cargo test --test org_source structure::`: four tests passed.
-- `cargo test --test org_source blocks::`: three tests passed.
+- `cargo clippy --test org_source -- -D warnings`
+- `cargo test --test org_source`: 46 passed, zero failed or ignored.
+- `git diff --check`
+
+Focused source-quality checks passed for the structural modules and fixtures.
+The final clean PR head requires this exact controller-recorded batch. Its receipt
+and the canonical PR retain the final candidate and check outcomes:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test coordinates`
+- `python3 scripts/check-source.py`
+- `git diff --check`
 
 ## Risks and Follow-ups
 
-T4.3 recovery and observation validation remain in progress.
+None recorded.
