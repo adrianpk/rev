@@ -382,7 +382,7 @@ Details and exact checks: [Slice 16](../plan/rev-org-mode.md#slice-16-model-org-
 
 - [x] T16.1: Introduce org_time with checked Gregorian civil dates, intervals and Org duration units.
 - [x] T16.2: Separate scheduling calendar arithmetic from elapsed work durations and formatting.
-- [ ] T16.3: Verify leap years, month ends, overflow, duration forms and an injected operation clock.
+- [x] T16.3: Verify leap years, month ends, overflow, duration forms and an injected operation clock.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 17: resolve Org local times and zone changes

@@ -103,7 +103,7 @@ fn terms(mut text: &str, units: &DurationUnits) -> Result<f64, String> {
     Ok(total)
 }
 fn unit(text: &str, units: &DurationUnits) -> Result<(&'static str, f64), String> {
-    [
+    let (name, scale) = [
         ("min", units.min),
         ("h", units.h),
         ("d", units.d),
@@ -113,5 +113,9 @@ fn unit(text: &str, units: &DurationUnits) -> Result<(&'static str, f64), String
     ]
     .into_iter()
     .find(|(name, _)| text.starts_with(name))
-    .ok_or_else(|| "Unknown Org duration unit; use min/h/d/w/m/y".into())
+    .ok_or("Unknown Org duration unit; use min/h/d/w/m/y")?;
+    if !scale.is_finite() || scale <= 0.0 {
+        return Err("Org duration unit scale must be positive and finite".into());
+    }
+    Ok((name, scale))
 }

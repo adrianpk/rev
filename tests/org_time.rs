@@ -8,3 +8,8 @@ mod durations;
 
 #[path = "org_time/calendar.rs"]
 mod calendar;
+
+#[path = "org_time/bounds.rs"]
+mod bounds;
+#[path = "org_time/operation.rs"]
+mod operation;
