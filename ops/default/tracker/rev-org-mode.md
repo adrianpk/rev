@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 14 todo-workflows
+Active slice: Slice 15 effort-priorities
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -343,15 +343,14 @@ Details and exact checks: [Slice 14](../plan/rev-org-mode.md#slice-14-deliver-or
 - [x] T14.1: Admit TODO/SEQ_TODO/TYP_TODO declarations and complete native state transitions with selected logging.
 - [x] T14.2: Integrate priorities, blocking rules, CLOSED/state notes and cookies into coherent transactions.
 - [x] T14.3: Verify key/M-x equivalence, read-only behavior and task/metadata history in an owned PTY journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) targets dev;
-[Slice 14 report](../report/slices/rev-org-mode/slice-14-todo-workflows.md) is reviewing.
-Task commits: T14.1 `a1350e3dc561dee6d28c01b2ba5d7982de042676`,
-T14.2 `0eb2ad95aaaacab8c321d28d4c695ee8f5c1d115`,
-T14.3 `8161231d1127cc26cb6848ae2206d13fa993f8ab`.
-Required exact-head validation is pending the PR-reference follow-up push;
-Rebase + Fast-forward integration remains controller-owned.
+Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) merged
+into dev at `56d11d40f15dbbe7ec148b23fb8410d0fc060841`;
+[Slice 14 report](../report/slices/rev-org-mode/slice-14-todo-workflows.md) is delivered.
+Required receipt `PUQ3NTFOSJSZSRFRNOEFDZRSR3` passed 6/6 (365 integration tests,
+four task PTYs). Focused `Y4GSG26OGTESIZSZ7G77A7PZMA` passed 5/5 (two clock
+and 59 source tests, reference and two outline PTYs), all on that exact HEAD.
 
 ### Slice 15: record Org effort estimates and priorities
 

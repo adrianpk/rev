@@ -1,6 +1,6 @@
 # Slice 14: deliver Org task workflows and logging
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -120,12 +120,12 @@ factory task defaults, preserving the validate-before-projection contract.
 Existing rejection fixtures provide the regression signal; no checks are weakened.
 Final receipts are regenerated after this correction.
 
-Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) targets
-`dev` with the approved literal title. Its immutable report link uses full
-introduction commit `a1350e3dc561dee6d28c01b2ba5d7982de042676`.
-
-After this PR-reference follow-up is committed and pushed, required readiness
-checks will be recorded through the controller against the exact clean HEAD:
+Canonical PR [#115](https://forge.adrianpk.com/adrianpk/rev/pulls/115) merged
+into dev at `56d11d40f15dbbe7ec148b23fb8410d0fc060841`. Its immutable report
+link uses introduction commit `a1350e3dc561dee6d28c01b2ba5d7982de042676`.
+Required receipt `PUQ3NTFOSJSZSRFRNOEFDZRSR3` passed all six commands at that
+exact clean HEAD, including 365 integration tests and four owned RGB/NO_COLOR
+task sessions with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -134,14 +134,17 @@ checks will be recorded through the controller against the exact clean HEAD:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused same-HEAD evidence will additionally cover the task clock unit tests,
-public source observations, configuration reference and the unchanged outline
-terminal journey, since the shared declaration/cookie observations and native
-session loop are affected. Final receipt identities belong in Acta and the
-controller checkpoint, without changing a validated report HEAD.
+Focused receipt `Y4GSG26OGTESIZSZ7G77A7PZMA` passed all five commands at the
+same HEAD, including two clock tests, 59 source tests and two owned outline
+terminal sessions with zero skips:
+
+- `cargo test --lib session::outline::tasks::clock`
+- `cargo test --test org_source`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`
+- `git diff --check`
 
 ## Risks and Follow-ups
 
-Required exact-head controller validation and canonical PR references
-will be recorded before readiness. Rebase + Fast-forward integration belongs to
-the external controller.
+Local task timestamp capture retains the documented finite TZif coverage;
+temporal editing and recurrence remain assigned to later recorded slices.
