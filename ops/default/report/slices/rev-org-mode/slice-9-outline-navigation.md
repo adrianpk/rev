@@ -1,6 +1,6 @@
 # Slice 9: Insert and navigate Org headings
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -92,8 +92,9 @@ fixture uses Org comma escaping; the original skip assertion is retained.
 The new PTY dirty-status predicate was corrected to the established field order;
 the new-title point, exact source rows, undo and cleanup assertions remain intact.
 
-Required exact-head controller evidence follows the pushed canonical PR-reference
-follow-up, in this order:
+Required exact-head receipt `OZCI4OGWRNKNBDR25TU2HLZDMI` passed these five
+ordered checks at `32ba8f34d6310409baa2d89a932e1898dcd87ef4`, with
+293 Rust tests and zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -101,9 +102,11 @@ follow-up, in this order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Configuration/reference checks and the owned outline PTY journey are recorded in
-a separate focused batch at the same candidate. Exact receipts remain in the
-controller ledger; verified integration closes this report after merge.
+Focused receipt `SDBZKA3ESTQHII7XEV7YX2ROR5` passed 96 configuration tests,
+reference/template checks, two owned PTY sessions and `git diff --check` at the
+same head. Canonical title/body, branch/base, immutable report introduction and
+head were verified. Live Forgejo and Git confirm PR #110 merged into `dev` at
+that exact commit.
 
 ## Risks and Follow-ups
 

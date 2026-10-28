@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 9 outline-navigation
+Active slice: Slice 10 subtree-edits
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -241,12 +241,15 @@ Details and exact checks: [Slice 9](../plan/rev-org-mode.md#slice-9-insert-and-n
 - [x] T9.1: Deliver sibling insertion and next/previous/same-level/parent heading movement.
 - [x] T9.2: Handle contextual M-RET while preserving attached sections, blank lines and final newline state.
 - [x] T9.3: Verify read-only navigation, inactive context behavior, undo and logical source bounds.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#110](https://forge.adrianpk.com/adrianpk/rev/pulls/110).
 Report: [Slice 9](../report/slices/rev-org-mode/slice-9-outline-navigation.md).
-PR-reference follow-up precedes exact-head validation; integration remains
-controller-owned.
+Integrated into `dev` at `32ba8f34d6310409baa2d89a932e1898dcd87ef4`.
+Controller receipt `OZCI4OGWRNKNBDR25TU2HLZDMI` passed the required five checks
+and 293 Rust tests with zero skips. Focused receipt `SDBZKA3ESTQHII7XEV7YX2ROR5`
+passed 96 configuration tests, reference/template checks and two owned PTY
+sessions at the same head. Canonical title/body/report/head verified.
 
 ### Slice 10: move and promote coherent Org subtrees
 
