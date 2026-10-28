@@ -25,6 +25,11 @@ reordered subtrees. BOM, separator bytes and final-newline state are preserved.
 Missing siblings, incomplete observations, missing parent levels and unclosed
 owned/parent structures reject before publication.
 
+Stored marks, peer points and viewport anchors follow the original source.
+Undo/redo map each peer's current position, restore the initiating point and
+retain clean/modified state. Level edits map marks through all preceding heading
+changes and retire obsolete folds in every affected pane.
+
 ## Implementation Notes
 
 The existing bounded structural worker supplies current source ownership and
@@ -38,6 +43,10 @@ edits retain their existing mapping. Publication uses the same source/read-only,
 point/mark and history checks as other canonical edits. Existing history and
 native analysis limits remain unchanged.
 
+The EOF peer regression exposed a boundary collision in the initial position
+mapping. The permutation now exchanges both the former EOF and the preceding
+line-end anchor, making forward and inverse mappings agree through replay.
+
 ## Contracts Added or Changed
 
 - ORG04: complete subtree level changes and sibling moves in one transaction.
@@ -49,6 +58,8 @@ native analysis limits remain unchanged.
 - `src/buffer/edit/reorder.rs`: checked fragment permutation and inverse mapping.
 - `src/session/outline/subtree.rs`: canonical prepare/publish integration.
 - `tests/org_editing/subtrees.rs`: levels, attached content and EOF round trips.
+- `tests/org_editing/subtree_positions.rs`: stored marks, independent source
+  anchors, current-peer replay and EOF insertion-boundary regression.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: activated controls.
 
 ## Validation
@@ -56,6 +67,7 @@ native analysis limits remain unchanged.
 Development checks passed:
 
 - `cargo test --test org_editing subtrees::`: three tests passed.
+- `cargo test --test org_editing subtree_positions::`: three tests passed.
 - `cargo test --test commands catalog_reference`
 - `python3 scripts/check-config-reference.py`
 
@@ -65,4 +77,4 @@ boundary coverage and the pushed canonical PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-Independent points/marks and regional boundary coverage remain in T10.2/T10.3.
+Regional, malformed-parent and broader boundary coverage remain in T10.3.

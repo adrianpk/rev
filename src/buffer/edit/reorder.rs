@@ -15,7 +15,7 @@ struct Piece {
 #[derive(Clone, Debug)]
 pub(super) struct Permutation {
     pieces: Vec<Piece>,
-    eof: Option<usize>,
+    endpoints: Option<[(usize, usize); 2]>,
 }
 
 impl Permutation {
@@ -33,15 +33,22 @@ impl Permutation {
             });
             start = end;
         }
-        let tail = buffer.span(buffer.len_chars().saturating_sub(1)..buffer.len_chars())?;
-        let eof = (buffer.slice(&tail)?.chars().next() != Some('\n')).then_some(buffer.len_chars());
-        Ok(Self { pieces, eof })
+        let endpoints = end_points(buffer, &pieces)?;
+        Ok(Self { pieces, endpoints })
     }
 
     pub(super) fn position(&self, position: Scalar) -> Scalar {
+        if let Some((_, after)) = self
+            .endpoints
+            .iter()
+            .flatten()
+            .find(|(before, _)| *before == position.0)
+        {
+            return Scalar(*after);
+        }
         self.pieces
             .iter()
-            .find(|piece| owns(piece, position, self.eof))
+            .find(|piece| piece.before.contains(&position.0))
             .map_or(position, |piece| {
                 Scalar(piece.after.start + (position.0 - piece.before.start))
             })
@@ -53,14 +60,34 @@ impl Permutation {
             for piece in &mut order.pieces {
                 std::mem::swap(&mut piece.before, &mut piece.after);
             }
+            if let Some(endpoints) = &mut order.endpoints {
+                for (before, after) in endpoints {
+                    std::mem::swap(before, after);
+                }
+            }
         }
         order
     }
 }
 
-fn owns(piece: &Piece, position: Scalar, eof: Option<usize>) -> bool {
-    piece.before.contains(&position.0)
-        || (eof == Some(position.0) && position.0 == piece.before.end)
+// EOF and the preceding fragment's line end exchange their insertion anchors.
+// Mapping both keeps the permutation invertible on positions as well as text.
+fn end_points(buffer: &Buffer, pieces: &[Piece]) -> Result<Option<[(usize, usize); 2]>, Error> {
+    let eof = buffer.len_chars();
+    let tail = buffer.span(eof.saturating_sub(1)..eof)?;
+    if buffer.slice(&tail)?.chars().next() == Some('\n') {
+        return Ok(None);
+    }
+    let Some(owner) = pieces.iter().find(|piece| piece.before.end == eof) else {
+        return Ok(None);
+    };
+    let Some(next) = pieces
+        .iter()
+        .find(|piece| piece.after.start == owner.after.end)
+    else {
+        return Ok(None);
+    };
+    Ok(Some([(eof, owner.after.end), (next.before.start, eof)]))
 }
 
 fn partition(buffer: &Buffer, sources: &[Span]) -> Result<Vec<Range<usize>>, Error> {

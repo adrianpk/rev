@@ -257,7 +257,7 @@ Contracts: ORG04 ORG02.
 Details and exact checks: [Slice 10](../plan/rev-org-mode.md#slice-10-move-and-promote-coherent-org-subtrees).
 
 - [x] T10.1: Implement checked promote/demote and sibling subtree moves over complete owned source.
-- [ ] T10.2: Retain descendants, affiliated metadata, marks and independent views through one atomic history change.
+- [x] T10.2: Retain descendants, affiliated metadata, marks and independent views through one atomic history change.
 - [ ] T10.3: Verify boundary rejections, malformed parents, regional edits and full undo/redo fidelity.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
