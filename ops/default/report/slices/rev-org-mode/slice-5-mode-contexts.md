@@ -1,11 +1,12 @@
 # Slice 5: Activate native Org mode and contexts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-05-mode-contexts`
 PR: [#106](https://forge.adrianpk.com/adrianpk/rev/pulls/106)
+Integrated: `0136e7b8b7ee97491c5c75138531c7ebff4b5c71`
 
 ## Purpose
 
@@ -87,15 +88,18 @@ Implementation checks passed:
 - `git diff --check`
 
 Focused source-quality checks passed for the changed native owners and fixtures.
-The final clean PR head requires this exact controller-recorded batch. Its receipt
-and the canonical PR retain the final candidate and check outcomes:
+Controller receipt `BR5SRPHXR34SQCE3JDM75GDU6U` passed this exact ordered
+batch at clean head `0136e7b8b7ee97491c5c75138531c7ebff4b5c71`, subsequently
+integrated through PR #106. All 301 tests passed with zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
 - `cargo test --test org_source --test org_editing --test configuration --test commands`
 - `python3 scripts/check-source.py`
-- `python3 scripts/check-config-reference.py`
 - `git diff --check`
+
+`python3 scripts/check-config-reference.py` also passed at the same head in
+controller receipt `6RHIWGMCGZ4MJX3T67RDNMPI5I`.
 
 ## Risks and Follow-ups
 

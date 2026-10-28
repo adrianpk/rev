@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 5 mode-contexts
+Active slice: Slice 6 semantic-colors
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -173,14 +173,16 @@ Details and exact checks: [Slice 5](../plan/rev-org-mode.md#slice-5-activate-nat
 - [x] T5.1: Activate the native Org mode by visiting suffix or explicit compiled mode command.
 - [x] T5.2: Add Org editing, agenda, capture, calendar and special-edit context routing with prompt precedence.
 - [x] T5.3: Introduce org_editing; expose only operational commands and verify context cancellation and plain-text fallback.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T5.1 `22e1a1e48e26216844a2ee8aa1698c7cc449be2b`,
 T5.2 `f0194fce53e68b203f2575bcf0492192efbc8ea2`,
 T5.3 `a1b81966608eed6ef1a08a7358011105d78360b9`.
 Canonical PR: [#106](https://forge.adrianpk.com/adrianpk/rev/pulls/106).
 Report: [Slice 5](../report/slices/rev-org-mode/slice-5-mode-contexts.md).
-Integration: pending controller verification.
+Integration: PR #106 merged into dev at `0136e7b8b7ee97491c5c75138531c7ebff4b5c71`.
+Validation: controller receipt `BR5SRPHXR34SQCE3JDM75GDU6U` passed all five
+ordered checks at that exact candidate, including 301 tests with zero skips.
 
 ### Slice 6: color native Org source semantically
 
