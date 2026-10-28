@@ -1,6 +1,6 @@
 # Slice 13: edit and match Org task tags
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -96,8 +96,10 @@ checked against [tags](https://orgmode.org/manual/Tags.html),
 [matching](https://orgmode.org/manual/Matching-tags-and-properties.html).
 Parentheses follow the approved native grammar.
 
-After the PR-reference follow-up is pushed, the controller records these required
-commands against the exact clean HEAD, in order:
+Canonical PR [#114](https://forge.adrianpk.com/adrianpk/rev/pulls/114)
+merged into `dev` at `2f81bd7547f3a0ae3eb4d4cb9f9c34476a66d7c3`.
+Required receipt `Z3FB7EH4EYOYLNJTXEGM5EBJKV` passed all five commands at that
+exact clean HEAD, including 312 Rust tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -105,10 +107,14 @@ commands against the exact clean HEAD, in order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-A separate focused batch records `cargo test --test configuration`,
-`python3 scripts/check-config-reference.py`, the terminal command above and
-`git diff --check` at the same HEAD. Exact receipt IDs and outcomes remain in
-controller evidence and Acta.
+Focused receipt `6EIW7RMFBU4IUTWXW26OJUDRZY` at the same HEAD passed:
+
+- `cargo test --test configuration`: 99 tests.
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions, zero skipped, original assertions retained,
+  exact source bytes and terminal/fd/child cleanup checked.
+- `git diff --check`
 
 ## Risks and Follow-ups
 

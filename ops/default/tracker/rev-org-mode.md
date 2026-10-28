@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 13 tags-matching
+Active slice: Slice 14 todo-workflows
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -322,15 +322,18 @@ Details and exact checks: [Slice 13](../plan/rev-org-mode.md#slice-13-edit-and-m
 - [x] T13.1: Deliver tag entry, removal, completion and local/inherited membership inspection.
 - [x] T13.2: Implement the declared Org tag/property match grammar with typed comparisons and bounded parsing.
 - [x] T13.3: Verify case sensitivity, escaping, malformed queries and unchanged unrelated source.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 PR: [#114](https://forge.adrianpk.com/adrianpk/rev/pulls/114).
 Report: [Slice 13](../report/slices/rev-org-mode/slice-13-tags-matching.md).
 Task commits: T13.1 `22fa841590398823ddbba052379bc5d436ccd365`,
 T13.2 `cc6bc81ce9d5f8374f004aec52bd29aa8be42c20`,
 T13.3 `b264270aad53655e0b22772380e4cc03bc9bc118`.
-Required and focused exact-head receipts are recorded by the controller after
-this PR-reference follow-up is pushed; integration remains pending.
+Required receipt `Z3FB7EH4EYOYLNJTXEGM5EBJKV` passed all five commands and
+312 Rust tests. Focused receipt `6EIW7RMFBU4IUTWXW26OJUDRZY` passed 99 config
+tests, references and two owned terminal sessions with zero skipped.
+Canonical PR #114 merged at `2f81bd7547f3a0ae3eb4d4cb9f9c34476a66d7c3`;
+local and canonical `dev` match the validated candidate.
 
 ### Slice 14: deliver Org task workflows and logging
 
