@@ -7,7 +7,7 @@ Format: OpenSpec change
 Direction: product owner requested automatic creation of absent user configuration
 Baseline: [Editor Configuration](editor-configuration.md), CFG01, CFG05, CFG14 and CFG15
 Existing model: [Editor Configuration Model](editor-configuration-model.md)
-Ticket: [Create missing user configuration](../ticket/open/20261027193636-create-missing-user-configuration.md)
+Ticket: [Create missing user configuration](../ticket/in_progress/20261027193636-create-missing-user-configuration.md)
 Delivery boundary: selected combined input/navigation/presentation delivery; no implementation started
 
 ## Purpose

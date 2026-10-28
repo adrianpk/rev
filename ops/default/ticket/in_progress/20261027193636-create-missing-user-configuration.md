@@ -1,7 +1,10 @@
 ---
 id: TKT-20261027193636
 title: Create the complete user configuration when missing
-status: open
+status: in_progress
+ready_at: 2026-10-28T00:45:40Z
+started_at: 2026-10-28T00:45:40Z
+branch: feat/rev-input-16-bootstrap-template
 kind: task
 severity: unclassified
 priority: unclassified

@@ -1,11 +1,13 @@
 # Slice 15: Activate native mouse defaults and runtime control
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-15-pointer-controls`
 PR: [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95)
+
+Integrated: `40d8e252917229ec01e245192819d98f5cd4b71f`
 
 ## Purpose
 
@@ -97,8 +99,10 @@ catalog equality assertion remained unchanged; adding the delivered command to
 that second reference corrected the omission. Final evidence is regenerated for
 the corrected clean candidate.
 
-Final canonical and focused evidence is recorded through the controller on the
-clean candidate after task and PR-reference commits. Required ordered commands:
+Canonical controller evidence `6T2MWZHM27QLYA6MUUWWGZ6Z5M` passed all five
+ordered checks and 336 native cases at the integrated commit above. Focused
+`LYCDIYZDCCILOO66PDUJCSHKXG` passed 238 native cases, 26 owned PTYs and the
+exhaustive reference guard on the same clean candidate. Required ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -121,4 +125,4 @@ Focused final commands:
 
 ## Risks and Follow-ups
 
-The pointer ticket remains active until this final primary slice integrates.
+All primary pointer slices 10-15 are integrated and the pointer ticket is solved.

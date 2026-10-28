@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 15 - activate native mouse defaults and runtime control
+Active slice: Slice 16 - package the complete startup configuration template
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -277,14 +277,17 @@ Details and exact checks: [Slice 15](../plan/rev-input-navigation.md#slice-15-ac
 - [x] T15.1: Wire mouse.enabled=true and mouse.scroll_lines=3 with bounds 1..100, plus the compiled M-x mouse-mode session toggle, through the existing typed configuration/catalog.
 - [x] T15.2: Activate only the complete event/cleanup path, preserve startup-only snapshots and no-write runtime overrides, and add accurate exhaustive sample/default documentation.
 - [x] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 15 of 20 implemented. Canonical PR [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95) targets dev. Its
-[canonical report](../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
-records admitted startup defaults, session-only control, complete native reporting,
-configured distances and owned startup/runtime/cleanup PTYs. Final exact-head evidence is recorded through the controller after PR-reference
-commits. Integration is pending;
-the pointer ticket stays in progress until its final primary integration.
+Slice 15 of 20 completed. Canonical PR [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95)
+integrated into dev at `40d8e252917229ec01e245192819d98f5cd4b71f`.
+Canonical evidence `6T2MWZHM27QLYA6MUUWWGZ6Z5M` passed five ordered checks
+and 336 native cases. Focused evidence `LYCDIYZDCCILOO66PDUJCSHKXG` passed
+238 native cases, 26 owned PTYs and exhaustive reference checks on that candidate.
+The [canonical report](../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
+records activated defaults, native controls, bounded input and exact cleanup.
+All pointer primary slices 10-15 are integrated; its ticket is solved. Slice 16
+is active, and the configuration ticket is in progress through slices 16-17.
 
 T15.1: `cb4c73f7047978c8066dce029a154546a2ef599a`.
 T15.2: `e24a13281532842e0447152848f7b122d9f1fc5d`.

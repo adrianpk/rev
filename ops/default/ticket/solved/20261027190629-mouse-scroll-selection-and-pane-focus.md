@@ -1,7 +1,10 @@
 ---
 id: TKT-20261027190629
 title: Add mouse and trackpad scrolling, selection and pane focus
-status: in_progress
+status: solved
+reviewed_at: 2026-10-28T00:45:40Z
+closed_at: 2026-10-28T00:45:40Z
+resolution: fixed
 ready_at: 2026-10-27T23:05:50Z
 started_at: 2026-10-27T23:05:50Z
 branch: feat/rev-input-15-pointer-controls
@@ -134,11 +137,13 @@ bounds and owned terminal/history/idle outcomes. Canonical
 evidence passed on that candidate. Slice 15 is active; the ticket stays in
 progress through its final primary integration.
 
-Slice 15 is implemented in canonical PR [#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95), targeting dev. Its
+Slice 15 integrated into dev through canonical PR
+[#95](https://forge.adrianpk.com/adrianpk/rev/pulls/95) at
+`40d8e252917229ec01e245192819d98f5cd4b71f`. Its
 [report](../../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
-records activated native defaults, typed bounded preferences, session-only mode
-control, immutable startup behavior, complete references and owned native
-startup/runtime/restart/capture/failure cleanup journeys. Required and focused
-exact-head evidence follows PR-reference commits through the controller. The
-ticket stays in progress until this final primary slice integrates; closure
-then records the actual integration and all primary evidence.
+records activated native defaults, typed bounded settings, session-only runtime
+control and complete startup/runtime/restoration behavior. Canonical
+`6T2MWZHM27QLYA6MUUWWGZ6Z5M` and focused `LYCDIYZDCCILOO66PDUJCSHKXG`
+evidence passed on that candidate. All assigned primary slices 10-15 are now
+integrated and this ticket is solved; combined delivery acceptance remains with
+the recorded final slices.

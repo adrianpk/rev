@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 15 - activate native mouse defaults and runtime control
+Active slice: Slice 16 - package the complete startup configuration template
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -44,8 +44,8 @@ All normal keyboard paths remain available.
 | Whitespace conversion | [TKT-20261027092143](../ticket/solved/20261027092143-convert-tabs-and-spaces.md) | 3 |
 | Gutter | [TKT-20261027193500](../ticket/solved/20261027193500-deliver-native-line-number-gutter.md) | 4-8 |
 | Status layout | [TKT-20261027194421](../ticket/solved/20261027194421-group-pane-status-left-and-right.md) | 9 |
-| Pointer interaction | [TKT-20261027190629](../ticket/in_progress/20261027190629-mouse-scroll-selection-and-pane-focus.md) | 10-15 |
-| Configuration creation | [TKT-20261027193636](../ticket/open/20261027193636-create-missing-user-configuration.md) | 16-17 |
+| Pointer interaction | [TKT-20261027190629](../ticket/solved/20261027190629-mouse-scroll-selection-and-pane-focus.md) | 10-15 |
+| Configuration creation | [TKT-20261027193636](../ticket/in_progress/20261027193636-create-missing-user-configuration.md) | 16-17 |
 
 All seven also participate in terminal, resource and final acceptance slices
 18-20. Advance a ticket from open to ready and in_progress before its first
