@@ -1,11 +1,12 @@
 # Slice 2: Index Org structure with bounded work
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-02-incremental-index`
 PR: [#103](https://forge.adrianpk.com/adrianpk/rev/pulls/103)
+Integrated: `69ef1aa1c44ba013487b16b94a8c87dcb2fdee1d`
 
 ## Purpose
 
@@ -79,8 +80,10 @@ The first controller batch stopped at Clippy's type-complexity warning for a
 new test table. Removing its redundant tuple annotation and using inferred
 slices fixed the declaration while preserving all six cases and assertions.
 
-The final clean PR head requires the following exact controller-recorded batch.
-Its receipt and the canonical PR retain the final candidate and check outcomes:
+Controller receipt `UVSJY7HF7ZPWX5FJ2AIZY4UCUR` passed this exact ordered batch
+on clean candidate `69ef1aa1c44ba013487b16b94a8c87dcb2fdee1d`, with 96 editing
+and 22 source tests passed and zero skips. The canonical forge verified PR #103
+merged that candidate into dev:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
