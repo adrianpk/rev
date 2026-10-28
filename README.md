@@ -1,4 +1,4 @@
-# rev
+# <img src="docs/reference/images/rev-logo-readme.png" alt="rev" width="240">
 
 rev is a small terminal text editor written in Rust. It takes its cues from
 Emacs's navigation and buffer workflow, with a focus on quick, comfortable
