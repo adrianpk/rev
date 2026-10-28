@@ -386,6 +386,44 @@ pub struct Keymaps {
     pub editor: BTreeMap<String, String>,
     pub minibuffer: BTreeMap<String, String>,
     pub tree: BTreeMap<String, String>,
+    pub org: BTreeMap<String, String>,
+    pub org_agenda: BTreeMap<String, String>,
+    pub org_capture: BTreeMap<String, String>,
+    pub org_calendar: BTreeMap<String, String>,
+    pub org_source_edit: BTreeMap<String, String>,
+}
+
+impl Keymaps {
+    pub fn map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
+            Context::Editor => &self.editor,
+            Context::Minibuffer => &self.minibuffer,
+            Context::Tree => &self.tree,
+            Context::Org => &self.org,
+            Context::OrgAgenda => &self.org_agenda,
+            Context::OrgCapture => &self.org_capture,
+            Context::OrgCalendar => &self.org_calendar,
+            Context::OrgSourceEdit => &self.org_source_edit,
+        }
+    }
+
+    pub(super) fn map_mut(
+        &mut self,
+        context: crate::input::keymap::Context,
+    ) -> &mut BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
+            Context::Editor => &mut self.editor,
+            Context::Minibuffer => &mut self.minibuffer,
+            Context::Tree => &mut self.tree,
+            Context::Org => &mut self.org,
+            Context::OrgAgenda => &mut self.org_agenda,
+            Context::OrgCapture => &mut self.org_capture,
+            Context::OrgCalendar => &mut self.org_calendar,
+            Context::OrgSourceEdit => &mut self.org_source_edit,
+        }
+    }
 }
 
 /// Optional gutter leaves retain absence through include/root layering. Bounds

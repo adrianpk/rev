@@ -126,11 +126,8 @@ fn retained_origin(document: &Document, key: &[String]) -> bool {
     if root != "keys" {
         return true;
     }
-    let map = match context.as_str() {
-        "editor" => &document.keys.editor,
-        "minibuffer" => &document.keys.minibuffer,
-        "tree" => &document.keys.tree,
-        _ => return true,
-    };
-    map.contains_key(sequence)
+    let context = crate::input::keymap::Context::ALL
+        .into_iter()
+        .find(|map| map.name() == context);
+    context.is_none_or(|context| document.keys.map(context).contains_key(sequence))
 }

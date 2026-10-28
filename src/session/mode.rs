@@ -3,6 +3,13 @@ use crate::buffer::Mode;
 use super::{Action, Session};
 
 impl Session {
+    pub(super) fn sync_input_context(&mut self) {
+        self.input.set_tree_focus(self.tree.focused());
+        let active = self.buffer().is_ok_and(|buffer| buffer.is_org());
+        self.input
+            .set_org_context(active.then_some(crate::input::OrgContext::Editing));
+    }
+
     pub(super) fn select_mode(&mut self, mode: Mode) -> Action {
         if self.input.focus() != crate::input::Focus::Editing {
             return self.message("a prompt owns input focus");

@@ -5,8 +5,9 @@ impl Input {
     pub(super) fn paste(&mut self, text: String) -> Outcome {
         self.clear_prefix();
         self.suppress_repeat = true;
+        let accepts_text = self.accepts_text();
         match &mut self.context {
-            Context::Editing => Outcome::Paste(text),
+            Context::Editing if accepts_text => Outcome::Paste(text),
             Context::Search(prompt) => prompt.literal_paste(&text),
             Context::Literal(prompt) => prompt.literal_paste(&text),
             Context::Command(palette) => palette.paste(&text),

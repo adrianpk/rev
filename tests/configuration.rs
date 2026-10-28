@@ -154,3 +154,6 @@ type = "#2ac3de"
     assert_eq!(input.palette.syntax.r#type.as_deref(), Some("#2ac3de"));
     assert_eq!(input.palette.foreground, None);
 }
+
+#[path = "configuration/org_keymaps.rs"]
+mod org_keymaps;

@@ -5,6 +5,11 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Editor => EDITOR,
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
+        Context::Org => ORG,
+        Context::OrgAgenda => ORG_AGENDA,
+        Context::OrgCapture => ORG_CAPTURE,
+        Context::OrgCalendar => ORG_CALENDAR,
+        Context::OrgSourceEdit => ORG_SOURCE_EDIT,
     }
 }
 
@@ -126,4 +131,19 @@ const TREE: &[(&str, &str)] = &[
     ("C-x t o", "tree-open"),
     ("C-x t n", "tree-create-file"),
     ("C-x t d", "tree-create-directory"),
+];
+
+// Editing roles inherit the admitted editor map before these local entries.
+const ORG: &[(&str, &str)] = &[];
+const ORG_CAPTURE: &[(&str, &str)] = &[];
+const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
+
+// Non-text workspace owners admit only implemented navigation/cancel targets.
+const ORG_AGENDA: &[(&str, &str)] = &[
+    ("C-g", "keyboard-quit"),
+    ("M-x", "execute-extended-command"),
+];
+const ORG_CALENDAR: &[(&str, &str)] = &[
+    ("C-g", "keyboard-quit"),
+    ("M-x", "execute-extended-command"),
 ];

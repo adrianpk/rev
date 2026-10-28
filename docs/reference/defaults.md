@@ -135,6 +135,11 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 68 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
+| `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 0 entries in its local map are active in the sample. |
+| `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
+| `keys.org_agenda` | Map of chord sequences to admitted navigation commands | Compiled map | Agenda role consumes unbound text; all 2 entries are active in the sample. |
+| `keys.org_calendar` | Map of chord sequences to admitted navigation commands | Compiled map | Calendar role consumes unbound text; all 2 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.
@@ -353,8 +358,8 @@ or one third of the frame when shown.
 
 ## Product boundary
 
-The built-in language support is Rust syntax highlighting, with editable plain
-text for other files or syntax failures. TOML startup preferences configure
+Native mode activation includes Org; bundled syntax highlighting supports Rust.
+Other files and syntax failures retain editable plain presentation. TOML startup preferences configure
 existing actions. This baseline has no plugins, macros, package runtime, LSP,
 language completion, automatic
 indentation, OS clipboard bridge, regex/project search, soft wrap or session

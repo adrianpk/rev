@@ -112,7 +112,7 @@ configuration snapshot; source edits take effect after restarting.
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
-all three contexts. Copy only desired overrides to preserve inherited stage
+all eight contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
 
 `keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
@@ -133,8 +133,32 @@ contains it is unreachable because it cancels pending prefixes, and rejects.
 These contracts expose validated maps through `Snapshot::keymaps()`. Library
 input/session construction supplied with a snapshot dispatches `keys.editor`,
 `keys.minibuffer` and `keys.tree` through their existing Rust action owners.
-The focused prompt temporarily owns the minibuffer map even when the tree
-retains workspace focus. No keymap edits the underlying document from a prompt.
+The focused prompt temporarily owns the minibuffer map even when an Org role or
+the tree retains workspace focus. Tree focus takes precedence over Org editing.
+No keymap edits the underlying document from a prompt.
+
+Org editing, capture and special-edit roles use `keys.org`, `keys.org_capture`
+and `keys.org_source_edit`, inheriting the admitted editor map before local
+overrides. Their complete factory local overlays are empty. Agenda and calendar
+roles use independent `keys.org_agenda` and `keys.org_calendar` maps, consuming
+unbound text and paste. They admit implemented motion, scroll, quit, command-entry
+and cancellation targets. Switching roles clears pending chords and Escape timing
+without accepting a prompt. Feature owners activate their role when delivered;
+these maps do not create an agenda, calendar or draft.
+
+### Org agenda defaults and availability
+
+| Keys | Target | Behavior |
+| --- | --- | --- |
+| `C-g` | `keyboard-quit` | Cancel current input. |
+| `M-x` | `execute-extended-command` | Enter the compiled command query. |
+
+### Org calendar defaults and availability
+
+| Keys | Target | Behavior |
+| --- | --- | --- |
+| `C-g` | `keyboard-quit` | Cancel current input. |
+| `M-x` | `execute-extended-command` | Enter the compiled command query. |
 
 ### Native mode selection
 

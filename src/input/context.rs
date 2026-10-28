@@ -13,7 +13,8 @@ impl Input {
         if self.workspace_tree {
             return MapContext::Tree;
         }
-        MapContext::Editor
+        self.workspace_org
+            .map_or(MapContext::Editor, super::OrgContext::keymap)
     }
 
     pub(super) fn context_binding(&mut self, binding: Binding, key: Key, custom: bool) -> Outcome {

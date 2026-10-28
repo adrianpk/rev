@@ -74,7 +74,9 @@ impl Input {
         if let Some(binding) = map.lookup(&sequence) {
             return self.binding_repeats(binding);
         }
-        !map.is_prefix(&sequence) && matches!(key.plain(), Some(crossterm::event::KeyCode::Char(_)))
+        self.accepts_text()
+            && !map.is_prefix(&sequence)
+            && matches!(key.plain(), Some(crossterm::event::KeyCode::Char(_)))
     }
 }
 

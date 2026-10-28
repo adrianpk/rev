@@ -54,7 +54,24 @@ impl Map {
         context: Context,
         overrides: &BTreeMap<String, String>,
     ) -> Result<Self, Error> {
-        let mut map = Self::builtins(context);
+        Self::builtins(context).apply(context, overrides)
+    }
+
+    pub(super) fn inherit(
+        parent: &Self,
+        context: Context,
+        overrides: &BTreeMap<String, String>,
+    ) -> Result<Self, Error> {
+        let mut map = parent.clone();
+        map.entries.extend(Self::builtins(context).entries);
+        map.apply(context, overrides)
+    }
+
+    fn apply(
+        mut self,
+        context: Context,
+        overrides: &BTreeMap<String, String>,
+    ) -> Result<Self, Error> {
         let mut incoming = BTreeMap::new();
         for (spelling, name) in overrides {
             let sequence = Sequence::parse(spelling)
@@ -80,9 +97,9 @@ impl Map {
                 ));
             }
         }
-        map.entries.extend(incoming);
-        map.conflicts(context)?;
-        Ok(map)
+        self.entries.extend(incoming);
+        self.conflicts(context)?;
+        Ok(self)
     }
 
     fn builtins(context: Context) -> Self {

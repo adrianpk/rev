@@ -13,11 +13,7 @@ fn document() -> Document {
 }
 
 fn declared(keys: &Keymaps, context: Context) -> &BTreeMap<String, String> {
-    match context {
-        Context::Editor => &keys.editor,
-        Context::Minibuffer => &keys.minibuffer,
-        Context::Tree => &keys.tree,
-    }
+    keys.map(context)
 }
 
 fn example(heading: &str) -> String {

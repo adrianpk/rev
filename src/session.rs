@@ -139,7 +139,8 @@ impl Session {
         .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         let windows = Windows::with_settings(view, buffers.snapshot())?;
         let kills = crate::kill::KillRing::with_settings(buffers.snapshot());
-        let input = Input::with_settings(buffers.snapshot());
+        let mut input = Input::with_settings(buffers.snapshot());
+        input.set_org_context(buffer.is_org().then_some(crate::input::OrgContext::Editing));
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         Ok(Self {
             buffers,
@@ -297,7 +298,7 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = self.active_command(command);
-        self.input.set_tree_focus(self.tree.focused());
+        self.sync_input_context();
         action
     }
 

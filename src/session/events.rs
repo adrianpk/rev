@@ -83,11 +83,11 @@ impl Session {
         if !matches!(event, Event::Mouse(_)) {
             self.cancel_pointer_capture();
         }
-        self.input.set_tree_focus(self.tree.focused());
+        self.sync_input_context();
         let expired = self.expire_escape(now);
         if let Event::Resize(width, height) = event {
             let action = self.resize(width, height);
-            self.input.set_tree_focus(self.tree.focused());
+            self.sync_input_context();
             return action;
         }
         let outcome = self.input.handle_at(event, now);

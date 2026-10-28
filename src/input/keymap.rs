@@ -16,32 +16,57 @@ pub enum Context {
     Editor,
     Minibuffer,
     Tree,
+    Org,
+    OrgAgenda,
+    OrgCapture,
+    OrgCalendar,
+    OrgSourceEdit,
 }
 
 impl Context {
-    pub const ALL: [Self; 3] = [Self::Editor, Self::Minibuffer, Self::Tree];
+    pub const ALL: [Self; 8] = [
+        Self::Editor,
+        Self::Minibuffer,
+        Self::Tree,
+        Self::Org,
+        Self::OrgAgenda,
+        Self::OrgCapture,
+        Self::OrgCalendar,
+        Self::OrgSourceEdit,
+    ];
 
     pub fn name(self) -> &'static str {
         match self {
             Self::Editor => "editor",
             Self::Minibuffer => "minibuffer",
             Self::Tree => "tree",
+            Self::Org => "org",
+            Self::OrgAgenda => "org_agenda",
+            Self::OrgCapture => "org_capture",
+            Self::OrgCalendar => "org_calendar",
+            Self::OrgSourceEdit => "org_source_edit",
         }
     }
 
-    /// Complete configurable defaults. Literal text, decisions and Escape's
+    /// Local configurable defaults. Org editing, capture and source-edit maps
+    /// additionally inherit the admitted editor map. Literal text, decisions and Escape's
     /// finite Meta timing remain operations of their existing owners.
     pub fn defaults(self) -> &'static [(&'static str, &'static str)] {
         defaults::bindings(self)
     }
 }
 
-/// Three complete maps published together after all candidate checks succeed.
+/// Complete maps published together after all candidate checks succeed.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Effective {
     editor: Map,
     minibuffer: Map,
     tree: Map,
+    org: Map,
+    org_agenda: Map,
+    org_capture: Map,
+    org_calendar: Map,
+    org_source_edit: Map,
 }
 
 impl Default for Effective {
@@ -56,6 +81,11 @@ impl Effective {
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
+            Context::Org => &self.org,
+            Context::OrgAgenda => &self.org_agenda,
+            Context::OrgCapture => &self.org_capture,
+            Context::OrgCalendar => &self.org_calendar,
+            Context::OrgSourceEdit => &self.org_source_edit,
         }
     }
 }
@@ -63,9 +93,15 @@ impl Effective {
 /// Exact normalized user chords replace inherited entries; all other defaults
 /// survive. No map escapes this boundary before context and prefix validation.
 pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
+    let editor = Map::compile(Context::Editor, &keys.editor)?;
     Ok(Effective {
-        editor: Map::compile(Context::Editor, &keys.editor)?,
+        org: Map::inherit(&editor, Context::Org, &keys.org)?,
+        org_capture: Map::inherit(&editor, Context::OrgCapture, &keys.org_capture)?,
+        org_source_edit: Map::inherit(&editor, Context::OrgSourceEdit, &keys.org_source_edit)?,
+        editor,
         minibuffer: Map::compile(Context::Minibuffer, &keys.minibuffer)?,
         tree: Map::compile(Context::Tree, &keys.tree)?,
+        org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda)?,
+        org_calendar: Map::compile(Context::OrgCalendar, &keys.org_calendar)?,
     })
 }

@@ -571,6 +571,14 @@ fn context_reference() {
             "### Minibuffer defaults and availability",
         ),
         (Context::Tree, "### Tree defaults and availability"),
+        (
+            Context::OrgAgenda,
+            "### Org agenda defaults and availability",
+        ),
+        (
+            Context::OrgCalendar,
+            "### Org calendar defaults and availability",
+        ),
     ] {
         let section = source
             .split_once(heading)

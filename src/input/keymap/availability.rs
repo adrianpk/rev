@@ -25,7 +25,10 @@ impl Context {
 
     pub fn available(self, target: Binding) -> bool {
         match self {
-            Self::Editor => matches!(target, Binding::Command(_)),
+            Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit => {
+                matches!(target, Binding::Command(_))
+            }
+            Self::OrgAgenda | Self::OrgCalendar => org_navigation(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
         }
@@ -72,5 +75,18 @@ fn tree_navigation(command: Command) -> bool {
         command,
         Command::Scroll(Scroll::NextLine | Scroll::PreviousLine)
             | Command::Motion(Motion::ForwardChar | Motion::BackwardChar)
+    )
+}
+
+fn org_navigation(target: Binding) -> bool {
+    matches!(
+        target,
+        Binding::Command(
+            Command::KeyboardQuit
+                | Command::ExecuteExtended
+                | Command::Motion(_)
+                | Command::Scroll(_)
+                | Command::Quit
+        )
     )
 }

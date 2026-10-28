@@ -4,6 +4,7 @@ mod inventory;
 mod key;
 pub mod keymap;
 mod meta;
+mod org;
 mod palette;
 mod paste;
 mod path;
@@ -22,6 +23,7 @@ use crate::command::Command;
 pub use inventory::Selection;
 pub use key::Key;
 pub use meta::META_TIMEOUT;
+pub use org::OrgContext;
 pub use palette::Palette;
 pub use prompt::{LIMIT, Prompt};
 pub use search::SearchAction;
@@ -117,6 +119,7 @@ pub struct Input {
     chords: Vec<Key>,
     keymaps: keymap::Effective,
     workspace_tree: bool,
+    workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
@@ -295,6 +298,9 @@ impl Input {
     }
 
     fn literal(&self, key: Key) -> Outcome {
+        if !self.accepts_text() {
+            return Outcome::Message("Unbound Org context key");
+        }
         if key.plain().is_none() {
             return Outcome::Message("Unbound key");
         }

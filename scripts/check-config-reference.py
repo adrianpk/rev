@@ -105,7 +105,7 @@ def check_examples(sample, models):
 
 def compiled_bindings(root, context):
     source = (root / "src/input/keymap/defaults.rs").read_text()
-    body = re.search(r"const " + context.upper() + r":[^=]+= &\[(.*?)\n\];", source, re.S)
+    body = re.search(r"const " + context.upper() + r":[^=]+= &\[(.*?)\];", source, re.S)
     require(body is not None, f"missing {context} binding catalog")
     pairs = re.findall(r'\("([^"\n]+)", "([^"\n]+)"\)', body[1])
     require(len(pairs) == len(re.findall(r"^\s*\(", body[1], re.M)), "unrecognized binding entry")

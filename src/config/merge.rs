@@ -378,13 +378,13 @@ impl Merge {
     }
 
     fn keys(&mut self, base: &mut Keymaps, later: &Keymaps) {
-        self.binding_table(&["keys", "editor"], &mut base.editor, &later.editor);
-        self.binding_table(
-            &["keys", "minibuffer"],
-            &mut base.minibuffer,
-            &later.minibuffer,
-        );
-        self.binding_table(&["keys", "tree"], &mut base.tree, &later.tree);
+        for context in crate::input::keymap::Context::ALL {
+            self.binding_table(
+                &["keys", context.name()],
+                base.map_mut(context),
+                later.map(context),
+            );
+        }
     }
 }
 
