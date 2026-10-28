@@ -1,6 +1,8 @@
+mod checkbox;
 mod model;
 mod numbering;
 mod operation;
+mod progress;
 
 use std::ops::Range;
 
@@ -13,6 +15,8 @@ pub(super) struct Lists {
     items: Vec<Item>,
     lists: Vec<List>,
     editable: Vec<Range<usize>>,
+    headings: Vec<progress::Heading>,
+    cookie_count: usize,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -20,6 +24,7 @@ struct List {
     source: Range<usize>,
     parent: Option<usize>,
     items: Vec<usize>,
+    radio: bool,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -35,6 +40,13 @@ struct Item {
     reset: Option<u64>,
     description: bool,
     checkbox: Option<(Range<usize>, u8)>,
+    cookies: Vec<progress::Cookie>,
+}
+
+struct Target {
+    index: usize,
+    command: crate::command::OrgCommand,
+    point: crate::coordinates::Scalar,
 }
 
 pub(crate) struct ListEdit {

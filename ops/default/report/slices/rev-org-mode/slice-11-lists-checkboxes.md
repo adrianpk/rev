@@ -25,6 +25,17 @@ Sibling moves carry continuation paragraphs, blocks and nested items, preserving
 BOM, CRLF/LF and unterminated EOF spelling. Explicit list and subtree command
 identities remain available through M-x.
 
+Ordinary checkbox changes derive unchecked, intermediate and checked parents
+from direct children. Item/heading fraction and percentage cookies update in
+the same transaction. Radio selection clears only same-level peers; both the
+named action and a local `ATTR_ORG :radio t` declaration work. A local `ORDERED`
+property diagnoses an unfinished predecessor before mutation.
+
+Checkbox presence and insertion have explicit working commands. Checkbox
+regions use one selected state. Statistics headings count direct factory
+TODO/DONE children when no checkbox count applies or `COOKIE_DATA: todo` is
+selected. Checkbox changes preserve other entries' source and cookie spelling.
+
 ## Implementation Notes
 
 The existing temporary observation worker derives bounded item ownership and
@@ -37,10 +48,15 @@ at most six original source fragments plus counter replacements. This retains
 unchanged source anchors when counter widths change. History replays the same
 mapping in reverse; changed counter prefixes retain normal replacement affinity.
 
+The worker retains at most 8192 item/list/heading records and 4096 statistics
+cookies in addition to existing source observations. Incomplete observations
+cannot authorize list mutation. Progress derives from bounded parent links,
+with no timer, external job or executable directive authority.
+
 ## Contracts Added or Changed
 
 - ORG04: contextual list continuation, indentation and complete item moves.
-- ORG06: checkbox continuation preserves unchecked/checked distinction.
+- ORG06: checkbox hierarchy, radio choices, ordered admission and atomic cookies.
 - ORG30: native source controls retain canonical source coordinates.
 
 ## Files of Interest
@@ -49,6 +65,8 @@ mapping in reverse; changed counter prefixes retain normal replacement affinity.
 - `src/session/outline/list.rs`: normal canonical transaction publication.
 - `src/buffer/edit/reorder/modified.rs`: checked movement with counter changes.
 - `tests/org_editing/lists.rs`: list operations, attached source and replay.
+- `tests/org_editing/checkboxes.rs`: hierarchy, radio, ordered checks, explicit
+  presence/insertion and list/task statistics with atomic history.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: contextual keys.
 
 ## Validation
@@ -57,6 +75,7 @@ Development checks passed:
 
 - `cargo check`
 - `cargo test --test org_editing lists::`: four tests passed.
+- `cargo test --test org_editing checkboxes::`: six tests passed.
 - `cargo test --test commands org_`: six tests passed.
 - `python3 scripts/check-config-reference.py`
 
@@ -66,5 +85,5 @@ and pushed canonical PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-T11.2 adds checkbox/radio state and progress cookies. T11.3 adds boundary,
-timer-item/literal-context and representative owned-terminal coverage.
+T11.3 adds boundary, timer-item/literal-context and representative owned-terminal
+coverage.

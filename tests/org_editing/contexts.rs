@@ -68,7 +68,7 @@ fn operational_catalog() {
         "org-agenda",
         "org-capture",
         "org-export-dispatch",
-        "org-ctrl-c-ctrl-c",
+        "org-clock-in",
         "org-edit-special",
     ] {
         assert_eq!(Command::named(absent), None, "{absent}");

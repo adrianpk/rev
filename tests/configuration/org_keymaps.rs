@@ -76,7 +76,7 @@ fn org_map_admission() {
         ("cancel", "[keys.org]\n'C-g' = 'org-mode'", "org"),
         (
             "future action",
-            "[keys.org]\n'C-c C-c' = 'org-ctrl-c-ctrl-c'",
+            "[keys.org]\n'C-c C-c' = 'org-clock-in'",
             "org",
         ),
     ];

@@ -168,6 +168,11 @@ const ORG: &[(&str, &str)] = &[
     ("M-Down", "org-metadown"),
     ("M-S-Left", "org-outdent-item-tree"),
     ("M-S-Right", "org-indent-item-tree"),
+    ("M-S-RET", "org-insert-item-checkbox"),
+    ("C-c C-c", "org-ctrl-c-ctrl-c"),
+    ("C-c C-x C-b", "org-toggle-checkbox"),
+    ("C-c C-x C-r", "org-toggle-radio-button"),
+    ("C-c #", "org-update-statistics-cookies"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

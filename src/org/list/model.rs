@@ -22,12 +22,16 @@ impl Lists {
         };
         let mut owners = Owners::default();
         for (id, node) in structure.raw_nodes().enumerate() {
-            if cancel.is_cancelled() || model.items.len() + model.lists.len() == 8192 {
+            if cancel.is_cancelled()
+                || model.items.len() + model.lists.len() + model.headings.len() == 8192
+                || model.cookie_count > 4096
+            {
                 model.complete = false;
                 break;
             }
             model.collect(node, text, &mut owners, id);
         }
+        model.complete &= model.cookie_count <= 4096;
         model.editable.sort_by_key(|range| range.start);
         model
     }
@@ -46,6 +50,7 @@ impl Lists {
                     source: node.source.clone(),
                     parent: node.parent.and_then(|p| owners.items.get(&p).copied()),
                     items: Vec::new(),
+                    radio: false,
                 });
             }
             StructureKind::Item { indent } => {
@@ -54,14 +59,20 @@ impl Lists {
                     .and_then(|p| owners.lists.get(&p))
                     .copied()
                     .expect("parsed list owns item");
-                let item = read(text, node, list, indent);
+                let mut item = read(text, node, list, indent);
+                item.cookies = super::progress::cookies(
+                    text,
+                    item.header.clone(),
+                    4096 - self.cookie_count.min(4096),
+                );
+                self.cookie_count += item.cookies.len();
                 owners.items.insert(id, self.items.len());
                 self.lists[list].items.push(self.items.len());
                 self.editable.push(item.header.clone());
                 self.items.push(item);
             }
             StructureKind::Paragraph => self.editable.push(node.source.clone()),
-            _ => (),
+            _ => self.progress_node(node, text, &owners.lists),
         }
     }
 
@@ -106,6 +117,7 @@ fn read(text: &ropey::Rope, node: &crate::org::structure::Raw, list: usize, inde
         reset,
         description: line[content - start..].contains(" :: "),
         checkbox,
+        cookies: Vec::new(),
     }
 }
 

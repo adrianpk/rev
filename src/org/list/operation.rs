@@ -27,6 +27,9 @@ impl Outline {
         if !self.lists.complete {
             return Err("Org list observation is incomplete".into());
         }
+        if command.checkbox() {
+            return self.lists.checkbox_edit(buffer, command, point);
+        }
         let (byte, eof_line) = location(buffer, point)?;
         let index = self
             .lists
@@ -38,7 +41,16 @@ impl Outline {
         if self.malformed_between(&self.lists.lists[self.lists.items[index].list].source) {
             return Err("Org list contains an unclosed structure".into());
         }
-        self.lists.edit(buffer, index, command, point)
+        let plan = self.lists.edit(buffer, index, command, point)?;
+        self.lists.structural_progress(
+            buffer,
+            super::Target {
+                index,
+                command,
+                point,
+            },
+            plan,
+        )
     }
 }
 
@@ -51,7 +63,7 @@ impl Lists {
         point: Scalar,
     ) -> Result<ListEdit, String> {
         if command.list_insertion() {
-            return self.insert(buffer, index, point);
+            return self.insert_with(buffer, index, point, false);
         }
         if command.list_indentation() {
             return self.indent(buffer, index, command);
@@ -70,7 +82,7 @@ impl Lists {
     }
 }
 
-fn location(buffer: &Buffer, point: Scalar) -> Result<(usize, bool), String> {
+pub(super) fn location(buffer: &Buffer, point: Scalar) -> Result<(usize, bool), String> {
     let coordinates = Coordinates::new(buffer).map_err(|e| e.to_string())?;
     let byte = coordinates.to_byte(point).map_err(|e| e.to_string())?.0;
     let column = coordinates

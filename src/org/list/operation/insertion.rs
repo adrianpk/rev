@@ -1,20 +1,23 @@
 use super::super::{ListEdit, Lists, replacement, source_text};
 use crate::buffer::{Buffer, edit::Replacement};
-use crate::coordinates::{Coordinates, Scalar};
+use crate::coordinates::Scalar;
 
 impl Lists {
-    pub(super) fn insert(
+    pub(in crate::org::list) fn insert_with(
         &self,
         buffer: &Buffer,
         index: usize,
         point: Scalar,
+        checkbox: bool,
     ) -> Result<ListEdit, String> {
         let item = &self.items[index];
-        let coordinates = Coordinates::new(buffer).map_err(|e| e.to_string())?;
-        let byte = coordinates.to_byte(point).map_err(|e| e.to_string())?.0;
+        let (byte, _) = super::location(buffer, point)?;
         let above = byte <= item.content;
         let at = if above { item.source.start } else { byte };
-        let prefix = self.prefix(buffer, index, above)?;
+        let mut prefix = self.prefix(buffer, index, above)?;
+        if checkbox && item.checkbox.is_none() {
+            prefix.push_str("[ ] ");
+        }
         let (text, offset) = insertion(buffer, at, &prefix, above)?;
         let source = replacement(buffer, at..at, text)?;
         let base = source.source.range.start;

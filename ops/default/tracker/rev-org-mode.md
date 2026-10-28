@@ -278,7 +278,7 @@ Contracts: ORG04 ORG06 ORG30.
 Details and exact checks: [Slice 11](../plan/rev-org-mode.md#slice-11-edit-org-lists-and-progress-cookies).
 
 - [x] T11.1: Continue, indent, outdent, reorder and renumber ordered/unordered/description lists contextually.
-- [ ] T11.2: Implement ordinary/radio checkboxes and coherent list/task progress cookies through checked edits.
+- [x] T11.2: Implement ordinary/radio checkboxes and coherent list/task progress cookies through checked edits.
 - [ ] T11.3: Verify nested lists, timer-item contexts, literal blocks and one-operation undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

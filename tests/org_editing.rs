@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_editing/checkboxes.rs"]
+mod checkboxes;
 #[path = "org_editing/colors.rs"]
 mod colors;
 #[path = "org_editing/contexts.rs"]

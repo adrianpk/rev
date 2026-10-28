@@ -36,9 +36,15 @@ pub enum OrgCommand {
     MoveItemUp,
     MoveItemDown,
     RenumberList,
+    CtrlCCtrlC,
+    ToggleCheckbox,
+    ToggleRadioButton,
+    ToggleCheckboxPresence,
+    UpdateStatisticsCookies,
+    InsertCheckboxItem,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 34] = [
+    pub const ALL: [Self; 40] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -73,6 +79,12 @@ impl OrgCommand {
         Self::MoveItemUp,
         Self::MoveItemDown,
         Self::RenumberList,
+        Self::CtrlCCtrlC,
+        Self::ToggleCheckbox,
+        Self::ToggleRadioButton,
+        Self::ToggleCheckboxPresence,
+        Self::UpdateStatisticsCookies,
+        Self::InsertCheckboxItem,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -110,11 +122,20 @@ impl OrgCommand {
             "org-move-item-up",
             "org-move-item-down",
             "org-renumber-list",
+            "org-ctrl-c-ctrl-c",
+            "org-toggle-checkbox",
+            "org-toggle-radio-button",
+            "org-toggle-checkbox-presence",
+            "org-update-statistics-cookies",
+            "org-insert-item-checkbox",
         ][self as usize]
     }
 
     pub(crate) fn list_insertion(self) -> bool {
-        matches!(self, Self::MetaReturn | Self::InsertItem)
+        matches!(
+            self,
+            Self::MetaReturn | Self::InsertItem | Self::InsertCheckboxItem
+        )
     }
     pub(crate) fn list_indentation(self) -> bool {
         matches!(
@@ -133,18 +154,30 @@ impl OrgCommand {
             Self::MoveItemUp | Self::MoveItemDown | Self::MetaUp | Self::MetaDown
         )
     }
-    pub(crate) fn list_only(self) -> bool {
+    pub(crate) fn checkbox(self) -> bool {
         matches!(
             self,
-            Self::InsertItem
-                | Self::IndentItem
-                | Self::OutdentItem
-                | Self::IndentItemTree
-                | Self::OutdentItemTree
-                | Self::MoveItemUp
-                | Self::MoveItemDown
-                | Self::RenumberList
+            Self::CtrlCCtrlC
+                | Self::ToggleCheckbox
+                | Self::ToggleRadioButton
+                | Self::ToggleCheckboxPresence
+                | Self::UpdateStatisticsCookies
+                | Self::InsertCheckboxItem
         )
+    }
+    pub(crate) fn list_only(self) -> bool {
+        self.checkbox()
+            || matches!(
+                self,
+                Self::InsertItem
+                    | Self::IndentItem
+                    | Self::OutdentItem
+                    | Self::IndentItemTree
+                    | Self::OutdentItemTree
+                    | Self::MoveItemUp
+                    | Self::MoveItemDown
+                    | Self::RenumberList
+            )
     }
     pub(crate) fn contextual_list(self) -> bool {
         matches!(
