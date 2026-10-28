@@ -17,7 +17,11 @@ GROUPS = {'configured': ['configured-rgb', 'configured-no-color'], 'missing': ['
           'combined': ['combined-rgb', 'combined-no-color']}
 PTY_CASES = [name for group in GROUPS.values() for name in group]
 PERFORMANCE = [name for group in EXPECTED.values() for name in group]
-IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)]
+COMBINED_CASES = ['combined-rgb', 'combined-no-color']
+COMBINED_STAGES = ['bootstrap', 'navigation', 'workspace', 'selection', 'whitespace',
+                   'failures', 'overlays', 'capture-resize', 'mouse-control', 'restoration']
+ADDITIONS = ['GUT14'] + [f'PTR{i:02}' for i in range(1, 7)] + ['NAV01', 'NAV02', 'WSP01', 'WSP02', 'CFG23', 'CFG24', 'STA01', 'STA02']
+IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS
 MAP = 'scripts/configuration_ui/acceptance.json'
 PLAN = 'ops/default/plan/rev-configuration-ui.md'
 TRACKER = 'ops/default/tracker/rev-configuration-ui.md'
@@ -36,6 +40,8 @@ def manifest(root):
         for target, name in pairs:
             require(target.startswith('tests/') and '..' not in Path(target).parts and (root / target).is_file(), f'missing native target {target}')
             require(re.fullmatch(r'[a-z_][a-z_0-9:]*', name), 'invalid native test identity')
+        if row['id'] in ADDITIONS:
+            require(row['pty'] == COMBINED_CASES, 'missing combined requirement journey')
         require(set(row['pty']) <= set(PTY_CASES) and len(set(row['pty'])) == len(row['pty']), 'unknown/duplicate configuration PTY reference')
         require(set(row['performance']) <= set(PERFORMANCE) and len(set(row['performance'])) == len(row['performance']), 'unknown/duplicate configuration performance reference')
     require({case for row in document['cases'] for case in row['pty']} == set(PTY_CASES), 'incomplete configuration terminal map')
@@ -74,13 +80,19 @@ def prerequisites(root, cases):
     document = manifest(root)
     delivery(root, document, readiness=True)
     references(document['cases'], cases)
-    print('Configuration/UI prerequisites: 30 requirements, named native cases, eight PTY cases, seven performance workloads and 30 slice identities resolved; no gate result claimed.')
+    print('Configuration/UI prerequisites: 45 requirements, named native cases, ten PTY cases, seven performance workloads and 30 historical slice identities resolved; no gate result claimed.')
 
 
 def terminal(text):
-    names = re.findall(r'^PASS configuration-ui ([a-z-]+)$', text, re.M)
-    require(names == PTY_CASES, 'missing, reordered or duplicate configuration PTY case')
-    require('Configuration/UI terminal suite: 8 sessions passed, 0 skipped.' in text, 'missing full configuration PTY summary')
+    # A whole journey must complete its actual assertions and cleanup before its
+    # case label. Old eight-case logs or a copied footer cannot prove the pair.
+    events = re.findall(r'^PASS (configuration-ui [a-z-]+|combined-(?:rgb|no-color) [a-z-]+)$', text, re.M)
+    expected = [f'configuration-ui {name}' for name in PTY_CASES if name not in COMBINED_CASES]
+    for name in COMBINED_CASES:
+        expected.extend(f'{name} {stage}' for stage in COMBINED_STAGES)
+        expected.append(f'configuration-ui {name}')
+    require(events == expected, 'missing, reordered or duplicate configuration PTY case/stage')
+    require('Configuration/UI terminal suite: 10 sessions passed, 0 skipped.' in text, 'missing full configuration PTY summary')
     require(not re.search(r'\b(?:SKIP|FAIL)\b', text), 'configuration PTY skip/failure')
 
 
@@ -118,15 +130,21 @@ def performance(text):
     require('Configuration/UI performance suite: 7 native workloads, 1 PTY session passed, 0 skipped.' in text, 'missing configuration performance completion')
 
 
+def reference(text):
+    require('Configuration reference: 72 schema/catalog entries, 29 active RGB roles, 111 default bindings and three optional examples agree; links valid.' in text, 'missing configuration catalog evidence')
+    packaged = re.search(r'Packaged template: ([1-9][0-9]*) exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation\.', text)
+    require(packaged is not None and 0 < int(packaged[1]) <= 262144, 'missing/bounded compiled template evidence')
+
+
 def validate(root, logs, cases):
     document = manifest(root)
     delivery(root, document, readiness=False)
     references(document['cases'], cases)
-    reference, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
-    require('Configuration reference: 59 schema/catalog entries, 25 active RGB roles, 111 default bindings and three optional examples agree; links valid.' in reference, 'missing configuration catalog evidence')
+    reference_text, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
+    reference(reference_text)
     terminal(pty)
     performance(measured)
-    print('Configuration/UI acceptance: CFG01-CFG22, R01/R17/R20/R22 and UI01-UI04 passed on the same clean HEAD; zero skips.')
+    print('Configuration/UI acceptance: CFG01-CFG24, R01/R17/R20/R22, UI01-UI04 and combined gutter/pointer/navigation/whitespace/status contracts passed on the same clean HEAD; zero skips.')
 
 
 def discover(root):

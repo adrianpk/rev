@@ -770,6 +770,311 @@
         "names_observe",
         "names_filter"
       ]
+    },
+    {
+      "id": "GUT14",
+      "condition": "Acceptance through real numbered editor paths",
+      "native": [
+        {
+          "target": "tests/gutter.rs",
+          "test": "workspace::native_workspace"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "surfaces::overlay_origins"
+        },
+        {
+          "target": "tests/gutter.rs",
+          "test": "controls::shared_controls"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR01",
+      "condition": "Native terminal input and existing owners",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "native_admission"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "input_state::keyboard_continuity"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR02",
+      "condition": "Scroll the pointed pane without taking focus",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "scroll::inactive_target"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "scroll_workspace::nested_targets"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR03",
+      "condition": "Checked point placement through composed geometry",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "focus::text_focus"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "workspace::nested_origins"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR04",
+      "condition": "Canonical linear selection and finite drag ownership",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "selection::linear_drag"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "workspace::region_movement"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR05",
+      "condition": "Reversible modes and bounded pointer input work",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "autoscroll::edge_lifetime"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "autoscroll_bounds::clock_bounds"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "autoscroll_bounds::input_priority"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "PTR06",
+      "condition": "Complete startup defaults and native runtime control",
+      "native": [
+        {
+          "target": "tests/pointer.rs",
+          "test": "controls::startup_override"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "controls::disable_capture"
+        },
+        {
+          "target": "tests/pointer.rs",
+          "test": "controls::configured_steps"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "NAV01",
+      "condition": "Familiar command and checked destination",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "goto::native_aliases"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "goto::bounds::logical_bounds"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "NAV02",
+      "condition": "Cancel safely and preserve ordinary view ownership",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "goto::bounds::canceled_view"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "goto::bounds::shared_readonly"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "WSP01",
+      "condition": "Region conversion with preserved display columns",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "whitespace::named_conversion"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "whitespace::history::source_fidelity"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "WSP02",
+      "condition": "Coherent conversion edit with native safety and history",
+      "native": [
+        {
+          "target": "tests/commands.rs",
+          "test": "whitespace::history::compound_history"
+        },
+        {
+          "target": "tests/commands.rs",
+          "test": "whitespace::history::admission_noops"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG23",
+      "condition": "Packaged exhaustive default-equivalent template",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "template::explicit_defaults"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "template::native_equivalence"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "reference::sample_defaults"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "CFG24",
+      "condition": "Preserve existing entries and publish a complete file",
+      "native": [
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::publication::existing_entries"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::publication::concurrent_startup"
+        },
+        {
+          "target": "tests/configuration.rs",
+          "test": "startup::publication::creation_failure"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "STA01",
+      "condition": "Preserve pane-local observations",
+      "native": [
+        {
+          "target": "tests/display.rs",
+          "test": "status::complete_groups"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "status::shared_panes"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
+    },
+    {
+      "id": "STA02",
+      "condition": "Deterministic narrow-width status composition",
+      "native": [
+        {
+          "target": "tests/display.rs",
+          "test": "status::narrow_order"
+        },
+        {
+          "target": "tests/display.rs",
+          "test": "status::unicode_label"
+        }
+      ],
+      "pty": [
+        "combined-rgb",
+        "combined-no-color"
+      ],
+      "performance": []
     }
   ],
   "tickets": [

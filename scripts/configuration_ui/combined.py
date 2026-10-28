@@ -1,5 +1,10 @@
 """One native session connects bootstrap, navigation, panes, edits and pointer IO."""
 
+import fcntl
+import re
+import struct
+import termios
+
 from .gutter_geometry import idle
 from .pointer_focus import report as press
 from .pointer_scroll import report as wheel
@@ -41,7 +46,8 @@ def status(frame, area, expected):
 
 
 def named(session, name, marker):
-    return step(session, b'\x1bx' + name.encode() + b'\r', marker)
+    return send(session, b'\x1bx' + name.encode() + b'\r',
+                lambda f: b'M-x ' not in f and PTY['status_contains'](f, marker))
 
 
 def numbering(session, mode, expected):
@@ -218,12 +224,37 @@ def overlays(session, path):
     assert path.read_bytes() == SOURCE
 
 
+def resized_frames(output):
+    # A queued old-size frame can finish after TIOCSWINSZ. Validate every full
+    # frame against its actual projection, then require a monotonic transition.
+    resized = False
+    pattern = re.escape(PTY['HIDE']) + rb'.*?' + re.escape(PTY['SHOW'])
+    for match in re.finditer(pattern, output, re.S):
+        frame = match[0]
+        height = len(rows(frame))
+        if height == 24 and not resized:
+            canvas(frame, 120, 24)
+        else:
+            assert height == 12, 'unknown or regressed resize projection'
+            canvas(frame, 80, 12)
+            resized = True
+    return resized and output.endswith(PTY['SHOW'])
+
+
+def resize_capture(session):
+    # Preserve the already-read old frame and any partial tail; clearing them
+    # would lose the boundary needed to classify an in-flight redraw correctly.
+    fcntl.ioctl(session.slave, termios.TIOCSWINSZ, struct.pack('HHHH', 12, 80, 0, 0))
+    session.wait(lambda: resized_frames(session.output))
+    assert session.process.poll() is None and PTY['LEAVE'] not in session.output
+
+
 def capture_resize(session):
     # An actual source-edge deadline must fire before resize cancels ownership.
     frame = send(session, press(79, 0) + drag(79, 22), lambda f:
                  int(span(rows(f)[1], 73, 4)) >= 4)
     assert b'\x1b]52;' not in frame
-    PTY['resize_surface'](session, 80, 12, True)
+    resize_capture(session)
     frame = PTY['last_frame'](session)
     before = retained(frame, 80, 12)
     assert not span(rows(frame)[11], 53, 27).endswith('Rust'), 'narrow status did not omit mode first'
@@ -267,15 +298,21 @@ def combined(root, colored):
     assert not (root / 'user').exists(), 'combined journey must enter native first startup'
     session = PTY['Session']([str(BINARY), str(path)], env=environment(root, colored))
     try:
-        bootstrap(session, root, expected)
-        navigation(session)
-        workspace(session)
-        selection(session, path, colored)
-        whitespace(session, path)
-        failures(session, path)
-        overlays(session, path)
-        capture_resize(session)
-        mouse_control(session)
+        style = 'rgb' if colored else 'no-color'
+        stages = [
+            ('bootstrap', lambda: bootstrap(session, root, expected)),
+            ('navigation', lambda: navigation(session)),
+            ('workspace', lambda: workspace(session)),
+            ('selection', lambda: selection(session, path, colored)),
+            ('whitespace', lambda: whitespace(session, path)),
+            ('failures', lambda: failures(session, path)),
+            ('overlays', lambda: overlays(session, path)),
+            ('capture-resize', lambda: capture_resize(session)),
+            ('mouse-control', lambda: mouse_control(session)),
+        ]
+        for stage, action in stages:
+            action()
+            print(f'PASS combined-{style} {stage}')
         assert snapshot(root) == expected, 'combined editing changed unrelated files/settings'
         session.output.clear()
         finish(session, colored)
@@ -285,4 +322,5 @@ def combined(root, colored):
         close(session)
     assert snapshot(root) == expected
     passive(root)
+    print(f'PASS combined-{style} restoration')
     print(f'PASS combined {"RGB" if colored else "NO_COLOR"}: first startup, ordered arrows, independent gutters/status, goto, pointed scrolling, canonical drag, exact conversion/history saves, failed/canceled prompts, overlays, resize capture cleanup and runtime mouse control')

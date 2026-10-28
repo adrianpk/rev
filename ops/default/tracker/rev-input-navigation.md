@@ -348,8 +348,15 @@ Details and exact checks: [Slice 18](../plan/rev-input-navigation.md#slice-18-ex
 
 - [x] T18.1: Extend the existing configuration/UI PTY harness with a named combined journey covering first-start creation, splits/tree, both gutter modes, status groups, line navigation, whitespace conversion and pointer events.
 - [x] T18.2: Use actual decoded terminal screen cells and file/history outcomes, including cancel, resize, capture cleanup and reported failures; no schema-only success or skipped path counts as acceptance.
-- [ ] T18.3: Extend the existing evidence map/checker for the admitted additional terminal cases while preserving all prior cases and assertions; keep the unchanged full-gate command sequence coherent.
+- [x] T18.3: Extend the existing evidence map/checker for the admitted additional terminal cases while preserving all prior cases and assertions; keep the unchanged full-gate command sequence coherent.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 18 of 20 implemented. Its
+[canonical report](../report/slices/rev-input-navigation/slice-18-combined-terminal.md)
+records RGB/NO_COLOR combined native journeys, exact cell/file/history outcomes,
+bounded capture/resize cleanup and preserved baseline evidence with new contract
+and stage admission. Canonical PR and exact clean-head evidence follow task and
+PR-reference commits; integration remains pending.
 
 ### Slice 19: verify bounded input gutter and pointer work
 

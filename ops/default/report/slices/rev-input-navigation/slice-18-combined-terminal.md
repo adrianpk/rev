@@ -1,6 +1,6 @@
 # Slice 18: Exercise the complete combined terminal workflow
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -48,7 +48,10 @@ and STA01-STA02 through the already delivered native owners.
 
 - `scripts/configuration_ui/combined.py`: connected native workflow and exact cell/file checks.
 - `scripts/check-configuration-ui.py`: named combined-case dispatch.
-- `scripts/configuration_ui/evidence.py`: admitted case identities.
+- `scripts/configuration_ui/evidence.py`: case/stage ordering, reference bounds and requirement admission.
+- `scripts/configuration_ui/acceptance.json`: retained baseline and additional native/terminal mappings.
+- `scripts/test_acceptance.py`: incomplete, stale, duplicate and malformed evidence rejection.
+- `docs/how-to/terminal-journeys.md`: ten-session workflow and original resource limits.
 
 ## Validation
 
@@ -67,8 +70,44 @@ real saved rectangle bytes, one-step history, diagnostics, live-edge autoscroll,
 late-report cancellation, no idle output/CPU, mode restoration, reaped children
 and closed PTYs all remain within the original limits. The expected incremental
 cost of the pair is now approximately eight seconds; no timeout or output budget
-was increased. Complete evidence admission follows the remaining recorded task. Exact clean-HEAD validation follows all task and
-PR-reference commits through the controller.
+was increased. Development `python3 -m unittest discover -s scripts -p test_acceptance.py`
+passed 15 guard tests. Missing, duplicate, reordered, skipped or failed cases and
+stages, absent cleanup, old eight-case output with a copied footer, invalid
+per-requirement links and stale/unbounded reference output are rejected. The map
+retains all 30 earlier entries and delivery metadata and adds 15 admitted
+contracts, each linked to real named native cases and both combined variants.
+Each combined case emits ten ordered stage receipts; restoration follows actual
+child/PTY cleanup and exact final filesystem checks. A focused two-case run is
+rejected as full terminal acceptance.
+
+An active autoscroll frame can already be queued when TIOCSWINSZ shrinks the
+surface. The combined driver retains that stream boundary, validates every
+complete old/new frame against its actual 120x24/80x12 projection, rejects mixed
+or regressed geometry and waits for a complete new frame. It does not treat an
+old-size SHOW as resize completion. Synthetic guard mutations reject invalid
+rows/widths and old geometry after the transition. This corrects driver timing
+while retaining bounds, capture cancellation and original resource ceilings.
+The completed pair passed again in 7.210 seconds excluding build.
+
+The existing full-gate entrypoint and ordered command list are unchanged.
+Final canonical ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test gutter --test commands --test display --test configuration --test recovery`
+- `python3 scripts/check-configuration-ui.py --suite terminal`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final commands:
+
+- `python3 -m unittest discover -s scripts -p test_acceptance.py`
+- `python3 scripts/check-configuration-ui.py --suite prerequisites`
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
+Exact clean-HEAD validation follows all task and PR-reference commits through
+the controller.
 
 ## Risks and Follow-ups
 

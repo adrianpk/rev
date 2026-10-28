@@ -134,21 +134,71 @@ class AcceptanceTests(unittest.TestCase):
 
 
 class ConfigurationAcceptanceTests(unittest.TestCase):
-    # Eight actual named terminal completions are required; a smaller selection
-    # or a copied footer cannot establish the complete configuration journey set.
+    # All prior cases plus each combined stage and owned cleanup are required;
+    # missing work, reordered stages or a copied footer cannot establish delivery.
     def test_config_terminal(self):
-        from configuration_ui.evidence import PTY_CASES, terminal
-        good = ''.join(f'PASS configuration-ui {name}\n' for name in PTY_CASES)
-        good += 'Configuration/UI terminal suite: 8 sessions passed, 0 skipped.\n'
+        from configuration_ui.evidence import COMBINED_CASES, COMBINED_STAGES, PTY_CASES, terminal
+        good = ''.join(f'PASS configuration-ui {name}\n' for name in PTY_CASES if name not in COMBINED_CASES)
+        for name in COMBINED_CASES:
+            good += ''.join(f'PASS {name} {stage}\n' for stage in COMBINED_STAGES)
+            good += f'PASS configuration-ui {name}\n'
+        good += 'Configuration/UI terminal suite: 10 sessions passed, 0 skipped.\n'
         terminal(good)
         for name, bad in {
             'missing': good.replace('PASS configuration-ui unwind\n', ''),
             'duplicate': good.replace('PASS configuration-ui unwind', 'PASS configuration-ui io'),
             'skipped': good + 'SKIP unavailable PTY\n',
-            'focused': good.replace('8 sessions', '1 sessions'),
+            'focused': good.replace('10 sessions', '1 sessions'),
+            'prior only': good[:good.index('PASS combined-rgb')] + 'Configuration/UI terminal suite: 10 sessions passed, 0 skipped.\n',
+            'old summary': good.replace('10 sessions', '8 sessions'),
+            'combined missing': good.replace('PASS configuration-ui combined-no-color\n', ''),
+            'combined duplicated': good.replace('configuration-ui combined-no-color', 'configuration-ui combined-rgb'),
+            'stage missing': good.replace('PASS combined-rgb selection\n', ''),
+            'cleanup missing': good.replace('PASS combined-no-color restoration\n', ''),
+            'stage duplicated': good.replace('combined-rgb selection', 'combined-rgb navigation'),
+            'stage order': good.replace('PASS combined-rgb workspace\nPASS combined-rgb selection', 'PASS combined-rgb selection\nPASS combined-rgb workspace'),
+            'failed': good + 'FAIL unavailable stage\n',
         }.items():
             with self.subTest(name=name), self.assertRaises(ValueError):
                 terminal(bad)
+
+    # Prior catalog totals and unbounded/missing compiled-template output cannot
+    # establish the delivered bootstrap and gutter/mouse reference contract.
+    def test_config_reference(self):
+        from configuration_ui.evidence import reference
+        good = ('Packaged template: 10013 exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation.\n'
+                'Configuration reference: 72 schema/catalog entries, 29 active RGB roles, 111 default bindings and three optional examples agree; links valid.\n')
+        reference(good)
+        for name, bad in {
+            'prior catalog': good.replace('72 schema', '59 schema'),
+            'prior palette': good.replace('29 active', '25 active'),
+            'missing bindings': good.replace('111 default bindings', '110 default bindings'),
+            'missing compiled': good.split('\n', 1)[1],
+            'empty compiled': good.replace('10013 exact', '0 exact'),
+            'oversize compiled': good.replace('10013 exact', '262145 exact'),
+        }.items():
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                reference(bad)
+
+    # Buffered old-size autoscroll frames remain bounded, but cannot satisfy
+    # shrink readiness; mixed geometry or regression after shrink must fail.
+    def test_live_resize_frames(self):
+        from configuration_ui.combined import resized_frames
+        def frame(width, height):
+            return (b'\x1b[?25l' + b''.join(f'\x1b[{row};1H'.encode() + b' ' * width
+                    for row in range(1, height + 1)) + b'\x1b[?25h')
+        old, new = frame(120, 24), frame(80, 12)
+        self.assertFalse(resized_frames(old))
+        self.assertFalse(resized_frames(old + new[:-1]))
+        self.assertTrue(resized_frames(old + new))
+        for name, bad in {
+            'wrong width': old + frame(120, 12),
+            'wrong height': old + frame(80, 13),
+            'old after new': old + new + old,
+            'invalid coordinate': new.replace(b'[12;1H', b'[13;1H'),
+        }.items():
+            with self.subTest(name=name), self.assertRaises(AssertionError):
+                resized_frames(bad)
 
     # Colored prefix frames must not satisfy a command's retained status marker
     # before the final key dispatches and publishes the requested new geometry.
@@ -174,10 +224,13 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             (fixture / 'tests').symlink_to(root / 'tests', target_is_directory=True)
             path = fixture / MAP
             path.parent.mkdir(parents=True)
-            mutations = ['missing', 'duplicate', 'native', 'terminal', 'performance']
+            mutations = ['missing', 'duplicate', 'native', 'terminal', 'performance', 'combined']
             for name in mutations:
                 bad = copy.deepcopy(document)
-                change_manifest(bad, name)
+                if name == 'combined':
+                    next(row for row in bad['cases'] if row['id'] == 'CFG24')['pty'].pop()
+                else:
+                    change_manifest(bad, name)
                 path.write_text(json.dumps(bad))
                 with self.subTest(name=name), self.assertRaises(ValueError):
                     manifest(fixture)
