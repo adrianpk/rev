@@ -21,6 +21,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     tree(&mut settings.tree, &document.tree);
     syntax(&mut settings.syntax, &document.syntax);
     files(&mut settings.files, &document.files);
+    scalar(&mut settings.org.enabled, document.org.enabled);
     palette(&mut settings.palette, &document.palette);
     settings.language.clone_from(&document.language);
     settings.keys.clone_from(&document.keys);

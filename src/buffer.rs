@@ -2,6 +2,7 @@ mod delete;
 pub mod edit;
 mod endings;
 mod lifecycle;
+mod mode;
 mod org;
 mod policy;
 mod region;
@@ -14,6 +15,8 @@ mod whitespace;
 pub use lifecycle::Kill;
 pub use save::{Confirmation, Save, SaveRequest};
 pub use whitespace::Whitespace;
+
+pub use mode::{Mode, ModeError};
 
 use std::collections::{BTreeMap, VecDeque};
 
@@ -144,6 +147,9 @@ pub struct Buffer {
     typing: Option<Stamp>,
     syntax: crate::syntax::Syntax,
     org: Option<crate::org::Index>,
+    mode_choice: Option<Mode>,
+    org_active: bool,
+    org_enabled: bool,
     syntax_policy: crate::config::Syntax,
     grammar: crate::config::Grammar,
     syntax_active: bool,
@@ -187,6 +193,9 @@ impl Buffer {
             typing: None,
             syntax: crate::syntax::Syntax::default(),
             org: None,
+            mode_choice: None,
+            org_active: false,
+            org_enabled: true,
             syntax_policy: crate::config::Syntax::default(),
             grammar: crate::config::Grammar::Plain,
             syntax_active: false,

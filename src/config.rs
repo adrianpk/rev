@@ -51,6 +51,7 @@ pub struct Settings {
     pub kill_ring: KillRing,
     pub tree: Tree,
     pub syntax: Syntax,
+    pub org: Org,
     pub files: Files,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
@@ -76,6 +77,7 @@ pub struct Document {
     pub kill_ring: PartialKillRing,
     pub tree: PartialTree,
     pub syntax: PartialSyntax,
+    pub org: PartialOrg,
     pub files: PartialFiles,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
@@ -110,6 +112,24 @@ pub enum TreeRoot {
 pub enum Newline {
     Lf,
     Crlf,
+}
+
+/// Native Org availability; individual buffers retain explicit mode choices.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Org {
+    pub enabled: bool,
+}
+
+impl Default for Org {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialOrg {
+    pub enabled: Option<bool>,
 }
 
 /// Only the existing bundled Rust grammar or plain text may be selected.

@@ -86,6 +86,10 @@ show_hidden = true
 # Boolean; sort directories before leaves, then names by bytes.
 directories_first = true
 
+[org]
+# Native Org availability; M-x org-mode selects it explicitly per buffer.
+enabled = true
+
 [syntax]
 # Boolean; enable the existing bundled grammar/query, with plain-text fallback.
 enabled = true

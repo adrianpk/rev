@@ -136,6 +136,16 @@ input/session construction supplied with a snapshot dispatches `keys.editor`,
 The focused prompt temporarily owns the minibuffer map even when the tree
 retains workspace focus. No keymap edits the underlying document from a prompt.
 
+### Native mode selection
+
+`M-x org-mode` selects native Org behavior for the current canonical buffer.
+`M-x text-mode` selects ordinary text editing and releases retained Org indexes.
+Both commands retain source, history, saved state and the mode choice across
+shared views and file reassociation. Visiting an admitted `.org` basename enables
+Org through the existing association resolver; user rules can override it.
+`org.enabled = false` rejects explicit entry and keeps source editable as text.
+Mode activation starts no analysis worker or idle polling.
+
 ### Sequence vocabulary
 
 A sequence has one through eight normalized chords separated by ASCII whitespace.

@@ -12,6 +12,8 @@ mod inline;
 mod inline_bounds;
 #[path = "org_source/jobs.rs"]
 mod jobs;
+#[path = "org_source/mode.rs"]
+mod mode;
 #[path = "org_source/structure.rs"]
 mod structure;
 #[path = "org_source/structure_bounds.rs"]

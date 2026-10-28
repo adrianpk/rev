@@ -11,8 +11,8 @@ mod split;
 mod tree;
 mod window;
 
-pub use crate::buffer::Whitespace;
 pub use crate::buffer::edit::History;
+pub use crate::buffer::{Mode, Whitespace};
 pub use crate::window::Split;
 pub use binding::{Binding, PromptAction};
 pub use buffer::BufferCommand;
@@ -38,6 +38,7 @@ pub enum Command {
     FindFile,
     GotoLine,
     MouseMode,
+    Mode(Mode),
     Gutter(GutterCommand),
     Whitespace(Whitespace),
     SaveBuffer,
@@ -60,7 +61,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 74] = [
+    pub const ALL: [Self; 76] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -86,6 +87,8 @@ impl Command {
         Self::FindFile,
         Self::GotoLine,
         Self::MouseMode,
+        Self::Mode(Mode::Org),
+        Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),
         Self::Gutter(GutterCommand::CycleMode),
         Self::Gutter(GutterCommand::Absolute),
@@ -181,6 +184,7 @@ impl Command {
 
     fn edit_name(self) -> &'static str {
         match self {
+            Self::Mode(mode) => mode.name(),
             Self::Newline => "newline",
             Self::InsertTab => "insert-tab",
             Self::BackwardDeleteChar => "backward-delete-char",

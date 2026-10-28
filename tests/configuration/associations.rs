@@ -15,6 +15,8 @@ fn builtins() {
     let snapshot = Snapshot::default();
     let cases = [
         ("main.rs", "rust"),
+        ("notes.org", "org"),
+        ("notes.ORG", "plain"),
         ("main.go", "go"),
         ("main.rb", "ruby"),
         ("Gemfile", "ruby"),

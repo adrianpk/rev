@@ -20,7 +20,11 @@ impl Buffer {
     }
 
     pub fn mode(&self) -> &'static str {
-        self.syntax.mode(self.stamp())
+        if self.is_org() {
+            "Org"
+        } else {
+            self.syntax.mode(self.stamp())
+        }
     }
 
     /// Refresh derived syntax outside atomic text publication. Failure changes
@@ -46,6 +50,8 @@ impl Buffer {
     // Parse failure keeps active=true, retaining once-per-revision retry bounds.
     fn prepare_syntax(&mut self) -> bool {
         let admitted = self.syntax_policy.enabled
+            && self.mode_choice.is_none()
+            && !self.is_org()
             && self.grammar == Grammar::Rust
             && (self.syntax_policy.max_bytes == 0
                 || self.len_bytes() <= self.syntax_policy.max_bytes);

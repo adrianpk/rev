@@ -28,6 +28,7 @@ TABLES = {
     "kill_ring": "PartialKillRing",
     "tree": "PartialTree",
     "syntax": "PartialSyntax",
+    "org": "PartialOrg",
     "files": "PartialFiles",
     "keys": "Keymaps",
     "palette": "PartialPalette",

@@ -170,7 +170,7 @@ ordered checks at that exact candidate, including 70 tests with zero skips.
 Contracts: ORG01 ORG17.
 Details and exact checks: [Slice 5](../plan/rev-org-mode.md#slice-5-activate-native-org-mode-and-contexts).
 
-- [ ] T5.1: Activate the native Org mode by visiting suffix or explicit compiled mode command.
+- [x] T5.1: Activate the native Org mode by visiting suffix or explicit compiled mode command.
 - [ ] T5.2: Add Org editing, agenda, capture, calendar and special-edit context routing with prompt precedence.
 - [ ] T5.3: Introduce org_editing; expose only operational commands and verify context cancellation and plain-text fallback.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

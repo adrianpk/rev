@@ -21,6 +21,7 @@ impl Buffer {
         self.history_policy = settings.settings().history.clone();
         self.syntax_policy = settings.settings().syntax.clone();
         self.grammar = settings.grammar(language);
+        self.apply_mode(settings);
         self.refresh_syntax();
     }
 }

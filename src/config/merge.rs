@@ -30,6 +30,11 @@ impl Document {
         merge.kill_ring(&mut self.kill_ring, &later.kill_ring);
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
+        merge.leaf(
+            &["org", "enabled"],
+            &mut self.org.enabled,
+            &later.org.enabled,
+        );
         merge.files(&mut self.files, &later.files);
         merge.palette(&mut self.palette, &later.palette);
         merge.languages(&mut self.language, &later.language);

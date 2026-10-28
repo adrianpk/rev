@@ -8,6 +8,7 @@ mod gutter;
 mod history;
 mod kill;
 mod linear;
+mod mode;
 mod motion;
 mod paste;
 mod path;
@@ -322,6 +323,7 @@ impl Session {
             Command::Whitespace(command) => self.whitespace_command(command),
             Command::Gutter(command) => self.gutter_command(command),
             Command::MouseMode => self.toggle_mouse(),
+            Command::Mode(mode) => self.select_mode(mode),
             _ => self.dispatch(command),
         }
     }
