@@ -1,6 +1,6 @@
 # Slice 26: discover bounded canonical Org agenda sources
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -120,8 +120,11 @@ Calendar/day/week result presentation follows its recorded slice.
 The delivery-set full gate has not run.
 
 [Canonical PR #127](https://forge.adrianpk.com/adrianpk/rev/pulls/127) targets dev.
-Final required and focused controller receipts bind the clean PR-reference head;
-verified integration remains pending.
+Verified integration: PR #127 merged into dev at
+`499077927bf1fc35ca73e01975e19b29a2aaa210`. Required controller receipt
+`6LLRE3NDUBRD6AINGMU56GBW5H` passed five ordered checks and 152 tests.
+Focused receipt `JWDJTHQ2JQ653WINLZQNMAMMYX` passed 412 tests and the
+configuration reference. Both had zero skips.
 
 The first final focused batch at `bdde65f5fe84` stopped in prefix_recovery:
 its unbound-key assertion still used C-c, which now owns the approved C-c a

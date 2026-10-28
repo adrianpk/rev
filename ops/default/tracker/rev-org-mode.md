@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 26 agenda-sources
+Active slice: Slice 27 agenda-calendar
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -644,7 +644,7 @@ Details and exact checks: [Slice 26](../plan/rev-org-mode.md#slice-26-discover-b
 - [x] T26.1: Resolve explicitly selected files/directories without scanning the home or project implicitly.
 - [x] T26.2: Prefer current buffers, deduplicate real file identities and observe disk sources through cancellable owned work.
 - [x] T26.3: Verify unreadable sources, cycles, limits and truthful partial results while keeping editing responsive.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T26.1 delivers typed explicit source selection, non-recursive directory scope,
 canonical identity and whole-source partial-result observations. Four focused
@@ -664,8 +664,11 @@ quality preserve their original limits. Final canonical PR and receipts follow.
 T26.3: `61ae680593ef1c0c33aac0521eeefa243c5594e0`.
 [Canonical PR #127](https://forge.adrianpk.com/adrianpk/rev/pulls/127) and the
 [Slice 26 report](../report/slices/rev-org-mode/slice-26-agenda-sources.md) are
-reviewing. Final required/focused controller receipts bind the clean
-PR-reference head; verified dev integration remains pending.
+delivered. PR #127 merged into dev at
+`499077927bf1fc35ca73e01975e19b29a2aaa210`. Required receipt
+`6LLRE3NDUBRD6AINGMU56GBW5H` passed five ordered checks and 152 tests.
+Focused receipt `JWDJTHQ2JQ653WINLZQNMAMMYX` passed 412 tests and the
+configuration reference, zero skips.
 
 ### Slice 27: display native day and week Org agendas
 
