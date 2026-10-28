@@ -4,6 +4,8 @@ use crossterm::event::{Event, KeyModifiers, MouseButton, MouseEvent, MouseEventK
 use rev::input::{Input, Outcome};
 use rev::pointer::{Event as PointerEvent, Kind};
 
+#[path = "pointer/folds.rs"]
+mod folds;
 #[path = "pointer/input_state.rs"]
 mod input_state;
 

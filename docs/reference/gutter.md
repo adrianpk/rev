@@ -69,3 +69,8 @@ See the [complete sample](config.toml) and [value catalog](defaults.md#line-numb
 for all supported values. Includes and root leaves merge independently. Invalid
 preferences reject the complete candidate. Editing TOML affects the next startup;
 runtime reset continues using the running session's snapshot.
+
+In a folded native Org view, displayed labels retain original logical source
+line numbers across hidden ranges. Relative labels measure logical source-line
+distance from point, and current-line emphasis follows that same source identity.
+Number/text geometry and label width still use the canonical document line count.

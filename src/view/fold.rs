@@ -91,7 +91,7 @@ impl Folds {
 
 impl View {
     /// Install complete logical-line source ranges atomically. EOF may terminate
-    /// an unterminated last line. Stale/foreign/partial-line ranges and hiding
+    /// an unterminated last line; empty ranges are ignored. Stale/foreign/partial-line ranges and hiding
     /// point are rejected before replacing this view's existing visibility.
     pub fn set_folds(&mut self, buffer: &Buffer, ranges: &[SourceRange]) -> Result<(), Error> {
         let point = self.cell(buffer)?;

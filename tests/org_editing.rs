@@ -6,6 +6,8 @@ mod colors;
 mod contexts;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "org_editing/fold_edges.rs"]
+mod fold_edges;
 #[path = "org_editing/folds.rs"]
 mod folds;
 #[path = "org_editing/projection.rs"]

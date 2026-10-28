@@ -78,7 +78,19 @@ fn fold_admission() {
     );
     let foreign = range(buffers.get(other).unwrap(), 1..2);
     assert!(view.set_folds(buffer, &[foreign]).is_err());
-    assert!(view.set_folds(buffer, &vec![valid.clone(); 4097]).is_err());
+    assert_eq!(view.source_row(buffers.get(other).unwrap(), 0), None);
+    assert_eq!(view.screen_row(buffers.get(other).unwrap(), 0), None);
+    let crlf = Source::new(buffer).range(Byte(4)..Byte(5)).unwrap();
+    assert_eq!(
+        view.set_folds(buffer, &[crlf]),
+        Err(Error::Fold(FoldError::Boundary(rev::coordinates::Scalar(
+            4
+        ))))
+    );
+    assert_eq!(
+        view.set_folds(buffer, &vec![valid.clone(); 4097]),
+        Err(Error::Fold(FoldError::Limit))
+    );
     assert!(view.set_folds(buffer, &[range(buffer, 0..1)]).is_err());
     assert_eq!(view, before);
     buffers

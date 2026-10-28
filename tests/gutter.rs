@@ -9,6 +9,8 @@ mod alignment;
 mod completion;
 #[path = "gutter/controls.rs"]
 mod controls;
+#[path = "gutter/folds.rs"]
+mod folds;
 #[path = "gutter/geometry.rs"]
 mod geometry;
 #[path = "gutter/invalidation.rs"]

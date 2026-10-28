@@ -138,3 +138,29 @@ and NO_COLOR fallback as Rust. NO_COLOR keeps original source and delimiters,
 selection reverse video and search underlining without RGB output. Task-state,
 tag and timestamp-specific semantic roles arrive with those semantic owners;
 heading and planning source currently retain their enclosing roles.
+
+## Library fold projection
+
+Native Org `View::set_folds` accepts up to 4096 revision-qualified source ranges.
+Nonempty ranges hide complete logical lines; an unterminated final line may end
+at EOF. Empty ranges are ignored. Overlapping/adjacent ranges form one hidden
+interval. Partial lines, foreign/stale source, inactive Org mode and hiding the
+view's current point are rejected before replacing existing visibility. This
+API changes neither canonical source nor history and works on read-only buffers.
+
+Each view retains its own map. Splits copy the choice through shared immutable
+offsets; revealing or clearing one view leaves its peers unchanged. `View.top`
+remains a canonical logical row, `source_row` resolves a local displayed row and
+`screen_row` returns no position for hidden or above-viewport source. Cursor,
+gutter labels, syntax, selection, search and mouse hits use those same rows.
+Hidden text stays part of canonical regions and copied/saved source. Complete
+Unicode glyphs, tabs, horizontal clipping and blank EOF cells retain their
+ordinary coordinate rules.
+
+Vertical/page/wheel/autoscroll input advances visible rows. A targeted source
+navigation or search reveals its containing hidden interval before displaying
+the point; canceled search restores the original view choice. Canonical text
+publication, undo and redo release obsolete fold offsets in all affected views.
+Standalone stale maps also fall back to visible source; stale view points remain
+invalid until the caller supplies a current canonical point. Tiny geometry
+preserves source scroll and does not create a row alias or idle deadline.

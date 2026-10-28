@@ -207,7 +207,7 @@ Details and exact checks: [Slice 7](../plan/rev-org-mode.md#slice-7-map-folded-o
 
 - [x] T7.1: Add view-local visibility projection over source ranges, retaining independent shared-buffer views.
 - [x] T7.2: Map cursor, gutter, search, mouse and selections through hidden ranges without aliasing source positions.
-- [ ] T7.3: Verify tiny panes, Unicode, hit testing, stale folds and edit-driven reveal.
+- [x] T7.3: Verify tiny panes, Unicode, hit testing, stale folds and edit-driven reveal.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 8: deliver native Org visibility controls

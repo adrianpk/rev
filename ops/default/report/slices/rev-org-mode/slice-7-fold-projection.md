@@ -1,6 +1,6 @@
 # Slice 7: Map folded Org views to canonical source
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -37,6 +37,13 @@ Entering a hidden row through mutable reveal removes that containing interval
 only in the requesting view. Stale or inactive-mode maps project plain source;
 reveal releases stale offsets. New buffer bindings reset visibility.
 
+Native regressions verify Unicode/wide/ZWJ and tab-edge hits, tiny geometry,
+maximum-range round trips, stale view/range rejection, edit/undo/redo reveal,
+read-only failures and independent split search/cancel. Actual mouse events
+exercise region endpoints across a hidden gap, wheel movement and autoscroll
+termination at a hidden source tail. Left absolute and right relative gutters
+retain source numbering and current-line color across gaps.
+
 ## Contracts Added or Changed
 
 - ORG03: independent revision-qualified view visibility and non-aliasing row maps.
@@ -52,6 +59,9 @@ reveal releases stale offsets. New buffer bindings reset visibility.
 - `src/window/points.rs`: release obsolete fold offsets on canonical publication.
 - `tests/org_editing/folds.rs`: independent maps, admission and EOF contracts.
 - `tests/org_editing/projection.rs`: display, regions, search, hits and motion.
+- `tests/org_editing/fold_edges.rs`, `tests/pointer/folds.rs`, `tests/gutter/folds.rs`:
+  native edge, lifetime, gesture, timer-cleanup and source-numbering contracts.
+- `docs/reference/syntax.md`, `docs/reference/gutter.md`: library projection rules.
 
 ## Validation
 
@@ -60,11 +70,25 @@ Implementation checks:
 - `cargo check --lib`: passed.
 - `cargo test --test org_editing folds::`: three passed.
 - `cargo test --test org_editing projection::`: three passed.
-- Focused source-quality checks passed for changed native owners.
+- `cargo test --test org_editing fold_edges::`: six passed.
+- `cargo test --test pointer folds::`: two passed.
+- `cargo test --test gutter folds::`: one passed.
+- Focused source-quality checks passed for changed native owners and fixtures.
 
-The exact ordered controller batch will follow the remaining projection tasks
-and pushed canonical PR-reference commit.
+After the pushed PR-reference follow-up, the controller records the final clean
+candidate and outcomes for this exact ordered batch in its validation ledger:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test display --test gutter --test pointer`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Final receipts are recorded in Acta; the integration follow-up retains their
+exact candidate and outcome here.
 
 ## Risks and Follow-ups
 
-Combined stale/edit/tiny-pane coverage remains in T7.3. Native visibility commands belong to the recorded Slice 8.
+Canonical edits reveal all affected views rather than requalifying obsolete fold
+offsets. Native visibility commands and hierarchy cycles belong to recorded
+Slice 8; this slice supplies their checked view projection.
