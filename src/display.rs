@@ -4,6 +4,7 @@ mod completion;
 mod compose;
 mod gutter;
 mod habit;
+pub use habit::HabitDisplay;
 mod inventory;
 mod prompt;
 mod search;

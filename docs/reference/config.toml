@@ -369,6 +369,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-x h" = "org-habit-show-graph"
 "S-Left" = "org-shiftleft"
 "S-Right" = "org-shiftright"
 "C-c ." = "org-timestamp"
@@ -424,6 +425,15 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # These workspace roles consume unbound text. Feature owners add their own actions.
 [keys.org_agenda]
+"g" = "org-habit-show-graph"
+"K" = "org-habit-toggle-habits"
+"C-u K" = "org-habit-toggle-habits-only-for-today"
+"A" = "org-habit-toggle-show-all-today"
+"d" = "org-habit-graph-date"
+"G" = "org-habit-set-graph-window"
+"q" = "keyboard-quit"
+"Down" = "next-line"
+"Up" = "previous-line"
 ";" = "org-timer-set-timer"
 "e" = "org-set-effort"
 "," = "org-priority"

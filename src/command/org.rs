@@ -104,9 +104,15 @@ pub enum OrgCommand {
     TimerPause,
     TimerStop,
     TimerShow,
+    HabitGraph,
+    HabitToggle,
+    HabitTodayOnly,
+    HabitAllToday,
+    HabitDate,
+    HabitWindow,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 102] = [
+    pub const ALL: [Self; 108] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -209,6 +215,12 @@ impl OrgCommand {
         Self::TimerPause,
         Self::TimerStop,
         Self::TimerShow,
+        Self::HabitGraph,
+        Self::HabitToggle,
+        Self::HabitTodayOnly,
+        Self::HabitAllToday,
+        Self::HabitDate,
+        Self::HabitWindow,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -314,6 +326,12 @@ impl OrgCommand {
             "org-timer-pause-or-continue",
             "org-timer-stop",
             "org-timer-show-remaining-time",
+            "org-habit-show-graph",
+            "org-habit-toggle-habits",
+            "org-habit-toggle-habits-only-for-today",
+            "org-habit-toggle-show-all-today",
+            "org-habit-graph-date",
+            "org-habit-set-graph-window",
         ][self as usize]
     }
 
@@ -497,5 +515,19 @@ impl OrgCommand {
 impl OrgCommand {
     pub(crate) fn session_clock(self) -> bool {
         self.clock() && !matches!(self, Self::ClockIn | Self::ResolveClocks)
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn habit(self) -> bool {
+        matches!(
+            self,
+            Self::HabitGraph
+                | Self::HabitToggle
+                | Self::HabitTodayOnly
+                | Self::HabitAllToday
+                | Self::HabitDate
+                | Self::HabitWindow
+        )
     }
 }

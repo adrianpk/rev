@@ -612,9 +612,13 @@ Contracts: ORG20 ORG16.
 Details and exact checks: [Slice 25](../plan/rev-org-mode.md#slice-25-render-native-org-habit-consistency-graphs).
 
 - [x] T25.1: Render bounded habit graphs with verified defaults, completion/today markers and semantic palette states.
-- [ ] T25.2: Deliver agenda visibility, all-today/today-only and graph controls through native commands.
+- [x] T25.2: Deliver agenda visibility, all-today/today-only and graph controls through native commands.
 - [ ] T25.3: Verify narrow panes, late completions, dirty source observations and idle immutability.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T25.1: `60428ea7e251`. Bounded graph data, verified preferences and semantic
+pane rendering pass fifteen selected checks. T25.2 adds the explicit native
+habit agenda and compiled controls using the existing report worker.
 
 ### Slice 26: discover bounded canonical Org agenda sources
 

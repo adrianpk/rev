@@ -90,6 +90,7 @@ impl Session {
     }
     fn publish_clock_output(&mut self, result: Result<Output, String>) -> Result<(), String> {
         match result? {
+            Output::Habits(agenda) => self.install_habit_agenda(agenda),
             Output::Display(feedback) => {
                 self.message(&feedback);
             }

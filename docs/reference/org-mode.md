@@ -562,6 +562,38 @@ previous Org date. Timed repeats and completion logs retain actual captured loca
 time. No elapsed duration or time-zone offset is inferred from the day boundary.
 Habit observation reads current canonical source, including unsaved text, with
 no edits or idle work. Its limits are 262144 entry bytes, 4096 completion records
-and 4096 bytes per history line. Graph rendering is a separate agenda capability.
+and 4096 bytes per history line. Graphs open with `C-c C-x h` or `org-habit-show-graph`.
 
 Behavior reference: [Org habit tracking](https://orgmode.org/manual/Tracking-your-habits.html).
+
+
+## Habit consistency graphs
+
+Open the selected buffer's native habit agenda with `C-c C-x h`. It reads
+current canonical text, including unsaved or read-only source, and displays
+bounded graphs without creating an editable agenda document. `g` explicitly
+refreshes source and captured local date. A stale source label remains until
+refresh; repainting does not rerun graph analysis or read the clock.
+
+`K` toggles visibility; `C-u K` toggles today-only display; `A` includes all habits
+on today's agenda, including those not yet scheduled. `d` selects a view date
+(`YYYY-MM-DD` or `today`); graphs stay relative to the captured effective today.
+`G` accepts three unsigned integers: preceding days, following days and preferred
+column. Invalid entry preserves the current policy and allows correction; C-g
+cancels input. `q` or C-g returns from the agenda to the unchanged source view.
+Up/Down scroll graph rows. Text, paste, pointer and source-edit commands cannot
+mutate the document through this read-only viewport.
+
+Factory preferences are 21 preceding days, 7 following days, column 40,
+today-only true, all-today false and done-always-green false. Each side permits
+0..366 days; column permits 0..4096. Narrow panes clip whole glyphs and retain
+today. Four semantic states use `.` before due, `+` available, `?` imminent and
+`-` overdue; actual completions use `*`, and today uses `!` when not completed.
+These markers remain readable with NO_COLOR. Eight configurable
+`palette.org.habit_*` backgrounds distinguish past/future states. Late
+completions retain overdue color unless explicitly configured always green.
+
+One selected-buffer agenda admits 128 habit rows, each with the existing entry
+and history bounds. Exceeding the row count diagnoses an incomplete request
+before replacing the current view. The shared native worker owns graph work and
+cancellation; inactive agendas create no additional polling or source changes.

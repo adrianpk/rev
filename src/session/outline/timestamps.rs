@@ -280,7 +280,7 @@ impl Session {
         }
     }
 }
-pub(super) fn capture(policy: &crate::config::Time) -> Result<ZonedOperation, String> {
+pub(in crate::session) fn capture(policy: &crate::config::Time) -> Result<ZonedOperation, String> {
     let selection = ZoneSelection::parse(&policy.zone)?;
     let env = ZoneEnvironment::system();
     ZonedOperation::capture(&selection, &env, || Ok(SystemTime::now()))

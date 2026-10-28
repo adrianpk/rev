@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Complete native Org habits with repeating schedules and minimum/maximum calendar intervals. Existing task controls preserve compatible history, logging choices and single-step undo. Set `org.time.extend_today_until` for date-only habit recurrence before your day starts; completion logs keep their actual time.
+- Complete native Org habits with repeating schedules and minimum/maximum calendar intervals. Existing task controls preserve compatible history, logging choices and single-step undo. Set `org.time.extend_today_until` for date-only habit recurrence before your day starts; completion logs keep their actual time. Inspect bounded consistency graphs with `C-c C-x h`, refresh explicitly, and toggle visibility, today-only or all-today display. Graphs retain actual completion markers and late status, clip safely in narrow panes and remain readable without color.
 
 - Take timed Org notes with native relative timers, pause/continue/stop controls and H:MM:SS insertion. Timed description lists continue with M-RET and undo through normal source history. Explicit countdowns show one in-editor expiry notice, stop on session exit and add no wakeups while paused or inactive.
 

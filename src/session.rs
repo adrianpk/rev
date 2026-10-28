@@ -5,6 +5,7 @@ mod extended;
 mod file;
 mod goto;
 mod gutter;
+mod habits;
 mod history;
 mod kill;
 mod linear;
@@ -87,6 +88,7 @@ pub struct Session {
     timer: crate::org::time::Timer,
     timer_clock: Option<fn() -> std::time::Instant>,
     timer_notice: bool,
+    habit_agenda: Option<habits::State>,
 }
 
 enum AfterSave {
@@ -97,6 +99,7 @@ enum AfterSave {
 
 enum Pending {
     Timer(timers::Prompt),
+    Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
     Clock(Box<outline::clocks::Prompt>),
     Timestamp(Box<outline::timestamps::Prompt>),
@@ -203,6 +206,7 @@ impl Session {
             timer: crate::org::time::Timer::default(),
             timer_clock: None,
             timer_notice: false,
+            habit_agenda: None,
         })
     }
 
@@ -251,11 +255,20 @@ impl Session {
             )?,
             None => Frame::compose(&self.buffers, &self.windows, self.size, &self.echo)?,
         };
-        self.timer_frame(&mut frame)?;
+        self.native_overlays(&mut frame, composition.as_ref())?;
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame, composition.as_ref())?;
         Ok(frame)
+    }
+
+    fn native_overlays(
+        &self,
+        frame: &mut Frame,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), view::Error> {
+        self.timer_frame(frame)?;
+        self.habit_frame(frame, composition)
     }
 
     fn reveal_workspace(
@@ -327,12 +340,17 @@ impl Session {
             Outcome::Selection(selection) => self.select_candidate(selection),
             Outcome::Complete => self.complete_argument(),
             Outcome::Changed => self.input_changed(),
-            Outcome::Paste(text) => self.paste_text(&text),
+            Outcome::Paste(text) => self.habit_paste(&text),
             _ => self.input_feedback(outcome, now),
         }
     }
 
     fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        if self.habit_agenda.is_some()
+            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
+        {
+            return self.message("Read-only habit agenda; C-g returns to source");
+        }
         match outcome {
             Outcome::Pointer(event) => self.pointer(event, now),
             Outcome::Editing(key) => self.typing(key),
@@ -353,7 +371,10 @@ impl Session {
         if let Err(error) = self.stop_typing() {
             return self.error(&error.to_string());
         }
-        let action = self.active_command(command);
+        let action = match self.habit_command(command) {
+            Some(action) => action,
+            None => self.active_command(command),
+        };
         self.sync_input_context();
         action
     }

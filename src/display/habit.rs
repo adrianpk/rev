@@ -55,3 +55,65 @@ impl Frame {
         row.search = row.search.take().filter(|r| !overlaps(r));
     }
 }
+
+pub struct HabitDisplay<'a> {
+    pub agenda: &'a crate::org::agenda::HabitAgenda,
+    pub policy: &'a crate::config::Habit,
+    pub date: crate::org::time::Date,
+    pub shown: bool,
+    pub top: usize,
+    pub stale: bool,
+}
+impl Frame {
+    pub fn habit_agenda(&mut self, display: HabitDisplay<'_>, area: Area) -> Result<(), Error> {
+        let label = format!(
+            "Habit agenda {} [read-only]{}",
+            display.date,
+            if display.stale {
+                " [stale: g refresh]"
+            } else {
+                ""
+            }
+        );
+        for row in 0..area.height() {
+            let line = Area::new(area.column(), area.row() + row, area.width(), 1)
+                .ok_or(crate::coordinates::Error::Overflow)?;
+            self.habit_text(if row == 0 { &label } else { "" }, line)?;
+        }
+        for (i, row) in display
+            .agenda
+            .visible(display.date, display.policy, display.shown)
+            .skip(display.top)
+            .take(usize::from(area.height().saturating_sub(1)))
+            .enumerate()
+        {
+            let line = Area::new(area.column(), area.row() + 1 + i as u16, area.width(), 1)
+                .ok_or(crate::coordinates::Error::Overflow)?;
+            let title = if row.graph.unresolved == 0 {
+                row.title.clone()
+            } else {
+                format!("{} [unresolved {}]", row.title, row.graph.unresolved)
+            };
+            self.habit_row(&row.graph, &title, line)?;
+        }
+        self.cursor = None;
+        Ok(())
+    }
+    fn habit_text(&mut self, text: &str, area: Area) -> Result<(), Error> {
+        self.habit_clear(area);
+        let text = clip::line(Glyphs::for_text(text)?, 0, area.width())?;
+        self.blit(
+            area,
+            Row {
+                row: 0,
+                text,
+                band: Band::Document,
+                tone: Tone::Document,
+                faces: Vec::new(),
+                syntax: Vec::new(),
+                selection: None,
+                search: None,
+            },
+        )
+    }
+}

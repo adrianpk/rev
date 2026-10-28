@@ -10,5 +10,7 @@ pub use scan::{ClockRequest, ClockScan};
 mod update;
 pub(crate) use update::ClockUpdate;
 mod habits;
+pub(crate) use habits::HabitScan;
+pub use habits::{HabitAgenda, HabitRow};
 pub use habits::{HabitCell, HabitGraph, HabitObservation, HabitRecord, HabitState};
 pub(crate) use habits::{completion as habit_completion, inactive as habit_inactive};

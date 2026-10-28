@@ -80,6 +80,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-c in Org | `org-clock-report` | Insert or explicitly update a clocktable. |
 | C-c C-x C-u in Org | `org-dblock-update` | Refresh the selected clocktable body. |
 | C-c C-x 0 in Org | `org-timer-start` | Start or reset the relative timer. |
+| C-c C-x h in Org | `org-habit-show-graph` | Open or refresh the native habit agenda for this buffer. |
 | C-c C-x ; in Org | `org-timer-set-timer` | Enter an explicit countdown. |
 | C-c C-x . in Org | `org-timer` | Insert the current timer value. |
 | C-c C-x - in Org | `org-timer-item` | Insert or continue a timed description list. |
@@ -250,17 +251,26 @@ consume unbound text and paste. They admit implemented motion, scroll, quit, com
 and cancellation targets. The agenda role also admits the implemented priority/effort
 source commands: comma selects priority, e sets effort and semicolon starts
 the session countdown prompt. Switching roles clears pending chords and Escape timing
-without accepting a prompt. Feature owners activate their role when delivered;
+without accepting a prompt. The native habit agenda is read-only; priority/effort source editing requires
+returning to source. Feature owners activate their role when delivered;
 role selection alone does not create an agenda or draft.
 
 ### Org agenda defaults and availability
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
+| `g` | `org-habit-show-graph` | Explicitly refresh from current source and time. |
+| `K` | `org-habit-toggle-habits` | Toggle graph visibility. |
+| `C-u K` | `org-habit-toggle-habits-only-for-today` | Toggle today's agenda only. |
+| `A` | `org-habit-toggle-show-all-today` | Toggle all habits on today's agenda. |
+| `d` | `org-habit-graph-date` | Select a view date or today. |
+| `G` | `org-habit-set-graph-window` | Set preceding/following days and preferred column. |
+| `Down` | `next-line` | Scroll the read-only habit rows forward. |
+| `Up` | `previous-line` | Scroll the read-only habit rows backward. |
 | `;` | `org-timer-set-timer` | Enter an explicit session countdown. |
 | `e` | `org-set-effort` | Set the checked source entry estimate. |
 | `,` | `org-priority` | Set the checked source heading priority. |
-| `C-g` | `keyboard-quit` | Cancel current input. |
+| `C-g` / `q` | `keyboard-quit` | Cancel current input or return to canonical source. |
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
 
 ### Org calendar defaults and availability

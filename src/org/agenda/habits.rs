@@ -58,3 +58,6 @@ impl HabitRecord {
 
 mod graph;
 pub use graph::{HabitCell, HabitGraph, HabitState};
+mod view;
+pub(crate) use view::HabitScan;
+pub use view::{HabitAgenda, HabitRow};

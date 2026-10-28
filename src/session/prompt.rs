@@ -5,6 +5,9 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.cancel_habit_prompt(command) {
+            return Some(action);
+        }
         if let Some(action) = self.timestamp_command(command) {
             return Some(action);
         }
@@ -19,7 +22,8 @@ impl Session {
             if matches!(
                 self.pending,
                 Some(
-                    Pending::Timer(_)
+                    Pending::Habit(_)
+                        | Pending::Timer(_)
                         | Pending::ClockReport(_)
                         | Pending::Clock(_)
                         | Pending::Timestamp(_)
@@ -58,7 +62,8 @@ impl Session {
         if matches!(
             self.pending,
             Some(
-                Pending::Timer(_)
+                Pending::Habit(_)
+                    | Pending::Timer(_)
                     | Pending::ClockReport(_)
                     | Pending::Clock(_)
                     | Pending::Timestamp(_)
@@ -87,6 +92,9 @@ impl Session {
         match self.pending {
             Some(Pending::Timestamp(_)) => self.complete_timestamp(),
             Some(Pending::Estimate(_)) => self.complete_estimate(),
+            Some(Pending::Habit(_)) => {
+                self.message("Enter habit date or graph days/column; C-g cancels")
+            }
             Some(Pending::Timer(_)) => self.message("Enter timer duration or yes/no; C-g cancels"),
             Some(Pending::ClockReport(_) | Pending::Clock(_)) => {
                 self.message("Choose the explicit clock action; C-g cancels")

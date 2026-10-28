@@ -7,7 +7,11 @@ impl Session {
         self.input.set_tree_focus(self.tree.focused());
         let active = self.buffer().is_ok_and(|buffer| buffer.is_org());
         self.input
-            .set_org_context(active.then_some(crate::input::OrgContext::Editing));
+            .set_org_context(active.then_some(if self.habit_agenda.is_some() {
+                crate::input::OrgContext::Agenda
+            } else {
+                crate::input::OrgContext::Editing
+            }));
     }
 
     pub(super) fn select_mode(&mut self, mode: Mode) -> Action {

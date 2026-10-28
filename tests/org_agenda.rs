@@ -77,3 +77,5 @@ fn control(character: char) -> Event {
         KeyModifiers::CONTROL,
     ))
 }
+#[path = "org_agenda/habits.rs"]
+mod habits;

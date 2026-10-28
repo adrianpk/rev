@@ -1,4 +1,5 @@
 mod history;
+mod view;
 use super::*;
 use crate::org::time::{HabitSchedule, TimestampRange};
 

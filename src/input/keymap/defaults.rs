@@ -162,6 +162,7 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const ORG: &[(&str, &str)] = &[
+    ("C-c C-x h", "org-habit-show-graph"),
     ("S-Left", "org-shiftleft"),
     ("S-Right", "org-shiftright"),
     ("C-c .", "org-timestamp"),
@@ -217,6 +218,15 @@ const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
 // Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[
+    ("g", "org-habit-show-graph"),
+    ("K", "org-habit-toggle-habits"),
+    ("C-u K", "org-habit-toggle-habits-only-for-today"),
+    ("A", "org-habit-toggle-show-all-today"),
+    ("d", "org-habit-graph-date"),
+    ("G", "org-habit-set-graph-window"),
+    ("q", "keyboard-quit"),
+    ("Down", "next-line"),
+    ("Up", "previous-line"),
     (";", "org-timer-set-timer"),
     ("e", "org-set-effort"),
     (",", "org-priority"),

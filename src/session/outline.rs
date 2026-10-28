@@ -93,6 +93,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
+        if request.command.habit() {
+            return self.dispatch_habit(model, request);
+        }
         if request.command.timer_insertion() {
             return self.insert_timer(&model, request.command);
         }
@@ -102,6 +105,23 @@ impl Session {
         if request.command.timestamp() || request.command.timestamp_context() {
             return self.dispatch_timestamp(model, request);
         }
+        self.dispatch_outline_metadata(model, request)
+    }
+    fn dispatch_habit(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        request: Request,
+    ) -> Result<(), String> {
+        if request.command != OrgCommand::HabitGraph {
+            return Err("Open a habit agenda with org-habit-show-graph first".into());
+        }
+        self.start_habit_agenda(model, request)
+    }
+    fn dispatch_outline_metadata(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        request: Request,
+    ) -> Result<(), String> {
         if request.command.estimate() {
             return self.start_estimate(model, request);
         }

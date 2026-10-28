@@ -9,10 +9,12 @@ use crate::{
 pub(in crate::session) enum Work {
     Display(ClockScan),
     Update(ClockUpdate),
+    Habits(crate::org::agenda::HabitScan),
 }
 pub(in crate::session) enum Output {
     Display(String),
     Update(Replacement),
+    Habits(crate::org::agenda::HabitAgenda),
 }
 impl Work {
     pub(in crate::session) fn run(
@@ -23,6 +25,7 @@ impl Work {
         match self {
             Self::Display(scan) => scan.run(zone, cancel)?.feedback().map(Output::Display),
             Self::Update(update) => update.run(zone, cancel).map(Output::Update),
+            Self::Habits(scan) => scan.run(cancel).map(Output::Habits),
         }
     }
 }
