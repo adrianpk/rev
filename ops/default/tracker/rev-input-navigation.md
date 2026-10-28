@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 19 - verify bounded input gutter and pointer work
+Active slice: Slice 20 - reconcile combined delivery acceptance and references
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -374,13 +374,16 @@ Details and exact checks: [Slice 19](../plan/rev-input-navigation.md#slice-19-ve
 - [x] T19.1: Extend the existing native performance example/collector with large-buffer gutter, repeat-input release/stop and active-drag/idle workloads; reuse its process/fixture measurement ownership.
 - [x] T19.2: Record latency, CPU, memory, iterations and candidate identity; preserve the existing ceilings and give new workloads finite measured bounds without raising limits to mask failures.
 - [x] T19.3: Check hidden-gutter and mouse-disabled paths, no idle ticks and one-time bootstrap work; add guard coverage so missing/skipped/stale workloads cannot establish acceptance.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Prepared [PR #99](https://forge.adrianpk.com/adrianpk/rev/pulls/99) against dev.
-The [Slice 19 report](../report/slices/rev-input-navigation/slice-19-bounded-interaction.md)
-records task commits, finite measurement bounds, observed startup controls and
-evidence guards. Final validation is recorded by the controller on the clean
-PR head after reference updates. Dev integration remains pending.
+Merged [PR #99](https://forge.adrianpk.com/adrianpk/rev/pulls/99) into dev at
+`fb59cf9f8fc643a5257714ef1b54acac1bca2538`. Canonical evidence
+`NANWRDRXNO2WCGH53GAPKAEEQA` passed six commands, 356 native tests,
+thirteen performance workloads and four owned PTYs. Focused evidence
+`TBJU5PXHMIQAPDF7ULDEQQTXBQ` passed sixteen guards and 47 requirement mappings
+on that same clean HEAD. The [Slice 19 report](../report/slices/rev-input-navigation/slice-19-bounded-interaction.md)
+records the finite bounds and decoder burst limitation. Slice 20 is active for
+combined contract, reference and delivery acceptance reconciliation.
 
 ### Slice 20: reconcile combined delivery acceptance and references
 

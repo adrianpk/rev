@@ -1,11 +1,12 @@
 # Slice 19: Verify bounded input gutter and pointer work
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `perf/rev-input-19-bounded-interaction`
 PR: [#99](https://forge.adrianpk.com/adrianpk/rev/pulls/99)
+Integrated: `fb59cf9f8fc643a5257714ef1b54acac1bca2538`
 
 ## Purpose
 
@@ -132,6 +133,17 @@ Unicode assertion remains required. A focused redraw passed 64 frames with a
 2.644-ms maximum and zero workload filesystem events. Setup failures now include
 the workload identity and bounded child diagnostics instead of discarding the
 retained error before the ready barrier.
+
+Canonical evidence `NANWRDRXNO2WCGH53GAPKAEEQA` passed all six required
+commands, 356 native tests, thirteen performance workloads and four owned PTYs
+at the integrated clean candidate `fb59cf9f8fc643a5257714ef1b54acac1bca2538`.
+Focused evidence `TBJU5PXHMIQAPDF7ULDEQQTXBQ` passed three commands, sixteen
+guard tests and 47 requirement mappings on the same HEAD. Actual controller
+performance output satisfies complete candidate/workload admission. Collection
+took 6.741 seconds excluding build; arrow first/release updates were below
+0.6 ms, the first drag tick was 101.723 ms, and measured idle intervals emitted
+zero bytes and used zero process CPU ticks. The controller integrated PR #99
+without changing its tested commit.
 
 ## Risks and Follow-ups
 
