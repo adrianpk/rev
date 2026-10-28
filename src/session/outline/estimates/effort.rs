@@ -3,31 +3,33 @@ use crate::org::Duration;
 
 impl Session {
     pub(super) fn start_effort(&mut self, mut prompt: Prompt) -> Result<(), String> {
-        let buffer = self.buffer().map_err(|e| e.to_string())?;
-        let entry = prompt.model.heading_property_entry(buffer, prompt.index)?;
         let policy = &self.buffers.snapshot().settings().org;
-        let current =
-            prompt
-                .model
-                .property_value(buffer, entry, "EFFORT", &policy.properties.inherit)?;
+        let current = self.effort_property(&prompt, "EFFORT", &policy.properties.inherit)?;
         if prompt.request.command == OrgCommand::InspectEffort {
             let feedback = effort_feedback(&current.text, &policy.duration.units)?;
             self.message(&feedback);
             return Ok(());
         }
-        if buffer.is_readonly() {
+        if self.buffer().map_err(|e| e.to_string())?.is_readonly() {
             return Err(Error::ReadOnly.to_string());
         }
-        let choices =
-            prompt
-                .model
-                .property_value(buffer, entry, "EFFORT_ALL", &["EFFORT_ALL".into()])?;
+        let choices = self.effort_property(&prompt, "EFFORT_ALL", &["EFFORT_ALL".into()])?;
         prompt.choices = effort_choices(&choices.text, &policy.duration.units)?;
         if prompt.request.command == OrgCommand::IncEffort {
             let next = next_effort(&prompt.choices, &current.text)?;
             return self.effort_argument(&prompt, &next).map(|_| ());
         }
         self.open_effort(prompt)
+    }
+    fn effort_property(
+        &self,
+        prompt: &Prompt,
+        key: &str,
+        inherit: &[String],
+    ) -> Result<crate::org::PropertyValue, String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        let entry = prompt.model.heading_property_entry(buffer, prompt.index)?;
+        prompt.model.property_value(buffer, entry, key, inherit)
     }
     fn open_effort(&mut self, prompt: Prompt) -> Result<(), String> {
         self.input

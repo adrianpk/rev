@@ -39,12 +39,12 @@ impl Outline {
                 .state(&header.word)
                 .map(|s| s.name.clone())),
             "LEVEL" => Ok(Some(self.headings[index].level.to_string())),
-            "PRIORITY" => Ok(self.match_priority(index, &policy.todo)?),
+            "PRIORITY" => self.match_priority(index, policy).map(Some),
             "TAGS" => Ok(tag_text(
                 header.local.iter().map(|t| t.name.clone()).collect(),
             )),
             "ALLTAGS" => Ok(tag_text(self.tag_membership(index, policy.tags.inherit))),
-            "ITEM" => self.match_title(buffer, index, &policy.todo).map(Some),
+            "ITEM" => self.match_title(buffer, index, policy).map(Some),
             _ => self.match_stored_property(buffer, index, key, policy),
         }
     }
@@ -67,7 +67,7 @@ impl Outline {
         &self,
         buffer: &Buffer,
         index: usize,
-        policy: &crate::config::Todo,
+        policy: &crate::config::Org,
     ) -> Result<String, String> {
         let header = &self.tags.headers[index];
         if header.title.len() > 1048576 {
@@ -80,7 +80,7 @@ impl Outline {
         let task = self
             .tags
             .workflow
-            .effective(policy)?
+            .effective(&policy.todo)?
             .state(&header.word)
             .is_some();
         let title = if task {
@@ -91,7 +91,7 @@ impl Outline {
         } else {
             title.trim()
         };
-        let title = if self.match_priority(index, policy)?.is_some() {
+        let title = if self.priority_value(index, policy)?.is_some() {
             title.get(4..).unwrap_or("").trim()
         } else {
             title.trim()
@@ -101,21 +101,11 @@ impl Outline {
 }
 
 impl Outline {
-    fn match_priority(
-        &self,
-        index: usize,
-        policy: &crate::config::Todo,
-    ) -> Result<Option<String>, String> {
-        let h = &self.tags.headers[index];
-        let task = self
-            .tags
-            .workflow
-            .effective(policy)?
-            .state(&h.word)
-            .is_some();
-        Ok((task || h.word.starts_with("[#"))
-            .then(|| h.priority.clone())
-            .flatten())
+    fn match_priority(&self, index: usize, policy: &crate::config::Org) -> Result<String, String> {
+        let value = self
+            .priority_value(index, policy)?
+            .unwrap_or(self.priority_policy(policy)?.default);
+        Ok(char::from(value).to_string())
     }
 }
 

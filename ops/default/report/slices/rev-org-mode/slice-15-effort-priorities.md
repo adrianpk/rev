@@ -65,8 +65,9 @@ Development checks passed:
   five native editing tests and two configuration policy tests passed.
 - `python3 scripts/check-config-reference.py`: 111 schema/catalog entries,
   143 default bindings and 13385 exact template bytes agree.
-- Focused changed-source quality check passed: safe Rust, parameters <= 5,
-  nesting <= 3 and cyclomatic complexity <= 10.
+- The initial focused source-quality check retained a start_effort complexity
+  finding; property lookup is separated into its existing ownership boundary
+  during T15.2 before final readiness checks.
 
 The initial quality check required separating Org argument dispatch and effort
 prompt construction from their callers. The same behavior assertions remain.
@@ -75,9 +76,22 @@ unit scales and the absence of factory EFFORT_ALL choices; no source is copied.
 Reference behavior is documented in [priorities](https://orgmode.org/manual/Priorities.html)
 and [effort estimates](https://orgmode.org/org.html#Effort-Estimates).
 
+T15.2 checks passed:
+
+- `cargo test --test org_editing --test configuration estimate -- --nocapture`:
+  eight native editing/context/matching tests and two configuration tests passed.
+- Focused source quality passed after separating effort-property lookup from
+  prompt construction.
+
+Derived PRIORITY and ITEM now consume the same observed cookie and policy as
+editing. A missing cookie exposes its implicit default while remaining absent
+in source. Typed custom task states, EFFORT ownership and property inheritance
+remain intact across task transitions and undo. Agenda keymap e/comma admit these
+same operational source commands; calendar maps and prompt cancellation retain
+separate admission. Revision-qualified agenda rows belong to their recorded slice.
+
 ## Risks and Follow-ups
 
-T15.2 metadata/context compatibility and T15.3 boundary/terminal verification are
-in progress. Required exact-head validation and PR references precede readiness.
+T15.3 boundary/terminal verification is in progress. Required exact-head validation and PR references precede readiness.
 Active-clock estimate routing remains with the recorded clock slice; no
 clock-dependent command is exposed before its owner exists.

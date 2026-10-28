@@ -6,6 +6,8 @@ mod checkboxes;
 mod colors;
 #[path = "org_editing/contexts.rs"]
 mod contexts;
+#[path = "org_editing/estimate_metadata.rs"]
+mod estimate_metadata;
 #[path = "org_editing/estimates.rs"]
 mod estimates;
 #[path = "configuration/fixture.rs"]

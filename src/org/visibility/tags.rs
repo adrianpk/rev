@@ -31,7 +31,6 @@ struct Header {
     title: Range<usize>,
     word: String,
     words: Vec<(Range<usize>, String)>,
-    priority: Option<String>,
     local: Vec<Tag>,
 }
 #[derive(Debug, PartialEq, Eq)]
