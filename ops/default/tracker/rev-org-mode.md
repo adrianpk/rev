@@ -595,6 +595,11 @@ recurrence, local declarations, preserved history, read-only/stale guards, nativ
 file bytes, shared anchors and coherent undo. Fifteen selected habit cases pass,
 zero skips. Canonical PR reference and final exact-head receipts follow.
 
+T24.3: `922b9101d7f49beb1ec167b030c17e7043c13110`. [Canonical PR #125](https://forge.adrianpk.com/adrianpk/rev/pulls/125)
+and the [Slice 24 report](../report/slices/rev-org-mode/slice-24-habit-records.md) are
+reviewing. Final required/focused controller receipts bind the clean PR-reference
+head; verified dev integration remains pending.
+
 ### Slice 25: render native Org habit consistency graphs
 
 Contracts: ORG20 ORG16.

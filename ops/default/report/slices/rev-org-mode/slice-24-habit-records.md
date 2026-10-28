@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-24-habit-records`
-PR: pending
+PR: `#125`
 
 ## Purpose
 
@@ -71,6 +71,7 @@ and [Org task recurrence](https://raw.githubusercontent.com/emacs-mirror/emacs/m
 
 T24.1: `5adee7cd157a5e1fddb603ad7ac0edc5fb31e19f`.
 T24.2: `3a273633634370622a9eca19ed2c5bd43165d275`.
+T24.3: `922b9101d7f49beb1ec167b030c17e7043c13110`.
 
 Development checks passed:
 
@@ -110,3 +111,7 @@ Final controller receipts bind the clean canonical PR head. Required order:
 
 Habit graph rendering belongs to the next recorded slice. The delivery-set full
 gate has not run.
+
+[Canonical PR #125](https://forge.adrianpk.com/adrianpk/rev/pulls/125) targets dev.
+Final required/focused controller receipts bind the clean PR-reference head;
+verified integration remains pending.
