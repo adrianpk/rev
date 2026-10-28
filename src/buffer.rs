@@ -2,6 +2,7 @@ mod delete;
 pub mod edit;
 mod endings;
 mod lifecycle;
+mod org;
 mod policy;
 mod region;
 mod rename;
@@ -142,6 +143,7 @@ pub struct Buffer {
     next_state: u64,
     typing: Option<Stamp>,
     syntax: crate::syntax::Syntax,
+    org: Option<crate::org::Index>,
     syntax_policy: crate::config::Syntax,
     grammar: crate::config::Grammar,
     syntax_active: bool,
@@ -184,6 +186,7 @@ impl Buffer {
             next_state: 1,
             typing: None,
             syntax: crate::syntax::Syntax::default(),
+            org: None,
             syntax_policy: crate::config::Syntax::default(),
             grammar: crate::config::Grammar::Plain,
             syntax_active: false,

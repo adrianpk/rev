@@ -296,6 +296,7 @@ impl Buffer {
         self.record(prepared.record, prepared.operation, prepared.group)?;
         // From here onward there are no recoverable operations or callbacks.
         self.syntax.edit(before, after, &prepared.syntax);
+        self.edit_org(before, after, &prepared.syntax);
         self.text = prepared.text;
         self.crlf = prepared.crlf;
         self.revision = after.revision;

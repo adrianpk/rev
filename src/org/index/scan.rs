@@ -5,7 +5,7 @@ use ropey::Rope;
 use crate::buffer::{Buffer, Error};
 
 use super::{Coverage, Index, Limit, Limits, Position, Row};
-use crate::org::Source;
+use crate::org::{Cancellation, Source};
 
 const STEP_BYTES: usize = 4096;
 const STEP_TIME: Duration = Duration::from_millis(10);
@@ -69,6 +69,30 @@ impl Scan {
         })
     }
 
+    /// Move the retained prefix into the next observation; no row vector or
+    /// document is copied on the input path. Old worker results cannot seed it.
+    pub fn resume(index: Index, buffer: &Buffer) -> Result<Self, Error> {
+        index.check(buffer)?;
+        let mut ancestors = Vec::new();
+        let mut heading = index.rows.len().checked_sub(1);
+        while let Some(row) = heading {
+            let line = &index.rows[row];
+            if let Some(level) = line.level {
+                ancestors.push((level, row));
+            }
+            heading = line.parent;
+        }
+        ancestors.reverse();
+        Ok(Self {
+            text: Source::new(buffer).snapshot()?,
+            position: index.covered,
+            line_start: index.covered,
+            index,
+            prefix: Prefix::default(),
+            ancestors,
+        })
+    }
+
     pub fn index(&self) -> &Index {
         &self.index
     }
@@ -84,13 +108,19 @@ impl Scan {
 
     /// Process at most 4096 source bytes or 10ms before returning to the owner.
     /// A single scalar observation completes before its deadline is rechecked.
-    pub fn advance(&mut self) -> Coverage {
+    pub fn advance(&mut self, cancellation: &Cancellation) -> Coverage {
         if self.index.coverage != Coverage::Pending {
             return self.index.coverage;
+        }
+        if self.cancelled(cancellation) {
+            return Coverage::Cancelled;
         }
         let started = Instant::now();
         let start_byte = self.position.byte;
         while self.position.scalar < self.text.len_chars() {
+            if self.cancelled(cancellation) {
+                return Coverage::Cancelled;
+            }
             let character = self.text.char(self.position.scalar);
             if self.yielded(started, start_byte, character) {
                 return Coverage::Pending;
@@ -103,6 +133,21 @@ impl Scan {
             self.index.coverage = Coverage::Complete;
         }
         self.index.coverage
+    }
+
+    pub(in crate::org) fn run(mut self, cancellation: &Cancellation) -> Index {
+        while self.advance(cancellation) == Coverage::Pending {
+            std::thread::yield_now();
+        }
+        self.into_index()
+    }
+
+    fn cancelled(&mut self, cancellation: &Cancellation) -> bool {
+        if cancellation.is_cancelled() {
+            self.index.coverage = Coverage::Cancelled;
+            return true;
+        }
+        false
     }
 
     fn yielded(&self, started: Instant, start_byte: usize, character: char) -> bool {

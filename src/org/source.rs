@@ -57,3 +57,9 @@ impl SourceRange {
         &self.span
     }
 }
+
+/// Reuse canonical admission when an owned observation has no borrowed range.
+pub(super) fn current(buffer: &Buffer, stamp: Stamp) -> Result<(), Error> {
+    buffer.slice(&Span { stamp, range: 0..0 })?;
+    Ok(())
+}

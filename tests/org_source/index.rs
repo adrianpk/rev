@@ -1,9 +1,10 @@
 use rev::buffer::Buffers;
 use rev::coordinates::Byte;
-use rev::org::{Coverage, Limit, Limits, Scan, Source};
+use rev::org::{Cancellation, Coverage, Limit, Limits, Scan, Source};
 
 pub(super) fn complete(mut scan: Scan) -> rev::org::Index {
-    while scan.advance() == Coverage::Pending {}
+    let cancellation = Cancellation::default();
+    while scan.advance(&cancellation) == Coverage::Pending {}
     scan.into_index()
 }
 
@@ -162,7 +163,7 @@ fn bounded_steps() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(&text).unwrap();
     let mut scan = Scan::new(buffers.get(id).unwrap(), Limits::default()).unwrap();
-    assert_eq!(scan.advance(), Coverage::Pending);
+    assert_eq!(scan.advance(&Cancellation::default()), Coverage::Pending);
     assert!(scan.scanned_bytes().0 <= 4096);
     assert!(text.is_char_boundary(scan.scanned_bytes().0));
     assert_eq!(scan.index().covered_bytes(), Byte(0));
