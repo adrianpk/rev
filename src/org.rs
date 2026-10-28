@@ -3,10 +3,12 @@
 
 mod form;
 mod index;
+mod inline;
 mod job;
 mod source;
 
 pub use form::{Form, FormKind};
 pub use index::{Coverage, Index, Limit, Limits, Line, Scan};
+pub use inline::{InlineContext, InlineKind, InlineNode, InlineObservation, InlineScan, LinkKind};
 pub use job::{Cancellation, Job, JobError};
 pub use source::{Source, SourceRange};

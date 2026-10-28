@@ -4,6 +4,8 @@
 mod incremental;
 #[path = "org_source/index.rs"]
 mod index;
+#[path = "org_source/inline.rs"]
+mod inline;
 #[path = "org_source/jobs.rs"]
 mod jobs;
 

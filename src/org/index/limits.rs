@@ -23,9 +23,9 @@ impl std::error::Error for Limit {}
 /// The approved analysis profile; all values remain within finite maxima.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limits {
-    pub(super) bytes: usize,
-    pub(super) nodes: usize,
-    pub(super) depth: usize,
+    pub(in crate::org) bytes: usize,
+    pub(in crate::org) nodes: usize,
+    pub(in crate::org) depth: usize,
 }
 
 impl Default for Limits {
