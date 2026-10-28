@@ -1,6 +1,6 @@
 # Slice 22: compare Org clock totals and effort
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -136,3 +136,12 @@ PR-reference head. Required checks run in this order:
 ## Risks and Follow-ups
 
 The delivery-set full gate has not run.
+
+## Integration
+
+Canonical PR #123 merged into dev at
+`608e64a51443e11931cc4a3897a948fe8f1ec072`; live Forgejo and Git agree.
+Required controller receipt `DNBOQFBOGGFETXKTGCZVKLOZDT` passed all five ordered
+checks, including 75 tests. Focused receipt `KIMDANVL7LO66QYSIDUOONWPFO` passed
+579 affected tests, reference agreement and eight owned PTYs. Both receipts
+bind that exact clean head; no checks were skipped.

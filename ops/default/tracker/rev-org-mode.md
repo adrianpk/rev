@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 22 clock-reports
+Active slice: Slice 23 timers
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -534,7 +534,7 @@ Details and exact checks: [Slice 22](../plan/rev-org-mode.md#slice-22-compare-or
 - [x] T22.1: Deliver bounded task/subtree/file/date-range clock totals and effort comparisons.
 - [x] T22.2: Generate compatible clock-table reports only on explicit refresh and preserve unrelated dynamic-block source.
 - [x] T22.3: Introduce org_agenda contracts and verify overlaps, open intervals and transactional report replacement.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T22.1: `4d45e7957e9c`; T22.2: `3ca4d3d4461a`. Native comparisons, explicit
 clocktable publication and shared-job contracts pass focused checks. T22.3
@@ -542,10 +542,12 @@ adds ten org_agenda cases, exact source/record/output bounds, checked shared-vie
 history and eight owned task/restart PTYs. Final exact-head validation and
 canonical PR reference follow below; verified integration remains open.
 
-T22.3: `e270b1e2859e2d02a039d30ff7e8c17f7ce365f1`. [Canonical PR #123](https://forge.adrianpk.com/adrianpk/rev/pulls/123)
-and the [Slice 22 report](../report/slices/rev-org-mode/slice-22-clock-reports.md)
-are reviewing. Controller receipts bind final required and focused checks to the
-clean PR-reference head; verified dev integration remains pending.
+T22.3: `e270b1e2859e2d02a039d30ff7e8c17f7ce365f1`.
+[Canonical PR #123](https://forge.adrianpk.com/adrianpk/rev/pulls/123) merged
+into dev at `608e64a51443e11931cc4a3897a948fe8f1ec072`.
+Required receipt `DNBOQFBOGGFETXKTGCZVKLOZDT` passed five checks and 75 tests.
+Focused receipt `KIMDANVL7LO66QYSIDUOONWPFO` passed 579 tests, reference agreement
+and eight owned PTYs. The Slice 22 report is delivered.
 
 ### Slice 23: deliver native Org relative and countdown timers
 
