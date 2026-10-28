@@ -18,6 +18,11 @@ scopes, and the reference catalog required by the paired proposal. These are
 semantic records, not a mandate for public Rust APIs, a crate per table, or a
 general extension/configuration framework.
 
+The validated candidate and gate above retain the historical configuration/UI
+result. The [input/navigation delivery](../plan/rev-input-navigation.md) adds the
+implemented gutter/mouse leaves and packaged first-start publication described
+here; its own integrated gate remains pending.
+
 The option inventory is deliberately broader than the selected delivery.
 Configuration targets existing editor capabilities and the agreed indentation
 and keybinding policies. The separately captured panel, vertical command-list,
@@ -30,11 +35,11 @@ do not turn an unimplemented option into a feature.
 
 | Location | Owned content | Boundary |
 | --- | --- | --- |
-| User XDG config directory | `config.toml` and explicitly included TOML files. | Human-authored settings; loading never rewrites them. |
+| User XDG config directory | `config.toml` and explicitly included TOML files. | Startup may publish the complete packaged template only when no entry exists; loading never rewrites existing settings. |
 | User XDG data directory | Durable user resources when a feature provides them. | No addon or resource installation is introduced here. |
 | User XDG state directory | Operational state when a feature provides it. | No session/history persistence schema is introduced here. |
 | User XDG cache directory | Disposable derived data when a feature provides it. | Removing cache cannot remove settings or document text. |
-| Program image | Complete typed defaults, fixed commands, supported palette roles. | Startup does not depend on a sample/default file on disk. |
+| Program image | Complete typed defaults, fixed commands, supported palette roles and the complete bootstrap template. | Startup does not depend on a sample/default file on disk. |
 | Distributed sample | Reference assignments and commented supported alternatives. | Documentation artifact; not an obligatory runtime input. |
 
 The XDG roots are resolved from their respective environment variables before
@@ -43,6 +48,14 @@ file whose location is being searched. Relative XDG values are ignored.
 
 No automatic project discovery, database, executable settings, or on-disk
 session migration belongs to this format.
+
+Normal application startup may create only absent configuration parents and
+publish a complete no-clobber `config.toml` before ordinary loading. Any existing
+entry, including invalid/empty files, links and directories, is preserved.
+Failure falls back to usable built-ins with a diagnostic. Pure path resolution,
+explicit loading and snapshot admission remain read-only. No data/state/cache
+root is created merely to start. CFG01, CFG14, CFG15, CFG23 and CFG24 own this
+exception; it creates no new settings schema or persisted session state.
 
 ## Source records
 
@@ -146,6 +159,15 @@ No future-inventory entry extends this table implicitly.
 | `editor.indent_width` | Integer, `4` | 1..32 display columns | Buffer editing policy; language-overridable |
 | `editor.tab_width` | Integer, `4` | 1..32 display cells | Buffer coordinates; language-overridable |
 | `scroll.page_overlap` | Integer, `2` | 0..1000 rows; clamp to permit one-row progress | View scrolling, global |
+| `gutter.visible` | Boolean, `true` | True/false | Global startup default; view-local override |
+| `gutter.mode` | String, `"absolute"` | `absolute`, `relative` | Global startup default; view-local override |
+| `gutter.current_line` | String, `"absolute"` | `absolute`, `zero`, `hidden` | Global startup default; view-local override |
+| `gutter.side` | String, `"left"` | `left`, `right` | Global startup default; view-local override |
+| `gutter.minimum_digits` | Integer, `4` | 1..20 digits; full source count still fits | Global startup geometry |
+| `gutter.left_padding` | Integer, `0` | 0..4 terminal cells | Global startup geometry |
+| `gutter.right_padding` | Integer, `1` | 0..4 terminal cells | Global startup geometry |
+| `mouse.enabled` | Boolean, `true` | True/false | Session startup; mouse-mode override |
+| `mouse.scroll_lines` | Integer, `3` | 1..100 logical rows; drag tick also clamps to text height | Global native pointer policy |
 | `windows.split_ratio` | Float, `0.5` | Finite 0.1..0.9; clamp to geometry minima | Layout, global initial split |
 | `minibuffer.candidate_limit` | Integer, `8` | 1..32 rows, clipped to available geometry | Prompt completion, global |
 | `minibuffer.match` | String, `"prefix-then-substring"` | `prefix-then-substring`, `prefix`, `substring` | Command candidates only; deterministic registry order within rank |
@@ -171,7 +193,7 @@ No future-inventory entry extends this table implicitly.
 | `language.<id>.tab_width` | Optional integer, inherit editor | Same bounds as editor leaf | Matching buffer only |
 | `language.<id>.grammar` | Optional string | `rust`, `plain`; Rust identity defaults to rust, others plain | Existing bundled Rust parser or plain text |
 | `keys.editor`, `keys.minibuffer`, `keys.tree` | Sequence-to-command string maps, no user overrides | Valid existing commands in the named input context | Fixed Rust command/action identities; complete default maps documented |
-| `palette.*`, `palette.syntax.*` | RGB strings, exact table below | Six-digit `#RRGGBB`; fixed role names | Semantic renderer roles, global |
+| `palette.*`, `palette.syntax.*`, `palette.gutter.*` | RGB strings, exact table below | Six-digit `#RRGGBB`; fixed role names | Semantic renderer roles, global |
 
 New-file preferences never rewrite an existing file's BOM, separators or final
 newline. They apply once at buffer creation. Runtime key actions and explicit
@@ -237,15 +259,17 @@ first-party rev remains GPL-3.0-only. No Emacs source is introduced.
 
 These controls are not accepted keys. They must be rejected as unknown if used
 now, and must not appear in the operational sample, even as commented examples:
-auto indentation; line numbers; current-line highlighting; visible tabs/spaces,
+auto indentation; current-line highlighting; visible tabs/spaces,
 trailing spaces or separators; cursor shapes/blinking; scroll margins or reveal
 steps; separator toggles; alternate window focus order; wrapping/all-match
 search; time-based typing grouping; natural tree sorting; additional grammars;
 project-local configuration; reload/watch; addons; session persistence.
 
-Explicit tabs-to-spaces and spaces-to-tabs commands are captured separately for
-later scope/selection decisions. The present Tab policy never performs those
-conversions implicitly.
+Explicit [tabify/untabify](editor-whitespace-conversion.md) commands operate on
+the admitted marked region. The Tab insertion policy and configuration loader
+never perform those conversions implicitly. Gutter and mouse leaves remain
+global/session or view preferences; `language.<id>` retains only its existing
+three editing leaves and grammar selector.
 
 ## Palette reference and defaults
 
@@ -288,6 +312,10 @@ identically.
 | `palette.message` | `#c0caf5` | Prompt and ordinary message text. |
 | `palette.warning` | `#e0af68` | Warning text. |
 | `palette.error` | `#db4b4b` | Error text. |
+| `palette.gutter.background` | `#1a1b26` | Number-field background. |
+| `palette.gutter.foreground` | `#565f89` | Ordinary logical labels. |
+| `palette.gutter.current_line` | `#7aa2f7` | Current-line label with non-color emphasis. |
+| `palette.gutter.separator` | `#3b4261` | Number/text separator. |
 | `palette.syntax.keyword` | `#9d7cd8` | Keyword captures. |
 | `palette.syntax.string` | `#9ece6a` | Strings and the existing escape group. |
 | `palette.syntax.comment` | `#565f89` | Comments. |
@@ -301,11 +329,11 @@ constant, or escape captures into additional configurable groups is not
 required by this palette decision. The ordinary tree text inherits the
 foreground role. Selection colors must remain readable over syntax styles.
 
-The schema uses a `palette` table plus a `palette.syntax` subtable. A missing
+The schema uses a `palette` table plus `palette.syntax` and `palette.gutter` subtables. A missing
 configured role inherits its built-in color; an unknown role is an error.
 Colors use `"#RRGGBB"`; terminal-default/transparent sentinels are not selected.
-This decision does not enable proposed line numbers, current-line highlighting,
-or other controls reserved for future delivery.
+Gutter roles accompany the accepted numbering capability. Current-line text
+highlighting and other future-inventory controls are not enabled by these roles.
 
 ## Keymap representation
 
@@ -428,6 +456,17 @@ assignments, with comments/reference metadata sufficient to explain defaults,
 allowed values, units, scopes, and optional usage. Its defaults must agree with
 compiled defaults for that same release.
 
+## Runtime presentation and pointer state
+
+The [gutter model](editor-gutter-model.md) defines checked per-view policy,
+explicit overrides, inherited split state and disposable visible number rows.
+The immutable startup snapshot is the reset source. Runtime commands change
+only the active view and never persist settings. Mouse enable/disable is one
+session override; captured source view/anchor, latest edge position and at most
+one 100-ms deadline remain ephemeral native state. Disabling, cancellation,
+resize or source/view loss retires capture. Released/inside/disabled idle has
+no pointer deadline or periodic work. Neither control adds a storage owner.
+
 ## Validation evidence
 
 - Absent versus explicit false/zero/empty partial values.
@@ -443,7 +482,7 @@ compiled defaults for that same release.
 - Unchanged text bytes/history/dirty state when preferences only change presentation.
 - CRLF/BOM/final-newline fidelity and truthful save outcomes after configuration changes.
 
-These acceptance obligations passed through the controller-owned full gate
+The original configuration/UI acceptance obligations passed through the controller-owned full gate
 on the validated candidate above. The final Slice 30 report records the native,
 terminal, performance and catalog evidence. The original 48-slice delivery
 remains closed with its own historical evidence.

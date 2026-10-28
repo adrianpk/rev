@@ -8,7 +8,7 @@ Baseline: [rev Editor](rev-editor.md), R05-R07, R09, R14-R15, R18-R20 and R35
 Related contract: [Editor Interaction](editor-interaction.md), UI01
 Configuration: [Editor Configuration](editor-configuration.md)
 Rev baseline revision: `756e540b0830866fb0dfd59c045dff5958c11095`
-Implementation boundary: a later delivery, after rev-configuration-ui closes
+Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
 Scope clarified: product owner, 2026-10-27; native numbering now, bookmarks and LSP completion later
 Controls clarified: user settings, compiled M-x commands, or both according to the concern
 Model: [Editor Gutter Model](editor-gutter-model.md)
@@ -55,9 +55,9 @@ and tooling markers are not part of the selected numbering implementation.
 Do not add an extension registry, provider callbacks, bridge, speculative LSP
 adapter or annotation framework in anticipation of future work.
 
-This remains specification work. The active Looper plan, tracker, runtime,
-configuration sample and controller are unchanged. No gutter implementation,
-slicing, commit or publication is authorized by this document.
+The original proposal and adaptation record below retain their provenance.
+The approved input/navigation plan and tracker now own implementation and
+controller authority; this specification alone grants no publication authority.
 
 ## Reference and adaptation
 

@@ -6,15 +6,15 @@ Date: 2026-10-27
 Specification: [Editor Gutter](editor-gutter.md)
 Configuration owner: [Editor Configuration Model](editor-configuration-model.md)
 View owner: [rev Editor Model](rev-editor-model.md)
-Implementation boundary: a later delivery; active configuration/UI scope unchanged
+Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
 
 ## Control model
 
 All gutter behavior has usable factory defaults. User preferences persist in
 the existing TOML file; native M-x commands change active-view session state.
 No configurable command language, provider registry or second settings store is
-introduced. This is an accepted later schema extension, not a current sample or
-an addition to the active configuration/UI delivery.
+introduced. The input/navigation delivery implements this schema extension; the earlier
+configuration/UI gate remains historical evidence for its original surface.
 
 | Concern | TOML startup default | Native M-x control | Runtime scope |
 | --- | --- | --- | --- |
@@ -56,7 +56,7 @@ implementation limit of 20 digits is not a configurable truncation maximum.
 The default separator is a checked one-cell `│` with printable `|` fallback.
 Arbitrary separator glyphs and lane declarations are not part of this scope.
 
-### Illustrative future TOML
+### Startup TOML
 
 ```toml
 [gutter]
@@ -75,8 +75,8 @@ current_line = "#7aa2f7"
 separator = "#3b4261"
 ```
 
-Document these keys and supported alternatives in the exhaustive sample when
-actually implemented. Do not add them to the currently running delivery.
+These keys and alternatives are documented in the exhaustive reference sample
+and packaged template alongside their native handlers.
 Startup loading remains unchanged: editing TOML affects a later startup, while
 M-x operations change view-local overrides immediately.
 

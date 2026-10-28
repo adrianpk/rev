@@ -27,9 +27,9 @@ shares its accepted status and accepted clarifications D01-D07.
 | --- | --- |
 | Application | Buffer/view registries, layout, focus, ring, rectangle, input, tree, and messages. |
 | Buffer | Canonical rope, text revision, file association, mark, history, save point, and syntax state. |
-| View | Buffer reference, point, desired display column, vertical/horizontal scroll, geometry, and selection shape. |
+| View | Buffer reference, point, desired display column, vertical/horizontal scroll, geometry, selection shape and independent gutter policy/overrides. |
 | Layout | One recursive tree of editing views and below/right split nodes. |
-| Terminal guard | Acquired raw mode, alternate-screen state, and cursor-restoration obligations. |
+| Terminal guard | Acquired raw mode, alternate screen, paste/cursor/color restoration and independently tracked SGR/button mouse-reporting obligations. |
 | Command | One bounded operation coordinated through the owning state. |
 | File operation | A captured text state and an honest publication/completion result. |
 | Renderer | Temporary immutable observation of application state and mutable output access. |
@@ -52,7 +52,8 @@ are sufficient; a reusable capability framework is not required.
 | `focus` | Editor, tree, minibuffer, or active transient interaction. |
 | `ring` | Linear entries, current rotation, and kill/yank continuity. |
 | `rectangle` | Optional last copied/killed block, separate from `ring`. |
-| `input` | Pending chords, prompt/search state, and cancellation origin. |
+| `input` | Pending chords, prompt/search state, Escape deadline and cancellation origin; ordered finite native input batches. |
+| `pointer` | Session enabled override and optional captured source ViewId/qualified anchor, latest drag edge and one pending deadline. |
 | `tree` | Root, loaded entries, expansion, selection, and visibility. |
 | `echo` | Current user-facing status or error, without changing document text. |
 
@@ -105,12 +106,22 @@ to a retained saved state through undo MUST restore the clean indication.
 | `left` | Horizontal display-cell offset. |
 | `area` | Validated terminal rectangle assigned by layout. |
 | `shape` | Linear or rectangular selection presentation for this interaction. |
+| `gutter` | Immutable startup defaults plus explicit visibility/mode/current-line/side overrides; checked final text/number geometry is derived per frame. |
 
 On split, the new view copies initial point/scroll values but then evolves
 independently. Both views reference the same buffer. On any text publication,
 every affected point, mark, and viewport reference must be remapped or safely
 clamped before drawing. Focused selection uses the selected view's point with
 the buffer's mark; other views do not become a second global cursor.
+
+Gutter policy follows the [gutter model](editor-gutter-model.md): a split copies
+policy/override values; buffer rebind retains policy and recomputes labels;
+view close releases derived state. Labels never become text, history or one
+retained record per source line. Status groups observe each pane's own point.
+Pointer capture uses the canonical region and source view; it cannot transfer
+across panes. Only a valid outside drag owns a deadline, at most one step per
+100 ms and at most min(scroll_lines, text height), without catch-up. Ready
+release/cancellation is processed before a due tick. All state is session-local.
 
 ### Layout
 

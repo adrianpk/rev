@@ -390,7 +390,7 @@ combined contract, reference and delivery acceptance reconciliation.
 Contracts: All seven selected work items.
 Details and exact checks: [Slice 20](../plan/rev-input-navigation.md#slice-20-reconcile-combined-delivery-acceptance-and-references).
 
-- [ ] T20.1: Reconcile complete approved specification replacements/additions into their actual baseline, configuration model and user references without rewriting historical validation provenance.
+- [x] T20.1: Reconcile complete approved specification replacements/additions into their actual baseline, configuration model and user references without rewriting historical validation provenance.
 - [ ] T20.2: Extend existing acceptance evidence for all new requirements and the current plan/ticket/report ancestry; preserve original protections, zero-skip checks and same-clean-candidate evidence.
 - [ ] T20.3: Verify all seven tickets and all prior integrations, prepare only approved closure metadata, and hand the clean dev candidate to the controller for the unchanged full gate and final closure.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

@@ -13,10 +13,12 @@ Reference SHA-256: `7dd838f03fa9c9fdd8dbf952913c8590fbd0a750e936422b6bd169867f27
 ## Purpose
 
 The validated candidate above records the original rev-editor delivery. The
-accepted [configuration amendments](editor-configuration.md) now replace R01,
-R17, R20 and R22 completely; [interaction requirements](editor-interaction.md)
-define panel and completion presentation. Their implementation and pending
-final-gate evidence belong to rev-configuration-ui, separately from that history.
+[configuration amendments](editor-configuration.md) replace R01, R17, R20 and
+R22 completely; their separate configuration/interaction gate is recorded there.
+The approved [input and navigation delivery](../plan/rev-input-navigation.md)
+now reconciles the complete R05 replacement and GUT, PTR, NAV, WSP and STA
+additions below. Its final integrated gate remains controller-owned and pending;
+these amendments do not relabel either earlier validated candidate.
 
 Define the complete reference implementation of `rev`: a small, non-modal,
 terminal text editor written in Rust, with Emacs-style editing, rope-backed
@@ -197,12 +199,28 @@ syntax mode or `Text`, and read-only state when applicable. Errors MUST appear
 without erasing document content. The column convention MUST be documented
 and remain consistent with the explicit coordinate domains.
 
+Status SHALL use two aligned groups within each editing pane's own status
+rectangle. The left group SHALL contain the existing buffer name, clean/modified
+marker, write policy and line/column. The right group SHALL contain its syntax
+mode or Text label. Flexible space SHALL separate the groups when they fit.
+The existing active-pane indication and palette roles SHALL remain available.
+The single-row reservation and separate prompt/echo owner SHALL remain unchanged.
+When width cannot admit the complete status, STA02 defines the explicit
+compact/omitted-field exception; no overlapping or false label is permitted.
+
 #### Scenario: Save error remains visible with document intact
 
 - **GIVEN** an active buffer and its status indication
 - **WHEN** an ordinary save error is reported
 - **THEN** the echo area identifies the failure
 - **AND** the document and its dirty indication remain visible.
+
+#### Scenario: Show ordinary status in two aligned groups
+
+- **GIVEN** an editing pane with enough status width and a Rust buffer at line 37, column 3
+- **WHEN** its status is rendered
+- **THEN** the left group shows its identity, state and L37 C3 position
+- **AND** Rust is right-aligned within that pane, separated by flexible space.
 
 ### Requirement: R06 Resize and limited geometry
 
@@ -230,6 +248,13 @@ own point and scroll. Rendering MUST use terminal-cell widths for wide text,
 combining sequences, tabs, and displayed control characters. It MUST NOT
 assume that a Rust `char` or UTF-8 byte occupies one cell.
 
+Vertical arrows MUST preserve accurate single-step movement, sustained repeat
+and responsive reversal across viewport edges. Native input/render work MUST
+remain bounded while retaining admitted command order, Escape deadlines and
+C-g cancellation. Releasing repeated input MUST stop motion promptly without
+continued drift; ordinary/large-buffer input-to-update and release-to-stop
+measurements SHALL retain their declared finite budgets and source-state checks.
+
 The focused region MUST be visibly highlighted across rows and scrolling.
 Syntax, selection, search indication, and cursor styles MUST compose in a
 stable order with readable text and status. **Design defaults:** no soft wrap,
@@ -243,6 +268,13 @@ remain valid buffer content.
 - **WHEN** point moves beyond the visible horizontal range
 - **THEN** scrolling reveals point at a valid grapheme boundary
 - **AND** drawing stays within its assigned cell rectangle.
+
+#### Scenario: Stop repeated vertical motion
+
+- **GIVEN** ordinary or large text and point near a viewport edge
+- **WHEN** Up/Down input repeats, reverses and ends
+- **THEN** the selected view reveals every admitted logical movement in order
+- **AND** motion stops promptly without idle drift or text/history changes.
 
 ### Requirement: R08 Canonical rope and shared mutations
 
@@ -470,6 +502,7 @@ structural navigation. Arrow, Home, End, and Page keys MAY mirror these commands
 | `C-v` | `scroll-up-command` | Page forward. |
 | `M-v` | `scroll-down-command` | Page backward. |
 | `C-l` | `recenter-top-bottom` | Recenter the selected view around point. |
+| `M-g g`, `M-g M-g` | `goto-line` | Open the checked logical-line prompt under NAV01/NAV02. |
 
 #### Scenario: Retain intended column across a short line
 
@@ -1098,6 +1131,515 @@ required to validate the representative workload.
 - **THEN** the recorded results identify any pathological work
 - **AND** claims are limited to the workloads and measurements actually observed.
 
+## Input, navigation and presentation requirements
+
+### Requirement: GUT01 View-owned presentation
+
+The gutter SHALL be derived presentation within an editing view's panel content
+bounds. The buffer SHALL remain the canonical text/history owner. Panel borders,
+status rows and prompt/candidate surfaces SHALL retain their existing owners.
+
+Numbers and separators SHALL NOT enter copied/killed/rectangular
+text, search, replacement, save output, syntax offsets, undo data or reported
+logical text columns. Changing gutter presentation SHALL NOT change rope bytes,
+text revision, dirty state or saved-state identity.
+
+#### Scenario: Copy and save with gutters enabled
+
+- **GIVEN** a buffer displayed with numbers in two editing panes
+- **WHEN** the user copies a region or rectangle and saves ordinary text edits
+- **THEN** only canonical document text is copied and written
+- **AND** gutter changes create no edit transaction or dirty-state change.
+
+### Requirement: GUT02 Absolute and relative numbering
+
+Absolute mode SHALL display each logical line's one-based index. Relative mode
+SHALL display the nonnegative logical-line distance from the point in that
+specific view. Inactive views SHALL use their own point, never the focused
+pane's point. Relative values SHALL NOT count terminal cells or visible rows.
+
+The current-line form SHALL be independently selectable as `absolute`, `zero`
+or `hidden`, with distinct semantic styling and absolute as the factory default,
+following Odra. Visibility SHALL be separate from the selected calculation;
+hiding and restoring numbers SHALL retain the mode.
+
+#### Scenario: Relative numbers preserve the real current line
+
+- **GIVEN** relative mode and point on line 42
+- **WHEN** the viewport shows lines 40 through 44
+- **THEN** its number labels are 2, 1, 42, 1 and 2
+- **AND** choosing zero or hidden changes only the current row's label.
+
+#### Scenario: Shared views have independent relative origins
+
+- **GIVEN** two views share a buffer with their points on lines 20 and 60
+- **WHEN** both use relative mode and focus switches between them
+- **THEN** each view's numbers remain relative to its own point
+- **AND** changing one view's mode does not move either point.
+
+### Requirement: GUT03 Logical lines and real document rows
+
+Numbering SHALL use the existing buffer's logical line model. An empty buffer
+SHALL expose its first editable logical line as line 1. CRLF SHALL be one line
+separator; tabs, combining marks and wide graphemes SHALL NOT create line
+numbers. A trailing editable empty logical line follows that same buffer model.
+Blank viewport padding beyond the last logical line SHALL have no line number
+.
+
+The delivered no-wrap presentation SHALL remain authoritative. A future wrapped
+continuation cannot acquire another logical line number merely because it
+occupies another display row. Unsupported visual numbering SHALL be rejected
+explicitly if requested, without reinterpreting it as logical numbering.
+
+#### Scenario: Empty document and padding rows
+
+- **GIVEN** an empty editable buffer in a taller viewport
+- **WHEN** absolute numbering is displayed
+- **THEN** its real first logical line shows 1
+- **AND** rows used only to pad the viewport remain unnumbered.
+
+### Requirement: GUT04 Stable number geometry
+
+The number field SHALL be right-aligned and reserve at least four digits by
+default. Its digit width SHALL derive from the complete buffer's logical line
+count using checked integer metadata, with an admitted upper bound sufficient
+for every representable buffer line index. Cursor movement in relative mode
+SHALL NOT shrink or grow the field. Width changes at digit boundaries or a
+numbering-policy change SHALL trigger layout before rendering.
+
+Padding and separators SHALL have explicit reserved cell widths. The default
+separator SHALL be `│`, with `|` fallback. Width SHALL be measured in terminal
+cells under the same display policy used by the renderer, never byte length or
+Unicode scalar count. Admitted bounds SHALL NOT permit silently truncated or misleading line labels.
+
+#### Scenario: Cross a decimal boundary
+
+- **GIVEN** a four-digit field and a buffer with 9999 logical lines
+- **WHEN** an edit creates logical line 10000
+- **THEN** the field grows coherently to five digits before the next frame
+- **AND** undo restores the matching width and valid view positions.
+
+#### Scenario: Move within relative mode
+
+- **GIVEN** a large buffer with relative numbering
+- **WHEN** point moves through distances with different digit counts
+- **THEN** the gutter width remains stable
+- **AND** work remains bounded by the visible projection.
+
+### Requirement: GUT05 One coordinate and clipping contract
+
+Panel layout SHALL reserve gutter cells before determining the final text
+viewport. Cursor placement, horizontal reveal, selection, rectangles, search
+and syntax style ranges SHALL use that same final text origin and extent.
+A literal tab's logical stops SHALL NOT shift merely because a gutter becomes
+visible or changes sides. Gutter cells SHALL NOT scroll horizontally with text.
+
+The number field SHALL have explicit reserved bounds and order within its
+editing panel. It SHALL NOT overwrite borders, status, the prompt or another
+pane. Layout SHALL resolve before the text and number rows are drawn.
+
+#### Scenario: Tabbed text in a nested panel
+
+- **GIVEN** nested splits, a visible tree and text containing tabs and wide clusters
+- **WHEN** number visibility changes and point is revealed horizontally
+- **THEN** all display overlays and the cursor use the new text bounds
+- **AND** logical columns, tab stops and rectangle extraction remain unchanged.
+
+### Requirement: GUT06 Protect text under limited geometry
+
+The gutter SHALL yield to the panel's admitted minimum text area. Numbers SHALL
+hide as a complete field
+rather than consume protected text columns or render a false truncated label.
+A temporarily hidden lane SHALL retain its requested policy and restore it
+when geometry permits.
+
+Zero/tiny dimensions SHALL preserve view state through the baseline suspended
+presentation path. File tree, prompts and completion panels SHALL NOT receive
+source-editor line numbers merely because they use the panel abstraction.
+
+#### Scenario: Shrink and restore shared panes
+
+- **GIVEN** two independently configured gutters and an active completion prompt
+- **WHEN** the terminal shrinks to unusable dimensions and grows again
+- **THEN** gutter lanes recover their prior requested policy within valid bounds
+- **AND** document text, independent points, prompt draft and focus remain intact.
+
+### Requirement: GUT10 Safe number rendering and semantic palette
+
+Numbers, current-line emphasis, background and separator SHALL use semantic
+roles in rev's existing Tokyo Night palette. Factory values SHALL be readable
+without installing a theme or editing a configuration file. Ordinary and
+current-line labels SHALL remain meaningful under reduced color capability.
+
+Separators and labels SHALL use the same terminal-safe display boundary and
+cell measurement as document rendering. Wide or combining representations
+SHALL be measured consistently or rejected before layout; control/escape text
+SHALL NOT become terminal markup. An unavailable separator glyph SHALL select
+the printable ASCII fallback without shifting logical document coordinates.
+
+#### Scenario: Render with the separator fallback
+
+- **GIVEN** the primary separator cannot be displayed reliably
+- **WHEN** rev composes the gutter using the ASCII fallback
+- **THEN** number and text bounds remain coherent and terminal-safe
+- **AND** ordinary text, syntax, selection and search remain correctly aligned.
+
+### Requirement: GUT11 Per-view lifecycle
+
+A new view SHALL use the startup default. A split SHALL inherit its source
+view's effective gutter policy and may then diverge. Switching the buffer in
+one view SHALL retain that view's presentation policy while recomputing numbers for the new buffer. Closing a view SHALL release
+its gutter state;
+closing a buffer SHALL leave no gutter reference to that buffer.
+
+Session overrides SHALL NOT be persisted implicitly or copied into document
+metadata. Shared views SHALL retain one canonical text owner while keeping
+separate
+projection, point, visibility and numbering state.
+Pointer input remains optional; if it exists, a gutter hit SHALL NOT be routed
+as ordinary text selection or dragging merely because it is adjacent to text.
+
+#### Scenario: Rebind and close a split view
+
+- **GIVEN** a split with its own numbering policy showing buffer A
+- **WHEN** it switches to buffer B and is later closed
+- **THEN** its policy survives the switch but its labels now describe B
+- **AND** closing it releases only its own derived state and leaves the other view intact.
+
+### Requirement: GUT12 Configuration, native commands and complete defaults
+
+The selected numbering capability SHALL work with no user configuration. Every
+public control SHALL be available through startup TOML, runtime M-x or both as
+specified by the model. Optional settings SHALL extend the existing typed
+configuration catalog and complete reference sample only in the later gutter
+delivery. Unknown-key rejection, per-leaf layering and whole-candidate validation
+SHALL remain unchanged. There SHALL be no separate settings store.
+
+M-x SHALL discover and invoke concrete compiled Rust command handlers through
+the same registry used by configured keybindings. Commands SHALL affect the
+active editing view, preserve normal context/cancellation behavior and report
+unavailable contexts clearly. Hiding/restoring numbers SHALL retain mode;
+explicit mode selection SHALL show that mode. Mode, side and current-line-form
+changes SHALL create view-local overrides; reset SHALL restore the startup
+snapshot defaults for that view. None of these operations SHALL reload TOML,
+modify the startup snapshot, edit text or persist the override implicitly.
+
+#### Scenario: Select relative mode without setup
+
+- **GIVEN** two ordinary editing views and no user configuration file
+- **WHEN** the user finds and invokes the native relative-number command through M-x
+- **THEN** only that view changes and both views remain usable
+- **AND** no setup, plugin, external process or configuration write is required.
+
+#### Scenario: Runtime override and reset
+
+- **GIVEN** startup TOML selects absolute mode and a native command selects relative in one view
+- **WHEN** the user resets that view's gutter controls
+- **THEN** it returns to the resolved startup settings
+- **AND** other views, text, undo and the configuration file remain unchanged.
+
+### Requirement: GUT13 Bounded CPU, memory and redraw work
+
+Numbering SHALL use existing buffer line-count/index metadata and visible-row
+projection. Cursor movement SHALL NOT enumerate every buffer line or allocate
+a retained number object per possible line. Width calculation SHALL use checked
+integer arithmetic and support the largest admitted line index without a false
+truncated label.
+
+Hidden numbers SHALL do no number-row materialization. Numbering SHALL add no
+idle repaint loop, background scanner, timer or external process. Edits, view
+movement, mode changes and resize SHALL invalidate only the required geometry
+and visible presentation through the existing redraw path.
+
+#### Scenario: Move point through a large document
+
+- **GIVEN** a large buffer, bounded viewport and relative numbering
+- **WHEN** point moves rapidly and the viewport scrolls
+- **THEN** numbering performs bounded visible-range work
+- **AND** hiding numbers removes their row-materialization work without adding idle activity.
+
+### Requirement: GUT14 Acceptance through real editor paths
+
+Future implementation SHALL verify both numbering modes, per-view state,
+geometry and terminal presentation at their real boundaries. A terminal journey
+SHALL exercise the native commands with factory defaults and no config file, and verify supported startup settings.
+Existing text, history, safe-save and terminal cleanup guarantees remain
+required. CPU/memory measurements SHALL use representative large-buffer,
+cursor/scroll and idle workloads; no runtime result is claimed by this specification.
+
+#### Scenario: Numbered editing preserves normal behavior
+
+- **GIVEN** no user configuration, a tabbed Unicode file and nested shared views
+- **WHEN** the user changes numbering, copies a rectangle, searches, scrolls,
+  resizes, saves, switches buffers and closes the session
+- **THEN** labels and text overlays agree with each view's current projection
+- **AND** canonical text, file fidelity, undo truth and terminal restoration remain correct.
+
+### Requirement: PTR01 Native terminal input and existing owners
+
+Admitted mouse-wheel, trackpad-scroll, primary-button press, drag and release
+events SHALL enter the existing native event/command path. Pointer handling
+SHALL reuse the existing focus, view, region and history owners. Physical device
+drivers, a scripting layer or editor addons SHALL NOT be required.
+
+Vertical scrolling, pane focus and linear selection SHALL remain usable through
+the supported terminal event protocol. Support SHALL NOT imply that a terminal
+exposes raw touch gestures, pixel precision or every hardware-specific action.
+
+#### Scenario: Use a terminal-reported trackpad scroll
+
+- **GIVEN** a terminal that reports trackpad movement as scroll events
+- **WHEN** the editor receives an admitted vertical scroll over document text
+- **THEN** it uses the same native scrolling path as an equivalent wheel event
+- **AND** no device-specific runtime component is started.
+
+### Requirement: PTR02 Scroll the pointed pane without taking focus
+
+Vertical wheel/trackpad input SHALL scroll the document view or file tree under
+the pointer. It SHALL preserve keyboard focus, including when the target is an
+inactive pane. Primary-button clicks SHALL use the ordinary checked pane-focus
+transition. Hover alone SHALL NOT select a pane.
+
+Only the targeted view's viewport and its necessary view-local point adjustment
+may change during scrolling. Shared text, unrelated views and the active pane's
+editing state SHALL remain coherent. Geometry edges and document bounds SHALL
+clamp safely. The editor SHALL NOT add simulated momentum or an idle scroll loop.
+
+#### Scenario: Scroll an inactive tree while editing text
+
+- **GIVEN** a document pane has keyboard focus and a visible inactive file tree
+- **WHEN** wheel input arrives with coordinates inside the tree
+- **THEN** only the tree's view scrolls and keyboard focus remains in the document
+- **AND** a later click in the tree performs the ordinary focus transition.
+
+### Requirement: PTR03 Checked point placement through composed geometry
+
+A primary-button text click SHALL resolve the owning live view, focus it and
+place point at the represented logical text boundary. Mapping SHALL account for
+scroll offsets, tabs, Unicode graphemes, wide glyphs, clipping and the gutter's
+selected side and current width. No hit may split an encoded character or use
+stale bounds after resize or layout changes.
+
+Gutter labels, borders, status rows, padding and other panels SHALL NOT become
+buffer text or invented text positions. A pane-owned non-text hit may focus its
+pane without moving point. Separators SHALL NOT initiate an unrequested edit or
+resize action. Active prompt/decision owners SHALL retain their existing input
+and cancellation guarantees.
+
+#### Scenario: Click tabbed Unicode text beside a gutter
+
+- **GIVEN** nested document panes with relative line numbers and tabbed Unicode text
+- **WHEN** a text hit is resolved after a resize and horizontal viewport change
+- **THEN** it selects the current owning view and a valid represented text boundary
+- **AND** the line-number field and neighboring pane cannot become the destination.
+
+### Requirement: PTR04 Canonical linear selection and finite drag ownership
+
+A primary-button text drag SHALL establish mark and point through the ordinary
+linear-region owner. Release SHALL end pointer capture and retain the resulting
+region for ordinary copy, kill and other editing commands. A press/release
+without a drag SHALL remain point placement rather than an empty selection.
+
+Selection SHALL remain owned by the originating document view. Crossing another
+pane, gutter or decoration SHALL NOT select its rendered content or transfer
+the drag to that surface. Cancellation, view loss, resize invalidation and mode
+disable SHALL end capture without editing text or retaining a stale target.
+
+During an active captured text drag, moving above or below its visible text
+area SHALL autoscroll that originating view and extend its canonical region.
+Returning inside SHALL pause autoscroll. Release, cancellation, invalidation
+or loss of capture SHALL stop it, with no queued or simulated momentum.
+Crossing another pane SHALL NOT transfer focus, selection or scrolling to it.
+
+Native editor selection SHALL remain distinct from terminal-owned selection.
+Documentation SHALL explain the terminal's bypass gesture where available and
+the editor's mouse-disable path, without promising a universal physical modifier.
+
+#### Scenario: Select text across a neighboring pane boundary
+
+- **GIVEN** a drag starts on ordinary document text beside a gutter and another pane
+- **WHEN** the pointer crosses those UI areas and the primary button is released
+- **THEN** only a valid source-buffer range can remain selected
+- **AND** no UI label, other buffer content or history edit is captured.
+
+#### Scenario: Extend selection beyond the visible text
+
+- **GIVEN** a live text drag and more source text beyond the visible rows
+- **WHEN** the pointer moves past the top or bottom of its text area while held
+- **THEN** bounded autoscroll extends the source buffer's canonical region
+- **AND** release stops scrolling while the resulting region remains active.
+
+### Requirement: PTR05 Reversible terminal modes and bounded input work
+
+Only the terminal reporting modes required by the admitted interactions SHALL
+be enabled. Disabling support and every normal/error terminal cleanup path
+SHALL restore the relevant reporting state and end capture. Mouse support
+SHALL add no idle polling, idle repaint timer or unbounded motion queue.
+Bounded autoscroll ticks MAY run only while a valid out-of-bounds drag is
+captured. Every tick SHALL recheck ownership and document bounds; release,
+cancellation or invalidation SHALL remove pending autoscroll work. Autoscroll ticks SHALL be no more frequent than once per 100 ms and each
+step SHALL advance at most the lesser of mouse.scroll_lines and the current
+text-area height. New motion SHALL NOT accumulate timer work; release/input
+cancellation is processed before any due tick.
+
+Scroll/drag work SHALL remain bounded by the current projection and selected
+operation. The arrow-inertia ticket's input/rendering investigation SHALL inform
+shared regression coverage without treating an unverified backlog as a diagnosis.
+
+#### Scenario: Disable mouse support during a drag
+
+- **GIVEN** a live pointer selection in a normal editing session
+- **WHEN** native mouse support is disabled or terminal cleanup runs
+- **THEN** reporting/capture ends through the owned cleanup path
+- **AND** keyboard operation and document bytes remain valid.
+
+### Requirement: PTR06 Complete startup defaults and native runtime control
+
+Pointer support SHALL have usable factory defaults, typed TOML preferences and
+a compiled M-x runtime toggle. Settings SHALL use the existing schema and
+startup-only snapshot; runtime overrides SHALL NOT rewrite TOML. Supported
+fields SHALL enter the exhaustive sample and packaged bootstrap template.
+
+#### Scenario: Change pointer mode for the current session
+
+- **GIVEN** pointer support was selected by startup settings
+- **WHEN** the user invokes its native M-x toggle
+- **THEN** the current session changes reporting mode through the same owner
+- **AND** saved TOML remains unchanged for the next startup.
+
+### Requirement: NAV01 Familiar command and checked destination
+
+M-g g, M-g M-g and M-x goto-line SHALL open the same native line-number prompt.
+M-g alone SHALL remain a prefix; C-g SHALL retain cancellation in every context.
+The prompt SHALL accept a bounded signed decimal integer. Malformed or
+overflowing input SHALL produce recoverable feedback without changing point.
+This capability does not introduce a general numeric-prefix command language.
+
+For an existing positive logical line, point SHALL move to its beginning. Line
+numbers SHALL be one-based and independent of relative gutter labels. Zero or
+negative input SHALL clamp to buffer start; a request beyond the last logical
+line SHALL clamp to buffer end, matching the observed Emacs goto-line behavior.
+An empty buffer SHALL remain at its sole valid position.
+
+#### Scenario: Visit an admitted logical line
+
+- **GIVEN** a multiline buffer and relative gutter numbering
+- **WHEN** the user submits line 37 through either binding or M-x
+- **THEN** the selected view reaches the beginning of logical line 37
+- **AND** the gutter's relative labels do not change the requested coordinate.
+
+#### Scenario: Clamp an out-of-range request
+
+- **GIVEN** a two-line buffer whose last line has no terminating newline
+- **WHEN** the user submits a line after the document's last line
+- **THEN** point reaches the exact buffer end, not an invented line
+- **AND** zero or negative requests instead reach buffer start.
+
+### Requirement: NAV02 Cancel safely and preserve ordinary view ownership
+
+No point movement SHALL occur while entering the number. C-g SHALL cancel and
+retain the original point, viewport and document state. Successful navigation
+SHALL use the ordinary checked movement/region rules and reveal the destination
+in the selected view. Other views SHALL retain their independent points.
+
+Navigation SHALL work in read-only buffers and SHALL NOT create a text edit,
+undo node, save, configuration write or dirty-state change. Shared buffer
+selection follows the existing mark/region contract rather than a second owner.
+
+#### Scenario: Cancel a line prompt with unsaved text
+
+- **GIVEN** an unsaved Unicode buffer and a pending line-number prompt
+- **WHEN** the user types a number and cancels with C-g
+- **THEN** its original point, viewport, text and history remain intact
+- **AND** normal editing focus returns without a navigation side effect.
+
+### Requirement: WSP01 Region-scoped conversion with preserved visual columns
+
+M-x tabify and M-x untabify SHALL operate on the marked linear region admitted
+by the editor's existing region owner. With no usable region they SHALL report
+that condition rather than implicitly convert the whole buffer. An empty region
+SHALL be a no-op. Whole-document conversion requires explicitly marking it.
+
+Untabify SHALL expand selected literal tabs to spaces at the buffer's effective
+tab stops. Tabify SHALL convert eligible whitespace runs of at least two cells
+to a shorter tab/space representation only when all non-whitespace display
+columns remain unchanged. Eligibility applies throughout the selected region,
+not only indentation; language strings/comments do not receive implicit parser
+exceptions. Existing tab stops, Unicode display widths and text before a
+mid-line selection SHALL determine the actual starting column.
+
+Only selected whitespace may change. Unicode text, line-ending bytes, BOM and
+final-newline state SHALL remain intact. The commands SHALL NOT change settings
+or convert other buffers. No factory shortcut is required; existing validated
+keymaps may refer to the native command names.
+
+#### Scenario: Expand a selected tab after Unicode text
+
+- **GIVEN** a region begins mid-line after wide/grapheme text and contains tabs
+- **WHEN** untabify runs under the buffer's effective tab width
+- **THEN** tabs become the correct number of spaces for their actual columns
+- **AND** text outside the region and non-whitespace display columns are unchanged.
+
+#### Scenario: Leave an unselected document untouched
+
+- **GIVEN** a document with convertible whitespace and no usable marked region
+- **WHEN** the user invokes either conversion command
+- **THEN** it reports the missing operation range without a document-wide fallback
+- **AND** document bytes, dirty state and history remain unchanged.
+
+### Requirement: WSP02 One coherent edit with ordinary safety and history
+
+A successful conversion SHALL publish one canonical transaction with checked
+revision/ranges, ordinary shared-view updates and one undo operation. Redo SHALL
+restore the converted result. A no-op SHALL create no edit/history/dirty change.
+Read-only admission and failure/cancellation SHALL retain all prior text.
+
+#### Scenario: Undo one multi-line conversion
+
+- **GIVEN** a selected multi-line region with mixed tabs and spaces
+- **WHEN** tabify changes it and the user invokes one undo
+- **THEN** the exact original bytes and coherent shared-view positions return
+- **AND** redo restores the converted bytes through the normal history owner.
+
+### Requirement: STA01 Preserve pane-local observations
+
+Each editing pane SHALL show the buffer and position belonging to that view.
+Shared buffer dirty/write policy remains shared, while view-local point and
+active styling remain independent. Rendering SHALL NOT switch focus, mutate
+text, query external processes or make status text canonical state.
+
+The change SHALL reuse the existing one-row status and palette owners. A
+programmable segment registry, extra status rows and new status subsystems are
+not required. Tree and transient prompt/status surfaces retain their own data
+and bounds rather than inheriting an unrelated document's status.
+
+#### Scenario: Shared buffer, independent positions
+
+- **GIVEN** two editing panes show one buffer at different stored points
+- **WHEN** focus changes or one point moves
+- **THEN** each status reports its own current line and column
+- **AND** shared dirty/write state remains truthful in both panes.
+
+### Requirement: STA02 Deterministic narrow-width composition
+
+Composition SHALL measure terminal cells through the existing checked text
+projection, including Unicode and wide glyphs. Both groups SHALL remain inside
+the owning pane's status rectangle and SHALL NOT overlap or cross a separator.
+The gutter's side or width SHALL NOT become an independent status offset.
+
+When width is insufficient, remove the language group first, compact position
+next and clip the buffer label as required while prioritizing state/access
+indicators. Tiny geometry SHALL retain bounded output rather than fabricate a
+state or write outside the row. Omitted groups SHALL NOT leave orphan separators.
+The complete form SHALL return when width is available again.
+
+#### Scenario: Shrink and restore a split pane
+
+- **GIVEN** two status groups and a wide Unicode buffer label in nested panes
+- **WHEN** the terminal shrinks and later grows
+- **THEN** composition degrades within each pane without overlap or invalid text
+- **AND** the complete truthful two-group presentation returns after growth.
+
 ## Retained design defaults
 
 | Area | Retained baseline default |
@@ -1107,6 +1649,9 @@ required to validate the representative workload.
 | Tree toggle | `toggle-file-tree`; optional `C-x t t`. |
 | Tree focus | Separate from `other-window` cycling. |
 | Text display | No soft wrap; horizontal scrolling; default four-cell tab stops, with coherent buffer-specific overrides. |
+| Numbering | Visible left absolute logical numbers; independent current-line form and per-view runtime overrides. |
+| Pointer | Enabled native primary click/drag and three-row pointed scrolling; mouse-mode toggles the session. |
+| Status | Pane-local identity/state/position on the left and syntax mode on the right, with bounded narrow-width composition. |
 | Character motion | User-perceived grapheme clusters where possible. |
 | Line endings | Preserve existing LF/CRLF; inserted newlines follow prevailing style. |
 | Kill ring | 32 in-memory linear entries; separate rectangle storage. |

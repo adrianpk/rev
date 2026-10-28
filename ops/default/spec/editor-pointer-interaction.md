@@ -9,7 +9,7 @@ Panel contract: [Editor Interaction](editor-interaction.md), UI01
 Gutter: [Editor Gutter](editor-gutter.md)
 Controls: [Editor Configuration](editor-configuration.md)
 Ticket: [Mouse, scrolling and pane focus](../ticket/solved/20261027190629-mouse-scroll-selection-and-pane-focus.md)
-Delivery boundary: selected combined input/navigation/presentation delivery; no implementation started
+Delivery boundary: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate pending
 
 ## Purpose
 

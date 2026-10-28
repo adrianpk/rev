@@ -81,6 +81,15 @@ malformed terminal control sequences discarded by Crossterm do not enter text.
 Printable characters received after a standalone Escape has expired are ordinary
 new input, rather than an indefinitely pending Meta suffix.
 
+## Ordered repeat and visible progress
+
+Vertical arrows use the ordinary logical-line and reveal owners. Native input
+work yields to presentation after at most 32 events or 4 ms while retaining
+handler order, reversal, text-command ordering, Escape and C-g. Release reports
+do not repeat movement. The release collector checks first update and stop
+tail within 150 ms at its declared input rate, then requires no drift or idle
+output. See [bindings](bindings.md) for column and viewport behavior.
+
 ## Pointer reporting ownership
 
 Native startup enables button-event tracking (DEC 1002) and SGR mouse
@@ -195,3 +204,9 @@ or workspace transitions require a fresh press regardless of their alias.
 Decisions keep explicit fresh answers; mapped acceptance cannot grant consent. Phase checks use normalized keys: held Control-m/j cannot bypass the
 fresh Enter requirement in prompts. Releases and literal paste retain their
 existing event ownership.
+
+The release interaction collector exercises pointer reports at 120 reports per
+second. An instantaneous multi-kilobyte report burst can stall the pinned
+terminal decoder before subsequent keyboard input. The native event-work bound
+does not establish a bound for that dependency's byte buffer. The measured
+rate and idle results do not claim instantaneous burst support.

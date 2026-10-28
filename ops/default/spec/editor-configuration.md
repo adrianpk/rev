@@ -24,6 +24,12 @@ through the separately authorized configuration and interaction delivery. Its
 plan and single tracker record implementation and completion. Runtime support
 passed the controller-owned full gate on the validated candidate above.
 
+That identity and gate remain historical configuration/interaction evidence.
+The current [input and navigation delivery](../plan/rev-input-navigation.md)
+reconciles CFG01/CFG14/CFG15 with [configuration bootstrap](editor-configuration-bootstrap.md),
+adds CFG23/CFG24, and activates the gutter/mouse catalog in the companion model.
+Its complete integrated gate remains pending.
+
 OpenSpec is the shared workspace Markdown format. Reading or validating this
 proposal does not require the OpenSpec CLI or another runtime service.
 
@@ -56,7 +62,7 @@ proposal does not require the OpenSpec CLI or another runtime service.
   used to establish inheritance, not a requirement to rewrite Go files.
 - Tab advances to the next applicable stop. A literal tab remains U+0009;
   choosing spaces for indentation is a separate explicit editing policy.
-  Converting existing tabs and spaces belongs to a separate future ticket.
+  Explicit region conversion is defined by [WSP01/WSP02](editor-whitespace-conversion.md); loading preferences never performs it implicitly.
 
 ### Selected scope
 
@@ -67,9 +73,10 @@ unified delivery as explicit work items rather than implied options.
 
 The model's broader option inventory records potential future expansions and
 proposed values. It does not authorize adding their missing behavior to this
-delivery. Line numbers, automatic indentation, visible-whitespace modes, cursor
-blinking, and other absent capabilities remain future possibilities. They
-shall not appear as usable active or commented settings in the shipped sample.
+historical delivery. The current accepted gutter and mouse controls extend its
+catalog through the input/navigation plan. Automatic indentation,
+visible-whitespace modes, cursor blinking and other unimplemented capabilities
+remain outside the shipped sample, including commented examples.
 
 This proposal configures built-in behavior. Theme packages, script evaluation,
 plugin/addon loading, session restoration, and automatic project-local
@@ -91,11 +98,13 @@ SHALL be ignored as invalid. The configuration filename SHALL be `config.toml`.
 | Restart-persistent operational state | `XDG_STATE_HOME` | `~/.local/state/rev/` |
 | Regenerable nonessential data | `XDG_CACHE_HOME` | `~/.cache/rev/` |
 
-Opening the editor SHALL NOT eagerly create empty directories or a user
-configuration file. A supported feature creates its destination only when it
-actually needs to write. User documents SHALL NOT be redirected into these
-directories. The model defines the distinction between configuration, data,
-state, and cache; no new storage feature is implied by these locations.
+Normal editor startup SHALL provision the resolved user configuration when
+no destination entry exists, creating its configuration parents only as needed.
+The file SHALL use the packaged complete reference template under CFG23/CFG24.
+No existing destination entry SHALL be rewritten or replaced by provisioning.
+Data, state and cache directories SHALL NOT be created merely to start the
+editor. User documents SHALL NOT be redirected into these directories. The
+existing distinction between configuration, data, state and cache is retained.
 
 #### Scenario: Custom configuration home
 
@@ -108,8 +117,9 @@ state, and cache; no new storage feature is implied by these locations.
 
 - **GIVEN** no user configuration file exists
 - **WHEN** the editor starts
-- **THEN** it uses built-in defaults
-- **AND** it does not create a configuration file merely to start.
+- **THEN** it creates the complete default-equivalent configuration at the
+  resolved user path and uses the ordinary validated startup settings
+- **AND** no unrelated data, state or cache directory is created.
 
 ### Requirement: CFG02 Declarative typed TOML
 
@@ -385,14 +395,17 @@ effective operation in transient contexts.
 
 ### Requirement: CFG14 Startup errors keep usable defaults
 
-A missing optional root configuration SHALL select built-ins without error.
+A missing implicit user root SHALL trigger the bounded provisioning attempt
+under CFG01/CFG24. If that attempt cannot complete, startup SHALL retain usable
+complete built-ins and report the provisioning failure without blocking editing.
 A present malformed, unreadable, or semantically invalid candidate SHALL be
 reported with useful source, key, and location context where available.
 Startup SHALL keep the editor usable with complete built-ins and a visible
 configuration diagnostic; the rejected candidate SHALL have no partial effect.
 
-The loader SHALL NOT repair, rewrite, or overwrite user configuration as a
-side effect of reading it. Secrets or unrelated environment contents SHALL NOT
+Provisioning SHALL be limited to an absent destination entry. The loader
+SHALL NOT repair, rewrite, or overwrite existing user configuration as a side
+effect of reading it. Secrets or unrelated environment contents SHALL NOT
 be copied into diagnostics. An explicitly requested broken include is not an
 absent optional root file.
 
@@ -403,16 +416,26 @@ absent optional root file.
 - **THEN** the error identifies the bad key/source
 - **AND** no mixture of accepted and rejected file settings becomes effective.
 
+#### Scenario: Configuration cannot be created
+
+- **GIVEN** no configuration file and an unwritable configuration location
+- **WHEN** normal editor startup attempts provisioning
+- **THEN** editing continues with complete factory defaults and a useful diagnostic
+- **AND** startup does not claim that the file was created successfully.
+
 ### Requirement: CFG15 Startup-only application
 
 The editor SHALL read and validate configuration at startup. The resulting
 effective configuration SHALL remain fixed for that session; changing source
 files SHALL NOT trigger manual or automatic reload in this delivery.
 
-Startup application SHALL be complete and coherent. It SHALL NOT silently save
-files, execute a bound command, create filesystem entries, or treat preferences
-as document edits. Runtime reload and automatic change watching MAY be
-considered later, but SHALL NOT appear as available commands or settings now.
+Startup application SHALL be complete and coherent. The sole filesystem
+creation exception is provisioning the absent user configuration under
+CFG01/CFG24 before ordinary loading. Location resolution, parsing, includes,
+validation and applying settings SHALL NOT independently create files or
+directories. Startup application SHALL NOT silently save user documents,
+execute a bound command or treat preferences as document edits. Runtime reload
+and automatic change watching remain future capabilities.
 
 #### Scenario: Configuration edits wait for the next startup
 
@@ -544,6 +567,59 @@ Schema/sample checks alone SHALL NOT count as runtime acceptance evidence.
 - **WHEN** catalog consistency is checked
 - **THEN** the missing documentation/default is detected
 - **AND** syntax success alone does not establish configuration acceptance.
+
+### Requirement: CFG23 Packaged exhaustive default-equivalent template
+
+The binary SHALL contain the complete supported configuration template. It
+SHALL NOT require a repository checkout, separately installed sample or network
+access to provision it. Every active value SHALL equal the corresponding
+compiled default; optional includes, language overrides and unused examples
+SHALL remain commented. The complete palette SHALL appear explicitly.
+
+The generated file SHALL describe the supported configurable universe with
+English comments and the existing documented bounds/options. Fields SHALL be
+added only alongside implemented capabilities. The combined delivery's gutter
+and pointer fields SHALL enter this template when those capabilities ship;
+future unimplemented features SHALL NOT appear as usable settings.
+
+Catalog checks SHALL compare the packaged template, reference sample and typed
+defaults so a second independently maintained default set cannot drift.
+
+#### Scenario: First startup without configuration
+
+- **GIVEN** a standalone binary, no user configuration and no reference files
+- **WHEN** the editor provisions its user configuration
+- **THEN** the complete generated TOML validates through the ordinary schema
+- **AND** its effective settings equal complete factory defaults.
+
+### Requirement: CFG24 Preserve existing entries and publish a complete file
+
+Provisioning SHALL never replace, truncate or repair an existing destination
+entry, including an empty/invalid file, directory or symbolic link. Such a path
+SHALL retain the normal read/diagnostic behavior of the existing loader.
+
+First-start publication SHALL expose a complete file without overwriting a
+configuration created concurrently. An interrupted or failed write SHALL NOT
+publish a truncated configuration as success. Temporary resources SHALL have
+bounded ownership and cleanup; no periodic writer or idle work is introduced.
+
+After another process wins publication, startup SHALL load the existing winner
+through normal validation. It SHALL NOT overwrite that file with the template.
+Only missing configuration parents needed for this operation may be created.
+
+#### Scenario: Preserve an existing customized file
+
+- **GIVEN** a user configuration already exists with custom values or invalid text
+- **WHEN** the editor starts
+- **THEN** provisioning leaves its bytes and directory entry unchanged
+- **AND** the ordinary loader determines effective settings or fallback.
+
+#### Scenario: Two first starts race
+
+- **GIVEN** two processes observe the same missing configuration
+- **WHEN** one publishes a complete file before the other
+- **THEN** the second process preserves and validates that published file
+- **AND** neither process exposes a partial template or overwrites the winner.
 
 ## MODIFIED Requirements
 
@@ -718,7 +794,7 @@ expansion rule; keep the explicit distinction from kill and destination yank.
 - Schema version 1, with omission accepted as version 1; TOML 1.1.0 input.
 - Explicit include order and finite graph/input limits under CFG08.
 - Reassignment to supported commands; no explicit unbinding.
-- Next-stop Tab semantics; conversion commands remain a separate future ticket.
+- Next-stop Tab semantics; explicit region conversion uses WSP01/WSP02 and never runs on load.
 - Exact accepted catalog and bounds are in the model. The candidate inventory
   is a roadmap boundary and cannot add implementation scope.
 
