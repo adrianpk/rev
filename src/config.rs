@@ -16,6 +16,7 @@ mod parse;
 mod project;
 mod resolve;
 mod startup;
+mod template;
 mod validate;
 mod xdg;
 
@@ -28,6 +29,7 @@ pub use palette::{
 pub use parse::parse;
 pub use resolve::{Snapshot, resolve};
 pub use startup::{Startup, prepare};
+pub use template::default_template;
 pub use xdg::Roots;
 
 use std::collections::BTreeMap;

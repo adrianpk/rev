@@ -298,7 +298,7 @@ T15.3: `3da0fcc042c44cc0f9cc8a4e75ac9629bc5100bf`.
 Contracts: CFG23 CFG05.
 Details and exact checks: [Slice 16](../plan/rev-input-navigation.md#slice-16-package-the-complete-startup-configuration-template).
 
-- [ ] T16.1: Embed the supported complete sample in the binary and expose a bounded template source without needing a checkout, documentation file or network at runtime.
+- [x] T16.1: Embed the supported complete sample in the binary and expose a bounded template source without needing a checkout, documentation file or network at runtime.
 - [ ] T16.2: Ensure every active generated leaf equals compiled defaults, explicit palette values are complete and unused optional examples stay commented.
 - [ ] T16.3: Extend existing catalog/reference guards to cover packaged/reference/default equality including delivered gutter/mouse controls; do not create user files in pure loading helpers.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
