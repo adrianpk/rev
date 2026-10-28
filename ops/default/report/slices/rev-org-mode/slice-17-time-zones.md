@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-17-time-zones`
-PR: pending
+PR: [#118](https://forge.adrianpk.com/adrianpk/rev/pulls/118)
 
 ## Purpose
 
@@ -49,6 +49,12 @@ prompt is admitted for ambiguous/nonexistent policies. Task logging now consumes
 this policy through the shared owner, retaining a single timestamp through note
 entry. The former private task-zone reader is removed. No source directive can
 select a zone file or execute a program.
+
+Task commits:
+
+- T17.1: [2aa2110ec2f78dbc9136f72becaba82c5ea12431](https://forge.adrianpk.com/adrianpk/rev/commit/2aa2110ec2f78dbc9136f72becaba82c5ea12431).
+- T17.2: [1384f20c768c19a05a992197162ddee3f8299850](https://forge.adrianpk.com/adrianpk/rev/commit/1384f20c768c19a05a992197162ddee3f8299850).
+- T17.3: [cdef5c9ae706b0e61a03c596ae72300d5b79ca95](https://forge.adrianpk.com/adrianpk/rev/commit/cdef5c9ae706b0e61a03c596ae72300d5b79ca95).
 
 ## Contracts Added or Changed
 
@@ -114,8 +120,20 @@ Half-hour and negative-DST folds/gaps, a full skipped day, three simultaneous
 fold choices, boundary years and external file replacement remain explicit.
 The existing task-log release note now documents selectable operation zones.
 
+Canonical PR [#118](https://forge.adrianpk.com/adrianpk/rev/pulls/118) targets
+`dev` with the approved title and full report-introduction commit
+`2aa2110ec2f78dbc9136f72becaba82c5ea12431`.
+
 Final required ordered checks will be recorded through the controller after
-the canonical PR-reference follow-up is committed and pushed. Focused same-HEAD
+this PR-reference follow-up is committed and pushed:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test configuration`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused same-HEAD
 checks also cover native Org editing, configuration reference agreement and
 four owned task terminal sessions. Receipt identities belong in Acta and the
 checkpoint without moving the validated candidate afterward.

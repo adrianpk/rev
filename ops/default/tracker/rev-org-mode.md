@@ -408,6 +408,16 @@ Details and exact checks: [Slice 17](../plan/rev-org-mode.md#slice-17-resolve-or
 - [x] T17.3: Verify DST transitions, invalid zones and external zone changes with owned fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR [#118](https://forge.adrianpk.com/adrianpk/rev/pulls/118) targets dev;
+[Slice 17 report](../report/slices/rev-org-mode/slice-17-time-zones.md) is reviewing.
+Task commits:
+- T17.1: `2aa2110ec2f78dbc9136f72becaba82c5ea12431`.
+- T17.2: `1384f20c768c19a05a992197162ddee3f8299850`.
+- T17.3: `cdef5c9ae706b0e61a03c596ae72300d5b79ca95`.
+
+Required exact-head validation follows the PR-reference push. Integration
+remains controller-owned.
+
 ### Slice 18: enter and edit Org timestamps
 
 Contracts: ORG07 ORG17.
