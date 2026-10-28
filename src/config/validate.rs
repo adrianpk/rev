@@ -66,6 +66,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
             1..=32,
         ),
         ("tree.width", document.tree.width, 1..=512),
+        ("mouse.scroll_lines", document.mouse.scroll_lines, 1..=100),
         (
             "syntax.max_bytes",
             document.syntax.max_bytes,

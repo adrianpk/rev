@@ -42,6 +42,12 @@ minimum_digits = 4
 left_padding = 0
 right_padding = 1
 
+[mouse]
+# Boolean; native pointer reporting at startup; M-x mouse-mode toggles this session.
+enabled = true
+# Integer 1..=100 logical rows per wheel report; drag steps also clamp to text height.
+scroll_lines = 3
+
 [minibuffer]
 # Integer 1..=32 candidate rows, clipped to the available terminal geometry.
 candidate_limit = 8

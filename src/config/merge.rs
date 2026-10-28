@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use super::{
     Document, Keymaps, Language, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette,
-    PartialHistory, PartialKillRing, PartialMinibuffer, PartialPalette, PartialScroll,
-    PartialSyntax, PartialSyntaxPalette, PartialTree, PartialWindows,
+    PartialHistory, PartialKillRing, PartialMinibuffer, PartialMouse, PartialPalette,
+    PartialScroll, PartialSyntax, PartialSyntaxPalette, PartialTree, PartialWindows,
 };
 
 #[derive(Default)]
@@ -24,6 +24,7 @@ impl Document {
         merge.scroll(&mut self.scroll, &later.scroll);
         merge.windows(&mut self.windows, &later.windows);
         merge.gutter(&mut self.gutter, &later.gutter);
+        merge.mouse(&mut self.mouse, &later.mouse);
         merge.minibuffer(&mut self.minibuffer, &later.minibuffer);
         merge.history(&mut self.history, &later.history);
         merge.kill_ring(&mut self.kill_ring, &later.kill_ring);
@@ -38,6 +39,15 @@ impl Document {
 }
 
 impl Merge {
+    fn mouse(&mut self, base: &mut PartialMouse, later: &PartialMouse) {
+        self.leaf(&["mouse", "enabled"], &mut base.enabled, &later.enabled);
+        self.leaf(
+            &["mouse", "scroll_lines"],
+            &mut base.scroll_lines,
+            &later.scroll_lines,
+        );
+    }
+
     fn leaf<T: Clone>(&mut self, path: &[&str], base: &mut Option<T>, later: &Option<T>) {
         if later.is_some() {
             base.clone_from(later);

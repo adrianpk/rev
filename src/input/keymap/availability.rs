@@ -60,6 +60,7 @@ fn tree(target: Binding) -> bool {
         Command::Tree(_)
             | Command::KeyboardQuit
             | Command::Quit
+            | Command::MouseMode
             | Command::ExecuteExtended
             | Command::InsertTab
             | Command::Newline

@@ -137,7 +137,9 @@ impl Session {
         let buffer = self.buffer()?;
         let mut candidate = self.view().clone();
         let size = panel.outer().view_size();
-        let distance = super::scroll::SCROLL_LINES.min(usize::from(panel.content().height()));
+        let distance = self
+            .mouse_scroll_lines()
+            .min(usize::from(panel.content().height()));
         candidate.scroll_viewport(buffer, pending.backward, distance, size)?;
         let text = candidate.gutter_geometry(buffer, panel.content())?.text();
         if text.width() == 0 {

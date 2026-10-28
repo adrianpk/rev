@@ -97,7 +97,7 @@ impl Session {
             return Some(self.tree_command(command));
         }
         match command {
-            Command::Tree(_) | Command::Quit => None,
+            Command::Tree(_) | Command::Quit | Command::MouseMode => None,
             Command::KeyboardQuit
                 if matches!(
                     self.pending,

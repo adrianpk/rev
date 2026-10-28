@@ -274,7 +274,7 @@ T14.3: `148a326f351d78bda33867623cd697712caaa0ee`.
 Contracts: PTR01 PTR06 CFG05.
 Details and exact checks: [Slice 15](../plan/rev-input-navigation.md#slice-15-activate-native-mouse-defaults-and-runtime-control).
 
-- [ ] T15.1: Wire mouse.enabled=true and mouse.scroll_lines=3 with bounds 1..100, plus the compiled M-x mouse-mode session toggle, through the existing typed configuration/catalog.
+- [x] T15.1: Wire mouse.enabled=true and mouse.scroll_lines=3 with bounds 1..100, plus the compiled M-x mouse-mode session toggle, through the existing typed configuration/catalog.
 - [ ] T15.2: Activate only the complete event/cleanup path, preserve startup-only snapshots and no-write runtime overrides, and add accurate exhaustive sample/default documentation.
 - [ ] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.

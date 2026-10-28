@@ -1,7 +1,7 @@
 use super::{
-    Document, Editor, Files, GutterPalette, History, KillRing, Language, Minibuffer, Palette,
-    PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette, PartialHistory,
-    PartialKillRing, PartialMinibuffer, PartialPalette, PartialScroll, PartialSyntax,
+    Document, Editor, Files, GutterPalette, History, KillRing, Language, Minibuffer, Mouse,
+    Palette, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette, PartialHistory,
+    PartialKillRing, PartialMinibuffer, PartialMouse, PartialPalette, PartialScroll, PartialSyntax,
     PartialSyntaxPalette, PartialTree, PartialWindows, Rgb, Scroll, Settings, Syntax,
     SyntaxPalette, Tree, Windows,
 };
@@ -14,6 +14,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     scroll(&mut settings.scroll, &document.scroll);
     windows(&mut settings.windows, &document.windows);
     gutter(&mut settings.gutter, &document.gutter);
+    mouse(&mut settings.mouse, &document.mouse);
     minibuffer(&mut settings.minibuffer, &document.minibuffer);
     history(&mut settings.history, &document.history);
     kill_ring(&mut settings.kill_ring, &document.kill_ring);
@@ -163,4 +164,9 @@ fn gutter_palette(base: &mut GutterPalette, partial: &PartialGutterPalette) {
     color(&mut base.foreground, &partial.foreground);
     color(&mut base.current_line, &partial.current_line);
     color(&mut base.separator, &partial.separator);
+}
+
+fn mouse(base: &mut Mouse, partial: &PartialMouse) {
+    scalar(&mut base.enabled, partial.enabled);
+    count(&mut base.scroll_lines, partial.scroll_lines);
 }

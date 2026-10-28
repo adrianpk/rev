@@ -20,6 +20,8 @@ mod includes;
 mod keymaps;
 #[path = "configuration/merging.rs"]
 mod merging;
+#[path = "configuration/mouse.rs"]
+mod mouse;
 #[path = "configuration/parsing.rs"]
 mod parsing;
 #[path = "configuration/reference.rs"]

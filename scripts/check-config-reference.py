@@ -18,6 +18,7 @@ TABLES = {
     "scroll": "PartialScroll",
     "windows": "PartialWindows",
     "gutter": "PartialGutter",
+    "mouse": "PartialMouse",
     "minibuffer": "PartialMinibuffer",
     "history": "PartialHistory",
     "kill_ring": "PartialKillRing",

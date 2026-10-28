@@ -42,6 +42,7 @@ pub struct Settings {
     pub scroll: Scroll,
     pub windows: Windows,
     pub gutter: crate::gutter::Settings,
+    pub mouse: Mouse,
     pub minibuffer: Minibuffer,
     pub history: History,
     pub kill_ring: KillRing,
@@ -66,6 +67,7 @@ pub struct Document {
     pub scroll: PartialScroll,
     pub windows: PartialWindows,
     pub gutter: PartialGutter,
+    pub mouse: PartialMouse,
     pub minibuffer: PartialMinibuffer,
     pub history: PartialHistory,
     pub kill_ring: PartialKillRing,
@@ -375,4 +377,27 @@ pub struct PartialGutter {
     pub minimum_digits: Option<i64>,
     pub left_padding: Option<i64>,
     pub right_padding: Option<i64>,
+}
+
+/// Session-wide native pointer preference and bounded logical-row distance.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Mouse {
+    pub enabled: bool,
+    pub scroll_lines: usize,
+}
+
+impl Default for Mouse {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            scroll_lines: 3,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialMouse {
+    pub enabled: Option<bool>,
+    pub scroll_lines: Option<i64>,
 }

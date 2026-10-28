@@ -73,6 +73,7 @@ pub struct Session {
     rectangle: Option<crate::rectangle::Rectangle>,
     yank: Option<yank::Capture>,
     selection: Option<pointer::Selection>,
+    mouse_enabled: bool,
     input: Input,
     size: Size,
     echo: String,
@@ -131,6 +132,7 @@ impl Session {
         let windows = Windows::with_settings(view, buffers.snapshot())?;
         let kills = crate::kill::KillRing::with_settings(buffers.snapshot());
         let input = Input::with_settings(buffers.snapshot());
+        let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         Ok(Self {
             buffers,
             windows,
@@ -139,6 +141,7 @@ impl Session {
             rectangle: None,
             yank: None,
             selection: None,
+            mouse_enabled,
             input,
             size,
             echo: "C-x C-c: exit".into(),
@@ -311,6 +314,7 @@ impl Session {
             Command::Region(command) => self.region_command(command),
             Command::Whitespace(command) => self.whitespace_command(command),
             Command::Gutter(command) => self.gutter_command(command),
+            Command::MouseMode => self.toggle_mouse(),
             _ => self.dispatch(command),
         }
     }

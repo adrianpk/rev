@@ -10,8 +10,27 @@ mod selection;
 pub(super) use selection::Selection;
 
 impl Session {
+    /// Effective session override; the admitted startup snapshot stays immutable.
+    pub fn mouse_enabled(&self) -> bool {
+        self.mouse_enabled
+    }
+
+    pub(super) fn toggle_mouse(&mut self) -> Action {
+        self.cancel_pointer_capture();
+        self.mouse_enabled = !self.mouse_enabled;
+        self.message(if self.mouse_enabled {
+            "Mouse mode enabled"
+        } else {
+            "Mouse mode disabled"
+        })
+    }
+
+    fn mouse_scroll_lines(&self) -> usize {
+        self.buffers.snapshot().settings().mouse.scroll_lines
+    }
+
     pub(super) fn pointer(&mut self, event: Event, now: std::time::Instant) -> Action {
-        if self.input.focus() != Focus::Editing {
+        if !self.mouse_enabled || self.input.focus() != Focus::Editing {
             return Action::Wait;
         }
         match event.kind {
