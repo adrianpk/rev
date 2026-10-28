@@ -10,6 +10,9 @@ use rev::{
     },
 };
 fn observe(config: &str, source: &str) -> (Fixture, Calendar) {
+    observe_with(config, source, &Cancellation::default())
+}
+fn observe_with(config: &str, source: &str, cancel: &Cancellation) -> (Fixture, Calendar) {
     let f = Fixture::new();
     let config = prepare(&f.write("config.toml", config));
     assert!(config.diagnostic.is_none(), "{:?}", config.diagnostic);
@@ -30,7 +33,7 @@ fn observe(config: &str, source: &str) -> (Fixture, Calendar) {
     let query = CalendarQuery::new(super::habits::clock(&policy.time).unwrap(), &policy).unwrap();
     (
         f,
-        Calendar::observe(&sources, query, &policy, &Cancellation::default()).unwrap(),
+        Calendar::observe(&sources, query, &policy, cancel).unwrap(),
     )
 }
 // Day/week projection uses the captured effective date, planning semantics and
@@ -144,4 +147,112 @@ fn calendar_limits() {
     let cancelled = view.project(view.query.clone(), &cancel);
     assert!(cancelled.cancelled);
     assert!(!cancelled.complete());
+    let (_f, partial) = observe_with("", "* One\n<2024-03-01 Fri>", &cancel);
+    let retained = partial.project(partial.query.clone(), &Cancellation::default());
+    assert!(
+        !retained.complete(),
+        "cancelled facts cannot become complete on date movement"
+    );
+}
+// A range retains its endpoint times on their actual dates. Continuation days
+// cannot invent daily starts, and same-day paired timestamps retain their end.
+#[test]
+fn calendar_range_endpoints() {
+    for (source, expected) in [
+        (
+            "* Range\n<2024-02-29 Thu 09:00>--<2024-03-02 Sat 10:00>",
+            vec![(29, Some(9), None), (1, None, None), (2, None, Some(10))],
+        ),
+        (
+            "* Overnight\n<2024-02-29 Thu 23:00-01:00>",
+            vec![(29, Some(23), None), (1, None, Some(1))],
+        ),
+        (
+            "* Paired\n<2024-03-01 Fri 09:00>--<2024-03-01 Fri 11:00>",
+            vec![(1, Some(9), Some(11))],
+        ),
+    ] {
+        let (_f, view) = observe("org.time.zone='UTC'", source);
+        assert!(view.complete(), "{:?}", view.issues);
+        let actual: Vec<_> = view
+            .rows
+            .iter()
+            .map(|r| {
+                (
+                    r.date.day(),
+                    r.time.map(|t| t.hour()),
+                    r.end_time.map(|t| t.hour()),
+                )
+            })
+            .collect();
+        assert_eq!(actual, expected, "{source}");
+    }
+}
+// Captured zone rules diagnose both endpoint gaps/folds without selecting an
+// offset. Effective-today extension changes the query day, never source dates.
+#[test]
+fn calendar_zone_context() {
+    use rev::org::time::{ResolvedTime, Zone, ZonedOperation};
+    let (_f, base) = observe(
+        "org.time.zone='UTC'",
+        "* Gap\n<2024-03-10 Sun 02:30>\n* End gap\n<2024-03-10 Sun 01:30-02:30>\n* Unique\n<2024-03-10 Sun 03:30>\n* Fold\n<2024-11-03 Sun 01:30>",
+    );
+    let operation = ZonedOperation::from_resolved(
+        ResolvedTime {
+            unix_seconds: 1709303400,
+            offset_seconds: -18000,
+        },
+        Zone::from_posix("EST5EDT,M3.2.0,M11.1.0").unwrap(),
+    )
+    .unwrap();
+    for (date, expected) in [
+        (
+            Date::new(2024, 3, 10).unwrap(),
+            vec![("End gap", true), ("Gap", true), ("Unique", false)],
+        ),
+        (Date::new(2024, 11, 3).unwrap(), vec![("Fold", true)]),
+    ] {
+        let mut query = base.query.at(date, AgendaSpan::Day).unwrap();
+        query.operation = std::sync::Arc::new(operation.clone());
+        let view = base.project(query, &Cancellation::default());
+        assert!(view.complete(), "{:?}", view.issues);
+        let mut actual: Vec<_> = view
+            .rows
+            .iter()
+            .map(|r| (r.title.as_ref(), r.unresolved))
+            .collect();
+        actual.sort();
+        assert_eq!(actual, expected);
+        assert_eq!(view.query.operation.instant(), operation.instant());
+    }
+    let (_f, view) = observe(
+        "org.time.zone='UTC'\norg.time.extend_today_until=23",
+        "* Next day\n<2024-03-01 Fri>",
+    );
+    assert_eq!(view.query.today, Date::new(2024, 2, 29).unwrap());
+    assert_eq!(view.rows[0].date, Date::new(2024, 3, 1).unwrap());
+}
+// Hourly recurrence preserves the original wall-clock range duration even
+// when finding the first visible occurrence skips into the next day.
+#[test]
+fn calendar_repeating_times() {
+    let (_f, view) = observe(
+        "org.time.zone='UTC'\norg.agenda.span='day'",
+        "* Every six hours\n<2024-02-29 Thu 09:00-10:00 +6h>",
+    );
+    assert!(view.complete(), "{:?}", view.issues);
+    let actual: Vec<_> = view
+        .rows
+        .iter()
+        .map(|r| (r.time.map(|t| t.hour()), r.end_time.map(|t| t.hour())))
+        .collect();
+    assert_eq!(
+        actual,
+        vec![
+            (Some(3), Some(4)),
+            (Some(9), Some(10)),
+            (Some(15), Some(16)),
+            (Some(21), Some(22))
+        ]
+    );
 }

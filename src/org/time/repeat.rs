@@ -46,7 +46,7 @@ impl Repeater {
 }
 impl Timestamp {
     pub(in crate::org) fn occurrence_from(&self, date: Date) -> Result<Self, String> {
-        let Some(repeat) = self.repeater()? else {
+        let Some(repeat) = advance::active_repeater(self)? else {
             return Ok(self.clone());
         };
         if self.date() >= date {
@@ -57,12 +57,14 @@ impl Timestamp {
             time: CivilTime::new(23, 59, 59)?,
         };
         let next = advance::catch_up(advance::civil(self)?, cutoff, repeat.interval, true)?;
-        let mut value = self.clone();
-        value.set_date(next.date);
-        if self.time().is_some() {
-            value.set_time(Some(next.time))?;
-        }
-        Ok(value)
+        advance::shifted_timestamp(self, next)
+    }
+    pub(in crate::org) fn following_occurrence(&self) -> Result<Option<Self>, String> {
+        let Some(repeat) = advance::active_repeater(self)? else {
+            return Ok(None);
+        };
+        let next = repeat.interval.shift(advance::civil(self)?, 1)?;
+        advance::shifted_timestamp(self, next).map(Some)
     }
     pub fn repeater(&self) -> Result<Option<Repeater>, String> {
         Ok(parse::suffixes(self.suffix())?.repeater)

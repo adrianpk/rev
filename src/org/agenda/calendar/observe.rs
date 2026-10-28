@@ -51,6 +51,7 @@ pub(super) fn sources(sources: &SourceSet, policy: &Org, cancel: &Cancellation) 
             break;
         }
     }
+    facts.truncated |= cancel.is_cancelled();
     facts
 }
 fn workflow(nodes: &[Raw], text: &Rope, policy: &crate::config::Todo) -> Result<Workflow, String> {

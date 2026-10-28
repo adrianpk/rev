@@ -126,8 +126,11 @@ impl Session {
 impl Session {
     fn complete_observation_argument(&mut self) -> Action {
         match self.pending {
-            Some(Pending::AgendaSources | Pending::AgendaDate) => {
+            Some(Pending::AgendaSources) => {
                 self.message("Enter current, buffers or one literal local path; C-g cancels")
+            }
+            Some(Pending::AgendaDate) => {
+                self.message("Enter YYYY-MM-DD or today; C-g keeps the calendar")
             }
             Some(Pending::Habit(_)) => {
                 self.message("Enter habit date or graph days/column; C-g cancels")

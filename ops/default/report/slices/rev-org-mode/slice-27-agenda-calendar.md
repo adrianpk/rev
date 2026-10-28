@@ -1,6 +1,6 @@
 # Slice 27: display native day and week Org agendas
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -49,7 +49,14 @@ for refresh, cached projection and bounded disk return. Compiled local controls
 select spans/dates, scroll rows, refresh and visit source. Canonical buffer rows
 check the exact revision. Disk return compares reread text as well as metadata,
 then publishes normal BOM/CRLF-aware ingress. Changed view ownership rejects
-pending source return. Peers retain their ordinary editing context.
+pending source return. Peers retain their ordinary editing context. Refresh
+alone recaptures time and source, including unsaved canonical text. Closing a
+calendar restores its source view; deleting its owner retires the projection.
+
+Date-range continuation days retain only their actual endpoint times. Hourly
+repeats reuse the existing range-duration arithmetic. Both endpoint local times
+are checked for gaps/folds without choosing offsets. Cancelled source analysis
+remains incomplete when cached facts are projected onto another date.
 
 ## Contracts Added or Changed
 
@@ -91,7 +98,25 @@ The literal-block fixture initially contained an unescaped heading. It now uses
 Org's comma escaping so the same exclusion assertion tests a valid literal
 block. Malformed structure remains diagnosed. No assertion or limit was weakened.
 
+- `cargo test --test org_agenda calendar_ -- --nocapture`: ten focused cases
+  passed, zero ignored cases. They cover actual native refresh/source return,
+  BOM/CRLF, shared canonical edits, stale revisions, narrow Unicode panes,
+  captured clock counts, range endpoints, hourly range duration and zone gaps/folds.
+- `cargo clippy --lib --test org_agenda --test org_time -- -D warnings`: passed.
+  Changed-source quality passes at unchanged limits.
+
+The range, hourly-duration and cancellation-completeness assertions first
+reproduced defects, then passed with the corrections. Fixtures and acceptance
+bounds remain unchanged.
+
+Final controller evidence binds the clean canonical PR head. Required order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_agenda --test display --test windows`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
 ## Risks and Follow-ups
 
-Real refresh, shared-pane and stale-buffer boundary coverage follows in T27.3.
 The delivery-set full gate has not run.

@@ -197,6 +197,14 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x t R` | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `C-x t D` | `tree-delete` | Confirm removal, including separate recursive consent. |
 
+| v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
+| v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
+| f / Right in calendar agenda | `org-agenda-later` | Move a span forward. |
+| b / Left in calendar agenda | `org-agenda-earlier` | Move a span backward. |
+| . in calendar agenda | `org-agenda-goto-today` | Show captured effective today. |
+| j in calendar agenda | `org-agenda-goto-date` | Choose an explicit date. |
+| RET in calendar agenda | `org-agenda-switch-to` | Check and visit selected source. |
+
 Tab or `C-g` returns from tree focus to editing. The tree is separate from
 editing-window cycling. In the buffer inventory, use arrows, Home/End, Return
 or `C-g`. In a decision, use a fresh `y` or `n`; query-replace also accepts `q`.
@@ -220,13 +228,6 @@ suspend the entire editing projection and retain view identities and history.
 The default remains equal halves. Executable startup uses the admitted user
 configuration snapshot; source edits take effect after restarting.
 
-| v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
-| v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
-| f / Right in calendar agenda | `org-agenda-later` | Move a span forward. |
-| b / Left in calendar agenda | `org-agenda-earlier` | Move a span backward. |
-| . in calendar agenda | `org-agenda-goto-today` | Show captured effective today. |
-| j in calendar agenda | `org-agenda-goto-date` | Choose an explicit date. |
-| RET in calendar agenda | `org-agenda-switch-to` | Check and visit selected source. |
 
 ## Configuration keymap contracts
 
@@ -286,7 +287,6 @@ role selection alone does not create an agenda or draft.
 | `,` | `org-priority` | Set the checked source heading priority. |
 | `C-g` / `q` | `keyboard-quit` | Cancel current input or return to canonical source. |
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
-
 | `v d` | `org-agenda-day-view` | Show one captured calendar day. |
 | `v w` | `org-agenda-week-view` | Show the configured calendar week. |
 | `f`, `Right` | `org-agenda-later` | Move one displayed span forward. |

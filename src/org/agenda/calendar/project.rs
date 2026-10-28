@@ -1,5 +1,5 @@
 use super::*;
-use crate::org::time::{CivilDateTime, CivilTime, Resolution, Timestamp, TimestampRange};
+use crate::org::time::{CivilDateTime, CivilTime, Resolution, TimestampRange};
 use std::time::{Duration, Instant};
 pub(super) fn calendar(facts: Arc<Facts>, query: CalendarQuery, cancel: &Cancellation) -> Calendar {
     let bounded = cancel.bounded(Instant::now() + Duration::from_secs(facts.seconds as u64));
@@ -55,24 +55,16 @@ fn event_rows(view: &mut Calendar, event: &Event, cancel: &Cancellation) -> Resu
     Err("Calendar recurrence exceeds 4096 projected occurrences".into())
 }
 fn next_occurrence(value: &mut TimestampRange, end: Date) -> Result<bool, String> {
-    let Some(repeat) = value.start.repeater()? else {
-        return Ok(false);
-    };
     if value.end.is_some() {
         return Ok(false);
     }
-    let base = CivilDateTime {
-        date: value.start.date(),
-        time: value.start.time().unwrap_or(CivilTime::new(0, 0, 0)?),
+    let Some(next) = value.start.following_occurrence()? else {
+        return Ok(false);
     };
-    let next = repeat.interval.shift(base, 1)?;
-    if next.date > end {
+    if next.date() > end {
         return Ok(false);
     }
-    value.start.set_date(next.date);
-    if value.start.time().is_some() {
-        value.start.set_time(Some(next.time))?;
-    }
+    value.start = next;
     Ok(true)
 }
 fn range_rows(view: &mut Calendar, event: &Event, value: &TimestampRange) -> Result<(), String> {
@@ -86,7 +78,19 @@ fn range_rows(view: &mut Calendar, event: &Event, value: &TimestampRange) -> Res
     let mut date = first.max(view.query.start);
     let end = last.min(view.query.end()?);
     while date <= end {
-        push(view, event, date, event.kind, &value.start)?;
+        let times = Times {
+            start: (date == first).then(|| value.start.time()).flatten(),
+            end: (date == last)
+                .then(|| {
+                    value
+                        .end
+                        .as_ref()
+                        .and_then(|s| s.time())
+                        .or(value.start.end_time())
+                })
+                .flatten(),
+        };
+        push(view, event, date, event.kind, times)?;
         if date == end {
             break;
         }
@@ -97,10 +101,28 @@ fn range_rows(view: &mut Calendar, event: &Event, value: &TimestampRange) -> Res
 fn planning(view: &mut Calendar, event: &Event) -> Result<(), String> {
     let stamp = &event.value.start;
     if original_date(&view.query, event)? {
-        push(view, event, stamp.date(), event.kind, stamp)?;
+        push(
+            view,
+            event,
+            stamp.date(),
+            event.kind,
+            Times {
+                start: stamp.time(),
+                end: stamp.end_time(),
+            },
+        )?;
     }
     if let Some(kind) = current_reminder(&view.query, event)? {
-        push(view, event, view.query.today, kind, stamp)?;
+        push(
+            view,
+            event,
+            view.query.today,
+            kind,
+            Times {
+                start: None,
+                end: None,
+            },
+        )?;
     }
 
     Ok(())
@@ -145,37 +167,43 @@ fn reminder(event: &Event, today: Date) -> Result<Option<CalendarKind>, String> 
     Ok((warning <= today).then_some(CalendarKind::Warning))
 }
 
+struct Times {
+    start: Option<CivilTime>,
+    end: Option<CivilTime>,
+}
+impl Times {
+    fn unresolved(&self, query: &CalendarQuery, date: Date) -> Result<bool, String> {
+        for time in [self.start, self.end].into_iter().flatten() {
+            if !matches!(
+                query
+                    .operation
+                    .zone()
+                    .resolve(CivilDateTime { date, time })?,
+                Resolution::Unique(_)
+            ) {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+}
+
 fn push(
     view: &mut Calendar,
     event: &Event,
     date: Date,
     kind: CalendarKind,
-    stamp: &Timestamp,
+    times: Times,
 ) -> Result<(), String> {
     if view.rows.len() >= view.facts.limit {
         view.truncated = true;
         return Err("Calendar row limit reached".into());
     }
-    let time = if kind == CalendarKind::Appointment || date == stamp.date() {
-        stamp.time()
-    } else {
-        None
-    };
-    let unresolved = if let Some(time) = time {
-        !matches!(
-            view.query
-                .operation
-                .zone()
-                .resolve(CivilDateTime { date, time })?,
-            Resolution::Unique(_)
-        )
-    } else {
-        false
-    };
+    let unresolved = times.unresolved(&view.query, date)?;
     view.rows.push(CalendarRow {
         date,
-        time,
-        end_time: stamp.end_time(),
+        time: times.start,
+        end_time: times.end,
         kind,
         title: event.title.clone(),
         source: event.source,

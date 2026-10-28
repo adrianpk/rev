@@ -90,3 +90,6 @@ mod calendar_rows;
 
 #[path = "org_agenda/calendar_native.rs"]
 mod calendar_native;
+
+#[path = "org_agenda/calendar_views.rs"]
+mod calendar_views;

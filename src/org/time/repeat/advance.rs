@@ -18,7 +18,7 @@ pub(super) fn timestamp(
     let next = occurrence(original, completed, repeat, stamp.time().is_some())?;
     shifted_timestamp(stamp, next).map(Some)
 }
-fn active_repeater(stamp: &Timestamp) -> Result<Option<Repeater>, String> {
+pub(super) fn active_repeater(stamp: &Timestamp) -> Result<Option<Repeater>, String> {
     if !stamp.active() {
         return Ok(None);
     }
@@ -45,7 +45,10 @@ fn occurrence(
         RepeatMode::Restart => restart(original, completed, repeat.interval),
     }
 }
-fn shifted_timestamp(stamp: &Timestamp, next: CivilDateTime) -> Result<Timestamp, String> {
+pub(super) fn shifted_timestamp(
+    stamp: &Timestamp,
+    next: CivilDateTime,
+) -> Result<Timestamp, String> {
     let mut result = stamp.clone();
     result.set_date(next.date);
     if stamp.time().is_some() {

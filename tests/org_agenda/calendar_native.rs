@@ -7,14 +7,14 @@ use rev::{
         time::Date,
     },
 };
-fn visible(s: &mut Session, value: &str) -> bool {
+pub(super) fn visible(s: &mut Session, value: &str) -> bool {
     s.frame()
         .unwrap()
         .rows()
         .iter()
         .any(|r| r.text().contains(value))
 }
-fn selected(s: &mut Session, title: &str) {
+pub(super) fn selected(s: &mut Session, title: &str) {
     let calendar = s.calendar_agenda().unwrap();
     let count = calendar.lines.len();
     let index = calendar
