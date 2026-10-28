@@ -13,7 +13,8 @@ from configuration_ui.performance import BUDGET_US, EXPECTED, records
 
 GROUPS = {'configured': ['configured-rgb', 'configured-no-color'], 'missing': ['missing'],
           'rejected': ['rejected'], 'workspace': ['workspace-rgb', 'workspace-no-color'],
-          'io': ['io'], 'unwind': ['unwind']}
+          'io': ['io'], 'unwind': ['unwind'],
+          'combined': ['combined-rgb', 'combined-no-color']}
 PTY_CASES = [name for group in GROUPS.values() for name in group]
 PERFORMANCE = [name for group in EXPECTED.values() for name in group]
 IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)]

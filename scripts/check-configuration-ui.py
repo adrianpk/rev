@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import time
 
+from configuration_ui.combined import combined
 from configuration_ui.journeys import configured, fallback
 from configuration_ui.evidence import GROUPS, discover
 from configuration_ui.lifetime import fault
@@ -25,6 +26,7 @@ def terminal(selected):
         ('workspace', workspace, [True, False]),
         ('io', fault, ['io']),
         ('unwind', fault, ['unwind']),
+        ('combined', combined, [True, False]),
     ]
     for name, scenario, variants in cases:
         if selected is not None and selected != name:
@@ -46,7 +48,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':

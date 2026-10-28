@@ -346,7 +346,7 @@ T17.3: `7be5674e876dd3a9cdefb0ff7ce6b4587120a726`.
 Contracts: GUT14 PTR01-PTR06 NAV01-NAV02 WSP01-WSP02 CFG23-CFG24 STA01-STA02.
 Details and exact checks: [Slice 18](../plan/rev-input-navigation.md#slice-18-exercise-the-complete-combined-terminal-workflow).
 
-- [ ] T18.1: Extend the existing configuration/UI PTY harness with a named combined journey covering first-start creation, splits/tree, both gutter modes, status groups, line navigation, whitespace conversion and pointer events.
+- [x] T18.1: Extend the existing configuration/UI PTY harness with a named combined journey covering first-start creation, splits/tree, both gutter modes, status groups, line navigation, whitespace conversion and pointer events.
 - [ ] T18.2: Use actual decoded terminal screen cells and file/history outcomes, including cancel, resize, capture cleanup and reported failures; no schema-only success or skipped path counts as acceptance.
 - [ ] T18.3: Extend the existing evidence map/checker for the admitted additional terminal cases while preserving all prior cases and assertions; keep the unchanged full-gate command sequence coherent.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
