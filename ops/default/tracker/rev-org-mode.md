@@ -567,8 +567,8 @@ canonical PR reference follow below; verified integration remains open.
 
 T23.3: `2777a34834d158595fa7b64359f4b4a452fbe17a`. [Canonical PR #124](https://forge.adrianpk.com/adrianpk/rev/pulls/124)
 and the [Slice 23 report](../report/slices/rev-org-mode/slice-23-timers.md) are
-reviewing. Final required/focused controller receipts bind the clean PR-reference
-head; verified dev integration remains pending.
+delivered. Final required/focused controller receipts bind the merged head;
+verified dev integration is recorded below.
 
 PR #124 merged into dev at `2cc50fe81a469178fb44a2c361b40d10558158a3`,
 verified against the canonical forge and remote. Required receipt
@@ -583,12 +583,17 @@ Details and exact checks: [Slice 24](../plan/rev-org-mode.md#slice-24-maintain-o
 
 - [x] T24.1: Recognize STYLE habit and integrate logged completion, interval ranges and Org day semantics.
 - [x] T24.2: Preserve compatible histories and distinguish missing observations from actual failed/completed days.
-- [ ] T24.3: Verify recurrence types, source-local declarations and coherent completion undo.
+- [x] T24.3: Verify recurrence types, source-local declarations and coherent completion undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T24.1: `5adee7cd157a`. Habit source admission, checked calendar ranges and
 Org day recurrence pass focused arithmetic, configuration and native editing
 checks. T24.2 adds bounded canonical history observations without source writes.
+
+T24.2: `3a273633634370622a9eca19ed2c5bd43165d275`. T24.3 verifies early-day
+recurrence, local declarations, preserved history, read-only/stale guards, native
+file bytes, shared anchors and coherent undo. Fifteen selected habit cases pass,
+zero skips. Canonical PR reference and final exact-head receipts follow.
 
 ### Slice 25: render native Org habit consistency graphs
 

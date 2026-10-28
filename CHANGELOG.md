@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Complete native Org habits with repeating schedules and minimum/maximum calendar intervals. Existing task controls preserve compatible history, logging choices and single-step undo. Set `org.time.extend_today_until` for date-only habit recurrence before your day starts; completion logs keep their actual time.
+
 - Take timed Org notes with native relative timers, pause/continue/stop controls and H:MM:SS insertion. Timed description lists continue with M-RET and undo through normal source history. Explicit countdowns show one in-editor expiry notice, stop on session exit and add no wakeups while paused or inactive.
 
 - Compare recorded Org task, subtree or file time with effort estimates using `org-clock-display`. Date windows clip actual intervals, while open, unresolved and overlapping records remain visible without changing source. Explicitly insert or refresh compatible clock tables; updates preserve surrounding source and undo in one step.

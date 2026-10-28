@@ -48,3 +48,26 @@ impl TaskChange {
         Ok(())
     }
 }
+
+impl Outline {
+    pub(super) fn habit_sources(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+        habit: bool,
+        values: &mut [super::repeat::RepeatSource],
+    ) -> Result<(), String> {
+        if !habit {
+            return Ok(());
+        }
+        let planning = self.tags.metadata.entries[index]
+            .planning
+            .clone()
+            .ok_or("Missing habit planning")?;
+        let target = super::super::timestamps::in_planning(buffer, planning, "SCHEDULED")?;
+        for value in values {
+            value.habit_schedule = value.source == target.source;
+        }
+        Ok(())
+    }
+}

@@ -82,6 +82,9 @@ impl Session {
                 .value
                 .advance_habit_repeat(operation.now(), repeat.habit.then_some(day))?
                 .ok_or("Org recurrence lost its active repeater")?;
+            if value.habit_schedule {
+                crate::org::time::HabitSchedule::new(value.value.start.clone())?;
+            }
         }
         transition.stamp = operation.now().format_timestamp(false);
         transition.operation = Some(operation);

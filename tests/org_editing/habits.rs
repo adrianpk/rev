@@ -45,6 +45,11 @@ fn habit_rejections() {
         ("hourly", "SCHEDULED: <2024-02-28 Wed 14:00 .+24h>\n", ""),
         ("equal", "SCHEDULED: <2024-02-28 Wed .+2d/2d>\n", ""),
         (
+            "calendar range",
+            "SCHEDULED: <2024-02-28 Wed .+1m/30d>\n",
+            "",
+        ),
+        (
             "finished reset",
             "SCHEDULED: <2024-02-28 Wed .+2d/3d>\n",
             ":REPEAT_TO_STATE: DONE\n",

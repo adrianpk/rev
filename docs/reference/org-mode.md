@@ -537,3 +537,31 @@ remain 256/514/4096 bytes. Fixed-unit catch-up skips backlog arithmetically;
 calendar normalization has a finite 4800-step bound before a safe calendar jump.
 Exhausted bounds, unavailable zone data, malformed metadata and read-only source
 report a diagnostic before publication. No recurrence worker or idle timer is added.
+
+## Habit schedules and history
+
+An unfinished task with local `:STYLE: habit` and one active repeating
+`SCHEDULED` timestamp is a native habit. Use ordinary task state commands to
+complete it. `.+2d/3d` permits completion after two days and reaches its maximum
+interval after three. `+` retains backlog and `++` catches up; `.+` restarts from completion. Daily, weekly, monthly and yearly units retain
+calendar arithmetic. An explicit maximum must exceed the minimum. An hourly
+period, missing repeat or finished `REPEAT_TO_STATE` rejects the full transition.
+
+Completion retains existing compatible logs, updates selected history and
+`LAST_REPEAT`, reschedules, and resets to an unfinished task in one undo step.
+File-local TODO keywords, STARTUP repeat logging, LOGGING and LOG_INTO_DRAWER
+keep their ordinary authority. Disabling logging adds no history; it does not
+erase old observations. Literal examples and child entries do not contribute
+to the selected habit's history. Multiple actual completions on one day remain
+separate events. `LAST_REPEAT` alone does not prove a completion; malformed
+history remains unresolved, and an unrecorded day is not an invented failure.
+
+`org.time.extend_today_until` sets the Org day boundary to a local hour 0..23,
+with midnight as default. Before that hour, date-only habit recurrence uses the
+previous Org date. Timed repeats and completion logs retain actual captured local
+time. No elapsed duration or time-zone offset is inferred from the day boundary.
+Habit observation reads current canonical source, including unsaved text, with
+no edits or idle work. Its limits are 262144 entry bytes, 4096 completion records
+and 4096 bytes per history line. Graph rendering is a separate agenda capability.
+
+Behavior reference: [Org habit tracking](https://orgmode.org/manual/Tracking-your-habits.html).

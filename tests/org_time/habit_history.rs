@@ -94,3 +94,112 @@ fn habit_history_bounds() {
         }
     }
 }
+
+// Observation checks canonical revision, cancellation and complete coverage.
+// Reading unsaved or read-only source cannot change its text/history/dirty state.
+#[test]
+fn habit_observation_authority() {
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(HEADER).unwrap();
+    let b = buffers.get_mut(id).unwrap();
+    b.select_mode(Mode::Org).unwrap();
+    let structure = StructureScan::new(b, Limits::default())
+        .unwrap()
+        .run(&Cancellation::default());
+    let edit = rev::buffer::edit::Replacement {
+        source: b.span(b.len_chars()..b.len_chars()).unwrap(),
+        text: "unsaved text\n".into(),
+    };
+    let prepared = b.prepare(&[edit], &[], None).unwrap();
+    b.publish(prepared, &mut []).unwrap();
+    assert!(
+        HabitRecord::observe(
+            b,
+            &structure,
+            Scalar(0),
+            &rev::config::Todo::default(),
+            &Cancellation::default()
+        )
+        .is_err()
+    );
+    let structure = StructureScan::new(b, Limits::default())
+        .unwrap()
+        .run(&Cancellation::default());
+    b.set_readonly(true);
+    let before = b.stamp();
+    let history = b.history().len();
+    let r = HabitRecord::observe(
+        b,
+        &structure,
+        Scalar(0),
+        &rev::config::Todo::default(),
+        &Cancellation::default(),
+    )
+    .unwrap()
+    .unwrap();
+    assert!(r.completions.is_empty());
+    assert_eq!(b.stamp(), before);
+    assert_eq!(b.history().len(), history);
+    let cancel = Cancellation::default();
+    cancel.cancel();
+    assert!(
+        HabitRecord::observe(
+            b,
+            &structure,
+            Scalar(0),
+            &rev::config::Todo::default(),
+            &cancel
+        )
+        .is_err()
+    );
+    let partial = StructureScan::new(b, Limits::new(8, 100, 10).unwrap())
+        .unwrap()
+        .run(&Cancellation::default());
+    assert!(
+        HabitRecord::observe(
+            b,
+            &partial,
+            Scalar(0),
+            &rev::config::Todo::default(),
+            &Cancellation::default()
+        )
+        .is_err()
+    );
+}
+
+// Entry and logical history line budgets admit their exact boundary. Larger
+// input rejects observation rather than truncating events or rewriting source.
+#[test]
+fn habit_source_bounds() {
+    for (name, bytes, admit) in [("entry limit", 262144, true), ("entry over", 262145, false)] {
+        let remaining = bytes - HEADER.len();
+        let source = format!(
+            "{HEADER}{}{}",
+            format!("{}\n", "x".repeat(63)).repeat(remaining / 64),
+            "x".repeat(remaining % 64)
+        );
+        assert_eq!(source.len(), bytes);
+        assert_eq!(observe(&source).is_ok(), admit, "{name}");
+    }
+    for (name, bytes, admit) in [("line limit", 4096, true), ("line over", 4097, false)] {
+        let line = "- State \"DONE\" from \"TODO\" [2024-02-28 Wed]";
+        let source = format!("{HEADER}{line}{}\n", " ".repeat(bytes - line.len() - 1));
+        assert_eq!(observe(&source).is_ok(), admit, "{name}");
+    }
+}
+
+// STYLE alone does not turn a finished/unmarked task into an active habit. Its
+// local exact value controls recognition, independently of other properties.
+#[test]
+fn habit_identity() {
+    for (name, old, new, habit) in [
+        ("unfinished", "* TODO", "* TODO", true),
+        ("finished", "* TODO", "* DONE", false),
+        ("unmarked", "* TODO ", "* ", false),
+        ("other style", ":STYLE: habit", ":STYLE: ordinary", false),
+        ("no style", ":STYLE: habit\n", "", false),
+    ] {
+        let result = observe(&HEADER.replacen(old, new, 1)).unwrap();
+        assert_eq!(result.is_some(), habit, "{name}");
+    }
+}

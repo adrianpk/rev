@@ -63,6 +63,7 @@ fn observed(buffer: &Buffer, point: Scalar) -> Result<Option<RepeatSource>, Stri
     Ok(Some(RepeatSource {
         source: target.source,
         value,
+        habit_schedule: false,
     }))
 }
 fn repeated(value: &TimestampRange) -> Result<bool, String> {

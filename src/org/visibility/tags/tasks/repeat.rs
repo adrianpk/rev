@@ -13,6 +13,7 @@ pub(crate) struct RepeatChange {
 pub(crate) struct RepeatSource {
     pub source: Span,
     pub value: TimestampRange,
+    pub habit_schedule: bool,
 }
 impl TaskChange {
     pub(crate) fn result_state(&self) -> &str {
@@ -30,20 +31,15 @@ impl Outline {
             return Ok(());
         }
         let habit = self.habit_record(buffer, change.index, policy)?.is_some();
-        let values = observe::timestamps(self, buffer, change.index)?;
+        let mut values = observe::timestamps(self, buffer, change.index)?;
+        self.habit_sources(buffer, change.index, habit, &mut values)?;
         if values.is_empty() {
             return Ok(());
         }
         let state = self.repeat_state(buffer, change)?;
         change.habit_reset(habit, &state)?;
         let log = self.repeat_logging(buffer, change.index, policy)?;
-        change.logging.closed = false;
-        if log == Log::Note {
-            change.logging.note = true;
-        }
-        if change.logging.state == Log::None {
-            change.logging.state = log;
-        }
+        change.logging.repeated(log);
         change.repeat = Some(RepeatChange {
             state,
             values,
@@ -122,4 +118,16 @@ pub(in crate::org::visibility::tags) fn repeat_log(text: &str) -> Option<Log> {
             _ => None,
         })
         .next_back()
+}
+
+impl Logging {
+    fn repeated(&mut self, log: Log) {
+        self.closed = false;
+        if log == Log::Note {
+            self.note = true;
+        }
+        if self.state == Log::None {
+            self.state = log;
+        }
+    }
 }
