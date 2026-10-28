@@ -5,6 +5,7 @@ status: in_progress
 ready_at: 2026-10-28T00:45:40Z
 started_at: 2026-10-28T00:45:40Z
 branch: feat/rev-input-16-bootstrap-template
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/96
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,7 +13,7 @@ scope: domain
 tags: configuration, startup
 source: chat
 reported_at: 2026-10-27T19:36:36Z
-commits: []
+commits: [43119ca646bfc23b105f0126d056d9acd7674a17, 554cc86bf72d7ce5851b9a67947a5a8cd7fd2107, cb3b791c7f258c4aca9aafb8378f3d099a795883]
 ---
 
 # Create the complete user configuration when missing
@@ -50,3 +51,14 @@ Selected for the same [combined twenty-slice delivery](../../plan/rev-input-navi
 and [tracker](../../tracker/rev-input-navigation.md) as the other six current
 work items. Follow its assigned primary slices, lifecycle and controller-owned
 integration/acceptance; do not create a separate successor run for this ticket.
+
+
+## Primary slice progress
+
+Slice 16 is implemented in canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96), targeting dev. Its
+[report](../../report/slices/rev-input-navigation/slice-16-bootstrap-template.md)
+records the bounded compiled resource, complete default-equivalent values,
+standalone native verification and pure loading guards. Required and focused
+exact-head evidence follows PR-reference commits through the controller.
+Integration is pending. This ticket stays in progress through primary slices
+16-17; absent-file publication remains with the recorded next slice.

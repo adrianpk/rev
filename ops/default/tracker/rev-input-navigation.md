@@ -303,13 +303,17 @@ Details and exact checks: [Slice 16](../plan/rev-input-navigation.md#slice-16-pa
 - [x] T16.3: Extend existing catalog/reference guards to cover packaged/reference/default equality including delivered gutter/mouse controls; do not create user files in pure loading helpers.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 16 of 20 implemented. Its
+Slice 16 of 20 implemented. Canonical PR [#96](https://forge.adrianpk.com/adrianpk/rev/pulls/96) targets dev. Its
 [canonical report](../report/slices/rev-input-navigation/slice-16-bootstrap-template.md)
 records the bounded compiled resource, typed/native default equivalence and
 standalone packaging/reference checks with passive filesystem behavior.
-Canonical PR and final exact-head evidence follow task and reference commits;
+Final exact-head evidence is recorded through the controller after PR-reference commits;
 integration remains pending. The configuration ticket stays active through
 primary slices 16-17.
+
+T16.1: `43119ca646bfc23b105f0126d056d9acd7674a17`.
+T16.2: `554cc86bf72d7ce5851b9a67947a5a8cd7fd2107`.
+T16.3: `cb3b791c7f258c4aca9aafb8378f3d099a795883`.
 
 ### Slice 17: create absent user configuration safely
 
