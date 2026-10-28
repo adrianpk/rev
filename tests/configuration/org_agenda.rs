@@ -56,4 +56,23 @@ fn agenda_configuration() {
         assert!(s.diagnostic.is_some(), "{name}");
         assert_eq!(s.snapshot, Snapshot::default(), "{name}");
     }
+    for (name, source) in [
+        (
+            "roots",
+            format!(
+                "org.agenda.sources=[{}]",
+                vec!["'task.org'"; 4097].join(",")
+            ),
+        ),
+        (
+            "path-bytes",
+            format!("org.agenda.sources=['{}']", "a".repeat(4097)),
+        ),
+        ("negative", "org.limits.job_seconds=-1".into()),
+    ] {
+        let path = f.write("candidate.toml", &source);
+        let s = prepare(&path);
+        assert!(s.diagnostic.is_some(), "{name}");
+        assert_eq!(s.snapshot, Snapshot::default(), "{name}");
+    }
 }

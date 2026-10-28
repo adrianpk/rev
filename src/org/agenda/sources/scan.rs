@@ -38,10 +38,11 @@ impl SourceScan {
         limits: &OrgLimits,
     ) -> Result<Self, String> {
         validate(&selection, limits)?;
+        let selected: BTreeSet<_> = selection.buffers.iter().copied().collect();
         let mut open = Vec::new();
         for buffer in buffers
             .iter()
-            .filter(|b| b.file().is_some() || selection.buffers.contains(&b.id()))
+            .filter(|b| b.file().is_some() || selected.contains(&b.id()))
         {
             if open.len() == 4096 {
                 return Err("Agenda snapshot exceeds 4096 open buffers".into());
@@ -261,12 +262,10 @@ impl Open {
 }
 
 fn selected_identities(selection: &SourceSelection, open: &[Open]) -> Result<(), String> {
+    let selected: BTreeSet<_> = selection.buffers.iter().copied().collect();
     let mut identities = BTreeSet::new();
     let mut buffers = BTreeSet::new();
-    for source in open
-        .iter()
-        .filter(|b| selection.buffers.contains(&b.stamp.buffer))
-    {
+    for source in open.iter().filter(|b| selected.contains(&b.stamp.buffer)) {
         if buffers.insert(source.stamp.buffer)
             && source.identity.is_some_and(|id| !identities.insert(id))
         {

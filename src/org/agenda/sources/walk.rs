@@ -63,7 +63,10 @@ impl Walk {
         let kind = entry
             .file_type()
             .map_err(|e| (Some(child.clone()), e.to_string()))?;
-        if child.extension().is_some_and(|e| e == "org") && !kind.is_dir() {
+        if child.extension().is_some_and(|e| e == "org")
+            && !kind.is_dir()
+            && !fs::metadata(&child).is_ok_and(|m| m.is_dir())
+        {
             return Ok(Step::Path(child));
         }
         Ok(Step::Progress)

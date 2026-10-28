@@ -1,6 +1,6 @@
 # Slice 26: discover bounded canonical Org agenda sources
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -64,6 +64,9 @@ iteration/read boundaries; they cannot interrupt a blocked kernel operation.
 
 ## Validation
 
+T26.1: `09ff6bd06713`. T26.2: `42c96d7e0be0`.
+
+
 - `cargo check`: passed.
 - `cargo test --test org_io --test configuration agenda_`: four focused cases
   passed, zero failures or ignored cases.
@@ -87,7 +90,29 @@ Development fixtures were corrected to use native history, prompt and ownership
 APIs. Clippy removed an unnecessary owned comparison. No assertion, deadline or
 resource limit was weakened.
 
+- `cargo test --test org_io --test org_agenda --test configuration agenda_ -- --nocapture`:
+  sixteen selected cases passed, zero ignored cases. Real unreadable/special
+  sources, exact read budgets including failed reads, missing open files,
+  unsaved absent files, directory-link cycles, cancellation and buffer-only
+  file limits retain truthful outcomes.
+- `cargo clippy --lib --test org_agenda --test org_io --test configuration -- -D warnings`:
+  passed. Changed-source quality passes at the original limits.
+
+Directory-link scope was corrected: an immediate symlink naming a directory,
+including an .org suffix, is ignored rather than treated as a file. Discovery
+remains non-recursive; dangling/file-link cycles retain source failures.
+Explicit buffer lookup uses bounded identity sets rather than repeated linear
+membership work. Conflicting selected hard-link owners reject before launch.
+
+Final controller evidence binds the clean canonical PR head. Required order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_agenda --test org_io --test configuration`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
 ## Risks and Follow-ups
 
-Additional failure and boundary checks follow in T26.3.
+Calendar/day/week result presentation follows its recorded slice.
 The delivery-set full gate has not run.
