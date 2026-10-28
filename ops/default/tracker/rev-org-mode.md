@@ -175,6 +175,13 @@ Details and exact checks: [Slice 5](../plan/rev-org-mode.md#slice-5-activate-nat
 - [x] T5.3: Introduce org_editing; expose only operational commands and verify context cancellation and plain-text fallback.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T5.1 `22e1a1e48e26216844a2ee8aa1698c7cc449be2b`,
+T5.2 `f0194fce53e68b203f2575bcf0492192efbc8ea2`,
+T5.3 `a1b81966608eed6ef1a08a7358011105d78360b9`.
+Canonical PR: [#106](https://forge.adrianpk.com/adrianpk/rev/pulls/106).
+Report: [Slice 5](../report/slices/rev-org-mode/slice-5-mode-contexts.md).
+Integration: pending controller verification.
+
 ### Slice 6: color native Org source semantically
 
 Contracts: ORG16 ORG17.
