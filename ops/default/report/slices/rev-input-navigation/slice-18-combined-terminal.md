@@ -22,6 +22,14 @@ Pointer clicks include their release before independent wheel input. Dragged
 Unicode/CRLF text uses the canonical region, copy/kill and one undo/redo. Whole
 marked conversion in both directions retains all displayed columns and exact
 BOM, Unicode, CRLF and final-newline bytes through explicit save/history paths.
+Malformed/canceled goto-line and rejected file ingress preserve the entire
+retained workspace. Search highlights align with absolute labels; rectangle
+copy/yank into another buffer verifies expanded-tab bytes and separate history.
+A real drag-edge deadline fires before resize retires capture. Late reports after
+resize or C-g cannot mutate the retained frame/point, and idle remains event-driven.
+Narrow status omits the mode first and restores each pane's complete groups when
+space returns. Native mouse-mode disable/enable preserves ignored-input state
+and the reporting pair's terminal cleanup order.
 
 ## Implementation Notes
 
@@ -52,8 +60,14 @@ Each retains the existing eight-second deadline, 1-MiB output ceiling and
 state and exact saved bytes are asserted rather than inferred from catalog
 membership or shared template provenance.
 
-Failure/cancellation/resize coverage and complete evidence admission follow the
-remaining recorded tasks. Exact clean-HEAD validation follows all task and
+Development `python3 scripts/check-configuration-ui.py --suite terminal --case combined`
+then passed both completed journeys in 7.404 seconds excluding build (about
+3.7 seconds per session). Decoded status/gutter/text cells, retained full frames,
+real saved rectangle bytes, one-step history, diagnostics, live-edge autoscroll,
+late-report cancellation, no idle output/CPU, mode restoration, reaped children
+and closed PTYs all remain within the original limits. The expected incremental
+cost of the pair is now approximately eight seconds; no timeout or output budget
+was increased. Complete evidence admission follows the remaining recorded task. Exact clean-HEAD validation follows all task and
 PR-reference commits through the controller.
 
 ## Risks and Follow-ups

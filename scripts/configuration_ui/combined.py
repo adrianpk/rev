@@ -7,7 +7,7 @@ from .pointer_selection import report as drag
 from .pointer_lifetime import SGR_ON, SGR_OFF, BUTTONS_ON, BUTTONS_OFF
 from .support import (BINARY, PTY, canvas, cells, close, completed, cursor,
                       environment, finish, passive, rows, send, snapshot,
-                      startup_snapshot, step, write)
+                      startup_snapshot, step, visit, write)
 from .workspace import states
 
 NAME = '界.rs'
@@ -117,7 +117,9 @@ def selection(session, path, colored):
     step(session, press(79, 0), b'L1 C1')
     frame = step(session, drag(86, 1), b'L2 C8')
     assert cursor(frame) == (2, 87)
-    if not colored:
+    if colored:
+        assert b'\x1b[48;2;40;52;87m' in frame
+    else:
         assert b'\x1b[7m' in frame
     frame = step(session, drag(86, 1, True) + drag(79, 0) + b'\x18', b'C-x')
     assert cursor(frame) == (2, 87), 'release left a live pointer capture'
@@ -168,6 +170,95 @@ def whitespace(session, path):
     step(session, b'\x07\x1bgg1\r', b'L1 C1')
 
 
+def retained(frame, width=120, height=24):
+    content = canvas(frame, width, height)
+    return {row: text for row, text in content.items() if row < height}, cursor(frame)
+
+
+def failures(session, path):
+    frame = step(session, b'\x07', b'Quit')
+    before = retained(frame)
+    named(session, 'untabify', b'Region is not active')
+    named(session, 'goto-line', b'Goto line: ')
+    draft = b'9223372036854775808'
+    frame = step(session, draft + b'\r', b'Enter a signed 64-bit decimal line number')
+    assert b'Goto line: ' + draft in frame
+    status(frame, RIGHT, f'> {NAME} -- RW -- L1 C1 Rust')
+    frame = step(session, b'\x07', b'Quit')
+    assert retained(frame) == before, 'invalid/canceled navigation changed source or view'
+    frame = visit(session, 'alpha.txt/child', b'Find file: alpha.txt/child  visit "')
+    assert b'Find file: alpha.txt/child' in frame
+    frame = step(session, b'\x07', b'Quit')
+    assert retained(frame) == before, 'failed file ingress changed the retained workspace'
+    assert path.read_bytes() == SOURCE
+
+
+def overlays(session, path):
+    frame = step(session, b'\x07', b'Quit')
+    before = retained(frame)
+    frame = step(session, b'\x13row-17', b'I-search: row-17')
+    status(frame, RIGHT, f'> {NAME} -- RW -- L18 C15 Rust')
+    assert span(rows(frame)[18], 73, 6) == '  18 │'
+    assert 'row-17' in span(rows(frame)[18], 79, 41)
+    frame = step(session, b'\x07', b'Quit')
+    assert retained(frame) == before, 'search cancellation lost pane projection'
+    step(session, b'\x18 ', b'Rectangle mark set')
+    step(session, b'\x0e\x06', b'L2 C5')
+    step(session, b'\x18r\x1bw', b'Rectangle copied')
+    step(session, b'\x07', b'Quit')
+    visit(session, 'alpha.txt', b'> alpha.txt -- RW -- L1 C1 Text')
+    step(session, b'\x18ry', b'Rectangle yanked')
+    target = path.parent / 'alpha.txt'
+    save(session, target, b'    alpha\r\n    ')
+    status(PTY['last_frame'](session), RIGHT, '> alpha.txt -- RW -- L2 C5 Text')
+    step(session, b'\x18u', b'RW')
+    save(session, target, b'alpha\r\n')
+    visit(session, NAME, NAME.encode())
+    step(session, b'\x1bgg1\r', b'L1 C1')
+    assert path.read_bytes() == SOURCE
+
+
+def capture_resize(session):
+    # An actual source-edge deadline must fire before resize cancels ownership.
+    frame = send(session, press(79, 0) + drag(79, 22), lambda f:
+                 int(span(rows(f)[1], 73, 4)) >= 4)
+    assert b'\x1b]52;' not in frame
+    PTY['resize_surface'](session, 80, 12, True)
+    frame = PTY['last_frame'](session)
+    before = retained(frame, 80, 12)
+    assert not span(rows(frame)[11], 53, 27).endswith('Rust'), 'narrow status did not omit mode first'
+    frame = step(session, drag(79, 22) + drag(79, 22, True) + b'\x18', b'C-x')
+    assert retained(frame, 80, 12) == before, 'late reports revived capture after resize'
+    idle(session)
+    step(session, b'\x07', b'Quit')
+    PTY['resize_surface'](session, 120, 24, True)
+    frame = PTY['last_frame'](session)
+    content = canvas(frame, 120)
+    assert span(content[11], 25, 47).endswith('Rust')
+    assert span(content[23], 25, 47).endswith('Rust')
+    assert span(content[23], 73, 47).endswith('Rust')
+    step(session, b'\x1bgg1\r', b'L1 C1')
+    # C-g also cancels a live captured region, independently of resize/release.
+    step(session, press(79, 0) + drag(86, 1), b'L2 C8')
+    frame = step(session, b'\x07', b'Quit')
+    before = retained(frame)
+    frame = step(session, drag(79, 22) + drag(79, 22, True) + b'\x18', b'C-x')
+    assert retained(frame) == before, 'C-g left a live selection/capture'
+    step(session, b'\x07', b'Quit')
+
+
+def mouse_control(session):
+    step(session, b'\x1bgg1\r', b'L1 C1')
+    frame = named(session, 'mouse-mode', b'Mouse mode disabled')
+    assert BUTTONS_OFF in session.output and SGR_OFF in session.output
+    before = retained(frame)
+    frame = step(session, wheel(False, 31, 0) + press(31, 0) + drag(39, 1) + drag(39, 1, True) + b'\x18', b'C-x')
+    assert retained(frame) == before, 'disabled pointer reports changed native state'
+    step(session, b'\x07', b'Quit')
+    named(session, 'mouse-mode', b'Mouse mode enabled')
+    assert SGR_ON in session.output and BUTTONS_ON in session.output
+
+
 def combined(root, colored):
     path = write(root, 'work/' + NAME, SOURCE)
     write(root, 'work/alpha.txt', b'alpha\r\n')
@@ -181,6 +272,10 @@ def combined(root, colored):
         workspace(session)
         selection(session, path, colored)
         whitespace(session, path)
+        failures(session, path)
+        overlays(session, path)
+        capture_resize(session)
+        mouse_control(session)
         assert snapshot(root) == expected, 'combined editing changed unrelated files/settings'
         session.output.clear()
         finish(session, colored)
@@ -190,4 +285,4 @@ def combined(root, colored):
         close(session)
     assert snapshot(root) == expected
     passive(root)
-    print(f'PASS combined {"RGB" if colored else "NO_COLOR"}: first startup, ordered arrows, independent gutters/status, goto, pointed scrolling, canonical drag and exact conversion/history saves')
+    print(f'PASS combined {"RGB" if colored else "NO_COLOR"}: first startup, ordered arrows, independent gutters/status, goto, pointed scrolling, canonical drag, exact conversion/history saves, failed/canceled prompts, overlays, resize capture cleanup and runtime mouse control')
