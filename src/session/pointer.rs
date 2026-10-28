@@ -101,3 +101,26 @@ impl Session {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Runtime mode changes cannot mutate any admitted startup leaf or acquire
+    // document history, even though effective admission changes immediately.
+    #[test]
+    fn frozen_startup() {
+        let mut session = Session::empty(crate::view::Size {
+            width: 80,
+            height: 24,
+        })
+        .unwrap();
+        let snapshot = session.buffers.snapshot().clone();
+        for expected in [false, true, false] {
+            session.execute(crate::command::Command::MouseMode);
+            assert_eq!(session.mouse_enabled(), expected);
+            assert_eq!(session.buffers.snapshot(), &snapshot);
+            assert!(session.buffer().unwrap().history().is_empty());
+        }
+    }
+}

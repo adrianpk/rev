@@ -117,3 +117,69 @@ fn tree_toggle() {
     assert!(session.tree().focused());
     assert_eq!(session.windows().selected_id(), selected);
 }
+
+// A held configured toggle cannot oscillate session state. Fresh presses toggle
+// exactly once and leave buffer history, points and source bytes unchanged.
+#[test]
+fn toggle_repeat() {
+    use crossterm::event::{KeyEvent, KeyEventKind, KeyEventState};
+    let (_fixture, mut session) = configured("keys.editor.M-j = 'mouse-mode'");
+    let stamp = session.buffer().unwrap().stamp();
+    let before = session.view().clone();
+    let event = |kind| {
+        Event::Key(KeyEvent {
+            code: KeyCode::Char('j'),
+            modifiers: KeyModifiers::ALT,
+            kind,
+            state: KeyEventState::NONE,
+        })
+    };
+    session.handle(event(KeyEventKind::Press));
+    assert!(!session.mouse_enabled());
+    for _ in 0..200 {
+        assert_eq!(session.handle(event(KeyEventKind::Repeat)), Action::Wait);
+    }
+    assert!(!session.mouse_enabled());
+    session.handle(event(KeyEventKind::Release));
+    assert!(!session.mouse_enabled());
+    session.handle(event(KeyEventKind::Press));
+    assert!(session.mouse_enabled());
+    assert_eq!(session.view(), &before);
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// The configured wheel distance applies to the loaded tree as well as document
+// panes, while editing focus, its point, and canonical history stay unchanged.
+#[test]
+fn tree_distance() {
+    let fixture = Fixture::new();
+    let root = fixture.write("config.toml", "mouse.scroll_lines = 7");
+    let source = fixture.write("source.txt", &lines(30));
+    for index in 0..15 {
+        fixture.write(&format!("file-{index:02}"), "retained");
+    }
+    let mut buffers = Buffers::with_settings(rev::config::prepare(&root).snapshot).unwrap();
+    let id = buffers.visit(&source).unwrap();
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(buffers, view, size()).unwrap();
+    session.execute(Command::Tree(TreeCommand::Toggle));
+    session.execute(Command::Tree(TreeCommand::Expand));
+    session.handle(key(KeyCode::Tab, KeyModifiers::NONE));
+    let before = session.view().clone();
+    let entries = session.tree().entries().len();
+    assert_eq!(session.handle(wheel(false, 1, 0)), Action::Redraw);
+    assert!(!session.tree().focused());
+    assert_eq!(
+        session.tree().selected().unwrap().path(),
+        fixture.0.join("file-05")
+    );
+    assert_eq!(session.tree().entries().len(), entries);
+    assert!(
+        session.frame().unwrap().rows()[0]
+            .text()
+            .contains("file-05")
+    );
+    assert_eq!(session.view(), &before);
+    assert!(session.buffer().unwrap().history().is_empty());
+}

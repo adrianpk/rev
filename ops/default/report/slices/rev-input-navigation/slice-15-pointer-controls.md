@@ -1,6 +1,6 @@
 # Slice 15: Activate native mouse defaults and runtime control
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
@@ -46,6 +46,9 @@ the startup snapshot and no-write runtime override boundary.
 - `src/session/pointer/{scroll,autoscroll}.rs`: configured bounded distances.
 - `tests/configuration/mouse.rs`, `tests/pointer/controls.rs`: real startup and handler outcomes.
 - `docs/reference/config.toml`, `docs/reference/defaults.md`: exhaustive sample and catalog.
+- `src/session.rs`, `src/terminal.rs`: native startup/runtime synchronization and cleanup ownership.
+- `scripts/configuration_ui/pointer_controls.py`: actual on/off/restart/capture/fallback journeys.
+- `docs/reference/terminal-input.md`, `docs/reference/bindings.md`: gestures, control and bypass guidance.
 
 ## Validation
 
@@ -64,8 +67,51 @@ factory assertion now checks the delivered enabled default and exact restoration
 counts/order; its typing, history, prefix and resource assertions are retained.
 The exhaustive reference guard passed all 72 catalog leaves and 111 bindings.
 
-Final ordered and focused evidence will be recorded through the controller on
-the clean candidate after task and PR-reference commits.
+Development `cargo test --lib --test pointer` passed 15 library and 54 pointer
+groups, including immutable snapshot retention and rejection of held toggle
+repeats. `cargo test --test pointer controls::tree_distance` subsequently passed
+the configured seven-row loaded-tree behavior with unchanged focus, point and
+history. The unchanged safe-Rust/parameter/nesting/complexity guard passed after
+activation. Focused native Clippy covers the completed controls and configuration.
+
+`python3 scripts/check-pty.py --suite pointer-controls` passed five owned sessions:
+factory enabled behavior; explicit startup off with seven-row runtime enable;
+a new process restoring the unchanged false preference; disable during live
+outside autoscroll through a mapped native command, retained region and no
+revival after enable; and complete enabled/three-row fallback for invalid input.
+The cases verify actual reporting pair counts/order, continued raw keyboard
+input, pane focus, source/configuration bytes and normal cleanup. Paused/disabled
+or retired capture emits no idle output and consumes no process CPU ticks.
+
+The new driver explicitly retires its tested C-x prefix before the separate exit
+chord. The invalid-source case uses a 180-column surface to display the complete
+source/key diagnostic rather than asserting clipped text. Both corrections
+preserve the assertions, original eight-second deadline and 1-MiB output bound.
+Every session retains owned HOME/XDG roots, bounded 32-entry/64-KiB snapshots,
+terminal restoration, child reaping, descriptor closure, no created preference
+files and no implicit OSC 52 clipboard writes.
+
+Final canonical and focused evidence is recorded through the controller on the
+clean candidate after task and PR-reference commits. Required ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test pointer --test configuration --test commands --test display --test recovery`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+Focused final commands:
+
+- `python3 scripts/check-config-reference.py`
+- `cargo test --lib --test coordinates --test windows --test editing --test tree`
+- `python3 scripts/check-pty.py --suite pointer-lifetime`
+- `python3 scripts/check-pty.py --suite pointer-focus`
+- `python3 scripts/check-pty.py --suite pointer-scroll`
+- `python3 scripts/check-pty.py --suite pointer-selection`
+- `python3 scripts/check-pty.py --suite pointer-autoscroll`
+- `python3 scripts/check-pty.py --suite pointer-controls`
+- `git diff --check`
+
 
 ## Risks and Follow-ups
 

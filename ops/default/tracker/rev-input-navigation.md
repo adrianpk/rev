@@ -276,8 +276,15 @@ Details and exact checks: [Slice 15](../plan/rev-input-navigation.md#slice-15-ac
 
 - [x] T15.1: Wire mouse.enabled=true and mouse.scroll_lines=3 with bounds 1..100, plus the compiled M-x mouse-mode session toggle, through the existing typed configuration/catalog.
 - [x] T15.2: Activate only the complete event/cleanup path, preserve startup-only snapshots and no-write runtime overrides, and add accurate exhaustive sample/default documentation.
-- [ ] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
+- [x] T15.3: Verify startup on/off, runtime enable/disable during capture, restoration and terminal-owned selection bypass guidance; close the pointer ticket after its complete integrations.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+
+Slice 15 of 20 implemented. Its
+[canonical report](../report/slices/rev-input-navigation/slice-15-pointer-controls.md)
+records admitted startup defaults, session-only control, complete native reporting,
+configured distances and owned startup/runtime/cleanup PTYs. Canonical PR and
+exact-head evidence follow task and reference commits. Integration is pending;
+the pointer ticket stays in progress until its final primary integration.
 
 ### Slice 16: package the complete startup configuration template
 
