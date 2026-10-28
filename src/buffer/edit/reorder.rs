@@ -3,6 +3,7 @@ use std::ops::Range;
 use super::{Buffer, Error, History, Point, Prepared, Replacement, mapping};
 use crate::buffer::Span;
 use crate::coordinates::{Coordinates, Scalar};
+mod modified;
 
 #[derive(Clone, Debug)]
 struct Piece {
@@ -10,8 +11,9 @@ struct Piece {
     after: Range<usize>,
 }
 
-/// A bijection over two or three contiguous original fragments. It carries no
-/// replacement text or independent mutation authority; the transaction owns both.
+/// Original source fragments and their final positions. Counter replacements
+/// retain ordinary edit affinity inside the changed prefix; unchanged fragments
+/// keep their source anchors. The transaction owns text and mutation authority.
 #[derive(Clone, Debug)]
 pub(super) struct Permutation {
     pieces: Vec<Piece>,
@@ -46,12 +48,21 @@ impl Permutation {
         {
             return Scalar(*after);
         }
+        if let Some(position) = self.outside(position) {
+            return position;
+        }
         self.pieces
             .iter()
             .find(|piece| piece.before.contains(&position.0))
             .map_or(position, |piece| {
-                Scalar(piece.after.start + (position.0 - piece.before.start))
+                Scalar(piece.after.start + (position.0 - piece.before.start).min(piece.after.len()))
             })
+    }
+
+    fn outside(&self, position: Scalar) -> Option<Scalar> {
+        let end = self.pieces.iter().map(|piece| piece.before.end).max()?;
+        let after = self.pieces.iter().map(|piece| piece.after.end).max()?;
+        (position.0 >= end).then(|| Scalar(after + (position.0 - end)))
     }
 
     pub(super) fn replay(&self, direction: History) -> Self {
@@ -87,11 +98,19 @@ fn end_points(buffer: &Buffer, pieces: &[Piece]) -> Result<Option<[(usize, usize
     else {
         return Ok(None);
     };
-    Ok(Some([(eof, owner.after.end), (next.before.start, eof)]))
+    let after_eof = pieces
+        .iter()
+        .map(|piece| piece.after.end)
+        .max()
+        .ok_or(Error::Order)?;
+    Ok(Some([
+        (eof, owner.after.end),
+        (next.before.start, after_eof),
+    ]))
 }
 
 fn partition(buffer: &Buffer, sources: &[Span]) -> Result<Vec<Range<usize>>, Error> {
-    if !(2..=3).contains(&sources.len()) {
+    if !(2..=6).contains(&sources.len()) {
         return Err(Error::Order);
     }
     let coordinates = Coordinates::new(buffer)?;

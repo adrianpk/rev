@@ -1,5 +1,6 @@
 mod group;
 mod movement;
+pub(in crate::org) use movement::pieces as movement_pieces;
 
 use std::ops::Range;
 

@@ -109,7 +109,7 @@ impl Outline {
         Ok(())
     }
 
-    fn malformed_between(&self, range: &std::ops::Range<usize>) -> bool {
+    pub(in crate::org) fn malformed_between(&self, range: &std::ops::Range<usize>) -> bool {
         let index = self.malformed.partition_point(|r| r.end <= range.start);
         self.malformed
             .get(index)

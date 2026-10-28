@@ -47,6 +47,8 @@ fn operational_catalog() {
         input.palette().unwrap().candidates(),
         [
             Command::Mode(Mode::Org),
+            Command::Org(OrgCommand::MoveItemDown),
+            Command::Org(OrgCommand::MoveItemUp),
             Command::Org(OrgCommand::MoveSubtreeDown),
             Command::Org(OrgCommand::MoveSubtreeUp),
         ]

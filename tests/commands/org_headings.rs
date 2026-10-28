@@ -62,10 +62,10 @@ fn heading_keys() {
 #[test]
 fn subtree_keys() {
     for (code, command) in [
-        (KeyCode::Left, OrgCommand::PromoteSubtree),
-        (KeyCode::Right, OrgCommand::DemoteSubtree),
-        (KeyCode::Up, OrgCommand::MoveSubtreeUp),
-        (KeyCode::Down, OrgCommand::MoveSubtreeDown),
+        (KeyCode::Left, OrgCommand::MetaLeft),
+        (KeyCode::Right, OrgCommand::MetaRight),
+        (KeyCode::Up, OrgCommand::MetaUp),
+        (KeyCode::Down, OrgCommand::MetaDown),
     ] {
         let mut input = Input::default();
         input.set_org_context(Some(OrgContext::Editing));

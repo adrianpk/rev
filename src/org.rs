@@ -6,6 +6,8 @@ mod form;
 mod index;
 mod inline;
 mod job;
+mod list;
+pub(crate) use list::ListEdit;
 mod source;
 mod structure;
 

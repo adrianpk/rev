@@ -5,6 +5,7 @@ mod state;
 mod subtree;
 pub(crate) use insertion::Insertion;
 pub(crate) use subtree::SubtreeEdit;
+pub(super) use subtree::movement_pieces;
 
 use std::ops::Range;
 use std::sync::Arc;
@@ -41,11 +42,18 @@ pub(crate) struct Outline {
     blocked: Vec<Range<usize>>,
     blocked_eof: bool,
     malformed: Vec<Range<usize>>,
+    pub(super) lists: super::list::Lists,
 }
 
 impl Outline {
-    pub(crate) fn observe(structure: &Structure, cancel: &Cancellation) -> Self {
-        model::observe(structure, cancel)
+    pub(crate) fn observe(
+        structure: &Structure,
+        text: &ropey::Rope,
+        cancel: &Cancellation,
+    ) -> Self {
+        let mut model = model::observe(structure, cancel);
+        model.lists = super::list::Lists::observe(structure, text, cancel);
+        model
     }
     fn heading(&self, byte: usize) -> Option<usize> {
         self.headings
@@ -59,7 +67,7 @@ impl Outline {
             .position(|d| d.start <= byte && byte < d.end)
     }
 
-    fn complete(&self) -> Result<(), &'static str> {
+    pub(super) fn complete(&self) -> Result<(), &'static str> {
         if self.coverage != Coverage::Complete {
             return Err("Org structural observation is incomplete");
         }

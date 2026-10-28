@@ -4,6 +4,7 @@ use crate::view::View;
 use crate::window::ViewId;
 use std::sync::Arc;
 
+mod list;
 mod operation;
 mod subtree;
 
@@ -71,9 +72,26 @@ impl Session {
         model: Arc<crate::org::Outline>,
         command: OrgCommand,
     ) -> Result<(), String> {
-        if command.edits_subtree() {
-            return self.edit_subtree(&model, command);
+        if command.list_only()
+            || command.contextual_list()
+                && model.list_at(
+                    self.buffer().map_err(|e| e.to_string())?,
+                    self.view().point.position,
+                )?
+        {
+            return self.edit_list(&model, command);
         }
+        if let Some(subtree) = command.subtree() {
+            return self.edit_subtree(&model, subtree);
+        }
+        self.org_outline_operation(model, command)
+    }
+
+    fn org_outline_operation(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        command: OrgCommand,
+    ) -> Result<(), String> {
         use OrgCommand::*;
         match command {
             InsertHeading | MetaReturn => self.insert_heading(model),

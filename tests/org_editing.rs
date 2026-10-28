@@ -16,6 +16,8 @@ mod heading_context;
 mod heading_edges;
 #[path = "org_editing/headings.rs"]
 mod headings;
+#[path = "org_editing/lists.rs"]
+mod lists;
 #[path = "org_editing/projection.rs"]
 mod projection;
 #[path = "org_editing/subtree_bounds.rs"]

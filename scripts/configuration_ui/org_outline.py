@@ -101,18 +101,18 @@ def subtree_levels(session, wire, command, expected):
 
 def subtrees(session):
     goto(session, 6)
-    frame = change(session, b'\x1b[1;3B', 'org-move-subtree-down',
+    frame = change(session, b'\x1b[1;3B', 'org-metadown',
                    [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8, 11, 12])
     assert b'** RW -- L8 C1' in frame, 'subtree point did not follow source'
-    change(session, b'\x1b[1;3A', 'org-move-subtree-up', list(range(13)))
+    change(session, b'\x1b[1;3A', 'org-metaup', list(range(13)))
     promoted = LINES.copy()
     promoted[5], promoted[7] = '* Child', '** Grand'
-    subtree_levels(session, b'\x1b[1;3D', 'org-promote-subtree', promoted)
+    subtree_levels(session, b'\x1b[1;3D', 'org-metaleft', promoted)
     send(session, b'\x18u', lambda frame: visible(frame, list(range(13))))
     goto(session, 10, modified=True)
     demoted = LINES.copy()
     demoted[9] = '*** Sibling'
-    subtree_levels(session, b'\x1b[1;3C', 'org-demote-subtree', demoted)
+    subtree_levels(session, b'\x1b[1;3C', 'org-metaright', demoted)
     send(session, b'\x18u', lambda frame: visible(frame, list(range(13))))
     # The inverse sibling move is a separate edit. Undo both moves as well.
     send(session, b'\x18u', lambda frame: visible(frame, [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8, 11, 12]))

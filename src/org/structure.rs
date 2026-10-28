@@ -71,7 +71,7 @@ pub(super) struct Raw {
     pub(super) closing: Option<Range<usize>>,
     name: Option<Range<usize>>,
     affiliated: Option<Range<usize>>,
-    parent: Option<usize>,
+    pub(super) parent: Option<usize>,
     pub(super) context: Option<InlineContext>,
     depth: usize,
 }

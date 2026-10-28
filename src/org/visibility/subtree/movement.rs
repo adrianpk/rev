@@ -39,7 +39,11 @@ impl Outline {
     }
 }
 
-fn pieces(buffer: &Buffer, left: &Span, right: &Span) -> Result<Vec<Span>, crate::buffer::Error> {
+pub(in crate::org) fn pieces(
+    buffer: &Buffer,
+    left: &Span,
+    right: &Span,
+) -> Result<Vec<Span>, crate::buffer::Error> {
     let tail = buffer.slice(right)?;
     if right.range.end != buffer.len_chars()
         || tail.get_char(tail.len_chars().saturating_sub(1)) == Some('\n')

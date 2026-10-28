@@ -162,10 +162,12 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-b", "org-backward-heading-same-level"),
     ("C-c C-u", "org-up-heading-safe"),
     ("M-RET", "org-meta-return"),
-    ("M-Left", "org-promote-subtree"),
-    ("M-Right", "org-demote-subtree"),
-    ("M-Up", "org-move-subtree-up"),
-    ("M-Down", "org-move-subtree-down"),
+    ("M-Left", "org-metaleft"),
+    ("M-Right", "org-metaright"),
+    ("M-Up", "org-metaup"),
+    ("M-Down", "org-metadown"),
+    ("M-S-Left", "org-outdent-item-tree"),
+    ("M-S-Right", "org-indent-item-tree"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];

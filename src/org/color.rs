@@ -129,7 +129,11 @@ impl ColorScan {
             self.limits,
             cancellation,
         );
-        let outline = std::sync::Arc::new(super::Outline::observe(&structure, cancellation));
+        let outline = std::sync::Arc::new(super::Outline::observe(
+            &structure,
+            &self.text,
+            cancellation,
+        ));
         Coloring {
             index,
             highlights,

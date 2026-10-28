@@ -27,15 +27,17 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
 | M-x org-insert-heading | `org-insert-heading` | Insert a heading at the current level through one checked edit. |
 | M-RET in Org | `org-meta-return` | Insert a heading in admitted heading/paragraph context. |
+| M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
+| M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
 | C-c C-n in Org | `org-next-visible-heading` | Visit the next visible heading. |
 | C-c C-p in Org | `org-previous-visible-heading` | Visit the previous visible heading. |
 | C-c C-f in Org | `org-forward-heading-same-level` | Visit the next sibling without crossing a parent boundary. |
 | C-c C-b in Org | `org-backward-heading-same-level` | Visit the previous sibling without crossing a parent boundary. |
 | C-c C-u in Org | `org-up-heading-safe` | Visit the parent heading. |
-| M-Left in Org | `org-promote-subtree` | Promote a complete subtree and its descendants. |
-| M-Right in Org | `org-demote-subtree` | Demote a complete subtree under its preceding sibling. |
-| M-Up in Org | `org-move-subtree-up` | Move a complete subtree before its previous sibling. |
-| M-Down in Org | `org-move-subtree-down` | Move a complete subtree after its next sibling. |
+| M-Left in Org | `org-metaleft` | Promote a complete subtree and its descendants. |
+| M-Right in Org | `org-metaright` | Demote a complete subtree under its preceding sibling. |
+| M-Up in Org | `org-metaup` | Move a complete subtree before its previous sibling. |
+| M-Down in Org | `org-metadown` | Move a complete subtree after its next sibling. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |
