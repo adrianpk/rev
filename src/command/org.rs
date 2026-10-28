@@ -92,9 +92,10 @@ pub enum OrgCommand {
     ClockOut,
     ClockCancel,
     ClockGoto,
+    ResolveClocks,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 90] = [
+    pub const ALL: [Self; 91] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -185,6 +186,7 @@ impl OrgCommand {
         Self::ClockOut,
         Self::ClockCancel,
         Self::ClockGoto,
+        Self::ResolveClocks,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -278,6 +280,7 @@ impl OrgCommand {
             "org-clock-out",
             "org-clock-cancel",
             "org-clock-goto",
+            "org-resolve-clocks",
         ][self as usize]
     }
 
@@ -419,7 +422,11 @@ impl OrgCommand {
     pub(crate) fn clock(self) -> bool {
         matches!(
             self,
-            Self::ClockIn | Self::ClockOut | Self::ClockCancel | Self::ClockGoto
+            Self::ClockIn
+                | Self::ClockOut
+                | Self::ClockCancel
+                | Self::ClockGoto
+                | Self::ResolveClocks
         )
     }
 }

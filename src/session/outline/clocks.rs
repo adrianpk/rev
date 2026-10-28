@@ -1,3 +1,6 @@
+mod departure;
+mod recovery;
+pub(in crate::session) use departure::{Departure, Prompt};
 mod batch;
 mod completion;
 pub(super) mod switching;
@@ -70,7 +73,7 @@ impl Session {
             Err(error) => self.error(&error),
         }
     }
-    fn finish_clock(&mut self, command: OrgCommand) -> Result<(), String> {
+    pub(super) fn finish_clock(&mut self, command: OrgCommand) -> Result<(), String> {
         let active = self.active_clock.as_ref().ok_or("No active Org clock")?;
         let buffer = self
             .buffers
@@ -135,5 +138,11 @@ impl Session {
             *self.windows.selected_mut() = previous;
         }
         result
+    }
+}
+
+impl Active {
+    pub(in crate::session) fn buffer(&self) -> crate::buffer::BufferId {
+        self.source.stamp.buffer
     }
 }

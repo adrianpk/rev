@@ -27,7 +27,7 @@ impl Session {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message("Editing owns Org commands");
         }
-        if command.clock() && command != OrgCommand::ClockIn {
+        if command.clock() && !matches!(command, OrgCommand::ClockIn | OrgCommand::ResolveClocks) {
             return self.clock_command(command);
         }
         if !self.buffer().is_ok_and(|b| b.is_org()) {
@@ -78,6 +78,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
+        if request.command == OrgCommand::ResolveClocks {
+            return self.resolve_clocks(model, request);
+        }
         if request.command == OrgCommand::ClockIn {
             return self.start_clock(model, request);
         }

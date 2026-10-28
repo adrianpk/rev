@@ -79,6 +79,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
 | C-c C-x C-q in Org | `org-clock-cancel` | Remove the active interval. |
+| C-c C-x C-z in Org | `org-resolve-clocks` | Explicitly resolve incomplete intervals in the selected entry. |
 | C-c C-x C-j in Org | `org-clock-goto` | Reveal the active task heading. |
 | C-c C-c in Org | `org-ctrl-c-ctrl-c` | Normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
 | C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
@@ -513,3 +514,22 @@ Clocking the same active heading again leaves its interval unchanged.
 that task's clock together with the keyword, planning and selected note/history
 edits. Note cancellation leaves the clock and source intact. A successful note
 uses the captured completion instant, excluding time spent typing the note.
+
+Quit and closing the clock's buffer first ask `close` or `keep`. Close records
+clock-out; keep detaches tracking and preserves the open source interval. Normal
+save/discard/cancel questions then retain their existing per-file meaning. C-g
+at the clock question leaves the clock running. A failed clock-out stops departure.
+
+`org-resolve-clocks` observes at most 64 incomplete intervals in the selected
+262144-byte entry. Select an interval number, then resume, close, cancel or keep.
+Resume adopts its checked source instant without writing text. Close asks for
+the accepted end date/time, so rejected idle time is not counted. Repeated local
+times show their observed offsets; missing local times cannot be forced through.
+Invalid end input remains editable. End times cannot exceed the captured operation
+time. Cancel removes only the selected interval/otherwise empty drawer; keep
+leaves open source unresolved. C-g and changed source/view cannot publish edits.
+
+Undo/redo retains ordinary source/history behavior. A previously captured clock
+locator becomes stale when its source revision changes, including history replay.
+Use explicit resolution to adopt a freshly observed incomplete interval; similar
+text in another revision never authorizes an automatic clock edit.

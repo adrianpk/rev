@@ -5,6 +5,7 @@ use super::{Duration, OperationTime, ZonedOperation};
 #[derive(Clone, Debug)]
 pub struct ClockInterval {
     start: ZonedOperation,
+    source: String,
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct ClockRecord {
@@ -13,10 +14,26 @@ pub struct ClockRecord {
 }
 impl ClockInterval {
     pub fn new(start: ZonedOperation) -> Self {
-        Self { start }
+        let source = format!("CLOCK: {}", start.now().format_timestamp(false));
+        Self { start, source }
+    }
+    /// Adopt only an explicitly selected source/instant pair in its observed
+    /// zone. Original source spelling remains authoritative through clock-out.
+    pub fn resume(source: &str, start: ZonedOperation) -> Result<Self, String> {
+        let value = source_clock(source)?;
+        if value.civil() != Some(start.now()) {
+            return Err("Org CLOCK source does not identify the selected start instant".into());
+        }
+        Ok(Self {
+            start,
+            source: source.trim_end().into(),
+        })
+    }
+    pub fn started(&self) -> OperationTime {
+        self.start.instant()
     }
     pub fn open_source(&self) -> String {
-        format!("CLOCK: {}", self.start.now().format_timestamp(false))
+        self.source.clone()
     }
     pub fn close(&self, end: OperationTime) -> Result<ClockRecord, String> {
         let start = self.start.instant().unix_seconds();
@@ -39,4 +56,23 @@ impl ClockInterval {
             duration,
         })
     }
+}
+
+fn source_clock(source: &str) -> Result<super::Timestamp, String> {
+    if source.len() > 4096 {
+        return Err("Org CLOCK line exceeds 4096 UTF-8 bytes".into());
+    }
+    let raw = source
+        .trim_start()
+        .strip_prefix("CLOCK:")
+        .ok_or("Expected Org CLOCK source")?
+        .trim();
+    let value = super::Timestamp::parse(raw)?;
+    if value.active() || value.end_time().is_some() {
+        return Err("Org CLOCK requires one inactive start timestamp".into());
+    }
+    if value.repeater()?.is_some() || value.warning_delay()?.is_some() {
+        return Err("Org CLOCK cannot contain recurrence or delay data".into());
+    }
+    Ok(value)
 }

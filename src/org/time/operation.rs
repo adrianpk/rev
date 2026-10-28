@@ -9,6 +9,12 @@ pub struct OperationTime {
     pub(super) seconds: i64,
 }
 impl OperationTime {
+    /// An explicit Unix instant from an owned observation or checked state.
+    /// Zone-less source values still require resolution before construction.
+    pub fn from_unix_seconds(seconds: i64) -> Self {
+        Self { seconds }
+    }
+
     pub fn capture(clock: impl FnOnce() -> Result<SystemTime, String>) -> Result<Self, String> {
         Ok(Self {
             seconds: unix_seconds(clock()?)?,

@@ -11,6 +11,16 @@ pub struct ZonedOperation {
     now: CivilDateTime,
 }
 impl ZonedOperation {
+    /// Retain one already selected zone result, rejecting a forged offset.
+    pub fn from_resolved(value: super::ResolvedTime, zone: Zone) -> Result<Self, String> {
+        if zone.offset_at(value.unix_seconds)? != value.offset_seconds {
+            return Err("Org clock offset is not observed at this instant".into());
+        }
+        let instant = OperationTime::from_unix_seconds(value.unix_seconds);
+        let now = zone.civil_at(value.unix_seconds)?;
+        Ok(Self { instant, zone, now })
+    }
+
     pub fn capture(
         selection: &ZoneSelection,
         env: &ZoneEnvironment,

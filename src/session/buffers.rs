@@ -59,7 +59,10 @@ impl Session {
         self.message("")
     }
 
-    fn kill_buffer(&mut self, id: BufferId) -> Action {
+    pub(super) fn kill_buffer(&mut self, id: BufferId) -> Action {
+        if self.active_clock.as_ref().is_some_and(|c| c.buffer() == id) {
+            return self.clock_departure(super::outline::clocks::Departure::Close(id));
+        }
         let kill = match self.buffers.prepare_kill(id) {
             Ok(kill) => kill,
             Err(error) => return self.error(&error.to_string()),

@@ -1,5 +1,5 @@
 mod insertion;
-pub(crate) use tags::ClockInsertion;
+pub(crate) use tags::{ClockInsertion, ClockObservation};
 mod model;
 mod navigation;
 mod state;

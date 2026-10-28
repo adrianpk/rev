@@ -4,7 +4,7 @@ mod model;
 mod priority;
 mod tasks;
 mod timestamps;
-pub(crate) use tasks::{ClockInsertion, TaskChange};
+pub(crate) use tasks::{ClockInsertion, ClockObservation, TaskChange};
 
 use super::Outline;
 use crate::buffer::{Buffer, edit::Replacement};

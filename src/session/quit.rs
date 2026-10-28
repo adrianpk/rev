@@ -11,6 +11,12 @@ pub(super) struct Quit {
 
 impl Session {
     pub(super) fn quit(&mut self) -> Action {
+        if self.active_clock.is_some() {
+            return self.clock_departure(super::outline::clocks::Departure::Quit);
+        }
+        self.begin_quit()
+    }
+    pub(super) fn begin_quit(&mut self) -> Action {
         let buffers = self
             .buffers
             .iter()

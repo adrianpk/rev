@@ -320,3 +320,6 @@ mod clock_edges;
 
 #[path = "org_editing/clock_switching.rs"]
 mod clock_switching;
+
+#[path = "org_editing/clock_recovery.rs"]
+mod clock_recovery;

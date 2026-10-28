@@ -1,5 +1,5 @@
 mod clocks;
-pub(crate) use clocks::ClockInsertion;
+pub(crate) use clocks::{ClockInsertion, ClockObservation};
 mod blocking;
 mod edit;
 mod logging;

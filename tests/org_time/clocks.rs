@@ -69,3 +69,34 @@ fn backward_clock() {
     assert!(interval.close(stop).unwrap_err().contains("before"));
     assert_eq!(interval.open_source(), before);
 }
+
+// Recovery accepts the selected zone instant only when it identifies the stored
+// inactive start. Source spelling is retained; recurrence and forged offsets fail.
+#[test]
+fn clock_resume_source() {
+    use rev::org::time::{CivilDateTime, CivilTime, Date, Zone};
+    let zone = Zone::utc();
+    let civil = CivilDateTime {
+        date: Date::new(2024, 3, 1).unwrap(),
+        time: CivilTime::new(14, 0, 0).unwrap(),
+    };
+    let choice = zone.resolve(civil).unwrap().candidates()[0];
+    for (source, valid) in [
+        ("  CLOCK: [2024-03-01 raw 14:00]", true),
+        ("CLOCK: <2024-03-01 Fri 14:00>", false),
+        ("CLOCK: [2024-03-01 Fri]", false),
+        ("CLOCK: [2024-03-01 Fri 14:01]", false),
+        ("CLOCK: [2024-03-01 Fri 14:00 +1d]", false),
+        ("CLOCK: [2024-03-01 Fri 14:00 -1d]", false),
+    ] {
+        let operation = ZonedOperation::from_resolved(choice, zone.clone()).unwrap();
+        let value = ClockInterval::resume(source, operation);
+        assert_eq!(value.is_ok(), valid, "{source}");
+        if let Ok(value) = value {
+            assert_eq!(value.open_source(), source);
+        }
+    }
+    let mut forged = choice;
+    forged.offset_seconds = 3600;
+    assert!(ZonedOperation::from_resolved(forged, zone).is_err());
+}

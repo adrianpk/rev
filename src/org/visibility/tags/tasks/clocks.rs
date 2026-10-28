@@ -168,3 +168,87 @@ fn clock_wrapper(
     let nl = buffer.newline();
     Ok((format!("{prefix}:{drawer}:{nl}"), format!(":END:{nl}")))
 }
+
+pub(crate) struct ClockObservation {
+    pub line: crate::buffer::Span,
+    pub owner: crate::buffer::edit::Point,
+    pub cleanup: Option<crate::buffer::Span>,
+    pub raw: String,
+    pub value: crate::org::time::TimestampRange,
+}
+impl Outline {
+    pub(crate) fn clock_observations(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+    ) -> Result<Vec<ClockObservation>, String> {
+        let heading = &self.headings[index];
+        if heading.section - heading.start > 262144 {
+            return Err("Org clock entry exceeds 262144 UTF-8 bytes".into());
+        }
+        let text = edit::source(buffer, heading.body..heading.section)?;
+        let mut byte = heading.body;
+        let mut result = Vec::new();
+        for line in text.split_inclusive('\n') {
+            if let Some(found) = self.observe_clock_line(buffer, index, (byte, line))? {
+                result.push(found);
+            }
+            if result.len() > 64 {
+                return Err("Org entry exceeds 64 incomplete clocks".into());
+            }
+            byte += line.len();
+        }
+        Ok(result)
+    }
+    fn observe_clock_line(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+        data: (usize, &str),
+    ) -> Result<Option<ClockObservation>, String> {
+        let (byte, line) = data;
+        let Some(raw) = line.trim().strip_prefix("CLOCK:") else {
+            return Ok(None);
+        };
+        if raw.contains("--") {
+            return Ok(None);
+        }
+        let source = buffer
+            .byte_span(byte..byte + line.len())
+            .map_err(|e| e.to_string())?;
+        if !self.timestamp_context(buffer, Scalar(source.range.start))? {
+            return Ok(None);
+        }
+        if line.len() > 4096 {
+            return Err("Org CLOCK line exceeds 4096 UTF-8 bytes".into());
+        }
+        let value = crate::org::time::TimestampRange::parse(raw.trim())?;
+        let owner = self.clock_heading(buffer, index)?;
+        let cleanup = self.recovered_clock_drawer(buffer, byte, line)?;
+        Ok(Some(ClockObservation {
+            line: source,
+            owner,
+            cleanup,
+            raw: line.trim_end().into(),
+            value,
+        }))
+    }
+    fn recovered_clock_drawer(
+        &self,
+        buffer: &Buffer,
+        byte: usize,
+        line: &str,
+    ) -> Result<Option<crate::buffer::Span>, String> {
+        let Some(drawer) = self.drawers.iter().find(|d| d.body.contains(&byte)) else {
+            return Ok(None);
+        };
+        let body = edit::source(buffer, drawer.body.clone())?;
+        if body.trim() != line.trim() {
+            return Ok(None);
+        }
+        buffer
+            .byte_span(drawer.start..drawer.end)
+            .map(Some)
+            .map_err(|e| e.to_string())
+    }
+}

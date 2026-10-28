@@ -145,3 +145,6 @@ fn snapshot(buffer: &Buffer) -> Snapshot {
 
 #[path = "recovery/paths.rs"]
 mod paths;
+
+#[path = "recovery/clocks.rs"]
+mod clocks;
