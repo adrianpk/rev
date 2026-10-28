@@ -86,3 +86,38 @@ Next/previous motion skips folded headings even outside the viewport. Same-level
 motion stops at a parent boundary; parent motion visits the nearest structural
 parent, including skipped numerical levels. These targeted moves use ordinary
 hierarchy reveal. A missing target reports unavailability and keeps the view.
+
+## Subtree editing
+
+| Key | Command | Behavior |
+| --- | --- | --- |
+| M-Left | `org-promote-subtree` | Remove one star from the heading and every descendant. |
+| M-Right | `org-demote-subtree` | Add one star to the heading and every descendant. |
+| M-Up | `org-move-subtree-up` | Move the complete subtree before its previous sibling. |
+| M-Down | `org-move-subtree-down` | Move the complete subtree after its next sibling. |
+
+M-x invokes these same handlers. Point can be on the heading or in its ordinary
+section text. A list, table, drawer, literal block or other deeper context keeps
+its own ownership and reports that the subtree edit is unavailable there.
+
+Demotion requires a preceding sibling to become the new parent. Promotion rejects
+level one. Movement stops at parent boundaries. Missing parent levels, unclosed
+owned/parent structures, incomplete observations and levels beyond 256 reject the
+whole operation. Malformed source outside the affected ownership remains intact.
+Read-only buffers reject every subtree mutation.
+
+A linear region may cover one or more complete adjacent sibling subtrees with
+the same parent and level. Both endpoints must match those ownership boundaries.
+Partial, empty or rectangular regions reject; descendants are never detached.
+
+Only heading stars change during promotion/demotion. Movement retains drawers,
+blocks, table metadata, unknown directives and blank separators with their
+subtree. At an unterminated EOF, the existing separator run remains between the
+reordered subtrees; no newline bytes are invented. BOM, LF/CRLF and final-newline
+presence remain intact.
+
+Stored marks, peer points and viewport anchors follow canonical source fragments.
+A boundary at a heading start follows that heading; an unterminated line end
+follows that line. One undo/redo reverses the complete operation and restores the
+initiating point, while peers map from their current positions. As with ordinary
+edits, publication releases active selection and obsolete folds in affected views.

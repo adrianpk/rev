@@ -1,6 +1,6 @@
 # Slice 10: Move and promote coherent Org subtrees
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -29,6 +29,11 @@ Stored marks, peer points and viewport anchors follow the original source.
 Undo/redo map each peer's current position, restore the initiating point and
 retain clean/modified state. Level edits map marks through all preceding heading
 changes and retire obsolete folds in every affected pane.
+
+Active linear regions must cover whole adjacent sibling subtrees. Partial,
+rectangular, read-only, over-depth and malformed-parent targets reject without
+changing source, points, marks or history. Unrelated malformed source stays
+editable through operations on valid siblings.
 
 ## Implementation Notes
 
@@ -60,7 +65,12 @@ line-end anchor, making forward and inverse mappings agree through replay.
 - `tests/org_editing/subtrees.rs`: levels, attached content and EOF round trips.
 - `tests/org_editing/subtree_positions.rs`: stored marks, independent source
   anchors, current-peer replay and EOF insertion-boundary regression.
+- `tests/org_editing/subtree_bounds.rs`: region admission, malformed parents,
+  read-only/depth limits and replay at every grapheme boundary.
+- `tests/commands/org_headings.rs`, `scripts/configuration_ui/org_outline.py`:
+  context-qualified keys and owned RGB/NO_COLOR terminal journeys.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: activated controls.
+- `docs/reference/org-mode.md`: subtree controls, ownership and rejection rules.
 
 ## Validation
 
@@ -68,13 +78,33 @@ Development checks passed:
 
 - `cargo test --test org_editing subtrees::`: three tests passed.
 - `cargo test --test org_editing subtree_positions::`: three tests passed.
+- `cargo test --test org_editing subtree_bounds::`: four tests passed.
+- `cargo test --test commands org_headings::subtree_keys`: one test passed.
 - `cargo test --test commands catalog_reference`
 - `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned sessions passed, zero skipped; source bytes, clean-state restoration,
+  terminal restoration and child/fd cleanup checked.
 
 Focused source-quality checks passed for the changed edit and subtree owners.
-Required exact-head controller evidence follows the remaining preservation and
-boundary coverage and the pushed canonical PR-reference follow-up.
+The subtree coverage checks whole sibling regions in both directions, negative
+admission and undo/redo at every grapheme boundary of Unicode/CRLF/EOF source.
+
+After the canonical PR-reference follow-up is pushed, the controller records
+these required commands against that clean HEAD, in order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test editing --test windows`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+A separate focused controller batch records `cargo test --test configuration
+--test commands`, `python3 scripts/check-config-reference.py`, the owned terminal
+command above and `git diff --check` at the same HEAD. Receipt IDs and final
+outcomes are retained in controller evidence and Acta.
 
 ## Risks and Follow-ups
 
-Regional, malformed-parent and broader boundary coverage remain in T10.3.
+Incomplete observations reject structural edits within the existing native
+analysis limits. None recorded beyond those documented limits.

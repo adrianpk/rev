@@ -30,9 +30,10 @@ def named(session, name, indexes):
     return change(session, b'\r', 'Org show-all' if name == 'org-show-all' else name, indexes)
 
 
-def goto(session, line):
+def goto(session, line, modified=False):
     step(session, b'\x1bxgoto-line\r', b'Goto line: ')
-    return step(session, str(line).encode() + b'\r', f'-- RW -- L{line} C1'.encode())
+    state = '**' if modified else '--'
+    return step(session, str(line).encode() + b'\r', f'{state} RW -- L{line} C1'.encode())
 
 
 def cycles(session):
@@ -91,6 +92,35 @@ def headings(session):
     goto(session, 1)
 
 
+def subtree_levels(session, wire, command, expected):
+    return send(session, wire, lambda frame:
+                canvas(frame)[24].rstrip() == command
+                and document(frame)[:13] == expected
+                and not any(document(frame)[13:]))
+
+
+def subtrees(session):
+    goto(session, 6)
+    frame = change(session, b'\x1b[1;3B', 'org-move-subtree-down',
+                   [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8, 11, 12])
+    assert b'** RW -- L8 C1' in frame, 'subtree point did not follow source'
+    change(session, b'\x1b[1;3A', 'org-move-subtree-up', list(range(13)))
+    promoted = LINES.copy()
+    promoted[5], promoted[7] = '* Child', '** Grand'
+    subtree_levels(session, b'\x1b[1;3D', 'org-promote-subtree', promoted)
+    send(session, b'\x18u', lambda frame: visible(frame, list(range(13))))
+    goto(session, 10, modified=True)
+    demoted = LINES.copy()
+    demoted[9] = '*** Sibling'
+    subtree_levels(session, b'\x1b[1;3C', 'org-demote-subtree', demoted)
+    send(session, b'\x18u', lambda frame: visible(frame, list(range(13))))
+    # The inverse sibling move is a separate edit. Undo both moves as well.
+    send(session, b'\x18u', lambda frame: visible(frame, [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8, 11, 12]))
+    send(session, b'\x18u', lambda frame: visible(frame, list(range(13)))
+         and b'-- RW --' in frame)
+    goto(session, 1)
+
+
 def outline(root, colored):
     write(root, 'user/rev/config.toml', b'')
     source = write(root, 'work/notes.org', SOURCE)
@@ -103,6 +133,7 @@ def outline(root, colored):
         shared(session)
         search_cancel(session)
         headings(session)
+        subtrees(session)
         step(session, b'\x18\x13', b'Saved')
         assert source.read_bytes() == SOURCE, 'folding changed BOM/CRLF/EOF bytes'
         frame = PTY['last_frame'](session)

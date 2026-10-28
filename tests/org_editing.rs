@@ -18,6 +18,8 @@ mod heading_edges;
 mod headings;
 #[path = "org_editing/projection.rs"]
 mod projection;
+#[path = "org_editing/subtree_bounds.rs"]
+mod subtree_bounds;
 #[path = "org_editing/subtree_positions.rs"]
 mod subtree_positions;
 #[path = "org_editing/subtrees.rs"]

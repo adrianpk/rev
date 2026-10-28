@@ -56,3 +56,35 @@ fn heading_keys() {
         );
     }
 }
+
+// Subtree chords resolve the same working names only in native Org editing.
+// Capture/source-edit/global roles retain their independent inherited bindings.
+#[test]
+fn subtree_keys() {
+    for (code, command) in [
+        (KeyCode::Left, OrgCommand::PromoteSubtree),
+        (KeyCode::Right, OrgCommand::DemoteSubtree),
+        (KeyCode::Up, OrgCommand::MoveSubtreeUp),
+        (KeyCode::Down, OrgCommand::MoveSubtreeDown),
+    ] {
+        let mut input = Input::default();
+        input.set_org_context(Some(OrgContext::Editing));
+        let event = Event::Key(KeyEvent::new(code, KeyModifiers::ALT));
+        assert_eq!(
+            input.handle(event.clone()),
+            Outcome::Command(Command::Org(command))
+        );
+        assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
+        for context in [
+            None,
+            Some(OrgContext::Capture),
+            Some(OrgContext::SourceEdit),
+        ] {
+            input.set_org_context(context);
+            assert_ne!(
+                input.handle(event.clone()),
+                Outcome::Command(Command::Org(command))
+            );
+        }
+    }
+}
