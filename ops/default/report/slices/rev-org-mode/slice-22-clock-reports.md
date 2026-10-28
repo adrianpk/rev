@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-22-clock-reports`
-PR: pending
+PR: `#123`
 
 ## Purpose
 
@@ -99,7 +99,7 @@ T22.2 commit: `3ca4d3d4461a`. Development checks passed:
 - `python3 scripts/check-config-reference.py`: 120 catalog/schema entries,
   46 RGB roles, 174 bindings and 14994 packaged template bytes agree.
 
-T22.3 development checks passed:
+T22.3 commit: `e270b1e2859e2d02a039d30ff7e8c17f7ce365f1`. Development checks passed:
 
 - `cargo test --test org_agenda`: ten native report/provenance/publication cases,
   zero skips; approximately 0.21 seconds warm. Cases include exact 4096/4097
@@ -123,7 +123,8 @@ an unavailable whole-buffer chord and replacement-on-paste. Its driver now uses
 ordinary beginning/mark/end/kill/paste commands and undoes both setup edits.
 Exact source/history assertions, deadlines and resource limits remain unchanged.
 
-Final controller receipts will bind required and focused checks to the clean
+[Canonical PR #123](https://forge.adrianpk.com/adrianpk/rev/pulls/123) targets dev.
+Final controller receipts bind required and focused checks to the clean
 PR-reference head. Required checks run in this order:
 
 - `cargo fmt --all -- --check`

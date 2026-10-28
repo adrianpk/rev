@@ -540,7 +540,12 @@ T22.1: `4d45e7957e9c`; T22.2: `3ca4d3d4461a`. Native comparisons, explicit
 clocktable publication and shared-job contracts pass focused checks. T22.3
 adds ten org_agenda cases, exact source/record/output bounds, checked shared-view
 history and eight owned task/restart PTYs. Final exact-head validation and
-canonical PR reference remain pending; verified integration remains open.
+canonical PR reference follow below; verified integration remains open.
+
+T22.3: `e270b1e2859e2d02a039d30ff7e8c17f7ce365f1`. [Canonical PR #123](https://forge.adrianpk.com/adrianpk/rev/pulls/123)
+and the [Slice 22 report](../report/slices/rev-org-mode/slice-22-clock-reports.md)
+are reviewing. Controller receipts bind final required and focused checks to the
+clean PR-reference head; verified dev integration remains pending.
 
 ### Slice 23: deliver native Org relative and countdown timers
 
