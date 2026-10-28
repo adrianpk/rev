@@ -24,30 +24,18 @@ fn clipped_source() {
     let (buffers, id) = prepared("* 界e\u{301}\ttext");
     let buffer = buffers.get(id).unwrap();
     for (name, left, width, expected, paints) in [
-        ("whole", 0, 5, "* 界e\u{301}", vec![0..5]),
-        ("wide edge", 3, 4, " e\u{301}  ", vec![1..2]),
-        ("tab", 6, 4, "  te", vec![2..4]),
+        ("whole", 0, 5, "* 界e\u{301}", 0..5),
+        ("wide edge", 3, 4, " e\u{301}  ", 1..2),
+        ("tab", 6, 4, "  te", 2..4),
     ] {
         let mut view = View::new(buffer);
         view.left = left;
         let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
         assert_eq!(frame.rows()[0].text(), expected, "{name}");
-        assert_eq!(
-            frame.rows()[0]
-                .syntax()
-                .iter()
-                .map(|p| p.columns.clone())
-                .collect::<Vec<_>>(),
-            paints,
-            "{name}"
-        );
-        assert!(
-            frame.rows()[0]
-                .syntax()
-                .iter()
-                .all(|p| p.style == Style::Org(Role::Heading)),
-            "{name}"
-        );
+        let syntax = frame.rows()[0].syntax();
+        assert_eq!(syntax.len(), 1, "{name}");
+        assert_eq!(syntax[0].columns, paints, "{name}");
+        assert_eq!(syntax[0].style, Style::Org(Role::Heading), "{name}");
     }
 }
 

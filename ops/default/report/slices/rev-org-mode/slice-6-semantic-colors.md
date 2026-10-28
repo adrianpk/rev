@@ -89,6 +89,9 @@ Implementation checks passed:
   roles, 115 default bindings and compiled-template/link checks passed.
 
 Focused source-quality checks passed for changed native owners and fixtures.
+The first controller batch stopped at Clippy's single-range-vector fixture lint.
+The fixture now asserts one paint and its exact range directly; expected spans,
+runtime behavior and the required command list are unchanged.
 After the PR-reference follow-up, the controller records the final clean pushed
 candidate and outcomes for this exact ordered batch in its validation ledger:
 
