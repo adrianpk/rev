@@ -133,7 +133,7 @@ Contracts: ORG02 ORG15 ORG16 ORG30.
 Details and exact checks: [Slice 3](../plan/rev-org-mode.md#slice-3-recognize-inline-org-source-forms).
 
 - [x] T3.1: Recognize emphasis, code, entities, links, targets and footnotes with exact source spans.
-- [ ] T3.2: Keep escaping, malformed delimiters and literal/code contexts distinct from structural markup.
+- [x] T3.2: Keep escaping, malformed delimiters and literal/code contexts distinct from structural markup.
 - [ ] T3.3: Verify Unicode boundaries, nested forms and recovery without normalizing unknown source.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

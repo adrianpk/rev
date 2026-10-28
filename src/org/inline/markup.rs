@@ -38,6 +38,13 @@ fn opens(read: &mut Read<'_>, start: usize) -> Result<bool, Stop> {
 
 fn search(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
     let marker = read.byte(start)?.expect("admitted markup marker");
+    let slot = b"*/_+=~"
+        .iter()
+        .position(|byte| *byte == marker)
+        .expect("known markup marker");
+    if read.failed[slot] {
+        return Ok(None);
+    }
     let mut position = start + 2;
     let mut lines = 0;
     while let Some(byte) = read.byte(position)? {
@@ -56,6 +63,7 @@ fn search(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
         }
         position += 1;
     }
+    read.failed[slot] = true;
     Ok(None)
 }
 

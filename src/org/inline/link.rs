@@ -17,7 +17,7 @@ pub(super) fn scheme(read: &mut Read<'_>, range: std::ops::Range<usize>) -> Resu
         "file",
         "elisp",
     ] {
-        if read.equals(range.clone(), name)? {
+        if read.equals_ascii_case(range.clone(), name)? {
             return Ok(true);
         }
     }
@@ -29,6 +29,9 @@ pub(super) fn angle(
     start: usize,
     context: InlineContext,
 ) -> Result<Option<Raw>, Stop> {
+    if read.failed[7] {
+        return Ok(None);
+    }
     if read.starts(start, b"<<")? {
         return target(read, start, context);
     }
@@ -36,6 +39,7 @@ pub(super) fn angle(
         return Ok(None);
     }
     let Some(end) = read.find(start + 1, b'>')? else {
+        read.failed[7] = true;
         return Ok(None);
     };
     let Some(colon) = colon(read, start + 1, end)? else {
@@ -62,6 +66,7 @@ fn target(read: &mut Read<'_>, start: usize, context: InlineContext) -> Result<O
 fn target_body(read: &mut Read<'_>, start: usize, radio: bool) -> Result<Option<Raw>, Stop> {
     let width = if radio { 3 } else { 2 };
     let Some(end) = read.find(start + width, b'>')? else {
+        read.failed[7] = true;
         return Ok(None);
     };
     if !valid_target(read, start + width, end)? {
@@ -161,7 +166,7 @@ fn path(read: &mut Read<'_>, start: usize) -> Result<usize, Stop> {
             break;
         }
         position += 1;
-        if !byte.is_ascii_punctuation() || byte == b'/' || byte == b')' {
+        if depth == 0 && (!byte.is_ascii_punctuation() || byte == b'/' || byte == b')') {
             end = position;
         }
     }

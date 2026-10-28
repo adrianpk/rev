@@ -1,4 +1,5 @@
 mod bracket;
+mod engine;
 mod entity;
 mod link;
 mod markup;
@@ -154,8 +155,14 @@ impl InlineScan {
         };
         let cap = self.range.start + (self.range.end - self.range.start).min(self.limits.bytes);
         let end = self.text.char_to_byte(self.text.byte_to_char(cap));
-        let mut read = Read::new(&self.text, self.range.start..end, cancellation);
-        if let Err(Stop(coverage)) = self.scan(&mut read, &mut result) {
+        let mut read = Read::new(
+            &self.text,
+            self.range.start..end,
+            cancellation,
+            self.limits.depth,
+        );
+        if let Err(Stop(coverage)) = engine::scan(&mut read, &mut result, self.context, self.limits)
+        {
             result.coverage = coverage;
         }
         if result.coverage == Coverage::Complete && end < self.range.end {
@@ -170,26 +177,6 @@ impl InlineScan {
             result.nodes.truncate(retained);
         }
         result
-    }
-
-    fn scan(&self, read: &mut Read<'_>, result: &mut InlineObservation) -> Result<(), Stop> {
-        let mut position = read.start;
-        if self.context == InlineContext::Literal {
-            return read.tick();
-        }
-        while position < read.end {
-            match candidate(read, position, self.context)? {
-                Some(node) => {
-                    if result.nodes.len() == self.limits.nodes {
-                        return Err(Stop(Coverage::Incomplete(Limit::SourceNodes)));
-                    }
-                    position = node.source.end;
-                    result.nodes.push(node);
-                }
-                None => position += 1,
-            }
-        }
-        Ok(())
     }
 }
 

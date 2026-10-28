@@ -12,7 +12,7 @@ pub(super) fn recognize(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>
 }
 
 fn link(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
-    let Some(close) = read.find(start + 2, b']')? else {
+    let Some(close) = path_end(read, start + 2)? else {
         return Ok(None);
     };
     if close == start + 2 {
@@ -29,15 +29,41 @@ fn link(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
     if read.byte(close + 1)? != Some(b'[') {
         return Ok(None);
     }
-    let Some(end) = balanced(read, close + 1)? else {
+    let Some(end) = description_end(read, close + 2)? else {
         return Ok(None);
     };
-    if read.byte(end + 1)? != Some(b']') {
+    if end == close + 2 {
         return Ok(None);
     }
     node.source.end = end + 2;
     node.detail = Some(close + 2..end);
     Ok(Some(node))
+}
+
+fn path_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<usize>, Stop> {
+    while let Some(byte) = read.byte(position)? {
+        match byte {
+            b'\\' => position += 2,
+            b'[' => return Ok(None),
+            b']' => return Ok(Some(position)),
+            _ => position += 1,
+        }
+    }
+    Ok(None)
+}
+
+fn description_end(read: &mut Read<'_>, mut position: usize) -> Result<Option<usize>, Stop> {
+    if read.failed[6] {
+        return Ok(None);
+    }
+    while let Some(byte) = read.byte(position)? {
+        if byte == b']' && read.byte(position + 1)? == Some(b']') {
+            return Ok(Some(position));
+        }
+        position += 1;
+    }
+    read.failed[6] = true;
+    Ok(None)
 }
 
 fn footnote(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
@@ -81,6 +107,11 @@ fn balanced(read: &mut Read<'_>, start: usize) -> Result<Option<usize>, Stop> {
     while let Some(byte) = read.byte(position)? {
         if byte == b'[' {
             depth += 1;
+        }
+        if read.depth + depth > read.max_depth {
+            return Err(Stop(crate::org::Coverage::Incomplete(
+                crate::org::Limit::SourceDepth,
+            )));
         }
         if byte == b']' {
             depth -= 1;

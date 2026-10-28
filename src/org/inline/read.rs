@@ -12,16 +12,27 @@ pub(super) struct Read<'a> {
     yielded: Instant,
     pub start: usize,
     pub end: usize,
+    pub depth: usize,
+    pub max_depth: usize,
+    pub failed: [bool; 8],
 }
 
 impl<'a> Read<'a> {
-    pub fn new(text: &'a Rope, range: Range<usize>, cancellation: &'a Cancellation) -> Self {
+    pub fn new(
+        text: &'a Rope,
+        range: Range<usize>,
+        cancellation: &'a Cancellation,
+        max_depth: usize,
+    ) -> Self {
         Self {
             text,
             cancellation,
             yielded: Instant::now(),
             start: range.start,
             end: range.end,
+            depth: 0,
+            max_depth,
+            failed: [false; 8],
         }
     }
 
@@ -66,12 +77,20 @@ impl<'a> Read<'a> {
         Ok(self.text.get_char(self.text.byte_to_char(position) - 1))
     }
 
-    pub fn equals(&mut self, range: Range<usize>, word: &str) -> Result<bool, Stop> {
+    pub fn equals_ascii_case(&mut self, range: Range<usize>, word: &str) -> Result<bool, Stop> {
         self.tick()?;
         if range.len() != word.len() {
             return Ok(false);
         }
-        self.starts(range.start, word.as_bytes())
+        for (offset, expected) in word.bytes().enumerate() {
+            if self
+                .byte(range.start + offset)?
+                .is_none_or(|byte| !byte.eq_ignore_ascii_case(&expected))
+            {
+                return Ok(false);
+            }
+        }
+        Ok(true)
     }
 
     pub fn find(&mut self, mut position: usize, byte: u8) -> Result<Option<usize>, Stop> {
