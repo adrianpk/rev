@@ -1,6 +1,6 @@
 # Slice 11: Edit Org lists and progress cookies
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -118,8 +118,10 @@ tail access fixes it while retaining exact source and full undo/redo assertions.
 The older precise-context regression now retains explicit heading-insertion
 rejections and additionally checks exact list M-RET continuation and undo.
 All non-list context rejection assertions remain intact.
-After the canonical PR-reference follow-up is pushed, the controller records
-these required commands against the clean HEAD, in order:
+Canonical PR [#112](https://forge.adrianpk.com/adrianpk/rev/pulls/112)
+merged into `dev` at `88b53cf3c8a8d78987f8b51534ca476ac830f5fe`.
+The controller recorded required receipt `MCMTZD7MYMKYYP6FW5HPHHENXA`
+at that exact clean HEAD, with all five commands successful and 324 Rust tests:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -127,11 +129,14 @@ these required commands against the clean HEAD, in order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-A separate focused controller batch records `cargo test --test configuration
---test windows`, `python3 scripts/check-config-reference.py`, the owned terminal
-command above and `git diff --check` at the same HEAD. Window regressions cover
-the shared source-anchor mapping changed by counter-aware reordering. Receipt IDs
-and final outcomes are retained in controller evidence and Acta.
+Focused receipt `5N6KVB7GJ5RCPK7UWY4YRTPFNM` at the same HEAD passed:
+
+- `cargo test --test configuration --test windows`: 137 tests.
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions, zero skipped, original outline and added list
+  assertions retained, exact source bytes and cleanup checked.
+- `git diff --check`
 
 ## Risks and Follow-ups
 

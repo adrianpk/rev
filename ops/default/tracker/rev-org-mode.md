@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 11 lists-checkboxes
+Active slice: Slice 12 drawers-properties
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -280,15 +280,18 @@ Details and exact checks: [Slice 11](../plan/rev-org-mode.md#slice-11-edit-org-l
 - [x] T11.1: Continue, indent, outdent, reorder and renumber ordered/unordered/description lists contextually.
 - [x] T11.2: Implement ordinary/radio checkboxes and coherent list/task progress cookies through checked edits.
 - [x] T11.3: Verify nested lists, timer-item contexts, literal blocks and one-operation undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 PR: [#112](https://forge.adrianpk.com/adrianpk/rev/pulls/112).
 Report: [Slice 11](../report/slices/rev-org-mode/slice-11-lists-checkboxes.md).
 Task commits: T11.1 `548ff5a88f7b6e74c56cf0e8390291c3df30bee6`,
 T11.2 `5a9ad119c441d3e473b56536a009f5a014300461`,
 T11.3 `97150fd852bdc708e4c7adc137824f7a037dcbee`.
-Required and focused exact-head receipts are recorded by the controller after
-this PR-reference follow-up is pushed; integration remains pending.
+Required receipt `MCMTZD7MYMKYYP6FW5HPHHENXA` passed all five commands and
+324 Rust tests. Focused receipt `5N6KVB7GJ5RCPK7UWY4YRTPFNM` passed 137 tests,
+configuration references and two owned terminal sessions with zero skipped.
+Canonical PR #112 merged at `88b53cf3c8a8d78987f8b51534ca476ac830f5fe`;
+local and canonical `dev` match that validated candidate.
 
 ### Slice 12: edit Org drawers and inherited properties
 
