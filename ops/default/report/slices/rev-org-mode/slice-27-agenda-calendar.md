@@ -1,6 +1,6 @@
 # Slice 27: display native day and week Org agendas
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -131,3 +131,9 @@ Final controller evidence binds the clean canonical PR head. Required order:
 The delivery-set full gate has not run.
 
 [Canonical PR #128](https://forge.adrianpk.com/adrianpk/rev/pulls/128) targets dev.
+
+Verified integration: PR #128 merged into dev at
+`2af9d3bd9c8e79b69a6cf97a440902e3b18aebc9`. Required controller receipt
+`32KTKDZP5RE2OA5E7RC2N4NIKE` passed five ordered checks and 112 tests.
+Focused receipt `P2RIIU7SARFXIGDQWNFMJOMQP6` passed 622 tests and the complete
+configuration reference. Both batches had zero failures or ignored tests.

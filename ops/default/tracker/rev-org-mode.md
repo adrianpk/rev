@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 27 agenda-calendar
+Active slice: Slice 28 agenda-queries
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -678,7 +678,7 @@ Details and exact checks: [Slice 27](../plan/rev-org-mode.md#slice-27-display-na
 - [x] T27.1: Deliver read-only agenda rows, time grid, overdue/scheduled/deadline sections and day/week navigation.
 - [x] T27.2: Use revision-qualified source locators and the captured effective date/zone for every row.
 - [x] T27.3: Verify real refresh, source return, shared buffers and no agenda-as-document mutation.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T27.1 delivers bounded day/week facts, planning sections and time grids with
 captured date/zone context. Four focused model/configuration cases, focused
@@ -688,10 +688,11 @@ and fifteen existing source/agenda cases pass; focused Clippy, changed-source
 quality and the complete configuration reference agree. T27.3 verifies real
 refresh, captured clocks, checked source return, shared-pane ownership, endpoint
 and hourly-range times, zone ambiguity and retained cancellation incompleteness.
-Ten calendar-focused cases, focused Clippy and source quality pass. Canonical
-[PR #128](https://forge.adrianpk.com/adrianpk/rev/pulls/128) targets dev; the
-report is reviewing. Controller evidence will bind its final clean pushed head.
-Integration remains controller-owned.
+Canonical [PR #128](https://forge.adrianpk.com/adrianpk/rev/pulls/128) merged
+into dev at `2af9d3bd9c8e79b69a6cf97a440902e3b18aebc9`; report delivered.
+Required receipt `32KTKDZP5RE2OA5E7RC2N4NIKE` passed five ordered checks and
+112 tests. Focused receipt `P2RIIU7SARFXIGDQWNFMJOMQP6` passed 622 tests and
+the configuration reference; zero failures or ignored tests.
 
 ### Slice 28: query Org tasks tags and properties
 
