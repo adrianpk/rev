@@ -25,6 +25,11 @@ old styles immediately; publication rejects foreign or obsolete revisions.
 Cancellation, hidden buffers and mode/policy changes retire owned work. Plain
 source remains readable while observation is pending or unavailable.
 
+Seventeen independent `palette.org` RGB leaves use the ordinary typed validation,
+leaf merge, provenance and immutable frame palette. Factory defaults, the
+compiled template, complete sample and catalog cover all 46 active RGB roles.
+Every activated Org role has a real capture and a renderer-visible override test.
+
 ## Implementation Notes
 
 COW rope snapshots leave analysis outside atomic editing and rendering. Retained
@@ -47,6 +52,10 @@ selection/search precedence. Org source never enters the Rust grammar owner.
 - `src/buffer/org.rs`: exact-revision admission and cache ownership.
 - `src/session/org.rs`: shared temporary worker and native event deadlines.
 - `src/display/syntax.rs`: existing source/cell projection extended for Org.
+- `src/config/palette.rs`, `project.rs`, `merge.rs`, `validate.rs`: typed leaves.
+- `docs/reference/config.toml`, `defaults.md`, `syntax.md`: complete references.
+- `tests/configuration/org_palette.rs`, `tests/syntax/org_palette.rs`: default,
+  inheritance, provenance, admission and actual rendered-cell coverage.
 - `tests/org_source/color.rs`: ownership, stale results, suffix recovery and limits.
 
 ## Validation
@@ -56,12 +65,15 @@ Implementation checks passed:
 - `cargo check --lib`
 - `cargo test --test org_source color::`: four passed.
 - `cargo test --test org_editing`: eight passed.
+- `cargo test --test configuration org_palette::`: two passed.
+- `cargo test --test syntax org_palette::`: one test covers all 17 roles.
+- `python3 scripts/check-config-reference.py`: 95 schema/catalog entries, 46 RGB
+  roles, 115 default bindings and compiled-template/link checks passed.
 
 Required ordered exact-head controller validation will be recorded after the
 palette and combined session tasks and PR-reference follow-up are committed.
 
 ## Risks and Follow-ups
 
-Palette configuration and combined rendering/session verification remain in the
-recorded T6.2 and T6.3 tasks. Task-state and timestamp-specific roles activate
+Combined rendering/session verification remains in recorded T6.3. Task-state and timestamp-specific roles activate
 with their later semantic owners; planning lines currently use one role.

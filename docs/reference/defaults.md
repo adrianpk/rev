@@ -26,7 +26,7 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 29 active RGB roles and all three default binding maps. Its
+global default, all 46 active RGB roles and all three default binding maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -263,6 +263,24 @@ All palette roles are global, with no language-scoped color override.
 | `palette.syntax.function` | RGB string | `"#7aa2f7"` | Function/method/macro captures. |
 | `palette.syntax.number` | RGB string | `"#ff9e64"` | Constant, boolean and numeric captures. |
 | `palette.syntax.punctuation` | RGB string | `"#89ddff"` | Grammar-provided punctuation/operator captures. |
+
+| `palette.org.heading` | RGB string | `"#7aa2f7"` | Heading lines. |
+| `palette.org.keyword` | RGB string | `"#9d7cd8"` | Keywords and affiliated metadata. |
+| `palette.org.drawer` | RGB string | `"#2ac3de"` | Drawer boundaries. |
+| `palette.org.property` | RGB string | `"#2ac3de"` | Property entries. |
+| `palette.org.planning` | RGB string | `"#ff9e64"` | Recognized planning lines. |
+| `palette.org.block` | RGB string | `"#9d7cd8"` | Block boundaries. |
+| `palette.org.code` | RGB string | `"#9ece6a"` | Literal source, examples, export and fixed-width text. |
+| `palette.org.comment` | RGB string | `"#565f89"` | Comments and comment-block bodies. |
+| `palette.org.list` | RGB string | `"#89ddff"` | List item markers. |
+| `palette.org.table` | RGB string | `"#89ddff"` | Native table rows. |
+| `palette.org.formula` | RGB string | `"#ff9e64"` | Table formula directives; never evaluated by coloring. |
+| `palette.org.emphasis` | RGB string | `"#9d7cd8"` | Inline emphasis and its delimiters. |
+| `palette.org.link` | RGB string | `"#7aa2f7"` | Link source. |
+| `palette.org.target` | RGB string | `"#2ac3de"` | Ordinary and radio targets. |
+| `palette.org.footnote` | RGB string | `"#ff9e64"` | Footnote objects. |
+| `palette.org.entity` | RGB string | `"#2ac3de"` | Recognized entity source. |
+| `palette.org.malformed` | RGB string | `"#e0af68"` | Malformed structural delimiters. |
 
 Selection takes precedence over search, which takes precedence over syntax;
 row boundaries reset colors/attributes. Unknown syntax groups inherit document

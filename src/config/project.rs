@@ -1,9 +1,9 @@
 use super::{
     Document, Editor, Files, GutterPalette, History, KillRing, Language, Minibuffer, Mouse,
-    Palette, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette, PartialHistory,
-    PartialKillRing, PartialMinibuffer, PartialMouse, PartialPalette, PartialScroll, PartialSyntax,
-    PartialSyntaxPalette, PartialTree, PartialWindows, Rgb, Scroll, Settings, Syntax,
-    SyntaxPalette, Tree, Windows,
+    OrgPalette, Palette, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette,
+    PartialHistory, PartialKillRing, PartialMinibuffer, PartialMouse, PartialOrgPalette,
+    PartialPalette, PartialScroll, PartialSyntax, PartialSyntaxPalette, PartialTree,
+    PartialWindows, Rgb, Scroll, Settings, Syntax, SyntaxPalette, Tree, Windows,
 };
 
 // Projection runs only after validating every partial and the complete candidate.
@@ -126,6 +126,7 @@ fn palette(base: &mut Palette, partial: &PartialPalette) {
     color(&mut base.message, &partial.message);
     color(&mut base.warning, &partial.warning);
     color(&mut base.error, &partial.error);
+    org_palette(&mut base.org, &partial.org);
     syntax_palette(&mut base.syntax, &partial.syntax);
     gutter_palette(&mut base.gutter, &partial.gutter);
 }
@@ -170,4 +171,24 @@ fn gutter_palette(base: &mut GutterPalette, partial: &PartialGutterPalette) {
 fn mouse(base: &mut Mouse, partial: &PartialMouse) {
     scalar(&mut base.enabled, partial.enabled);
     count(&mut base.scroll_lines, partial.scroll_lines);
+}
+
+fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {
+    color(&mut base.heading, &partial.heading);
+    color(&mut base.keyword, &partial.keyword);
+    color(&mut base.drawer, &partial.drawer);
+    color(&mut base.property, &partial.property);
+    color(&mut base.planning, &partial.planning);
+    color(&mut base.block, &partial.block);
+    color(&mut base.code, &partial.code);
+    color(&mut base.comment, &partial.comment);
+    color(&mut base.list, &partial.list);
+    color(&mut base.table, &partial.table);
+    color(&mut base.formula, &partial.formula);
+    color(&mut base.emphasis, &partial.emphasis);
+    color(&mut base.link, &partial.link);
+    color(&mut base.target, &partial.target);
+    color(&mut base.footnote, &partial.footnote);
+    color(&mut base.entity, &partial.entity);
+    color(&mut base.malformed, &partial.malformed);
 }

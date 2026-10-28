@@ -1,7 +1,7 @@
 use std::ops::Range;
 
 use crate::buffer::Buffer;
-use crate::config::{Rgb, SyntaxPalette};
+use crate::config::{Palette, Rgb};
 use crate::coordinates::{Coordinates, Glyph};
 use crate::syntax::{Capture, Style};
 use crate::view::View;
@@ -101,16 +101,16 @@ fn append(result: &mut Vec<Paint>, paint: Paint) {
 
 // Capture classification stays syntax-owned; terminal colors resolve only at
 // presentation against the one frame palette, including grouped captures.
-pub(super) fn foreground(style: Style, palette: &SyntaxPalette) -> Rgb {
+pub(super) fn foreground(style: Style, palette: &Palette) -> Rgb {
     match style {
-        Style::Org(role) => foreground(role.fallback(), palette),
-        Style::Keyword => palette.keyword,
-        Style::String => palette.string,
-        Style::Comment => palette.comment,
-        Style::Type => palette.r#type,
-        Style::Function => palette.function,
-        Style::Number => palette.number,
-        Style::Punctuation => palette.punctuation,
+        Style::Org(role) => role.color(&palette.org),
+        Style::Keyword => palette.syntax.keyword,
+        Style::String => palette.syntax.string,
+        Style::Comment => palette.syntax.comment,
+        Style::Type => palette.syntax.r#type,
+        Style::Function => palette.syntax.function,
+        Style::Number => palette.syntax.number,
+        Style::Punctuation => palette.syntax.punctuation,
     }
 }
 

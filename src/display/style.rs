@@ -137,7 +137,7 @@ impl Row {
         }
         let mut colors = tone.colors(palette);
         if let Some(style) = self.style(column) {
-            colors.foreground = super::syntax::foreground(style, &palette.syntax);
+            colors.foreground = super::syntax::foreground(style, palette);
         }
         colors
     }

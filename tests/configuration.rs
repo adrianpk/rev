@@ -157,3 +157,6 @@ type = "#2ac3de"
 
 #[path = "configuration/org_keymaps.rs"]
 mod org_keymaps;
+
+#[path = "configuration/org_palette.rs"]
+mod org_palette;

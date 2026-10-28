@@ -3,7 +3,10 @@ use std::ops::RangeInclusive;
 
 use crate::input::keymap;
 
-use super::{Document, Keymaps, PartialGutterPalette, PartialPalette, PartialSyntaxPalette, Rgb};
+use super::{
+    Document, Keymaps, PartialGutterPalette, PartialOrgPalette, PartialPalette,
+    PartialSyntaxPalette, Rgb,
+};
 
 pub(super) enum Target {
     Key,
@@ -150,6 +153,7 @@ fn palette(palette: &PartialPalette) -> Result<(), Failure> {
     for (key, value) in colors {
         color(&format!("palette.{key}"), value.as_deref())?;
     }
+    org_palette(&palette.org)?;
     gutter_palette(&palette.gutter)?;
     syntax_palette(&palette.syntax)
 }
@@ -273,6 +277,32 @@ fn gutter_palette(palette: &PartialGutterPalette) -> Result<(), Failure> {
         ("separator", &palette.separator),
     ] {
         color(&format!("palette.gutter.{key}"), value.as_deref())?;
+    }
+    Ok(())
+}
+
+fn org_palette(palette: &PartialOrgPalette) -> Result<(), Failure> {
+    let colors = [
+        ("heading", &palette.heading),
+        ("keyword", &palette.keyword),
+        ("drawer", &palette.drawer),
+        ("property", &palette.property),
+        ("planning", &palette.planning),
+        ("block", &palette.block),
+        ("code", &palette.code),
+        ("comment", &palette.comment),
+        ("list", &palette.list),
+        ("table", &palette.table),
+        ("formula", &palette.formula),
+        ("emphasis", &palette.emphasis),
+        ("link", &palette.link),
+        ("target", &palette.target),
+        ("footnote", &palette.footnote),
+        ("entity", &palette.entity),
+        ("malformed", &palette.malformed),
+    ];
+    for (key, value) in colors {
+        color(&format!("palette.org.{key}"), value.as_deref())?;
     }
     Ok(())
 }

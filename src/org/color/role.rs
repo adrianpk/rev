@@ -1,4 +1,4 @@
-use crate::syntax::Style;
+use crate::config::{OrgPalette, Rgb};
 
 /// Only semantic groups backed by currently recognized source forms belong here.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -44,25 +44,27 @@ impl Role {
         Self::Malformed,
     ];
 
-    pub(crate) fn fallback(self) -> Style {
+    /// Resolve against the frame's admitted palette; source roles never carry
+    /// RGB channels or read configuration files during observation.
+    pub fn color(self, palette: &OrgPalette) -> Rgb {
         [
-            Style::Function,
-            Style::Keyword,
-            Style::Type,
-            Style::Type,
-            Style::Number,
-            Style::Keyword,
-            Style::String,
-            Style::Comment,
-            Style::Punctuation,
-            Style::Punctuation,
-            Style::Number,
-            Style::Keyword,
-            Style::Function,
-            Style::Type,
-            Style::Number,
-            Style::Type,
-            Style::Comment,
+            palette.heading,
+            palette.keyword,
+            palette.drawer,
+            palette.property,
+            palette.planning,
+            palette.block,
+            palette.code,
+            palette.comment,
+            palette.list,
+            palette.table,
+            palette.formula,
+            palette.emphasis,
+            palette.link,
+            palette.target,
+            palette.footnote,
+            palette.entity,
+            palette.malformed,
         ][self as usize]
     }
 }

@@ -95,3 +95,46 @@ Queries cover the visible source interval of each document row. Each request
 allows at most 4096 in-progress matches and 65536 returned styles; exceeding a
 bound discards that request's styles. Drawing and capture generation never
 change document bytes, dirty/save state, point, mark or undo history.
+
+## Native Org source
+
+Admitted `.org` files and `M-x org-mode` use the native Org source recognizers,
+independent of Rust grammars and external language services. `text-mode` drops
+Org styles. `syntax.enabled` and the UTF-8 byte cutoff also apply to Org;
+`org.enabled` controls mode availability. The status remains `Org` while source
+observation is pending, incomplete or canceled, since mode and derived styling
+have separate ownership.
+
+`palette.org` supplies independent colors for headings, keywords, drawer
+boundaries, properties, planning lines, block boundaries, literal code, comments,
+list markers, table rows, formula directives, emphasis, links, targets, footnotes,
+entities and malformed structural delimiters. The [complete sample](config.toml)
+and [default catalog](defaults.md#palette-roles) list every active leaf and RGB default.
+Nested inline captures take precedence over their enclosing heading/table style.
+Code/verbatim inline objects and source, example, export and comment blocks keep
+literal context. Their text never becomes an outer heading or inline object.
+Coloring does not evaluate formulas, expand entities or hide source delimiters.
+
+One temporary session-owned worker observes visible Org buffers from shared rope
+snapshots. Split views reuse their buffer's result. Editing remains available
+while work is pending; old styles disappear immediately on revision change.
+Results must match the canonical buffer/revision before publication. C-g cancels
+owned work, and hiding its buffer or disabling its mode/policy retires it. Native
+input polls at 10ms only while a job is owned; idle sessions have no Org deadline.
+The canceled revision is not retried on each redraw; a new edit can recover.
+
+The default observation profile admits 8 MiB, 200,000 source nodes/captures and
+256 structural levels. It reports incomplete coverage when a bound stops work;
+unsupported or unobserved source stays readable. Index suffixes retain their
+unaffected prefix after edits. Structural/inline ownership is re-observed from
+the full admitted snapshot so delimiter edits cannot inherit obsolete context.
+This does not promise suffix-only semantic work. Native cancellation is checked
+between bounded parser steps and around finite capture sorting; no permanent
+parser thread or file scan runs while idle. Library users can explicitly prepare
+and install a `ColorScan` result before standalone `Frame::project`.
+
+Colors use the same grapheme/tab/wide-cell projection, selection/search precedence
+and NO_COLOR fallback as Rust. NO_COLOR keeps original source and delimiters,
+selection reverse video and search underlining without RGB output. Task-state,
+tag and timestamp-specific semantic roles arrive with those semantic owners;
+heading and planning source currently retain their enclosing roles.

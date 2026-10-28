@@ -41,6 +41,7 @@ pub struct Palette {
     pub warning: Rgb,
     pub error: Rgb,
     pub syntax: SyntaxPalette,
+    pub org: OrgPalette,
     /// Number-field roles from the same immutable startup palette.
     pub gutter: GutterPalette,
 }
@@ -67,6 +68,7 @@ impl Default for Palette {
             warning: Rgb(0xe0, 0xaf, 0x68),
             error: Rgb(0xdb, 0x4b, 0x4b),
             syntax: SyntaxPalette::default(),
+            org: OrgPalette::default(),
             gutter: GutterPalette::default(),
         }
     }
@@ -115,6 +117,7 @@ pub struct PartialPalette {
     pub warning: Option<String>,
     pub error: Option<String>,
     pub syntax: PartialSyntaxPalette,
+    pub org: PartialOrgPalette,
     pub gutter: PartialGutterPalette,
 }
 
@@ -165,4 +168,73 @@ pub struct PartialGutterPalette {
     pub foreground: Option<String>,
     pub current_line: Option<String>,
     pub separator: Option<String>,
+}
+
+/// Active native Org source roles, independent of Rust capture groups.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OrgPalette {
+    pub heading: Rgb,
+    pub keyword: Rgb,
+    pub drawer: Rgb,
+    pub property: Rgb,
+    pub planning: Rgb,
+    pub block: Rgb,
+    pub code: Rgb,
+    pub comment: Rgb,
+    pub list: Rgb,
+    pub table: Rgb,
+    pub formula: Rgb,
+    pub emphasis: Rgb,
+    pub link: Rgb,
+    pub target: Rgb,
+    pub footnote: Rgb,
+    pub entity: Rgb,
+    pub malformed: Rgb,
+}
+
+impl Default for OrgPalette {
+    fn default() -> Self {
+        Self {
+            heading: Rgb(0x7a, 0xa2, 0xf7),
+            keyword: Rgb(0x9d, 0x7c, 0xd8),
+            drawer: Rgb(0x2a, 0xc3, 0xde),
+            property: Rgb(0x2a, 0xc3, 0xde),
+            planning: Rgb(0xff, 0x9e, 0x64),
+            block: Rgb(0x9d, 0x7c, 0xd8),
+            code: Rgb(0x9e, 0xce, 0x6a),
+            comment: Rgb(0x56, 0x5f, 0x89),
+            list: Rgb(0x89, 0xdd, 0xff),
+            table: Rgb(0x89, 0xdd, 0xff),
+            formula: Rgb(0xff, 0x9e, 0x64),
+            emphasis: Rgb(0x9d, 0x7c, 0xd8),
+            link: Rgb(0x7a, 0xa2, 0xf7),
+            target: Rgb(0x2a, 0xc3, 0xde),
+            footnote: Rgb(0xff, 0x9e, 0x64),
+            entity: Rgb(0x2a, 0xc3, 0xde),
+            malformed: Rgb(0xe0, 0xaf, 0x68),
+        }
+    }
+}
+
+/// Optional RGB leaves follow ordinary validation, merge and provenance rules.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialOrgPalette {
+    pub heading: Option<String>,
+    pub keyword: Option<String>,
+    pub drawer: Option<String>,
+    pub property: Option<String>,
+    pub planning: Option<String>,
+    pub block: Option<String>,
+    pub code: Option<String>,
+    pub comment: Option<String>,
+    pub list: Option<String>,
+    pub table: Option<String>,
+    pub formula: Option<String>,
+    pub emphasis: Option<String>,
+    pub link: Option<String>,
+    pub target: Option<String>,
+    pub footnote: Option<String>,
+    pub entity: Option<String>,
+    pub malformed: Option<String>,
 }

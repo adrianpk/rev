@@ -2,8 +2,9 @@ use std::collections::BTreeMap;
 
 use super::{
     Document, Keymaps, Language, PartialEditor, PartialFiles, PartialGutter, PartialGutterPalette,
-    PartialHistory, PartialKillRing, PartialMinibuffer, PartialMouse, PartialPalette,
-    PartialScroll, PartialSyntax, PartialSyntaxPalette, PartialTree, PartialWindows,
+    PartialHistory, PartialKillRing, PartialMinibuffer, PartialMouse, PartialOrgPalette,
+    PartialPalette, PartialScroll, PartialSyntax, PartialSyntaxPalette, PartialTree,
+    PartialWindows,
 };
 
 #[derive(Default)]
@@ -253,6 +254,7 @@ impl Merge {
         self.leaf(&["palette", "message"], &mut base.message, &later.message);
         self.leaf(&["palette", "warning"], &mut base.warning, &later.warning);
         self.leaf(&["palette", "error"], &mut base.error, &later.error);
+        self.org_palette(&mut base.org, &later.org);
         self.syntax_palette(&mut base.syntax, &later.syntax);
         self.gutter_palette(&mut base.gutter, &later.gutter);
     }
@@ -408,5 +410,75 @@ impl Merge {
                 .is_some_and(|key| replaced.contains(&key))
         });
         self.table(prefix, base, later);
+    }
+}
+
+impl Merge {
+    fn org_palette(&mut self, base: &mut PartialOrgPalette, later: &PartialOrgPalette) {
+        self.leaf(
+            &["palette", "org", "heading"],
+            &mut base.heading,
+            &later.heading,
+        );
+        self.leaf(
+            &["palette", "org", "keyword"],
+            &mut base.keyword,
+            &later.keyword,
+        );
+        self.leaf(
+            &["palette", "org", "drawer"],
+            &mut base.drawer,
+            &later.drawer,
+        );
+        self.leaf(
+            &["palette", "org", "property"],
+            &mut base.property,
+            &later.property,
+        );
+        self.leaf(
+            &["palette", "org", "planning"],
+            &mut base.planning,
+            &later.planning,
+        );
+        self.leaf(&["palette", "org", "block"], &mut base.block, &later.block);
+        self.leaf(&["palette", "org", "code"], &mut base.code, &later.code);
+        self.leaf(
+            &["palette", "org", "comment"],
+            &mut base.comment,
+            &later.comment,
+        );
+        self.leaf(&["palette", "org", "list"], &mut base.list, &later.list);
+        self.leaf(&["palette", "org", "table"], &mut base.table, &later.table);
+        self.leaf(
+            &["palette", "org", "formula"],
+            &mut base.formula,
+            &later.formula,
+        );
+        self.leaf(
+            &["palette", "org", "emphasis"],
+            &mut base.emphasis,
+            &later.emphasis,
+        );
+        self.leaf(&["palette", "org", "link"], &mut base.link, &later.link);
+        self.leaf(
+            &["palette", "org", "target"],
+            &mut base.target,
+            &later.target,
+        );
+        self.leaf(
+            &["palette", "org", "footnote"],
+            &mut base.footnote,
+            &later.footnote,
+        );
+        self.leaf(
+            &["palette", "org", "entity"],
+            &mut base.entity,
+            &later.entity,
+        );
+        self.leaf(
+            &["palette", "org", "malformed"],
+            &mut base.malformed,
+            &later.malformed,
+        );
     }
 }

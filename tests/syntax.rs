@@ -212,3 +212,6 @@ mod palette;
 
 #[path = "syntax/preferences.rs"]
 mod preferences;
+
+#[path = "syntax/org_palette.rs"]
+mod org_palette;

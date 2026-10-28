@@ -110,7 +110,7 @@ bom = false
 # Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
 # followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
 
-# Tokyo Night night defaults. All 29 roles are active six-digit #RRGGBB strings.
+# Tokyo Night night defaults. All 46 roles are active six-digit #RRGGBB strings.
 # Terminal true-color/cursor support and NO_COLOR determine visible capability.
 [palette]
 background = "#1a1b26"          # Document and ordinary prompt background.
@@ -140,6 +140,25 @@ type = "#2ac3de"                # Types and constructors.
 function = "#7aa2f7"            # Functions, methods and macros.
 number = "#ff9e64"              # Constants, booleans and numeric literals.
 punctuation = "#89ddff"         # Grammar-captured punctuation and operators.
+
+[palette.org]
+heading = "#7aa2f7" # Heading lines.
+keyword = "#9d7cd8" # Keywords and affiliated metadata.
+drawer = "#2ac3de" # Drawer boundaries.
+property = "#2ac3de" # Property entries.
+planning = "#ff9e64" # Recognized planning lines.
+block = "#9d7cd8" # Block boundaries.
+code = "#9ece6a" # Literal source, examples, export and fixed-width text.
+comment = "#565f89" # Comments and comment-block bodies.
+list = "#89ddff" # List item markers.
+table = "#89ddff" # Native table rows.
+formula = "#ff9e64" # Table formula directives; never evaluated by coloring.
+emphasis = "#9d7cd8" # Inline emphasis and its delimiters.
+link = "#7aa2f7" # Link source.
+target = "#2ac3de" # Ordinary and radio targets.
+footnote = "#ff9e64" # Footnote objects.
+entity = "#2ac3de" # Recognized entity source.
+malformed = "#e0af68" # Malformed structural delimiters.
 
 [palette.gutter]
 background = "#1a1b26"          # Number-field background.

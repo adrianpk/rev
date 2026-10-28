@@ -28,13 +28,14 @@ fn explicit_defaults() {
         palette,
         palette["syntax"].as_table().unwrap(),
         palette["gutter"].as_table().unwrap(),
+        palette["org"].as_table().unwrap(),
     ] {
         for color in table.values().filter_map(toml::Value::as_str) {
             assert!(rev::config::Rgb::parse(color).is_some());
             roles += 1;
         }
     }
-    assert_eq!(roles, 29);
+    assert_eq!(roles, 46);
     assert_eq!(raw["gutter"].as_table().unwrap().len(), 7);
     assert_eq!(raw["mouse"].as_table().unwrap().len(), 2);
     let document = parse(Path::new("packaged/config.toml"), text.as_bytes()).unwrap();
