@@ -14,3 +14,8 @@ pub(crate) use habits::HabitScan;
 pub use habits::{HabitAgenda, HabitRow};
 pub use habits::{HabitCell, HabitGraph, HabitObservation, HabitRecord, HabitState};
 pub(crate) use habits::{completion as habit_completion, inactive as habit_inactive};
+
+mod sources;
+pub use sources::{
+    AgendaSource, SourceIssue, SourceScan, SourceSelection, SourceSet, SourceVersion,
+};

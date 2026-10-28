@@ -397,6 +397,7 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
 
 fn time(document: &Document) -> Result<(), Failure> {
     habit(&document.org.habit)?;
+    agenda(&document.org)?;
     integer(
         "org.time.extend_today_until",
         document.org.time.extend_today_until,
@@ -436,5 +437,26 @@ fn habit(partial: &super::PartialHabit) -> Result<(), Failure> {
     integer("org.habit.preceding_days", partial.preceding_days, 0..=366)?;
     integer("org.habit.following_days", partial.following_days, 0..=366)?;
     integer("org.habit.graph_column", partial.graph_column, 0..=4096)?;
+    Ok(())
+}
+
+fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
+    let limits = &org.limits;
+    integer("org.limits.agenda_files", limits.agenda_files, 1..=4096)?;
+    integer(
+        "org.limits.agenda_file_bytes",
+        limits.agenda_file_bytes,
+        1..=33554432,
+    )?;
+    integer(
+        "org.limits.agenda_total_bytes",
+        limits.agenda_total_bytes,
+        1..=268435456,
+    )?;
+    integer("org.limits.job_seconds", limits.job_seconds, 1..=600)?;
+    if let Some(paths) = &org.agenda.sources {
+        crate::org::agenda::SourceSelection::paths(paths)
+            .map_err(|e| Failure::new("org.agenda.sources", e))?;
+    }
     Ok(())
 }

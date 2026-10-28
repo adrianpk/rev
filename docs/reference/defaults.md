@@ -200,6 +200,11 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.clock.drawer` | String | `"LOGBOOK"` | Task-owned clock drawer. Empty places records after planning/properties. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER, then this setting. |
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
+| `org.agenda.sources` | Array of local path strings | `[]` | Explicit files or non-recursive directories of immediate .org files; 4096 roots, 4096 bytes per path, relative to the assigning config source. No implicit scan. |
+| `org.limits.agenda_files` | Integer 1..=4096 | `512` | Maximum unique admitted source documents; excess remains visibly incomplete. |
+| `org.limits.agenda_file_bytes` | Integer 1..=33554432 | `8388608` | Whole-source byte bound for disk reads and current buffer snapshots. |
+| `org.limits.agenda_total_bytes` | Integer 1..=268435456 | `67108864` | Total read/snapshot byte budget, including failed reads. |
+| `org.limits.job_seconds` | Integer 1..=600 | `30` | Agenda discovery deadline, checked at read/iteration boundaries; does not interrupt blocked kernel IO. |
 | `org.habit.preceding_days` | Integer | `21` | Days before today, 0..366. |
 | `org.habit.following_days` | Integer | `7` | Days after today, 0..366. |
 | `org.habit.graph_column` | Integer | `40` | Preferred graph column, 0..4096; clip to the pane. |

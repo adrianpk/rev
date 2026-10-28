@@ -127,6 +127,8 @@ pub struct Org {
     pub clock: Clock,
     pub timer: Timer,
     pub habit: Habit,
+    pub agenda: Agenda,
+    pub limits: OrgLimits,
 }
 
 impl Default for Org {
@@ -142,6 +144,8 @@ impl Default for Org {
             clock: Clock::default(),
             timer: Timer::default(),
             habit: Habit::default(),
+            agenda: Agenda::default(),
+            limits: OrgLimits::default(),
         }
     }
 }
@@ -159,6 +163,8 @@ pub struct PartialOrg {
     pub clock: PartialClock,
     pub timer: PartialTimer,
     pub habit: PartialHabit,
+    pub agenda: PartialAgenda,
+    pub limits: PartialOrgLimits,
 }
 
 /// Effective Org operation zone; fold/gap policies require explicit selection.
@@ -737,4 +743,42 @@ pub struct PartialHabit {
     pub today_only: Option<bool>,
     pub show_all_today: Option<bool>,
     pub done_always_green: Option<bool>,
+}
+
+/// Explicit agenda roots. Empty roots never imply a filesystem search.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Agenda {
+    pub sources: Vec<String>,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialAgenda {
+    pub sources: Option<Vec<String>>,
+}
+/// Finite agenda discovery and IO budgets. Other Org limits remain with their
+/// existing owners until their typed operations are delivered.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct OrgLimits {
+    pub agenda_files: usize,
+    pub agenda_file_bytes: usize,
+    pub agenda_total_bytes: usize,
+    pub job_seconds: usize,
+}
+impl Default for OrgLimits {
+    fn default() -> Self {
+        Self {
+            agenda_files: 512,
+            agenda_file_bytes: 8388608,
+            agenda_total_bytes: 67108864,
+            job_seconds: 30,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialOrgLimits {
+    pub agenda_files: Option<i64>,
+    pub agenda_file_bytes: Option<i64>,
+    pub agenda_total_bytes: Option<i64>,
+    pub job_seconds: Option<i64>,
 }

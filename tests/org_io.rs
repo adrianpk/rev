@@ -98,3 +98,6 @@ fn saved(fixture: &Fixture) -> (Session, std::path::PathBuf, std::path::PathBuf)
     assert!(session.echo().contains("Saved"), "{}", session.echo());
     (session, source, state)
 }
+
+#[path = "org_io/agenda_sources.rs"]
+mod agenda_sources;

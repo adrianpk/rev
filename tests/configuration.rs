@@ -180,3 +180,6 @@ mod org_clocks;
 mod org_habits;
 #[path = "configuration/org_timers.rs"]
 mod org_timers;
+
+#[path = "configuration/org_agenda.rs"]
+mod org_agenda;

@@ -34,6 +34,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     );
     time(&mut settings.org.time, &document.org.time);
     habit(&mut settings.org.habit, &document.org.habit);
+    agenda(&mut settings.org, &document.org);
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);
@@ -281,4 +282,16 @@ fn habit(base: &mut super::Habit, partial: &super::PartialHabit) {
     scalar(&mut base.today_only, partial.today_only);
     scalar(&mut base.show_all_today, partial.show_all_today);
     scalar(&mut base.done_always_green, partial.done_always_green);
+}
+
+fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
+    if let Some(paths) = &partial.agenda.sources {
+        base.agenda.sources.clone_from(paths);
+    }
+    let target = &mut base.limits;
+    let limits = &partial.limits;
+    count(&mut target.agenda_files, limits.agenda_files);
+    count(&mut target.agenda_file_bytes, limits.agenda_file_bytes);
+    count(&mut target.agenda_total_bytes, limits.agenda_total_bytes);
+    count(&mut target.job_seconds, limits.job_seconds);
 }

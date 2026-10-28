@@ -17,6 +17,10 @@ pub struct Observation {
 }
 
 impl Observation {
+    pub(crate) fn from_metadata(metadata: fs::Metadata) -> io::Result<Self> {
+        observation(metadata)
+    }
+
     /// Rename may change ctime; identity, bytes and permissions must still
     /// agree before acknowledging that expected metadata transition.
     pub(crate) fn same_content(&self, other: &Self) -> bool {

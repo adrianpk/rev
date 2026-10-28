@@ -51,6 +51,12 @@ impl Document {
         merge.duration(&mut self.org.duration.units, &later.org.duration.units);
         merge.time(&mut self.org.time, &later.org.time);
         merge.habit(&mut self.org.habit, &later.org.habit);
+        merge.leaf(
+            &["org", "agenda", "sources"],
+            &mut self.org.agenda.sources,
+            &later.org.agenda.sources,
+        );
+        merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -687,6 +693,35 @@ impl Merge {
             &["org", "habit", "done_always_green"],
             &mut base.done_always_green,
             &later.done_always_green,
+        );
+    }
+}
+
+impl Merge {
+    fn agenda_limits(
+        &mut self,
+        base: &mut super::PartialOrgLimits,
+        later: &super::PartialOrgLimits,
+    ) {
+        self.leaf(
+            &["org", "limits", "agenda_files"],
+            &mut base.agenda_files,
+            &later.agenda_files,
+        );
+        self.leaf(
+            &["org", "limits", "agenda_file_bytes"],
+            &mut base.agenda_file_bytes,
+            &later.agenda_file_bytes,
+        );
+        self.leaf(
+            &["org", "limits", "agenda_total_bytes"],
+            &mut base.agenda_total_bytes,
+            &later.agenda_total_bytes,
+        );
+        self.leaf(
+            &["org", "limits", "job_seconds"],
+            &mut base.job_seconds,
+            &later.job_seconds,
         );
     }
 }

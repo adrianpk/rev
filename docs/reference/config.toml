@@ -94,6 +94,18 @@ enabled = true
 # Minutes or H:MM:SS; zero stays unarmed until explicit positive entry.
 default = "0"
 
+[org.agenda]
+# Explicit local files or directories; relative to this declaring config file.
+# Directories include immediate .org children only. Empty never scans anything.
+sources = []
+
+[org.limits]
+# Positive finite discovery/read budgets; no idle scanning or permanent worker.
+agenda_files = 512 # Maximum 4096 unique admitted documents.
+agenda_file_bytes = 8388608 # Maximum 33554432 bytes per source.
+agenda_total_bytes = 67108864 # Maximum 268435456 bytes across reads/snapshots.
+job_seconds = 30 # Maximum 600 seconds; checked between native IO/compute steps.
+
 [org.habit]
 # Bounded daily graph, including today. Rendering never changes source history.
 preceding_days = 21

@@ -36,6 +36,8 @@ TABLES = {
     "org.clock": "PartialClock",
     "org.timer":"PartialTimer",
     "org.habit":"PartialHabit",
+    "org.agenda":"PartialAgenda",
+    "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",
     "org.properties": "PartialProperties",
