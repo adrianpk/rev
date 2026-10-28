@@ -12,6 +12,8 @@ const POLL: Duration = Duration::from_millis(10);
 #[derive(Default)]
 pub(super) struct Work {
     job: Job<Observation>,
+    pub(super) sources_pending: Option<crate::org::agenda::SourceSelection>,
+    pub(super) sources_running: bool,
     pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
     source: Option<Stamp>,
@@ -20,12 +22,14 @@ pub(super) struct Work {
 
 enum Observation {
     Color(Coloring),
+    Sources(crate::org::agenda::SourceSet),
     Report(Result<super::outline::reports::Output, String>),
 }
 impl Work {
     pub(super) fn cancel(&mut self) {
         self.request = None;
         self.report = None;
+        self.sources_pending = None;
         self.job.cancel();
     }
 
@@ -46,6 +50,9 @@ impl Session {
         self.poll_org();
         self.finish_org_request();
         if self.org.job.is_active() {
+            return;
+        }
+        if self.launch_agenda_sources() {
             return;
         }
         if let Some(request) = &self.org.request {
@@ -120,6 +127,9 @@ impl Session {
     }
 
     fn poll_org(&mut self) -> bool {
+        if self.org.sources_running {
+            return self.poll_agenda_sources();
+        }
         let Some(source) = self.org.source else {
             return false;
         };
@@ -139,6 +149,9 @@ impl Session {
         self.org.source = None;
         self.org.deadline = None;
         match result {
+            Ok(Observation::Sources(_)) => {
+                unreachable!("source discovery has its own publication checks")
+            }
             Ok(Observation::Color(coloring)) => {
                 self.publish_org(source.buffer, coloring);
                 self.finish_org_request();
@@ -194,5 +207,44 @@ impl Work {
         self.report = Some(request);
         self.deadline = Some(Instant::now() + POLL);
         Ok(())
+    }
+}
+
+impl Work {
+    pub(super) fn start_sources(
+        &mut self,
+        stamp: Stamp,
+        scan: crate::org::agenda::SourceScan,
+    ) -> Result<(), String> {
+        self.job
+            .start(stamp, move |cancel| Observation::Sources(scan.run(cancel)))
+            .map_err(|e| e.to_string())?;
+        self.sources_running = true;
+        self.source = Some(stamp);
+        self.deadline = Some(Instant::now() + POLL);
+        Ok(())
+    }
+}
+impl Session {
+    fn poll_agenda_sources(&mut self) -> bool {
+        let Some(result) = self.org.job.poll_owned() else {
+            return false;
+        };
+        self.org.source = None;
+        self.org.deadline = None;
+        self.org.sources_running = false;
+        match result {
+            Ok((_, Observation::Sources(mut sources))) => {
+                sources.revalidate(&self.buffers);
+                self.message(&sources.feedback());
+                self.agenda_sources = Some(sources);
+            }
+            Err(JobError::Cancelled) => {}
+            Err(error) => {
+                self.error(&error.to_string());
+            }
+            _ => unreachable!("source discovery owns this publication"),
+        }
+        true
     }
 }

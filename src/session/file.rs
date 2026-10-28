@@ -64,10 +64,11 @@ impl Session {
         }
     }
     fn org_argument(&mut self, pending: Pending, draft: &str) -> Action {
+        if pending.observation_argument() {
+            return self.observation_argument(pending, draft);
+        }
         match pending {
             Pending::Timer(prompt) => self.timer_argument(prompt, draft),
-            Pending::Habit(prompt) => self.habit_argument(prompt, draft),
-            Pending::ClockReport(prompt) => self.clock_report_argument(*prompt, draft),
             Pending::Clock(prompt) => self.clock_argument(*prompt, draft),
             Pending::Timestamp(prompt) => self.timestamp_argument(*prompt, draft),
             Pending::Estimate(prompt) => self.estimate_argument(*prompt, draft),
@@ -83,7 +84,8 @@ impl Pending {
     fn org_argument(&self) -> bool {
         matches!(
             self,
-            Self::Habit(_)
+            Self::AgendaSources
+                | Self::Habit(_)
                 | Self::Timer(_)
                 | Self::ClockReport(_)
                 | Self::Clock(_)
@@ -92,6 +94,26 @@ impl Pending {
                 | Self::Task(_)
                 | Self::Tags(_)
                 | Self::Property(_)
+        )
+    }
+}
+
+impl Session {
+    fn observation_argument(&mut self, pending: Pending, draft: &str) -> Action {
+        match pending {
+            Pending::AgendaSources => self.agenda_source_argument(draft),
+            Pending::Habit(prompt) => self.habit_argument(prompt, draft),
+            Pending::ClockReport(prompt) => self.clock_report_argument(*prompt, draft),
+            _ => unreachable!("qualified observation argument"),
+        }
+    }
+}
+
+impl Pending {
+    pub(super) fn observation_argument(&self) -> bool {
+        matches!(
+            self,
+            Self::AgendaSources | Self::Habit(_) | Self::ClockReport(_)
         )
     }
 }

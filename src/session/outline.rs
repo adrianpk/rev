@@ -28,11 +28,8 @@ impl Session {
         if self.input.focus() != Focus::Editing || self.tree.focused() {
             return self.message("Editing owns Org commands");
         }
-        if command.timer_control() {
-            return self.timer_command(command);
-        }
-        if command.session_clock() {
-            return self.clock_command(command);
+        if let Some(action) = self.org_session_command(command) {
+            return action;
         }
         if !self.buffer().is_ok_and(|b| b.is_org()) {
             return self.message("Native Org mode is not active");
@@ -209,5 +206,20 @@ impl Session {
                 .buffer()
                 .is_ok_and(|b| b.is_org() && b.stamp() == request.origin.point.stamp)
             && !self.tree.focused()
+    }
+}
+
+impl Session {
+    fn org_session_command(&mut self, command: OrgCommand) -> Option<Action> {
+        if command == OrgCommand::Agenda {
+            return Some(self.agenda_command());
+        }
+        if command.timer_control() {
+            return Some(self.timer_command(command));
+        }
+        if command.session_clock() {
+            return Some(self.clock_command(command));
+        }
+        None
     }
 }

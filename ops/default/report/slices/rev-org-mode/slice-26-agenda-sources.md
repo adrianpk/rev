@@ -15,12 +15,27 @@ and [tracker](../../../tracker/rev-org-mode.md#slice-26-discover-bounded-canonic
 
 ## Delivered Behavior
 
+C-c a and M-x org-agenda observe configured sources. Empty configuration asks
+for current, buffers or a literal file/directory path. Current eligible Org
+buffers can be selected without saving; cancelling the prompt scans nothing.
+The result reports complete/incomplete status, retained documents/bytes and
+source failures. Eight failures appear in the bounded echo; all admitted
+failures remain in the read-only result. Explicit reinvocation refreshes.
+
 Typed agenda sources select local files or directories. Directory discovery
 includes immediate .org children only; no home, project or nested directory
 is scanned implicitly. Empty selection performs no discovery. Paths resolve
 relative to the configuration source that assigns the replacing array.
 
 ## Implementation Notes
+
+The existing session Job slot owns source discovery. A request queues behind
+existing color work, never adds a worker, and remains cancellable with C-g.
+The initiating cursor/document does not own the multi-source result: every open
+source stamp is rechecked separately before publishing. Editing and view motion
+continue while IO runs; stale sources become explicit failures, with available
+sources retained. An owned cancelled worker is reaped before another starts.
+Finished discovery adds no inactive polling deadline.
 
 Immutable rope snapshots preserve current buffer text without saving. Real file
 identity deduplicates symlink and hard-link aliases. Conflicting live buffers
@@ -55,10 +70,24 @@ iteration/read boundaries; they cannot interrupt a blocked kernel operation.
 - `python3 scripts/check-config-reference.py`: 141 schema entries, 54 RGB
   roles, 191 bindings and 16736 packaged bytes agree.
 - `cargo clippy --lib -- -D warnings`: passed.
-- Changed-source quality passed after separating checked disk ingestion from
-  source matching to preserve the original complexity limit.
+- Development source quality found source matching above cyclomatic 10, first
+  at 12 then 11. Disk ingestion, alias matching and argument dispatch now have
+  separate owners. Changed-source quality passes at unchanged limits.
+- `cargo test --test org_agenda --test org_io sources:: -- --nocapture`: eight
+  native/filesystem cases passed, zero skips. A real 256-file observation read
+  85906 bytes while normal input remained usable, about 39 ms on this host.
+- `cargo test --test commands reference`: nine selected command/reference cases
+  passed, zero skips.
+- `cargo clippy --lib --test org_agenda --test org_io -- -D warnings`: passed.
+- `python3 scripts/check-config-reference.py`: 141 entries, 54 RGB roles,
+  192 bindings and 16759 packaged bytes agree after updating the editor map
+  count for its actual new binding.
+
+Development fixtures were corrected to use native history, prompt and ownership
+APIs. Clippy removed an unnecessary owned comparison. No assertion, deadline or
+resource limit was weakened.
 
 ## Risks and Follow-ups
 
-Native session invocation and responsiveness checks follow in T26.2/T26.3.
+Additional failure and boundary checks follow in T26.3.
 The delivery-set full gate has not run.

@@ -1,3 +1,4 @@
+mod agenda_sources;
 mod buffers;
 mod edit;
 mod events;
@@ -89,6 +90,7 @@ pub struct Session {
     timer_clock: Option<fn() -> std::time::Instant>,
     timer_notice: bool,
     habit_agenda: Option<habits::State>,
+    agenda_sources: Option<crate::org::agenda::SourceSet>,
 }
 
 enum AfterSave {
@@ -98,6 +100,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    AgendaSources,
     Timer(timers::Prompt),
     Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
@@ -207,6 +210,7 @@ impl Session {
             timer_clock: None,
             timer_notice: false,
             habit_agenda: None,
+            agenda_sources: None,
         })
     }
 

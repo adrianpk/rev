@@ -110,9 +110,10 @@ pub enum OrgCommand {
     HabitAllToday,
     HabitDate,
     HabitWindow,
+    Agenda,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 108] = [
+    pub const ALL: [Self; 109] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -221,6 +222,7 @@ impl OrgCommand {
         Self::HabitAllToday,
         Self::HabitDate,
         Self::HabitWindow,
+        Self::Agenda,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -332,6 +334,7 @@ impl OrgCommand {
             "org-habit-toggle-show-all-today",
             "org-habit-graph-date",
             "org-habit-set-graph-window",
+            "org-agenda",
         ][self as usize]
     }
 

@@ -642,13 +642,18 @@ Contracts: ORG08 ORG18.
 Details and exact checks: [Slice 26](../plan/rev-org-mode.md#slice-26-discover-bounded-canonical-org-agenda-sources).
 
 - [x] T26.1: Resolve explicitly selected files/directories without scanning the home or project implicitly.
-- [ ] T26.2: Prefer current buffers, deduplicate real file identities and observe disk sources through cancellable owned work.
+- [x] T26.2: Prefer current buffers, deduplicate real file identities and observe disk sources through cancellable owned work.
 - [ ] T26.3: Verify unreadable sources, cycles, limits and truthful partial results while keeping editing responsive.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T26.1 delivers typed explicit source selection, non-recursive directory scope,
 canonical identity and whole-source partial-result observations. Four focused
 IO/configuration checks pass; native session ownership follows in T26.2.
+
+T26.1: `09ff6bd06713`. T26.2 connects explicit C-c a/M-x source selection to
+one shared native worker, revalidates each buffer stamp, and preserves editing.
+Eight focused filesystem/native cases and nine command/reference checks pass.
+The complete configuration reference now contains 192 bindings.
 
 ### Slice 27: display native day and week Org agendas
 

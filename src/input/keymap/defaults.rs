@@ -41,6 +41,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
 }
 
 const EDITOR: &[(&str, &str)] = &[
+    ("C-c a", "org-agenda"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
     ("M-g g", "goto-line"),

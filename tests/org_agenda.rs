@@ -81,3 +81,6 @@ fn control(character: char) -> Event {
 mod habit_views;
 #[path = "org_agenda/habits.rs"]
 mod habits;
+
+#[path = "org_agenda/sources.rs"]
+mod sources;

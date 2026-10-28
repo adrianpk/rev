@@ -104,6 +104,16 @@ impl<T> Job<T> {
     /// Nonblocking observation. Reap completed ownership before admitting a new
     /// job, and reject obsolete results before exposing them to a caller.
     pub fn poll(&mut self, buffer: &Buffer) -> Option<Result<T, JobError>> {
+        self.poll_owned().map(|result| {
+            result.and_then(|(stamp, value)| {
+                super::source::current(buffer, stamp).map_err(JobError::Source)?;
+                Ok(value)
+            })
+        })
+    }
+    /// Reap a multi-source observation. Its caller must validate every retained
+    /// source individually; the initiating view is not the source set's owner.
+    pub(crate) fn poll_owned(&mut self) -> Option<Result<(Stamp, T), JobError>> {
         if !self.active.as_ref()?.handle.is_finished() {
             return None;
         }
@@ -113,8 +123,7 @@ impl<T> Job<T> {
             if active.cancellation.is_cancelled() {
                 return Err(JobError::Cancelled);
             }
-            super::source::current(buffer, active.stamp).map_err(JobError::Source)?;
-            Ok(value)
+            Ok((active.stamp, value))
         }))
     }
 }

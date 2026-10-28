@@ -91,6 +91,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x - in Org | `org-timer-item` | Insert or continue a timed description list. |
 | C-c C-x , in Org | `org-timer-pause-or-continue` | Pause or continue the session timer. |
 | C-c C-x _ in Org | `org-timer-stop` | Stop and discard the session timer. |
+| C-c a | `org-agenda` | Select and observe bounded canonical agenda sources. |
 | M-x | `org-timer-show-remaining-time` | Inspect the session timer without source changes. |
 | C-c C-x C-i in Org | `org-clock-in` | Start a task-owned source interval. |
 | C-c C-x C-o in Org | `org-clock-out` | Close the active interval with elapsed time. |
@@ -655,3 +656,18 @@ frames; narrow status lines retain their normal tokens. Expiry shows an in-edito
 notice, including during a prompt or save question without replacing that draft
 or question. The done marker remains until input. Clean exit and terminal I/O
 failure discard the session timer; reopening the editor starts unarmed.
+
+### Org agenda source discovery
+
+C-c a and M-x org-agenda use the same explicit discovery handler. Configured
+org.agenda.sources replace by layer and resolve relative to the assigning file.
+With no roots, enter current for the selected native Org buffer, buffers for
+all eligible open Org buffers, or one literal local path. Merely opening the
+prompt observes no sources. C-g cancels selection or owned work.
+
+Directories select immediate .org children only. Symlinks and hard links share
+real file identity; current buffer text wins over disk, even when unsaved.
+Conflicting live hard-link buffers require explicit buffer selection. Missing,
+unreadable, binary, changed or over-limit sources remain reported as incomplete;
+available whole sources remain retained. Source discovery does not save, create
+or edit files. Normal editing remains available during the one owned worker.

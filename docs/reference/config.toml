@@ -263,6 +263,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 # Terminal aliases, key availability and focus rules are described in bindings.md.
 
 [keys.editor]
+"C-c a" = "org-agenda"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 "M-g g" = "goto-line"

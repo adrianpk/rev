@@ -61,6 +61,7 @@ impl SourceScan {
                 return Err("Select a live native Org buffer".into());
             }
         }
+        selected_identities(&selection, &open)?;
         Ok(Self {
             selection,
             open,
@@ -135,10 +136,7 @@ impl SourceScan {
             .open
             .iter()
             .enumerate()
-            .filter(|(_, b)| {
-                b.path.as_deref() == Some(resolved.path())
-                    || identity.is_some() && b.identity == identity
-            })
+            .filter(|(_, b)| b.matches(resolved.path(), identity))
             .map(|(i, _)| i)
             .collect();
         if matches.len() > 1 {
@@ -252,6 +250,30 @@ fn validate(selection: &SourceSelection, limits: &OrgLimits) -> Result<(), Strin
         || !(1..=600).contains(&limits.job_seconds)
     {
         return Err("Invalid agenda resource limits".into());
+    }
+    Ok(())
+}
+
+impl Open {
+    fn matches(&self, path: &Path, identity: Option<(u64, u64)>) -> bool {
+        self.path.as_deref() == Some(path) || identity.is_some() && self.identity == identity
+    }
+}
+
+fn selected_identities(selection: &SourceSelection, open: &[Open]) -> Result<(), String> {
+    let mut identities = BTreeSet::new();
+    let mut buffers = BTreeSet::new();
+    for source in open
+        .iter()
+        .filter(|b| selection.buffers.contains(&b.stamp.buffer))
+    {
+        if buffers.insert(source.stamp.buffer)
+            && source.identity.is_some_and(|id| !identities.insert(id))
+        {
+            return Err(
+                "Multiple selected live buffers share a file identity; select one owner".into(),
+            );
+        }
     }
     Ok(())
 }

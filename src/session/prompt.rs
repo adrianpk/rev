@@ -5,6 +5,9 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.cancel_agenda_discovery(command) {
+            return Some(action);
+        }
         if let Some(action) = self.cancel_habit_prompt(command) {
             return Some(action);
         }
@@ -22,7 +25,8 @@ impl Session {
             if matches!(
                 self.pending,
                 Some(
-                    Pending::Habit(_)
+                    Pending::AgendaSources
+                        | Pending::Habit(_)
                         | Pending::Timer(_)
                         | Pending::ClockReport(_)
                         | Pending::Clock(_)
@@ -62,7 +66,8 @@ impl Session {
         if matches!(
             self.pending,
             Some(
-                Pending::Habit(_)
+                Pending::AgendaSources
+                    | Pending::Habit(_)
                     | Pending::Timer(_)
                     | Pending::ClockReport(_)
                     | Pending::Clock(_)
@@ -89,14 +94,18 @@ impl Session {
         }
     }
     fn complete_org_argument(&mut self) -> Action {
+        if self
+            .pending
+            .as_ref()
+            .is_some_and(Pending::observation_argument)
+        {
+            return self.complete_observation_argument();
+        }
         match self.pending {
             Some(Pending::Timestamp(_)) => self.complete_timestamp(),
             Some(Pending::Estimate(_)) => self.complete_estimate(),
-            Some(Pending::Habit(_)) => {
-                self.message("Enter habit date or graph days/column; C-g cancels")
-            }
             Some(Pending::Timer(_)) => self.message("Enter timer duration or yes/no; C-g cancels"),
-            Some(Pending::ClockReport(_) | Pending::Clock(_)) => {
+            Some(Pending::Clock(_)) => {
                 self.message("Choose the explicit clock action; C-g cancels")
             }
             Some(Pending::Task(_)) => {
@@ -105,6 +114,23 @@ impl Session {
             Some(Pending::Tags(_)) => self.complete_tag(),
             Some(Pending::Property(_)) => self.message("Enter the property argument; C-g cancels"),
             _ => unreachable!("qualified Org completion"),
+        }
+    }
+}
+
+impl Session {
+    fn complete_observation_argument(&mut self) -> Action {
+        match self.pending {
+            Some(Pending::AgendaSources) => {
+                self.message("Enter current, buffers or one literal local path; C-g cancels")
+            }
+            Some(Pending::Habit(_)) => {
+                self.message("Enter habit date or graph days/column; C-g cancels")
+            }
+            Some(Pending::ClockReport(_)) => {
+                self.message("Choose the explicit clock action; C-g cancels")
+            }
+            _ => unreachable!("qualified observation argument"),
         }
     }
 }
