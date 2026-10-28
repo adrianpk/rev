@@ -2,6 +2,8 @@
 mod errors;
 #[path = "startup_lifetime.rs"]
 mod lifetime;
+#[path = "startup_publication.rs"]
+mod publication;
 
 use std::path::Path;
 use std::process::Command as Process;

@@ -14,6 +14,7 @@ mod merge;
 mod palette;
 mod parse;
 mod project;
+mod publication;
 mod resolve;
 mod startup;
 mod template;

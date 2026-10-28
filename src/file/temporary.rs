@@ -8,7 +8,7 @@ use super::Output;
 
 static NEXT: AtomicU64 = AtomicU64::new(0);
 
-pub(super) struct Temporary {
+pub(crate) struct Temporary {
     pub file: File,
     pub path: PathBuf,
     armed: bool,

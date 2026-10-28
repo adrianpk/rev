@@ -90,7 +90,7 @@ mod observation;
 mod output;
 pub(crate) mod rename;
 mod save;
-mod temporary;
+pub(crate) mod temporary;
 
 pub use delete::{DeleteDecision, Deleted, Deletion};
 pub use location::{Location, resolve};
