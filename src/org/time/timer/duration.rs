@@ -6,8 +6,11 @@ pub struct TimerDuration {
 }
 impl TimerDuration {
     pub fn parse(source: &str) -> Result<Self, String> {
+        if source.len() > 64 {
+            return Err("Timer duration exceeds 64 UTF-8 bytes".into());
+        }
         let source = source.trim();
-        if source.is_empty() || source.len() > 64 {
+        if source.is_empty() {
             return Err("Timer duration requires 1..64 UTF-8 bytes".into());
         }
         let seconds = if source.contains(':') {

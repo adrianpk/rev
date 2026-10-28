@@ -11,6 +11,8 @@ use rev::terminal::Terminal;
 
 #[path = "terminal_probe/pointer.rs"]
 mod pointer;
+#[path = "terminal_probe/timer.rs"]
+mod timer;
 
 struct Fault {
     output: io::Stdout,
@@ -52,7 +54,7 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
         "color-set" => Some(b"\x1b]12;"),
         "color-stop" => Some(b"\x1b]112"),
         "screen-stop" => Some(b"\x1b[?1049l"),
-        _ => None,
+        _ => timer::pattern(mode),
     }
 }
 
@@ -105,6 +107,7 @@ fn palette(terminal: &mut Terminal<Fault>) -> io::Result<()> {
 
 fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
     match mode {
+        "org-timer-io" => timer::failure(terminal),
         "io" => {
             terminal.writer().write_all(b"probe-io")?;
             terminal.writer().flush()

@@ -89,3 +89,30 @@ fn timer_session_exit() {
     assert_eq!(session.remaining_input(clock()), None);
     assert_eq!(super::timers::session().remaining_input(clock()), None);
 }
+
+// Expiry changes the session generation while replacement is awaiting approval.
+// Accepting the stale draft cannot restart a finished timer or change source.
+#[test]
+fn timer_stale_prompt() {
+    let mut session = session();
+    arm(&mut session);
+    session.execute(Command::Org(C::TimerSet));
+    session.handle(Event::Paste("0:00:07".into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    session.expire_input(clock() + Duration::from_secs(3));
+    session.handle(Event::Paste("yes".into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert!(
+        session.echo().contains("timer changed"),
+        "{}",
+        session.echo()
+    );
+    assert_eq!(session.remaining_input(clock()), None);
+    assert!(session.buffer().unwrap().history().is_empty());
+}

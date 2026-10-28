@@ -114,6 +114,8 @@ fn timer_duration_bounds() {
     ] {
         assert!(TimerDuration::parse(source).is_err(), "{name}");
     }
+    assert!(TimerDuration::parse(&(" ".repeat(63) + "1")).is_ok());
+    assert!(TimerDuration::parse(&(" ".repeat(64) + "1")).is_err());
     let mut timer = Timer::default();
     let now = Instant::now();
     assert!(

@@ -17,6 +17,7 @@ from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
 from configuration_ui.org_clock_state import persistence
+from configuration_ui import org_time
 
 
 def terminal(selected):
@@ -51,7 +52,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -70,9 +71,20 @@ def main():
     build = ['cargo', 'build', '--bin', 'rev']
     if args.case in [None, 'io', 'unwind']:
         build.extend(['--example', 'terminal-probe'])
-    if args.case == 'org-tasks':
+    if args.case in ['org-tasks','org-time']:
         build.extend(['--example', 'org-task-session'])
+    if args.case=='org-time':
+        build.extend(['--example','terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-time':
+        for colored,label in [(True,'rgb'),(False,'no-color')]:
+            for scenario,mode in [(org_time.editing,'editing'),(org_time.readonly,'read-only'),(org_time.restart,'restart')]:
+                run_scenario(scenario,colored)
+                print(f'PASS org-time {mode} {label}')
+        run_scenario(lambda root, _: org_time.failure(root), True)
+        print('PASS org-time native output failure')
+        print('Org time terminal suite: 9 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-tasks':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
             for scenario, mode in [(tasks, 'editing'), (readonly, 'read-only'), (persistence, 'clock-restart')]:

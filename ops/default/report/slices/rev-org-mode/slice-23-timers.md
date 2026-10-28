@@ -1,6 +1,6 @@
 # Slice 23: deliver native Org relative and countdown timers
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -34,8 +34,8 @@ timer. Source undo does not rewind session time.
 One session timer retains its mode, precise accumulated/remaining duration,
 optional monotonic anchor/deadline and generation. No wall clock, zone, source
 identity or persisted timer database defines elapsed time. Generation checks
-prevent stale countdown drafts from changing a replaced timer. The countdown
-deadline and one-shot core expiry are ready for native event integration in T23.2.
+prevent stale countdown drafts from changing a replaced timer. The native event owner arms only a selected active countdown and delivers one
+expiry notice, retaining no deadline after pause/stop/expiry.
 
 `org.timer.default` is typed, layered configuration with source provenance;
 its default "0" creates no timer and no startup IO. The ordinary Org list owner
@@ -78,8 +78,7 @@ No assertions, deadlines or resource limits were weakened.
 
 ## Risks and Follow-ups
 
-Native deadline integration and terminal lifecycle acceptance remain in T23.2
-and T23.3. The delivery-set full gate has not run.
+The delivery-set full gate has not run.
 
 T23.1 commit: `37ee7a7ac5c3`.
 
@@ -110,3 +109,51 @@ The native recovery fixture now uses the existing compiled `Command::Quit`
 identity. Countdown controls are tested directly without treating an armed
 countdown as background structural work in a settling helper; all original
 source, deadline and cancellation assertions remain.
+
+T23.2 commit: `899689081195`.
+
+T23.3 adds the required `org-time` terminal selection and extends the existing
+terminal probe with an actual native Session output failure. The fixture invokes
+the production event loop with an armed countdown, fails its first timer status
+write, and proves the session has no deadline before ordinary terminal cleanup.
+No extra dependency, timer thread, external notification service or state file
+is introduced.
+
+The owned journey covers RGB/NO_COLOR editing and read-only timers, precise saved
+BOM/CRLF notes, timed-list continuation, full undo, pause/continue, one-shot expiry,
+stop past the old deadline, clean exit and a second process with no restored
+clock. A bounded quiescence observation separates existing completed source
+coloring from timer inactivity; paused/stopped/expired states produce no output.
+Positive countdown defaults still arm nothing on startup.
+
+T23.3 development checks passed:
+
+- `cargo test --test org_time --test display --test recovery --test org_editing --test configuration timer --no-fail-fast`:
+  eleven selected cases passed, zero skips. A stale replacement prompt cannot
+  restart an expired timer. Raw duration input admits exactly 64 bytes and rejects
+  65 before trimming, preserving the declared input bound.
+- `cargo clippy --all-targets --all-features -- -D warnings`.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-time`:
+  nine owned sessions passed, zero skips. Restart uses two processes for each
+  color mode; the native output-failure probe uses one additional RGB session.
+  All sessions assert terminal restoration, owned cleanup and exact fixture files.
+- `python3 scripts/check-config-reference.py`: 121 schema entries, 46 RGB roles,
+  181 bindings and 15321 packaged template bytes agree.
+- Changed-source quality and `git diff --check` passed.
+
+The new driver initially expected the insertion echo for contextual M-RET and
+compared a visible row's padding with a significant saved trailing space. It now
+uses the actual command echo and trims padding only for frame comparison; its
+byte-for-byte saved-file assertion still retains that space. The terminal fault
+pattern is owned by the timer probe to preserve source complexity bounds.
+No original assertions, deadlines, resource limits or gate identities changed.
+
+Final controller receipts bind the clean PR-reference head. Required checks run
+in this exact order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test commands --test display --test recovery`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-time`
+- `python3 scripts/check-source.py`
+- `git diff --check`

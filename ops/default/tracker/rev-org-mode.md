@@ -556,8 +556,14 @@ Details and exact checks: [Slice 23](../plan/rev-org-mode.md#slice-23-deliver-na
 
 - [x] T23.1: Implement relative time insertion/list items, pause/resume/stop and countdown entry with familiar bindings.
 - [x] T23.2: Arm only selected deadlines in the existing native event owner; cancel before due work and retain terminal cleanup.
-- [ ] T23.3: Verify one-shot expiry, restart, exit and no inactive wakeups in the owned Org time journey.
+- [x] T23.3: Verify one-shot expiry, restart, exit and no inactive wakeups in the owned Org time journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T23.1: `37ee7a7ac5c3`; T23.2: `899689081195`. Native timers, checked
+source notes and selected deadlines pass focused core/command/display/recovery
+checks. T23.3 adds nine owned timer PTYs, actual output-error cleanup, restart,
+inactive waiting and stale replacement guards. Final exact-head validation and
+canonical PR reference remain pending; verified integration remains open.
 
 ### Slice 24: maintain Org habit schedules and history
 
