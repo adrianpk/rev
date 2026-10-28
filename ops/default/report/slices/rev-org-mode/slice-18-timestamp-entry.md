@@ -1,6 +1,6 @@
 # Slice 18: enter and edit Org timestamps
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -77,6 +77,13 @@ Native operation invokes no reference editor, external date process or FFI.
 - `docs/reference/`: commands, bindings, configuration and operational reference.
 
 ## Validation
+
+PR #119 integrated into `dev` at
+`ff8de433dd5e386b69ca54c9f19e5acc22e80b2a`. Canonical Forgejo and controller
+merge evidence agree. Required receipt `RKDUEWDIX7SBPT536C7LBTRHD6` passed all
+five commands and 389 tests. Focused `3LIVUVB4UOG7DUKV4DHLQVZIIZ` passed
+105 configuration tests, reference agreement and four owned task PTYs. Acta
+recorded the completed checks and the controller recorded integration.
 
 T18.1 development checks passed:
 

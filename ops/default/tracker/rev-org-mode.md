@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 18 timestamp-entry
+Active slice: Slice 19 repeaters
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -429,7 +429,7 @@ Details and exact checks: [Slice 18](../plan/rev-org-mode.md#slice-18-enter-and-
 - [x] T18.1: Deliver native date/time/calendar prompts for active/inactive timestamps, ranges, schedule and deadline.
 - [x] T18.2: Use familiar context actions and cancellation, retaining weekday/source formatting where untouched.
 - [x] T18.3: Verify invalid dates, ambiguous local times, Unicode prompts and one-command undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T18.1: `3da11bf31957afb061b8a9b8c487a74ce4b801a1`; focused clean-head receipt
 `Z7ZXSK5BB3YHKS4ZJ5ED5K7JAA` passed all four commands. T18.2 development
@@ -439,8 +439,11 @@ display timestamp tests plus four owned RGB/NO_COLOR task PTYs.
 T18.2: `7b6dff79c380`; T18.3: `538691d2e1ae`.
 [Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) and
 [Slice 18 report](../report/slices/rev-org-mode/slice-18-timestamp-entry.md)
-are reviewing. Controller receipts bind final required/focused checks to the
-clean PR head; verified dev integration remains pending. Final configuration
+were delivered by verified PR #119 integration at
+`ff8de433dd5e386b69ca54c9f19e5acc22e80b2a`. Required receipt
+`RKDUEWDIX7SBPT536C7LBTRHD6` passed all five commands and 389 tests; focused
+`3LIVUVB4UOG7DUKV4DHLQVZIIZ` passed 105 configuration tests, reference agreement
+and four owned task PTYs. Canonical Forgejo, controller evidence and Acta agree. Final configuration
 regression exposed calendar inherited-action availability; focused default-map,
 host-role and native prompt regressions pass after the admission correction.
 Required command tests also exposed incomplete binding-reference tables; both
