@@ -385,6 +385,16 @@ Details and exact checks: [Slice 16](../plan/rev-org-mode.md#slice-16-model-org-
 - [x] T16.3: Verify leap years, month ends, overflow, duration forms and an injected operation clock.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR [#117](https://forge.adrianpk.com/adrianpk/rev/pulls/117) targets dev;
+[Slice 16 report](../report/slices/rev-org-mode/slice-16-civil-time.md) is reviewing.
+Task commits:
+- T16.1: `3673caad6299791f0dc6031e0e2ae373d033e184`.
+- T16.2: `b28f51447f890482d4e4dc3cb6df4483b950a8a6`.
+- T16.3: `dd34455e73e76770e9e3139e92811c282f864f53`.
+
+Required exact-head validation follows the PR-reference push. Integration
+remains controller-owned.
+
 ### Slice 17: resolve Org local times and zone changes
 
 Contracts: ORG07 ORG18.

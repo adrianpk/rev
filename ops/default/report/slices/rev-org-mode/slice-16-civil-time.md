@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-16-civil-time`
-PR: pending
+PR: [#117](https://forge.adrianpk.com/adrianpk/rev/pulls/117)
 
 ## Purpose
 
@@ -41,6 +41,12 @@ Work durations support checked totals and H:MM[:SS] display with unbounded
 hours. Sub-precision fractions truncate, matching the owned Org observation;
 values too large for displayed u64 ticks reject. Original entered spelling
 remains unchanged. There is no dependency, idle job or editable shadow document.
+
+Task commits:
+
+- T16.1: [3673caad6299791f0dc6031e0e2ae373d033e184](https://forge.adrianpk.com/adrianpk/rev/commit/3673caad6299791f0dc6031e0e2ae373d033e184).
+- T16.2: [b28f51447f890482d4e4dc3cb6df4483b950a8a6](https://forge.adrianpk.com/adrianpk/rev/commit/b28f51447f890482d4e4dc3cb6df4483b950a8a6).
+- T16.3: [dd34455e73e76770e9e3139e92811c282f864f53](https://forge.adrianpk.com/adrianpk/rev/commit/dd34455e73e76770e9e3139e92811c282f864f53).
 
 ## Contracts Added or Changed
 
@@ -88,8 +94,19 @@ date changes, zero/negative elapsed intervals and elapsed/civil separation.
 The prior private timestamp-conversion examples now exercise the shared public
 formatter in this target.
 
-The final required ordered checks will run through the controller after the
-canonical PR-reference follow-up is committed and pushed. Focused same-HEAD
+Canonical PR [#117](https://forge.adrianpk.com/adrianpk/rev/pulls/117) targets
+`dev` with the approved title. Its report link uses full introduction commit
+`3673caad6299791f0dc6031e0e2ae373d033e184`.
+
+The final required ordered checks will run through the controller after this
+PR-reference follow-up is committed and pushed:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_time --test org_source`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+ Focused same-HEAD
 checks will additionally cover native editing and the existing four owned
 RGB/NO_COLOR task terminal sessions because logging now uses the shared clock.
 Receipt identities belong in Acta and the checkpoint without moving the
