@@ -1,4 +1,6 @@
+mod fold;
 mod hit;
+pub use fold::FoldError;
 mod scroll;
 
 use std::fmt;
@@ -30,6 +32,7 @@ pub enum Error {
     Coordinates(coordinates::Error),
     Window(crate::window::Error),
     Gutter(crate::gutter::Error),
+    Fold(FoldError),
     WorkingDirectory(std::io::ErrorKind),
 }
 
@@ -41,6 +44,7 @@ impl fmt::Display for Error {
             Self::Coordinates(error) => error.fmt(formatter),
             Self::Window(error) => error.fmt(formatter),
             Self::Gutter(error) => error.fmt(formatter),
+            Self::Fold(error) => error.fmt(formatter),
             Self::WorkingDirectory(kind) => write!(formatter, "read working directory: {kind}"),
         }
     }
@@ -89,6 +93,7 @@ pub struct View {
     pub column: Option<usize>,
     pub top: usize,
     pub left: usize,
+    folds: Option<fold::Folds>,
     alignment: scroll::Alignment,
     tab_width: usize,
 }
@@ -117,6 +122,7 @@ impl View {
             column: None,
             top: 0,
             left: 0,
+            folds: None,
             alignment: scroll::Alignment::Center,
             tab_width: buffer.policy().tab_width,
         }
@@ -149,6 +155,7 @@ impl View {
     /// Reveal point in usable geometry. Suspended presentation preserves scroll.
     pub fn reveal(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
         let point = self.cell(buffer)?;
+        self.reveal_fold(buffer, point.row);
         self.sync_policy(buffer);
         if size.usable() {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())

@@ -6,6 +6,8 @@ mod colors;
 mod contexts;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "org_editing/folds.rs"]
+mod folds;
 
 use std::time::Instant;
 
