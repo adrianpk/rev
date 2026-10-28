@@ -62,6 +62,9 @@ it now shares checked source admission with structural list operations. Native
 reference probes confirmed parsed ordinary-drawer and existing description
 checkbox contexts, first outermost whole-list indentation and nested promotion
 ownership. Those outcomes have explicit regression fixtures.
+An existing description checkbox continues as a plain description item. The
+regression retains that emitted source and prevents counting a nonexistent new
+checkbox in the heading's cookie.
 
 Decimal resets and increments use bounded decimal text, retaining counters wider
 than a machine integer. Counter rendering observes the existing native byte

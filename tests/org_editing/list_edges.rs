@@ -136,6 +136,18 @@ fn parsed_checkbox_contexts() {
         session.execute(Command::History(History::Undo));
         assert_eq!(text(&session), source);
     }
+    let source = "* Root [1/1]\n- [X] term :: value\n";
+    let (_fixture, mut session) = editor("", "notes.org", source);
+    goto(&mut session, 2);
+    session.execute(Command::Motion(Motion::LineEnd));
+    action(&mut session, OrgCommand::MetaReturn);
+    assert_eq!(
+        text(&session),
+        "* Root [1/1]\n- [X] term :: value\n-  :: \n"
+    );
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), source);
 }
 
 // Read-only source and incomplete cookie observations reject before changing

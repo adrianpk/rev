@@ -62,7 +62,7 @@ impl Lists {
         let new = state.values.len();
         state
             .values
-            .push((checkbox || item.checkbox.is_some()).then_some(b' '));
+            .push((checkbox || item.checkbox.is_some() && !item.description).then_some(b' '));
         state.parents.push(state.parents[index]);
         state.positions.push(if byte <= item.content {
             item.source.start
