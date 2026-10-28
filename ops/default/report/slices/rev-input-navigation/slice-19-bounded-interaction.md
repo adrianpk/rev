@@ -121,6 +121,18 @@ Final focused commands:
 - `python3 scripts/check-configuration-ui.py --suite prerequisites`
 - `git diff --check`
 
+Controller validation on the first PR-reference candidate passed formatting,
+lint and the five native targets, then retained a redraw setup failure: the
+old long Rust prefix clipped every Unicode glyph from the split-pane surface
+once native gutters occupied their columns. The fixture now places the same
+CJK, combining, emoji and ZWJ glyphs earlier in valid Rust comments. It retains
+512 tabbed lines, three panes, the 100x30 surface, visible syntax, unchanged
+canonical state and all timing/memory/output bounds. The original visible
+Unicode assertion remains required. A focused redraw passed 64 frames with a
+2.644-ms maximum and zero workload filesystem events. Setup failures now include
+the workload identity and bounded child diagnostics instead of discarding the
+retained error before the ready barrier.
+
 ## Risks and Follow-ups
 
 Linux process accounting has clock-tick resolution. Controlled native time proves

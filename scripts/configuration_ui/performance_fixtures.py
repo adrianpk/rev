@@ -51,7 +51,7 @@ def candidates(root, kind):
 def documents(root):
     directory = root / 'work'
     directory.mkdir()
-    text = ''.join(f'\tfn item_{index}() {{ let label = "界e\u0301🙂👩\u200d💻"; }}\n' for index in range(512))
+    text = ''.join(f'\tfn f{index}(){{/*界e\u0301🙂👩\u200d💻*/}}\n' for index in range(512))
     (directory / 'main.rs').write_text(text)
     code = b'fn item() { let value = 42; }\n'
     content = code * (65536 // len(code))

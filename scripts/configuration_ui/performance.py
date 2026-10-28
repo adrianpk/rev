@@ -68,7 +68,9 @@ def native(root, kind, watch):
             remaining = max(0, deadline - time.monotonic())
             assert select.select([process.stdout], [], [], remaining)[0], 'native setup stalled'
             data = os.read(process.stdout.fileno(), 65536)
-            assert data, 'native exited before workload barrier'
+            if not data:
+                _, error = process.communicate(timeout=max(0.01, remaining))
+                raise AssertionError(f'{kind} setup exited before barrier: {error[-4000:].decode(errors="replace")}')
             prefix.extend(data)
             assert len(prefix) <= 65536, 'native setup output exceeded 64 KiB'
         before = watch.drain()
