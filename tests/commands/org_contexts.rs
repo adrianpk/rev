@@ -131,3 +131,19 @@ fn nontext_roles() {
         ));
     }
 }
+
+// Effective calendar maps include inherited prompt edits, but a host calendar
+// cannot dispatch those edits into its document without an active prompt.
+#[test]
+fn calendar_inherited_edits() {
+    let snapshot = settings("[keys.minibuffer]\n'M-j' = 'delete-char'");
+    let mut input = Input::with_settings(&snapshot);
+    input.set_org_context(Some(OrgContext::Calendar));
+    for wire in [super::key(KeyCode::Delete), meta('j')] {
+        assert!(matches!(input.handle(wire), Outcome::Message(_)));
+    }
+    assert!(
+        rev::input::keymap::Context::OrgCalendar
+            .available(rev::command::Binding::named("delete-char").unwrap())
+    );
+}

@@ -12,7 +12,7 @@ impl Context {
                 "expected an existing command name; unbinding values are unsupported",
             )
         })?;
-        if !self.available(target) {
+        if !self.local_available(target) {
             return Err(Error::new(
                 self,
                 sequence,
@@ -21,6 +21,15 @@ impl Context {
             ));
         }
         Ok(target)
+    }
+
+    // Calendar inheritance admits prompt editing only while that prompt owns
+    // focus. Local calendar overrides and host roles retain narrower authority.
+    pub(crate) fn local_available(self, target: Binding) -> bool {
+        match self {
+            Self::OrgCalendar => calendar(target),
+            _ => self.available(target),
+        }
     }
 
     pub fn available(self, target: Binding) -> bool {
@@ -32,7 +41,7 @@ impl Context {
                 org_navigation(target)
                     || matches!(target, Binding::Command(Command::Org(command)) if command.estimate())
             }
-            Self::OrgCalendar => calendar(target),
+            Self::OrgCalendar => calendar(target) || minibuffer(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
         }

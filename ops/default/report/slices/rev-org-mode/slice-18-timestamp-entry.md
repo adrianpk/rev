@@ -132,6 +132,16 @@ ownership, with schedule/deadline CRLF line-end regressions. Driver corrections
 clear calendar-filled drafts, accept stale drafts directly and use the observed
 end-of-line column; acceptance assertions and deadlines remain intact.
 
+The final configuration regression first failed `keymaps::complete_defaults`:
+calendar maps inherited minibuffer actions but reported those actions unavailable.
+Effective availability now includes inherited prompt actions; local calendar
+configuration and host-role dispatch retain their narrower admission. The
+existing local-edit rejection checks remain intact. Focused regressions passed:
+
+- `cargo test --test configuration complete_defaults -- --nocapture`.
+- `cargo test --test commands --test org_editing inherited_edit -- --nocapture`:
+  two native input/session regressions passed, zero skips.
+
 [Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) records
 required ordered checks against its final clean HEAD through controller
 validation before handoff:

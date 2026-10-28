@@ -37,7 +37,7 @@ impl Input {
         }
         if self.focus() == Focus::Editing {
             if self.workspace_org == Some(super::OrgContext::Calendar)
-                && !MapContext::OrgCalendar.available(binding)
+                && !MapContext::OrgCalendar.local_available(binding)
             {
                 return Outcome::Message("Prompt action requires an active prompt");
             }

@@ -230,3 +230,21 @@ fn timestamp_planning_context() {
         assert_eq!(text(&session), source);
     }
 }
+
+// A custom inherited minibuffer edit reaches the active native calendar prompt.
+// Deleting/retyping a draft character never publishes it before acceptance.
+#[test]
+fn timestamp_inherited_edit() {
+    let (_fixture, session) = editor("[keys.minibuffer]\n'M-j'='delete-char'", "notes.org", "");
+    let mut session = session.with_org_clock(clock);
+    action(&mut session, C::Timestamp);
+    session.handle(Event::Paste("2024-02-29".into()));
+    session.handle(key(KeyCode::Home));
+    session.handle(meta('j'));
+    session.handle(key(KeyCode::Char('2')));
+    assert_eq!(text(&session), "");
+    assert!(session.buffer().unwrap().history().is_empty());
+    session.handle(key(KeyCode::Enter));
+    assert_eq!(text(&session), "<2024-02-29 Thu>");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+}

@@ -440,7 +440,9 @@ T18.2: `7b6dff79c380`; T18.3: `538691d2e1ae`.
 [Canonical PR #119](https://forge.adrianpk.com/adrianpk/rev/pulls/119) and
 [Slice 18 report](../report/slices/rev-org-mode/slice-18-timestamp-entry.md)
 are reviewing. Controller receipts bind final required/focused checks to the
-clean PR head; verified dev integration remains pending.
+clean PR head; verified dev integration remains pending. Final configuration
+regression exposed calendar inherited-action availability; focused default-map,
+host-role and native prompt regressions pass after the admission correction.
 
 ### Slice 19: reschedule repeated Org tasks correctly
 
