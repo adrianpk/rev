@@ -234,6 +234,17 @@ Details and exact checks: [Slice 13](../plan/rev-input-navigation.md#slice-13-se
 - [x] T13.3: Verify selection/copy/kill/undo integration, Unicode/tab endpoints and byte fidelity; retain selection after release without implicit clipboard writes.
 - [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
+Slice 13 of 20 implemented. Canonical PR [#93](https://forge.adrianpk.com/adrianpk/rev/pulls/93) targets dev.
+The [canonical report](../report/slices/rev-input-navigation/slice-13-pointer-selection.md)
+records source-owned canonical regions, release/cancellation, checked Unicode
+endpoints, native copy/kill/history, editing fixture reconciliation and two owned
+SGR PTYs. Canonical and focused exact-head evidence is recorded through the
+controller after PR references. Integration remains pending; the pointer ticket
+stays active through primary slices 10-15.
+T13.1: `9ce11b32d0a97e6930ed073e362949c8a07f4f69`.
+T13.2: `812ac03c0b0a7b3bb46c63d3b0a8f760c1c5d885`.
+T13.3: `17ff0de8cbff3f9a122f8d9d014a810eb04759fc`.
+
 ### Slice 14: extend pointer selection with bounded autoscroll
 
 Contracts: PTR04 PTR05.
