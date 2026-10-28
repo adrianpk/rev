@@ -79,6 +79,11 @@ Implementation checks:
 - `cargo test --test gutter folds::`: one passed.
 - Focused source-quality checks passed for changed native owners and fixtures.
 
+The initial controller batch found a native overflow regression: hit testing
+returned no target when viewport-row addition overflowed. The projected hit path
+now checks that addition before source lookup. The existing error assertion,
+EOF no-target behavior and required command list are preserved.
+
 After the pushed PR-reference follow-up, the controller records the final clean
 candidate and outcomes for this exact ordered batch in its validation ledger:
 

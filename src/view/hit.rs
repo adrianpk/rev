@@ -28,7 +28,13 @@ impl View {
         text: Area,
         local: Position,
     ) -> Result<Option<Point>, Error> {
-        let Some(row) = self.source_row(buffer, usize::from(local.row)) else {
+        // Arithmetic overflow is an invalid viewport, distinct from an ordinary
+        // blank row beyond EOF. Preserve the native checked-error contract.
+        let projected = self
+            .projected_top(buffer)
+            .checked_add(usize::from(local.row))
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        let Some(row) = self.source_at(buffer, projected) else {
             return Ok(None);
         };
         let column = self
