@@ -1,6 +1,6 @@
 # Slice 8: Deliver native Org visibility controls
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -92,8 +92,9 @@ The terminal driver's show-all predicate was corrected to the handler's actual
 `Org show-all` echo. Expected source rows, byte fidelity and cleanup assertions
 were preserved.
 
-Required exact-head controller validation follows the pushed PR-reference
-follow-up, in this order:
+Required exact-head controller receipt `I27ZJKPOPSFRW75KQXZ5VOSJXJ` passed
+these six ordered checks at `72c490f46bd417923ad9cde762ccae7ae2f9d729`,
+with 218 Rust tests, two owned PTY sessions and zero skips:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -102,9 +103,11 @@ follow-up, in this order:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused configuration tests and reference checks are recorded separately at the
-same candidate. Exact-head receipts are retained by the controller; integration
-evidence will close this report after the canonical merge is verified.
+Focused receipt `YH2OYN7TGRX2CR6THR2ISRXYF3` passed 96 configuration tests,
+reference/template checks and `git diff --check` at that same head. Canonical PR
+title/body, branch/base, immutable report introduction and head were verified.
+PR #109 merged into `dev` at that exact commit; live Forgejo and Git integration
+were verified before closure.
 
 ## Risks and Follow-ups
 

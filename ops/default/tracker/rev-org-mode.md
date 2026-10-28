@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 8 fold-controls
+Active slice: Slice 9 outline-navigation
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -223,12 +223,15 @@ Details and exact checks: [Slice 8](../plan/rev-org-mode.md#slice-8-deliver-nati
 - [x] T8.1: Implement heading TAB cycle, whole-view S-TAB cycle and direct visibility/drawer commands.
 - [x] T8.2: Integrate hierarchy-aware reveal with ordinary motion, searches and saved independent view state.
 - [x] T8.3: Exercise native keys, M-x, cancellation and source immutability in an owned outline PTY journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#109](https://forge.adrianpk.com/adrianpk/rev/pulls/109).
 Report: [Slice 8](../report/slices/rev-org-mode/slice-8-fold-controls.md).
-PR-reference follow-up precedes exact-head validation; integration remains
-controller-owned.
+Integrated into `dev` at `72c490f46bd417923ad9cde762ccae7ae2f9d729`.
+Controller receipt `I27ZJKPOPSFRW75KQXZ5VOSJXJ` passed the required six checks,
+218 Rust tests and two owned PTY sessions with zero skips. Focused receipt
+`YH2OYN7TGRX2CR6THR2ISRXYF3` passed 96 configuration tests and reference/template
+checks at the same head. Canonical title/body/report/head verified.
 
 ### Slice 9: insert and navigate Org headings
 
