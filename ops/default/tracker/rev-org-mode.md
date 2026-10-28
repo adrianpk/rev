@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 1 source-contract
+Active slice: Slice 2 incremental-index
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -97,14 +97,16 @@ Details and exact checks: [Slice 1](../plan/rev-org-mode.md#slice-1-define-nativ
 - [x] T1.1: Introduce the in-house Org owner and revision-qualified source ranges; keep canonical rope bytes authoritative.
 - [x] T1.2: Represent recognized and unknown forms without executing directives or retaining a second editable document.
 - [x] T1.3: Introduce the org_source target and verify UTF-8, CRLF, malformed input and checked-range failures.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T1.1 `78dac679f1cfda33e32bb841ed6c4220bb75aa88`,
 T1.2 `a30dfbe6f753bf8b6d444c59d8658dfadd4c263e`,
 T1.3 `1cb2d944a403a5059f559b64844ab7c7564e3bac`.
 Canonical PR: [#102](https://forge.adrianpk.com/adrianpk/rev/pulls/102).
 Report: [Slice 1](../report/slices/rev-org-mode/slice-1-source-contract.md).
-Integration: pending controller verification.
+Integration: PR #102 merged into dev at `466b5356cfd1a633b2b37f946009dfe1f242dda0`.
+Validation: controller receipt `BPV6RCGRQUGEUWI4ASIDLTG22H` passed all five
+ordered checks at that exact candidate, including 30 tests with zero skips.
 
 ### Slice 2: index Org structure with bounded work
 

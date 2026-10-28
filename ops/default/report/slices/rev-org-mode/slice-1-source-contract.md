@@ -1,11 +1,12 @@
 # Slice 1: Define native Org source contracts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
 Branch: `feat/rev-org-01-source-contract`
 PR: [#102](https://forge.adrianpk.com/adrianpk/rev/pulls/102)
+Integrated: `466b5356cfd1a633b2b37f946009dfe1f242dda0`
 
 ## Purpose
 
@@ -66,8 +67,10 @@ The initial combined test run passed all 24 coordinate tests and exposed an
 incorrect assumption in the new edit test about scalar ranges versus view-point
 boundaries. The corrected test passed before all six Org tests passed together.
 
-The final clean PR head requires this exact controller-recorded batch. Its
-receipt and the canonical PR retain the final candidate and check outcomes:
+Controller receipt `BPV6RCGRQUGEUWI4ASIDLTG22H` passed this exact ordered
+batch on clean candidate `466b5356cfd1a633b2b37f946009dfe1f242dda0`, with
+30 native tests passed and zero skips. The canonical forge verified PR #102
+merged that candidate into dev:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
