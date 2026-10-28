@@ -4,7 +4,7 @@ mod advance;
 mod interval;
 mod parse;
 
-use super::{CivilDateTime, Timestamp};
+use super::{CivilDateTime, CivilTime, Date, Timestamp};
 pub use interval::{RepeatInterval, RepeatUnit};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -45,6 +45,25 @@ impl Repeater {
     }
 }
 impl Timestamp {
+    pub(in crate::org) fn occurrence_from(&self, date: Date) -> Result<Self, String> {
+        let Some(repeat) = self.repeater()? else {
+            return Ok(self.clone());
+        };
+        if self.date() >= date {
+            return Ok(self.clone());
+        }
+        let cutoff = CivilDateTime {
+            date: date.add_days(-1)?,
+            time: CivilTime::new(23, 59, 59)?,
+        };
+        let next = advance::catch_up(advance::civil(self)?, cutoff, repeat.interval, true)?;
+        let mut value = self.clone();
+        value.set_date(next.date);
+        if self.time().is_some() {
+            value.set_time(Some(next.time))?;
+        }
+        Ok(value)
+    }
     pub fn repeater(&self) -> Result<Option<Repeater>, String> {
         Ok(parse::suffixes(self.suffix())?.repeater)
     }

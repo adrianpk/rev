@@ -98,9 +98,12 @@ default = "0"
 # Explicit local files or directories; relative to this declaring config file.
 # Directories include immediate .org children only. Empty never scans anything.
 sources = []
+span = "week" # day or week; Monday-based by default.
+week_start = 1 # 1=Monday through 7=Sunday.
 
 [org.limits]
 # Positive finite discovery/read budgets; no idle scanning or permanent worker.
+agenda_rows = 20000 # Maximum 100000 retained calendar facts/rows.
 agenda_files = 512 # Maximum 4096 unique admitted documents.
 agenda_file_bytes = 8388608 # Maximum 33554432 bytes per source.
 agenda_total_bytes = 67108864 # Maximum 268435456 bytes across reads/snapshots.

@@ -167,6 +167,7 @@ def type_label(kind):
         "Option<TreeRoot>": "String:",
         "Option<Newline>": "String:",
         "Option<LocalTimePolicy>": "String:",
+        "Option<AgendaSpan>": "String:",
         "Option<RepeatLogging>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",

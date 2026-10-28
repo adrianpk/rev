@@ -441,6 +441,8 @@ fn habit(partial: &super::PartialHabit) -> Result<(), Failure> {
 }
 
 fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
+    integer("org.agenda.week_start", org.agenda.week_start, 1..=7)?;
+    integer("org.limits.agenda_rows", org.limits.agenda_rows, 1..=100000)?;
     let limits = &org.limits;
     integer("org.limits.agenda_files", limits.agenda_files, 1..=4096)?;
     integer(

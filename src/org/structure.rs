@@ -175,29 +175,48 @@ impl StructureScan {
     }
 
     pub fn run(self, cancellation: &Cancellation) -> Structure {
-        let mut work = Work {
-            cancellation,
-            yielded: Instant::now(),
-        };
-        let mut result = Structure {
+        let document = observe(self.text, self.limits, cancellation);
+        Structure {
             stamp: self.stamp,
-            coverage: Coverage::Complete,
-            covered: 0,
-            nodes: Vec::new(),
-        };
-        let rows = rows::collect(&self.text, self.limits, &mut work, &mut result);
-        let mut parser = Parser {
-            text: self.text,
-            rows,
-            result,
-            work,
-            limits: self.limits,
-        };
-        if let Err(Stop(coverage)) = parser.outline() {
-            parser.result.coverage = coverage;
+            coverage: document.coverage,
+            covered: document.covered,
+            nodes: document.nodes,
         }
-        parser.result
     }
+}
+/// Unqualified structural facts for a checked immutable disk/buffer observation.
+/// Only the source owner may attach real locator provenance to these offsets.
+pub(in crate::org) struct Document {
+    pub(in crate::org) coverage: Coverage,
+    covered: usize,
+    pub(in crate::org) nodes: Vec<Raw>,
+}
+pub(in crate::org) fn observe(
+    text: ropey::Rope,
+    limits: Limits,
+    cancellation: &Cancellation,
+) -> Document {
+    let mut work = Work {
+        cancellation,
+        yielded: Instant::now(),
+    };
+    let mut result = Document {
+        coverage: Coverage::Complete,
+        covered: 0,
+        nodes: Vec::new(),
+    };
+    let rows = rows::collect(&text, limits, &mut work, &mut result);
+    let mut parser = Parser {
+        text,
+        rows,
+        result,
+        work,
+        limits,
+    };
+    if let Err(Stop(coverage)) = parser.outline() {
+        parser.result.coverage = coverage;
+    }
+    parser.result
 }
 
 struct Stop(Coverage);
@@ -224,7 +243,7 @@ impl Work<'_> {
 struct Parser<'a> {
     text: ropey::Rope,
     rows: Vec<Row>,
-    result: Structure,
+    result: Document,
     work: Work<'a>,
     limits: Limits,
 }

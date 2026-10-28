@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::ops::Range;
 
 use super::tokens::{self, Token};
-use super::{Coverage, Limit, Limits, Parsed, Stop, Structure, Work};
+use super::{Coverage, Document, Limit, Limits, Parsed, Stop, Work};
 
 pub(super) struct Row {
     pub source: Range<usize>,
@@ -18,7 +18,7 @@ pub(super) fn collect(
     text: &ropey::Rope,
     limits: Limits,
     work: &mut Work<'_>,
-    result: &mut Structure,
+    result: &mut Document,
 ) -> Vec<Row> {
     let mut rows = Vec::new();
     if let Err(Stop(coverage)) = read_rows(text, limits, work, &mut rows) {

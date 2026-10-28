@@ -87,7 +87,7 @@ fn shifted_end(
         })
         .transpose()
 }
-fn catch_up(
+pub(in crate::org::time::repeat) fn catch_up(
     base: CivilDateTime,
     completed: CivilDateTime,
     interval: RepeatInterval,

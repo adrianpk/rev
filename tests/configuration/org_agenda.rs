@@ -76,3 +76,41 @@ fn agenda_configuration() {
         assert_eq!(s.snapshot, Snapshot::default(), "{name}");
     }
 }
+
+// Calendar span/weekday/row policies layer by typed leaf and reject future or
+// out-of-range choices without partially activating the candidate.
+#[test]
+fn calendar_configuration() {
+    let f = Fixture::new();
+    let base = f.write(
+        "base.toml",
+        "org.agenda.span='day'\norg.limits.agenda_rows=5",
+    );
+    let root = f.write(
+        "calendar.toml",
+        "include=['base.toml']\norg.agenda.week_start=7",
+    );
+    let s = prepare(&root);
+    assert!(s.diagnostic.is_none());
+    assert_eq!(
+        s.snapshot.settings().org.agenda.span,
+        rev::config::AgendaSpan::Day
+    );
+    assert_eq!(s.snapshot.settings().org.agenda.week_start, 7);
+    assert_eq!(s.snapshot.settings().org.limits.agenda_rows, 5);
+    assert_eq!(
+        s.snapshot.origin(&["org", "agenda", "span"]),
+        Some(base.as_path())
+    );
+    for value in [
+        "org.agenda.span='invalid'",
+        "org.agenda.week_start=0",
+        "org.agenda.week_start=8",
+        "org.limits.agenda_rows=0",
+        "org.limits.agenda_rows=100001",
+    ] {
+        let s = prepare(&f.write("candidate.toml", value));
+        assert!(s.diagnostic.is_some(), "{value}");
+        assert_eq!(s.snapshot, Snapshot::default());
+    }
+}

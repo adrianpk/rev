@@ -285,6 +285,9 @@ fn habit(base: &mut super::Habit, partial: &super::PartialHabit) {
 }
 
 fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
+    scalar(&mut base.agenda.span, partial.agenda.span);
+    count(&mut base.agenda.week_start, partial.agenda.week_start);
+    count(&mut base.limits.agenda_rows, partial.limits.agenda_rows);
     if let Some(paths) = &partial.agenda.sources {
         base.agenda.sources.clone_from(paths);
     }

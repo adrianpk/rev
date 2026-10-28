@@ -19,3 +19,8 @@ mod sources;
 pub use sources::{
     AgendaSource, SourceIssue, SourceScan, SourceSelection, SourceSet, SourceVersion,
 };
+
+mod calendar;
+pub use calendar::{
+    Calendar, CalendarKind, CalendarLine, CalendarQuery, CalendarRow, CalendarSource,
+};

@@ -12,14 +12,27 @@ use super::{Index, Scan};
 
 /// Cooperative cancellation, checked between bounded compute or IO steps.
 #[derive(Clone, Default)]
-pub struct Cancellation(Arc<AtomicBool>);
+pub struct Cancellation {
+    flag: Arc<AtomicBool>,
+    deadline: Option<std::time::Instant>,
+}
 
 impl Cancellation {
+    pub(crate) fn bounded(&self, deadline: std::time::Instant) -> Self {
+        Self {
+            flag: self.flag.clone(),
+            deadline: Some(self.deadline.map_or(deadline, |old| old.min(deadline))),
+        }
+    }
+    pub(crate) fn expired(&self) -> bool {
+        self.deadline
+            .is_some_and(|end| std::time::Instant::now() >= end)
+    }
     pub fn cancel(&self) {
-        self.0.store(true, Ordering::Release);
+        self.flag.store(true, Ordering::Release);
     }
     pub fn is_cancelled(&self) -> bool {
-        self.0.load(Ordering::Acquire)
+        self.flag.load(Ordering::Acquire) || self.expired()
     }
 }
 

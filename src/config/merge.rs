@@ -56,6 +56,16 @@ impl Document {
             &mut self.org.agenda.sources,
             &later.org.agenda.sources,
         );
+        merge.leaf(
+            &["org", "agenda", "span"],
+            &mut self.org.agenda.span,
+            &later.org.agenda.span,
+        );
+        merge.leaf(
+            &["org", "agenda", "week_start"],
+            &mut self.org.agenda.week_start,
+            &later.org.agenda.week_start,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
@@ -703,6 +713,11 @@ impl Merge {
         base: &mut super::PartialOrgLimits,
         later: &super::PartialOrgLimits,
     ) {
+        self.leaf(
+            &["org", "limits", "agenda_rows"],
+            &mut base.agenda_rows,
+            &later.agenda_rows,
+        );
         self.leaf(
             &["org", "limits", "agenda_files"],
             &mut base.agenda_files,

@@ -675,10 +675,15 @@ configuration reference, zero skips.
 Contracts: ORG08 ORG09.
 Details and exact checks: [Slice 27](../plan/rev-org-mode.md#slice-27-display-native-day-and-week-org-agendas).
 
-- [ ] T27.1: Deliver read-only agenda rows, time grid, overdue/scheduled/deadline sections and day/week navigation.
+- [x] T27.1: Deliver read-only agenda rows, time grid, overdue/scheduled/deadline sections and day/week navigation.
 - [ ] T27.2: Use revision-qualified source locators and the captured effective date/zone for every row.
 - [ ] T27.3: Verify real refresh, source return, shared buffers and no agenda-as-document mutation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T27.1 delivers bounded day/week facts, planning sections and time grids with
+captured date/zone context. Four focused model/configuration cases, focused
+Clippy, source quality and the complete reference pass. Native ownership and
+checked source navigation follow in T27.2.
 
 ### Slice 28: query Org tasks tags and properties
 

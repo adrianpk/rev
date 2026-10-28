@@ -84,3 +84,6 @@ mod habits;
 
 #[path = "org_agenda/sources.rs"]
 mod sources;
+
+#[path = "org_agenda/calendar_rows.rs"]
+mod calendar_rows;

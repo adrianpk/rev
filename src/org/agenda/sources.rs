@@ -64,11 +64,15 @@ pub struct AgendaSource {
     text: Rope,
 }
 impl AgendaSource {
+    pub(in crate::org) fn snapshot(&self) -> Rope {
+        self.text.clone()
+    }
+
     pub fn text(&self) -> ropey::RopeSlice<'_> {
         self.text.slice(..)
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SourceIssue {
     pub path: Option<PathBuf>,
     pub message: String,

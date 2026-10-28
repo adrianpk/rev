@@ -746,20 +746,41 @@ pub struct PartialHabit {
 }
 
 /// Explicit agenda roots. Empty roots never imply a filesystem search.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Agenda {
     pub sources: Vec<String>,
+    pub span: AgendaSpan,
+    pub week_start: usize,
+}
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AgendaSpan {
+    Day,
+    #[default]
+    Week,
+}
+impl Default for Agenda {
+    fn default() -> Self {
+        Self {
+            sources: Vec::new(),
+            span: AgendaSpan::Week,
+            week_start: 1,
+        }
+    }
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialAgenda {
     pub sources: Option<Vec<String>>,
+    pub span: Option<AgendaSpan>,
+    pub week_start: Option<i64>,
 }
 /// Finite agenda discovery and IO budgets. Other Org limits remain with their
 /// existing owners until their typed operations are delivered.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OrgLimits {
     pub agenda_files: usize,
+    pub agenda_rows: usize,
     pub agenda_file_bytes: usize,
     pub agenda_total_bytes: usize,
     pub job_seconds: usize,
@@ -768,6 +789,7 @@ impl Default for OrgLimits {
     fn default() -> Self {
         Self {
             agenda_files: 512,
+            agenda_rows: 20000,
             agenda_file_bytes: 8388608,
             agenda_total_bytes: 67108864,
             job_seconds: 30,
@@ -778,6 +800,7 @@ impl Default for OrgLimits {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrgLimits {
     pub agenda_files: Option<i64>,
+    pub agenda_rows: Option<i64>,
     pub agenda_file_bytes: Option<i64>,
     pub agenda_total_bytes: Option<i64>,
     pub job_seconds: Option<i64>,
