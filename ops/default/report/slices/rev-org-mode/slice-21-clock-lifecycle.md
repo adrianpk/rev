@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-21-clock-lifecycle`
-PR: pending
+PR: `#122`
 
 ## Purpose
 
@@ -162,6 +162,9 @@ intended literal context with unchanged rejection/source/state assertions.
 Recovery end selection also retains a captured current instant at sub-minute
 precision, avoiding a rounded earlier second for zero-minute restart intervals.
 
+T21.3 commit: `998e7d26d93bbb7604dfd4c6962859892c862005`.
+
+[Canonical PR #122](https://forge.adrianpk.com/adrianpk/rev/pulls/122) targets dev.
 Final required controller validation binds the final clean PR head in this order:
 
 - `cargo fmt --all -- --check`

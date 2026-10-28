@@ -515,10 +515,15 @@ two configuration cases and 137 editing/window regressions passed. T21.2 passed
 native source/time/recovery boundaries, exact 64/65 record admission, complete
 catalog/key parity, affected Clippy/source quality and four owned task PTYs.
 
-T21.2: `a1df24f58a3c`. T21.3 passed eleven org_io cases, bounded recent-task
+T21.2: `a1df24f58a3c`; T21.3: `998e7d26d93b`. T21.3 passed eleven org_io cases, bounded recent-task
 and policy cases, affected all-target Clippy/source quality, configuration
 reference agreement and eight owned task/restart PTYs. Final exact-head required
 and focused receipts remain tied to the PR-reference head.
+
+[Canonical PR #122](https://forge.adrianpk.com/adrianpk/rev/pulls/122) and the
+[Slice 21 report](../report/slices/rev-org-mode/slice-21-clock-lifecycle.md) are
+reviewing. Controller receipts bind final required/focused checks to the clean
+PR head; verified dev integration remains pending.
 
 ### Slice 22: compare Org clock totals and effort
 
