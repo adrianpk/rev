@@ -121,13 +121,16 @@ impl View {
     /// Resolve one local screen row to its canonical logical source row. Hidden
     /// source never aliases a displayed row; EOF/overflow return no target.
     pub fn source_row(&self, buffer: &Buffer, local: usize) -> Option<usize> {
+        if self.point.stamp != buffer.stamp() {
+            return None;
+        }
         self.source_at(buffer, self.projected_top(buffer).checked_add(local)?)
     }
 
     /// Resolve canonical source to a local screen row; hidden and above-viewport
     /// source has no screen position. Columns retain the existing glyph owner.
     pub fn screen_row(&self, buffer: &Buffer, source: usize) -> Option<usize> {
-        if source >= buffer.len_lines() {
+        if self.point.stamp != buffer.stamp() || source >= buffer.len_lines() {
             return None;
         }
         self.project_row(buffer, source)?

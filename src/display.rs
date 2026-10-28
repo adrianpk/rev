@@ -133,7 +133,7 @@ impl Frame {
         self.numbers(buffer, view, geometry, point.row)?;
         self.status(buffer, point, panel)?;
         if panel.active() {
-            self.cursor = Self::position(point, view, text);
+            self.cursor = Self::position(point, view, text, buffer);
         }
         Ok(())
     }
@@ -186,7 +186,9 @@ impl Frame {
         let coordinates = Coordinates::new(buffer)?;
         let content = panel.content();
         for row in 0..content.height() {
-            let source = view.top.saturating_add(usize::from(row));
+            let source = view
+                .source_row(buffer, usize::from(row))
+                .unwrap_or(buffer.len_lines());
             let text = if source < buffer.len_lines() {
                 clip::line(coordinates.glyphs(source)?, view.left, content.width())?
             } else {
@@ -261,10 +263,10 @@ impl Frame {
         }
     }
 
-    fn position(point: Cell, view: &View, panel: Panel) -> Option<Position> {
+    fn position(point: Cell, view: &View, panel: Panel, buffer: &Buffer) -> Option<Position> {
         panel.position(Position {
             column: u16::try_from(point.column.checked_sub(view.left)?).ok()?,
-            row: u16::try_from(point.row.checked_sub(view.top)?).ok()?,
+            row: u16::try_from(view.screen_row(buffer, point.row)?).ok()?,
         })
     }
 }

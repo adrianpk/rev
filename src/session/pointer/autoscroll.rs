@@ -19,8 +19,12 @@ pub(super) struct Autoscroll {
 }
 
 impl Autoscroll {
-    fn blocked(&self, top: usize, last: usize) -> bool {
-        if self.backward { top == 0 } else { top == last }
+    fn blocked(&self, top: usize, first: usize, last: usize) -> bool {
+        if self.backward {
+            top == first
+        } else {
+            top == last
+        }
     }
 }
 
@@ -115,7 +119,14 @@ impl Session {
         };
         let before = self.view();
         let changed = candidate != *before;
-        if pending.blocked(candidate.top, self.buffer()?.len_lines() - 1) {
+        let buffer = self.buffer()?;
+        let first = candidate
+            .source_at(buffer, 0)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        let last = candidate
+            .source_at(buffer, candidate.visible_lines(buffer) - 1)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        if pending.blocked(candidate.top, first, last) {
             selection.autoscroll = None;
         }
         if changed {
@@ -146,7 +157,7 @@ impl Session {
             return Ok(None);
         }
         candidate.point.position =
-            Coordinates::new(buffer)?.from_cell(edge_cell(&candidate, buffer, text, pending))?;
+            Coordinates::new(buffer)?.from_cell(edge_cell(&candidate, buffer, text, pending)?)?;
         candidate.reset_navigation();
         candidate.reveal(buffer, size)?;
         Ok(Some(candidate))
@@ -158,22 +169,28 @@ fn edge_cell(
     buffer: &crate::buffer::Buffer,
     text: Area,
     pending: &Autoscroll,
-) -> Cell {
+) -> Result<Cell, Error> {
     let offset = if pending.backward {
         0
     } else {
         usize::from(text.height()) - 1
     };
-    let row = view.top.saturating_add(offset).min(buffer.len_lines() - 1);
+    let projected = view
+        .projected_top(buffer)
+        .saturating_add(offset)
+        .min(view.visible_lines(buffer) - 1);
+    let row = view
+        .source_at(buffer, projected)
+        .ok_or(crate::coordinates::Error::Overflow)?;
     let local = pending
         .position
         .column
         .saturating_sub(text.column())
         .min(text.width() - 1);
-    Cell {
+    Ok(Cell {
         row,
         column: view.left.saturating_add(usize::from(local)),
-    }
+    })
 }
 
 #[cfg(test)]

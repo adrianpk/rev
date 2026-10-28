@@ -8,6 +8,8 @@ mod contexts;
 mod fixture;
 #[path = "org_editing/folds.rs"]
 mod folds;
+#[path = "org_editing/projection.rs"]
+mod projection;
 
 use std::time::Instant;
 

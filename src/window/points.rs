@@ -69,6 +69,7 @@ impl Windows {
                 .expect("captured view remains live during publication");
             view.point = point;
             view.top = top;
+            view.clear_folds();
         }
     }
 }

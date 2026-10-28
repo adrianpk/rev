@@ -28,13 +28,9 @@ impl View {
         text: Area,
         local: Position,
     ) -> Result<Option<Point>, Error> {
-        let row = self
-            .top
-            .checked_add(usize::from(local.row))
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        if row >= buffer.len_lines() {
+        let Some(row) = self.source_row(buffer, usize::from(local.row)) else {
             return Ok(None);
-        }
+        };
         let column = self
             .left
             .checked_add(usize::from(local.column))

@@ -12,8 +12,8 @@ pub(super) enum Alignment {
 }
 
 impl View {
-    /// Move the viewport first. Retain point unless the new visible rows exclude
-    /// it, then use the ordinary checked display-column mapping at the near edge.
+    /// Move through projected rows, retaining canonical point until it leaves
+    /// the viewport. Never clamp to a hidden source row at the near edge.
     pub(crate) fn scroll_viewport(
         &mut self,
         buffer: &Buffer,
@@ -25,14 +25,23 @@ impl View {
         if !size.usable() {
             return Ok(());
         }
-        let last = buffer.len_lines() - 1;
-        self.top = destination(self.top, distance, backward).min(last);
-        let bottom = self
-            .top
+        self.reveal_fold(buffer, point.row);
+        let last = self.visible_lines(buffer) - 1;
+        let top = destination(self.projected_top(buffer), distance, backward).min(last);
+        self.top = self
+            .source_at(buffer, top)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        let bottom = top
             .saturating_add(usize::from(size.text_rows()) - 1)
             .min(last);
-        let row = point.row.clamp(self.top, bottom);
-        if row != point.row {
+        let projected = self
+            .project_row(buffer, point.row)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        let row = projected.clamp(top, bottom);
+        if row != projected {
+            let row = self
+                .source_at(buffer, row)
+                .ok_or(crate::coordinates::Error::Overflow)?;
             self.point.position = Coordinates::new(buffer)?.from_cell(Cell {
                 row,
                 column: point.column,
@@ -41,7 +50,6 @@ impl View {
         self.reveal(buffer, size)
     }
 
-    /// Nonvertical commands and direct insertion start a new navigation sequence.
     pub(crate) fn reset_navigation(&mut self) {
         self.column = None;
         self.alignment = Alignment::Center;
@@ -54,31 +62,49 @@ impl View {
         distance: usize,
     ) -> Result<(), Error> {
         let point = self.cell(buffer)?;
+        self.reveal_fold(buffer, point.row);
         self.sync_policy(buffer);
         self.alignment = Alignment::Center;
         if distance == 0 {
             return Ok(());
         }
         let column = *self.column.get_or_insert(point.column);
-        let row = destination(point.row, distance, scroll.backward()).min(buffer.len_lines() - 1);
-        self.point.position = Coordinates::new(buffer)?.from_cell(Cell { row, column })?;
+        let origin = self
+            .project_row(buffer, point.row)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        let row =
+            destination(origin, distance, scroll.backward()).min(self.visible_lines(buffer) - 1);
+        let source = self
+            .source_at(buffer, row)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        self.point.position = Coordinates::new(buffer)?.from_cell(Cell {
+            row: source,
+            column,
+        })?;
         if scroll.page() {
-            self.top = destination(self.top, point.row.abs_diff(row), scroll.backward())
-                .min(buffer.len_lines() - 1);
+            let top = destination(
+                self.projected_top(buffer),
+                origin.abs_diff(row),
+                scroll.backward(),
+            )
+            .min(self.visible_lines(buffer) - 1);
+            self.top = self
+                .source_at(buffer, top)
+                .ok_or(crate::coordinates::Error::Overflow)?;
         }
         Ok(())
     }
 
     pub(crate) fn recenter(&mut self, buffer: &Buffer, size: Size) -> Result<(), Error> {
         let point = self.cell(buffer)?;
+        self.reveal_fold(buffer, point.row);
         self.sync_policy(buffer);
-        self.align(point, size);
-        Ok(())
+        self.align(point, size, buffer)
     }
 
-    fn align(&mut self, point: Cell, size: Size) {
+    fn align(&mut self, point: Cell, size: Size, buffer: &Buffer) -> Result<(), Error> {
         if !size.usable() {
-            return;
+            return Ok(());
         }
         let rows = usize::from(size.text_rows());
         let (offset, next) = match self.alignment {
@@ -86,8 +112,14 @@ impl View {
             Alignment::Top => (0, Alignment::Bottom),
             Alignment::Bottom => (rows - 1, Alignment::Center),
         };
-        self.top = point.row.saturating_sub(offset);
+        let row = self
+            .project_row(buffer, point.row)
+            .ok_or(crate::coordinates::Error::Overflow)?;
+        self.top = self
+            .source_at(buffer, row.saturating_sub(offset))
+            .ok_or(crate::coordinates::Error::Overflow)?;
         self.alignment = next;
+        Ok(())
     }
 }
 

@@ -19,8 +19,7 @@ impl Frame {
         let settings = view.gutter.effective();
         for row in 0..area.height() {
             let label = view
-                .top
-                .checked_add(usize::from(row))
+                .source_row(buffer, usize::from(row))
                 .and_then(|line| NumberRow::new(line, buffer.len_lines(), current, settings));
             let mut projected = field(area, geometry.digits(), settings, label)?;
             projected.row = row;

@@ -161,7 +161,14 @@ impl View {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
                 .ok_or(coordinates::Error::Overflow)?;
             let width = self.gutter_geometry(buffer, content)?.text().width();
-            reveal(&mut self.top, point.row, usize::from(size.text_rows()));
+            let mut top = self.projected_top(buffer);
+            let row = self
+                .project_row(buffer, point.row)
+                .ok_or(coordinates::Error::Overflow)?;
+            reveal(&mut top, row, usize::from(size.text_rows()));
+            self.top = self
+                .source_at(buffer, top)
+                .ok_or(coordinates::Error::Overflow)?;
             reveal(&mut self.left, point.column, usize::from(width));
         }
         Ok(())

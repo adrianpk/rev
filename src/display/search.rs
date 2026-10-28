@@ -21,11 +21,9 @@ impl Frame {
         let panel = Panel::new(geometry.text(), false, panel.active());
         let highlight = Highlight::from_span(buffer, span)?;
         for local in 0..panel.content().height() {
-            let columns = highlight.row(
-                view.top.saturating_add(usize::from(local)),
-                view.left,
-                panel.content().width(),
-            );
+            let columns = view
+                .source_row(buffer, usize::from(local))
+                .and_then(|source| highlight.row(source, view.left, panel.content().width()));
             if let Some((row, columns)) = columns.and_then(|columns| panel.clip(local, columns)) {
                 let target = self
                     .rows
