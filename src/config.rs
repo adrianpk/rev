@@ -652,12 +652,14 @@ pub struct PartialMouse {
 /// Canonical clock source placement and zero-minute retention.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Clock {
+    pub out_when_done: bool,
     pub drawer: String,
     pub remove_zero: bool,
 }
 impl Default for Clock {
     fn default() -> Self {
         Self {
+            out_when_done: true,
             drawer: "LOGBOOK".into(),
             remove_zero: false,
         }
@@ -666,6 +668,7 @@ impl Default for Clock {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialClock {
+    pub out_when_done: Option<bool>,
     pub drawer: Option<String>,
     pub remove_zero: Option<bool>,
 }

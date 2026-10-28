@@ -9,6 +9,19 @@ pub(crate) struct ClockInsertion {
     pub cleanup: Option<Range<usize>>,
 }
 impl Outline {
+    pub(crate) fn clock_heading(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+    ) -> Result<crate::buffer::edit::Point, String> {
+        let span = buffer
+            .byte_span(self.headings[index].start..self.headings[index].start)
+            .map_err(|e| e.to_string())?;
+        Ok(crate::buffer::edit::Point {
+            stamp: span.stamp,
+            position: Scalar(span.range.start),
+        })
+    }
     pub(crate) fn clock_insertion(
         &self,
         buffer: &Buffer,

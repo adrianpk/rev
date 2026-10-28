@@ -503,3 +503,13 @@ An active clock adds no idle deadline, repaint loop or periodic source write.
 defaults false: a same-minute out retains a `0:00` record. Selecting true removes
 that record. Cancel removes its open record. Either removal also removes an
 otherwise empty clock drawer; unrelated logs and drawer text remain exact.
+
+Clocking a different heading closes the prior interval and opens the selected
+heading using one captured instant. Both source buffers and all shared views are
+prepared before either changes. Files are saved only by normal explicit saves.
+Clocking the same active heading again leaves its interval unchanged.
+
+`org.clock.out_when_done` defaults true. Selecting a finished task state closes
+that task's clock together with the keyword, planning and selected note/history
+edits. Note cancellation leaves the clock and source intact. A successful note
+uses the captured completion instant, excluding time spent typing the note.

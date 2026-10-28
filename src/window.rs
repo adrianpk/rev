@@ -2,6 +2,7 @@ mod geometry;
 mod layout;
 mod lifecycle;
 mod points;
+pub(crate) use points::Points;
 
 pub use geometry::{Area, Geometry, Split};
 pub use layout::Layout;

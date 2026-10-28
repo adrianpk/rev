@@ -9,22 +9,55 @@ pub(super) struct Transition {
     pub(super) stamp: String,
     operation: Option<ZonedOperation>,
     index: usize,
+    pub(super) clock: Option<crate::session::outline::clocks::switching::End>,
 }
 impl Session {
-    pub(super) fn task_transition(&self, change: TaskChange) -> Result<Transition, String> {
+    pub(super) fn task_transition(
+        &self,
+        model: &Outline,
+        change: TaskChange,
+    ) -> Result<Transition, String> {
         let mut transition = Transition {
             change,
             stamp: String::new(),
             operation: None,
             index: 0,
+            clock: None,
         };
         if transition.change.repeat.is_some() {
-            return self.repeat_transition(transition);
+            transition = self.repeat_transition(transition)?;
+            return self.completion_clock(model, transition);
         }
         let logging = &transition.change.logging;
-        if logging.closed || logging.state != Log::None || logging.note {
+        if (logging.closed || logging.state != Log::None || logging.note)
+            && !self.clock_completes(model, &transition.change)?
+        {
             transition.stamp = self.task_timestamp()?;
         }
+        self.completion_clock(model, transition)
+    }
+    fn completion_clock(
+        &self,
+        model: &Outline,
+        mut transition: Transition,
+    ) -> Result<Transition, String> {
+        if !self.clock_completes(model, &transition.change)? {
+            return Ok(transition);
+        }
+        if transition.operation.is_none() {
+            let operation = self.org_clock.unwrap_or(timestamps::capture)(
+                &self.buffers.snapshot().settings().org.time,
+            )?;
+            transition.stamp = operation.now().format_timestamp(false);
+            transition.operation = Some(operation);
+        }
+        transition.clock = self.clock_ended(
+            transition
+                .operation
+                .as_ref()
+                .expect("captured completion")
+                .instant(),
+        )?;
         Ok(transition)
     }
     fn repeat_transition(&self, mut transition: Transition) -> Result<Transition, String> {
@@ -90,7 +123,7 @@ impl Session {
                 "One-line note; empty records time only; C-g cancels the entire transition",
             );
         }
-        self.publish_task(&prompt.model, &transition.change, &transition.stamp, "")
+        self.publish_task(&prompt.model, &transition, "")
     }
     fn repeat_resolution(
         &mut self,

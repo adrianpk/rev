@@ -12,13 +12,14 @@ fn clock_layers() {
     );
     let root = fixture.write(
         "config.toml",
-        "include=['base.toml']\norg.clock.remove_zero=false",
+        "include=['base.toml']\norg.clock.remove_zero=false\norg.clock.out_when_done=false",
     );
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let clock = &startup.snapshot.settings().org.clock;
     assert_eq!(clock.drawer, "WORK");
     assert!(!clock.remove_zero);
+    assert!(!clock.out_when_done);
     assert_eq!(
         startup.snapshot.origin(&["org", "clock", "drawer"]),
         Some(included.as_path())
@@ -29,6 +30,7 @@ fn clock_layers() {
     );
     let clock = Snapshot::default().settings().org.clock.clone();
     assert_eq!(clock.drawer, "LOGBOOK");
+    assert!(clock.out_when_done);
     assert!(!clock.remove_zero);
 }
 

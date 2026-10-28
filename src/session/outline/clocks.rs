@@ -1,3 +1,6 @@
+mod batch;
+mod completion;
+pub(super) mod switching;
 use crate::buffer::{
     Span,
     edit::{Error, Point, Replacement},
@@ -7,6 +10,7 @@ use crate::org::{ClockInsertion, Outline, time::ClockInterval};
 use crate::session::{Action, Session};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub(in crate::session) struct Active {
     source: Span,
     owner: Point,
@@ -23,20 +27,21 @@ impl Session {
         if buffer.is_readonly() {
             return Err(Error::ReadOnly.to_string());
         }
-        if self.active_clock.is_some() {
-            return Err("An Org clock is active; clock out or cancel it first".into());
-        }
         let index = model.tag_target(buffer, request.origin.point.position)?;
+        if self.clock_same_task(&model, index)? {
+            self.message("Org clock already runs on this task");
+            return Ok(());
+        }
         let policy = &self.buffers.snapshot().settings().org.time;
         let operation = self.org_clock.unwrap_or(super::timestamps::capture)(policy)?;
-        let interval = ClockInterval::new(operation);
+        let interval = ClockInterval::new(operation.clone());
         let drawer = &self.buffers.snapshot().settings().org.clock.drawer;
         let insertion = model.clock_insertion(buffer, index, (&interval.open_source(), drawer))?;
-        self.publish_clock_in(insertion, interval)?;
+        self.switch_clock(insertion, interval, operation.instant())?;
         self.message("Org clock started");
         Ok(())
     }
-    fn publish_clock_in(
+    pub(super) fn publish_clock_in(
         &mut self,
         insertion: ClockInsertion,
         interval: ClockInterval,
@@ -115,7 +120,7 @@ impl Session {
             .map_err(|e| e.to_string())?;
         Ok(format!("{}{}", record.source, buffer.newline()))
     }
-    fn publish_clock_edit(&mut self, edit: Replacement) -> Result<(), String> {
+    pub(super) fn publish_clock_edit(&mut self, edit: Replacement) -> Result<(), String> {
         let previous = self.view().clone();
         let foreign = previous.point.stamp.buffer != edit.source.stamp.buffer;
         if foreign {

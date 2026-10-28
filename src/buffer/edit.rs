@@ -293,15 +293,7 @@ impl Buffer {
     /// The sole text publication path. The caller supplies every live point for
     /// this buffer; unchanged source snapshots are required before any mutation.
     pub fn publish(&mut self, prepared: Prepared, points: &mut [Point]) -> Result<(), Error> {
-        self.admit(prepared.record.before)?;
-        if points != prepared.record.before_points
-            || self.mark != prepared.record.before_mark
-            || self.mark_mode != prepared.active
-        {
-            return Err(Error::ChangedPositions);
-        }
-        self.admit_group(&prepared)?;
-        self.reserve(prepared.operation)?;
+        self.admit_publication(&prepared, points)?;
         // Queue admission completes before any text or live position changes.
         let before = prepared.record.before;
         let after = prepared.record.after;
@@ -324,6 +316,25 @@ impl Buffer {
             Operation::Typing => Some(after),
             _ => None,
         };
+        Ok(())
+    }
+
+    /// Reserve every recoverable publication requirement before a synchronous
+    /// multi-buffer operation commits any participant. No text is changed.
+    pub(crate) fn admit_publication(
+        &mut self,
+        prepared: &Prepared,
+        points: &[Point],
+    ) -> Result<(), Error> {
+        self.admit(prepared.record.before)?;
+        if points != prepared.record.before_points
+            || self.mark != prepared.record.before_mark
+            || self.mark_mode != prepared.active
+        {
+            return Err(Error::ChangedPositions);
+        }
+        self.admit_group(prepared)?;
+        self.reserve(prepared.operation)?;
         Ok(())
     }
 

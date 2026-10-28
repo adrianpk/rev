@@ -317,3 +317,6 @@ mod clocks;
 
 #[path = "org_editing/clock_edges.rs"]
 mod clock_edges;
+
+#[path = "org_editing/clock_switching.rs"]
+mod clock_switching;

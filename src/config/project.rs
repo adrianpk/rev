@@ -249,6 +249,7 @@ pub(super) fn time(base: &mut super::Time, partial: &super::PartialTime) {
 }
 
 pub(super) fn clock(base: &mut super::Clock, partial: &super::PartialClock) {
+    scalar(&mut base.out_when_done, partial.out_when_done);
     if let Some(value) = &partial.drawer {
         base.drawer.clone_from(value);
     }

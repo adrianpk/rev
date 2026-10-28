@@ -581,6 +581,11 @@ impl Merge {
 
 impl Merge {
     fn clock(&mut self, base: &mut super::PartialClock, later: &super::PartialClock) {
+        self.leaf(
+            &["org", "clock", "out_when_done"],
+            &mut base.out_when_done,
+            &later.out_when_done,
+        );
         self.leaf(&["org", "clock", "drawer"], &mut base.drawer, &later.drawer);
         self.leaf(
             &["org", "clock", "remove_zero"],

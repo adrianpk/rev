@@ -193,6 +193,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
+| `org.clock.out_when_done` | Boolean | `true` | Complete a clocked task and close its interval in one source transaction; repeating completion also closes the selected task interval. |
 | `org.clock.drawer` | String | `"LOGBOOK"` | Task-owned clock drawer. Empty places records after planning/properties. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER, then this setting. |
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
 | `org.time.zone` | String | `"local"` | local honors captured TZ; system uses localtime; UTC or a validated relative IANA name overrides TZ. Zone data is checked when the operation is selected. |

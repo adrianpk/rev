@@ -91,6 +91,7 @@ directories_first = true
 enabled = true
 
 [org.clock]
+out_when_done = true
 drawer = "LOGBOOK"
 remove_zero = false
 

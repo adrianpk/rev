@@ -505,7 +505,7 @@ were verified. Slice 20 of 64 completed.
 Contracts: ORG19 ORG18.
 Details and exact checks: [Slice 21](../plan/rev-org-mode.md#slice-21-switch-and-recover-org-task-clocks).
 
-- [ ] T21.1: Enforce one active session clock, checked task switching and completion-triggered clock-out.
+- [x] T21.1: Enforce one active session clock, checked task switching and completion-triggered clock-out.
 - [ ] T21.2: Handle quit/close, stale edits, undo and explicit incomplete-clock resolution without losing source.
 - [ ] T21.3: Introduce org_io and verify optional state persistence, failed recovery and no unsolicited startup scans.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

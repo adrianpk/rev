@@ -16,6 +16,18 @@ pub(crate) struct Points {
 
 impl Windows {
     pub(crate) fn points(&self, buffer: &Buffer) -> Result<Points, Error> {
+        let points = self.capture_points(buffer)?;
+        assert_eq!(
+            self.selected().point.stamp.buffer,
+            buffer.id(),
+            "selected point belongs to the captured set"
+        );
+        Ok(points)
+    }
+
+    /// A hidden participant can have no initiating view. Its zero fallback is
+    /// never used as a cursor; all actual shared views are still captured.
+    pub(crate) fn capture_points(&self, buffer: &Buffer) -> Result<Points, Error> {
         let coordinates = Coordinates::new(buffer)?;
         let mut members = Vec::new();
         let mut values = Vec::new();
@@ -40,7 +52,7 @@ impl Windows {
         let initiator = members
             .iter()
             .position(|(id, _)| *id == self.selected)
-            .expect("selected point belongs to the captured set");
+            .unwrap_or(0);
         Ok(Points {
             members,
             values,
@@ -61,7 +73,7 @@ impl Windows {
         Ok(())
     }
 
-    fn publish_points(&mut self, points: Points, tops: Vec<usize>) {
+    pub(crate) fn publish_points(&mut self, points: Points, tops: Vec<usize>) {
         for (((id, _), point), top) in points.members.into_iter().zip(points.values).zip(tops) {
             let view = self
                 .views

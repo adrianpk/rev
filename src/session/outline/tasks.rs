@@ -98,9 +98,7 @@ impl Session {
             Stage::State(workflow) => {
                 select(&workflow, draft).and_then(|next| self.task_selected(prompt, &next))
             }
-            Stage::Note(transition) => {
-                self.publish_task(&prompt.model, &transition.change, &transition.stamp, draft)
-            }
+            Stage::Note(transition) => self.publish_task(&prompt.model, &transition, draft),
             Stage::Offset(transition, validation) => {
                 self.repeat_offset(prompt, *transition, validation, draft)
             }
@@ -120,23 +118,22 @@ impl Session {
         if change.old == change.next {
             return Ok(self.message("Org task state unchanged"));
         }
-        let transition = self.task_transition(change)?;
+        let transition = self.task_transition(&prompt.model, change)?;
         self.resolve_repeat(prompt, transition)
     }
     fn publish_task(
         &mut self,
         model: &Outline,
-        change: &TaskChange,
-        stamp: &str,
+        transition: &Transition,
         note: &str,
     ) -> Result<Action, String> {
         let edits = model.task_edits(
             self.buffer().map_err(|e| e.to_string())?,
-            change,
-            stamp,
+            &transition.change,
+            &transition.stamp,
             note,
         )?;
-        self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
+        self.publish_clock_completion(edits, transition.clock.as_ref())?;
         Ok(self.message("Org task state and metadata changed"))
     }
 }
