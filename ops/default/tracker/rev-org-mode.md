@@ -261,6 +261,14 @@ Details and exact checks: [Slice 10](../plan/rev-org-mode.md#slice-10-move-and-p
 - [x] T10.3: Verify boundary rejections, malformed parents, regional edits and full undo/redo fidelity.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+PR: [#111](https://forge.adrianpk.com/adrianpk/rev/pulls/111).
+Report: [Slice 10](../report/slices/rev-org-mode/slice-10-subtree-edits.md).
+Task commits: T10.1 `108eb180cc51e646143b0b07336449375b3eba93`,
+T10.2 `442f5de871c7faf32f091a8764ae2fa3fae03530`,
+T10.3 `ad4c1a46af165a10f9f20e01e5e34a491f17a6ce`.
+Required and focused exact-head receipts are recorded by the controller after
+this PR-reference follow-up is pushed; integration remains pending.
+
 ### Slice 11: edit Org lists and progress cookies
 
 Contracts: ORG04 ORG06 ORG30.
