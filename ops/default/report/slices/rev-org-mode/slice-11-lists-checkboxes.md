@@ -1,6 +1,6 @@
 # Slice 11: Edit Org lists and progress cookies
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: [Native Org Delivery](../../../plan/rev-org-mode.md)
 Tracker: [Native Org Tracker](../../../tracker/rev-org-mode.md)
@@ -21,6 +21,8 @@ unchecked. Description continuation leaves point in the new empty term.
 Meta-arrow commands select the actual list context before heading behavior.
 Ordinary indentation leaves nested children at their current level; ordinary
 outdent rejects detaching children. M-S-Left/Right move the whole item tree.
+The first outermost tree command shifts the whole list by one column; nested
+promotion adopts following siblings and updates the former parent's progress.
 Sibling moves carry continuation paragraphs, blocks and nested items, preserving
 BOM, CRLF/LF and unterminated EOF spelling. Explicit list and subtree command
 identities remain available through M-x.
@@ -35,6 +37,8 @@ Checkbox presence and insertion have explicit working commands. Checkbox
 regions use one selected state. Statistics headings count direct factory
 TODO/DONE children when no checkbox count applies or `COOKIE_DATA: todo` is
 selected. Checkbox changes preserve other entries' source and cookie spelling.
+Linear checkbox regions select actual checkbox anchors, including starts inside
+bullet prefixes; non-checkbox lines cannot determine the selected new state.
 
 ## Implementation Notes
 
@@ -53,6 +57,16 @@ cookies in addition to existing source observations. Incomplete observations
 cannot authorize list mutation. Progress derives from bounded parent links,
 with no timer, external job or executable directive authority.
 
+Boundary coverage exposed a missing unclosed-entry guard in the checkbox path;
+it now shares checked source admission with structural list operations. Native
+reference probes confirmed parsed ordinary-drawer and existing description
+checkbox contexts, first outermost whole-list indentation and nested promotion
+ownership. Those outcomes have explicit regression fixtures.
+
+Decimal resets and increments use bounded decimal text, retaining counters wider
+than a machine integer. Counter rendering observes the existing native byte
+budget; source declarations remain unchanged.
+
 ## Contracts Added or Changed
 
 - ORG04: contextual list continuation, indentation and complete item moves.
@@ -67,7 +81,12 @@ with no timer, external job or executable directive authority.
 - `tests/org_editing/lists.rs`: list operations, attached source and replay.
 - `tests/org_editing/checkboxes.rs`: hierarchy, radio, ordered checks, explicit
   presence/insertion and list/task statistics with atomic history.
+- `tests/org_editing/list_edges.rs`: precise contexts, malformed/read-only/bounded
+  rejection, timer descriptions, region anchors and shared-view replay.
+- `scripts/configuration_ui/org_lists.py`: native checkbox/radio/counter/list
+  controls within the existing owned RGB/NO_COLOR outline journey.
 - `src/input/keymap/defaults.rs`, `docs/reference/config.toml`: contextual keys.
+- `docs/reference/org-mode.md`: actual source, ownership and control behavior.
 
 ## Validation
 
@@ -76,14 +95,32 @@ Development checks passed:
 - `cargo check`
 - `cargo test --test org_editing lists::`: four tests passed.
 - `cargo test --test org_editing checkboxes::`: six tests passed.
+- `cargo test --test org_editing list_edges::`: nine tests passed.
+- `cargo test --test commands org_headings::list_keys`: one test passed.
 - `cargo test --test commands org_`: six tests passed.
 - `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`:
+  two owned RGB/NO_COLOR sessions passed, zero skipped; both original outline and
+  added list assertions retained, with exact source bytes and terminal/fd/child
+  cleanup checked.
 
 Focused source-quality checks passed for changed Rust owners and tests.
-Exact-head required and focused controller evidence follows the completed slice
-and pushed canonical PR-reference follow-up.
+After the canonical PR-reference follow-up is pushed, the controller records
+these required commands against the clean HEAD, in order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_editing --test editing --test commands`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+A separate focused controller batch records `cargo test --test configuration
+--test windows`, `python3 scripts/check-config-reference.py`, the owned terminal
+command above and `git diff --check` at the same HEAD. Window regressions cover
+the shared source-anchor mapping changed by counter-aware reordering. Receipt IDs
+and final outcomes are retained in controller evidence and Acta.
 
 ## Risks and Follow-ups
 
-T11.3 adds boundary, timer-item/literal-context and representative owned-terminal
-coverage.
+Incomplete observations reject list operations within the documented native
+analysis and derived-model bounds. None recorded beyond those limits.

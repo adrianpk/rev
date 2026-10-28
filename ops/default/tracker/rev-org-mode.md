@@ -279,7 +279,7 @@ Details and exact checks: [Slice 11](../plan/rev-org-mode.md#slice-11-edit-org-l
 
 - [x] T11.1: Continue, indent, outdent, reorder and renumber ordered/unordered/description lists contextually.
 - [x] T11.2: Implement ordinary/radio checkboxes and coherent list/task progress cookies through checked edits.
-- [ ] T11.3: Verify nested lists, timer-item contexts, literal blocks and one-operation undo.
+- [x] T11.3: Verify nested lists, timer-item contexts, literal blocks and one-operation undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 12: edit Org drawers and inherited properties

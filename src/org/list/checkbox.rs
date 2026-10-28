@@ -106,7 +106,7 @@ impl Lists {
         let mut edits = Vec::new();
         for index in selected {
             let item = &self.items[*index];
-            if item.description {
+            if item.description && !remove {
                 return Err("Description lists do not admit factory checkboxes".into());
             }
             if let Some((range, _)) = &item.checkbox {

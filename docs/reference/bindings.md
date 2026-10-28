@@ -26,18 +26,23 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x org-show-drawer | `org-show-drawer` | Show the current drawer body. |
 | M-x org-toggle-drawer | `org-toggle-drawer` | Toggle only the current drawer body. |
 | M-x org-insert-heading | `org-insert-heading` | Insert a heading at the current level through one checked edit. |
-| M-RET in Org | `org-meta-return` | Insert a heading in admitted heading/paragraph context. |
+| M-RET in Org | `org-meta-return` | Insert a heading or continue the precise current list item. |
 | M-S-Left in Org | `org-outdent-item-tree` | Outdent the whole item and its nested source. |
 | M-S-Right in Org | `org-indent-item-tree` | Indent the whole item and its nested source. |
+| M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
+| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Toggle a precise checkbox and verify list numbering. |
+| C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
+| C-c C-x C-r in Org | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
+| C-c # in Org | `org-update-statistics-cookies` | Update current item/heading statistics. |
 | C-c C-n in Org | `org-next-visible-heading` | Visit the next visible heading. |
 | C-c C-p in Org | `org-previous-visible-heading` | Visit the previous visible heading. |
 | C-c C-f in Org | `org-forward-heading-same-level` | Visit the next sibling without crossing a parent boundary. |
 | C-c C-b in Org | `org-backward-heading-same-level` | Visit the previous sibling without crossing a parent boundary. |
 | C-c C-u in Org | `org-up-heading-safe` | Visit the parent heading. |
-| M-Left in Org | `org-metaleft` | Promote a complete subtree and its descendants. |
-| M-Right in Org | `org-metaright` | Demote a complete subtree under its preceding sibling. |
-| M-Up in Org | `org-metaup` | Move a complete subtree before its previous sibling. |
-| M-Down in Org | `org-metadown` | Move a complete subtree after its next sibling. |
+| M-Left in Org | `org-metaleft` | Promote a subtree or outdent the precise list item. |
+| M-Right in Org | `org-metaright` | Demote a subtree or indent the precise list item. |
+| M-Up in Org | `org-metaup` | Move a complete subtree or list item before its previous sibling. |
+| M-Down in Org | `org-metadown` | Move a complete subtree or list item after its next sibling. |
 | M-x text-mode | `text-mode` | Select ordinary text editing. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open or reuse a visited file. |

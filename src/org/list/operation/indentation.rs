@@ -30,23 +30,12 @@ impl Lists {
                 "Cannot outdent an Org item without its children; use the tree command".into(),
             );
         }
-        let target = if right {
-            position
-                .checked_sub(1)
-                .map(|p| self.items[list.items[p]].column)
-                .or_else(|| tree.then_some(item.indent + 2))
-                .ok_or("No previous Org item to become the parent")?
-        } else {
-            list.parent.map_or(0, |parent| self.items[parent].indent)
-        };
+        let whole = tree && position == 0 && list.parent.is_none();
+        let target = self.indent_target(index, right, whole)?;
         if target == item.indent {
             return Err("Org item is already at its outermost level".into());
         }
-        let end = if tree {
-            item.source.end
-        } else {
-            children.unwrap_or(item.source.end)
-        };
+        let end = self.item_end(index, whole, tree);
         let edits = indentation(
             buffer,
             item.source.start..end,
@@ -57,6 +46,52 @@ impl Lists {
             order: Vec::new(),
             cursor: None,
         })
+    }
+    fn item_end(&self, index: usize, whole: bool, tree: bool) -> usize {
+        let item = &self.items[index];
+        if whole {
+            return self.lists[item.list].source.end;
+        }
+        if tree {
+            return item.source.end;
+        }
+        self.lists
+            .iter()
+            .filter(|list| list.parent == Some(index))
+            .map(|list| list.source.start)
+            .min()
+            .unwrap_or(item.source.end)
+    }
+
+    fn indent_target(&self, index: usize, right: bool, whole: bool) -> Result<usize, String> {
+        let item = &self.items[index];
+        if whole {
+            return if right {
+                Ok(item.indent + 1)
+            } else {
+                item.indent
+                    .checked_sub(1)
+                    .ok_or_else(|| "Org item is already at its outermost level".into())
+            };
+        }
+        let list = &self.lists[item.list];
+        if !right {
+            return list
+                .parent
+                .map(|parent| self.items[parent].indent)
+                .ok_or_else(|| {
+                    "Cannot outdent top-level Org items; use the whole-list tree command".into()
+                });
+        }
+        let position = list
+            .items
+            .iter()
+            .position(|candidate| *candidate == index)
+            .expect("list owns item");
+        position
+            .checked_sub(1)
+            .map(|previous| self.items[list.items[previous]].column)
+            .ok_or_else(|| "No previous Org item to become the parent".into())
     }
 }
 

@@ -88,3 +88,54 @@ fn subtree_keys() {
         }
     }
 }
+
+// List/checkbox chords resolve the same compiled names as M-x. Prompt and
+// non-Org roles retain their own dispatch and cancellation ownership.
+#[test]
+fn list_keys() {
+    for (sequence, command) in [
+        (
+            vec![Event::Key(KeyEvent::new(
+                KeyCode::Left,
+                KeyModifiers::ALT | KeyModifiers::SHIFT,
+            ))],
+            OrgCommand::OutdentItemTree,
+        ),
+        (
+            vec![Event::Key(KeyEvent::new(
+                KeyCode::Right,
+                KeyModifiers::ALT | KeyModifiers::SHIFT,
+            ))],
+            OrgCommand::IndentItemTree,
+        ),
+        (vec![control('c'), control('c')], OrgCommand::CtrlCCtrlC),
+        (
+            vec![control('c'), control('x'), control('b')],
+            OrgCommand::ToggleCheckbox,
+        ),
+        (
+            vec![control('c'), control('x'), control('r')],
+            OrgCommand::ToggleRadioButton,
+        ),
+        (
+            vec![control('c'), key(KeyCode::Char('#'))],
+            OrgCommand::UpdateStatisticsCookies,
+        ),
+        (
+            vec![Event::Key(KeyEvent::new(
+                KeyCode::Enter,
+                KeyModifiers::ALT | KeyModifiers::SHIFT,
+            ))],
+            OrgCommand::InsertCheckboxItem,
+        ),
+    ] {
+        let mut input = Input::default();
+        input.set_org_context(Some(OrgContext::Editing));
+        let mut outcome = Outcome::Changed;
+        for event in sequence {
+            outcome = input.handle(event);
+        }
+        assert_eq!(outcome, Outcome::Command(Command::Org(command)));
+        assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
+    }
+}

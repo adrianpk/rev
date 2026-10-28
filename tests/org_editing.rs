@@ -18,6 +18,8 @@ mod heading_context;
 mod heading_edges;
 #[path = "org_editing/headings.rs"]
 mod headings;
+#[path = "org_editing/list_edges.rs"]
+mod list_edges;
 #[path = "org_editing/lists.rs"]
 mod lists;
 #[path = "org_editing/projection.rs"]

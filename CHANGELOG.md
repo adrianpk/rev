@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Continue, indent, move and renumber Org lists with their nested source. Toggle ordinary or radio checkboxes, respect ordered completion, and update parent states and progress cookies together in one undoable change. Familiar Meta-arrow and C-c keys select the actual list context.
+
 - Promote, demote and reorder complete Org subtrees with Meta-arrow keys or M-x, including descendants, drawers, blocks and table metadata. Whole sibling regions change together, shared panes and marks follow the source, and each operation undoes as one change.
 
 - Insert Org headings with M-RET and navigate visible headings, siblings and parents with the familiar C-c chords or M-x. Insertion preserves source separators and attached text, undoes as one change, and keeps shared panes aligned. Heading motion also works on read-only files.

@@ -4,7 +4,7 @@ use crate::command::OrgCommand;
 use crate::coordinates::{Coordinates, Scalar};
 
 impl Lists {
-    pub(super) fn checkbox_selection(
+    pub(in crate::org::list) fn checkbox_selection(
         &self,
         buffer: &Buffer,
         command: OrgCommand,
@@ -13,7 +13,10 @@ impl Lists {
         if buffer.rectangle_active() {
             return Err("Org checkbox operations require a linear region".into());
         }
-        if let Some(selected) = self.region_selection(buffer, point)? {
+        if let Some(mut selected) = self.region_selection(buffer, point)? {
+            if command != OrgCommand::ToggleCheckboxPresence {
+                selected.retain(|index| self.items[*index].checkbox.is_some());
+            }
             return Ok(selected);
         }
         let (byte, eof_line) = super::super::operation::location(buffer, point)?;
@@ -65,7 +68,13 @@ impl Lists {
             self.items
                 .iter()
                 .enumerate()
-                .filter(|(_, item)| start <= item.source.start && item.source.start < end)
+                .filter(|(_, item)| {
+                    let anchor = item
+                        .checkbox
+                        .as_ref()
+                        .map_or(item.source.start, |entry| entry.0.start);
+                    start <= anchor && anchor < end
+                })
                 .map(|(index, _)| index)
                 .collect(),
         ))

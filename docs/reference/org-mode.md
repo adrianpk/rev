@@ -1,7 +1,7 @@
 # Native Org outline
 
 An admitted `.org` file or `M-x org-mode` uses native Org mode. Source starts
-fully visible. These controls change only the selected editing view; they also
+fully visible. Visibility controls change only the selected editing view; they also
 work on read-only text. Folding never changes saved bytes, modification state,
 regions or undo history.
 
@@ -76,9 +76,9 @@ new heading. Drawers, blocks, descendants and blank separators retain their
 original bytes and order. BOM, LF/CRLF and final-newline presence are preserved.
 Point stays on the new title. Insertion is one ordinary undo/redo operation.
 
-Lists, tables, drawers, literal bodies and other admitted deeper forms report
-that heading insertion is unavailable in that context. M-RET does not fall
-through to editing a containing heading. C-g can cancel an observation request
+`org-insert-heading` reports unavailability in lists, tables, drawers and
+literal bodies. M-RET selects list continuation in an admitted item; other
+unsupported deeper contexts retain their source ownership. C-g can cancel an observation request
 before insertion, just as for visibility commands.
 
 Heading motion also works on read-only source and never creates history.
@@ -91,12 +91,15 @@ hierarchy reveal. A missing target reports unavailability and keeps the view.
 
 | Key | Command | Behavior |
 | --- | --- | --- |
-| M-Left | `org-promote-subtree` | Remove one star from the heading and every descendant. |
-| M-Right | `org-demote-subtree` | Add one star to the heading and every descendant. |
-| M-Up | `org-move-subtree-up` | Move the complete subtree before its previous sibling. |
-| M-Down | `org-move-subtree-down` | Move the complete subtree after its next sibling. |
+| M-Left in heading context | `org-metaleft` | Remove one star from the heading and every descendant. |
+| M-Right in heading context | `org-metaright` | Add one star to the heading and every descendant. |
+| M-Up in heading context | `org-metaup` | Move the complete subtree before its previous sibling. |
+| M-Down in heading context | `org-metadown` | Move the complete subtree after its next sibling. |
 
-M-x invokes these same handlers. Point can be on the heading or in its ordinary
+The explicit M-x names `org-promote-subtree`, `org-demote-subtree`,
+`org-move-subtree-up` and `org-move-subtree-down` retain heading-only ownership.
+Meta-arrow names select actual list context before these heading handlers.
+Point can be on the heading or in its ordinary
 section text. A list, table, drawer, literal block or other deeper context keeps
 its own ownership and reports that the subtree edit is unavailable there.
 
@@ -121,3 +124,58 @@ A boundary at a heading start follows that heading; an unterminated line end
 follows that line. One undo/redo reverses the complete operation and restores the
 initiating point, while peers map from their current positions. As with ordinary
 edits, publication releases active selection and obsolete folds in affected views.
+
+## Lists and checkbox progress
+
+| Key | Command | Behavior in an admitted list |
+| --- | --- | --- |
+| M-RET | `org-meta-return` | Split or continue an item, retaining its marker/description form. |
+| M-Left / M-Right | `org-metaleft` / `org-metaright` | Outdent/indent the item and continuation text, leaving nested items in place. |
+| M-S-Left / M-S-Right | `org-outdent-item-tree` / `org-indent-item-tree` | Change indentation with complete nested source. |
+| M-Up / M-Down | `org-metaup` / `org-metadown` | Exchange complete adjacent items and renumber ordered siblings. |
+| M-S-RET | `org-insert-item-checkbox` | Insert a new unchecked checkbox item. |
+| C-c C-c | `org-ctrl-c-ctrl-c` | Toggle an existing checkbox and verify current list numbering. |
+| C-c C-x C-b | `org-toggle-checkbox` | Toggle the current checkbox, selected checkboxes, or the current heading section. |
+| C-c C-x C-r | `org-toggle-radio-button` | Select a checkbox and clear same-level radio peers. |
+| C-c # | `org-update-statistics-cookies` | Refresh existing item/heading fraction and percentage cookies. |
+
+M-x also provides `org-insert-item`, `org-indent-item`, `org-outdent-item`,
+`org-move-item-up`, `org-move-item-down`, `org-renumber-list` and
+`org-toggle-checkbox-presence`. Presence adds/removes checkboxes explicitly;
+factory description items reject adding them. Existing checkbox text in a
+description item remains actionable. Ordinary drawers may contain real lists;
+literal example/source blocks and table cells never become list targets.
+
+Ordered markers retain period/parenthesis spelling and explicit `[@N]` resets.
+Decimal counters do not overflow a machine integer; generated counters share the
+finite native source byte budget. Description continuation creates an empty
+term, including existing relative-timer description spelling, without arming a
+timer or inventing elapsed time. New checkbox items start unchecked unless their
+existing nested children determine a derived state.
+
+Ordinary outdent rejects detaching children. Use the tree command for that
+operation. The first outermost tree command shifts the whole list by one column;
+ordinary first-item indentation and nested first-item demotion require a real
+preceding item. Promoting a nested item adopts the following source siblings.
+Structural list commands require an unselected item. Checkbox operations accept
+linear regions in either direction and use the first selected checkbox's new
+state; rectangles reject. Read-only, incomplete and unclosed current-entry
+observations reject before publication.
+
+Checkbox parents reflect direct children as `[ ]`, `[-]` or `[X]`. Existing `[/]`
+and `[%]` cookies update as fractions or integer percentages. A heading normally
+counts its direct checkboxes, or direct TODO/DONE child headings when no checkbox
+count applies. Local `COOKIE_DATA: todo` or `COOKIE_DATA: checkbox` selects that
+source explicitly. Local `ORDERED: t` blocks newly completing a checkbox before
+an unfinished predecessor. `#+ATTR_ORG: :radio t` applies radio choice to its
+list; hierarchy still derives parent states from child checkboxes.
+
+A list edit and its parent/cookie changes undo as one operation. Untouched source,
+BOM, line endings and EOF spelling remain intact. Moves retain source anchors in
+shared panes, including outside a list whose counter widths changed. At most
+8192 item/list/heading records and 4096 statistics cookies participate in this
+bounded derived model. Other entries' cookie spelling stays untouched.
+
+The [Org list reference](https://orgmode.org/manual/Plain-Lists.html) and
+[checkbox reference](https://orgmode.org/manual/Checkboxes.html) describe the
+corresponding source forms and familiar interactions.

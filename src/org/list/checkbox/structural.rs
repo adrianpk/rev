@@ -99,6 +99,16 @@ impl Lists {
             }
         } else {
             state.parents[index] = list.parent.and_then(|parent| state.parents[parent]);
+            self.outdent_following(state, index, position);
+        }
+    }
+
+    fn outdent_following(&self, state: &mut State, index: usize, position: usize) {
+        let list = &self.lists[self.items[index].list];
+        if list.parent.is_some() {
+            for sibling in &list.items[position + 1..] {
+                state.parents[*sibling] = Some(index);
+            }
         }
     }
 

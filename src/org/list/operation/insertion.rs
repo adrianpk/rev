@@ -39,7 +39,7 @@ impl Lists {
     fn prefix(&self, buffer: &Buffer, index: usize, above: bool) -> Result<String, String> {
         let item = &self.items[index];
         let mut prefix = source_text(buffer, item.source.start..item.bullet.start)?;
-        prefix.push_str(&self.marker(buffer, index, above)?);
+        prefix.push_str(&self.marker_for(buffer, index, above)?);
         prefix.push(' ');
         if item.description {
             prefix.push_str(" :: ");
@@ -47,35 +47,6 @@ impl Lists {
             prefix.push_str("[ ] ");
         }
         Ok(prefix)
-    }
-    fn marker(&self, buffer: &Buffer, index: usize, above: bool) -> Result<String, String> {
-        let item = &self.items[index];
-        let marker = source_text(buffer, item.bullet.clone())?;
-        if !super::super::numbering::ordered(buffer, item)? {
-            return Ok(marker);
-        }
-        let mut next = 1u64;
-        for sibling in &self.lists[item.list].items {
-            if *sibling == index {
-                break;
-            }
-            next = self.items[*sibling]
-                .reset
-                .unwrap_or(next)
-                .checked_add(1)
-                .ok_or("Org list counter is exhausted")?;
-        }
-        if !above {
-            next = item
-                .reset
-                .unwrap_or(next)
-                .checked_add(1)
-                .ok_or("Org list counter is exhausted")?;
-        }
-        Ok(format!(
-            "{next}{}",
-            marker.chars().last().expect("list marker")
-        ))
     }
 }
 

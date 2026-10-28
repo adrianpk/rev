@@ -22,24 +22,20 @@ impl Outline {
         command: OrgCommand,
         point: Scalar,
     ) -> Result<ListEdit, String> {
-        self.complete().map_err(str::to_owned)?;
-        crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
-        if !self.lists.complete {
-            return Err("Org list observation is incomplete".into());
-        }
+        let (byte, eof_line) = self.admit_list(buffer, point)?;
         if command.checkbox() {
+            let selected = self.lists.checkbox_selection(buffer, command, point)?;
+            for index in selected {
+                self.admit_list_scope(self.lists.items[index].source.start)?;
+            }
             return self.lists.checkbox_edit(buffer, command, point);
         }
-        let (byte, eof_line) = location(buffer, point)?;
         let index = self
             .lists
             .at(byte, eof_line)
             .ok_or("No editable Org list item here")?;
         if buffer.mark_active() {
             return Err("Org list structure requires an unselected item".into());
-        }
-        if self.malformed_between(&self.lists.lists[self.lists.items[index].list].source) {
-            return Err("Org list contains an unclosed structure".into());
         }
         let plan = self.lists.edit(buffer, index, command, point)?;
         self.lists.structural_progress(
@@ -51,6 +47,30 @@ impl Outline {
             },
             plan,
         )
+    }
+    fn admit_list(&self, buffer: &Buffer, point: Scalar) -> Result<(usize, bool), String> {
+        self.complete().map_err(str::to_owned)?;
+        crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
+        if !self.lists.complete {
+            return Err("Org list observation is incomplete".into());
+        }
+        let location = location(buffer, point)?;
+        self.admit_list_scope(location.0)?;
+        Ok(location)
+    }
+
+    fn admit_list_scope(&self, byte: usize) -> Result<(), String> {
+        let heading = self.lists.heading_at(byte);
+        let start = heading.map_or(0, |index| self.lists.headings[index].source.start);
+        let end = self
+            .lists
+            .headings
+            .get(heading.map_or(0, |index| index + 1))
+            .map_or(usize::MAX, |heading| heading.source.start);
+        if self.malformed_between(&(start..end)) {
+            return Err("Org list entry contains an unclosed structure".into());
+        }
+        Ok(())
     }
 }
 

@@ -99,9 +99,6 @@ fn read(text: &ropey::Rope, node: &crate::org::structure::Raw, list: usize, inde
     let end = line[first..]
         .find([' ', '\t'])
         .map_or(line.len(), |n| first + n);
-    let number = line[first..end]
-        .strip_suffix(['.', ')'])
-        .and_then(|number| number.parse().ok());
     let mut content = node.content.start;
     let reset = reset(line, start, &mut content);
     let checkbox = checkbox(line, start, &mut content);
@@ -113,7 +110,6 @@ fn read(text: &ropey::Rope, node: &crate::org::structure::Raw, list: usize, inde
         indent,
         column: columns(&line[..node.content.start - start]),
         list,
-        number,
         reset,
         description: line[content - start..].contains(" :: "),
         checkbox,
@@ -121,10 +117,15 @@ fn read(text: &ropey::Rope, node: &crate::org::structure::Raw, list: usize, inde
     }
 }
 
-fn reset(line: &str, start: usize, content: &mut usize) -> Option<u64> {
+fn reset(line: &str, start: usize, content: &mut usize) -> Option<String> {
     let tail = line.get(*content - start..)?.strip_prefix("[@")?;
     let end = tail.find(']')?;
-    let value = tail[..end].parse().ok()?;
+    let value = &tail[..end];
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    let value = value.trim_start_matches('0');
+    let value = if value.is_empty() { "0" } else { value }.to_owned();
     *content += 3 + end;
     skip_space(line, start, content);
     Some(value)
