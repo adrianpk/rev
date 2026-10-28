@@ -1,11 +1,13 @@
 # Slice 14: Extend pointer selection with bounded autoscroll
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-input-navigation
 Plan: [Input and Navigation Delivery](../../../plan/rev-input-navigation.md)
 Tracker: [Input and Navigation Tracker](../../../tracker/rev-input-navigation.md)
 Branch: `feat/rev-input-14-drag-autoscroll`
 PR: [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94)
+
+Integrated: `f45fddcbf6944ab069f11ff88760ea9e946f9da6`
 
 ## Purpose
 
@@ -84,8 +86,10 @@ terminal restoration, child reaping and descriptor closure. Snapshots return to
 their original bytes, no preference directory is created, and no observed
 stage writes OSC 52. The fixture uses the existing bounded PTY harness without changing resource limits.
 
-Final canonical and focused evidence is recorded through the controller on the
-clean candidate after task and PR-reference commits. Required ordered commands:
+Canonical controller evidence `ADDCSIPZUL2YT4FJNH3FSTRT3T` passed all five
+ordered checks and 267 native cases at the integrated commit above. Focused
+`37K54UBNOIHCV27VWZOYXWP6ZP` passed 196 native cases and eight owned PTYs
+on that same clean candidate. Required ordered commands:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`

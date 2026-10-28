@@ -5,7 +5,7 @@ Approved: product owner, 2026-10-27; complete all seven selected topics in one a
 Date: 2026-10-27
 Delivery set: rev-input-navigation
 Slice strategy: layered
-Active slice: Slice 14 - extend pointer selection with bounded autoscroll
+Active slice: Slice 15 - activate native mouse defaults and runtime control
 Full gate: `scripts/check-all.sh`
 Planning baseline: `9e24fa3f7e60ab8a4ff60e3589662631f4a94bae`
 Spec: [Line Navigation](../spec/editor-line-navigation.md), [Whitespace Conversion](../spec/editor-whitespace-conversion.md), [Gutter](../spec/editor-gutter.md), [Pointer](../spec/editor-pointer-interaction.md), [Configuration Bootstrap](../spec/editor-configuration-bootstrap.md), [Status Layout](../spec/editor-status-layout.md)
@@ -254,14 +254,16 @@ Details and exact checks: [Slice 14](../plan/rev-input-navigation.md#slice-14-ex
 - [x] T14.1: Implement source-view autoscroll above/below its visible text only during a valid captured drag; pause inside and stop on release/cancellation/invalidation.
 - [x] T14.2: Use a minimum 100 ms tick and at most min(mouse.scroll_lines, text-area height) rows per tick; process cancellation before due work and never accumulate timer/motion debt.
 - [x] T14.3: Use controlled-clock native checks for bounds, pause/stop and target ownership plus representative terminal events; show no timer or repaint work remains at idle.
-- [ ] Record exact clean-head validation, canonical PR, report and verified dev integration.
+- [x] Record exact clean-head validation, canonical PR, report and verified dev integration.
 
-Slice 14 of 20 implemented. Canonical PR [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94) targets dev. Its
+Slice 14 of 20 completed. Canonical PR [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94)
+integrated into dev at `f45fddcbf6944ab069f11ff88760ea9e946f9da6`.
+Canonical evidence `ADDCSIPZUL2YT4FJNH3FSTRT3T` passed five ordered checks
+and 267 native cases. Focused evidence `37K54UBNOIHCV27VWZOYXWP6ZP` passed
+196 native cases and eight owned PTYs on the same candidate. The
 [canonical report](../report/slices/rev-input-navigation/slice-14-drag-autoscroll.md)
-records native deadline ownership, canonical source-edge selection, controlled
-clock/height bounds, input priority, source validation and two owned SGR PTYs.
-Final exact-head evidence is recorded through the controller after PR-reference commits;
-integration remains pending. The pointer ticket stays active through slices 10-15.
+records source-edge selection, deadline bounds, input priority and idle cleanup.
+The pointer ticket stays active through primary slices 10-15. Slice 15 is active.
 
 T14.1: `c769de9e0cfc48308b59cd8dc48cdbaa65b61d74`.
 T14.2: `e0fca7a6e88b34e4eea84813cdd4d424e34465e9`.

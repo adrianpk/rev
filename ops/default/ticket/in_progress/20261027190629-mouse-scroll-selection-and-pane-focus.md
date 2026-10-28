@@ -124,10 +124,12 @@ Canonical `HJL3RO2I34C6RF7LELHPNF4DQ4` and focused
 `4NCW4Q36NYOUM2XHZ7VYTQEXGF` evidence passed on that candidate.
 Slice 14 is active; this ticket stays in progress through primary slices 10-15.
 
-Slice 14 is implemented in canonical PR [#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94), targeting dev. Its
+Slice 14 integrated into dev through canonical PR
+[#94](https://forge.adrianpk.com/adrianpk/rev/pulls/94) at
+`f45fddcbf6944ab069f11ff88760ea9e946f9da6`. Its
 [report](../../report/slices/rev-input-navigation/slice-14-drag-autoscroll.md)
-records bounded source-edge region extension, native input-priority deadlines,
-controlled-clock bounds, source/Unicode validation and two owned SGR PTYs.
-Required and focused exact-head evidence follows PR-reference commits through
-the controller. Integration is pending; the ticket stays in progress through
-all assigned primary integrations.
+records bounded source-edge selection, native input priority, controlled-clock
+bounds and owned terminal/history/idle outcomes. Canonical
+`ADDCSIPZUL2YT4FJNH3FSTRT3T` and focused `37K54UBNOIHCV27VWZOYXWP6ZP`
+evidence passed on that candidate. Slice 15 is active; the ticket stays in
+progress through its final primary integration.
