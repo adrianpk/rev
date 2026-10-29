@@ -1,6 +1,6 @@
 # Slice 45: display Org property columns and native reports
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -82,8 +82,7 @@ The file workflow retains the entered `30min` EFFORT spelling in canonical
 source and independently expects `0:30` in the derived report. Saving retains
 the previous report body until its explicit update.
 
-Final ordered validation is recorded through the controller for the clean PR
-candidate before handoff. Integration remains open for controller verification.
+Canonical PR #146 merged into dev at `62fa68e9c580513b74233e950a94a84f6695c0c5`, verified against Forgejo and origin/dev. Required receipt `IIVV6TLXDXK547TBCDK3Q2J6PC` passed five ordered checks and 390 tests. Focused receipt `6ODRPQK7Q5GQTRUVL4BODW6S3F` passed 158 command tests and six owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions. Slice 45 is delivered.
 
 ## Risks and Follow-ups
 

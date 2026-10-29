@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 45 columns and dynamic blocks
+Active slice: Slice 46 export contract
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -964,12 +964,14 @@ Details and exact checks: [Slice 45](../plan/rev-org-mode.md#slice-45-display-or
 - [x] T45.1: Deliver property column views and declared native dynamic report blocks, including effort and clock totals.
 - [x] T45.2: Keep projections separate from source; replace only recognized explicit report bodies on update.
 - [x] T45.3: Verify aggregates, source provenance, unknown dynamic blocks and atomic update undo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#146](https://forge.adrianpk.com/adrianpk/rev/pulls/146).
 Task commits: T45.1 `3a7698d4090a34bcefae99c65b0e6f8718e8ce57`, T45.2 `b5ec7e1f81ad876a91fb4ad810245fb6a8fbbe1b`, T45.3 `0749a8e0660f34a2730341a2ef67c4a24fa575d5`.
 
-### Slice 46: prepare checked native Org export snapshots
+Canonical PR #146 merged into dev at `62fa68e9c580513b74233e950a94a84f6695c0c5`, verified against Forgejo and origin/dev. Required receipt `IIVV6TLXDXK547TBCDK3Q2J6PC` passed five ordered checks and 390 tests. Focused receipt `6ODRPQK7Q5GQTRUVL4BODW6S3F` passed 158 command tests and six owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions. Slice 45 is delivered.
+
+## Slice 46: prepare checked native Org export snapshots
 
 Contracts: ORG25 ORG02.
 Details and exact checks: [Slice 46](../plan/rev-org-mode.md#slice-46-prepare-checked-native-org-export-snapshots).
