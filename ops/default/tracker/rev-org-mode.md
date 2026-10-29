@@ -917,7 +917,7 @@ Contracts: ORG13 ORG14.
 Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-basic-org-table-formulas-safely).
 
 - [x] T42.1: Evaluate dependency graphs, aggregates, rounding and formatting under the frozen numeric policy.
-- [ ] T42.2: Detect cycles, empty/text misuse, division by zero, non-finite values and work-budget exhaustion.
+- [x] T42.2: Detect cycles, empty/text misuse, division by zero, non-finite values and work-budget exhaustion.
 - [ ] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

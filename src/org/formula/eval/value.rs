@@ -9,7 +9,12 @@ impl Engine<'_> {
             self.work.charge(1)?;
             let expression = &self.program.nodes[id].expression;
             if done {
-                self.reduce(cell, expression, &mut values)?;
+                self.reduce(cell, expression, &mut values).map_err(|e| {
+                    e.located(
+                        self.grid.location(cell),
+                        self.program.nodes[id].source.clone(),
+                    )
+                })?;
             } else {
                 schedule(id, expression, &mut pending);
             }

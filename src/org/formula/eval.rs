@@ -5,6 +5,8 @@ mod graph;
 mod grid;
 mod numeric;
 mod plan;
+#[cfg(test)]
+mod tests;
 mod value;
 use super::{Component, Coordinate, Expression, Function, Operator, Program, Reference};
 use crate::org::Cancellation;
@@ -96,6 +98,12 @@ impl Error {
     }
     fn located(mut self, cell: Cell, source: Range<usize>) -> Self {
         self.cell = Some(cell);
+        if self.source.is_empty() {
+            self.source = source;
+        }
+        self
+    }
+    fn at_source(mut self, source: Range<usize>) -> Self {
         self.source = source;
         self
     }
@@ -152,14 +160,16 @@ impl Program {
         if grid.cells.len() > policy.cells {
             return Err(Error::new(ErrorKind::Limit, "formula cell limit exceeded"));
         }
+        let mut work = Work {
+            remaining: policy.steps,
+            cancel,
+        };
+        work.charge(1)?;
         let mut engine = Engine {
             grid,
             program: self,
             policy,
-            work: Work {
-                remaining: policy.steps,
-                cancel,
-            },
+            work,
             owners: Vec::new(),
             inputs: vec![None; grid.cells.len()],
             values: vec![None; grid.cells.len()],
@@ -169,7 +179,6 @@ impl Program {
 }
 impl Engine<'_> {
     fn run(&mut self) -> Result<Vec<ResultCell>, Error> {
-        self.work.charge(1)?;
         self.owners = self.owners()?;
         let order = self.order()?;
         for cell in order {

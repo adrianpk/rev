@@ -39,6 +39,14 @@ decimal places. Public ceilings follow the frozen model. Grid admission retains
 used. Mean accumulation avoids overflowing a finite same-sign average through
 an unnecessary sum. Every result is prepared privately before returning success.
 
+T42.2 rejects cyclic graphs, invalid coordinates, text/range scalar misuse,
+zero division, non-finite inputs and operations, and empty non-sum aggregates.
+Cancellation/deadline is checked before allocating engine arrays. Input parsing
+charges original bytes before trimming, so whitespace cannot evade work limits.
+Failures after earlier successful computations or during final formatting still
+return no result set. Diagnostics retain the failing reference/expression span
+and output cell; an invalid assignment target does not claim an existing cell.
+
 ## Contracts Added or Changed
 
 - ORG13: finite binary64 evaluation, aggregates, rounding and formatting.
@@ -56,6 +64,9 @@ an unnecessary sum. Every result is prepared privately before returning success.
 - `cargo test --test org_tables evaluation`: four workflows passed, zero failed or ignored.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed.
 - Changed-source quality passed after extracting range aggregation to preserve the unchanged nesting limit.
+- `cargo test --test org_tables evaluation -- --nocapture`: eight evaluation workflows passed, including rejection, resource, non-finite and diagnostic cases; zero failed or ignored.
+- `cargo test --lib evaluation_deadline`: the private worker deadline test passed.
+- `cargo clippy --lib --test org_tables -- -D warnings`: passed after failure handling changes; changed-source quality passed.
 
 ## Risks and Follow-ups
 

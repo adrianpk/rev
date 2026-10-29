@@ -5,9 +5,7 @@ impl Engine<'_> {
         let mut fields = vec![None; self.grid.cells.len()];
         for (index, assignment) in self.program.assignments.iter().enumerate() {
             self.work.charge(1)?;
-            let cell = self.grid.resolve(&assignment.target, 0).map_err(|e| {
-                e.located(Cell { row: 1, column: 1 }, assignment.target.source.clone())
-            })?;
+            let cell = self.grid.resolve(&assignment.target, 0)?;
             if assignment.target.row.is_some() {
                 fields[cell] = Some(index);
             } else {

@@ -73,8 +73,10 @@ impl Grid {
         }
     }
     pub(super) fn resolve(&self, reference: &Reference, origin: usize) -> Result<usize, Error> {
-        let row = coordinate(&reference.row, origin / self.columns, self.rows)?;
-        let column = coordinate(&reference.column, origin % self.columns, self.columns)?;
+        let row = coordinate(&reference.row, origin / self.columns, self.rows)
+            .map_err(|e| e.at_source(reference.source.clone()))?;
+        let column = coordinate(&reference.column, origin % self.columns, self.columns)
+            .map_err(|e| e.at_source(reference.source.clone()))?;
         Ok(row * self.columns + column)
     }
     pub(super) fn rectangle(
