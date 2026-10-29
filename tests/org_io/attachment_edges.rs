@@ -147,3 +147,46 @@ fn attachments_visit_inert() {
     assert_eq!(std::fs::metadata(file).unwrap().accessed().unwrap(), old);
     assert!(s.remaining_input(Instant::now()).is_none());
 }
+
+// A selected attachment cannot gain authority over a substituted directory or
+// file between listing and native opening / confirmed external dispatch.
+#[test]
+fn attachments_open_revalidation() {
+    for scenario in ["directory", "file"] {
+        let (f, mut s) = editor("org.tools.viewer=['/bin/sh','viewer.sh']", source(), "");
+        f.write("viewer.sh", "printf called > called\n");
+        let resource = f.write("assets/note.txt", "owned");
+        let view = s.view().clone();
+        action(
+            &mut s,
+            if scenario == "directory" {
+                C::AttachOpenNative
+            } else {
+                C::AttachOpen
+            },
+        );
+        if scenario == "directory" {
+            std::fs::rename(f.0.join("assets"), f.0.join("previous")).unwrap();
+            f.write("outside/note.txt", "foreign");
+            std::os::unix::fs::symlink(f.0.join("outside"), f.0.join("assets")).unwrap();
+            argument(&mut s, "1");
+        } else {
+            // Use a media name to exercise the separately confirmed viewer path.
+            cancel(&mut s);
+            settle(&mut s);
+            std::fs::rename(&resource, f.0.join("assets/note.png")).unwrap();
+            action(&mut s, C::AttachOpen);
+            argument(&mut s, "1");
+            std::fs::rename(
+                f.write("replacement.png", "foreign"),
+                f.0.join("assets/note.png"),
+            )
+            .unwrap();
+            argument(&mut s, "yes");
+        }
+        assert_eq!(s.view(), &view, "{scenario}: {}", s.echo());
+        assert_eq!(text(&s), source(), "{scenario}");
+        assert!(!f.0.join("called").exists(), "{scenario}");
+        assert!(s.buffer().unwrap().history().is_empty());
+    }
+}

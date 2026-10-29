@@ -130,6 +130,6 @@ impl Session {
             .clone();
         let state = self.attachment.take().ok_or("No attachment source")?;
         let target = state.context.selected(&name, native)?;
-        self.follow_attachment(target, state.request, name, native)
+        self.follow_attachment(target, state.request, listing.selected(&name)?)
     }
 }

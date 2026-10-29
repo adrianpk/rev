@@ -3,11 +3,13 @@ mod directory;
 mod location;
 mod operation;
 mod plan;
+mod selection;
 use crate::{buffer::Buffer, org::Outline};
 pub(crate) use directory::Listing;
 pub(crate) use location::location;
 pub use operation::{Effect, FileOutcome};
 pub(crate) use plan::Plan;
+pub(crate) use selection::Selected;
 use std::path::PathBuf;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum Method {

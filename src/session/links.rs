@@ -178,17 +178,33 @@ impl Session {
         &mut self,
         target: Follow,
         request: Request,
-        name: String,
-        native: bool,
+        attachment: crate::org::attachment::Selected,
     ) -> Result<(), String> {
         if target.external_resource() {
             self.prompt_selected_viewer(
                 target,
                 request,
-                crate::org::links::Selection::Attachment { name, native },
+                crate::org::links::Selection::Attachment {
+                    attachment,
+                    native: false,
+                },
             )
         } else {
-            self.resolve_link(target, request)
+            let policy = &self.buffers.snapshot().settings().org;
+            let work = Resolve::new(
+                &self.buffers,
+                request.origin.point.stamp,
+                target,
+                self.link_sources()?,
+            )?
+            .selected(attachment);
+            self.org.start_link_navigation(
+                request.origin.point.stamp,
+                work,
+                policy.limits.job_seconds,
+            )?;
+            self.links.request = Some(request);
+            Ok(())
         }
     }
 }

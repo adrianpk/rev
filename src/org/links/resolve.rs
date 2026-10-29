@@ -23,6 +23,7 @@ pub(crate) enum Follow {
     External(String),
 }
 pub(crate) enum Resolve {
+    Selected(crate::org::attachment::Selected, Box<Self>),
     Sources {
         scan: Box<SourceScan>,
         search: String,
@@ -143,8 +144,12 @@ impl Resolve {
             )),
         }
     }
+    pub(crate) fn selected(self, attachment: crate::org::attachment::Selected) -> Self {
+        Self::Selected(attachment, Box::new(self))
+    }
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Navigation, String> {
         match self {
+            Self::Selected(attachment, work) => selected_attachment(attachment, *work, cancel),
             Self::Sources {
                 scan,
                 search,
@@ -216,4 +221,15 @@ pub(super) fn contained(path: &Path, root: Option<&Path>) -> Result<(), String> 
         }
     }
     Ok(())
+}
+
+fn selected_attachment(
+    attachment: crate::org::attachment::Selected,
+    work: Resolve,
+    cancel: &Cancellation,
+) -> Result<Navigation, String> {
+    attachment.check()?;
+    let result = work.run(cancel)?;
+    attachment.check()?;
+    Ok(result)
 }

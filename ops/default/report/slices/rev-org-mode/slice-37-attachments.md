@@ -118,6 +118,19 @@ head after this PR-reference commit, with required commands in approved order.
 Focused evidence covers the shared job/source, command, window and display
 contracts, configuration reference and owned attachment/link terminal journeys.
 
+Final preparation corrections:
+
+- The complete command-reference check found missing named attachment controls
+  in the bindings reference. All delivered names are now listed; the unchanged
+  catalog parity assertion passes.
+- A regression reproduced directory substitution between listing and opening.
+  Listing now retains each actual file observation and its directory owner.
+  Native visits check that selection before/after reading; confirmed viewers
+  re-observe heading data and check the selected file before launch. The real
+  directory/file substitution cases preserve the original view and launch nothing.
+- `cargo test --test org_io attachments_open_revalidation -- --nocapture`: passed.
+- `cargo test --test commands catalog_reference -- --nocapture`: passed.
+
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.

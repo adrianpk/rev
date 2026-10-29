@@ -30,6 +30,8 @@ pub(super) struct Pinned {
 pub(crate) struct Listing {
     pub names: Vec<String>,
     pub root: PathBuf,
+    pub(super) directory: Directory,
+    pub(super) observations: Vec<crate::file::Observation>,
 }
 impl Directory {
     pub fn observe(path: &Path) -> Result<Self, String> {
@@ -151,8 +153,9 @@ pub(super) fn input(path: &Path) -> Result<File, String> {
 impl Listing {
     pub(crate) fn read(context: &super::Context, cancel: &Cancellation) -> Result<Self, String> {
         let root = context.root(None)?;
-        let pinned = Directory::observe(&root)?.open()?;
-        let mut names = Vec::new();
+        let directory = Directory::observe(&root)?;
+        let pinned = directory.open()?;
+        let mut files = Vec::new();
         let mut bytes = 0;
         for entry in
             fs::read_dir(pinned.entry(std::ffi::OsStr::new("."))).map_err(|e| e.to_string())?
@@ -160,18 +163,26 @@ impl Listing {
             if cancel.is_cancelled() {
                 return Err("Attachment listing cancelled".into());
             }
-            let name = listed_name(entry)?;
+            let (name, observation) = listed_name(entry)?;
             bytes += name.len();
-            names.push(name);
-            listing_limit(names.len(), bytes)?;
+            files.push((name, observation));
+            listing_limit(files.len(), bytes)?;
         }
         pinned.current()?;
-        names.sort();
-        Ok(Self { root, names })
+        files.sort_by(|a, b| a.0.cmp(&b.0));
+        let (names, observations) = files.into_iter().unzip();
+        Ok(Self {
+            root,
+            names,
+            directory,
+            observations,
+        })
     }
 }
 
-fn listed_name(entry: std::io::Result<fs::DirEntry>) -> Result<String, String> {
+fn listed_name(
+    entry: std::io::Result<fs::DirEntry>,
+) -> Result<(String, crate::file::Observation), String> {
     let entry = entry.map_err(|e| e.to_string())?;
     let name = entry
         .file_name()
@@ -183,7 +194,10 @@ fn listed_name(entry: std::io::Result<fs::DirEntry>) -> Result<String, String> {
             "Attachment {name:?} is a symlink or non-regular entry"
         ));
     }
-    Ok(name)
+    let observation = crate::file::observe(&entry.path())
+        .map_err(|e| e.to_string())?
+        .ok_or("Listed attachment disappeared")?;
+    Ok((name, observation))
 }
 
 fn listing_limit(count: usize, bytes: usize) -> Result<(), String> {

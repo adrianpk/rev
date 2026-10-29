@@ -19,6 +19,8 @@ It does not create or scan a directory until an operation is selected.
 commands are also available through M-x. Lists retain at most 4096 files and
 1 MiB of names; open prompts accept an exact name or one-based number. The echo
 shows the first eight names. C-g cancels the interaction and active work.
+The selected file and directory observations remain pinned through native visiting
+or viewer confirmation; substitution requires a fresh listing.
 
 ## Locations and links
 

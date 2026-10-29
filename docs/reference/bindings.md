@@ -20,6 +20,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-c l` | `org-store-link` | Store the checked current location for later insertion. |
 | `C-c C-l` in Org | `org-insert-link` | Insert or edit a literal link and description. |
 | `C-c C-a` in Org | `org-attach` | Dispatch explicit heading attachment operations. |
+| M-x | `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link` | Confirm selected file methods and destinations. |
+| M-x | `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs` | Open or list checked heading attachments. |
+| M-x | `org-attach-set-directory`, `org-attach-results` | Set DIR without creating folders, or inspect retained outcomes. |
 | `C-c C-o` in Org | `org-open-at-point` | Resolve and visit the exact link at point. |
 | `C-c &` / `C-c %` in Org | `org-mark-ring-goto` / `org-mark-ring-push` | Return to a checked source point or record one. |
 | `C-c C-x C-n` / `C-c C-x C-p` in Org | `org-next-link` / `org-previous-link` | Move between recognized links; repeat at the boundary to wrap. |

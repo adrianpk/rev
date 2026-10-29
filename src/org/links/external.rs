@@ -12,7 +12,10 @@ pub(crate) struct Viewer {
 }
 pub(crate) enum Selection {
     Link,
-    Attachment { name: String, native: bool },
+    Attachment {
+        attachment: crate::org::attachment::Selected,
+        native: bool,
+    },
 }
 pub(crate) struct External {
     source: Snapshot,
@@ -156,25 +159,11 @@ impl External {
     }
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Outcome, String> {
         let directory = self.source.directory.clone();
-        let current = match self.selection {
-            Selection::Link => {
-                let Output::Follow(current) =
-                    self.source
-                        .observe(crate::command::OrgCommand::OpenLink, false, cancel)?
-                else {
-                    return Err("External link no longer resolves".into());
-                };
-                current
-            }
-            Selection::Attachment { name, native } => {
-                self.source.attachment_follow(name, native, cancel)?
-            }
-        };
-        if current != self.expected {
+        let observed = self.selection.observe(self.source, cancel)?;
+        if observed.target != self.expected {
             return Err("External link source changed before launch".into());
         }
-        let resource = current.resource()?;
-        let target = resource.value()?;
+        let target = observed.resource_value()?;
         let mut argv = self.viewer.argv;
         if let Some(at) = argv.iter().position(|a| a == "{target}") {
             argv[at] = target;
@@ -200,4 +189,51 @@ fn media(path: &Path) -> bool {
             ]
             .contains(&ext.to_ascii_lowercase().as_str())
         })
+}
+
+struct Observed {
+    target: Follow,
+    attachment: Option<crate::org::attachment::Selected>,
+}
+impl Selection {
+    fn observe(self, source: Snapshot, cancel: &Cancellation) -> Result<Observed, String> {
+        match self {
+            Self::Link => {
+                let Output::Follow(target) =
+                    source.observe(crate::command::OrgCommand::OpenLink, false, cancel)?
+                else {
+                    return Err("External link no longer resolves".into());
+                };
+                Ok(Observed {
+                    target,
+                    attachment: None,
+                })
+            }
+            Self::Attachment { attachment, native } => {
+                let target = source.attachment_follow(attachment.name.clone(), native, cancel)?;
+                Ok(Observed {
+                    target,
+                    attachment: Some(attachment),
+                })
+            }
+        }
+    }
+}
+impl Observed {
+    fn check(&self) -> Result<(), String> {
+        if let Some(attachment) = &self.attachment {
+            if !matches!(&self.target,Follow::Local{path,..} if path==attachment.path()) {
+                return Err("Attachment location changed since selection".into());
+            }
+            attachment.check()?;
+        }
+        Ok(())
+    }
+    fn resource_value(&self) -> Result<String, String> {
+        self.check()?;
+        let resource = self.target.resource()?;
+        let value = resource.value()?;
+        self.check()?;
+        Ok(value)
+    }
 }
