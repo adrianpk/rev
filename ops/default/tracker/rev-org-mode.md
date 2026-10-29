@@ -771,7 +771,7 @@ Details and exact checks: [Slice 32](../plan/rev-org-mode.md#slice-32-expand-and
 
 - [x] T32.1: Expand the declared bounded text substitutions, prompts and checked origin links without evaluating Lisp.
 - [x] T32.2: Retain the editable capture draft in its own transient owner with familiar context bindings.
-- [ ] T32.3: Verify malformed expansion, literal preservation, cancellation and return to the originating view.
+- [x] T32.3: Verify malformed expansion, literal preservation, cancellation and return to the originating view.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 33: finalize or abort Org capture safely

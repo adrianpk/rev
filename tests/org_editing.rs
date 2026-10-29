@@ -326,6 +326,8 @@ mod clock_recovery;
 
 #[path = "org_editing/capture_drafts.rs"]
 mod capture_drafts;
+#[path = "org_editing/capture_edges.rs"]
+mod capture_edges;
 #[path = "org_editing/clock_recent.rs"]
 mod clock_recent;
 #[path = "org_editing/habit_workflows.rs"]

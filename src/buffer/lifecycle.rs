@@ -13,7 +13,7 @@ impl Kill {
 }
 
 impl Buffers {
-    /// Inventory borrows canonical owners in stable identity order.
+    /// Inventory borrows live text owners in stable identity order.
     pub fn iter(&self) -> impl DoubleEndedIterator<Item = &Buffer> + ExactSizeIterator {
         self.entries.values()
     }

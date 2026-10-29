@@ -126,7 +126,8 @@ impl fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// Owns the only canonical rope for this identity. Text access is borrowed.
+/// Owns the only rope for this identity. Explicit transient owners cannot
+/// publish source files; all text access remains borrowed.
 pub struct Buffer {
     id: BufferId,
     name: String,
@@ -467,3 +468,6 @@ fn range_error(range: &Range<usize>, len: usize) -> Error {
         len,
     }
 }
+
+#[cfg(test)]
+mod capture_tests;

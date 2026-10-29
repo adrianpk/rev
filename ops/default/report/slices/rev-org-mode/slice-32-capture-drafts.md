@@ -1,6 +1,6 @@
 # Slice 32: expand and edit native Org capture drafts
 
-Status: implementing
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -40,6 +40,14 @@ and retain seconds for explicitly requested formatting. Formatting admits
 Unavailable user/clipboard values require explicit text input rather than an
 implicit executable host query. The original template remains unchanged.
 
+T32.3 covers cancellation at template, file, prompt, expansion-quantum, queued
+and running-read stages; malformed instruction/destination rejection; stale
+origin edits; grapheme joins at the cursor marker; disk permission retention;
+and actual canonical read-only destination identity. An owned RGB/NO_COLOR
+terminal case exercises entry, prompt defaults, literal Unicode editing, undo,
+save/write-file rejection, draft/prompt abort, idle silence and terminal cleanup.
+The original 8-second/1-MiB driver budgets and full-frame assertions remain.
+
 ## Contracts Added or Changed
 
 - ORG10: bounded data-only capture expansion and checked origin links.
@@ -51,10 +59,14 @@ implicit executable host query. The original template remains unchanged.
 - `src/org/capture/expansion/`: instruction admission and civil formatting.
 - `src/org/capture/origin.rs`: checked, escaped origin links.
 - `tests/org_agenda/capture_expansion.rs`: independent output, failure and bounds assertions.
+- `src/session/capture/`: native stage, input and transient lifecycle ownership.
+- `tests/org_editing/capture_edges.rs`: cancellation, stale identity and source preservation.
+- `scripts/configuration_ui/org_capture_drafts.py`: owned terminal behavior.
 
 ## Validation
 
 T32.1: `75774e457d81ca69e3f5e0dc434683c30daa6b00` (report introduction).
+T32.2: `bbfabe138789bb07d2061d70566ebf036aba58b2`.
 
 - `cargo test --test org_agenda capture_expansion -- --nocapture`: five tests
   pass, zero failures or ignored tests.
@@ -72,7 +84,26 @@ T32.1: `75774e457d81ca69e3f5e0dc434683c30daa6b00` (report introduction).
   227 default bindings and the 18335-byte packaged template agree.
 - `cargo clippy --lib --test org_editing --test commands -- -D warnings`: passed.
 
+- `cargo test --test org_editing capture_edges -- --nocapture`: six tests pass,
+  zero failures or ignored tests, in addition to the three draft workflows.
+- `cargo test --lib capture_draft_admission`: the backend transient save/mode
+  admission test passes.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-capture-drafts`:
+  two owned terminal sessions pass, zero skipped.
+- A fixture initially used Rust debug Unicode escapes inside TOML. Literal TOML
+  now preserves the exact combining sequence; the joined-cursor assertion stays.
+  Disk permission evidence uses the actual disk observation and mode, separate
+  from the canonical buffer's read-only flag, which has its own identity test.
+- Final required controller order binds the clean pushed PR head:
+  `cargo fmt --all -- --check`;
+  `cargo clippy --all-targets --all-features -- -D warnings`;
+  `cargo test --test org_agenda --test org_editing --test commands --test display`;
+  `python3 scripts/check-source.py`;
+  `git diff --check`.
+- Focused final controller checks cover backend capture admission, configuration,
+  windows, Org IO, exhaustive reference and the two owned terminal sessions.
+
 ## Risks and Follow-ups
 
-T32.3 remains in progress. Publication remains the recorded Slice 33
-responsibility; this report does not claim the complete capture lifecycle.
+Destination publication remains the recorded Slice 33 responsibility.
+The delivery-set full gate has not run.
