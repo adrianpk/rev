@@ -996,6 +996,9 @@ Details and exact checks: [Slice 47](../plan/rev-org-mode.md#slice-47-export-org
 - [x] T47.3: Verify independent semantic fixtures, Unicode conversion diagnostics and no source mutations.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#148](https://forge.adrianpk.com/adrianpk/rev/pulls/148).
+Task commits: T47.1 `bdc974e583247ec26a039bea1bd5d3c1e8fbac18`, T47.2 `d21ad7715eacc14f323019991006df0163ac23f8`, T47.3 `1da01bb882a5306396853445fec375a26b2efcc6`.
+
 ### Slice 48: export native Org documents to HTML
 
 Contracts: ORG25 ORG30.

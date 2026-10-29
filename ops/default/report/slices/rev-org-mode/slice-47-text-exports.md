@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-47-text-exports`
-PR: pending
+PR: `#148`
 
 ## Purpose
 
@@ -42,6 +42,10 @@ Recorded report bodies share original snapshot policy and source evidence; their
 derived offsets never become canonical source identity. The bounded file writer is shared with table interchange; the ordinary atomic publisher owns
 staging, replacement, permissions and truthful completion outcomes.
 
+Task commits: T47.1 `bdc974e583247ec26a039bea1bd5d3c1e8fbac18`, T47.2 `d21ad7715eacc14f323019991006df0163ac23f8`, T47.3 `1da01bb882a5306396853445fec375a26b2efcc6`.
+
+Canonical PR: [#148](https://forge.adrianpk.com/adrianpk/rev/pulls/148).
+
 ## Contracts Added or Changed
 
 - ORG25: native text, Markdown and Org rendering from checked snapshots.
@@ -60,6 +64,9 @@ staging, replacement, permissions and truthful completion outcomes.
 - `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed during implementation.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-exports`: two owned RGB/NO_COLOR sessions passed, zero skipped.
 - Changed-source quality: passed with unchanged native limits.
+
+Final acceptance runs through controller validation on the clean PR-reference
+HEAD. The canonical PR and controller evidence retain that exact candidate.
 
 ## Risks and Follow-ups
 
