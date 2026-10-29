@@ -3,6 +3,8 @@
 pub(crate) mod compiler;
 mod current;
 mod html;
+mod odt;
+pub use odt::Archive;
 pub(crate) mod output;
 mod render;
 mod tex;
