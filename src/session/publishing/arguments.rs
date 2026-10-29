@@ -6,7 +6,7 @@ impl Session {
         draft: &str,
     ) -> Action {
         let result = match prompt {
-            Prompt::Select(request) => self.select_project(request, draft),
+            Prompt::Select(request) => self.select_project(*request, draft),
             Prompt::Replace(prepared) => self.replace_publication(*prepared, draft),
             Prompt::Upload(upload) => self.upload_project(upload, draft),
             Prompt::Result => return self.publishing_result(draft),
@@ -36,7 +36,7 @@ impl Session {
             cancelled: false,
             evidence: Vec::new(),
         });
-        self.launch_publishing(JobWork::Discover(work))
+        self.launch_publishing(JobWork::Discover(Box::new(work)))
     }
     fn replace_publication(&mut self, prepared: Prepared, draft: &str) -> Result<(), String> {
         if !self.publishing_current() {

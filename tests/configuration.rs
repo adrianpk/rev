@@ -197,3 +197,6 @@ mod org_archive;
 
 #[path = "configuration/org_links.rs"]
 mod org_links;
+
+#[path = "configuration/org_publishing.rs"]
+mod org_publishing;

@@ -184,19 +184,19 @@ impl Plan {
     }
 }
 pub(crate) enum JobWork {
-    Discover(Work),
+    Discover(Box<Work>),
     Write(Box<Write>),
     Upload(Upload),
 }
 pub(crate) enum Output {
-    Plan(Plan),
+    Plan(Box<Plan>),
     File(Outcome),
     Uploaded(Result<String, String>),
 }
 impl JobWork {
     pub fn run(self, cancel: &Cancellation) -> Result<Output, String> {
         match self {
-            Self::Discover(work) => work.run(cancel).map(Output::Plan),
+            Self::Discover(work) => work.run(cancel).map(|plan| Output::Plan(Box::new(plan))),
             Self::Write(work) => Ok(Output::File(work.run(cancel))),
             Self::Upload(work) => Ok(Output::Uploaded(work.run(cancel))),
         }

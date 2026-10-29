@@ -79,7 +79,7 @@ impl Walk<'_> {
     ) -> Result<(), String> {
         let entry = entry.map_err(|e| format!("Project directory {}: {e}", parent.display()))?;
         let path = entry.path();
-        if path.starts_with(&self.selection.output) {
+        if self.ignored(&path, root)? {
             return Ok(());
         }
         let relative = path
@@ -91,6 +91,12 @@ impl Walk<'_> {
         } else {
             self.selected(&path, relative)
         }
+    }
+    fn ignored(&self, path: &Path, root: &Path) -> Result<bool, String> {
+        let relative = path.strip_prefix(root).map_err(|e| e.to_string())?;
+        let name = relative.to_str().ok_or("Project paths require UTF-8")?;
+        Ok(path.starts_with(&self.selection.output)
+            || matches(&self.selection.project.exclude, name))
     }
     fn descend(
         &self,

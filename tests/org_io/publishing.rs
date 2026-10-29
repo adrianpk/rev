@@ -222,12 +222,21 @@ fn project_partial_sources() {
 #[test]
 fn project_upload_consent() {
     for mode in [
-        "yes", "no", "cancel", "missing", "failure", "timeout", "output",
+        "yes",
+        "no",
+        "cancel",
+        "missing",
+        "failure",
+        "timeout",
+        "output",
+        "running cancel",
     ] {
         let f = Fixture::new();
         let script = match mode {
             "failure" => "exit 7",
-            "timeout" => "printf started > started; sleep 5; printf escaped > escaped",
+            "timeout" | "running cancel" => {
+                "printf started > started; sleep 5; printf escaped > escaped"
+            }
             "output" => "printf 123456789",
             _ => "printf uploaded > marker; printf '%s' \"$1\" > argument",
         };
@@ -259,12 +268,7 @@ fn project_upload_consent() {
         let output = f.0.join("site space;literal");
         assert!(output.join("source.md").exists());
         assert!(!output.join("marker").exists());
-        if mode == "cancel" {
-            cancel(&mut s);
-            settle(&mut s);
-        } else {
-            argument(&mut s, if mode == "no" { "no" } else { "yes" });
-        }
+        upload_choice(&mut s, mode, &output);
         assert_eq!(s.publishing_results().len(), 1);
         assert_eq!(s.publishing_results()[0].publication, Publication::Complete);
         assert_eq!(
@@ -296,4 +300,141 @@ fn upload_executable(mode: &str) -> &'static str {
     } else {
         "/bin/sh"
     }
+}
+// Discovery honors Unicode component matching, recursive ** and excludes, while
+// selected output is skipped on later runs rather than becoming another input.
+#[test]
+fn project_discovery_patterns() {
+    let config = "org.time.zone='UTC'\n[[org.publish.projects]]\nname='docs'\nroots=['.']\ninclude=['**/note?.org']\nexclude=['private/**']\nassets=['images/**']\noutput='site'\nformats=['markdown']";
+    let (f, mut s) = super::links::editor(config, "* Unselected\n", "* Unselected\n");
+    s = s.with_org_clock(clock);
+    f.write("note界.org", "* First\n");
+    f.write("nested/noteA.org", "* Second\n");
+    f.write("private/noteA.org", "* Private\n");
+    f.write(
+        &format!("private/{}noteA.org", "depth/".repeat(65)),
+        "* Excluded deep source\n",
+    );
+    f.write("images/a/data", "binary");
+    f.write("site/noteB.org", "* Unowned output\n");
+    publish(&mut s);
+    assert_eq!(
+        s.publishing_results().len(),
+        3,
+        "{:?}",
+        s.publishing_results()
+    );
+    assert!(
+        s.publishing_results()
+            .iter()
+            .all(|r| r.publication == Publication::Complete)
+    );
+    assert!(f.0.join("site/note界.md").exists());
+    assert!(f.0.join("site/nested/noteA.md").exists());
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("site/images/a/data")).unwrap(),
+        "binary"
+    );
+    assert!(!f.0.join("site/private").exists());
+    assert!(!f.0.join("site/site").exists());
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("site/noteB.org")).unwrap(),
+        "* Unowned output\n"
+    );
+}
+// File/output byte ceilings and output count limits reject incomplete work
+// before publication, rather than presenting a truncated project as complete.
+#[test]
+fn project_limits() {
+    for extra in [
+        "org.limits.agenda_files=1",
+        "org.limits.agenda_total_bytes=1",
+        "org.limits.export_bytes=1",
+    ] {
+        let (f, mut s) = project(extra);
+        publish(&mut s);
+        assert!(
+            !f.0.join("site/source.html").exists(),
+            "{extra}: {}",
+            s.echo()
+        );
+        assert!(
+            !f.0.join("site/source.md").exists(),
+            "{extra}: {}",
+            s.echo()
+        );
+        assert!(
+            s.publishing_results()
+                .iter()
+                .all(|r| r.publication == Publication::NotPublished)
+        );
+        assert_eq!(
+            std::fs::read_to_string(f.0.join("source.org")).unwrap(),
+            "\u{feff}* Heading 界\r\nBody\r\n"
+        );
+    }
+}
+// A live output buffer owns both its path and inode, including a hard-link
+// alias. Project publication cannot discard that buffer's unsaved changes.
+#[test]
+fn project_live_output() {
+    let f = Fixture::new();
+    let config = "org.time.zone='UTC'\n[[org.publish.projects]]\nname='docs'\nroots=['source.org']\noutput='site'\nformats=['html','markdown']";
+    let startup = prepare(&f.write("config.toml", config));
+    let target = f.write("site/source.html", "output source");
+    let alias = f.0.join("live.txt");
+    std::fs::hard_link(&target, &alias).unwrap();
+    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    buffers.visit(&alias).unwrap();
+    let source = f.write("source.org", "* Source\n");
+    let id = buffers.visit(&source).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 14,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock);
+    publish(&mut s);
+    assert_eq!(s.publishing_results().len(), 2);
+    assert!(s.publishing_results()[0].detail.contains("live buffer"));
+    assert_eq!(s.publishing_results()[1].publication, Publication::Complete);
+    assert_eq!(std::fs::read_to_string(&target).unwrap(), "output source");
+    assert!(s.buffer().unwrap().is_readonly());
+}
+
+fn upload_choice(session: &mut Session, mode: &str, output: &Path) {
+    if mode == "cancel" {
+        cancel(session);
+        settle(session);
+        return;
+    }
+    if mode != "running cancel" {
+        argument(session, if mode == "no" { "no" } else { "yes" });
+        return;
+    }
+    session.handle(Event::Paste("yes".into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    let deadline = Instant::now() + Duration::from_secs(3);
+    while !output.join("started").exists() {
+        session.frame().unwrap();
+        assert!(
+            Instant::now() < deadline,
+            "upload did not start: {}",
+            session.echo()
+        );
+        session.expire_input(Instant::now() + Duration::from_millis(10));
+        std::thread::yield_now();
+    }
+    cancel(session);
+    settle(session);
+    assert!(!output.join("escaped").exists());
 }

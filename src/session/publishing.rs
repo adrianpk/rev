@@ -9,7 +9,7 @@ use crate::{
 };
 use std::path::PathBuf;
 pub(super) enum Prompt {
-    Select(Request),
+    Select(Box<Request>),
     Replace(Box<Prepared>),
     Upload(publish::Upload),
     Result,
@@ -54,7 +54,7 @@ impl Session {
             command,
         };
         self.publishing_prompt(
-            Prompt::Select(request),
+            Prompt::Select(Box::new(request)),
             &format!("Publish project ({names}): "),
         )
     }
@@ -114,7 +114,7 @@ impl Session {
                     .as_mut()
                     .ok_or("Project selection cancelled")?;
                 state.inputs = inputs;
-                state.plan = Some(plan);
+                state.plan = Some(*plan);
             }
             Output::File(outcome) => {
                 self.publishing_results.push(outcome);

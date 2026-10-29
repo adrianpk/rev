@@ -45,7 +45,12 @@ impl Upload {
     pub fn label(&self) -> &str {
         &self.program.argv[0]
     }
-    pub fn run(self, cancel: &Cancellation) -> Result<String, String> {
+    pub fn run(mut self, cancel: &Cancellation) -> Result<String, String> {
+        let directory =
+            crate::org::attachment::directory::Directory::observe(&self.program.directory)?
+                .open()?;
+        directory.current()?;
+        self.program.directory = directory.entry(std::ffi::OsStr::new("."));
         let outcome = self.program.run(cancel)?;
         if !outcome.status.success() {
             return Err(format!(
