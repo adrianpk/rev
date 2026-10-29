@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "org_tables/metadata.rs"]
+mod metadata;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
 use rev::{

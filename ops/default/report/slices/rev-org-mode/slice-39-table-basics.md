@@ -18,6 +18,10 @@ and [tracker](../../../tracker/rev-org-mode.md#slice-39-navigate-and-align-nativ
 T39.1 introduces `org_tables` and working creation, alignment, cell/row motion,
 row insertion and separator commands. Table TAB/S-TAB, RET, C-c C-c and M-RET
 reach native context actions; non-table RET retains ordinary newline editing.
+T39.2 retains names, captions, attributes, formula spelling, source cell markup
+and surrounding paragraphs. Ragged rows gain explicit empty fields, while
+width cookies remain literal source without affecting numeric alignment.
+Creating beside existing tables preserves separate table boundaries.
 
 ## Implementation Notes
 
@@ -50,7 +54,9 @@ rendered fragment. All analysis runs on the existing single cancellable worker.
 - `python3 scripts/check-config-reference.py`: 155 schema/catalog leaves, 54 RGB roles and 246 bindings agree.
 - Changed-source quality passes at unchanged parameter, nesting and cyclomatic limits.
 
+- `cargo test --test org_tables metadata -- --nocapture`: five workflows pass for affiliated metadata/formulas, ragged/empty cells, alignment cookies, creation boundaries and literal block rejection. Two initial failures exposed width-cookie classification and adjacent table joining; both are corrected and the unchanged assertions pass.
+
 ## Risks and Follow-ups
 
-Metadata/source boundaries and edge validation remain assigned to T39.2/T39.3.
+Edge validation remains assigned to T39.3.
 Final ordered controller checks remain pending.

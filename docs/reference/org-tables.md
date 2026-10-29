@@ -21,7 +21,9 @@ including internal tabs, markup, entities and Unicode. Alignment uses the source
 canvas glyph/tab policy and changes surrounding padding/delimiters; separators
 span the actual columns. Numeric-rich columns align right. Explicit `<l>`, `<c>`
 and `<r>` cookies override alignment; optional width spellings remain source.
-Values are never truncated to fit a display width cookie.
+Width-only cookies do not count as data when choosing numeric alignment. Values
+are never truncated to fit a display width cookie. Creating between existing
+tables retains blank boundaries so their rows remain separate tables.
 
 Table work uses the existing single cancellable worker and configured job deadline.
 C-g cancels prompts or active work. Publication rechecks source revision and view;

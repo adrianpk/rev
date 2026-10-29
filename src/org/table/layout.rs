@@ -115,6 +115,25 @@ impl Rendered {
     }
 }
 impl Layout {
+    pub(super) fn separate(&mut self, before: &str, after: &str) -> Result<(), String> {
+        if self.text.len() + before.len() + after.len() > Limits::default().bytes {
+            return Err("Separated table exceeds native 8 MiB output limit".into());
+        }
+        self.text.insert_str(0, before);
+        self.text.push_str(after);
+        for range in self.positions.iter_mut().flatten() {
+            range.start += before.len();
+            range.end += before.len();
+        }
+        for start in &mut self.starts {
+            *start += before.len();
+        }
+        for anchor in &mut self.anchors {
+            anchor.output.start += before.len();
+            anchor.output.end += before.len();
+        }
+        Ok(())
+    }
     fn append(&mut self, row: &Row, rendered: Rendered, ending: &str) -> Result<(), String> {
         if self.text.len() + rendered.text.len() + ending.len() > Limits::default().bytes {
             return Err("Aligned table exceeds native 8 MiB output limit".into());
@@ -179,11 +198,12 @@ impl Table {
                 return Err("Conflicting table alignment cookies; source unchanged".into());
             }
             let numeric = values.iter().filter(|s| number(s)).count();
+            let data = values.iter().filter(|s| !formatting(s)).count();
             let alignment =
                 cookies
                     .first()
                     .copied()
-                    .unwrap_or(if numeric > 0 && numeric * 2 >= values.len() {
+                    .unwrap_or(if numeric > 0 && numeric * 2 >= data {
                         Alignment::Right
                     } else {
                         Alignment::Left
@@ -208,6 +228,13 @@ fn cookie(value: &str) -> Option<Alignment> {
 }
 fn number(value: &str) -> bool {
     value.parse::<f64>().is_ok()
+}
+fn formatting(value: &str) -> bool {
+    cookie(value).is_some()
+        || value
+            .strip_prefix('<')
+            .and_then(|s| s.strip_suffix('>'))
+            .is_some_and(|s| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit()))
 }
 
 impl Row {

@@ -35,7 +35,13 @@ impl Snapshot {
         let mut table =
             self.empty_table(start..start + body.len(), body, (columns, rows), cancel)?;
         table.finish()?;
-        let layout = self.layout(&table, cancel)?;
+        let mut layout = self.layout(&table, cancel)?;
+        let before = adjacent_row(nodes, start, false);
+        let after = adjacent_row(nodes, start + source.len(), true);
+        layout.separate(
+            if before { self.newline } else { "" },
+            if after { self.newline } else { "" },
+        )?;
         self.plan(
             &table,
             layout,
@@ -48,6 +54,16 @@ impl Snapshot {
         )
         .map(Output::Plan)
     }
+}
+fn adjacent_row(nodes: &[structure::Raw], at: usize, following: bool) -> bool {
+    nodes.iter().any(|n| {
+        matches!(n.kind, K::TableRow { .. })
+            && if following {
+                n.source.start == at
+            } else {
+                n.source.end == at
+            }
+    })
 }
 impl Snapshot {
     fn empty_table(
