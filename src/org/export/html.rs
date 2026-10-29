@@ -1,5 +1,7 @@
 //! HTML is inert derived output. Only the ordinary publisher can write it.
+mod attributes;
 mod blocks;
+use attributes::Properties;
 mod inline;
 mod links;
 mod notes;
@@ -12,6 +14,7 @@ struct Html<'a> {
     output: String,
     diagnostics: Vec<String>,
     ids: BTreeSet<String>,
+    references: BTreeSet<String>,
     headings: Vec<(usize, String, String)>,
     numbers: Vec<usize>,
     notes: notes::Notes,
@@ -23,15 +26,18 @@ struct Document<'a> {
     children: Vec<Vec<usize>>,
     roots: Vec<usize>,
     base: usize,
+    heading_ids: BTreeMap<usize, String>,
+    heading_links: BTreeMap<String, Option<String>>,
 }
 pub(super) fn render(snapshot: &Snapshot, cancel: &Cancellation) -> Result<Rendered, String> {
-    let doc = Document::new(&snapshot.text, &snapshot.nodes, snapshot)?;
+    let doc = Document::new(&snapshot.text, &snapshot.nodes, snapshot, cancel, 0)?;
     let mut html = Html {
         snapshot,
         cancel,
         output: String::new(),
         diagnostics: snapshot.diagnostics.clone(),
         ids: BTreeSet::new(),
+        references: BTreeSet::new(),
         headings: Vec::new(),
         numbers: Vec::new(),
         notes: notes::Notes::default(),
@@ -39,6 +45,7 @@ pub(super) fn render(snapshot: &Snapshot, cancel: &Cancellation) -> Result<Rende
     };
     doc.body(&mut html, 0)?;
     html.footnotes()?;
+    html.targets_current()?;
     let body = std::mem::take(&mut html.output);
     html.header()?;
     html.emit(&body)?;
@@ -87,15 +94,26 @@ impl Html<'_> {
         }
         Ok(())
     }
+    fn targets_current(&self) -> Result<(), String> {
+        if self.references.iter().any(|id| !self.ids.contains(id)) {
+            return Err(
+                "Unresolved HTML local target; include its definition in the selected scope".into(),
+            );
+        }
+        Ok(())
+    }
     fn header(&mut self) -> Result<(), String> {
         let m = &self.snapshot.metadata;
         let language = m.language.as_deref().unwrap_or("en");
         self.emit("<!DOCTYPE html>\n<html lang=\"")?;
         self.text(language)?;
         self.emit("\">\n<head>\n<meta charset=\"utf-8\">\n<title>")?;
-        if self.snapshot.options.title {
-            self.text(m.title.as_deref().unwrap_or("Org document"))?;
-        }
+        let title = m
+            .title
+            .as_deref()
+            .filter(|_| self.snapshot.options.title)
+            .unwrap_or("Org document");
+        self.text(title)?;
         self.emit("</title>\n")?;
         self.metadata()?;
         self.emit("</head>\n<body>\n<main>\n")?;
@@ -142,7 +160,7 @@ impl Html<'_> {
         self.emit("<nav aria-label=\"Contents\"><ul>\n")?;
         for (_, id, title) in self.headings.clone() {
             self.emit(&format!("<li><a href=\"#{id}\">"))?;
-            self.emit(&title)?;
+            self.text(&title)?;
             self.emit("</a></li>\n")?;
         }
         self.emit("</ul></nav>\n")
@@ -153,10 +171,13 @@ impl<'a> Document<'a> {
         text: &'a Rope,
         nodes: &'a [structure::Raw],
         snapshot: &Snapshot,
+        cancel: &Cancellation,
+        prefix: usize,
     ) -> Result<Self, String> {
         let mut children = vec![Vec::new(); nodes.len()];
         let mut roots = Vec::new();
         for (i, n) in nodes.iter().enumerate() {
+            document::check(cancel)?;
             if let Some(parent) = n.parent {
                 children[parent].push(i);
             } else {
@@ -174,13 +195,53 @@ impl<'a> Document<'a> {
         } else {
             0
         };
-        Ok(Self {
+        let mut doc = Self {
             text,
             nodes,
             children,
             roots,
             base,
-        })
+            heading_ids: BTreeMap::new(),
+            heading_links: BTreeMap::new(),
+        };
+        doc.index_headings(snapshot, cancel, prefix)?;
+        Ok(doc)
+    }
+    fn index_headings(
+        &mut self,
+        snapshot: &Snapshot,
+        cancel: &Cancellation,
+        prefix: usize,
+    ) -> Result<(), String> {
+        let options = Options {
+            todo: false,
+            tags: false,
+            ..snapshot.options.clone()
+        };
+        for (id, n) in self
+            .nodes
+            .iter()
+            .enumerate()
+            .filter(|(_, n)| matches!(n.kind, StructureKind::Heading { .. }))
+        {
+            document::check(cancel)?;
+            let anchor = format!("org-heading-{prefix}-{}", self.heading_ids.len() + 1);
+            self.heading_ids.insert(id, anchor.clone());
+            let title =
+                super::render::headings::title_range(self.text, n, &options, &snapshot.todo);
+            for range in [n.content.clone(), title] {
+                let key = self.text.byte_slice(range).to_string();
+                self.heading_links
+                    .entry(key)
+                    .and_modify(|old| {
+                        if old.as_ref() != Some(&anchor) {
+                            *old = None;
+                        }
+                    })
+                    .or_insert(Some(anchor.clone()));
+            }
+        }
+        Ok(())
     }
     fn body(&self, html: &mut Html<'_>, depth: usize) -> Result<(), String> {
         for id in &self.roots {
@@ -205,7 +266,7 @@ impl<'a> Document<'a> {
             StructureKind::Section => self.children(html, id, depth),
             StructureKind::List { ordered } => self.container(html, id, list_tag(ordered), depth),
             StructureKind::Item { .. } => self.container(html, id, "li", depth),
-            StructureKind::Paragraph => self.paragraph(html, n),
+            StructureKind::Paragraph => self.paragraph(html, id),
             StructureKind::Table => self.table(html, id),
             StructureKind::Block(kind) => self.block(html, id, kind, depth),
             _ => self.leaf(html, n),
@@ -218,7 +279,9 @@ impl<'a> Document<'a> {
         tag: &str,
         depth: usize,
     ) -> Result<(), String> {
-        html.emit(&format!("<{tag}>\n"))?;
+        let props = self.properties(html, id)?;
+        props.open(html, tag)?;
+        html.emit("\n")?;
         self.children(html, id, depth)?;
         html.emit(&format!("</{tag}>\n"))
     }
@@ -244,6 +307,7 @@ impl<'a> Document<'a> {
             &html.snapshot.options,
             &html.snapshot.todo,
         );
+        let mut plain = self.text.byte_slice(range.clone()).to_string();
         let mut title = self.capture(html, range, 0)?;
         if html.snapshot.options.numbered {
             let number = html
@@ -253,19 +317,36 @@ impl<'a> Document<'a> {
                 .collect::<Vec<_>>()
                 .join(".");
             title = format!("{number} {title}");
+            plain = format!("{number} {plain}");
         }
-        let anchor = format!("org-heading-{}", html.headings.len() + 1);
+        let anchor = self.heading_ids[&id].clone();
         html.identity(&anchor)?;
-        html.headings.push((level, anchor.clone(), title.clone()));
+        html.headings.push((level, anchor.clone(), plain));
         let tag = level.min(6);
         html.emit(&format!("<h{tag} id=\"{anchor}\">{title}</h{tag}>\n"))?;
         self.children(html, id, depth)
     }
-    fn paragraph(&self, html: &mut Html<'_>, n: &structure::Raw) -> Result<(), String> {
+    fn paragraph(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
+        let n = &self.nodes[id];
         if self.definition(html, n)? {
             return Ok(());
         }
-        html.emit("<p>")?;
+        let props = self.properties(html, id)?;
+        props.figure(html)?;
+        self.paragraph_content(html, n, &props)?;
+        self.caption(html, props.caption.as_ref(), "figcaption")?;
+        props.end_figure(html)
+    }
+    fn paragraph_content(
+        &self,
+        html: &mut Html<'_>,
+        n: &structure::Raw,
+        props: &Properties,
+    ) -> Result<(), String> {
+        if self.standalone_image(html, n, props)? {
+            return Ok(());
+        }
+        props.open(html, "p")?;
         self.inline(html, n.content.clone(), 0)?;
         html.emit("</p>\n")
     }

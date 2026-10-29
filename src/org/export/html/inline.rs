@@ -7,15 +7,19 @@ impl Document<'_> {
         range: Range<usize>,
         depth: usize,
     ) -> Result<(), String> {
+        self.objects(html, range, depth, InlineContext::Standard)
+    }
+    pub(super) fn objects(
+        &self,
+        html: &mut Html<'_>,
+        range: Range<usize>,
+        depth: usize,
+        context: InlineContext,
+    ) -> Result<(), String> {
         if depth >= 32 {
             return Err("HTML inline nesting limit reached".into());
         }
-        let nodes = native::objects(
-            self.text,
-            range.clone(),
-            InlineContext::Standard,
-            html.cancel,
-        )?;
+        let nodes = native::objects(self.text, range.clone(), context, html.cancel)?;
         let mut cursor = range.start;
         for n in nodes {
             document::check(html.cancel)?;
@@ -23,7 +27,7 @@ impl Document<'_> {
                 continue;
             }
             html.text(&self.text.byte_slice(cursor..n.source.start).to_string())?;
-            self.object(html, &n, depth + 1)?;
+            self.object(html, &n, depth + 1, context)?;
             cursor = n.source.end;
         }
         html.text(&self.text.byte_slice(cursor..range.end).to_string())
@@ -40,15 +44,27 @@ impl Document<'_> {
         result?;
         Ok(output)
     }
-    fn object(&self, html: &mut Html<'_>, n: &native::Raw, depth: usize) -> Result<(), String> {
+    fn object(
+        &self,
+        html: &mut Html<'_>,
+        n: &native::Raw,
+        depth: usize,
+        context: InlineContext,
+    ) -> Result<(), String> {
         match n.kind {
             InlineKind::Link(_) => self.link(html, n, depth),
             InlineKind::FootnoteReference | InlineKind::FootnoteInline => self.note(html, n, depth),
             InlineKind::Target | InlineKind::RadioTarget => self.target(html, n),
-            _ => self.decoration(html, n, depth),
+            _ => self.decoration(html, n, depth, context),
         }
     }
-    fn decoration(&self, html: &mut Html<'_>, n: &native::Raw, depth: usize) -> Result<(), String> {
+    fn decoration(
+        &self,
+        html: &mut Html<'_>,
+        n: &native::Raw,
+        depth: usize,
+        context: InlineContext,
+    ) -> Result<(), String> {
         if n.kind == InlineKind::Entity {
             return html.text(&self.text.byte_slice(n.source.clone()).to_string());
         }
@@ -57,7 +73,7 @@ impl Document<'_> {
         if matches!(n.kind, InlineKind::Code | InlineKind::Verbatim) {
             html.text(&self.text.byte_slice(n.content.clone()).to_string())?;
         } else {
-            self.inline(html, n.content.clone(), depth)?;
+            self.objects(html, n.content.clone(), depth, context)?;
         }
         html.emit(&format!("</{tag}>"))
     }

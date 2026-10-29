@@ -201,9 +201,10 @@ pub enum OrgCommand {
     ExportUtf8,
     ExportMarkdown,
     ExportOrg,
+    ExportHtml,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 199] = [
+    pub const ALL: [Self; 200] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -403,6 +404,7 @@ impl OrgCommand {
         Self::ExportUtf8,
         Self::ExportMarkdown,
         Self::ExportOrg,
+        Self::ExportHtml,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -605,6 +607,7 @@ impl OrgCommand {
             "org-export-to-unicode",
             "org-export-to-markdown",
             "org-export-to-org",
+            "org-export-to-html",
         ][self as usize]
     }
 
@@ -923,6 +926,7 @@ impl OrgCommand {
             Self::ExportUtf8 => Some(B::Utf8),
             Self::ExportMarkdown => Some(B::Markdown),
             Self::ExportOrg => Some(B::Org),
+            Self::ExportHtml => Some(B::Html),
             _ => None,
         }
     }

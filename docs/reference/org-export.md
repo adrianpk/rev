@@ -146,3 +146,30 @@ Nested report bodies admit at most 16 levels and share the 200000-node budget.
 Link targets admit 4096 bytes, footnotes admit 4096 labels of at most 1024 bytes,
 and generated code fences admit at most 128 backticks. Oversized output rejects
 without creating a partial destination.
+
+## Native HTML documents
+
+`org-export-to-html` uses the same scope, options and checked local destination
+prompts. It writes complete UTF-8 HTML with metadata, numbered headings and
+contents, lists, tables, links, images, footnotes with backlinks and literal code.
+Source, export blocks and unknown forms remain escaped data; rendering never
+executes contents, loads assets or fetches links. Relative references resolve
+from the output file; export does not copy assets.
+
+Unlabelled local raster links (PNG, JPEG, GIF, WebP or AVIF) become images.
+Local paths must be relative and cannot traverse parent directories. Absolute,
+ID, attachment, executable, unknown-scheme and file-search links remain literal
+with diagnostics. HTTP, HTTPS, FTP, mailto and news links retain encoded URLs.
+Internal named targets and exact unambiguous heading titles become local anchors.
+`#id` links select an explicit HTML identifier.
+
+Affiliated NAME declares a named anchor, and CAPTION retains inline text on
+tables, images and literal code blocks. ATTR_HTML admits `:id`, `:class` and
+`:title`; images also admit `:alt`, `:width` and `:height`, and tables admit
+`:border`, `:cellpadding` and `:cellspacing`. Values can be double-quoted.
+Image dimensions admit 1..16384 pixels or 1..100 percent; table integers admit
+0..4096. Declarations admit 4096 bytes, 16 attributes and 1024 bytes per value.
+Identifiers admit 1..256 ASCII letters, digits, hyphens, underscores, periods or
+colons and must be unique. Unsupported attributes, invalid values and duplicate
+identifiers reject the output. Raw HTML, style and event attributes are not
+inserted. Table contents retain all original cells without executing formulas.

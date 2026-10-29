@@ -1,7 +1,14 @@
 use super::*;
 impl Document<'_> {
     pub(super) fn table(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
-        html.emit("<table>\n")?;
+        let props = self.properties(html, id)?;
+        props.open(html, "table")?;
+        html.emit("\n")?;
+        self.caption(html, props.caption.as_ref(), "caption")?;
+        self.table_rows(html, id)?;
+        html.emit("</table>\n")
+    }
+    fn table_rows(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
         let mut columns = None;
         for row in &self.children[id] {
             document::check(html.cancel)?;
@@ -20,7 +27,7 @@ impl Document<'_> {
             self.cells(html, cells)?;
             html.emit("</tr>\n")?;
         }
-        html.emit("</table>\n")
+        Ok(())
     }
     fn cells(&self, html: &mut Html<'_>, cells: &[usize]) -> Result<(), String> {
         for cell in cells {
@@ -37,22 +44,36 @@ impl Document<'_> {
         kind: BlockKind,
         depth: usize,
     ) -> Result<(), String> {
-        let n = &self.nodes[id];
         match kind {
             BlockKind::Comment => Ok(()),
             BlockKind::Greater => self.container(html, id, "blockquote", depth),
-            BlockKind::Verse => {
-                html.emit("<pre>")?;
-                self.inline(html, n.content.clone(), 0)?;
-                html.emit("</pre>\n")
-            }
-            BlockKind::Dynamic => self.dynamic(html, n, depth),
-            _ => {
-                html.emit("<pre><code>")?;
-                html.text(&self.text.byte_slice(n.content.clone()).to_string())?;
-                html.emit("</code></pre>\n")
-            }
+            BlockKind::Verse => self.verse(html, id),
+            BlockKind::Dynamic => self.report(html, id, depth),
+            _ => self.literal_block(html, id),
         }
+    }
+    fn verse(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
+        let props = self.properties(html, id)?;
+        props.open(html, "pre")?;
+        self.inline(html, self.nodes[id].content.clone(), 0)?;
+        html.emit("</pre>\n")
+    }
+    fn report(&self, html: &mut Html<'_>, id: usize, depth: usize) -> Result<(), String> {
+        let props = self.properties(html, id)?;
+        props.open(html, "div")?;
+        self.dynamic(html, &self.nodes[id], depth)?;
+        html.emit("</div>\n")
+    }
+    fn literal_block(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
+        let n = &self.nodes[id];
+        let props = self.properties(html, id)?;
+        props.figure(html)?;
+        props.open(html, "pre")?;
+        html.emit("<code>")?;
+        html.text(&self.text.byte_slice(n.content.clone()).to_string())?;
+        html.emit("</code></pre>\n")?;
+        self.caption(html, props.caption.as_ref(), "figcaption")?;
+        props.end_figure(html)
     }
     fn dynamic(&self, html: &mut Html<'_>, n: &structure::Raw, depth: usize) -> Result<(), String> {
         let name = n
@@ -80,7 +101,7 @@ impl Document<'_> {
         if html.observed > super::super::super::Limits::default().nodes {
             return Err("HTML report node limit reached".into());
         }
-        let doc = Document::new(&text, &nodes, html.snapshot)?;
+        let doc = Document::new(&text, &nodes, html.snapshot, html.cancel, html.observed)?;
         doc.body(html, depth + 1)
     }
 }

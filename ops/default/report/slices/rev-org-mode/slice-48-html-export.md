@@ -21,6 +21,13 @@ footnotes with backlinks and literal source blocks. Raw export blocks remain
 escaped data. Executable or unsupported links retain literal source with a
 diagnostic. Missing or duplicate note definitions reject the entire output.
 
+T48.2 adds `org-export-to-html` to the compiled command catalog and existing
+scope/options/destination flow. Affiliated names, captions and admitted HTML
+attributes retain typed bounds. Event/style attributes and invalid geometry
+reject before publication. Local assets cannot traverse parent directories;
+internal references must resolve within the selected output. Heading links and
+contents use stable local identifiers; link labels cannot create nested anchors.
+
 ## Implementation Notes
 
 HTML traverses existing native structure and inline observations. Rendering has
@@ -44,6 +51,8 @@ that evidence and retain their existing data without recalculation.
 - `cargo test --test org_io html_export`: three workflows passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_io -- -D warnings`: passed.
 - Changed-source quality: passed with unchanged native limits.
+- `cargo test --test org_io html_export`: five HTML renderer and publication workflows passed after command/attribute integration, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
 
 ## Risks and Follow-ups
 
