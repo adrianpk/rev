@@ -1026,6 +1026,10 @@ Details and exact checks: [Slice 49](../plan/rev-org-mode.md#slice-49-export-org
 - [x] T49.3: Verify escaped output and truthful absent-tool behavior without requiring a TeX installation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T49.1 `6f41f860510f063903b357c64fff705f0fe0f814`, T49.2 `bac94f94cb0f9499f9c82ea914a3cb1395f30ab2`, T49.3 `6712a1ae4d8c19c1bc55ca5852ba5583bb077f50`.
+
+Canonical PR: [#150](https://forge.adrianpk.com/adrianpk/rev/pulls/150); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+
 ### Slice 50: export native Org to OpenDocument text
 
 Contracts: ORG25 ORG18.

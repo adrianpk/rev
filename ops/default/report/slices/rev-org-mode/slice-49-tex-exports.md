@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-49-tex-exports`
-PR: pending
+PR: `#150`
 
 ## Purpose
 
@@ -46,6 +46,10 @@ and output limits. It has no process, network or publication authority. Math
 recognition precedes entity conversion and protects native literal objects.
 Only a fixed mathematical command subset is emitted; file/process directives,
 TeX mouth escapes and unbalanced groups remain inert escaped text.
+
+Task commits: T49.1 `6f41f860510f063903b357c64fff705f0fe0f814`, T49.2 `bac94f94cb0f9499f9c82ea914a3cb1395f30ab2`, T49.3 `6712a1ae4d8c19c1bc55ca5852ba5583bb077f50`.
+
+Canonical PR: [#150](https://forge.adrianpk.com/adrianpk/rev/pulls/150).
 
 ## Contracts Added or Changed
 
