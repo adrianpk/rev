@@ -1,6 +1,6 @@
 # Slice 30: edit canonical Org source from the agenda
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -112,3 +112,5 @@ T30.3: `7bfb98cd0408785cdf7c33f8e83fc361ac458ca4`.
 The delivery-set full gate has not run.
 
 [Canonical PR #131](https://forge.adrianpk.com/adrianpk/rev/pulls/131) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.
+
+PR #131 merged into dev at `41648989959e0e01bb338f258c03624db99cd207`, verified on Forgejo and origin/dev. Required receipt `SY4DYDUC7OZY3AICUCNVXEVB22` passed 287 tests and six owned terminal sessions; focused receipt `FQDAFBADYGNOJL76FRONONV2M5` passed 410 tests and the exhaustive reference. Zero failures or ignored tests.

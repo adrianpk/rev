@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 30 agenda-actions
+Active slice: Slice 31 capture-templates
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -742,13 +742,15 @@ Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canon
 - [x] T30.1: Route agenda task/date/tag/priority/effort/clock actions through checked source handlers.
 - [x] T30.2: Deliver explicit selection, bulk operations and per-target outcomes with revision re-resolution.
 - [x] T30.3: Exercise dirty buffers, cancellation, failure and undo in an owned multi-source agenda journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #131](https://forge.adrianpk.com/adrianpk/rev/pulls/131) targets dev; the Slice 30 report is reviewing. T30.1/T30.2/T30.3 commits are `ecce41921d6f`, `a65745954df3` and `7bfb98cd0408`. Seven source cases, five bulk cases, six lifecycle cases and three focused RGB terminal scenarios pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
 T30.1 routes checked agenda source actions through existing native handlers. Seven focused source cases pass, including cancellation, stale/read-only rejection, dirty canonical text, undo/redo, clock ownership and mapped shared views.
 
-### Slice 31: define native Org capture targets and templates
+PR #131 merged into dev at `41648989959e0e01bb338f258c03624db99cd207`, verified against Forgejo and origin/dev. Required receipt `SY4DYDUC7OZY3AICUCNVXEVB22` and focused receipt `FQDAFBADYGNOJL76FRONONV2M5` passed 697 tests and six owned terminal sessions with zero failures or ignored tests. Slice 30 is delivered.
+
+## Slice 31: define native Org capture targets and templates
 
 Contracts: ORG10 ORG17.
 Details and exact checks: [Slice 31](../plan/rev-org-mode.md#slice-31-define-native-org-capture-targets-and-templates).
