@@ -1,6 +1,6 @@
 # Slice 33: finalize or abort Org capture safely
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -39,6 +39,12 @@ retains an explicit inserted-once receipt, canonical source and draft; retry
 saves that pinned source without another insertion. Changed draft/source pins
 reject automatic retry, and abort reports actual prior publication.
 
+T33.3 verifies actual file, outline, list, table and date-tree publication,
+shared-pane positions, metadata placement and draft bounds. Plain prepend skips
+actual heading metadata and inserts a separator before existing body text.
+The fixture identity includes its owning module, preventing independent unit
+modules from colliding without changing assertions or resource limits.
+
 ## Contracts Added or Changed
 
 - ORG10: exact destination revalidation and coherent capture insertion planning.
@@ -51,6 +57,9 @@ reject automatic retry, and abort reports actual prior publication.
 - `src/org/list/numbering.rs`: shared counter/reset behavior for capture.
 - `src/buffer/save.rs`: pre-admitted edit and ordinary file publication.
 - `tests/files/capture_saved.rs`: real replacement, rejection and unresolved completion.
+- `src/session/capture/finalize/`: draft ownership, publication and pinned retry.
+- `tests/org_agenda/capture_shapes.rs`: saved shapes and shared-pane mapping.
+- `scripts/configuration_ui/org_capture_finalize.py`: owned terminal save/rejection.
 
 ## Validation
 
@@ -63,6 +72,8 @@ T33.1: `0cdd4a33a0f358f4de544889e761878099d618f8` (report introduction).
 - `cargo clippy --lib --test files -- -D warnings`: passed.
 - Changed-source quality passes at unchanged parameter, nesting and complexity limits.
 
+T33.2: `7396cdeaa1fa73652e9baa5d08ab06b560883ede` (native finalize lifecycle and commands).
+
 - `cargo test --test org_agenda capture_publication -- --nocapture`: four
   file-backed session workflows pass, zero failures or ignored tests.
 - `cargo clippy --lib --test org_agenda -- -D warnings`: passed.
@@ -74,6 +85,26 @@ T33.1: `0cdd4a33a0f358f4de544889e761878099d618f8` (report introduction).
 - `python3 scripts/check-config-reference.py`: 149 leaves, 54 RGB roles, 228
   default bindings and 18370 exact packaged reference bytes agree.
 
+T33.3 focused checks:
+
+- `cargo test --lib finalize -- --nocapture`: four tests cover bounded drafts,
+  actual date-tree save, native placement and three unresolved-save retry cases.
+- `cargo test --test org_agenda capture_shapes -- --nocapture`: two tests cover
+  four saved capture kinds and retained peer positions during list renumbering.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-capture-finalize`:
+  four owned RGB/NO_COLOR save/read-only sessions pass, zero skipped.
+- `cargo clippy --lib --test org_agenda -- -D warnings`: passed.
+- Changed-source quality passes with unchanged limits.
+
+A plain-prepend fixture initially exposed metadata joining; placement now keeps
+its property drawer intact and the exact expected bytes pass. Concurrent unit
+fixtures initially collided; module-qualified ownership fixes that setup while
+preserving all observable assertions. Final controller receipts will bind the
+clean pushed PR head after its reference follow-up commit.
+
 ## Risks and Follow-ups
 
-T33.3 remains in progress. The delivery-set full gate has not run.
+An unresolved save retains actual published source and its draft; abort does
+not undo an already completed replacement. Changed source/draft pins require
+explicit inspection rather than automatic reinsertion. The delivery-set full
+gate remains controller-owned.

@@ -17,7 +17,7 @@ from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
 from configuration_ui.org_clock_state import persistence
-from configuration_ui import org_time, org_agenda, org_capture_drafts
+from configuration_ui import org_time, org_agenda, org_capture_drafts, org_capture_finalize
 
 
 def terminal(selected):
@@ -52,7 +52,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -76,6 +76,13 @@ def main():
     if args.case=='org-time':
         build.extend(['--example','terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-capture-finalize':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            for readonly, mode in [(False, 'saved'), (True, 'read-only')]:
+                run_scenario(org_capture_finalize.finalize, (colored, readonly))
+                print(f'PASS org-capture-finalize {mode} {label}')
+        print('Org capture finalize terminal suite: 4 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-capture-drafts':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
             run_scenario(org_capture_drafts.drafts, colored)

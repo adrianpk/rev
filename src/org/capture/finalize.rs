@@ -44,7 +44,7 @@ impl Resolved {
         Ok(Finalize {
             discovery: choice.discover(buffers, &settings.org, date)?,
             expected: self.source.clone(),
-            draft: Source::new(draft).snapshot().map_err(|e| e.to_string())?,
+            draft: draft_snapshot(draft)?,
             newline: settings.files.newline,
             seconds: settings.org.limits.job_seconds as u64,
         })
@@ -142,3 +142,11 @@ impl Insertion {
 #[cfg(test)]
 #[path = "finalize/tests.rs"]
 mod tests;
+
+fn draft_snapshot(draft: &Buffer) -> Result<Rope, String> {
+    let text = Source::new(draft).snapshot().map_err(|e| e.to_string())?;
+    if text.chunks().any(|chunk| chunk.contains('\0')) {
+        return Err("Capture draft contains NUL; binary output rejected".into());
+    }
+    Ok(text)
+}

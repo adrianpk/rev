@@ -5,6 +5,14 @@ impl Session {
         insertion: Insertion,
         owner: ViewId,
     ) -> Result<Applied, String> {
+        self.publish_capture_with(insertion, owner, &mut crate::file::Files)
+    }
+    pub(super) fn publish_capture_with(
+        &mut self,
+        insertion: Insertion,
+        owner: ViewId,
+        output: &mut impl crate::file::Output,
+    ) -> Result<Applied, String> {
         let mut visit = insertion.source.prepare_visit(&self.buffers)?;
         let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
         let mut points = self
@@ -22,7 +30,7 @@ impl Session {
             .map_err(|e| e.to_string())?;
         let before = buffer.stamp();
         let outcome = buffer
-            .publish_saved_edit(prepared, &mut points.values, &mut crate::file::Files)
+            .publish_saved_edit(prepared, &mut points.values, output)
             .map_err(|e| e.to_string())?;
         if outcome.publication() == Publication::NotPublished {
             return Ok(Applied {

@@ -54,6 +54,9 @@ fn payload(
 }
 fn separators(resolved: &Resolved, at: usize, newline: &str, text: &mut String) {
     if resolved.template.kind == CaptureKind::Plain && resolved.target.missing.is_empty() {
+        if at < resolved.source.text().len_bytes() && !text.is_empty() && !text.ends_with('\n') {
+            text.push_str(newline)
+        }
         return;
     }
     let source = resolved.source.text();
@@ -82,7 +85,7 @@ fn position(resolved: &Resolved, cancel: &Cancellation) -> Result<usize, String>
         }
         _ => {
             if prepend {
-                target.body.start.0
+                entry::body_start(resolved, cancel)?
             } else {
                 target.body.end.0
             }

@@ -114,3 +114,5 @@ mod action_lifecycle;
 mod capture_expansion;
 #[path = "org_agenda/capture_publication.rs"]
 mod capture_publication;
+#[path = "org_agenda/capture_shapes.rs"]
+mod capture_shapes;

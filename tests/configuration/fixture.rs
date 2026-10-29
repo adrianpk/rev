@@ -9,8 +9,11 @@ pub struct Fixture(pub PathBuf);
 impl Fixture {
     pub fn new() -> Self {
         let id = NEXT.fetch_add(1, Ordering::Relaxed);
-        let path =
-            std::env::temp_dir().join(format!("rev-configuration-{}-{id}", std::process::id()));
+        let owner = module_path!().replace("::", "-");
+        let path = std::env::temp_dir().join(format!(
+            "rev-configuration-{}-{owner}-{id}",
+            std::process::id()
+        ));
         fs::create_dir(&path).unwrap();
         Self(path)
     }

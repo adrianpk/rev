@@ -139,7 +139,8 @@ fn finalize_placements() {
     }
 }
 // Missing date-tree headings use the retained civil date and chronological
-// anchor. No discovery or planning step creates the headings on disk.
+// anchor. Planning leaves disk unchanged; ordinary publication saves the exact
+// planned tree as one undoable edit through the actual destination owner.
 #[test]
 fn finalize_date_tree() {
     let source = "* 2024\n** 2024-04 April\n*** 2024-04-01 Monday\n";
@@ -162,4 +163,64 @@ fn finalize_date_tree() {
         std::fs::read_to_string(fixture.0.join("destination.org")).unwrap(),
         source
     );
+    let expected = output(&insertion);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&fixture.0.join("destination.org")).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    let changes = insertion.replacements(buffer).unwrap();
+    let prepared = buffer.prepare(&changes, &[], None).unwrap();
+    let outcome = buffer
+        .publish_saved_edit(prepared, &mut [], &mut crate::file::Files)
+        .unwrap();
+    assert!(outcome.is_complete());
+    assert_eq!(buffer.history().len(), 1);
+    assert_eq!(
+        std::fs::read_to_string(fixture.0.join("destination.org")).unwrap(),
+        expected
+    );
+}
+
+// The editable draft bound is checked before worker admission, including a
+// caller-inserted NUL. An exact-limit plain draft remains literal and non-writing.
+#[test]
+fn finalize_draft_bounds() {
+    let fixture = fixture::Fixture::new();
+    let path = fixture.write("destination.org", "base");
+    let mut buffers = Buffers::new().unwrap();
+    let choice = Choice {
+        file: Some(path.clone()),
+        template: CaptureTemplate {
+            key: "t".into(),
+            description: "Plain".into(),
+            kind: CaptureKind::Plain,
+            target: file(),
+            template: "%?".into(),
+            prepend: false,
+        },
+    };
+    let date = Date::new(2024, 3, 1).unwrap();
+    let resolved = choice
+        .discover(&buffers, &Settings::default().org, date)
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    for (name, value, admitted) in [
+        ("exact", "x".repeat(EXPANSION_BYTES), true),
+        ("over", "x".repeat(EXPANSION_BYTES + 1), false),
+        ("NUL", "a\0b".into(), false),
+    ] {
+        let id = buffers.capture_draft(&value).unwrap();
+        let work = resolved.finalize(
+            &buffers,
+            buffers.get(id).unwrap(),
+            &Settings::default(),
+            date,
+        );
+        assert_eq!(work.is_ok(), admitted, "{name}");
+        if let Ok(work) = work {
+            let insertion = work.run(&Cancellation::default()).unwrap();
+            assert_eq!(insertion.edits[0].text, value);
+        }
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "base");
+    }
 }
