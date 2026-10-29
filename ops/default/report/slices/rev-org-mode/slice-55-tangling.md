@@ -1,6 +1,6 @@
 # Slice 55: tangle Org source with bounded noweb references
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -43,7 +43,8 @@ and [noweb syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.html).
 
 - `src/org/tangle.rs` and `src/org/tangle/`: pure expansion and checked file plans.
 - `src/session/tangling.rs`: source ownership, replacement consent and outcomes.
-- `tests/org_source/tangling.rs`: reference, selection and path contracts.
+- `tests/org_source/tangling.rs` and `tangle_bounds.rs`: reference, selection,
+  header, path, revision and resource contracts.
 - `tests/org_io/tangling.rs`: real editor and filesystem workflows.
 
 ## Validation
@@ -52,13 +53,18 @@ Development checks passed:
 
 - `cargo check --lib`
 - `cargo test --test org_source --test org_io tangling`
+- `cargo test --test org_source --test org_io tangle`
+- `cargo test --test org_io tangling`
 
 The initial eight focused tests passed. Subsequent boundary tests admit exactly
 64 reference levels, 512 source blocks, 256 files and 8 MiB of combined output,
 then reject excess. Dense acyclic expansion reaches the independent 100000-step
 ceiling. Whole-plan preflight rejects symlink parents/leaves, hard-link aliases
 of source/outputs and live output buffers. Replaced parents cannot redirect a
-later write; earlier successful outputs remain recorded. Required exact-head
+later write; earlier successful outputs remain recorded. Nine editor/filesystem
+tangling workflows now pass, including the real whole-buffer/current-block chords,
+read-only source, default language paths, preserved replacement permissions,
+independent consent, invalid answers and queued cancellation. Required exact-head
 checks remain pending.
 
 ## Risks and Follow-ups

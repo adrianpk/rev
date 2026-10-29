@@ -246,3 +246,121 @@ fn tangle_parent_swap() {
         Publication::NotPublished
     );
 }
+
+// The real prefix selects one block on read-only source. Default language paths
+// and ordinary replacement permissions work without visiting or saving output.
+#[test]
+fn tangle_readonly_selection() {
+    use std::os::unix::fs::{MetadataExt, PermissionsExt};
+    let source = "#+BEGIN_SRC text :tangle other.txt\nuntouched\n#+END_SRC\n#+BEGIN_SRC python :tangle yes\nprint('界')\n#+END_SRC\n";
+    let f = Fixture::new();
+    let path = f.write("source.org", source);
+    let output = f.write("source.py", "old code");
+    f.write("other.txt", "other old");
+    std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap();
+    s.execute(Command::GotoLine);
+    argument(&mut s, "5");
+    let stamp = s.buffer().unwrap().stamp();
+    for (value, modifiers) in [
+        ('u', KeyModifiers::CONTROL),
+        ('c', KeyModifiers::CONTROL),
+        ('v', KeyModifiers::CONTROL),
+        ('t', KeyModifiers::NONE),
+    ] {
+        s.handle(Event::Key(KeyEvent::new(KeyCode::Char(value), modifiers)));
+    }
+    settle(&mut s);
+    assert_eq!(std::fs::read_to_string(&output).unwrap(), "old code");
+    argument(&mut s, "yes");
+    assert_eq!(std::fs::read_to_string(&output).unwrap(), "print('界')\n");
+    assert_eq!(std::fs::metadata(&output).unwrap().mode() & 0o777, 0o640);
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("other.txt")).unwrap(),
+        "other old"
+    );
+    assert_eq!(text(&s), source);
+    assert_eq!(s.buffer().unwrap().stamp(), stamp);
+    assert!(s.buffer().unwrap().is_readonly());
+    assert!(s.buffer().unwrap().history().is_empty());
+    assert!(!s.buffer().unwrap().is_modified());
+    assert_eq!(s.tangling_results().len(), 1);
+    assert_eq!(s.tangling_results()[0].publication, Publication::Complete);
+}
+// Invalid consent keeps the same prepared target; declining one replacement
+// continues to the next file without applying global or remembered consent.
+#[test]
+fn tangle_independent_consent() {
+    let (f, mut s) = editor(TWO);
+    f.write("first.txt", "first old");
+    f.write("second.txt", "second old");
+    action(&mut s, C::Tangle);
+    argument(&mut s, "maybe");
+    assert!(s.tangling_results().is_empty());
+    argument(&mut s, "no");
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("first.txt")).unwrap(),
+        "first old"
+    );
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("second.txt")).unwrap(),
+        "second old"
+    );
+    argument(&mut s, "yes");
+    assert_eq!(s.tangling_results().len(), 2);
+    assert_eq!(
+        s.tangling_results()[0].publication,
+        Publication::NotPublished
+    );
+    assert_eq!(s.tangling_results()[1].publication, Publication::Complete);
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("second.txt")).unwrap(),
+        "second new\n"
+    );
+    action(&mut s, C::Tangle);
+    assert!(s.tangling_results().is_empty());
+    cancel(&mut s);
+    settle(&mut s);
+    assert_eq!(s.tangling_results().len(), 2);
+    assert!(
+        s.tangling_results()
+            .iter()
+            .all(|r| r.publication == Publication::NotPublished)
+    );
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("second.txt")).unwrap(),
+        "second new\n"
+    );
+}
+// Queued preflight owns source input and is cancellable before any output.
+// Once reaped, ordinary editing resumes and the idle session has no wakeups.
+#[test]
+fn tangle_queued_cancel() {
+    let (f, mut s) = editor(TWO);
+    let stamp = s.buffer().unwrap().stamp();
+    s.execute(Command::Org(C::Tangle));
+    s.handle(Event::Paste("blocked".into()));
+    s.execute(Command::DeleteChar);
+    assert!(s.load(&f.0.join("source.org")).is_err());
+    assert_eq!(text(&s), TWO);
+    assert_eq!(s.buffer().unwrap().stamp(), stamp);
+    cancel(&mut s);
+    settle(&mut s);
+    assert!(!f.0.join("first.txt").exists());
+    assert!(!f.0.join("second.txt").exists());
+    assert_eq!(s.remaining_input(Instant::now()), None);
+    s.handle(Event::Paste("resumed ".into()));
+    assert!(text(&s).starts_with("resumed "));
+}

@@ -1107,7 +1107,7 @@ Details and exact checks: [Slice 55](../plan/rev-org-mode.md#slice-55-tangle-org
 
 - [x] T55.1: Expand declared named references and tangle selected blocks into explicit checked destinations.
 - [x] T55.2: Bound expansion/cycles and reject unsafe or unresolved targets before overwriting any file.
-- [ ] T55.3: Verify separate-file outputs, indentation/source fidelity and truthful multi-file failures.
+- [x] T55.3: Verify separate-file outputs, indentation/source fidelity and truthful multi-file failures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 56: execute selected Org blocks through bounded tools
