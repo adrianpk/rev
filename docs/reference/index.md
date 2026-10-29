@@ -20,3 +20,5 @@
 - [Org agenda queries](org-agenda.md): TODO, text, tag/property grammar and checked source return.
 
 - [Org files](org-files.md): checked refile/copy and per-file persistence results.
+
+- [Org links](org-links.md): checked native destinations, stored link insertion and return navigation.

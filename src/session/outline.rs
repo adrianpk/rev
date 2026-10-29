@@ -130,6 +130,9 @@ impl Session {
         if matches!(request.command, OrgCommand::Refile | OrgCommand::RefileCopy) {
             return self.start_refile(model, request);
         }
+        if request.command.links() {
+            return self.start_links(request);
+        }
         if request.command.archive() {
             return self.start_archive(model, request);
         }
@@ -253,6 +256,11 @@ impl Session {
 impl Session {
     fn org_collection_command(&mut self, command: OrgCommand) -> Option<Action> {
         match command {
+            OrgCommand::LinkBack => Some(self.link_back()),
+            OrgCommand::LinkMark => Some(self.link_mark()),
+            OrgCommand::StoreLink if !self.buffer().is_ok_and(|b| b.is_org()) => {
+                Some(self.store_plain_link())
+            }
             OrgCommand::RefileResults | OrgCommand::ArchiveResults => {
                 Some(self.show_refile_results())
             }

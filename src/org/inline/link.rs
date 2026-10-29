@@ -4,6 +4,7 @@ use super::{InlineContext, InlineKind, LinkKind, Raw};
 pub(super) fn scheme(read: &mut Read<'_>, range: std::ops::Range<usize>) -> Result<bool, Stop> {
     for name in [
         "id",
+        "attachment",
         "file+sys",
         "file+emacs",
         "shell",

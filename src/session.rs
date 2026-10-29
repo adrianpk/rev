@@ -17,6 +17,7 @@ mod habits;
 mod history;
 mod kill;
 mod linear;
+mod links;
 mod mode;
 mod motion;
 mod org;
@@ -77,6 +78,7 @@ pub struct Session {
     refile: Option<refile::State>,
     refile_result: Vec<refile::ResultEntry>,
     refile_label: &'static str,
+    links: links::State,
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
@@ -122,6 +124,7 @@ enum AfterSave {
 enum Pending {
     Capture(capture::Prompt),
     Refile,
+    Link(Box<links::Prompt>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -215,6 +218,7 @@ impl Session {
             refile: None,
             refile_result: Vec::new(),
             refile_label: "Refile",
+            links: links::State::default(),
             windows,
             tree,
             kills,

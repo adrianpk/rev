@@ -135,6 +135,7 @@ pub struct Org {
     pub capture: Capture,
     pub refile: Refile,
     pub archive: Archive,
+    pub attachments: Attachments,
     pub limits: OrgLimits,
 }
 
@@ -155,6 +156,7 @@ impl Default for Org {
             capture: Capture::default(),
             refile: Refile::default(),
             archive: Archive::default(),
+            attachments: Attachments::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -177,6 +179,7 @@ pub struct PartialOrg {
     pub capture: PartialCapture,
     pub refile: PartialRefile,
     pub archive: PartialArchive,
+    pub attachments: PartialAttachments,
     pub limits: PartialOrgLimits,
 }
 
@@ -873,4 +876,21 @@ impl Default for Archive {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialArchive {
     pub location: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Attachments {
+    pub directory: String,
+}
+impl Default for Attachments {
+    fn default() -> Self {
+        Self {
+            directory: "data".into(),
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialAttachments {
+    pub directory: Option<String>,
 }

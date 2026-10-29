@@ -207,3 +207,5 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org agenda source actions | `org-agenda-bulk-mark`, `org-agenda-bulk-unmark`, `org-agenda-bulk-mark-all`, `org-agenda-bulk-unmark-all`, `org-agenda-bulk-action`, `org-agenda-action-results`, `org-agenda-undo` |
 
 | Org archive | `org-archive-subtree`, `org-toggle-archive-tag`, `org-archive-to-archive-sibling`, `org-archive-results` |
+
+| Org links | `org-store-link`, `org-insert-link`, `org-open-at-point`, `org-mark-ring-goto`, `org-mark-ring-push`, `org-next-link`, `org-previous-link` |

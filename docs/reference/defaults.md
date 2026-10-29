@@ -132,10 +132,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `include` | Array of nonempty local path strings | `[]` | Per source; explicit ordered include graph, with fixed limits above. Empty paths, NUL and URL forms reject. |
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 70 entries are active in the sample. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 71 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 55 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 61 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 2 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation, query and estimate commands | Compiled map | Agenda role consumes unbound text; all 47 entries are active in the sample. |
@@ -202,6 +202,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
 | `org.capture.templates` | Array of typed capture templates | `[]` | Empty selects the native Task fallback; at most 64 exact keys, data-only targets and bounded text. See [capture](org-capture.md). |
 | `org.capture.default_file` | String | `""` | Empty requires explicit destination entry. Relative paths use the assigning configuration source; discovery never creates files. |
+| `org.attachments.directory` | String | `"data"` | ID-based attachment directory relative to the source file. A selected DIR property takes precedence; link following never creates it. |
 | `org.archive.location` | String | `"%s_archive::"` | Checked `file::heading` relative to the source file, `%s` expands its canonical path. Empty heading appends a level-one subtree. At most 4096 bytes; only local paths and the `%s` escape. |
 | `org.refile.targets` | Array of local path strings | `[]` | Explicit file/directory roots, relative to their assigning configuration source. Empty uses admitted agenda/source headings. At most 4096 roots, 4096 bytes per path; no startup observation. |
 | `org.agenda.include_archived` | Boolean | `false` | Exclude ARCHIVE-tagged subtrees and their children from selected calendar, TODO, search and tag/property sources. True admits them; COMMENT subtrees remain excluded. |

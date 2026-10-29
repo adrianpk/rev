@@ -1,3 +1,4 @@
+mod links;
 mod refile;
 use std::time::{Duration, Instant};
 
@@ -17,6 +18,7 @@ pub(super) struct Work {
     pub(super) sources_running: bool,
     capture_running: bool,
     refile_running: bool,
+    links_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
@@ -25,6 +27,8 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Links(Result<crate::org::links::Output, String>),
+    LinkNavigation(Result<crate::org::links::Navigation, String>),
     RefileTargets(Result<crate::org::refile::Targets, String>),
     RefilePlan(Result<crate::org::refile::Plan, String>),
     Color(Coloring),
@@ -135,6 +139,9 @@ impl Session {
     }
 
     fn poll_org(&mut self) -> bool {
+        if self.org.links_running {
+            return self.poll_links();
+        }
         if self.org.refile_running {
             return self.poll_refile_job();
         }

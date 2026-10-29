@@ -506,6 +506,15 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
         crate::org::agenda::SourceSelection::paths(paths)
             .map_err(|e| Failure::new("org.refile.targets", e))?;
     }
+    if let Some(value) = &partial.attachments.directory {
+        super::capture::path(value).map_err(|e| Failure::new("org.attachments.directory", e))?;
+        if value.is_empty() {
+            return Err(Failure::new(
+                "org.attachments.directory",
+                "Attachment directory cannot be empty".into(),
+            ));
+        }
+    }
     archive(&partial.archive)
 }
 

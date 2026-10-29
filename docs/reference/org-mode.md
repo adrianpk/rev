@@ -603,3 +603,5 @@ cancellation; inactive agendas create no additional polling or source changes.
 ## Refile and copy
 
 Use `C-c C-w` to move complete subtrees or `C-c M-w` to copy them to an explicitly selected heading. See [Org files](org-files.md) for source selection, coherent publication and ordinary per-file saves.
+
+Use `C-c l` to store a checked location, `C-c C-l` to insert or edit a link, and `C-c C-o` to follow it. See [Org links](org-links.md) for admitted targets, source checks and return navigation.

@@ -53,8 +53,14 @@ impl Session {
     }
 
     pub(super) fn argument(&mut self, path: String) -> Action {
-        match self.pending.take() {
-            Some(Pending::Capture(prompt)) => self.capture_argument(prompt, &path),
+        let pending = self.pending.take();
+        if pending.as_ref().is_some_and(Pending::collection_argument) {
+            return self.collection_argument(pending.expect("admitted collection argument"), &path);
+        }
+        self.file_argument(pending, path)
+    }
+    fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
@@ -137,5 +143,20 @@ impl Pending {
                 | Self::Habit(_)
                 | Self::ClockReport(_)
         )
+    }
+}
+
+impl Pending {
+    fn collection_argument(&self) -> bool {
+        matches!(self, Self::Capture(_) | Self::Link(_))
+    }
+}
+impl Session {
+    fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
+        match pending {
+            Pending::Capture(prompt) => self.capture_argument(prompt, draft),
+            Pending::Link(prompt) => self.link_argument(*prompt, draft),
+            _ => unreachable!("qualified collection argument"),
+        }
     }
 }

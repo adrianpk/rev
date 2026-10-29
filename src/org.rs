@@ -46,3 +46,5 @@ pub mod capture;
 pub mod refile;
 
 pub mod archive;
+
+pub mod links;

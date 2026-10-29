@@ -147,9 +147,16 @@ pub enum OrgCommand {
     ToggleArchiveTag,
     ArchiveSibling,
     ArchiveResults,
+    StoreLink,
+    InsertLink,
+    OpenLink,
+    LinkBack,
+    LinkMark,
+    NextLink,
+    PreviousLink,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 145] = [
+    pub const ALL: [Self; 152] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -295,6 +302,13 @@ impl OrgCommand {
         Self::ToggleArchiveTag,
         Self::ArchiveSibling,
         Self::ArchiveResults,
+        Self::StoreLink,
+        Self::InsertLink,
+        Self::OpenLink,
+        Self::LinkBack,
+        Self::LinkMark,
+        Self::NextLink,
+        Self::PreviousLink,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -443,6 +457,13 @@ impl OrgCommand {
             "org-toggle-archive-tag",
             "org-archive-to-archive-sibling",
             "org-archive-results",
+            "org-store-link",
+            "org-insert-link",
+            "org-open-at-point",
+            "org-mark-ring-goto",
+            "org-mark-ring-push",
+            "org-next-link",
+            "org-previous-link",
         ][self as usize]
     }
 
@@ -677,6 +698,19 @@ impl OrgCommand {
         matches!(
             self,
             Self::ArchiveSubtree | Self::ToggleArchiveTag | Self::ArchiveSibling
+        )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn links(self) -> bool {
+        matches!(
+            self,
+            Self::StoreLink
+                | Self::InsertLink
+                | Self::OpenLink
+                | Self::NextLink
+                | Self::PreviousLink
         )
     }
 }

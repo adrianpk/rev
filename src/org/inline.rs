@@ -54,11 +54,11 @@ pub struct InlineNode {
     pub parent: Option<usize>,
 }
 
-struct Raw {
-    kind: InlineKind,
-    source: Range<usize>,
-    content: Range<usize>,
-    detail: Option<Range<usize>>,
+pub(in crate::org) struct Raw {
+    pub(in crate::org) kind: InlineKind,
+    pub(in crate::org) source: Range<usize>,
+    pub(in crate::org) content: Range<usize>,
+    pub(in crate::org) detail: Option<Range<usize>>,
     parent: Option<usize>,
 }
 
@@ -183,7 +183,8 @@ impl InlineScan {
             cancellation,
             self.limits.depth,
         );
-        if let Err(Stop(coverage)) = engine::scan(&mut read, &mut result, self.context, self.limits)
+        if let Err(Stop(coverage)) =
+            engine::scan(&mut read, &mut result.nodes, self.context, self.limits)
         {
             result.coverage = coverage;
         }
@@ -218,4 +219,21 @@ fn candidate(
         _ if context == InlineContext::Standard => link::plain(read, position),
         _ => Ok(None),
     }
+}
+
+pub(in crate::org) fn objects(
+    text: &ropey::Rope,
+    range: Range<usize>,
+    context: InlineContext,
+    cancellation: &Cancellation,
+) -> Result<Vec<Raw>, String> {
+    let limits = Limits::default();
+    if range.len() > limits.bytes {
+        return Err("Link observation exceeds native source bytes".into());
+    }
+    let mut read = Read::new(text, range, cancellation, limits.depth);
+    let mut nodes = Vec::new();
+    engine::scan(&mut read, &mut nodes, context, limits)
+        .map_err(|_| "Incomplete inline link observation".to_owned())?;
+    Ok(nodes)
 }

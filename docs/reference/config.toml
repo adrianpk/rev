@@ -108,6 +108,9 @@ week_start = 1 # 1=Monday through 7=Sunday.
 templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
+[org.attachments]
+directory = "data"
+
 [org.archive]
 location = "%s_archive::"
 
@@ -284,6 +287,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 [keys.editor]
 "C-c a" = "org-agenda"
 "C-c c" = "org-capture"
+"C-c l" = "org-store-link"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 "M-g g" = "goto-line"
@@ -405,6 +409,12 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x C-a" = "org-archive-subtree"
 "C-c C-x a" = "org-toggle-archive-tag"
 "C-c C-x A" = "org-archive-to-archive-sibling"
+"C-c C-l" = "org-insert-link"
+"C-c C-o" = "org-open-at-point"
+"C-c &" = "org-mark-ring-goto"
+"C-c %" = "org-mark-ring-push"
+"C-c C-x C-n" = "org-next-link"
+"C-c C-x C-p" = "org-previous-link"
 "C-c C-w" = "org-refile"
 "C-c M-w" = "org-refile-copy"
 "C-c C-x h" = "org-habit-show-graph"

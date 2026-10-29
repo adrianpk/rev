@@ -5,7 +5,10 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
-        if let Some(action) = self.cancel_refile(command) {
+        if let Some(action) = self
+            .cancel_links(command)
+            .or_else(|| self.cancel_refile(command))
+        {
             return Some(action);
         }
         if let Some(action) = self.cancel_calendar_prompt(command) {
@@ -78,8 +81,8 @@ impl Session {
     }
 
     pub(super) fn complete_argument(&mut self) -> Action {
-        if matches!(self.pending, Some(Pending::Refile)) {
-            return self.complete_refile();
+        if matches!(self.pending, Some(Pending::Link(_) | Pending::Refile)) {
+            return self.complete_source_target();
         }
         if matches!(self.pending, Some(Pending::Capture(_))) {
             return self.complete_capture();
@@ -162,6 +165,16 @@ impl Session {
                 self.message("Choose the explicit clock action; C-g cancels")
             }
             _ => unreachable!("qualified observation argument"),
+        }
+    }
+}
+
+impl Session {
+    fn complete_source_target(&mut self) -> Action {
+        if matches!(self.pending, Some(Pending::Refile)) {
+            self.complete_refile()
+        } else {
+            self.complete_link()
         }
     }
 }

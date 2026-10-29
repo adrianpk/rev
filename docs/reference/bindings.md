@@ -17,6 +17,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-c C-x a` in Org | `org-toggle-archive-tag` | Toggle the local ARCHIVE tag without removing source. |
 | `C-c C-x A` in Org | `org-archive-to-archive-sibling` | Move the entry below its checked Archive sibling, creating it when absent. |
 | M-x | `org-archive-results` | Inspect archive participants and independent save outcomes. |
+| `C-c l` | `org-store-link` | Store the checked current location for later insertion. |
+| `C-c C-l` in Org | `org-insert-link` | Insert or edit a literal link and description. |
+| `C-c C-o` in Org | `org-open-at-point` | Resolve and visit the exact link at point. |
+| `C-c &` / `C-c %` in Org | `org-mark-ring-goto` / `org-mark-ring-push` | Return to a checked source point or record one. |
+| `C-c C-x C-n` / `C-c C-x C-p` in Org | `org-next-link` / `org-previous-link` | Move between recognized links; repeat at the boundary to wrap. |
 | `C-c C-w` in Org | `org-refile` | Select a checked heading and move complete subtrees into its canonical buffer. |
 | `C-c M-w` in Org | `org-refile-copy` | Copy complete subtrees without removing the source. |
 | M-x | `org-refile-results` | Inspect each participant and its ordinary save outcome. |

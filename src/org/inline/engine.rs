@@ -1,5 +1,5 @@
 use super::read::{Read, Stop};
-use super::{InlineContext, InlineKind, InlineObservation, LinkKind, Raw, candidate};
+use super::{InlineContext, InlineKind, LinkKind, Raw, candidate};
 use crate::org::{Coverage, Limit, Limits};
 use std::ops::Range;
 
@@ -32,7 +32,7 @@ impl Frame {
 
 pub(super) fn scan(
     read: &mut Read<'_>,
-    result: &mut InlineObservation,
+    result: &mut Vec<Raw>,
     context: InlineContext,
     limits: Limits,
 ) -> Result<(), Stop> {
@@ -53,7 +53,7 @@ pub(super) fn scan(
 
 fn process(
     read: &mut Read<'_>,
-    result: &mut InlineObservation,
+    result: &mut Vec<Raw>,
     frames: &mut Vec<Frame>,
     frame: &mut Frame,
     limits: Limits,
@@ -63,7 +63,7 @@ fn process(
             frame.position += 1;
             continue;
         };
-        if result.nodes.len() == limits.nodes {
+        if result.len() == limits.nodes {
             return Err(Stop(Coverage::Incomplete(Limit::SourceNodes)));
         }
         if frame.depth >= limits.depth {
@@ -72,8 +72,8 @@ fn process(
         node.parent = frame.parent;
         frame.position = node.source.end;
         let child = child(&node, frame.context);
-        let parent = result.nodes.len();
-        result.nodes.push(node);
+        let parent = result.len();
+        result.push(node);
         if let Some((range, context)) = child {
             descend(
                 frames,

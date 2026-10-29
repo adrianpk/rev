@@ -47,6 +47,9 @@ pub(super) fn settings(document: &Document) -> Settings {
     if let Some(value) = &document.org.archive.location {
         settings.org.archive.location.clone_from(value);
     }
+    if let Some(value) = &document.org.attachments.directory {
+        settings.org.attachments.directory.clone_from(value);
+    }
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);
