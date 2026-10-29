@@ -292,3 +292,6 @@ mod matching;
 
 #[path = "org_source/source_blocks.rs"]
 mod source_blocks;
+
+#[path = "org_source/tangling.rs"]
+mod tangling;

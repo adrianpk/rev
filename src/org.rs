@@ -65,3 +65,4 @@ pub mod export;
 pub mod publish;
 
 pub mod block;
+pub mod tangle;

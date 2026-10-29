@@ -294,6 +294,9 @@ configuration snapshot; source edits take effect after restarting.
 | C-c ' | `org-edit-special` | Edit the selected source block in a retained draft. |
 | C-c C-v I | `org-babel-view-src-block-info` | Inspect declared language, name and effective header data. |
 | C-c C-v h | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
+| C-c C-v t | `org-babel-tangle` | Tangle declared blocks from the current canonical document into checked files. |
+| C-u C-c C-v t | `org-babel-tangle-single-block` | Tangle only the block at point, retaining its declared named references. |
+| M-x | `org-babel-tangle-results` | Inspect the actual outcome of each file from the last tangling operation. |
 | M-x | `org-publish`, `org-publish-results` | Publish a configured document project and inspect retained per-file outcomes. |
 | M-x | `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown`, `org-export-to-org`, `org-export-to-html`, `org-export-to-latex`, `org-export-to-beamer`, `org-export-to-latex-pdf`, `org-export-to-beamer-pdf`, `org-export-to-odt`, `org-export-to-texinfo`, `org-export-to-man`, `org-export-to-icalendar` | Export a checked buffer, subtree or region to an explicit local file; confirm observed replacements. |
 

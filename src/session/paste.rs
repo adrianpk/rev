@@ -2,6 +2,9 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn paste_text(&mut self, text: &str) -> Action {
+        if self.tangling.is_some() {
+            return self.message("Tangling owns source input; C-g cancels remaining files");
+        }
         if self.capture_blocks_input() {
             return self.message("Capture input pending; C-g cancels");
         }

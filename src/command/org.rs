@@ -217,9 +217,12 @@ pub enum OrgCommand {
     EditSrcAbort,
     ViewSrcInfo,
     InsertHeaderArg,
+    Tangle,
+    TangleBlock,
+    TangleResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 215] = [
+    pub const ALL: [Self; 218] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -435,6 +438,9 @@ impl OrgCommand {
         Self::EditSrcAbort,
         Self::ViewSrcInfo,
         Self::InsertHeaderArg,
+        Self::Tangle,
+        Self::TangleBlock,
+        Self::TangleResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -653,6 +659,9 @@ impl OrgCommand {
             "org-edit-src-abort",
             "org-babel-view-src-block-info",
             "org-babel-insert-header-arg",
+            "org-babel-tangle",
+            "org-babel-tangle-single-block",
+            "org-babel-tangle-results",
         ][self as usize]
     }
 

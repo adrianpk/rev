@@ -25,6 +25,7 @@ pub struct Definition {
     indent: String,
     newline: String,
 }
+#[derive(Clone)]
 pub struct Scan {
     text: Rope,
     stamp: Stamp,
@@ -52,8 +53,41 @@ impl Scan {
             .iter()
             .find(|n| selected(n, self.at, self.text.len_bytes()))
             .ok_or("No complete source block at point")?;
+        self.definition(&document, node, cancel)
+    }
+    pub(in crate::org) fn all(self, cancel: &Cancellation) -> Result<Vec<Definition>, String> {
+        let document = structure::observe(self.text.clone(), Limits::default(), cancel);
+        if document.coverage != Coverage::Complete {
+            return Err("Incomplete source structure for tangling".into());
+        }
+        let mut blocks = Vec::new();
+        for node in &document.nodes {
+            headers::check(cancel)?;
+            if node.kind == StructureKind::Malformed {
+                return Err("Malformed source structure for tangling".into());
+            }
+            if node.kind == StructureKind::Block(BlockKind::Source)
+                && !commented(&self.text, &document, node)?
+            {
+                if blocks.len() >= 512 {
+                    return Err("Tangle source exceeds 512 blocks".into());
+                }
+                blocks.push(self.definition(&document, node, cancel)?);
+            }
+        }
+        Ok(blocks)
+    }
+    fn definition(
+        &self,
+        document: &structure::Document,
+        node: &structure::Raw,
+        cancel: &Cancellation,
+    ) -> Result<Definition, String> {
+        if node.closing.is_none() {
+            return Err("Unclosed source block".into());
+        }
         let opening = node.opening.clone().ok_or("Source block has no opening")?;
-        let metadata = metadata::observe(&self.text, &document, node, cancel)?;
+        let metadata = metadata::observe(&self.text, document, node, cancel)?;
         let original = self.text.byte_slice(node.content.clone()).to_string();
         let (draft, indent) = text::draft(&original, cancel)?;
         let newline = if self
@@ -163,4 +197,26 @@ fn publication(buffer: &Buffer, replaced: usize, edit: Replacement) -> Result<Re
         .filter(|n| *n <= Limits::default().bytes)
         .ok_or("Updated source exceeds native source byte limit; draft retained")?;
     Ok(edit)
+}
+
+fn commented(
+    text: &Rope,
+    document: &structure::Document,
+    node: &structure::Raw,
+) -> Result<bool, String> {
+    let mut parent = node.parent;
+    while let Some(index) = parent {
+        let header = &document.nodes[index];
+        if text
+            .byte_slice(header.content.clone())
+            .to_string()
+            .split_whitespace()
+            .next()
+            == Some("COMMENT")
+        {
+            return Ok(true);
+        }
+        parent = header.parent;
+    }
+    Ok(false)
 }

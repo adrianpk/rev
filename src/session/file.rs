@@ -7,6 +7,11 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
+        if self.tangling.is_some() {
+            return Err(io::Error::other(
+                "Tangling owns source input; C-g cancels remaining files",
+            ));
+        }
         if self.source_edit_selected() {
             return Err(io::Error::other(
                 "Source draft owns this view; return or abort before visiting a file",
@@ -155,7 +160,8 @@ impl Pending {
     fn collection_argument(&self) -> bool {
         matches!(
             self,
-            Self::SourceHeader(_)
+            Self::Tangle(_)
+                | Self::SourceHeader(_)
                 | Self::Capture(_)
                 | Self::Link(_)
                 | Self::Attachment
@@ -170,9 +176,15 @@ impl Pending {
 impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
-            Pending::SourceHeader(prompt) => self.source_header_argument(*prompt, draft),
+            Pending::Tangle(prompt) => self.tangle_argument(prompt, draft),
             Pending::Export(prompt) => self.export_argument(*prompt, draft),
             Pending::Publish(prompt) => self.publishing_argument(*prompt, draft),
+            pending => self.text_collection_argument(pending, draft),
+        }
+    }
+    fn text_collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
+        match pending {
+            Pending::SourceHeader(prompt) => self.source_header_argument(*prompt, draft),
             Pending::Table(request) => self.table_argument(*request, draft),
             Pending::TableFile(prompt) => self.table_file_argument(*prompt, draft),
             Pending::Document(prompt) => self.document_argument(*prompt, draft),

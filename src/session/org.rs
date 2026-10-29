@@ -6,6 +6,7 @@ mod links;
 mod publishing;
 mod refile;
 mod tables;
+mod tangling;
 use std::time::{Duration, Instant};
 
 use crate::buffer::{BufferId, Stamp};
@@ -24,6 +25,8 @@ pub(super) struct Work {
     pub(super) sources_running: bool,
     capture_running: bool,
     block_running: bool,
+    pub(super) tangle_running: bool,
+    tangle_effect: bool,
     refile_running: bool,
     links_running: bool,
     document_running: bool,
@@ -41,6 +44,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Tangle(Result<crate::org::tangle::Output, String>),
     SourceBlock(Result<crate::org::block::Definition, String>),
     Publish(Result<crate::org::publish::Output, String>),
     Export(Result<crate::org::export::output::Output, String>),
@@ -169,6 +173,9 @@ impl Session {
             .or_else(|| self.poll_org_interactions())
     }
     fn poll_org_outputs(&mut self) -> Option<bool> {
+        if self.org.tangle_running {
+            return Some(self.poll_tangle());
+        }
         if self.org.publish_running {
             return Some(self.poll_publishing());
         }

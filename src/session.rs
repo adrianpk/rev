@@ -41,6 +41,7 @@ mod search;
 mod source_batch;
 mod source_edit;
 mod startup;
+mod tangling;
 mod timers;
 mod tree;
 mod whitespace;
@@ -84,6 +85,8 @@ pub struct Session {
     capture: Option<capture::State>,
     block_request: Option<outline::Request>,
     source_edit: Option<source_edit::Draft>,
+    tangling: Option<tangling::State>,
+    tangling_results: Vec<crate::org::tangle::Outcome>,
     refile: Option<refile::State>,
     refile_result: Vec<refile::ResultEntry>,
     refile_label: &'static str,
@@ -138,6 +141,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Tangle(tangling::Prompt),
     SourceHeader(Box<source_edit::HeaderPrompt>),
     Capture(capture::Prompt),
     Refile,
@@ -240,6 +244,8 @@ impl Session {
             capture: None,
             block_request: None,
             source_edit: None,
+            tangling: None,
+            tangling_results: Vec::new(),
             refile: None,
             refile_result: Vec::new(),
             refile_label: "Refile",
@@ -434,6 +440,9 @@ impl Session {
         {
             return self.message("Read-only Org agenda; C-g returns to source");
         }
+        if self.tangle_input_blocked(&outcome) {
+            return self.message("Tangling owns source input; C-g cancels remaining files");
+        }
         if self.capture_blocks_input() {
             return self.message("Capture input pending; C-g cancels");
         }
@@ -453,6 +462,7 @@ impl Session {
         if let Some(action) = self
             .source_edit_command(command)
             .or_else(|| self.capture_command(command))
+            .or_else(|| self.tangle_command(command))
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))
         {
