@@ -1,6 +1,6 @@
 # Slice 29: configure native Org agenda views
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -95,3 +95,5 @@ T29.3: `8fd93c685e4661a958c9fa0ce4636eb4a3dc13ff`.
 The delivery-set full gate has not run.
 
 [Canonical PR #130](https://forge.adrianpk.com/adrianpk/rev/pulls/130) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.
+
+PR #130 merged into dev at `99125c9f9cc7c0ce774e7aa8b97556e30e225aaa`, verified on Forgejo and origin/dev. Required receipt `CF2NCOJATDVH4V6E7ITQJTNETK` passed 207 tests; focused receipt `RVS434VRIFBRQQK3UOFBGJ6CTL` passed 472 tests and the configuration reference. Zero failures or ignored tests.

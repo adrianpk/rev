@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 29 agenda-customization
+Active slice: Slice 30 agenda-actions
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -726,13 +726,15 @@ Details and exact checks: [Slice 29](../plan/rev-org-mode.md#slice-29-configure-
 - [x] T29.1: Deliver typed custom/block views, columns, filtering, sorting and declared date spans.
 - [x] T29.2: Expose compiled view/refresh controls and native agenda context bindings without a scripting registry.
 - [x] T29.3: Verify combination limits, visibility/reset behavior and consistent exhaustive sample defaults.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #130](https://forge.adrianpk.com/adrianpk/rev/pulls/130) targets dev; the Slice 29 report is reviewing. T29.1/T29.2/T29.3 commits are `d6626fc1a2d1`, `0cf592cb0ab3` and `8fd93c685e46`. Thirteen custom cases, no-color rendering, focused Clippy and unchanged source-quality limits pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
 T29.1 delivers admitted typed blocks and canonical observations. T29.2 delivers native presentation controls. T29.3 verifies limits, source scopes, preset reset, pane lifecycle and exhaustive defaults.
 
-### Slice 30: edit canonical Org source from the agenda
+PR #130 merged into dev at `99125c9f9cc7c0ce774e7aa8b97556e30e225aaa`, verified against Forgejo and origin/dev. Required receipt `CF2NCOJATDVH4V6E7ITQJTNETK` and focused receipt `RVS434VRIFBRQQK3UOFBGJ6CTL` passed 679 tests with zero failures or ignored tests. Slice 29 is delivered.
+
+## Slice 30: edit canonical Org source from the agenda
 
 Contracts: ORG09 ORG23.
 Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canonical-org-source-from-the-agenda).
