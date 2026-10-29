@@ -829,6 +829,7 @@ PR #136 merged into dev at `ea25d56b2f02af66d9c3d2c34b5839081f8c1c83`, verified 
 
 Contracts: ORG15 ORG02.
 Details and exact checks: [Slice 36](../plan/rev-org-mode.md#slice-36-store-and-follow-checked-org-links).
+Canonical PR: [#137](https://forge.adrianpk.com/adrianpk/rev/pulls/137).
 
 - [x] T36.1: Deliver internal targets, file/ID/attachment links, insertion, storage and navigation.
 - [x] T36.2: Re-resolve source and dispatch external resources through the bounded owned job path only after explicit follow; introduce the shared child-lifetime primitive here.

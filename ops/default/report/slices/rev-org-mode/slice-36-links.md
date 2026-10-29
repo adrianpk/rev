@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-36-links`
-PR: pending
+PR: [#137](https://forge.adrianpk.com/adrianpk/rev/pulls/137)
 
 ## Purpose
 
@@ -55,6 +55,7 @@ resource token; stdin is closed and the source directory is the working director
 
 - T36.1/report introduction: `227706a4d09c195344cf0386a92927f2669f84ad`.
 - T36.2: `79ae6f95b1cb51644b9eeb53608d1029b1433151`.
+- T36.3: `0538842cc831cb1d8a46b06aceff41e48168667b`.
 
 ## Contracts Added or Changed
 
@@ -107,6 +108,11 @@ The terminal fixture uses the existing read-only host to set the actual canonica
 buffer admission flag. Disk permissions remain separate from that flag. An
 accepted unchanged link edit has its own undo entry, matching ordinary history.
 Existing terminal cases, deadlines and byte bounds remain unchanged.
+
+Canonical PR #137 targets dev. Final controller receipts bind the clean pushed
+head after this PR-reference commit, with the five required commands in approved
+order. Focused evidence also covers shared configuration, file, window/display
+and process-lifetime contracts plus owned link and capture terminal journeys.
 
 ## Risks and Follow-ups
 
