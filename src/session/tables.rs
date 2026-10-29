@@ -6,6 +6,9 @@ use crate::{
 };
 impl Session {
     pub(in crate::session) fn table_context(&self, command: C) -> bool {
+        if command == C::CtrlCCtrlC && self.table_formula_candidate() {
+            return true;
+        }
         command.table()
             || matches!(
                 command,
@@ -20,6 +23,22 @@ impl Session {
                     | C::IndentItemTree
                     | C::OutdentItemTree
             ) && self.table_candidate()
+    }
+    fn table_formula_candidate(&self) -> bool {
+        let Ok(buffer) = self.buffer() else {
+            return false;
+        };
+        let Ok(source) = buffer
+            .span(0..buffer.len_chars())
+            .and_then(|span| buffer.slice(&span))
+        else {
+            return false;
+        };
+        let row = source.char_to_line(self.view().point.position.0);
+        let line: String = source.line(row).chars().take(4097).collect();
+        line.trim_start()
+            .get(..8)
+            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("#+TBLFM:"))
     }
     pub(in crate::session) fn table_candidate(&self) -> bool {
         let Ok(buffer) = self.buffer() else {
@@ -56,7 +75,11 @@ impl Session {
         {
             return Err("Create an Org table without an active region".into());
         }
-        let snapshot = Snapshot::new(buffer, request.origin.point)?;
+        let snapshot = Snapshot::new(
+            buffer,
+            request.origin.point,
+            &self.buffers.snapshot().settings().org,
+        )?;
         let seconds = self.buffers.snapshot().settings().org.limits.job_seconds;
         self.org
             .start_table(snapshot, request.command, argument, seconds)?;

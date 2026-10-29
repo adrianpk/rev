@@ -35,6 +35,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     time(&mut settings.org.time, &document.org.time);
     habit(&mut settings.org.habit, &document.org.habit);
     agenda(&mut settings.org, &document.org);
+    tables(&mut settings.org, &document.org);
     if let Some(value) = &document.org.capture.templates {
         settings.org.capture.templates.clone_from(value);
     }
@@ -293,6 +294,19 @@ pub(super) fn clock(base: &mut super::Clock, partial: &super::PartialClock) {
     scalar(&mut base.remove_zero, partial.remove_zero);
 }
 
+fn tables(base: &mut super::Org, partial: &super::PartialOrg) {
+    count(
+        &mut base.tables.significant_digits,
+        partial.tables.significant_digits,
+    );
+    count(&mut base.limits.formula_cells, partial.limits.formula_cells);
+    count(&mut base.limits.formula_steps, partial.limits.formula_steps);
+    count(&mut base.limits.formula_depth, partial.limits.formula_depth);
+    count(
+        &mut base.limits.formula_decimal_places,
+        partial.limits.formula_decimal_places,
+    );
+}
 fn habit(base: &mut super::Habit, partial: &super::PartialHabit) {
     count(&mut base.preceding_days, partial.preceding_days);
     count(&mut base.following_days, partial.following_days);

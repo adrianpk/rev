@@ -25,7 +25,7 @@ fn visibility_keys() {
         input.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::SHIFT))),
         Outcome::Command(Command::Org(OrgCommand::GlobalCycle))
     );
-    assert_eq!(Command::matching("org-").len(), 189);
+    assert_eq!(Command::matching("org-").len(), 192);
     for command in OrgCommand::ALL {
         assert_eq!(Command::named(command.name()), Some(Command::Org(command)));
     }
@@ -41,6 +41,32 @@ fn visibility_keys() {
         input.handle(key(KeyCode::Tab)),
         Outcome::Command(Command::InsertTab)
     );
+}
+
+// Explicit recalculation has one compiled catalog and context binding. The
+// plain editor keeps its ordinary prefix behavior outside Org context.
+#[test]
+fn recalculation_keys() {
+    let mut input = Input::default();
+    input.set_org_context(Some(OrgContext::Editing));
+    input.handle(control('c'));
+    assert_eq!(
+        input.handle(character('*')),
+        Outcome::Command(Command::Org(OrgCommand::TableRecalculate))
+    );
+    for (name, expected) in [
+        ("org-table-recalculate", OrgCommand::TableRecalculate),
+        (
+            "org-table-recalculate-cell",
+            OrgCommand::TableRecalculateCell,
+        ),
+        (
+            "org-table-recalculate-column",
+            OrgCommand::TableRecalculateColumn,
+        ),
+    ] {
+        assert_eq!(Command::named(name), Some(Command::Org(expected)), "{name}");
+    }
 }
 
 // Clock chords and M-x share compiled identities. The reserved radio checkbox

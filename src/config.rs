@@ -137,6 +137,7 @@ pub struct Org {
     pub archive: Archive,
     pub attachments: Attachments,
     pub tools: Tools,
+    pub tables: Tables,
     pub limits: OrgLimits,
 }
 
@@ -159,6 +160,7 @@ impl Default for Org {
             archive: Archive::default(),
             attachments: Attachments::default(),
             tools: Tools::default(),
+            tables: Tables::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -183,6 +185,7 @@ pub struct PartialOrg {
     pub archive: PartialArchive,
     pub attachments: PartialAttachments,
     pub tools: PartialTools,
+    pub tables: PartialTables,
     pub limits: PartialOrgLimits,
 }
 
@@ -802,10 +805,14 @@ pub struct PartialAgenda {
     pub views: Option<Vec<AgendaView>>,
     pub include_archived: Option<bool>,
 }
-/// Finite agenda discovery and IO budgets. Other Org limits remain with their
+/// Finite agenda discovery, numerical work and IO budgets. Other Org limits remain with their
 /// existing owners until their typed operations are delivered.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OrgLimits {
+    pub formula_cells: usize,
+    pub formula_steps: usize,
+    pub formula_depth: usize,
+    pub formula_decimal_places: usize,
     pub agenda_files: usize,
     pub agenda_rows: usize,
     pub query_bytes: usize,
@@ -818,6 +825,10 @@ pub struct OrgLimits {
 impl Default for OrgLimits {
     fn default() -> Self {
         Self {
+            formula_cells: 100000,
+            formula_steps: 1000000,
+            formula_depth: 64,
+            formula_decimal_places: 12,
             agenda_files: 512,
             agenda_rows: 20000,
             query_bytes: 4096,
@@ -832,6 +843,10 @@ impl Default for OrgLimits {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrgLimits {
+    pub formula_cells: Option<i64>,
+    pub formula_steps: Option<i64>,
+    pub formula_depth: Option<i64>,
+    pub formula_decimal_places: Option<i64>,
     pub agenda_files: Option<i64>,
     pub agenda_rows: Option<i64>,
     pub query_bytes: Option<i64>,
@@ -840,6 +855,25 @@ pub struct PartialOrgLimits {
     pub agenda_total_bytes: Option<i64>,
     pub job_seconds: Option<i64>,
     pub job_output_bytes: Option<i64>,
+}
+
+/// Finite binary64 output precision. Empty input and half-away rounding follow
+/// the fixed native profile; only supported numeric choices are configurable.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Tables {
+    pub significant_digits: usize,
+}
+impl Default for Tables {
+    fn default() -> Self {
+        Self {
+            significant_digits: 12,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTables {
+    pub significant_digits: Option<i64>,
 }
 
 /// Capture arrays replace by leaf; empty arrays select the native Task fallback.

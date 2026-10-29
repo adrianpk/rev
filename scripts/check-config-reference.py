@@ -42,6 +42,7 @@ TABLES = {
     "org.archive":"PartialArchive",
     "org.attachments":"PartialAttachments",
     "org.tools":"PartialTools",
+    "org.tables":"PartialTables",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",

@@ -107,6 +107,7 @@ impl Document {
             &later.org.tools.viewer,
         );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
+        merge.tables(&mut self.org, &later.org);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -122,6 +123,33 @@ impl Document {
 }
 
 impl Merge {
+    fn tables(&mut self, base: &mut super::PartialOrg, later: &super::PartialOrg) {
+        self.leaf(
+            &["org", "tables", "significant_digits"],
+            &mut base.tables.significant_digits,
+            &later.tables.significant_digits,
+        );
+        self.leaf(
+            &["org", "limits", "formula_cells"],
+            &mut base.limits.formula_cells,
+            &later.limits.formula_cells,
+        );
+        self.leaf(
+            &["org", "limits", "formula_steps"],
+            &mut base.limits.formula_steps,
+            &later.limits.formula_steps,
+        );
+        self.leaf(
+            &["org", "limits", "formula_depth"],
+            &mut base.limits.formula_depth,
+            &later.limits.formula_depth,
+        );
+        self.leaf(
+            &["org", "limits", "formula_decimal_places"],
+            &mut base.limits.formula_decimal_places,
+            &later.limits.formula_decimal_places,
+        );
+    }
     fn priority(&mut self, base: &mut super::PartialPriority, later: &super::PartialPriority) {
         self.leaf(
             &["org", "priority", "highest"],

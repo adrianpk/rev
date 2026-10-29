@@ -4,31 +4,44 @@ impl Engine<'_> {
     pub(super) fn order(&mut self) -> Result<Vec<usize>, Error> {
         let mut outgoing = vec![Vec::new(); self.grid.cells.len()];
         let mut degree = vec![0; self.grid.cells.len()];
-        for (cell, slot) in degree.iter_mut().enumerate() {
-            let Some(index) = self.owners[cell] else {
+        let mut active = vec![false; self.grid.cells.len()];
+        let mut pending: Vec<_> = self
+            .owners
+            .iter()
+            .enumerate()
+            .filter(|(c, owner)| owner.is_some() && self.selection.includes(self.grid.location(*c)))
+            .map(|(c, _)| c)
+            .collect();
+        while let Some(cell) = pending.pop() {
+            self.work.charge(1)?;
+            if active[cell] {
                 continue;
-            };
+            }
+            active[cell] = true;
+            let index = self.owners[cell].expect("assigned dependency");
             let assignment = &self.program.assignments[index];
             let dependencies = self
                 .dependencies(cell, assignment.expression)
                 .map_err(|e| e.located(self.grid.location(cell), assignment.source.clone()))?;
-            *slot = dependencies.len();
+            degree[cell] = dependencies.len();
             for dependency in dependencies {
                 self.work.charge(1)?;
                 outgoing[dependency].push(cell);
+                pending.push(dependency);
             }
         }
-        self.sorted(outgoing, degree)
+        self.sorted(outgoing, degree, active)
     }
     fn sorted(
         &mut self,
         outgoing: Vec<Vec<usize>>,
         mut degree: Vec<usize>,
+        active: Vec<bool>,
     ) -> Result<Vec<usize>, Error> {
         let mut ready: VecDeque<_> = degree
             .iter()
             .enumerate()
-            .filter(|(cell, n)| **n == 0 && self.owners[*cell].is_some())
+            .filter(|(cell, n)| **n == 0 && active[*cell])
             .map(|(cell, _)| cell)
             .collect();
         let mut order = Vec::new();

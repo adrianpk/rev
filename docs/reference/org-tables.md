@@ -5,6 +5,7 @@
 | `org-table-create` | Enter columns x rows, for example `2x3`; blank input uses `5x2`. Create on a blank line with a separator after the first data row. |
 | `org-table-align` | Align the selected native table while retaining the original cell text. |
 | `org-table-recalculate` | Apply the first stored `TBLFM` to the selected table as one checked undo unit. |
+| `org-table-recalculate-cell` / `org-table-recalculate-column` | Publish only the selected field or column; compute assigned dependencies privately. |
 | `org-table-next-field` / `org-table-previous-field` | Align, then visit the next/previous field, skipping separators. Next field appends a row when needed. |
 | `org-table-next-row` | Align, then visit the same column in the next row, inserting before a separator or at the end when needed. At line boundaries, insert an ordinary newline. |
 | `org-table-beginning-of-field` / `org-table-end-of-field` | Align and visit the current field's beginning/end. |
@@ -147,3 +148,22 @@ source and initiating view, uses ordinary point/mark affinity, honors read-only
 authority and adds no history for identical results. One undo restores all prior
 result fields; redo restores the checked calculation. Opening, saving, coloring,
 alignment and navigation do not evaluate stored formulas.
+
+In Org, C-c * runs whole-table `org-table-recalculate`. The same command and
+cell/column variants are available through M-x or configured Org bindings.
+C-c C-c on a `#+TBLFM` line applies that line to its owning table. Other formula
+lines remain alternative programs; ordinary table recalculation uses the first
+line, following [Org's multiple-formula behavior](https://orgmode.org/manual/Editing-and-debugging-formulas.html).
+C-c C-c in table data retains alignment behavior. Cell/column recalculation
+requires a data field, rejects an absent formula target, and evaluates only the
+selected outputs and their transitive assigned dependencies. Unselected cells
+remain byte-identical, including dependency result fields. Unsupported syntax
+anywhere in the selected program rejects before evaluation.
+
+`org.tables.significant_digits` selects 1..15 output digits (default 12).
+`org.limits.formula_cells`, `formula_steps`, `formula_depth` and
+`formula_decimal_places` constrain grid size, work per syntax/numeric stage,
+syntax nesting and decimal precision. Their defaults and ceilings are listed
+in the configuration reference. The existing job deadline applies to the whole
+operation. Empty numeric input and half-away rounding retain the fixed native
+profile. Preferences are captured with the initiating buffer's configuration.

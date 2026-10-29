@@ -111,6 +111,9 @@ default_file = "" # Empty requires an explicit file; resolution never creates it
 [org.tools]
 viewer = [] # Explicit argv; {target} substitutes one token, otherwise appended.
 
+[org.tables]
+significant_digits = 12 # 1..15 finite binary64 output digits; fixed formats stay explicit.
+
 [org.attachments]
 directory = "data"
 
@@ -122,6 +125,10 @@ location = "%s_archive::"
 targets = []
 
 [org.limits]
+formula_cells = 100000 # Maximum 1000000 grid cells, also subject to native table bounds.
+formula_steps = 1000000 # Maximum 10000000 work steps per syntax/numeric stage.
+formula_depth = 64 # Maximum 256 nested syntax levels.
+formula_decimal_places = 12 # 0..15 fixed-format or round precision places.
 # Positive finite discovery/read budgets; no idle scanning or permanent worker.
 agenda_rows = 20000 # Maximum 100000 retained agenda facts/rows.
 query_bytes = 4096 # Maximum 65536 UTF-8 bytes per query.
@@ -477,6 +484,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 "RET" = "org-return"
 "C-c |" = "org-table-create"
 "C-c ^" = "org-table-sort-lines"
+"C-c *" = "org-table-recalculate"
 "M-S-Up" = "org-table-kill-row"
 "M-S-Down" = "org-table-insert-row"
 "C-c -" = "org-table-insert-hline"

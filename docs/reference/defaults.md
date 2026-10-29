@@ -135,7 +135,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 71 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 70 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 71 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 2 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 0 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation, query and estimate commands | Compiled map | Agenda role consumes unbound text; all 47 entries are active in the sample. |
@@ -214,6 +214,11 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_rows` | Integer 1..=100000 | `20000` | Maximum retained source facts and calendar entries; limits remain visibly incomplete. |
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
+| `org.tables.significant_digits` | Integer 1..=15 | `12` | Finite binary64 result digits unless a stored fixed decimal format is explicit. |
+| `org.limits.formula_cells` | Integer 1..=1000000 | `100000` | Numerical grid cells; native table shape/source limits also apply. |
+| `org.limits.formula_steps` | Integer 1..=10000000 | `1000000` | Work budget for each syntax/numeric stage of selected recalculation. |
+| `org.limits.formula_depth` | Integer 1..=256 | `64` | Maximum nested formula syntax levels. |
+| `org.limits.formula_decimal_places` | Integer 0..=15 | `12` | Absolute signed round precision and unsigned fixed-format decimal precision. |
 | `org.limits.agenda_files` | Integer 1..=4096 | `512` | Maximum unique admitted source documents; excess remains visibly incomplete. |
 | `org.limits.agenda_file_bytes` | Integer 1..=33554432 | `8388608` | Whole-source byte bound for disk reads and current buffer snapshots. |
 | `org.limits.agenda_total_bytes` | Integer 1..=268435456 | `67108864` | Total read/snapshot byte budget, including failed reads. |

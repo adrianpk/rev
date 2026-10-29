@@ -48,6 +48,37 @@ pub struct Cell {
     /// One-based column.
     pub column: usize,
 }
+/// Requested output cells; assigned dependencies are evaluated privately.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Selection {
+    Table,
+    Cell(Cell),
+    Column(usize),
+}
+impl Selection {
+    fn includes(self, cell: Cell) -> bool {
+        match self {
+            Self::Table => true,
+            Self::Cell(target) => target == cell,
+            Self::Column(column) => column == cell.column,
+        }
+    }
+    fn admit(self, grid: &Grid) -> Result<(), Error> {
+        let valid = match self {
+            Self::Table => true,
+            Self::Cell(cell) => grid.cell(cell).is_some(),
+            Self::Column(column) => (1..=grid.columns).contains(&column),
+        };
+        if valid {
+            Ok(())
+        } else {
+            Err(Error::new(
+                ErrorKind::Reference,
+                "selection is outside the data grid",
+            ))
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub struct ResultCell {
     pub cell: Cell,
@@ -139,6 +170,7 @@ struct Engine<'a> {
     grid: &'a Grid,
     program: &'a Program,
     policy: Policy,
+    selection: Selection,
     work: Work<'a>,
     owners: Vec<Option<usize>>,
     inputs: Vec<Option<Input>>,
@@ -156,7 +188,19 @@ impl Program {
         policy: Policy,
         cancel: &Cancellation,
     ) -> Result<Vec<ResultCell>, Error> {
+        self.evaluate_selected(grid, Selection::Table, policy, cancel)
+    }
+    /// Evaluate only the selected outputs and their transitive dependencies.
+    /// Unselected dependency values never enter the returned publication set.
+    pub fn evaluate_selected(
+        &self,
+        grid: &Grid,
+        selection: Selection,
+        policy: Policy,
+        cancel: &Cancellation,
+    ) -> Result<Vec<ResultCell>, Error> {
         policy.admit()?;
+        selection.admit(grid)?;
         if grid.cells.len() > policy.cells {
             return Err(Error::new(ErrorKind::Limit, "formula cell limit exceeded"));
         }
@@ -169,6 +213,7 @@ impl Program {
             grid,
             program: self,
             policy,
+            selection,
             work,
             owners: Vec::new(),
             inputs: vec![None; grid.cells.len()],
@@ -193,11 +238,14 @@ impl Engine<'_> {
     }
     fn results(&mut self) -> Result<Vec<ResultCell>, Error> {
         let mut results = Vec::new();
+        let selection = self.selection;
+        let grid = self.grid;
         for (cell, value) in self
             .values
             .iter()
             .enumerate()
             .filter_map(|(c, v)| v.map(|v| (c, v)))
+            .filter(|(c, _)| selection.includes(grid.location(*c)))
         {
             self.work.charge(1)?;
             let assignment =

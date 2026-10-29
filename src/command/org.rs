@@ -191,9 +191,11 @@ pub enum OrgCommand {
     ListToTable,
     TableToList,
     TableRecalculate,
+    TableRecalculateCell,
+    TableRecalculateColumn,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 189] = [
+    pub const ALL: [Self; 191] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -383,6 +385,8 @@ impl OrgCommand {
         Self::ListToTable,
         Self::TableToList,
         Self::TableRecalculate,
+        Self::TableRecalculateCell,
+        Self::TableRecalculateColumn,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -575,6 +579,8 @@ impl OrgCommand {
             "org-list-to-table",
             "org-table-to-list",
             "org-table-recalculate",
+            "org-table-recalculate-cell",
+            "org-table-recalculate-column",
         ][self as usize]
     }
 
@@ -871,6 +877,14 @@ impl OrgCommand {
                 | Self::ListToTable
                 | Self::TableToList
                 | Self::TableRecalculate
+                | Self::TableRecalculateCell
+                | Self::TableRecalculateColumn
+        )
+    }
+    pub(crate) fn recalculation(self) -> bool {
+        matches!(
+            self,
+            Self::TableRecalculate | Self::TableRecalculateCell | Self::TableRecalculateColumn
         )
     }
 }

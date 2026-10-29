@@ -31,6 +31,8 @@ pub(crate) struct Snapshot {
     newline: &'static str,
     region: Option<Range<usize>>,
     mark: Option<usize>,
+    numeric: super::formula::eval::Policy,
+    syntax: super::formula::Limits,
 }
 pub(crate) enum Output {
     Prompt,
@@ -88,7 +90,7 @@ struct Layout {
 }
 
 impl Snapshot {
-    pub fn new(buffer: &Buffer, point: Point) -> Result<Self, String> {
+    pub fn new(buffer: &Buffer, point: Point, org: &crate::config::Org) -> Result<Self, String> {
         let region = buffer.region(point).map_err(|e| e.to_string())?;
         let text = Source::new(buffer).snapshot().map_err(|e| e.to_string())?;
         if text.len_bytes() > Limits::default().bytes {
@@ -104,6 +106,18 @@ impl Snapshot {
             text,
             tab_width: buffer.policy().tab_width,
             newline: buffer.newline(),
+            numeric: super::formula::eval::Policy {
+                cells: org.limits.formula_cells,
+                steps: org.limits.formula_steps,
+                significant_digits: org.tables.significant_digits,
+                decimal_places: org.limits.formula_decimal_places,
+            },
+            syntax: super::formula::Limits {
+                steps: org.limits.formula_steps,
+                depth: org.limits.formula_depth,
+                decimal_places: org.limits.formula_decimal_places,
+                ..super::formula::Limits::default()
+            },
         })
     }
     pub fn run(
@@ -119,7 +133,8 @@ impl Snapshot {
         if command == C::TableCreate {
             return self.create(&raw, argument, cancel);
         }
-        let Some(table) = Table::observe(&self.text, &raw, self.point, cancel)? else {
+        let at = self.calculation_context(&raw, command);
+        let Some(table) = Table::observe(&self.text, &raw, at, cancel)? else {
             return if command.table() && command != C::Return {
                 Err("No native Org table at point".into())
             } else {
@@ -129,8 +144,8 @@ impl Snapshot {
         if table.split_line(command, self.point) {
             return Ok(Output::Fallback);
         }
-        if command == C::TableRecalculate {
-            return self.recalculate(&table, cancel).map(Output::Plan);
+        if self.calculation_requested(&table, command) {
+            return self.recalculate(&table, command, cancel).map(Output::Plan);
         }
         let command = edit::command(command);
         if edit::structural(command) {
@@ -240,7 +255,7 @@ mod tests {
         cancelled.cancel();
         let expired = Cancellation::default().bounded(Instant::now());
         for (name, token) in [("cancelled", cancelled), ("expired", expired)] {
-            let snapshot = Snapshot::new(buffer, point).unwrap();
+            let snapshot = Snapshot::new(buffer, point, &crate::config::Org::default()).unwrap();
             assert!(snapshot.run(C::TableAlign, None, &token).is_err(), "{name}");
             assert!(buffer.history().is_empty());
         }
@@ -252,7 +267,7 @@ mod tests {
             stamp: buffer.stamp(),
             position: Scalar(0),
         };
-        assert!(Snapshot::new(buffer, point).is_err());
+        assert!(Snapshot::new(buffer, point, &crate::config::Org::default()).is_err());
         assert!(buffer.history().is_empty());
     }
 }

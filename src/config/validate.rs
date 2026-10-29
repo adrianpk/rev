@@ -407,6 +407,7 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
 fn time(document: &Document) -> Result<(), Failure> {
     habit(&document.org.habit)?;
     agenda(&document.org)?;
+    tables(&document.org)?;
     integer(
         "org.time.extend_today_until",
         document.org.time.extend_today_until,
@@ -471,6 +472,38 @@ fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
     Ok(())
 }
 
+fn tables(org: &super::PartialOrg) -> Result<(), Failure> {
+    for (key, value, range) in [
+        (
+            "org.tables.significant_digits",
+            org.tables.significant_digits,
+            1..=15,
+        ),
+        (
+            "org.limits.formula_cells",
+            org.limits.formula_cells,
+            1..=1000000,
+        ),
+        (
+            "org.limits.formula_steps",
+            org.limits.formula_steps,
+            1..=10000000,
+        ),
+        (
+            "org.limits.formula_depth",
+            org.limits.formula_depth,
+            1..=256,
+        ),
+        (
+            "org.limits.formula_decimal_places",
+            org.limits.formula_decimal_places,
+            0..=15,
+        ),
+    ] {
+        integer(key, value, range)?;
+    }
+    Ok(())
+}
 fn query_limits(limits: &super::PartialOrgLimits) -> Result<(), Failure> {
     integer("org.limits.query_bytes", limits.query_bytes, 1..=65536)?;
     integer("org.limits.query_depth", limits.query_depth, 1..=128)
