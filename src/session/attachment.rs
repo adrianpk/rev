@@ -270,3 +270,6 @@ impl Session {
         self.error(&format!("Attachment rejected: {error}"))
     }
 }
+
+#[cfg(test)]
+mod tests;

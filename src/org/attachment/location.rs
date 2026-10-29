@@ -14,6 +14,7 @@ pub(crate) fn local(base: &Path, value: &str) -> Result<PathBuf, String> {
     } else {
         base.join(path)
     };
+    crate::config::capture::path(path.to_str().ok_or("Attachment location is not UTF-8")?)?;
     normalize(&path)
 }
 fn normalize(path: &Path) -> Result<PathBuf, String> {

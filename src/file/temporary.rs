@@ -41,6 +41,29 @@ impl Temporary {
         ))
     }
 
+    /// Create an exclusively owned hard-link staging name without first
+    /// unlinking a placeholder. Existing candidates never become cleanup rights.
+    pub(crate) fn link(parent: &Path, source: &Path, input: &File) -> io::Result<Self> {
+        let file = input.try_clone()?;
+        for _ in 0..32 {
+            let path = candidate(parent)?;
+            match fs::hard_link(source, &path) {
+                Ok(()) => {
+                    return Ok(Self {
+                        file,
+                        path,
+                        armed: true,
+                    });
+                }
+                Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error),
+            }
+        }
+        Err(io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            "hard-link staging collision limit reached",
+        ))
+    }
     pub fn disarm(&mut self) {
         self.armed = false;
     }

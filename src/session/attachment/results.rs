@@ -61,15 +61,20 @@ impl Session {
             return self.message("No attachment operation results");
         };
         let text = format!(
-            "Attachment result: file {:?}; heading {:?}; {} -> {}; ID {}; created dirs {}; {} {}",
+            "Attachment result: file {:?}; heading {:?}; {} {}; {} -> {}; ID {}; created dirs {}; retained staging {}",
             result.file.effect,
             result.heading,
+            result.file.error.as_deref().unwrap_or(""),
+            result.source_error.as_deref().unwrap_or(""),
             result.file.source.display(),
             result.file.destination.display(),
             result.file.id.as_deref().unwrap_or("existing"),
             result.file.created.len(),
-            result.file.error.as_deref().unwrap_or(""),
-            result.source_error.as_deref().unwrap_or("")
+            result
+                .file
+                .retained
+                .as_ref()
+                .map_or_else(|| "none".into(), |p| p.display().to_string())
         );
         self.message(&text)
     }

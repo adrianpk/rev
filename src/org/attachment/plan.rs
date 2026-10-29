@@ -65,6 +65,9 @@ impl Plan {
         Ok(())
     }
     pub(super) fn check_target(&self, path: &Path) -> Result<(), String> {
+        if self.collision.as_ref().is_some_and(|o| o.mode & 0o222 == 0) {
+            return Err("Attachment destination is read-only".into());
+        }
         if file::observe(path).map_err(|e| e.to_string())? != self.collision {
             return Err("Attachment destination changed since confirmation".into());
         }

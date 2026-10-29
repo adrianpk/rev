@@ -1,3 +1,4 @@
+mod output;
 use super::{
     directory::{self, Pinned},
     *,
@@ -6,6 +7,7 @@ use crate::{
     file::{self, temporary::Temporary},
     org::Cancellation,
 };
+pub(super) use output::{Files, Output};
 use std::{
     fs::{self, File},
     io::{Read, Write},
@@ -28,6 +30,9 @@ pub struct FileOutcome {
 }
 impl Plan {
     pub(crate) fn run(self, cancel: &Cancellation) -> FileOutcome {
+        self.run_with(cancel, &mut Files)
+    }
+    pub(super) fn run_with(self, cancel: &Cancellation, output: &mut impl Output) -> FileOutcome {
         let mut result = FileOutcome {
             source: self.source.clone(),
             destination: self.destination.clone(),
@@ -37,21 +42,26 @@ impl Plan {
             retained: None,
             error: None,
         };
-        if let Err(e) = self.perform(cancel, &mut result) {
+        if let Err(e) = self.perform(cancel, &mut result, output) {
             result.error = Some(e);
         }
         result
     }
-    fn perform(&self, cancel: &Cancellation, result: &mut FileOutcome) -> Result<(), String> {
+    fn perform(
+        &self,
+        cancel: &Cancellation,
+        result: &mut FileOutcome,
+        output: &mut impl Output,
+    ) -> Result<(), String> {
         active(cancel)?;
         self.check_source()?;
         let root = self.root.materialize(&mut result.created)?;
-        self.install(&root, cancel, result)?;
-        root.handle
-            .sync_all()
+        self.install(&root, cancel, result, output)?;
+        output
+            .sync_directory(&root.handle)
             .map_err(|e| format!("Attachment published; directory sync failed: {e}"))?;
         if self.method == Method::Move {
-            self.remove_source(cancel, result)?;
+            self.remove_source(cancel, result, output)?;
         }
         Ok(())
     }
@@ -60,6 +70,7 @@ impl Plan {
         root: &Pinned,
         cancel: &Cancellation,
         result: &mut FileOutcome,
+        output: &mut impl Output,
     ) -> Result<(), String> {
         let path = root.entry(
             self.destination
@@ -67,9 +78,8 @@ impl Plan {
                 .ok_or("Attachment filename missing")?,
         );
         self.check_target(&path)?;
-        let mut temp =
-            Temporary::new(&root.entry(std::ffi::OsStr::new("."))).map_err(|e| e.to_string())?;
-        let staged = self.stage(&mut temp, cancel);
+        let mut temp = self.temporary(root)?;
+        let staged = self.stage(&mut temp, cancel, output);
         if let Err(error) = staged {
             return Err(temp
                 .failed(std::io::Error::other(error), &mut file::Files)
@@ -95,36 +105,55 @@ impl Plan {
         }
         Ok(())
     }
-    fn remove_source(&self, cancel: &Cancellation, result: &mut FileOutcome) -> Result<(), String> {
+    fn remove_source(
+        &self,
+        cancel: &Cancellation,
+        result: &mut FileOutcome,
+        output: &mut impl Output,
+    ) -> Result<(), String> {
         active(cancel)?;
         self.check_source()?;
         let parent = self.source_parent.open()?;
         parent.current()?;
-        fs::remove_file(
-            parent.entry(
-                self.source
-                    .file_name()
-                    .ok_or("Attachment input name missing")?,
-            ),
-        )
-        .map_err(|e| format!("Attachment published; input retained: {e}"))?;
+        output
+            .remove_input(
+                &parent.entry(
+                    self.source
+                        .file_name()
+                        .ok_or("Attachment input name missing")?,
+                ),
+            )
+            .map_err(|e| format!("Attachment published; input retained: {e}"))?;
         result.effect = Effect::Removed;
-        parent
-            .handle
-            .sync_all()
+        output
+            .sync_directory(&parent.handle)
             .map_err(|e| format!("Input removed; directory sync failed: {e}"))?;
         Ok(())
     }
-    fn stage(&self, temp: &mut Temporary, cancel: &Cancellation) -> Result<(), String> {
+    fn temporary(&self, root: &Pinned) -> Result<Temporary, String> {
+        let parent = root.entry(std::ffi::OsStr::new("."));
+        if self.method == Method::Link {
+            self.check_source()?;
+            let input = self.checked_input()?;
+            Temporary::link(&parent, &self.source, &input)
+                .map_err(|e| format!("Hard-link attachment: {e}"))
+        } else {
+            Temporary::new(&parent).map_err(|e| e.to_string())
+        }
+    }
+    fn stage(
+        &self,
+        temp: &mut Temporary,
+        cancel: &Cancellation,
+        output: &mut impl Output,
+    ) -> Result<(), String> {
+        if self.method == Method::Link {
+            return self.stage_link(temp);
+        }
         self.check_source()?;
         let mut input = self.checked_input()?;
-        if self.method == Method::Link {
-            self.stage_link(temp)?;
-        } else {
-            copy(&mut input, &mut temp.file, self.limit, cancel)?;
-            temp.file.sync_all().map_err(|e| e.to_string())?;
-        }
-        Ok(())
+        copy(&mut input, &mut temp.file, self.limit, cancel, output)?;
+        temp.file.sync_all().map_err(|e| e.to_string())
     }
     fn checked_input(&self) -> Result<File, String> {
         let input = directory::input(&self.source)?;
@@ -137,14 +166,23 @@ impl Plan {
         Ok(input)
     }
     fn stage_link(&self, temp: &Temporary) -> Result<(), String> {
-        fs::remove_file(&temp.path).map_err(|e| e.to_string())?;
-        fs::hard_link(&self.source, &temp.path)
-            .map_err(|e| format!("Hard-link attachment: {e}"))?;
         let linked = file::observe(&temp.path)
             .map_err(|e| e.to_string())?
             .ok_or("Staged link disappeared")?;
         if !self.observed.same_content(&linked) {
             return Err("Hard-link input changed while linking".into());
+        }
+        Ok(())
+    }
+    fn check_staged_source(&self, temp: &Temporary) -> Result<(), String> {
+        if self.method != Method::Link {
+            return self.check_source();
+        }
+        let observed = file::observe(&temp.path)
+            .map_err(|e| e.to_string())?
+            .ok_or("Staged hard link disappeared")?;
+        if !self.observed.same_content(&observed) {
+            return Err("Hard-link input changed before publication".into());
         }
         Ok(())
     }
@@ -158,9 +196,7 @@ impl Plan {
         active(cancel)?;
         root.current()?;
         self.check_target(path)?;
-        if self.method != Method::Link {
-            self.check_source()?;
-        }
+        self.check_staged_source(temp)?;
         if self.collision.is_some() {
             fs::rename(&temp.path, path).map_err(|e| e.to_string())?;
         } else {
@@ -191,6 +227,7 @@ fn copy(
     output: &mut File,
     limit: usize,
     cancel: &Cancellation,
+    io: &mut impl Output,
 ) -> Result<(), String> {
     let mut total = 0usize;
     let mut bytes = [0u8; 32768];
@@ -204,7 +241,7 @@ fn copy(
             .checked_add(n)
             .filter(|n| *n <= limit)
             .ok_or("Attachment byte limit reached")?;
-        output.write_all(&bytes[..n]).map_err(|e| e.to_string())?;
+        io.write(output, &bytes[..n]).map_err(|e| e.to_string())?;
     }
     output.flush().map_err(|e| e.to_string())
 }

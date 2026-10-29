@@ -69,8 +69,25 @@ filesystem-wide transaction or a hard deadline for blocked kernel IO.
   54 RGB roles, 241 bindings and 19177 exact packaged bytes agree.
 - Changed-source quality passes at unchanged limits.
 
+T37.1/report introduction: `bc4bf57976aebb6198fcdecaf1077143b4c45e7e`.
+
+T37.2 checks:
+
+- `cargo test --lib --test org_io attachments -- --nocapture`: eight tests pass,
+  including actual write failure, destination/source directory sync failure,
+  input-removal failure, changed file/target/directory observations, cancelled
+  worker reaping and stale/read-only/cancelled heading publication. Actual files,
+  retained generated IDs and cleanup outcomes are asserted independently.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- Changed-source quality passes at unchanged limits.
+
+Only concrete write, directory-sync and input-removal boundaries are injectable.
+Publication, path identities, collision checks, observations and acknowledgements
+remain native. A newly owned hard-link staging name is created directly; existing
+candidate names never grant cleanup authority. Existing read-only destinations
+reject before replacement. Complete joined paths retain UTF-8/control/byte limits.
+
 ## Risks and Follow-ups
 
-T37.2 extends post-publication failure evidence and revalidation coverage.
 T37.3 adds adversarial paths, source-preserving failures and owned terminals.
 The full delivery-set gate remains controller-owned.

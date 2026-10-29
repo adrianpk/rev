@@ -845,7 +845,7 @@ Contracts: ORG24 ORG15.
 Details and exact checks: [Slice 37](../plan/rev-org-mode.md#slice-37-manage-native-org-heading-attachments).
 
 - [x] T37.1: Deliver ID/DIR attachment locations, linking, copy/move/list/open and reviewed dispatcher controls.
-- [ ] T37.2: Recheck real paths and collisions and retain operation evidence across partial file/source failure.
+- [x] T37.2: Recheck real paths and collisions and retain operation evidence across partial file/source failure.
 - [ ] T37.3: Verify directory traversal, symlinks, unreadable files and that visiting a heading performs no attachment IO.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
