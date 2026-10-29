@@ -1,6 +1,6 @@
 # Slice 40: edit Org table rows columns and references
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -112,10 +112,11 @@ rejection is distinct from buffer authority.
 - Focused controller batch `CJ47HAEC7XJ5QCUSEWUSBSGOLS` at `aae331e63d614a24e807ed74016eef9c03940aaf` exposed three catalog fixtures missing the newly delivered `org-table-kill-row` result. Their complete lexical expected list and substring counts now include that command; prefix matching expectations remain unchanged.
 - `cargo test --test commands -- palette::filter_order selection::query_changes vertical::configured_matching`: all three corrected fixtures passed; changed-source quality passed. Final controller evidence is regenerated for the corrected candidate.
 
+- Final required receipt `U3Q43PKH3AXV25XJSCHQRWP5E2` at `e0f3401ad564847c2286ceafaba23c9114b39147` passed the five ordered repository checks and 256 native tests.
+- Final focused receipt `7YB63JTRCI5JXC6V7RGZMGMORG` at the same head passed 341 native regression tests, configuration parity and both owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions.
+- Canonical PR #141 merged into dev at `e0f3401ad564847c2286ceafaba23c9114b39147`, verified against Forgejo and origin/dev.
+
 ## Risks and Follow-ups
 
-Final exact-HEAD ordered required checks and focused regression evidence are
-recorded through the controller for the PR-reference commit and reported on
-canonical PR #141. Verified dev integration remains pending.
 The pre-existing outline timer assertion diagnostic remains in the Slice 39
 report; no timer behavior or assertion is changed here.

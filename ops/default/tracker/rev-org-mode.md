@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 40 table structure
+Active slice: Slice 41 formula syntax
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -889,12 +889,14 @@ Details and exact checks: [Slice 40](../plan/rev-org-mode.md#slice-40-edit-org-t
 - [x] T40.1: Deliver row/column insert/delete/move, sorting and list/table conversion with checked ownership.
 - [x] T40.2: Rewrite only supported formula references and reject ambiguous transformations before source mutation.
 - [x] T40.3: Verify cell value fidelity, separator boundaries and full structural undo/redo.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#141](https://forge.adrianpk.com/adrianpk/rev/pulls/141).
 Task commits: T40.1 `f1fc1cf7ecf203aca3fc60579a91293ba7981a51`, T40.2 `fe1580557d2eef0aaf126385a3d95659e3191768`, T40.3 `10a4c277d4e2bdc8313fbb9134838fa263b91987`.
 
-### Slice 41: parse the bounded Org formula subset
+Canonical PR #141 merged into dev at `e0f3401ad564847c2286ceafaba23c9114b39147`, verified against Forgejo and origin/dev. Required receipt `U3Q43PKH3AXV25XJSCHQRWP5E2` passed five ordered checks and 256 tests. Focused receipt `7YB63JTRCI5JXC6V7RGZMGMORG` passed 341 tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions; retained diagnostics remain in the report. Slice 40 is delivered.
+
+## Slice 41: parse the bounded Org formula subset
 
 Contracts: ORG13 ORG14.
 Details and exact checks: [Slice 41](../plan/rev-org-mode.md#slice-41-parse-the-bounded-org-formula-subset).
