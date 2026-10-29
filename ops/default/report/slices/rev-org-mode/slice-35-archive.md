@@ -1,6 +1,6 @@
 # Slice 35: archive Org subtrees without silent loss
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -66,7 +66,7 @@ show-subtree/show-all commands available.
   54 RGB roles, 233 bindings and 18700 exact packaged bytes agree.
 - Changed-source quality passes at unchanged parameter, nesting and complexity limits.
 
-T35.1/report introduction: `1ca449bbe1e2`.
+T35.1/report introduction: `1ca449bbe1e2379d9b67318b46f6b63195de1064`.
 
 T35.2 checks:
 
@@ -82,6 +82,21 @@ T35.2 checks:
 The failure adapter changes only ordinary file write/directory sync. Actual
 replacement, file observations, canonical state and save acknowledgement remain
 native. This proves recoverable independent file outcomes, not atomic disk saves.
+
+T35.2: `c6f0246d72664ddac523b87d046be33f2166735c`.
+
+T35.3 checks:
+
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-capture`:
+  two owned RGB/NO_COLOR sessions pass capture draft/finalize, checked refile,
+  archive destination rejection, restored-permission retry, ordinary undo/redo,
+  independent saves and retained participant results. Exact source bytes, origin
+  metadata, BOM/CRLF and the complete fixture file set are asserted. Both native
+  processes exit and are reaped; no idle worker/polling remains.
+- The combined case extends the existing terminal harness with its unchanged
+  time/output bounds. Existing terminal cases and the full gate are unchanged.
+
+Final controller receipts will bind the clean pushed head after PR references.
 
 ## Risks and Follow-ups
 

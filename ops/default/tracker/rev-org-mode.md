@@ -813,8 +813,13 @@ Details and exact checks: [Slice 35](../plan/rev-org-mode.md#slice-35-archive-or
 
 - [x] T35.1: Deliver archive tag, archive sibling and %s_archive destination behavior with Org metadata.
 - [x] T35.2: Reuse checked multi-document moves and retain archived source discoverability under selected agenda policy.
-- [ ] T35.3: Exercise capture/refile/archive, undo and failed destinations in one owned terminal journey.
+- [x] T35.3: Exercise capture/refile/archive, undo and failed destinations in one owned terminal journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T35.1 is `1ca449bbe1e2`; T35.2 is `c6f0246d7266`. Native archive plans,
+metadata, exact target admission, archived agenda policy, retained per-file
+save outcomes and the combined owned RGB/NO_COLOR journey pass focused checks.
+The canonical PR and clean-head controller evidence are prepared after T35.3.
 
 ### Slice 36: store and follow checked Org links
 

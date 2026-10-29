@@ -99,17 +99,17 @@ fn for_buffer(
 }
 fn verify_file(buffer: &Buffer, writing: bool) -> Result<(), String> {
     if writing && buffer.is_readonly() {
-        return Err("Refile participant is read-only".into());
+        return Err("Move participant is read-only".into());
     }
     let Some(file) = buffer.file() else {
         return Ok(());
     };
     let current = crate::file::resolve(file.path()).map_err(|e| e.to_string())?;
     if current.observation() != file.observation() {
-        return Err("Refile file was replaced or changed externally; nothing moved".into());
+        return Err("Move file was replaced or changed externally; nothing moved".into());
     }
     if writing && current.observation().is_some_and(|o| o.mode & 0o222 == 0) {
-        return Err("Refile file has no write permission; nothing moved".into());
+        return Err("Move file has no write permission; nothing moved".into());
     }
     Ok(())
 }

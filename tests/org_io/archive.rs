@@ -61,7 +61,7 @@ fn archive_internal() {
 // destination buffer; a missing archive file is created only by ordinary Save.
 #[test]
 fn archive_external() {
-    let source = "\u{feff}* Parent :work:\r\n** TODO Note :local:\r\nSCHEDULED: <2024-03-01 Fri>\r\n:PROPERTIES:\r\n:ID: keep\r\n:END:\r\n*** Child\r\n** Stay\r\n";
+    let source = "\u{feff}* Parent :work:\r\n** TODO Note :local:\r\nSCHEDULED: <2024-03-01 Fri>\r\n:PROPERTIES:\r\n:ID: keep\r\n:END:\r\n*** Child\r\n#+begin_example\r\n,* literal\r\n#+end_example\r\n** Stay\r\n";
     let (fixture, session) = refile::editor(source, "* Target\n");
     let mut session = session.with_org_clock(clock);
     session.execute(Command::GotoLine);
@@ -97,6 +97,7 @@ fn archive_external() {
         ":ARCHIVE_TODO: TODO",
         "** Child",
         ":ARCHIVE_CATEGORY: source",
+        "#+begin_example\n,* literal\n#+end_example\n",
     ] {
         assert!(
             archived.contains(expected),

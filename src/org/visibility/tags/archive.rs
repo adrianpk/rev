@@ -197,10 +197,10 @@ impl Outline {
 
 impl Outline {
     pub(crate) fn archived(&self, index: usize) -> bool {
-        self.tags.headers[index]
-            .local
-            .iter()
-            .any(|t| t.name == "ARCHIVE")
+        self.tags
+            .headers
+            .get(index)
+            .is_some_and(|h| h.local.iter().any(|t| t.name == "ARCHIVE"))
     }
     pub(crate) fn archive_tagged(&self, buffer: &Buffer, point: Scalar) -> Result<bool, String> {
         Ok(self.archived(self.tag_target(buffer, point)?))

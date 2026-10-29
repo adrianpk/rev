@@ -23,6 +23,15 @@ pub(super) struct State {
     copy: bool,
     targets: Option<Targets>,
 }
+impl State {
+    pub(in crate::session) fn label(&self) -> &'static str {
+        if self.request.command.archive() {
+            "Archive"
+        } else {
+            "Refile"
+        }
+    }
+}
 impl Session {
     pub(in crate::session) fn start_refile(
         &mut self,
@@ -110,27 +119,34 @@ impl Session {
                 };
                 self.show_refile_results();
             }
-            Err(error) => self.fail_refile(&error),
+            Err(error) => self.reject_move(&error, state.label()),
         }
     }
     pub(in crate::session) fn fail_refile(&mut self, error: &str) {
+        let label = self.refile.as_ref().map_or("Refile", State::label);
+        self.reject_move(error, label);
+    }
+    fn reject_move(&mut self, error: &str, label: &str) {
         self.refile = None;
         if matches!(self.pending, Some(Pending::Refile)) {
             self.pending = None;
             self.input.cancel();
         }
-        self.error(&format!("Refile rejected; nothing moved: {error}"));
+        self.error(&format!("{label} rejected; nothing moved: {error}"));
     }
     pub(in crate::session) fn cancel_refile(&mut self, command: Command) -> Option<Action> {
         if command != Command::KeyboardQuit || self.refile.is_none() {
             return None;
         }
+        let label = self.refile.as_ref().expect("active source move").label();
         self.org.cancel();
         self.refile = None;
         if matches!(self.pending, Some(Pending::Refile)) {
             self.pending = None;
             self.input.cancel();
         }
-        Some(self.message("Refile cancelled; source and destination unchanged"))
+        Some(self.message(&format!(
+            "{label} cancelled; source and destination unchanged"
+        )))
     }
 }
