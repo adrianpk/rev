@@ -891,6 +891,9 @@ Details and exact checks: [Slice 40](../plan/rev-org-mode.md#slice-40-edit-org-t
 - [x] T40.3: Verify cell value fidelity, separator boundaries and full structural undo/redo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#141](https://forge.adrianpk.com/adrianpk/rev/pulls/141).
+Task commits: T40.1 `f1fc1cf7ecf203aca3fc60579a91293ba7981a51`, T40.2 `fe1580557d2eef0aaf126385a3d95659e3191768`, T40.3 `10a4c277d4e2bdc8313fbb9134838fa263b91987`.
+
 ### Slice 41: parse the bounded Org formula subset
 
 Contracts: ORG13 ORG14.

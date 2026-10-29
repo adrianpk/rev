@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-40-table-structure`
-PR: pending
+PR: [#141](https://forge.adrianpk.com/adrianpk/rev/pulls/141)
 
 ## Purpose
 
@@ -25,6 +25,10 @@ ambiguous transformations reject the complete operation before publication.
 All table and formula changes use one ordinary undo unit.
 
 ## Implementation Notes
+
+Task commits: T40.1 `f1fc1cf7ecf203aca3fc60579a91293ba7981a51`,
+T40.2 `fe1580557d2eef0aaf126385a3d95659e3191768`,
+T40.3 `10a4c277d4e2bdc8313fbb9134838fa263b91987`.
 
 Structural plans use the existing captured canonical rope, native scanner,
 layout and single cancellable job. The buffer transaction owner verifies retained
@@ -107,8 +111,8 @@ rejection is distinct from buffer authority.
 
 ## Risks and Follow-ups
 
-Final exact-HEAD ordered required checks and focused regression evidence will be
-recorded through the controller after the PR-reference follow-up commit. Verified
-dev integration remains pending.
+Final exact-HEAD ordered required checks and focused regression evidence are
+recorded through the controller for the PR-reference commit and reported on
+canonical PR #141. Verified dev integration remains pending.
 The pre-existing outline timer assertion diagnostic remains in the Slice 39
 report; no timer behavior or assertion is changed here.
