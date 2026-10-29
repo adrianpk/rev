@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 54 source block editing
+Active slice: Slice 55 tangling
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1094,11 +1094,11 @@ Details and exact checks: [Slice 54](../plan/rev-org-mode.md#slice-54-edit-nativ
 - [x] T54.1: Admit declared source block/name/header structure and native special-edit entry/return.
 - [x] T54.2: Reuse available language presentation while keeping embedded Org-looking text literal and source authoritative.
 - [x] T54.3: Verify header precedence, malformed blocks, edit cancellation and checked reinsertion.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T54.1 `5d2f540e7ab29ae11e46a20d6709898c91d9093b`, T54.2 `7367134410c3ec5efcf9547e6520ac76e33bbc53`, T54.3 `d7a898565c59edc242e186960072af23bdaf88f0`.
 
-Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155); reviewing, integration pending. Pre-PR required receipt `DZETXQ7JBKPBVVWK6HNPP7WE2B` passed five checks and 325 tests at `aef536cf17d79ead7b405755634a1b17febb79be`. Fresh evidence is recorded after the PR-reference follow-up.
+Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155); merged into `dev` at `e0fd5c4efc8b8c66ac5fdb91ba2adca883f6c7b9`; report delivered. Required receipt `BKGL5Q7D3KL6BKN2A3C2LF7J7C` passed five checks and 325 tests; focused receipt `ID7EMAYHDRFHBDJPINUWWT2J2Z` passed 158 command and 124 configuration tests plus configuration references. Zero failures or ignored tests.
 
 ### Slice 55: tangle Org source with bounded noweb references
 

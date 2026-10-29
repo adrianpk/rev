@@ -1,6 +1,6 @@
 # Slice 54: edit native Org source blocks and headers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -47,7 +47,7 @@ and [header arguments](https://orgmode.org/manual/Using-Header-Arguments.html).
 
 Task commits: T54.1 `5d2f540e7ab29ae11e46a20d6709898c91d9093b`, T54.2 `7367134410c3ec5efcf9547e6520ac76e33bbc53`, T54.3 `d7a898565c59edc242e186960072af23bdaf88f0`.
 
-Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155).
+Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155), merged into `dev` at `e0fd5c4efc8b8c66ac5fdb91ba2adca883f6c7b9`.
 
 ## Contracts Added or Changed
 
@@ -65,8 +65,8 @@ Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155).
 
 ## Validation
 
-The pre-PR required receipt `DZETXQ7JBKPBVVWK6HNPP7WE2B` passed on
-`aef536cf17d79ead7b405755634a1b17febb79be`:
+The final required receipt `BKGL5Q7D3KL6BKN2A3C2LF7J7C` passed on
+`e0fd5c4efc8b8c66ac5fdb91ba2adca883f6c7b9`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -76,8 +76,14 @@ The pre-PR required receipt `DZETXQ7JBKPBVVWK6HNPP7WE2B` passed on
 
 All 325 tests passed: 226 editing, 69 source and 30 syntax; zero failures or
 ignored tests. The complete source checker retained safe Rust, at most five
-parameters, three nesting levels and cyclomatic complexity ten. The controller
-records fresh required and focused evidence after this PR-reference commit.
+parameters, three nesting levels and cyclomatic complexity ten. Focused receipt `ID7EMAYHDRFHBDJPINUWWT2J2Z` passed on the same head:
+
+- `cargo test --test commands --test configuration`
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
+All 158 command and 124 configuration tests passed. References agree on 169
+schema/catalog entries, 54 active color roles and 256 default bindings.
 
 Focused development also verified all eight presentation cases, exact-limit
 publication, aggregate overflow rejection, palette registration and configuration
