@@ -1,5 +1,5 @@
 //! Explicit bounded source observations. These values never own edit authority.
-pub(in crate::org::agenda) mod read;
+use crate::org::io::source as read;
 mod scan;
 mod walk;
 use crate::{

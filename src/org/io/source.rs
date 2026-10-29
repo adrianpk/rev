@@ -9,7 +9,7 @@ use std::{
     time::Instant,
 };
 
-pub(in crate::org::agenda) struct Budget<'a> {
+pub(in crate::org) struct Budget<'a> {
     pub cancel: &'a Cancellation,
     pub deadline: Instant,
 }
@@ -48,7 +48,7 @@ impl Read for Reader<'_> {
 }
 /// Count bytes even when decoding or consistency checks fail. Each source is
 /// published only after whole UTF-8/NUL/BOM ingress and checked disk evidence.
-pub(in crate::org::agenda) fn source(
+pub(in crate::org) fn source(
     path: &Path,
     limit: usize,
     budget: &Budget<'_>,

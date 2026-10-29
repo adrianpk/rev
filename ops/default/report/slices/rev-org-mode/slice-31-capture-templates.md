@@ -27,6 +27,13 @@ executed. The public capture choice is distinct from an editable source or
 future draft. Exact keys, array replacement and per-leaf provenance follow the
 existing configuration owner.
 
+T31.2 reuses the native bounded reader and structural parser for one explicit
+capture file. Actual canonical snapshots take precedence through path/inode
+aliases. Missing files, outline/date headings and list/table containers stay
+non-writing plans. Qualified body/subtree ranges exclude child headings for
+container lookup. Ambiguity, malformed/incomplete structure and excessive work
+reject. Date-tree plans retain the supplied date and chronological sibling anchor.
+
 ## Contracts Added or Changed
 
 - ORG10: typed template/target selection and explicit destination entry.
@@ -36,6 +43,8 @@ existing configuration owner.
 
 - `src/config/capture.rs`: native template kinds and admission.
 - `src/org/capture.rs`: exact selection and explicit file entry.
+- `src/org/capture/target/`: checked heading/container plans.
+- `src/org/io/capture.rs`: real canonical snapshots and bounded source reads.
 - `tests/configuration/org_capture.rs`: defaults, rejection and source roots.
 - `docs/reference/org-capture.md`: native data contract.
 
@@ -47,10 +56,17 @@ existing configuration owner.
 - Changed-source quality passes at unchanged parameter/nesting/complexity limits.
 - `python3 scripts/check-config-reference.py`: passed after adding capture's
   typed leaves to the existing exhaustive checker; no schema assertion weakened.
+- `cargo test --test org_io capture -- --nocapture`: four file-backed workflows
+  passed, zero failures or ignored tests, including aliases, readonly canonical
+  text, BOM/CRLF, missing targets, ambiguity and literal-block ownership.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- Initial literal-block fixture used a raw heading, which the approved structural
+  contract correctly rejects. The valid fixture now uses comma quoting; source
+  exclusion and malformed rejection remain separate observable assertions.
 - Final exact-head controller validation follows task commits and the canonical
   PR-reference follow-up.
 
 ## Risks and Follow-ups
 
-T31.2 and T31.3 remain active. Editable expansion and publication belong to the
+T31.3 remains active. Editable expansion and publication belong to the
 recorded successor slices. The delivery-set full gate has not run.

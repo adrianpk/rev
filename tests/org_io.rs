@@ -101,3 +101,6 @@ fn saved(fixture: &Fixture) -> (Session, std::path::PathBuf, std::path::PathBuf)
 
 #[path = "org_io/agenda_sources.rs"]
 mod agenda_sources;
+
+#[path = "org_io/capture.rs"]
+mod capture;

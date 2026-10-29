@@ -756,7 +756,7 @@ Contracts: ORG10 ORG17.
 Details and exact checks: [Slice 31](../plan/rev-org-mode.md#slice-31-define-native-org-capture-targets-and-templates).
 
 - [x] T31.1: Admit typed native capture templates/targets and the source-compatible factory fallback.
-- [ ] T31.2: Resolve file/headline/outline/date-tree/table/list targets without writing them during discovery.
+- [x] T31.2: Resolve file/headline/outline/date-tree/table/list targets without writing them during discovery.
 - [ ] T31.3: Verify explicit destination entry, missing targets and template/default/sample coherence.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

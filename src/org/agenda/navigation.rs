@@ -1,7 +1,5 @@
-use super::{
-    Calendar, SourceSet, SourceVersion,
-    sources::read::{self, Budget},
-};
+use super::{Calendar, SourceSet, SourceVersion};
+use crate::org::io::source::{self as read, Budget};
 use crate::{
     file::{Loaded, Observation},
     org::Cancellation,

@@ -64,3 +64,8 @@ fn configured_file(value: &str, root: Option<&Path>) -> Option<PathBuf> {
         path
     })
 }
+
+mod discovery;
+mod target;
+pub use discovery::{Discovery, Resolved};
+pub use target::{Container, PlannedHeading, Target};
