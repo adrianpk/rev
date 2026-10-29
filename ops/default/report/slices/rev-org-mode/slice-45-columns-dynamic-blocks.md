@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-45-columns-dynamic-blocks`
-PR: pending
+PR: [#146](https://forge.adrianpk.com/adrianpk/rev/pulls/146)
 
 ## Purpose
 
@@ -37,6 +37,9 @@ refresh; identical updates add no history. The existing two editing terminal
 journeys now exercise source columns, read-only input, refresh and close.
 
 ## Implementation Notes
+
+Task commits: T45.1 `3a7698d4090a34bcefae99c65b0e6f8718e8ce57`, T45.2 `b5ec7e1f81ad876a91fb4ad810245fb6a8fbbe1b`, T45.3 `0749a8e0660f34a2730341a2ef67c4a24fa575d5`.
+
 
 The existing source, query, clock-scan, report-worker and checked transaction
 owners prepare the projection. File COLUMNS declarations come from actual

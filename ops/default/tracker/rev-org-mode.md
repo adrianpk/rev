@@ -966,6 +966,9 @@ Details and exact checks: [Slice 45](../plan/rev-org-mode.md#slice-45-display-or
 - [x] T45.3: Verify aggregates, source provenance, unknown dynamic blocks and atomic update undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#146](https://forge.adrianpk.com/adrianpk/rev/pulls/146).
+Task commits: T45.1 `3a7698d4090a34bcefae99c65b0e6f8718e8ce57`, T45.2 `b5ec7e1f81ad876a91fb4ad810245fb6a8fbbe1b`, T45.3 `0749a8e0660f34a2730341a2ef67c4a24fa575d5`.
+
 ### Slice 46: prepare checked native Org export snapshots
 
 Contracts: ORG25 ORG02.
