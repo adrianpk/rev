@@ -74,6 +74,8 @@ The T39.1 commit introduces this report and is the immutable canonical PR link.
 
 ## Risks and Follow-ups
 
+An additional `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline` diagnostic failed in the existing timer-list step. Its unchanged assertion expects `-  :: `, while M-RET inserts `- 0:00:00 :: ` and starts the native timer. This same frame and assertion failure reproduce on merged Slice 38 commit `c754558125d33a9b400ed58921b62cba41ce5ad5`; that commit and the pre-Slice-39 base have identical runtime/scripts. Diagnostic logs are `e3a76730f51c40d47351ef953d5c058f7b88bf7b.6LREA6GDCJXH2CHJPPXUBSM5LI.log` and `c754558125d33a9b400ed58921b62cba41ce5ad5.DQHBJB7MRSKSDMY2BBBLZ24ZO2.log` in the controller checks directory. The candidate diagnostic had already passed 305 library/command/IO/window tests, configuration parity and four owned table/document sessions before this existing failure. The outline diagnostic is not recorded as a passing check. Timer behavior, its legacy assertion, resource limits and the required Slice 39 command list remain unchanged. The full delivery-set gate was not run.
+
 All three tracker tasks are complete. Canonical PR #140 tracks integration.
 Final ordered checks are recorded by the controller for the pushed candidate,
 including the PR-reference follow-up commit, and in the canonical PR Validation
