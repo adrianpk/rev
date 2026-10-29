@@ -7,6 +7,7 @@ pub struct Options {
     pub title: bool,
     pub todo: bool,
     pub tags: bool,
+    pub frame_level: usize,
 }
 impl Default for Options {
     fn default() -> Self {
@@ -17,6 +18,7 @@ impl Default for Options {
             title: true,
             todo: true,
             tags: true,
+            frame_level: 1,
         }
     }
 }
@@ -34,13 +36,26 @@ impl Options {
             let (key, value) = token
                 .split_once(':')
                 .ok_or("Use key:t or key:nil export options")?;
-            let target = self.target(key)?;
-            *target = match value {
-                "t" | "1" => true,
-                "nil" | "0" => false,
-                _ => return Err("Export options require t, nil, 1 or 0".into()),
-            };
+            self.assign(key, value)?;
         }
+        Ok(())
+    }
+    fn assign(&mut self, key: &str, value: &str) -> Result<(), String> {
+        if key == "H" {
+            let level = value
+                .parse::<usize>()
+                .map_err(|_| "Beamer H requires an integer")?;
+            if !(1..=5).contains(&level) {
+                return Err("Beamer frame level H requires 1..5".into());
+            }
+            self.frame_level = level;
+            return Ok(());
+        }
+        *self.target(key)? = match value {
+            "t" | "1" => true,
+            "nil" | "0" => false,
+            _ => return Err("Export options require t, nil, 1 or 0".into()),
+        };
         Ok(())
     }
     fn target(&mut self, key: &str) -> Result<&mut bool, String> {

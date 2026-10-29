@@ -1021,7 +1021,7 @@ Canonical PR #149 merged into dev at `b874708ae51ca19b0763fbe40d643f573a6cbe12`.
 Contracts: ORG25 ORG30.
 Details and exact checks: [Slice 49](../plan/rev-org-mode.md#slice-49-export-org-to-latex-and-beamer).
 
-- [ ] T49.1: Deliver native LaTeX/Beamer rendering with declared headings, lists, tables, notes and math/source forms.
+- [x] T49.1: Deliver native LaTeX/Beamer rendering with declared headings, lists, tables, notes and math/source forms.
 - [ ] T49.2: Support explicit optional compiler jobs for PDF through the bounded external owner, never on export discovery.
 - [ ] T49.3: Verify escaped output and truthful absent-tool behavior without requiring a TeX installation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

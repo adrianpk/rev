@@ -100,6 +100,14 @@ impl Render<'_> {
             ),
             self.snapshot.export_bytes,
         )?;
+        if o.frame_level != 1 {
+            let newline = out.pop().expect("OPTIONS newline");
+            append(
+                &mut out,
+                &format!(" H:{}{newline}", o.frame_level),
+                self.snapshot.export_bytes,
+            )?;
+        }
         Ok(out)
     }
     pub(super) fn org_node(

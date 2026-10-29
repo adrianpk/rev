@@ -25,6 +25,12 @@ impl Snapshot {
         if self.request.backend == ExportBackend::Html {
             return super::html::render(self, &cancel);
         }
+        if matches!(
+            self.request.backend,
+            ExportBackend::Latex | ExportBackend::Beamer
+        ) {
+            return super::tex::render(self, &cancel);
+        }
         if !available(self.request.backend) {
             return Err("Selected native export renderer is not available".into());
         }

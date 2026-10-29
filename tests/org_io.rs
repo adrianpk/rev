@@ -141,3 +141,6 @@ mod text_exports;
 
 #[path = "org_io/html_exports.rs"]
 mod html_exports;
+
+#[path = "org_io/tex_exports.rs"]
+mod tex_exports;

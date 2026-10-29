@@ -4,6 +4,7 @@ mod current;
 mod html;
 pub(crate) mod output;
 mod render;
+mod tex;
 pub use render::Rendered;
 mod document;
 mod include;
