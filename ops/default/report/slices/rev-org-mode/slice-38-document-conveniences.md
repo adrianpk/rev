@@ -1,6 +1,6 @@
 # Slice 38: edit native Org footnotes and inline content
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -59,6 +59,31 @@ lookup work; cancellation and native record/depth/byte limits stay active.
 - `cargo clippy --lib --test org_editing --test commands -- -D warnings`: passed.
 - Changed-source quality passes at unchanged limits.
 
+T38.2: `508aee2c666ba74aae01bc8e39b5875dc61fa4aa`.
+
+T38.3 verifies source format and owner boundaries, including inline-definition
+navigation, literal emphasis removal, combining characters and extended
+graphemes, insertion before a later section, direct affiliated-line editing,
+read-only publication, shared point/mark mapping and stale/cancelled drafts.
+Unchanged view publication deliberately retires stale fold revisions; fresh
+independent visibility commands use current source observations.
+
+- `cargo test --lib --test org_editing document -- --nocapture`: two native resource-bound tests and 16 editor workflows pass. Real snapshots reject cancellation, expired deadlines, excessive bytes and excessive footnote/radio records. Numeric-note syntax checks use sorted protected intervals and a set of recognized starts, avoiding repeated whole-observation searches.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-document`: two owned RGB/NO_COLOR sessions pass creation/following, Unicode definition entry, source undo/redo, region emphasis, entity/affiliated prompts, radio following/return, literal rejection and cancellation. Final source bytes retain BOM, CRLF and EOF state; the full owned fixture inventory agrees. Native children exit and are reaped; inactive work produces no polling output.
+- `cargo clippy --lib --test org_editing --test commands -- -D warnings`: passed.
+- Changed-source quality passes at unchanged limits.
+
+The representative journey adds two short owned terminals to the existing driver.
+Variant coverage stays in native tests; gate limits and assertions are unchanged.
+The terminal fixture owns an empty valid configuration from startup so normal
+first-run configuration creation cannot masquerade as an unexpected operation.
+Canvas comparisons account for terminal trailing-space display; persisted bytes
+remain independently exact.
+
+Canonical final checks will bind the clean pushed head after PR references are
+committed. Required commands retain their approved order; focused evidence covers
+shared source/job, command, file, window and existing link behavior.
+
 ## Risks and Follow-ups
 
-Edge validation remains assigned to T38.3. Final ordered checks remain pending.
+The full delivery-set gate remains controller-owned.

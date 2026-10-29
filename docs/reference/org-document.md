@@ -16,7 +16,9 @@ receives a leading space so it cannot become a definition. Numeric renumbering
 rejects unreferenced numeric definitions instead of guessing their order.
 
 Edits preserve unrelated source, BOM and newline format and use one ordinary undo
-group. Shared views map through the canonical buffer transaction. Navigation
+group. Shared view points and marks map through the canonical buffer transaction.
+Source changes retire stale fold observations; each view can choose visibility
+again against the current source. Navigation
 retains a checked return point for `org-mark-ring-goto`. Read-only buffers permit
 navigation and reject source publication.
 

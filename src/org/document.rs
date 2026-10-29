@@ -132,3 +132,6 @@ fn check(cancel: &Cancellation) -> Result<(), String> {
 }
 
 pub(crate) use affiliated::valid_key as affiliated_key;
+
+#[cfg(test)]
+mod tests;

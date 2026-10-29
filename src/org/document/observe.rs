@@ -140,7 +140,7 @@ pub(super) fn protected_range(ranges: &[Range<usize>], range: &Range<usize>) -> 
         .get(index)
         .is_some_and(|r| r.start <= range.start || r.start < range.end)
 }
-fn normalize(ranges: &mut Vec<Range<usize>>) {
+pub(super) fn normalize(ranges: &mut Vec<Range<usize>>) {
     ranges.sort_by_key(|r| r.start);
     let mut count = 0;
     for i in 0..ranges.len() {

@@ -46,9 +46,37 @@ impl Document {
         };
         self.note_syntax(cancel)?;
         validate(&notes)?;
-        follow(&notes, note).map(Some)
+        follow(&notes, note, at).map(Some)
     }
     fn note_syntax(&self, cancel: &Cancellation) -> Result<(), String> {
+        let starts: BTreeSet<_> = self
+            .objects
+            .iter()
+            .filter(|o| {
+                matches!(
+                    o.kind,
+                    InlineKind::FootnoteReference | InlineKind::FootnoteInline
+                )
+            })
+            .map(|o| o.source.start)
+            .collect();
+        let mut opaque = self.protected.clone();
+        opaque.extend(
+            self.objects
+                .iter()
+                .filter(|o| {
+                    matches!(
+                        o.kind,
+                        InlineKind::Code
+                            | InlineKind::Verbatim
+                            | InlineKind::Link(_)
+                            | InlineKind::RadioTarget
+                            | InlineKind::Target
+                    )
+                })
+                .map(|o| o.source.clone()),
+        );
+        super::observe::normalize(&mut opaque);
         for node in self
             .nodes
             .iter()
@@ -59,41 +87,28 @@ impl Document {
             for (offset, _) in source.match_indices("[fn:") {
                 check(cancel)?;
                 let at = node.content.start + offset;
-                if self.opaque_note(at) {
+                if super::observe::protected_range(&opaque, &(at..at)) {
                     continue;
                 }
-                if !self.objects.iter().any(|o| {
-                    o.source.start == at
-                        && matches!(
-                            o.kind,
-                            InlineKind::FootnoteReference | InlineKind::FootnoteInline
-                        )
-                }) {
+                if !starts.contains(&at) {
                     return Err("Malformed footnote reference; source unchanged".into());
                 }
             }
         }
         Ok(())
     }
-    fn opaque_note(&self, at: usize) -> bool {
-        super::observe::protected_range(&self.protected, &(at..at))
-            || self.objects.iter().any(|o| {
-                o.source.contains(&at)
-                    && matches!(
-                        o.kind,
-                        InlineKind::Code
-                            | InlineKind::Verbatim
-                            | InlineKind::Link(_)
-                            | InlineKind::RadioTarget
-                            | InlineKind::Target
-                    )
-            })
-    }
     fn selected_note<'a>(&self, notes: &'a [Note], at: usize) -> Option<&'a Note> {
-        notes.iter().find(|n| {
-            at_note(n, at)
-                || at == self.text.len_bytes() && n.definition.as_ref().is_some_and(|d| d.end == at)
-        })
+        notes
+            .iter()
+            .filter(|n| n.source.contains(&at))
+            .min_by_key(|n| n.source.len())
+            .or_else(|| {
+                notes.iter().find(|n| {
+                    at_note(n, at)
+                        || at == self.text.len_bytes()
+                            && n.definition.as_ref().is_some_and(|d| d.end == at)
+                })
+            })
     }
     fn reference(&self, note: &Note) -> bool {
         note.definition.is_none()
@@ -131,7 +146,7 @@ impl Document {
         let notes = self.notes(cancel)?;
         validate(&notes)?;
         if !force && let Some(note) = self.selected_note(&notes, at) {
-            return follow(&notes, note);
+            return follow(&notes, note, at);
         }
         self.standard(&(at..at))?;
         if notes.iter().any(|n| n.source.contains(&at)) {
@@ -243,24 +258,39 @@ fn validate(notes: &[Note]) -> Result<(), String> {
     }
     Ok(())
 }
-fn follow(notes: &[Note], note: &Note) -> Result<Output, String> {
-    if note.definition.is_none() {
+fn follow(notes: &[Note], note: &Note, at: usize) -> Result<Output, String> {
+    let Some(definition) = &note.definition else {
         return notes
             .iter()
             .find(|n| n.label == note.label && n.definition.is_some())
-            .map(|n| Output::Move(n.source.start))
+            .map(|n| Output::Move(destination(n)))
             .ok_or_else(|| "Unresolved footnote reference".into());
+    };
+    if inline(note) && at < definition.start {
+        return Ok(Output::Move(definition.start));
     }
-    if note.label.is_empty() {
-        return Ok(Output::Move(
-            note.definition.as_ref().expect("inline definition").start,
-        ));
-    }
-    notes
+    if let Some(reference) = notes
         .iter()
         .find(|n| n.label == note.label && n.definition.is_none())
-        .map(|n| Output::Move(n.source.start))
-        .ok_or_else(|| "No separate reference for this inline footnote".into())
+    {
+        return Ok(Output::Move(reference.source.start));
+    }
+    if inline(note) {
+        return Ok(Output::Move(note.source.start));
+    }
+    Err("No reference for this footnote definition".into())
+}
+fn inline(note: &Note) -> bool {
+    note.definition
+        .as_ref()
+        .is_some_and(|r| r.end < note.source.end)
+}
+fn destination(note: &Note) -> usize {
+    if inline(note) {
+        note.definition.as_ref().expect("inline definition").start
+    } else {
+        note.source.start
+    }
 }
 
 fn numbered_edits(

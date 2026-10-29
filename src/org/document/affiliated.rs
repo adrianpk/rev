@@ -2,19 +2,7 @@ use super::*;
 impl Document {
     pub(super) fn affiliated(&self, at: usize, argument: Argument) -> Result<Output, String> {
         let node = self.affiliated_owner(at)?;
-        if node.kind == StructureKind::Paragraph {
-            self.standard(&(at..at))?;
-        }
-        if node.kind == StructureKind::Block(super::super::BlockKind::Greater)
-            && !node.name.as_ref().is_some_and(|r| {
-                matches!(
-                    self.slice(r.clone()).to_ascii_uppercase().as_str(),
-                    "QUOTE" | "CENTER"
-                )
-            })
-        {
-            return Err("Unsupported block form; affiliated source unchanged".into());
-        }
+        self.affiliated_context(node, at)?;
         let Argument::Affiliated(key, value) = argument else {
             return Ok(Output::Prompt);
         };
@@ -34,10 +22,30 @@ impl Document {
         );
         self.change(vec![Edit { bytes, text }], None)
     }
+    fn affiliated_context(&self, node: &structure::Raw, at: usize) -> Result<(), String> {
+        if node.kind == StructureKind::Paragraph && node.content.contains(&at) {
+            self.standard(&(at..at))?;
+        }
+        if node.kind == StructureKind::Block(super::super::BlockKind::Greater)
+            && !node.name.as_ref().is_some_and(|r| {
+                matches!(
+                    self.slice(r.clone()).to_ascii_uppercase().as_str(),
+                    "QUOTE" | "CENTER"
+                )
+            })
+        {
+            return Err("Unsupported block form; affiliated source unchanged".into());
+        }
+        Ok(())
+    }
     fn affiliated_owner(&self, at: usize) -> Result<&structure::Raw, String> {
         self.nodes
             .iter()
-            .filter(|n| element(n.kind) && n.source.start <= at && at <= n.source.end)
+            .filter(|n| {
+                element(n.kind)
+                    && n.source.start <= at
+                    && (at < n.source.end || at == self.text.len_bytes())
+            })
             .min_by_key(|n| n.source.len())
             .ok_or_else(|| "Point must be on a paragraph, table or supported block".into())
     }

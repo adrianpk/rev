@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Create and follow Org footnotes with `C-c C-x f`, renumber numeric notes, edit emphasis with `C-c C-x C-f`, and insert named entities and affiliated data with ordinary source undo.
+- Create and follow Org footnotes with `C-c C-x f`, renumber numeric notes, edit emphasis with `C-c C-x C-f`, insert named entities and affiliated data with ordinary source undo, and follow checked radio targets in ordinary text.
 
 - Manage heading attachments with `C-c C-a`: copy, move, hard-link, list and open selected files using ID or DIR locations. Confirm replacements, retain partial file outcomes, and keep heading metadata edits in ordinary undo.
 

@@ -8,6 +8,8 @@ mod colors;
 mod contexts;
 #[path = "org_editing/document.rs"]
 mod document;
+#[path = "org_editing/document_edges.rs"]
+mod document_edges;
 #[path = "org_editing/estimate_edges.rs"]
 mod estimate_edges;
 #[path = "org_editing/estimate_metadata.rs"]

@@ -859,7 +859,7 @@ Details and exact checks: [Slice 38](../plan/rev-org-mode.md#slice-38-edit-nativ
 
 - [x] T38.1: Deliver footnote create/follow/renumber, entities, text markup and source-preserving affiliated forms.
 - [x] T38.2: Keep literal blocks and unknown forms distinct during structured editing and context actions.
-- [ ] T38.3: Verify Unicode, malformed references, radio targets and coherent edit/history behavior.
+- [x] T38.3: Verify Unicode, malformed references, radio targets and coherent edit/history behavior.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 39: navigate and align native Org tables
