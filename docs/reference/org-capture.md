@@ -22,7 +22,7 @@ and tabs, and rejects NUL. Text stays literal during selection/discovery.
 | `item` | `- %?` | First plain list at the selected location. |
 | `checkitem` | `- [ ] %?` | First plain list at the selected location. |
 | `table-line` | `\| %? \|` | First table at the selected location. |
-| `plain` | `%?` | Literal body text. |
+| `plain` | Explicit nonblank text required. | Literal body text. |
 
 | Target type | Fields in addition to `type` |
 | --- | --- |

@@ -757,7 +757,7 @@ Details and exact checks: [Slice 31](../plan/rev-org-mode.md#slice-31-define-nat
 
 - [x] T31.1: Admit typed native capture templates/targets and the source-compatible factory fallback.
 - [x] T31.2: Resolve file/headline/outline/date-tree/table/list targets without writing them during discovery.
-- [ ] T31.3: Verify explicit destination entry, missing targets and template/default/sample coherence.
+- [x] T31.3: Verify explicit destination entry, missing targets and template/default/sample coherence.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 32: expand and edit native Org capture drafts

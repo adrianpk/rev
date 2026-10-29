@@ -50,6 +50,9 @@ impl Discovery {
             .bounded(Instant::now() + Duration::from_secs(self.policy.limits.job_seconds as u64));
         let source = self.read.run(&bounded)?;
         let target = Target::resolve(&source, &self.template, &self.policy, self.date, &bounded)?;
+        if bounded.is_cancelled() {
+            return Err("Capture destination discovery cancelled or timed out".into());
+        }
         Ok(Resolved {
             template: self.template,
             source,

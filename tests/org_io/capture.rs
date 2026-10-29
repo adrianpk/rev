@@ -11,7 +11,7 @@ use rev::{
     },
 };
 use std::path::Path;
-fn choice(path: &Path, kind: CaptureKind, target: CaptureTarget) -> Choice {
+pub(super) fn choice(path: &Path, kind: CaptureKind, target: CaptureTarget) -> Choice {
     Choice {
         file: Some(path.to_owned()),
         template: CaptureTemplate {
@@ -24,12 +24,12 @@ fn choice(path: &Path, kind: CaptureKind, target: CaptureTarget) -> Choice {
         },
     }
 }
-fn discover(choice: Choice, buffers: &Buffers) -> Result<Resolved, String> {
+pub(super) fn discover(choice: Choice, buffers: &Buffers) -> Result<Resolved, String> {
     choice
         .discover(buffers, &Org::default(), Date::new(2024, 3, 1).unwrap())?
         .run(&Cancellation::default())
 }
-fn heading(name: &str) -> CaptureTarget {
+pub(super) fn heading(name: &str) -> CaptureTarget {
     CaptureTarget::Headline {
         file: String::new(),
         headline: name.into(),

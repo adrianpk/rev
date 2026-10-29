@@ -59,7 +59,7 @@ impl CaptureKind {
             Self::Item => "- %?",
             Self::Checkitem => "- [ ] %?",
             Self::TableLine => "| %? |",
-            Self::Plain => "%?",
+            Self::Plain => "",
         }
     }
 }
@@ -79,7 +79,7 @@ impl CaptureTemplate {
         }
     }
     pub fn text(&self) -> &str {
-        if self.template.is_empty() {
+        if self.template.trim().is_empty() {
             self.kind.default_template()
         } else {
             &self.template
@@ -89,6 +89,9 @@ impl CaptureTemplate {
         label(&self.key, 16)?;
         label(&self.description, 256)?;
         self.target.validate()?;
+        if self.kind == CaptureKind::Plain && self.template.trim().is_empty() {
+            return Err("Plain capture requires explicit template text".into());
+        }
         if self.template.len() > 65536 || self.template.contains('\0') {
             return Err("Capture template exceeds 65536 bytes or contains NUL".into());
         }

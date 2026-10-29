@@ -1,6 +1,6 @@
 # Slice 31: define native Org capture targets and templates
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -34,6 +34,14 @@ non-writing plans. Qualified body/subtree ranges exclude child headings for
 container lookup. Ambiguity, malformed/incomplete structure and excessive work
 reject. Date-tree plans retain the supplied date and chronological sibling anchor.
 
+T31.3 verifies exact/over template counts and field limits, explicit file entry,
+byte-limited BOM/CRLF reads, missing parents, invalid bytes, malformed structure,
+chronological date plans, retained old revision evidence and owned cancellation.
+Native kind defaults follow the reference; plain capture requires explicit text.
+The exhaustive sample remains equal to actual defaults, with 149 catalog leaves,
+54 RGB roles and unchanged bindings. This preparatory layer adds no command
+placeholder or release-note claim for the later complete capture lifecycle.
+
 ## Contracts Added or Changed
 
 - ORG10: typed template/target selection and explicit destination entry.
@@ -46,9 +54,14 @@ reject. Date-tree plans retain the supplied date and chronological sibling ancho
 - `src/org/capture/target/`: checked heading/container plans.
 - `src/org/io/capture.rs`: real canonical snapshots and bounded source reads.
 - `tests/configuration/org_capture.rs`: defaults, rejection and source roots.
+- `tests/org_io/capture_bounds.rs`: real-file failures, bounds and job ownership.
 - `docs/reference/org-capture.md`: native data contract.
 
 ## Validation
+
+T31.1: `39f9929bc439` (report introduction).
+T31.2: reader move `cf1810e5ee25` and implementation `768d2a9fd695`.
+
 
 - `cargo test --test configuration org_capture -- --nocapture`: three cases
   passed with zero failures or ignored tests.
@@ -63,10 +76,20 @@ reject. Date-tree plans retain the supplied date and chronological sibling ancho
 - Initial literal-block fixture used a raw heading, which the approved structural
   contract correctly rejects. The valid fixture now uses comma quoting; source
   exclusion and malformed rejection remain separate observable assertions.
-- Final exact-head controller validation follows task commits and the canonical
-  PR-reference follow-up.
+- `cargo test --test configuration --test org_io capture -- --nocapture`:
+  four configuration and nine file-backed capture workflows pass, zero failures
+  or ignored tests.
+- `cargo clippy --lib --test org_io --test configuration -- -D warnings`: passed.
+- Final required controller order binds the clean pushed PR head:
+  `cargo fmt --all -- --check`;
+  `cargo clippy --all-targets --all-features -- -D warnings`;
+  `cargo test --test org_agenda --test configuration --test org_io`;
+  `python3 scripts/check-source.py`;
+  `git diff --check`.
+- Focused final controller checks cover the existing source/parser and command
+  regressions plus the exhaustive configuration reference.
 
 ## Risks and Follow-ups
 
-T31.3 remains active. Editable expansion and publication belong to the
+Editable expansion and publication belong to the
 recorded successor slices. The delivery-set full gate has not run.

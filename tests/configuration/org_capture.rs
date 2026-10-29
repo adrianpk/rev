@@ -78,7 +78,7 @@ fn capture_admission() {
 fn capture_source_roots() {
     let f = Fixture::new();
     f.write("base.toml", "org.capture.default_file='default.org'");
-    f.write("nested/templates.toml", "org.capture.templates=[{key='n',description='Note',kind='plain',target={type='file',file='local.org'}}]");
+    f.write("nested/templates.toml", "org.capture.templates=[{key='n',description='Note',kind='plain',template='literal %?',target={type='file',file='local.org'}}]");
     let startup = prepare(&f.write(
         "config.toml",
         "include=['base.toml','nested/templates.toml']",
@@ -100,4 +100,88 @@ fn capture_source_roots() {
     ));
     assert!(!f.0.join("default.org").exists());
     assert!(!f.0.join("nested/local.org").exists());
+}
+
+// Exact maxima are admitted and the next byte/component rejects. The native
+// kind defaults are pinned independently of the packaged sample and resolver.
+#[test]
+fn capture_bounds() {
+    let f = Fixture::new();
+    for (name, count, valid) in [
+        ("maximum templates", 64, true),
+        ("over templates", 65, false),
+    ] {
+        let templates = (0..count)
+            .map(|i| format!("{{key='t{i}',description='Task',target={{type='file'}}}}"))
+            .collect::<Vec<_>>()
+            .join(",");
+        let startup = prepare(&f.write(
+            "config.toml",
+            &format!("org.capture.templates=[{templates}]"),
+        ));
+        assert_eq!(startup.diagnostic.is_none(), valid, "{name}");
+    }
+    let repeated = "{key='t',description='Task',target={type='file'}}";
+    assert!(
+        prepare(&f.write(
+            "duplicate.toml",
+            &format!("org.capture.templates=[{repeated},{repeated}]")
+        ))
+        .diagnostic
+        .is_some()
+    );
+    for (name, kind, expected) in [
+        ("entry", CaptureKind::Entry, "* %?\n  %a"),
+        ("item", CaptureKind::Item, "- %?"),
+        ("checkbox", CaptureKind::Checkitem, "- [ ] %?"),
+        ("table line", CaptureKind::TableLine, "| %? |"),
+    ] {
+        let mut template = CaptureTemplate::task();
+        template.kind = kind;
+        template.template = " \n\t".into();
+        assert_eq!(template.text(), expected, "{name}");
+        assert!(template.validate().is_ok(), "{name}");
+    }
+    let mut template = CaptureTemplate::task();
+    template.kind = CaptureKind::Plain;
+    template.template.clear();
+    assert!(template.validate().is_err());
+    template.template = "literal %() %(shell) %^{prompt}\n".into();
+    assert!(template.validate().is_ok());
+    assert_eq!(template.text(), "literal %() %(shell) %^{prompt}\n");
+    label_bounds();
+}
+fn label_bounds() {
+    for (name, limit) in [
+        ("key", 16),
+        ("description", 256),
+        ("headline", 1024),
+        ("file", 4096),
+    ] {
+        for (count, valid) in [(limit, true), (limit + 1, false)] {
+            let mut template = CaptureTemplate::task();
+            let value = "x".repeat(count);
+            match name {
+                "key" => template.key = value,
+                "description" => template.description = value,
+                "headline" => {
+                    template.target = CaptureTarget::Headline {
+                        file: String::new(),
+                        headline: value,
+                    }
+                }
+                "file" => template.target = CaptureTarget::File { file: value },
+                _ => unreachable!(),
+            }
+            assert_eq!(template.validate().is_ok(), valid, "{name} {count}");
+        }
+    }
+    for (count, valid) in [(64, true), (65, false)] {
+        let mut template = CaptureTemplate::task();
+        template.target = CaptureTarget::Outline {
+            file: String::new(),
+            outline: vec!["Heading".into(); count],
+        };
+        assert_eq!(template.validate().is_ok(), valid, "outline {count}");
+    }
 }
