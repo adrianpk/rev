@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-37-attachments`
-PR: pending
+PR: [#138](https://forge.adrianpk.com/adrianpk/rev/pulls/138)
 
 ## Purpose
 
@@ -110,6 +110,13 @@ T37.3 checks:
 The representative attachment journey adds two short owned terminals. Variants
 remain in native tests. Existing journeys, deadlines, byte limits and the full
 gate are unchanged.
+
+T37.3: `11ac14a7fb0296047da8eea36b78160ff8ffdbab`.
+
+Canonical PR #138 targets dev. Final controller receipts bind the clean pushed
+head after this PR-reference commit, with required commands in approved order.
+Focused evidence covers the shared job/source, command, window and display
+contracts, configuration reference and owned attachment/link terminal journeys.
 
 ## Risks and Follow-ups
 

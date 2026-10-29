@@ -843,6 +843,7 @@ Canonical PR #137 merged into dev at `be826a5a2d2b11dc6ef67c8cbd8b2956a5b0234c`,
 
 Contracts: ORG24 ORG15.
 Details and exact checks: [Slice 37](../plan/rev-org-mode.md#slice-37-manage-native-org-heading-attachments).
+Canonical PR: [#138](https://forge.adrianpk.com/adrianpk/rev/pulls/138).
 
 - [x] T37.1: Deliver ID/DIR attachment locations, linking, copy/move/list/open and reviewed dispatcher controls.
 - [x] T37.2: Recheck real paths and collisions and retain operation evidence across partial file/source failure.
