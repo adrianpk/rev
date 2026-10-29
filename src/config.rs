@@ -7,6 +7,8 @@
 //! Effective sizes count their documented units, not allocation capacities.
 //! Executable startup publishes one admitted snapshot to its existing consumers.
 
+pub(crate) mod capture;
+pub use capture::{CaptureKind, CaptureTarget, CaptureTemplate};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -130,6 +132,7 @@ pub struct Org {
     pub timer: Timer,
     pub habit: Habit,
     pub agenda: Agenda,
+    pub capture: Capture,
     pub limits: OrgLimits,
 }
 
@@ -147,6 +150,7 @@ impl Default for Org {
             timer: Timer::default(),
             habit: Habit::default(),
             agenda: Agenda::default(),
+            capture: Capture::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -166,6 +170,7 @@ pub struct PartialOrg {
     pub timer: PartialTimer,
     pub habit: PartialHabit,
     pub agenda: PartialAgenda,
+    pub capture: PartialCapture,
     pub limits: PartialOrgLimits,
 }
 
@@ -817,4 +822,17 @@ pub struct PartialOrgLimits {
     pub agenda_file_bytes: Option<i64>,
     pub agenda_total_bytes: Option<i64>,
     pub job_seconds: Option<i64>,
+}
+
+/// Capture arrays replace by leaf; empty arrays select the native Task fallback.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Capture {
+    pub templates: Vec<CaptureTemplate>,
+    pub default_file: String,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialCapture {
+    pub templates: Option<Vec<CaptureTemplate>>,
+    pub default_file: Option<String>,
 }

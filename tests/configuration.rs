@@ -183,3 +183,6 @@ mod org_timers;
 
 #[path = "configuration/org_agenda.rs"]
 mod org_agenda;
+
+#[path = "configuration/org_capture.rs"]
+mod org_capture;

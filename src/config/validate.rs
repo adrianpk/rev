@@ -84,6 +84,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     time(document)?;
     clock(document)?;
     timer(document)?;
+    capture(&document.org.capture)?;
     estimates(document)
 }
 
@@ -485,6 +486,16 @@ fn agenda_paths(agenda: &super::PartialAgenda) -> Result<(), Failure> {
     if let Some(paths) = &agenda.sources {
         crate::org::agenda::SourceSelection::paths(paths)
             .map_err(|e| Failure::new("org.agenda.sources", e))?;
+    }
+    Ok(())
+}
+
+fn capture(partial: &super::PartialCapture) -> Result<(), Failure> {
+    if let Some(values) = &partial.templates {
+        super::capture::templates(values).map_err(|e| Failure::new("org.capture.templates", e))?;
+    }
+    if let Some(value) = &partial.default_file {
+        super::capture::path(value).map_err(|e| Failure::new("org.capture.default_file", e))?;
     }
     Ok(())
 }

@@ -35,6 +35,12 @@ pub(super) fn settings(document: &Document) -> Settings {
     time(&mut settings.org.time, &document.org.time);
     habit(&mut settings.org.habit, &document.org.habit);
     agenda(&mut settings.org, &document.org);
+    if let Some(value) = &document.org.capture.templates {
+        settings.org.capture.templates.clone_from(value);
+    }
+    if let Some(value) = &document.org.capture.default_file {
+        settings.org.capture.default_file.clone_from(value);
+    }
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);

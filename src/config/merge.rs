@@ -71,6 +71,16 @@ impl Document {
             &mut self.org.agenda.views,
             &later.org.agenda.views,
         );
+        merge.leaf(
+            &["org", "capture", "templates"],
+            &mut self.org.capture.templates,
+            &later.org.capture.templates,
+        );
+        merge.leaf(
+            &["org", "capture", "default_file"],
+            &mut self.org.capture.default_file,
+            &later.org.capture.default_file,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(

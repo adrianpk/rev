@@ -102,6 +102,11 @@ sources = []
 span = "week" # day, week, month, year, or an integer count of 1..366 days.
 week_start = 1 # 1=Monday through 7=Sunday.
 
+[org.capture]
+# Empty selects the native Task template; no destination is invented.
+templates = [] # Up to 64 typed definitions; see org-capture.md.
+default_file = "" # Empty requires an explicit file; resolution never creates it.
+
 [org.limits]
 # Positive finite discovery/read budgets; no idle scanning or permanent worker.
 agenda_rows = 20000 # Maximum 100000 retained agenda facts/rows.

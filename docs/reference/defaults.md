@@ -200,6 +200,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.clock.drawer` | String | `"LOGBOOK"` | Task-owned clock drawer. Empty places records after planning/properties. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER, then this setting. |
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
+| `org.capture.templates` | Array of typed capture templates | `[]` | Empty selects the native Task fallback; at most 64 exact keys, data-only targets and bounded text. See [capture](org-capture.md). |
+| `org.capture.default_file` | String | `""` | Empty requires explicit destination entry. Relative paths use the assigning configuration source; discovery never creates files. |
 | `org.agenda.sources` | Array of local path strings | `[]` | Explicit files or non-recursive directories of immediate .org files; 4096 roots, 4096 bytes per path, relative to the assigning config source. No implicit scan. |
 | `org.agenda.span` | String: "day", "week", "month", "year"; or Integer 1..=366 | `"week"` | Initial calendar span; months and years align to their first date. |
 | `org.agenda.views` | Array of typed records | `[]` | At most 64 named views, each with 1..32 blocks; see [agenda reference](org-agenda.md). |

@@ -40,3 +40,5 @@ pub(crate) use visibility::{ClockInsertion, ClockObservation};
 pub mod io;
 
 pub mod agenda;
+
+pub mod capture;
