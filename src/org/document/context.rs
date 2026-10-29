@@ -6,7 +6,8 @@ impl Document {
         command: C,
         cancel: &Cancellation,
     ) -> Result<Output, String> {
-        self.context_allowed(at)?;
+        self.context_allowed(at)
+            .map_err(|error| context_error(command, error))?;
         if let Some(result) = self.footnote_context(at, cancel)? {
             return Ok(result);
         }
@@ -37,5 +38,13 @@ impl Document {
             return Err("Literal code/verbatim context; edit source explicitly".into());
         }
         Ok(())
+    }
+}
+
+fn context_error(command: C, error: String) -> String {
+    if command == C::OpenLink {
+        format!("No supported link: {error}")
+    } else {
+        error
     }
 }

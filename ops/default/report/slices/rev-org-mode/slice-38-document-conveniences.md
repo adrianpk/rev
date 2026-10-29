@@ -101,6 +101,8 @@ Final validation diagnostics:
 - The same grouped command later observed `process_lifetime: cancel: descendant still running` in unchanged process cleanup code under receipt `ARQXWJCLQ4HYICE6XVQ3HVDQWY` at `5b5b078319a7776a7feb97fb506d0435ba5fe182`.
 - `cargo test --lib org::io::process::tests::process_lifetime -- --nocapture`: passed immediately on that retained candidate. No process cleanup code, test assertion, deadline or resource limit changed. Final controller checks must still execute the grouped command on the final candidate; the isolated pass does not replace it.
 
+- Receipt `E42VUZXTCPQV7AXBM4RA4XLIIO` passed all 45 library tests, including process cleanup, and all 157 command tests. It then caught a literal-link diagnostic regression in the original `links_rejections` assertion. Literal opening now retains `No supported link` and adds the explicit protected-context reason; the original assertion and source/view/history protections are unchanged.
+
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.
