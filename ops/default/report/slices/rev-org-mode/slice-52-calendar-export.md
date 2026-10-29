@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-52-calendar-export`
-PR: pending
+PR: `#153`
 
 ## Purpose
 
@@ -54,6 +54,10 @@ newlines; unsupported controls reject output. Cancellation, deadlines and the
 final output byte limit cover rendering. Components/headings are limited to
 4096, explicit zones to 64, and ID values to 1024 bytes. No new Cargo dependency,
 service, asset reading or execution authority is introduced.
+
+Task commits: T52.1 `b11351ded602a5a5ba0b465de6c23fb8d3ad4eea`, T52.2 `d144051b63bab6f993220fb470f9f66c1cbda9a4`, T52.3 `3a15ab3d7a2b752154e1ac5ff50068ad14d52fac`.
+
+Canonical PR: [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153).
 
 ## Contracts Added or Changed
 

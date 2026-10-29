@@ -1068,6 +1068,10 @@ Details and exact checks: [Slice 52](../plan/rev-org-mode.md#slice-52-export-org
 - [x] T52.3: Verify independent calendar fixtures, line folding, escaping and stable refresh output.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T52.1 `b11351ded602a5a5ba0b465de6c23fb8d3ad4eea`, T52.2 `d144051b63bab6f993220fb470f9f66c1cbda9a4`, T52.3 `3a15ab3d7a2b752154e1ac5ff50068ad14d52fac`.
+
+Canonical PR: [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+
 ### Slice 53: publish native Org document projects
 
 Contracts: ORG26 ORG25.
