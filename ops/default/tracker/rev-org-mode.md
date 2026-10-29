@@ -744,6 +744,8 @@ Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canon
 - [x] T30.3: Exercise dirty buffers, cancellation, failure and undo in an owned multi-source agenda journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical [PR #131](https://forge.adrianpk.com/adrianpk/rev/pulls/131) targets dev; the Slice 30 report is reviewing. T30.1/T30.2/T30.3 commits are `ecce41921d6f`, `a65745954df3` and `7bfb98cd0408`. Seven source cases, five bulk cases, six lifecycle cases and three focused RGB terminal scenarios pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
+
 T30.1 routes checked agenda source actions through existing native handlers. Seven focused source cases pass, including cancellation, stale/read-only rejection, dirty canonical text, undo/redo, clock ownership and mapped shared views.
 
 ### Slice 31: define native Org capture targets and templates

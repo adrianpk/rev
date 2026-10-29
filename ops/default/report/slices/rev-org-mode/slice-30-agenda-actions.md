@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-30-agenda-actions`
-PR: pending
+PR: `#131`
 
 ## Purpose
 
@@ -74,6 +74,7 @@ limits, fixture bounds and terminal restoration assertions remain unchanged.
 
 T30.1: `ecce41921d6fafb14b784ef20fd19bdb397bb842` (report introduction).
 T30.2: `a65745954df3a85e628be9a423a3e34d3f280daa`.
+T30.3: `7bfb98cd0408785cdf7c33f8e83fc361ac458ca4`.
 
 
 - `cargo test --test org_agenda source_action -- --nocapture`: seven cases passed,
@@ -109,3 +110,5 @@ T30.2: `a65745954df3a85e628be9a423a3e34d3f280daa`.
 ## Risks and Follow-ups
 
 The delivery-set full gate has not run.
+
+[Canonical PR #131](https://forge.adrianpk.com/adrianpk/rev/pulls/131) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.
