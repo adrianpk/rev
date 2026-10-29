@@ -1,5 +1,6 @@
 mod blocks;
 mod elements;
+pub(in crate::org) mod entry;
 mod lists;
 mod outline;
 mod rows;

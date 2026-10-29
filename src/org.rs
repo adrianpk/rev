@@ -42,3 +42,5 @@ pub mod io;
 pub mod agenda;
 
 pub mod capture;
+
+pub mod refile;

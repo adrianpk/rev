@@ -99,3 +99,13 @@ impl Outline {
             .then_some(candidate)
     }
 }
+
+impl Outline {
+    pub(crate) fn refile_span(&self, buffer: &Buffer, point: Scalar) -> Result<Span, String> {
+        self.complete().map_err(str::to_owned)?;
+        crate::org::source::current(buffer, self.stamp).map_err(|e| e.to_string())?;
+        let group = self.subtree_group(buffer, point)?;
+        self.admit_group(&group).map_err(str::to_owned)?;
+        buffer.byte_span(group.bytes).map_err(|e| e.to_string())
+    }
+}

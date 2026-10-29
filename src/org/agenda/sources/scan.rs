@@ -15,6 +15,7 @@ use std::{
     time::{Duration, Instant},
 };
 struct Open {
+    bom: bool,
     path: Option<PathBuf>,
     stamp: Stamp,
     text: Rope,
@@ -49,6 +50,7 @@ impl SourceScan {
                 return Err("Agenda snapshot exceeds 4096 open buffers".into());
             }
             open.push(Open {
+                bom: buffer.has_bom(),
                 path: buffer.file().map(|f| f.path().to_owned()),
                 stamp: buffer.stamp(),
                 text: Source::new(buffer).snapshot().map_err(|e| e.to_string())?,
@@ -215,11 +217,12 @@ impl SourceScan {
         self.result.truncated |= used > self.limits.agenda_file_bytes.min(remaining);
         self.spent = self.spent.saturating_add(used);
         let (loaded, observed) = result?;
-        let text = loaded.into_parts().0;
+        let (text, bom) = loaded.into_parts();
         self.result.bytes += text.len_bytes();
         self.result.documents.push(AgendaSource {
             path: Some(resolved.path().to_owned()),
             version: SourceVersion::Disk(observed),
+            bom,
             aliases: Vec::new(),
             text,
         });
@@ -261,6 +264,7 @@ impl SourceScan {
         self.result.documents.push(AgendaSource {
             path: open.path.clone(),
             version: SourceVersion::Buffer(open.stamp),
+            bom: open.bom,
             text: open.text.clone(),
             aliases: Vec::new(),
         });

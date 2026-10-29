@@ -59,6 +59,7 @@ pub enum SourceVersion {
 }
 #[derive(Clone, Debug)]
 pub struct AgendaSource {
+    pub(crate) bom: bool,
     pub path: Option<PathBuf>,
     pub version: SourceVersion,
     text: Rope,
