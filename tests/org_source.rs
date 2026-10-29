@@ -295,3 +295,6 @@ mod source_blocks;
 
 #[path = "org_source/tangling.rs"]
 mod tangling;
+
+#[path = "org_source/tangle_bounds.rs"]
+mod tangle_bounds;

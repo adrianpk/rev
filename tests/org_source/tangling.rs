@@ -3,7 +3,7 @@ use rev::org::{
     Cancellation,
     tangle::{Plan, Selection, Work},
 };
-fn tangle(source: &str) -> Result<Plan, String> {
+pub(super) fn tangle(source: &str) -> Result<Plan, String> {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     Work::new(buffers.get(id).unwrap(), Selection::Buffer)?.run(&Cancellation::default())

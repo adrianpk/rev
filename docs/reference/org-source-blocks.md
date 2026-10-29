@@ -107,8 +107,8 @@ Symlink/non-regular destinations, symlink parents, parent traversal and aliases
 of live source buffers or other outputs reject. Destinations cap at 4096 bytes.
 Tangling admits at most 512 source blocks, 256 output files, 8 MiB of combined
 output, 64 expansion levels and 100000 expansion steps. Protecting live input
-files caps at 4096 distinct paths and 1 MiB of path bytes. The existing 8 MiB
-source/header limits and configured owned-job deadline also apply.
+files caps at 4096 distinct paths and 1 MiB of path bytes. The existing source
+and header limits and configured owned-job deadline also apply.
 
 Each existing output asks `yes/no` separately. An invalid answer repeats that
 file's prompt; `no` records a declined replacement and continues. Source editing

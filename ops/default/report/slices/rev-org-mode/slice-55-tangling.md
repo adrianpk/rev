@@ -53,7 +53,13 @@ Development checks passed:
 - `cargo check --lib`
 - `cargo test --test org_source --test org_io tangling`
 
-All eight initial focused tests passed. Required exact-head checks remain pending.
+The initial eight focused tests passed. Subsequent boundary tests admit exactly
+64 reference levels, 512 source blocks, 256 files and 8 MiB of combined output,
+then reject excess. Dense acyclic expansion reaches the independent 100000-step
+ceiling. Whole-plan preflight rejects symlink parents/leaves, hard-link aliases
+of source/outputs and live output buffers. Replaced parents cannot redirect a
+later write; earlier successful outputs remain recorded. Required exact-head
+checks remain pending.
 
 ## Risks and Follow-ups
 

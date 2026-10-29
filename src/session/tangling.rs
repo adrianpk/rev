@@ -183,10 +183,10 @@ impl Session {
         }
     }
     fn review_tangle(&mut self, file: Prepared) -> Result<(), String> {
-        self.export_target_available(&file.target)?;
         if let Some(state) = &mut self.tangling {
             state.active = Some(file.target.path().into());
         }
+        self.export_target_available(&file.target)?;
         if !file.target.is_present() {
             return self.write_tangle(file);
         }
