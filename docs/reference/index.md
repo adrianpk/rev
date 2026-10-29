@@ -28,3 +28,5 @@
 - [Org document editing](org-document.md): footnotes, emphasis, entities and affiliated source.
 
 - [Org tables](org-tables.md): source-preserving alignment, cell navigation and row insertion.
+
+- [Checked Org export snapshots](org-export.md): native preparation, declarations, includes, text macros and source evidence.

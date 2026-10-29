@@ -213,3 +213,325 @@ fn export_expansion_failures() {
         assert!(!f.0.join("marker").exists());
     }
 }
+
+// Checked source evidence stays frozen across edits, undo and disk replacement.
+// A new canonical visit supersedes disk evidence even before an edit occurs.
+#[test]
+fn export_source_freshness() {
+    let f = Fixture::new();
+    let root = f.write("root.org", "#+INCLUDE: \"child.org\"\n");
+    let child = f.write("child.org", "disk\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&root).unwrap();
+    let snapshot = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    snapshot.buffers_current(&buffers).unwrap();
+    snapshot.files_current(&Cancellation::default()).unwrap();
+    let cid = buffers.visit(&child).unwrap();
+    assert!(snapshot.buffers_current(&buffers).is_err());
+    let snapshot = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    let b = buffers.get_mut(cid).unwrap();
+    let e = rev::buffer::edit::Replacement {
+        source: b.span(0..0).unwrap(),
+        text: "changed ".into(),
+    };
+    let plan = b.prepare(&[e], &[], None).unwrap();
+    b.publish(plan, &mut []).unwrap();
+    assert!(snapshot.buffers_current(&buffers).is_err());
+    assert_eq!(snapshot.text().to_string(), "disk\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&root).unwrap();
+    let snapshot = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    std::fs::write(&child, "replacement on disk\n").unwrap();
+    assert!(snapshot.files_current(&Cancellation::default()).is_err());
+    assert_eq!(snapshot.text().to_string(), "disk\n");
+}
+// Physical aliases must not bypass include cycle detection. Repeated noncyclic
+// includes still count as occurrences even though evidence is retained once.
+#[test]
+fn export_include_aliases() {
+    let f = Fixture::new();
+    let root = f.write("root.org", "#+INCLUDE: \"alias.org\"\n");
+    std::fs::hard_link(&root, f.0.join("alias.org")).unwrap();
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&root).unwrap();
+    assert!(
+        work(&buffers, id, Scope::Buffer)
+            .run(&Cancellation::default())
+            .err()
+            .unwrap()
+            .contains("cycle")
+    );
+    std::fs::remove_file(f.0.join("alias.org")).unwrap();
+    f.write("child.org", "child\n");
+    std::os::unix::fs::symlink("child.org", f.0.join("alias.org")).unwrap();
+    let root = f.write(
+        "repeated.org",
+        "#+INCLUDE: \"child.org\"\n#+INCLUDE: \"alias.org\"\n",
+    );
+    let id = buffers.visit(&root).unwrap();
+    let result = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    assert_eq!(result.text().to_string(), "child\nchild\n");
+    assert_eq!(result.sources().len(), 2);
+    let mut policy = Org::default();
+    policy.limits.include_files = 1;
+    assert!(
+        Work::new(&buffers, id, request(Scope::Buffer), &policy)
+            .unwrap()
+            .run(&Cancellation::default())
+            .is_err()
+    );
+}
+// Limits reject the whole projection rather than dropping late includes or
+// publishing a truncated macro result. Preparation never touches a destination.
+#[test]
+fn export_resource_bounds() {
+    let f = Fixture::new();
+    let root = f.write("root.org", "#+INCLUDE: \"child.org\"\n");
+    f.write("child.org", "#+INCLUDE: \"leaf.org\"\n");
+    f.write("leaf.org", "long leaf\n");
+    let sentinel = f.write("destination/output.html", "preserve existing output");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&root).unwrap();
+    for (name, mut limits) in [
+        ("depth", Org::default().limits),
+        ("files", Org::default().limits),
+        ("bytes", Org::default().limits),
+        ("total", Org::default().limits),
+    ] {
+        match name {
+            "depth" => limits.include_depth = 1,
+            "files" => limits.include_files = 1,
+            "bytes" => limits.expansion_bytes = 3,
+            _ => limits.agenda_total_bytes = 30,
+        }
+        let policy = Org {
+            limits,
+            ..Org::default()
+        };
+        assert!(
+            Work::new(&buffers, id, request(Scope::Buffer), &policy)
+                .unwrap()
+                .run(&Cancellation::default())
+                .is_err(),
+            "{name}"
+        );
+    }
+    let body = "x".repeat(500);
+    let source = format!("#+MACRO: x {body}\n{{{{{{x}}}}}}\n\n{{{{{{x}}}}}}\n\n{{{{{{x}}}}}}\n");
+    let path = f.write("large.org", &source);
+    let id = buffers.visit(&path).unwrap();
+    let mut policy = Org::default();
+    policy.limits.expansion_bytes = 1024;
+    assert!(
+        Work::new(&buffers, id, request(Scope::Buffer), &policy)
+            .unwrap()
+            .run(&Cancellation::default())
+            .err()
+            .unwrap()
+            .contains("expansion")
+    );
+    policy.limits.include_depth = 65;
+    assert!(Work::new(&buffers, id, request(Scope::Buffer), &policy).is_err());
+    assert_eq!(
+        std::fs::read_to_string(sentinel).unwrap(),
+        "preserve existing output"
+    );
+    assert!(!f.0.join("missing/output.html").exists());
+}
+// A region cannot promote literal block contents into active include directives.
+// Empty/exact Unicode selections and file-global macro/options remain explicit.
+#[test]
+fn export_scope_boundaries() {
+    let f = Fixture::new();
+    let source = "#+MACRO: x scoped\n#+OPTIONS: toc:nil\n#+OPTIONS: author:nil\n#+begin_example\n#+INCLUDE: \"missing.org\"\n#+end_example\n* One\n{{{x}}}\n* Two\n#+INCLUDE: \"missing.org\"\n";
+    let path = f.write("scope.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let b = buffers.get(id).unwrap();
+    let start = source.find("#+INCLUDE:").unwrap();
+    let end = start + "#+INCLUDE: \"missing.org\"\n".len();
+    let region = Source::new(b).range(Byte(start)..Byte(end)).unwrap();
+    assert!(
+        work(&buffers, id, Scope::Region(region))
+            .run(&Cancellation::default())
+            .is_err()
+    );
+    let result = work(
+        &buffers,
+        id,
+        Scope::Subtree(Byte(source.find("* One").unwrap())),
+    )
+    .run(&Cancellation::default())
+    .unwrap();
+    assert_eq!(result.text().to_string(), "* One\nscoped\n");
+    assert!(!result.options().toc);
+    assert!(!result.options().author);
+    let mut selected = request(Scope::Subtree(Byte(source.find("* One").unwrap())));
+    selected.options = Some(Options::default());
+    let result = Work::new(&buffers, id, selected, &Org::default())
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    assert!(result.options().toc);
+    assert!(result.options().author);
+    let foreign = Source::new(buffers.get(buffers.initial()).unwrap())
+        .range(Byte(0)..Byte(0))
+        .unwrap();
+    assert!(
+        Work::new(
+            &buffers,
+            id,
+            request(Scope::Region(foreign)),
+            &Org::default()
+        )
+        .is_err()
+    );
+}
+// BOM/CRLF/EOF, affiliated attributes and literal Lisp stay in original evidence.
+// The real marker path makes accidental code evaluation observable to this test.
+#[test]
+fn export_source_preservation() {
+    let f = Fixture::new();
+    let marker = f.0.join("executed");
+    let output = f.write("output.html", "unchanged output");
+    let source = format!(
+        "\u{feff}#+TITLE: Source\r\n#+NAME: sample\r\n#+CAPTION: Table\r\n#+ATTR_HTML: :class report\r\n| 界 |\r\n#+begin_src sh\r\ntouch '{}'\r\n#+end_src\r\n# Local Variables:\r\n# eval: (write-region \"ran\" nil \"{}\")\r\n# End:",
+        marker.display(),
+        marker.display()
+    );
+    let path = f.write("source.org", &source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let before = buffers.get(id).unwrap().stamp();
+    let result = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    assert!(result.sources()[0].has_bom());
+    assert_eq!(
+        result.sources()[0].text().to_string(),
+        source.trim_start_matches('\u{feff}')
+    );
+    assert!(result.text().to_string().ends_with("# End:"));
+    assert!(
+        result
+            .elements()
+            .any(|n| n.kind == StructureKind::Table && n.affiliated.is_some())
+    );
+    assert_eq!(buffers.get(id).unwrap().stamp(), before);
+    assert_eq!(buffers.get(id).unwrap().history().len(), 0);
+    assert_eq!(std::fs::read_to_string(path).unwrap(), source);
+    assert_eq!(std::fs::read_to_string(output).unwrap(), "unchanged output");
+    assert!(!marker.exists());
+}
+// One owned Job can be cancelled/reaped without freeing an extra worker slot or
+// creating files. Cancellation remains effective after work has finished too.
+#[test]
+fn export_owned_cancellation() {
+    let f = Fixture::new();
+    let path = f.write("root.org", "body\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let cancel = Cancellation::default();
+    cancel.cancel();
+    assert!(work(&buffers, id, Scope::Buffer).run(&cancel).is_err());
+    let selected = work(&buffers, id, Scope::Buffer);
+    let mut job = rev::org::Job::default();
+    let b = buffers.get(id).unwrap();
+    job.start(b.stamp(), move |cancel| selected.run(cancel))
+        .unwrap();
+    assert!(job.cancel());
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    let result = loop {
+        if let Some(result) = job.poll(b) {
+            break result;
+        }
+        assert!(std::time::Instant::now() < deadline);
+        std::thread::yield_now();
+    };
+    assert!(matches!(result, Err(rev::org::JobError::Cancelled)));
+    assert!(!job.is_active());
+    assert_eq!(std::fs::read_to_string(path).unwrap(), "body\n");
+}
+
+// Invalid ingress and malformed or cut native forms cannot become usable
+// includes. The complete source and existing destination survive every failure.
+#[test]
+fn export_invalid_includes() {
+    let f = Fixture::new();
+    let root = f.write("root.org", "#+INCLUDE: \"child.org\"\n");
+    let output = f.write("output.txt", "preserved");
+    for (name, bytes) in [
+        ("UTF-8", vec![0xff]),
+        ("NUL", b"bad\0text".to_vec()),
+        ("block", b"#+begin_src sh\nunclosed\n".to_vec()),
+    ] {
+        let child = f.0.join("child.org");
+        std::fs::write(&child, &bytes).unwrap();
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&root).unwrap();
+        assert!(
+            work(&buffers, id, Scope::Buffer)
+                .run(&Cancellation::default())
+                .is_err(),
+            "{name}"
+        );
+        assert_eq!(std::fs::read(child).unwrap(), bytes);
+    }
+    f.write(
+        "child.org",
+        "#+begin_example\n#+INCLUDE: \"absent.org\"\n#+end_example\n",
+    );
+    let root = f.write("cut.org", "#+INCLUDE: \"child.org\" :lines \"2-3\"\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&root).unwrap();
+    assert!(
+        work(&buffers, id, Scope::Buffer)
+            .run(&Cancellation::default())
+            .is_err()
+    );
+    let root = f.write("directory.org", "#+INCLUDE: \".\"\n");
+    let id = buffers.visit(&root).unwrap();
+    assert!(
+        work(&buffers, id, Scope::Buffer)
+            .run(&Cancellation::default())
+            .is_err()
+    );
+    std::os::unix::fs::symlink("absent.org", f.0.join("dangling.org")).unwrap();
+    let root = f.write("dangling-root.org", "#+INCLUDE: \"dangling.org\"\n");
+    let id = buffers.visit(&root).unwrap();
+    assert!(
+        work(&buffers, id, Scope::Buffer)
+            .run(&Cancellation::default())
+            .is_err()
+    );
+    assert_eq!(std::fs::read_to_string(output).unwrap(), "preserved");
+    assert!(!f.0.join("absent.org").exists());
+}
+
+// Drawers can contain structurally recognized children for editing, but those
+// children must never activate export includes, definitions or invocations.
+#[test]
+fn export_literal_drawers() {
+    let f = Fixture::new();
+    let source = "#+MACRO: x expanded\n* Task\n:LOGBOOK:\n#+INCLUDE: \"missing.org\"\n#+MACRO: x wrong\n{{{x}}}\n:END:\n{{{x}}}\n";
+    let path = f.write("drawers.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let result = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    let text = result.text().to_string();
+    assert!(text.contains("#+INCLUDE: \"missing.org\"\n#+MACRO: x wrong\n{{{x}}}"));
+    assert!(text.ends_with("expanded\n"));
+    assert_eq!(std::fs::read_to_string(path).unwrap(), source);
+    assert!(!f.0.join("missing.org").exists());
+}

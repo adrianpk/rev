@@ -978,7 +978,7 @@ Details and exact checks: [Slice 46](../plan/rev-org-mode.md#slice-46-prepare-ch
 
 - [x] T46.1: Freeze an export snapshot and backend/options/include/macro contracts over native source forms.
 - [x] T46.2: Resolve bounded includes and text-only macros without executing blocks or file-local Lisp.
-- [ ] T46.3: Verify cycles, absent includes, unsaved source, export scope and destination preservation.
+- [x] T46.3: Verify cycles, absent includes, unsaved source, export scope and destination preservation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 47: export Org to text Markdown and Org

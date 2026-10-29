@@ -53,7 +53,7 @@ impl Expand<'_> {
         }
         self.bytes = self
             .bytes
-            .checked_add(source.text.len_bytes())
+            .checked_add(source.text.len_bytes() + usize::from(source.bom) * 3)
             .ok_or("Export source bytes overflow")?;
         if self.bytes > self.policy.limits.agenda_total_bytes {
             return Err("Export total source byte limit reached".into());
@@ -80,15 +80,14 @@ impl Expand<'_> {
     ) -> Result<String, String> {
         let mut output = String::new();
         let mut cursor = range.start;
-        for node in nodes.iter().filter(|n| within(n, &range)) {
+        for node in document::active(nodes, self.budget.cancel)?.filter(|n| within(n, &range)) {
             self.budget.check()?;
             if let Some(value) = directive(&source.text, node) {
                 self.append(
                     &mut output,
                     source.text.byte_slice(cursor..node.source.start),
                 )?;
-                let selected = syntax::Include::parse(&value)?;
-                let included = self.read(source, &selected)?;
+                let included = self.resolve(source, &value)?;
                 self.push(&mut output, &included)?;
                 self.separator(&mut output, &source.text, node)?;
                 cursor = node.source.end;
@@ -96,6 +95,10 @@ impl Expand<'_> {
         }
         self.append(&mut output, source.text.byte_slice(cursor..range.end))?;
         Ok(output)
+    }
+    fn resolve(&mut self, parent: &Evidence, value: &str) -> Result<String, String> {
+        let include = syntax::Include::parse(value)?;
+        self.read(parent, &include)
     }
     fn read(&mut self, parent: &Evidence, include: &syntax::Include) -> Result<String, String> {
         if self.active.len() > self.policy.limits.include_depth {
@@ -121,6 +124,7 @@ impl Expand<'_> {
             Evidence {
                 path: Some(source.path),
                 version,
+                bom: source.bom,
                 text,
             },
             range,

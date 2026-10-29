@@ -214,8 +214,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_rows` | Integer 1..=100000 | `20000` | Maximum retained source facts and calendar entries; limits remain visibly incomplete. |
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
-| `org.export.default_format` | Native format | `"html"` | Selected format must occur in enabled backends; no automatic export. |
-| `org.export.backends` | Array of 1..11 unique native formats | All native formats | text (ascii alias), utf8, org, markdown, html, latex, beamer, odt, texinfo, man, icalendar. |
+| `org.export.default_format` | String: "text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar" | `"html"` | Selected format must occur in enabled backends; no automatic export. |
+| `org.export.backends` | Array of 1..11 unique native formats | `["text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar"]` | text (ascii alias), utf8, org, markdown, html, latex, beamer, odt, texinfo, man, icalendar. |
 | `org.limits.include_depth` | Integer 1..=64 | `16` | Nested includes, excluding the root. |
 | `org.limits.include_files` | Integer 1..=512 | `128` | Include occurrences, including repeated files. |
 | `org.limits.expansion_bytes` | Integer 1..=8388608 | `1048576` | Maximum projected bytes after include and text macro expansion. |
@@ -228,7 +228,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_files` | Integer 1..=4096 | `512` | Maximum unique admitted source documents; excess remains visibly incomplete. |
 | `org.limits.agenda_file_bytes` | Integer 1..=33554432 | `8388608` | Whole-source byte bound for disk reads and current buffer snapshots. |
 | `org.limits.agenda_total_bytes` | Integer 1..=268435456 | `67108864` | Total read/snapshot byte budget, including failed reads. |
-| `org.limits.job_seconds` | Integer 1..=600 | `30` | Agenda discovery deadline, checked at read/iteration boundaries; does not interrupt blocked kernel IO. |
+| `org.limits.job_seconds` | Integer 1..=600 | `30` | Agenda discovery and export preparation deadline, checked at read/iteration boundaries; does not interrupt blocked kernel IO. |
 | `org.limits.job_output_bytes` | Integer 1..=16777216 | `1048576` | Combined stdout/stderr byte limit for explicitly launched Org tools. Exceeding the limit stops the owned process group and reports failure. |
 | `org.habit.preceding_days` | Integer | `21` | Days before today, 0..366. |
 | `org.habit.following_days` | Integer | `7` | Days after today, 0..366. |

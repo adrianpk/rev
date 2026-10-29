@@ -23,6 +23,10 @@ impl Default for Options {
 impl Options {
     pub fn parse(value: &str) -> Result<Self, String> {
         let mut options = Self::default();
+        options.apply(value)?;
+        Ok(options)
+    }
+    fn apply(&mut self, value: &str) -> Result<(), String> {
         if value.len() > 4096 {
             return Err("Export OPTIONS exceeds 4096 bytes".into());
         }
@@ -30,14 +34,14 @@ impl Options {
             let (key, value) = token
                 .split_once(':')
                 .ok_or("Use key:t or key:nil export options")?;
-            let target = options.target(key)?;
+            let target = self.target(key)?;
             *target = match value {
                 "t" | "1" => true,
                 "nil" | "0" => false,
                 _ => return Err("Export options require t, nil, 1 or 0".into()),
             };
         }
-        Ok(options)
+        Ok(())
     }
     fn target(&mut self, key: &str) -> Result<&mut bool, String> {
         match key {
@@ -61,9 +65,17 @@ pub struct Metadata {
     pub options: Options,
 }
 impl Metadata {
-    pub(super) fn observe(text: &Rope, nodes: &[structure::Raw]) -> Result<Self, String> {
+    pub(super) fn observe(
+        text: &Rope,
+        nodes: &[structure::Raw],
+        cancel: &Cancellation,
+    ) -> Result<Self, String> {
         let mut result = Self::default();
-        for node in nodes.iter().filter(|n| preamble(nodes, n)) {
+        for node in nodes {
+            document::check(cancel)?;
+            if !preamble(nodes, node) {
+                continue;
+            }
             if let Some((key, value)) = document::keyword(text, node) {
                 result.assign(&key, &value)?;
             }
@@ -78,7 +90,7 @@ impl Metadata {
             "DATE" => &mut self.date,
             "LANGUAGE" => &mut self.language,
             "OPTIONS" => {
-                self.options = Options::parse(value)?;
+                self.options.apply(value)?;
                 return Ok(());
             }
             _ => return Ok(()),

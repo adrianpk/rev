@@ -1,7 +1,9 @@
 //! Checked immutable export data. Preparation has no save, edit, destination,
 //! process or network authority. Projected offsets never identify canonical text.
+mod current;
 mod document;
 mod include;
+mod limits;
 mod macros;
 mod options;
 mod scope;
@@ -39,9 +41,13 @@ pub struct Request {
 pub struct Evidence {
     path: Option<PathBuf>,
     version: SourceVersion,
+    bom: bool,
     text: Rope,
 }
 impl Evidence {
+    pub fn has_bom(&self) -> bool {
+        self.bom
+    }
     pub fn path(&self) -> Option<&Path> {
         self.path.as_deref()
     }
@@ -74,6 +80,7 @@ pub struct Snapshot {
     metadata: Metadata,
     options: Options,
     export_bytes: usize,
+    job_seconds: usize,
     diagnostics: Vec<String>,
 }
 impl Snapshot {
@@ -129,6 +136,7 @@ impl Work {
         policy: &Org,
     ) -> Result<Self, String> {
         policy.export.validate()?;
+        limits::validate(&policy.limits)?;
         if !policy.export.backends.contains(&request.backend) {
             return Err("Selected native export backend is disabled".into());
         }
@@ -137,12 +145,16 @@ impl Work {
         if text.len_bytes() > super::Limits::default().bytes {
             return Err("Export source exceeds native analysis bytes".into());
         }
+        if text.len_bytes() + usize::from(buffer.has_bom()) * 3 > policy.limits.agenda_file_bytes {
+            return Err("Export source byte limit reached".into());
+        }
         let scope = scope::capture(buffer, &request.scope)?;
         Ok(Self {
             reader: super::io::Sources::new(buffers, &policy.limits)?,
             source: Evidence {
                 path: buffer.file().map(|f| f.path().to_owned()),
                 version: SourceVersion::Buffer(buffer.stamp()),
+                bom: buffer.has_bom(),
                 text,
             },
             scope,
@@ -162,8 +174,8 @@ impl Work {
         budget.check()?;
         let nodes = document::nodes(&self.source.text, &cancel)?;
         let range = scope::select(&nodes, self.scope, &self.request.scope)?;
-        let definitions = macros::Definitions::observe(&self.source.text, &nodes)?;
-        let mut metadata = Metadata::observe(&self.source.text, &nodes)?;
+        let definitions = macros::Definitions::observe(&self.source.text, &nodes, &cancel)?;
+        let mut metadata = Metadata::observe(&self.source.text, &nodes, &cancel)?;
         let options = self
             .request
             .options
@@ -189,6 +201,7 @@ impl Work {
             metadata,
             options,
             export_bytes: self.policy.limits.export_bytes,
+            job_seconds: self.policy.limits.job_seconds,
         })
     }
 }

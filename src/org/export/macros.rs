@@ -4,13 +4,23 @@ use std::collections::BTreeMap;
 #[derive(Default)]
 pub(super) struct Definitions(BTreeMap<String, String>);
 impl Definitions {
-    pub fn observe(text: &Rope, nodes: &[structure::Raw]) -> Result<Self, String> {
+    pub fn observe(
+        text: &Rope,
+        nodes: &[structure::Raw],
+        cancel: &Cancellation,
+    ) -> Result<Self, String> {
         let mut defs = Self::default();
-        defs.collect(text, nodes)?;
+        defs.collect(text, nodes, cancel)?;
         Ok(defs)
     }
-    fn collect(&mut self, text: &Rope, nodes: &[structure::Raw]) -> Result<(), String> {
-        for node in nodes {
+    fn collect(
+        &mut self,
+        text: &Rope,
+        nodes: &[structure::Raw],
+        cancel: &Cancellation,
+    ) -> Result<(), String> {
+        for node in document::active(nodes, cancel)? {
+            document::check(cancel)?;
             if let Some((key, value)) = document::keyword(text, node)
                 && key == "MACRO"
             {
@@ -51,7 +61,7 @@ pub(super) fn expand(
     cancel: &Cancellation,
 ) -> Result<Expanded, String> {
     let nodes = document::nodes(&text, cancel)?;
-    definitions.collect(&text, &nodes)?;
+    definitions.collect(&text, &nodes, cancel)?;
     let mut work = Expansion {
         definitions,
         active: Vec::new(),
@@ -80,7 +90,7 @@ struct Expansion<'a> {
 impl Expansion<'_> {
     fn document(&mut self, text: &Rope, nodes: &[structure::Raw]) -> Result<String, String> {
         let mut changes = Vec::new();
-        for n in nodes {
+        for n in document::active(nodes, self.cancel)? {
             check(self.cancel)?;
             if document::keyword(text, n).is_some_and(|(k, _)| k == "MACRO") {
                 changes.push((n.source.clone(), String::new()));
@@ -236,6 +246,9 @@ impl Expansion<'_> {
         {
             let mut result = String::new();
             self.expand(value, &mut result)?;
+            if result.len() > 4096 {
+                return Err("Expanded export metadata exceeds 4096 bytes".into());
+            }
             *value = result;
         }
         Ok(())
