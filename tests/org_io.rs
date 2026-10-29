@@ -156,3 +156,6 @@ mod manual_exports;
 
 #[path = "org_io/calendar_exports.rs"]
 mod calendar_exports;
+
+#[path = "org_io/publishing.rs"]
+mod publishing;

@@ -71,6 +71,7 @@ impl Session {
             || self.org.report.is_some()
             || self.document_request.is_some()
             || self.export_request.is_some()
+            || self.publishing.is_some()
     }
 
     pub(super) fn finish_org_request(&mut self) {
@@ -290,6 +291,9 @@ impl Session {
 
 impl Session {
     fn org_session_command(&mut self, command: OrgCommand) -> Option<Action> {
+        if let Some(action) = self.publishing_command(command) {
+            return Some(action);
+        }
         if let Some(action) = self.org_collection_command(command) {
             return Some(action);
         }

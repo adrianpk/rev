@@ -114,6 +114,16 @@ impl Document {
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.tables(&mut self.org, &later.org);
         merge.export(&mut self.org, &later.org);
+        merge.leaf(
+            &["org", "publish", "projects"],
+            &mut self.org.publish.projects,
+            &later.org.publish.projects,
+        );
+        merge.leaf(
+            &["org", "tools", "upload"],
+            &mut self.org.tools.upload,
+            &later.org.tools.upload,
+        );
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],

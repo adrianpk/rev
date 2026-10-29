@@ -21,6 +21,7 @@ mod history;
 mod kill;
 mod linear;
 mod links;
+mod publishing;
 mod tables;
 pub use attachment::{AttachmentResult, HeadingStatus};
 mod mode;
@@ -87,6 +88,8 @@ pub struct Session {
     document_request: Option<outline::Request>,
     table_request: Option<outline::Request>,
     export_request: Option<outline::Request>,
+    publishing: Option<publishing::State>,
+    publishing_results: Vec<crate::org::publish::Outcome>,
     attachment: Option<attachment::State>,
     attachment_results: std::collections::VecDeque<AttachmentResult>,
     windows: Windows,
@@ -140,6 +143,7 @@ enum Pending {
     Table(Box<outline::Request>),
     TableFile(Box<tables::interchange::Prompt>),
     Export(Box<exports::Prompt>),
+    Publish(Box<publishing::Prompt>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -237,6 +241,8 @@ impl Session {
             document_request: None,
             table_request: None,
             export_request: None,
+            publishing: None,
+            publishing_results: Vec::new(),
             attachment: None,
             attachment_results: std::collections::VecDeque::new(),
             windows,

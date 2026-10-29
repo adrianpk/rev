@@ -35,6 +35,7 @@ impl DestinationSource {
         self.text.clone()
     }
 }
+#[derive(Clone)]
 struct Open {
     source: DestinationSource,
     identity: Option<(u64, u64)>,
@@ -43,6 +44,7 @@ pub struct CaptureRead {
     path: PathBuf,
     sources: Sources,
 }
+#[derive(Clone)]
 pub(in crate::org) struct Sources {
     open: Vec<Open>,
     limits: OrgLimits,

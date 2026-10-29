@@ -210,9 +210,11 @@ pub enum OrgCommand {
     ExportTexinfo,
     ExportMan,
     ExportIcalendar,
+    Publish,
+    PublishResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 208] = [
+    pub const ALL: [Self; 210] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -421,6 +423,8 @@ impl OrgCommand {
         Self::ExportTexinfo,
         Self::ExportMan,
         Self::ExportIcalendar,
+        Self::Publish,
+        Self::PublishResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -632,6 +636,8 @@ impl OrgCommand {
             "org-export-to-texinfo",
             "org-export-to-man",
             "org-export-to-icalendar",
+            "org-publish",
+            "org-publish-results",
         ][self as usize]
     }
 

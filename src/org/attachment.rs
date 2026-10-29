@@ -1,5 +1,5 @@
 //! Explicit heading attachment locations and checked real-file operations.
-mod directory;
+pub(in crate::org) mod directory;
 mod location;
 mod operation;
 mod plan;

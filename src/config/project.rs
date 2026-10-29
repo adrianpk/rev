@@ -37,6 +37,9 @@ pub(super) fn settings(document: &Document) -> Settings {
     agenda(&mut settings.org, &document.org);
     tables(&mut settings.org, &document.org);
     export(&mut settings.org, &document.org);
+    if let Some(value) = &document.org.publish.projects {
+        settings.org.publish.projects.clone_from(value);
+    }
     if let Some(value) = &document.org.capture.templates {
         settings.org.capture.templates.clone_from(value);
     }
@@ -358,6 +361,9 @@ fn export(base: &mut super::Org, partial: &super::PartialOrg) {
 }
 
 fn tools(base: &mut super::Tools, partial: &super::PartialTools) {
+    if let Some(value) = &partial.upload {
+        base.upload.clone_from(value);
+    }
     if let Some(value) = &partial.viewer {
         base.viewer.clone_from(value);
     }

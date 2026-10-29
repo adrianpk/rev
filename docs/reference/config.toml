@@ -109,6 +109,8 @@ templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
 [org.tools]
+# Optional separately confirmed uploader; whole {output_dir} argument substitution.
+upload = []
 viewer = [] # Explicit argv; {target} substitutes one token, otherwise appended.
 pdf = [] # Explicit optional compiler argv; exactly one whole {input} token.
 
@@ -124,6 +126,10 @@ location = "%s_archive::"
 [org.refile]
 # Explicit local file/directory roots; empty uses admitted agenda/source headings.
 targets = []
+
+[org.publish]
+# Data-only named projects; explicit org-publish selection performs discovery.
+projects = []
 
 [org.export]
 # Fixed native formats; selection prepares data only and never loads code.

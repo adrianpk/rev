@@ -215,6 +215,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_rows` | Integer 1..=100000 | `20000` | Maximum retained source facts and calendar entries; limits remain visibly incomplete. |
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
+| `org.publish.projects` | Array of typed project records | `[]` | At most 64 named data-only projects, explicit roots/output/formats and bounded include/exclude/asset patterns. No startup discovery or automatic cleanup; see [publishing](org-export.md#project-publishing). |
+| `org.tools.upload` | Array of argv strings | `[]` | Optional explicit upload tool, at most 64 nonempty tokens of 4096 bytes each. Whole `{output_dir}` substitution only; separate confirmation after successful project publication. |
 | `org.export.default_format` | String: "text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar" | `"html"` | Selected format must occur in enabled backends; no automatic export. |
 | `org.export.backends` | Array of 1..11 unique native formats | `["text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar"]` | text (ascii alias), utf8, org, markdown, html, latex, beamer, odt, texinfo, man, icalendar. |
 | `org.limits.include_depth` | Integer 1..=64 | `16` | Nested includes, excluding the root. |

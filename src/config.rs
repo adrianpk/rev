@@ -10,7 +10,9 @@
 pub(crate) mod capture;
 pub use capture::{CaptureKind, CaptureTarget, CaptureTemplate};
 mod export;
+pub mod publishing;
 pub use export::{Export, ExportBackend, PartialExport};
+pub use publishing::{PartialPublish, Publish, PublishProject};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -141,6 +143,7 @@ pub struct Org {
     pub tools: Tools,
     pub tables: Tables,
     pub export: Export,
+    pub publish: Publish,
     pub limits: OrgLimits,
 }
 
@@ -165,6 +168,7 @@ impl Default for Org {
             tools: Tools::default(),
             tables: Tables::default(),
             export: Export::default(),
+            publish: Publish::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -191,6 +195,7 @@ pub struct PartialOrg {
     pub tools: PartialTools,
     pub tables: PartialTables,
     pub export: PartialExport,
+    pub publish: PartialPublish,
     pub limits: PartialOrgLimits,
 }
 
@@ -956,10 +961,12 @@ pub struct PartialAttachments {
 pub struct Tools {
     pub viewer: Vec<String>,
     pub pdf: Vec<String>,
+    pub upload: Vec<String>,
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTools {
     pub viewer: Option<Vec<String>>,
     pub pdf: Option<Vec<String>>,
+    pub upload: Option<Vec<String>>,
 }

@@ -371,3 +371,55 @@ native Org month/year arithmetic can normalize them, so these forms cannot be
 substituted silently. X-ORG-TIMESTAMP/X-ORG-DTSTART/X-ORG-DUE retain the complete
 original timestamp spelling. Warning delays remain source with a diagnostic and
 never become an inferred alarm. Calendar export never advances a source repeater.
+
+## Project publishing
+
+`M-x org-publish` asks for a name in `org.publish.projects`. A project selects
+local file/directory roots, native formats and an explicit output directory.
+Relative roots and output resolve against the assigning configuration file.
+Discovery is explicit, recursive and bounded; the output subtree is excluded.
+Publishing never starts a server, cleans unrelated output, saves source, runs
+source blocks or implicitly uploads files. Open sources use current canonical
+unsaved text. Assets copy observed binary disk bytes without text conversion.
+
+```toml
+[[org.publish.projects]]
+name = "manual"
+roots = ["notes"]
+include = ["**/*.org"]
+exclude = ["private/**"]
+output = "public"
+formats = ["html", "markdown"]
+assets = ["images/**", "files/**"]
+upload = false
+```
+
+Patterns are relative to each root. `*` and `?` match within one path component;
+`**` spans zero or more components. No environment expansion, parent traversal,
+symlink discovery or shell syntax occurs. A file cannot select both asset copy
+and document export. Distinct roots retain their relative paths; conflicting
+output names reject all participants before writes. LaTeX uses `.tex`, Beamer
+`.beamer.tex`, ASCII `.txt` and UTF-8 `.utf8.txt` to retain distinct formats.
+
+Each existing output requires a separate `yes` or `no`. Destination observations,
+input aliases and live-buffer ownership are rechecked. Missing output directories
+are created only during explicit file publication. A failed operation may retain
+created directories or earlier successful outputs; publication is per-file.
+C-g cancels remaining files and waits for any active file's actual outcome.
+`org-publish-results` asks for a result number and shows source, destination,
+publication status and diagnostics. An empty answer shows totals. Results retain
+one operation until the next explicit project selection.
+
+Source and output counts share `org.limits.agenda_files`; retained source/output
+bytes share `agenda_total_bytes`. Individual assets share `agenda_file_bytes`;
+exports retain all ordinary include, expansion and final-byte limits. Discovery
+also caps directory entries at 65536 and nesting at 64. Each owned preparation,
+file or tool job uses `job_seconds`. Input names cap at 4096 paths and 1 MiB.
+Limits reject rather than silently omit selected files.
+
+Set a project's `upload = true` to request the single `org.tools.upload` profile
+after every file completes. This produces a separate `yes/no` confirmation with
+the executable name. Empty or missing tools produce a diagnostic. The argv runs
+in the output directory through the owned process group with finite time/output
+limits and cancellation/reaping. Only whole `{output_dir}` tokens substitute;
+no shell is added. Configured tools have ordinary host authority.

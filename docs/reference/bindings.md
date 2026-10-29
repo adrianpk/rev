@@ -290,6 +290,7 @@ configuration snapshot; source edits take effect after restarting.
 
 | M-x | `org-table-import`, `org-table-export` | Read or write checked CSV/TSV table data; existing output files require confirmation. |
 
+| M-x | `org-publish`, `org-publish-results` | Publish a configured document project and inspect retained per-file outcomes. |
 | M-x | `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown`, `org-export-to-org`, `org-export-to-html`, `org-export-to-latex`, `org-export-to-beamer`, `org-export-to-latex-pdf`, `org-export-to-beamer-pdf`, `org-export-to-odt`, `org-export-to-texinfo`, `org-export-to-man`, `org-export-to-icalendar` | Export a checked buffer, subtree or region to an explicit local file; confirm observed replacements. |
 
 | M-x | `org-columns`, `org-columns-insert-dblock` | Inspect source property columns or explicitly insert/update their native report. |

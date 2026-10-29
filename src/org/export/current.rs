@@ -35,7 +35,7 @@ impl Snapshot {
     }
 }
 impl Evidence {
-    fn buffer_current(&self, buffers: &Buffers) -> Result<(), String> {
+    pub(crate) fn buffer_current(&self, buffers: &Buffers) -> Result<(), String> {
         match &self.version {
             SourceVersion::Buffer(stamp) => {
                 let b = buffers.get(stamp.buffer).map_err(|e| e.to_string())?;

@@ -18,12 +18,12 @@ struct Identity {
     inode: u64,
 }
 #[derive(Clone)]
-pub(super) struct Directory {
+pub(in crate::org) struct Directory {
     pub path: PathBuf,
     existing: Vec<Identity>,
     missing: Vec<PathBuf>,
 }
-pub(super) struct Pinned {
+pub(in crate::org) struct Pinned {
     pub handle: File,
     pub path: PathBuf,
 }
@@ -73,6 +73,15 @@ impl Directory {
             Err(e) => return Err(e.to_string()),
         }
         Ok(())
+    }
+    /// Publication may encounter a directory created by an earlier file. Keep
+    /// all originally observed ancestors fixed and admit only real directories.
+    pub(in crate::org) fn updated(&self) -> Result<Self, String> {
+        let current = Self::observe(&self.path)?;
+        if !current.existing.starts_with(&self.existing) {
+            return Err("Publication directory ancestor changed since selection".into());
+        }
+        Ok(current)
     }
     pub fn check(&self) -> Result<(), String> {
         let current = Self::observe(&self.path)?;
@@ -143,7 +152,7 @@ fn pin_at(entry: &Path, path: &Path) -> Result<Pinned, String> {
     pinned.current()?;
     Ok(pinned)
 }
-pub(super) fn input(path: &Path) -> Result<File, String> {
+pub(in crate::org) fn input(path: &Path) -> Result<File, String> {
     OpenOptions::new()
         .read(true)
         .custom_flags(NOFOLLOW)

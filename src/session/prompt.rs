@@ -6,7 +6,8 @@ use super::{Action, Pending, Session};
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
         if let Some(action) = self
-            .cancel_export(command)
+            .cancel_publishing(command)
+            .or_else(|| self.cancel_export(command))
             .or_else(|| self.cancel_table(command))
             .or_else(|| self.cancel_document(command))
             .or_else(|| self.cancel_attachment(command))

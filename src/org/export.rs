@@ -225,3 +225,41 @@ impl Work {
         snapshot.with_calendar_zones(&cancel)
     }
 }
+
+impl Work {
+    /// Selected project sources retain the same canonical/disk evidence as includes.
+    pub(in crate::org) fn selected(
+        reader: super::io::Sources,
+        source: super::io::DestinationSource,
+        request: Request,
+        policy: &Org,
+    ) -> Result<Self, String> {
+        policy.export.validate()?;
+        limits::validate(&policy.limits)?;
+        if !policy.export.backends.contains(&request.backend) {
+            return Err("Selected project export backend is disabled".into());
+        }
+        let version = match source.version {
+            super::io::DestinationVersion::Buffer(stamp) => SourceVersion::Buffer(stamp),
+            super::io::DestinationVersion::Disk(ref observed) => {
+                SourceVersion::Disk(observed.clone())
+            }
+            super::io::DestinationVersion::Missing => {
+                return Err("Project source is missing".into());
+            }
+        };
+        let text = source.snapshot();
+        Ok(Self {
+            reader,
+            source: Evidence {
+                path: Some(source.path),
+                version,
+                bom: source.bom,
+                text: text.clone(),
+            },
+            scope: 0..text.len_bytes(),
+            request,
+            policy: policy.clone(),
+        })
+    }
+}

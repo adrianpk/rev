@@ -2,6 +2,7 @@ mod attachment;
 mod document;
 mod exports;
 mod links;
+mod publishing;
 mod refile;
 mod tables;
 use std::time::{Duration, Instant};
@@ -27,6 +28,7 @@ pub(super) struct Work {
     table_running: bool,
     pub(super) table_effect: bool,
     pub(super) export_running: bool,
+    pub(super) publish_running: bool,
     pub(super) export_effect: bool,
     attachment_running: bool,
     capture_finalizing: bool,
@@ -37,6 +39,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Publish(Result<crate::org::publish::Output, String>),
     Export(Result<crate::org::export::output::Output, String>),
     Table(Result<crate::org::table::Output, String>),
     Document(Result<crate::org::document::Output, String>),
@@ -156,6 +159,9 @@ impl Session {
     }
 
     fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.publish_running {
+            return Some(self.poll_publishing());
+        }
         if self.org.export_running {
             return Some(self.poll_export());
         }

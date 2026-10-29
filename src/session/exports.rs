@@ -117,7 +117,10 @@ impl Session {
         let publication = prepared.publication(buffer);
         self.launch_export(request, Work::Publish(Box::new(publication)))
     }
-    fn export_target_available(&self, target: &Location) -> Result<(), String> {
+    pub(in crate::session) fn export_target_available(
+        &self,
+        target: &Location,
+    ) -> Result<(), String> {
         let identity = target.observation().map(|o| (o.device, o.inode));
         for file in self.buffers.iter().filter_map(|b| b.file()) {
             let same =

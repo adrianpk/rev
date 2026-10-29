@@ -553,6 +553,7 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
             ));
         }
     }
+    publishing(partial)?;
     viewer(partial)?;
     archive(&partial.archive)
 }
@@ -593,5 +594,16 @@ fn export_limits(limits: &super::PartialOrgLimits) -> Result<(), Failure> {
         limits.export_bytes,
         1..=134217728,
     )?;
+    Ok(())
+}
+
+fn publishing(partial: &super::PartialOrg) -> Result<(), Failure> {
+    if let Some(projects) = &partial.publish.projects {
+        super::publishing::validate(projects)
+            .map_err(|e| Failure::new("org.publish.projects", e))?;
+    }
+    if let Some(argv) = &partial.tools.upload {
+        super::publishing::upload(argv).map_err(|e| Failure::new("org.tools.upload", e))?;
+    }
     Ok(())
 }

@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Publish named Org projects with native document exports and binary asset copies. Select bounded source patterns, confirm replacements and inspect each file outcome; cancellation preserves completed files and source text. Optional configured upload requires separate confirmation.
+
 - Export Org buffers, subtrees or selected regions to ASCII, UTF-8 text, Markdown, Org, HTML, LaTeX, Beamer, OpenDocument text, Texinfo, man or iCalendar files through native commands. Export includes unsaved text, retains tables, links and footnotes, and never saves source or runs code. Select options explicitly, confirm existing destination replacements, and receive a diagnostic when ASCII cannot represent a character. HTML retains document structure, captions and admitted attributes, with escaped code and safe local image references. TeX output retains native structure and bounded math with escaped source; explicit PDF commands can run a configured compiler after confirmation, with bounded time/output and owned cleanup. OpenDocument text retains headings, lists, table cells and notes in a native package; unsupported rich content stays readable with diagnostics. Texinfo and man retain hierarchy, checked references and literal code with escaped formatter controls. iCalendar preserves event/task identities and checked UTC/date-only times, with explicit diagnostics for unsupported repeat semantics.
 
 - Inspect source hierarchies with `org-columns` and capture property, effort and clock totals in native `columnview` reports. Summaries remain projections; explicit updates replace only recognized report bodies and undo as one change.
