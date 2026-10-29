@@ -508,7 +508,7 @@ impl OrgCommand {
             "org-attach-results",
             "org-footnote-action",
             "org-footnote-new",
-            "org-footnote-renumber-fn:N",
+            "org-footnote-renumber",
             "org-emphasize",
             "org-insert-entity",
             "org-edit-affiliated-keyword",

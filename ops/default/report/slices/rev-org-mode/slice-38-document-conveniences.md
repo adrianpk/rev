@@ -88,6 +88,13 @@ T38.3: `c70f78a1add18ea785603dc364ce7490912e55e2`.
 
 Canonical PR #139 targets dev. This follow-up records its canonical references before final controller validation.
 
+Final preparation corrections:
+
+- The unchanged native command-name check rejected the colon/uppercase renumber spelling. The delivered native command is `org-footnote-renumber`, retaining the actual numeric renumber behavior.
+- The unchanged bindings parity check requires public command rows before its configuration-contract section. Document controls now appear there with their actual bindings and named aliases. No catalog or acceptance assertion changed.
+- `cargo test --test commands command_sequences -- --nocapture`: passed.
+- `cargo test --test commands catalog_reference -- --nocapture`: passed.
+
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.

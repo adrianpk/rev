@@ -4,7 +4,7 @@
 | --- | --- |
 | `org-footnote-action` (`C-c C-x f`) | Follow the note/reference at point; otherwise create a numeric reference and a definition under Footnotes. |
 | `org-footnote-new` | Create a numeric reference and definition. |
-| `org-footnote-renumber-fn:N` | Renumber numeric labels in first-reference order, retaining named labels. |
+| `org-footnote-renumber` | Renumber numeric labels in first-reference order, retaining named labels. |
 | `org-emphasize` (`C-c C-x C-f`) | Prompt for `* / _ + = ~`; wrap the active region, or insert a marker pair with point between them. A space removes markers from a fully selected emphasis. |
 | `org-insert-entity` | Insert a native named entity as `\name{}`. Unknown names reject without edits. |
 | `org-edit-affiliated-keyword` | Enter NAME, CAPTION or ATTR_BACKEND, then its literal value. Replace a uniquely owned value or add the keyword to the selected element. |

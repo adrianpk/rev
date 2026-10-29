@@ -23,6 +23,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x | `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link` | Confirm selected file methods and destinations. |
 | M-x | `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs` | Open or list checked heading attachments. |
 | M-x | `org-attach-set-directory`, `org-attach-results` | Set DIR without creating folders, or inspect retained outcomes. |
+| `C-c C-x f` in Org | `org-footnote-action` | Follow or create a checked footnote. |
+| `C-c C-x C-f` in Org | `org-emphasize` | Insert or change source emphasis. |
+| M-x | `org-footnote-new`, `org-footnote-renumber`, `org-insert-entity`, `org-edit-affiliated-keyword` | Create notes, renumber numeric labels and edit literal inline or affiliated source. |
 | `C-c C-o` in Org | `org-open-at-point` | Resolve and visit the exact link at point. |
 | `C-c &` / `C-c %` in Org | `org-mark-ring-goto` / `org-mark-ring-push` | Return to a checked source point or record one. |
 | `C-c C-x C-n` / `C-c C-x C-p` in Org | `org-next-link` / `org-previous-link` | Move between recognized links; repeat at the boundary to wrap. |
@@ -782,6 +785,5 @@ change visibility over retained snapshots; `g` alone refreshes sources. `|`
 restores preset filters while keeping selected sorting and columns. Empty sort
 or column entry restores native order or the ordinary text presentation.
 
-| Org document editing | `org-footnote-action`, `org-footnote-new`, `org-footnote-renumber-fn:N`, `org-emphasize`, `org-insert-entity`, `org-edit-affiliated-keyword` |
 
 `C-c C-x f` runs `org-footnote-action`; `C-c C-x C-f` runs `org-emphasize`. Other document controls are available through M-x. See [Org document editing](org-document.md).
