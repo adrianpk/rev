@@ -35,11 +35,12 @@ impl Session {
             self.message("Agenda view closed; query observations retained");
             return;
         }
+        let cursor = result.first_entry();
         self.query_agenda = Some(State {
             result,
             selection,
             view,
-            cursor: 0,
+            cursor,
             top: 0,
         });
         self.calendar_agenda = None;

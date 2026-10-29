@@ -1,6 +1,6 @@
 # Slice 29: configure native Org agenda views
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -34,6 +34,17 @@ only explicit refresh reads sources again. Preset filters survive refresh and
 runtime reset. Empty blocks remain visible in the block summary. Checked source
 return shares the canonical query navigation owner; prompts retain their cursor.
 
+T29.3 verifies exact/over limits and 32-block composition, native query kinds,
+clock clipping/open counts, canonical file/directory aliases, default/explicit
+source scope, retained filtering versus fresh reads, source-return rejection,
+Unicode pane clipping, owner deletion, no-color columns and cooperative cancel.
+All blocks have scrollable section headers, including empty blocks.
+
+The pane case exposed stale feedback clipped behind the date header. Staleness
+now precedes dates. Directory aliases now traverse their selected spelling for
+membership while sharing the unchanged global entry budget; content reads and
+retained source identities stay deduplicated. No assertions or limits weakened.
+
 ## Contracts Added or Changed
 
 - ORG23: typed blocks, bounded filters/sorts and observed property columns.
@@ -49,6 +60,10 @@ return shares the canonical query navigation owner; prompts retain their cursor.
 
 ## Validation
 
+T29.1: `d6626fc1a2d1` (report introduction).
+T29.2: `0cf592cb0ab3`.
+
+
 - `cargo test --test org_agenda --test configuration custom_ -- --nocapture`:
   three cases passed, zero failures or ignored tests.
 - Development checks found the aligned-week/day-block date error; block spans
@@ -60,8 +75,15 @@ return shares the canonical query navigation owner; prompts retain their cursor.
   and direct compiled command handlers agree.
 - The exhaustive reference now agrees on 147 entries, 54 RGB roles, 212 bindings
   and 17693 exact packaged bytes. Changed-source quality passes without exceptions.
-- Final exact-head evidence is pending the remaining native controls and tests.
+- Final required controller order binds the clean pushed PR head:
+  `cargo fmt --all -- --check`;
+  `cargo clippy --all-targets --all-features -- -D warnings`;
+  `cargo test --test org_agenda --test configuration --test display`;
+  `python3 scripts/check-source.py`;
+  `git diff --check`.
+- Focused final checks cover commands, source observations, IO, property editing,
+  pane ownership and the exhaustive configuration reference through the controller.
 
 ## Risks and Follow-ups
 
-T29.3 remains active. The delivery-set full gate has not run.
+The delivery-set full gate has not run.

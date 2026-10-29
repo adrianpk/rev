@@ -149,3 +149,17 @@ fn sources(output: &mut QueryResult, sources: Vec<CalendarSource>) -> Result<Vec
     }
     Ok(mapping)
 }
+
+pub(super) fn lines(view: &AgendaView, rows: &[QueryRow]) -> Vec<QueryLine> {
+    let mut lines = Vec::new();
+    for block in 0..view.blocks.len() {
+        lines.push(QueryLine::Block(block));
+        lines.extend(
+            rows.iter()
+                .enumerate()
+                .filter(|(_, r)| r.block_index == block)
+                .map(|(index, _)| QueryLine::Entry(index)),
+        );
+    }
+    lines
+}

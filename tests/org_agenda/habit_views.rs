@@ -184,6 +184,15 @@ fn habit_no_color() {
             .iter()
             .any(|r| r.text().contains("Org TODO agenda"))
     );
+    action(&mut s, OrgCommand::AgendaColumns);
+    argument(&mut s, "ITEM,TODO");
+    settle(&mut s);
+    let frame = s.frame().unwrap();
+    let mut bytes = Vec::new();
+    frame.write(&mut bytes).unwrap();
+    let output = String::from_utf8(bytes).unwrap();
+    assert!(!output.contains("38;2;") && !output.contains("48;2;"));
+    assert!(frame.rows().iter().any(|r| r.text().contains("ITEM=")));
     assert_eq!(text(&s), SOURCE);
     assert!(s.buffer().unwrap().history().is_empty());
 }

@@ -14,7 +14,7 @@ impl Frame {
                 .ok_or(crate::coordinates::Error::Overflow)?;
             let text = match row {
                 0 => format!(
-                    "Org {} agenda [{}] {} [{}] [read-only]{}",
+                    "Org {} agenda [{}]{} {} [{}] [read-only]",
                     display
                         .result
                         .view
@@ -25,13 +25,13 @@ impl Frame {
                     } else {
                         "incomplete"
                     },
-                    display.result.context.today,
-                    display.result.context.zone,
                     if display.stale {
                         " [stale: g refresh]"
                     } else {
                         ""
-                    }
+                    },
+                    query_dates(display.result),
+                    display.result.context.zone,
                 ),
                 1 => query_description(display.result),
                 _ => query_line(&display, display.top + usize::from(row - 2)),
@@ -46,7 +46,10 @@ impl Frame {
 }
 fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
     let result = display.result;
-    if let Some(row) = result.rows.get(index) {
+    if let Some(crate::org::agenda::QueryLine::Block(block)) = result.lines.get(index) {
+        return block_heading(result, *block);
+    }
+    if let Some(row) = result.row_at(index) {
         let name = result.sources[row.source]
             .path
             .as_ref()
@@ -65,7 +68,7 @@ fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
             if row.stale { " [stale]" } else { "" }
         );
     }
-    if let Some(issue) = result.issues.get(index.saturating_sub(result.rows.len())) {
+    if let Some(issue) = result.issues.get(index.saturating_sub(result.line_count())) {
         return format!("Incomplete {:?}: {}", issue.path, issue.message);
     }
     if result.rows.is_empty() && index == 0 {
@@ -116,5 +119,35 @@ fn row_text(result: &QueryResult, row: &crate::org::agenda::QueryRow) -> String 
         row.title,
         if values.is_empty() { "" } else { " | " },
         values
+    )
+}
+
+fn query_dates(result: &QueryResult) -> String {
+    if result.view.is_some() {
+        format!(
+            "{}..{}",
+            result.context.start,
+            result
+                .context
+                .end()
+                .map(|d| d.to_string())
+                .unwrap_or_else(|e| e)
+        )
+    } else {
+        result.context.today.to_string()
+    }
+}
+fn block_heading(result: &QueryResult, index: usize) -> String {
+    let block = &result.view.as_ref().expect("block view").blocks[index];
+    format!(
+        "Block {} {:?}: {} [{} entries]",
+        index + 1,
+        block.kind,
+        block.title,
+        result
+            .rows
+            .iter()
+            .filter(|r| r.block_index == index)
+            .count()
     )
 }

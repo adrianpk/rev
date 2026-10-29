@@ -140,6 +140,10 @@ fn custom_configuration() {
     assert!(reset.diagnostic.is_none());
     assert!(reset.snapshot.settings().org.agenda.views.is_empty());
     for (name, source) in [
+        ("invalid-query", valid.replace("filter='work'","filter='EFFORT=>bad'")),
+        ("query-budget", format!("org.limits.query_bytes=2\n{valid}")),
+        ("too-many-views", format!("org.agenda.views=[{}]", (0..65).map(|i| format!("{{key='v{i}',title='View',blocks=[{{}}]}}")).collect::<Vec<_>>().join(","))),
+        ("too-many-columns",valid.replace("columns=['ITEM','EFFORT']", &format!("columns=[{}]",vec!["'ITEM'";17].join(",")))),
         ("unknown-kind",valid.replace("kind='todo'","kind='eval'")),
         ("unknown-field",valid.replace("row_limit=10","callback='run'")),
         ("zero-span",valid.replace("span=14","span=0")),

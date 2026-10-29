@@ -13,7 +13,7 @@ pub(super) enum Step {
 pub(super) struct Walk {
     roots: VecDeque<PathBuf>,
     directory: Option<(PathBuf, ReadDir)>,
-    seen: BTreeSet<PathBuf>,
+    seen: BTreeSet<(PathBuf, PathBuf)>,
     entries: usize,
 }
 impl Walk {
@@ -39,7 +39,7 @@ impl Walk {
     }
     fn directory(&mut self, path: PathBuf) -> Result<Step, (Option<PathBuf>, String)> {
         let canonical = fs::canonicalize(&path).map_err(|e| (Some(path.clone()), e.to_string()))?;
-        if self.seen.insert(canonical) {
+        if self.seen.insert((canonical, path.clone())) {
             let read = fs::read_dir(&path).map_err(|e| (Some(path.clone()), e.to_string()))?;
             self.directory = Some((path.clone(), read));
         }

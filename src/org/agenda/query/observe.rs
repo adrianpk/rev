@@ -24,11 +24,17 @@ pub struct QueryRow {
     pub block: Option<String>,
     pub block_index: usize,
 }
+#[derive(Clone, Copy, Debug)]
+pub enum QueryLine {
+    Block(usize),
+    Entry(usize),
+}
 pub struct QueryResult {
     pub query: AgendaQuery,
     pub context: CalendarQuery,
     pub sources: Vec<CalendarSource>,
     pub rows: Vec<QueryRow>,
+    pub lines: Vec<QueryLine>,
     pub issues: Vec<SourceIssue>,
     pub truncated: bool,
     pub cancelled: bool,
@@ -63,6 +69,7 @@ impl QueryResult {
                 })
                 .collect(),
             rows: Vec::new(),
+            lines: Vec::new(),
             issues: sources.issues.clone(),
             truncated: sources.truncated || sources.cancelled,
             cancelled: false,
@@ -84,6 +91,29 @@ impl QueryResult {
         result.cancelled = bounded.is_cancelled() && !bounded.expired();
         result.truncated |= bounded.expired();
         Ok(result)
+    }
+    pub fn line_count(&self) -> usize {
+        if self.view.is_some() {
+            self.lines.len()
+        } else {
+            self.rows.len()
+        }
+    }
+    pub fn row_at(&self, index: usize) -> Option<&QueryRow> {
+        if self.view.is_some() {
+            match self.lines.get(index) {
+                Some(QueryLine::Entry(row)) => self.rows.get(*row),
+                _ => None,
+            }
+        } else {
+            self.rows.get(index)
+        }
+    }
+    pub fn first_entry(&self) -> usize {
+        self.lines
+            .iter()
+            .position(|l| matches!(l, QueryLine::Entry(_)))
+            .unwrap_or(0)
     }
     pub fn complete(&self) -> bool {
         !self.truncated && !self.cancelled && self.issues.is_empty()

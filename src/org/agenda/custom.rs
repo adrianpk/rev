@@ -31,6 +31,7 @@ impl CustomView {
             context,
             sources: Vec::new(),
             rows: Vec::new(),
+            lines: Vec::new(),
             issues: sources.issues.clone(),
             truncated: sources.truncated,
             cancelled: sources.cancelled,
@@ -41,6 +42,7 @@ impl CustomView {
         blocks(&mut output, sources, &view, policy, &bounded)?;
         output.cancelled |= bounded.is_cancelled() && !bounded.expired();
         output.truncated |= bounded.expired();
+        output.lines = rows::lines(&view, &output.rows);
         Ok(output)
     }
 }

@@ -50,7 +50,7 @@ impl Session {
         let height = self.pane_size().height.saturating_sub(2).max(1) as usize;
         let s = self.query_agenda.as_mut().expect("query owner");
         let distance = if scroll.page() { height } else { 1 };
-        let count = s.result.rows.len() + s.result.issues.len();
+        let count = s.result.line_count() + s.result.issues.len();
         match scroll {
             Scroll::NextLine | Scroll::PageForward => {
                 s.cursor = s
@@ -78,8 +78,7 @@ impl Session {
         let state = self.query_agenda.as_ref().expect("query owner");
         let row = state
             .result
-            .rows
-            .get(state.cursor)
+            .row_at(state.cursor)
             .ok_or("Select a query result")?;
         let origin = &state.result.sources[row.source];
         if let SourceVersion::Buffer(stamp) = origin.version {

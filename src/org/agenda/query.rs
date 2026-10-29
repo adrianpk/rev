@@ -1,5 +1,5 @@
 mod observe;
-pub use observe::{QueryResult, QueryRow};
+pub use observe::{QueryLine, QueryResult, QueryRow};
 // Typed query plans parse before source discovery or worker launch.
 use crate::{
     config::OrgLimits,

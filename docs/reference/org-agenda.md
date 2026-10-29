@@ -111,7 +111,7 @@ A block has these fields; omitted fields use the shown defaults:
 | --- | --- | --- |
 | `kind` | `"todo"` | `calendar`, `todo`, `search`, `tags`, `properties`, `columns`, or `clock`. |
 | `title` | `""` | Up to 256 bytes; empty uses the block number and kind. |
-| `query` | `""` | Existing native TODO/search/tag-property grammar; empty non-TODO queries select all headings. |
+| `query` | `""` | Existing native TODO/search/tag-property grammar; empty tag/property/calendar/clock queries select all headings; search requires nonempty text. |
 | `filter` | `""` | Additional tag/property expression, intersected with the query. |
 | `span` | absent | Inherit `org.agenda.span`; otherwise day/week/month/year or 1–366 days. |
 | `sources` | `[]` | Inherit selected sources, or select explicit file/directory roots. |
@@ -140,3 +140,34 @@ source or time exhaustion is explicit; it never reports a complete empty result.
 Behavior references: [custom views](https://orgmode.org/manual/Custom-Agenda-Views.html),
 [filter visibility and reset](https://orgmode.org/manual/Filtering_002flimiting-agenda-items.html),
 and [sorting](https://orgmode.org/manual/Sorting-of-agenda-items.html).
+
+Use `M-x org-agenda-custom-view` and enter the configured key. Inside any native
+calendar/query agenda, `v v` selects another view; `/` accepts a tag/property
+filter, `|` restores preset filters, `S` accepts comma-separated sort keys and
+`V` accepts comma-separated column names. Empty sort/column entry restores
+native order/text presentation. `v m`, `v y`, and `v s` select month, year or an
+explicit span. The corresponding compiled commands appear in the command
+catalogue and use the same handlers.
+
+Filters, sorting, columns and date movement use retained snapshots in the
+existing owned job. `g` reads sources again, retaining runtime presentation and
+preset identity. Closing or selecting another configured view drops runtime
+overrides. Prompts can be cancelled without changing the previous result.
+Every block, including an empty block, has a scrollable section header. Enter
+on a section header never visits a different entry.
+
+For example, this typed view selects a day calendar and unfinished work tasks:
+
+```toml
+[[org.agenda.views]]
+key = "w"
+title = "Work"
+blocks = [
+  { kind = "calendar", span = "day" },
+  { kind = "todo", filter = "work", columns = ["ITEM", "EFFORT"], sort = ["effort-up"] },
+]
+```
+
+Directory alias memberships share the unchanged 65536-entry discovery budget;
+source contents remain deduplicated. Retained selected-path aliases are limited
+to 4096 per document and 1 MiB overall. Limits are reported explicitly.

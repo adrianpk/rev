@@ -30,7 +30,7 @@ mod navigation;
 pub(crate) use navigation::{Navigation, NavigationCandidate};
 
 mod query;
-pub use query::{AgendaQuery, QueryKind, QueryResult, QueryRow};
+pub use query::{AgendaQuery, QueryKind, QueryLine, QueryResult, QueryRow};
 
 mod custom;
 pub use custom::CustomView;
