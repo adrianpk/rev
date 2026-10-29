@@ -1,6 +1,6 @@
 # Slice 28: query Org tasks tags and properties
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -138,3 +138,5 @@ Final controller evidence binds the clean canonical PR head. Required order:
 The delivery-set full gate has not run.
 
 [Canonical PR #129](https://forge.adrianpk.com/adrianpk/rev/pulls/129) targets dev.
+
+Canonical PR #129 merged into dev at `64e056b8d31138624adc1df9a8e7149df2862849`, verified against Forgejo and origin/dev. Required receipt `CTMBFH6CJKUU33YSBF6REIRKAV` passed 102 tests; focused receipt `NXJTUZYJMNPLIYNQCEOKSSBNZK` passed 563 tests and the configuration reference. Zero failures or ignored tests.

@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 28 agenda-queries
+Active slice: Slice 29 agenda-customization
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -702,7 +702,7 @@ Details and exact checks: [Slice 28](../plan/rev-org-mode.md#slice-28-query-org-
 - [x] T28.1: Deliver TODO/search/tag/property views with declared Boolean/comparison grammar and source scopes.
 - [x] T28.2: Evaluate bounded parsed queries against canonical metadata, including inheritance and effort.
 - [x] T28.3: Verify escaping, invalid operators, completeness and stable result identity.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T28.1 delivers typed query plans and the bounded Boolean/text/regexp language.
 Two parameterized grammar cases, focused Clippy, changed-source quality and the
@@ -716,7 +716,9 @@ Canonical [PR #129](https://forge.adrianpk.com/adrianpk/rev/pulls/129) targets
 dev; the report is reviewing. Controller evidence binds its final clean pushed
 head. Integration remains controller-owned.
 
-### Slice 29: configure native Org agenda views
+PR #129 merged into dev at `64e056b8d31138624adc1df9a8e7149df2862849`, verified on the canonical forge and origin/dev. Required receipt `CTMBFH6CJKUU33YSBF6REIRKAV` and focused receipt `NXJTUZYJMNPLIYNQCEOKSSBNZK` passed 665 tests with zero failures or ignored tests. Slice 28 is delivered.
+
+## Slice 29: configure native Org agenda views
 
 Contracts: ORG23 ORG17.
 Details and exact checks: [Slice 29](../plan/rev-org-mode.md#slice-29-configure-native-org-agenda-views).
