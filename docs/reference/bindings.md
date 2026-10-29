@@ -233,6 +233,15 @@ The default remains equal halves. Executable startup uses the admitted user
 configuration snapshot; source edits take effect after restarting.
 
 
+| v v in agenda / M-x org-agenda-custom-view | `org-agenda-custom-view` | Select a typed configured block view by key. |
+| / in agenda | `org-agenda-filter` | Apply a native tag/property visibility filter. |
+| Pipe in agenda | `org-agenda-filter-remove-all` | Restore configured preset filters. |
+| S in agenda | `org-agenda-sort` | Set ordered native sort keys. |
+| V in agenda | `org-agenda-columns` | Set observed property columns. |
+| v m in agenda | `org-agenda-month-view` | Show an aligned calendar month. |
+| v y in agenda | `org-agenda-year-view` | Show an aligned calendar year. |
+| v s in agenda | `org-agenda-span` | Select a named span or 1–366 days. |
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -719,3 +728,8 @@ malformed data and limits stay visible as incomplete results. Date navigation
 and rendering never advance repeating source or poll a clock while idle.
 
 See [Org agenda queries](org-agenda.md) for source scopes, query grammar, limits and checked return.
+
+Configured and runtime agenda controls use the same compiled handlers. Filters
+change visibility over retained snapshots; `g` alone refreshes sources. `|`
+restores preset filters while keeping selected sorting and columns. Empty sort
+or column entry restores native order or the ordinary text presentation.

@@ -35,6 +35,8 @@ impl CustomView {
             truncated: sources.truncated,
             cancelled: sources.cancelled,
             view: Some(view.clone()),
+            baseline: Some(view.clone()),
+            bytes: 0,
         };
         blocks(&mut output, sources, &view, policy, &bounded)?;
         output.cancelled |= bounded.is_cancelled() && !bounded.expired();
@@ -60,10 +62,6 @@ fn blocks(
         };
         let result = observe(&subset, block, block_context, policy, bounded)?;
         rows::append(output, result, (index, block), policy)?;
-        if output.rows.len() >= policy.limits.agenda_rows {
-            output.truncated = true;
-            break;
-        }
     }
     Ok(())
 }

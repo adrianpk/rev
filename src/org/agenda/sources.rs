@@ -79,7 +79,7 @@ pub struct SourceIssue {
     pub message: String,
 }
 /// Every admitted document is whole, even when other sources fail or truncate.
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct SourceSet {
     pub documents: Vec<AgendaSource>,
     pub issues: Vec<SourceIssue>,

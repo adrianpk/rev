@@ -20,10 +20,19 @@ impl Session {
         {
             return self.message("Org observation pending; C-g cancels");
         }
-        let selection = match SourceSelection::configured(self.buffers.snapshot()) {
+        let mut selection = match SourceSelection::configured(self.buffers.snapshot()) {
             Ok(selection) => selection,
             Err(error) => return self.error(&error),
         };
+        if let Some(view) = &self.agenda_custom_plan {
+            for block in &view.blocks {
+                selection
+                    .paths
+                    .extend(block.sources.iter().map(std::path::PathBuf::from));
+            }
+            selection.paths.sort();
+            selection.paths.dedup();
+        }
         if selection.paths.is_empty() {
             return self.prompt_agenda_sources("");
         }
@@ -93,6 +102,7 @@ impl Session {
             .prepare_agenda_refresh(selection)
             .and_then(|work| self.org.start_sources(self.view().point.stamp, work));
         self.agenda_query_plan = None;
+        self.agenda_custom_plan = None;
         if let Err(error) = result {
             self.error(&error);
         }
@@ -117,6 +127,7 @@ impl Session {
             state.result.cancelled = true;
         }
         self.agenda_query_plan = None;
+        self.agenda_custom_plan = None;
         Some(self.message("Org agenda source discovery cancelled; result incomplete"))
     }
 }
@@ -127,24 +138,28 @@ impl Session {
         selection: SourceSelection,
     ) -> Result<super::agenda::Work, String> {
         let policy = &self.buffers.snapshot().settings().org;
-        let operation = self
-            .org_clock
-            .unwrap_or(super::outline::timestamps::capture)(&policy.time)?;
-        let mut query = crate::org::agenda::CalendarQuery::new(operation, policy)?;
-        if let Some(state) = &self.calendar_agenda {
-            let old = &state.calendar.query;
-            let showing_today =
-                old.start <= old.today && old.end().is_ok_and(|end| old.today <= end);
-            query = query.at(
-                if showing_today {
-                    query.today
-                } else {
-                    old.start
-                },
-                old.span,
-            )?;
-        }
+        let query = self.agenda_context(policy)?;
         let scan = SourceScan::new(&self.buffers, selection.clone(), &policy.limits)?;
+        if let Some(view) = &self.agenda_custom_plan {
+            return Ok(super::agenda::Work::Custom(Box::new(
+                super::agenda_custom::Request {
+                    scan: Some(scan),
+                    sources: None,
+                    definition: view.clone(),
+                    baseline: self
+                        .query_agenda
+                        .as_ref()
+                        .and_then(|s| s.result.baseline.as_ref())
+                        .filter(|base| base.key == view.key)
+                        .cloned()
+                        .unwrap_or_else(|| view.clone()),
+                    context: query,
+                    policy: policy.clone(),
+                    selection,
+                    view: self.windows.selected_id(),
+                },
+            )));
+        }
         if let Some(plan) = &self.agenda_query_plan {
             return Ok(super::agenda::Work::Query {
                 scan: Box::new(scan),
@@ -162,6 +177,30 @@ impl Session {
             policy: Box::new(policy.clone()),
             view: self.windows.selected_id(),
         })
+    }
+    fn agenda_context(
+        &self,
+        policy: &crate::config::Org,
+    ) -> Result<crate::org::agenda::CalendarQuery, String> {
+        let operation = self
+            .org_clock
+            .unwrap_or(super::outline::timestamps::capture)(&policy.time)?;
+        let query = crate::org::agenda::CalendarQuery::new(operation, policy)?;
+        let old = self
+            .calendar_agenda
+            .as_ref()
+            .map(|s| &s.calendar.query)
+            .or_else(|| {
+                self.query_agenda
+                    .as_ref()
+                    .filter(|s| s.result.view.is_some())
+                    .map(|s| &s.result.context)
+            });
+        let Some(old) = old else {
+            return Ok(query);
+        };
+        let showing_today = old.start <= old.today && old.end().is_ok_and(|end| old.today <= end);
+        query.at(if showing_today { query.today } else { old.date }, old.span)
     }
     pub(super) fn refresh_calendar(&mut self) -> Action {
         let Some(state) = &self.calendar_agenda else {

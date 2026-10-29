@@ -66,13 +66,13 @@ impl AgendaQuery {
     pub fn properties(&self) -> std::collections::BTreeSet<&str> {
         let mut fields: std::collections::BTreeSet<_> =
             self.fields.iter().map(String::as_str).collect();
+        fields.retain(|s| !matches!(*s, "DATE" | "TIME" | "CLOCKSUM" | "CLOCKOPEN"));
         if let Plan::Tags(query) = &self.plan {
             fields.extend(query.properties());
         }
         if let Some(filter) = &self.filter {
             fields.extend(filter.properties());
         }
-        fields.retain(|s| !matches!(*s, "DATE" | "TIME" | "CLOCKSUM" | "CLOCKOPEN"));
         fields.insert("TODO");
         fields
     }

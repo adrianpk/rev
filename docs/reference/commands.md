@@ -199,3 +199,5 @@ LOG_INTO_DRAWER accepts `nil`, `t` (LOGBOOK) or an explicit drawer name.
 Task timestamps capture the local operation time once, before a note prompt.
 The session reads at most 1 MiB of TZif data; UTC or a TZif name/path in TZ is
 supported. Unsupported or uncovered local time rejects before mutation.
+
+| Org configured agendas | `org-agenda-custom-view`, `org-agenda-filter`, `org-agenda-filter-remove-all`, `org-agenda-sort`, `org-agenda-columns`, `org-agenda-month-view`, `org-agenda-year-view`, `org-agenda-span` |

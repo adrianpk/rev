@@ -15,7 +15,11 @@ impl Frame {
             let text = match row {
                 0 => format!(
                     "Org {} agenda [{}] {} [{}] [read-only]{}",
-                    display.result.query.kind.label(),
+                    display
+                        .result
+                        .view
+                        .as_ref()
+                        .map_or(display.result.query.kind.label(), |v| v.title.as_str()),
                     if display.result.complete() {
                         "complete"
                     } else {
@@ -29,7 +33,7 @@ impl Frame {
                         ""
                     }
                 ),
-                1 => format!("Query: {}", display.result.query.source),
+                1 => query_description(display.result),
                 _ => query_line(&display, display.top + usize::from(row - 2)),
             };
             self.projection_text(&text, line)?;
@@ -57,7 +61,7 @@ fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
                 "  "
             },
             row.task.as_deref().unwrap_or(""),
-            row.title,
+            row_text(result, row),
             if row.stale { " [stale]" } else { "" }
         );
     }
@@ -68,4 +72,49 @@ fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
         return "No matching entries".into();
     }
     String::new()
+}
+
+fn query_description(result: &QueryResult) -> String {
+    match &result.view {
+        Some(view) => format!(
+            "Blocks: {}; / filter; | reset; S sort; V columns; g refresh",
+            view.blocks
+                .iter()
+                .enumerate()
+                .map(|(i, b)| format!(
+                    "{}:{:?}({})",
+                    i + 1,
+                    b.kind,
+                    result.rows.iter().filter(|r| r.block_index == i).count()
+                ))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ),
+        None => format!("Query: {}", result.query.source),
+    }
+}
+fn row_text(result: &QueryResult, row: &crate::org::agenda::QueryRow) -> String {
+    let Some(view) = &result.view else {
+        return row.title.to_string();
+    };
+    let columns = &view.blocks[row.block_index].columns;
+    let values = columns
+        .iter()
+        .map(|key| {
+            format!(
+                "{key}={}",
+                row.fields
+                    .get(&key.to_ascii_uppercase())
+                    .map_or("", String::as_str)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" | ");
+    format!(
+        "[{}] {}{}{}",
+        row.block.as_deref().unwrap_or(""),
+        row.title,
+        if values.is_empty() { "" } else { " | " },
+        values
+    )
 }

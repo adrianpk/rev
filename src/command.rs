@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 196] = [
+    pub const ALL: [Self; 204] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -210,6 +210,14 @@ impl Command {
         Self::Org(OrgCommand::TodoList),
         Self::Org(OrgCommand::SearchView),
         Self::Org(OrgCommand::TagsView),
+        Self::Org(OrgCommand::AgendaCustom),
+        Self::Org(OrgCommand::AgendaFilter),
+        Self::Org(OrgCommand::AgendaFilterReset),
+        Self::Org(OrgCommand::AgendaSort),
+        Self::Org(OrgCommand::AgendaColumns),
+        Self::Org(OrgCommand::AgendaMonth),
+        Self::Org(OrgCommand::AgendaYear),
+        Self::Org(OrgCommand::AgendaSpan),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

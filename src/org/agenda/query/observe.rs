@@ -22,6 +22,7 @@ pub struct QueryRow {
     pub stale: bool,
     pub fields: std::collections::BTreeMap<String, String>,
     pub block: Option<String>,
+    pub block_index: usize,
 }
 pub struct QueryResult {
     pub query: AgendaQuery,
@@ -32,6 +33,8 @@ pub struct QueryResult {
     pub truncated: bool,
     pub cancelled: bool,
     pub view: Option<crate::config::AgendaView>,
+    pub baseline: Option<crate::config::AgendaView>,
+    pub(in crate::org::agenda) bytes: usize,
 }
 impl QueryResult {
     pub fn observe(
@@ -64,6 +67,8 @@ impl QueryResult {
             truncated: sources.truncated || sources.cancelled,
             cancelled: false,
             view: None,
+            baseline: None,
+            bytes: 0,
         };
         for (id, source) in sources.documents.iter().enumerate() {
             if bounded.is_cancelled() {
@@ -172,21 +177,41 @@ impl QueryResult {
                     cancel,
                     context.policy,
                 )? {
-                    self.push(source, node, &heading, context.policy.limits.agenda_rows)?;
-                    self.rows.last_mut().expect("new query row").fields = data.properties;
+                    self.push(
+                        (source, node),
+                        &heading,
+                        data,
+                        context.policy.limits.agenda_rows,
+                    )?;
                 }
             }
             ancestors.push(heading);
         }
         Ok(())
     }
+    fn retain_fields(&mut self, data: &MatchData, title: &str) -> Result<(), String> {
+        let bytes = data
+            .properties
+            .iter()
+            .map(|(k, v)| k.len() + v.len())
+            .sum::<usize>()
+            + title.len();
+        if self.bytes.saturating_add(bytes) > 8388608 {
+            self.truncated = true;
+            return Err("Agenda retained text exceeds 8 MiB".into());
+        }
+        self.bytes += bytes;
+        Ok(())
+    }
     fn push(
         &mut self,
-        source: usize,
-        node: &Raw,
+        origin: (usize, &Raw),
         heading: &metadata::Heading,
+        data: MatchData,
         limit: usize,
     ) -> Result<(), String> {
+        let (source, node) = origin;
+        self.retain_fields(&data, &heading.title)?;
         if self.rows.len() >= limit {
             self.truncated = true;
             return Err("Agenda row limit reached".into());
@@ -197,8 +222,9 @@ impl QueryResult {
             source,
             byte: node.source.start,
             stale: false,
-            fields: std::collections::BTreeMap::new(),
+            fields: data.properties,
             block: None,
+            block_index: 0,
         });
         Ok(())
     }

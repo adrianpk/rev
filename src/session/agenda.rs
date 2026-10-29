@@ -19,6 +19,7 @@ pub(super) struct State {
     pub top: usize,
 }
 pub(super) enum Work {
+    Custom(Box<super::agenda_custom::Request>),
     Refresh {
         scan: Box<SourceScan>,
         query: CalendarQuery,
@@ -68,6 +69,7 @@ pub(super) enum Output {
 impl Work {
     pub(super) fn run(self, cancel: &Cancellation) -> Result<Output, String> {
         match self {
+            Self::Custom(request) => request.run(cancel),
             Self::Refresh {
                 scan,
                 query,

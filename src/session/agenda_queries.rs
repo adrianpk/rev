@@ -84,6 +84,7 @@ impl Session {
                 }
             };
         self.agenda_query_plan = Some(query);
+        self.agenda_custom_plan = None;
         let selection = self
             .query_agenda
             .as_ref()
@@ -99,7 +100,11 @@ impl Session {
         if self.org.busy() {
             return self.message("Org observation pending; C-g cancels");
         }
-        self.agenda_query_plan = Some(state.result.query.clone());
+        if let Some(view) = &state.result.view {
+            self.agenda_custom_plan = Some(view.clone());
+        } else {
+            self.agenda_query_plan = Some(state.result.query.clone());
+        }
         self.queue_agenda_sources(state.selection.clone())
     }
 }

@@ -14,7 +14,10 @@ impl Session {
         if let Some(action) = self.cancel_habit_prompt(command) {
             return Some(action);
         }
-        if let Some(action) = self.timestamp_command(command) {
+        if let Some(action) = self
+            .timestamp_command(command)
+            .or_else(|| self.agenda_presentation_command(command))
+        {
             return Some(action);
         }
         if command == Command::ExecuteExtended {
@@ -26,11 +29,13 @@ impl Session {
             self.clock_recovery_pin = None;
             self.org.cancel();
             self.agenda_query_plan = None;
+            self.agenda_custom_plan = None;
             if matches!(
                 self.pending,
                 Some(
                     Pending::AgendaSources
                         | Pending::AgendaQuery(_)
+                        | Pending::AgendaCustom(_)
                         | Pending::AgendaDate
                         | Pending::Habit(_)
                         | Pending::Timer(_)
@@ -74,6 +79,7 @@ impl Session {
             Some(
                 Pending::AgendaSources
                     | Pending::AgendaQuery(_)
+                    | Pending::AgendaCustom(_)
                     | Pending::AgendaDate
                     | Pending::Habit(_)
                     | Pending::Timer(_)
@@ -132,7 +138,7 @@ impl Session {
             Some(Pending::AgendaSources) => {
                 self.message("Enter current, buffers or one literal local path; C-g cancels")
             }
-            Some(Pending::AgendaQuery(_)) => {
+            Some(Pending::AgendaQuery(_) | Pending::AgendaCustom(_)) => {
                 self.message("Enter a typed query; C-g keeps the source or agenda")
             }
             Some(Pending::AgendaDate) => {

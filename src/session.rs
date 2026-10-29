@@ -1,4 +1,5 @@
 mod agenda;
+mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
 mod buffers;
@@ -96,6 +97,7 @@ pub struct Session {
     calendar_agenda: Option<agenda::State>,
     query_agenda: Option<agenda_queries::State>,
     agenda_query_plan: Option<crate::org::agenda::AgendaQuery>,
+    agenda_custom_plan: Option<crate::config::AgendaView>,
 }
 
 enum AfterSave {
@@ -108,6 +110,7 @@ enum Pending {
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
+    AgendaCustom(crate::command::OrgCommand),
     Timer(timers::Prompt),
     Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
@@ -221,6 +224,7 @@ impl Session {
             calendar_agenda: None,
             query_agenda: None,
             agenda_query_plan: None,
+            agenda_custom_plan: None,
         })
     }
 

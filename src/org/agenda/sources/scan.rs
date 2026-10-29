@@ -29,6 +29,7 @@ pub struct SourceScan {
     seen_files: BTreeSet<(u64, u64)>,
     seen_buffers: BTreeSet<crate::buffer::BufferId>,
     spent: usize,
+    alias_bytes: usize,
     result: SourceSet,
 }
 impl SourceScan {
@@ -70,6 +71,7 @@ impl SourceScan {
             seen_files: BTreeSet::new(),
             seen_buffers: BTreeSet::new(),
             spent: 0,
+            alias_bytes: 0,
             result: SourceSet::default(),
         })
     }
@@ -178,13 +180,16 @@ impl SourceScan {
             SourceVersion::Disk(observed) => Some((observed.device, observed.inode)) == identity,
         });
         if let Some(source) = source {
-            if source.aliases.len() < 4096 {
+            if source.aliases.len() < 4096
+                && self.alias_bytes.saturating_add(selected.as_os_str().len()) <= 1048576
+            {
+                self.alias_bytes += selected.as_os_str().len();
                 source.aliases.push(selected.to_owned());
             } else {
                 self.result.truncated = true;
                 self.result.issue(
                     None,
-                    "Agenda source aliases exceed 4096 per document".into(),
+                    "Agenda source aliases exceed 4096 per document or 1 MiB overall".into(),
                 );
             }
         }

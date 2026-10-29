@@ -724,7 +724,7 @@ Contracts: ORG23 ORG17.
 Details and exact checks: [Slice 29](../plan/rev-org-mode.md#slice-29-configure-native-org-agenda-views).
 
 - [x] T29.1: Deliver typed custom/block views, columns, filtering, sorting and declared date spans.
-- [ ] T29.2: Expose compiled view/refresh controls and native agenda context bindings without a scripting registry.
+- [x] T29.2: Expose compiled view/refresh controls and native agenda context bindings without a scripting registry.
 - [ ] T29.3: Verify combination limits, visibility/reset behavior and consistent exhaustive sample defaults.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

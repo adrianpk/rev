@@ -464,6 +464,15 @@ separator = "#3b4261"           # One-cell number/text separator.
 # The native date prompt inherits keys.minibuffer, then these calendar actions.
 "v d" = "org-agenda-day-view"
 "v w" = "org-agenda-week-view"
+"v v" = "org-agenda-custom-view"
+"/" = "org-agenda-filter"
+"|" = "org-agenda-filter-remove-all"
+"S" = "org-agenda-sort"
+"V" = "org-agenda-columns"
+"v m" = "org-agenda-month-view"
+"v y" = "org-agenda-year-view"
+"v s" = "org-agenda-span"
+
 "f" = "org-agenda-later"
 "b" = "org-agenda-earlier"
 "Right" = "org-agenda-later"

@@ -106,5 +106,5 @@ fn calendar(target: Binding) -> bool {
 }
 
 fn agenda_action(target: Binding) -> bool {
-    matches!(target,Binding::Command(Command::Org(command)) if command.habit() || command.agenda_control() || command.agenda_query() || command.estimate() || command==crate::command::OrgCommand::TimerSet)
+    matches!(target,Binding::Command(Command::Org(command)) if command.habit() || command.agenda_control() || command.agenda_query() || command.agenda_custom() || command.estimate() || command==crate::command::OrgCommand::TimerSet)
 }

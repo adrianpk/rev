@@ -33,8 +33,7 @@ pub(super) fn append(
     policy: &Org,
 ) -> Result<(), String> {
     let (index, block) = selected;
-    let offset = output.sources.len();
-    output.sources.append(&mut result.sources);
+    let mapping = sources(output, std::mem::take(&mut result.sources))?;
     output.truncated |= result.truncated;
     output.cancelled |= result.cancelled;
     let remaining = policy.limits.agenda_rows.saturating_sub(output.rows.len());
@@ -46,8 +45,9 @@ pub(super) fn append(
         block.title.clone()
     };
     for mut row in result.rows.into_iter().take(limit) {
-        row.source += offset;
+        row.source = mapping[row.source];
         row.block = Some(title.clone());
+        row.block_index = index;
         output.rows.push(row);
     }
     let remaining = 4096_usize.saturating_sub(output.issues.len());
@@ -104,4 +104,48 @@ fn field<'a>(row: &'a QueryRow, key: &str) -> &'a str {
 fn effort(row: &QueryRow, units: &crate::config::DurationUnits) -> f64 {
     crate::org::time::Duration::parse(field(row, "EFFORT"), units)
         .map_or(f64::INFINITY, |v| v.minutes())
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum SourceKey {
+    Buffer(crate::buffer::BufferId, u64),
+    Disk(std::path::PathBuf, u64, u64),
+}
+fn key(source: &CalendarSource) -> SourceKey {
+    match &source.version {
+        SourceVersion::Buffer(stamp) => SourceKey::Buffer(stamp.buffer, stamp.revision),
+        SourceVersion::Disk(observed) => SourceKey::Disk(
+            source.path.clone().unwrap_or_default(),
+            observed.device,
+            observed.inode,
+        ),
+    }
+}
+fn sources(output: &mut QueryResult, sources: Vec<CalendarSource>) -> Result<Vec<usize>, String> {
+    let mut known: BTreeMap<_, _> = output
+        .sources
+        .iter()
+        .enumerate()
+        .map(|(i, s)| (key(s), i))
+        .collect();
+    let mut mapping = Vec::new();
+    for source in sources {
+        let key = key(&source);
+        let index = match known.get(&key) {
+            Some(index) => {
+                if output.sources[*index].version != source.version {
+                    return Err("Custom agenda source observations disagree".into());
+                }
+                *index
+            }
+            None => {
+                let index = output.sources.len();
+                known.insert(key, index);
+                output.sources.push(source);
+                index
+            }
+        };
+        mapping.push(index);
+    }
+    Ok(mapping)
 }

@@ -27,6 +27,15 @@ impl Session {
         if command.agenda_query() {
             return Some(self.prompt_agenda_query(command, ""));
         }
+        if command.agenda_control()
+            && !matches!(command, C::AgendaRefresh | C::AgendaVisit)
+            && self
+                .query_agenda
+                .as_ref()
+                .is_some_and(|s| s.result.view.is_some())
+        {
+            return Some(self.custom_calendar(command));
+        }
         let action = match command {
             C::AgendaRefresh | C::Agenda => self.refresh_query(),
             C::AgendaVisit => match self.visit_query() {
