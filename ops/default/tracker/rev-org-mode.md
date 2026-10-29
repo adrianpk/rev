@@ -981,6 +981,9 @@ Details and exact checks: [Slice 46](../plan/rev-org-mode.md#slice-46-prepare-ch
 - [x] T46.3: Verify cycles, absent includes, unsaved source, export scope and destination preservation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#147](https://forge.adrianpk.com/adrianpk/rev/pulls/147).
+Task commits: T46.1 `7eaf8860fb655fa466117a384e7688fa0f171563`, T46.2 `99515c7f8f592b77c015212b84100e4bf51f67d1`, T46.3 `f1188c7a435963066c9534e037e1f3a9404fd926`.
+
 ### Slice 47: export Org to text Markdown and Org
 
 Contracts: ORG25 ORG27.

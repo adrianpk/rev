@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-46-export-contract`
-PR: pending
+PR: [#147](https://forge.adrianpk.com/adrianpk/rev/pulls/147)
 
 ## Purpose
 
@@ -39,6 +39,8 @@ includes, definitions and invocations inside drawers remain literal. The
 regression passes without changing native editing structure or limits.
 
 ## Implementation Notes
+
+Task commits: T46.1 `7eaf8860fb655fa466117a384e7688fa0f171563`, T46.2 `99515c7f8f592b77c015212b84100e4bf51f67d1`, T46.3 `f1188c7a435963066c9534e037e1f3a9404fd926`.
 
 This is the checked preparation layer for native renderers. It has no command,
 file publication, code evaluation or automatic export effect.
