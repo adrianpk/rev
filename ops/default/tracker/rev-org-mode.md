@@ -936,6 +936,9 @@ Details and exact checks: [Slice 43](../plan/rev-org-mode.md#slice-43-publish-or
 - [x] T43.3: Exercise success, unsupported formulas, failure preservation and undo in the owned table journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#144](https://forge.adrianpk.com/adrianpk/rev/pulls/144).
+Task commits: T43.1 `bf412f7dd09ec93ed767fc6430a59ba1f496142e`, T43.2 `7b952916a66f05bfdf861475fd65ea5c335a416f`, T43.3 `060cee2e12457b034ca260bc4077b9b3e74c5407`.
+
 ### Slice 44: import and export Org table data
 
 Contracts: ORG12 ORG27.

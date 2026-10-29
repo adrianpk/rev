@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-43-formula-publication`
-PR: pending
+PR: [#144](https://forge.adrianpk.com/adrianpk/rev/pulls/144)
 
 ## Purpose
 
@@ -35,6 +35,8 @@ unrelated Unicode source, peer points, inactive marks, cancellation, stale
 source/view requests and rejected precise destinations.
 
 ## Implementation Notes
+
+Task commits: T43.1 `bf412f7dd09ec93ed767fc6430a59ba1f496142e`, T43.2 `7b952916a66f05bfdf861475fd65ea5c335a416f`, T43.3 `060cee2e12457b034ca260bc4077b9b3e74c5407`.
 
 The existing table snapshot captures the canonical stamp and immutable source.
 Its owned cancellable worker parses the selected program, projects actual
@@ -84,6 +86,9 @@ binding catalog and configuration reference describe the actual accepted leaves.
 - `cargo test --test org_tables -- calculation recalculation`: eight native workflows passed, zero failed or ignored.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed after lifecycle coverage; changed-source quality passed.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: two owned RGB/NO_COLOR sessions passed, zero skipped. Existing exact-canvas, persisted-byte, cleanup and resource assertions remain in place; no limits were increased.
+
+Final ordered validation is recorded by the controller for the clean PR head
+before handoff.
 
 ## Risks and Follow-ups
 
