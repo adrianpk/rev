@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 51 Texinfo and man
+Active slice: Slice 52 iCalendar
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1052,13 +1052,13 @@ Details and exact checks: [Slice 51](../plan/rev-org-mode.md#slice-51-export-org
 - [x] T51.1: Deliver native Texinfo and man renderers over the shared export snapshot.
 - [x] T51.2: Retain declared hierarchy, references, preformatted source and escaping without invoking tools implicitly.
 - [x] T51.3: Verify structural golden fixtures and ordinary save/cancellation safeguards.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T51.1 `82ca74dfcd2676049306ecca49ce6d7fa6c23bc4`, T51.2 `531f206eb57aa704cb3dfcc69901bae86244d0a8`, T51.3 `a8db4be915afe1a851315640a115e9dcccbca44c`.
 
-Canonical PR: [#152](https://forge.adrianpk.com/adrianpk/rev/pulls/152); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+Canonical PR #152 merged into dev at `58addd715ddd7794396ef86209a4d184aaf02174`, verified against Forgejo and origin/dev. Required receipt `ROMHETUKOZR2XL3BAWKXHJL3CF` passed five ordered checks and 191 tests. Focused receipt `VUKT3X6SE3CYSGXDUJEDAAGETU` passed the configuration reference, GNU formatter semantics and two owned RGB/NO_COLOR sessions, zero skipped. The same candidate passed 280 command/configuration tests; the subsequent checker filename error was corrected without changing HEAD. Slice 51 is delivered.
 
-### Slice 52: export Org planning data as iCalendar
+## Slice 52: export Org planning data as iCalendar
 
 Contracts: ORG25 ORG07.
 Details and exact checks: [Slice 52](../plan/rev-org-mode.md#slice-52-export-org-planning-data-as-icalendar).

@@ -1,6 +1,6 @@
 # Slice 51: export Org to Texinfo and man formats
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -70,6 +70,8 @@ Canonical PR: [#152](https://forge.adrianpk.com/adrianpk/rev/pulls/152).
 - `cargo test --test org_io manual_`: eight renderer, selection and publication workflows passed, zero failures or ignored tests; the expanded complete golden was also rechecked with `cargo test --test org_io manual_golden`.
 - `python3 scripts/check-manual-exports.py`: GNU makeinfo and groff accepted both exact golden documents; visible hierarchy, references, notes, list starts and inert directive text passed, zero skipped checks. This is an explicit validation adapter, never a runtime export action.
 - Region selection exposed inherited title/date in the manual envelope; region output now excludes that metadata. Formatter validation exposed first-item paragraph separation and terminal SGR output: native list paragraphs now follow their markers, and the adapter strips font encodings while retaining same-line marker/body assertions.
+
+Canonical PR #152 merged into dev at `58addd715ddd7794396ef86209a4d184aaf02174`, verified against Forgejo and origin/dev. Required receipt `ROMHETUKOZR2XL3BAWKXHJL3CF` passed five ordered checks and 191 tests. Focused receipt `VUKT3X6SE3CYSGXDUJEDAAGETU` passed the configuration reference, GNU formatter semantics and two owned RGB/NO_COLOR sessions, zero skipped. The same candidate passed 280 command/configuration tests; a subsequent checker filename error was corrected without changing HEAD.
 
 ## Risks and Follow-ups
 
