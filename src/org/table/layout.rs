@@ -33,7 +33,7 @@ impl Snapshot {
             let mut width = 1;
             for cell in table.rows.iter().filter_map(|r| r.cells.get(index)) {
                 check(cancel)?;
-                width = width.max(measure(&cell.value, column, self.tab_width, cancel)?);
+                width = width.max(measure_cell(&cell.value, column, self.tab_width, cancel)?);
             }
             if width > WIDTH {
                 return Err("Table cell exceeds 4096 displayed columns".into());
@@ -78,16 +78,16 @@ impl Snapshot {
         if value.is_empty() {
             return Ok((0, spec.0));
         }
-        let width = measure(value, column, self.tab_width, cancel)?;
+        let width = measure_cell(value, column, self.tab_width, cancel)?;
         let mut left = match spec.1 {
             Alignment::Left => 0,
             Alignment::Center => (spec.0 - width) / 2,
             Alignment::Right => spec.0 - width,
         };
-        while left + measure(value, column + left, self.tab_width, cancel)? > spec.0 {
+        while left + measure_cell(value, column + left, self.tab_width, cancel)? > spec.0 {
             left -= 1;
         }
-        let right = spec.0 - left - measure(value, column + left, self.tab_width, cancel)?;
+        let right = spec.0 - left - measure_cell(value, column + left, self.tab_width, cancel)?;
         Ok((left, right))
     }
 }
@@ -115,6 +115,20 @@ impl Rendered {
     }
 }
 impl Layout {
+    pub(super) fn cursor(&self, row: usize, at: usize) -> Result<usize, String> {
+        let start = self.starts[row];
+        let end = self.starts.get(row + 1).copied().unwrap_or(self.text.len());
+        let local = self.text[start..at].chars().count();
+        let prefix = self.text[..start].chars().count();
+        let glyphs = Glyphs::for_text(&self.text[start..end]).map_err(|e| e.to_string())?;
+        for glyph in glyphs {
+            let glyph = glyph.map_err(|e| e.to_string())?;
+            if local < glyph.source.end.0 {
+                return Ok(prefix + glyph.source.start.0);
+            }
+        }
+        Ok(prefix + local)
+    }
     pub(super) fn separate(&mut self, before: &str, after: &str) -> Result<(), String> {
         if self.text.len() + before.len() + after.len() > Limits::default().bytes {
             return Err("Separated table exceeds native 8 MiB output limit".into());
@@ -169,13 +183,32 @@ impl Layout {
 }
 fn measure(value: &str, column: usize, tab: usize, cancel: &Cancellation) -> Result<usize, String> {
     let glyphs = Glyphs::for_columns(value, column, tab).map_err(|e| e.to_string())?;
+    measured(glyphs, column, WIDTH, cancel)
+}
+fn measure_cell(
+    value: &str,
+    column: usize,
+    tab: usize,
+    cancel: &Cancellation,
+) -> Result<usize, String> {
+    // A leading combining mark joins the actual preceding padding space.
+    let contextual = format!(" {value}");
+    let glyphs = Glyphs::for_columns(&contextual, column - 1, tab).map_err(|e| e.to_string())?;
+    measured(glyphs, column - 1, WIDTH + 1, cancel).map(|w| w - 1)
+}
+fn measured(
+    glyphs: Glyphs<'_>,
+    column: usize,
+    limit: usize,
+    cancel: &Cancellation,
+) -> Result<usize, String> {
     let mut end = column;
     for (index, glyph) in glyphs.enumerate() {
         if index % 64 == 0 {
             check(cancel)?;
         }
         end = glyph.map_err(|e| e.to_string())?.columns.end;
-        if end - column > WIDTH {
+        if end - column > limit {
             return Err("Table fragment exceeds 4096 displayed columns".into());
         }
     }

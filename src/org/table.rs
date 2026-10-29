@@ -141,7 +141,7 @@ impl Snapshot {
                 .nth(cursor.offset)
                 .map_or(target.len(), |(b, _)| b);
         let cursor =
-            Scalar(self.text.byte_to_char(table.source.start) + layout.text[..at].chars().count());
+            Scalar(self.text.byte_to_char(table.source.start) + layout.cursor(cursor.row, at)?);
         let mut edits = Vec::new();
         let mut source = table.source.start;
         let mut output = 0;
@@ -182,5 +182,43 @@ fn check(cancel: &Cancellation) -> Result<(), String> {
         Err("Org table action cancelled or timed out".into())
     } else {
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::buffer::Buffers;
+    use std::time::Instant;
+
+    // Cancelled/expired analysis never yields a publication plan, and oversized
+    // source is rejected while snapshotting the real canonical buffer identity.
+    #[test]
+    fn work_limits() {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create("|A|B|\n").unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let point = Point {
+            stamp: buffer.stamp(),
+            position: Scalar(0),
+        };
+        let cancelled = Cancellation::default();
+        cancelled.cancel();
+        let expired = Cancellation::default().bounded(Instant::now());
+        for (name, token) in [("cancelled", cancelled), ("expired", expired)] {
+            let snapshot = Snapshot::new(buffer, point).unwrap();
+            assert!(snapshot.run(C::TableAlign, None, &token).is_err(), "{name}");
+            assert!(buffer.history().is_empty());
+        }
+        let id = buffers
+            .create(&"x".repeat(Limits::default().bytes + 1))
+            .unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let point = Point {
+            stamp: buffer.stamp(),
+            position: Scalar(0),
+        };
+        assert!(Snapshot::new(buffer, point).is_err());
+        assert!(buffer.history().is_empty());
     }
 }

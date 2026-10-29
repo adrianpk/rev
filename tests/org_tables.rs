@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "org_tables/edges.rs"]
+mod edges;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "org_tables/metadata.rs"]

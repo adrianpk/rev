@@ -1,6 +1,6 @@
 use super::*;
 use rev::org::{Cancellation, Coverage, Limits, Source, StructureKind, StructureScan};
-fn values(s: &Session) -> Vec<String> {
+pub(super) fn values(s: &Session) -> Vec<String> {
     let b = s.buffer().unwrap();
     let observed = StructureScan::new(b, Limits::default())
         .unwrap()

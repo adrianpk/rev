@@ -33,7 +33,8 @@ aligned table adds no history. Source changes retire stale fold observations.
 
 The native table profile admits 8 MiB source/output, 10000 rows including
 separators, 256 columns, 100000 rendered data cells and 4096 displayed columns per
-cell. Ordinary text remains editable when a structured action reaches a limit.
+cell. Leading combining marks use the real padding context, and field destinations
+remain complete grapheme boundaries. Ordinary text remains editable when a structured action reaches a limit.
 
 [The Org table editor](https://orgmode.org/manual/Built_002din-Table-Editor.html)
 defines the compatible delimiter, field-motion and separator forms. Names,
