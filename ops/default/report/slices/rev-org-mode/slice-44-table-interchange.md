@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-44-table-interchange`
-PR: pending
+PR: [#145](https://forge.adrianpk.com/adrianpk/rev/pulls/145)
 
 ## Purpose
 
@@ -36,6 +36,9 @@ views. The two existing owned terminal sessions exercise M-x interchange,
 independent Python CSV parsing, exact output bytes, undo/redo and failed import.
 
 ## Implementation Notes
+
+Task commits: T44.1 `f9207a63c2fe94924dcdee632c4f886108c35840`, T44.2 `2ff48bf6f4eb649c09f7e09324b80aa8177cb92f`, T44.3 `bf2882b2a749ee353efdb3689bf61af90768bddf`.
+
 
 The existing single cancellable worker owns data reads, table preparation and
 file output. Canonical open input buffers supply unsaved source. Import rechecks

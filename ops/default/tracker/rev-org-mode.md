@@ -951,6 +951,9 @@ Details and exact checks: [Slice 44](../plan/rev-org-mode.md#slice-44-import-and
 - [x] T44.3: Verify actual file round trips and rejected malformed input without lossy recovery.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#145](https://forge.adrianpk.com/adrianpk/rev/pulls/145).
+Task commits: T44.1 `f9207a63c2fe94924dcdee632c4f886108c35840`, T44.2 `2ff48bf6f4eb649c09f7e09324b80aa8177cb92f`, T44.3 `bf2882b2a749ee353efdb3689bf61af90768bddf`.
+
 ### Slice 45: display Org property columns and native reports
 
 Contracts: ORG21 ORG23 ORG27.
