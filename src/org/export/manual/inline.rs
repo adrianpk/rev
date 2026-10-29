@@ -1,7 +1,7 @@
 use super::*;
 use crate::org::inline as native;
 impl Document<'_> {
-    pub(super) fn inline(
+    pub(super) fn objects(
         &self,
         out: &mut Manual<'_>,
         range: Range<usize>,
@@ -25,6 +25,23 @@ impl Document<'_> {
         out.text(&self.text.byte_slice(cursor..range.end).to_string())
     }
     fn object(
+        &self,
+        out: &mut Manual<'_>,
+        n: &native::Raw,
+        depth: usize,
+        context: InlineContext,
+    ) -> Result<(), String> {
+        match n.kind {
+            InlineKind::Link(_) => return self.link(out, n, depth),
+            InlineKind::Target | InlineKind::RadioTarget => return self.target(out, n),
+            InlineKind::FootnoteReference | InlineKind::FootnoteInline => {
+                return self.note(out, n, depth);
+            }
+            _ => {}
+        }
+        self.decorated(out, n, depth, context)
+    }
+    fn decorated(
         &self,
         out: &mut Manual<'_>,
         n: &native::Raw,

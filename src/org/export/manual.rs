@@ -1,15 +1,29 @@
 //! Manual formats consume checked snapshots and emit escaped data only.
+mod affiliation;
 mod blocks;
 mod headings;
 mod inline;
+mod math;
+mod notes;
+mod references;
 use super::*;
 use crate::org::{BlockKind, InlineKind};
+use std::collections::{BTreeMap, BTreeSet};
 struct Manual<'a> {
     snapshot: &'a Snapshot,
     cancel: &'a Cancellation,
     output: String,
     diagnostics: Vec<String>,
     numbers: Vec<usize>,
+    notes: Vec<String>,
+    retained: usize,
+    used: BTreeMap<String, usize>,
+    active: BTreeSet<String>,
+}
+#[derive(Clone)]
+struct Reference {
+    id: String,
+    label: String,
 }
 struct Document<'a> {
     text: &'a Rope,
@@ -17,6 +31,9 @@ struct Document<'a> {
     children: Vec<Vec<usize>>,
     roots: Vec<usize>,
     levels: Vec<usize>,
+    targets: BTreeMap<String, Reference>,
+    titles: BTreeMap<String, Vec<usize>>,
+    notes: BTreeMap<String, Range<usize>>,
 }
 pub(super) fn render(snapshot: &Snapshot, cancel: &Cancellation) -> Result<Rendered, String> {
     let doc = Document::new(&snapshot.text, &snapshot.nodes, cancel)?;
@@ -26,9 +43,14 @@ pub(super) fn render(snapshot: &Snapshot, cancel: &Cancellation) -> Result<Rende
         output: String::new(),
         diagnostics: snapshot.diagnostics.clone(),
         numbers: Vec::new(),
+        notes: Vec::new(),
+        retained: 0,
+        used: BTreeMap::new(),
+        active: BTreeSet::new(),
     };
     out.preamble()?;
     doc.body(&mut out, 0)?;
+    out.endnotes()?;
     if out.texinfo() {
         out.emit("@bye\n")?;
     }
@@ -43,7 +65,13 @@ impl Manual<'_> {
     }
     fn emit(&mut self, value: &str) -> Result<(), String> {
         document::check(self.cancel)?;
-        if value.len() > self.snapshot.export_bytes.saturating_sub(self.output.len()) {
+        if value.len()
+            > self
+                .snapshot
+                .export_bytes
+                .saturating_sub(self.output.len())
+                .saturating_sub(self.retained)
+        {
             return Err("Manual export output byte limit reached".into());
         }
         self.output.push_str(value);
@@ -110,13 +138,18 @@ impl<'a> Document<'a> {
             }
             levels[i] += usize::from(matches!(n.kind, StructureKind::Heading { .. }));
         }
-        Ok(Self {
+        let mut doc = Self {
             text,
             nodes,
             children,
             roots,
             levels,
-        })
+            targets: BTreeMap::new(),
+            titles: BTreeMap::new(),
+            notes: BTreeMap::new(),
+        };
+        doc.index(cancel)?;
+        Ok(doc)
     }
     fn body(&self, out: &mut Manual<'_>, depth: usize) -> Result<(), String> {
         for id in &self.roots {
@@ -135,6 +168,10 @@ impl<'a> Document<'a> {
         if depth >= super::super::Limits::default().depth {
             return Err("Manual nesting limit reached".into());
         }
+        self.affiliation(out, &self.nodes[id])?;
+        self.element(out, id, depth)
+    }
+    fn element(&self, out: &mut Manual<'_>, id: usize, depth: usize) -> Result<(), String> {
         match self.nodes[id].kind {
             StructureKind::Heading { .. } => self.heading(out, id, depth),
             StructureKind::Section => self.children(out, id, depth),
@@ -146,6 +183,9 @@ impl<'a> Document<'a> {
         }
     }
     fn paragraph(&self, out: &mut Manual<'_>, n: &structure::Raw) -> Result<(), String> {
+        if self.definition(n, out.cancel)?.is_some() {
+            return Ok(());
+        }
         if !out.texinfo() {
             out.emit(".PP\n")?;
         }
@@ -156,7 +196,7 @@ impl<'a> Document<'a> {
         let n = &self.nodes[id];
         match n.kind {
             StructureKind::Table => {
-                out.literal(&self.text.byte_slice(n.source.clone()).to_string())
+                out.literal(&self.text.byte_slice(n.content.clone()).to_string())
             }
             StructureKind::FixedWidth | StructureKind::Planning | StructureKind::TableFormula => {
                 out.literal(&self.text.byte_slice(n.content.clone()).to_string())
@@ -167,6 +207,9 @@ impl<'a> Document<'a> {
     }
     fn keyword(&self, out: &mut Manual<'_>, n: &structure::Raw) -> Result<(), String> {
         let (key, _) = document::keyword(self.text, n).ok_or("Manual keyword has no name")?;
+        if key == "NAME" {
+            return self.named(out, n);
+        }
         if key == "CAPTION" {
             return self.paragraph(out, n);
         }

@@ -274,3 +274,38 @@ source freshness, aliases, live buffers and observed destination replacement
 retain their ordinary guards. Export never saves or edits canonical source.
 
 The package profile follows the [OpenDocument 1.3 package specification](https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part2-packages/OpenDocument-v1.3-os-part2-packages.html).
+
+## Texinfo and man
+
+Run `org-export-to-texinfo` or `org-export-to-man` with the same buffer, subtree
+or region selection, explicit OPTIONS, local destination and observed replacement
+confirmation. Both render the current unsaved snapshot without saving source.
+Neither command probes or invokes makeinfo, groff, a shell or another converter.
+
+Texinfo uses UTF-8, a fixed `org-manual.info` setfilename and generated ASCII node
+identities. Relative native hierarchy maps to chapter, section, subsection and
+subsubsection; deeper output rejects rather than flattening hierarchy. `num:nil`
+uses corresponding unnumbered commands; `toc:t` emits contents. Visible titles
+and metadata are escaped independently of node identifiers. Menus and navigation
+pointers are left to Texinfo's ordinary automatic node processing.
+
+Man output uses the man macro package with section `1`, the declared title and
+date. Relative top-level headings use SH, descendants use SS with explicit outline
+numbers (`num:t`) or indentation (`num:nil`). Man has no generated contents page.
+Author, email, date and language remain visible frontmatter when selected. Header
+arguments require single-line data; unsafe formatter control scalars reject.
+Backslashes, request introducers, quotes and apostrophes are escaped as data.
+
+Both formats retain list markers and starts, bold/italic/code, captions, named
+targets, unambiguous heading links and named/inline notes. Texinfo uses local
+cross-references; man shows reference labels and destinations as readable text.
+Notes appear in first-reference order in a Notes section. Missing or ambiguous
+relationships, duplicate targets/notes and cycles reject output. Target and note
+labels are limited to 1024 bytes and 4096 entries; inline nesting is limited to 32.
+
+Tables retain their complete native cell grid as preformatted source. Source,
+example and raw export blocks are escaped literal data. Unknown affiliations,
+resource kinds, rich inline forms, entity/math spelling and recorded dynamic
+reports remain readable literal source with diagnostics. No assets are read, no
+report is refreshed and no source block is evaluated. Existing snapshot output,
+analysis, deadline and cancellation limits apply, including retained note bodies.

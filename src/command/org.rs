@@ -207,9 +207,11 @@ pub enum OrgCommand {
     ExportLatexPdf,
     ExportBeamerPdf,
     ExportOdt,
+    ExportTexinfo,
+    ExportMan,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 205] = [
+    pub const ALL: [Self; 207] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -415,6 +417,8 @@ impl OrgCommand {
         Self::ExportLatexPdf,
         Self::ExportBeamerPdf,
         Self::ExportOdt,
+        Self::ExportTexinfo,
+        Self::ExportMan,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -623,6 +627,8 @@ impl OrgCommand {
             "org-export-to-latex-pdf",
             "org-export-to-beamer-pdf",
             "org-export-to-odt",
+            "org-export-to-texinfo",
+            "org-export-to-man",
         ][self as usize]
     }
 
@@ -947,6 +953,8 @@ impl OrgCommand {
             (Self::ExportBeamer, B::Beamer),
             (Self::ExportBeamerPdf, B::Beamer),
             (Self::ExportOdt, B::Odt),
+            (Self::ExportTexinfo, B::Texinfo),
+            (Self::ExportMan, B::Man),
         ]
         .into_iter()
         .find_map(|(command, backend)| (self == command).then_some(backend))
