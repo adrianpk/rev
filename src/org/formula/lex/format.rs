@@ -22,13 +22,7 @@ impl Lexer<'_> {
                 "only fN or %.Nf fixed decimal formatting is supported",
             )
         })?;
-        let decimals = digits.parse::<usize>().map_err(|_| {
-            Error::new(
-                ErrorKind::Syntax,
-                source.clone(),
-                "expected bounded decimal places",
-            )
-        })?;
+        let decimals = precision(digits, source.clone())?;
         if decimals > self.budget.limits.decimal_places {
             return Err(Error::new(
                 ErrorKind::Limit,
@@ -44,4 +38,17 @@ fn decimal_digits(text: &str) -> Option<&str> {
         return Some(digits);
     }
     text.strip_prefix("%.")?.strip_suffix('f')
+}
+
+fn precision(digits: &str, source: Range<usize>) -> Result<usize, Error> {
+    if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+        return Err(Error::new(
+            ErrorKind::Syntax,
+            source,
+            "expected unsigned decimal places",
+        ));
+    }
+    digits
+        .parse()
+        .map_err(|_| Error::new(ErrorKind::Syntax, source, "decimal places overflow"))
 }

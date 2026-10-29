@@ -903,7 +903,7 @@ Details and exact checks: [Slice 41](../plan/rev-org-mode.md#slice-41-parse-the-
 
 - [x] T41.1: Parse declared arithmetic, field/column/range references, functions and compatible TBLFM assignments.
 - [x] T41.2: Enforce precedence, right-associative exponentiation and bounded syntax/depth before evaluation.
-- [ ] T41.3: Verify unsupported Calc/Lisp preservation, malformed references and precise diagnostics.
+- [x] T41.3: Verify unsupported Calc/Lisp preservation, malformed references and precise diagnostics.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 42: evaluate basic Org table formulas safely

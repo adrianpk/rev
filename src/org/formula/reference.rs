@@ -23,26 +23,44 @@ impl Lexer<'_> {
         let digits = self.at;
         self.digits()?;
         if self.at == digits {
-            return Err(self.error(
-                ErrorKind::Unsupported,
-                "expected a numeric absolute/current/relative coordinate",
-            ));
+            return Err(self.missing_coordinate());
         }
         let source = start..self.at;
         let coordinate = self.coordinate(source.clone(), relative)?;
         Ok(Some(Component { coordinate, source }))
     }
+    fn missing_coordinate(&self) -> Error {
+        let advanced = self
+            .byte()
+            .is_some_and(|b| b.is_ascii_alphabetic() || matches!(b, b'<' | b'>' | b'#'));
+        let kind = if advanced {
+            ErrorKind::Unsupported
+        } else {
+            ErrorKind::Syntax
+        };
+        self.error(
+            kind,
+            "expected a numeric absolute/current/relative coordinate",
+        )
+    }
     fn coordinate(&self, source: Range<usize>, relative: bool) -> Result<Coordinate, Error> {
         let text = &self.text[source.clone()];
         let coordinate = if relative {
-            Coordinate::Relative(
-                text.parse()
-                    .map_err(|_| self.error(ErrorKind::Syntax, "relative coordinate overflow"))?,
-            )
+            Coordinate::Relative(text.parse().map_err(|_| {
+                Error::new(
+                    ErrorKind::Syntax,
+                    source.clone(),
+                    "relative coordinate overflow",
+                )
+            })?)
         } else {
-            let value = text
-                .parse::<usize>()
-                .map_err(|_| self.error(ErrorKind::Syntax, "absolute coordinate overflow"))?;
+            let value = text.parse::<usize>().map_err(|_| {
+                Error::new(
+                    ErrorKind::Syntax,
+                    source.clone(),
+                    "absolute coordinate overflow",
+                )
+            })?;
             if value == 0 {
                 Coordinate::Current
             } else {

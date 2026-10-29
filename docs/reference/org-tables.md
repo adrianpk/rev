@@ -105,3 +105,10 @@ their existing `vsum/vmean/vmin/vmax` identities; `abs` takes one argument and
 `round` takes one or two. Decimal precision is bounded to 12 places by default,
 with an admitted maximum of 15. The parser returns byte-positioned syntax,
 unsupported, limit or cancellation errors and never computes result values.
+
+Diagnostic ranges are half-open UTF-8 bytes relative to the original formula
+value, with an empty EOF range for a missing operand or delimiter. Malformed
+numeric literals and overflowing coordinates identify the whole numeric token.
+Missing numeric coordinates are syntax errors; named/hline/remote/Lisp forms
+remain explicitly unsupported. Decimal precision accepts unsigned digits only.
+No parser observation can authorize an edit of a newer buffer revision.

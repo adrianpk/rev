@@ -1,6 +1,6 @@
 # Slice 41: parse the bounded Org formula subset
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -43,6 +43,16 @@ model. Iterative token/node arenas and guarded expression descent bound memory,
 work and stack depth. Cancellation and the existing worker deadline propagate
 through lexing and parsing. Formatting is bounded data, never a printf executor.
 
+T41.3 checks exact UTF-8-relative error spans, EOF diagnostics, unsupported
+Calc/Lisp/named/hline forms, malformed numeric coordinates and unsigned decimal
+precision. The malformed exponent regression first reported EOF alone; numeric
+errors now cover the complete bad literal, and coordinate overflow covers its
+complete numeric spelling. Missing coordinates are syntax errors, while known
+advanced coordinate forms remain unsupported. Canonical read-only observations
+serialize byte-identically after successful and failed parsing, including
+BOM/CRLF/Unicode/EOF. A real formatted-reference edit changes only admitted
+coordinate digits and retains ordinary one-operation undo/redo.
+
 ## Contracts Added or Changed
 
 - ORG13: typed native formula syntax and compatible assignment/reference forms.
@@ -53,6 +63,8 @@ through lexing and parsing. Formatting is bounded data, never a printf executor.
 - `src/org/formula.rs`: public immutable syntax and diagnostic contracts.
 - `src/org/formula/`: bounded lexer, references and expression parser.
 - `tests/org_tables/syntax.rs`: typed public syntax/assignment workflows.
+- `tests/org_tables/diagnostics.rs`: precise errors, public limit ceilings and real formatted-reference publication.
+- `tests/org_source/formulas.rs`: canonical formula observation and file-format preservation.
 
 ## Validation
 
@@ -64,7 +76,11 @@ through lexing and parsing. Formatting is bounded data, never a printf executor.
 - `cargo test --test org_tables -- syntax references lifecycle::structural_rejections`: 14 syntax/reference/boundary workflows passed, including independently expected precedence trees, fixed formats, 64-level boundary, 100000-token exhaustion and existing atomic range rejection.
 - `cargo test --lib formula_deadline -- --nocapture`: the private worker deadline token rejects expired parsing.
 
+- `cargo test --test org_tables --test org_source -- diagnostics formulas`: four workflows passed for exact diagnostics, limit admission through depth 256, formatted reference editing/undo and canonical read-only source fidelity.
+- `cargo clippy --lib --test org_tables --test org_source -- -D warnings`: passed; changed-source quality passed with unchanged limits.
+
 ## Risks and Follow-ups
 
-T41.3 preservation/diagnostic verification, final exact-HEAD checks and the
-canonical PR remain pending. No result evaluation or recalculation is claimed.
+Final exact-HEAD required/focused controller validation and canonical PR integration
+remain pending. The approved evaluation/publication layers remain separate. The
+pre-existing outline timer fixture diagnostic retained in Slice 39 is unchanged.

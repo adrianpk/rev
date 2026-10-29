@@ -4,6 +4,8 @@
 mod blocks;
 #[path = "org_source/color.rs"]
 mod color;
+#[path = "org_source/formulas.rs"]
+mod formulas;
 #[path = "org_source/incremental.rs"]
 mod incremental;
 #[path = "org_source/index.rs"]

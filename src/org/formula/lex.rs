@@ -153,9 +153,13 @@ impl<'a> Lexer<'a> {
             self.digits()?;
         }
         self.exponent()?;
-        let value = self.text[start..self.at]
-            .parse::<f64>()
-            .map_err(|_| self.error(ErrorKind::Syntax, "malformed numeric literal"))?;
+        let value = self.text[start..self.at].parse::<f64>().map_err(|_| {
+            Error::new(
+                ErrorKind::Syntax,
+                start..self.at,
+                "malformed numeric literal",
+            )
+        })?;
         if !value.is_finite() {
             return Err(Error::new(
                 ErrorKind::Syntax,
