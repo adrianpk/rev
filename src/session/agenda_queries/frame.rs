@@ -36,6 +36,7 @@ impl Session {
                 selected: state.cursor,
                 active: self.query_active() && self.input.focus() == crate::input::Focus::Editing,
                 stale,
+                columns: state.columns,
                 marked: &self.agenda_marks.targets,
             },
             panel.content(),

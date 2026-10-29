@@ -79,7 +79,7 @@ impl Outline {
         })
     }
 
-    fn report_insertion(
+    pub(super) fn report_insertion(
         &self,
         buffer: &Buffer,
         point: Scalar,

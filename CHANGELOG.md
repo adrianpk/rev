@@ -8,6 +8,9 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Inspect source hierarchies with `org-columns` and capture property, effort and clock totals in native `columnview` reports. Summaries remain projections; explicit updates replace only recognized report bodies and undo as one change.
+
+
 - Create and align native Org tables, navigate their cells with TAB and S-TAB, insert or remove rows and columns, move them with Meta-arrows, and sort selected data rows. Convert flat lists and one-column tables through native commands. Explicitly recalculate a table, field or column with arithmetic, references, aggregates, rounding and decimal formatting. Use C-c * for the table or C-c C-c on a chosen formula line; configure numeric precision and work limits. Results change together in one undo step; unsupported formulas and failed calculations preserve existing source. Supported absolute formula references follow structural changes; unsupported or ambiguous rewrites leave the source intact. Import and export quoted CSV/TSV table data through explicit local files, with checked replacement and one-operation import undo. Alignment retains cell text and uses the editor’s tab and Unicode display policy; each structural change supports ordinary undo.
 
 - Create and follow Org footnotes with `C-c C-x f`, renumber numeric notes, edit emphasis with `C-c C-x C-f`, insert named entities and affiliated data with ordinary source undo, and follow checked radio targets in ordinary text.

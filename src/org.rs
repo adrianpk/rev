@@ -2,6 +2,7 @@
 //! configuration, execution or edit authority of their own.
 
 mod color;
+pub(crate) mod columns;
 mod form;
 mod index;
 mod inline;

@@ -195,9 +195,11 @@ pub enum OrgCommand {
     TableRecalculateColumn,
     TableImport,
     TableExport,
+    Columns,
+    ColumnsInsertDblock,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 193] = [
+    pub const ALL: [Self; 195] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -391,6 +393,8 @@ impl OrgCommand {
         Self::TableRecalculateColumn,
         Self::TableImport,
         Self::TableExport,
+        Self::Columns,
+        Self::ColumnsInsertDblock,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -587,6 +591,8 @@ impl OrgCommand {
             "org-table-recalculate-column",
             "org-table-import",
             "org-table-export",
+            "org-columns",
+            "org-columns-insert-dblock",
         ][self as usize]
     }
 

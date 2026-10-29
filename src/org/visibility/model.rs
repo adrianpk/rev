@@ -16,6 +16,7 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         properties: Default::default(),
         tags: Default::default(),
         archive_location: Ok(None),
+        column_format: Ok(None),
     };
     for node in structure.raw_nodes() {
         if cancel.is_cancelled() {

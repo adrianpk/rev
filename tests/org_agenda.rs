@@ -116,3 +116,6 @@ mod capture_expansion;
 mod capture_publication;
 #[path = "org_agenda/capture_shapes.rs"]
 mod capture_shapes;
+
+#[path = "org_agenda/columns.rs"]
+mod columns;

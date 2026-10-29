@@ -144,6 +144,13 @@ impl Session {
         {
             return self.agenda_clock_action(&model, request.command);
         }
+        if matches!(
+            request.command,
+            OrgCommand::Columns | OrgCommand::ColumnsInsertDblock
+        ) {
+            let update = request.command == OrgCommand::ColumnsInsertDblock;
+            return self.start_columns(&model, request, update);
+        }
         if request.command.clock_source() {
             return self.dispatch_source_clock(model, request);
         }

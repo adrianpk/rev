@@ -190,3 +190,6 @@ controls other than internal tabs, and leading/trailing spaces or tabs reject
 before mutation because native table values cannot retain them losslessly.
 Malformed quoting and ragged input/export reject without lossy recovery.
 Interchange retains the native table row/column/cell/source/output bounds.
+
+Property columns and explicit dynamic reports are described in
+[Org property columns](org-columns.md).

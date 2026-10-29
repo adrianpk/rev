@@ -1,3 +1,4 @@
+pub(super) mod columns;
 use super::*;
 use crate::buffer::Buffer;
 use crate::coordinates::{Coordinates, Scalar};

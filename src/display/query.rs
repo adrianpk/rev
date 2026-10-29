@@ -5,6 +5,7 @@ pub struct QueryDisplay<'a> {
     pub top: usize,
     pub selected: usize,
     pub active: bool,
+    pub columns: bool,
     pub stale: bool,
     pub marked: &'a [crate::org::agenda::ActionTarget],
 }
@@ -14,26 +15,10 @@ impl Frame {
             let line = Area::new(area.column(), area.row() + row, area.width(), 1)
                 .ok_or(crate::coordinates::Error::Overflow)?;
             let text = match row {
-                0 => format!(
-                    "Org {} agenda [{}]{} {} [{}] [read-only]",
-                    display
-                        .result
-                        .view
-                        .as_ref()
-                        .map_or(display.result.query.kind.label(), |v| v.title.as_str()),
-                    if display.result.complete() {
-                        "complete"
-                    } else {
-                        "incomplete"
-                    },
-                    if display.stale {
-                        " [stale: g refresh]"
-                    } else {
-                        ""
-                    },
-                    query_dates(display.result),
-                    display.result.context.zone,
-                ),
+                0 => query_header(&display),
+                1 if display.columns => {
+                    "Columns from source; Enter visits; g refreshes; q closes".into()
+                }
                 1 => query_description(display.result),
                 _ => query_line(&display, display.top + usize::from(row - 2)),
             };
@@ -158,5 +143,44 @@ fn block_heading(result: &QueryResult, index: usize) -> String {
             .iter()
             .filter(|r| r.block_index == index)
             .count()
+    )
+}
+
+fn query_header(display: &QueryDisplay<'_>) -> String {
+    if display.columns {
+        return format!(
+            "Org property columns [{}]{} [all recorded clocks] [{}] [read-only]",
+            if display.result.complete() {
+                "complete"
+            } else {
+                "incomplete"
+            },
+            if display.stale {
+                " [stale: g refresh]"
+            } else {
+                ""
+            },
+            display.result.context.zone
+        );
+    }
+    format!(
+        "Org {} agenda [{}]{} {} [{}] [read-only]",
+        display
+            .result
+            .view
+            .as_ref()
+            .map_or(display.result.query.kind.label(), |v| v.title.as_str()),
+        if display.result.complete() {
+            "complete"
+        } else {
+            "incomplete"
+        },
+        if display.stale {
+            " [stale: g refresh]"
+        } else {
+            ""
+        },
+        query_dates(display.result),
+        display.result.context.zone,
     )
 }

@@ -11,6 +11,7 @@ pub(super) struct State {
     pub selection: SourceSelection,
     pub view: ViewId,
     pub cursor: usize,
+    pub columns: bool,
     pub top: usize,
 }
 impl Session {
@@ -43,6 +44,7 @@ impl Session {
             selection,
             view,
             cursor,
+            columns: false,
             top: 0,
         });
         self.calendar_agenda = None;
@@ -102,6 +104,9 @@ impl Session {
     }
     fn refresh_query(&mut self) -> Action {
         let state = self.query_agenda.as_ref().expect("query owner");
+        if state.columns {
+            return self.org_command(C::Columns);
+        }
         if self.org.busy() {
             return self.message("Org observation pending; C-g cancels");
         }

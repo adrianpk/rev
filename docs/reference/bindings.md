@@ -100,7 +100,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-S-RET in Org | `org-insert-item-checkbox` | Insert a new unchecked list item. |
 | C-c C-x C-d in Org | `org-clock-display` | Compare task/subtree/file clock totals and effort. |
 | C-c C-x C-c in Org | `org-clock-report` | Insert or explicitly update a clocktable. |
-| C-c C-x C-u in Org | `org-dblock-update` | Refresh the selected clocktable body. |
+| C-c C-x C-u in Org | `org-dblock-update` | Refresh a recognized clocktable or columnview body. |
 | C-c C-x 0 in Org | `org-timer-start` | Start or reset the relative timer. |
 | C-c C-x h in Org | `org-habit-show-graph` | Open or refresh the native habit agenda for this buffer. |
 | K in habit agenda | `org-habit-toggle-habits` | Toggle habit graph visibility. |
@@ -289,6 +289,8 @@ configuration snapshot; source edits take effect after restarting.
 | M-x | `org-list-to-table`, `org-table-to-list` | Convert contiguous single-line items and one-column tables without separators. |
 
 | M-x | `org-table-import`, `org-table-export` | Read or write checked CSV/TSV table data; existing output files require confirmation. |
+
+| M-x | `org-columns`, `org-columns-insert-dblock` | Inspect source property columns or explicitly insert/update their native report. |
 
 ## Configuration keymap contracts
 

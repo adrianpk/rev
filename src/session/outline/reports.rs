@@ -1,3 +1,4 @@
+mod columns;
 mod work;
 use super::*;
 use crate::org::{Outline, agenda::ClockQuery, time::ZonedOperation};
@@ -58,6 +59,12 @@ impl Session {
         model: &Outline,
         request: Request,
     ) -> Result<(), String> {
+        if model.column_block_at(
+            self.buffer().map_err(|e| e.to_string())?,
+            request.origin.point.position,
+        ) {
+            return self.start_columns(model, request, true);
+        }
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         if buffer.is_readonly() {
             return Err(crate::buffer::edit::Error::ReadOnly.to_string());
@@ -84,12 +91,17 @@ impl Session {
             self.message("Clock report source or view changed; result discarded");
             return;
         }
-        if let Err(error) = self.publish_clock_output(result) {
+        if let Err(error) = self.publish_clock_output(result, request.view) {
             self.error(&error);
         }
     }
-    fn publish_clock_output(&mut self, result: Result<Output, String>) -> Result<(), String> {
+    fn publish_clock_output(
+        &mut self,
+        result: Result<Output, String>,
+        view: crate::window::ViewId,
+    ) -> Result<(), String> {
         match result? {
+            Output::Columns(output) => self.publish_columns(output, view)?,
             Output::Habits(agenda) => self.install_habit_agenda(agenda),
             Output::Display(feedback) => {
                 self.message(&feedback);

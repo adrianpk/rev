@@ -72,6 +72,10 @@ impl Session {
         if !self.agenda_active() {
             return self.message("Open an agenda before changing its presentation");
         }
+        if self.query_agenda.as_ref().is_some_and(|s| s.columns) {
+            return self
+                .message("The source COLUMNS declaration owns this view; g refreshes; q closes");
+        }
         match command {
             C::AgendaFilterReset => self.change_custom(command, ""),
             C::AgendaMonth => self.change_custom(C::AgendaSpan, "month"),
