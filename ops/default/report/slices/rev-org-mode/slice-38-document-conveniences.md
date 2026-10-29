@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-38-document-conveniences`
-PR: pending
+PR: [#139](https://forge.adrianpk.com/adrianpk/rev/pulls/139)
 
 ## Purpose
 
@@ -83,6 +83,10 @@ remain independently exact.
 Canonical final checks will bind the clean pushed head after PR references are
 committed. Required commands retain their approved order; focused evidence covers
 shared source/job, command, file, window and existing link behavior.
+
+T38.3: `c70f78a1add18ea785603dc364ce7490912e55e2`.
+
+Canonical PR #139 targets dev. This follow-up records its canonical references before final controller validation.
 
 ## Risks and Follow-ups
 

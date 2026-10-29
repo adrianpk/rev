@@ -855,11 +855,14 @@ Canonical PR #138 merged into dev at `c568a14d90d932eb58918666798bfaaa796df0ac`,
 ## Slice 38: edit native Org footnotes and inline content
 
 Contracts: ORG27 ORG30 ORG02.
+Canonical PR: [#139](https://forge.adrianpk.com/adrianpk/rev/pulls/139).
 Details and exact checks: [Slice 38](../plan/rev-org-mode.md#slice-38-edit-native-org-footnotes-and-inline-content).
 
 - [x] T38.1: Deliver footnote create/follow/renumber, entities, text markup and source-preserving affiliated forms.
 - [x] T38.2: Keep literal blocks and unknown forms distinct during structured editing and context actions.
 - [x] T38.3: Verify Unicode, malformed references, radio targets and coherent edit/history behavior.
+Task commits: T38.1: `34374ac5f4b97bc735e4f554bc1d311a672e0035`, T38.2: `508aee2c666ba74aae01bc8e39b5875dc61fa4aa`, T38.3: `c70f78a1add18ea785603dc364ce7490912e55e2`.
+
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 39: navigate and align native Org tables
