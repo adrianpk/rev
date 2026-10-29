@@ -121,7 +121,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | C-c C-x C-x in Org | `org-clock-in-last` | Re-clock the most recent qualified task. |
 | C-c C-x C-z in Org | `org-resolve-clocks` | Explicitly resolve incomplete intervals in the selected entry. |
 | C-c C-x C-j in Org | `org-clock-goto` | Reveal the active task heading. |
-| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
+| C-c C-c in Org | `org-ctrl-c-ctrl-c` | Apply a selected TBLFM line, align table data, normalize a timestamp weekday, edit heading tags, or toggle a precise list checkbox and verify numbering. |
 | C-c C-x C-b in Org | `org-toggle-checkbox` | Toggle checked source and update progress. |
 | C-c C-x C-r in Org | `org-toggle-radio-button` | Select a radio checkbox at the current level. |
 | C-c # in Org | `org-update-statistics-cookies` | Update current item/heading statistics. |
@@ -285,7 +285,6 @@ configuration snapshot; source edits take effect after restarting.
 | M-S-Down in Org | `org-table-insert-row` | Insert a row above the selected table row. |
 | C-c ^ in Org | `org-table-sort-lines` | Sort the selected data rows by a field. |
 | C-c * in Org | `org-table-recalculate` | Recalculate the selected table explicitly, as one undo unit. |
-| C-c C-c on TBLFM | `org-ctrl-c-ctrl-c` | Apply the selected formula line to its owning table. |
 | M-x | `org-table-recalculate-cell`, `org-table-recalculate-column` | Recalculate only the selected field or column. |
 | M-x | `org-list-to-table`, `org-table-to-list` | Convert contiguous single-line items and one-column tables without separators. |
 

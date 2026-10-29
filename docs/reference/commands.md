@@ -217,3 +217,4 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org tables | `org-table-create`, `org-table-align`, `org-table-next-field`, `org-table-previous-field`, `org-table-next-row`, `org-table-beginning-of-field`, `org-table-end-of-field`, `org-table-insert-row`, `org-table-insert-hline`, `org-return` |
 
 | Org table structure | `org-table-kill-row`, `org-table-move-row-up`, `org-table-move-row-down`, `org-table-insert-column`, `org-table-delete-column`, `org-table-move-column-left`, `org-table-move-column-right`, `org-table-sort-lines`, `org-list-to-table`, `org-table-to-list` |
+| Org recalculation | `org-table-recalculate`, `org-table-recalculate-cell`, `org-table-recalculate-column` |

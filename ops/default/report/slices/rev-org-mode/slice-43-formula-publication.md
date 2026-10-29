@@ -86,6 +86,8 @@ binding catalog and configuration reference describe the actual accepted leaves.
 - `cargo test --test org_tables -- calculation recalculation`: eight native workflows passed, zero failed or ignored.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed after lifecycle coverage; changed-source quality passed.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: two owned RGB/NO_COLOR sessions passed, zero skipped. Existing exact-canvas, persisted-byte, cleanup and resource assertions remain in place; no limits were increased.
+- Required batch `7MCSHW4DQONBX6V75VLWQQ6ICY` at `33891d3c23a240a6363daba19abba4269da00c55` stopped at the command regression check because the public command catalog omitted the three new identities. The catalog now includes all three, and the binding catalog retains one C-c C-c identity with its expanded behavior.
+- `cargo test --test commands palette::catalog_reference -- --nocapture`: passed after the catalog correction. Final evidence is regenerated for the subsequent clean PR head.
 
 Final ordered validation is recorded by the controller for the clean PR head
 before handoff.
