@@ -122,3 +122,6 @@ mod columns;
 
 #[path = "org_agenda/column_failures.rs"]
 mod column_failures;
+
+#[path = "org_agenda/column_lifecycle.rs"]
+mod column_lifecycle;

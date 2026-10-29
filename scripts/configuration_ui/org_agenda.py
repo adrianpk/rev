@@ -101,6 +101,7 @@ def editing(root, colored):
     session, one, two = opened(root, colored)
     before = snapshot(root)
     try:
+        columns(session, one)
         # Canonical unsaved text is the agenda authority, even though disk still
         # contains the older title. Neither remote mutation may save implicitly.
         goto(session, 2)
@@ -189,3 +190,21 @@ def cancellation(root, colored):
         assert snapshot(root) == before, 'cancelled/stale agenda changed fixture files'
     finally:
         close(session)
+
+
+def columns(session, source):
+    # Extend the existing owned editing sessions: source columns use one actual
+    # canonical source, hide the cursor, refresh explicitly and never edit text.
+    frame = send(session, b'\x1bxorg-columns\r', lambda f:
+                 canvas(f)[1].startswith('Org property columns [complete]')
+                 and 'all recorded clocks' in canvas(f)[1]
+                 and any('One 界' in row for row in canvas(f).values()))
+    assert not frame.endswith(PTY['SHOW']), 'columns must hide the source cursor'
+    assert source.read_bytes() == FIRST
+    send(session, PTY['paste_wire'](b'unwanted'), lambda f:
+         canvas(f)[1].startswith('Org property columns [complete]'))
+    send(session, b'g', lambda f:
+         canvas(f)[1].startswith('Org property columns [complete]')
+         and any('One 界' in row for row in canvas(f).values()))
+    send(session, b'q', lambda f: exact(f, ONE) and f.endswith(PTY['SHOW']))
+    assert source.read_bytes() == FIRST

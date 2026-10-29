@@ -963,7 +963,7 @@ Details and exact checks: [Slice 45](../plan/rev-org-mode.md#slice-45-display-or
 
 - [x] T45.1: Deliver property column views and declared native dynamic report blocks, including effort and clock totals.
 - [x] T45.2: Keep projections separate from source; replace only recognized explicit report bodies on update.
-- [ ] T45.3: Verify aggregates, source provenance, unknown dynamic blocks and atomic update undo.
+- [x] T45.3: Verify aggregates, source provenance, unknown dynamic blocks and atomic update undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 46: prepare checked native Org export snapshots

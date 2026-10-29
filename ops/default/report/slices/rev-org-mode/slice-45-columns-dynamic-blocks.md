@@ -1,6 +1,6 @@
 # Slice 45: display Org property columns and native reports
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -28,6 +28,13 @@ values and unrepresentable cells preserve the complete existing body. Actual
 source edits, selected-pane changes, cancellation and read-only authority cannot
 publish a retained result. Generic agenda presentation commands cannot discard
 the source-owned COLUMNS semantics; the view refreshes through its native owner.
+
+T45.3 verifies deep direct-child summaries, inherited COLUMNS, local scope and
+maxlevel, configured duration units, literal declaration exclusion, exact source
+provenance, physical C-c C-c, persisted BOM/CRLF/EOF, peer positions and inactive
+marks. Native insertion, property changes and saves require explicit report
+refresh; identical updates add no history. The existing two editing terminal
+journeys now exercise source columns, read-only input, refresh and close.
 
 ## Implementation Notes
 
@@ -63,6 +70,17 @@ No additional task database, worker slot, runtime dependency or evaluator is add
 
 - `cargo test --test org_agenda column_ -- --nocapture`: six native projection, report and rejection workflows passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_agenda -- -D warnings`: passed; changed-source quality passed after publication guard coverage.
+
+- `cargo test --test org_agenda column_ -- --nocapture`: 11 native column workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_agenda -- -D warnings`: passed; changed-source quality passed after lifecycle coverage.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-agenda`: all six existing owned RGB/NO_COLOR editing, read-only and cancellation/stale sessions passed, zero skipped. The two editing sessions include source columns; existing canvas, persisted-byte, cleanup and resource assertions remain unchanged.
+
+The file workflow retains the entered `30min` EFFORT spelling in canonical
+source and independently expects `0:30` in the derived report. Saving retains
+the previous report body until its explicit update.
+
+Final ordered validation is recorded through the controller for the clean PR
+candidate before handoff. Integration remains open for controller verification.
 
 ## Risks and Follow-ups
 
