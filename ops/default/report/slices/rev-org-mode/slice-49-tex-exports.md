@@ -1,6 +1,6 @@
 # Slice 49: export Org to LaTeX and Beamer
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -75,6 +75,8 @@ Canonical PR: [#150](https://forge.adrianpk.com/adrianpk/rev/pulls/150).
 - `cargo test --test org_io tex_export`: four workflows passed, zero failures or ignored tests.
 - Changed-source quality passed with unchanged native limits.
 
+Canonical PR #150 merged into dev at `833df9ffa01227d8f75296cb9faa58bbab1d984b`, verified against Forgejo and origin/dev. Required receipt `2GN2GD3L4BN6LCVTYYCREXHVO3` passed five ordered checks and 174 tests. Focused receipt `2NO2DSMTDZZHPCPALMXTS2GBPJ` passed 280 command/configuration tests, three process-owner tests, the configuration reference and two owned RGB/NO_COLOR terminal sessions. Zero failures or ignored tests; zero skipped sessions.
+
 ## Risks and Follow-ups
 
-No TeX engine is installed in the validation environment. Fixture programs verify adapter and binary publication mechanics; they do not establish compiler semantics or PDF rendering. Exact final candidate checks are recorded through the controller and Acta after PR-reference follow-up.
+No TeX engine is installed in the validation environment. Fixture programs verify adapter and binary publication mechanics; they do not establish compiler semantics or PDF rendering.

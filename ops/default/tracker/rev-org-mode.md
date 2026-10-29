@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 49 LaTeX and Beamer
+Active slice: Slice 50 OpenDocument text
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1024,13 +1024,13 @@ Details and exact checks: [Slice 49](../plan/rev-org-mode.md#slice-49-export-org
 - [x] T49.1: Deliver native LaTeX/Beamer rendering with declared headings, lists, tables, notes and math/source forms.
 - [x] T49.2: Support explicit optional compiler jobs for PDF through the bounded external owner, never on export discovery.
 - [x] T49.3: Verify escaped output and truthful absent-tool behavior without requiring a TeX installation.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T49.1 `6f41f860510f063903b357c64fff705f0fe0f814`, T49.2 `bac94f94cb0f9499f9c82ea914a3cb1395f30ab2`, T49.3 `6712a1ae4d8c19c1bc55ca5852ba5583bb077f50`.
 
-Canonical PR: [#150](https://forge.adrianpk.com/adrianpk/rev/pulls/150); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+Canonical PR #150 merged into dev at `833df9ffa01227d8f75296cb9faa58bbab1d984b`, verified against Forgejo and origin/dev. Required receipt `2GN2GD3L4BN6LCVTYYCREXHVO3` passed five ordered checks and 174 tests. Focused receipt `2NO2DSMTDZZHPCPALMXTS2GBPJ` passed 280 command/configuration tests, three process-owner tests, the configuration reference and two owned RGB/NO_COLOR terminal sessions. Zero failures or ignored tests; zero skipped sessions. Slice 49 is delivered.
 
-### Slice 50: export native Org to OpenDocument text
+## Slice 50: export native Org to OpenDocument text
 
 Contracts: ORG25 ORG18.
 Details and exact checks: [Slice 50](../plan/rev-org-mode.md#slice-50-export-native-org-to-opendocument-text).
