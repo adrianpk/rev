@@ -96,6 +96,14 @@ impl Session {
         if request.command.timer_insertion() {
             return self.insert_timer(&model, request.command);
         }
+        if self.windows.source_action_active()
+            && matches!(
+                request.command,
+                OrgCommand::ClockOut | OrgCommand::ClockCancel
+            )
+        {
+            return self.agenda_clock_action(&model, request.command);
+        }
         if request.command.clock_source() {
             return self.dispatch_source_clock(model, request);
         }
@@ -223,7 +231,10 @@ impl Session {
         if command.timer_control() {
             return Some(self.timer_command(command));
         }
-        if command.session_clock() {
+        if command.session_clock()
+            && !(self.windows.source_action_active()
+                && matches!(command, OrgCommand::ClockOut | OrgCommand::ClockCancel))
+        {
             return Some(self.clock_command(command));
         }
         None

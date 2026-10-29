@@ -19,6 +19,11 @@ pub(super) struct State {
     pub top: usize,
 }
 pub(super) enum Work {
+    ActionVisit {
+        navigation: Navigation,
+        view: ViewId,
+        deadline: std::time::Instant,
+    },
     Custom(Box<super::agenda_custom::Request>),
     Refresh {
         scan: Box<SourceScan>,
@@ -69,6 +74,13 @@ pub(super) enum Output {
 impl Work {
     pub(super) fn run(self, cancel: &Cancellation) -> Result<Output, String> {
         match self {
+            Self::ActionVisit {
+                navigation,
+                view,
+                deadline,
+            } => navigation
+                .run(&cancel.bounded(deadline))
+                .map(|candidate| Output::Visit { candidate, view }),
             Self::Custom(request) => request.run(cancel),
             Self::Refresh {
                 scan,
@@ -166,16 +178,22 @@ impl Session {
                 }
                 self.message("Calendar span changed; g refreshes sources");
             }
-            Ok(Output::Visit { candidate, view }) => {
-                if !self.agenda_active() || self.windows.selected_id() != view {
-                    self.message("Agenda source return cancelled: view changed");
-                    return;
-                }
-                if let Err(error) = self.visit_agenda_candidate(candidate) {
-                    self.error(&error);
-                }
-            }
+            Ok(Output::Visit { candidate, view }) => self.finish_agenda_visit(candidate, view),
+            Err(error) if self.resolving_agenda_action() => self.failed_agenda_action(&error),
             Err(error) => self.agenda_error(&error),
+        }
+    }
+    fn finish_agenda_visit(&mut self, candidate: NavigationCandidate, view: ViewId) {
+        if !self.agenda_active() || self.windows.selected_id() != view {
+            self.message("Agenda source return cancelled: view changed");
+            return;
+        }
+        if self.resolving_agenda_action() {
+            self.resolved_agenda_action(candidate);
+            return;
+        }
+        if let Err(error) = self.visit_agenda_candidate(candidate) {
+            self.error(&error);
         }
     }
     fn agenda_error(&mut self, error: &str) {
@@ -203,7 +221,10 @@ impl Session {
         });
         self.sync_input_context();
     }
-    fn visit_agenda_candidate(&mut self, candidate: NavigationCandidate) -> Result<(), String> {
+    pub(super) fn agenda_candidate(
+        &mut self,
+        candidate: NavigationCandidate,
+    ) -> Result<crate::buffer::edit::Point, String> {
         let visit = self
             .buffers
             .prepare_observed_visit(&candidate.path, candidate.loaded, &candidate.observed)
@@ -218,7 +239,12 @@ impl Session {
             stamp: buffer.stamp(),
             position: crate::coordinates::Scalar(position),
         };
-        let id = self.buffers.publish_visit(visit);
+        self.buffers.publish_visit(visit);
+        Ok(point)
+    }
+    fn visit_agenda_candidate(&mut self, candidate: NavigationCandidate) -> Result<(), String> {
+        let point = self.agenda_candidate(candidate)?;
+        let id = point.stamp.buffer;
         self.calendar_agenda = None;
         self.query_agenda = None;
         self.activate(id);

@@ -2,6 +2,7 @@ mod geometry;
 mod layout;
 mod lifecycle;
 mod points;
+mod source_action;
 pub(crate) use points::Points;
 
 pub use geometry::{Area, Geometry, Split};
@@ -59,6 +60,8 @@ pub struct Windows {
     selected: ViewId,
     layout: Layout,
     ratio: f64,
+    saved: Option<(ViewId, View)>,
+    anchors: Vec<crate::buffer::edit::Point>,
 }
 
 impl Windows {
@@ -78,6 +81,8 @@ impl Windows {
             selected: id,
             layout: Layout::Leaf(id),
             ratio,
+            saved: None,
+            anchors: Vec::new(),
         })
     }
     pub fn selected_id(&self) -> ViewId {

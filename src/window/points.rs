@@ -9,9 +9,16 @@ use super::{ViewId, Windows};
 /// A synchronous capture of every point and source viewport for one buffer.
 /// Structural changes cannot occur between this capture and publication.
 pub(crate) struct Points {
-    members: Vec<(ViewId, Point)>,
+    members: Vec<(Member, Point)>,
     pub values: Vec<Point>,
     pub initiator: usize,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Member {
+    View(ViewId),
+    Saved,
+    Anchor(usize),
 }
 
 impl Windows {
@@ -40,7 +47,7 @@ impl Windows {
                 column: 0,
             })?;
             members.push((
-                id,
+                Member::View(id),
                 Point {
                     stamp: buffer.stamp(),
                     position,
@@ -48,10 +55,41 @@ impl Windows {
             ));
             values.push(view.point);
         }
+        if let Some((_, view)) = &self.saved
+            && view.point.stamp.buffer == buffer.id()
+        {
+            let position = coordinates.from_line(LineByte {
+                row: view.top,
+                column: 0,
+            })?;
+            members.push((
+                Member::Saved,
+                Point {
+                    stamp: buffer.stamp(),
+                    position,
+                },
+            ));
+            values.push(view.point);
+        }
+        for (index, point) in self
+            .anchors
+            .iter()
+            .enumerate()
+            .filter(|(_, p)| p.stamp.buffer == buffer.id())
+        {
+            members.push((
+                Member::Anchor(index),
+                Point {
+                    stamp: buffer.stamp(),
+                    position: crate::coordinates::Scalar(0),
+                },
+            ));
+            values.push(*point);
+        }
         // The selected view belongs to this buffer and this private registry.
         let initiator = members
             .iter()
-            .position(|(id, _)| *id == self.selected)
+            .position(|(id, _)| *id == Member::View(self.selected))
             .unwrap_or(0);
         Ok(Points {
             members,
@@ -75,10 +113,14 @@ impl Windows {
 
     pub(crate) fn publish_points(&mut self, points: Points, tops: Vec<usize>) {
         for (((id, _), point), top) in points.members.into_iter().zip(points.values).zip(tops) {
-            let view = self
-                .views
-                .get_mut(&id)
-                .expect("captured view remains live during publication");
+            let view = match id {
+                Member::View(id) => self.views.get_mut(&id).expect("captured live view"),
+                Member::Saved => &mut self.saved.as_mut().expect("owned source action view").1,
+                Member::Anchor(index) => {
+                    self.anchors[index] = point;
+                    continue;
+                }
+            };
             view.point = point;
             view.top = top;
             view.clear_folds();
@@ -103,7 +145,11 @@ impl Points {
         };
         record
             .and_then(|record| record.origin())
-            .and_then(|origin| self.members.iter().position(|(id, _)| *id == origin))
+            .and_then(|origin| {
+                self.members
+                    .iter()
+                    .position(|(id, _)| *id == Member::View(origin))
+            })
             .unwrap_or(self.initiator)
     }
 }

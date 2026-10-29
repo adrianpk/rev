@@ -33,6 +33,7 @@ impl Session {
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
+            self.agenda_action_remaining(),
         ]
         .into_iter()
         .flatten()

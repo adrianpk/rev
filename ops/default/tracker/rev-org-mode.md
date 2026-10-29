@@ -739,10 +739,12 @@ PR #130 merged into dev at `99125c9f9cc7c0ce774e7aa8b97556e30e225aaa`, verified 
 Contracts: ORG09 ORG23.
 Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canonical-org-source-from-the-agenda).
 
-- [ ] T30.1: Route agenda task/date/tag/priority/effort/clock actions through checked source handlers.
+- [x] T30.1: Route agenda task/date/tag/priority/effort/clock actions through checked source handlers.
 - [ ] T30.2: Deliver explicit selection, bulk operations and per-target outcomes with revision re-resolution.
 - [ ] T30.3: Exercise dirty buffers, cancellation, failure and undo in an owned multi-source agenda journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+T30.1 routes checked agenda source actions through existing native handlers. Seven focused source cases pass, including cancellation, stale/read-only rejection, dirty canonical text, undo/redo, clock ownership and mapped shared views.
 
 ### Slice 31: define native Org capture targets and templates
 

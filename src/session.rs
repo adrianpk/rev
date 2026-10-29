@@ -1,4 +1,5 @@
 mod agenda;
+mod agenda_actions;
 mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
@@ -94,6 +95,8 @@ pub struct Session {
     timer_notice: bool,
     habit_agenda: Option<habits::State>,
     agenda_sources: Option<crate::org::agenda::SourceSet>,
+    agenda_run: Option<agenda_actions::Run>,
+    agenda_results: Vec<crate::org::agenda::ActionResult>,
     calendar_agenda: Option<agenda::State>,
     query_agenda: Option<agenda_queries::State>,
     agenda_query_plan: Option<crate::org::agenda::AgendaQuery>,
@@ -221,6 +224,8 @@ impl Session {
             timer_notice: false,
             habit_agenda: None,
             agenda_sources: None,
+            agenda_run: None,
+            agenda_results: Vec::new(),
             calendar_agenda: None,
             query_agenda: None,
             agenda_query_plan: None,
@@ -253,6 +258,7 @@ impl Session {
                 .refresh_syntax();
         }
         self.refresh_org();
+        self.advance_agenda_action();
         self.invalidate_search();
         self.invalidate_replace();
         let composition = self.composition();
@@ -384,7 +390,10 @@ impl Session {
     pub fn execute(&mut self, command: Command) -> Action {
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
-        if let Some(action) = self.prepare_command(command) {
+        if let Some(action) = self
+            .agenda_action_command(command)
+            .or_else(|| self.prepare_command(command))
+        {
             return action;
         }
         self.command_boundary(command);

@@ -90,7 +90,7 @@ impl Session {
             Err(error) => self.error(&error),
         }
     }
-    pub(super) fn finish_clock(&mut self, command: OrgCommand) -> Result<(), String> {
+    pub(in crate::session) fn finish_clock(&mut self, command: OrgCommand) -> Result<(), String> {
         let active = self.active_clock.as_ref().ok_or("No active Org clock")?;
         let buffer = self
             .buffers

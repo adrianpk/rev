@@ -7,7 +7,11 @@ pub(in crate::session::outline) struct End {
     pub(super) owner: Point,
 }
 impl Session {
-    pub(super) fn clock_same_task(&self, model: &Outline, index: usize) -> Result<bool, String> {
+    pub(in crate::session) fn clock_same_task(
+        &self,
+        model: &Outline,
+        index: usize,
+    ) -> Result<bool, String> {
         let Some(active) = &self.active_clock else {
             return Ok(false);
         };
