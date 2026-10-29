@@ -54,3 +54,6 @@ pub mod attachment;
 pub(crate) mod document;
 
 pub(crate) mod table;
+
+/// Native data-only table formula syntax.
+pub mod formula;

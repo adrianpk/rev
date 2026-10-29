@@ -901,7 +901,7 @@ Canonical PR #141 merged into dev at `e0f3401ad564847c2286ceafaba23c9114b39147`,
 Contracts: ORG13 ORG14.
 Details and exact checks: [Slice 41](../plan/rev-org-mode.md#slice-41-parse-the-bounded-org-formula-subset).
 
-- [ ] T41.1: Parse declared arithmetic, field/column/range references, functions and compatible TBLFM assignments.
+- [x] T41.1: Parse declared arithmetic, field/column/range references, functions and compatible TBLFM assignments.
 - [ ] T41.2: Enforce precedence, right-associative exponentiation and bounded syntax/depth before evaluation.
 - [ ] T41.3: Verify unsupported Calc/Lisp preservation, malformed references and precise diagnostics.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

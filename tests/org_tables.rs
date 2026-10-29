@@ -11,6 +11,8 @@ mod metadata;
 mod references;
 #[path = "org_tables/structure.rs"]
 mod structure;
+#[path = "org_tables/syntax.rs"]
+mod syntax;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
 use rev::{
