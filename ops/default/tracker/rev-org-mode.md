@@ -976,7 +976,7 @@ Canonical PR #146 merged into dev at `62fa68e9c580513b74233e950a94a84f6695c0c5`,
 Contracts: ORG25 ORG02.
 Details and exact checks: [Slice 46](../plan/rev-org-mode.md#slice-46-prepare-checked-native-org-export-snapshots).
 
-- [ ] T46.1: Freeze an export snapshot and backend/options/include/macro contracts over native source forms.
+- [x] T46.1: Freeze an export snapshot and backend/options/include/macro contracts over native source forms.
 - [ ] T46.2: Resolve bounded includes and text-only macros without executing blocks or file-local Lisp.
 - [ ] T46.3: Verify cycles, absent includes, unsaved source, export scope and destination preservation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

@@ -395,6 +395,10 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
     crate::org::priority::Priority::configured(&priority)
         .map_err(|e| Failure::new("org.priority.default", e))?;
     let policy = super::project::settings(value).org;
+    policy
+        .export
+        .validate()
+        .map_err(|e| Failure::new("org.export.backends", e))?;
     for view in &policy.agenda.views {
         for block in &view.blocks {
             crate::org::agenda::AgendaQuery::block(block, &policy.limits)
@@ -408,6 +412,7 @@ fn time(document: &Document) -> Result<(), Failure> {
     habit(&document.org.habit)?;
     agenda(&document.org)?;
     tables(&document.org)?;
+    export_limits(&document.org.limits)?;
     integer(
         "org.time.extend_today_until",
         document.org.time.extend_today_until,
@@ -569,5 +574,21 @@ fn viewer(partial: &super::PartialOrg) -> Result<(), Failure> {
     if let Some(argv) = &partial.tools.viewer {
         crate::org::links::viewer_argv(argv).map_err(|e| Failure::new("org.tools.viewer", e))?;
     }
+    Ok(())
+}
+
+fn export_limits(limits: &super::PartialOrgLimits) -> Result<(), Failure> {
+    integer("org.limits.include_depth", limits.include_depth, 1..=64)?;
+    integer("org.limits.include_files", limits.include_files, 1..=512)?;
+    integer(
+        "org.limits.expansion_bytes",
+        limits.expansion_bytes,
+        1..=8388608,
+    )?;
+    integer(
+        "org.limits.export_bytes",
+        limits.export_bytes,
+        1..=134217728,
+    )?;
     Ok(())
 }

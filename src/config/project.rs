@@ -36,6 +36,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     habit(&mut settings.org.habit, &document.org.habit);
     agenda(&mut settings.org, &document.org);
     tables(&mut settings.org, &document.org);
+    export(&mut settings.org, &document.org);
     if let Some(value) = &document.org.capture.templates {
         settings.org.capture.templates.clone_from(value);
     }
@@ -339,4 +340,21 @@ fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
     count(&mut target.agenda_total_bytes, limits.agenda_total_bytes);
     count(&mut target.job_seconds, limits.job_seconds);
     count(&mut target.job_output_bytes, limits.job_output_bytes);
+}
+
+fn export(base: &mut super::Org, partial: &super::PartialOrg) {
+    scalar(
+        &mut base.export.default_format,
+        partial.export.default_format,
+    );
+    if let Some(backends) = &partial.export.backends {
+        base.export.backends.clone_from(backends);
+    }
+    count(&mut base.limits.include_depth, partial.limits.include_depth);
+    count(&mut base.limits.include_files, partial.limits.include_files);
+    count(
+        &mut base.limits.expansion_bytes,
+        partial.limits.expansion_bytes,
+    );
+    count(&mut base.limits.export_bytes, partial.limits.export_bytes);
 }

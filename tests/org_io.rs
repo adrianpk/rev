@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "org_io/export.rs"]
+mod export;
 #[path = "org_io/failures.rs"]
 mod failures;
 #[path = "configuration/fixture.rs"]

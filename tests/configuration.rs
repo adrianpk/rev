@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "configuration/org_export.rs"]
+mod org_export;
 
 #[path = "configuration/associations.rs"]
 mod associations;

@@ -58,3 +58,6 @@ pub(crate) mod table;
 
 /// Native data-only table formula syntax.
 pub mod formula;
+
+/// Immutable native document export preparation.
+pub mod export;

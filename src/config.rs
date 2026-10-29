@@ -9,6 +9,8 @@
 
 pub(crate) mod capture;
 pub use capture::{CaptureKind, CaptureTarget, CaptureTemplate};
+mod export;
+pub use export::{Export, ExportBackend, PartialExport};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -138,6 +140,7 @@ pub struct Org {
     pub attachments: Attachments,
     pub tools: Tools,
     pub tables: Tables,
+    pub export: Export,
     pub limits: OrgLimits,
 }
 
@@ -161,6 +164,7 @@ impl Default for Org {
             attachments: Attachments::default(),
             tools: Tools::default(),
             tables: Tables::default(),
+            export: Export::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -186,6 +190,7 @@ pub struct PartialOrg {
     pub attachments: PartialAttachments,
     pub tools: PartialTools,
     pub tables: PartialTables,
+    pub export: PartialExport,
     pub limits: PartialOrgLimits,
 }
 
@@ -809,6 +814,10 @@ pub struct PartialAgenda {
 /// existing owners until their typed operations are delivered.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OrgLimits {
+    pub export_bytes: usize,
+    pub expansion_bytes: usize,
+    pub include_files: usize,
+    pub include_depth: usize,
     pub formula_cells: usize,
     pub formula_steps: usize,
     pub formula_depth: usize,
@@ -825,6 +834,10 @@ pub struct OrgLimits {
 impl Default for OrgLimits {
     fn default() -> Self {
         Self {
+            export_bytes: 16777216,
+            expansion_bytes: 1048576,
+            include_files: 128,
+            include_depth: 16,
             formula_cells: 100000,
             formula_steps: 1000000,
             formula_depth: 64,
@@ -843,6 +856,10 @@ impl Default for OrgLimits {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrgLimits {
+    pub export_bytes: Option<i64>,
+    pub expansion_bytes: Option<i64>,
+    pub include_files: Option<i64>,
+    pub include_depth: Option<i64>,
     pub formula_cells: Option<i64>,
     pub formula_steps: Option<i64>,
     pub formula_depth: Option<i64>,

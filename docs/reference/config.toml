@@ -124,7 +124,18 @@ location = "%s_archive::"
 # Explicit local file/directory roots; empty uses admitted agenda/source headings.
 targets = []
 
+[org.export]
+# Fixed native formats; selection prepares data only and never loads code.
+default_format = "html"
+backends = ["text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar"]
+
 [org.limits]
+# Include nesting 1..64 and occurrences 1..512, excluding the root document.
+include_depth = 16
+include_files = 128
+# Expanded projection bytes 1..8388608; final rendered bytes 1..134217728.
+expansion_bytes = 1048576
+export_bytes = 16777216
 formula_cells = 100000 # Maximum 1000000 grid cells, also subject to native table bounds.
 formula_steps = 1000000 # Maximum 10000000 work steps per syntax/numeric stage.
 formula_depth = 64 # Maximum 256 nested syntax levels.

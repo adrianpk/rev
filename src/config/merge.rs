@@ -108,6 +108,7 @@ impl Document {
         );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.tables(&mut self.org, &later.org);
+        merge.export(&mut self.org, &later.org);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -821,6 +822,41 @@ impl Merge {
             &["org", "limits", "job_seconds"],
             &mut base.job_seconds,
             &later.job_seconds,
+        );
+    }
+}
+
+impl Merge {
+    fn export(&mut self, base: &mut super::PartialOrg, later: &super::PartialOrg) {
+        self.leaf(
+            &["org", "export", "default_format"],
+            &mut base.export.default_format,
+            &later.export.default_format,
+        );
+        self.leaf(
+            &["org", "export", "backends"],
+            &mut base.export.backends,
+            &later.export.backends,
+        );
+        self.leaf(
+            &["org", "limits", "include_depth"],
+            &mut base.limits.include_depth,
+            &later.limits.include_depth,
+        );
+        self.leaf(
+            &["org", "limits", "include_files"],
+            &mut base.limits.include_files,
+            &later.limits.include_files,
+        );
+        self.leaf(
+            &["org", "limits", "expansion_bytes"],
+            &mut base.limits.expansion_bytes,
+            &later.limits.expansion_bytes,
+        );
+        self.leaf(
+            &["org", "limits", "export_bytes"],
+            &mut base.limits.export_bytes,
+            &later.limits.export_bytes,
         );
     }
 }

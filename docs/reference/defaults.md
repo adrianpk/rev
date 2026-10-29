@@ -214,6 +214,12 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_rows` | Integer 1..=100000 | `20000` | Maximum retained source facts and calendar entries; limits remain visibly incomplete. |
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
+| `org.export.default_format` | Native format | `"html"` | Selected format must occur in enabled backends; no automatic export. |
+| `org.export.backends` | Array of 1..11 unique native formats | All native formats | text (ascii alias), utf8, org, markdown, html, latex, beamer, odt, texinfo, man, icalendar. |
+| `org.limits.include_depth` | Integer 1..=64 | `16` | Nested includes, excluding the root. |
+| `org.limits.include_files` | Integer 1..=512 | `128` | Include occurrences, including repeated files. |
+| `org.limits.expansion_bytes` | Integer 1..=8388608 | `1048576` | Maximum projected bytes after include and text macro expansion. |
+| `org.limits.export_bytes` | Integer 1..=134217728 | `16777216` | Maximum rendered export bytes. |
 | `org.tables.significant_digits` | Integer 1..=15 | `12` | Finite binary64 result digits unless a stored fixed decimal format is explicit. |
 | `org.limits.formula_cells` | Integer 1..=1000000 | `100000` | Numerical grid cells; native table shape/source limits also apply. |
 | `org.limits.formula_steps` | Integer 1..=10000000 | `1000000` | Work budget for each syntax/numeric stage of selected recalculation. |
