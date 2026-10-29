@@ -102,7 +102,7 @@ impl Heading {
             title,
             task,
             excluded: header.word == "COMMENT"
-                || header.tags.iter().any(|t| t == "ARCHIVE")
+                || !policy.agenda.include_archived && header.tags.iter().any(|t| t == "ARCHIVE")
                 || parent.is_some_and(|h| h.excluded),
             level,
             local: header.tags,

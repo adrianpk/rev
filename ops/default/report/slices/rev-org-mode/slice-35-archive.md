@@ -36,10 +36,17 @@ retains IDs, planning and unrelated fields while adding origin file, outline
 path, captured time, category, task state and inherited tags. Sibling moves keep
 the original ancestor context. New separators follow the target format.
 
+T35.2 adds `org.agenda.include_archived=false`, shared by calendar and all
+query families. Enabling it includes tagged descendants while COMMENT exclusion
+remains independent. Explicit `.org_archive` sources retain native mode and
+canonical unsaved text precedence. No implicit archive scan was added. Tagging
+hides the current subtree; normal cycling retains archive closure, with explicit
+show-subtree/show-all commands available.
+
 ## Contracts Added or Changed
 
 - ORG11: native archive commands, literal location policy and origin metadata.
-- ORG09: archive source policy is completed by T35.2.
+- ORG09: explicit archive inclusion and canonical external source discovery.
 
 ## Files of Interest
 
@@ -58,6 +65,23 @@ the original ancestor context. New separators follow the target format.
 - `python3 scripts/check-config-reference.py`: 151 schema/catalog leaves,
   54 RGB roles, 233 bindings and 18700 exact packaged bytes agree.
 - Changed-source quality passes at unchanged parameter, nesting and complexity limits.
+
+T35.1/report introduction: `1ca449bbe1e2`.
+
+T35.2 checks:
+
+- `cargo test --lib --test org_io --test org_agenda --test configuration archive -- --nocapture`:
+  ten tests pass across actual canonical move rejection, real write/sync failures,
+  saved source/retained archive outcomes, one-insertion retry, metadata overwrite,
+  sibling identity, inherited location overrides, file formats, archive policies
+  and calendar/query inclusion.
+- `python3 scripts/check-config-reference.py`: the complete typed sample/catalog
+  agrees at 152 leaves, 54 RGB roles, 233 bindings and 18725 packaged bytes.
+- Changed-source quality passes at unchanged limits.
+
+The failure adapter changes only ordinary file write/directory sync. Actual
+replacement, file observations, canonical state and save acknowledgement remain
+native. This proves recoverable independent file outcomes, not atomic disk saves.
 
 ## Risks and Follow-ups
 

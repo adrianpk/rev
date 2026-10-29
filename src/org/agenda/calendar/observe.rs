@@ -42,9 +42,13 @@ pub(super) fn sources(sources: &SourceSet, policy: &Org, cancel: &Cancellation) 
             );
         }
         match workflow(&document.nodes, &text, &policy.todo) {
-            Ok(workflow) => {
-                document_events(&mut facts, id, (&document.nodes, &text), &workflow, cancel)
-            }
+            Ok(workflow) => document_events(
+                &mut facts,
+                id,
+                (&document.nodes, &text),
+                (&workflow, policy.agenda.include_archived),
+                cancel,
+            ),
             Err(error) => issue(&mut facts, id, error),
         }
         if facts.truncated && facts.events.len() == facts.limit {
@@ -73,10 +77,11 @@ fn document_events(
     facts: &mut Facts,
     source: usize,
     data: (&[Raw], &Rope),
-    workflow: &Workflow,
+    context: (&Workflow, bool),
     cancel: &Cancellation,
 ) {
     let (nodes, text) = data;
+    let (workflow, include_archived) = context;
     let mut owners = BTreeMap::<usize, Header>::new();
     let mut ancestry = Vec::<Option<usize>>::new();
     for (id, node) in nodes.iter().enumerate() {
@@ -88,7 +93,13 @@ fn document_events(
         }
         let parent = node.parent.and_then(|p| ancestry.get(p).copied().flatten());
         let owner = if matches!(node.kind, StructureKind::Heading { .. }) {
-            match header(node, text, workflow, parent.and_then(|p| owners.get(&p))) {
+            match header(
+                node,
+                text,
+                workflow,
+                parent.and_then(|p| owners.get(&p)),
+                include_archived,
+            ) {
                 Ok(h) => {
                     owners.insert(id, h);
                     Some(id)
@@ -118,6 +129,7 @@ fn header(
     text: &Rope,
     workflow: &Workflow,
     parent: Option<&Header>,
+    include_archived: bool,
 ) -> Result<Header, String> {
     let title = bounded(text, node.content.clone())?;
     let word = title.split_whitespace().next().unwrap_or("");
@@ -128,7 +140,9 @@ fn header(
     Ok(Header {
         byte: node.source.start,
         done: workflow.state(word).is_some_and(|s| s.done),
-        excluded: word == "COMMENT" || archived || parent.is_some_and(|h| h.excluded),
+        excluded: word == "COMMENT"
+            || archived && !include_archived
+            || parent.is_some_and(|h| h.excluded),
         title: Arc::from(title.trim()),
     })
 }

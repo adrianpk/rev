@@ -20,6 +20,11 @@ impl Visibility {
         self.global = mode;
         let level = [Level::Full, Level::Closed, Level::Children][usize::from(mode)];
         self.levels.fill(level);
+        for (index, value) in self.levels.iter_mut().enumerate() {
+            if self.model.archived(index) {
+                *value = Level::Closed;
+            }
+        }
         self.drawers.fill(mode != 0);
     }
     fn local(&mut self, command: OrgCommand, byte: usize) -> Result<(), &'static str> {
@@ -52,7 +57,12 @@ impl Visibility {
         if byte >= self.model.headings[index].body {
             return Err("TAB has no Org visibility target here");
         }
-        self.subtree(index, self.levels[index].next());
+        let level = if self.model.archived(index) {
+            Level::Closed
+        } else {
+            self.levels[index].next()
+        };
+        self.subtree(index, level);
         Ok(())
     }
     fn drawer(&mut self, command: OrgCommand, byte: usize) -> Result<(), &'static str> {

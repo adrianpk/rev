@@ -812,7 +812,7 @@ Contracts: ORG11 ORG09.
 Details and exact checks: [Slice 35](../plan/rev-org-mode.md#slice-35-archive-org-subtrees-without-silent-loss).
 
 - [x] T35.1: Deliver archive tag, archive sibling and %s_archive destination behavior with Org metadata.
-- [ ] T35.2: Reuse checked multi-document moves and retain archived source discoverability under selected agenda policy.
+- [x] T35.2: Reuse checked multi-document moves and retain archived source discoverability under selected agenda policy.
 - [ ] T35.3: Exercise capture/refile/archive, undo and failed destinations in one owned terminal journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

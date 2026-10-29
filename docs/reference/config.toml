@@ -95,6 +95,7 @@ enabled = true
 default = "0"
 
 [org.agenda]
+include_archived = false
 views = [] # Up to 64 typed named views; see org-agenda.md for block fields.
 # Explicit local files or directories; relative to this declaring config file.
 # Directories include immediate .org children only. Empty never scans anything.

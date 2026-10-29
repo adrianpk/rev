@@ -91,6 +91,11 @@ impl Document {
             &mut self.org.archive.location,
             &later.org.archive.location,
         );
+        merge.leaf(
+            &["org", "agenda", "include_archived"],
+            &mut self.org.agenda.include_archived,
+            &later.org.agenda.include_archived,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(

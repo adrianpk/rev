@@ -231,3 +231,123 @@ fn refile_captured_save() {
         assert!(session.buffers.get(b).unwrap().is_modified());
     }
 }
+
+fn archive_plan(session: &Session) -> Plan {
+    let cancel = Cancellation::default();
+    let buffer = session.buffer().unwrap();
+    let coloring = crate::org::ColorScan::new(buffer, crate::org::Limits::default())
+        .unwrap()
+        .run(&cancel);
+    let (_, _, model) = coloring.into_parts();
+    let policy = &session.buffers.snapshot().settings().org;
+    let mut context = model
+        .archive_context(buffer, session.view().point.position, policy)
+        .unwrap();
+    context.location = "destination.org::* Target".into();
+    let body = context
+        .body(buffer, &model, "[2024-03-01 Fri 14:30]".into())
+        .unwrap();
+    context
+        .external(
+            &session.buffers,
+            policy,
+            crate::org::time::Date::new(2024, 3, 1).unwrap(),
+            body,
+        )
+        .unwrap()
+        .run(&cancel)
+        .unwrap()
+}
+// The selected file observation's archive variant still admits every actual
+// participant before publication; stale revisions and read-only changes reject.
+#[test]
+fn archive_atomic_rejection() {
+    for (name, source, readonly) in [
+        ("source revision", true, false),
+        ("target revision", false, false),
+        ("target readonly", false, true),
+    ] {
+        let (_fixture, mut session, a, b) = editor();
+        let plan = archive_plan(&session);
+        let selected = if source { a } else { b };
+        if readonly {
+            session
+                .buffers
+                .get_mut(selected)
+                .unwrap()
+                .set_readonly(true);
+        } else {
+            change(&mut session, selected);
+        }
+        let before = [snapshot(&session, a), snapshot(&session, b)];
+        assert!(session.publish_refile(plan).is_err(), "{name}");
+        assert_eq!(
+            [snapshot(&session, a), snapshot(&session, b)],
+            before,
+            "{name}"
+        );
+    }
+}
+// Archive metadata survives both real per-file failure boundaries. A retry saves
+// the retained canonical insertion once, including after an uncertain rename.
+#[test]
+fn archive_partial_saves() {
+    for (name, uncertain) in [("write rejected", false), ("completion unresolved", true)] {
+        let (fixture, mut session, a, b) = editor();
+        let plan = archive_plan(&session);
+        session.publish_refile(plan).unwrap();
+        let archived = snapshot(&session, b).0;
+        assert!(archived.contains(":ARCHIVE_FILE:"));
+        let outcome = session.buffers.save(a).unwrap();
+        session.saved_state(
+            session.buffers.get(a).unwrap().state(),
+            &outcome,
+            crate::session::AfterSave::Stay,
+        );
+        let save = session.buffers.prepare_save(b, None).unwrap();
+        let state = save.state();
+        let outcome = session.buffers.publish_with(save, &mut Fault(uncertain));
+        session.saved_state(state, &outcome, crate::session::AfterSave::Stay);
+        let results = session.refile_results();
+        assert_eq!(results[0].status, Status::Saved, "{name}");
+        assert_eq!(
+            results[1].status,
+            if uncertain {
+                Status::CompletionUnresolved
+            } else {
+                Status::Rejected
+            },
+            "{name}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(fixture.0.join("destination.org")).unwrap(),
+            if uncertain {
+                archived.clone()
+            } else {
+                "* Target\n".into()
+            },
+            "{name}"
+        );
+        assert_eq!(snapshot(&session, b).0, archived, "{name}");
+        let outcome = session.buffers.save(b).unwrap();
+        session.saved_state(
+            session.buffers.get(b).unwrap().state(),
+            &outcome,
+            crate::session::AfterSave::Stay,
+        );
+        assert!(
+            session
+                .refile_results()
+                .iter()
+                .all(|r| r.status == Status::Saved)
+        );
+        assert_eq!(
+            std::fs::read_to_string(fixture.0.join("destination.org"))
+                .unwrap()
+                .matches("** Note")
+                .count(),
+            1,
+            "{name}"
+        );
+    }
+}

@@ -189,3 +189,6 @@ mod org_capture;
 
 #[path = "configuration/org_refile.rs"]
 mod org_refile;
+
+#[path = "configuration/org_archive.rs"]
+mod org_archive;

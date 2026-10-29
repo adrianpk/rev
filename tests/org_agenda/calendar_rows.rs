@@ -256,3 +256,27 @@ fn calendar_repeating_times() {
         ]
     );
 }
+
+// Explicit archive inclusion restores tagged parents and descendants while
+// COMMENT exclusion remains authoritative. Calendar rows retain source offsets.
+#[test]
+fn archive_calendar() {
+    let source = "* Archived :ARCHIVE:\n<2024-03-01 Fri>\n** Child\n<2024-03-01 Fri>\n* COMMENT Hidden :ARCHIVE:\n<2024-03-01 Fri>\n* Visible\n<2024-03-01 Fri>\n";
+    for (name, include, count) in [("default", false, 1), ("included", true, 3)] {
+        let (f, view) = observe(
+            &format!("org.time.zone='UTC'\norg.agenda.include_archived={include}"),
+            source,
+        );
+        assert!(view.complete(), "{name}: {:?}", view.issues);
+        assert_eq!(view.rows.len(), count, "{name}");
+        assert!(
+            view.rows
+                .iter()
+                .all(|r| !r.title.contains("Hidden") && source[r.byte..].starts_with('*'))
+        );
+        assert_eq!(
+            std::fs::read_to_string(f.0.join("calendar.org")).unwrap(),
+            source
+        );
+    }
+}

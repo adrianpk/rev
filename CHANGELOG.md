@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Archive Org subtrees in place with the ARCHIVE tag, below an Archive sibling, or in a checked archive file. External archives retain the origin file, outline path and task context. Archive moves preserve ordinary undo history and report each file's save separately through `org-archive-results`.
+- Archive Org subtrees in place with the ARCHIVE tag, below an Archive sibling, or in a checked archive file. External archives retain the origin file, outline path and task context. Select archive files explicitly for agenda views, and use `org.agenda.include_archived` to include tagged trees. Archive moves preserve ordinary undo history and report each file's save separately through `org-archive-results`.
 
 - Move complete Org subtrees with `C-c C-w` or copy them with `C-c M-w` into an explicitly selected heading. Configure `org.refile.targets` or use admitted agenda/source headings. Refile preserves shared views and undo history, rejects stale or unavailable destinations, and reports each ordinary file save separately through `org-refile-results`.
 - Start a native Org capture draft with `C-c c`, select a configured template or the Task fallback, and enter missing destination or text values explicitly. Edit the isolated draft with ordinary undo/redo, then save it with `C-c C-c` or abort with `C-c C-k` to return to the originating pane. Finalization checks the current destination, preserves its Org structure and file format, and keeps the draft after failure. If replacement succeeded but save completion is unresolved, retry saves the same insertion without duplicating it. Template expansion preserves inserted source literally and rejects executable forms.

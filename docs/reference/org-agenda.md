@@ -217,3 +217,18 @@ history inspection. Undo does not combine a multi-file bulk action into a false
 atomic disk operation.
 
 Reference: [remote editing and bulk selection](https://orgmode.org/manual/Agenda-Commands.html).
+
+## Archived sources
+
+`org.agenda.include_archived` defaults to `false`: calendar, TODO, search and
+matching views omit ARCHIVE-tagged headings and their descendants. Set it to
+`true` to inspect those selected subtrees. COMMENT trees remain excluded.
+Changing archive tags makes retained source observations stale; refresh with
+`g` to rebuild from canonical text under the selected policy.
+
+External archive files are selected explicitly, like other agenda files.
+There is no implicit archive-directory scan. Standard `.org_archive` files open
+in native Org mode; explicit source selection uses unsaved canonical buffers
+before disk text. Origin properties remain available to property matching and
+source inspection after an external archive. A directory root still admits only
+its immediate `.org` children; name an archive file directly to include it.

@@ -204,6 +204,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.capture.default_file` | String | `""` | Empty requires explicit destination entry. Relative paths use the assigning configuration source; discovery never creates files. |
 | `org.archive.location` | String | `"%s_archive::"` | Checked `file::heading` relative to the source file, `%s` expands its canonical path. Empty heading appends a level-one subtree. At most 4096 bytes; only local paths and the `%s` escape. |
 | `org.refile.targets` | Array of local path strings | `[]` | Explicit file/directory roots, relative to their assigning configuration source. Empty uses admitted agenda/source headings. At most 4096 roots, 4096 bytes per path; no startup observation. |
+| `org.agenda.include_archived` | Boolean | `false` | Exclude ARCHIVE-tagged subtrees and their children from selected calendar, TODO, search and tag/property sources. True admits them; COMMENT subtrees remain excluded. |
 | `org.agenda.sources` | Array of local path strings | `[]` | Explicit files or non-recursive directories of immediate .org files; 4096 roots, 4096 bytes per path, relative to the assigning config source. No implicit scan. |
 | `org.agenda.span` | String: "day", "week", "month", "year"; or Integer 1..=366 | `"week"` | Initial calendar span; months and years align to their first date. |
 | `org.agenda.views` | Array of typed records | `[]` | At most 64 named views, each with 1..32 blocks; see [agenda reference](org-agenda.md). |
@@ -432,7 +433,7 @@ or one third of the frame when shown.
 
 ## Product boundary
 
-Native mode activation includes Org; bundled syntax highlighting supports Rust.
+Native mode activation includes `.org` and `.org_archive` files; bundled syntax highlighting supports Rust.
 Other files and syntax failures retain editable plain presentation. TOML startup preferences configure
 existing actions. This baseline has no plugins, macros, package runtime, LSP,
 language completion, automatic

@@ -29,7 +29,9 @@ before either canonical text changes.
 ## Archive
 
 `C-c C-x a` toggles the current heading's local `ARCHIVE` tag without
-removing its source. `C-c C-x A` moves the complete entry under the same
+removing its source. Setting it hides the subtree; normal visibility cycling
+keeps archived trees closed. `org-show-subtree` and `org-show-all` reveal them
+explicitly. `C-c C-x A` moves the complete entry under the same
 parent's `Archive :ARCHIVE:` sibling, creating that sibling when absent.
 Duplicate archive siblings reject rather than choosing an arbitrary owner.
 
@@ -49,6 +51,9 @@ and literal body. The root receives `ARCHIVE_TIME`, `ARCHIVE_FILE`,
 `ARCHIVE_ITAGS` for inherited tags. The origin file and outline path remain
 inspectable source properties. Existing IDs and other metadata remain intact.
 Archive commands target one current subtree; cancel an active region first.
+`org.agenda.include_archived` controls tagged-tree inclusion; external archive
+files remain available through explicit source selection, with native Org
+recognition for `.org_archive`.
 
 Archive and refile share coherent canonical publication and independently
 acknowledged file saves. `org-archive-results` exposes the last move result.
@@ -82,7 +87,8 @@ dirty-buffer close/quit guards continue to apply.
 Refile uses the existing single cancellable Org worker, source byte/file and job
 time limits. Native structure is bounded to 8 MiB, 200000 nodes and 256 levels;
 selection retains at most `min(org.limits.agenda_rows, 4096)` headings and 1 MiB
-of labels. No worker or polling deadline remains active after work completes.
+of labels. Archive metadata values are limited to 4096 bytes each and capture
+placement admits at most 2 MiB of insertion text. No worker or polling deadline remains active after work completes.
 
 Reference: [Org refile and copy](https://orgmode.org/manual/Refile-and-Copy.html).
 

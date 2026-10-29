@@ -2,9 +2,10 @@ use std::path::Path;
 
 use super::Snapshot;
 
-const BUILTINS: [(&str, &str); 24] = [
+const BUILTINS: [(&str, &str); 25] = [
     ("*.rs", "rust"),
     ("*.org", "org"),
+    ("*.org_archive", "org"),
     ("*.go", "go"),
     ("*.rb", "ruby"),
     ("Gemfile", "ruby"),

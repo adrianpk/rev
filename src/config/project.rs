@@ -298,6 +298,10 @@ fn habit(base: &mut super::Habit, partial: &super::PartialHabit) {
 
 fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
     scalar(&mut base.agenda.span, partial.agenda.span);
+    scalar(
+        &mut base.agenda.include_archived,
+        partial.agenda.include_archived,
+    );
     if let Some(views) = &partial.agenda.views {
         base.agenda.views.clone_from(views);
     }

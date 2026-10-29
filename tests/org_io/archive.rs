@@ -14,6 +14,29 @@ fn archive_internal() {
         "{}",
         text(&session)
     );
+    assert_eq!(
+        session.view().screen_row(session.buffer().unwrap(), 2),
+        None
+    );
+    action(&mut session, C::ShowSubtree);
+    assert!(
+        session
+            .view()
+            .screen_row(session.buffer().unwrap(), 2)
+            .is_some()
+    );
+    action(&mut session, C::Cycle);
+    assert_eq!(
+        session.view().screen_row(session.buffer().unwrap(), 2),
+        None
+    );
+    action(&mut session, C::ShowAll);
+    assert!(
+        session
+            .view()
+            .screen_row(session.buffer().unwrap(), 2)
+            .is_some()
+    );
     action(&mut session, C::ToggleArchiveTag);
     assert_eq!(text(&session), source);
     action(&mut session, C::ArchiveSibling);
@@ -61,6 +84,7 @@ fn archive_external() {
         [RefileStatus::ChangedInBuffer; 2]
     );
     session.load(&path).unwrap();
+    assert!(session.buffer().unwrap().is_org());
     let archived = text(&session);
     assert!(
         archived.starts_with("* TODO Note :local:\nSCHEDULED:"),
@@ -149,4 +173,111 @@ fn archive_destinations() {
             "{name}"
         );
     }
+}
+
+// Existing sibling identity and nearest inherited location overrides use
+// native structure, not an arbitrary matching display title or source line.
+#[test]
+fn archive_context_targets() {
+    for (name, source, line, expected, accepted) in [
+        (
+            "existing sibling",
+            "* Archive :ARCHIVE:\n** Old\n* Note\n* Stay\n",
+            "3",
+            "* Archive :ARCHIVE:\n** Old\n** Note\n* Stay\n",
+            true,
+        ),
+        (
+            "later sibling",
+            "* Note\n* Stay\n* Archive :ARCHIVE:\n** Old\n",
+            "1",
+            "* Stay\n* Archive :ARCHIVE:\n** Old\n** Note\n",
+            true,
+        ),
+        (
+            "duplicate siblings",
+            "* Note\n* Archive :ARCHIVE:\n* Archive :ARCHIVE:\n",
+            "1",
+            "",
+            false,
+        ),
+        (
+            "self sibling",
+            "* Archive :ARCHIVE:\n** Old\n",
+            "1",
+            "",
+            false,
+        ),
+    ] {
+        let (_fixture, mut session) = refile::editor(source, "* Target\n");
+        session.execute(Command::GotoLine);
+        argument(&mut session, line);
+        action(&mut session, C::ArchiveSibling);
+        assert_eq!(
+            text(&session),
+            if accepted { expected } else { source },
+            "{name}: {}",
+            session.echo()
+        );
+        if accepted {
+            session.execute(Command::History(History::Undo));
+            assert_eq!(text(&session), source, "{name}");
+        } else {
+            assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+        }
+    }
+    let source = "#+ARCHIVE: absent/file.org::\n* Parent\n:PROPERTIES:\n:ARCHIVE: destination.org::* Done\n:END:\n** Note\n:PROPERTIES:\n:ARCHIVE_TIME: old\n:ID: stable\n:END:\nbody\n** Stay\n";
+    let (fixture, mut session) = refile::editor(source, "\u{feff}* Done\r\nbody EOF");
+    session.execute(Command::GotoLine);
+    argument(&mut session, "6");
+    action(&mut session, C::ArchiveSubtree);
+    assert!(
+        session.echo().contains("Archive result"),
+        "{}",
+        session.echo()
+    );
+    session.load(&fixture.0.join("destination.org")).unwrap();
+    assert!(session.buffer().unwrap().has_bom());
+    let archived = text(&session);
+    assert!(
+        archived.starts_with("* Done\r\nbody EOF\r\n** Note\r\n"),
+        "{archived}"
+    );
+    assert_eq!(archived.matches(":ARCHIVE_TIME:").count(), 1);
+    assert!(archived.contains(":ID: stable\r\n"));
+    assert!(archived.contains(":ARCHIVE_OLPATH: Parent\r\n"));
+    assert!(!fixture.0.join("absent").exists());
+}
+// Rejected read-only files and actual external replacements retain source,
+// metadata and history. Archive cancellation reaps the one existing worker.
+#[test]
+fn archive_rejection() {
+    use std::os::unix::fs::PermissionsExt;
+    for (name, readonly) in [("read-only archive", true), ("read-only source", false)] {
+        let source = "#+ARCHIVE: destination.org::\n* Note\n* Stay\n";
+        let (fixture, mut session) = refile::editor(source, "* Old\n");
+        let path = fixture.0.join(if readonly {
+            "destination.org"
+        } else {
+            "source.org"
+        });
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o444)).unwrap();
+        session.execute(Command::GotoLine);
+        argument(&mut session, "2");
+        action(&mut session, C::ArchiveSubtree);
+        assert_eq!(text(&session), source, "{name}: {}", session.echo());
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+        assert!(session.refile_results().is_empty(), "{name}");
+        assert_eq!(
+            std::fs::read_to_string(fixture.0.join("destination.org")).unwrap(),
+            "* Old\n"
+        );
+    }
+    let (_fixture, mut session) = refile::editor("* Note\n* Stay\n", "* Old\n");
+    session.execute(Command::Org(C::ArchiveSubtree));
+    cancel(&mut session);
+    settle(&mut session);
+    assert_eq!(text(&session), "* Note\n* Stay\n");
+    assert_eq!(session.remaining_input(Instant::now()), None);
+    assert!(session.buffer().unwrap().history().is_empty());
 }

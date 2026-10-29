@@ -108,3 +108,41 @@ fn query_partial_results() {
     assert!(!result.complete());
     assert!(!result.issues.is_empty());
 }
+
+// Archive inclusion is a typed policy for every query family. Explicit archive
+// sources stay discoverable, with COMMENT trees excluded even when archives show.
+#[test]
+fn archive_queries() {
+    let source = "* TODO Archived :ARCHIVE:work:\nneedle\n** TODO Child :work:\nneedle\n* COMMENT Hidden :ARCHIVE:work:\nneedle\n** TODO Hidden child :work:\nneedle\n* TODO Visible :work:\nneedle\n";
+    for (name, kind, expression) in [
+        ("todo", K::Todo, ""),
+        ("search", K::Search, "needle"),
+        ("tags", K::Tags, "work"),
+    ] {
+        for (include, expected) in [
+            (false, vec!["Visible"]),
+            (true, vec!["Archived", "Child", "Visible"]),
+        ] {
+            let (f, result) = query(
+                &format!("org.agenda.include_archived={include}"),
+                source,
+                kind,
+                expression,
+            );
+            assert!(result.complete(), "{name}: {:?}", result.issues);
+            assert_eq!(
+                result
+                    .rows
+                    .iter()
+                    .map(|r| r.title.as_ref())
+                    .collect::<Vec<_>>(),
+                expected,
+                "{name}/{include}"
+            );
+            assert_eq!(
+                std::fs::read_to_string(f.0.join("tasks.org")).unwrap(),
+                source
+            );
+        }
+    }
+}

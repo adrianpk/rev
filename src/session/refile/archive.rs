@@ -9,13 +9,7 @@ impl Session {
         // Reuse source, capture, read-only and pending interaction admission.
         let _ = self.refile_subtree(&model, &request)?;
         if request.command == C::ToggleArchiveTag {
-            let edits = model.archive_tag(
-                self.buffer().map_err(|e| e.to_string())?,
-                request.origin.point.position,
-            )?;
-            self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
-            self.message("Org archive tag toggled; source retained; agenda policy applies");
-            return Ok(());
+            return self.toggle_archive(&model, &request);
         }
         let work = self.archive_work(&model, &request)?;
         let subtree = self.refile_subtree(&model, &request)?;
@@ -28,6 +22,22 @@ impl Session {
             targets: None,
         });
         self.message("Archive validation pending; source unchanged; C-g cancels");
+        Ok(())
+    }
+    fn toggle_archive(&mut self, model: &Outline, request: &Request) -> Result<(), String> {
+        let archiving = !model.archive_tagged(
+            self.buffer().map_err(|e| e.to_string())?,
+            request.origin.point.position,
+        )?;
+        let edits = model.archive_tag(
+            self.buffer().map_err(|e| e.to_string())?,
+            request.origin.point.position,
+        )?;
+        self.publish_org_edits(&edits).map_err(|e| e.to_string())?;
+        if archiving {
+            self.org_command(C::HideSubtree);
+        }
+        self.message("Org archive tag toggled; source retained; agenda policy applies");
         Ok(())
     }
     fn archive_work(&self, model: &Outline, request: &Request) -> Result<Archive, String> {

@@ -765,6 +765,7 @@ pub struct Agenda {
     pub span: AgendaSpan,
     pub week_start: usize,
     pub views: Vec<AgendaView>,
+    pub include_archived: bool,
 }
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum AgendaSpan {
@@ -782,6 +783,7 @@ impl Default for Agenda {
             span: AgendaSpan::Week,
             week_start: 1,
             views: Vec::new(),
+            include_archived: false,
         }
     }
 }
@@ -792,6 +794,7 @@ pub struct PartialAgenda {
     pub span: Option<AgendaSpan>,
     pub week_start: Option<i64>,
     pub views: Option<Vec<AgendaView>>,
+    pub include_archived: Option<bool>,
 }
 /// Finite agenda discovery and IO budgets. Other Org limits remain with their
 /// existing owners until their typed operations are delivered.
