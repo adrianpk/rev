@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-34-refile`
-PR: pending
+PR: [#135](https://forge.adrianpk.com/adrianpk/rev/pulls/135)
 
 ## Purpose
 
@@ -106,6 +106,8 @@ rename. Retrying the same retained canonical destination writes one insertion.
 A save captured before refile cannot acknowledge its later logical state,
 even if the older save completes or has unresolved completion. Final controller
 receipts bind the clean pushed PR head after PR references.
+
+T34.3: `806728b058be2cc671caff6e03ad70db9fc58863`.
 
 ## Risks and Follow-ups
 
