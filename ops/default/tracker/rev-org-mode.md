@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 43 formula publication
+Active slice: Slice 44 table interchange
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -934,12 +934,14 @@ Details and exact checks: [Slice 43](../plan/rev-org-mode.md#slice-43-publish-or
 - [x] T43.1: Prepare all admitted results before applying the selected recalculation as one checked history unit.
 - [x] T43.2: Expose table/cell/column recalculation through contextual commands and M-x without implicit evaluation.
 - [x] T43.3: Exercise success, unsupported formulas, failure preservation and undo in the owned table journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#144](https://forge.adrianpk.com/adrianpk/rev/pulls/144).
 Task commits: T43.1 `bf412f7dd09ec93ed767fc6430a59ba1f496142e`, T43.2 `7b952916a66f05bfdf861475fd65ea5c335a416f`, T43.3 `060cee2e12457b034ca260bc4077b9b3e74c5407`.
 
-### Slice 44: import and export Org table data
+Canonical PR #144 merged into dev at `9698833f2061afda469515ee7f1fd06bb406f309`, verified against Forgejo and origin/dev. Required receipt `PVVHBQWSO3JDXA4CAUZX75RHJU` passed six ordered checks, 445 tests and two owned terminal sessions. Focused receipt `WJYTUOCOFJ3XUC6KGT6FZHZEOB` passed 231 tests and the configuration reference. Final receipts have zero failures, ignored tests or skipped sessions. Slice 43 is delivered.
+
+## Slice 44: import and export Org table data
 
 Contracts: ORG12 ORG27.
 Details and exact checks: [Slice 44](../plan/rev-org-mode.md#slice-44-import-and-export-org-table-data).

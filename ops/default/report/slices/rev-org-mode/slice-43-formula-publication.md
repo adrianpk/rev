@@ -1,6 +1,6 @@
 # Slice 43: publish Org recalculation as one transaction
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -89,8 +89,18 @@ binding catalog and configuration reference describe the actual accepted leaves.
 - Required batch `7MCSHW4DQONBX6V75VLWQQ6ICY` at `33891d3c23a240a6363daba19abba4269da00c55` stopped at the command regression check because the public command catalog omitted the three new identities. The catalog now includes all three, and the binding catalog retains one C-c C-c identity with its expanded behavior.
 - `cargo test --test commands palette::catalog_reference -- --nocapture`: passed after the catalog correction. Final evidence is regenerated for the subsequent clean PR head.
 
-Final ordered validation is recorded by the controller for the clean PR head
-before handoff.
+Final clean candidate `9698833f2061afda469515ee7f1fd06bb406f309` passed
+required receipt `PVVHBQWSO3JDXA4CAUZX75RHJU`: six ordered checks, 445 tests and
+two owned terminal sessions. Focused receipt `WJYTUOCOFJ3XUC6KGT6FZHZEOB`
+passed 231 library/configuration/source tests and the configuration reference.
+Both final receipts have zero failures, ignored tests or skipped sessions.
+An earlier focused run at the same candidate failed the existing process-lifetime
+cleanup assertion; its isolated rerun and the complete fresh focused batch
+passed without code, assertion or resource-limit changes. The cause remains
+unconfirmed; Acta note `01M645S0GK91F15H9QQ8S0J8TF` retains the diagnostic.
+
+Canonical PR #144 merged into dev at that candidate, verified against Forgejo
+and origin/dev. Slice 43 is delivered.
 
 ## Risks and Follow-ups
 
