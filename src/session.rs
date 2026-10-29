@@ -5,6 +5,8 @@ mod agenda_queries;
 mod agenda_sources;
 mod buffers;
 mod capture;
+mod refile;
+pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod edit;
 mod events;
 mod extended;
@@ -29,6 +31,7 @@ mod region;
 mod replace;
 mod save;
 mod search;
+mod source_batch;
 mod startup;
 mod timers;
 mod tree;
@@ -71,6 +74,8 @@ pub struct Session {
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
+    refile: Option<refile::State>,
+    refile_result: Vec<refile::ResultEntry>,
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
@@ -115,6 +120,7 @@ enum AfterSave {
 
 enum Pending {
     Capture(capture::Prompt),
+    Refile,
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -205,6 +211,8 @@ impl Session {
             buffers,
             org: org::Work::default(),
             capture: None,
+            refile: None,
+            refile_result: Vec::new(),
             windows,
             tree,
             kills,

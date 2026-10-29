@@ -13,6 +13,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
+| `C-c C-w` in Org | `org-refile` | Select a checked heading and move complete subtrees into its canonical buffer. |
+| `C-c M-w` in Org | `org-refile-copy` | Copy complete subtrees without removing the source. |
+| M-x | `org-refile-results` | Inspect each participant and its ordinary save outcome. |
 | `C-c c` | `org-capture` | Select a template and prepare an editable transient draft. |
 | `C-c C-c` in capture | `org-capture-finalize` | Revalidate, insert and save once; retain the draft on failure. |
 | `C-c C-k` in capture | `org-capture-kill` | Discard the draft and return to its mapped origin view. |

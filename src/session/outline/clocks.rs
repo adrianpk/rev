@@ -3,7 +3,6 @@ mod recent;
 mod recovery;
 mod state;
 pub(in crate::session) use departure::{Departure, Prompt};
-mod batch;
 mod completion;
 pub(super) mod switching;
 use crate::buffer::{

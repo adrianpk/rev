@@ -168,6 +168,8 @@ const TREE: &[(&str, &str)] = &[
 
 // Editing roles inherit the admitted editor map before these local entries.
 const ORG: &[(&str, &str)] = &[
+    ("C-c C-w", "org-refile"),
+    ("C-c M-w", "org-refile-copy"),
     ("C-c C-x h", "org-habit-show-graph"),
     ("S-Left", "org-shiftleft"),
     ("S-Right", "org-shiftright"),

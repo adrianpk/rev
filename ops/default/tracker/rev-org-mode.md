@@ -798,7 +798,7 @@ Contracts: ORG11 ORG02.
 Details and exact checks: [Slice 34](../plan/rev-org-mode.md#slice-34-refile-org-subtrees-across-canonical-documents).
 
 - [x] T34.1: Prepare cross-buffer subtree moves and destination insertion as one checked semantic operation.
-- [ ] T34.2: Keep source/destination revisions, history groups and durable-save outcomes explicit and recoverable.
+- [x] T34.2: Keep source/destination revisions, history groups and durable-save outcomes explicit and recoverable.
 - [ ] T34.3: Verify duplicate/stale targets, read-only buffers, external file replacement and partial publication truth.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

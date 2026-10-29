@@ -107,6 +107,10 @@ week_start = 1 # 1=Monday through 7=Sunday.
 templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
+[org.refile]
+# Explicit local file/directory roots; empty uses admitted agenda/source headings.
+targets = []
+
 [org.limits]
 # Positive finite discovery/read budgets; no idle scanning or permanent worker.
 agenda_rows = 20000 # Maximum 100000 retained agenda facts/rows.
@@ -394,6 +398,8 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-w" = "org-refile"
+"C-c M-w" = "org-refile-copy"
 "C-c C-x h" = "org-habit-show-graph"
 "S-Left" = "org-shiftleft"
 "S-Right" = "org-shiftright"

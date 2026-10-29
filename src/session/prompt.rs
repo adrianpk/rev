@@ -5,6 +5,9 @@ use super::{Action, Pending, Session};
 
 impl Session {
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
+        if let Some(action) = self.cancel_refile(command) {
+            return Some(action);
+        }
         if let Some(action) = self.cancel_calendar_prompt(command) {
             return Some(action);
         }
@@ -75,6 +78,9 @@ impl Session {
     }
 
     pub(super) fn complete_argument(&mut self) -> Action {
+        if matches!(self.pending, Some(Pending::Refile)) {
+            return self.complete_refile();
+        }
         if matches!(self.pending, Some(Pending::Capture(_))) {
             return self.complete_capture();
         }

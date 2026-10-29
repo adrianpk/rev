@@ -81,6 +81,11 @@ impl Document {
             &mut self.org.capture.default_file,
             &later.org.capture.default_file,
         );
+        merge.leaf(
+            &["org", "refile", "targets"],
+            &mut self.org.refile.targets,
+            &later.org.refile.targets,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(

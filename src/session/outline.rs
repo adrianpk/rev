@@ -127,6 +127,9 @@ impl Session {
         model: Arc<crate::org::Outline>,
         request: Request,
     ) -> Result<(), String> {
+        if matches!(request.command, OrgCommand::Refile | OrgCommand::RefileCopy) {
+            return self.start_refile(model, request);
+        }
         if request.command.estimate() {
             return self.start_estimate(model, request);
         }
@@ -219,14 +222,8 @@ impl Session {
 
 impl Session {
     fn org_session_command(&mut self, command: OrgCommand) -> Option<Action> {
-        if command == OrgCommand::Capture {
-            return Some(self.begin_capture());
-        }
-        if matches!(
-            command,
-            OrgCommand::CaptureKill | OrgCommand::CaptureFinalize
-        ) {
-            return Some(self.message("No capture draft is active"));
+        if let Some(action) = self.org_collection_command(command) {
+            return Some(action);
         }
         if command.agenda_query() {
             return Some(self.prompt_agenda_query(command, ""));
@@ -247,5 +244,18 @@ impl Session {
             return Some(self.clock_command(command));
         }
         None
+    }
+}
+
+impl Session {
+    fn org_collection_command(&mut self, command: OrgCommand) -> Option<Action> {
+        match command {
+            OrgCommand::RefileResults => Some(self.show_refile_results()),
+            OrgCommand::Capture => Some(self.begin_capture()),
+            OrgCommand::CaptureKill | OrgCommand::CaptureFinalize => {
+                Some(self.message("No capture draft is active"))
+            }
+            _ => None,
+        }
     }
 }

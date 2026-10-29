@@ -41,6 +41,9 @@ pub(super) fn settings(document: &Document) -> Settings {
     if let Some(value) = &document.org.capture.default_file {
         settings.org.capture.default_file.clone_from(value);
     }
+    if let Some(value) = &document.org.refile.targets {
+        settings.org.refile.targets.clone_from(value);
+    }
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);

@@ -18,3 +18,5 @@
 - [Failure recovery](recovery.md): retained state, publication outcomes and terminal restoration.
 
 - [Org agenda queries](org-agenda.md): TODO, text, tag/property grammar and checked source return.
+
+- [Org files](org-files.md): checked refile/copy and per-file persistence results.

@@ -85,6 +85,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     clock(document)?;
     timer(document)?;
     capture(&document.org.capture)?;
+    refile(&document.org.refile)?;
     estimates(document)
 }
 
@@ -496,6 +497,14 @@ fn capture(partial: &super::PartialCapture) -> Result<(), Failure> {
     }
     if let Some(value) = &partial.default_file {
         super::capture::path(value).map_err(|e| Failure::new("org.capture.default_file", e))?;
+    }
+    Ok(())
+}
+
+fn refile(partial: &super::PartialRefile) -> Result<(), Failure> {
+    if let Some(paths) = &partial.targets {
+        crate::org::agenda::SourceSelection::paths(paths)
+            .map_err(|e| Failure::new("org.refile.targets", e))?;
     }
     Ok(())
 }

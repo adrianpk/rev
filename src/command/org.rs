@@ -140,9 +140,12 @@ pub enum OrgCommand {
     Capture,
     CaptureKill,
     CaptureFinalize,
+    Refile,
+    RefileCopy,
+    RefileResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 138] = [
+    pub const ALL: [Self; 141] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -281,6 +284,9 @@ impl OrgCommand {
         Self::Capture,
         Self::CaptureKill,
         Self::CaptureFinalize,
+        Self::Refile,
+        Self::RefileCopy,
+        Self::RefileResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -422,6 +428,9 @@ impl OrgCommand {
             "org-capture",
             "org-capture-kill",
             "org-capture-finalize",
+            "org-refile",
+            "org-refile-copy",
+            "org-refile-results",
         ][self as usize]
     }
 

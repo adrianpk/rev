@@ -38,7 +38,10 @@ impl Session {
                 self.saved(&outcome, after)
             }
             Ok(SaveRequest::Confirm(confirmation)) => self.confirm(confirmation, after),
-            Err(error) => self.error(&format!("save: {error}")),
+            Err(error) => {
+                self.note_refile_rejection(id, &error.to_string());
+                self.error(&format!("save: {error}"))
+            }
         }
     }
 
@@ -82,6 +85,7 @@ impl Session {
     }
 
     pub(super) fn saved(&mut self, outcome: &Outcome, after: AfterSave) -> Action {
+        self.note_refile_save(outcome);
         let refreshed = if outcome.publication() != Publication::NotPublished {
             self.tree.observe_path(outcome.target())
         } else {

@@ -202,5 +202,6 @@ supported. Unsupported or uncovered local time rejects before mutation.
 
 | Org configured agendas | `org-agenda-custom-view`, `org-agenda-filter`, `org-agenda-filter-remove-all`, `org-agenda-sort`, `org-agenda-columns`, `org-agenda-month-view`, `org-agenda-year-view`, `org-agenda-span` |
 
+| Org refile and copy | `org-refile`, `org-refile-copy`, `org-refile-results` |
 | Org capture drafts | `org-capture`, `org-capture-kill`, `org-capture-finalize` |
 | Org agenda source actions | `org-agenda-bulk-mark`, `org-agenda-bulk-unmark`, `org-agenda-bulk-mark-all`, `org-agenda-bulk-unmark-all`, `org-agenda-bulk-action`, `org-agenda-action-results`, `org-agenda-undo` |

@@ -1,3 +1,4 @@
+mod refile;
 use std::time::{Duration, Instant};
 
 use crate::buffer::{BufferId, Stamp};
@@ -15,6 +16,7 @@ pub(super) struct Work {
     pub(super) sources_pending: Option<crate::org::agenda::SourceSelection>,
     pub(super) sources_running: bool,
     capture_running: bool,
+    refile_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
@@ -23,6 +25,8 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    RefileTargets(Result<crate::org::refile::Targets, String>),
+    RefilePlan(Result<crate::org::refile::Plan, String>),
     Color(Coloring),
     Capture(Result<crate::org::capture::Resolved, String>),
     CaptureFinalize(Result<crate::org::capture::Insertion, String>),
@@ -131,6 +135,9 @@ impl Session {
     }
 
     fn poll_org(&mut self) -> bool {
+        if self.org.refile_running {
+            return self.poll_refile_job();
+        }
         if self.org.capture_running {
             return self.poll_capture();
         }
@@ -156,16 +163,12 @@ impl Session {
         self.org.source = None;
         self.org.deadline = None;
         match result {
-            Ok(
-                Observation::Sources(_) | Observation::Capture(_) | Observation::CaptureFinalize(_),
-            ) => {
-                unreachable!("source discovery has its own publication checks")
-            }
             Ok(Observation::Color(coloring)) => {
                 self.publish_org(source.buffer, coloring);
                 self.finish_org_request();
             }
             Ok(Observation::Report(result)) => self.finish_clock_report(result),
+            Ok(_) => unreachable!("source discovery owns separate publication checks"),
             Err(JobError::Cancelled) => {
                 self.org.report = None;
                 self.finish_org_request();

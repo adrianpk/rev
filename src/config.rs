@@ -133,6 +133,7 @@ pub struct Org {
     pub habit: Habit,
     pub agenda: Agenda,
     pub capture: Capture,
+    pub refile: Refile,
     pub limits: OrgLimits,
 }
 
@@ -151,6 +152,7 @@ impl Default for Org {
             habit: Habit::default(),
             agenda: Agenda::default(),
             capture: Capture::default(),
+            refile: Refile::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -171,6 +173,7 @@ pub struct PartialOrg {
     pub habit: PartialHabit,
     pub agenda: PartialAgenda,
     pub capture: PartialCapture,
+    pub refile: PartialRefile,
     pub limits: PartialOrgLimits,
 }
 
@@ -835,4 +838,15 @@ pub struct Capture {
 pub struct PartialCapture {
     pub templates: Option<Vec<CaptureTemplate>>,
     pub default_file: Option<String>,
+}
+
+/// Explicit local refile roots. Empty uses admitted agenda/source headings.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Refile {
+    pub targets: Vec<String>,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialRefile {
+    pub targets: Option<Vec<String>>,
 }

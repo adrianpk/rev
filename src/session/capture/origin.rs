@@ -1,6 +1,9 @@
 use super::*;
 impl Session {
     pub(in crate::session) fn begin_capture(&mut self) -> Action {
+        if self.refile.is_some() {
+            return self.message("Refile owns target selection; C-g cancels");
+        }
         let result = self.capture_origin();
         let origin = match result {
             Ok(origin) => origin,

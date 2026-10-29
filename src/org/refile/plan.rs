@@ -146,3 +146,31 @@ impl Plan {
         Ok(text)
     }
 }
+
+impl Plan {
+    pub(crate) fn visit(
+        &self,
+        buffers: &crate::buffer::Buffers,
+    ) -> Result<crate::buffer::Visit, String> {
+        match &self.destination.version {
+            SourceVersion::Buffer(stamp) => {
+                let buffer = buffers.get(stamp.buffer).map_err(|e| e.to_string())?;
+                self.check_destination(buffer)?;
+                Ok(crate::buffer::Visit::Existing(stamp.buffer))
+            }
+            SourceVersion::Disk(observed) => buffers
+                .prepare_observed_visit(
+                    self.destination
+                        .path
+                        .as_deref()
+                        .ok_or("Refile disk target has no path")?,
+                    crate::file::Loaded::from_snapshot(
+                        self.destination.snapshot(),
+                        self.destination.bom,
+                    ),
+                    observed,
+                )
+                .map_err(|e| e.to_string()),
+        }
+    }
+}

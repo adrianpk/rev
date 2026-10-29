@@ -599,3 +599,7 @@ One selected-buffer agenda admits 128 habit rows, each with the existing entry
 and history bounds. Exceeding the row count diagnoses an incomplete request
 before replacing the current view. The shared native worker owns graph work and
 cancellation; inactive agendas create no additional polling or source changes.
+
+## Refile and copy
+
+Use `C-c C-w` to move complete subtrees or `C-c M-w` to copy them to an explicitly selected heading. See [Org files](org-files.md) for source selection, coherent publication and ordinary per-file saves.

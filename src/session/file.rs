@@ -74,6 +74,7 @@ impl Session {
             return self.observation_argument(pending, draft);
         }
         match pending {
+            Pending::Refile => self.refile_argument(draft),
             Pending::Timer(prompt) => self.timer_argument(prompt, draft),
             Pending::Clock(prompt) => self.clock_argument(*prompt, draft),
             Pending::Timestamp(prompt) => self.timestamp_argument(*prompt, draft),
@@ -90,7 +91,8 @@ impl Pending {
     fn org_argument(&self) -> bool {
         matches!(
             self,
-            Self::AgendaSources
+            Self::Refile
+                | Self::AgendaSources
                 | Self::AgendaQuery(_)
                 | Self::AgendaCustom(_)
                 | Self::AgendaBulk(_)

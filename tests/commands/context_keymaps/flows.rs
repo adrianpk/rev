@@ -142,7 +142,12 @@ fn selected_arguments() {
         let stamp = session.buffer().unwrap().stamp();
         session.execute(Command::ExecuteExtended);
         session.handle(Event::Paste("file".into()));
-        for _ in 0..4 {
+        let row = Command::matching("file")
+            .iter()
+            .position(|c| *c == Command::WriteFile)
+            .expect("native write-file candidate");
+        assert!(row > 0, "test selects a later candidate");
+        for _ in 0..row {
             session.handle(next.clone());
         }
         session.handle(accept.clone());

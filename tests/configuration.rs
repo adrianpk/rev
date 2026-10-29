@@ -186,3 +186,6 @@ mod org_agenda;
 
 #[path = "configuration/org_capture.rs"]
 mod org_capture;
+
+#[path = "configuration/org_refile.rs"]
+mod org_refile;

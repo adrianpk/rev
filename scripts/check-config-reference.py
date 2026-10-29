@@ -38,6 +38,7 @@ TABLES = {
     "org.habit":"PartialHabit",
     "org.agenda":"PartialAgenda",
     "org.capture":"PartialCapture",
+    "org.refile":"PartialRefile",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",

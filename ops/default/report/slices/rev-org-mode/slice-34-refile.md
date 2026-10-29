@@ -31,6 +31,17 @@ stays with its immutable source snapshot. Shared structural normalization serves
 capture and refile. Plans qualify ordinary replacements without publishing or
 writing files. No synthetic canonical buffer identity represents a fragment.
 
+T34.2 provides `C-c C-w`, `C-c M-w` and `org-refile-results`, with typed
+`org.refile.targets` and bounded explicit file/line/heading selection. The
+existing worker owns discovery and normalization. Refile and copy reserve every
+participating history, source point and viewport before changing either text.
+The shared source-batch helper also retains existing clock publication behavior.
+
+Refiling changes buffers without saving. Ordinary file-save outcomes update
+per-participant results; partial saves retain canonical text and distinguish
+rejection from actual replacement with unresolved completion. Later edits or
+closure invalidate old result pins. No retry repeats the move implicitly.
+
 ## Contracts Added or Changed
 
 - ORG11: checked complete subtree and destination plans.
@@ -55,7 +66,24 @@ The literal block fixture uses the native comma-quoted heading syntax, retaining
 its expected bytes during movement. Source and destination disk bytes remain
 unchanged while planning and publishing the tested in-memory edits.
 
+T34.1/report introduction: `f907554f0469a85cb6663b4641221d9160868da4`.
+
+T34.2 checks:
+
+- `cargo test --test org_io refile -- --nocapture`: two native owned-file
+  workflows pass, including move/copy, cancellation, independent saves and undo.
+- `cargo test --test configuration refile_policy -- --nocapture`: typed target
+  paths, finite bounds, leaf reset and non-writing startup pass.
+- `cargo test --test commands selected_arguments -- --nocapture` and
+  `cargo test --test commands catalog_reference -- --nocapture`: passed after
+  adding the implemented names and selecting the actual write-file row while
+  retaining its held-key/save assertions.
+- `python3 scripts/check-config-reference.py`: 150 schema/catalog leaves,
+  54 RGB roles, 230 bindings and 18535 exact packaged reference bytes agree.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- Changed-source quality passes at unchanged limits.
+
 ## Risks and Follow-ups
 
-T34.2 native workflow/coherent publication and T34.3 failure evidence remain in
-progress. The delivery-set gate remains controller-owned.
+T34.3 failure/terminal evidence remains in progress. The delivery-set gate
+remains controller-owned.
