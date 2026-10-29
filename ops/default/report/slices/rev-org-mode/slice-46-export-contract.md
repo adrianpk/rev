@@ -20,6 +20,13 @@ Projected native structural offsets are separate from canonical source evidence.
 Configuration selects a fixed native backend set and finite include, expansion
 and rendered-output budgets. No export preparation writes or saves a source.
 
+T46.2 resolves local quoted includes through the shared checked canonical
+reader, including nested relative paths and explicit line ranges. It rejects
+cycles, missing files, unsupported options, incomplete native structure and
+bounded source/node/expansion limits. Source blocks remain literal. Text-only
+macros support positional arguments and bounded nesting; executable definitions
+reject, while unknown names remain source with explicit diagnostics.
+
 ## Implementation Notes
 
 This is the checked preparation layer for native renderers. It has no command,
@@ -41,6 +48,10 @@ file publication, code evaluation or automatic export effect.
 - `cargo test --test org_io --test configuration -- export_`: six selected tests passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_io --test configuration -- -D warnings`: passed.
 - Changed-source quality: passed with unchanged native limits.
+
+- `cargo test --test org_io export::`: six export contract workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test configuration -- -D warnings`: passed after include/macro implementation.
+- Changed-source quality: passed with unchanged native limits after factoring bounded parsing and composition responsibilities.
 
 ## Risks and Follow-ups
 

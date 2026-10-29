@@ -1,6 +1,8 @@
 //! Checked immutable export data. Preparation has no save, edit, destination,
 //! process or network authority. Projected offsets never identify canonical text.
 mod document;
+mod include;
+mod macros;
 mod options;
 mod scope;
 use super::{io::source::Budget, structure};
@@ -72,8 +74,12 @@ pub struct Snapshot {
     metadata: Metadata,
     options: Options,
     export_bytes: usize,
+    diagnostics: Vec<String>,
 }
 impl Snapshot {
+    pub fn diagnostics(&self) -> &[String] {
+        &self.diagnostics
+    }
     pub fn text(&self) -> RopeSlice<'_> {
         self.text.slice(..)
     }
@@ -108,6 +114,7 @@ impl Snapshot {
     }
 }
 pub struct Work {
+    reader: super::io::Sources,
     source: Evidence,
     scope: Range<usize>,
     request: Request,
@@ -132,6 +139,7 @@ impl Work {
         }
         let scope = scope::capture(buffer, &request.scope)?;
         Ok(Self {
+            reader: super::io::Sources::new(buffers, &policy.limits)?,
             source: Evidence {
                 path: buffer.file().map(|f| f.path().to_owned()),
                 version: SourceVersion::Buffer(buffer.stamp()),
@@ -154,18 +162,29 @@ impl Work {
         budget.check()?;
         let nodes = document::nodes(&self.source.text, &cancel)?;
         let range = scope::select(&nodes, self.scope, &self.request.scope)?;
-        let metadata = Metadata::observe(&self.source.text, &nodes)?;
+        let definitions = macros::Definitions::observe(&self.source.text, &nodes)?;
+        let mut metadata = Metadata::observe(&self.source.text, &nodes)?;
         let options = self
             .request
             .options
             .clone()
             .unwrap_or(metadata.options.clone());
-        let text: Rope = self.source.text.byte_slice(range).into();
+        let (text, sources) =
+            include::expand(self.source, range, &self.reader, &self.policy, &cancel)?;
+        let expanded = macros::expand(
+            text,
+            definitions,
+            &mut metadata,
+            &self.policy.limits,
+            &cancel,
+        )?;
+        let text = expanded.text;
         let nodes = document::nodes(&text, &cancel)?;
         Ok(Snapshot {
             text,
             nodes,
-            sources: vec![self.source],
+            sources,
+            diagnostics: expanded.diagnostics,
             request: self.request,
             metadata,
             options,

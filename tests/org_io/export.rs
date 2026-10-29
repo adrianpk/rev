@@ -116,3 +116,100 @@ fn export_options_contract() {
     policy.export.default_format = ExportBackend::Org;
     assert!(Work::new(&buffers, id, request(Scope::Buffer), &policy).is_err());
 }
+
+// Native include directives resolve relative to each observed source, prefer
+// unsaved canonical buffers and preserve all literal source-block contents.
+#[test]
+fn export_include_sources() {
+    let f = Fixture::new();
+    let original = "#+TITLE: Includes\n#+INCLUDE: \"sub/child.org\"\n#+begin_src sh\n#+INCLUDE: \"absent.org\"\ntouch marker\n#+end_src\n";
+    let path = f.write("root.org", original);
+    let child = f.write(
+        "sub/child.org",
+        "* Child\n#+INCLUDE: \"leaf.org\" :lines \"2-3\"\n",
+    );
+    f.write("sub/leaf.org", "skip\nretained 界\nskip too\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let cid = buffers.visit(&child).unwrap();
+    let b = buffers.get_mut(cid).unwrap();
+    let e = rev::buffer::edit::Replacement {
+        source: b.span(2..7).unwrap(),
+        text: "Unsaved".into(),
+    };
+    let plan = b.prepare(&[e], &[], None).unwrap();
+    b.publish(plan, &mut []).unwrap();
+    let result = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    let text = result.text().to_string();
+    assert!(text.contains("* Unsaved\nretained 界\n"), "{text}");
+    assert!(text.contains("#+INCLUDE: \"absent.org\"\ntouch marker"));
+    assert_eq!(result.sources().len(), 3);
+    assert_eq!(
+        result.sources()[1].version(),
+        &rev::org::export::SourceVersion::Buffer(buffers.get(cid).unwrap().stamp())
+    );
+    assert_eq!(std::fs::read_to_string(path).unwrap(), original);
+    assert!(!f.0.join("marker").exists());
+    assert_eq!(buffers.get(cid).unwrap().history().len(), 1);
+}
+// Text-only macros admit bounded positional substitution and nested expansion.
+// Unknown names remain literal with diagnostics; code, links and drawers are inert.
+#[test]
+fn export_text_macros() {
+    let f = Fixture::new();
+    let source = "#+TITLE: {{{greet(World)}}}\n#+MACRO: greet Hello $1\n#+MACRO: outer {{{greet($1)}}}!\n* Heading\n{{{outer(界)}}} /emphasis/ {{{unknown}}}\n~{{{greet(code)}}}~ [[file:{{{unknown}}}][link]]\n#+begin_example\n{{{greet(literal)}}}\n#+end_example\n";
+    let path = f.write("macros.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let result = work(&buffers, id, Scope::Buffer)
+        .run(&Cancellation::default())
+        .unwrap();
+    let text = result.text().to_string();
+    assert!(
+        text.contains("Hello 界! /emphasis/ {{{unknown}}}"),
+        "{text}"
+    );
+    assert!(!text.contains("#+MACRO:"));
+    assert!(text.contains("~{{{greet(code)}}}~"));
+    assert!(text.contains("{{{greet(literal)}}}"));
+    assert!(text.contains("file:{{{unknown}}}"));
+    assert_eq!(result.metadata().title.as_deref(), Some("Hello World"));
+    assert_eq!(result.diagnostics().len(), 1);
+    assert_eq!(std::fs::read_to_string(path).unwrap(), source);
+}
+// A cycle, malformed/unsupported directive or evaluation request fails closed.
+// Data-local and block code have no evaluator or subprocess boundary here.
+#[test]
+fn export_expansion_failures() {
+    let f = Fixture::new();
+    f.write("child.org", "body\n");
+    for (name, source) in [
+        ("missing", "#+INCLUDE: \"absent.org\"\n"),
+        ("cycle", "#+INCLUDE: \"root.org\"\n"),
+        ("option", "#+INCLUDE: \"child.org\" :minlevel 1\n"),
+        ("network", "#+INCLUDE: \"https://example.invalid/data\"\n"),
+        (
+            "eval",
+            "#+MACRO: bad (eval (shell-command \"touch marker\"))\n{{{bad}}}\n",
+        ),
+        (
+            "recursive macro",
+            "#+MACRO: a {{{b}}}\n#+MACRO: b {{{a}}}\n{{{a}}}\n",
+        ),
+        ("argument", "#+MACRO: greet Hello $1\n{{{greet}}}\n"),
+    ] {
+        let path = f.write("root.org", source);
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&path).unwrap();
+        assert!(
+            work(&buffers, id, Scope::Buffer)
+                .run(&Cancellation::default())
+                .is_err(),
+            "{name}"
+        );
+        assert_eq!(std::fs::read_to_string(path).unwrap(), source);
+        assert!(!f.0.join("marker").exists());
+    }
+}

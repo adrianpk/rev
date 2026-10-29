@@ -39,3 +39,24 @@ pub(super) fn select(
         .map(|n| n.source.clone())
         .ok_or_else(|| "No native Org subtree at export point".into())
 }
+
+pub(super) fn region(nodes: &[structure::Raw], range: &Range<usize>) -> Result<(), String> {
+    for n in nodes {
+        let literal = matches!(
+            n.kind,
+            StructureKind::Block(_)
+                | StructureKind::Drawer
+                | StructureKind::PropertyDrawer
+                | StructureKind::FixedWidth
+                | StructureKind::Comment
+        );
+        if literal
+            && n.source.start < range.end
+            && range.start < n.source.end
+            && (range.start > n.source.start || range.end < n.source.end)
+        {
+            return Err("Export selection splits a literal native Org form".into());
+        }
+    }
+    Ok(())
+}

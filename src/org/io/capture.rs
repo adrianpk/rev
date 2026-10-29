@@ -41,19 +41,31 @@ struct Open {
 }
 pub struct CaptureRead {
     path: PathBuf,
+    sources: Sources,
+}
+pub(in crate::org) struct Sources {
     open: Vec<Open>,
     limits: OrgLimits,
 }
 impl CaptureRead {
     pub fn new(buffers: &Buffers, path: &Path, limits: &OrgLimits) -> Result<Self, String> {
+        source_path(path)?;
+        Ok(Self {
+            path: path.to_owned(),
+            sources: Sources::new(buffers, limits)?,
+        })
+    }
+    pub fn run(self, cancel: &Cancellation) -> Result<DestinationSource, String> {
+        let budget = Budget {
+            cancel,
+            deadline: Instant::now() + Duration::from_secs(self.sources.limits.job_seconds as u64),
+        };
+        self.sources.read(&self.path, &budget)
+    }
+}
+impl Sources {
+    pub(in crate::org) fn new(buffers: &Buffers, limits: &OrgLimits) -> Result<Self, String> {
         valid_limits(limits)?;
-        let value = path
-            .to_str()
-            .ok_or("Capture destination path must be UTF-8")?;
-        crate::config::capture::path(value)?;
-        if value.is_empty() {
-            return Err("Enter a capture destination file".into());
-        }
         let mut open = Vec::new();
         for b in buffers.iter().filter(|b| b.file().is_some()) {
             if open.len() == 4096 {
@@ -72,18 +84,18 @@ impl CaptureRead {
             });
         }
         Ok(Self {
-            path: path.to_owned(),
             open,
             limits: limits.clone(),
         })
     }
-    pub fn run(self, cancel: &Cancellation) -> Result<DestinationSource, String> {
-        let budget = Budget {
-            cancel,
-            deadline: Instant::now() + Duration::from_secs(self.limits.job_seconds as u64),
-        };
+    pub(in crate::org) fn read(
+        &self,
+        path: &Path,
+        budget: &Budget<'_>,
+    ) -> Result<DestinationSource, String> {
+        source_path(path)?;
         budget.check()?;
-        let location = file::resolve(&self.path).map_err(|e| e.to_string())?;
+        let location = file::resolve(path).map_err(|e| e.to_string())?;
         if let Some(source) = self.canonical(&location)? {
             return Ok(source);
         }
@@ -97,7 +109,7 @@ impl CaptureRead {
                 text: Rope::new(),
             });
         }
-        self.disk(&location, &budget)
+        self.disk(&location, budget)
     }
     fn canonical(&self, location: &Location) -> Result<Option<DestinationSource>, String> {
         let identity = location.observation().map(|o| (o.device, o.inode));
@@ -184,4 +196,15 @@ impl DestinationSource {
                 .map_err(|e| e.to_string()),
         }
     }
+}
+
+fn source_path(path: &Path) -> Result<(), String> {
+    let value = path
+        .to_str()
+        .ok_or("Capture destination path must be UTF-8")?;
+    crate::config::capture::path(value)?;
+    if value.is_empty() {
+        return Err("Enter a capture destination file".into());
+    }
+    Ok(())
 }
