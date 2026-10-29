@@ -788,6 +788,8 @@ Details and exact checks: [Slice 33](../plan/rev-org-mode.md#slice-33-finalize-o
 - [x] T33.3: Verify file/heading/list/table/date-tree capture and failed publication with actual owned files.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical [PR #134](https://forge.adrianpk.com/adrianpk/rev/pulls/134) targets dev; the Slice 33 report is reviewing. T33.1 is `0cdd4a33a0f3`, T33.2 is `7396cdeaa1fa` and T33.3 is `85a4a9279e7c`. Checked publication, ordinary undo/format preservation, recoverable drafts, pinned unresolved-save retry and owned RGB/NO_COLOR save/rejection cases pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
+
 ### Slice 34: refile Org subtrees across canonical documents
 
 Contracts: ORG11 ORG02.

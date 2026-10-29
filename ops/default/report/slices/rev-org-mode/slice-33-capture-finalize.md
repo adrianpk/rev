@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-33-capture-finalize`
-PR: pending
+PR: [#134](https://forge.adrianpk.com/adrianpk/rev/pulls/134)
 
 ## Purpose
 
@@ -84,6 +84,8 @@ T33.2: `7396cdeaa1fa73652e9baa5d08ab06b560883ede` (native finalize lifecycle and
   invocation and the retained source/role regressions.
 - `python3 scripts/check-config-reference.py`: 149 leaves, 54 RGB roles, 228
   default bindings and 18370 exact packaged reference bytes agree.
+
+T33.3: `85a4a9279e7c4a67a253c0444e0062fed5dfcfbd`.
 
 T33.3 focused checks:
 
