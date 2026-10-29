@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-29-agenda-customization`
-PR: pending
+PR: `#130`
 
 ## Purpose
 
@@ -60,8 +60,9 @@ retained source identities stay deduplicated. No assertions or limits weakened.
 
 ## Validation
 
-T29.1: `d6626fc1a2d1` (report introduction).
-T29.2: `0cf592cb0ab3`.
+T29.1: `d6626fc1a2d11f1a5f1ca52928eaa8e0e2012465` (report introduction).
+T29.2: `0cf592cb0ab313eea7eb293ee04e9f41a29781d1`.
+T29.3: `8fd93c685e4661a958c9fa0ce4636eb4a3dc13ff`.
 
 
 - `cargo test --test org_agenda --test configuration custom_ -- --nocapture`:
@@ -69,6 +70,8 @@ T29.2: `0cf592cb0ab3`.
 - Development checks found the aligned-week/day-block date error; block spans
   now use the retained requested date. The original assertions pass.
 - Changed-source quality passes at unchanged limits. The exhaustive reference agrees on 147 entries, 54 RGB roles and 204 bindings.
+- `cargo test --test org_agenda custom_ -- --nocapture`: thirteen custom cases passed after the boundary checks.
+- `cargo test --test org_agenda habit_views::habit_no_color -- --exact --nocapture`: passed.
 - `cargo test --test org_agenda custom_native -- --nocapture`: two native
   workflows passed, zero failures or ignored tests.
 - `cargo test --test commands palette::catalog_dispatch -- --exact`: all named
@@ -87,3 +90,5 @@ T29.2: `0cf592cb0ab3`.
 ## Risks and Follow-ups
 
 The delivery-set full gate has not run.
+
+[Canonical PR #130](https://forge.adrianpk.com/adrianpk/rev/pulls/130) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.
