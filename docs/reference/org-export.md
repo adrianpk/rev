@@ -104,3 +104,36 @@ authority, including aliases. The owned worker separately rechecks disk source
 observations. Stale evidence requires a new snapshot; it cannot be relabeled as
 current text or permission to write. Destination selection, confirmation and
 publication remain with the ordinary file owner and renderer.
+
+## Native text and Org file commands
+
+Run `org-export-to-text`, `org-export-to-utf8`, `org-export-to-markdown` or
+`org-export-to-org` through M-x. Enter `buffer`, `subtree` or `region` scope;
+empty selects the buffer. Region requires an active region. Enter an OPTIONS
+selection or leave it empty to use file declarations, then enter the literal
+local destination path. Relative output paths use the source directory. No
+parent directory is created. C-g cancels prompts or requests cancellation of
+owned work; completed file publication remains visible.
+
+Existing output files require an explicit `yes` or `no` decision tied to the
+observed target. Any live canonical file or input source, including physical
+aliases, is unavailable as a destination. Sources and target evidence are
+rechecked before atomic publication. Export never changes source association,
+modified state, undo history or editing positions. Read-only sources can export.
+
+ASCII rejects any unrepresentable Unicode scalar with its code point and output
+byte offset; it never substitutes replacement characters. UTF-8 and Markdown
+retain Unicode. Markdown converts native headings, markup, lists, tables, links,
+notes and literal code blocks; code fences cannot be closed by embedded shorter
+runs. Literal paragraph markup is escaped. The first data row becomes a
+Markdown table header; all data rows and cell values remain present. Org retains
+the prepared native syntax and source newlines/EOF. Includes and text macros
+have already been resolved by preparation.
+
+The title, author, numbering, table of contents, TODO and tag options apply to
+the selected output. Region text has no generated title/contents header. A
+subtree starts at heading level one. Explicit Org option overrides and inherited
+subtree options are written as a data-only OPTIONS declaration. Unknown keyword
+or dynamic forms retain a literal representation with diagnostics. Named and
+inline footnotes retain references and bodies; missing or duplicate definitions
+reject the output rather than dropping content.

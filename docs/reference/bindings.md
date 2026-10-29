@@ -290,6 +290,8 @@ configuration snapshot; source edits take effect after restarting.
 
 | M-x | `org-table-import`, `org-table-export` | Read or write checked CSV/TSV table data; existing output files require confirmation. |
 
+| M-x | `org-export-to-text`, `org-export-to-utf8`, `org-export-to-markdown`, `org-export-to-org` | Export a checked buffer, subtree or region to an explicit local file; confirm observed replacements. |
+
 | M-x | `org-columns`, `org-columns-insert-dblock` | Inspect source property columns or explicitly insert/update their native report. |
 
 ## Configuration keymap contracts

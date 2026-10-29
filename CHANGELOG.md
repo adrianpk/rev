@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Export Org buffers, subtrees or selected regions to ASCII, UTF-8 text, Markdown or Org files through native commands. Export includes unsaved text, retains tables, links and footnotes, and never saves source or runs code. Select options explicitly, confirm existing destination replacements, and receive a diagnostic when ASCII cannot represent a character.
+
 - Inspect source hierarchies with `org-columns` and capture property, effort and clock totals in native `columnview` reports. Summaries remain projections; explicit updates replace only recognized report bodies and undo as one change.
 
 

@@ -21,10 +21,18 @@ retain their meaning. ASCII rejects unrepresentable Unicode before publication.
 Markdown chooses safe code fences and escapes literal paragraph markup. Org
 retains the prepared source syntax. No renderer edits or saves canonical source.
 
+T47.2 adds four compiled M-x commands with explicit scope, options and literal
+local destination prompts. Existing files require observed replacement consent.
+Canonical and disk inputs, live destination buffers and physical aliases are
+checked before publication. Sources, view changes and cancellation retain their
+ordinary owners; a late cancellation cannot hide a completed file effect.
+
 ## Implementation Notes
 
 Rendering uses the native structure and inline observations over immutable
-projection text. Task keywords come from the existing native workflow owner.
+projection text. Task keywords come from the existing native workflow owner. The bounded file
+writer is shared with table interchange; the ordinary atomic publisher owns
+staging, replacement, permissions and truthful completion outcomes.
 
 ## Contracts Added or Changed
 
@@ -41,6 +49,10 @@ projection text. Task keywords come from the existing native workflow owner.
 
 - `cargo test --test org_io text_export`: four renderer workflows passed, zero failures or ignored tests.
 - Changed-source quality: passed with unchanged native limits.
+
+- `cargo test --test org_io text_export`: eight renderer and file workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
+- Changed-source quality: passed after command, scope and publication integration.
 
 ## Risks and Follow-ups
 

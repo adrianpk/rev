@@ -1,6 +1,7 @@
 //! Explicit bounded clock state IO. This store has no source edit authority:
 //! restoring requires separately checked canonical source and user selection.
 mod clock;
+pub(in crate::org) mod publication;
 pub use clock::{ClockState, ClockStore};
 
 mod capture;

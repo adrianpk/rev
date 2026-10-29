@@ -1,5 +1,6 @@
 mod attachment;
 mod document;
+mod exports;
 mod links;
 mod refile;
 mod tables;
@@ -25,6 +26,8 @@ pub(super) struct Work {
     document_running: bool,
     table_running: bool,
     pub(super) table_effect: bool,
+    pub(super) export_running: bool,
+    pub(super) export_effect: bool,
     attachment_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
@@ -34,6 +37,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Export(Result<crate::org::export::output::Output, String>),
     Table(Result<crate::org::table::Output, String>),
     Document(Result<crate::org::document::Output, String>),
     AttachmentPlan(Result<crate::org::attachment::Plan, String>),
@@ -152,6 +156,9 @@ impl Session {
     }
 
     fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.export_running {
+            return Some(self.poll_export());
+        }
         if self.org.table_running {
             return Some(self.poll_table());
         }

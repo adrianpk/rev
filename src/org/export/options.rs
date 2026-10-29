@@ -102,7 +102,7 @@ impl Metadata {
         Ok(())
     }
 }
-fn preamble(nodes: &[structure::Raw], n: &structure::Raw) -> bool {
+pub(super) fn preamble(nodes: &[structure::Raw], n: &structure::Raw) -> bool {
     n.parent
         .is_none_or(|p| nodes[p].kind == StructureKind::Section && nodes[p].parent.is_none())
 }

@@ -48,6 +48,12 @@ impl Session {
         if self.org_interaction_pending() {
             return self.message("Org structural observation is pending; C-g cancels");
         }
+        self.start_outline_request(command)
+    }
+    fn start_outline_request(&mut self, command: OrgCommand) -> Action {
+        if let Some(backend) = command.export() {
+            return self.begin_export(command, backend);
+        }
         self.org.request = Some(Request {
             view: self.windows.selected_id(),
             origin: self.view().clone(),
@@ -61,7 +67,10 @@ impl Session {
     }
 
     fn org_interaction_pending(&self) -> bool {
-        self.org.request.is_some() || self.org.report.is_some() || self.document_request.is_some()
+        self.org.request.is_some()
+            || self.org.report.is_some()
+            || self.document_request.is_some()
+            || self.export_request.is_some()
     }
 
     pub(super) fn finish_org_request(&mut self) {

@@ -197,9 +197,13 @@ pub enum OrgCommand {
     TableExport,
     Columns,
     ColumnsInsertDblock,
+    ExportText,
+    ExportUtf8,
+    ExportMarkdown,
+    ExportOrg,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 195] = [
+    pub const ALL: [Self; 199] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -395,6 +399,10 @@ impl OrgCommand {
         Self::TableExport,
         Self::Columns,
         Self::ColumnsInsertDblock,
+        Self::ExportText,
+        Self::ExportUtf8,
+        Self::ExportMarkdown,
+        Self::ExportOrg,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -593,6 +601,10 @@ impl OrgCommand {
             "org-table-export",
             "org-columns",
             "org-columns-insert-dblock",
+            "org-export-to-text",
+            "org-export-to-utf8",
+            "org-export-to-markdown",
+            "org-export-to-org",
         ][self as usize]
     }
 
@@ -900,5 +912,18 @@ impl OrgCommand {
             self,
             Self::TableRecalculate | Self::TableRecalculateCell | Self::TableRecalculateColumn
         )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn export(self) -> Option<crate::config::ExportBackend> {
+        use crate::config::ExportBackend as B;
+        match self {
+            Self::ExportText => Some(B::Text),
+            Self::ExportUtf8 => Some(B::Utf8),
+            Self::ExportMarkdown => Some(B::Markdown),
+            Self::ExportOrg => Some(B::Org),
+            _ => None,
+        }
     }
 }

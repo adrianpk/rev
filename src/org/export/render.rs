@@ -7,8 +7,8 @@ use super::*;
 use crate::org::{BlockKind, InlineKind};
 use std::collections::BTreeSet;
 pub struct Rendered {
-    text: String,
-    diagnostics: Vec<String>,
+    pub(super) text: String,
+    pub(super) diagnostics: Vec<String>,
 }
 impl Rendered {
     pub fn text(&self) -> &str {

@@ -11,6 +11,7 @@ mod attachment;
 mod document;
 mod edit;
 mod events;
+mod exports;
 mod extended;
 mod file;
 mod goto;
@@ -85,6 +86,7 @@ pub struct Session {
     links: links::State,
     document_request: Option<outline::Request>,
     table_request: Option<outline::Request>,
+    export_request: Option<outline::Request>,
     attachment: Option<attachment::State>,
     attachment_results: std::collections::VecDeque<AttachmentResult>,
     windows: Windows,
@@ -137,6 +139,7 @@ enum Pending {
     Document(Box<document::Prompt>),
     Table(Box<outline::Request>),
     TableFile(Box<tables::interchange::Prompt>),
+    Export(Box<exports::Prompt>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -233,6 +236,7 @@ impl Session {
             links: links::State::default(),
             document_request: None,
             table_request: None,
+            export_request: None,
             attachment: None,
             attachment_results: std::collections::VecDeque::new(),
             windows,

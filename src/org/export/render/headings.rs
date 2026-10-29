@@ -44,7 +44,10 @@ impl Render<'_> {
         self.inline.range(range, 0)
     }
     pub(super) fn header(&self) -> Result<String, String> {
-        if self.org() || matches!(self.snapshot.request.scope, Scope::Region(_)) {
+        if self.org() {
+            return self.org_options();
+        }
+        if matches!(self.snapshot.request.scope, Scope::Region(_)) {
             return Ok(String::new());
         }
         let mut out = String::new();
@@ -76,6 +79,32 @@ impl Render<'_> {
         }
         Ok(())
     }
+    fn org_options_selected(&self) -> bool {
+        self.snapshot.request.options.is_some()
+            || matches!(self.snapshot.request.scope, Scope::Subtree(_))
+    }
+    fn org_options(&self) -> Result<String, String> {
+        if !self.org_options_selected() {
+            return Ok(String::new());
+        }
+        let o = &self.snapshot.options;
+        let flag = |v| if v { "t" } else { "nil" };
+        let mut out = String::new();
+        append(
+            &mut out,
+            &format!(
+                "#+OPTIONS: toc:{} num:{} author:{} title:{} todo:{} tags:{}\n",
+                flag(o.toc),
+                flag(o.numbered),
+                flag(o.author),
+                flag(o.title),
+                flag(o.todo),
+                flag(o.tags)
+            ),
+            self.snapshot.export_bytes,
+        )?;
+        Ok(out)
+    }
     pub(super) fn org_node(
         &mut self,
         id: usize,
@@ -83,6 +112,12 @@ impl Render<'_> {
         changes: &mut Vec<Change>,
     ) -> Result<(), String> {
         let n = &self.snapshot.nodes[id];
+        if matches!(
+            n.kind,
+            StructureKind::Drawer | StructureKind::PropertyDrawer
+        ) {
+            return Ok(());
+        }
         if let StructureKind::Heading { level } = n.kind {
             let range = title_range(
                 &self.snapshot.text,
@@ -104,13 +139,23 @@ impl Render<'_> {
                 )?;
             }
         }
+        self.org_metadata(n, changes)?;
+        self.descend(id, depth, changes)
+    }
+    fn org_metadata(
+        &mut self,
+        n: &structure::Raw,
+        changes: &mut Vec<Change>,
+    ) -> Result<(), String> {
         if n.kind == StructureKind::Keyword
+            && super::super::options::preamble(&self.snapshot.nodes, n)
             && let Some((key, _)) = document::keyword(&self.snapshot.text, n)
-            && suppressed(&key, &self.snapshot.options)
+            && (suppressed(&key, &self.snapshot.options)
+                || key == "OPTIONS" && self.org_options_selected())
         {
             self.change(changes, n.source.clone(), String::new())?;
         }
-        self.descend(id, depth, changes)
+        Ok(())
     }
     pub(super) fn keyword(&mut self, n: &structure::Raw) -> Result<String, String> {
         let key = n

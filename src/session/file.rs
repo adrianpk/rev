@@ -156,12 +156,14 @@ impl Pending {
                 | Self::Document(_)
                 | Self::Table(_)
                 | Self::TableFile(_)
+                | Self::Export(_)
         )
     }
 }
 impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
+            Pending::Export(prompt) => self.export_argument(*prompt, draft),
             Pending::Table(request) => self.table_argument(*request, draft),
             Pending::TableFile(prompt) => self.table_file_argument(*prompt, draft),
             Pending::Document(prompt) => self.document_argument(*prompt, draft),
