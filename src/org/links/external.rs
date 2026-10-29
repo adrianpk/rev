@@ -13,7 +13,7 @@ pub(crate) struct Viewer {
 pub(crate) enum Selection {
     Link,
     Attachment {
-        attachment: crate::org::attachment::Selected,
+        attachment: Box<crate::org::attachment::Selected>,
         native: bool,
     },
 }
@@ -213,7 +213,7 @@ impl Selection {
                 let target = source.attachment_follow(attachment.name.clone(), native, cancel)?;
                 Ok(Observed {
                     target,
-                    attachment: Some(attachment),
+                    attachment: Some(*attachment),
                 })
             }
         }

@@ -185,7 +185,7 @@ impl Session {
                 target,
                 request,
                 crate::org::links::Selection::Attachment {
-                    attachment,
+                    attachment: Box::new(attachment),
                     native: false,
                 },
             )
