@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 46 export contract
+Active slice: Slice 47 text exports
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -979,12 +979,14 @@ Details and exact checks: [Slice 46](../plan/rev-org-mode.md#slice-46-prepare-ch
 - [x] T46.1: Freeze an export snapshot and backend/options/include/macro contracts over native source forms.
 - [x] T46.2: Resolve bounded includes and text-only macros without executing blocks or file-local Lisp.
 - [x] T46.3: Verify cycles, absent includes, unsaved source, export scope and destination preservation.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#147](https://forge.adrianpk.com/adrianpk/rev/pulls/147).
 Task commits: T46.1 `7eaf8860fb655fa466117a384e7688fa0f171563`, T46.2 `99515c7f8f592b77c015212b84100e4bf51f67d1`, T46.3 `f1188c7a435963066c9534e037e1f3a9404fd926`.
 
-### Slice 47: export Org to text Markdown and Org
+Canonical PR #147 merged into dev at `2128991b2014db09e0aacfd06e12ac2c7f88ee09`, verified against Forgejo and origin/dev. Required receipt `4KNERJOXXMRJAARD6X5W7OMZNV` passed five ordered checks and 264 tests, zero failures or ignored tests. Focused receipt `V5M5GDC3TQOHOWYZA5POH2RK3E` passed the configuration reference and whitespace checks. Slice 46 is delivered.
+
+## Slice 47: export Org to text Markdown and Org
 
 Contracts: ORG25 ORG27.
 Details and exact checks: [Slice 47](../plan/rev-org-mode.md#slice-47-export-org-to-text-markdown-and-org).

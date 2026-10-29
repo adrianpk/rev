@@ -1,6 +1,6 @@
 # Slice 46: prepare checked native Org export snapshots
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -74,8 +74,7 @@ file publication, code evaluation or automatic export effect.
 - Changed-source quality: passed with unchanged parameter, nesting and cyclomatic limits.
 - `git diff --check`: passed.
 
-Final ordered validation is recorded through the controller for the clean PR
-candidate before handoff. Integration remains open for controller verification.
+Canonical PR #147 merged into dev at `2128991b2014db09e0aacfd06e12ac2c7f88ee09`, verified against Forgejo and origin/dev. Required receipt `4KNERJOXXMRJAARD6X5W7OMZNV` passed five ordered checks and 264 tests, zero failures or ignored tests. Focused receipt `V5M5GDC3TQOHOWYZA5POH2RK3E` passed the configuration reference and whitespace checks. Slice 46 is delivered.
 
 ## Risks and Follow-ups
 
