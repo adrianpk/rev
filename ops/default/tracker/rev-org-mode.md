@@ -1040,6 +1040,10 @@ Details and exact checks: [Slice 50](../plan/rev-org-mode.md#slice-50-export-nat
 - [x] T50.3: Verify generated archives with Python zipfile/XML tooling and truthful unsupported-rich-content handling.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T50.1 `9e11ce19ed890e1ff96839478a96916d78fa1545`, T50.2 `5cabdf4461e1f4edf618cbc73c273d1ad2a2d59b`, T50.3 `36e5da2623d75404c54ff7bca9183068aa4c8170`.
+
+Canonical PR: [#151](https://forge.adrianpk.com/adrianpk/rev/pulls/151); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+
 ### Slice 51: export Org to Texinfo and man formats
 
 Contracts: ORG25 ORG27.

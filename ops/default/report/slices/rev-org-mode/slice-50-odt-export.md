@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-50-odt-export`
-PR: pending
+PR: `#151`
 
 ## Purpose
 
@@ -46,6 +46,10 @@ XML emission, CRC and ZIP assembly share cancellation, operation deadline and th
 snapshot output limit, including archive headers and directory records.
 Preparation has no publication, asset-reading, process or network authority.
 The package profile follows the OASIS OpenDocument 1.3 package specification.
+
+Task commits: T50.1 `9e11ce19ed890e1ff96839478a96916d78fa1545`, T50.2 `5cabdf4461e1f4edf618cbc73c273d1ad2a2d59b`, T50.3 `36e5da2623d75404c54ff7bca9183068aa4c8170`.
+
+Canonical PR: [#151](https://forge.adrianpk.com/adrianpk/rev/pulls/151).
 
 ## Contracts Added or Changed
 
