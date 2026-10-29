@@ -123,3 +123,94 @@ fn links_media() {
     assert!(s.echo().contains("does not exist"), "{}", s.echo());
     assert!(!f.0.join("missing.png").exists());
 }
+
+fn launch(s: &mut Session, marker: &Path) -> String {
+    action(s, C::OpenLink);
+    s.handle(Event::Paste("yes".into()));
+    s.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    let deadline = Instant::now() + Duration::from_secs(3);
+    loop {
+        s.frame().unwrap();
+        s.expire_input(Instant::now() + Duration::from_millis(10));
+        if let Ok(pid) = std::fs::read_to_string(marker)
+            && !pid.trim().is_empty()
+        {
+            return pid;
+        }
+        assert!(Instant::now() < deadline, "{}", s.echo());
+        std::thread::sleep(Duration::from_millis(2));
+    }
+}
+// Running tools keep the single worker until cancellation has reaped their
+// actual child. C-g and a changed source/view both release all idle deadlines.
+#[test]
+fn links_viewer_cancellation() {
+    for changed in [false, true] {
+        let (f, mut s) = editor(
+            "org.tools.viewer=['/bin/sh','viewer.sh']",
+            "[[https://example.invalid/]]\n",
+            "* Other\n",
+        );
+        f.write("viewer.sh", "echo $$ > leader; sleep 30 & wait\n");
+        let pid = launch(&mut s, &f.0.join("leader"));
+        if changed {
+            s.load(&f.0.join("destination.org")).unwrap();
+        } else {
+            cancel(&mut s);
+        }
+        settle(&mut s);
+        assert!(
+            !std::path::PathBuf::from(format!("/proc/{}", pid.trim())).exists(),
+            "direct child not reaped"
+        );
+        assert_eq!(
+            text(&s),
+            if changed {
+                "* Other\n"
+            } else {
+                "[[https://example.invalid/]]\n"
+            }
+        );
+        assert!(s.remaining_input(Instant::now()).is_none());
+        assert!(s.buffer().unwrap().history().is_empty());
+        assert_eq!(
+            std::fs::read_to_string(f.0.join("source.org")).unwrap(),
+            "[[https://example.invalid/]]\n"
+        );
+    }
+}
+// A prompt cannot authorize a launch after its source revision changes; local
+// resource IO is also rechecked after confirmation and rejects replaced kinds.
+#[test]
+fn links_viewer_stale() {
+    let (f, mut s) = editor(
+        "org.tools.viewer=['/bin/sh','viewer.sh']",
+        "[[https://example.invalid/]]\n",
+        "",
+    );
+    f.write("viewer.sh", "printf called > called\n");
+    action(&mut s, C::OpenLink);
+    s.insert('X');
+    let current = text(&s);
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("nothing launched"), "{}", s.echo());
+    assert_eq!(text(&s), current);
+    assert!(!f.0.join("called").exists());
+    let (f, mut s) = editor(
+        "org.tools.viewer=['/bin/sh','viewer.sh']",
+        "[[file:picture.png]]\n",
+        "",
+    );
+    f.write("viewer.sh", "printf called > called\n");
+    let resource = f.write("picture.png", "owned media");
+    action(&mut s, C::OpenLink);
+    std::fs::remove_file(&resource).unwrap();
+    std::fs::create_dir(&resource).unwrap();
+    argument(&mut s, "yes");
+    assert!(!s.echo().contains("Viewer completed"), "{}", s.echo());
+    assert!(!f.0.join("called").exists());
+    assert_eq!(text(&s), "[[file:picture.png]]\n");
+}

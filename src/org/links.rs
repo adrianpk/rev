@@ -118,3 +118,6 @@ pub(crate) use visit::Navigation;
 
 pub(crate) use external::viewer_argv;
 pub(crate) use external::{External, Viewer};
+
+#[cfg(test)]
+mod tests;

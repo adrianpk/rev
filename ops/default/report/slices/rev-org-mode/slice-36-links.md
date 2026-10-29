@@ -1,6 +1,6 @@
 # Slice 36: store and follow checked Org links
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -53,7 +53,8 @@ resource token; stdin is closed and the source directory is the working director
 
 ## Task Commits
 
-- T36.1: `227706a4d09c195344cf0386a92927f2669f84ad`.
+- T36.1/report introduction: `227706a4d09c195344cf0386a92927f2669f84ad`.
+- T36.2: `79ae6f95b1cb51644b9eeb53608d1029b1433151`.
 
 ## Contracts Added or Changed
 
@@ -85,7 +86,31 @@ resource token; stdin is closed and the source directory is the working director
 - `cargo clippy --lib --test org_io --test configuration -- -D warnings`: passed.
 - Changed-source quality passes at unchanged parameter, nesting and complexity limits.
 
+T36.3 checks:
+
+- `cargo test --lib --test org_io links -- --nocapture`: 16 tests pass for
+  ambiguous headings/targets/CUSTOM_IDs/IDs, incomplete or unreadable selected
+  sources, invalid encoded paths, rejected executable forms, literal blocks,
+  canonical dirty/read-only buffers, attachment traversal/symlink escape,
+  shared-view insertion/undo, stale prompt/return points, checked destination
+  replacement and native record limits. Viewer C-g and source/view invalidation
+  reap the actual child and release polling; changed local resource kinds reject.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-links`:
+  four owned RGB/NO_COLOR sessions pass insertion/undo, native following and
+  return, read-only storage/insertion rejection, explicit viewer confirmation,
+  cancellation and literal resource delivery. Exact source/BOM/CRLF bytes and the
+  entire fixture file set are checked; terminal processes exit and are reaped.
+- Changed-source quality passes at unchanged limits.
+
+The terminal fixture uses the existing read-only host to set the actual canonical
+buffer admission flag. Disk permissions remain separate from that flag. An
+accepted unchanged link edit has its own undo entry, matching ordinary history.
+Existing terminal cases, deadlines and byte bounds remain unchanged.
+
 ## Risks and Follow-ups
 
-T36.3 extends ambiguity, read-only, stale-source and failure coverage.
-The full delivery-set gate remains controller-owned.
+Native target resolution requires a complete bounded source observation. External
+viewer cleanup owns its Unix process group and direct child; it does not sandbox
+programs or guarantee interruption of blocked kernel IO. The full delivery-set
+gate remains controller-owned.

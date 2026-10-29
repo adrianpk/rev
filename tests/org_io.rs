@@ -121,3 +121,6 @@ mod links;
 
 #[path = "org_io/link_viewer.rs"]
 mod link_viewer;
+
+#[path = "org_io/link_edges.rs"]
+mod link_edges;

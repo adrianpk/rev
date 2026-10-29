@@ -832,7 +832,7 @@ Details and exact checks: [Slice 36](../plan/rev-org-mode.md#slice-36-store-and-
 
 - [x] T36.1: Deliver internal targets, file/ID/attachment links, insertion, storage and navigation.
 - [x] T36.2: Re-resolve source and dispatch external resources through the bounded owned job path only after explicit follow; introduce the shared child-lifetime primitive here.
-- [ ] T36.3: Verify ambiguity, encoded paths, read-only documents and source-preserving failure.
+- [x] T36.3: Verify ambiguity, encoded paths, read-only documents and source-preserving failure.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 37: manage native Org heading attachments
