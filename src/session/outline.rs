@@ -113,6 +113,9 @@ impl Session {
         if request.command.timestamp() || request.command.timestamp_context() {
             return self.dispatch_timestamp(model, request);
         }
+        if request.command.document() {
+            return self.start_document(request);
+        }
         self.dispatch_outline_metadata(model, request)
     }
     fn dispatch_habit(

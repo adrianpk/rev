@@ -8,6 +8,7 @@ mod capture;
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
+mod document;
 mod edit;
 mod events;
 mod extended;
@@ -81,6 +82,7 @@ pub struct Session {
     refile_result: Vec<refile::ResultEntry>,
     refile_label: &'static str,
     links: links::State,
+    document_request: Option<outline::Request>,
     attachment: Option<attachment::State>,
     attachment_results: std::collections::VecDeque<AttachmentResult>,
     windows: Windows,
@@ -130,6 +132,7 @@ enum Pending {
     Refile,
     Attachment,
     Link(Box<links::Prompt>),
+    Document(Box<document::Prompt>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -224,6 +227,7 @@ impl Session {
             refile_result: Vec::new(),
             refile_label: "Refile",
             links: links::State::default(),
+            document_request: None,
             attachment: None,
             attachment_results: std::collections::VecDeque::new(),
             windows,

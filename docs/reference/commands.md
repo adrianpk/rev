@@ -211,3 +211,5 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org links | `org-store-link`, `org-insert-link`, `org-open-at-point`, `org-mark-ring-goto`, `org-mark-ring-push`, `org-next-link`, `org-previous-link` |
 
 | Org attachments | `org-attach`, `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link`, `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs`, `org-attach-set-directory`, `org-attach-results` |
+
+| Org document editing | `org-footnote-action`, `org-footnote-new`, `org-footnote-renumber-fn:N`, `org-emphasize`, `org-insert-entity`, `org-edit-affiliated-keyword` |

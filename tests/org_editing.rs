@@ -6,6 +6,8 @@ mod checkboxes;
 mod colors;
 #[path = "org_editing/contexts.rs"]
 mod contexts;
+#[path = "org_editing/document.rs"]
+mod document;
 #[path = "org_editing/estimate_edges.rs"]
 mod estimate_edges;
 #[path = "org_editing/estimate_metadata.rs"]

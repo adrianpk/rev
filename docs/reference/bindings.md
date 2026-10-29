@@ -781,3 +781,7 @@ Configured and runtime agenda controls use the same compiled handlers. Filters
 change visibility over retained snapshots; `g` alone refreshes sources. `|`
 restores preset filters while keeping selected sorting and columns. Empty sort
 or column entry restores native order or the ordinary text presentation.
+
+| Org document editing | `org-footnote-action`, `org-footnote-new`, `org-footnote-renumber-fn:N`, `org-emphasize`, `org-insert-entity`, `org-edit-affiliated-keyword` |
+
+`C-c C-x f` runs `org-footnote-action`; `C-c C-x C-f` runs `org-emphasize`. Other document controls are available through M-x. See [Org document editing](org-document.md).

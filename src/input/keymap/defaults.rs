@@ -231,6 +231,8 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x -", "org-timer-item"),
     ("C-c C-x ,", "org-timer-pause-or-continue"),
     ("C-c C-x _", "org-timer-stop"),
+    ("C-c C-x f", "org-footnote-action"),
+    ("C-c C-x C-f", "org-emphasize"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[
     ("C-c C-c", "org-capture-finalize"),

@@ -1,4 +1,5 @@
 mod attachment;
+mod document;
 mod links;
 mod refile;
 use std::time::{Duration, Instant};
@@ -20,6 +21,7 @@ pub(super) struct Work {
     capture_running: bool,
     refile_running: bool,
     links_running: bool,
+    document_running: bool,
     attachment_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
@@ -29,6 +31,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Document(Result<crate::org::document::Output, String>),
     AttachmentPlan(Result<crate::org::attachment::Plan, String>),
     AttachmentListing(Result<crate::org::attachment::Listing, String>),
     AttachmentEffect(crate::org::attachment::FileOutcome),
@@ -145,6 +148,9 @@ impl Session {
     }
 
     fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.document_running {
+            return Some(self.poll_document());
+        }
         if self.org.attachment_running {
             return Some(self.poll_attachment());
         }

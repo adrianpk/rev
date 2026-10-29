@@ -39,7 +39,7 @@ impl Session {
         self.message("Org link destination");
         Ok(())
     }
-    pub(super) fn move_link_point(&mut self, byte: usize) -> Result<(), String> {
+    pub(in crate::session) fn move_link_point(&mut self, byte: usize) -> Result<(), String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         let point = Point {
             stamp: buffer.stamp(),

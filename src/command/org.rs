@@ -164,9 +164,15 @@ pub enum OrgCommand {
     AttachList,
     AttachDirectory,
     AttachResults,
+    FootnoteAction,
+    FootnoteNew,
+    FootnoteRenumber,
+    Emphasize,
+    InsertEntity,
+    EditAffiliated,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 162] = [
+    pub const ALL: [Self; 168] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -329,6 +335,12 @@ impl OrgCommand {
         Self::AttachList,
         Self::AttachDirectory,
         Self::AttachResults,
+        Self::FootnoteAction,
+        Self::FootnoteNew,
+        Self::FootnoteRenumber,
+        Self::Emphasize,
+        Self::InsertEntity,
+        Self::EditAffiliated,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -494,6 +506,12 @@ impl OrgCommand {
             "org-attach-reveal-in-emacs",
             "org-attach-set-directory",
             "org-attach-results",
+            "org-footnote-action",
+            "org-footnote-new",
+            "org-footnote-renumber-fn:N",
+            "org-emphasize",
+            "org-insert-entity",
+            "org-edit-affiliated-keyword",
         ][self as usize]
     }
 
@@ -748,5 +766,19 @@ impl OrgCommand {
 impl OrgCommand {
     pub(crate) fn attachment(self) -> bool {
         (Self::Attach as usize..=Self::AttachDirectory as usize).contains(&(self as usize))
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn document(self) -> bool {
+        matches!(
+            self,
+            Self::FootnoteAction
+                | Self::FootnoteNew
+                | Self::FootnoteRenumber
+                | Self::Emphasize
+                | Self::InsertEntity
+                | Self::EditAffiliated
+        )
     }
 }

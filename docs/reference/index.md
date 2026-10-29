@@ -24,3 +24,5 @@
 - [Org links](org-links.md): checked native destinations, stored link insertion and return navigation.
 
 - [Org attachments](org-attachments.md): explicit heading directories, file decisions and retained outcomes.
+
+- [Org document editing](org-document.md): footnotes, emphasis, entities and affiliated source.

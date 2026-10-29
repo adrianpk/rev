@@ -857,7 +857,7 @@ Canonical PR #138 merged into dev at `c568a14d90d932eb58918666798bfaaa796df0ac`,
 Contracts: ORG27 ORG30 ORG02.
 Details and exact checks: [Slice 38](../plan/rev-org-mode.md#slice-38-edit-native-org-footnotes-and-inline-content).
 
-- [ ] T38.1: Deliver footnote create/follow/renumber, entities, text markup and source-preserving affiliated forms.
+- [x] T38.1: Deliver footnote create/follow/renumber, entities, text markup and source-preserving affiliated forms.
 - [ ] T38.2: Keep literal blocks and unknown forms distinct during structured editing and context actions.
 - [ ] T38.3: Verify Unicode, malformed references, radio targets and coherent edit/history behavior.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

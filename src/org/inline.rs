@@ -1,6 +1,6 @@
 mod bracket;
 mod engine;
-mod entity;
+pub(in crate::org) mod entity;
 mod link;
 mod markup;
 mod read;

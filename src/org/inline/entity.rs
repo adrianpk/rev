@@ -52,3 +52,7 @@ fn space(read: &mut Read<'_>, start: usize) -> Result<Option<Raw>, Stop> {
         start + 1..end,
     )))
 }
+
+pub(in crate::org) fn known(name: &str) -> bool {
+    NAMES.split_ascii_whitespace().any(|n| n == name)
+}

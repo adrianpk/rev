@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 238] = [
+    pub const ALL: [Self; 244] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -252,6 +252,12 @@ impl Command {
         Self::Org(OrgCommand::AttachList),
         Self::Org(OrgCommand::AttachDirectory),
         Self::Org(OrgCommand::AttachResults),
+        Self::Org(OrgCommand::FootnoteAction),
+        Self::Org(OrgCommand::FootnoteNew),
+        Self::Org(OrgCommand::FootnoteRenumber),
+        Self::Org(OrgCommand::Emphasize),
+        Self::Org(OrgCommand::InsertEntity),
+        Self::Org(OrgCommand::EditAffiliated),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

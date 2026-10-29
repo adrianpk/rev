@@ -50,3 +50,5 @@ pub mod archive;
 pub mod links;
 
 pub mod attachment;
+
+pub(crate) mod document;

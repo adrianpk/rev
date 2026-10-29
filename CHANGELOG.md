@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Create and follow Org footnotes with `C-c C-x f`, renumber numeric notes, edit emphasis with `C-c C-x C-f`, and insert named entities and affiliated data with ordinary source undo.
+
 - Manage heading attachments with `C-c C-a`: copy, move, hard-link, list and open selected files using ID or DIR locations. Confirm replacements, retain partial file outcomes, and keep heading metadata edits in ordinary undo.
 
 - Store, insert, edit and follow native Org links with familiar commands. Visit checked internal targets, headings, IDs, local files and attachments, preserve descriptions and source bytes, and return through recorded source positions. Link insertion uses ordinary undo; missing or ambiguous destinations retain the editing state. Explicitly confirmed external links use configured viewer arguments, bounded output and time, and owned process cleanup.
