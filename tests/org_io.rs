@@ -135,3 +135,6 @@ mod attachment_edges;
 
 #[path = "org_io/table_interchange.rs"]
 mod table_interchange;
+
+#[path = "org_io/text_exports.rs"]
+mod text_exports;

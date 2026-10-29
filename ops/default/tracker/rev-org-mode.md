@@ -991,7 +991,7 @@ Canonical PR #147 merged into dev at `2128991b2014db09e0aacfd06e12ac2c7f88ee09`,
 Contracts: ORG25 ORG27.
 Details and exact checks: [Slice 47](../plan/rev-org-mode.md#slice-47-export-org-to-text-markdown-and-org).
 
-- [ ] T47.1: Deliver ASCII/UTF-8, Markdown and Org outputs retaining structure, tables, links and footnotes.
+- [x] T47.1: Deliver ASCII/UTF-8, Markdown and Org outputs retaining structure, tables, links and footnotes.
 - [ ] T47.2: Apply selected subtree/region/options and explicit destination writes from checked snapshots.
 - [ ] T47.3: Verify independent semantic fixtures, Unicode conversion diagnostics and no source mutations.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
