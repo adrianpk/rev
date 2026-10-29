@@ -42,7 +42,7 @@ impl Session {
             self.windows.selected_mut().clear_folds();
             return self.message("Org show-all");
         }
-        if self.org.request.is_some() || self.org.report.is_some() {
+        if self.org_interaction_pending() {
             return self.message("Org structural observation is pending; C-g cancels");
         }
         self.org.request = Some(Request {
@@ -55,6 +55,10 @@ impl Session {
             return self.message("Org structural observation is pending; C-g cancels");
         }
         Action::Redraw
+    }
+
+    fn org_interaction_pending(&self) -> bool {
+        self.org.request.is_some() || self.org.report.is_some() || self.document_request.is_some()
     }
 
     pub(super) fn finish_org_request(&mut self) {
@@ -76,7 +80,31 @@ impl Session {
         self.dispatch_org_request(model, request);
     }
 
-    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, mut request: Request) {
+    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if request.command == OrgCommand::CtrlCCtrlC
+            && self
+                .buffer()
+                .is_ok_and(|b| model.clock_table_at(b, request.origin.point.position))
+        {
+            self.resume_document_context(model, request);
+            return;
+        }
+        if matches!(
+            request.command,
+            OrgCommand::CtrlCCtrlC | OrgCommand::OpenLink
+        ) {
+            if let Err(error) = self.start_document(request) {
+                self.error(&error);
+            }
+            return;
+        }
+        self.resume_document_context(model, request);
+    }
+    pub(in crate::session) fn resume_document_context(
+        &mut self,
+        model: Arc<crate::org::Outline>,
+        mut request: Request,
+    ) {
         if request.command == OrgCommand::CtrlCCtrlC
             && self
                 .buffer()

@@ -48,7 +48,17 @@ rejects through ordinary buffer authority. No file or process adapter is used.
 - `python3 scripts/check-config-reference.py`: 155 schema/catalog leaves, 54 RGB roles, 243 bindings and 19245 packaged bytes agree.
 - Changed-source quality passes at unchanged limits.
 
+T38.1/report introduction: `34374ac5f4b97bc735e4f554bc1d311a672e0035`.
+
+T38.2 adds footnote/radio context dispatch, protected literal/unknown/macro
+ranges and malformed/ambiguous note graph rejection. Existing clock-table
+context actions keep their original owner. Sorted protected intervals bound
+lookup work; cancellation and native record/depth/byte limits stay active.
+
+- `cargo test --test org_editing document:: -- --nocapture`: seven native workflows pass, including literal/unknown/dynamic contexts, ordinary editing after rejection, contextual following, Unicode radio names, malformed references and protected lookalikes.
+- `cargo clippy --lib --test org_editing --test commands -- -D warnings`: passed.
+- Changed-source quality passes at unchanged limits.
+
 ## Risks and Follow-ups
 
-Literal/unknown contexts, contextual following and edge validation remain assigned
-to T38.2/T38.3. Final ordered checks remain pending.
+Edge validation remains assigned to T38.3. Final ordered checks remain pending.

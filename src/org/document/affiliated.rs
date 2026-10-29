@@ -2,6 +2,19 @@ use super::*;
 impl Document {
     pub(super) fn affiliated(&self, at: usize, argument: Argument) -> Result<Output, String> {
         let node = self.affiliated_owner(at)?;
+        if node.kind == StructureKind::Paragraph {
+            self.standard(&(at..at))?;
+        }
+        if node.kind == StructureKind::Block(super::super::BlockKind::Greater)
+            && !node.name.as_ref().is_some_and(|r| {
+                matches!(
+                    self.slice(r.clone()).to_ascii_uppercase().as_str(),
+                    "QUOTE" | "CENTER"
+                )
+            })
+        {
+            return Err("Unsupported block form; affiliated source unchanged".into());
+        }
         let Argument::Affiliated(key, value) = argument else {
             return Ok(Output::Prompt);
         };

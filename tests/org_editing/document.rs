@@ -116,3 +116,111 @@ fn emphasis_regions() {
         assert_eq!(text(&s), "wide 界");
     }
 }
+
+// Structural contexts never turn source-looking notes or commands in literal,
+// unknown or dynamic forms into edits. Ordinary surrounding notes still work.
+#[test]
+fn document_literal_contexts() {
+    let cases = [
+        (
+            "source",
+            "#+begin_src text\n[fn:9] literal\n#+end_src\n",
+            16,
+        ),
+        (
+            "example",
+            "#+begin_example\n[fn:9] literal\n#+end_example\n",
+            16,
+        ),
+        ("dynamic", "#+begin: unknown\n[fn:9] literal\n#+end:\n", 18),
+        (
+            "unknown",
+            "#+begin_mystery\n[fn:9] literal\n#+end_mystery\n",
+            17,
+        ),
+        ("macro", "text {{{unknown([fn:9])}}} after\n", 12),
+        ("code", "text ~[fn:9]~ after\n", 8),
+        ("verbatim", "text =[fn:9]= after\n", 8),
+    ];
+    for (name, source, point) in cases {
+        for command in [
+            C::FootnoteAction,
+            C::InsertEntity,
+            C::Emphasize,
+            C::CtrlCCtrlC,
+            C::OpenLink,
+        ] {
+            let (_f, mut s) = editor("", "notes.org", source);
+            at(&mut s, point);
+            let before = s.view().clone();
+            action(&mut s, command);
+            assert_eq!(text(&s), source, "{name}/{command:?}: {}", s.echo());
+            assert_eq!(s.view(), &before, "{name}/{command:?}: {}", s.echo());
+            assert!(s.buffer().unwrap().history().is_empty());
+            s.handle(Event::Paste("z".into()));
+            assert_eq!(
+                text(&s).chars().count(),
+                source.chars().count() + 1,
+                "{name}/{command:?}: {}",
+                s.echo()
+            );
+        }
+    }
+}
+// Contextual footnote actions reach real definitions/references, while radio
+// following is case-insensitive, Unicode-safe and excludes larger words/code.
+#[test]
+fn document_context_follow() {
+    for command in [C::CtrlCCtrlC, C::OpenLink] {
+        let source = "Read [fn:x].\n\n[fn:x] body\n";
+        let (_f, mut s) = editor("", "notes.org", source);
+        at(&mut s, 6);
+        action(&mut s, command);
+        assert_eq!(
+            s.view().point.position.0,
+            source.rfind("[fn:").unwrap(),
+            "{}",
+            s.echo()
+        );
+        action(&mut s, command);
+        assert_eq!(s.view().point.position.0, 5);
+        assert_eq!(text(&s), source);
+        assert!(s.buffer().unwrap().history().is_empty());
+    }
+    let source = "<<<Wide 界>>>\n\nA wide 界 here.\nNot awide 界, nor ~wide 界~.\n";
+    let (_f, mut s) = editor("", "notes.org", source);
+    let byte = source.find("wide 界 here").unwrap();
+    at(&mut s, source[..byte].chars().count() + 2);
+    let before = s.view().point;
+    action(&mut s, C::OpenLink);
+    assert_eq!(s.view().point.position.0, 0, "{}", s.echo());
+    action(&mut s, C::LinkBack);
+    assert_eq!(s.view().point, before);
+    assert_eq!(text(&s), source);
+    assert!(s.buffer().unwrap().history().is_empty());
+}
+
+// Missing, duplicate and malformed references never authorize a partial label
+// rewrite. Literal/unknown lookalikes are excluded from the same note graph.
+#[test]
+fn footnote_graph_rejection() {
+    let cases = [
+        ("missing", "Read [fn:9].\n"),
+        ("duplicate", "Read [fn:9].\n\n[fn:9] one\n[fn:9] two\n"),
+        ("malformed", "Read [fn:bad label].\n"),
+        ("unclosed", "Read [fn::unfinished\n"),
+        ("orphan", "[fn:9] orphan\n"),
+    ];
+    for (name, source) in cases {
+        let (_f, mut s) = editor("", "notes.org", source);
+        let before = s.view().clone();
+        action(&mut s, C::FootnoteRenumber);
+        assert_eq!(text(&s), source, "{name}: {}", s.echo());
+        assert_eq!(s.view(), &before);
+        assert!(s.buffer().unwrap().history().is_empty());
+    }
+    let source = "Read [fn:9], ~[fn:bad]~ and {{{unknown([fn:x])}}}.\n\n#+begin_mystery\n[fn:x] untouched\n#+end_mystery\n\n[fn:9] body\n";
+    let (_f, mut s) = editor("", "notes.org", source);
+    action(&mut s, C::FootnoteRenumber);
+    assert_eq!(text(&s), source.replace("fn:9", "fn:1"), "{}", s.echo());
+}

@@ -41,6 +41,20 @@ impl Session {
     }
     fn document_output(&mut self, output: Output, request: Request) -> Result<(), String> {
         match output {
+            Output::Continue => {
+                let model = self
+                    .buffer()
+                    .map_err(|e| e.to_string())?
+                    .org_outline()
+                    .cloned()
+                    .ok_or("Document observation is no longer current")?;
+                self.resume_document_context(model, request);
+                Ok(())
+            }
+            Output::Message(message) => {
+                self.message(&message);
+                Ok(())
+            }
             Output::Prompt => self.document_prompt(Prompt { request, key: None }),
             Output::Move(byte) => {
                 self.link_mark();

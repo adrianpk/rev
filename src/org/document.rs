@@ -1,9 +1,11 @@
 //! Explicit document actions observe real source snapshots and return checked
 //! edits. Analysis has no filesystem, process, publication or configuration authority.
 mod affiliated;
+mod context;
 mod footnotes;
 mod markup;
 mod observe;
+mod radio;
 
 use super::{
     Cancellation, Coverage, InlineContext, InlineKind, Limits, Source, StructureKind, inline,
@@ -32,6 +34,8 @@ pub(crate) enum Argument {
 pub(crate) enum Output {
     Prompt,
     Move(usize),
+    Continue,
+    Message(String),
     Change {
         edits: Vec<Edit>,
         cursor: Option<usize>,
@@ -45,6 +49,7 @@ struct Document {
     text: Rope,
     nodes: Vec<structure::Raw>,
     objects: Vec<inline::Raw>,
+    protected: Vec<Range<usize>>,
 }
 impl Snapshot {
     pub fn new(buffer: &Buffer, point: Point) -> Result<Self, String> {
@@ -69,6 +74,7 @@ impl Snapshot {
     ) -> Result<Output, String> {
         let doc = Document::observe(self.text, cancel)?;
         match command {
+            C::CtrlCCtrlC | C::OpenLink => doc.context(self.point, command, cancel),
             C::FootnoteRenumber => doc.renumber(cancel),
             C::FootnoteAction => doc.footnote(self.point, false, cancel),
             C::FootnoteNew => doc.footnote(self.point, true, cancel),

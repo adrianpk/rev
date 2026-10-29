@@ -30,3 +30,17 @@ idle work, filesystem access, viewer or program execution is introduced.
 [emphasis](https://orgmode.org/manual/Emphasis-and-Monospace.html) define the
 compatible source forms and default bindings. Entities remain source; this
 command does not replace them with display glyphs or run an exporter.
+
+`C-c C-c` and `C-c C-o` follow footnotes at point. `C-c C-o` also follows
+case-insensitive radio names in ordinary text, checking Unicode word boundaries
+and rejecting ambiguous destinations. `C-c C-c` on a radio target checks its
+current source observation. Existing clock-table context dispatch remains owned
+by its native report command. All navigation preserves source and history.
+
+Literal source/example/export/comment blocks, code/verbatim objects, unknown
+blocks, macros and unsupported dynamic forms reject structured/context actions.
+Ordinary text remains editable. Recognized quote/center/verse contents retain
+normal inline interpretation. Affiliated edits can name/caption a supported
+literal block without changing its body. Unknown directives and other affiliated
+source remain byte-for-byte intact. Radio observations admit 4096 records,
+1024-byte names and 1 MiB of names; target following introduces no idle scanner.
