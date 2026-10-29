@@ -42,6 +42,19 @@ def journey(root, colored):
         assert document.texts('h1') == ['Heading 界']
         assert document.texts('p') == ['Body unsaved\nEOF']
         assert source.read_bytes() == encoded(LINES)
+        choose(session, 'org-export-to-latex', 'article.tex', b'Exported Org document')
+        article = (source.parent / 'article.tex').read_bytes()
+        assert article.startswith(b'\\documentclass{article}\n')
+        assert b'\\section*{Heading ' in article and b'Body unsaved\nEOF' in article
+        assert article.endswith(b'\\end{document}\n')
+        choose(session, 'org-export-to-beamer', 'slides.tex', b'Exported Org document')
+        slides = (source.parent / 'slides.tex').read_bytes()
+        assert slides.startswith(b'\\documentclass{beamer}\n')
+        assert b'\\begin{frame}[fragile]{Heading ' in slides
+        assert slides.count(b'\\begin{frame}') == slides.count(b'\\end{frame}') == 1
+        choose(session, 'org-export-to-latex-pdf', 'missing.pdf', b'No PDF compiler configured')
+        assert not (source.parent / 'missing.pdf').exists()
+        assert source.read_bytes() == encoded(LINES)
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
         choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
@@ -59,6 +72,8 @@ def journey(root, colored):
         finish(session, colored)
         before['work/output.md'] = MARKDOWN
         before['work/output.html'] = html_bytes
+        before['work/article.tex'] = article
+        before['work/slides.tex'] = slides
         assert snapshot(root) == before
     finally:
         close(session)

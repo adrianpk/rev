@@ -1023,7 +1023,7 @@ Details and exact checks: [Slice 49](../plan/rev-org-mode.md#slice-49-export-org
 
 - [x] T49.1: Deliver native LaTeX/Beamer rendering with declared headings, lists, tables, notes and math/source forms.
 - [x] T49.2: Support explicit optional compiler jobs for PDF through the bounded external owner, never on export discovery.
-- [ ] T49.3: Verify escaped output and truthful absent-tool behavior without requiring a TeX installation.
+- [x] T49.3: Verify escaped output and truthful absent-tool behavior without requiring a TeX installation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 50: export native Org to OpenDocument text

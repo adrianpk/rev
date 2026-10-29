@@ -85,3 +85,70 @@ fn tex_export_data() {
     }
     assert!(rendered("Missing [fn:x].\n", B::Latex).is_err());
 }
+
+// Read-only subtree export rebases headings and keeps unrelated metadata out of
+// the selected body. Rendering cancellation and small budgets reject atomically.
+#[test]
+fn tex_export_selection_bounds() {
+    let f = Fixture::new();
+    let source = "#+TITLE: Hidden\n* Parent\n** TODO Child :work:\nbody\n** Sibling\nkeep\n";
+    let path = f.write("source.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "3");
+    let view = s.view().clone();
+    action(&mut s, C::ExportBeamer);
+    for value in [
+        "subtree",
+        "toc:nil num:nil title:nil author:nil todo:nil tags:nil",
+        "child.tex",
+    ] {
+        argument(&mut s, value);
+    }
+    let output = std::fs::read_to_string(f.0.join("child.tex")).unwrap();
+    assert!(
+        output.contains("\\begin{frame}[fragile]{Child}"),
+        "{output}"
+    );
+    for hidden in ["Hidden", "Parent", "Sibling", "TODO", ":work:"] {
+        assert!(!output.contains(hidden), "{hidden}");
+    }
+    assert_eq!(s.view(), &view);
+    assert_eq!(text(&s), source);
+    assert!(s.buffer().unwrap().history().is_empty());
+    let mut policy = Org::default();
+    policy.limits.export_bytes = 100;
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let snapshot = Work::new(
+        &buffers,
+        id,
+        Request {
+            backend: B::Latex,
+            scope: Scope::Buffer,
+            options: None,
+            time: clock(&policy.time).unwrap(),
+        },
+        &policy,
+    )
+    .unwrap()
+    .run(&Cancellation::default())
+    .unwrap();
+    assert!(snapshot.render(&Cancellation::default()).is_err());
+    let cancel = Cancellation::default();
+    cancel.cancel();
+    assert!(snapshot.render(&cancel).is_err());
+}

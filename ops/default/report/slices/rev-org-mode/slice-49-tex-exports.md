@@ -1,6 +1,6 @@
 # Slice 49: export Org to LaTeX and Beamer
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -31,6 +31,14 @@ nonzero exit, absent tools, invalid or oversized output and stale evidence rejec
 before destination publication. PDF bytes use the existing checked atomic file
 publisher, preserving observed replacement confirmation and source state.
 
+T49.3 verifies exact escaped output, read-only subtree selection, finite renderer
+budgets and cancellation. PDF adapter fixtures cover absent executable, failed
+exit, missing/malformed/nonregular or oversized PDF, combined process output
+limit, timeout, cancellation and stale canonical/disk/target evidence. Successful
+fixtures verify binary bytes, mode preservation, private directory permissions,
+direct-child reaping and workspace removal. The physical RGB/NO_COLOR journey
+also checks native article/slides files and the default absent-compiler message.
+
 ## Implementation Notes
 
 The renderer shares immutable source evidence, cancellation, operation deadline
@@ -52,6 +60,10 @@ TeX mouth escapes and unbalanced groups remain inert escaped text.
 
 ## Validation
 
+- `cargo test --test org_io tex_`: ten renderer/adapter workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test configuration --test commands -- -D warnings`: passed.
+- The output-limit fixture initially buffered Python stdout while waiting. Explicit flushing now exposes the same bounded-output assertion without changing acceptance or time/output limits.
+
 - `cargo test --test org_io tex_job`: two adapter/publication workflows passed, zero failures or ignored tests.
 - `cargo test --test configuration pdf_configuration`: layered argv and rejection workflow passed.
 - `cargo test --test commands visibility_keys`: compiled catalog round-trip passed.
@@ -61,4 +73,4 @@ TeX mouth escapes and unbalanced groups remain inert escaped text.
 
 ## Risks and Follow-ups
 
-No TeX engine is installed in the validation environment. Fixture programs verify adapter and binary publication mechanics; they do not establish compiler semantics or PDF rendering. Full slice validation remains in progress.
+No TeX engine is installed in the validation environment. Fixture programs verify adapter and binary publication mechanics; they do not establish compiler semantics or PDF rendering. Exact final candidate checks are recorded through the controller and Acta after PR-reference follow-up.

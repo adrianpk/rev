@@ -11,10 +11,9 @@ fn begin(s: &mut Session, command: C, path: &str) {
 }
 fn policy(f: &Fixture, program: &str, limits: &str) -> String {
     // Fixture values use quoted TOML strings and never pass through a shell.
+    let path = f.0.join("compiler.py");
     format!(
-        "org.tools.pdf=[\"python3\",{},\"{{input}}\",\"{{output}}\",{}]\n{limits}",
-        format!("{:?}", f.0.join("compiler.py").to_str().unwrap()),
-        format!("{program:?}")
+        "org.tools.pdf=[\"python3\",{path:?},\"{{input}}\",\"{{output}}\",{program:?}]\n{limits}"
     )
 }
 fn configured(program: &str, limits: &str) -> (Fixture, Session) {
@@ -51,7 +50,7 @@ if mode == 'status':
     print('fixture failure', file=sys.stderr)
     sys.exit(9)
 if mode == 'noise':
-    print('too much output')
+    print('too much output', flush=True)
     time.sleep(30)
 if mode == 'wait': time.sleep(30)
 if mode == 'invalid': pathlib.Path(target).write_bytes(b'not PDF')
@@ -161,4 +160,127 @@ fn prompt(s: &mut Session) -> String {
         .filter(|row| row.band() == rev::display::Band::Echo)
         .map(|row| row.text())
         .collect()
+}
+
+// A real missing executable, failed exit, missing/malformed PDF, nonregular
+// output, output overflow and timeout never replace the selected destination.
+#[test]
+fn tex_job_failures() {
+    for (name, limits, expected) in [
+        ("status", "", "PDF compiler failed"),
+        ("missing", "", "Read compiler PDF"),
+        ("invalid", "", "no PDF envelope"),
+        ("symlink", "", "regular file"),
+        ("oversize", "org.limits.export_bytes=1000", "regular file"),
+        ("noise", "org.limits.job_output_bytes=5", "output limit"),
+    ] {
+        let (f, mut s) = configured(name, limits);
+        f.write("output.pdf", "keep");
+        begin(&mut s, C::ExportLatexPdf, "output.pdf");
+        argument(&mut s, "yes");
+        assert!(s.echo().contains(expected), "{name}: {}", s.echo());
+        assert_eq!(
+            std::fs::read(f.0.join("output.pdf")).unwrap(),
+            b"keep",
+            "{name}"
+        );
+        assert_eq!(
+            std::fs::read_to_string(f.0.join("source.org")).unwrap(),
+            SOURCE,
+            "{name}"
+        );
+        assert!(s.buffer().unwrap().history().is_empty(), "{name}");
+        cleaned(&f);
+    }
+    let (f, mut s) = editor("org.tools.pdf=['./absent','{input}']", SOURCE, "");
+    begin(&mut s, C::ExportLatexPdf, "output.pdf");
+    argument(&mut s, "yes");
+    assert!(
+        s.echo().contains("Start configured program"),
+        "{}",
+        s.echo()
+    );
+    assert!(!f.0.join("output.pdf").exists());
+}
+fn launch(s: &mut Session, f: &Fixture) {
+    begin(s, C::ExportLatexPdf, "output.pdf");
+    s.handle(Event::Paste("yes".into()));
+    s.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    let end = Instant::now() + Duration::from_secs(3);
+    while !f.0.join("permissions").exists() {
+        s.frame().unwrap();
+        s.expire_input(Instant::now() + Duration::from_millis(10));
+        assert!(Instant::now() < end, "{}", s.echo());
+        std::thread::sleep(Duration::from_millis(2));
+    }
+}
+// Both explicit cancellation and changed canonical source retain the worker
+// until it reaps the compiler and removes only its owned private workspace.
+#[test]
+fn tex_job_cancellation() {
+    for changed in [false, true] {
+        let (f, mut s) = configured("wait", "");
+        f.write("output.pdf", "keep");
+        launch(&mut s, &f);
+        if changed {
+            s.insert('X');
+        } else {
+            cancel(&mut s);
+        }
+        let before = text(&s);
+        settle(&mut s);
+        assert_eq!(text(&s), before);
+        assert_eq!(std::fs::read(f.0.join("output.pdf")).unwrap(), b"keep");
+        assert!(s.remaining_input(Instant::now()).is_none());
+        cleaned(&f);
+    }
+    let (f, mut s) = configured("wait", "org.limits.job_seconds=1");
+    let start = Instant::now();
+    begin(&mut s, C::ExportLatexPdf, "output.pdf");
+    argument(&mut s, "yes");
+    assert!(start.elapsed() < Duration::from_secs(4));
+    assert!(
+        s.echo().contains("timed out")
+            || s.echo().contains("cancelled")
+            || s.echo().contains("expired"),
+        "{}",
+        s.echo()
+    );
+    assert!(!f.0.join("output.pdf").exists());
+    cleaned(&f);
+}
+// Confirmation cannot relabel stale canonical/disk input or changed target
+// evidence. Every rejected case preserves the destination's current bytes.
+#[test]
+fn tex_job_freshness() {
+    let (f, mut s) = configured("success", "");
+    begin(&mut s, C::ExportLatexPdf, "output.pdf");
+    s.insert('X');
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("source or view changed"), "{}", s.echo());
+    assert!(!f.0.join("called").exists());
+    assert!(!f.0.join("output.pdf").exists());
+    let (f, mut s) = configured("success", "");
+    let target = f.write("output.pdf", "keep");
+    begin(&mut s, C::ExportLatexPdf, "output.pdf");
+    argument(&mut s, "yes");
+    f.write("output.pdf", "external change");
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("not published"), "{}", s.echo());
+    assert_eq!(std::fs::read(target).unwrap(), b"external change");
+    cleaned(&f);
+    let (f, mut s) = configured("success", "");
+    // Included files keep independent disk authority across compiler confirmation.
+    s.handle(Event::Paste("#+INCLUDE: \"child.org\"\n".into()));
+    settle(&mut s);
+    f.write("child.org", "included\n");
+    begin(&mut s, C::ExportLatexPdf, "output.pdf");
+    f.write("child.org", "changed\n");
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("disk source changed"), "{}", s.echo());
+    assert!(!f.0.join("called").exists());
+    assert!(!f.0.join("output.pdf").exists());
 }
