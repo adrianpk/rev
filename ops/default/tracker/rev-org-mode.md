@@ -1011,6 +1011,9 @@ Details and exact checks: [Slice 48](../plan/rev-org-mode.md#slice-48-export-nat
 - [x] T48.3: Verify generated markup using independent HTML parsing and representative full-document fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#149](https://forge.adrianpk.com/adrianpk/rev/pulls/149).
+Task commits: T48.1 `7c588728d1e8e63777d53f2d66ecbf9de778d645`, T48.2 `04ea12326ef3c09d00a526d1c1e992db4f43b049`, T48.3 `e79c5728052617240f0071397eed8539db4072a4`.
+
 ### Slice 49: export Org to LaTeX and Beamer
 
 Contracts: ORG25 ORG30.

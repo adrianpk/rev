@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-48-html-export`
-PR: pending
+PR: `#149`
 
 ## Purpose
 
@@ -47,6 +47,10 @@ The existing structural list owner now separates ordered and unordered groups;
 the independent document fixture exposed their previous grouping. HTML emits LF
 newlines while source bytes remain unchanged. The verifier tracks actual open
 elements and retains descendant text for semantic checks.
+
+Task commits: T48.1 `7c588728d1e8e63777d53f2d66ecbf9de778d645`, T48.2 `04ea12326ef3c09d00a526d1c1e992db4f43b049`, T48.3 `e79c5728052617240f0071397eed8539db4072a4`.
+
+Canonical PR: [#149](https://forge.adrianpk.com/adrianpk/rev/pulls/149).
 
 ## Contracts Added or Changed
 
