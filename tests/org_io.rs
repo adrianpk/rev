@@ -150,3 +150,6 @@ mod tex_jobs;
 
 #[path = "org_io/odt_exports.rs"]
 mod odt_exports;
+
+#[path = "org_io/manual_exports.rs"]
+mod manual_exports;

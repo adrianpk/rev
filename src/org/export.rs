@@ -5,6 +5,7 @@ mod current;
 mod html;
 mod odt;
 pub use odt::Archive;
+mod manual;
 pub(crate) mod output;
 mod render;
 mod tex;

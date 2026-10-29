@@ -19,17 +19,21 @@ impl Rendered {
     }
 }
 impl Snapshot {
+    fn native_render(&self, cancel: &Cancellation) -> Option<Result<Rendered, String>> {
+        match self.request.backend {
+            ExportBackend::Html => Some(super::html::render(self, cancel)),
+            ExportBackend::Latex | ExportBackend::Beamer => Some(super::tex::render(self, cancel)),
+            ExportBackend::Texinfo | ExportBackend::Man => {
+                Some(super::manual::render(self, cancel))
+            }
+            _ => None,
+        }
+    }
     pub fn render(&self, cancel: &Cancellation) -> Result<Rendered, String> {
         let cancel = cancel.bounded(Instant::now() + Duration::from_secs(self.job_seconds as u64));
         check(&cancel)?;
-        if self.request.backend == ExportBackend::Html {
-            return super::html::render(self, &cancel);
-        }
-        if matches!(
-            self.request.backend,
-            ExportBackend::Latex | ExportBackend::Beamer
-        ) {
-            return super::tex::render(self, &cancel);
+        if let Some(output) = self.native_render(&cancel) {
+            return output;
         }
         if !available(self.request.backend) {
             return Err("Selected native export renderer is not available".into());

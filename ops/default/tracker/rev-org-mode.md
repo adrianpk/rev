@@ -1049,7 +1049,7 @@ Canonical PR #151 merged into dev at `5fc0b8cb4a65b818c901d15545bbb9c21f5e6b53`,
 Contracts: ORG25 ORG27.
 Details and exact checks: [Slice 51](../plan/rev-org-mode.md#slice-51-export-org-to-texinfo-and-man-formats).
 
-- [ ] T51.1: Deliver native Texinfo and man renderers over the shared export snapshot.
+- [x] T51.1: Deliver native Texinfo and man renderers over the shared export snapshot.
 - [ ] T51.2: Retain declared hierarchy, references, preformatted source and escaping without invoking tools implicitly.
 - [ ] T51.3: Verify structural golden fixtures and ordinary save/cancellation safeguards.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
