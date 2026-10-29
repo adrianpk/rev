@@ -59,6 +59,10 @@ impl fmt::Display for JobError {
 
 impl std::error::Error for JobError {}
 
+struct Finished<T> {
+    result: Result<(Stamp, T), JobError>,
+    cancelled: bool,
+}
 struct Running<T> {
     stamp: Stamp,
     cancellation: Cancellation,
@@ -127,17 +131,34 @@ impl<T> Job<T> {
     /// Reap a multi-source observation. Its caller must validate every retained
     /// source individually; the initiating view is not the source set's owner.
     pub(crate) fn poll_owned(&mut self) -> Option<Result<(Stamp, T), JobError>> {
+        self.finished().map(|finished| {
+            if finished.cancelled {
+                Err(JobError::Cancelled)
+            } else {
+                finished.result
+            }
+        })
+    }
+    /// File-effect workers must retain their actual outcome even after a late
+    /// cancellation. They check cancellation before effects and report each
+    /// completed publication; the caller still validates source authority.
+    pub(crate) fn poll_effect(&mut self) -> Option<Result<(Stamp, T), JobError>> {
+        self.finished().map(|finished| finished.result)
+    }
+    fn finished(&mut self) -> Option<Finished<T>> {
         if !self.active.as_ref()?.handle.is_finished() {
             return None;
         }
-        let active = self.active.take().expect("finished worker owns the slot");
-        let result = active.handle.join().map_err(|_| JobError::Panicked);
-        Some(result.and_then(|value| {
-            if active.cancellation.is_cancelled() {
-                return Err(JobError::Cancelled);
-            }
-            Ok((active.stamp, value))
-        }))
+        let active = self.active.take().expect("finished worker owns slot");
+        let result = active
+            .handle
+            .join()
+            .map_err(|_| JobError::Panicked)
+            .map(|value| (active.stamp, value));
+        Some(Finished {
+            result,
+            cancelled: active.cancellation.is_cancelled(),
+        })
     }
 }
 

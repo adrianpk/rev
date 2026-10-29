@@ -19,6 +19,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | M-x | `org-archive-results` | Inspect archive participants and independent save outcomes. |
 | `C-c l` | `org-store-link` | Store the checked current location for later insertion. |
 | `C-c C-l` in Org | `org-insert-link` | Insert or edit a literal link and description. |
+| `C-c C-a` in Org | `org-attach` | Dispatch explicit heading attachment operations. |
 | `C-c C-o` in Org | `org-open-at-point` | Resolve and visit the exact link at point. |
 | `C-c &` / `C-c %` in Org | `org-mark-ring-goto` / `org-mark-ring-push` | Return to a checked source point or record one. |
 | `C-c C-x C-n` / `C-c C-x C-p` in Org | `org-next-link` / `org-previous-link` | Move between recognized links; repeat at the boundary to wrap. |

@@ -10,8 +10,13 @@ pub(crate) struct Viewer {
     seconds: usize,
     output_bytes: usize,
 }
+pub(crate) enum Selection {
+    Link,
+    Attachment { name: String, native: bool },
+}
 pub(crate) struct External {
     source: Snapshot,
+    selection: Selection,
     expected: Follow,
     viewer: Viewer,
 }
@@ -137,20 +142,33 @@ impl External {
     pub(crate) fn new(source: Snapshot, expected: Follow, viewer: Viewer) -> Self {
         Self {
             source,
+            selection: Selection::Link,
             expected,
             viewer,
         }
+    }
+    pub(crate) fn select(mut self, selection: Selection) -> Self {
+        self.selection = selection;
+        self
     }
     pub(crate) fn stamp(&self) -> Stamp {
         self.source.stamp
     }
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Outcome, String> {
         let directory = self.source.directory.clone();
-        let Output::Follow(current) =
-            self.source
-                .observe(crate::command::OrgCommand::OpenLink, false, cancel)?
-        else {
-            return Err("External link no longer resolves".into());
+        let current = match self.selection {
+            Selection::Link => {
+                let Output::Follow(current) =
+                    self.source
+                        .observe(crate::command::OrgCommand::OpenLink, false, cancel)?
+                else {
+                    return Err("External link no longer resolves".into());
+                };
+                current
+            }
+            Selection::Attachment { name, native } => {
+                self.source.attachment_follow(name, native, cancel)?
+            }
         };
         if current != self.expected {
             return Err("External link source changed before launch".into());

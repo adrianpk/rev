@@ -154,9 +154,19 @@ pub enum OrgCommand {
     LinkMark,
     NextLink,
     PreviousLink,
+    Attach,
+    AttachFile,
+    AttachCopy,
+    AttachMove,
+    AttachLink,
+    AttachOpen,
+    AttachOpenNative,
+    AttachList,
+    AttachDirectory,
+    AttachResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 152] = [
+    pub const ALL: [Self; 162] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -309,6 +319,16 @@ impl OrgCommand {
         Self::LinkMark,
         Self::NextLink,
         Self::PreviousLink,
+        Self::Attach,
+        Self::AttachFile,
+        Self::AttachCopy,
+        Self::AttachMove,
+        Self::AttachLink,
+        Self::AttachOpen,
+        Self::AttachOpenNative,
+        Self::AttachList,
+        Self::AttachDirectory,
+        Self::AttachResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -464,6 +484,16 @@ impl OrgCommand {
             "org-mark-ring-push",
             "org-next-link",
             "org-previous-link",
+            "org-attach",
+            "org-attach-attach",
+            "org-attach-copy",
+            "org-attach-move",
+            "org-attach-link",
+            "org-attach-open",
+            "org-attach-open-in-emacs",
+            "org-attach-reveal-in-emacs",
+            "org-attach-set-directory",
+            "org-attach-results",
         ][self as usize]
     }
 
@@ -712,5 +742,11 @@ impl OrgCommand {
                 | Self::NextLink
                 | Self::PreviousLink
         )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn attachment(self) -> bool {
+        (Self::Attach as usize..=Self::AttachDirectory as usize).contains(&(self as usize))
     }
 }

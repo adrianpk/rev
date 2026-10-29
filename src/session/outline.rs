@@ -34,6 +34,9 @@ impl Session {
         if !self.buffer().is_ok_and(|b| b.is_org()) {
             return self.message("Native Org mode is not active");
         }
+        if self.attachment.is_some() {
+            return self.message("Attachment interaction pending; C-g cancels");
+        }
         if command == OrgCommand::ShowAll {
             self.org.cancel_request();
             self.windows.selected_mut().clear_folds();
@@ -129,6 +132,9 @@ impl Session {
     ) -> Result<(), String> {
         if matches!(request.command, OrgCommand::Refile | OrgCommand::RefileCopy) {
             return self.start_refile(model, request);
+        }
+        if request.command.attachment() {
+            return self.start_attachment(model, request);
         }
         if request.command.links() {
             return self.start_links(request);
@@ -254,16 +260,27 @@ impl Session {
 }
 
 impl Session {
+    fn org_file_results(&mut self, command: OrgCommand) -> Option<Action> {
+        match command {
+            OrgCommand::AttachResults => Some(self.show_attachment_results()),
+            OrgCommand::RefileResults | OrgCommand::ArchiveResults => {
+                Some(self.show_refile_results())
+            }
+            _ => None,
+        }
+    }
     fn org_collection_command(&mut self, command: OrgCommand) -> Option<Action> {
+        if let Some(action) = self.org_file_results(command) {
+            return Some(action);
+        }
+
         match command {
             OrgCommand::LinkBack => Some(self.link_back()),
             OrgCommand::LinkMark => Some(self.link_mark()),
             OrgCommand::StoreLink if !self.buffer().is_ok_and(|b| b.is_org()) => {
                 Some(self.store_plain_link())
             }
-            OrgCommand::RefileResults | OrgCommand::ArchiveResults => {
-                Some(self.show_refile_results())
-            }
+
             OrgCommand::Capture => Some(self.begin_capture()),
             OrgCommand::CaptureKill | OrgCommand::CaptureFinalize => {
                 Some(self.message("No capture draft is active"))

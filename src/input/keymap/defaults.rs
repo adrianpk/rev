@@ -172,6 +172,7 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-a", "org-archive-subtree"),
     ("C-c C-x a", "org-toggle-archive-tag"),
     ("C-c C-x A", "org-archive-to-archive-sibling"),
+    ("C-c C-a", "org-attach"),
     ("C-c C-l", "org-insert-link"),
     ("C-c C-o", "org-open-at-point"),
     ("C-c &", "org-mark-ring-goto"),

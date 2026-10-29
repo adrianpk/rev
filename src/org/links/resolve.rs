@@ -78,28 +78,13 @@ impl Document {
         directory: &Path,
         policy: &crate::config::Org,
     ) -> Result<PathBuf, String> {
-        if let Some(value) =
+        let dir =
             self.properties
-                .query_value(&self.text, point, "DIR", &policy.properties.inherit)?
-        {
-            return local(directory, PathBuf::from(value));
-        }
-        let id = self
-            .value(point, "ID")?
-            .ok_or("Attachment link requires a local DIR or ID property")?;
-        if id.len() < 3
-            || id.len() > 128
-            || !id
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b"-_".contains(&b))
-        {
-            return Err("Attachment ID cannot form a safe directory".into());
-        }
-        Ok(
-            local(directory, PathBuf::from(&policy.attachments.directory))?
-                .join(&id[..2])
-                .join(&id[2..]),
-        )
+                .query_value(&self.text, point, "DIR", &policy.properties.inherit)?;
+        let id =
+            self.properties
+                .query_value(&self.text, point, "ID", &policy.properties.inherit)?;
+        crate::org::attachment::location(dir.as_deref(), id.as_deref(), directory, policy)
     }
 }
 fn local(directory: &Path, path: PathBuf) -> Result<PathBuf, String> {

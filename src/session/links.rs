@@ -162,3 +162,33 @@ impl Session {
             .is_some_and(|r| !self.org_source_current(r))
     }
 }
+
+impl Session {
+    pub(in crate::session) fn store_attachment_link(
+        &mut self,
+        target: String,
+        description: String,
+    ) {
+        self.retain_link(Stored {
+            target,
+            description,
+        });
+    }
+    pub(in crate::session) fn follow_attachment(
+        &mut self,
+        target: Follow,
+        request: Request,
+        name: String,
+        native: bool,
+    ) -> Result<(), String> {
+        if target.external_resource() {
+            self.prompt_selected_viewer(
+                target,
+                request,
+                crate::org::links::Selection::Attachment { name, native },
+            )
+        } else {
+            self.resolve_link(target, request)
+        }
+    }
+}

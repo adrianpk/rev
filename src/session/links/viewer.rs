@@ -1,21 +1,31 @@
 use super::*;
 use crate::org::{
     io::process::Outcome,
-    links::{External, Viewer},
+    links::{External, Selection, Viewer},
 };
 pub(in crate::session) struct Prompt {
     request: Request,
     target: Follow,
     viewer: Viewer,
+    selection: Selection,
 }
 impl Session {
     pub(super) fn prompt_viewer(&mut self, target: Follow, request: Request) -> Result<(), String> {
+        self.prompt_selected_viewer(target, request, Selection::Link)
+    }
+    pub(super) fn prompt_selected_viewer(
+        &mut self,
+        target: Follow,
+        request: Request,
+        selection: Selection,
+    ) -> Result<(), String> {
         let viewer = Viewer::configured(self.buffers.snapshot())?;
         self.viewer_prompt(
             Prompt {
                 request,
                 target,
                 viewer,
+                selection,
             },
             "",
         )
@@ -55,7 +65,7 @@ impl Session {
             prompt.request.origin.point,
             policy,
         )?;
-        let work = External::new(snapshot, prompt.target, prompt.viewer);
+        let work = External::new(snapshot, prompt.target, prompt.viewer).select(prompt.selection);
         self.org
             .start_link_viewer(work, policy.limits.job_seconds)?;
         self.links.request = Some(prompt.request);

@@ -1,3 +1,4 @@
+mod attachment;
 mod links;
 mod refile;
 use std::time::{Duration, Instant};
@@ -19,6 +20,7 @@ pub(super) struct Work {
     capture_running: bool,
     refile_running: bool,
     links_running: bool,
+    attachment_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
@@ -27,6 +29,9 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    AttachmentPlan(Result<crate::org::attachment::Plan, String>),
+    AttachmentListing(Result<crate::org::attachment::Listing, String>),
+    AttachmentEffect(crate::org::attachment::FileOutcome),
     Links(Result<crate::org::links::Output, String>),
     LinkViewer(Result<crate::org::io::process::Outcome, String>),
     LinkNavigation(Result<crate::org::links::Navigation, String>),
@@ -139,18 +144,27 @@ impl Session {
         }) && self.visible_org().contains(&source.buffer)
     }
 
-    fn poll_org(&mut self) -> bool {
+    fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.attachment_running {
+            return Some(self.poll_attachment());
+        }
         if self.org.links_running {
-            return self.poll_links();
+            return Some(self.poll_links());
         }
         if self.org.refile_running {
-            return self.poll_refile_job();
+            return Some(self.poll_refile_job());
         }
         if self.org.capture_running {
-            return self.poll_capture();
+            return Some(self.poll_capture());
         }
         if self.org.sources_running {
-            return self.poll_agenda_sources();
+            return Some(self.poll_agenda_sources());
+        }
+        None
+    }
+    fn poll_org(&mut self) -> bool {
+        if let Some(result) = self.poll_org_files() {
+            return result;
         }
         let Some(source) = self.org.source else {
             return false;

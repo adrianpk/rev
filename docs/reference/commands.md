@@ -209,3 +209,5 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org archive | `org-archive-subtree`, `org-toggle-archive-tag`, `org-archive-to-archive-sibling`, `org-archive-results` |
 
 | Org links | `org-store-link`, `org-insert-link`, `org-open-at-point`, `org-mark-ring-goto`, `org-mark-ring-push`, `org-next-link`, `org-previous-link` |
+
+| Org attachments | `org-attach`, `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link`, `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs`, `org-attach-set-directory`, `org-attach-results` |

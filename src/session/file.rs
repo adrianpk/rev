@@ -148,7 +148,7 @@ impl Pending {
 
 impl Pending {
     fn collection_argument(&self) -> bool {
-        matches!(self, Self::Capture(_) | Self::Link(_))
+        matches!(self, Self::Capture(_) | Self::Link(_) | Self::Attachment)
     }
 }
 impl Session {
@@ -156,6 +156,7 @@ impl Session {
         match pending {
             Pending::Capture(prompt) => self.capture_argument(prompt, draft),
             Pending::Link(prompt) => self.link_prompt_argument(*prompt, draft),
+            Pending::Attachment => self.attachment_argument(draft),
             _ => unreachable!("qualified collection argument"),
         }
     }

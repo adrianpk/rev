@@ -7,6 +7,7 @@ mod buffers;
 mod capture;
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
+mod attachment;
 mod edit;
 mod events;
 mod extended;
@@ -18,6 +19,7 @@ mod history;
 mod kill;
 mod linear;
 mod links;
+pub use attachment::{AttachmentResult, HeadingStatus};
 mod mode;
 mod motion;
 mod org;
@@ -79,6 +81,8 @@ pub struct Session {
     refile_result: Vec<refile::ResultEntry>,
     refile_label: &'static str,
     links: links::State,
+    attachment: Option<attachment::State>,
+    attachment_results: std::collections::VecDeque<AttachmentResult>,
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
@@ -124,6 +128,7 @@ enum AfterSave {
 enum Pending {
     Capture(capture::Prompt),
     Refile,
+    Attachment,
     Link(Box<links::Prompt>),
     AgendaSources,
     AgendaDate,
@@ -219,6 +224,8 @@ impl Session {
             refile_result: Vec::new(),
             refile_label: "Refile",
             links: links::State::default(),
+            attachment: None,
+            attachment_results: std::collections::VecDeque::new(),
             windows,
             tree,
             kills,

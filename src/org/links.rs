@@ -117,7 +117,31 @@ pub(crate) use resolve::{Follow, Resolve};
 pub(crate) use visit::Navigation;
 
 pub(crate) use external::viewer_argv;
-pub(crate) use external::{External, Viewer};
+pub(crate) use external::{External, Selection, Viewer};
 
 #[cfg(test)]
 mod tests;
+
+impl Snapshot {
+    fn attachment_follow(
+        self,
+        name: String,
+        native: bool,
+        cancel: &Cancellation,
+    ) -> Result<Follow, String> {
+        let doc = Document::observe(self.text, &self.policy, cancel)?;
+        let mut target = doc.follow(
+            Target::Attachment {
+                path: PathBuf::from(name),
+                search: String::new(),
+            },
+            self.point,
+            &self.directory,
+            &self.policy,
+        )?;
+        if native && let Follow::Local { mode, .. } = &mut target {
+            *mode = FileMode::Native;
+        }
+        Ok(target)
+    }
+}
