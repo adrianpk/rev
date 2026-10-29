@@ -916,7 +916,7 @@ Canonical PR #142 merged into dev at `f65f56a4198b08b64b79c7a929d7fddfa37ef5bd`,
 Contracts: ORG13 ORG14.
 Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-basic-org-table-formulas-safely).
 
-- [ ] T42.1: Evaluate dependency graphs, aggregates, rounding and formatting under the frozen numeric policy.
+- [x] T42.1: Evaluate dependency graphs, aggregates, rounding and formatting under the frozen numeric policy.
 - [ ] T42.2: Detect cycles, empty/text misuse, division by zero, non-finite values and work-budget exhaustion.
 - [ ] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

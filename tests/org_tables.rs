@@ -3,6 +3,8 @@
 mod diagnostics;
 #[path = "org_tables/edges.rs"]
 mod edges;
+#[path = "org_tables/evaluation.rs"]
+mod evaluation;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "org_tables/lifecycle.rs"]

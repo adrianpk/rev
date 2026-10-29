@@ -1,5 +1,7 @@
 //! Bounded, data-only Org table formula syntax. All byte ranges are relative to
 //! the supplied expression text; they never grant buffer or publication authority.
+/// Native numerical evaluation over immutable data projections.
+pub mod eval;
 mod lex;
 mod parse;
 mod reference;

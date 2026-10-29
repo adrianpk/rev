@@ -112,3 +112,28 @@ numeric literals and overflowing coordinates identify the whole numeric token.
 Missing numeric coordinates are syntax errors; named/hline/remote/Lisp forms
 remain explicitly unsupported. Decimal precision accepts unsigned digits only.
 No parser observation can authorize an edit of a newer buffer revision.
+
+`org::formula::Program::evaluate` computes private results over an immutable
+`eval::Grid`. Row numbers exclude separators; a ragged missing field is empty.
+Column formulas skip rows above the first separating hline. Explicit field
+formulas override column formulas; the last definition of the same field or
+column wins. Relative coordinates resolve from each output cell. Range endpoints
+define an inclusive rectangle, regardless of endpoint direction.
+
+The evaluator uses finite binary64 values. Empty input is zero; aggregate calls
+omit text, while scalar arithmetic rejects it. An aggregate with no numeric
+inputs returns zero for `sum` and rejects `mean`, `min` and `max`. Dependency
+values retain binary64 precision until explicit `round` calls. Default output
+uses at most 12 significant digits; `;fN` and `;%.Nf` select fixed decimal text.
+Rounding uses nearest with halfway values away from zero, including negative
+values. `round(value, places)` admits signed integer decimal precision; negative
+precision rounds to tens, hundreds and so on. Binary64 representation still
+applies to decimal input and intermediate arithmetic.
+
+The numeric policy defaults to 100000 grid cells, 1000000 work steps and 12
+decimal places; ceilings are 1000000 cells, 10000000 steps and 15 significant or
+decimal digits. Cancellation and worker deadlines share the existing token.
+Cycles, invalid references, division by zero, non-finite input/results and
+exhausted limits reject the entire private result set. Evaluation does not edit
+canonical source or create history; recalculation publication is a separate
+transaction layer.
