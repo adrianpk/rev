@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-31-capture-templates`
-PR: pending
+PR: `#132`
 
 ## Purpose
 
@@ -59,8 +59,9 @@ placeholder or release-note claim for the later complete capture lifecycle.
 
 ## Validation
 
-T31.1: `39f9929bc439` (report introduction).
-T31.2: reader move `cf1810e5ee25` and implementation `768d2a9fd695`.
+T31.1: `39f9929bc439ca4b062810dcaafbc5bc2a9f6968` (report introduction).
+T31.3: `3a35303cc0e14693be7d4f4f641c49919f814a3d`.
+T31.2: reader move `cf1810e5ee255621a18973f2329800fbc613b6ac` and implementation `768d2a9fd6956ec0f1cddb607b4d81ee0b09b885`.
 
 
 - `cargo test --test configuration org_capture -- --nocapture`: three cases
@@ -93,3 +94,5 @@ T31.2: reader move `cf1810e5ee25` and implementation `768d2a9fd695`.
 
 Editable expansion and publication belong to the
 recorded successor slices. The delivery-set full gate has not run.
+
+[Canonical PR #132](https://forge.adrianpk.com/adrianpk/rev/pulls/132) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.

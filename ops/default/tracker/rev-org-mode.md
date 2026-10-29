@@ -760,6 +760,8 @@ Details and exact checks: [Slice 31](../plan/rev-org-mode.md#slice-31-define-nat
 - [x] T31.3: Verify explicit destination entry, missing targets and template/default/sample coherence.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical [PR #132](https://forge.adrianpk.com/adrianpk/rev/pulls/132) targets dev; the Slice 31 report is reviewing. T31.1 is `39f9929bc439`; T31.2 uses reader move `cf1810e5ee25` and implementation `768d2a9fd695`; T31.3 is `3a35303cc0e1`. Four configuration and nine file-backed capture workflows, focused Clippy and unchanged source-quality limits pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
+
 ### Slice 32: expand and edit native Org capture drafts
 
 Contracts: ORG10 ORG02.
