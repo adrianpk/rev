@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 47 text exports
+Active slice: Slice 48 HTML export
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -994,12 +994,14 @@ Details and exact checks: [Slice 47](../plan/rev-org-mode.md#slice-47-export-org
 - [x] T47.1: Deliver ASCII/UTF-8, Markdown and Org outputs retaining structure, tables, links and footnotes.
 - [x] T47.2: Apply selected subtree/region/options and explicit destination writes from checked snapshots.
 - [x] T47.3: Verify independent semantic fixtures, Unicode conversion diagnostics and no source mutations.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#148](https://forge.adrianpk.com/adrianpk/rev/pulls/148).
 Task commits: T47.1 `bdc974e583247ec26a039bea1bd5d3c1e8fbac18`, T47.2 `d21ad7715eacc14f323019991006df0163ac23f8`, T47.3 `1da01bb882a5306396853445fec375a26b2efcc6`.
 
-### Slice 48: export native Org documents to HTML
+Canonical PR #148 merged into dev at `5f7123996bc875250dafd7e3636e4512450e089e`. Required receipt `CNAGTFFNIY2OHEDL4FR2GRPNUB` passed five ordered checks and 227 tests. Focused receipt `J23EHRG6VBBDCXWSALMCX6W7HE` passed 158 command tests, the configuration reference and two owned terminal sessions. Zero failures, ignored tests or skipped sessions. Slice 47 is delivered.
+
+## Slice 48: export native Org documents to HTML
 
 Contracts: ORG25 ORG30.
 Details and exact checks: [Slice 48](../plan/rev-org-mode.md#slice-48-export-native-org-documents-to-html).

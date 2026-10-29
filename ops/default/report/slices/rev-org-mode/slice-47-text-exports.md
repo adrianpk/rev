@@ -1,6 +1,6 @@
 # Slice 47: export Org to text Markdown and Org
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -66,8 +66,12 @@ Canonical PR: [#148](https://forge.adrianpk.com/adrianpk/rev/pulls/148).
 - Changed-source quality: passed with unchanged native limits.
 - `cargo test --test commands`: the first final-candidate run detected a digit in the UTF-8 command identity and missing complete-catalog documentation. The identity is now `org-export-to-unicode`; both independent references include all four commands. Final evidence follows this correction.
 
-Final acceptance runs through controller validation on the clean PR-reference
-HEAD. The canonical PR and controller evidence retain that exact candidate.
+Canonical PR #148 merged into dev at
+`5f7123996bc875250dafd7e3636e4512450e089e`, verified against Forgejo
+and origin/dev. Required receipt `CNAGTFFNIY2OHEDL4FR2GRPNUB` passed the
+five ordered checks and 227 tests, zero failures or ignored tests. Focused receipt
+`J23EHRG6VBBDCXWSALMCX6W7HE` passed 158 command tests, the configuration
+reference and two RGB/NO_COLOR terminal sessions, zero skipped.
 
 ## Risks and Follow-ups
 
