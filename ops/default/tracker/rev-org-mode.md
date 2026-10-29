@@ -1054,6 +1054,10 @@ Details and exact checks: [Slice 51](../plan/rev-org-mode.md#slice-51-export-org
 - [x] T51.3: Verify structural golden fixtures and ordinary save/cancellation safeguards.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T51.1 `82ca74dfcd2676049306ecca49ce6d7fa6c23bc4`, T51.2 `531f206eb57aa704cb3dfcc69901bae86244d0a8`, T51.3 `a8db4be915afe1a851315640a115e9dcccbca44c`.
+
+Canonical PR: [#152](https://forge.adrianpk.com/adrianpk/rev/pulls/152); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+
 ### Slice 52: export Org planning data as iCalendar
 
 Contracts: ORG25 ORG07.

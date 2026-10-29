@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-51-manual-exports`
-PR: pending
+PR: `#152`
 
 ## Purpose
 
@@ -41,6 +41,10 @@ Rendering shares snapshot cancellation, deadline and output bounds. It has no
 file publication, asset-reading, process or network authority. Manual output
 never probes or invokes makeinfo, groff or a shell. Unsupported forms remain
 escaped source with diagnostics; unsafe control scalars reject output.
+
+Task commits: T51.1 `82ca74dfcd2676049306ecca49ce6d7fa6c23bc4`, T51.2 `531f206eb57aa704cb3dfcc69901bae86244d0a8`, T51.3 `a8db4be915afe1a851315640a115e9dcccbca44c`.
+
+Canonical PR: [#152](https://forge.adrianpk.com/adrianpk/rev/pulls/152).
 
 ## Contracts Added or Changed
 
