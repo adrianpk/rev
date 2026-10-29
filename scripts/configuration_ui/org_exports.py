@@ -5,6 +5,7 @@ from .org_time import quiet
 from .html_document import parse
 from .odt_document import Document as OdtDocument
 from .manual_document import texinfo, man
+from .calendar_document import Document as CalendarDocument
 from .support import (BINARY, PTY, close, completed, environment, finish,
                       send, snapshot, step, write)
 
@@ -72,6 +73,20 @@ def journey(root, colored):
         manual = man(man_bytes)
         assert '.SH "Heading 界"' in manual and 'Body unsaved\nEOF' in manual
         assert source.read_bytes() == encoded(LINES)
+        # Add one owned unsaved appointment, export it, then undo that addition
+        # before the established final undo/source-preservation assertions.
+        appointment = ' <2024-03-04 Mon 09:00-10:00>'
+        calendar_lines = current.copy()
+        calendar_lines[1] += appointment
+        send(session, PTY['paste_wire'](appointment.encode()), lambda f: exact(f, calendar_lines))
+        choose(session, 'org-export-to-icalendar', 'calendar.ics', b'Exported Org document')
+        calendar_bytes = (source.parent / 'calendar.ics').read_bytes()
+        calendar = CalendarDocument(calendar_bytes)
+        assert calendar.values('SUMMARY') == ['Heading 界']
+        assert calendar.values('DTSTART') == ['20240304T090000Z']
+        assert calendar.values('DTEND') == ['20240304T100000Z']
+        assert source.read_bytes() == encoded(LINES)
+        send(session, b'\x18u', lambda f: exact(f, current))
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
         choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
@@ -94,6 +109,7 @@ def journey(root, colored):
         before['work/document.odt'] = odt_bytes
         before['work/manual.texi'] = texi_bytes
         before['work/manual.1'] = man_bytes
+        before['work/calendar.ics'] = calendar_bytes
         assert snapshot(root) == before
     finally:
         close(session)

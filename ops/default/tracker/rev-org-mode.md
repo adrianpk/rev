@@ -1065,7 +1065,7 @@ Details and exact checks: [Slice 52](../plan/rev-org-mode.md#slice-52-export-org
 
 - [x] T52.1: Deliver native iCalendar events/tasks with checked IDs, timestamps, time zones and recurrence conversion.
 - [x] T52.2: Preserve unsupported recurrence source and report conversion limits rather than inventing dates.
-- [ ] T52.3: Verify independent calendar fixtures, line folding, escaping and stable refresh output.
+- [x] T52.3: Verify independent calendar fixtures, line folding, escaping and stable refresh output.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 53: publish native Org document projects

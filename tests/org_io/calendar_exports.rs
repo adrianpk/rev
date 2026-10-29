@@ -256,3 +256,280 @@ fn calendar_rejected_source() {
         );
     }
 }
+
+fn verify(path: &Path, fixture: bool) {
+    let mut command = std::process::Command::new("python3");
+    command.args([
+        "scripts/configuration_ui/calendar_document.py",
+        path.to_str().unwrap(),
+    ]);
+    if fixture {
+        command.arg("--fixture");
+    }
+    let check = command.output().unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+// Python's independent date/wire reader checks actual emitted bytes against
+// hand-authored semantic fixtures, including leap days and inert protocol text.
+#[test]
+fn calendar_independent_fixture() {
+    let f = Fixture::new();
+    let output = render(include_str!("../fixtures/org-calendar/document.org")).unwrap();
+    let path = f.write("document.ics", &output);
+    verify(&path, true);
+    assert!(!f.0.join("marker").exists());
+}
+// Folding counts encoded octets and never tears UTF-8 scalars. Escape spelling
+// is independently unfolded/decoded and cannot inject calendar components.
+#[test]
+fn calendar_unicode_folding() {
+    let f = Fixture::new();
+    let title = format!("Text {} ,;\\ tail", "界".repeat(40));
+    let output = render(&format!(
+        "* TODO {title}\n:PROPERTIES:\n:ID: unicode\n:END:\nEND:VCALENDAR\nBEGIN:VEVENT\n"
+    ))
+    .unwrap();
+    let path = f.write("document.ics", &output);
+    verify(&path, false);
+    let check = std::process::Command::new("python3")
+        .args([
+            "-c",
+            r#"import sys
+from pathlib import Path
+from scripts.configuration_ui.calendar_document import Document, one
+d = Document(Path(sys.argv[1]).read_bytes())
+assert len(d.components) == 1
+assert one(d.components[0], 'SUMMARY') == 'TODO Text ' + '界' * 40 + ' ,;\\ tail'
+assert one(d.components[0], 'DESCRIPTION') == 'END:VCALENDAR\nBEGIN:VEVENT'
+"#,
+            path.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+fn begin(session: &mut Session, destination: &str) {
+    action(session, C::ExportIcalendar);
+    for value in ["buffer", "todo:nil tags:nil", destination] {
+        argument(session, value);
+    }
+}
+// Dirty BOM/CRLF source and ordinary undo retain their revision, history, view
+// and disk ownership while the explicit command publishes exact CRLF output.
+#[test]
+fn calendar_file_publication() {
+    let f = Fixture::new();
+    let source = "\u{feff}* TODO Heading\r\nBody";
+    let path = f.write("source.org", source);
+    let mut s = host(&f, Some(&path), false);
+    s.handle(Event::Paste("#+TITLE: Unsaved\r\n".into()));
+    settle(&mut s);
+    let before = text(&s);
+    let view = s.view().clone();
+    let stamp = s.buffer().unwrap().stamp();
+    let history = s.buffer().unwrap().history().len();
+    begin(&mut s, "document.ics");
+    assert!(s.echo().contains("Exported Org document"), "{}", s.echo());
+    verify(&f.0.join("document.ics"), false);
+    assert_eq!(text(&s), before);
+    assert_eq!(s.view(), &view);
+    assert_eq!(s.buffer().unwrap().stamp(), stamp);
+    assert_eq!(s.buffer().unwrap().history().len(), history);
+    assert!(s.buffer().unwrap().is_modified());
+    assert_eq!(std::fs::read_to_string(&path).unwrap(), source);
+    s.execute(Command::History(rev::command::History::Undo));
+    assert_eq!(text(&s), "* TODO Heading\r\nBody");
+}
+// Prompt cancellation, declined replacement, stale source/include/destination
+// observations and aliases retain the existing file and never save the source.
+#[test]
+fn calendar_publication_guards() {
+    let (f, mut s) = super::links::editor(
+        "org.tools.pdf=['./absent','{input}']",
+        "#+INCLUDE: \"child.org\"\n* TODO Source\n",
+        "",
+    );
+    f.write("child.org", "* TODO Child\n");
+    let output = f.write("document.ics", "keep");
+    for count in 0..4 {
+        action(&mut s, C::ExportIcalendar);
+        for value in ["buffer", "", "document.ics"].into_iter().take(count) {
+            argument(&mut s, value);
+        }
+        cancel(&mut s);
+        settle(&mut s);
+        assert_eq!(std::fs::read(&output).unwrap(), b"keep");
+    }
+    begin(&mut s, "document.ics");
+    argument(&mut s, "no");
+    assert_eq!(std::fs::read(&output).unwrap(), b"keep");
+    begin(&mut s, "document.ics");
+    f.write("document.ics", "changed");
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("not published"), "{}", s.echo());
+    assert_eq!(std::fs::read(&output).unwrap(), b"changed");
+    begin(&mut s, "document.ics");
+    f.write("child.org", "* TODO Changed\n");
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("not published"), "{}", s.echo());
+    assert_eq!(std::fs::read(&output).unwrap(), b"changed");
+    begin(&mut s, "document.ics");
+    s.insert('X');
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("source or view changed"), "{}", s.echo());
+    assert_eq!(std::fs::read(&output).unwrap(), b"changed");
+    std::fs::hard_link(f.0.join("source.org"), f.0.join("alias")).unwrap();
+    for name in ["source.org", "child.org", "alias"] {
+        let before = std::fs::read(f.0.join(name)).unwrap();
+        begin(&mut s, name);
+        assert!(!s.echo().contains("Exported Org document"));
+        assert_eq!(std::fs::read(f.0.join(name)).unwrap(), before);
+    }
+}
+// Selected read-only heading scopes retain explicit identity and suppress file
+// metadata in regions. Source range coordinates still belong to the editor.
+#[test]
+fn calendar_selected_scope() {
+    let f = Fixture::new();
+    let source = "#+TITLE: Hidden\n* TODO Parent\n** TODO Child :work:\n:PROPERTIES:\n:ID: child\n:END:\nbody\n** TODO Sibling\n";
+    let path = f.write("source.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "3");
+    let view = s.view().clone();
+    action(&mut s, C::ExportIcalendar);
+    for value in ["subtree", "title:nil todo:nil tags:nil", "child.ics"] {
+        argument(&mut s, value);
+    }
+    assert!(s.echo().contains("Exported Org document"), "{}", s.echo());
+    let output = std::fs::read_to_string(f.0.join("child.ics")).unwrap();
+    for hidden in ["Hidden", "Parent", "Sibling", ":work:"] {
+        assert!(!output.contains(hidden), "{hidden}");
+    }
+    assert!(output.contains("SUMMARY:Child\r\n"));
+    assert!(!output.contains("SUMMARY:TODO"));
+    assert_eq!(s.view(), &view);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "3");
+    s.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char(' '),
+        KeyModifiers::CONTROL,
+    )));
+    s.execute(Command::GotoLine);
+    argument(&mut s, "8");
+    let view = s.view().clone();
+    action(&mut s, C::ExportIcalendar);
+    for value in ["region", "todo:nil tags:nil", "region.ics"] {
+        argument(&mut s, value);
+    }
+    assert!(s.echo().contains("Exported Org document"), "{}", s.echo());
+    let region = std::fs::read_to_string(f.0.join("region.ics")).unwrap();
+    assert_eq!(output, region);
+    assert_eq!(s.view(), &view);
+    assert_eq!(text(&s), source);
+    assert!(s.buffer().unwrap().history().is_empty());
+}
+// Fresh preparation is stable for explicit and fallback identities despite
+// unrelated prefix edits and task-state changes. Rendering itself is repeatable.
+#[test]
+fn calendar_stable_refresh() {
+    let f = Fixture::new();
+    let source = "* TODO Fallback\n* TODO Explicit\n:PROPERTIES:\n:ID: stable-id\n:END:\n";
+    let path = f.write("source.org", source);
+    let mut identities = None;
+    for value in [
+        source.to_string(),
+        source.to_string(),
+        format!("#+TITLE: Changed\n{}", source.replace("TODO", "DONE")),
+    ] {
+        std::fs::write(&path, value).unwrap();
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&path).unwrap();
+        let request = Request {
+            backend: ExportBackend::Icalendar,
+            scope: Scope::Buffer,
+            options: None,
+            time: clock(&Org::default().time).unwrap(),
+        };
+        let snapshot = Work::new(&buffers, id, request, &Org::default())
+            .unwrap()
+            .run(&Cancellation::default())
+            .unwrap();
+        let first = snapshot.render(&Cancellation::default()).unwrap();
+        assert_eq!(
+            first.text(),
+            snapshot.render(&Cancellation::default()).unwrap().text()
+        );
+        let ids: Vec<_> = first
+            .text()
+            .lines()
+            .filter(|line| line.starts_with("UID:"))
+            .map(str::to_owned)
+            .collect();
+        if let Some(previous) = &identities {
+            assert_eq!(&ids, previous);
+        } else {
+            identities = Some(ids);
+        }
+    }
+}
+// Exact wire byte budgets include folds and CRLF; cancelled or excessive work
+// never returns a partial calendar. Component count remains a separate bound.
+#[test]
+fn calendar_output_bounds() {
+    let f = Fixture::new();
+    let source = "* TODO Bound\n:PROPERTIES:\n:ID: bound\n:END:\nbody\n";
+    let path = f.write("source.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let expected = render(source).unwrap();
+    for limit in [expected.len(), expected.len() - 1] {
+        let mut policy = Org::default();
+        policy.limits.export_bytes = limit;
+        let request = Request {
+            backend: ExportBackend::Icalendar,
+            scope: Scope::Buffer,
+            options: None,
+            time: clock(&policy.time).unwrap(),
+        };
+        let snapshot = Work::new(&buffers, id, request, &policy)
+            .unwrap()
+            .run(&Cancellation::default())
+            .unwrap();
+        let result = snapshot.render(&Cancellation::default());
+        if limit == expected.len() {
+            assert_eq!(result.unwrap().text(), expected);
+        } else {
+            assert!(result.err().unwrap().contains("byte limit"));
+        }
+        let cancel = Cancellation::default();
+        cancel.cancel();
+        assert!(snapshot.render(&cancel).is_err());
+    }
+    let source = format!(
+        "* TODO Many\n:PROPERTIES:\n:ID: many\n:DESCRIPTION: bounded\n:END:\n{}",
+        "<2024-03-04 Mon> ".repeat(4096)
+    );
+    assert!(render(&source).unwrap_err().contains("4096 components"));
+}

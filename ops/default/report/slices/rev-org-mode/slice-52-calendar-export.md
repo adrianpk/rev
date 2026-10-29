@@ -1,6 +1,6 @@
 # Slice 52: export Org planning data as iCalendar
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -37,6 +37,15 @@ with explicit limits. No future dates, alarms or completion instants are invente
 Per-entry UTC/IANA zones are captured once; fold/gap resolution rejects rather than
 selecting an unobserved offset. Finished task declarations retain their true status.
 
+T52.3 verifies actual calendar bytes through an independent Python content-line
+and Gregorian-date reader with hand-authored semantic fixtures. Thirteen workflows
+cover Unicode folding/escaping, protocol-looking body data, leap/overnight bounds,
+repeatable rendering, stable explicit/fallback UIDs, source-state changes, dirty
+BOM/CRLF publication, prompt cancellation, stale observations, aliases, read-only
+subtree/region selection, exact final-byte budgets and the 4096-component bound.
+The existing RGB/NO_COLOR journey exports an owned unsaved appointment, checks its
+actual calendar, then restores the established undo/source assertions.
+
 ## Implementation Notes
 
 Wire emission folds at 75 UTF-8 octets with CRLF and one continuation space,
@@ -67,6 +76,10 @@ service, asset reading or execution authority is introduced.
 - `cargo test --test commands visibility_keys`: compiled command catalog round-trip passed.
 - `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
 - Changed-source quality passed with unchanged limits after the explicit range-end conversion was separated from ordinary event defaults.
+
+- `cargo test --test org_io calendar_`: thirteen calendar, independent-reader and guarded-publication workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed with the completed workflow fixtures.
+- Changed-source quality passed with unchanged limits. The selected-scope assertion now checks SUMMARY separately from the protocol name VTODO, retaining the task-keyword suppression assertion and all source/view/history checks.
 
 ## Risks and Follow-ups
 

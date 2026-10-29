@@ -1,0 +1,42 @@
+#+TITLE: Calendar fixture
+#+TODO: TODO NEXT | DONE FINISHED
+#+OPTIONS: todo:nil tags:nil
+* NEXT Write
+SCHEDULED: <2024-03-04 Mon 09:00> DEADLINE: <2024-03-04 Mon 17:00>
+:PROPERTIES:
+:ID: fixture-task
+:LOCATION: Desk, room; north\side
+:CLASS: PRIVATE
+:END:
+Body, with; punctuation \ and Unicode 界.
+END:VCALENDAR
+BEGIN:VEVENT
+~<2024-01-01 Mon>~ and [[https://example.org/<2024-01-02>][link]].
+#+begin_src sh
+touch marker
+<2024-01-03 Wed>
+#+end_src
+* Night
+:PROPERTIES:
+:ID: fixture-night
+:END:
+<2024-03-04 Mon 23:30-00:30>
+* Leap range
+:PROPERTIES:
+:ID: fixture-leap
+:END:
+<2024-02-28 Wed>--<2024-03-01 Fri>
+* Weekly
+:PROPERTIES:
+:ID: fixture-weekly
+:END:
+<2024-03-04 Mon +2w>
+* Restart
+:PROPERTIES:
+:ID: fixture-restart
+:END:
+<2024-03-04 Mon .+1w>
+* FINISHED Done
+:PROPERTIES:
+:ID: fixture-done
+:END:
