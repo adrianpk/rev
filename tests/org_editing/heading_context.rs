@@ -77,25 +77,37 @@ fn source_fidelity() {
 }
 
 // Explicit heading insertion rejects deeper owners. M-RET continues real list
-// source while tables, metadata and literal bodies retain their own admission.
+// source and native tables insert rows; metadata and literal bodies retain their
+// own admission. Explicit headings never consume table cells.
 #[test]
 fn precise_context() {
     let cases = [
-        ("list", "* Root\n- item\n", 2),
-        ("table", "* Root\n| a | b |\n", 2),
-        ("drawer", "* Root\n:LOGBOOK:\nentry\n:END:\n", 3),
+        ("list", "* Root\n- item\n", 2, Some("* Root\n- \n- item\n")),
+        (
+            "table",
+            "* Root\n| a | b |\n",
+            2,
+            Some("* Root\n| a | b |\n|   |   |\n"),
+        ),
+        ("drawer", "* Root\n:LOGBOOK:\nentry\n:END:\n", 3, None),
         (
             "literal",
             "* Root\n#+begin_example\n,* Literal\n#+end_example\n",
             3,
+            None,
         ),
-        ("planning", "* Root\nSCHEDULED: <2026-10-28 Wed>\n", 2),
-        ("malformed", "* Root\n#+begin_src text\n", 2),
-        ("list EOF", "* Root\n- item", 0),
-        ("table EOF", "* Root\n| a |", 0),
-        ("open block EOF", "* Root\n#+begin_example", 0),
+        ("planning", "* Root\nSCHEDULED: <2026-10-28 Wed>\n", 2, None),
+        ("malformed", "* Root\n#+begin_src text\n", 2, None),
+        ("list EOF", "* Root\n- item", 0, Some("* Root\n- item\n- ")),
+        (
+            "table EOF",
+            "* Root\n| a |",
+            0,
+            Some("* Root\n| a |\n|   |"),
+        ),
+        ("open block EOF", "* Root\n#+begin_example", 0, None),
     ];
-    for (name, source, line) in cases {
+    for (name, source, line, expected) in cases {
         let (_fixture, mut session) = editor("", "notes.org", source);
         if line == 0 {
             session.execute(Command::Motion(Motion::BufferEnd));
@@ -113,12 +125,7 @@ fn precise_context() {
         assert_eq!(session.view(), &before, "{name}");
         assert!(session.buffer().unwrap().history().is_empty(), "{name}");
         meta_return(&mut session);
-        if name.starts_with("list") {
-            let expected = if line == 0 {
-                "* Root\n- item\n- "
-            } else {
-                "* Root\n- \n- item\n"
-            };
+        if let Some(expected) = expected {
             assert_eq!(text(&session), expected, "{name}");
             assert_eq!(session.buffer().unwrap().history().len(), 1);
             session.execute(Command::History(History::Undo));
