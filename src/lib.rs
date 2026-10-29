@@ -21,6 +21,10 @@ pub mod tree;
 pub mod view;
 pub mod window;
 
+#[cfg(test)]
+#[path = "../tests/configuration/fixture.rs"]
+mod fixture;
+
 use std::io;
 use std::path::Path;
 

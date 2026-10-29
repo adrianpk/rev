@@ -1,7 +1,6 @@
 use super::*;
 use crate::config::{CaptureKind, CaptureTarget, CaptureTemplate};
-#[path = "../../../../tests/configuration/fixture.rs"]
-mod fixture;
+use crate::fixture;
 fn file() -> CaptureTarget {
     CaptureTarget::File {
         file: String::new(),

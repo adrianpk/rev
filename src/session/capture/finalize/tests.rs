@@ -1,12 +1,11 @@
 use super::*;
+use crate::fixture;
 use crate::{
     buffer::Buffers,
     config::prepare,
     view::{Size, View},
 };
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-#[path = "../../../../tests/configuration/fixture.rs"]
-mod fixture;
 struct Uncertain;
 impl crate::file::Output for Uncertain {
     fn sync_directory(&mut self, _: &std::fs::File) -> std::io::Result<()> {

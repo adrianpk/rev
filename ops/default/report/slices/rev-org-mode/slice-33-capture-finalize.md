@@ -42,8 +42,8 @@ reject automatic retry, and abort reports actual prior publication.
 T33.3 verifies actual file, outline, list, table and date-tree publication,
 shared-pane positions, metadata placement and draft bounds. Plain prepend skips
 actual heading metadata and inserts a separator before existing body text.
-The fixture identity includes its owning module, preventing independent unit
-modules from colliding without changing assertions or resource limits.
+One shared unit-test fixture owner and module-qualified temporary paths prevent
+collisions without changing assertions or resource limits.
 
 ## Contracts Added or Changed
 
@@ -100,8 +100,9 @@ T33.3 focused checks:
 
 A plain-prepend fixture initially exposed metadata joining; placement now keeps
 its property drawer intact and the exact expected bytes pass. Concurrent unit
-fixtures initially collided; module-qualified ownership fixes that setup while
-preserving all observable assertions. Final controller receipts will bind the
+fixtures initially collided, and required all-target Clippy rejected duplicate
+module loads. A single shared fixture owner with module-qualified paths fixes
+that setup while preserving all observable assertions. Final controller receipts will bind the
 clean pushed PR head after its reference follow-up commit.
 
 ## Risks and Follow-ups

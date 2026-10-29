@@ -2,9 +2,7 @@ use super::*;
 
 use std::sync::{Arc, Barrier};
 
-#[path = "../../../tests/configuration/fixture.rs"]
-mod fixture;
-use fixture::Fixture;
+use crate::fixture::Fixture;
 
 struct Fault {
     step: &'static str,
