@@ -54,12 +54,13 @@ impl Session {
             policy,
         )?;
         let work = if request.command == C::TableImport {
-            let read = CaptureRead::new(&self.buffers, &path, &policy.limits)?;
+            let limits = crate::org::table::interchange::input_limits(&policy.limits);
+            let read = CaptureRead::new(&self.buffers, &path, &limits)?;
             Work::import(snapshot, read, &path)?
         } else {
             let target = file::resolve(&path).map_err(|e| e.to_string())?;
             self.table_target_available(&target)?;
-            Work::export(snapshot, target)?
+            Work::export(snapshot, target, &path)?
         };
         self.launch_table_file(request, work)
     }

@@ -948,7 +948,7 @@ Details and exact checks: [Slice 44](../plan/rev-org-mode.md#slice-44-import-and
 
 - [x] T44.1: Deliver bounded CSV/TSV import/export and list/table conversion through native commands.
 - [x] T44.2: Preserve quoting and representable cell values; reject embedded line breaks or unsupported transformations before mutation rather than inventing lossy escapes.
-- [ ] T44.3: Verify actual file round trips and rejected malformed input without lossy recovery.
+- [x] T44.3: Verify actual file round trips and rejected malformed input without lossy recovery.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 45: display Org property columns and native reports

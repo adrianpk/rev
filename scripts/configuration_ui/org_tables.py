@@ -1,4 +1,5 @@
 """Owned native table keys, exact canvas/source format, history and cancellation."""
+import csv
 from .org_document import encoded, exact
 from .org_tasks import goto, named
 from .org_time import quiet
@@ -8,11 +9,15 @@ from .support import (BINARY, PTY, close, completed, environment, finish,
 LINES = ['#+NAME: numbers', '#+CAPTION: Keep', '|Name|Count|', '|--+--|',
          '|界e\u0301|2|', '|Long|11|', '#+TBLFM: $2=$1+1', '', '', 'Text.',
          '#+begin_example', '|A|B|', '#+end_example', 'EOF']
+DATA = 'A,B\r\n"é,界","q""uote"\r\n'.encode()
+EXPORTED = '"A","B"\n"é,界","q""uote"\n'.encode()
 
 
 def journey(root, colored):
     write(root, 'user/rev/config.toml', b'')
     source = write(root, 'work/notes.org', encoded(LINES))
+    write(root, 'work/input.csv', DATA)
+    write(root, 'work/bad.csv', b'A,B\n"broken\ncell",x\n')
     before = snapshot(root)
     session = PTY['Session']([str(BINARY), str(source)],
                              env=environment(root, colored), cwd=source.parent)
@@ -36,6 +41,7 @@ def journey(root, colored):
         send(session, b'\x18u', lambda f: exact(f, aligned))
         structure(session, aligned)
         recalculation(session, aligned)
+        interchange(session, root, aligned)
         goto(session, 9)
         step(session, b'\x03|', b'Table size (columns x rows, default 5x2): ')
         created = aligned[:8] + ['|   |', '|---|'] + aligned[9:]
@@ -82,10 +88,37 @@ def journey(root, colored):
             assert b'\x1b[38;2;' not in session.output and b'\x1b[48;2;' not in session.output
         finish(session, colored)
         before['work/notes.org'] = encoded(current)
+        before['work/output.csv'] = EXPORTED
         after = snapshot(root)
-        assert after == before, 'table fixture entries changed outside the canonical source'
+        assert after == before, 'table fixture entries changed outside checked source/data outputs'
     finally:
         close(session)
+
+
+def interchange(session, root, original):
+    # Both existing owned sessions exercise real M-x/file operations. Python's
+    # independent CSV reader checks semantic values, alongside exact file bytes.
+    goto(session, 8)
+    named(session, 'org-table-import', b'Import table file (.csv/.tsv): ')
+    imported = original.copy()
+    imported[7:8] = ['| A    | B      |', '| é,界 | q"uote |']
+    send(session, b'input.csv\r', lambda f: exact(f, imported))
+    goto(session, 8)
+    named(session, 'org-table-export', b'Export table file (.csv/.tsv): ')
+    step(session, b'output.csv\r', b'Exported table data')
+    output = root / 'work/output.csv'
+    assert output.read_bytes() == EXPORTED
+    with output.open(encoding='utf-8', newline='') as stream:
+        assert list(csv.reader(stream, strict=True)) == [['A', 'B'], ['é,界', 'q"uote']]
+    assert (root / 'work/input.csv').read_bytes() == DATA
+    send(session, b'\x18u', lambda f: exact(f, original))
+    named(session, 'undo-redo', b'Org')
+    session.wait(lambda: completed(session, lambda f: exact(f, imported)))
+    send(session, b'\x18u', lambda f: exact(f, original))
+    goto(session, 8)
+    named(session, 'org-table-import', b'Import table file (.csv/.tsv): ')
+    frame = step(session, b'bad.csv\r', b'Embedded cell line breaks')
+    assert exact(frame, original)
 
 
 def structure(session, original):

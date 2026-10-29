@@ -4,6 +4,11 @@ mod publication;
 use super::*;
 use crate::{buffer::Save, file::Location, org::io::CaptureRead};
 use std::path::Path;
+pub(crate) fn input_limits(policy: &crate::config::OrgLimits) -> crate::config::OrgLimits {
+    let mut limits = policy.clone();
+    limits.agenda_file_bytes = limits.agenda_file_bytes.min(Limits::default().bytes);
+    limits
+}
 pub(crate) enum Work {
     Import(Snapshot, CaptureRead, char),
     Export(Snapshot, Location, char),
@@ -13,8 +18,8 @@ impl Work {
     pub fn import(snapshot: Snapshot, read: CaptureRead, path: &Path) -> Result<Self, String> {
         Ok(Self::Import(snapshot, read, data::Format::path(path)?.0))
     }
-    pub fn export(snapshot: Snapshot, location: Location) -> Result<Self, String> {
-        let delimiter = data::Format::path(location.path())?.0;
+    pub fn export(snapshot: Snapshot, location: Location, path: &Path) -> Result<Self, String> {
+        let delimiter = data::Format::path(path)?.0;
         Ok(Self::Export(snapshot, location, delimiter))
     }
     pub fn run(self, cancel: &Cancellation) -> Result<Output, String> {

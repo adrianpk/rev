@@ -130,3 +130,6 @@ mod attachments;
 
 #[path = "org_io/attachment_edges.rs"]
 mod attachment_edges;
+
+#[path = "org_io/table_interchange.rs"]
+mod table_interchange;

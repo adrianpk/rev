@@ -184,3 +184,41 @@ fn interchange_conversion() {
         assert!(session.buffer().unwrap().history().is_empty(), "{name}");
     }
 }
+
+// Canonical write authority rejects import even after valid file preparation;
+// a read-only table can still export data without changing its state/history.
+#[test]
+fn interchange_readonly() {
+    let fixture = Fixture::new();
+    let source = "\n|A|\n";
+    fixture.write("input.csv", "X\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&fixture.write("notes.org", source)).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 18,
+        },
+    )
+    .unwrap();
+    action(&mut session, C::TableImport);
+    argument(&mut session, "input.csv");
+    assert!(session.echo().contains("read-only"), "{}", session.echo());
+    assert_eq!(text(&session), source);
+    assert!(session.buffer().unwrap().history().is_empty());
+    at(&mut session, 1);
+    action(&mut session, C::TableExport);
+    argument(&mut session, "output.csv");
+    assert!(session.echo().starts_with("Exported"), "{}", session.echo());
+    assert_eq!(
+        std::fs::read_to_string(fixture.0.join("output.csv")).unwrap(),
+        "\"A\"\n"
+    );
+    assert_eq!(text(&session), source);
+    assert!(session.buffer().unwrap().history().is_empty());
+    assert!(!session.buffer().unwrap().is_modified());
+}

@@ -1,6 +1,6 @@
 # Slice 44: import and export Org table data
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -29,6 +29,12 @@ and exceeded native limits reject before source publication. The entire imported
 Org candidate remains bounded to 8 MiB. Native model observations and conversion
 workflows verify values independently of codec round trips.
 
+T44.3 verifies real source saves, BOM/CRLF/EOF, peer positions, unsaved canonical
+input through hard links, observed overwrite consent, permissions, missing and
+invalid files, symlink referents, read-only authority, cancellation and stale
+views. The two existing owned terminal sessions exercise M-x interchange,
+independent Python CSV parsing, exact output bytes, undo/redo and failed import.
+
 ## Implementation Notes
 
 The existing single cancellable worker owns data reads, table preparation and
@@ -42,12 +48,19 @@ replacement outcomes after late cancellation and never acknowledges a source sav
 - ORG12: imported values publish through one checked table history transaction.
 - ORG27: explicit CSV/TSV interchange retains representable values and file outcomes.
 
+The entered filename suffix selects CSV/TSV even when canonical resolution
+follows a symlink to another suffix. Input IO clamps the existing source-reader
+budget to the native 8 MiB table ceiling before reading; smaller configured
+limits still apply. No new worker slot or resource ceiling is introduced.
+
 ## Files of Interest
 
 - `src/org/table/interchange.rs`: native source projection and operation owner.
 - `src/org/table/interchange/data.rs`: bounded delimited-data codec.
 - `src/session/tables/interchange.rs`: explicit paths, confirmation and live authority.
 - `tests/org_tables/interchange.rs`: actual CSV/TSV native round trips.
+- `tests/org_io/table_interchange.rs`: checked file lifecycle and identity workflows.
+- `scripts/configuration_ui/org_tables.py`: existing owned RGB/NO_COLOR journeys.
 - `docs/reference/org-tables.md`: supported formats and rejection rules.
 
 ## Validation
@@ -60,6 +73,15 @@ replacement outcomes after late cancellation and never acknowledges a source sav
 
 - `cargo test --test org_tables interchange -- --nocapture`: five native interchange workflows passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed; changed-source quality passed.
+
+- `cargo test --test org_io table_ -- --nocapture`: six native file workflows passed, zero failures or ignored tests.
+- `cargo test --test org_tables interchange_readonly -- --nocapture`: canonical import/export authority passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_tables --test org_io -- -D warnings`: passed; changed-source quality passed after final source-reader and authority coverage.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: both owned RGB/NO_COLOR sessions passed, zero skipped. Existing canvas, byte, cleanup and resource assertions remain in place.
+- The initial new stale-view driver timed out because a split retains the selected pane. The driver now selects the actual peer during owned work; the original five-second deadline and source/history preservation assertions remain unchanged.
+
+Final exact-candidate ordered checks are recorded through the controller before
+handoff. Integration remains open until the controller verifies the canonical PR.
 
 ## Risks and Follow-ups
 
