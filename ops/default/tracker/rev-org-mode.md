@@ -918,7 +918,7 @@ Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-b
 
 - [x] T42.1: Evaluate dependency graphs, aggregates, rounding and formatting under the frozen numeric policy.
 - [x] T42.2: Detect cycles, empty/text misuse, division by zero, non-finite values and work-budget exhaustion.
-- [ ] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
+- [x] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 43: publish Org recalculation as one transaction

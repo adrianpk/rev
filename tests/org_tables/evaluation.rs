@@ -27,12 +27,16 @@ fn evaluated_arithmetic() {
     let data = grid(&[&["old"]], 0);
     for (name, expression, expected) in [
         ("addition", "2+3*4", 14.0),
+        ("subtraction", "7-10", -3.0),
+        ("division", "8/2", 4.0),
         ("Org division", "8/2*2", 2.0),
         ("power", "2^3^2", 512.0),
         ("negative power", "-2^2", -4.0),
         ("negative exponent", "2^-3", 0.125),
         ("absolute", "abs(-4)", 4.0),
         ("negative half", "round(-1.5)", -2.0),
+        ("positive half", "round(0.5)", 1.0),
+        ("negative near zero", "round(-0.5)", -1.0),
         ("decimal half", "round(-1.25,1)", -1.3),
         ("coarse half", "round(-125,-1)", -130.0),
     ] {

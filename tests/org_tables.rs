@@ -7,6 +7,8 @@ mod edges;
 mod evaluation;
 #[path = "org_tables/evaluation_errors.rs"]
 mod evaluation_errors;
+#[path = "org_tables/evaluation_workflows.rs"]
+mod evaluation_workflows;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "org_tables/lifecycle.rs"]

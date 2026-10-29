@@ -1,6 +1,6 @@
 # Slice 42: evaluate basic Org table formulas safely
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -47,6 +47,15 @@ Failures after earlier successful computations or during final formatting still
 return no result set. Diagnostics retain the failing reference/expression span
 and output cell; an invalid assignment target does not claim an existing cell.
 
+T42.3 verifies literal expected arithmetic, both signs of halfway rounding,
+forward/backward relative axes, current/omitted coordinates, reversed rectangular
+endpoints and dependencies on interior range cells. A 10000-row dependency chain
+completes iteratively. Ragged inputs, field precedence, duplicate definitions,
+header exclusion, finite large means and significant-digit carry are covered.
+Actual canonical table-cell and formula observations are evaluated from a
+read-only BOM/CRLF/Unicode document; both success and late division failure leave
+the original bytes, stamp, state, modification flag and history unchanged.
+
 ## Contracts Added or Changed
 
 - ORG13: finite binary64 evaluation, aggregates, rounding and formatting.
@@ -58,6 +67,8 @@ and output cell; an invalid assignment target does not claim an existing cell.
 - `src/org/formula/eval/`: target/dependency resolution, arithmetic and formatting.
 - `tests/org_tables/evaluation.rs`: independent expected numerical results.
 - `docs/reference/org-tables.md`: native numeric and coordinate policy.
+- `tests/org_tables/evaluation_errors.rs` and `evaluation_workflows.rs`: rejection, limits and coordinate/dependency expectations.
+- `tests/org_source/formulas.rs`: canonical numerical source fidelity.
 
 ## Validation
 
@@ -67,6 +78,8 @@ and output cell; an invalid assignment target does not claim an existing cell.
 - `cargo test --test org_tables evaluation -- --nocapture`: eight evaluation workflows passed, including rejection, resource, non-finite and diagnostic cases; zero failed or ignored.
 - `cargo test --lib evaluation_deadline`: the private worker deadline test passed.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed after failure handling changes; changed-source quality passed.
+- `cargo test --test org_tables --test org_source evaluation -- --nocapture`: 15 focused workflows passed, zero failed or ignored.
+- `cargo clippy --lib --test org_tables --test org_source -- -D warnings`: passed; changed-source quality passed after the final expected-result cases.
 
 ## Risks and Follow-ups
 
