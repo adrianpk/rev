@@ -1,6 +1,26 @@
 use super::*;
 use crate::{command::OrgCommand, org::table::Snapshot};
 impl Work {
+    pub(in crate::session) fn start_table_file(
+        &mut self,
+        stamp: Stamp,
+        work: crate::org::table::interchange::Work,
+        seconds: usize,
+    ) -> Result<(), String> {
+        let effect = matches!(work, crate::org::table::interchange::Work::Publish(_));
+        self.job
+            .start(stamp, move |cancel| {
+                let bounded = cancel.bounded(Instant::now() + Duration::from_secs(seconds as u64));
+                Observation::Table(work.run(&bounded))
+            })
+            .map_err(|e| e.to_string())?;
+        self.table_running = true;
+        self.table_effect = effect;
+        self.source = None;
+        self.deadline = Some(Instant::now() + POLL);
+        Ok(())
+    }
+
     pub(in crate::session) fn start_table(
         &mut self,
         snapshot: Snapshot,
@@ -34,10 +54,16 @@ impl Session {
         {
             self.org.job.cancel();
         }
-        let Some(result) = self.org.job.poll_owned() else {
+        let observed = if self.org.table_effect {
+            self.org.job.poll_effect()
+        } else {
+            self.org.job.poll_owned()
+        };
+        let Some(result) = observed else {
             return false;
         };
         self.org.table_running = false;
+        self.org.table_effect = false;
         self.org.source = None;
         self.org.deadline = None;
         match result {

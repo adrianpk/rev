@@ -167,3 +167,26 @@ syntax nesting and decimal precision. Their defaults and ceilings are listed
 in the configuration reference. The existing job deadline applies to the whole
 operation. Empty numeric input and half-away rounding retain the fixed native
 profile. Preferences are captured with the initiating buffer's configuration.
+
+`org-table-import` reads an explicitly selected `.csv` or `.tsv` file into a
+blank line in the current Org buffer as one undo unit. Paths are literal and
+relative to the Org file's directory (or the working directory for an unvisited
+buffer). An open canonical input buffer supplies its unsaved text. Import adds
+no file visit and does not save the Org document.
+
+`org-table-export` writes the selected table's data rows to an explicit `.csv`
+or `.tsv` path. Separators, names, captions and formulas stay in Org source;
+export never evaluates formulas or modifies/saves the source. Existing output
+files require `yes` confirmation tied to their observed version. Files owned by
+live buffers, including aliases, cannot be export destinations. Publication uses
+the ordinary checked temporary-file replacement and reports unresolved completion
+truthfully. Exported records use LF and quote every field, doubling literal quotes;
+TSV uses the same quoting with a tab delimiter.
+
+Delimited input admits UTF-8 with an optional leading BOM, LF/CRLF records,
+quoted delimiters, doubled quotes, empty cells and Unicode. Each row must have
+the same number of fields. Embedded cell line breaks, literal vertical bars,
+controls other than internal tabs, and leading/trailing spaces or tabs reject
+before mutation because native table values cannot retain them losslessly.
+Malformed quoting and ragged input/export reject without lossy recovery.
+Interchange retains the native table row/column/cell/source/output bounds.

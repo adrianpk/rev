@@ -1,3 +1,4 @@
+pub(super) mod interchange;
 use super::{Action, Pending, Session, outline::Request};
 use crate::{
     command::{Command, OrgCommand as C},
@@ -63,6 +64,9 @@ impl Session {
             .then(|| self.edit_command(Command::Newline))
     }
     pub(in crate::session) fn start_table(&mut self, request: Request) -> Result<(), String> {
+        if matches!(request.command, C::TableImport | C::TableExport) {
+            return self.table_file_prompt(request);
+        }
         self.run_table(request, None)
     }
     fn run_table(&mut self, request: Request, argument: Option<String>) -> Result<(), String> {
@@ -91,6 +95,10 @@ impl Session {
         let Some(request) = self.table_request.take() else {
             return;
         };
+        if let Ok(Output::Exported(outcome)) = result {
+            self.table_export_result(outcome);
+            return;
+        }
         if !self.org_source_current(&request)
             || self.input.focus() != Focus::Editing
             || self.pending.is_some()
@@ -117,6 +125,12 @@ impl Session {
             }
             Output::Plan(plan) => self.publish_table(plan),
             Output::Fallback => self.table_fallback(request),
+            Output::Imported(plan, source) => {
+                self.table_import_current(&source)?;
+                self.publish_table(plan)
+            }
+            Output::File(text, target) => self.table_export_review(text, target, request),
+            Output::Exported(_) => unreachable!("file effects retain their actual outcome"),
         }
     }
     fn table_fallback(&mut self, request: Request) -> Result<(), String> {
@@ -182,7 +196,16 @@ impl Session {
         if command != Command::KeyboardQuit {
             return None;
         }
-        let prompt = matches!(self.pending, Some(Pending::Table(_)));
+        let prompt = matches!(
+            self.pending,
+            Some(Pending::Table(_) | Pending::TableFile(_))
+        );
+        if self.org.table_effect {
+            self.org.cancel_table();
+            return Some(
+                self.message("Table export cancellation requested; awaiting file outcome"),
+            );
+        }
         if self.table_request.take().is_none() && !prompt {
             return None;
         }

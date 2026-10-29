@@ -35,6 +35,15 @@ impl Save {
         }
     }
 
+    /// Capture a data projection for the checked file owner without acknowledging
+    /// a source save or changing its canonical association/history.
+    pub(crate) fn projection(buffer: &Buffer, text: String, target: Location) -> Self {
+        let mut save = Self::capture(buffer, target);
+        save.text = Rope::from_str(&text);
+        save.bom = false;
+        save
+    }
+
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }

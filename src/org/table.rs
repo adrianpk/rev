@@ -3,6 +3,7 @@
 mod action;
 mod calculate;
 mod edit;
+pub(crate) mod interchange;
 mod layout;
 mod observe;
 mod references;
@@ -38,6 +39,9 @@ pub(crate) enum Output {
     Prompt,
     Plan(Plan),
     Fallback,
+    Imported(Plan, Box<super::io::DestinationSource>),
+    File(String, crate::file::Location),
+    Exported(crate::file::Outcome),
 }
 pub(crate) struct Plan {
     pub edits: Vec<Replacement>,

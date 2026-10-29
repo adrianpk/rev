@@ -288,6 +288,8 @@ configuration snapshot; source edits take effect after restarting.
 | M-x | `org-table-recalculate-cell`, `org-table-recalculate-column` | Recalculate only the selected field or column. |
 | M-x | `org-list-to-table`, `org-table-to-list` | Convert contiguous single-line items and one-column tables without separators. |
 
+| M-x | `org-table-import`, `org-table-export` | Read or write checked CSV/TSV table data; existing output files require confirmation. |
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in

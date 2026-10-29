@@ -946,7 +946,7 @@ Canonical PR #144 merged into dev at `9698833f2061afda469515ee7f1fd06bb406f309`,
 Contracts: ORG12 ORG27.
 Details and exact checks: [Slice 44](../plan/rev-org-mode.md#slice-44-import-and-export-org-table-data).
 
-- [ ] T44.1: Deliver bounded CSV/TSV import/export and list/table conversion through native commands.
+- [x] T44.1: Deliver bounded CSV/TSV import/export and list/table conversion through native commands.
 - [ ] T44.2: Preserve quoting and representable cell values; reject embedded line breaks or unsupported transformations before mutation rather than inventing lossy escapes.
 - [ ] T44.3: Verify actual file round trips and rejected malformed input without lossy recovery.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

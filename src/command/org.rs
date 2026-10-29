@@ -193,9 +193,11 @@ pub enum OrgCommand {
     TableRecalculate,
     TableRecalculateCell,
     TableRecalculateColumn,
+    TableImport,
+    TableExport,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 191] = [
+    pub const ALL: [Self; 193] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -387,6 +389,8 @@ impl OrgCommand {
         Self::TableRecalculate,
         Self::TableRecalculateCell,
         Self::TableRecalculateColumn,
+        Self::TableImport,
+        Self::TableExport,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -581,6 +585,8 @@ impl OrgCommand {
             "org-table-recalculate",
             "org-table-recalculate-cell",
             "org-table-recalculate-column",
+            "org-table-import",
+            "org-table-export",
         ][self as usize]
     }
 
@@ -879,6 +885,8 @@ impl OrgCommand {
                 | Self::TableRecalculate
                 | Self::TableRecalculateCell
                 | Self::TableRecalculateColumn
+                | Self::TableImport
+                | Self::TableExport
         )
     }
     pub(crate) fn recalculation(self) -> bool {

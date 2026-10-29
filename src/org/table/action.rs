@@ -213,7 +213,13 @@ impl Table {
     }
 }
 impl Row {
-    fn empty(at: usize, indent: &str, ending: &str, separator: bool, columns: usize) -> Self {
+    pub(super) fn empty(
+        at: usize,
+        indent: &str,
+        ending: &str,
+        separator: bool,
+        columns: usize,
+    ) -> Self {
         Self {
             old_row: None,
             source: at..at,
@@ -257,7 +263,7 @@ fn dimensions(value: &str) -> Result<(usize, usize), String> {
     }
     Ok((columns, rows))
 }
-fn creation_context(nodes: &[structure::Raw], at: usize, text: &Rope) -> bool {
+pub(super) fn creation_context(nodes: &[structure::Raw], at: usize, text: &Rope) -> bool {
     nodes
         .iter()
         .enumerate()

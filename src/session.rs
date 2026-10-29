@@ -136,6 +136,7 @@ enum Pending {
     Link(Box<links::Prompt>),
     Document(Box<document::Prompt>),
     Table(Box<outline::Request>),
+    TableFile(Box<tables::interchange::Prompt>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),

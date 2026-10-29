@@ -24,6 +24,7 @@ pub(super) struct Work {
     links_running: bool,
     document_running: bool,
     table_running: bool,
+    pub(super) table_effect: bool,
     attachment_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,

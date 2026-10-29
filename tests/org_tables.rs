@@ -195,3 +195,6 @@ fn create_table() {
     assert_eq!(text(&s), "");
     assert!(s.buffer().unwrap().history().is_empty());
 }
+
+#[path = "org_tables/interchange.rs"]
+mod interchange;
