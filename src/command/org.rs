@@ -209,9 +209,10 @@ pub enum OrgCommand {
     ExportOdt,
     ExportTexinfo,
     ExportMan,
+    ExportIcalendar,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 207] = [
+    pub const ALL: [Self; 208] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -419,6 +420,7 @@ impl OrgCommand {
         Self::ExportOdt,
         Self::ExportTexinfo,
         Self::ExportMan,
+        Self::ExportIcalendar,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -629,6 +631,7 @@ impl OrgCommand {
             "org-export-to-odt",
             "org-export-to-texinfo",
             "org-export-to-man",
+            "org-export-to-icalendar",
         ][self as usize]
     }
 
@@ -955,6 +958,7 @@ impl OrgCommand {
             (Self::ExportOdt, B::Odt),
             (Self::ExportTexinfo, B::Texinfo),
             (Self::ExportMan, B::Man),
+            (Self::ExportIcalendar, B::Icalendar),
         ]
         .into_iter()
         .find_map(|(command, backend)| (self == command).then_some(backend))

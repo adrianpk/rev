@@ -66,13 +66,9 @@ impl Calendar<'_> {
         self.raw("VERSION", "2.0")?;
         self.raw("PRODID", "-//Rev//Native Org Calendar//EN")?;
         self.raw("CALSCALE", "GREGORIAN")?;
-        if let Some(title) = self
-            .snapshot
-            .metadata
-            .title
-            .as_ref()
-            .filter(|_| self.snapshot.options.title)
-        {
+        if let Some(title) = self.snapshot.metadata.title.as_ref().filter(|_| {
+            self.snapshot.options.title && !matches!(self.snapshot.request.scope, Scope::Region(_))
+        }) {
             self.property("X-WR-CALNAME", title)?;
         }
         Ok(())

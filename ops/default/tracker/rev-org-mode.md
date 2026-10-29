@@ -1064,7 +1064,7 @@ Contracts: ORG25 ORG07.
 Details and exact checks: [Slice 52](../plan/rev-org-mode.md#slice-52-export-org-planning-data-as-icalendar).
 
 - [x] T52.1: Deliver native iCalendar events/tasks with checked IDs, timestamps, time zones and recurrence conversion.
-- [ ] T52.2: Preserve unsupported recurrence source and report conversion limits rather than inventing dates.
+- [x] T52.2: Preserve unsupported recurrence source and report conversion limits rather than inventing dates.
 - [ ] T52.3: Verify independent calendar fixtures, line folding, escaping and stable refresh output.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

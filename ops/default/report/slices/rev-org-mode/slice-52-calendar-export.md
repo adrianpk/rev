@@ -29,6 +29,14 @@ and ordered timestamps. Duplicate identities and digest collisions reject output
 Native property resolution and the complete task workflow retain their owners.
 Named per-entry zones are captured during owned preparation, not rendering.
 
+T52.2 exposes `org-export-to-icalendar` through the ordinary guarded file
+workflow. Interval-compatible `+N` rules convert to RRULE. Catch-up/restart modes,
+habit bounds, independent range endpoints, unsafe month/leap-day normalization,
+variable-zone timed recurrence and conflicting task anchors remain complete source
+with explicit limits. No future dates, alarms or completion instants are invented.
+Per-entry UTC/IANA zones are captured once; fold/gap resolution rejects rather than
+selecting an unobserved offset. Finished task declarations retain their true status.
+
 ## Implementation Notes
 
 Wire emission folds at 75 UTF-8 octets with CRLF and one continuation space,
@@ -54,6 +62,11 @@ service, asset reading or execution authority is introduced.
 
 - `cargo test --test org_io calendar_`: two native renderer/recurrence workflows passed, zero failures or ignored tests.
 - Changed-source quality passed with unchanged native limits after small owner helpers replaced excessive function complexity.
+
+- `cargo test --test org_io calendar_`: six renderer, zone, recurrence-limit and rejection workflows passed, zero failures or ignored tests.
+- `cargo test --test commands visibility_keys`: compiled command catalog round-trip passed.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
+- Changed-source quality passed with unchanged limits after the explicit range-end conversion was separated from ordinary event defaults.
 
 ## Risks and Follow-ups
 

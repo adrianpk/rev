@@ -36,12 +36,18 @@ impl Calendar<'_> {
         self.date_property("DTSTART", start)?;
         self.date_property("DTEND", end)
     }
+    fn range_end(&self, last: &crate::org::time::Timestamp) -> Result<Value, String> {
+        if let Some(end) = last.end_civil()? {
+            return self.resolve(end).map(Value::Utc);
+        }
+        match self.value(last)? {
+            Value::Date(date) => Ok(Value::Date(date.add_days(1)?)),
+            value => Ok(value),
+        }
+    }
     fn event_end(&self, value: &TimestampRange) -> Result<Value, String> {
         if let Some(last) = &value.end {
-            return self.value(last).and_then(|v| match v {
-                Value::Date(date) => Ok(Value::Date(date.add_days(1)?)),
-                _ => Ok(v),
-            });
+            return self.range_end(last);
         }
         if let Some(end) = value.start.end_civil()? {
             return self.resolve(end).map(Value::Utc);

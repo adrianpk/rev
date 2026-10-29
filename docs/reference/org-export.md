@@ -309,3 +309,65 @@ resource kinds, rich inline forms, entity/math spelling and recorded dynamic
 reports remain readable literal source with diagnostics. No assets are read, no
 report is refreshed and no source block is evaluated. Existing snapshot output,
 analysis, deadline and cancellation limits apply, including retained note bodies.
+
+## iCalendar
+
+Run `org-export-to-icalendar` with the existing buffer/subtree/region selection,
+OPTIONS and checked local destination workflow. The selection must contain a
+heading with calendar data or a task; an empty calendar selection is diagnosed.
+Output uses RFC 5545 content lines, CRLF and UTF-8 folding at 75 octets. Text
+escapes commas, semicolons, backslashes and newlines. Unsupported controls reject
+output. Rendering never executes source, saves a buffer or contacts a calendar
+service.
+
+Active timestamps create VEVENT components; inactive timestamps, literal code,
+verbatim objects, links and source/example/export blocks do not create events.
+Non-task SCHEDULED/DEADLINE values also create events. Native task declarations
+create VTODO components, including unscheduled and finished tasks; STATUS reflects
+the declared unfinished/finished state. Task scheduling maps to DTSTART and due
+dates to DUE. Plain appointments on a task remain separate events. COMMENT and
+ARCHIVE subtrees are excluded.
+
+Date-only values use VALUE=DATE. An inclusive Org date range ends on the next
+calendar day in DTEND. Timed values resolve through the captured operation zone
+and emit UTC; an earlier same-day end clock crosses midnight. An event without
+an end clock uses the reference two-hour duration. Event ends and task deadlines
+must follow their starts with matching date/date-time types. Task range extents
+remain original source with a diagnostic; their starts map to DTSTART/DUE. A
+finished state does not invent a COMPLETED instant.
+
+Local SUMMARY, DESCRIPTION, LOCATION, CLASS, ID and TIMEZONE properties use native
+property resolution. CLASS admits PUBLIC, PRIVATE or CONFIDENTIAL. Without an
+explicit description, the heading's own body remains readable Org data, excluding
+its property drawer and descendants. Selected tags become categories; title
+options control the calendar name and region envelopes exclude file metadata.
+TIMEZONE accepts UTC or an IANA name. Up to 64 explicit zones are observed during
+owned preparation; rendering only consumes retained rules. Ambiguous/nonexistent
+local times reject output and require corrected source or an explicit UTC choice.
+
+Explicit ID properties are reused across exports and must be unique in the
+selection. Without an ID, identity derives from the source association and heading
+text without task state/tags. Duplicate fallback identities require explicit IDs.
+Source paths are digested rather than exposed in UID. Digest collisions reject.
+Role suffixes distinguish tasks, planning events and ordered appointments. IDs
+remain stable across refreshes, task state changes and unrelated preceding edits;
+use explicit IDs to retain identity across heading renames or file relocation.
+Appointment ordering remains part of identity within a heading. DTSTAMP is the
+single captured export instant. Output has at most 4096 headings/components and
+ID values at most 1024 bytes, under the ordinary output/deadline limits.
+
+RRULE converts only `+N` interval series that retain native dates. Date-only daily,
+weekly, monthly days 1..28 and yearly non-leap-day series are supported. Hourly
+rules require clocks. Timed series require a retained constant-offset zone;
+monthly/yearly UTC conversion must also retain the source calendar date. INTERVAL
+must fit the positive iCalendar integer range. Tasks need a single scheduled
+DTSTART anchor for recurrence.
+
+`++N`, `.+N`, habit minimum/maximum bounds, independent range endpoints, unsafe
+month/leap-day normalization, variable-zone timed series, due-only repeating tasks
+and multiple task planning anchors retain their source without RRULE, with a
+conversion-limit property and diagnostic. RFC recurrence skips invalid dates;
+native Org month/year arithmetic can normalize them, so these forms cannot be
+substituted silently. X-ORG-TIMESTAMP/X-ORG-DTSTART/X-ORG-DUE retain the complete
+original timestamp spelling. Warning delays remain source with a diagnostic and
+never become an inferred alarm. Calendar export never advances a source repeater.

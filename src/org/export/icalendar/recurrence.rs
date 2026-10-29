@@ -33,7 +33,16 @@ impl Calendar<'_> {
             None
         };
         for value in [&entry.scheduled, &entry.deadline].into_iter().flatten() {
+            self.task_extent(value)?;
             self.recurrence(value, limitation)?;
+        }
+        Ok(())
+    }
+    fn task_extent(&mut self, value: &TimestampRange) -> Result<(), String> {
+        if value.end.is_some() || value.start.end_time().is_some() {
+            self.diagnostic(
+                "Task timestamp extent retained as source; only its start maps to DTSTART or DUE",
+            )?;
         }
         Ok(())
     }
