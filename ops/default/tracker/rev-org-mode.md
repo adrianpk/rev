@@ -1092,7 +1092,7 @@ Contracts: ORG28 ORG02.
 Details and exact checks: [Slice 54](../plan/rev-org-mode.md#slice-54-edit-native-org-source-blocks-and-headers).
 
 - [x] T54.1: Admit declared source block/name/header structure and native special-edit entry/return.
-- [ ] T54.2: Reuse available language presentation while keeping embedded Org-looking text literal and source authoritative.
+- [x] T54.2: Reuse available language presentation while keeping embedded Org-looking text literal and source authoritative.
 - [ ] T54.3: Verify header precedence, malformed blocks, edit cancellation and checked reinsertion.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

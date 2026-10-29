@@ -20,7 +20,10 @@ raw header data without execution. C-c ' opens an isolated source draft; return
 publishes one checked canonical body change and abort restores the source view.
 Header inspection is read-only; inserting one local argument uses source undo.
 Draft presentation reuses the configured language and bundled Rust grammar.
-Unknown languages and Org-looking code retain literal text behavior.
+Unknown languages and Org-looking code retain literal text behavior. Eight
+presentation cases cover declared and overridden grammars, disabled syntax, the
+byte cutoff, unknown/empty languages and an Org declaration using Rust syntax.
+Language-specific editing widths apply without granting Org behavior.
 
 ## Implementation Notes
 
@@ -53,7 +56,8 @@ and [header arguments](https://orgmode.org/manual/Using-Header-Arguments.html).
 
 Development check `cargo test --test org_source source_blocks` passed four tests.
 Development check `cargo test --test org_editing source_blocks` passed three
-session tests. Changed-source quality passed. Required exact-HEAD checks remain pending.
+session tests. Changed-source quality passed. `cargo test --test syntax source_edit` passed its table of eight presentation cases.
+Required exact-HEAD checks remain pending.
 
 ## Risks and Follow-ups
 
