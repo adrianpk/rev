@@ -77,7 +77,7 @@ impl<'a> Parser<'a> {
         self.eat('&') || matches!(self.peek(), Some('+' | '-' | '!'))
     }
     fn unary(&mut self, todo: bool) -> Result<usize, String> {
-        if self.depth >= self.maximum {
+        if self.depth > self.maximum {
             return self.fail("match exceeds query depth");
         }
         self.depth += 1;

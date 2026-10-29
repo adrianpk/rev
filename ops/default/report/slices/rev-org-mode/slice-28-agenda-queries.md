@@ -119,6 +119,13 @@ Folding now preserves escape syntax, and unknown quoted search escapes reject.
 and `cargo test --test commands palette::catalog_dispatch -- --exact` pass.
 Changed-source quality remains green without exceptions.
 
+The first required batch passed all 42 agenda cases, then the existing source
+query-depth boundary caught the root expression being counted as a nested
+form. The original 32-nested-form admission is restored without changing that
+assertion. `cargo test --test org_source matching::query_boundaries -- --exact`
+and `cargo test --test org_agenda query_language::query_match_bounds -- --exact`
+pass with the original bounds.
+
 Final controller evidence binds the clean canonical PR head. Required order:
 
 - `cargo fmt --all -- --check`
