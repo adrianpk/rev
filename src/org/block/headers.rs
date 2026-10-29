@@ -56,6 +56,28 @@ impl Headers {
         }
         Ok(())
     }
+    pub(super) fn validate_append(
+        &self,
+        old_line: &str,
+        new_line: &str,
+        argument: &str,
+    ) -> Result<(), String> {
+        let old = opening(old_line)?.2;
+        let new = opening(new_line)?.2;
+        let cancel = Cancellation::default();
+        parse(&new, &cancel)?;
+        let separators = new
+            .len()
+            .checked_sub(old.len())
+            .and_then(|n| n.checked_sub(argument.len()))
+            .ok_or("Invalid appended source header length")?;
+        let mut next = self.clone();
+        next.bytes = next
+            .bytes
+            .checked_add(separators)
+            .ok_or("Source header byte capacity exceeded")?;
+        next.apply(argument, &cancel)
+    }
     pub(super) fn display(&self) -> String {
         self.values
             .iter()

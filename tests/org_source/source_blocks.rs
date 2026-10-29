@@ -167,3 +167,40 @@ fn header_argument_admission() {
     assert_eq!(bytes(b), source.as_bytes());
     assert!(b.history().is_empty());
 }
+// Local header insertion and body return must fit the final admissible source,
+// rather than validating only the separately entered argument or draft body.
+#[test]
+fn publication_bounds() {
+    let source = "#+BEGIN_SRC sh\nbody\n#+END_SRC\n";
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let b = buffers.get(id).unwrap();
+    let d = Scan::new(b, Byte(0))
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    let body = "x".repeat(8 * 1024 * 1024 - 1) + "\n";
+    assert!(d.replacement(b, &body).is_err());
+    let capacity = 8 * 1024 * 1024 - source.len() + d.body.len();
+    let at_bound = "x".repeat(capacity - 1) + "\n";
+    assert!(d.replacement(b, &at_bound).is_ok());
+    for (name, args) in [
+        ("line", format!(":var x={}", "1".repeat(4080))),
+        ("argument count", ":var x=1 ".repeat(249)),
+    ] {
+        let source = format!("#+BEGIN_SRC sh {args}\nbody\n#+END_SRC\n");
+        let id = buffers.create(&source).unwrap();
+        let b = buffers.get(id).unwrap();
+        let d = Scan::new(b, Byte(0))
+            .unwrap()
+            .run(&Cancellation::default())
+            .unwrap();
+        assert!(d.header_replacement(b, ":var extra=2").is_err(), "{name}");
+        assert!(
+            d.header_replacement(b, ":cache n").is_ok(),
+            "{name} boundary"
+        );
+        assert_eq!(bytes(b), source.as_bytes());
+        assert!(b.history().is_empty());
+    }
+}

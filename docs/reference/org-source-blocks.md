@@ -47,11 +47,13 @@ and escaped characters. Unknown valid header names remain data. Malformed litera
 ambiguous local names or properties and incomplete blocks are rejected.
 
 Observation uses the existing finite native structure limits and an owned job
-with `org.limits.job_seconds`, revision checks and cancellation. Each header line
-caps at 4096 bytes, combined headers and affiliated metadata at 64 KiB, effective
+with `org.limits.job_seconds`, revision checks and cancellation. Each header
+argument line caps at 4096 bytes, combined headers and affiliated metadata at 64 KiB, effective
 arguments at 256, nested value delimiters at 64, and names/languages at 128 bytes.
-Header keys use lowercase ASCII letters, `-` or `_`. Source and reinserted body
-bytes stay within the native 8 MiB observation limit.
+Header keys use lowercase ASCII letters, `-` or `_`. The complete updated source,
+including its unchanged surrounding text,
+stays within the native 8 MiB observation limit. Appended arguments must fit
+the combined local header line and effective argument count before publication.
 
 The workflows follow the Org manual's [source editing](https://orgmode.org/manual/Editing-Source-Code.html),
 [block structure](https://orgmode.org/manual/Structure-of-Code-Blocks.html) and

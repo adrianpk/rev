@@ -38,6 +38,8 @@ Drafts strip common indentation, normalize LF and unescape Org literal lines;
 reinsertion restores source indentation/newlines and escapes delimiter-looking
 content. A no-op return preserves exact bytes. Revisions, read-only state and
 shared view points pass ordinary publication admission before source changes.
+Publication also checks the complete updated source against the 8 MiB limit and
+checks combined local headers against line, byte and effective-argument bounds.
 
 See [source block reference](../../../../../docs/reference/org-source-blocks.md)
 and the Org manual's [source editing](https://orgmode.org/manual/Editing-Source-Code.html)
@@ -65,7 +67,10 @@ session tests. Changed-source quality passed. `cargo test --test syntax source_e
 `cargo test --test org_source --test org_editing source_` passed 24 focused tests,
 including additive headers, ambiguous names, single-argument admission and stale
 source. A reproduced undo cursor regression now passes with retained source-view
-initiation. Required exact-HEAD checks remain pending.
+initiation. Seven focused source-block tests also pass, including admitted exact-limit
+publication and rejected aggregate overflows. The palette now asserts all five
+working source controls while preserving the future dispatcher assertion.
+Required exact-HEAD checks remain pending.
 
 ## Risks and Follow-ups
 

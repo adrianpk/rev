@@ -110,10 +110,14 @@ impl Definition {
         let source = buffer
             .byte_span(self.body.clone())
             .map_err(|e| e.to_string())?;
-        Ok(Replacement {
-            source,
-            text: value,
-        })
+        publication(
+            buffer,
+            self.body.len(),
+            Replacement {
+                source,
+                text: value,
+            },
+        )
     }
     pub fn header_replacement(
         &self,
@@ -134,7 +138,8 @@ impl Definition {
             .to_string();
         let body = line.trim_end_matches(['\r', '\n']);
         let text = format!("{body} {argument}{}", &line[body.len()..]);
-        Ok(Replacement { source, text })
+        self.headers.validate_append(&line, &text, argument)?;
+        publication(buffer, self.opening.len(), Replacement { source, text })
     }
     pub fn info(&self) -> String {
         format!(
@@ -148,4 +153,14 @@ impl Definition {
             self.headers.display()
         )
     }
+}
+
+fn publication(buffer: &Buffer, replaced: usize, edit: Replacement) -> Result<Replacement, String> {
+    buffer
+        .len_bytes()
+        .checked_sub(replaced)
+        .and_then(|n| n.checked_add(edit.text.len()))
+        .filter(|n| *n <= Limits::default().bytes)
+        .ok_or("Updated source exceeds native source byte limit; draft retained")?;
+    Ok(edit)
 }

@@ -87,7 +87,5 @@ fn operational_catalog() {
             Outcome::Command(Command::Org(command))
         );
     }
-    for absent in ["org-export-dispatch"] {
-        assert_eq!(Command::named(absent), None, "{absent}");
-    }
+    assert_eq!(Command::named("org-export-dispatch"), None);
 }
