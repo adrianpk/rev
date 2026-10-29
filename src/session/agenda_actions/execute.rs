@@ -11,6 +11,7 @@ impl Session {
         let result = self.enter_agenda_source(pin);
         match result {
             Ok(stamp) => {
+                run.replayed = false;
                 run.before = Some(stamp);
                 run.deadline = Instant::now()
                     + Duration::from_secs(
@@ -44,9 +45,13 @@ impl Session {
         Ok(point.stamp)
     }
     pub(super) fn finish_agenda_target(&mut self, run: &mut Run) {
+        if self.replay_agenda_argument(run) {
+            return;
+        }
         if self.pending.is_some() {
             return;
         }
+
         if self.org.request.is_some() {
             if Instant::now() < run.deadline {
                 return;

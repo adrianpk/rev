@@ -30,6 +30,18 @@ Changes remain dirty canonical text and keep ordinary single-operation undo;
 source actions do not save files implicitly. The existing owned job handles
 source reads and structural analysis, with bounded preparation and cancellation.
 
+T30.2 adds explicit marks, bounded bulk selection and a scrollable per-target
+result panel. All targets prepare before mutation; queued anchors map through
+earlier edits. Values feed ordinary source prompts, retaining per-source notes,
+blocking and local-time choices. Bulk tag addition preserves existing local and
+inherited owners. Cancellation discloses completed changes and remaining targets;
+changes observed before cancellation retain unresolved completion evidence.
+
+The agenda now uses familiar t/m/u/*/U/B source-action keys. Queries remain
+available through v t, s and M and their compiled commands. The exhaustive sample
+and both binding catalogues share the same handlers. Exact-revision agenda undo
+uses ordinary source history without combining files into one disk transaction.
+
 ## Contracts Added or Changed
 
 - ORG09: checked canonical source actions and retained agenda/origin state.
@@ -50,8 +62,17 @@ source reads and structural analysis, with bounded preparation and cancellation.
 - `cargo clippy --lib --test org_agenda -- -D warnings`: passed.
 - Changed-source quality passes at unchanged parameter, nesting and complexity
   limits after extracting checked navigation publication into its own owner.
-- Final exact-head controller checks remain pending the other slice tasks.
+- `cargo test --test org_agenda bulk_action -- --nocapture`: five bulk workflows
+  pass, including same-source anchor mapping, per-target readonly failures,
+  note cancellation, additive tags and shared checked disk snapshots.
+- `cargo test --test commands palette::context_reference -- --exact`: passed.
+- `python3 scripts/check-config-reference.py`: 147 entries, 54 RGB roles,
+  225 bindings and 18048 exact packaged bytes agree.
+- Initial bulk tests found no wakeup for replaying a just-opened native prompt.
+  Active bulk replay now schedules its next owned step; human prompts and
+  completed actions add no polling. The unchanged assertions pass.
+- Final exact-head controller checks remain pending the terminal journey.
 
 ## Risks and Follow-ups
 
-T30.2 and T30.3 remain active. The delivery-set full gate has not run.
+T30.3 remains active. The delivery-set full gate has not run.

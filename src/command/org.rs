@@ -130,9 +130,16 @@ pub enum OrgCommand {
     AgendaMonth,
     AgendaYear,
     AgendaSpan,
+    AgendaMark,
+    AgendaUnmark,
+    AgendaMarkAll,
+    AgendaUnmarkAll,
+    AgendaBulk,
+    AgendaResults,
+    AgendaUndo,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 128] = [
+    pub const ALL: [Self; 135] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -261,6 +268,13 @@ impl OrgCommand {
         Self::AgendaMonth,
         Self::AgendaYear,
         Self::AgendaSpan,
+        Self::AgendaMark,
+        Self::AgendaUnmark,
+        Self::AgendaMarkAll,
+        Self::AgendaUnmarkAll,
+        Self::AgendaBulk,
+        Self::AgendaResults,
+        Self::AgendaUndo,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -392,6 +406,13 @@ impl OrgCommand {
             "org-agenda-month-view",
             "org-agenda-year-view",
             "org-agenda-span",
+            "org-agenda-bulk-mark",
+            "org-agenda-bulk-unmark",
+            "org-agenda-bulk-mark-all",
+            "org-agenda-bulk-unmark-all",
+            "org-agenda-bulk-action",
+            "org-agenda-action-results",
+            "org-agenda-undo",
         ][self as usize]
     }
 
@@ -593,6 +614,23 @@ impl OrgCommand {
 }
 
 impl OrgCommand {
+    pub(crate) fn agenda_bulk(self) -> bool {
+        (Self::AgendaMark as usize..=Self::AgendaUndo as usize).contains(&(self as usize))
+    }
+    pub(crate) fn agenda_source_action(self) -> bool {
+        self.task()
+            || self.estimate()
+            || matches!(
+                self,
+                Self::SetTags
+                    | Self::RemoveTag
+                    | Self::Schedule
+                    | Self::Deadline
+                    | Self::ClockIn
+                    | Self::ClockOut
+                    | Self::ClockCancel
+            )
+    }
     pub(crate) fn agenda_custom(self) -> bool {
         (Self::AgendaCustom as usize..=Self::AgendaSpan as usize).contains(&(self as usize))
     }

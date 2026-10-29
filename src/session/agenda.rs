@@ -210,6 +210,8 @@ impl Session {
             self.message("Agenda view closed; source observations retained");
             return;
         }
+        self.clear_agenda_marks();
+        self.agenda_results_view = None;
         self.habit_agenda = None;
         self.query_agenda = None;
         self.calendar_agenda = Some(State {

@@ -91,6 +91,8 @@ mod calendar_rows;
 #[path = "org_agenda/calendar_native.rs"]
 mod calendar_native;
 
+#[path = "org_agenda/bulk_actions.rs"]
+mod bulk_actions;
 #[path = "org_agenda/calendar_views.rs"]
 mod calendar_views;
 #[path = "org_agenda/custom_native.rs"]

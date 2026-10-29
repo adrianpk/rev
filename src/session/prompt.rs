@@ -36,6 +36,7 @@ impl Session {
                     Pending::AgendaSources
                         | Pending::AgendaQuery(_)
                         | Pending::AgendaCustom(_)
+                        | Pending::AgendaBulk(_)
                         | Pending::AgendaDate
                         | Pending::Habit(_)
                         | Pending::Timer(_)
@@ -80,6 +81,7 @@ impl Session {
                 Pending::AgendaSources
                     | Pending::AgendaQuery(_)
                     | Pending::AgendaCustom(_)
+                    | Pending::AgendaBulk(_)
                     | Pending::AgendaDate
                     | Pending::Habit(_)
                     | Pending::Timer(_)
@@ -138,7 +140,7 @@ impl Session {
             Some(Pending::AgendaSources) => {
                 self.message("Enter current, buffers or one literal local path; C-g cancels")
             }
-            Some(Pending::AgendaQuery(_) | Pending::AgendaCustom(_)) => {
+            Some(Pending::AgendaQuery(_) | Pending::AgendaCustom(_) | Pending::AgendaBulk(_)) => {
                 self.message("Enter a typed query; C-g keeps the source or agenda")
             }
             Some(Pending::AgendaDate) => {

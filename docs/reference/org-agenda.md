@@ -1,7 +1,7 @@
 # Org agenda queries
 
 `M-x org-todo-list`, `M-x org-search-view` and `M-x org-tags-view` open native
-read-only query agendas. Within an agenda, use `t`, `s` or `m` respectively.
+read-only query agendas. Within an agenda, use `v t`, `s` or `M` respectively.
 The query prompt accepts Enter and retains invalid drafts for correction;
 `C-g` cancels a draft without changing the current source or agenda.
 
@@ -171,3 +171,49 @@ blocks = [
 Directory alias memberships share the unchanged 65536-entry discovery budget;
 source contents remain deduplicated. Retained selected-path aliases are limited
 to 4096 per document and 1 MiB overall. Limits are reported explicitly.
+
+
+## Checked source actions
+
+The agenda stays a read-only projection. `t`, `:`, comma and `e` invoke the
+ordinary task, local-tag, priority and effort handlers on the selected source.
+`C-c C-s` and `C-c C-d` schedule or set a deadline; `I`, `O` and `X` clock in,
+out or cancel. These keys call the same compiled commands available in source.
+Clock-out/cancel require the selected heading to own the active interval.
+
+Before an edit, exact buffer revisions or bounded disk text/metadata checks
+admit the real canonical buffer and source position. Changed evidence rejects
+visibly; refresh and select again. Titles and cached row numbers do not grant
+mutation authority. Original and peer points/scroll map through the ordinary
+transactions. Changes remain unsaved canonical text; entering an agenda action
+never saves a file implicitly. Source logging, blocking, DST choices and
+cancellable notes retain their native behavior.
+
+Use `m` to mark an entry and advance, `u` to unmark it, `*` to mark visible
+entries and `U` to clear marks. Selection admits at most 256 distinct source
+headings; duplicate calendar/block rows select the same target once. Section
+headers and failure lines cannot select a different heading. Rebuilding or
+changing the projection clears marks.
+
+`B` selects `todo`, `tags`, `remove-tag`, `schedule`, `deadline`, `priority` or
+`effort`, then accepts one common value in the ordinary source grammar. The
+short choices `t`, `+`, `-`, `s`, `d`, comma and `e` are also accepted. Bulk tags
+append local tags, preserving existing and inherited owners. Preparation checks
+all targets before the first edit. Each accepted target uses a mapped canonical
+anchor; earlier edits cannot redirect a later action to another heading.
+Mandatory per-source notes and local-time choices can still ask for input.
+
+Bulk completion opens a scrollable result panel with changed, unchanged,
+rejected, cancelled or changed-with-failure evidence for every selected target.
+One failure does not erase other outcomes. `q` returns to the agenda; `g`
+refreshes sources. `org-agenda-action-results` reopens the retained results.
+Cancellation preserves completed changes, cancels remaining targets, and never
+claims rollback of already changed source. Marks clear after bulk completion.
+
+Each source operation retains its ordinary history unit. `C-_` or
+`org-agenda-undo` undoes the last retained source transaction only while its
+final revision still matches; subsequent source changes require ordinary source
+history inspection. Undo does not combine a multi-file bulk action into a false
+atomic disk operation.
+
+Reference: [remote editing and bulk selection](https://orgmode.org/manual/Agenda-Commands.html).

@@ -740,7 +740,7 @@ Contracts: ORG09 ORG23.
 Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canonical-org-source-from-the-agenda).
 
 - [x] T30.1: Route agenda task/date/tag/priority/effort/clock actions through checked source handlers.
-- [ ] T30.2: Deliver explicit selection, bulk operations and per-target outcomes with revision re-resolution.
+- [x] T30.2: Deliver explicit selection, bulk operations and per-target outcomes with revision re-resolution.
 - [ ] T30.3: Exercise dirty buffers, cancellation, failure and undo in an owned multi-source agenda journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

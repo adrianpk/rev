@@ -1,4 +1,5 @@
 mod agenda;
+mod agenda_actions;
 mod query;
 pub use query::QueryDisplay;
 mod calendar;

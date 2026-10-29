@@ -55,9 +55,7 @@ impl Session {
                 .point(&self.buffers)
                 .and_then(|point| self.pin_agenda_target(point))
                 .map(Some),
-            SourceVersion::Disk(_) => self
-                .resolve_disk_action(target, run.deadline)
-                .map(|()| None),
+            SourceVersion::Disk(_) => self.resolve_disk_action(target, run),
         };
         match result {
             Ok(Some(pin)) => {
@@ -87,23 +85,95 @@ impl Session {
     fn resolve_disk_action(
         &mut self,
         target: &ActionTarget,
-        deadline: Instant,
-    ) -> Result<(), String> {
+        run: &Run,
+    ) -> Result<Option<usize>, String> {
+        if let Some(point) = self.reuse_prepared_source(target, run)? {
+            return self.pin_agenda_target(point).map(Some);
+        }
+        let mut limits = self.buffers.snapshot().settings().org.limits.clone();
+        if let SourceVersion::Disk(observed) = &target.source.version {
+            limits.agenda_file_bytes = limits.agenda_file_bytes.min(observed.length as usize);
+        }
         let navigation = Navigation::prepare(
             &target.source,
             target.byte,
             self.agenda_sources
                 .as_ref()
                 .ok_or("Refresh agenda sources first")?,
-            &self.buffers.snapshot().settings().org.limits,
+            &limits,
         )?;
         self.org.start_sources(
             self.view().point.stamp,
             super::super::agenda::Work::ActionVisit {
                 navigation,
                 view: self.windows.selected_id(),
-                deadline,
+                deadline: run.deadline,
             },
-        )
+        )?;
+        Ok(None)
+    }
+    fn reuse_prepared_source(
+        &self,
+        target: &ActionTarget,
+        run: &Run,
+    ) -> Result<Option<Point>, String> {
+        let previous = run.targets[..run.index]
+            .iter()
+            .enumerate()
+            .find_map(|(index, old)| {
+                (old.source.path == target.source.path
+                    && old.source.version == target.source.version)
+                    .then_some(run.pins[index])
+                    .flatten()
+            });
+        let Some(pin) = previous else {
+            return Ok(None);
+        };
+        let anchor = self
+            .windows
+            .source_anchor(pin)
+            .ok_or("Prepared source anchor disappeared")?;
+        let buffer = self
+            .buffers
+            .get(anchor.stamp.buffer)
+            .map_err(|e| e.to_string())?;
+        if buffer.stamp() != anchor.stamp {
+            return Err("Prepared canonical source changed; refresh and select again".into());
+        }
+        self.check_prepared_text(buffer, target)?;
+        let position = buffer
+            .byte_span(target.byte..target.byte)
+            .map_err(|e| e.to_string())?
+            .range
+            .start;
+        Ok(Some(Point {
+            stamp: buffer.stamp(),
+            position: crate::coordinates::Scalar(position),
+        }))
+    }
+    fn check_prepared_text(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        target: &ActionTarget,
+    ) -> Result<(), String> {
+        let original = self
+            .agenda_sources
+            .as_ref()
+            .and_then(|set| {
+                set.documents
+                    .iter()
+                    .find(|s| s.path == target.source.path && s.version == target.source.version)
+            })
+            .ok_or("Original source snapshot unavailable")?;
+        let whole = buffer
+            .span(0..buffer.len_chars())
+            .map_err(|e| e.to_string())?;
+        let actual = buffer.slice(&whole).map_err(|e| e.to_string())?;
+        if actual != original.text() {
+            return Err(
+                "Prepared canonical source text differs from the selected observation".into(),
+            );
+        }
+        Ok(())
     }
 }

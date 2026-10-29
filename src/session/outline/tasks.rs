@@ -22,6 +22,11 @@ enum Stage {
     Offset(Box<Transition>, super::timestamps::resolution::Validation),
     Repair(Box<Transition>),
 }
+impl Prompt {
+    pub(in crate::session) fn agenda_primary(&self) -> bool {
+        matches!(self.stage, Stage::State(_))
+    }
+}
 impl Session {
     /// Supply an operation clock without changing process environment or source.
     /// The provider is called once for a logging transition, before its note prompt.

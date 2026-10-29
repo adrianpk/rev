@@ -87,6 +87,7 @@ impl Pending {
             Self::AgendaSources
                 | Self::AgendaQuery(_)
                 | Self::AgendaCustom(_)
+                | Self::AgendaBulk(_)
                 | Self::AgendaDate
                 | Self::Habit(_)
                 | Self::Timer(_)
@@ -105,6 +106,7 @@ impl Session {
     fn observation_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
             Pending::AgendaSources => self.agenda_source_argument(draft),
+            Pending::AgendaBulk(stage) => self.agenda_bulk_argument(stage, draft),
             Pending::AgendaCustom(command) => self.agenda_custom_argument(command, draft),
             Pending::AgendaQuery(kind) => self.agenda_query_argument(kind, draft),
             Pending::AgendaDate => self.agenda_date_argument(draft),
@@ -122,6 +124,7 @@ impl Pending {
             Self::AgendaSources
                 | Self::AgendaQuery(_)
                 | Self::AgendaCustom(_)
+                | Self::AgendaBulk(_)
                 | Self::AgendaDate
                 | Self::Habit(_)
                 | Self::ClockReport(_)

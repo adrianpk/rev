@@ -97,6 +97,8 @@ pub struct Session {
     agenda_sources: Option<crate::org::agenda::SourceSet>,
     agenda_run: Option<agenda_actions::Run>,
     agenda_results: Vec<crate::org::agenda::ActionResult>,
+    agenda_marks: agenda_actions::Marks,
+    agenda_results_view: Option<(crate::window::ViewId, usize)>,
     calendar_agenda: Option<agenda::State>,
     query_agenda: Option<agenda_queries::State>,
     agenda_query_plan: Option<crate::org::agenda::AgendaQuery>,
@@ -114,6 +116,7 @@ enum Pending {
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
     AgendaCustom(crate::command::OrgCommand),
+    AgendaBulk(agenda_actions::BulkPrompt),
     Timer(timers::Prompt),
     Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
@@ -226,6 +229,8 @@ impl Session {
             agenda_sources: None,
             agenda_run: None,
             agenda_results: Vec::new(),
+            agenda_marks: agenda_actions::Marks::default(),
+            agenda_results_view: None,
             calendar_agenda: None,
             query_agenda: None,
             agenda_query_plan: None,
@@ -294,7 +299,8 @@ impl Session {
         self.timer_frame(frame)?;
         self.habit_frame(frame, composition)?;
         self.agenda_frame(frame, composition)?;
-        self.query_frame(frame, composition)
+        self.query_frame(frame, composition)?;
+        self.agenda_results_frame(frame, composition)
     }
 
     fn reveal_workspace(

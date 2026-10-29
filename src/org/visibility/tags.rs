@@ -105,6 +105,22 @@ impl Outline {
             .iter()
             .any(|h| h.start <= byte.0 && byte.0 < h.body)
     }
+    pub(crate) fn tag_appended(&self, index: usize, draft: &str) -> Result<String, String> {
+        let mut tags = self.tags.headers[index]
+            .local
+            .iter()
+            .map(|t| t.name.clone())
+            .collect::<Vec<_>>();
+        for tag in names(draft)? {
+            if !tags.contains(&tag) {
+                tags.push(tag);
+            }
+        }
+        if tags.len() > 128 {
+            return Err("Org heading exceeds 128 local tags".into());
+        }
+        Ok(format!(":{}:", tags.join(":")))
+    }
     pub(crate) fn tag_edit(
         &self,
         buffer: &Buffer,

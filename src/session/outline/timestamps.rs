@@ -25,6 +25,11 @@ enum Stage {
     Date,
     Offset(resolution::Validation),
 }
+impl Prompt {
+    pub(in crate::session) fn agenda_primary(&self) -> bool {
+        matches!(self.stage, Stage::Date)
+    }
+}
 impl Session {
     /// Inject one operation observation without changing ambient process state.
     /// The retained zone/instant is reused through calendar and offset prompts.

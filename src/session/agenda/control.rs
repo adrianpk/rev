@@ -142,6 +142,7 @@ impl Session {
                 Pending::AgendaDate
                     | Pending::AgendaQuery(_)
                     | Pending::AgendaCustom(_)
+                    | Pending::AgendaBulk(_)
                     | Pending::Command
                     | Pending::Timer(_)
             )

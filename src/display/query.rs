@@ -6,6 +6,7 @@ pub struct QueryDisplay<'a> {
     pub selected: usize,
     pub active: bool,
     pub stale: bool,
+    pub marked: &'a [crate::org::agenda::ActionTarget],
 }
 impl Frame {
     pub fn org_query(&mut self, display: QueryDisplay<'_>, area: Area) -> Result<(), Error> {
@@ -57,11 +58,19 @@ fn query_line(display: &QueryDisplay<'_>, index: usize) -> String {
             .map(|p| p.to_string_lossy())
             .unwrap_or(std::borrow::Cow::Borrowed("buffer"));
         return format!(
-            "{}{} {} ({name}){}",
+            "{}{}{} {} ({name}){}",
             if index == display.selected {
                 "> "
             } else {
                 "  "
+            },
+            if display.marked.iter().any(|t| t.byte == row.byte
+                && t.source.version == result.sources[row.source].version
+                && t.source.path == result.sources[row.source].path)
+            {
+                "* "
+            } else {
+                ""
             },
             row.task.as_deref().unwrap_or(""),
             row_text(result, row),

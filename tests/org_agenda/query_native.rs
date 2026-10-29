@@ -33,13 +33,13 @@ fn query_native_controls() {
     s.execute(Command::Newline);
     assert_eq!(text(&s), SOURCE);
     assert_eq!(s.buffer().unwrap().stamp(), stamp);
-    s.handle(key(KeyCode::Char('m')));
+    s.handle(key(KeyCode::Char('M')));
     assert!(s.frame().unwrap().cursor().is_some());
     argument(&mut s, "TEAM=>red");
     assert_eq!(s.query_agenda().unwrap().query.kind, QueryKind::Todo);
     s.handle(control('g'));
     assert!(s.query_agenda().is_some());
-    s.handle(key(KeyCode::Char('m')));
+    s.handle(key(KeyCode::Char('M')));
     argument(&mut s, r#"work+urgent+TEAM="red"+EFFORT<*120"#);
     settle(&mut s);
     assert_eq!(s.query_agenda().unwrap().rows[0].title.as_ref(), "Child");

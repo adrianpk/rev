@@ -35,6 +35,8 @@ impl Session {
             self.message("Agenda view closed; query observations retained");
             return;
         }
+        self.clear_agenda_marks();
+        self.agenda_results_view = None;
         let cursor = result.first_entry();
         self.query_agenda = Some(State {
             result,
@@ -46,7 +48,9 @@ impl Session {
         self.calendar_agenda = None;
         self.habit_agenda = None;
         self.sync_input_context();
-        self.message("Query agenda: g refresh; RET source; t TODO; s search; m match; q close");
+        self.message(
+            "Query agenda: t task; m mark; B bulk; v t TODO; s search; M match; g refresh; q close",
+        );
     }
     pub(super) fn prompt_agenda_query(&mut self, command: C, draft: &str) -> Action {
         if !self.buffers.snapshot().settings().org.enabled {

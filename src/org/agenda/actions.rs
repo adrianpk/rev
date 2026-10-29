@@ -8,6 +8,7 @@ use crate::{
 pub struct ActionTarget {
     pub source: CalendarSource,
     pub byte: usize,
+    pub title: std::sync::Arc<str>,
 }
 impl ActionTarget {
     pub fn same(&self, other: &Self) -> bool {
@@ -48,4 +49,16 @@ pub struct ActionResult {
     pub status: ActionStatus,
     pub message: String,
     pub after: Option<Stamp>,
+}
+
+impl ActionStatus {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Changed => "Changed",
+            Self::Unchanged => "Unchanged",
+            Self::Rejected => "Rejected",
+            Self::Cancelled => "Cancelled",
+            Self::ChangedWithFailure => "Changed; completion unresolved",
+        }
+    }
 }

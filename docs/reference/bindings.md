@@ -197,9 +197,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x t R` | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `C-x t D` | `tree-delete` | Confirm removal, including separate recursive consent. |
 
-| t in agenda / M-x org-todo-list | `org-todo-list` | Select unfinished tasks or explicit states. |
+| v t in agenda / M-x org-todo-list | `org-todo-list` | Select unfinished tasks or explicit states. |
 | s in agenda / M-x org-search-view | `org-search-view` | Search entry text with phrases or signed terms. |
-| m in agenda / M-x org-tags-view | `org-tags-view` | Select Boolean tag/property matches. |
+| M in agenda / M-x org-tags-view | `org-tags-view` | Select Boolean tag/property matches. |
 | g in calendar/habit agenda | `org-agenda-redo` | Refresh current sources and captured time. |
 | v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
 | v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
@@ -241,6 +241,14 @@ configuration snapshot; source edits take effect after restarting.
 | v m in agenda | `org-agenda-month-view` | Show an aligned calendar month. |
 | v y in agenda | `org-agenda-year-view` | Show an aligned calendar year. |
 | v s in agenda | `org-agenda-span` | Select a named span or 1–366 days. |
+
+| m in agenda | `org-agenda-bulk-mark` | Mark one qualified source entry. |
+| u in agenda | `org-agenda-bulk-unmark` | Unmark the selected source entry. |
+| Asterisk in agenda | `org-agenda-bulk-mark-all` | Mark all visible entries, up to 256 distinct targets. |
+| U in agenda | `org-agenda-bulk-unmark-all` | Clear explicit marks. |
+| B in agenda | `org-agenda-bulk-action` | Select a checked bulk action and common value. |
+| M-x org-agenda-action-results | `org-agenda-action-results` | Inspect every retained target outcome. |
+| C-_ in agenda | `org-agenda-undo` | Undo the last unchanged source action transaction. |
 
 ## Configuration keymap contracts
 
@@ -287,9 +295,22 @@ role selection alone does not create an agenda or draft.
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
-| `t` | `org-todo-list` | Select TODO states; empty means unfinished. |
+| `v t` | `org-todo-list` | Select TODO states; empty means unfinished. |
 | `s` | `org-search-view` | Enter a text or Boolean search. |
-| `m` | `org-tags-view` | Enter a tag/property expression. |
+| `M` | `org-tags-view` | Enter a tag/property expression. |
+| `t` | `org-todo` | Change the checked source task state. |
+| `m` | `org-agenda-bulk-mark` | Mark entry and advance. |
+| `u` | `org-agenda-bulk-unmark` | Unmark entry. |
+| Asterisk | `org-agenda-bulk-mark-all` | Mark visible distinct targets. |
+| `U` | `org-agenda-bulk-unmark-all` | Clear marks. |
+| `B` | `org-agenda-bulk-action` | Select a bulk operation/value. |
+| `:` | `org-set-tags-command` | Edit local source tags. |
+| `C-c C-s` | `org-schedule` | Schedule the source heading. |
+| `C-c C-d` | `org-deadline` | Set the source deadline. |
+| `I` | `org-clock-in` | Clock into the checked task. |
+| `O` | `org-clock-out` | Close the selected task's active clock. |
+| `X` | `org-clock-cancel` | Cancel the selected task's active clock. |
+| `C-_` | `org-agenda-undo` | Undo the retained exact source edit. |
 | `g` | `org-agenda-redo` | Explicitly refresh from current source and time. |
 | `K` | `org-habit-toggle-habits` | Toggle graph visibility. |
 | `C-u K` | `org-habit-toggle-habits-only-for-today` | Toggle today's agenda only. |

@@ -6,6 +6,7 @@ pub struct AgendaDisplay<'a> {
     pub selected: usize,
     pub active: bool,
     pub stale: bool,
+    pub marked: &'a [crate::org::agenda::ActionTarget],
 }
 impl Frame {
     /// A calendar replaces only its owned pane content. It has no document,
@@ -39,12 +40,13 @@ impl Frame {
                 let index = display.top + usize::from(row - 1);
                 view.lines.get(index).map_or_else(String::new, |kind| {
                     format!(
-                        "{}{}",
+                        "{}{}{}",
                         if index == display.selected {
                             "> "
                         } else {
                             "  "
                         },
+                        calendar_mark(&display, kind),
                         calendar_text(view, kind)
                     )
                 })
@@ -101,4 +103,19 @@ fn calendar_text(view: &Calendar, line: &CalendarLine) -> String {
 
 fn clock(time: crate::org::time::CivilTime) -> String {
     format!("{:02}:{:02}", time.hour(), time.minute())
+}
+
+fn calendar_mark(display: &AgendaDisplay<'_>, line: &CalendarLine) -> &'static str {
+    let CalendarLine::Entry(index) = line else {
+        return "";
+    };
+    let row = &display.calendar.rows[*index];
+    let source = &display.calendar.sources[row.source];
+    if display.marked.iter().any(|t| {
+        t.byte == row.byte && t.source.version == source.version && t.source.path == source.path
+    }) {
+        "* "
+    } else {
+        ""
+    }
 }

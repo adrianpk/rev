@@ -10,6 +10,11 @@ pub(in crate::session) struct Prompt {
     model: Arc<Outline>,
     index: usize,
 }
+impl Prompt {
+    pub(in crate::session) fn agenda_append(&self, draft: &str) -> Result<String, String> {
+        self.model.tag_appended(self.index, draft)
+    }
+}
 impl Session {
     pub(super) fn tag_request(&self, model: &Outline, command: OrgCommand) -> bool {
         command.tags()

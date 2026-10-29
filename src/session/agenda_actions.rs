@@ -1,6 +1,9 @@
 //! Explicit source actions reuse ordinary handlers under a mapped saved view.
+mod bulk;
 mod execute;
+mod marks;
 mod resolve;
+mod results;
 use super::{Action, Session};
 use crate::{
     buffer::{Stamp, edit::Point},
@@ -8,6 +11,8 @@ use crate::{
     org::agenda::{ActionResult, ActionStatus, ActionTarget, CalendarLine},
     window::ViewId,
 };
+pub(in crate::session) use bulk::BulkPrompt;
+pub(in crate::session) use marks::Marks;
 use std::time::{Duration, Instant};
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Phase {
@@ -26,6 +31,8 @@ pub(super) struct Run {
     before: Option<Stamp>,
     deadline: Instant,
     outcomes: Vec<ActionResult>,
+    argument: Option<String>,
+    replayed: bool,
 }
 impl Session {
     pub fn agenda_action_results(&self) -> &[ActionResult] {
@@ -35,8 +42,14 @@ impl Session {
         if self.agenda_run.is_some() {
             return self.running_agenda_command(command);
         }
+        if let Some(action) = self.agenda_results_command(command) {
+            return Some(action);
+        }
         match command {
-            Command::Org(c) if self.agenda_active() && source_command(c) => {
+            Command::Org(c) if self.agenda_active() && c.agenda_bulk() => {
+                Some(self.agenda_bulk_command(c))
+            }
+            Command::Org(c) if self.agenda_active() && c.agenda_source_action() => {
                 Some(self.begin_agenda_action(c))
             }
             _ => None,
@@ -67,6 +80,7 @@ impl Session {
             return Ok(ActionTarget {
                 source: s.result.sources[row.source].clone(),
                 byte: row.byte,
+                title: row.title.clone(),
             });
         }
         let s = self
@@ -80,6 +94,7 @@ impl Session {
         Ok(ActionTarget {
             source: s.calendar.sources[row.source].clone(),
             byte: row.byte,
+            title: row.title.clone(),
         })
     }
     fn begin_agenda_action(&mut self, command: C) -> Action {
@@ -90,9 +105,14 @@ impl Session {
             Ok(target) => target,
             Err(e) => return self.error(&e),
         };
-        self.start_agenda_targets(vec![target], command)
+        self.start_agenda_targets(vec![target], command, None)
     }
-    fn start_agenda_targets(&mut self, targets: Vec<ActionTarget>, command: C) -> Action {
+    fn start_agenda_targets(
+        &mut self,
+        targets: Vec<ActionTarget>,
+        command: C,
+        argument: Option<String>,
+    ) -> Action {
         if targets.is_empty() || targets.len() > 256 {
             return self.error("Select 1..256 distinct source targets");
         }
@@ -111,6 +131,8 @@ impl Session {
                     self.buffers.snapshot().settings().org.limits.job_seconds as u64,
                 ),
             outcomes: Vec::new(),
+            argument,
+            replayed: false,
         });
         self.advance_agenda_action();
         self.message("Checking agenda source targets; C-g cancels")
@@ -122,6 +144,9 @@ impl Session {
         }
         if self.org.request.is_some() {
             return Some(run.deadline.saturating_duration_since(Instant::now()));
+        }
+        if run.argument.is_some() && !run.replayed && bulk::primary(self.pending.as_ref()) {
+            return Some(Duration::ZERO);
         }
         if run.phase == Phase::Waiting || self.pending.is_some() {
             return None;
@@ -154,6 +179,7 @@ impl Session {
         self.input.cancel();
         self.pending = None;
         if let Some(mut run) = self.agenda_run.take() {
+            self.retain_cancelled_agenda_change(&mut run);
             for index in 0..run.targets.len() {
                 if !run
                     .outcomes
@@ -171,10 +197,29 @@ impl Session {
             self.complete_agenda_actions(run);
         }
     }
-    fn complete_agenda_actions(&mut self, run: Run) {
+    fn retain_cancelled_agenda_change(&self, run: &mut Run) {
+        let Some(before) = run.before else {
+            return;
+        };
+        let after = self.buffers.get(before.buffer).map(|b| b.stamp()).ok();
+        if after.is_some_and(|stamp| stamp != before) {
+            run.outcome(run.index,ActionStatus::ChangedWithFailure,"Source changed before cancellation; inspect canonical history; no rollback claimed".into(),after);
+        }
+    }
+    fn complete_agenda_actions(&mut self, mut run: Run) {
         self.windows.restore_source_action();
         self.windows.clear_source_anchors();
+        run.outcomes.sort_by_key(|outcome| {
+            run.targets
+                .iter()
+                .position(|t| t.same(&outcome.target))
+                .unwrap_or(usize::MAX)
+        });
         self.agenda_results = run.outcomes;
+        if run.argument.is_some() {
+            self.clear_agenda_marks();
+            self.agenda_results_view = Some((run.owner, 0));
+        }
         self.sync_input_context();
         let changed = self
             .agenda_results
@@ -212,18 +257,4 @@ impl Run {
             after,
         });
     }
-}
-fn source_command(command: C) -> bool {
-    command.task()
-        || command.estimate()
-        || matches!(
-            command,
-            C::SetTags
-                | C::RemoveTag
-                | C::Schedule
-                | C::Deadline
-                | C::ClockIn
-                | C::ClockOut
-                | C::ClockCancel
-        )
 }

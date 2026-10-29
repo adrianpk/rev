@@ -36,6 +36,7 @@ impl Session {
                 selected: state.cursor,
                 active: self.calendar_active(),
                 stale,
+                marked: &self.agenda_marks.targets,
             },
             panel.content(),
         )
