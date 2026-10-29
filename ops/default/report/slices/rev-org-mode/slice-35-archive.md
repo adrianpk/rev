@@ -1,6 +1,6 @@
 # Slice 35: archive Org subtrees without silent loss
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -109,3 +109,7 @@ undo and dirty-buffer close guards retain each participant independently.
 Archive insertion uses the existing capture placement's 2 MiB payload bound;
 structural and source discovery retain their existing limits. Full delivery-set
 validation remains controller-owned.
+
+## Integration
+
+Canonical PR #136 merged into dev at `ea25d56b2f02af66d9c3d2c34b5839081f8c1c83`, verified against Forgejo and origin/dev. Required receipt `7TT4OOJQLCEMAY5ZEMLEIAWGKF` passed six ordered commands, 328 tests and two combined terminals. Focused receipt `HCDOP5M2CL3CUNIC27O6YO3TZG` passed 460 tests and six owned terminals. Zero failures, ignored tests or skipped sessions.

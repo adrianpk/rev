@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 35 archive
+Active slice: Slice 36 links
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -814,7 +814,7 @@ Details and exact checks: [Slice 35](../plan/rev-org-mode.md#slice-35-archive-or
 - [x] T35.1: Deliver archive tag, archive sibling and %s_archive destination behavior with Org metadata.
 - [x] T35.2: Reuse checked multi-document moves and retain archived source discoverability under selected agenda policy.
 - [x] T35.3: Exercise capture/refile/archive, undo and failed destinations in one owned terminal journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T35.1 is `1ca449bbe1e2`; T35.2 is `c6f0246d7266`. Native archive plans,
 metadata, exact target admission, archived agenda policy, retained per-file
@@ -823,7 +823,9 @@ T35.3 is `d807b2fd7d03`. Canonical [PR #136](https://forge.adrianpk.com/adrianpk
 targets dev; the existing Slice 35 report is reviewing. Final controller receipts
 bind the clean pushed head after PR references. Integration remains controller-owned.
 
-### Slice 36: store and follow checked Org links
+PR #136 merged into dev at `ea25d56b2f02af66d9c3d2c34b5839081f8c1c83`, verified against Forgejo and origin/dev. Required receipt `7TT4OOJQLCEMAY5ZEMLEIAWGKF` and focused receipt `HCDOP5M2CL3CUNIC27O6YO3TZG` passed 788 tests and eight owned terminal sessions with zero failures, ignored tests or skipped sessions. Slice 35 is delivered.
+
+## Slice 36: store and follow checked Org links
 
 Contracts: ORG15 ORG02.
 Details and exact checks: [Slice 36](../plan/rev-org-mode.md#slice-36-store-and-follow-checked-org-links).
