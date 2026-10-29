@@ -1096,6 +1096,10 @@ Details and exact checks: [Slice 54](../plan/rev-org-mode.md#slice-54-edit-nativ
 - [x] T54.3: Verify header precedence, malformed blocks, edit cancellation and checked reinsertion.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T54.1 `5d2f540e7ab29ae11e46a20d6709898c91d9093b`, T54.2 `7367134410c3ec5efcf9547e6520ac76e33bbc53`, T54.3 `d7a898565c59edc242e186960072af23bdaf88f0`.
+
+Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155); reviewing, integration pending. Pre-PR required receipt `DZETXQ7JBKPBVVWK6HNPP7WE2B` passed five checks and 325 tests at `aef536cf17d79ead7b405755634a1b17febb79be`. Fresh evidence is recorded after the PR-reference follow-up.
+
 ### Slice 55: tangle Org source with bounded noweb references
 
 Contracts: ORG28 ORG18.

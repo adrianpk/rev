@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-54-source-block-editing`
-PR: pending
+PR: `#155`
 
 ## Purpose
 
@@ -45,6 +45,10 @@ See [source block reference](../../../../../docs/reference/org-source-blocks.md)
 and the Org manual's [source editing](https://orgmode.org/manual/Editing-Source-Code.html)
 and [header arguments](https://orgmode.org/manual/Using-Header-Arguments.html).
 
+Task commits: T54.1 `5d2f540e7ab29ae11e46a20d6709898c91d9093b`, T54.2 `7367134410c3ec5efcf9547e6520ac76e33bbc53`, T54.3 `d7a898565c59edc242e186960072af23bdaf88f0`.
+
+Canonical PR: [#155](https://forge.adrianpk.com/adrianpk/rev/pulls/155).
+
 ## Contracts Added or Changed
 
 - ORG28: declared block metadata, special editing and checked reinsertion.
@@ -61,16 +65,24 @@ and [header arguments](https://orgmode.org/manual/Using-Header-Arguments.html).
 
 ## Validation
 
-Development check `cargo test --test org_source source_blocks` passed four tests.
-Development check `cargo test --test org_editing source_blocks` passed three
-session tests. Changed-source quality passed. `cargo test --test syntax source_edit` passed its table of eight presentation cases.
-`cargo test --test org_source --test org_editing source_` passed 24 focused tests,
-including additive headers, ambiguous names, single-argument admission and stale
-source. A reproduced undo cursor regression now passes with retained source-view
-initiation. Seven focused source-block tests also pass, including admitted exact-limit
-publication and rejected aggregate overflows. The palette now asserts all five
-working source controls while preserving the future dispatcher assertion.
-Required exact-HEAD checks remain pending.
+The pre-PR required receipt `DZETXQ7JBKPBVVWK6HNPP7WE2B` passed on
+`aef536cf17d79ead7b405755634a1b17febb79be`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test org_editing --test syntax`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 325 tests passed: 226 editing, 69 source and 30 syntax; zero failures or
+ignored tests. The complete source checker retained safe Rust, at most five
+parameters, three nesting levels and cyclomatic complexity ten. The controller
+records fresh required and focused evidence after this PR-reference commit.
+
+Focused development also verified all eight presentation cases, exact-limit
+publication, aggregate overflow rejection, palette registration and configuration
+references. An initial legacy catalog assertion was reconciled to the delivered
+commands; its remaining future-command assertion stays active.
 
 ## Risks and Follow-ups
 
