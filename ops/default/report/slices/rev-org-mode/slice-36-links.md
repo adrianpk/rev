@@ -1,6 +1,6 @@
 # Slice 36: store and follow checked Org links
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -120,3 +120,7 @@ Native target resolution requires a complete bounded source observation. Externa
 viewer cleanup owns its Unix process group and direct child; it does not sandbox
 programs or guarantee interruption of blocked kernel IO. The full delivery-set
 gate remains controller-owned.
+
+## Integration
+
+Canonical PR #137 merged into dev at `be826a5a2d2b11dc6ef67c8cbd8b2956a5b0234c`, verified against Forgejo and origin/dev. Required receipt `BCKPCVCG6A42ETM253MRSYVMM5` passed five ordered checks and 473 tests. Focused receipt `Z75SNTPHWVOEUGB3KVNZVM6JXI` passed 309 tests and six owned terminal sessions. Zero failures, ignored tests or skipped sessions.

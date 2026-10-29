@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 36 links
+Active slice: Slice 37 attachments
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -834,9 +834,12 @@ Canonical PR: [#137](https://forge.adrianpk.com/adrianpk/rev/pulls/137).
 - [x] T36.1: Deliver internal targets, file/ID/attachment links, insertion, storage and navigation.
 - [x] T36.2: Re-resolve source and dispatch external resources through the bounded owned job path only after explicit follow; introduce the shared child-lifetime primitive here.
 - [x] T36.3: Verify ambiguity, encoded paths, read-only documents and source-preserving failure.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-### Slice 37: manage native Org heading attachments
+
+Canonical PR #137 merged into dev at `be826a5a2d2b11dc6ef67c8cbd8b2956a5b0234c`, verified against Forgejo and origin/dev. Required receipt `BCKPCVCG6A42ETM253MRSYVMM5` passed five ordered checks and 473 tests. Focused receipt `Z75SNTPHWVOEUGB3KVNZVM6JXI` passed 309 tests and six owned terminal sessions. Zero failures, ignored tests or skipped sessions. Slice 36 is delivered.
+
+## Slice 37: manage native Org heading attachments
 
 Contracts: ORG24 ORG15.
 Details and exact checks: [Slice 37](../plan/rev-org-mode.md#slice-37-manage-native-org-heading-attachments).
