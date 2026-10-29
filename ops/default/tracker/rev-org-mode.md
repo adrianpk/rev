@@ -1006,7 +1006,7 @@ Canonical PR #148 merged into dev at `5f7123996bc875250dafd7e3636e4512450e089e`.
 Contracts: ORG25 ORG30.
 Details and exact checks: [Slice 48](../plan/rev-org-mode.md#slice-48-export-native-org-documents-to-html).
 
-- [ ] T48.1: Deliver native HTML structure, escaping, metadata, links, images, tables, notes and source blocks.
+- [x] T48.1: Deliver native HTML structure, escaping, metadata, links, images, tables, notes and source blocks.
 - [ ] T48.2: Implement declared attributes/options and safe relative asset references without executing contents.
 - [ ] T48.3: Verify generated markup using independent HTML parsing and representative full-document fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

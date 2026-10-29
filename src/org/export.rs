@@ -1,6 +1,7 @@
 //! Checked immutable export data. Preparation has no save, edit, destination,
 //! process or network authority. Projected offsets never identify canonical text.
 mod current;
+mod html;
 pub(crate) mod output;
 mod render;
 pub use render::Rendered;

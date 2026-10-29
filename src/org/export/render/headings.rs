@@ -175,7 +175,7 @@ impl Render<'_> {
         ))
     }
 }
-fn title_range(
+pub(in crate::org::export) fn title_range(
     text: &Rope,
     n: &structure::Raw,
     options: &Options,
@@ -211,7 +211,7 @@ fn valid_tags(value: &str) -> bool {
 fn suppressed(key: &str, options: &Options) -> bool {
     key == "TITLE" && !options.title || matches!(key, "AUTHOR" | "EMAIL") && !options.author
 }
-fn known(key: &str) -> bool {
+pub(in crate::org::export) fn known(key: &str) -> bool {
     matches!(
         key,
         "TITLE"

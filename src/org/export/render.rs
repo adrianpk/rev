@@ -1,6 +1,6 @@
 //! Native output is derived data, never a source edit or an implicit save.
 mod blocks;
-mod headings;
+pub(super) mod headings;
 mod inline;
 mod notes;
 use super::*;
@@ -22,6 +22,9 @@ impl Snapshot {
     pub fn render(&self, cancel: &Cancellation) -> Result<Rendered, String> {
         let cancel = cancel.bounded(Instant::now() + Duration::from_secs(self.job_seconds as u64));
         check(&cancel)?;
+        if self.request.backend == ExportBackend::Html {
+            return super::html::render(self, &cancel);
+        }
         if !available(self.request.backend) {
             return Err("Selected native export renderer is not available".into());
         }

@@ -138,3 +138,6 @@ mod table_interchange;
 
 #[path = "org_io/text_exports.rs"]
 mod text_exports;
+
+#[path = "org_io/html_exports.rs"]
+mod html_exports;
