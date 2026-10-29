@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-53-publishing`
-PR: pending
+PR: `#154`
 
 ## Purpose
 
@@ -51,6 +51,10 @@ share the configured agenda file limit; retained source/rendered/asset bytes sha
 the total byte limit. Input names cap at 4096 paths and 1 MiB. Rendering, include
 expansion and tool output retain their existing finite limits. Formats prepare
 and admit one at a time to avoid retaining an unchecked multi-format batch.
+
+Task commits: T53.1 `f2bac539edfda5c5f4d97e4e4ff14a8fe8aca5cd`, T53.2 `46ac266f794d8428ff162b9aa37ee8a685fc0413`, T53.3 `928eaa9bf4144e1dcc030e0a3308bb5606282e9f`.
+
+Canonical PR: [#154](https://forge.adrianpk.com/adrianpk/rev/pulls/154).
 
 ## Contracts Added or Changed
 

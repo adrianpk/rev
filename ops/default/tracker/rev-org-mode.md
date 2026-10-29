@@ -1082,6 +1082,10 @@ Details and exact checks: [Slice 53](../plan/rev-org-mode.md#slice-53-publish-na
 - [x] T53.3: Exercise actual exports/publishing, failure and source immutability through owned terminal/filesystem fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Task commits: T53.1 `f2bac539edfda5c5f4d97e4e4ff14a8fe8aca5cd`, T53.2 `46ac266f794d8428ff162b9aa37ee8a685fc0413`, T53.3 `928eaa9bf4144e1dcc030e0a3308bb5606282e9f`.
+
+Canonical PR: [#154](https://forge.adrianpk.com/adrianpk/rev/pulls/154); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+
 ### Slice 54: edit native Org source blocks and headers
 
 Contracts: ORG28 ORG02.
