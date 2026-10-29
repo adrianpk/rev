@@ -1,6 +1,6 @@
 # Slice 42: evaluate basic Org table formulas safely
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -83,8 +83,9 @@ the original bytes, stamp, state, modification flag and history unchanged.
 - `cargo test --test org_tables --test org_source evaluation -- --nocapture`: 15 focused workflows passed, zero failed or ignored.
 - `cargo clippy --lib --test org_tables --test org_source -- -D warnings`: passed; changed-source quality passed after the final expected-result cases.
 
-Final ordered validation is recorded by the controller for the clean PR head
-before handoff.
+- Final required receipt `LRKE3EYHBXLIIWBJDLGJGLO4NZ` at `04e2f4d8fe5b932eecf9f767c1a2b9035a0947e0` passed the five ordered checks and 138 tests.
+- Final focused receipt `ZCW5ICYYNSCDKALWG77QG5INED` at the same head passed 111 library/source tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions.
+- Canonical PR #143 merged into dev at `04e2f4d8fe5b932eecf9f767c1a2b9035a0947e0`, verified against Forgejo and origin/dev.
 
 ## Risks and Follow-ups
 

@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 42 formula evaluation
+Active slice: Slice 43 formula publication
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -919,12 +919,14 @@ Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-b
 - [x] T42.1: Evaluate dependency graphs, aggregates, rounding and formatting under the frozen numeric policy.
 - [x] T42.2: Detect cycles, empty/text misuse, division by zero, non-finite values and work-budget exhaustion.
 - [x] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#143](https://forge.adrianpk.com/adrianpk/rev/pulls/143).
 Task commits: T42.1 `9b64692c22d779254de9e0bc673a835ed37ccf4d`, T42.2 `a82d0bafe9b0c99def549d265c6a87a2bc401712`, T42.3 `858a37838e90fee2cc6d83cc6da767c542a19ac4`.
 
-### Slice 43: publish Org recalculation as one transaction
+Canonical PR #143 merged into dev at `04e2f4d8fe5b932eecf9f767c1a2b9035a0947e0`, verified against Forgejo and origin/dev. Required receipt `LRKE3EYHBXLIIWBJDLGJGLO4NZ` passed five ordered checks and 138 tests. Focused receipt `ZCW5ICYYNSCDKALWG77QG5INED` passed 111 library/source tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions. Slice 42 is delivered.
+
+## Slice 43: publish Org recalculation as one transaction
 
 Contracts: ORG13 ORG14 ORG17.
 Details and exact checks: [Slice 43](../plan/rev-org-mode.md#slice-43-publish-org-recalculation-as-one-transaction).
