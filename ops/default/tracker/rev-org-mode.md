@@ -730,9 +730,9 @@ Details and exact checks: [Slice 29](../plan/rev-org-mode.md#slice-29-configure-
 
 Canonical [PR #130](https://forge.adrianpk.com/adrianpk/rev/pulls/130) targets dev; the Slice 29 report is reviewing. T29.1/T29.2/T29.3 commits are `d6626fc1a2d1`, `0cf592cb0ab3` and `8fd93c685e46`. Thirteen custom cases, no-color rendering, focused Clippy and unchanged source-quality limits pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
-#T29.1 implements admitted typed blocks and canonical query/filter/column/sort observations, bounded source memberships and civil date spans. Three focused cases pass; native controls remain active.
+T29.1 delivers admitted typed blocks and canonical observations. T29.2 delivers native presentation controls. T29.3 verifies limits, source scopes, preset reset, pane lifecycle and exhaustive defaults.
 
-## Slice 30: edit canonical Org source from the agenda
+### Slice 30: edit canonical Org source from the agenda
 
 Contracts: ORG09 ORG23.
 Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canonical-org-source-from-the-agenda).
