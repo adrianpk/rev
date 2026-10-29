@@ -1,6 +1,6 @@
 # Slice 37: manage native Org heading attachments
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -87,7 +87,30 @@ remain native. A newly owned hard-link staging name is created directly; existin
 candidate names never grant cleanup authority. Existing read-only destinations
 reject before replacement. Complete joined paths retain UTF-8/control/byte limits.
 
+T37.2: `37a7774bb3f551bc4c30b7fc77e194a287164d9b`.
+
+T37.3 checks:
+
+- `cargo test --lib --test org_io attachments -- --nocapture`: 13 tests pass.
+  Additional coverage includes input/parent/target symlinks, unreadable files,
+  read-only replacements/headings, exact listed names, invalid IDs and byte/record
+  bounds. A heading at EOF without a newline coalesces its new tag/drawer
+  insertion into one checked replacement and one undo group. Native resource access-time observations remain unchanged during
+  source visiting/indexing and point movement; explicit listing then reads the
+  owned directory. File contents, history and editing state remain asserted.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-attachments`:
+  two owned RGB/NO_COLOR sessions pass collision refusal, restored-permission
+  retry, actual binary publication, ordinary metadata undo/redo/save, native
+  attachment listing/opening/return, stored link insertion/undo and cancellation.
+  Exact BOM/CRLF source bytes and the entire fixture file set are checked.
+  Processes exit and are reaped; quiet inactive work has no polling output.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- Changed-source quality passes at unchanged limits.
+
+The representative attachment journey adds two short owned terminals. Variants
+remain in native tests. Existing journeys, deadlines, byte limits and the full
+gate are unchanged.
+
 ## Risks and Follow-ups
 
-T37.3 adds adversarial paths, source-preserving failures and owned terminals.
 The full delivery-set gate remains controller-owned.

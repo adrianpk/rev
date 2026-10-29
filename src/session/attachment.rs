@@ -226,15 +226,13 @@ impl Session {
         let heading = state
             .model
             .tag_target(b, state.request.origin.point.position)?;
-        let mut edits = Vec::new();
+        let tags = state.model.tag_appended(heading, "ATTACH")?;
+        let mut edits = state.model.tag_edit(b, heading, &tags, false)?;
         if let Some(id) = id {
             let entry = state.model.heading_property_entry(b, heading)?;
             edits.extend(state.model.property_edit(b, entry, "ID", Some(id))?);
         }
-        let tags = state.model.tag_appended(heading, "ATTACH")?;
-        edits.extend(state.model.tag_edit(b, heading, &tags, false)?);
-        edits.sort_by_key(|edit| edit.source.range.start);
-        Ok(edits)
+        Ok(metadata_insertions(edits))
     }
     pub(in crate::session) fn cancel_attachment(&mut self, command: Command) -> Option<Action> {
         if command != Command::KeyboardQuit || self.attachment.is_none() {
@@ -269,6 +267,26 @@ impl Session {
         self.input.cancel();
         self.error(&format!("Attachment rejected: {error}"))
     }
+}
+
+// A final heading without a newline gives tag text and its new drawer the
+// same insertion point. Keep tags first and admit one ordinary replacement.
+fn metadata_insertions(
+    mut edits: Vec<crate::buffer::edit::Replacement>,
+) -> Vec<crate::buffer::edit::Replacement> {
+    edits.sort_by_key(|e| e.source.range.start);
+    let mut merged: Vec<crate::buffer::edit::Replacement> = Vec::new();
+    for edit in edits {
+        if let Some(last) = merged
+            .last_mut()
+            .filter(|last| last.source == edit.source && last.source.range.is_empty())
+        {
+            last.text.push_str(&edit.text);
+        } else {
+            merged.push(edit);
+        }
+    }
+    merged
 }
 
 #[cfg(test)]

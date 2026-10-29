@@ -160,3 +160,26 @@ fn attachments_late_cancel() {
     assert_eq!(std::fs::read(f.0.join("input.bin")).unwrap(), b"payload");
     assert!(!job.is_active());
 }
+
+// Listing is complete only inside the admitted record bound; excess files do
+// not become an apparently complete list or trigger a recursive traversal.
+#[test]
+fn attachments_listing_bound() {
+    let f = Fixture::new();
+    std::fs::create_dir(f.0.join("assets")).unwrap();
+    for n in 0..4096 {
+        f.write(&format!("assets/{n:04}.txt"), "");
+    }
+    let cancel = Cancellation::default();
+    let listing = Listing::read(&context(&f), &cancel).unwrap();
+    assert_eq!(listing.names.len(), 4096);
+    assert_eq!(listing.names.first().unwrap(), "0000.txt");
+    assert_eq!(listing.names.last().unwrap(), "4095.txt");
+    f.write("assets/extra.txt", "");
+    assert!(
+        Listing::read(&context(&f), &cancel)
+            .err()
+            .unwrap()
+            .contains("4096")
+    );
+}

@@ -127,3 +127,6 @@ mod link_edges;
 
 #[path = "org_io/attachments.rs"]
 mod attachments;
+
+#[path = "org_io/attachment_edges.rs"]
+mod attachment_edges;

@@ -6,12 +6,36 @@ use std::os::unix::fs::MetadataExt;
 // ordinary metadata undo group. Source undo never claims to undo file effects.
 #[test]
 fn attachments_methods() {
-    for (name, command, effect) in [
-        ("copy", C::AttachCopy, Effect::Published),
-        ("move", C::AttachMove, Effect::Removed),
-        ("hard link", C::AttachLink, Effect::Published),
+    for (name, command, effect, original, newline) in [
+        (
+            "copy",
+            C::AttachCopy,
+            Effect::Published,
+            "* Task\r\nbody EOF",
+            "\r\n",
+        ),
+        (
+            "move",
+            C::AttachMove,
+            Effect::Removed,
+            "* Task\r\nbody EOF",
+            "\r\n",
+        ),
+        (
+            "hard link",
+            C::AttachLink,
+            Effect::Published,
+            "* Task\r\nbody EOF",
+            "\r\n",
+        ),
+        (
+            "EOF heading",
+            C::AttachCopy,
+            Effect::Published,
+            "* Task",
+            "\n",
+        ),
     ] {
-        let original = "* Task\r\nbody EOF";
         let (f, mut s) = editor("", original, "");
         let input = f.write("input one.bin", "");
         let bytes = [0, 255, 10, 42];
@@ -46,7 +70,11 @@ fn attachments_methods() {
                 .join(&id[2..])
                 .join("input one.bin");
         assert_eq!(std::fs::read(&target).unwrap(), bytes);
-        assert!(text(&s).contains(&format!(":ID: {id}\r\n")), "{}", text(&s));
+        assert!(
+            text(&s).contains(&format!(":ID: {id}{newline}")),
+            "{}",
+            text(&s)
+        );
         assert!(text(&s).contains(":ATTACH:"));
         assert_eq!(input.exists(), name != "move");
         assert_eq!(
