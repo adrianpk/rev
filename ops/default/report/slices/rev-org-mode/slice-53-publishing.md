@@ -84,6 +84,11 @@ exact-candidate controller receipts are recorded in Acta before handoff.
 - `cargo clippy --lib --test org_io --test configuration --test commands -- -D warnings`: passed before the final fixture additions; the canonical all-target check remains required on the final head.
 - Changed-source quality passed with unchanged limits. Excluded directories are pruned before descent, so deliberately deep excluded fixture data cannot consume selected-source discovery bounds.
 
+The first final configuration-reference check rejected its new closed project
+array type. The catalog checker now recognizes `Option<Vec<PublishProject>>` as
+an array, using the same strict leaf/default/type checks as other typed records.
+No configuration assertion or native acceptance condition was removed.
+
 ## Risks and Follow-ups
 
 None recorded.

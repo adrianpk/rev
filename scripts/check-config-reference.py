@@ -182,6 +182,7 @@ def type_label(kind):
         "Option<Vec<ExportBackend>>": "Array",
         "Option<Vec<AgendaView>>": "Array",
         "Option<Vec<CaptureTemplate>>": "Array",
+        "Option<Vec<PublishProject>>": "Array",
         "Option<RepeatLogging>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",
