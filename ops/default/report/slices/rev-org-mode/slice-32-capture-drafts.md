@@ -21,6 +21,14 @@ cursor marker records an offset in generated text. Inserted values remain opaque
 escape-looking source and answers are never rescanned or executed. Checked origin
 links require an actual buffer point; unnamed origins do not invent a path.
 
+T32.2 starts capture from ordinary editing through `C-c c` or M-x, collects
+explicit template/file/expansion input, and discovers the selected destination
+in the existing cancellable job slot. The generated text has its own real,
+transient buffer identity and Capture role, ordinary editing/history and local
+bindings. Save/write-file reject at the backend boundary. Abort discards only
+this owner and restores the retained origin view; shared edits map its point
+and viewport through ordinary checked transactions.
+
 ## Implementation Notes
 
 Admission rejects malformed/unsupported instructions before prompts or IO.
@@ -46,13 +54,25 @@ implicit executable host query. The original template remains unchanged.
 
 ## Validation
 
+T32.1: `75774e457d81ca69e3f5e0dc434683c30daa6b00` (report introduction).
+
 - `cargo test --test org_agenda capture_expansion -- --nocapture`: five tests
   pass, zero failures or ignored tests.
 - `cargo clippy --lib --test org_agenda -- -D warnings`: passed during T32.1;
   final clean-head controller checks follow all task and PR-reference commits.
 - Changed-source quality passes without changing parameter, nesting or complexity limits.
 
+- `cargo test --test org_editing capture_drafts -- --nocapture`: three native
+  session tests pass, including history, explicit selection/prompts and mapped
+  return after a peer edit.
+- `cargo test --test commands --test configuration --test windows`: 315 tests
+  pass, zero failures or ignored tests. New command names update exact lexical
+  match counts; catalog and binding assertions remain exhaustive.
+- `python3 scripts/check-config-reference.py`: 149 catalog leaves, 54 RGB roles,
+  227 default bindings and the 18335-byte packaged template agree.
+- `cargo clippy --lib --test org_editing --test commands -- -D warnings`: passed.
+
 ## Risks and Follow-ups
 
-T32.2 and T32.3 remain in progress. Publication remains the recorded Slice 33
+T32.3 remains in progress. Publication remains the recorded Slice 33
 responsibility; this report does not claim the complete capture lifecycle.

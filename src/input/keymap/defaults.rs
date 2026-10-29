@@ -12,6 +12,10 @@ pub(super) fn calendar_complete() -> &'static [(&'static str, &'static str)] {
         LazyLock::new(|| complete(MINIBUFFER, ORG_CALENDAR));
     &COMPLETE
 }
+pub(super) fn capture_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, ORG_CAPTURE));
+    &COMPLETE
+}
 fn complete(
     base: &'static [(&'static str, &'static str)],
     local: &'static [(&'static str, &'static str)],
@@ -42,6 +46,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
 
 const EDITOR: &[(&str, &str)] = &[
     ("C-c a", "org-agenda"),
+    ("C-c c", "org-capture"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
     ("M-g g", "goto-line"),
@@ -214,7 +219,7 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x ,", "org-timer-pause-or-continue"),
     ("C-c C-x _", "org-timer-stop"),
 ];
-const ORG_CAPTURE: &[(&str, &str)] = &[];
+const ORG_CAPTURE: &[(&str, &str)] = &[("C-c C-k", "org-capture-kill")];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
 // Non-text workspace owners admit implemented navigation and source actions.

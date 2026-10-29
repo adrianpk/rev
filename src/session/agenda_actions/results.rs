@@ -70,12 +70,12 @@ impl Session {
             .buffers
             .get(stamp.buffer)
             .map_err(|e| e.to_string())
-            .and_then(|buffer| self.windows.source_action(buffer, point));
+            .and_then(|buffer| self.windows.retain_view(buffer, point));
         if let Err(e) = outcome {
             return self.error(&e);
         }
         let action = self.history(crate::command::History::Undo);
-        self.windows.restore_source_action();
+        self.windows.restore_view();
         self.sync_input_context();
         action
     }

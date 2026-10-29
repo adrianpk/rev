@@ -15,7 +15,10 @@ impl Session {
     pub fn select_view(&mut self, id: ViewId) -> Result<(), Error> {
         self.cancel_pointer_capture();
         self.yank = None;
-        if self.input.focus() != Focus::Editing || self.tree.focused() {
+        if self.capture_blocks_input()
+            || self.input.focus() != Focus::Editing
+            || self.tree.focused()
+        {
             return Err(crate::window::Error::Focus.into());
         }
         self.select_editing_view(id)
@@ -27,6 +30,7 @@ impl Session {
         self.stop_typing()?;
         self.kills.break_chain();
         self.windows.select(id)?;
+        self.sync_input_context();
         Ok(())
     }
 

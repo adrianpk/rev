@@ -96,7 +96,7 @@ impl Session {
         if request.command.timer_insertion() {
             return self.insert_timer(&model, request.command);
         }
-        if self.windows.source_action_active()
+        if self.windows.retained_view_active()
             && matches!(
                 request.command,
                 OrgCommand::ClockOut | OrgCommand::ClockCancel
@@ -219,6 +219,12 @@ impl Session {
 
 impl Session {
     fn org_session_command(&mut self, command: OrgCommand) -> Option<Action> {
+        if command == OrgCommand::Capture {
+            return Some(self.begin_capture());
+        }
+        if command == OrgCommand::CaptureKill {
+            return Some(self.message("No capture draft is active"));
+        }
         if command.agenda_query() {
             return Some(self.prompt_agenda_query(command, ""));
         }
@@ -232,7 +238,7 @@ impl Session {
             return Some(self.timer_command(command));
         }
         if command.session_clock()
-            && !(self.windows.source_action_active()
+            && !(self.windows.retained_view_active()
                 && matches!(command, OrgCommand::ClockOut | OrgCommand::ClockCancel))
         {
             return Some(self.clock_command(command));

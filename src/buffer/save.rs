@@ -127,6 +127,11 @@ impl Buffers {
 }
 
 fn writable(buffer: &Buffer) -> io::Result<()> {
+    if buffer.is_transient() {
+        return Err(io::Error::other(
+            "Transient capture draft cannot be saved as a source file",
+        ));
+    }
     if buffer.is_readonly() {
         return Err(io::Error::new(
             io::ErrorKind::PermissionDenied,

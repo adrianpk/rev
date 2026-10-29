@@ -19,7 +19,9 @@ impl Session {
         {
             self.query_agenda = None;
         }
-        let role = if self.agenda_active() || self.habit_agenda.is_some() {
+        let role = if self.capture_selected() {
+            Some(crate::input::OrgContext::Capture)
+        } else if self.agenda_active() || self.habit_agenda.is_some() {
             Some(crate::input::OrgContext::Agenda)
         } else {
             self.buffer()

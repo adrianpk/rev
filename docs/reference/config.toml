@@ -275,6 +275,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 [keys.editor]
 "C-c a" = "org-agenda"
+"C-c c" = "org-capture"
 "C-g" = "keyboard-quit"
 "M-x" = "execute-extended-command"
 "M-g g" = "goto-line"
@@ -445,6 +446,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-c C-x _" = "org-timer-stop"
 
 [keys.org_capture]
+"C-c C-k" = "org-capture-kill"
 [keys.org_source_edit]
 
 # These workspace roles consume unbound text. Feature owners add their own actions.

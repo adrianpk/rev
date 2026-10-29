@@ -4,6 +4,7 @@ mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
 mod buffers;
+mod capture;
 mod edit;
 mod events;
 mod extended;
@@ -69,6 +70,7 @@ pub enum Action {
 pub struct Session {
     buffers: Buffers,
     org: org::Work,
+    capture: Option<capture::State>,
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
@@ -112,6 +114,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Capture(capture::Prompt),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -201,6 +204,7 @@ impl Session {
         Ok(Self {
             buffers,
             org: org::Work::default(),
+            capture: None,
             windows,
             tree,
             kills,
@@ -264,6 +268,7 @@ impl Session {
         }
         self.refresh_org();
         self.advance_agenda_action();
+        self.advance_capture();
         self.invalidate_search();
         self.invalidate_replace();
         let composition = self.composition();
@@ -383,6 +388,9 @@ impl Session {
         {
             return self.message("Read-only Org agenda; C-g returns to source");
         }
+        if self.capture_blocks_input() {
+            return self.message("Capture input pending; C-g cancels");
+        }
         match outcome {
             Outcome::Pointer(event) => self.pointer(event, now),
             Outcome::Editing(key) => self.typing(key),
@@ -397,7 +405,8 @@ impl Session {
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self
-            .agenda_action_command(command)
+            .capture_command(command)
+            .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))
         {
             return action;
@@ -509,6 +518,9 @@ impl Session {
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
         self.cancel_pointer_capture();
+        if self.capture_blocks_input() {
+            return self.message("Capture input pending; C-g cancels");
+        }
         if self.tree.focused() {
             return self.message("File tree owns input focus");
         }

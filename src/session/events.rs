@@ -34,6 +34,7 @@ impl Session {
             self.org.remaining(now),
             self.timer_remaining(now),
             self.agenda_action_remaining(),
+            self.capture_remaining(),
         ]
         .into_iter()
         .flatten()
@@ -118,6 +119,7 @@ impl Session {
             self.expire_pointer(now),
             self.expire_timer(now),
             self.expire_agenda_action(),
+            self.expire_capture(),
         ]
         .into_iter()
         .rev()

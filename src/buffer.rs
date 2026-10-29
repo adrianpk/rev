@@ -135,6 +135,7 @@ pub struct Buffer {
     revision: u64,
     text: Rope,
     read_only: bool,
+    transient: bool,
     mark: Option<Scalar>,
     mark_mode: region::Mode,
     history: VecDeque<edit::Transaction>,
@@ -184,6 +185,7 @@ impl Buffer {
             revision: 1,
             text,
             read_only: false,
+            transient: false,
             mark: None,
             mark_mode: region::Mode::Inactive,
             history: VecDeque::new(),
@@ -217,6 +219,11 @@ impl Buffer {
         let mut buffer = Self::from_rope(text)?;
         buffer.bom = bom;
         Ok(buffer)
+    }
+
+    /// Transient text participates in checked edits, never source publication.
+    pub fn is_transient(&self) -> bool {
+        self.transient
     }
 
     pub fn has_bom(&self) -> bool {
@@ -410,6 +417,15 @@ impl Buffers {
     /// Creates another canonical buffer from validated Rust UTF-8 text.
     pub fn create(&mut self, text: &str) -> Result<BufferId, Error> {
         let buffer = Buffer::new(text, &self.settings.settings().files)?;
+        Ok(self.insert(buffer))
+    }
+
+    pub(crate) fn capture_draft(&mut self, text: &str) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = "*Org Capture*".into();
+        buffer.transient = true;
+        buffer.bom = false;
+        buffer.mode_choice = Some(Mode::Text);
         Ok(self.insert(buffer))
     }
 

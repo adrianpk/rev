@@ -75,6 +75,9 @@ impl Session {
     }
 
     pub(super) fn complete_argument(&mut self) -> Action {
+        if matches!(self.pending, Some(Pending::Capture(_))) {
+            return self.complete_capture();
+        }
         if matches!(
             self.pending,
             Some(

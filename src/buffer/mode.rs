@@ -22,11 +22,17 @@ impl Mode {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct ModeError;
+pub enum ModeError {
+    Disabled,
+    Transient,
+}
 
 impl fmt::Display for ModeError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("Org mode is disabled by org.enabled")
+        formatter.write_str(match self {
+            Self::Disabled => "Org mode is disabled by org.enabled",
+            Self::Transient => "Capture draft retains its transient editing context",
+        })
     }
 }
 
@@ -40,8 +46,11 @@ impl Buffer {
     /// Mode changes affect derived behavior only. All views share this choice;
     /// canonical text, read-only state, revision, saved state and history survive.
     pub fn select_mode(&mut self, mode: Mode) -> Result<(), ModeError> {
+        if self.transient {
+            return Err(ModeError::Transient);
+        }
         if mode == Mode::Org && !self.org_enabled {
-            return Err(ModeError);
+            return Err(ModeError::Disabled);
         }
         self.mode_choice = Some(mode);
         self.activate_org(mode == Mode::Org);

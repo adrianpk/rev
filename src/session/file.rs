@@ -7,6 +7,11 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
+        if self.capture_blocks_input() || self.capture_selected() {
+            return Err(io::Error::other(
+                "Capture owns this view; abort the draft before visiting a file",
+            ));
+        }
         self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();
@@ -49,6 +54,7 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         match self.pending.take() {
+            Some(Pending::Capture(prompt)) => self.capture_argument(prompt, &path),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),

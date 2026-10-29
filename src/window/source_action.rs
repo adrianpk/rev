@@ -1,17 +1,17 @@
-//! Temporarily address a canonical source while retaining the agenda's mapped view.
+//! Retain a mapped home view while an owned interaction addresses other text.
 use super::*;
 use crate::buffer::edit::Point;
 impl Windows {
-    pub(crate) fn source_action_active(&self) -> bool {
+    pub(crate) fn retained_view_active(&self) -> bool {
         self.saved.is_some()
     }
 
-    pub(crate) fn source_action(&mut self, buffer: &Buffer, point: Point) -> Result<(), String> {
+    pub(crate) fn retain_view(&mut self, buffer: &Buffer, point: Point) -> Result<(), String> {
         if self.saved.is_some() {
-            return Err("Another source action owns the saved view".into());
+            return Err("Another interaction owns the retained view".into());
         }
         if buffer.stamp() != point.stamp {
-            return Err("Agenda source changed before action".into());
+            return Err("Addressed buffer changed before retaining its view".into());
         }
         let mut source = View::new(buffer);
         source.point = point;
@@ -20,7 +20,7 @@ impl Windows {
         self.saved = Some((owner, home));
         Ok(())
     }
-    pub(crate) fn restore_source_action(&mut self) {
+    pub(crate) fn restore_view(&mut self) {
         if let Some((owner, home)) = self.saved.take()
             && let Some(view) = self.views.get_mut(&owner)
         {

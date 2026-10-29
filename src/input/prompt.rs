@@ -12,22 +12,22 @@ pub(super) const LIMIT_MESSAGE: &str = "Prompt input limit exceeded";
 /// The bounded string belongs to the prompt and never aliases document text.
 #[derive(Debug)]
 pub struct Prompt {
-    label: &'static str,
+    label: String,
     text: String,
     cursor: usize,
     limit: usize,
 }
 
 impl Prompt {
-    pub(super) fn new(label: &'static str, initial: &str, limit: usize) -> Result<Self, Error> {
-        if initial.chars().count() > limit {
+    pub(super) fn new(label: &str, initial: &str, limit: usize) -> Result<Self, Error> {
+        if label.len() > 1024 || initial.chars().count() > limit {
             return Err(Error::Limit);
         }
-        if initial.chars().any(char::is_control) {
+        if label.chars().any(char::is_control) || initial.chars().any(char::is_control) {
             return Err(Error::Control);
         }
         Ok(Self {
-            label,
+            label: label.into(),
             limit,
             text: initial.into(),
             cursor: initial.len(),
@@ -35,16 +35,16 @@ impl Prompt {
     }
 
     pub(super) fn replace(&mut self, text: &str) -> Result<(), Error> {
-        *self = Self::new(self.label, text, self.limit)?;
+        *self = Self::new(&self.label, text, self.limit)?;
         Ok(())
     }
 
-    pub fn label(&self) -> &'static str {
-        self.label
+    pub fn label(&self) -> &str {
+        &self.label
     }
 
     pub(super) fn set_label(&mut self, label: &'static str) {
-        self.label = label;
+        self.label = label.into();
     }
 
     pub fn text(&self) -> &str {

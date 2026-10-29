@@ -168,7 +168,7 @@ impl Input {
         }
     }
 
-    pub fn label(&self) -> Option<&'static str> {
+    pub fn label(&self) -> Option<&str> {
         match &self.context {
             Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
@@ -183,7 +183,7 @@ impl Input {
         }
     }
 
-    pub fn argument(&mut self, label: &'static str, initial: &str) -> Result<(), Error> {
+    pub fn argument(&mut self, label: &str, initial: &str) -> Result<(), Error> {
         self.available()?;
         let prompt = Prompt::new(label, initial, self.policy.input_limit)?;
         self.context = Context::Argument(prompt);

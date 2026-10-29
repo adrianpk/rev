@@ -75,9 +75,9 @@ fn vertical_rows() {
 #[test]
 fn configured_matching() {
     for (mode, count, first) in [
-        ("prefix-then-substring", 9, "kill-buffer"),
+        ("prefix-then-substring", 10, "kill-buffer"),
         ("prefix", 6, "kill-buffer"),
-        ("substring", 9, "backward-kill-word"),
+        ("substring", 10, "backward-kill-word"),
     ] {
         let fixture = super::config_fixture::Fixture::new();
         let startup =

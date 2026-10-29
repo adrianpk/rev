@@ -54,7 +54,8 @@ impl Context {
         match self {
             Self::Org => defaults::org_complete(),
             Self::OrgCalendar => defaults::calendar_complete(),
-            Self::OrgCapture | Self::OrgSourceEdit => Self::Editor.local_defaults(),
+            Self::OrgCapture => defaults::capture_complete(),
+            Self::OrgSourceEdit => Self::Editor.local_defaults(),
             _ => self.local_defaults(),
         }
     }

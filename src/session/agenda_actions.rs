@@ -214,7 +214,7 @@ impl Session {
         }
     }
     fn complete_agenda_actions(&mut self, mut run: Run) {
-        self.windows.restore_source_action();
+        self.windows.restore_view();
         self.windows.clear_source_anchors();
         run.outcomes.sort_by_key(|outcome| {
             run.targets

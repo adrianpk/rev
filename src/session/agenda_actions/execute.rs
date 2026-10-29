@@ -41,7 +41,7 @@ impl Session {
         if buffer.is_readonly() {
             return Err("buffer is read-only".into());
         }
-        self.windows.source_action(buffer, point)?;
+        self.windows.retain_view(buffer, point)?;
         Ok(point.stamp)
     }
     pub(super) fn finish_agenda_target(&mut self, run: &mut Run) {
@@ -70,7 +70,7 @@ impl Session {
             (false, false) => ActionStatus::Unchanged,
         };
         run.outcome(run.index, status, self.echo.clone(), after);
-        self.windows.restore_source_action();
+        self.windows.restore_view();
         run.index += 1;
         run.phase = Phase::Edit;
     }

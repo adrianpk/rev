@@ -20,7 +20,9 @@ impl Buffer {
     }
 
     pub fn mode(&self) -> &'static str {
-        if self.is_org() {
+        if self.is_transient() {
+            "Capture"
+        } else if self.is_org() {
             "Org"
         } else {
             self.syntax.mode(self.stamp())

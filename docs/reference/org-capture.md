@@ -1,8 +1,9 @@
 # Native capture templates and targets
 
 Capture configuration is typed data. Template selection and target discovery
-are non-writing operations. Editable drafts and finalize/abort are separate
-stages; this layer does not add a placeholder capture command.
+are non-writing operations. `C-c c` / `M-x org-capture` selects a template,
+collects required input and opens an editable transient draft. Destination
+publication is a separate stage.
 
 `org.capture.templates = []` selects the native `t` / `Task` entry fallback,
 with target `{type="file+headline", file="", headline="Tasks"}` and text
@@ -88,3 +89,54 @@ with defaults of 8 MiB / 64 MiB / 30 seconds and at most 4096 retained open-file
 snapshots. Native structural analysis retains its finite node/depth limits.
 Cancellation or incomplete analysis rejects discovery. Returned offsets belong
 to the retained observation; they do not authorize an edit against newer text.
+
+## Expansion and editable drafts
+
+Capture starts from normal text or Org editing without first visiting a target.
+Enter a configured key exactly; empty input selects `t`. Tab shows the admitted
+keys/descriptions. With no target/default file, enter one literal path relative
+to the originating file's directory (or the working directory for unnamed text).
+No file or parent is created by this input or destination discovery.
+
+| Token | Expansion |
+| --- | --- |
+| `%?` | First final cursor marker, removed from generated text. |
+| `%i` | Active origin region; the current line prefix repeats on later inserted lines. |
+| `%a`, `%l` | Checked origin file link, empty for an unnamed buffer. |
+| `%t`, `%T` | Captured civil date, or date/time, as an active Org timestamp. |
+| `%u`, `%U` | The same captured date/date-time as an inactive timestamp. |
+| `%n` | Explicitly supplied capture user name. |
+| `%c` | Most recent native kill text, empty when unavailable. |
+| `%x` | Explicitly supplied clipboard text; no external clipboard program runs. |
+| `%^{label\|default\|choice...}` | String prompt with optional initial value and choices shown by Tab. |
+| `%<FORMAT>` | Bounded civil formatting. |
+| `%%`, `\%` | Literal percent. |
+
+Formatting supports `Y m d e H M S F R T a A b h B u w j % n t` directives.
+Weekday/month names use English; timestamps use whole minutes. Unavailable zone
+or other directives fail explicitly. All time tokens use one snapshot captured
+at start, including after a prompt crosses midnight. String prompts use the
+ordinary single-line minibuffer limit. User/clipboard prompts ask once and
+reuse that supplied value; host data is never guessed or obtained by executing
+configuration. Inserted selection, kill text and answers remain opaque text.
+
+Admission preserves the configured template and rejects unknown, unterminated,
+function/Lisp and file-inclusion escapes before prompting or destination IO.
+Limits are 4096 tokens, 64 string/host prompts, 256 bytes per time format,
+256 KiB per supplied value and 1 MiB generated text. Work advances in 64-token
+quanta; waiting for human input or an idle draft adds no polling. Destination
+reads share the existing cancellable job slot and retain the bounded source
+observation separately from the editable draft.
+
+The draft's `Capture` status and `*Org Capture*` name identify a real transient
+text owner. Ordinary editing, selection, undo/redo, search and kill/yank work;
+`keys.org_capture` inherits editor bindings and can add local editing aliases.
+Save, write-file, mode changes and replacing/splitting its view reject while
+retaining the draft. Quit and buffer/window removal require abort first.
+`C-g` cancels template/file/expansion/discovery preparation; in an open draft it
+cancels the current ordinary interaction. `C-c C-k` / `org-capture-kill` discards
+the draft and returns to the originating pane. Shared canonical edits map its
+retained point and viewport before return. Abort leaves destination bytes,
+BOM, line endings, file association and source history unchanged.
+
+Reference: [template expansion](https://orgmode.org/manual/Template-expansion.html).

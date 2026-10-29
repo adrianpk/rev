@@ -87,6 +87,7 @@ fn filter_order() {
                 "kill-word",
                 "backward-kill-word",
                 "copy-rectangle-as-kill",
+                "org-capture-kill",
                 "save-buffers-kill-terminal",
             ],
         ),
