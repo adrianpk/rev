@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 33 capture-finalize
+Active slice: Slice 34 refile
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -786,11 +786,13 @@ Details and exact checks: [Slice 33](../plan/rev-org-mode.md#slice-33-finalize-o
 - [x] T33.1: Revalidate destinations and publish capture once through ordinary source/file safeguards.
 - [x] T33.2: Preserve a recoverable draft after stale, read-only, save or filesystem failure; abort leaves targets unchanged.
 - [x] T33.3: Verify file/heading/list/table/date-tree capture and failed publication with actual owned files.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #134](https://forge.adrianpk.com/adrianpk/rev/pulls/134) targets dev; the Slice 33 report is reviewing. T33.1 is `0cdd4a33a0f3`, T33.2 is `7396cdeaa1fa` and T33.3 is `85a4a9279e7c`. Checked publication, ordinary undo/format preservation, recoverable drafts, pinned unresolved-save retry and owned RGB/NO_COLOR save/rejection cases pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
-### Slice 34: refile Org subtrees across canonical documents
+PR #134 merged into dev at `29fa9bc4417f7a1f38757f6daab5b390adc21201`, verified against Forgejo and origin/dev. Required receipt `4GVVTFNMHYYD3XHTN5MKZ2FIGC` and focused receipt `DFIW4EIK5RW2ZKVQO4A6SLWQQP` passed 753 tests and six owned terminal sessions with zero failures or ignored tests. Slice 33 is delivered.
+
+## Slice 34: refile Org subtrees across canonical documents
 
 Contracts: ORG11 ORG02.
 Details and exact checks: [Slice 34](../plan/rev-org-mode.md#slice-34-refile-org-subtrees-across-canonical-documents).

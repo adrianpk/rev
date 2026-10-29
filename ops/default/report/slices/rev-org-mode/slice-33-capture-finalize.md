@@ -1,6 +1,6 @@
 # Slice 33: finalize or abort Org capture safely
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -114,3 +114,7 @@ An unresolved save retains actual published source and its draft; abort does
 not undo an already completed replacement. Changed source/draft pins require
 explicit inspection rather than automatic reinsertion. The delivery-set full
 gate remains controller-owned.
+
+## Integration
+
+Canonical [PR #134](https://forge.adrianpk.com/adrianpk/rev/pulls/134) merged into dev at `29fa9bc4417f7a1f38757f6daab5b390adc21201`, verified against Forgejo and origin/dev. Required receipt `4GVVTFNMHYYD3XHTN5MKZ2FIGC` passed five ordered commands and 208 tests. Focused receipt `DFIW4EIK5RW2ZKVQO4A6SLWQQP` passed 545 tests and six owned RGB/NO_COLOR terminal sessions. Zero failures or ignored tests. Acta readiness: `01M63CMYPHT1CGYKM7BD5CE14P`.
