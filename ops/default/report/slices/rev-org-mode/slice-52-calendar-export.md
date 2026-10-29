@@ -1,6 +1,6 @@
 # Slice 52: export Org planning data as iCalendar
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -84,6 +84,13 @@ Canonical PR: [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153).
 - `cargo test --test org_io calendar_`: thirteen calendar, independent-reader and guarded-publication workflows passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed with the completed workflow fixtures.
 - Changed-source quality passed with unchanged limits. The selected-scope assertion now checks SUMMARY separately from the protocol name VTODO, retaining the task-keyword suppression assertion and all source/view/history checks.
+
+Verified integration: canonical PR [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153)
+merged into `dev` at `ed455d3630328723e8f1cd002e43dd9fd0a08843`.
+Required exact-head receipt `FVWINGZQNWSKMB7IWS6MNKS4IT` passed all five
+ordered checks and 221 tests. Focused receipt `WNC26EXZKIFKQBZCKXTGL4XEZ2`
+passed 280 command/configuration tests, configuration references and two owned
+RGB/NO_COLOR sessions. Zero failures, ignored tests or skipped sessions.
 
 ## Risks and Follow-ups
 

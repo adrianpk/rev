@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 52 iCalendar
+Active slice: Slice 53 project publishing
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1066,13 +1066,13 @@ Details and exact checks: [Slice 52](../plan/rev-org-mode.md#slice-52-export-org
 - [x] T52.1: Deliver native iCalendar events/tasks with checked IDs, timestamps, time zones and recurrence conversion.
 - [x] T52.2: Preserve unsupported recurrence source and report conversion limits rather than inventing dates.
 - [x] T52.3: Verify independent calendar fixtures, line folding, escaping and stable refresh output.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T52.1 `b11351ded602a5a5ba0b465de6c23fb8d3ad4eea`, T52.2 `d144051b63bab6f993220fb470f9f66c1cbda9a4`, T52.3 `3a15ab3d7a2b752154e1ac5ff50068ad14d52fac`.
 
-Canonical PR: [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+Canonical PR: [#153](https://forge.adrianpk.com/adrianpk/rev/pulls/153); merged into `dev` at `ed455d3630328723e8f1cd002e43dd9fd0a08843`; report delivered. Required receipt `FVWINGZQNWSKMB7IWS6MNKS4IT` passed five checks and 221 tests; focused receipt `WNC26EXZKIFKQBZCKXTGL4XEZ2` passed 280 tests, configuration references and two owned terminal sessions. Zero failures, ignored tests or skipped sessions.
 
-### Slice 53: publish native Org document projects
+## Slice 53: publish native Org document projects
 
 Contracts: ORG26 ORG25.
 Details and exact checks: [Slice 53](../plan/rev-org-mode.md#slice-53-publish-native-org-document-projects).
