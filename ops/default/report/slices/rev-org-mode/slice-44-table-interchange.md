@@ -1,6 +1,6 @@
 # Slice 44: import and export Org table data
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -83,8 +83,12 @@ limits still apply. No new worker slot or resource ceiling is introduced.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: both owned RGB/NO_COLOR sessions passed, zero skipped. Existing canvas, byte, cleanup and resource assertions remain in place.
 - The initial new stale-view driver timed out because a split retains the selected pane. The driver now selects the actual peer during owned work; the original five-second deadline and source/history preservation assertions remain unchanged.
 
-Final exact-candidate ordered checks are recorded through the controller before
-handoff. Integration remains open until the controller verifies the canonical PR.
+Final candidate `009bdd6b5cde9894bc8ba158e398a1b4872c10e2` passed required
+receipt `WNCPD2FFP52735Z2N3ZRXQBNDK`: five ordered checks and 211 tests.
+Focused receipt `2Q7VDJ4I6P726SAKRZGHM54DDQ` passed 158 command tests and
+two owned terminal sessions. Final receipts have zero failures, ignored tests
+or skipped sessions. Canonical PR #145 merged into dev at that candidate,
+verified against Forgejo and origin/dev. Slice 44 is delivered.
 
 ## Risks and Follow-ups
 

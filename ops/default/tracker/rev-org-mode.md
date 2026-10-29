@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 44 table interchange
+Active slice: Slice 45 columns and dynamic blocks
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -949,12 +949,14 @@ Details and exact checks: [Slice 44](../plan/rev-org-mode.md#slice-44-import-and
 - [x] T44.1: Deliver bounded CSV/TSV import/export and list/table conversion through native commands.
 - [x] T44.2: Preserve quoting and representable cell values; reject embedded line breaks or unsupported transformations before mutation rather than inventing lossy escapes.
 - [x] T44.3: Verify actual file round trips and rejected malformed input without lossy recovery.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#145](https://forge.adrianpk.com/adrianpk/rev/pulls/145).
 Task commits: T44.1 `f9207a63c2fe94924dcdee632c4f886108c35840`, T44.2 `2ff48bf6f4eb649c09f7e09324b80aa8177cb92f`, T44.3 `bf2882b2a749ee353efdb3689bf61af90768bddf`.
 
-### Slice 45: display Org property columns and native reports
+Canonical PR #145 merged into dev at `009bdd6b5cde9894bc8ba158e398a1b4872c10e2`, verified against Forgejo and origin/dev. Required receipt `WNCPD2FFP52735Z2N3ZRXQBNDK` passed five ordered checks and 211 tests. Focused receipt `2Q7VDJ4I6P726SAKRZGHM54DDQ` passed 158 command tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions. Slice 44 is delivered.
+
+## Slice 45: display Org property columns and native reports
 
 Contracts: ORG21 ORG23 ORG27.
 Details and exact checks: [Slice 45](../plan/rev-org-mode.md#slice-45-display-org-property-columns-and-native-reports).
