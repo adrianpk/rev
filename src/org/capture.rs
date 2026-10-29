@@ -69,3 +69,8 @@ mod discovery;
 mod target;
 pub use discovery::{Discovery, Resolved};
 pub use target::{Container, PlannedHeading, Target};
+
+mod expansion;
+pub use expansion::{Context, DraftText, EXPANSION_BYTES, Expansion, Prompt, Step, VALUE_BYTES};
+mod origin;
+pub use origin::origin_link;

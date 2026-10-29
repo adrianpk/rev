@@ -769,7 +769,7 @@ PR #132 merged into dev at `f7fb5fbbea3c7df2fb4f3792f77f5a3db2d94222`, verified 
 Contracts: ORG10 ORG02.
 Details and exact checks: [Slice 32](../plan/rev-org-mode.md#slice-32-expand-and-edit-native-org-capture-drafts).
 
-- [ ] T32.1: Expand the declared bounded text substitutions, prompts and checked origin links without evaluating Lisp.
+- [x] T32.1: Expand the declared bounded text substitutions, prompts and checked origin links without evaluating Lisp.
 - [ ] T32.2: Retain the editable capture draft in its own transient owner with familiar context bindings.
 - [ ] T32.3: Verify malformed expansion, literal preservation, cancellation and return to the originating view.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
