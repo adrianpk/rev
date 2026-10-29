@@ -40,7 +40,7 @@ def journey(root, colored):
         current[2] += ' unsaved'
         send(session, PTY['paste_wire'](b' unsaved'), lambda f: exact(f, current))
         quiet(session)
-        project(session, b'Replace project output')
+        project(session, b'notes.html? yes/no:')
         frame = step(session, b'no\r', b'2/3 files complete')
         assert exact(frame, current)
         assert (work / 'site/notes.html').read_bytes() == b'previous'

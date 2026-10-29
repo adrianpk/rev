@@ -89,6 +89,11 @@ array type. The catalog checker now recognizes `Option<Vec<PublishProject>>` as
 an array, using the same strict leaf/default/type checks as other typed records.
 No configuration assertion or native acceptance condition was removed.
 
+The first physical run reached the correct replacement prompt, but the terminal
+clipped its long leading path/label at 80 columns. The driver now waits for the
+visible exact `notes.html? yes/no:` suffix, retaining the selected destination,
+replacement decision, output-byte, source and resource assertions.
+
 ## Risks and Follow-ups
 
 None recorded.
