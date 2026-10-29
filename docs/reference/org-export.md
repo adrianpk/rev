@@ -160,7 +160,7 @@ Unlabelled local raster links (PNG, JPEG, GIF, WebP or AVIF) become images.
 Local paths must be relative and cannot traverse parent directories. Absolute,
 ID, attachment, executable, unknown-scheme and file-search links remain literal
 with diagnostics. HTTP, HTTPS, FTP, mailto and news links retain encoded URLs.
-Internal named targets and exact unambiguous heading titles become local anchors.
+Internal named targets and `*Title` links to exact unambiguous headings become local anchors.
 `#id` links select an explicit HTML identifier.
 
 Affiliated NAME declares a named anchor, and CAPTION retains inline text on
@@ -173,3 +173,10 @@ Identifiers admit 1..256 ASCII letters, digits, hyphens, underscores, periods or
 colons and must be unique. Unsupported attributes, invalid values and duplicate
 identifiers reject the output. Raw HTML, style and event attributes are not
 inserted. Table contents retain all original cells without executing formulas.
+
+HTML uses LF output newlines while canonical source bytes remain unchanged.
+Header rows before the first table separator become column header cells. Ordered
+lists retain their first numeric marker, including after an unordered list.
+Missing local anchors reject publication; a selected scope cannot silently emit
+links to omitted source. Link descriptions use minimal inline context so that
+nested links or footnotes cannot create invalid nested HTML anchors.

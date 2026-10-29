@@ -57,13 +57,14 @@ impl Parser<'_> {
 
     fn item_ranges(&mut self, start: usize, end: usize) -> Parsed<Vec<Range<usize>>> {
         let indent = self.rows[start].indent;
+        let ordered = matches!(self.rows[start].token, Token::Bullet { ordered: true, .. });
         let mut items = Vec::new();
         let mut first = start;
         let mut row = start + 1;
         let mut blank = false;
         while row < end {
             self.work.tick()?;
-            if self.list_boundary(row, indent, blank) {
+            if self.list_boundary(row, indent, blank, ordered) {
                 break;
             }
             if self.rows[row].indent == indent
@@ -79,14 +80,19 @@ impl Parser<'_> {
         Ok(items)
     }
 
-    fn list_boundary(&self, row: usize, indent: usize, blank: bool) -> bool {
+    fn list_boundary(&self, row: usize, indent: usize, blank: bool, ordered: bool) -> bool {
         if matches!(self.rows[row].token, Token::Blank) {
             return blank;
         }
         if self.rows[row].indent > indent {
             return false;
         }
-        !matches!(self.rows[row].token, Token::Bullet { .. }) || self.rows[row].indent < indent
+        match self.rows[row].token {
+            Token::Bullet { ordered: next, .. } => {
+                self.rows[row].indent < indent || next != ordered
+            }
+            _ => true,
+        }
     }
 
     // Delimited element bodies do not participate in list indentation tests.

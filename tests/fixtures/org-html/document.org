@@ -1,0 +1,59 @@
+#+TITLE: Field & Notes
+#+AUTHOR: Example Writer
+#+EMAIL: writer@example.test
+#+DATE: 2026-01-02
+#+LANGUAGE: en
+#+OPTIONS: toc:t num:t
+#+MACRO: tool Notebook
+* TODO Overview [fn:n] :work:
+Unicode 界, *bold*, /emphasis/, _underline_, +old+ and ~code<&>~.
+The {{{tool}}} has [[https://example.test/a?x=1&y=2][a site]], [[*Details][details]], [[spot][an anchor]] and [[#picture][a picture]].
+A named note [fn:n] and an inline note [fn::Inline *body*].
+
+<<spot>>
+
+- first
+  - child
+- second
+
+3. one
+4. two
+
+#+NAME: records
+#+CAPTION: Recorded *totals*
+#+ATTR_HTML: :class striped :border 1
+| Name | Count |
+|------+-------|
+| Blue | 2 |
+| 界 | 3 |
+
+#+CAPTION: A local picture
+#+ATTR_HTML: :id picture :alt "Icon & mark" :width 320 :height 50%
+[[file:images/picture.png]]
+
+#+begin_quote
+Quoted *text*.
+#+end_quote
+
+#+CAPTION: Inert program
+#+ATTR_HTML: :class program
+#+begin_src sh
+touch marker
+<script>alert("source")</script>
+#+end_src
+
+#+begin_export html
+<script>alert("export")</script>
+#+end_export
+
+#+BEGIN: columnview
+| ITEM | EFFORT |
+|------+--------|
+| Recorded | 1:00 |
+#+END:
+
+* Details
+Raw <img src=x onerror=evil> stays text.
+[[javascript:alert(1)][unsafe]]
+
+[fn:n] Note with *meaning* and [[https://example.test/note][a resource]].

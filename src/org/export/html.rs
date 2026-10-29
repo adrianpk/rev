@@ -65,6 +65,7 @@ impl Html<'_> {
         Ok(())
     }
     fn text(&mut self, value: &str) -> Result<(), String> {
+        let value = value.replace("\r\n", "\n").replace('\r', "\n");
         for (i, c) in value.char_indices() {
             if i % 4096 == 0 {
                 document::check(self.cancel)?;
@@ -280,10 +281,37 @@ impl<'a> Document<'a> {
         depth: usize,
     ) -> Result<(), String> {
         let props = self.properties(html, id)?;
-        props.open(html, tag)?;
+        self.open_container(html, id, tag, &props)?;
         html.emit("\n")?;
         self.children(html, id, depth)?;
         html.emit(&format!("</{tag}>\n"))
+    }
+    fn open_container(
+        &self,
+        html: &mut Html<'_>,
+        id: usize,
+        tag: &str,
+        props: &Properties,
+    ) -> Result<(), String> {
+        props.admit(tag)?;
+        props.anchor(html)?;
+        let mut values = props.values.clone();
+        if tag == "ol" {
+            values.insert("start".into(), self.list_start(id)?);
+        }
+        html.open(tag, &values)
+    }
+    fn list_start(&self, id: usize) -> Result<String, String> {
+        let item = self.children[id]
+            .iter()
+            .find_map(|i| self.nodes[*i].opening.as_ref())
+            .ok_or("Ordered list has no item marker")?;
+        let marker = self.text.byte_slice(item.clone()).to_string();
+        let number = marker.trim().trim_end_matches(['.', ')']);
+        let start = number
+            .parse::<u64>()
+            .map_err(|_| "Ordered list start exceeds HTML integer range")?;
+        Ok(start.to_string())
     }
     fn heading(
         &self,

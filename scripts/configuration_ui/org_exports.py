@@ -2,6 +2,7 @@
 from .org_document import encoded, exact
 from .org_tasks import goto, named
 from .org_time import quiet
+from .html_document import parse
 from .support import (BINARY, PTY, close, completed, environment, finish,
                       send, snapshot, step, write)
 
@@ -35,6 +36,12 @@ def journey(root, colored):
         choose(session, 'org-export-to-markdown', 'output.md', b'Exported Org document')
         assert (source.parent / 'output.md').read_bytes() == MARKDOWN
         assert source.read_bytes() == encoded(LINES)
+        choose(session, 'org-export-to-html', 'output.html', b'Exported Org document')
+        html_bytes = (source.parent / 'output.html').read_bytes()
+        document = parse(html_bytes)
+        assert document.texts('h1') == ['Heading 界']
+        assert document.texts('p') == ['Body unsaved\nEOF']
+        assert source.read_bytes() == encoded(LINES)
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
         choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
@@ -51,6 +58,7 @@ def journey(root, colored):
             assert b'\x1b[38;2;' not in session.output and b'\x1b[48;2;' not in session.output
         finish(session, colored)
         before['work/output.md'] = MARKDOWN
+        before['work/output.html'] = html_bytes
         assert snapshot(root) == before
     finally:
         close(session)

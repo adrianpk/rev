@@ -9,8 +9,14 @@ impl Document<'_> {
         html.emit("</table>\n")
     }
     fn table_rows(&self, html: &mut Html<'_>, id: usize) -> Result<(), String> {
+        let header = self.children[id].iter().position(|row| {
+            matches!(
+                self.nodes[*row].kind,
+                StructureKind::TableRow { separator: true }
+            )
+        });
         let mut columns = None;
-        for row in &self.children[id] {
+        for (position, row) in self.children[id].iter().enumerate() {
             document::check(html.cancel)?;
             if !matches!(
                 self.nodes[*row].kind,
@@ -18,22 +24,40 @@ impl Document<'_> {
             ) {
                 continue;
             }
-            let cells = &self.children[*row];
-            if columns.is_some_and(|n| n != cells.len()) {
-                return Err("Ragged HTML table cannot invent cells".into());
-            }
-            columns = Some(cells.len());
-            html.emit("<tr>")?;
-            self.cells(html, cells)?;
-            html.emit("</tr>\n")?;
+            self.table_row(
+                html,
+                &self.children[*row],
+                &mut columns,
+                header.is_some_and(|end| position < end),
+            )?;
         }
         Ok(())
     }
-    fn cells(&self, html: &mut Html<'_>, cells: &[usize]) -> Result<(), String> {
+    fn table_row(
+        &self,
+        html: &mut Html<'_>,
+        cells: &[usize],
+        columns: &mut Option<usize>,
+        header: bool,
+    ) -> Result<(), String> {
+        if columns.is_some_and(|n| n != cells.len()) {
+            return Err("Ragged HTML table cannot invent cells".into());
+        }
+        *columns = Some(cells.len());
+        html.emit("<tr>")?;
+        self.cells(html, cells, header)?;
+        html.emit("</tr>\n")
+    }
+    fn cells(&self, html: &mut Html<'_>, cells: &[usize], header: bool) -> Result<(), String> {
+        let (open, close) = if header {
+            ("<th scope=\"col\">", "</th>")
+        } else {
+            ("<td>", "</td>")
+        };
         for cell in cells {
-            html.emit("<td>")?;
+            html.emit(open)?;
             self.inline(html, self.nodes[*cell].content.clone(), 0)?;
-            html.emit("</td>")?;
+            html.emit(close)?;
         }
         Ok(())
     }

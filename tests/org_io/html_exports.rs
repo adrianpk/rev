@@ -130,3 +130,115 @@ fn html_export_file() {
         "\u{feff}* Saved\r\nbody"
     );
 }
+
+// The standard-library HTML parser independently checks a representative complete
+// document, resolved local references, exact cell/metadata values and inert code.
+#[test]
+fn html_export_semantics() {
+    let f = Fixture::new();
+    let source = include_str!("../fixtures/org-html/document.org");
+    let result = html(source).unwrap();
+    let output = f.write("output.html", &result);
+    let check = std::process::Command::new("python3")
+        .args([
+            "scripts/configuration_ui/html_document.py",
+            output.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+// Invalid declarations, unresolved references and a finite output budget fail
+// before replacing a destination; cancellation owns no source or file effect.
+#[test]
+fn html_export_failure_bounds() {
+    for (name, source) in [
+        ("attribute", "#+ATTR_HTML: :onclick run\nText\n"),
+        ("target", "[[missing][label]]\n"),
+    ] {
+        let f = Fixture::new();
+        let path = f.write("source.org", source);
+        let output = f.write("output.html", "keep");
+        let mut session = host(&f, Some(&path), false);
+        action(&mut session, C::ExportHtml);
+        for value in ["buffer", "", "output.html"] {
+            argument(&mut session, value);
+        }
+        assert!(!session.echo().contains("Exported Org document"), "{name}");
+        assert_eq!(std::fs::read_to_string(output).unwrap(), "keep", "{name}");
+        assert_eq!(text(&session), source, "{name}");
+        assert_eq!(session.buffer().unwrap().history().len(), 0);
+    }
+    let f = Fixture::new();
+    let path = f.write("source.org", "* Heading\nbody\n");
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let mut policy = Org::default();
+    policy.limits.export_bytes = 100;
+    let request = Request {
+        backend: ExportBackend::Html,
+        scope: Scope::Buffer,
+        options: None,
+        time: clock(&policy.time).unwrap(),
+    };
+    let snapshot = Work::new(&buffers, id, request, &policy)
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    assert!(snapshot.render(&Cancellation::default()).is_err());
+    let cancel = Cancellation::default();
+    cancel.cancel();
+    assert!(snapshot.render(&cancel).is_err());
+}
+// Read-only native documents remain exportable, while subtree options normalize
+// levels and keep private metadata, TODO state and tags outside selected output.
+#[test]
+fn html_export_selected_readonly() {
+    let f = Fixture::new();
+    let source = "#+TITLE: Hidden\n* Parent\n** TODO Child :work:\nbody 界\n** Sibling\nkeep\n";
+    let path = f.write("source.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let view = View::new(buffers.get(id).unwrap());
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock);
+    session.execute(Command::GotoLine);
+    argument(&mut session, "3");
+    let view = session.view().clone();
+    action(&mut session, C::ExportHtml);
+    for value in [
+        "subtree",
+        "toc:nil num:nil title:nil author:nil todo:nil tags:nil",
+        "child.html",
+    ] {
+        argument(&mut session, value);
+    }
+    assert!(
+        session.echo().contains("Exported Org document"),
+        "{}",
+        session.echo()
+    );
+    let output = std::fs::read_to_string(f.0.join("child.html")).unwrap();
+    assert!(output.contains(">Child</h1>"));
+    assert!(output.contains("body 界"));
+    for hidden in ["Hidden", "Parent", "Sibling", "TODO", ":work:"] {
+        assert!(!output.contains(hidden), "{hidden}");
+    }
+    assert_eq!(text(&session), source);
+    assert_eq!(session.view(), &view);
+    assert_eq!(session.buffer().unwrap().history().len(), 0);
+    assert!(!session.buffer().unwrap().is_modified());
+}
