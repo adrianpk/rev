@@ -1,6 +1,6 @@
 # Slice 43: publish Org recalculation as one transaction
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -27,6 +27,12 @@ applies that program; table-body C-c C-c remains alignment. Ordinary table
 recalculation uses the first formula line. Cell/column selection evaluates only
 its transitive assigned dependencies and publishes only the selected outputs.
 Unselected dependency result fields and unrelated failing formulas remain intact.
+
+T43.3 extends the existing two owned terminal sessions with physical C-c *,
+named recalculation, successful results, unsupported/numeric failure preservation
+and complete undo/redo. Canonical native workflows verify BOM/CRLF/EOF saves,
+unrelated Unicode source, peer points, inactive marks, cancellation, stale
+source/view requests and rejected precise destinations.
 
 ## Implementation Notes
 
@@ -64,6 +70,8 @@ binding catalog and configuration reference describe the actual accepted leaves.
 - `docs/reference/org-tables.md`: explicit recalculation semantics.
 - `src/org/formula/eval/graph.rs`: selected dependency closure without recursive traversal.
 - `src/config.rs` and `src/config/`: typed numerical settings and source-owned projection.
+- `tests/org_tables/calculation_lifecycle.rs`: real file, shared-view and request guards.
+- `scripts/configuration_ui/org_tables.py`: existing RGB/NO_COLOR terminal journey.
 
 ## Validation
 
@@ -73,8 +81,10 @@ binding catalog and configuration reference describe the actual accepted leaves.
 - `cargo test --test org_tables --test commands -- recalculation visibility_keys`: seven native workflows passed for publication, selection, formula context, settings and compiled bindings; zero failed or ignored.
 - `cargo clippy --lib --test org_tables --test commands -- -D warnings`: passed; changed-source quality passed after moving formula-selection logic into its owner.
 - `python3 scripts/check-config-reference.py`: passed after updating the documented Org map to 71 entries; 160 schema/catalog entries and 250 default bindings agree with the packaged reference.
+- `cargo test --test org_tables -- calculation recalculation`: eight native workflows passed, zero failed or ignored.
+- `cargo clippy --lib --test org_tables -- -D warnings`: passed after lifecycle coverage; changed-source quality passed.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: two owned RGB/NO_COLOR sessions passed, zero skipped. Existing exact-canvas, persisted-byte, cleanup and resource assertions remain in place; no limits were increased.
 
 ## Risks and Follow-ups
 
-The owned terminal journey and source/worker lifecycle coverage remain the
-next recorded task in this slice.
+None recorded.

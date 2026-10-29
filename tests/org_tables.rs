@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "org_tables/calculation_lifecycle.rs"]
+mod calculation_lifecycle;
 #[path = "org_tables/diagnostics.rs"]
 mod diagnostics;
 #[path = "org_tables/edges.rs"]

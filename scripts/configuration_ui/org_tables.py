@@ -35,6 +35,7 @@ def journey(root, colored):
         send(session, b'\r', lambda f: exact(f, inserted))
         send(session, b'\x18u', lambda f: exact(f, aligned))
         structure(session, aligned)
+        recalculation(session, aligned)
         goto(session, 9)
         step(session, b'\x03|', b'Table size (columns x rows, default 5x2): ')
         created = aligned[:8] + ['|   |', '|---|'] + aligned[9:]
@@ -97,6 +98,7 @@ def structure(session, original):
                   '#+TBLFM: $1=$2+1']
     send(session, b'\x1b[1;3C', lambda f: exact(f, moved))
     send(session, b'\x18u', lambda f: exact(f, original))
+
     named(session, 'undo-redo', b'Org')
     session.wait(lambda: completed(session, lambda f: exact(f, moved)))
     send(session, b'\x1b[1;3D', lambda f: exact(f, original))
@@ -132,4 +134,38 @@ def structure(session, original):
     goto(session, 3)
     frame = step(session, b'\x1b[1;3C', b'reference rewriting')
     assert exact(frame, unsupported)
+    send(session, b'\x18u', lambda f: exact(f, original))
+
+
+def recalculation(session, original):
+    # The same owned sessions check explicit physical keys, named replay,
+    # exact source canvases and failure preservation without widening limits.
+    goto(session, 7)
+    blank = original.copy()
+    blank[6] = ''
+    send(session, b'\x01\x0b', lambda f: exact(f, blank))
+    draft = original.copy()
+    draft[6] = '#+TBLFM: $1=$2*2+1'
+    send(session, draft[6].encode(), lambda f: exact(f, draft))
+    calculated = draft.copy()
+    calculated[4] = draft[4].replace('界e\u0301', '5')
+    calculated[5] = draft[5].replace('Long', '23')
+    goto(session, 5)
+    send(session, b'\x03*', lambda f: exact(f, calculated))
+    send(session, b'\x18u', lambda f: exact(f, draft))
+    named(session, 'undo-redo', b'Org')
+    session.wait(lambda: completed(session, lambda f: exact(f, calculated)))
+    send(session, b'\x18u', lambda f: exact(f, draft))
+    for suffix, diagnostic in [('::@2$1=1/0', b'DivisionByZero'),
+                               ('::$1=sin($2)', b'Unsupported')]:
+        goto(session, 7)
+        step(session, b'\x05', b'L7 C19')
+        rejected = draft.copy()
+        rejected[6] += suffix
+        send(session, suffix.encode(), lambda f: exact(f, rejected))
+        goto(session, 5)
+        frame = named(session, 'org-table-recalculate', diagnostic)
+        assert exact(frame, rejected)
+        send(session, b'\x18u', lambda f: exact(f, draft))
+    send(session, b'\x18u', lambda f: exact(f, blank))
     send(session, b'\x18u', lambda f: exact(f, original))

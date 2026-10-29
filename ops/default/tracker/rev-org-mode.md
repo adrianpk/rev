@@ -933,7 +933,7 @@ Details and exact checks: [Slice 43](../plan/rev-org-mode.md#slice-43-publish-or
 
 - [x] T43.1: Prepare all admitted results before applying the selected recalculation as one checked history unit.
 - [x] T43.2: Expose table/cell/column recalculation through contextual commands and M-x without implicit evaluation.
-- [ ] T43.3: Exercise success, unsupported formulas, failure preservation and undo in the owned table journey.
+- [x] T43.3: Exercise success, unsupported formulas, failure preservation and undo in the owned table journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 44: import and export Org table data
