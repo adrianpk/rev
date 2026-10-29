@@ -43,7 +43,7 @@ impl Snapshot {
         Ok(Plan {
             edits,
             retained,
-            cursor,
+            cursor: Some(cursor),
         })
     }
     pub(super) fn retained(
@@ -99,7 +99,7 @@ impl Snapshot {
         }
         Ok(Plan {
             edits: self.table_replacement(table.source.clone(), String::new(), false)?,
-            cursor: Scalar(self.text.byte_to_char(table.source.start)),
+            cursor: Some(Scalar(self.text.byte_to_char(table.source.start))),
             retained: Vec::new(),
         })
     }

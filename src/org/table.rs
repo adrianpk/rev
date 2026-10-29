@@ -1,6 +1,7 @@
 //! Native table plans retain original cell source. Only the canonical buffer
 //! transaction can publish edits or grant history and view authority.
 mod action;
+mod calculate;
 mod edit;
 mod layout;
 mod observe;
@@ -38,7 +39,7 @@ pub(crate) enum Output {
 }
 pub(crate) struct Plan {
     pub edits: Vec<Replacement>,
-    pub cursor: Scalar,
+    pub cursor: Option<Scalar>,
     pub retained: Vec<Retained>,
 }
 struct Table {
@@ -128,6 +129,9 @@ impl Snapshot {
         if table.split_line(command, self.point) {
             return Ok(Output::Fallback);
         }
+        if command == C::TableRecalculate {
+            return self.recalculate(&table, cancel).map(Output::Plan);
+        }
         let command = edit::command(command);
         if edit::structural(command) {
             return self.edit_table(table, command, argument, cancel);
@@ -174,7 +178,7 @@ impl Snapshot {
         self.gap(&mut edits, source..table.source.end, &layout.text[output..])?;
         Ok(Plan {
             edits,
-            cursor,
+            cursor: Some(cursor),
             retained: Vec::new(),
         })
     }

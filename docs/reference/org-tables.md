@@ -4,6 +4,7 @@
 | --- | --- |
 | `org-table-create` | Enter columns x rows, for example `2x3`; blank input uses `5x2`. Create on a blank line with a separator after the first data row. |
 | `org-table-align` | Align the selected native table while retaining the original cell text. |
+| `org-table-recalculate` | Apply the first stored `TBLFM` to the selected table as one checked undo unit. |
 | `org-table-next-field` / `org-table-previous-field` | Align, then visit the next/previous field, skipping separators. Next field appends a row when needed. |
 | `org-table-next-row` | Align, then visit the same column in the next row, inserting before a separator or at the end when needed. At line boundaries, insert an ordinary newline. |
 | `org-table-beginning-of-field` / `org-table-end-of-field` | Align and visit the current field's beginning/end. |
@@ -137,3 +138,12 @@ Cycles, invalid references, division by zero, non-finite input/results and
 exhausted limits reject the entire private result set. Evaluation does not edit
 canonical source or create history; recalculation publication is a separate
 transaction layer.
+
+Explicit recalculation publishes changed result fields only, preserving formula
+text, unrelated values, padding and separators. Every destination must be an
+existing source field. A ragged missing input still counts as zero; a missing
+output field rejects the complete operation. The operation rechecks the captured
+source and initiating view, uses ordinary point/mark affinity, honors read-only
+authority and adds no history for identical results. One undo restores all prior
+result fields; redo restores the checked calculation. Opening, saving, coloring,
+alignment and navigation do not evaluate stored formulas.

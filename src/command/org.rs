@@ -190,9 +190,10 @@ pub enum OrgCommand {
     TableSort,
     ListToTable,
     TableToList,
+    TableRecalculate,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 188] = [
+    pub const ALL: [Self; 189] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -381,6 +382,7 @@ impl OrgCommand {
         Self::TableSort,
         Self::ListToTable,
         Self::TableToList,
+        Self::TableRecalculate,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -572,6 +574,7 @@ impl OrgCommand {
             "org-table-sort-lines",
             "org-list-to-table",
             "org-table-to-list",
+            "org-table-recalculate",
         ][self as usize]
     }
 
@@ -867,6 +870,7 @@ impl OrgCommand {
                 | Self::TableSort
                 | Self::ListToTable
                 | Self::TableToList
+                | Self::TableRecalculate
         )
     }
 }

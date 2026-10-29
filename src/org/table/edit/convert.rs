@@ -145,7 +145,7 @@ impl Snapshot {
         let retained = self.retained(&output, table.source.start, anchors);
         Ok(Plan {
             edits: self.table_replacement(table.source, output, false)?,
-            cursor: Scalar(cursor),
+            cursor: Some(Scalar(cursor)),
             retained,
         })
     }

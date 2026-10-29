@@ -112,24 +112,26 @@ impl Session {
     }
     fn publish_table(&mut self, plan: Plan) -> Result<(), String> {
         if plan.edits.is_empty() {
-            let buffer = self.buffer().map_err(|e| e.to_string())?;
-            let point = crate::buffer::edit::Point {
-                stamp: buffer.stamp(),
-                position: plan.cursor,
-            };
-            self.place_point(point).map_err(|e| e.to_string())?;
+            if let Some(position) = plan.cursor {
+                let buffer = self.buffer().map_err(|e| e.to_string())?;
+                let point = crate::buffer::edit::Point {
+                    stamp: buffer.stamp(),
+                    position,
+                };
+                self.place_point(point).map_err(|e| e.to_string())?;
+            }
         } else {
             let buffer = self
                 .buffers
                 .get_mut(self.windows.selected().point.stamp.buffer)
                 .map_err(|e| e.to_string())?;
             let points = self.windows.points(buffer).map_err(|e| e.to_string())?;
-            let cursor = crate::buffer::edit::Cursor {
+            let cursor = plan.cursor.map(|position| crate::buffer::edit::Cursor {
                 index: points.initiator,
-                position: plan.cursor,
-            };
+                position,
+            });
             let mut prepared = buffer
-                .prepare_retained(&plan.edits, &points.values, Some(cursor), &plan.retained)
+                .prepare_retained(&plan.edits, &points.values, cursor, &plan.retained)
                 .map_err(|e| e.to_string())?;
             prepared.set_origin(self.windows.selected_id());
             self.windows

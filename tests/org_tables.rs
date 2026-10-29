@@ -15,6 +15,8 @@ mod fixture;
 mod lifecycle;
 #[path = "org_tables/metadata.rs"]
 mod metadata;
+#[path = "org_tables/recalculation.rs"]
+mod recalculation;
 #[path = "org_tables/references.rs"]
 mod references;
 #[path = "org_tables/structure.rs"]
