@@ -887,7 +887,7 @@ Contracts: ORG12 ORG14.
 Details and exact checks: [Slice 40](../plan/rev-org-mode.md#slice-40-edit-org-table-rows-columns-and-references).
 
 - [x] T40.1: Deliver row/column insert/delete/move, sorting and list/table conversion with checked ownership.
-- [ ] T40.2: Rewrite only supported formula references and reject ambiguous transformations before source mutation.
+- [x] T40.2: Rewrite only supported formula references and reject ambiguous transformations before source mutation.
 - [ ] T40.3: Verify cell value fidelity, separator boundaries and full structural undo/redo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

@@ -4,6 +4,7 @@ mod action;
 mod edit;
 mod layout;
 mod observe;
+mod references;
 
 use super::{Cancellation, Coverage, Limits, Source, StructureKind as K, structure};
 use crate::{
@@ -44,9 +45,11 @@ struct Table {
     source: Range<usize>,
     rows: Vec<Row>,
     columns: usize,
-    formulas: bool,
+    formulas: Vec<Range<usize>>,
+    column_order: Vec<Option<usize>>,
 }
 struct Row {
+    old_row: Option<usize>,
     source: Range<usize>,
     body: Range<usize>,
     indent: String,

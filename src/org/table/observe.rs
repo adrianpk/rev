@@ -21,7 +21,8 @@ impl Table {
             source: node.content.clone(),
             rows: Vec::new(),
             columns: 0,
-            formulas: false,
+            formulas: Vec::new(),
+            column_order: Vec::new(),
         };
         let mut rows = BTreeMap::new();
         for (index, node) in nodes.iter().enumerate() {
@@ -29,6 +30,7 @@ impl Table {
             table.node(text, node, (id, index), &mut rows)?;
         }
         table.finish()?;
+        table.identify();
         Ok(Some(table))
     }
     fn node(
@@ -44,7 +46,9 @@ impl Table {
                 self.rows
                     .push(Row::new(text, node.source.clone(), separator)?);
             }
-            self.formulas |= node.kind == K::TableFormula;
+            if node.kind == K::TableFormula {
+                self.formulas.push(node.content.clone());
+            }
         }
         if node.kind == K::TableCell
             && let Some(row) = node.parent.and_then(|p| rows.get(&p))
@@ -55,6 +59,14 @@ impl Table {
             });
         }
         Ok(())
+    }
+    fn identify(&mut self) {
+        self.column_order = (1..=self.columns).map(Some).collect();
+        let mut number = 0;
+        for row in self.rows.iter_mut().filter(|r| !r.separator) {
+            number += 1;
+            row.old_row = Some(number);
+        }
     }
     pub(super) fn finish(&mut self) -> Result<(), String> {
         self.columns = self
@@ -131,6 +143,7 @@ impl Row {
             return Err("Malformed table separator; source unchanged".into());
         }
         Ok(Self {
+            old_row: None,
             body: source.start..source.start + body.len(),
             indent: body[..pipe].into(),
             ending: line[body.len()..].into(),

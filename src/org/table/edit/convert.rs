@@ -24,7 +24,8 @@ impl Snapshot {
             source: first..end,
             rows,
             columns: 1,
-            formulas: false,
+            formulas: Vec::new(),
+            column_order: Vec::new(),
         };
         table.finish()?;
         let mut layout = self.layout(&table, cancel)?;
@@ -94,6 +95,7 @@ impl Snapshot {
             .take_while(|c| matches!(c, ' ' | '\t'))
             .collect();
         Ok(Row {
+            old_row: None,
             source: item.source.start..tail,
             body: item.source.start..end,
             indent,
@@ -107,6 +109,11 @@ impl Snapshot {
         })
     }
     pub(super) fn table_list(&self, table: Table, cancel: &Cancellation) -> Result<Plan, String> {
+        if !table.formulas.is_empty() {
+            return Err(
+                "Conversion with stored formula source is unsupported; source unchanged".into(),
+            );
+        }
         if table.columns != 1 || table.rows.iter().any(|r| r.separator) {
             return Err(
                 "Table-to-list requires one column without separators; source unchanged".into(),
@@ -137,7 +144,7 @@ impl Snapshot {
         }
         let retained = self.retained(&output, table.source.start, anchors);
         Ok(Plan {
-            edits: self.table_replacement(table.source, output)?,
+            edits: self.table_replacement(table.source, output, false)?,
             cursor: Scalar(cursor),
             retained,
         })

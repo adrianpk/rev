@@ -38,9 +38,8 @@ remain complete grapheme boundaries. Ordinary text remains editable when a struc
 
 [The Org table editor](https://orgmode.org/manual/Built_002din-Table-Editor.html)
 defines the compatible delimiter, field-motion and separator forms. Names,
-captions and formula source remain associated with the table. Row insertion in a
-table with stored formulas rejects before publication because it requires checked
-reference rewriting. Alignment and navigation never evaluate formulas.
+captions and formula source remain associated with the table. Alignment and
+navigation never evaluate formulas.
 
 Row and column structure commands are available through M-x. In a table,
 M-Up/M-Down move the current row (including separators), and M-Left/M-Right
@@ -68,3 +67,21 @@ Shared points and marks inside moved cell text follow the retained source.
 The canonical buffer owner verifies the original identity, candidate bytes and
 disjoint retained ranges before publication; a proposed anchor cannot grant
 mutation authority. Other positions use normal checked edit affinity.
+
+Structural edits rewrite supported absolute `TBLFM` assignment targets and
+operands: `$N`, `@N`, `@N$M`, and same-form inclusive ranges. Data row numbers
+ignore separators. Changed coordinates follow the original logical row/column;
+unchanged coordinate spelling and all other formula bytes remain intact. A range
+must retain every original target consecutively and in order. Inserting through
+or reordering within a range rejects, even if its endpoints still exist.
+
+Checked rewrites admit finite numeric literals, arithmetic `+ - * / ^`,
+parentheses, and `sum`, `mean`, `min`, `max`, `round`, `vsum`, `vmean`, `vmin`,
+`vmax` calls, with `::` separating assignments. They do not evaluate formulas.
+Relative/current, named, hline, remote, Lisp, Calc-specific or malformed forms
+reject structural editing before any source mutation. Removed/out-of-table
+reference targets reject instead of losing formula source. Removing a whole
+formula-bearing table or converting it to a list also rejects. Alignment and
+ordinary field navigation preserve unsupported formula source unchanged.
+Reference scans retain the table source limit and admit at most 100000 tokens
+and 64 parenthesis levels under the same cancellation/deadline checks.

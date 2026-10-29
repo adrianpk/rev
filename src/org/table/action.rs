@@ -6,11 +6,17 @@ impl Snapshot {
         command: C,
         cancel: &Cancellation,
     ) -> Result<Plan, String> {
+        let dimensions = table.dimensions();
+        let rows = table.rows.len();
         let position = table.position(&self.text, self.point);
         let target = table.destination(position, command, self.newline)?;
         table.finish()?;
         let layout = self.layout(&table, cancel)?;
-        self.plan(&table, layout, target)
+        let mut plan = self.plan(&table, layout, target)?;
+        if table.rows.len() != rows {
+            self.rewrite(&table, dimensions, &mut plan, cancel)?;
+        }
+        Ok(plan)
     }
     pub(super) fn create(
         &self,
@@ -79,7 +85,8 @@ impl Snapshot {
             source,
             rows: Vec::new(),
             columns,
-            formulas: false,
+            formulas: Vec::new(),
+            column_order: Vec::new(),
         };
         for row in 0..rows {
             check(cancel)?;
@@ -187,12 +194,6 @@ impl Table {
         column: usize,
         newline: &str,
     ) -> Result<Position, String> {
-        if self.formulas {
-            return Err(
-                "Row insertion requires checked formula reference rewriting; source unchanged"
-                    .into(),
-            );
-        }
         if self.rows.len() >= ROWS || (self.rows.len() + 1) * self.columns > CELLS {
             return Err("Table insertion exceeds native row/cell limits".into());
         }
@@ -214,6 +215,7 @@ impl Table {
 impl Row {
     fn empty(at: usize, indent: &str, ending: &str, separator: bool, columns: usize) -> Self {
         Self {
+            old_row: None,
             source: at..at,
             body: at..at,
             indent: indent.into(),

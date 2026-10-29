@@ -1,7 +1,7 @@
 use super::*;
 use rev::command::{RegionCommand, Split, WindowCommand};
 
-fn roundtrip(s: &mut Session, source: &str, expected: &str) {
+pub(super) fn roundtrip(s: &mut Session, source: &str, expected: &str) {
     assert_eq!(text(s), expected, "{}", s.echo());
     assert_eq!(s.buffer().unwrap().history().len(), 1);
     s.execute(Command::History(History::Undo));

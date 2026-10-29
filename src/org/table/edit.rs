@@ -36,12 +36,7 @@ impl Snapshot {
         argument: Option<String>,
         cancel: &Cancellation,
     ) -> Result<Output, String> {
-        if table.formulas {
-            return Err(
-                "Structural edit requires checked formula reference rewriting; source unchanged"
-                    .into(),
-            );
-        }
+        let dimensions = table.dimensions();
         if command == C::TableToList {
             return self.table_list(table, cancel).map(Output::Plan);
         }
@@ -56,13 +51,27 @@ impl Snapshot {
         } else {
             table.edit(&mut at, command, cancel)?;
         }
-        if table.rows.is_empty() {
-            return self.empty_plan(&table).map(Output::Plan);
+        if let Some(last) = table.rows.last_mut() {
+            last.ending = ending;
         }
-        table.rows.last_mut().expect("nonempty table").ending = ending;
+        self.finish_edit(table, at, dimensions, cancel)
+            .map(Output::Plan)
+    }
+    fn finish_edit(
+        &self,
+        mut table: Table,
+        at: Position,
+        dimensions: (usize, usize),
+        cancel: &Cancellation,
+    ) -> Result<Plan, String> {
+        if table.rows.is_empty() {
+            return self.empty_plan(&table);
+        }
         table.finish()?;
         let layout = self.layout(&table, cancel)?;
-        self.structural_plan(&table, layout, at).map(Output::Plan)
+        let mut plan = self.structural_plan(&table, layout, at)?;
+        self.rewrite(&table, dimensions, &mut plan, cancel)?;
+        Ok(plan)
     }
 }
 impl Table {
@@ -104,9 +113,15 @@ impl Table {
             }
         }
         match command {
-            C::TableDeleteColumn => self.columns -= 1,
-            C::TableInsertColumn => self.columns += 1,
-            _ => (),
+            C::TableDeleteColumn => {
+                self.columns -= 1;
+                self.column_order.remove(at.column);
+            }
+            C::TableInsertColumn => {
+                self.columns += 1;
+                self.column_order.insert(at.column, None);
+            }
+            _ => self.column_order.swap(at.column, next),
         }
         at.column = next.min(self.columns - 1);
         if at.prefix {

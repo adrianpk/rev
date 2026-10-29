@@ -38,7 +38,8 @@ impl Snapshot {
             }
         }
         let retained = self.retained(&layout.text, table.source.start, anchors);
-        let edits = self.table_replacement(table.source.clone(), layout.text)?;
+        let force = retained.iter().any(|r| r.source.range != r.output);
+        let edits = self.table_replacement(table.source.clone(), layout.text, force)?;
         Ok(Plan {
             edits,
             retained,
@@ -75,14 +76,29 @@ impl Snapshot {
         &self,
         source: Range<usize>,
         value: String,
+        force: bool,
     ) -> Result<Vec<Replacement>, String> {
+        if force {
+            return Ok(vec![Replacement {
+                source: Span {
+                    stamp: self.stamp,
+                    range: self.text.byte_to_char(source.start)..self.text.byte_to_char(source.end),
+                },
+                text: value,
+            }]);
+        }
         let mut edits = Vec::new();
         self.gap(&mut edits, source, &value)?;
         Ok(edits)
     }
     pub(in crate::org::table) fn empty_plan(&self, table: &Table) -> Result<Plan, String> {
+        if !table.formulas.is_empty() {
+            return Err(
+                "Cannot remove a table with stored formula source; source unchanged".into(),
+            );
+        }
         Ok(Plan {
-            edits: self.table_replacement(table.source.clone(), String::new())?,
+            edits: self.table_replacement(table.source.clone(), String::new(), false)?,
             cursor: Scalar(self.text.byte_to_char(table.source.start)),
             retained: Vec::new(),
         })
