@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 37 attachments
+Active slice: Slice 38 document conveniences
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -848,9 +848,11 @@ Canonical PR: [#138](https://forge.adrianpk.com/adrianpk/rev/pulls/138).
 - [x] T37.1: Deliver ID/DIR attachment locations, linking, copy/move/list/open and reviewed dispatcher controls.
 - [x] T37.2: Recheck real paths and collisions and retain operation evidence across partial file/source failure.
 - [x] T37.3: Verify directory traversal, symlinks, unreadable files and that visiting a heading performs no attachment IO.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-### Slice 38: edit native Org footnotes and inline content
+Canonical PR #138 merged into dev at `c568a14d90d932eb58918666798bfaaa796df0ac`, verified against Forgejo and origin/dev. Required receipt `E3W242KXPLDXVGEULP7P7ZV7RT` passed five ordered checks and 252 tests. Focused receipt `G7VP3AJIZRUYE3RYOSUOL3R6CA` passed 340 tests and six owned terminal sessions. Zero failures, ignored tests or skipped sessions. Slice 37 is delivered.
+
+## Slice 38: edit native Org footnotes and inline content
 
 Contracts: ORG27 ORG30 ORG02.
 Details and exact checks: [Slice 38](../plan/rev-org-mode.md#slice-38-edit-native-org-footnotes-and-inline-content).

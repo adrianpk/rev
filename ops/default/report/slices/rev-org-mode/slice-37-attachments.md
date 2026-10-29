@@ -1,6 +1,6 @@
 # Slice 37: manage native Org heading attachments
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -134,3 +134,7 @@ Final preparation corrections:
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.
+
+## Integration
+
+Canonical PR #138 merged into dev at `c568a14d90d932eb58918666798bfaaa796df0ac`, verified against Forgejo and origin/dev. Required receipt `E3W242KXPLDXVGEULP7P7ZV7RT` passed the five ordered checks and 252 tests. Focused receipt `G7VP3AJIZRUYE3RYOSUOL3R6CA` passed 340 tests and six owned terminal sessions. No failures, ignored tests or skipped sessions. Slice 37 of 64 is delivered.
