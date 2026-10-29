@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 34 refile
+Active slice: Slice 35 archive
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -800,11 +800,13 @@ Details and exact checks: [Slice 34](../plan/rev-org-mode.md#slice-34-refile-org
 - [x] T34.1: Prepare cross-buffer subtree moves and destination insertion as one checked semantic operation.
 - [x] T34.2: Keep source/destination revisions, history groups and durable-save outcomes explicit and recoverable.
 - [x] T34.3: Verify duplicate/stale targets, read-only buffers, external file replacement and partial publication truth.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #135](https://forge.adrianpk.com/adrianpk/rev/pulls/135) targets dev; the Slice 34 report is reviewing. T34.1 is `f907554f0469`, T34.2 is `c01a962955ec` and T34.3 is `806728b058be`. Checked refile/copy, coherent canonical publication, shared positions, stale/duplicate/read-only targets, per-file save recovery and owned RGB/NO_COLOR workflows pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
-### Slice 35: archive Org subtrees without silent loss
+PR #135 merged into dev at `eae5238f770073727d2c543958713f331cd635f0`, verified against Forgejo and origin/dev. Required receipt `ZNK2FZH7WA6P7KTOVUE7DA2XZE` and focused receipt `XPBAA7HO6WQSNHHYSCJ2T4WQWJ` passed 739 tests and six owned terminal sessions with zero failures or ignored tests. Slice 34 is delivered.
+
+## Slice 35: archive Org subtrees without silent loss
 
 Contracts: ORG11 ORG09.
 Details and exact checks: [Slice 35](../plan/rev-org-mode.md#slice-35-archive-org-subtrees-without-silent-loss).

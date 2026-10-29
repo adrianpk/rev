@@ -1,6 +1,6 @@
 # Slice 34: refile Org subtrees across canonical documents
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -115,3 +115,7 @@ Refiling leaves independently modified buffers. Each durable file save has its
 own outcome; canonical source, undo history and ordinary save/close guards remain
 available after partial saving. No atomic multi-file disk success is claimed.
 The delivery-set gate remains controller-owned.
+
+## Integration
+
+Canonical PR #135 merged into dev at `eae5238f770073727d2c543958713f331cd635f0`, verified against Forgejo and origin/dev. Required receipt `ZNK2FZH7WA6P7KTOVUE7DA2XZE` passed five ordered commands and 349 tests. Focused receipt `XPBAA7HO6WQSNHHYSCJ2T4WQWJ` passed 390 tests and six owned RGB/NO_COLOR terminal sessions. Zero failures or ignored tests.
