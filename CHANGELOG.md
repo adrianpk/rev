@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Store, insert, edit and follow native Org links with familiar commands. Visit checked internal targets, headings, IDs, local files and attachments, preserve descriptions and source bytes, and return through recorded source positions. Link insertion uses ordinary undo; missing or ambiguous destinations retain the editing state.
+- Store, insert, edit and follow native Org links with familiar commands. Visit checked internal targets, headings, IDs, local files and attachments, preserve descriptions and source bytes, and return through recorded source positions. Link insertion uses ordinary undo; missing or ambiguous destinations retain the editing state. Explicitly confirmed external links use configured viewer arguments, bounded output and time, and owned process cleanup.
 
 - Archive Org subtrees in place with the ARCHIVE tag, below an Archive sibling, or in a checked archive file. External archives retain the origin file, outline path and task context. Select archive files explicitly for agenda views, and use `org.agenda.include_archived` to include tagged trees. Archive moves preserve ordinary undo history and report each file's save separately through `org-archive-results`.
 

@@ -28,6 +28,7 @@ pub(super) struct Work {
 
 enum Observation {
     Links(Result<crate::org::links::Output, String>),
+    LinkViewer(Result<crate::org::io::process::Outcome, String>),
     LinkNavigation(Result<crate::org::links::Navigation, String>),
     RefileTargets(Result<crate::org::refile::Targets, String>),
     RefilePlan(Result<crate::org::refile::Plan, String>),

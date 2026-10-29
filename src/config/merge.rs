@@ -101,6 +101,11 @@ impl Document {
             &mut self.org.attachments.directory,
             &later.org.attachments.directory,
         );
+        merge.leaf(
+            &["org", "tools", "viewer"],
+            &mut self.org.tools.viewer,
+            &later.org.tools.viewer,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
@@ -748,6 +753,11 @@ impl Merge {
         base: &mut super::PartialOrgLimits,
         later: &super::PartialOrgLimits,
     ) {
+        self.leaf(
+            &["org", "limits", "job_output_bytes"],
+            &mut base.job_output_bytes,
+            &later.job_output_bytes,
+        );
         self.leaf(
             &["org", "limits", "agenda_rows"],
             &mut base.agenda_rows,

@@ -24,6 +24,11 @@ Percent-decoded UTF-8 paths remain literal data. Insertion uses ordinary checked
 history, shared-view mapping and a post-insertion cursor; storing/navigation do
 not change source text. Read-only buffers remain navigable.
 
+T36.2 adds an explicit yes/no confirmation for configured external viewer argv.
+The source point/revision and actual local resource are checked again before
+launch; no recognition or startup action executes a viewer. Missing tools,
+nonzero status, output overflow, timeout and cancellation remain observable.
+
 ## Implementation Notes
 
 The existing byte-level inline recognizer now supplies pure objects separately
@@ -38,6 +43,17 @@ following uses selected DIR/ID data and the native data-directory default, with
 canonical containment checks and no folder creation. The existing single Org
 worker owns observation and resolution; bounded prompt state owns insertion.
 The session retains 32 stored links and 64 revision-qualified return points.
+
+The shared Unix child-lifetime primitive creates one owned process group, uses
+nonblocking stdout/stderr with a combined byte cap, and kills the group/reaps the
+direct child before releasing its worker. A completed leader cannot leave owned
+descendants retaining output streams. This is lifetime ownership, not a sandbox
+or a hard deadline for blocked kernel IO. Viewer data is literal argv with one
+resource token; stdin is closed and the source directory is the working directory.
+
+## Task Commits
+
+- T36.1: `227706a4d09c195344cf0386a92927f2669f84ad`.
 
 ## Contracts Added or Changed
 
@@ -58,12 +74,18 @@ The session retains 32 stored links and 64 revision-qualified return points.
   including dedicated/named/heading/custom-ID targets, file/ID/attachment visits,
   encoded paths, checked return points and stored insertion with undo.
 - `cargo clippy --lib --test org_io -- -D warnings`: passed.
-- `python3 scripts/check-config-reference.py`: 153 schema/catalog leaves,
-  54 RGB roles, 240 bindings and 18982 exact packaged bytes agree.
+- `python3 scripts/check-config-reference.py`: 155 schema/catalog leaves,
+  54 RGB roles, 240 bindings and 19152 exact packaged bytes agree.
+- `cargo test --lib process_ -- --nocapture`: three real-program tests pass for
+  exact/overflow output, missing programs, status, timeout/cancel, direct-child
+  reaping and descendants retaining output streams.
+- `cargo test --test org_io --test configuration links -- --nocapture`: seven
+  tests pass for native visits/insertion, literal argv/working directory,
+  confirmation/no/C-g, media/native overrides and typed viewer configuration.
+- `cargo clippy --lib --test org_io --test configuration -- -D warnings`: passed.
 - Changed-source quality passes at unchanged parameter, nesting and complexity limits.
 
 ## Risks and Follow-ups
 
-T36.2 supplies explicit external-resource dispatch and the shared owned-child
-lifetime. T36.3 extends ambiguity, read-only, stale-source and failure coverage.
+T36.3 extends ambiguity, read-only, stale-source and failure coverage.
 The full delivery-set gate remains controller-owned.

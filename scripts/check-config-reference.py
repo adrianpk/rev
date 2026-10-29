@@ -41,6 +41,7 @@ TABLES = {
     "org.refile":"PartialRefile",
     "org.archive":"PartialArchive",
     "org.attachments":"PartialAttachments",
+    "org.tools":"PartialTools",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",

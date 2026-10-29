@@ -136,6 +136,7 @@ pub struct Org {
     pub refile: Refile,
     pub archive: Archive,
     pub attachments: Attachments,
+    pub tools: Tools,
     pub limits: OrgLimits,
 }
 
@@ -157,6 +158,7 @@ impl Default for Org {
             refile: Refile::default(),
             archive: Archive::default(),
             attachments: Attachments::default(),
+            tools: Tools::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -180,6 +182,7 @@ pub struct PartialOrg {
     pub refile: PartialRefile,
     pub archive: PartialArchive,
     pub attachments: PartialAttachments,
+    pub tools: PartialTools,
     pub limits: PartialOrgLimits,
 }
 
@@ -810,6 +813,7 @@ pub struct OrgLimits {
     pub agenda_file_bytes: usize,
     pub agenda_total_bytes: usize,
     pub job_seconds: usize,
+    pub job_output_bytes: usize,
 }
 impl Default for OrgLimits {
     fn default() -> Self {
@@ -821,6 +825,7 @@ impl Default for OrgLimits {
             agenda_file_bytes: 8388608,
             agenda_total_bytes: 67108864,
             job_seconds: 30,
+            job_output_bytes: 1048576,
         }
     }
 }
@@ -834,6 +839,7 @@ pub struct PartialOrgLimits {
     pub agenda_file_bytes: Option<i64>,
     pub agenda_total_bytes: Option<i64>,
     pub job_seconds: Option<i64>,
+    pub job_output_bytes: Option<i64>,
 }
 
 /// Capture arrays replace by leaf; empty arrays select the native Task fallback.
@@ -893,4 +899,14 @@ impl Default for Attachments {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialAttachments {
     pub directory: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Tools {
+    pub viewer: Vec<String>,
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialTools {
+    pub viewer: Option<Vec<String>>,
 }

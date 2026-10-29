@@ -108,6 +108,9 @@ week_start = 1 # 1=Monday through 7=Sunday.
 templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
+[org.tools]
+viewer = [] # Explicit argv; {target} substitutes one token, otherwise appended.
+
 [org.attachments]
 directory = "data"
 
@@ -127,6 +130,7 @@ agenda_files = 512 # Maximum 4096 unique admitted documents.
 agenda_file_bytes = 8388608 # Maximum 33554432 bytes per source.
 agenda_total_bytes = 67108864 # Maximum 268435456 bytes across reads/snapshots.
 job_seconds = 30 # Maximum 600 seconds; checked between native IO/compute steps.
+job_output_bytes = 1048576 # Maximum 16777216 combined stdout/stderr bytes.
 
 [org.habit]
 # Bounded daily graph, including today. Rendering never changes source history.

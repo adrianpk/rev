@@ -1,6 +1,6 @@
 use super::*;
 use rev::command::History;
-fn editor(config: &str, source: &str, destination: &str) -> (Fixture, Session) {
+pub(super) fn editor(config: &str, source: &str, destination: &str) -> (Fixture, Session) {
     let f = Fixture::new();
     let startup = prepare(&f.write("config.toml", config));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
@@ -19,7 +19,7 @@ fn editor(config: &str, source: &str, destination: &str) -> (Fixture, Session) {
     .unwrap();
     (f, session)
 }
-fn line(session: &mut Session, value: &str) {
+pub(super) fn line(session: &mut Session, value: &str) {
     session.execute(Command::GotoLine);
     argument(session, value);
 }

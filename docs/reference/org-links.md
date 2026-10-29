@@ -67,3 +67,35 @@ source/file/time limits. No worker or polling deadline remains active when idle.
 References: [Handling links](https://orgmode.org/manual/Handling-Links.html),
 [Internal links](https://orgmode.org/manual/Internal-Links.html),
 [External links](https://orgmode.org/manual/External-Links.html).
+
+## External resources
+
+Following HTTP(S), FTP, mail or news resources, `file+sys:` links, or local media
+such as PDF/image/audio/video files requires `org.tools.viewer`. It is an argv
+array, initially empty. Set an executable and its literal arguments; a single
+whole `{target}` token receives the resource, or the resource is appended once.
+Relative executable paths with a slash use the assigning configuration directory.
+No shell is inserted, and resource text never becomes a command or argument list.
+`file+emacs:` forces native visiting, including a text file with a media extension.
+
+An explicit follow asks `Run configured viewer? yes/no:` and displays the program
+and resource. `yes` rechecks the source point/revision and resolves the actual
+local file immediately before launch. `no` or C-g cancels. Recognition, startup,
+highlighting and visiting a heading launch nothing. Missing configuration, tools,
+files or unsupported native search suffixes report a diagnostic. External local
+resources must remain within the admitted attachment directory when applicable.
+
+The existing single Org worker owns the tool and a new Unix process group. Its
+working directory is the source file's directory. Stdin is closed; combined
+stdout/stderr is limited by `org.limits.job_output_bytes` (default 1048576, maximum
+16777216). `org.limits.job_seconds` bounds active execution. C-g, source/view
+invalidation, output overflow and timeout stop the owned group and reap its direct
+child before releasing the worker. A leader's successful exit also stops owned
+descendants that retain output streams. Status and a bounded escaped output
+preview remain visible; failures never modify source history or save files.
+
+The shared child-lifetime primitive owns cleanup, not a security sandbox. It
+uses nonblocking output and cooperative polling; already blocked kernel IO is
+not a promised hard deadline. Descendants which deliberately leave the process
+group are outside that group ownership. No idle polling or permanent reader
+thread remains after the operation completes.

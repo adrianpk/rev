@@ -56,7 +56,7 @@ impl Session {
         self.input
             .argument(label, draft)
             .map_err(|e| e.to_string())?;
-        self.pending = Some(Pending::Link(Box::new(prompt)));
+        self.pending = Some(Pending::Link(Box::new(super::Prompt::Insert(prompt))));
         self.message("Enter literal link data; TAB shows stored links; C-g cancels");
         Ok(())
     }
@@ -91,6 +91,10 @@ impl Session {
         }
     }
     pub(in crate::session) fn complete_link(&mut self) -> Action {
+        if matches!(&self.pending,Some(Pending::Link(p)) if matches!(p.as_ref(),super::Prompt::Viewer(_)))
+        {
+            return self.message("Enter yes to launch the configured viewer, or no/C-g to cancel");
+        }
         let labels = self
             .links
             .stored

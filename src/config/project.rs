@@ -50,6 +50,9 @@ pub(super) fn settings(document: &Document) -> Settings {
     if let Some(value) = &document.org.attachments.directory {
         settings.org.attachments.directory.clone_from(value);
     }
+    if let Some(value) = &document.org.tools.viewer {
+        settings.org.tools.viewer.clone_from(value);
+    }
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);
@@ -321,4 +324,5 @@ fn agenda(base: &mut super::Org, partial: &super::PartialOrg) {
     count(&mut target.agenda_file_bytes, limits.agenda_file_bytes);
     count(&mut target.agenda_total_bytes, limits.agenda_total_bytes);
     count(&mut target.job_seconds, limits.job_seconds);
+    count(&mut target.job_output_bytes, limits.job_output_bytes);
 }

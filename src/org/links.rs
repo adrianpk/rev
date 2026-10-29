@@ -1,6 +1,7 @@
 //! Native link data and checked document observations. Recognition never owns
 //! file visits, source edits or external process authority.
 mod document;
+mod external;
 mod observe;
 mod resolve;
 mod target;
@@ -14,7 +15,7 @@ use crate::{
 };
 use ropey::Rope;
 use std::{ops::Range, path::PathBuf};
-pub use target::{Target, decode, encode};
+pub use target::{FileMode, Target, decode, encode};
 
 #[derive(Clone, Debug)]
 pub(crate) struct Link {
@@ -114,3 +115,6 @@ impl Snapshot {
 
 pub(crate) use resolve::{Follow, Resolve};
 pub(crate) use visit::Navigation;
+
+pub(crate) use external::viewer_argv;
+pub(crate) use external::{External, Viewer};

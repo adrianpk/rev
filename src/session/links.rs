@@ -1,4 +1,5 @@
 mod prompt;
+mod viewer;
 mod visit;
 use super::{Action, Pending, Session, outline::Request};
 use crate::{
@@ -10,7 +11,10 @@ use crate::{
         links::{Follow, Output, Resolve, Snapshot, Stored},
     },
 };
-pub(super) use prompt::Prompt;
+pub(super) enum Prompt {
+    Insert(prompt::Prompt),
+    Viewer(viewer::Prompt),
+}
 use std::collections::VecDeque;
 #[derive(Default)]
 pub(super) struct State {
@@ -72,6 +76,9 @@ impl Session {
         Ok(())
     }
     fn resolve_link(&mut self, target: Follow, request: Request) -> Result<(), String> {
+        if target.external_resource() {
+            return self.prompt_viewer(target, request);
+        }
         let selection = self.link_sources()?;
         let work = Resolve::new(&self.buffers, request.origin.point.stamp, target, selection)?;
         let seconds = self.buffers.snapshot().settings().org.limits.job_seconds;
@@ -134,5 +141,24 @@ impl Session {
         self.pending = None;
         self.input.cancel();
         Some(self.message("Org link cancelled; source unchanged"))
+    }
+}
+
+impl Session {
+    pub(in crate::session) fn link_prompt_argument(
+        &mut self,
+        prompt: Prompt,
+        draft: &str,
+    ) -> Action {
+        match prompt {
+            Prompt::Insert(prompt) => self.link_argument(prompt, draft),
+            Prompt::Viewer(prompt) => self.viewer_argument(prompt, draft),
+        }
+    }
+    pub(in crate::session) fn links_source_changed(&self) -> bool {
+        self.links
+            .request
+            .as_ref()
+            .is_some_and(|r| !self.org_source_current(r))
     }
 }

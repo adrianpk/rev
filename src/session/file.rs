@@ -155,7 +155,7 @@ impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
             Pending::Capture(prompt) => self.capture_argument(prompt, draft),
-            Pending::Link(prompt) => self.link_argument(*prompt, draft),
+            Pending::Link(prompt) => self.link_prompt_argument(*prompt, draft),
             _ => unreachable!("qualified collection argument"),
         }
     }

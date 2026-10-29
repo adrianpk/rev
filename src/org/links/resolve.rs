@@ -7,12 +7,13 @@ use crate::{
     },
 };
 use std::path::{Component, Path};
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum Follow {
     Internal(String),
     Local {
         path: PathBuf,
         search: String,
-        external: bool,
+        mode: FileMode,
         root: Option<PathBuf>,
     },
     Id {
@@ -47,14 +48,10 @@ impl Document {
             Target::Internal(value) => Ok(Follow::Internal(value)),
             Target::Id { id, search } => Ok(Follow::Id { id, search }),
             Target::External(value) => Ok(Follow::External(value)),
-            Target::File {
-                path,
-                search,
-                external,
-            } => Ok(Follow::Local {
+            Target::File { path, search, mode } => Ok(Follow::Local {
                 path: local(directory, path)?,
                 search,
-                external,
+                mode,
                 root: None,
             }),
             Target::Attachment { path, search } => {
@@ -69,7 +66,7 @@ impl Document {
                 Ok(Follow::Local {
                     path: root.join(path),
                     search,
-                    external: false,
+                    mode: FileMode::Automatic,
                     root: Some(root),
                 })
             }
@@ -148,7 +145,7 @@ impl Resolve {
             Follow::Local {
                 path,
                 search,
-                external: false,
+                mode: _,
                 root,
             } => Ok(Self::File {
                 read: Box::new(CaptureRead::new(buffers, &path, &policy.limits)?),
@@ -159,7 +156,6 @@ impl Resolve {
             Follow::External(uri) => Err(format!(
                 "No external viewer selected for {uri}; configure org.tools.viewer"
             )),
-            _ => Err("External file link requires an explicit configured viewer".into()),
         }
     }
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Navigation, String> {

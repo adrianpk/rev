@@ -831,7 +831,7 @@ Contracts: ORG15 ORG02.
 Details and exact checks: [Slice 36](../plan/rev-org-mode.md#slice-36-store-and-follow-checked-org-links).
 
 - [x] T36.1: Deliver internal targets, file/ID/attachment links, insertion, storage and navigation.
-- [ ] T36.2: Re-resolve source and dispatch external resources through the bounded owned job path only after explicit follow; introduce the shared child-lifetime primitive here.
+- [x] T36.2: Re-resolve source and dispatch external resources through the bounded owned job path only after explicit follow; introduce the shared child-lifetime primitive here.
 - [ ] T36.3: Verify ambiguity, encoded paths, read-only documents and source-preserving failure.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

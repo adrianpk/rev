@@ -192,3 +192,6 @@ mod org_refile;
 
 #[path = "configuration/org_archive.rs"]
 mod org_archive;
+
+#[path = "configuration/org_links.rs"]
+mod org_links;

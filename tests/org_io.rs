@@ -118,3 +118,6 @@ mod archive;
 
 #[path = "org_io/links.rs"]
 mod links;
+
+#[path = "org_io/link_viewer.rs"]
+mod link_viewer;

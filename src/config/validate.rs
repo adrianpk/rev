@@ -515,6 +515,7 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
             ));
         }
     }
+    viewer(partial)?;
     archive(&partial.archive)
 }
 
@@ -522,6 +523,18 @@ fn archive(partial: &super::PartialArchive) -> Result<(), Failure> {
     if let Some(value) = &partial.location {
         crate::org::archive::location(value)
             .map_err(|e| Failure::new("org.archive.location", e))?;
+    }
+    Ok(())
+}
+
+fn viewer(partial: &super::PartialOrg) -> Result<(), Failure> {
+    integer(
+        "org.limits.job_output_bytes",
+        partial.limits.job_output_bytes,
+        1..=16777216,
+    )?;
+    if let Some(argv) = &partial.tools.viewer {
+        crate::org::links::viewer_argv(argv).map_err(|e| Failure::new("org.tools.viewer", e))?;
     }
     Ok(())
 }

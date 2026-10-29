@@ -6,7 +6,7 @@ pub enum Target {
     File {
         path: PathBuf,
         search: String,
-        external: bool,
+        mode: FileMode,
     },
     Id {
         id: String,
@@ -17,6 +17,12 @@ pub enum Target {
         search: String,
     },
     External(String),
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum FileMode {
+    Automatic,
+    Native,
+    External,
 }
 impl Target {
     pub fn parse(value: &str) -> Result<Self, String> {
@@ -34,7 +40,11 @@ fn typed(kind: &str, body: &str, value: &str) -> Result<Target, String> {
         return Ok(Target::File {
             path: PathBuf::from(path),
             search,
-            external: kind == "file+sys",
+            mode: match kind {
+                "file+sys" => FileMode::External,
+                "file+emacs" => FileMode::Native,
+                _ => FileMode::Automatic,
+            },
         });
     }
     match kind {
@@ -71,7 +81,7 @@ fn implicit(value: &str) -> Result<Target, String> {
         return Ok(Target::File {
             path: PathBuf::from(path),
             search,
-            external: false,
+            mode: FileMode::Automatic,
         });
     }
     Ok(Target::Internal(decode(value)?))

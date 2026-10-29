@@ -6,3 +6,5 @@ pub use clock::{ClockState, ClockStore};
 mod capture;
 pub(in crate::org) mod source;
 pub use capture::{CaptureRead, DestinationSource, DestinationVersion};
+
+pub(crate) mod process;

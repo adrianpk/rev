@@ -202,6 +202,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
 | `org.capture.templates` | Array of typed capture templates | `[]` | Empty selects the native Task fallback; at most 64 exact keys, data-only targets and bounded text. See [capture](org-capture.md). |
 | `org.capture.default_file` | String | `""` | Empty requires explicit destination entry. Relative paths use the assigning configuration source; discovery never creates files. |
+| `org.tools.viewer` | Array of argv strings | `[]` | Optional external viewer, at most 64 nonempty tokens of 4096 bytes each. One whole `{target}` token or an appended target; explicit follow and confirmation required. See [links](org-links.md). |
 | `org.attachments.directory` | String | `"data"` | ID-based attachment directory relative to the source file. A selected DIR property takes precedence; link following never creates it. |
 | `org.archive.location` | String | `"%s_archive::"` | Checked `file::heading` relative to the source file, `%s` expands its canonical path. Empty heading appends a level-one subtree. At most 4096 bytes; only local paths and the `%s` escape. |
 | `org.refile.targets` | Array of local path strings | `[]` | Explicit file/directory roots, relative to their assigning configuration source. Empty uses admitted agenda/source headings. At most 4096 roots, 4096 bytes per path; no startup observation. |
@@ -217,6 +218,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.agenda_file_bytes` | Integer 1..=33554432 | `8388608` | Whole-source byte bound for disk reads and current buffer snapshots. |
 | `org.limits.agenda_total_bytes` | Integer 1..=268435456 | `67108864` | Total read/snapshot byte budget, including failed reads. |
 | `org.limits.job_seconds` | Integer 1..=600 | `30` | Agenda discovery deadline, checked at read/iteration boundaries; does not interrupt blocked kernel IO. |
+| `org.limits.job_output_bytes` | Integer 1..=16777216 | `1048576` | Combined stdout/stderr byte limit for explicitly launched Org tools. Exceeding the limit stops the owned process group and reports failure. |
 | `org.habit.preceding_days` | Integer | `21` | Days before today, 0..366. |
 | `org.habit.following_days` | Integer | `7` | Days after today, 0..366. |
 | `org.habit.graph_column` | Integer | `40` | Preferred graph column, 0..4096; clip to the pane. |
