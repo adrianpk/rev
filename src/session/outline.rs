@@ -34,6 +34,9 @@ impl Session {
         if !self.buffer().is_ok_and(|b| b.is_org()) {
             return self.message("Native Org mode is not active");
         }
+        if let Some(action) = self.table_return(command) {
+            return action;
+        }
         if self.attachment.is_some() {
             return self.message("Attachment interaction pending; C-g cancels");
         }
@@ -81,6 +84,12 @@ impl Session {
     }
 
     fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if self.table_context(request.command) {
+            if let Err(error) = self.start_table(request) {
+                self.error(&error);
+            }
+            return;
+        }
         if request.command == OrgCommand::CtrlCCtrlC
             && self
                 .buffer()

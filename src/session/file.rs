@@ -150,13 +150,18 @@ impl Pending {
     fn collection_argument(&self) -> bool {
         matches!(
             self,
-            Self::Capture(_) | Self::Link(_) | Self::Attachment | Self::Document(_)
+            Self::Capture(_)
+                | Self::Link(_)
+                | Self::Attachment
+                | Self::Document(_)
+                | Self::Table(_)
         )
     }
 }
 impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
+            Pending::Table(request) => self.table_argument(*request, draft),
             Pending::Document(prompt) => self.document_argument(*prompt, draft),
             Pending::Capture(prompt) => self.capture_argument(prompt, draft),
             Pending::Link(prompt) => self.link_prompt_argument(*prompt, draft),

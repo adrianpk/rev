@@ -2,6 +2,7 @@ mod attachment;
 mod document;
 mod links;
 mod refile;
+mod tables;
 use std::time::{Duration, Instant};
 
 use crate::buffer::{BufferId, Stamp};
@@ -22,6 +23,7 @@ pub(super) struct Work {
     refile_running: bool,
     links_running: bool,
     document_running: bool,
+    table_running: bool,
     attachment_running: bool,
     capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
@@ -31,6 +33,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Table(Result<crate::org::table::Output, String>),
     Document(Result<crate::org::document::Output, String>),
     AttachmentPlan(Result<crate::org::attachment::Plan, String>),
     AttachmentListing(Result<crate::org::attachment::Listing, String>),
@@ -148,6 +151,9 @@ impl Session {
     }
 
     fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.table_running {
+            return Some(self.poll_table());
+        }
         if self.org.document_running {
             return Some(self.poll_document());
         }

@@ -54,6 +54,18 @@ impl<'a> Glyphs<'a> {
         )
     }
 
+    /// Measure a text fragment with the same glyph/tab policy as the source
+    /// canvas, starting at its actual terminal column. No source identity is invented.
+    pub(crate) fn for_columns(
+        text: &'a str,
+        column: usize,
+        tab_width: usize,
+    ) -> Result<Self, Error> {
+        let mut glyphs = Self::new(RopeSlice::from(text), Scalar(0), tab_width)?;
+        glyphs.column = column;
+        Ok(glyphs)
+    }
+
     pub(super) fn new(text: RopeSlice<'a>, start: Scalar, tab_width: usize) -> Result<Self, Error> {
         Ok(Self {
             text,

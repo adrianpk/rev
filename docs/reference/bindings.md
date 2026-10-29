@@ -272,6 +272,12 @@ configuration snapshot; source edits take effect after restarting.
 | M-x org-agenda-action-results | `org-agenda-action-results` | Inspect every retained target outcome. |
 | C-_ in agenda | `org-agenda-undo` | Undo the last unchanged source action transaction. |
 
+| Create table in Org | `org-table-create` | Create a bounded native table on a blank line. |
+| `RET` in Org | `org-return` | Move to the next table row or insert an ordinary newline in other source contexts. |
+| `C-c -` in Org | `org-table-insert-hline` | Insert a table separator below the current row. |
+| M-x | `org-table-align`, `org-table-next-field`, `org-table-previous-field`, `org-table-next-row` | Align the selected table or navigate fields and rows. |
+| M-x | `org-table-beginning-of-field`, `org-table-end-of-field`, `org-table-insert-row` | Visit field edges or insert an empty row above. |
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -787,3 +793,5 @@ or column entry restores native order or the ordinary text presentation.
 
 
 `C-c C-x f` runs `org-footnote-action`; `C-c C-x C-f` runs `org-emphasize`. Other document controls are available through M-x. See [Org document editing](org-document.md).
+
+In a native table, TAB and S-TAB align and visit the next/previous field; C-c C-c aligns, and M-RET inserts a row below. C-c followed by the vertical-bar key creates a table. See [Org tables](org-tables.md).

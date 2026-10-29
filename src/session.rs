@@ -20,6 +20,7 @@ mod history;
 mod kill;
 mod linear;
 mod links;
+mod tables;
 pub use attachment::{AttachmentResult, HeadingStatus};
 mod mode;
 mod motion;
@@ -83,6 +84,7 @@ pub struct Session {
     refile_label: &'static str,
     links: links::State,
     document_request: Option<outline::Request>,
+    table_request: Option<outline::Request>,
     attachment: Option<attachment::State>,
     attachment_results: std::collections::VecDeque<AttachmentResult>,
     windows: Windows,
@@ -133,6 +135,7 @@ enum Pending {
     Attachment,
     Link(Box<links::Prompt>),
     Document(Box<document::Prompt>),
+    Table(Box<outline::Request>),
     AgendaSources,
     AgendaDate,
     AgendaQuery(crate::org::agenda::QueryKind),
@@ -228,6 +231,7 @@ impl Session {
             refile_label: "Refile",
             links: links::State::default(),
             document_request: None,
+            table_request: None,
             attachment: None,
             attachment_results: std::collections::VecDeque::new(),
             windows,

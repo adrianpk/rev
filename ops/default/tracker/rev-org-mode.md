@@ -872,7 +872,7 @@ Canonical PR #139 merged into dev at `c754558125d33a9b400ed58921b62cba41ce5ad5`,
 Contracts: ORG12 ORG17.
 Details and exact checks: [Slice 39](../plan/rev-org-mode.md#slice-39-navigate-and-align-native-org-tables).
 
-- [ ] T39.1: Introduce org_tables and native cell/row navigation, insertion and alignment over original cell source.
+- [x] T39.1: Introduce org_tables and native cell/row navigation, insertion and alignment over original cell source.
 - [ ] T39.2: Retain separators, names, captions, formulas and non-table text while preserving displayed columns.
 - [ ] T39.3: Verify tabs, wide graphemes, CRLF, empty cells and one-operation undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.

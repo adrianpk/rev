@@ -170,9 +170,19 @@ pub enum OrgCommand {
     Emphasize,
     InsertEntity,
     EditAffiliated,
+    TableCreate,
+    TableAlign,
+    TableNextField,
+    TablePreviousField,
+    TableNextRow,
+    TableBeginningField,
+    TableEndField,
+    TableInsertRow,
+    TableInsertHline,
+    Return,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 168] = [
+    pub const ALL: [Self; 178] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -341,6 +351,16 @@ impl OrgCommand {
         Self::Emphasize,
         Self::InsertEntity,
         Self::EditAffiliated,
+        Self::TableCreate,
+        Self::TableAlign,
+        Self::TableNextField,
+        Self::TablePreviousField,
+        Self::TableNextRow,
+        Self::TableBeginningField,
+        Self::TableEndField,
+        Self::TableInsertRow,
+        Self::TableInsertHline,
+        Self::Return,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -512,6 +532,16 @@ impl OrgCommand {
             "org-emphasize",
             "org-insert-entity",
             "org-edit-affiliated-keyword",
+            "org-table-create",
+            "org-table-align",
+            "org-table-next-field",
+            "org-table-previous-field",
+            "org-table-next-row",
+            "org-table-beginning-of-field",
+            "org-table-end-of-field",
+            "org-table-insert-row",
+            "org-table-insert-hline",
+            "org-return",
         ][self as usize]
     }
 
@@ -779,6 +809,24 @@ impl OrgCommand {
                 | Self::Emphasize
                 | Self::InsertEntity
                 | Self::EditAffiliated
+        )
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn table(self) -> bool {
+        matches!(
+            self,
+            Self::TableCreate
+                | Self::TableAlign
+                | Self::TableNextField
+                | Self::TablePreviousField
+                | Self::TableNextRow
+                | Self::TableBeginningField
+                | Self::TableEndField
+                | Self::TableInsertRow
+                | Self::TableInsertHline
+                | Self::Return
         )
     }
 }

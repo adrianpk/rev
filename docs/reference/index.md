@@ -26,3 +26,5 @@
 - [Org attachments](org-attachments.md): explicit heading directories, file decisions and retained outcomes.
 
 - [Org document editing](org-document.md): footnotes, emphasis, entities and affiliated source.
+
+- [Org tables](org-tables.md): source-preserving alignment, cell navigation and row insertion.
