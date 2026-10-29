@@ -4,6 +4,7 @@ from .org_tasks import goto, named
 from .org_time import quiet
 from .html_document import parse
 from .odt_document import Document as OdtDocument
+from .manual_document import texinfo, man
 from .support import (BINARY, PTY, close, completed, environment, finish,
                       send, snapshot, step, write)
 
@@ -62,6 +63,15 @@ def journey(root, colored):
         assert odt.texts('text:h') == ['Heading 界']
         assert odt.texts('text:p') == ['Body unsaved\nEOF']
         assert source.read_bytes() == encoded(LINES)
+        choose(session, 'org-export-to-texinfo', 'manual.texi', b'Exported Org document')
+        texi_bytes = (source.parent / 'manual.texi').read_bytes()
+        texi = texinfo(texi_bytes)
+        assert '@unnumbered Heading 界' in texi and 'Body unsaved\nEOF' in texi
+        choose(session, 'org-export-to-man', 'manual.1', b'Exported Org document')
+        man_bytes = (source.parent / 'manual.1').read_bytes()
+        manual = man(man_bytes)
+        assert '.SH "Heading 界"' in manual and 'Body unsaved\nEOF' in manual
+        assert source.read_bytes() == encoded(LINES)
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
         choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
@@ -82,6 +92,8 @@ def journey(root, colored):
         before['work/article.tex'] = article
         before['work/slides.tex'] = slides
         before['work/document.odt'] = odt_bytes
+        before['work/manual.texi'] = texi_bytes
+        before['work/manual.1'] = man_bytes
         assert snapshot(root) == before
     finally:
         close(session)

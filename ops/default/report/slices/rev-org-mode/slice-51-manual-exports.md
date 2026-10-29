@@ -1,6 +1,6 @@
 # Slice 51: export Org to Texinfo and man formats
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -26,6 +26,14 @@ within the selected snapshot; named and inline notes retain stable first-use
 numbers. Missing, ambiguous, duplicate or cyclic relationships reject output.
 Unknown resource kinds, rich forms, math and dynamic reports stay literal with
 diagnostics. Source and export blocks never become formatter directives.
+
+T51.3 fixes complete handwritten golden documents for both formats and checks
+actual rendered bytes with an independent structural reader. Eight workflows
+cover publication of dirty BOM/CRLF text, cancellation at every prompt, declined
+replacement, changed destinations/includes/source, source hard-link aliases,
+read-only subtree/region selection, unsafe scalars, exact final-byte limits and
+ordinary undo. References must name a target actually emitted, including targets
+inside notes. The owned RGB/NO_COLOR journey exercises both new commands.
 
 ## Implementation Notes
 
@@ -54,6 +62,10 @@ escaped source with diagnostics; unsafe control scalars reject output.
 - `cargo test --test commands visibility_keys`: compiled catalog round-trip passed.
 - `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
 - Changed-source quality passed after reference indexing and inline dispatch were split at the unchanged complexity limit. A colon-containing heading fixture exposed an overly broad resource-scheme guard; heading references now retain that punctuation.
+
+- `cargo test --test org_io manual_`: eight renderer, selection and publication workflows passed, zero failures or ignored tests; the expanded complete golden was also rechecked with `cargo test --test org_io manual_golden`.
+- `python3 scripts/check-manual-exports.py`: GNU makeinfo and groff accepted both exact golden documents; visible hierarchy, references, notes, list starts and inert directive text passed, zero skipped checks. This is an explicit validation adapter, never a runtime export action.
+- Region selection exposed inherited title/date in the manual envelope; region output now excludes that metadata. Formatter validation exposed first-item paragraph separation and terminal SGR output: native list paragraphs now follow their markers, and the adapter strips font encodings while retaining same-line marker/body assertions.
 
 ## Risks and Follow-ups
 

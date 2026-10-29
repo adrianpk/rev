@@ -6,7 +6,10 @@ impl Manual<'_> {
             .metadata
             .title
             .as_deref()
-            .filter(|_| self.snapshot.options.title)
+            .filter(|_| {
+                self.snapshot.options.title
+                    && !matches!(self.snapshot.request.scope, Scope::Region(_))
+            })
             .unwrap_or("Org manual");
         if self.texinfo() {
             self.emit("\\input texinfo\n@documentencoding UTF-8\n@setfilename org-manual.info\n@settitle ")?;
@@ -23,7 +26,14 @@ impl Manual<'_> {
         self.emit(".TH \"")?;
         self.line(title)?;
         self.emit("\" \"1\" \"")?;
-        self.line(self.snapshot.metadata.date.as_deref().unwrap_or(""))?;
+        let date = self
+            .snapshot
+            .metadata
+            .date
+            .as_deref()
+            .filter(|_| !matches!(self.snapshot.request.scope, Scope::Region(_)))
+            .unwrap_or("");
+        self.line(date)?;
         self.emit("\" \"\" \"\"\n")
     }
     fn frontmatter(&mut self) -> Result<(), String> {
@@ -69,6 +79,7 @@ impl Document<'_> {
         depth: usize,
     ) -> Result<(), String> {
         let level = self.levels[id];
+        out.emitted.insert(format!("org-heading-{id}"));
         let range = super::super::render::headings::title_range(
             self.text,
             &self.nodes[id],

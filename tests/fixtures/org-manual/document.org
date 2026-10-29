@@ -1,0 +1,27 @@
+#+TITLE: Field @manual
+#+AUTHOR: Ada
+#+DATE: 2024-03-01
+#+OPTIONS: toc:nil num:nil
+* Start
+See <<spot>> [[spot][here]] and [[*Child][child]], [[grid][grid]] and [[https://example.org/a,b?q={x}][web, label]].
+** Child
+3. three
+4. four
+
+#+NAME: grid
+#+CAPTION: Keys
+| A | B |
+|---+---|
+| x | y |
+
+#+begin_src text
+@end example
+@include secret
+.so secret
+.sy touch marker
+\X'escape'
+#+end_src
+
+Text [fn:n] twice [fn:n] and [fn::inline *body*].
+
+[fn:n] A /note/.

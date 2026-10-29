@@ -81,10 +81,7 @@ impl Document<'_> {
     }
     pub(super) fn anchor(&self, out: &mut Manual<'_>, label: &str) -> Result<(), String> {
         let reference = self.targets.get(label).ok_or("Unresolved manual target")?;
-        if out.texinfo() {
-            out.emit(&format!("@anchor{{{}}}", reference.id))?;
-        }
-        Ok(())
+        out.anchor(&reference.id)
     }
     pub(super) fn target(&self, out: &mut Manual<'_>, n: &native::Raw) -> Result<(), String> {
         let label = self.text.byte_slice(n.content.clone()).to_string();
@@ -135,6 +132,7 @@ impl Document<'_> {
             return self.literal_link(out, n);
         }
         let reference = self.reference(values.1)?;
+        out.references.insert(reference.id.clone());
         if out.texinfo() {
             out.emit(&format!("@ref{{{},,", reference.id))?;
         }
@@ -204,4 +202,20 @@ fn uri(target: Target) -> Option<String> {
 
 fn unsupported(value: &str) -> bool {
     !value.starts_with('*') && (value.contains(':') || value.starts_with('#'))
+}
+
+impl Manual<'_> {
+    fn anchor(&mut self, id: &str) -> Result<(), String> {
+        self.emitted.insert(id.into());
+        if self.texinfo() {
+            self.emit(&format!("@anchor{{{id}}}"))?;
+        }
+        Ok(())
+    }
+    pub(super) fn validate_references(&self) -> Result<(), String> {
+        if self.references.difference(&self.emitted).next().is_some() {
+            return Err("Manual reference target was not exported".into());
+        }
+        Ok(())
+    }
 }

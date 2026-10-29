@@ -1051,7 +1051,7 @@ Details and exact checks: [Slice 51](../plan/rev-org-mode.md#slice-51-export-org
 
 - [x] T51.1: Deliver native Texinfo and man renderers over the shared export snapshot.
 - [x] T51.2: Retain declared hierarchy, references, preformatted source and escaping without invoking tools implicitly.
-- [ ] T51.3: Verify structural golden fixtures and ordinary save/cancellation safeguards.
+- [x] T51.3: Verify structural golden fixtures and ordinary save/cancellation safeguards.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 52: export Org planning data as iCalendar

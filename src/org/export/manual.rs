@@ -19,6 +19,8 @@ struct Manual<'a> {
     retained: usize,
     used: BTreeMap<String, usize>,
     active: BTreeSet<String>,
+    emitted: BTreeSet<String>,
+    references: BTreeSet<String>,
 }
 #[derive(Clone)]
 struct Reference {
@@ -47,10 +49,13 @@ pub(super) fn render(snapshot: &Snapshot, cancel: &Cancellation) -> Result<Rende
         retained: 0,
         used: BTreeMap::new(),
         active: BTreeSet::new(),
+        emitted: BTreeSet::new(),
+        references: BTreeSet::new(),
     };
     out.preamble()?;
     doc.body(&mut out, 0)?;
     out.endnotes()?;
+    out.validate_references()?;
     if out.texinfo() {
         out.emit("@bye\n")?;
     }
@@ -182,11 +187,19 @@ impl<'a> Document<'a> {
             _ => self.leaf(out, id),
         }
     }
+    fn item_lead(&self, n: &structure::Raw) -> bool {
+        n.parent.is_some_and(|p| {
+            matches!(self.nodes[p].kind, StructureKind::Item { .. })
+                && self.children[p]
+                    .first()
+                    .is_some_and(|id| std::ptr::eq(&self.nodes[*id], n))
+        })
+    }
     fn paragraph(&self, out: &mut Manual<'_>, n: &structure::Raw) -> Result<(), String> {
         if self.definition(n, out.cancel)?.is_some() {
             return Ok(());
         }
-        if !out.texinfo() {
+        if !out.texinfo() && !self.item_lead(n) {
             out.emit(".PP\n")?;
         }
         self.inline(out, n.content.clone(), 0, InlineContext::Standard)?;
