@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 55 tangling
+Active slice: Slice 56 block-execution
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1108,12 +1108,13 @@ Details and exact checks: [Slice 55](../plan/rev-org-mode.md#slice-55-tangle-org
 - [x] T55.1: Expand declared named references and tangle selected blocks into explicit checked destinations.
 - [x] T55.2: Bound expansion/cycles and reject unsafe or unresolved targets before overwriting any file.
 - [x] T55.3: Verify separate-file outputs, indentation/source fidelity and truthful multi-file failures.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156).
-Report: [Slice 55](../report/slices/rev-org-mode/slice-55-tangling.md) (reviewing).
-Required pre-PR validation passed; final PR-head evidence and controller-owned
-`dev` integration remain to be recorded.
+Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156), merged into `dev` at `32e45be6f151015c257f44dd4247178c6c7874a9`.
+Report: [Slice 55](../report/slices/rev-org-mode/slice-55-tangling.md) (delivered).
+Final required receipt `KN6X63NLXH2KT5RWRNM2RMAURM` passed five checks and
+307 tests; focused receipt `A5ZYSYSFYSM3B5Y2YGNQBMHX6W` passed 538 tests and
+configuration references. Completed activity is recorded in Acta.
 
 ### Slice 56: execute selected Org blocks through bounded tools
 

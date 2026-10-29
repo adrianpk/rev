@@ -1,6 +1,6 @@
 # Slice 55: tangle Org source with bounded noweb references
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -36,7 +36,7 @@ and [noweb syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.html).
 
 Task commits: T55.1 `87343df9eefaf7dd584ce365eeb278d0890cace4`, T55.2 `4480d469780d52215ef2814ee7bda7f918a9f35f`, T55.3 `a66cbda8725e74d4379de994742faa8076f7eb16`.
 
-Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156), targeting `dev`.
+Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156), merged into `dev` at `32e45be6f151015c257f44dd4247178c6c7874a9`.
 
 ## Contracts Added or Changed
 
@@ -53,8 +53,8 @@ Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156), targeti
 
 ## Validation
 
-Required pre-PR receipt `VSTUBOZLZPV2ZNCRXMRWGJIFHE` passed on
-`a66cbda8725e74d4379de994742faa8076f7eb16`:
+Final required receipt `KN6X63NLXH2KT5RWRNM2RMAURM` passed on
+`32e45be6f151015c257f44dd4247178c6c7874a9`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -73,9 +73,17 @@ parents, partial success, cancellation, per-file consent, permissions, Unicode,
 BOM/CRLF source fidelity and read-only current-block extraction. Nine editor/I/O
 and nine native source/expansion tests protect tangling behavior.
 
-The PR-reference follow-up head receives fresh required and focused validation
-through the controller; exact final receipts are recorded in Acta. Verified
-`dev` integration remains pending.
+Focused receipt `A5ZYSYSFYSM3B5Y2YGNQBMHX6W` passed on the same head:
+
+- `cargo test --test commands --test configuration --test org_editing --test syntax -- --test-threads=4`
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
+All 538 focused tests passed. An earlier default-parallel focused run exceeded an
+existing clock test's five-second wait; four test threads passed every unchanged
+assertion and deadline. Configuration references agree on 169 schema/catalog
+entries, 54 active color roles and 258 default bindings. Canonical Forgejo and
+local/remote `dev` confirm integration at the final validated head.
 
 ## Risks and Follow-ups
 
