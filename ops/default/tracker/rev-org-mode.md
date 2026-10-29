@@ -1110,6 +1110,11 @@ Details and exact checks: [Slice 55](../plan/rev-org-mode.md#slice-55-tangle-org
 - [x] T55.3: Verify separate-file outputs, indentation/source fidelity and truthful multi-file failures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156).
+Report: [Slice 55](../report/slices/rev-org-mode/slice-55-tangling.md) (reviewing).
+Required pre-PR validation passed; final PR-head evidence and controller-owned
+`dev` integration remain to be recorded.
+
 ### Slice 56: execute selected Org blocks through bounded tools
 
 Contracts: ORG28 ORG18.

@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-55-tangling`
-PR: pending
+PR: `#156`
 
 ## Purpose
 
@@ -34,6 +34,10 @@ See the [source block reference](../../../../../docs/reference/org-source-blocks
 and the Org manual's [tangling](https://orgmode.org/manual/Extracting-Source-Code.html)
 and [noweb syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.html).
 
+Task commits: T55.1 `87343df9eefaf7dd584ce365eeb278d0890cace4`, T55.2 `4480d469780d52215ef2814ee7bda7f918a9f35f`, T55.3 `a66cbda8725e74d4379de994742faa8076f7eb16`.
+
+Canonical PR: [#156](https://forge.adrianpk.com/adrianpk/rev/pulls/156), targeting `dev`.
+
 ## Contracts Added or Changed
 
 - ORG28: bounded named expansion and explicit native source tangling.
@@ -49,23 +53,29 @@ and [noweb syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.html).
 
 ## Validation
 
-Development checks passed:
+Required pre-PR receipt `VSTUBOZLZPV2ZNCRXMRWGJIFHE` passed on
+`a66cbda8725e74d4379de994742faa8076f7eb16`:
 
-- `cargo check --lib`
-- `cargo test --test org_source --test org_io tangling`
-- `cargo test --test org_source --test org_io tangle`
-- `cargo test --test org_io tangling`
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_io --test org_source --test files`
+- `python3 scripts/check-source.py`
+- `git diff --check`
 
-The initial eight focused tests passed. Subsequent boundary tests admit exactly
-64 reference levels, 512 source blocks, 256 files and 8 MiB of combined output,
-then reject excess. Dense acyclic expansion reaches the independent 100000-step
-ceiling. Whole-plan preflight rejects symlink parents/leaves, hard-link aliases
-of source/outputs and live output buffers. Replaced parents cannot redirect a
-later write; earlier successful outputs remain recorded. Nine editor/filesystem
-tangling workflows now pass, including the real whole-buffer/current-block chords,
-read-only source, default language paths, preserved replacement permissions,
-independent consent, invalid answers and queued cancellation. Required exact-head
-checks remain pending.
+All 307 tests passed: 71 files, 158 I/O and 78 source; zero failures, ignored
+or filtered tests. The unchanged source checker retained safe Rust, at most
+five parameters, three nesting levels and cyclomatic complexity ten.
+
+Focused development verified exact 64-level, 512-block, 256-file and 8 MiB output
+boundaries, the independent 100000-step work ceiling and stale source rejection.
+Filesystem cases cover whole-plan preflight, alias/symlink protection, changed
+parents, partial success, cancellation, per-file consent, permissions, Unicode,
+BOM/CRLF source fidelity and read-only current-block extraction. Nine editor/I/O
+and nine native source/expansion tests protect tangling behavior.
+
+The PR-reference follow-up head receives fresh required and focused validation
+through the controller; exact final receipts are recorded in Acta. Verified
+`dev` integration remains pending.
 
 ## Risks and Follow-ups
 
