@@ -5,6 +5,7 @@ mod current;
 mod html;
 mod odt;
 pub use odt::Archive;
+mod icalendar;
 mod manual;
 pub(crate) mod output;
 mod render;
@@ -92,6 +93,8 @@ pub struct Snapshot {
     export_bytes: usize,
     job_seconds: usize,
     todo: Vec<String>,
+    workflow: crate::org::task::Workflow,
+    calendar_zones: std::collections::BTreeMap<String, crate::org::time::Zone>,
     diagnostics: Vec<String>,
 }
 impl Snapshot {
@@ -184,7 +187,8 @@ impl Work {
         };
         budget.check()?;
         let nodes = document::nodes(&self.source.text, &cancel)?;
-        let todo = render::workflow(&self.source.text, &nodes, &self.policy.todo, &cancel)?;
+        let workflow = render::workflow(&self.source.text, &nodes, &self.policy.todo, &cancel)?;
+        let todo = workflow.states.iter().map(|s| s.name.clone()).collect();
         let range = scope::select(&nodes, self.scope, &self.request.scope)?;
         let definitions = macros::Definitions::observe(&self.source.text, &nodes, &cancel)?;
         let mut metadata = Metadata::observe(&self.source.text, &nodes, &cancel)?;
@@ -204,7 +208,7 @@ impl Work {
         )?;
         let text = expanded.text;
         let nodes = document::nodes(&text, &cancel)?;
-        Ok(Snapshot {
+        let snapshot = Snapshot {
             text,
             nodes,
             sources,
@@ -215,6 +219,9 @@ impl Work {
             export_bytes: self.policy.limits.export_bytes,
             job_seconds: self.policy.limits.job_seconds,
             todo,
-        })
+            workflow,
+            calendar_zones: std::collections::BTreeMap::new(),
+        };
+        snapshot.with_calendar_zones(&cancel)
     }
 }

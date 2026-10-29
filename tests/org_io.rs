@@ -153,3 +153,6 @@ mod odt_exports;
 
 #[path = "org_io/manual_exports.rs"]
 mod manual_exports;
+
+#[path = "org_io/calendar_exports.rs"]
+mod calendar_exports;

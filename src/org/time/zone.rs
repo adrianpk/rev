@@ -68,3 +68,18 @@ impl Zone {
         self.offsets[kind].ok_or_else(|| "TZif marks this local time as unspecified".into())
     }
 }
+
+impl Zone {
+    /// Prove constant offset from the complete retained rule representation,
+    /// never from sampled dates. Unknown future coverage cannot prove constancy.
+    pub(in crate::org) fn constant_offset(&self) -> Option<i32> {
+        if !self.transitions.is_empty() {
+            return None;
+        }
+        match &self.future {
+            Some(future) if future.daylight.is_none() => Some(future.standard),
+            Some(_) => None,
+            None => self.offsets.first().copied().flatten(),
+        }
+    }
+}

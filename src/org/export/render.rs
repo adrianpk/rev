@@ -26,6 +26,7 @@ impl Snapshot {
             ExportBackend::Texinfo | ExportBackend::Man => {
                 Some(super::manual::render(self, cancel))
             }
+            ExportBackend::Icalendar => Some(super::icalendar::render(self, cancel)),
             _ => None,
         }
     }
@@ -330,7 +331,7 @@ pub(super) fn workflow(
     nodes: &[structure::Raw],
     policy: &crate::config::Todo,
     cancel: &Cancellation,
-) -> Result<Vec<String>, String> {
+) -> Result<super::super::task::Workflow, String> {
     let mut workflow = super::super::task::Workflow::default();
     for node in document::active(nodes, cancel)? {
         if let Some((key, value)) = document::keyword(text, node)
@@ -339,12 +340,7 @@ pub(super) fn workflow(
             workflow.declaration(&value);
         }
     }
-    Ok(workflow
-        .effective(policy)?
-        .states
-        .into_iter()
-        .map(|s| s.name)
-        .collect())
+    workflow.effective(policy)
 }
 
 fn hidden(kind: StructureKind) -> bool {
