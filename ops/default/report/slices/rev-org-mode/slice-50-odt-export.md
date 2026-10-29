@@ -1,6 +1,6 @@
 # Slice 50: export native Org to OpenDocument text
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -75,6 +75,8 @@ Canonical PR: [#151](https://forge.adrianpk.com/adrianpk/rev/pulls/151).
 
 - `cargo test --test org_io odt_package`: two workflows passed, zero failures or ignored tests.
 - Changed-source quality passed with unchanged native limits.
+
+Canonical PR #151 merged into dev at `5fc0b8cb4a65b818c901d15545bbb9c21f5e6b53`, verified against Forgejo and origin/dev. Required controller receipt `66R7J37A5XRQH2U3CT76FBBBFW` passed five ordered checks and 183 tests. Focused receipt `UJRJCW7UC5VAJ7522F4DL2BUT6` passed 280 command/configuration tests, the configuration reference and two owned RGB/NO_COLOR terminal sessions. Zero failures, ignored tests or skipped sessions.
 
 ## Risks and Follow-ups
 

@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 50 OpenDocument text
+Active slice: Slice 51 Texinfo and man
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1038,13 +1038,13 @@ Details and exact checks: [Slice 50](../plan/rev-org-mode.md#slice-50-export-nat
 - [x] T50.1: Deliver bounded native ODT XML and ZIP packaging without adding a runtime service or crate.
 - [x] T50.2: Preserve document structure, Unicode, links, lists and tables with validated package relationships.
 - [x] T50.3: Verify generated archives with Python zipfile/XML tooling and truthful unsupported-rich-content handling.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T50.1 `9e11ce19ed890e1ff96839478a96916d78fa1545`, T50.2 `5cabdf4461e1f4edf618cbc73c273d1ad2a2d59b`, T50.3 `36e5da2623d75404c54ff7bca9183068aa4c8170`.
 
-Canonical PR: [#151](https://forge.adrianpk.com/adrianpk/rev/pulls/151); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+Canonical PR #151 merged into dev at `5fc0b8cb4a65b818c901d15545bbb9c21f5e6b53`, verified against Forgejo and origin/dev. Required receipt `66R7J37A5XRQH2U3CT76FBBBFW` passed five ordered checks and 183 tests. Focused receipt `UJRJCW7UC5VAJ7522F4DL2BUT6` passed 280 command/configuration tests, the configuration reference and two owned RGB/NO_COLOR terminal sessions. Zero failures, ignored tests or skipped sessions. Slice 50 is delivered.
 
-### Slice 51: export Org to Texinfo and man formats
+## Slice 51: export Org to Texinfo and man formats
 
 Contracts: ORG25 ORG27.
 Details and exact checks: [Slice 51](../plan/rev-org-mode.md#slice-51-export-org-to-texinfo-and-man-formats).
