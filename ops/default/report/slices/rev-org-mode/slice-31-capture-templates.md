@@ -1,6 +1,6 @@
 # Slice 31: define native Org capture targets and templates
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -96,3 +96,5 @@ Editable expansion and publication belong to the
 recorded successor slices. The delivery-set full gate has not run.
 
 [Canonical PR #132](https://forge.adrianpk.com/adrianpk/rev/pulls/132) targets dev. All task commits and this PR-reference follow-up are pushed before exact-head controller validation.
+
+PR #132 merged into dev at `f7fb5fbbea3c7df2fb4f3792f77f5a3db2d94222`, verified on Forgejo and origin/dev. Required receipt `YVZVSLCQXGTAJ5NCB6FT4JK5OB` passed 218 tests; focused receipt `PSITFVEX7B3SW54RVYEJ5JK5ZX` passed 217 tests and the exhaustive reference. Zero failures or ignored tests.

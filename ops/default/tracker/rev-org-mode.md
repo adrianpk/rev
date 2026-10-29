@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 31 capture-templates
+Active slice: Slice 32 capture-drafts
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -758,11 +758,13 @@ Details and exact checks: [Slice 31](../plan/rev-org-mode.md#slice-31-define-nat
 - [x] T31.1: Admit typed native capture templates/targets and the source-compatible factory fallback.
 - [x] T31.2: Resolve file/headline/outline/date-tree/table/list targets without writing them during discovery.
 - [x] T31.3: Verify explicit destination entry, missing targets and template/default/sample coherence.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #132](https://forge.adrianpk.com/adrianpk/rev/pulls/132) targets dev; the Slice 31 report is reviewing. T31.1 is `39f9929bc439`; T31.2 uses reader move `cf1810e5ee25` and implementation `768d2a9fd695`; T31.3 is `3a35303cc0e1`. Four configuration and nine file-backed capture workflows, focused Clippy and unchanged source-quality limits pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
-### Slice 32: expand and edit native Org capture drafts
+PR #132 merged into dev at `f7fb5fbbea3c7df2fb4f3792f77f5a3db2d94222`, verified against Forgejo and origin/dev. Required receipt `YVZVSLCQXGTAJ5NCB6FT4JK5OB` and focused receipt `PSITFVEX7B3SW54RVYEJ5JK5ZX` passed 435 tests with zero failures or ignored tests. Slice 31 is delivered.
+
+## Slice 32: expand and edit native Org capture drafts
 
 Contracts: ORG10 ORG02.
 Details and exact checks: [Slice 32](../plan/rev-org-mode.md#slice-32-expand-and-edit-native-org-capture-drafts).
