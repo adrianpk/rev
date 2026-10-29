@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-41-formula-syntax`
-PR: pending
+PR: [#142](https://forge.adrianpk.com/adrianpk/rev/pulls/142)
 
 ## Purpose
 
@@ -21,6 +21,10 @@ references, inclusive ranges, aggregates, round and abs. Multiple assignments
 retain their order and source spans. Fixed `fN` and `%.Nf` formatting are represented as data. Parsing neither evaluates expressions nor changes canonical source.
 
 ## Implementation Notes
+
+Task commits: T41.1 `9f599f4cd663572378ee0820c8e242204642bd35`,
+T41.2 `cab7833a5be8c819c9b17548504b09ca19805bbe`,
+T41.3 `3872b96e962cd03dfd3700f44f763e5528492065`.
 
 `org::formula::Program` owns finite immutable syntax observations. Arena indices
 refer only to earlier child nodes, so dropping deeply nested or long syntax does
@@ -81,6 +85,7 @@ coordinate digits and retains ordinary one-operation undo/redo.
 
 ## Risks and Follow-ups
 
-Final exact-HEAD required/focused controller validation and canonical PR integration
-remain pending. The approved evaluation/publication layers remain separate. The
+Exact-HEAD required/focused validation is recorded through the controller for
+the PR-reference commit. Canonical PR #142 records the successful required
+command list. Verified dev integration remains pending. The approved evaluation/publication layers remain separate. The
 pre-existing outline timer fixture diagnostic retained in Slice 39 is unchanged.

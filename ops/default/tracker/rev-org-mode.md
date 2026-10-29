@@ -906,6 +906,9 @@ Details and exact checks: [Slice 41](../plan/rev-org-mode.md#slice-41-parse-the-
 - [x] T41.3: Verify unsupported Calc/Lisp preservation, malformed references and precise diagnostics.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#142](https://forge.adrianpk.com/adrianpk/rev/pulls/142).
+Task commits: T41.1 `9f599f4cd663572378ee0820c8e242204642bd35`, T41.2 `cab7833a5be8c819c9b17548504b09ca19805bbe`, T41.3 `3872b96e962cd03dfd3700f44f763e5528492065`.
+
 ### Slice 42: evaluate basic Org table formulas safely
 
 Contracts: ORG13 ORG14.
