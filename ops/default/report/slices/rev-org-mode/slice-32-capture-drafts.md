@@ -1,6 +1,6 @@
 # Slice 32: expand and edit native Org capture drafts
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -115,3 +115,5 @@ Destination publication remains the recorded Slice 33 responsibility.
 The delivery-set full gate has not run.
 
 [Canonical PR #133](https://forge.adrianpk.com/adrianpk/rev/pulls/133) targets dev. All task commits and this PR-reference follow-up are pushed before final exact-head controller validation. Required and focused receipts are recorded through the controller and Acta; integration remains pending.
+
+PR #133 merged into dev at `e4e81f12c16a4c1c9ed687e04f3b4c3231d49221`, verified on Forgejo and origin/dev. Required receipt `MMEG2LYSXODJ4G3A47XFYR565F` passed 478 tests; focused receipt `HBFNNHQQRBF2GSAUSGCOFQY23R` passed 187 tests, the exhaustive configuration reference and two owned terminal sessions. Zero failures or ignored tests.

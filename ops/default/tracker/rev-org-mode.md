@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 32 capture-drafts
+Active slice: Slice 33 capture-finalize
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -772,11 +772,13 @@ Details and exact checks: [Slice 32](../plan/rev-org-mode.md#slice-32-expand-and
 - [x] T32.1: Expand the declared bounded text substitutions, prompts and checked origin links without evaluating Lisp.
 - [x] T32.2: Retain the editable capture draft in its own transient owner with familiar context bindings.
 - [x] T32.3: Verify malformed expansion, literal preservation, cancellation and return to the originating view.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical [PR #133](https://forge.adrianpk.com/adrianpk/rev/pulls/133) targets dev; the Slice 32 report is reviewing. T32.1 is `75774e457d81`, T32.2 is `bbfabe138789` and T32.3 is `d7a9c1e40cd5`. Five expansion cases, nine native session workflows, backend save/mode admission and two owned RGB/NO_COLOR terminal sessions pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
 
-### Slice 33: finalize or abort Org capture safely
+PR #133 merged into dev at `e4e81f12c16a4c1c9ed687e04f3b4c3231d49221`, verified against Forgejo and origin/dev. Required receipt `MMEG2LYSXODJ4G3A47XFYR565F` and focused receipt `HBFNNHQQRBF2GSAUSGCOFQY23R` passed 665 tests and two owned terminal sessions with zero failures or ignored tests. Slice 32 is delivered.
+
+## Slice 33: finalize or abort Org capture safely
 
 Contracts: ORG10 ORG18.
 Details and exact checks: [Slice 33](../plan/rev-org-mode.md#slice-33-finalize-or-abort-org-capture-safely).
