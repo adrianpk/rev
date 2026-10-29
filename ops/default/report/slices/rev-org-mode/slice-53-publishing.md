@@ -1,6 +1,6 @@
 # Slice 53: publish native Org document projects
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -93,6 +93,13 @@ The first physical run reached the correct replacement prompt, but the terminal
 clipped its long leading path/label at 80 columns. The driver now waits for the
 visible exact `notes.html? yes/no:` suffix, retaining the selected destination,
 replacement decision, output-byte, source and resource assertions.
+
+Verified integration: canonical PR [#154](https://forge.adrianpk.com/adrianpk/rev/pulls/154)
+merged into `dev` at `69f489653db3d0e66d3e25b58c4dcb70a8663225`.
+Required exact-head receipt `7KBWO2GP2S62Q5XFLE25S4H5FI` passed all six
+ordered checks, 344 tests and two owned RGB/NO_COLOR sessions. Focused receipt
+`KXBL7RNZQZW6CUEE2R65KEK23S` passed 158 command tests and configuration
+references. Zero failures, ignored tests or skipped sessions.
 
 ## Risks and Follow-ups
 

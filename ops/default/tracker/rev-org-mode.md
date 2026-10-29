@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 53 project publishing
+Active slice: Slice 54 source block editing
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1080,13 +1080,13 @@ Details and exact checks: [Slice 53](../plan/rev-org-mode.md#slice-53-publish-na
 - [x] T53.1: Deliver typed project selection, bounded source discovery, export and attachment-copy publication.
 - [x] T53.2: Honor explicit output ownership, collision consent and per-file outcomes; optional upload uses declared external tools.
 - [x] T53.3: Exercise actual exports/publishing, failure and source immutability through owned terminal/filesystem fixtures.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Task commits: T53.1 `f2bac539edfda5c5f4d97e4e4ff14a8fe8aca5cd`, T53.2 `46ac266f794d8428ff162b9aa37ee8a685fc0413`, T53.3 `928eaa9bf4144e1dcc030e0a3308bb5606282e9f`.
 
-Canonical PR: [#154](https://forge.adrianpk.com/adrianpk/rev/pulls/154); report reviewing. Final exact-candidate controller evidence is recorded in Acta.
+Canonical PR: [#154](https://forge.adrianpk.com/adrianpk/rev/pulls/154); merged into `dev` at `69f489653db3d0e66d3e25b58c4dcb70a8663225`; report delivered. Required receipt `7KBWO2GP2S62Q5XFLE25S4H5FI` passed six checks, 344 tests and two owned terminal sessions; focused receipt `KXBL7RNZQZW6CUEE2R65KEK23S` passed 158 command tests and configuration references. Zero failures, ignored tests or skipped sessions.
 
-### Slice 54: edit native Org source blocks and headers
+## Slice 54: edit native Org source blocks and headers
 
 Contracts: ORG28 ORG02.
 Details and exact checks: [Slice 54](../plan/rev-org-mode.md#slice-54-edit-native-org-source-blocks-and-headers).
