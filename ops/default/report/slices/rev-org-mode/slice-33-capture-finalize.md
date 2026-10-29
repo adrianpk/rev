@@ -102,7 +102,10 @@ A plain-prepend fixture initially exposed metadata joining; placement now keeps
 its property drawer intact and the exact expected bytes pass. Concurrent unit
 fixtures initially collided, and required all-target Clippy rejected duplicate
 module loads. A single shared fixture owner with module-qualified paths fixes
-that setup while preserving all observable assertions. Final controller receipts will bind the
+that setup while preserving all observable assertions. The required file suite also exposed an older accepted-ingress assertion that
+expected unbound `C-c`. It now asserts the actual fresh global capture prefix,
+with unchanged file bytes and the same quit-guard checks, still proving that
+loading clears the previous `C-x` prefix. Final controller receipts bind the
 clean pushed PR head after its reference follow-up commit.
 
 ## Risks and Follow-ups

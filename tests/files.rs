@@ -452,7 +452,10 @@ fn accepted_session() {
     assert!(session.echo().is_empty());
     assert!(session.frame().unwrap().cursor().is_some());
     assert_eq!(session.handle(chord('c')), Action::Redraw);
-    assert_eq!(session.echo(), "Unbound key");
+    // The old C-x is cleared: C-c starts the current global capture prefix
+    // rather than completing C-x C-c and opening the unsaved-buffer guard.
+    assert_eq!(session.echo(), "C-c");
+    assert_eq!(bytes(session.buffer().unwrap()), source.as_bytes());
     assert_eq!(session.execute(Command::Quit), Action::Redraw);
     assert!(session.echo().ends_with("y=save, n=discard, C-g=cancel"));
     session.execute(Command::KeyboardQuit);
