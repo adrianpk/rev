@@ -95,6 +95,11 @@ T32.3: `d7a9c1e40cd555696d64470cce14f2c695ceaf0f`.
   now preserves the exact combining sequence; the joined-cursor assertion stays.
   Disk permission evidence uses the actual disk observation and mode, separate
   from the canonical buffer's read-only flag, which has its own identity test.
+- Required attempt `A75NNZVRMDHKS2JX37ZIVGYLMI` on `1951cf5b4ff5` found one
+  earlier catalog assertion still requiring `org-capture` to be absent. The
+  catalog now checks actual invocation of both delivered capture commands and
+  explicitly retains `org-capture-finalize` among unavailable future commands.
+  All 14 expansion/session workflows had passed; runtime acceptance is unchanged.
 - Final required controller order binds the clean pushed PR head:
   `cargo fmt --all -- --check`;
   `cargo clippy --all-targets --all-features -- -D warnings`;

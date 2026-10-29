@@ -36,7 +36,7 @@ fn open(input: &mut Input, stage: &str) {
     }
 }
 
-// The public palette contains working mode/move/clock commands and no future feature
+// The public palette contains working mode/move/clock/capture commands and no future feature
 // placeholders. A narrowed mode prefix completes to its compiled identity.
 #[test]
 fn operational_catalog() {
@@ -70,7 +70,22 @@ fn operational_catalog() {
         input.handle(key(KeyCode::Enter)),
         Outcome::Command(Command::Org(OrgCommand::Agenda))
     );
-    for absent in ["org-capture", "org-export-dispatch", "org-edit-special"] {
+    for (name, command) in [
+        ("org-capture", OrgCommand::Capture),
+        ("org-capture-kill", OrgCommand::CaptureKill),
+    ] {
+        input.commands().unwrap();
+        input.handle(Event::Paste(name.into()));
+        assert_eq!(
+            input.handle(key(KeyCode::Enter)),
+            Outcome::Command(Command::Org(command))
+        );
+    }
+    for absent in [
+        "org-capture-finalize",
+        "org-export-dispatch",
+        "org-edit-special",
+    ] {
         assert_eq!(Command::named(absent), None, "{absent}");
     }
 }
