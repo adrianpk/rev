@@ -305,6 +305,14 @@ role selection alone does not create an agenda or draft.
 | `M-x` | `execute-extended-command` | Enter the compiled command query. |
 | `v d` | `org-agenda-day-view` | Show one captured calendar day. |
 | `v w` | `org-agenda-week-view` | Show the configured calendar week. |
+| `v v` | `org-agenda-custom-view` | Select a configured view key. |
+| `/` | `org-agenda-filter` | Apply a tag/property visibility filter. |
+| Pipe | `org-agenda-filter-remove-all` | Restore preset filters. |
+| `S` | `org-agenda-sort` | Select ordered sort keys. |
+| `V` | `org-agenda-columns` | Select property columns. |
+| `v m` | `org-agenda-month-view` | Show an aligned month. |
+| `v y` | `org-agenda-year-view` | Show an aligned year. |
+| `v s` | `org-agenda-span` | Select a named span or 1–366 days. |
 | `f`, `Right` | `org-agenda-later` | Move one displayed span forward. |
 | `b`, `Left` | `org-agenda-earlier` | Move one displayed span backward. |
 | `.` | `org-agenda-goto-today` | Return to the captured effective today. |

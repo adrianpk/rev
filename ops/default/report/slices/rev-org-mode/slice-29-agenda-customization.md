@@ -84,6 +84,9 @@ T29.3: `8fd93c685e4661a958c9fa0ce4636eb4a3dc13ff`.
   `cargo test --test org_agenda --test configuration --test display`;
   `python3 scripts/check-source.py`;
   `git diff --check`.
+- The first final focused batch caught the agenda context reference missing
+  the eight new binding rows. The actual context table now includes every
+  compiled target without changing the catalogue assertion.
 - Focused final checks cover commands, source observations, IO, property editing,
   pane ownership and the exhaustive configuration reference through the controller.
 
