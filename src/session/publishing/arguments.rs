@@ -81,6 +81,9 @@ impl Session {
         {
             self.publishing_results
                 .push(prepared.failed("Project cancelled before replacement"));
+            if let Some(state) = &mut self.publishing {
+                state.active = None;
+            }
         }
         self.input.cancel();
         if self.org.publish_running {

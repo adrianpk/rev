@@ -197,9 +197,10 @@ impl Write {
             if path == self.prepared.target.path() {
                 return Err("Project destination is an input source".into());
             }
-            let observed = file::observe(path)
-                .map_err(|e| e.to_string())?
-                .map(|o| (o.device, o.inode));
+            // Resolve rejected aliases only to protect their physical inputs.
+            // This observation does not admit them for rendering or copying.
+            let resolved = file::resolve(path).map_err(|e| e.to_string())?;
+            let observed = resolved.observation().map(|o| (o.device, o.inode));
             if identity.is_some() && identity == observed {
                 return Err("Project destination aliases an input source".into());
             }

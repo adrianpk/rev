@@ -1078,7 +1078,7 @@ Contracts: ORG26 ORG25.
 Details and exact checks: [Slice 53](../plan/rev-org-mode.md#slice-53-publish-native-org-document-projects).
 
 - [x] T53.1: Deliver typed project selection, bounded source discovery, export and attachment-copy publication.
-- [ ] T53.2: Honor explicit output ownership, collision consent and per-file outcomes; optional upload uses declared external tools.
+- [x] T53.2: Honor explicit output ownership, collision consent and per-file outcomes; optional upload uses declared external tools.
 - [ ] T53.3: Exercise actual exports/publishing, failure and source immutability through owned terminal/filesystem fixtures.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

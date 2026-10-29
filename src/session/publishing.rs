@@ -89,6 +89,10 @@ impl Session {
                 .get(request.origin.point.stamp.buffer)
                 .is_ok_and(|b| b.stamp() == request.origin.point.stamp)
             && state
+                .evidence
+                .iter()
+                .all(|e| e.buffer_current(&self.buffers).is_ok())
+            && state
                 .plan
                 .as_ref()
                 .is_none_or(|p| p.current(&self.buffers).is_ok())

@@ -21,6 +21,14 @@ publication does not save, edit or acknowledge source history. Explicit output
 paths preserve relative source structure. Every file retains a publication
 status and diagnostic through `org-publish-results`. No cleanup or server starts.
 
+T53.2 verifies independent replacement consent, stale observations, source and
+output symlinks, hard-link input aliases, duplicated output names and unavailable
+sources. Rejected symlink sources remain per-file failures: alias resolution used
+only for protection does not admit their content or grant source authority.
+Separate upload confirmation uses literal configured argv and the existing bounded
+process group, with missing tools, exit failure, timeout and output limits reported
+without erasing completed native files. No uploader runs before consent.
+
 ## Implementation Notes
 
 The ordinary owned worker slot serializes discovery, file effects and configured
@@ -55,6 +63,9 @@ exact-candidate controller receipts are recorded in Acta before handoff.
 
 - `cargo test --test org_io project_native_outputs`: passed one owned public-session workflow; zero failures or ignored tests.
 - Changed-source quality passed with unchanged limits after discovery/glob/result helpers were separated by responsibility.
+
+- `cargo test --test org_io project_`: four public-session workflows passed, including table-driven replacement, partial-source and upload cases; zero failures or ignored tests.
+- Changed-source quality passed with unchanged limits. The partial-source fixture first exposed an alias-observation error that incorrectly prevented an independent valid export; the guarded alias observation was corrected and the original assertion passed.
 
 ## Risks and Follow-ups
 
