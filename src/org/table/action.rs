@@ -55,7 +55,7 @@ impl Snapshot {
         .map(Output::Plan)
     }
 }
-fn adjacent_row(nodes: &[structure::Raw], at: usize, following: bool) -> bool {
+pub(super) fn adjacent_row(nodes: &[structure::Raw], at: usize, following: bool) -> bool {
     nodes.iter().any(|n| {
         matches!(n.kind, K::TableRow { .. })
             && if following {

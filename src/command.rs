@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 254] = [
+    pub const ALL: [Self; 264] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -268,6 +268,16 @@ impl Command {
         Self::Org(OrgCommand::TableInsertRow),
         Self::Org(OrgCommand::TableInsertHline),
         Self::Org(OrgCommand::Return),
+        Self::Org(OrgCommand::TableKillRow),
+        Self::Org(OrgCommand::TableMoveRowUp),
+        Self::Org(OrgCommand::TableMoveRowDown),
+        Self::Org(OrgCommand::TableInsertColumn),
+        Self::Org(OrgCommand::TableDeleteColumn),
+        Self::Org(OrgCommand::TableMoveColumnLeft),
+        Self::Org(OrgCommand::TableMoveColumnRight),
+        Self::Org(OrgCommand::TableSort),
+        Self::Org(OrgCommand::ListToTable),
+        Self::Org(OrgCommand::TableToList),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

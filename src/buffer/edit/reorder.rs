@@ -6,9 +6,9 @@ use crate::coordinates::{Coordinates, Scalar};
 mod modified;
 
 #[derive(Clone, Debug)]
-struct Piece {
-    before: Range<usize>,
-    after: Range<usize>,
+pub(super) struct Piece {
+    pub(super) before: Range<usize>,
+    pub(super) after: Range<usize>,
 }
 
 /// Original source fragments and their final positions. Counter replacements
@@ -16,8 +16,9 @@ struct Piece {
 /// keep their source anchors. The transaction owns text and mutation authority.
 #[derive(Clone, Debug)]
 pub(super) struct Permutation {
-    pieces: Vec<Piece>,
-    endpoints: Option<[(usize, usize); 2]>,
+    pub(super) pieces: Vec<Piece>,
+    pub(super) endpoints: Option<[(usize, usize); 2]>,
+    pub(super) sparse: bool,
 }
 
 impl Permutation {
@@ -36,10 +37,27 @@ impl Permutation {
             start = end;
         }
         let endpoints = end_points(buffer, &pieces)?;
-        Ok(Self { pieces, endpoints })
+        Ok(Self {
+            pieces,
+            endpoints,
+            sparse: false,
+        })
     }
 
-    pub(super) fn position(&self, position: Scalar) -> Scalar {
+    pub(super) fn mapped(&self, position: Scalar) -> Option<Scalar> {
+        if !self.sparse {
+            return Some(self.position(position));
+        }
+        let index = self
+            .pieces
+            .partition_point(|p| p.before.start <= position.0);
+        self.pieces
+            .get(index.checked_sub(1)?)
+            .filter(|p| position.0 <= p.before.end)
+            .map(|p| Scalar(p.after.start + position.0 - p.before.start))
+    }
+
+    fn position(&self, position: Scalar) -> Scalar {
         if let Some((_, after)) = self
             .endpoints
             .iter()
@@ -76,6 +94,9 @@ impl Permutation {
                     std::mem::swap(before, after);
                 }
             }
+        }
+        if order.sparse {
+            order.pieces.sort_by_key(|p| p.before.start);
         }
         order
     }

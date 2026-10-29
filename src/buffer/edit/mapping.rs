@@ -45,8 +45,8 @@ pub(super) fn mapped(
     affinity: Affinity,
     permutation: Option<&super::Permutation>,
 ) -> Result<Scalar, Error> {
-    if let Some(order) = permutation {
-        return Ok(order.position(point));
+    if let Some(mapped) = permutation.and_then(|p| p.mapped(point)) {
+        return Ok(mapped);
     }
     for change in changes.iter().rev() {
         point = through(change, point, affinity)?;

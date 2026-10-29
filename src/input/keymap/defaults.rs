@@ -235,6 +235,9 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x C-f", "org-emphasize"),
     ("RET", "org-return"),
     ("C-c |", "org-table-create"),
+    ("C-c ^", "org-table-sort-lines"),
+    ("M-S-Up", "org-table-kill-row"),
+    ("M-S-Down", "org-table-insert-row"),
     ("C-c -", "org-table-insert-hline"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[

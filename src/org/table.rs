@@ -1,6 +1,7 @@
 //! Native table plans retain original cell source. Only the canonical buffer
 //! transaction can publish edits or grant history and view authority.
 mod action;
+mod edit;
 mod layout;
 mod observe;
 
@@ -8,7 +9,7 @@ use super::{Cancellation, Coverage, Limits, Source, StructureKind as K, structur
 use crate::{
     buffer::{
         Buffer, Span, Stamp,
-        edit::{Point, Replacement},
+        edit::{Point, Replacement, Retained},
     },
     command::OrgCommand as C,
     coordinates::{Glyphs, Scalar},
@@ -26,6 +27,8 @@ pub(crate) struct Snapshot {
     point: usize,
     tab_width: usize,
     newline: &'static str,
+    region: Option<Range<usize>>,
+    mark: Option<usize>,
 }
 pub(crate) enum Output {
     Prompt,
@@ -35,6 +38,7 @@ pub(crate) enum Output {
 pub(crate) struct Plan {
     pub edits: Vec<Replacement>,
     pub cursor: Scalar,
+    pub retained: Vec<Retained>,
 }
 struct Table {
     source: Range<usize>,
@@ -81,7 +85,7 @@ struct Layout {
 
 impl Snapshot {
     pub fn new(buffer: &Buffer, point: Point) -> Result<Self, String> {
-        buffer.region(point).map_err(|e| e.to_string())?;
+        let region = buffer.region(point).map_err(|e| e.to_string())?;
         let text = Source::new(buffer).snapshot().map_err(|e| e.to_string())?;
         if text.len_bytes() > Limits::default().bytes {
             return Err("Table source exceeds native analysis byte limit".into());
@@ -89,6 +93,10 @@ impl Snapshot {
         Ok(Self {
             stamp: buffer.stamp(),
             point: text.char_to_byte(point.position.0),
+            region: region
+                .as_ref()
+                .map(|r| text.char_to_byte(r.range.start)..text.char_to_byte(r.range.end)),
+            mark: region.and(buffer.mark()).map(|p| text.char_to_byte(p.0)),
             text,
             tab_width: buffer.policy().tab_width,
             newline: buffer.newline(),
@@ -100,29 +108,35 @@ impl Snapshot {
         argument: Option<String>,
         cancel: &Cancellation,
     ) -> Result<Output, String> {
-        let raw = structure::observe(self.text.clone(), Limits::default(), cancel);
-        if raw.coverage != Coverage::Complete || raw.nodes.iter().any(|n| n.kind == K::Malformed) {
-            return Err("Incomplete or malformed table source; nothing changed".into());
+        let raw = self.nodes(cancel)?;
+        if command == C::ListToTable {
+            return self.list_table(&raw, cancel).map(Output::Plan);
         }
         if command == C::TableCreate {
-            return self.create(&raw.nodes, argument, cancel);
+            return self.create(&raw, argument, cancel);
         }
-        let Some(table) = Table::observe(&self.text, &raw.nodes, self.point, cancel)? else {
+        let Some(table) = Table::observe(&self.text, &raw, self.point, cancel)? else {
             return if command.table() && command != C::Return {
                 Err("No native Org table at point".into())
             } else {
                 Ok(Output::Fallback)
             };
         };
-        if matches!(command, C::Return | C::TableNextRow)
-            && table
-                .rows
-                .iter()
-                .any(|r| self.point == r.body.start || self.point == r.body.end)
-        {
+        if table.split_line(command, self.point) {
             return Ok(Output::Fallback);
         }
+        let command = edit::command(command);
+        if edit::structural(command) {
+            return self.edit_table(table, command, argument, cancel);
+        }
         self.operate(table, command, cancel).map(Output::Plan)
+    }
+    fn nodes(&self, cancel: &Cancellation) -> Result<Vec<structure::Raw>, String> {
+        let raw = structure::observe(self.text.clone(), Limits::default(), cancel);
+        if raw.coverage != Coverage::Complete || raw.nodes.iter().any(|n| n.kind == K::Malformed) {
+            return Err("Incomplete or malformed table source; nothing changed".into());
+        }
+        Ok(raw.nodes)
     }
     fn plan(&self, table: &Table, layout: Layout, cursor: Position) -> Result<Plan, String> {
         let cell = layout
@@ -155,7 +169,11 @@ impl Snapshot {
             output = anchor.output.end;
         }
         self.gap(&mut edits, source..table.source.end, &layout.text[output..])?;
-        Ok(Plan { edits, cursor })
+        Ok(Plan {
+            edits,
+            cursor,
+            retained: Vec::new(),
+        })
     }
     fn gap(
         &self,
@@ -175,6 +193,15 @@ impl Snapshot {
             text: value.into(),
         });
         Ok(())
+    }
+}
+impl Table {
+    fn split_line(&self, command: C, point: usize) -> bool {
+        matches!(command, C::Return | C::TableNextRow)
+            && self
+                .rows
+                .iter()
+                .any(|r| point == r.body.start || point == r.body.end)
     }
 }
 fn check(cancel: &Cancellation) -> Result<(), String> {

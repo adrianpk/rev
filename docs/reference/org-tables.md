@@ -41,3 +41,30 @@ defines the compatible delimiter, field-motion and separator forms. Names,
 captions and formula source remain associated with the table. Row insertion in a
 table with stored formulas rejects before publication because it requires checked
 reference rewriting. Alignment and navigation never evaluate formulas.
+
+Row and column structure commands are available through M-x. In a table,
+M-Up/M-Down move the current row (including separators), and M-Left/M-Right
+move its column in every data row. M-S-Left removes a column; M-S-Right inserts
+an empty column before the current one. M-S-Up kills a row or separator and
+M-S-Down inserts above. Moving beyond a table boundary rejects. The final
+column cannot be deleted; use row removal to remove an entire table.
+
+`org-table-sort-lines` (C-c ^) sorts data rows between the nearest separators.
+Select a data field first. With an active region, the mark determines the sort
+column and both endpoint rows are included; the region must stay inside one
+separator group. The prompt admits a/A for stable Unicode case-insensitive
+alphabetical order, or n/N for finite binary64 numeric order. Uppercase selects
+reverse order, retaining equal-key order. Empty numeric fields sort as zero;
+other nonnumeric fields reject the whole operation. No expression is evaluated.
+
+`org-list-to-table` converts contiguous, flat single-line native list items into
+a one-column table. Literal cell text is retained; nested/continued items,
+blank-separated items and literal vertical-bar delimiters reject.
+`org-table-to-list` converts one-column tables without separators into ordinary
+unordered items. Other table shapes reject before mutation. Original bullets
+and spacing return through ordinary one-operation undo.
+
+Shared points and marks inside moved cell text follow the retained source.
+The canonical buffer owner verifies the original identity, candidate bytes and
+disjoint retained ranges before publication; a proposed anchor cannot grant
+mutation authority. Other positions use normal checked edit affinity.

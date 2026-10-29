@@ -9,7 +9,16 @@ impl Session {
         command.table()
             || matches!(
                 command,
-                C::Cycle | C::GlobalCycle | C::MetaReturn | C::CtrlCCtrlC
+                C::Cycle
+                    | C::GlobalCycle
+                    | C::MetaReturn
+                    | C::CtrlCCtrlC
+                    | C::MetaLeft
+                    | C::MetaRight
+                    | C::MetaUp
+                    | C::MetaDown
+                    | C::IndentItemTree
+                    | C::OutdentItemTree
             ) && self.table_candidate()
     }
     pub(in crate::session) fn table_candidate(&self) -> bool {
@@ -73,9 +82,12 @@ impl Session {
     fn table_output(&mut self, output: Output, request: Request) -> Result<(), String> {
         match output {
             Output::Prompt => {
-                self.input
-                    .argument("Table size (columns x rows, default 5x2): ", "")
-                    .map_err(|e| e.to_string())?;
+                let prompt = if request.command == C::TableSort {
+                    "Sort type (a/A alphabetical, n/N numeric): "
+                } else {
+                    "Table size (columns x rows, default 5x2): "
+                };
+                self.input.argument(prompt, "").map_err(|e| e.to_string())?;
                 self.pending = Some(Pending::Table(Box::new(request)));
                 self.message("Enter dimensions; C-g cancels");
                 Ok(())
@@ -117,7 +129,7 @@ impl Session {
                 position: plan.cursor,
             };
             let mut prepared = buffer
-                .prepare(&plan.edits, &points.values, Some(cursor))
+                .prepare_retained(&plan.edits, &points.values, Some(cursor), &plan.retained)
                 .map_err(|e| e.to_string())?;
             prepared.set_origin(self.windows.selected_id());
             self.windows

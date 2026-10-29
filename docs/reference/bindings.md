@@ -276,7 +276,15 @@ configuration snapshot; source edits take effect after restarting.
 | `RET` in Org | `org-return` | Move to the next table row or insert an ordinary newline in other source contexts. |
 | `C-c -` in Org | `org-table-insert-hline` | Insert a table separator below the current row. |
 | M-x | `org-table-align`, `org-table-next-field`, `org-table-previous-field`, `org-table-next-row` | Align the selected table or navigate fields and rows. |
-| M-x | `org-table-beginning-of-field`, `org-table-end-of-field`, `org-table-insert-row` | Visit field edges or insert an empty row above. |
+| M-x | `org-table-beginning-of-field`, `org-table-end-of-field` | Visit field edges. |
+
+| M-Up / M-Down in a native table | `org-table-move-row-up`, `org-table-move-row-down` | Move the current data row or separator. |
+| M-Left / M-Right in a native table | `org-table-move-column-left`, `org-table-move-column-right` | Move the selected column in every data row. |
+| M-S-Left / M-S-Right in a native table | `org-table-delete-column`, `org-table-insert-column` | Remove the column or insert an empty column before it. |
+| M-S-Up in Org | `org-table-kill-row` | Remove the selected table row or separator. |
+| M-S-Down in Org | `org-table-insert-row` | Insert a row above the selected table row. |
+| C-c ^ in Org | `org-table-sort-lines` | Sort the selected data rows by a field. |
+| M-x | `org-list-to-table`, `org-table-to-list` | Convert contiguous single-line items and one-column tables without separators. |
 
 ## Configuration keymap contracts
 

@@ -180,9 +180,19 @@ pub enum OrgCommand {
     TableInsertRow,
     TableInsertHline,
     Return,
+    TableKillRow,
+    TableMoveRowUp,
+    TableMoveRowDown,
+    TableInsertColumn,
+    TableDeleteColumn,
+    TableMoveColumnLeft,
+    TableMoveColumnRight,
+    TableSort,
+    ListToTable,
+    TableToList,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 178] = [
+    pub const ALL: [Self; 188] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -361,6 +371,16 @@ impl OrgCommand {
         Self::TableInsertRow,
         Self::TableInsertHline,
         Self::Return,
+        Self::TableKillRow,
+        Self::TableMoveRowUp,
+        Self::TableMoveRowDown,
+        Self::TableInsertColumn,
+        Self::TableDeleteColumn,
+        Self::TableMoveColumnLeft,
+        Self::TableMoveColumnRight,
+        Self::TableSort,
+        Self::ListToTable,
+        Self::TableToList,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -542,6 +562,16 @@ impl OrgCommand {
             "org-table-insert-row",
             "org-table-insert-hline",
             "org-return",
+            "org-table-kill-row",
+            "org-table-move-row-up",
+            "org-table-move-row-down",
+            "org-table-insert-column",
+            "org-table-delete-column",
+            "org-table-move-column-left",
+            "org-table-move-column-right",
+            "org-table-sort-lines",
+            "org-list-to-table",
+            "org-table-to-list",
         ][self as usize]
     }
 
@@ -827,6 +857,16 @@ impl OrgCommand {
                 | Self::TableInsertRow
                 | Self::TableInsertHline
                 | Self::Return
+                | Self::TableKillRow
+                | Self::TableMoveRowUp
+                | Self::TableMoveRowDown
+                | Self::TableInsertColumn
+                | Self::TableDeleteColumn
+                | Self::TableMoveColumnLeft
+                | Self::TableMoveColumnRight
+                | Self::TableSort
+                | Self::ListToTable
+                | Self::TableToList
         )
     }
 }

@@ -5,6 +5,8 @@ mod edges;
 mod fixture;
 #[path = "org_tables/metadata.rs"]
 mod metadata;
+#[path = "org_tables/structure.rs"]
+mod structure;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
 use rev::{

@@ -2,6 +2,7 @@ mod grouping;
 mod history;
 mod mapping;
 mod reorder;
+mod retained;
 mod syntax;
 mod views;
 use reorder::Permutation;
@@ -25,6 +26,15 @@ use mapping::map_points;
 pub struct Replacement {
     pub source: Span,
     pub text: String,
+}
+
+/// An unchanged source fragment and its scalar range in the private candidate.
+/// The canonical edit owner verifies byte equality and disjoint ranges before
+/// using it to retain shared points and marks through a structural edit.
+#[derive(Clone, Debug)]
+pub(crate) struct Retained {
+    pub source: Span,
+    pub output: Range<usize>,
 }
 
 /// A view-owned point qualified by its currently displayed buffer revision.

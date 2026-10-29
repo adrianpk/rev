@@ -35,6 +35,7 @@ impl Buffer {
         let order = Permutation {
             endpoints: end_points(self, &assembly.pieces)?,
             pieces: assembly.pieces,
+            sparse: false,
         };
         let edit = Replacement {
             source: self.span(union)?,
