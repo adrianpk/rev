@@ -153,6 +153,13 @@ impl Session {
         }
         Some(Duration::ZERO)
     }
+    pub(super) fn expire_agenda_action(&mut self) -> Action {
+        if self.agenda_action_remaining() != Some(Duration::ZERO) {
+            return Action::Wait;
+        }
+        self.advance_agenda_action();
+        Action::Redraw
+    }
     pub(super) fn advance_agenda_action(&mut self) {
         let Some(mut run) = self.agenda_run.take() else {
             return;

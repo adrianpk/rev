@@ -17,7 +17,7 @@ from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
 from configuration_ui.org_clock_state import persistence
-from configuration_ui import org_time
+from configuration_ui import org_time, org_agenda
 
 
 def terminal(selected):
@@ -52,7 +52,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -71,11 +71,18 @@ def main():
     build = ['cargo', 'build', '--bin', 'rev']
     if args.case in [None, 'io', 'unwind']:
         build.extend(['--example', 'terminal-probe'])
-    if args.case in ['org-tasks','org-time']:
+    if args.case in ['org-tasks','org-time','org-agenda']:
         build.extend(['--example', 'org-task-session'])
     if args.case=='org-time':
         build.extend(['--example','terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-agenda':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            for scenario, mode in [(org_agenda.editing, 'editing'), (org_agenda.readonly, 'read-only'), (org_agenda.cancellation, 'cancellation-stale')]:
+                run_scenario(scenario, colored)
+                print(f'PASS org-agenda {mode} {label}')
+        print('Org agenda terminal suite: 6 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-time':
         for colored,label in [(True,'rgb'),(False,'no-color')]:
             for scenario,mode in [(org_time.editing,'editing'),(org_time.readonly,'read-only'),(org_time.restart,'restart')]:

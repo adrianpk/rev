@@ -1,6 +1,6 @@
 # Slice 30: edit canonical Org source from the agenda
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -42,6 +42,20 @@ available through v t, s and M and their compiled commands. The exhaustive sampl
 and both binding catalogues share the same handlers. Exact-revision agenda undo
 uses ordinary source history without combining files into one disk transaction.
 
+T30.3 adds exact/over selection limits, duplicate/section identity checks,
+stale-source partial failure, partial note cancellation and cancellation after
+publication. A native-deadline regression reproduces the host's redraw protocol:
+zero-delay action steps now advance on expiry, without synthetic input or idle
+polling. Disk navigation rejects changed metadata before bounded content reads;
+actual content comparison remains required.
+
+The owned terminal case covers RGB and NO_COLOR variants of dirty multi-source
+editing/undo/redo, read-only partial failure, mandatory-note cancellation and
+stale disk rejection. Its case-local frame collector recognizes deliberately
+hidden agenda cursors only after all 24 rows and 80-cell widths are complete.
+Historical visible-cursor collectors, eight-second deadlines, 1 MiB output
+limits, fixture bounds and terminal restoration assertions remain unchanged.
+
 ## Contracts Added or Changed
 
 - ORG09: checked canonical source actions and retained agenda/origin state.
@@ -53,8 +67,14 @@ uses ordinary source history without combining files into one disk transaction.
 - `src/window/source_action.rs`: mapped saved view and source anchors.
 - `src/org/agenda/actions.rs`: qualified targets and truthful action outcomes.
 - `tests/org_agenda/source_actions.rs`: source bytes, cancellation and shared views.
+- `tests/org_agenda/action_lifecycle.rs`: bounded selection and native progress.
+- `scripts/configuration_ui/org_agenda.py`: owned multi-source terminal journeys.
 
 ## Validation
+
+T30.1: `ecce41921d6fafb14b784ef20fd19bdb397bb842` (report introduction).
+T30.2: `a65745954df3a85e628be9a423a3e34d3f280daa`.
+
 
 - `cargo test --test org_agenda source_action -- --nocapture`: seven cases passed,
   zero failures or ignored tests, including disk BOM/CRLF, undo/redo, stale and
@@ -71,8 +91,21 @@ uses ordinary source history without combining files into one disk transaction.
 - Initial bulk tests found no wakeup for replaying a just-opened native prompt.
   Active bulk replay now schedules its next owned step; human prompts and
   completed actions add no polling. The unchanged assertions pass.
-- Final exact-head controller checks remain pending the terminal journey.
+- `cargo test --test org_agenda action_lifecycle -- --nocapture`: six cases pass,
+  zero failures or ignored tests. The native-progress regression first failed
+  without host deadline advancement; its unchanged assertions now pass.
+- Focused RGB terminal development runs pass editing, read-only and
+  cancellation/stale scenarios with exact source bytes and owned cleanup.
+- Final required controller order binds the clean pushed PR head:
+  `cargo fmt --all -- --check`;
+  `cargo clippy --all-targets --all-features -- -D warnings`;
+  `cargo test --test org_agenda --test org_editing --test org_io`;
+  `python3 scripts/check-configuration-ui.py --suite terminal --case org-agenda`;
+  `python3 scripts/check-source.py`;
+  `git diff --check`.
+- Focused final controller checks cover command dispatch, configuration,
+  display, window mapping, Org source observation and the exhaustive reference.
 
 ## Risks and Follow-ups
 
-T30.3 remains active. The delivery-set full gate has not run.
+The delivery-set full gate has not run.

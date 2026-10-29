@@ -117,6 +117,7 @@ impl Session {
             self.expire_org(now),
             self.expire_pointer(now),
             self.expire_timer(now),
+            self.expire_agenda_action(),
         ]
         .into_iter()
         .rev()

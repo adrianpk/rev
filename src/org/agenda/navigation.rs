@@ -69,6 +69,11 @@ impl Navigation {
             deadline: Instant::now() + Duration::from_secs(self.seconds as u64),
         };
         budget.check()?;
+        if crate::file::observe(&self.path).map_err(|e| e.to_string())?
+            != Some(self.expected.clone())
+        {
+            return Err("Agenda disk source changed; refresh required".into());
+        }
         let (read, _) = read::source(&self.path, self.limit, &budget);
         let (loaded, observed) = read?;
         if observed != self.expected || loaded.observed_text() != self.text.slice(..) {
