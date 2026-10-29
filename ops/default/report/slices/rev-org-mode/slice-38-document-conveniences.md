@@ -95,6 +95,12 @@ Final preparation corrections:
 - `cargo test --test commands command_sequences -- --nocapture`: passed.
 - `cargo test --test commands catalog_reference -- --nocapture`: passed.
 
+Final validation diagnostics:
+
+- `cargo test --lib --test commands --test org_io --test windows` first rejected the catalog integration under receipt `S3LJGY7325LAIKW6JX2GZ3BH3Y`; the corrections and successful focused checks are recorded above.
+- The same grouped command later observed `process_lifetime: cancel: descendant still running` in unchanged process cleanup code under receipt `ARQXWJCLQ4HYICE6XVQ3HVDQWY` at `5b5b078319a7776a7feb97fb506d0435ba5fe182`.
+- `cargo test --lib org::io::process::tests::process_lifetime -- --nocapture`: passed immediately on that retained candidate. No process cleanup code, test assertion, deadline or resource limit changed. Final controller checks must still execute the grouped command on the final candidate; the isolated pass does not replace it.
+
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.
