@@ -26,6 +26,8 @@ pub struct AgendaQuery {
     pub kind: QueryKind,
     pub source: String,
     plan: Plan,
+    filter: Option<MatchQuery>,
+    fields: std::collections::BTreeSet<String>,
 }
 #[derive(Clone, Debug)]
 enum Plan {
@@ -57,14 +59,63 @@ impl AgendaQuery {
             kind,
             source: source.into(),
             plan,
+            filter: None,
+            fields: std::collections::BTreeSet::new(),
         })
     }
     pub fn properties(&self) -> std::collections::BTreeSet<&str> {
-        match &self.plan {
-            Plan::Tags(query) => query.properties(),
-            _ => ["TODO"].into_iter().collect(),
+        let mut fields: std::collections::BTreeSet<_> =
+            self.fields.iter().map(String::as_str).collect();
+        if let Plan::Tags(query) = &self.plan {
+            fields.extend(query.properties());
+        }
+        if let Some(filter) = &self.filter {
+            fields.extend(filter.properties());
+        }
+        fields.retain(|s| !matches!(*s, "DATE" | "TIME" | "CLOCKSUM" | "CLOCKOPEN"));
+        fields.insert("TODO");
+        fields
+    }
+    pub fn block(block: &crate::config::AgendaBlock, limits: &OrgLimits) -> Result<Self, String> {
+        use crate::config::AgendaKind as K;
+        block.validate()?;
+        let kind = match block.kind {
+            K::Todo => QueryKind::Todo,
+            K::Search => QueryKind::Search,
+            _ => QueryKind::Tags,
+        };
+        let source = if block.query.is_empty() && kind == QueryKind::Tags {
+            "LEVEL>=1"
+        } else {
+            &block.query
+        };
+        let mut query = Self::parse(kind, source, limits)?;
+        if !block.filter.is_empty() {
+            query.filter = Some(MatchQuery::bounded(
+                &block.filter,
+                limits.query_bytes,
+                limits.query_depth,
+            )?);
+        }
+        query
+            .fields
+            .extend(block.columns.iter().map(|s| s.to_ascii_uppercase()));
+        query.sort_fields(&block.sort);
+        Ok(query)
+    }
+
+    fn sort_fields(&mut self, sort: &[crate::config::AgendaSort]) {
+        use crate::config::AgendaSort as S;
+        for sort in sort {
+            let key = match sort {
+                S::PriorityDown => "PRIORITY",
+                S::EffortUp | S::EffortDown => "EFFORT",
+                _ => continue,
+            };
+            self.fields.insert(key.into());
         }
     }
+
     pub(crate) fn matches_with_policy(
         &self,
         data: &MatchData,
@@ -72,6 +123,11 @@ impl AgendaQuery {
         cancel: &Cancellation,
         policy: &crate::config::Org,
     ) -> Result<bool, String> {
+        if let Some(filter) = &self.filter
+            && !filter.matches_with_units(data, &policy.duration.units)?
+        {
+            return Ok(false);
+        }
         match &self.plan {
             Plan::Tags(query) => query.matches_with_units(data, &policy.duration.units),
             _ => self.matches(data, text, cancel),

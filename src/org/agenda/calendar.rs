@@ -16,6 +16,7 @@ pub struct CalendarQuery {
     pub operation: Arc<ZonedOperation>,
     pub today: Date,
     pub start: Date,
+    pub date: Date,
     pub span: AgendaSpan,
     pub week_start: usize,
     pub zone: String,
@@ -33,6 +34,7 @@ impl CalendarQuery {
             operation: Arc::new(operation),
             today,
             start: today,
+            date: today,
             span: policy.agenda.span,
             week_start: policy.agenda.week_start,
             zone: policy.time.zone.clone(),
@@ -42,31 +44,70 @@ impl CalendarQuery {
     pub fn at(&self, date: Date, span: AgendaSpan) -> Result<Self, String> {
         let mut value = self.clone();
         value.span = span;
-        let offset = if span == AgendaSpan::Week {
-            (i64::from(date.weekday()) - self.week_start as i64).rem_euclid(7)
-        } else {
-            0
+        value.date = date;
+        value.start = match span {
+            AgendaSpan::Week => {
+                date.add_days(-(i64::from(date.weekday()) - self.week_start as i64).rem_euclid(7))?
+            }
+            AgendaSpan::Month => Date::new(date.year(), date.month(), 1)?,
+            AgendaSpan::Year => Date::new(date.year(), 1, 1)?,
+            AgendaSpan::Days(n) if !(1..=366).contains(&n) => {
+                return Err("Agenda day count requires 1..366".into());
+            }
+            _ => date,
         };
-        value.start = date.add_days(-offset)?;
         value.end()?;
         Ok(value)
     }
     pub fn days(&self) -> usize {
-        if self.span == AgendaSpan::Day { 1 } else { 7 }
+        match self.span {
+            AgendaSpan::Day => 1,
+            AgendaSpan::Week => 7,
+            AgendaSpan::Month => (28..=31)
+                .rev()
+                .find(|d| Date::new(self.start.year(), self.start.month(), *d).is_ok())
+                .unwrap_or(28) as usize,
+            AgendaSpan::Year => {
+                if Date::new(self.start.year(), 2, 29).is_ok() {
+                    366
+                } else {
+                    365
+                }
+            }
+            AgendaSpan::Days(n) => usize::from(n),
+        }
     }
     pub fn end(&self) -> Result<Date, String> {
         self.start.add_days(self.days() as i64 - 1)
     }
     pub fn shifted(&self, direction: i64) -> Result<Self, String> {
-        self.at(
-            self.start.add_days(
+        let date = match self.span {
+            AgendaSpan::Month => month_shift(self.start, direction)?,
+            AgendaSpan::Year => {
+                let year = i64::from(self.start.year())
+                    .checked_add(direction)
+                    .ok_or("Calendar year overflow")?;
+                Date::new(
+                    u16::try_from(year).map_err(|_| "Calendar year overflow")?,
+                    1,
+                    1,
+                )?
+            }
+            _ => self.start.add_days(
                 direction
                     .checked_mul(self.days() as i64)
                     .ok_or("Calendar span shift overflow")?,
             )?,
-            self.span,
-        )
+        };
+        self.at(date, self.span)
     }
+}
+fn month_shift(date: Date, direction: i64) -> Result<Date, String> {
+    let month = (i64::from(date.year()) * 12 + i64::from(date.month()) - 1)
+        .checked_add(direction)
+        .ok_or("Calendar month overflow")?;
+    let year = u16::try_from(month.div_euclid(12)).map_err(|_| "Calendar year overflow")?;
+    Date::new(year, (month.rem_euclid(12) + 1) as u8, 1)
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CalendarKind {

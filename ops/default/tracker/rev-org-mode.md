@@ -723,12 +723,14 @@ PR #129 merged into dev at `64e056b8d31138624adc1df9a8e7149df2862849`, verified 
 Contracts: ORG23 ORG17.
 Details and exact checks: [Slice 29](../plan/rev-org-mode.md#slice-29-configure-native-org-agenda-views).
 
-- [ ] T29.1: Deliver typed custom/block views, columns, filtering, sorting and declared date spans.
+- [x] T29.1: Deliver typed custom/block views, columns, filtering, sorting and declared date spans.
 - [ ] T29.2: Expose compiled view/refresh controls and native agenda context bindings without a scripting registry.
 - [ ] T29.3: Verify combination limits, visibility/reset behavior and consistent exhaustive sample defaults.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-### Slice 30: edit canonical Org source from the agenda
+#T29.1 implements admitted typed blocks and canonical query/filter/column/sort observations, bounded source memberships and civil date spans. Three focused cases pass; native controls remain active.
+
+## Slice 30: edit canonical Org source from the agenda
 
 Contracts: ORG09 ORG23.
 Details and exact checks: [Slice 30](../plan/rev-org-mode.md#slice-30-edit-canonical-org-source-from-the-agenda).

@@ -13,13 +13,15 @@ use std::{
     time::{Duration, Instant},
 };
 mod metadata;
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct QueryRow {
     pub title: Arc<str>,
     pub task: Option<String>,
     pub source: usize,
     pub byte: usize,
     pub stale: bool,
+    pub fields: std::collections::BTreeMap<String, String>,
+    pub block: Option<String>,
 }
 pub struct QueryResult {
     pub query: AgendaQuery,
@@ -29,6 +31,7 @@ pub struct QueryResult {
     pub issues: Vec<SourceIssue>,
     pub truncated: bool,
     pub cancelled: bool,
+    pub view: Option<crate::config::AgendaView>,
 }
 impl QueryResult {
     pub fn observe(
@@ -60,6 +63,7 @@ impl QueryResult {
             issues: sources.issues.clone(),
             truncated: sources.truncated || sources.cancelled,
             cancelled: false,
+            view: None,
         };
         for (id, source) in sources.documents.iter().enumerate() {
             if bounded.is_cancelled() {
@@ -169,6 +173,7 @@ impl QueryResult {
                     context.policy,
                 )? {
                     self.push(source, node, &heading, context.policy.limits.agenda_rows)?;
+                    self.rows.last_mut().expect("new query row").fields = data.properties;
                 }
             }
             ancestors.push(heading);
@@ -192,6 +197,8 @@ impl QueryResult {
             source,
             byte: node.source.start,
             stale: false,
+            fields: std::collections::BTreeMap::new(),
+            block: None,
         });
         Ok(())
     }

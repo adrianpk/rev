@@ -7,6 +7,8 @@
 //! Effective sizes count their documented units, not allocation capacities.
 //! Executable startup publishes one admitted snapshot to its existing consumers.
 
+mod agenda;
+pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
 mod diagnostic;
 mod load;
@@ -751,13 +753,16 @@ pub struct Agenda {
     pub sources: Vec<String>,
     pub span: AgendaSpan,
     pub week_start: usize,
+    pub views: Vec<AgendaView>,
 }
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum AgendaSpan {
     Day,
     #[default]
     Week,
+    Month,
+    Year,
+    Days(u16),
 }
 impl Default for Agenda {
     fn default() -> Self {
@@ -765,6 +770,7 @@ impl Default for Agenda {
             sources: Vec::new(),
             span: AgendaSpan::Week,
             week_start: 1,
+            views: Vec::new(),
         }
     }
 }
@@ -774,6 +780,7 @@ pub struct PartialAgenda {
     pub sources: Option<Vec<String>>,
     pub span: Option<AgendaSpan>,
     pub week_start: Option<i64>,
+    pub views: Option<Vec<AgendaView>>,
 }
 /// Finite agenda discovery and IO budgets. Other Org limits remain with their
 /// existing owners until their typed operations are delivered.

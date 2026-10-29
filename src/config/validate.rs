@@ -392,6 +392,13 @@ pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> 
     super::project::priority(&mut priority, &value.org.priority);
     crate::org::priority::Priority::configured(&priority)
         .map_err(|e| Failure::new("org.priority.default", e))?;
+    let policy = super::project::settings(value).org;
+    for view in &policy.agenda.views {
+        for block in &view.blocks {
+            crate::org::agenda::AgendaQuery::block(block, &policy.limits)
+                .map_err(|e| Failure::new("org.agenda.views", e))?;
+        }
+    }
     Ok(keymaps)
 }
 
@@ -444,6 +451,7 @@ fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
     integer("org.agenda.week_start", org.agenda.week_start, 1..=7)?;
     integer("org.limits.agenda_rows", org.limits.agenda_rows, 1..=100000)?;
     query_limits(&org.limits)?;
+    agenda_views(&org.agenda)?;
     let limits = &org.limits;
     integer("org.limits.agenda_files", limits.agenda_files, 1..=4096)?;
     integer(
@@ -457,14 +465,26 @@ fn agenda(org: &super::PartialOrg) -> Result<(), Failure> {
         1..=268435456,
     )?;
     integer("org.limits.job_seconds", limits.job_seconds, 1..=600)?;
-    if let Some(paths) = &org.agenda.sources {
-        crate::org::agenda::SourceSelection::paths(paths)
-            .map_err(|e| Failure::new("org.agenda.sources", e))?;
-    }
+    agenda_paths(&org.agenda)?;
     Ok(())
 }
 
 fn query_limits(limits: &super::PartialOrgLimits) -> Result<(), Failure> {
     integer("org.limits.query_bytes", limits.query_bytes, 1..=65536)?;
     integer("org.limits.query_depth", limits.query_depth, 1..=128)
+}
+
+fn agenda_views(agenda: &super::PartialAgenda) -> Result<(), Failure> {
+    if let Some(views) = &agenda.views {
+        super::agenda::views(views).map_err(|e| Failure::new("org.agenda.views", e))?;
+    }
+    Ok(())
+}
+
+fn agenda_paths(agenda: &super::PartialAgenda) -> Result<(), Failure> {
+    if let Some(paths) = &agenda.sources {
+        crate::org::agenda::SourceSelection::paths(paths)
+            .map_err(|e| Failure::new("org.agenda.sources", e))?;
+    }
+    Ok(())
 }

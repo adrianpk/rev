@@ -168,6 +168,7 @@ def type_label(kind):
         "Option<Newline>": "String:",
         "Option<LocalTimePolicy>": "String:",
         "Option<AgendaSpan>": "String:",
+        "Option<Vec<AgendaView>>": "Array",
         "Option<RepeatLogging>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",
@@ -209,6 +210,9 @@ def enum_choices(source, name):
     require(body is not None, f"missing enum {name}")
     variants = re.findall(r"^    (\w+),$", body[1], re.M)
     lines = [line for line in body[1].splitlines() if line.strip() and not line.strip().startswith("#[")]
+    if name == "AgendaSpan":
+        require("    Days(u16)," in lines, "missing bounded agenda day count")
+        lines.remove("    Days(u16),")
     require(len(variants) == len(lines) > 0, f"unrecognized enum {name}")
     return [re.sub(r"(?<!^)(?=[A-Z])", "-", name).lower() for name in variants]
 

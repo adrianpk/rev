@@ -95,10 +95,11 @@ enabled = true
 default = "0"
 
 [org.agenda]
+views = [] # Up to 64 typed named views; see org-agenda.md for block fields.
 # Explicit local files or directories; relative to this declaring config file.
 # Directories include immediate .org children only. Empty never scans anything.
 sources = []
-span = "week" # day or week; Monday-based by default.
+span = "week" # day, week, month, year, or an integer count of 1..366 days.
 week_start = 1 # 1=Monday through 7=Sunday.
 
 [org.limits]

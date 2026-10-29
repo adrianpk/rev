@@ -131,6 +131,7 @@ impl SourceScan {
         let resolved = crate::file::resolve(path).map_err(|e| e.to_string())?;
         let identity = resolved.observation().map(|o| (o.device, o.inode));
         if identity.is_some_and(|i| self.seen_files.contains(&i)) {
+            self.alias(path, resolved.path(), identity);
             return Ok(true);
         }
         let matches: Vec<_> = self
@@ -160,10 +161,33 @@ impl SourceScan {
         } else {
             self.disk(&resolved, budget)?;
         }
+        self.alias(path, resolved.path(), identity);
         if let Some(identity) = identity {
             self.seen_files.insert(identity);
         }
         Ok(true)
+    }
+    fn alias(&mut self, selected: &Path, canonical: &Path, identity: Option<(u64, u64)>) {
+        let buffer = self
+            .open
+            .iter()
+            .find(|b| b.matches(canonical, identity))
+            .map(|b| b.stamp);
+        let source = self.result.documents.iter_mut().find(|s| match &s.version {
+            SourceVersion::Buffer(stamp) => Some(*stamp) == buffer,
+            SourceVersion::Disk(observed) => Some((observed.device, observed.inode)) == identity,
+        });
+        if let Some(source) = source {
+            if source.aliases.len() < 4096 {
+                source.aliases.push(selected.to_owned());
+            } else {
+                self.result.truncated = true;
+                self.result.issue(
+                    None,
+                    "Agenda source aliases exceed 4096 per document".into(),
+                );
+            }
+        }
     }
     fn disk(
         &mut self,
@@ -191,6 +215,7 @@ impl SourceScan {
         self.result.documents.push(AgendaSource {
             path: Some(resolved.path().to_owned()),
             version: SourceVersion::Disk(observed),
+            aliases: Vec::new(),
             text,
         });
         Ok(())
@@ -232,6 +257,7 @@ impl SourceScan {
             path: open.path.clone(),
             version: SourceVersion::Buffer(open.stamp),
             text: open.text.clone(),
+            aliases: Vec::new(),
         });
     }
 }

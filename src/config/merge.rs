@@ -66,6 +66,11 @@ impl Document {
             &mut self.org.agenda.week_start,
             &later.org.agenda.week_start,
         );
+        merge.leaf(
+            &["org", "agenda", "views"],
+            &mut self.org.agenda.views,
+            &later.org.agenda.views,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(

@@ -135,7 +135,7 @@ fn add_record(
     }
     Ok(())
 }
-fn date_window(
+pub(super) fn date_window(
     window: Option<CivilInterval>,
     zone: &Zone,
 ) -> Result<Option<RecordedClock>, String> {

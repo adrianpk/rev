@@ -57,11 +57,12 @@ pub enum SourceVersion {
     Buffer(Stamp),
     Disk(Observation),
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AgendaSource {
     pub path: Option<PathBuf>,
     pub version: SourceVersion,
     text: Rope,
+    pub(in crate::org::agenda) aliases: Vec<PathBuf>,
 }
 impl AgendaSource {
     pub(in crate::org) fn snapshot(&self) -> Rope {

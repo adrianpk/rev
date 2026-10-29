@@ -118,3 +118,41 @@ fn calendar_configuration() {
         assert_eq!(s.snapshot, Snapshot::default());
     }
 }
+
+// Typed records replace as one leaf; unknown fields and combinations reject
+// before startup can observe sources or publish part of a view definition.
+#[test]
+fn custom_configuration() {
+    let f = Fixture::new();
+    let valid = "org.agenda.views=[{key='w',title='Work',blocks=[{kind='todo',filter='work',columns=['ITEM','EFFORT'],sort=['effort-up'],span=14,row_limit=10}]}]";
+    let base = f.write("base.toml", valid);
+    let startup = prepare(&f.write(
+        "custom.toml",
+        "include=['base.toml']\norg.agenda.span='month'",
+    ));
+    assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
+    assert_eq!(startup.snapshot.settings().org.agenda.views.len(), 1);
+    assert_eq!(
+        startup.snapshot.origin(&["org", "agenda", "views"]),
+        Some(base.as_path())
+    );
+    let reset = prepare(&f.write("custom.toml", "include=['base.toml']\norg.agenda.views=[]"));
+    assert!(reset.diagnostic.is_none());
+    assert!(reset.snapshot.settings().org.agenda.views.is_empty());
+    for (name, source) in [
+        ("unknown-kind",valid.replace("kind='todo'","kind='eval'")),
+        ("unknown-field",valid.replace("row_limit=10","callback='run'")),
+        ("zero-span",valid.replace("span=14","span=0")),
+        ("large-span",valid.replace("span=14","span=367")),
+        ("bad-sort",valid.replace("effort-up","arbitrary")),
+        ("bad-column",valid.replace("'ITEM'","'(eval)'")),
+        ("zero-rows",valid.replace("row_limit=10","row_limit=0")),
+        ("empty-blocks","org.agenda.views=[{key='w',title='Work',blocks=[]}]".into()),
+        ("too-many-blocks",format!("org.agenda.views=[{{key='w',title='Work',blocks=[{}]}}]",vec!["{kind='todo'}";33].join(","))),
+        ("duplicate", "org.agenda.views=[{key='w',title='One',blocks=[{}]},{key='w',title='Two',blocks=[{}]}]".into()),
+    ] {
+        let startup = prepare(&f.write("invalid.toml",&source));
+        assert!(startup.diagnostic.is_some(),"{name}");
+        assert_eq!(startup.snapshot,Snapshot::default(),"{name}");
+    }
+}

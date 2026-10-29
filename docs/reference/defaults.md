@@ -201,7 +201,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.clock.remove_zero` | Boolean | `false` | Retain zero-minute records by default. When true, clock-out removes the zero interval and its otherwise empty drawer. |
 | `org.time.extend_today_until` | Integer | `0` | Day starts at this local hour, 0..23; date-only habit recurrence uses the extended day while logs retain actual time. |
 | `org.agenda.sources` | Array of local path strings | `[]` | Explicit files or non-recursive directories of immediate .org files; 4096 roots, 4096 bytes per path, relative to the assigning config source. No implicit scan. |
-| `org.agenda.span` | String: "day" or "week" | `"week"` | Initial native calendar span. |
+| `org.agenda.span` | String: "day", "week", "month", "year"; or Integer 1..=366 | `"week"` | Initial calendar span; months and years align to their first date. |
+| `org.agenda.views` | Array of typed records | `[]` | At most 64 named views, each with 1..32 blocks; see [agenda reference](org-agenda.md). |
 | `org.agenda.week_start` | Integer 1..=7 | `1` | Start of weekly calendars; Monday=1. |
 | `org.limits.agenda_rows` | Integer 1..=100000 | `20000` | Maximum retained source facts and calendar entries; limits remain visibly incomplete. |
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |

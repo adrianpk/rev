@@ -98,3 +98,45 @@ bounds cooperative analysis. Cancellation retains worker ownership until it
 finishes. A blocked kernel operation cannot be forcibly timed out. Partial,
 canceled, stale and malformed observations remain visible; an unavailable
 source cannot become a complete empty result. No idle query polling runs.
+
+## Configured views
+
+`org.agenda.views` is a replacement array of at most 64 records. Each record
+has a unique `key` (1–16 bytes), a `title` (at most 256 bytes), and 1–32 `blocks`.
+Unknown fields, kinds and sort keys reject. Records cannot evaluate code.
+
+A block has these fields; omitted fields use the shown defaults:
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `kind` | `"todo"` | `calendar`, `todo`, `search`, `tags`, `properties`, `columns`, or `clock`. |
+| `title` | `""` | Up to 256 bytes; empty uses the block number and kind. |
+| `query` | `""` | Existing native TODO/search/tag-property grammar; empty non-TODO queries select all headings. |
+| `filter` | `""` | Additional tag/property expression, intersected with the query. |
+| `span` | absent | Inherit `org.agenda.span`; otherwise day/week/month/year or 1–366 days. |
+| `sources` | `[]` | Inherit selected sources, or select explicit file/directory roots. |
+| `columns` | `[]` | At most 16 stored or native property names, each 1–64 ASCII letters/digits/underscores. |
+| `sort` | `[]` | At most eight ordered keys; empty preserves native source/calendar order. |
+| `row_limit` | `20000` | 1–100000 rows; the global agenda row budget also applies across blocks. |
+
+Sort keys are `title-up`, `title-down`, `todo-up`, `priority-down`, `effort-up`,
+`effort-down`, `date-up`, `clock-down` and `source-up`. Priority uses the source's
+admitted priority declaration. Effort uses native duration minutes; absent effort
+sorts after defined effort in ascending order. Equal keys use source/heading
+order. Calendar blocks provide `DATE` and `TIME`; clock blocks provide integer
+`CLOCKSUM` minutes and `CLOCKOPEN` counts. Clock intervals use the captured zone
+and civil date window; malformed/gap/fold records remain explicit failures.
+Columns display observations and never create an editable task database.
+
+Month and year spans align to their first date. Custom day counts start at the
+requested date. Month/year movement advances calendar units, including leap
+years. Date overflow rejects without changing the existing view.
+
+All blocks share one discovery/read budget and cancellation deadline. Source
+aliases retain selected-root membership while canonical snapshots are deduplicated.
+Retained property text across a block result is bounded to 8 MiB. Row, record,
+source or time exhaustion is explicit; it never reports a complete empty result.
+
+Behavior references: [custom views](https://orgmode.org/manual/Custom-Agenda-Views.html),
+[filter visibility and reset](https://orgmode.org/manual/Filtering_002flimiting-agenda-items.html),
+and [sorting](https://orgmode.org/manual/Sorting-of-agenda-items.html).
