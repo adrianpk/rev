@@ -73,6 +73,7 @@ fn operational_catalog() {
     for (name, command) in [
         ("org-capture", OrgCommand::Capture),
         ("org-capture-kill", OrgCommand::CaptureKill),
+        ("org-capture-finalize", OrgCommand::CaptureFinalize),
     ] {
         input.commands().unwrap();
         input.handle(Event::Paste(name.into()));
@@ -81,11 +82,7 @@ fn operational_catalog() {
             Outcome::Command(Command::Org(command))
         );
     }
-    for absent in [
-        "org-capture-finalize",
-        "org-export-dispatch",
-        "org-edit-special",
-    ] {
+    for absent in ["org-export-dispatch", "org-edit-special"] {
         assert_eq!(Command::named(absent), None, "{absent}");
     }
 }

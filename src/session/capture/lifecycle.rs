@@ -19,7 +19,7 @@ impl Session {
                     stage: Stage::Draft(id, Box::new(target)),
                 });
                 self.sync_input_context();
-                self.message("Capture draft: edit normally; C-c C-k aborts and returns to origin");
+                self.message("Capture draft: C-c C-c finalizes; C-c C-k aborts");
             }
             Err(e) => {
                 self.error(&e);
@@ -64,7 +64,8 @@ impl Session {
         self.org.cancel_capture();
         self.input.cancel();
         self.pending = None;
-        if let Stage::Draft(id, _) = state.stage {
+        let published = matches!(state.stage, Stage::Published(_));
+        if let Some(id) = state.stage.draft() {
             self.windows.restore_view();
             if let Err(e) = self.discard_capture_buffer(id) {
                 return self.error(&e);
@@ -74,9 +75,26 @@ impl Session {
             return self.error(&e.to_string());
         }
         self.sync_input_context();
-        self.message("Capture aborted; destination unchanged")
+        if published {
+            self.message(
+                "Capture draft discarded; already published source retained with its save status",
+            )
+        } else {
+            self.message("Capture aborted; destination unchanged")
+        }
     }
-    fn discard_capture_buffer(&mut self, id: BufferId) -> Result<(), String> {
+    pub(super) fn return_capture(&mut self, origin: Origin, id: BufferId) -> Action {
+        self.windows.restore_view();
+        if let Err(e) = self.discard_capture_buffer(id) {
+            return self.error(&e);
+        }
+        if let Err(e) = self.windows.select(origin.view) {
+            return self.error(&e.to_string());
+        }
+        self.sync_input_context();
+        self.message("Capture finalized and saved")
+    }
+    pub(super) fn discard_capture_buffer(&mut self, id: BufferId) -> Result<(), String> {
         let kill = self.buffers.prepare_kill(id).map_err(|e| e.to_string())?;
         self.buffers.kill(kill).map_err(|e| e.to_string())?;
         Ok(())

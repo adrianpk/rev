@@ -14,6 +14,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | `C-c c` | `org-capture` | Select a template and prepare an editable transient draft. |
+| `C-c C-c` in capture | `org-capture-finalize` | Revalidate, insert and save once; retain the draft on failure. |
 | `C-c C-k` in capture | `org-capture-kill` | Discard the draft and return to its mapped origin view. |
 | `C-c .` in Org | `org-timestamp` | Insert or edit an active timestamp through a native date/calendar prompt. |
 | `C-c !` in Org | `org-timestamp-inactive` | Insert or edit an inactive timestamp. |
@@ -282,7 +283,7 @@ No keymap edits the underlying document from a prompt.
 
 Org editing, capture and special-edit roles use `keys.org`, `keys.org_capture`
 and `keys.org_source_edit`, inheriting the admitted editor map before local
-overrides. Capture adds `C-c C-k` to abort its transient draft; the special-edit factory local overlay is empty. Agenda
+overrides. Capture adds `C-c C-c` to finalize and `C-c C-k` to abort its transient draft; the special-edit factory local overlay is empty. Agenda
 uses an independent `keys.org_agenda` map. The native date prompt inherits the
 minibuffer map before `keys.org_calendar` controls. Host agenda/calendar roles
 consume unbound text and paste. They admit implemented motion, scroll, quit, command-entry

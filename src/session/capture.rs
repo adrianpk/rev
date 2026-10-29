@@ -1,4 +1,5 @@
 //! One session-owned draft, separate from canonical source publication.
+mod finalize;
 mod lifecycle;
 mod origin;
 mod prompt;
@@ -31,6 +32,8 @@ enum Stage {
     Queued(Box<Discovery>, DraftText),
     Waiting(DraftText),
     Draft(BufferId, Box<Resolved>),
+    Finalizing(Box<finalize::Validation>),
+    Published(Box<finalize::Stored>),
 }
 #[derive(Clone)]
 pub(super) enum Prompt {
@@ -42,16 +45,10 @@ impl Session {
     /// Borrow the transient owner. Its real identity supports ordinary checked
     /// edits/history but grants no canonical source or filesystem authority.
     pub fn capture_draft(&self) -> Option<&Buffer> {
-        let Stage::Draft(id, _) = &self.capture.as_ref()?.stage else {
-            return None;
-        };
-        self.buffers.get(*id).ok()
+        self.buffers.get(self.capture.as_ref()?.stage.draft()?).ok()
     }
     pub fn capture_target(&self) -> Option<&Resolved> {
-        let Stage::Draft(_, target) = &self.capture.as_ref()?.stage else {
-            return None;
-        };
-        Some(target)
+        self.capture.as_ref()?.stage.target()
     }
     pub(super) fn capture_selected(&self) -> bool {
         self.capture_draft()
@@ -60,14 +57,15 @@ impl Session {
     pub(super) fn capture_blocks_input(&self) -> bool {
         self.capture
             .as_ref()
-            .is_some_and(|s| !matches!(s.stage, Stage::Draft(..)))
+            .is_some_and(|s| !matches!(s.stage, Stage::Draft(..) | Stage::Published(_)))
     }
     pub(super) fn capture_command(&mut self, command: Command) -> Option<Action> {
         self.capture.as_ref()?;
-        if command == Command::Org(C::CaptureKill)
-            || command == Command::KeyboardQuit && self.capture_blocks_input()
-        {
-            return Some(self.abort_capture());
+        if command == Command::Org(C::CaptureFinalize) {
+            return Some(self.begin_capture_finalize());
+        }
+        if let Some(action) = self.capture_cancellation(command) {
+            return Some(action);
         }
         if self.capture_blocks_input() {
             return Some(self.message("Capture input pending; C-g cancels"));
@@ -79,12 +77,26 @@ impl Session {
         }
         None
     }
+    fn capture_cancellation(&mut self, command: Command) -> Option<Action> {
+        if command == Command::Org(C::CaptureKill) {
+            return Some(self.abort_capture());
+        }
+        if command != Command::KeyboardQuit {
+            return None;
+        }
+        if self.capture_validating() {
+            return Some(self.cancel_capture_validation());
+        }
+        self.capture_blocks_input().then(|| self.abort_capture())
+    }
     pub(super) fn capture_remaining(&self) -> Option<Duration> {
         let state = self.capture.as_ref()?;
         if self.pending.is_some() || self.org.busy() {
             return None;
         }
-        matches!(state.stage, Stage::Expanding(..) | Stage::Queued(..)).then_some(Duration::ZERO)
+        let active = matches!(state.stage, Stage::Expanding(..) | Stage::Queued(..))
+            || matches!(&state.stage, Stage::Finalizing(v) if v.work.is_some());
+        active.then_some(Duration::ZERO)
     }
     pub(super) fn expire_capture(&mut self) -> Action {
         if self.capture_remaining().is_none() {
@@ -100,6 +112,10 @@ impl Session {
         let Some(state) = self.capture.take() else {
             return;
         };
+        if matches!(state.stage, Stage::Finalizing(_)) {
+            self.launch_capture_validation(state);
+            return;
+        }
         if !matches!(state.stage, Stage::Expanding(..) | Stage::Queued(..)) {
             self.capture = Some(state);
             return;
@@ -159,4 +175,23 @@ fn draft_protected(command: Command) -> bool {
             | Command::Tree(_)
             | Command::Org(_)
     )
+}
+
+impl Stage {
+    fn draft(&self) -> Option<BufferId> {
+        match self {
+            Self::Draft(id, _) => Some(*id),
+            Self::Finalizing(v) => Some(v.draft),
+            Self::Published(p) => Some(p.draft),
+            _ => None,
+        }
+    }
+    fn target(&self) -> Option<&Resolved> {
+        match self {
+            Self::Draft(_, target) => Some(target),
+            Self::Finalizing(v) => Some(&v.target),
+            Self::Published(p) => Some(&p.target),
+            _ => None,
+        }
+    }
 }

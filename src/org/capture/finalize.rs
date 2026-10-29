@@ -34,8 +34,8 @@ impl Resolved {
         settings: &Settings,
         date: Date,
     ) -> Result<Finalize, String> {
-        if !draft.is_transient() || draft.len_bytes() > EXPANSION_BYTES {
-            return Err("Capture requires a transient draft of at most 1 MiB".into());
+        if !draft.is_transient() || draft.len_bytes() == 0 || draft.len_bytes() > EXPANSION_BYTES {
+            return Err("Capture requires a nonempty transient draft of at most 1 MiB".into());
         }
         let choice = Choice {
             template: self.template.clone(),

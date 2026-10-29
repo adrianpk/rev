@@ -11,6 +11,16 @@ pub(crate) enum Visit {
 }
 
 impl Visit {
+    pub(crate) fn buffer_mut<'a>(
+        &'a mut self,
+        buffers: &'a mut Buffers,
+    ) -> Result<&'a mut Buffer, Error> {
+        match self {
+            Self::Existing(id) => buffers.get_mut(*id),
+            Self::New(buffer, _) => Ok(buffer),
+        }
+    }
+
     pub(crate) fn buffer<'a>(&'a self, buffers: &'a Buffers) -> Result<&'a Buffer, Error> {
         match self {
             Self::Existing(id) => buffers.get(*id),
@@ -72,6 +82,21 @@ impl Buffers {
         buffer.apply_settings(&self.settings);
         Ok(Visit::New(Box::new(buffer), path))
     }
+    pub(crate) fn prepare_missing_visit(&self, path: &Path) -> io::Result<Visit> {
+        let location = file::resolve(path)?;
+        if location.is_present() || self.files.contains_key(location.path()) {
+            return Err(io::Error::other(
+                "Missing destination changed before publication",
+            ));
+        }
+        let mut buffer = visiting(&location, &self.settings.settings().files)?;
+        let path = location.path().to_owned();
+        buffer.name = location.basename().to_string_lossy().into_owned();
+        buffer.file = Some(location);
+        buffer.apply_settings(&self.settings);
+        Ok(Visit::New(Box::new(buffer), path))
+    }
+
     pub(crate) fn publish_visit(&mut self, visit: Visit) -> BufferId {
         match visit {
             Visit::Existing(id) => id,

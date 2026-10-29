@@ -15,6 +15,10 @@ pub struct Loaded {
 }
 
 impl Loaded {
+    /// Previously decoded native source snapshot, retained through bounded IO.
+    pub(crate) fn from_snapshot(text: Rope, bom: bool) -> Self {
+        Self { text, bom }
+    }
     pub(crate) fn observed_text(&self) -> RopeSlice<'_> {
         self.text.slice(..)
     }

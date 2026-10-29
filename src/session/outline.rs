@@ -222,7 +222,10 @@ impl Session {
         if command == OrgCommand::Capture {
             return Some(self.begin_capture());
         }
-        if command == OrgCommand::CaptureKill {
+        if matches!(
+            command,
+            OrgCommand::CaptureKill | OrgCommand::CaptureFinalize
+        ) {
             return Some(self.message("No capture draft is active"));
         }
         if command.agenda_query() {

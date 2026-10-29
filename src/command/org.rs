@@ -139,9 +139,10 @@ pub enum OrgCommand {
     AgendaUndo,
     Capture,
     CaptureKill,
+    CaptureFinalize,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 137] = [
+    pub const ALL: [Self; 138] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -279,6 +280,7 @@ impl OrgCommand {
         Self::AgendaUndo,
         Self::Capture,
         Self::CaptureKill,
+        Self::CaptureFinalize,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -419,6 +421,7 @@ impl OrgCommand {
             "org-agenda-undo",
             "org-capture",
             "org-capture-kill",
+            "org-capture-finalize",
         ][self as usize]
     }
 

@@ -2,8 +2,8 @@
 
 Capture configuration is typed data. Template selection and target discovery
 are non-writing operations. `C-c c` / `M-x org-capture` selects a template,
-collects required input and opens an editable transient draft. Destination
-publication is a separate stage.
+collects required input and opens an editable transient draft. `C-c C-c` /
+`org-capture-finalize` revalidates its destination, inserts once and saves.
 
 `org.capture.templates = []` selects the native `t` / `Task` entry fallback,
 with target `{type="file+headline", file="", headline="Tasks"}` and text
@@ -134,9 +134,52 @@ text owner. Ordinary editing, selection, undo/redo, search and kill/yank work;
 Save, write-file, mode changes and replacing/splitting its view reject while
 retaining the draft. Quit and buffer/window removal require abort first.
 `C-g` cancels template/file/expansion/discovery preparation; in an open draft it
-cancels the current ordinary interaction. `C-c C-k` / `org-capture-kill` discards
+cancels the current ordinary interaction. During finalization validation it
+returns to the editable draft. `C-c C-k` / `org-capture-kill` discards
 the draft and returns to the originating pane. Shared canonical edits map its
 retained point and viewport before return. Abort leaves destination bytes,
 BOM, line endings, file association and source history unchanged.
 
 Reference: [template expansion](https://orgmode.org/manual/Template-expansion.html).
+
+## Finalize, retry and publication outcomes
+
+`C-c C-c` requires the selected capture draft and completed prompt input. It
+checks the retained destination path, version, BOM and actual source bytes in
+the existing bounded, cancellable job. It requalifies every insertion/marker
+range against the current canonical owner immediately before publication.
+Stale or ambiguous source, read-only owners, malformed drafts and resource
+limits retain the draft with a failure. A changed target requires restarting
+capture against current source; it never authorizes an unchecked overwrite.
+
+Entries become children at the target level, retaining their relative child
+levels. Prepending a file entry preserves its preamble. Missing outline/date
+headings and capture text form one coherent edit; date headings use the date
+captured at start. List capture uses the first native list's marker family and
+indentation. Prepending ordered items renumbers affected markers with native
+counter/reset rules. Table rows precede trailing blank/formula metadata. Plain
+text remains literal. New structural separators follow the target's prevailing
+LF/CRLF style; existing BOM and source fragments remain exact.
+
+Finalize saves through ordinary destination identity, permission, temporary-file
+and replacement safeguards, including earlier unsaved canonical edits. History
+and shared-point updates are reserved before IO. A rejected replacement leaves
+canonical source/history/points unchanged and retains the draft. An unopened
+new owner is installed only after actual replacement, and missing parents are
+never created implicitly. Correcting a missing parent permits a safe retry.
+Successful publication creates one undoable source edit and returns to the
+mapped origin. Undo changes the canonical buffer; it does not undo saved files.
+
+A failure after replacement reports that capture was inserted once and save
+completion is unresolved. The source remains canonical with its ordinary save
+warning, and the draft is retained. `C-c C-c` retries saving that exact source,
+without inserting again. New draft edits or a changed canonical source reject
+that retry and keep both recoverable owners. A save whose observation remains
+unresolved requires ordinary inspection/save decisions. Aborting in this state
+discards only the draft and reports that the already published source remains;
+it does not claim to restore old disk bytes.
+
+Draft text is nonempty and at most 1 MiB. Structural placement admits the native
+256-heading-level profile and bounded destination parser. Ordered lists admit
+at most 8192 root items. Finalization reads and structural work share the
+configured Org job deadline; explicit local save uses the ordinary file owner.

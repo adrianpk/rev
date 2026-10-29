@@ -219,7 +219,10 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-x ,", "org-timer-pause-or-continue"),
     ("C-c C-x _", "org-timer-stop"),
 ];
-const ORG_CAPTURE: &[(&str, &str)] = &[("C-c C-k", "org-capture-kill")];
+const ORG_CAPTURE: &[(&str, &str)] = &[
+    ("C-c C-c", "org-capture-finalize"),
+    ("C-c C-k", "org-capture-kill"),
+];
 const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 
 // Non-text workspace owners admit implemented navigation and source actions.

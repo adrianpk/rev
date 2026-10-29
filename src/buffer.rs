@@ -10,6 +10,7 @@ mod rename;
 mod save;
 mod syntax;
 mod visits;
+pub(crate) use visits::Visit;
 mod whitespace;
 
 pub use lifecycle::Kill;

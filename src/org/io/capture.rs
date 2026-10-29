@@ -159,3 +159,29 @@ fn valid_limits(limits: &OrgLimits) -> Result<(), String> {
     }
     Ok(())
 }
+
+impl DestinationSource {
+    pub(crate) fn prepare_visit(&self, buffers: &Buffers) -> Result<crate::buffer::Visit, String> {
+        match &self.version {
+            DestinationVersion::Buffer(stamp) => {
+                let buffer = buffers.get(stamp.buffer).map_err(|e| e.to_string())?;
+                if buffer.stamp() != *stamp
+                    || buffer.file().map(|f| f.path()) != Some(self.path.as_path())
+                {
+                    return Err("Capture canonical destination changed during validation".into());
+                }
+                Ok(crate::buffer::Visit::Existing(stamp.buffer))
+            }
+            DestinationVersion::Disk(observed) => buffers
+                .prepare_observed_visit(
+                    &self.path,
+                    file::Loaded::from_snapshot(self.text.clone(), self.bom),
+                    observed,
+                )
+                .map_err(|e| e.to_string()),
+            DestinationVersion::Missing => buffers
+                .prepare_missing_visit(&self.path)
+                .map_err(|e| e.to_string()),
+        }
+    }
+}

@@ -112,3 +112,5 @@ mod source_actions;
 mod action_lifecycle;
 #[path = "org_agenda/capture_expansion.rs"]
 mod capture_expansion;
+#[path = "org_agenda/capture_publication.rs"]
+mod capture_publication;

@@ -784,7 +784,7 @@ Contracts: ORG10 ORG18.
 Details and exact checks: [Slice 33](../plan/rev-org-mode.md#slice-33-finalize-or-abort-org-capture-safely).
 
 - [x] T33.1: Revalidate destinations and publish capture once through ordinary source/file safeguards.
-- [ ] T33.2: Preserve a recoverable draft after stale, read-only, save or filesystem failure; abort leaves targets unchanged.
+- [x] T33.2: Preserve a recoverable draft after stale, read-only, save or filesystem failure; abort leaves targets unchanged.
 - [ ] T33.3: Verify file/heading/list/table/date-tree capture and failed publication with actual owned files.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

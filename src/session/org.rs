@@ -15,6 +15,7 @@ pub(super) struct Work {
     pub(super) sources_pending: Option<crate::org::agenda::SourceSelection>,
     pub(super) sources_running: bool,
     capture_running: bool,
+    capture_finalizing: bool,
     pub(super) report: Option<super::outline::Request>,
     pub(super) request: Option<super::outline::Request>,
     source: Option<Stamp>,
@@ -24,6 +25,7 @@ pub(super) struct Work {
 enum Observation {
     Color(Coloring),
     Capture(Result<crate::org::capture::Resolved, String>),
+    CaptureFinalize(Result<crate::org::capture::Insertion, String>),
     Sources(Result<super::agenda::Output, String>),
     Report(Result<super::outline::reports::Output, String>),
 }
@@ -154,7 +156,9 @@ impl Session {
         self.org.source = None;
         self.org.deadline = None;
         match result {
-            Ok(Observation::Sources(_) | Observation::Capture(_)) => {
+            Ok(
+                Observation::Sources(_) | Observation::Capture(_) | Observation::CaptureFinalize(_),
+            ) => {
                 unreachable!("source discovery has its own publication checks")
             }
             Ok(Observation::Color(coloring)) => {
@@ -259,6 +263,7 @@ impl Work {
         self.job
             .start(stamp, move |cancel| Observation::Capture(work.run(cancel)))
             .map_err(|e| e.to_string())?;
+        self.capture_finalizing = false;
         self.capture_running = true;
         self.source = Some(stamp);
         self.deadline = Some(Instant::now() + POLL);
@@ -275,15 +280,38 @@ impl Session {
         let Some(result) = self.org.job.poll_owned() else {
             return false;
         };
+        let finalizing = self.org.capture_finalizing;
+        self.org.capture_finalizing = false;
         self.org.capture_running = false;
         self.org.source = None;
         self.org.deadline = None;
         match result {
             Ok((_, Observation::Capture(result))) => self.finish_capture(result),
+            Ok((_, Observation::CaptureFinalize(result))) => self.finish_capture_finalize(result),
             Err(JobError::Cancelled) => {}
+            Err(error) if finalizing => self.finish_capture_finalize(Err(error.to_string())),
             Err(error) => self.finish_capture(Err(error.to_string())),
             _ => unreachable!("capture discovery owns this publication"),
         }
         true
+    }
+}
+
+impl Work {
+    pub(super) fn start_capture_finalize(
+        &mut self,
+        stamp: Stamp,
+        work: crate::org::capture::Finalize,
+    ) -> Result<(), String> {
+        self.job
+            .start(stamp, move |cancel| {
+                Observation::CaptureFinalize(work.run(cancel))
+            })
+            .map_err(|e| e.to_string())?;
+        self.capture_finalizing = true;
+        self.capture_running = true;
+        self.source = Some(stamp);
+        self.deadline = Some(Instant::now() + POLL);
+        Ok(())
     }
 }
