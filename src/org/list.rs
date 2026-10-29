@@ -74,3 +74,5 @@ fn source_text(buffer: &Buffer, range: Range<usize>) -> Result<String, String> {
         .to_string())
 }
 mod timer;
+
+pub(in crate::org) use numbering::{capture_markers, capture_style};

@@ -417,3 +417,9 @@ fn insert(text: &mut Rope, mut position: usize, fragment: &Rope) -> Result<(), E
     }
     Ok(())
 }
+
+impl Prepared {
+    pub(in crate::buffer) fn saved_output(&self) -> (&Rope, Stamp, State) {
+        (&self.text, self.record.after, self.record.after_state)
+    }
+}

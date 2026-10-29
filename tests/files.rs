@@ -979,3 +979,5 @@ fn session_save() {
     assert!(!session.buffer().unwrap().is_modified());
     assert_eq!(fs::read(path).unwrap(), b"!?source");
 }
+#[path = "files/capture_saved.rs"]
+mod capture_saved;

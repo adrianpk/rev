@@ -74,3 +74,6 @@ mod expansion;
 pub use expansion::{Context, DraftText, EXPANSION_BYTES, Expansion, Prompt, Step, VALUE_BYTES};
 mod origin;
 pub use origin::origin_link;
+
+mod finalize;
+pub use finalize::{CaptureEdit, Finalize, Insertion};

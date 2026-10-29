@@ -90,7 +90,12 @@ impl Lists {
     }
 }
 
-fn read(text: &ropey::Rope, node: &crate::org::structure::Raw, list: usize, indent: usize) -> Item {
+pub(super) fn read(
+    text: &ropey::Rope,
+    node: &crate::org::structure::Raw,
+    list: usize,
+    indent: usize,
+) -> Item {
     let row = text.byte_to_line(node.source.start);
     let line = text.line(row).to_string();
     let line = line.trim_end_matches(['\r', '\n']);

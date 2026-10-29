@@ -176,6 +176,9 @@ fn reconcile(
         index.remove(prior.path());
     }
     index.insert(save.target().into(), buffer.id());
+    reconcile_buffer(buffer, save, outcome, label);
+}
+fn reconcile_buffer(buffer: &mut Buffer, save: &Save, outcome: &Outcome, label: String) {
     buffer.file = Some(save.target.published(outcome.observed.clone()));
     buffer.name = label;
     buffer.break_typing();
@@ -188,5 +191,35 @@ fn reconcile(
             .map(ToString::to_string)
             .unwrap_or_else(|| "completion unresolved".into());
         buffer.warning = Some(format!("published {:?}: {error}", outcome.target()));
+    }
+}
+
+impl Buffer {
+    /// Publish a pre-admitted ordinary edit only after its file replacement.
+    /// Failed replacement leaves source/history/points unchanged. An unresolved
+    /// completion retains the published edit and ordinary save warning.
+    pub fn publish_saved_edit(
+        &mut self,
+        prepared: super::edit::Prepared,
+        points: &mut [super::edit::Point],
+        output: &mut impl Output,
+    ) -> io::Result<Outcome> {
+        writable(self)?;
+        let target = destination(self, None)?;
+        let mut save = Save::capture(self, target);
+        let (text, stamp, state) = prepared.saved_output();
+        save.text = text.clone();
+        save.stamp = stamp;
+        save.state = state;
+        self.admit_publication(&prepared, points)
+            .map_err(io::Error::other)?;
+        let outcome = file::publish(&save, output);
+        if outcome.publication() != Publication::NotPublished {
+            self.publish(prepared, points)
+                .expect("synchronous pre-admitted source edit");
+            let label = self.name.clone();
+            reconcile_buffer(self, &save, &outcome, label);
+        }
+        Ok(outcome)
     }
 }
