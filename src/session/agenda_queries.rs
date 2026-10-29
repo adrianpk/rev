@@ -72,7 +72,7 @@ impl Session {
             return self.error(&e.to_string());
         }
         self.pending = Some(Pending::AgendaQuery(kind));
-        Action::Redraw
+        self.message("Enter a typed query; C-g keeps the source or agenda")
     }
     pub(super) fn agenda_query_argument(&mut self, kind: QueryKind, draft: &str) -> Action {
         let query =

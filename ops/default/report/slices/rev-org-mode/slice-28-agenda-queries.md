@@ -110,6 +110,15 @@ query launch. The same million-byte source is now an unopened selected file,
 so it exercises query ownership/cancellation without changing its source size,
 assertions or deadline.
 
+The first final focused batch found named/direct query prompt echo divergence.
+The prompt now writes the same explicit feedback through both paths; the
+unchanged catalogue dispatch assertion passes. Additional negative escape cases
+reproduced case folding turning unsupported regexp \W/\S into supported escapes.
+Folding now preserves escape syntax, and unknown quoted search escapes reject.
+`cargo test --test org_agenda query_language::query_search_language -- --exact --nocapture`
+and `cargo test --test commands palette::catalog_dispatch -- --exact` pass.
+Changed-source quality remains green without exceptions.
+
 Final controller evidence binds the clean canonical PR head. Required order:
 
 - `cargo fmt --all -- --check`

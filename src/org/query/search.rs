@@ -19,13 +19,12 @@ impl SearchQuery {
         {
             return Err("Search requires nonempty bounded text without control characters".into());
         }
-        let source = source.to_lowercase();
         let mut terms = Vec::new();
         if source.starts_with('+') {
-            boolean(&source, depth, &mut terms)?;
+            boolean(source, depth, &mut terms)?;
         } else {
             terms.push(Term {
-                pattern: Regexp::parse(&literal(&source), depth)?,
+                pattern: Regexp::parse(&folded(&literal(source)), depth)?,
                 negative: false,
             });
         }
@@ -53,7 +52,7 @@ fn boolean(mut source: &str, depth: usize, terms: &mut Vec<Term>) -> Result<(), 
         let (pattern, tail) = term(source)?;
         source = tail;
         terms.push(Term {
-            pattern: Regexp::parse(&pattern, depth)?,
+            pattern: Regexp::parse(&folded(&pattern), depth)?,
             negative,
         });
     }
@@ -89,10 +88,11 @@ fn quoted(source: &str) -> Result<(String, &str), String> {
     let mut escaped = false;
     for (i, c) in source.char_indices() {
         match (escaped, c) {
-            (true, c) => {
+            (true, c) if matches!(c, '"' | '\\') => {
                 value.push(c);
                 escaped = false;
             }
+            (true, _) => return Err("Unknown search phrase escape".into()),
             (false, '\\') => escaped = true,
             (false, '"') => return Ok((value, &source[i + 1..])),
             (false, c) => value.push(c),
@@ -119,4 +119,20 @@ fn literal(source: &str) -> String {
         })
         .collect::<Vec<_>>()
         .join("\\s+")
+}
+
+fn folded(source: &str) -> String {
+    let mut chars = source.chars();
+    let mut value = String::new();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            value.push(c);
+            if let Some(escape) = chars.next() {
+                value.push(escape);
+            }
+        } else {
+            value.extend(c.to_lowercase());
+        }
+    }
+    value
 }
