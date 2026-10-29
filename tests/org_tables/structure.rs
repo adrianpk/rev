@@ -197,3 +197,21 @@ fn selected_sort() {
         assert_eq!(text(&s), source);
     }
 }
+// Numeric zero includes signed zero and empty fields. Both sort directions
+// retain their original relative order because their numeric keys are equal.
+#[test]
+fn equal_numeric_keys() {
+    let source = "|minus|-0|\n|empty||\n|plus|0|\n";
+    for mode in ["n", "N"] {
+        let (_f, mut s) = editor("", source);
+        at(&mut s, source.find("-0").unwrap());
+        action(&mut s, C::TableSort);
+        argument(&mut s, mode);
+        assert_eq!(
+            super::metadata::values(&s),
+            vec!["minus", "-0", "empty", "", "plus", "0"],
+            "{mode}: {}",
+            s.echo()
+        );
+    }
+}

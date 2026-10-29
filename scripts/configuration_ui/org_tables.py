@@ -30,8 +30,11 @@ def journey(root, colored):
         assert exact(frame, aligned)
         named(session, 'org-table-end-of-field', b'L3 C7')
         named(session, 'org-table-beginning-of-field', b'L3 C3')
-        frame = step(session, b'\r', b'reference rewriting')
-        assert exact(frame, aligned)
+        inserted = aligned.copy()
+        inserted.insert(3, '|      |       |')
+        send(session, b'\r', lambda f: exact(f, inserted))
+        send(session, b'\x18u', lambda f: exact(f, aligned))
+        structure(session, aligned)
         goto(session, 9)
         step(session, b'\x03|', b'Table size (columns x rows, default 5x2): ')
         created = aligned[:8] + ['|   |', '|---|'] + aligned[9:]
@@ -61,8 +64,11 @@ def journey(root, colored):
         frame = named(session, 'org-table-align', b'No native Org table at point')
         assert exact(frame, current)
         goto(session, 3)
-        frame = named(session, 'org-table-insert-hline', b'reference rewriting')
-        assert exact(frame, current)
+        ruled = current.copy()
+        ruled.insert(3, '|------+-------|')
+        named(session, 'org-table-insert-hline', b'Org table')
+        session.wait(lambda: completed(session, lambda f: exact(f, ruled)))
+        send(session, b'\x18u', lambda f: exact(f, current))
         goto(session, 12)
         step(session, b'\x05', b'L12 C6')
         current[11] += ' edited'
@@ -79,3 +85,51 @@ def journey(root, colored):
         assert after == before, 'table fixture entries changed outside the canonical source'
     finally:
         close(session)
+
+
+def structure(session, original):
+    # Existing RGB/NO_COLOR sessions exercise physical structural keys, checked
+    # formula digits, sort prompts and whole-operation history on one source.
+    goto(session, 3)
+    moved = original.copy()
+    moved[2:7] = ['| Count | Name |', '|-------+------|',
+                  '|     2 | 界e\u0301  |', '|    11 | Long |',
+                  '#+TBLFM: $1=$2+1']
+    send(session, b'\x1b[1;3C', lambda f: exact(f, moved))
+    send(session, b'\x18u', lambda f: exact(f, original))
+    named(session, 'undo-redo', b'Org')
+    session.wait(lambda: completed(session, lambda f: exact(f, moved)))
+    send(session, b'\x1b[1;3D', lambda f: exact(f, original))
+    expanded = original.copy()
+    expanded[2:7] = ['|   | Name | Count |', '|---+------+-------|',
+                     '|   | 界e\u0301  |     2 |', '|   | Long |    11 |',
+                     '#+TBLFM: $3=$2+1']
+    send(session, b'\x1b[1;4C', lambda f: exact(f, expanded))
+    send(session, b'\x1b[1;4D', lambda f: exact(f, original))
+    goto(session, 5)
+    named(session, 'org-table-next-field', b'Org table')
+    session.wait(lambda: completed(session, lambda f: b'Checking Org table' not in f and exact(f, original)))
+    step(session, b'\x03^', b'Sort type (a/A alphabetical, n/N numeric): ')
+    descending = original.copy()
+    descending[4:6] = list(reversed(descending[4:6]))
+    send(session, b'N\r', lambda f: exact(f, descending))
+    send(session, b'\x18u', lambda f: exact(f, original))
+    step(session, b'\x03^', b'Sort type (a/A alphabetical, n/N numeric): ')
+    frame = step(session, b'\x07', b'Org table cancelled; source unchanged')
+    assert exact(frame, original)
+    goto(session, 6)
+    send(session, b'\x1b[1;3A', lambda f: exact(f, descending))
+    send(session, b'\x18u', lambda f: exact(f, original))
+    killed = original.copy()
+    del killed[5]
+    send(session, b'\x1b[1;4A', lambda f: exact(f, killed))
+    send(session, b'\x18u', lambda f: exact(f, original))
+    goto(session, 7)
+    step(session, b'\x05', b'L7 C17')
+    unsupported = original.copy()
+    unsupported[6] += '::weird=unknown()'
+    send(session, b'::weird=unknown()', lambda f: exact(f, unsupported))
+    goto(session, 3)
+    frame = step(session, b'\x1b[1;3C', b'reference rewriting')
+    assert exact(frame, unsupported)
+    send(session, b'\x18u', lambda f: exact(f, original))

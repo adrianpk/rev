@@ -24,7 +24,9 @@ impl Key {
     fn compare(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Text(a), Self::Text(b)) => a.cmp(b),
-            (Self::Number(a), Self::Number(b)) => a.total_cmp(b),
+            (Self::Number(a), Self::Number(b)) => {
+                a.partial_cmp(b).expect("admitted finite numeric keys")
+            }
             _ => unreachable!("one selected sort mode"),
         }
     }

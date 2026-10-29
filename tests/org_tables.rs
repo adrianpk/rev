@@ -3,6 +3,8 @@
 mod edges;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "org_tables/lifecycle.rs"]
+mod lifecycle;
 #[path = "org_tables/metadata.rs"]
 mod metadata;
 #[path = "org_tables/references.rs"]

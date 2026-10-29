@@ -1,6 +1,6 @@
 # Slice 40: edit Org table rows columns and references
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -52,6 +52,20 @@ identity and shared positions. The rewrite scanner admits compatible arithmetic,
 finite literals and the documented function list, bounded to 100000 tokens and
 64 parenthesis levels; it does not evaluate or recalculate formulas.
 
+T40.3 extends native save/history/shared-view checks and the existing RGB and
+NO_COLOR table journeys. The journeys retain their original two-session count,
+8-second session deadline, 1 MiB terminal-output ceiling, 32-entry/64 KiB fixture
+bounds, idle assertions and cleanup checks. They await completed table navigation
+before sending the next prefix; an intermediate checking message is not accepted
+as completion. Supported formula insertion/hlines now assert successful source
+changes and complete undo; an explicit unsupported formula still rejects.
+
+The stable numeric-sort check exposed signed-zero ordering from `total_cmp`.
+Finite numeric comparison now treats signed zero, zero and empty fields as equal
+keys, preserving their source order in both directions. Read-only structural
+checks select an actual movable column before testing mutation denial; table-edge
+rejection is distinct from buffer authority.
+
 ## Contracts Added or Changed
 
 - ORG12: real structural table operations and retained cell/source coordinates.
@@ -65,6 +79,8 @@ finite literals and the documented function list, bounded to 100000 tokens and
 - `tests/org_tables/structure.rs`: actual editing/history/shared-view workflows.
 - `src/org/table/references/`: bounded reference scanning and explicit logical-axis/range validation.
 - `tests/org_tables/references.rs`: actual structural reference transactions and atomic rejection.
+- `tests/org_tables/lifecycle.rs`: structural file fidelity, identical shared rows, sort/current-source guards and bounded rejection.
+- `scripts/configuration_ui/org_tables.py`: owned physical-key, canvas, save and cleanup checks.
 - `docs/reference/org-tables.md`: supported commands and boundaries.
 
 ## Validation
@@ -84,8 +100,15 @@ finite literals and the documented function list, bounded to 100000 tokens and
 - `cargo test --test org_tables metadata -- --nocapture`: five existing metadata, unknown-formula preservation and table-ownership workflows passed.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed for the reference implementation; changed-source quality also passed.
 
+- `cargo test --test org_tables lifecycle -- --nocapture`: five workflows passed for structural BOM/CRLF/Unicode/tab saves and undo/redo, identical shared rows/marks, sorted formula transactions, cancellation/stale source, range-region rejection and 64-level/100000-token limits.
+- `cargo test --test org_tables equal_numeric_keys -- --nocapture`: passed after reproducing and correcting signed-zero reverse-sort instability.
+- `cargo test --test org_tables readonly_tables -- --nocapture`: passed for native navigation plus row/column mutation denial.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: both existing owned RGB/NO_COLOR sessions passed with physical structural keys, exact formula digits, sort prompts, atomic rejection, save bytes, idle state and cleanup; zero skipped.
+
 ## Risks and Follow-ups
 
-T40.3 extended structural validation remains pending. Final exact-HEAD controller checks and the canonical PR remain pending.
+Final exact-HEAD ordered required checks and focused regression evidence will be
+recorded through the controller after the PR-reference follow-up commit. Verified
+dev integration remains pending.
 The pre-existing outline timer assertion diagnostic remains in the Slice 39
 report; no timer behavior or assertion is changed here.

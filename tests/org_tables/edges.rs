@@ -130,12 +130,21 @@ fn readonly_tables() {
             assert!(s.echo().contains("read-only"), "{}", s.echo());
             assert_eq!(s.view(), &before);
         }
-        let before = s.view().clone();
-        action(&mut s, C::TableInsertRow);
-        assert!(s.echo().contains("read-only"), "{}", s.echo());
-        assert_eq!(s.view(), &before);
-        assert_eq!(text(&s), source);
-        assert!(s.buffer().unwrap().history().is_empty());
+        for command in [
+            C::TableInsertRow,
+            C::TableMoveColumnRight,
+            C::TableDeleteColumn,
+            C::TableInsertColumn,
+            C::TableKillRow,
+        ] {
+            at(&mut s, 2);
+            let before = s.view().clone();
+            action(&mut s, command);
+            assert!(s.echo().contains("read-only"), "{}", s.echo());
+            assert_eq!(s.view(), &before);
+            assert_eq!(text(&s), source);
+            assert!(s.buffer().unwrap().history().is_empty());
+        }
     }
 }
 // A stale create draft or C-g during a prompt/worker cannot publish an old
