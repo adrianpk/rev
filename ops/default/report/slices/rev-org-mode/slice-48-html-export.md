@@ -1,6 +1,6 @@
 # Slice 48: export native Org documents to HTML
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -77,8 +77,12 @@ Canonical PR: [#149](https://forge.adrianpk.com/adrianpk/rev/pulls/149).
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-exports`: two owned RGB/NO_COLOR sessions passed, zero skipped.
 - The independent mixed-list and terminal checks initially exposed lost list starts and CRLF output differences. Native list boundaries and HTML newline output were corrected; the same assertions now pass.
 
-Final exact-head acceptance is recorded through controller validation after the
-PR-reference follow-up commit.
+Canonical PR #149 merged into dev at
+`b874708ae51ca19b0763fbe40d643f573a6cbe12`, verified against Forgejo
+and origin/dev. Required receipt `IAS6YQZAUP54CRXIR7LEVJQJY2` passed five
+ordered checks and 164 tests. Focused receipt `DUICAZUTDZVZ4M7AKPJPRKXDIN`
+passed 378 command/editing tests, the configuration reference and two owned
+RGB/NO_COLOR terminal sessions. Zero failures, ignored tests or skipped sessions.
 
 ## Risks and Follow-ups
 

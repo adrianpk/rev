@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 48 HTML export
+Active slice: Slice 49 LaTeX and Beamer
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1009,12 +1009,14 @@ Details and exact checks: [Slice 48](../plan/rev-org-mode.md#slice-48-export-nat
 - [x] T48.1: Deliver native HTML structure, escaping, metadata, links, images, tables, notes and source blocks.
 - [x] T48.2: Implement declared attributes/options and safe relative asset references without executing contents.
 - [x] T48.3: Verify generated markup using independent HTML parsing and representative full-document fixtures.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#149](https://forge.adrianpk.com/adrianpk/rev/pulls/149).
 Task commits: T48.1 `7c588728d1e8e63777d53f2d66ecbf9de778d645`, T48.2 `04ea12326ef3c09d00a526d1c1e992db4f43b049`, T48.3 `e79c5728052617240f0071397eed8539db4072a4`.
 
-### Slice 49: export Org to LaTeX and Beamer
+Canonical PR #149 merged into dev at `b874708ae51ca19b0763fbe40d643f573a6cbe12`. Required receipt `IAS6YQZAUP54CRXIR7LEVJQJY2` passed five ordered checks and 164 tests. Focused receipt `DUICAZUTDZVZ4M7AKPJPRKXDIN` passed 378 command/editing tests, the configuration reference and two owned terminal sessions. Zero failures, ignored tests or skipped sessions. Slice 48 is delivered.
+
+## Slice 49: export Org to LaTeX and Beamer
 
 Contracts: ORG25 ORG30.
 Details and exact checks: [Slice 49](../plan/rev-org-mode.md#slice-49-export-org-to-latex-and-beamer).
