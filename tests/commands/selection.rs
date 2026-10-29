@@ -125,7 +125,7 @@ fn query_changes() {
     ] {
         input.handle(event);
         assert_eq!(input.palette().unwrap().selected(), Some(1));
-        assert_eq!(input.palette().unwrap().candidates().len(), 10);
+        assert_eq!(input.palette().unwrap().candidates().len(), 11);
         assert_eq!(input.prompt().unwrap().text(), "kill-line");
     }
     input.handle(key(KeyCode::Backspace));

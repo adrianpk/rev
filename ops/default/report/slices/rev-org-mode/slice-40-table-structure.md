@@ -109,6 +109,9 @@ rejection is distinct from buffer authority.
 - `cargo test --test org_tables readonly_tables -- --nocapture`: passed for native navigation plus row/column mutation denial.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-tables`: both existing owned RGB/NO_COLOR sessions passed with physical structural keys, exact formula digits, sort prompts, atomic rejection, save bytes, idle state and cleanup; zero skipped.
 
+- Focused controller batch `CJ47HAEC7XJ5QCUSEWUSBSGOLS` at `aae331e63d614a24e807ed74016eef9c03940aaf` exposed three catalog fixtures missing the newly delivered `org-table-kill-row` result. Their complete lexical expected list and substring counts now include that command; prefix matching expectations remain unchanged.
+- `cargo test --test commands -- palette::filter_order selection::query_changes vertical::configured_matching`: all three corrected fixtures passed; changed-source quality passed. Final controller evidence is regenerated for the corrected candidate.
+
 ## Risks and Follow-ups
 
 Final exact-HEAD ordered required checks and focused regression evidence are
