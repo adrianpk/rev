@@ -1,4 +1,4 @@
-use super::super::{COLUMNS, Cancellation, Limits, ROWS, check};
+use super::super::{CELLS, COLUMNS, Cancellation, Limits, ROWS, check};
 
 #[derive(Clone, Copy)]
 pub(super) struct Format(pub char);
@@ -107,7 +107,7 @@ impl Reader {
             return Err("Ragged table data cannot be converted without inventing fields".into());
         }
         self.rows.push(std::mem::take(&mut self.row));
-        if self.rows.len() > ROWS || self.rows.len() * self.rows[0].len() > 100000 {
+        if self.rows.len() > ROWS || self.rows.len() * self.rows[0].len() > CELLS {
             return Err("Table data exceeds 10000 rows or 100000 cells".into());
         }
         Ok(())
@@ -123,6 +123,9 @@ impl Reader {
     }
 }
 pub(super) fn representable(value: &str) -> Result<(), String> {
+    if value.contains(['\u{2028}', '\u{2029}']) {
+        return Err("Embedded cell line breaks cannot be represented in an Org table".into());
+    }
     if value.trim_matches([' ', '\t']) != value {
         return Err(
             "Leading or trailing cell whitespace cannot be retained as an Org value".into(),

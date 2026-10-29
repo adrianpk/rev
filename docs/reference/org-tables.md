@@ -185,7 +185,7 @@ TSV uses the same quoting with a tab delimiter.
 
 Delimited input admits UTF-8 with an optional leading BOM, LF/CRLF records,
 quoted delimiters, doubled quotes, empty cells and Unicode. Each row must have
-the same number of fields. Embedded cell line breaks, literal vertical bars,
+the same number of fields. Embedded cell line breaks (including Unicode line/paragraph separators), literal vertical bars,
 controls other than internal tabs, and leading/trailing spaces or tabs reject
 before mutation because native table values cannot retain them losslessly.
 Malformed quoting and ragged input/export reject without lossy recovery.

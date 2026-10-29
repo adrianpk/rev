@@ -48,3 +48,139 @@ fn interchange_roundtrip() {
         assert_eq!(text(&session), imported, "{name}");
     }
 }
+
+// Each late parse/representation failure leaves the complete canonical source,
+// point and history intact; the earlier successful records cannot leak through.
+#[test]
+fn interchange_rejections() {
+    for (name, input, diagnostic) in [
+        ("open quote", "A,B\n\"unfinished", "Unterminated"),
+        ("bare quote", "A,B\nab\"c,x", "Malformed"),
+        ("closed tail", "A,B\n\"a\" x,b", "Malformed"),
+        ("quoted LF", "A,B\n\"a\nb\",c", "line breaks"),
+        ("quoted CR", "A,B\n\"a\rb\",c", "line breaks"),
+        ("Unicode line", "A,B\n\"a\u{2028}b\",c", "line breaks"),
+        ("Unicode paragraph", "A,B\n\"a\u{2029}b\",c", "line breaks"),
+        ("record CR", "A,B\ra,b", "LF or CRLF"),
+        ("leading space", "A,B\n\" a\",b", "whitespace"),
+        ("trailing tab", "A,B\n\"a\t\",b", "whitespace"),
+        ("literal bar", "A,B\na|b,c", "losslessly"),
+        ("control", "A,B\na\u{1b}b,c", "losslessly"),
+        ("ragged", "A,B\na", "Ragged"),
+        ("empty", "", "empty"),
+    ] {
+        let (fixture, mut session) = editor("", "\n* Keep 界\nEOF");
+        fixture.write("input.csv", input);
+        let before = text(&session);
+        let view = session.view().clone();
+        action(&mut session, C::TableImport);
+        argument(&mut session, "input.csv");
+        assert!(
+            session.echo().contains(diagnostic),
+            "{name}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), before, "{name}");
+        assert_eq!(session.view(), &view, "{name}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+        assert_eq!(
+            std::fs::read_to_string(fixture.0.join("input.csv")).unwrap(),
+            input,
+            "{name}"
+        );
+    }
+}
+
+// Row, column, grid and display limits are exercised through real native file
+// imports, retaining ordinary editing after rejection rather than truncation.
+#[test]
+fn interchange_limits() {
+    for (name, input, diagnostic) in [
+        ("rows", "a\n".repeat(10001), "10000 rows"),
+        ("columns", vec!["a"; 257].join(","), "256 columns"),
+        (
+            "cells",
+            (vec!["a"; 251].join(",") + "\n").repeat(400),
+            "100000 cells",
+        ),
+        ("width", "a".repeat(4097), "4096 displayed"),
+    ] {
+        let (fixture, mut session) = editor("", "");
+        fixture.write("input.csv", &input);
+        action(&mut session, C::TableImport);
+        argument(&mut session, "input.csv");
+        assert!(
+            session.echo().contains(diagnostic),
+            "{name}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), "", "{name}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+        session.handle(Event::Paste("ordinary".into()));
+        assert_eq!(text(&session), "ordinary", "{name}");
+    }
+}
+
+// The parsed native model supplies an independent observation of imported
+// values, including empty fields, literal quotes, non-ASCII spaces and markup.
+#[test]
+fn interchange_values() {
+    let (fixture, mut session) = editor("", "");
+    let input =
+        "\u{feff},\"\"\"\",\"a,b\",\"a\tb\",\"\u{a0}界\u{a0}\",\"*bold*\",---,\"e\u{301}\"\n";
+    fixture.write("input.csv", input);
+    action(&mut session, C::TableImport);
+    argument(&mut session, "input.csv");
+    assert_eq!(
+        super::metadata::values(&session),
+        [
+            "",
+            "\"",
+            "a,b",
+            "a\tb",
+            "\u{a0}界\u{a0}",
+            "*bold*",
+            "---",
+            "e\u{301}"
+        ],
+        "{}",
+        session.echo()
+    );
+    at(&mut session, 0);
+    action(&mut session, C::TableExport);
+    argument(&mut session, "output.csv");
+    assert_eq!(
+        std::fs::read_to_string(fixture.0.join("output.csv")).unwrap(),
+        "\"\",\"\"\"\",\"a,b\",\"a\tb\",\"\u{a0}界\u{a0}\",\"*bold*\",\"---\",\"e\u{301}\"\n"
+    );
+}
+
+// A one-column data file participates in both existing native conversions.
+// Multi-column, separator and formula-bearing transformations remain rejected.
+#[test]
+fn interchange_conversion() {
+    let (fixture, mut session) = editor("", "");
+    fixture.write("input.csv", "\"a,b\"\n\"界\"\n");
+    action(&mut session, C::TableImport);
+    argument(&mut session, "input.csv");
+    at(&mut session, 0);
+    action(&mut session, C::TableToList);
+    assert_eq!(text(&session), "- a,b\n- 界");
+    action(&mut session, C::ListToTable);
+    action(&mut session, C::TableExport);
+    argument(&mut session, "converted.csv");
+    assert_eq!(
+        std::fs::read_to_string(fixture.0.join("converted.csv")).unwrap(),
+        "\"a,b\"\n\"界\"\n"
+    );
+    for (name, source) in [
+        ("columns", "|a|b|\n"),
+        ("separator", "|a|\n|---|\n"),
+        ("formula", "|a|\n#+TBLFM: $1=2\n"),
+    ] {
+        let (_fixture, mut session) = editor("", source);
+        action(&mut session, C::TableToList);
+        assert_eq!(text(&session), source, "{name}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{name}");
+    }
+}

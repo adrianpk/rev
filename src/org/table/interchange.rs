@@ -55,6 +55,10 @@ impl Snapshot {
                 ""
             },
         )?;
+        if self.text.len_bytes() - table.source.len() + layout.text.len() > Limits::default().bytes
+        {
+            return Err("Imported Org source exceeds the native 8 MiB output limit".into());
+        }
         let mut edits = Vec::new();
         self.gap(&mut edits, table.source, &layout.text)?;
         Ok(Plan {
