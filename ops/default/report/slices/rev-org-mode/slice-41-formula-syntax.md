@@ -1,6 +1,6 @@
 # Slice 41: parse the bounded Org formula subset
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -83,9 +83,11 @@ coordinate digits and retains ordinary one-operation undo/redo.
 - `cargo test --test org_tables --test org_source -- diagnostics formulas`: four workflows passed for exact diagnostics, limit admission through depth 256, formatted reference editing/undo and canonical read-only source fidelity.
 - `cargo clippy --lib --test org_tables --test org_source -- -D warnings`: passed; changed-source quality passed with unchanged limits.
 
+- Final required receipt `QNH4ZCQ4XYRJHBJF6NRALLEKAR` at `f65f56a4198b08b64b79c7a929d7fddfa37ef5bd` passed the five ordered checks and 106 native tests.
+- Final focused receipt `Q5TWMB2RETPEXLMFNXLROATRIQ` at the same head passed 48 library tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions.
+- Canonical PR #142 merged into dev at `f65f56a4198b08b64b79c7a929d7fddfa37ef5bd`, verified against Forgejo and origin/dev.
+
 ## Risks and Follow-ups
 
-Exact-HEAD required/focused validation is recorded through the controller for
-the PR-reference commit. Canonical PR #142 records the successful required
-command list. Verified dev integration remains pending. The approved evaluation/publication layers remain separate. The
+The approved evaluation/publication layers remain separate. The
 pre-existing outline timer fixture diagnostic retained in Slice 39 is unchanged.

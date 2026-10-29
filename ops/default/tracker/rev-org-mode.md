@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 41 formula syntax
+Active slice: Slice 42 formula evaluation
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -904,12 +904,14 @@ Details and exact checks: [Slice 41](../plan/rev-org-mode.md#slice-41-parse-the-
 - [x] T41.1: Parse declared arithmetic, field/column/range references, functions and compatible TBLFM assignments.
 - [x] T41.2: Enforce precedence, right-associative exponentiation and bounded syntax/depth before evaluation.
 - [x] T41.3: Verify unsupported Calc/Lisp preservation, malformed references and precise diagnostics.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#142](https://forge.adrianpk.com/adrianpk/rev/pulls/142).
 Task commits: T41.1 `9f599f4cd663572378ee0820c8e242204642bd35`, T41.2 `cab7833a5be8c819c9b17548504b09ca19805bbe`, T41.3 `3872b96e962cd03dfd3700f44f763e5528492065`.
 
-### Slice 42: evaluate basic Org table formulas safely
+Canonical PR #142 merged into dev at `f65f56a4198b08b64b79c7a929d7fddfa37ef5bd`, verified against Forgejo and origin/dev. Required receipt `QNH4ZCQ4XYRJHBJF6NRALLEKAR` passed five ordered checks and 106 tests. Focused receipt `Q5TWMB2RETPEXLMFNXLROATRIQ` passed 48 library tests and two owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions. Slice 41 is delivered.
+
+## Slice 42: evaluate basic Org table formulas safely
 
 Contracts: ORG13 ORG14.
 Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-basic-org-table-formulas-safely).
