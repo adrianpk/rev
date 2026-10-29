@@ -2,7 +2,7 @@ use super::*;
 impl Parser<'_> {
     pub(super) fn expression(&mut self, minimum: u8, depth: usize) -> Result<usize, Error> {
         self.budget.step(self.token().source.start)?;
-        if depth >= self.budget.limits.depth {
+        if depth > self.budget.limits.depth {
             return Err(self.error(
                 ErrorKind::Limit,
                 &format!("formula exceeds depth {}", self.budget.limits.depth),

@@ -77,11 +77,31 @@ or reordering within a range rejects, even if its endpoints still exist.
 
 Checked rewrites admit finite numeric literals, arithmetic `+ - * / ^`,
 parentheses, and `sum`, `mean`, `min`, `max`, `round`, `vsum`, `vmean`, `vmin`,
-`vmax` calls, with `::` separating assignments. They do not evaluate formulas.
+`vmax` and `abs` calls, with `::` separating assignments. Compatible `;fN`
+and `;%.Nf` fixed decimal formats remain literal source. They do not evaluate formulas.
 Relative/current, named, hline, remote, Lisp, Calc-specific or malformed forms
 reject structural editing before any source mutation. Removed/out-of-table
 reference targets reject instead of losing formula source. Removing a whole
 formula-bearing table or converting it to a list also rejects. Alignment and
 ordinary field navigation preserve unsupported formula source unchanged.
 Reference scans retain the table source limit and admit at most 100000 tokens
-and 64 parenthesis levels under the same cancellation/deadline checks.
+and 64 expression recursion levels under the same cancellation/deadline checks.
+
+The native formula syntax owner also recognizes current coordinates (`$0`, `@0`)
+and signed relative coordinates (`$+1`, `@-1$-2`) as distinct typed forms. Omitted
+coordinates retain their current-row/column meaning. Inclusive ranges retain
+both endpoints; data-row resolution and numeric evaluation are separate work.
+Structural rewriting still requires absolute coordinates and proves that every
+original range target survives consecutively and in order.
+
+Arithmetic syntax associates powers to the right. Powers bind above unary signs;
+multiplication binds above division, and both bind above addition/subtraction.
+Subtraction and division associate left. Thus `2^3^2` parses as `2^(3^2)`,
+`-2^2` as `-(2^2)`, and `8/2*2` as `8/(2*2)`, following the
+[Org arithmetic reference](https://orgmode.org/manual/Formula-syntax-for-Calc.html).
+The native subset admits no Calc modes, Lisp, named/remote references or
+executable function extensions. Aggregate aliases `sum/mean/min/max` retain
+their existing `vsum/vmean/vmin/vmax` identities; `abs` takes one argument and
+`round` takes one or two. Decimal precision is bounded to 12 places by default,
+with an admitted maximum of 15. The parser returns byte-positioned syntax,
+unsupported, limit or cancellation errors and never computes result values.

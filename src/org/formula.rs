@@ -71,6 +71,9 @@ pub enum Coordinate {
 }
 /// Resource settings for syntax only. Table dimensions and dependency/evaluation
 /// work remain the responsibility of their operation's qualified table snapshot.
+/// Bytes: 1..=33554432; steps: 1..=10000000; recursion depth: 1..=256;
+/// decimal places: 0..=15. Defaults use the frozen native profile. Syntax also
+/// has fixed ceilings of 100000 tokens and 100000 arena nodes.
 #[derive(Debug, Clone, Copy)]
 pub struct Limits {
     pub bytes: usize,
@@ -174,5 +177,18 @@ impl Limits {
             ));
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    // The worker's private deadline token reaches formula parsing unchanged;
+    // expiration cannot yield a syntax observation that later authorizes work.
+    #[test]
+    fn formula_deadline() {
+        let expired = Cancellation::default().bounded(std::time::Instant::now());
+        let error = Program::parse("$2=$1+1", Limits::default(), &expired).unwrap_err();
+        assert_eq!(error.kind, ErrorKind::Cancelled);
     }
 }

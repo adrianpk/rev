@@ -1,3 +1,4 @@
+mod format;
 use super::*;
 #[derive(Debug, Clone)]
 pub(super) enum Kind {
@@ -11,7 +12,7 @@ pub(super) enum Kind {
     Equal,
     Range,
     Assignments,
-    Format,
+    Format(usize),
     End,
 }
 #[derive(Debug, Clone)]
@@ -76,7 +77,7 @@ impl<'a> Lexer<'a> {
         loop {
             self.space()?;
             self.budget.step(self.at)?;
-            if tokens.len() >= 100000 {
+            if self.at < self.text.len() && tokens.len() >= 100000 {
                 return Err(self.error(ErrorKind::Limit, "formula exceeds 100000 tokens"));
             }
             let start = self.at;
@@ -95,10 +96,18 @@ impl<'a> Lexer<'a> {
         match self.byte() {
             None => Ok(Kind::End),
             Some(b'@' | b'$') => self.reference().map(Kind::Reference),
+            Some(b';') => self.format(),
             Some(b'0'..=b'9') => self.number(),
-            Some(b'.') if !self.text[self.at..].starts_with("..") => self.number(),
+            Some(b'.') => self.dots_or_number(),
             Some(b'a'..=b'z' | b'A'..=b'Z' | b'_') => self.name(),
             _ => self.punctuation(),
+        }
+    }
+    fn dots_or_number(&mut self) -> Result<Kind, Error> {
+        if self.text[self.at..].starts_with("..") {
+            self.punctuation()
+        } else {
+            self.number()
         }
     }
     fn punctuation(&mut self) -> Result<Kind, Error> {
@@ -121,7 +130,6 @@ impl<'a> Lexer<'a> {
             Some(b')') => Ok(Kind::Close),
             Some(b',') => Ok(Kind::Comma),
             Some(b'=') => Ok(Kind::Equal),
-            Some(b';') => Ok(Kind::Format),
             _ => Err(self.error(
                 ErrorKind::Unsupported,
                 "unsupported Calc/Lisp or formula token",

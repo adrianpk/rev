@@ -18,8 +18,7 @@ and [tracker](../../../tracker/rev-org-mode.md#slice-41-parse-the-bounded-org-fo
 T41.1 introduces a native typed formula arena for compatible field/column
 assignments, arithmetic, unary signs, parentheses, absolute/current/relative
 references, inclusive ranges, aggregates, round and abs. Multiple assignments
-retain their order and source spans. Fixed `fN` formatting is represented as
-data. Parsing neither evaluates expressions nor changes canonical source.
+retain their order and source spans. Fixed `fN` and `%.Nf` formatting are represented as data. Parsing neither evaluates expressions nor changes canonical source.
 
 ## Implementation Notes
 
@@ -29,6 +28,20 @@ not recursively drop a boxed tree. Byte spans are relative to the supplied
 formula value; they cannot grant buffer identity, revision or edit authority.
 No dependency, process, callback, expression interpreter or M-x placeholder is
 introduced. Evaluation/publication remain the approved later layers.
+
+T41.2 makes the syntax arena the shared structural rewrite grammar and removes
+the earlier lexical scanner. Absolute rewrites still validate every original
+range coordinate and reject relative/current transformation ambiguity before
+publication. Grammar admission does not confer target or mutation authority.
+
+Powers associate right and bind above unary signs. Org's multiplication-above-
+division rule is retained; subtraction/division associate left. No computed
+numeric result is used as proof of parser precedence. Independent expected trees
+establish grouping. Defaults admit 8 MiB input, 100000 tokens/nodes, 1000000 work
+steps, depth 64 and 12 decimal places; public limit ceilings follow the frozen
+model. Iterative token/node arenas and guarded expression descent bound memory,
+work and stack depth. Cancellation and the existing worker deadline propagate
+through lexing and parsing. Formatting is bounded data, never a printf executor.
 
 ## Contracts Added or Changed
 
@@ -48,8 +61,10 @@ introduced. Evaluation/publication remain the approved later layers.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed.
 - Changed-source quality passed with the unchanged parameter, nesting and cyclomatic limits.
 
+- `cargo test --test org_tables -- syntax references lifecycle::structural_rejections`: 14 syntax/reference/boundary workflows passed, including independently expected precedence trees, fixed formats, 64-level boundary, 100000-token exhaustion and existing atomic range rejection.
+- `cargo test --lib formula_deadline -- --nocapture`: the private worker deadline token rejects expired parsing.
+
 ## Risks and Follow-ups
 
-T41.2 precedence/boundary validation and shared structural-parser integration,
 T41.3 preservation/diagnostic verification, final exact-HEAD checks and the
 canonical PR remain pending. No result evaluation or recalculation is claimed.
