@@ -506,11 +506,17 @@ separator = "#3b4261"           # One-cell number/text separator.
 "M-S-Up" = "org-table-kill-row"
 "M-S-Down" = "org-table-insert-row"
 "C-c -" = "org-table-insert-hline"
+"C-c '" = "org-edit-special"
+"C-c C-v I" = "org-babel-view-src-block-info"
+"C-c C-v h" = "org-babel-insert-header-arg"
 
 [keys.org_capture]
 "C-c C-c" = "org-capture-finalize"
 "C-c C-k" = "org-capture-kill"
 [keys.org_source_edit]
+"C-c '" = "org-edit-src-exit"
+"C-c C-c" = "org-edit-src-exit"
+"C-c C-k" = "org-edit-src-abort"
 
 # These workspace roles consume unbound text. Feature owners add their own actions.
 [keys.org_agenda]

@@ -134,3 +134,52 @@ impl Properties {
         Ok((!value.undefined && !value.records.is_empty()).then_some(value.text))
     }
 }
+
+impl Properties {
+    pub(in crate::org) fn header_layers(
+        &self,
+        text: &ropey::Rope,
+        byte: usize,
+        language: &str,
+    ) -> Result<Vec<String>, String> {
+        let owners = self.header_owners(byte)?;
+        let keys = [
+            "HEADER-ARGS".to_owned(),
+            format!("HEADER-ARGS:{}", language.to_ascii_uppercase()),
+        ];
+        let mut layers = Vec::new();
+        for owner in owners.into_iter().rev() {
+            for key in &keys {
+                let mut value = PropertyValue {
+                    text: String::new(),
+                    records: Vec::new(),
+                    undefined: false,
+                };
+                self.combine(text, self.layer(owner, key)?, &mut value)?;
+                if !value.undefined && !value.text.is_empty() {
+                    layers.push(value.text);
+                }
+            }
+        }
+        Ok(layers)
+    }
+    fn header_owners(&self, byte: usize) -> Result<Vec<usize>, String> {
+        if !self.complete {
+            return Err("Incomplete source header properties".into());
+        }
+        let mut next = Some(
+            self.entries
+                .partition_point(|e| e.start <= byte)
+                .saturating_sub(1),
+        );
+        let mut owners = Vec::new();
+        while let Some(owner) = next {
+            if self.entries[owner].invalid {
+                return Err("Malformed source header properties".into());
+            }
+            owners.push(owner);
+            next = self.entries[owner].parent;
+        }
+        Ok(owners)
+    }
+}

@@ -64,7 +64,7 @@ impl Buffer {
             || self.language(settings) == "org",
             |mode| mode == Mode::Org,
         );
-        self.activate_org(self.org_enabled && requested);
+        self.activate_org(!self.transient && self.org_enabled && requested);
     }
 
     fn activate_org(&mut self, active: bool) {

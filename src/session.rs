@@ -39,6 +39,7 @@ mod replace;
 mod save;
 mod search;
 mod source_batch;
+mod source_edit;
 mod startup;
 mod timers;
 mod tree;
@@ -81,6 +82,8 @@ pub struct Session {
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
+    block_request: Option<outline::Request>,
+    source_edit: Option<source_edit::Draft>,
     refile: Option<refile::State>,
     refile_result: Vec<refile::ResultEntry>,
     refile_label: &'static str,
@@ -135,6 +138,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    SourceHeader(Box<source_edit::HeaderPrompt>),
     Capture(capture::Prompt),
     Refile,
     Attachment,
@@ -234,6 +238,8 @@ impl Session {
             buffers,
             org: org::Work::default(),
             capture: None,
+            block_request: None,
+            source_edit: None,
             refile: None,
             refile_result: Vec::new(),
             refile_label: "Refile",
@@ -445,7 +451,8 @@ impl Session {
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self
-            .capture_command(command)
+            .source_edit_command(command)
+            .or_else(|| self.capture_command(command))
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))
         {

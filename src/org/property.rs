@@ -51,14 +51,15 @@ pub(crate) fn property_name(name: &str) -> Result<String, String> {
     let base = name.strip_suffix('+').unwrap_or(name);
     if base.is_empty()
         || name.len() > 128
-        || base
-            .chars()
-            .any(|c| c.is_whitespace() || c.is_control() || ":+".contains(c))
+        || base.chars().any(|c| c.is_whitespace() || c.is_control())
     {
         return Err(
             "Org property name must be 1..128 bytes without whitespace, colons or interior +"
                 .into(),
         );
+    }
+    if !valid_property_separators(base) {
+        return Err("Only header-args:<language> property names admit a colon".into());
     }
     if base.eq_ignore_ascii_case("END") || base.eq_ignore_ascii_case("PROPERTIES") {
         return Err("Org drawer delimiters are not property names".into());
@@ -178,4 +179,22 @@ impl Properties {
             .iter()
             .any(|r| r.contains(&byte) || at_eof && r.end == byte)
     }
+}
+
+fn header_property(name: &str) -> bool {
+    let Some((key, language)) = name.split_once(':') else {
+        return false;
+    };
+    key.eq_ignore_ascii_case("header-args")
+        && !language.is_empty()
+        && language
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"_-+.".contains(&b))
+}
+
+fn valid_property_separators(base: &str) -> bool {
+    if header_property(base) {
+        return true;
+    }
+    !base.contains([':', '+'])
 }

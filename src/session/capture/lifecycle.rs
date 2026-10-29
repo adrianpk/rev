@@ -94,7 +94,10 @@ impl Session {
         self.sync_input_context();
         self.message("Capture finalized and saved")
     }
-    pub(super) fn discard_capture_buffer(&mut self, id: BufferId) -> Result<(), String> {
+    pub(in crate::session) fn discard_capture_buffer(
+        &mut self,
+        id: BufferId,
+    ) -> Result<(), String> {
         let kill = self.buffers.prepare_kill(id).map_err(|e| e.to_string())?;
         self.buffers.kill(kill).map_err(|e| e.to_string())?;
         Ok(())

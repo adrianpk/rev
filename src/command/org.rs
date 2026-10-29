@@ -212,9 +212,14 @@ pub enum OrgCommand {
     ExportIcalendar,
     Publish,
     PublishResults,
+    EditSpecial,
+    EditSrcExit,
+    EditSrcAbort,
+    ViewSrcInfo,
+    InsertHeaderArg,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 210] = [
+    pub const ALL: [Self; 215] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -425,6 +430,11 @@ impl OrgCommand {
         Self::ExportIcalendar,
         Self::Publish,
         Self::PublishResults,
+        Self::EditSpecial,
+        Self::EditSrcExit,
+        Self::EditSrcAbort,
+        Self::ViewSrcInfo,
+        Self::InsertHeaderArg,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -638,6 +648,11 @@ impl OrgCommand {
             "org-export-to-icalendar",
             "org-publish",
             "org-publish-results",
+            "org-edit-special",
+            "org-edit-src-exit",
+            "org-edit-src-abort",
+            "org-babel-view-src-block-info",
+            "org-babel-insert-header-arg",
         ][self as usize]
     }
 
@@ -974,5 +989,14 @@ impl OrgCommand {
 impl OrgCommand {
     pub(crate) fn export_pdf(self) -> bool {
         matches!(self, Self::ExportLatexPdf | Self::ExportBeamerPdf)
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn source_block(self) -> bool {
+        matches!(
+            self,
+            Self::EditSpecial | Self::ViewSrcInfo | Self::InsertHeaderArg
+        )
     }
 }

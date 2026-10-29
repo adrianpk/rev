@@ -72,6 +72,8 @@ impl Session {
             || self.document_request.is_some()
             || self.export_request.is_some()
             || self.publishing.is_some()
+            || self.block_request.is_some()
+            || self.source_edit.is_some()
     }
 
     pub(super) fn finish_org_request(&mut self) {
@@ -94,6 +96,12 @@ impl Session {
     }
 
     fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+        if request.command.source_block() {
+            if let Err(error) = self.begin_block(request) {
+                self.error(&error);
+            }
+            return;
+        }
         if self.table_context(request.command) {
             if let Err(error) = self.start_table(request) {
                 self.error(&error);

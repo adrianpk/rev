@@ -289,3 +289,6 @@ fn edit_authority() {
 
 #[path = "org_source/matching.rs"]
 mod matching;
+
+#[path = "org_source/source_blocks.rs"]
+mod source_blocks;

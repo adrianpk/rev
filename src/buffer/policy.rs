@@ -17,13 +17,15 @@ impl Buffer {
     /// Views discard cached display goals before their next reveal/navigation.
     pub fn apply_settings(&mut self, settings: &Snapshot) {
         let language = self.language(settings);
-        self.policy = settings.editor(language);
+        let policy = settings.editor(language);
+        let grammar = settings.grammar(language);
+        self.policy = policy;
         self.history_policy = settings.settings().history.clone();
         if self.syntax_policy != settings.settings().syntax {
             self.org_attempt = None;
         }
         self.syntax_policy = settings.settings().syntax.clone();
-        self.grammar = settings.grammar(language);
+        self.grammar = grammar;
         self.apply_mode(settings);
         self.refresh_syntax();
     }

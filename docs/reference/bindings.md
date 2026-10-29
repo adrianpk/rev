@@ -290,6 +290,10 @@ configuration snapshot; source edits take effect after restarting.
 
 | M-x | `org-table-import`, `org-table-export` | Read or write checked CSV/TSV table data; existing output files require confirmation. |
 
+| C-c ' / C-c C-c / C-c C-k in source draft | `org-edit-src-exit`, `org-edit-src-abort` | Return the checked source draft or discard it. |
+| C-c ' | `org-edit-special` | Edit the selected source block in a retained draft. |
+| C-c C-v I | `org-babel-view-src-block-info` | Inspect declared language, name and effective header data. |
+| C-c C-v h | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
 | M-x | `org-publish`, `org-publish-results` | Publish a configured document project and inspect retained per-file outcomes. |
 | M-x | `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown`, `org-export-to-org`, `org-export-to-html`, `org-export-to-latex`, `org-export-to-beamer`, `org-export-to-latex-pdf`, `org-export-to-beamer-pdf`, `org-export-to-odt`, `org-export-to-texinfo`, `org-export-to-man`, `org-export-to-icalendar` | Export a checked buffer, subtree or region to an explicit local file; confirm observed replacements. |
 
@@ -325,7 +329,7 @@ No keymap edits the underlying document from a prompt.
 
 Org editing, capture and special-edit roles use `keys.org`, `keys.org_capture`
 and `keys.org_source_edit`, inheriting the admitted editor map before local
-overrides. Capture adds `C-c C-c` to finalize and `C-c C-k` to abort its transient draft; the special-edit factory local overlay is empty. Agenda
+overrides. Capture adds `C-c C-c` to finalize and `C-c C-k` to abort its transient draft; special editing adds `C-c '` and `C-c C-c` to return, and `C-c C-k` to abort. Its named controls are `org-edit-src-exit` and `org-edit-src-abort`; see [source blocks](org-source-blocks.md). Agenda
 uses an independent `keys.org_agenda` map. The native date prompt inherits the
 minibuffer map before `keys.org_calendar` controls. Host agenda/calendar roles
 consume unbound text and paste. They admit implemented motion, scroll, quit, command-entry

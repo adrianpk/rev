@@ -279,6 +279,7 @@ impl Lex<'_, '_, '_> {
         if end == self.body.end || end == self.body.start + 1 {
             return Ok(None);
         }
+        end = self.header_property_end(end)?;
         let key = self.body.start + 1..end;
         if !self.property_key(key.clone())? {
             return Ok(None);
@@ -293,6 +294,17 @@ impl Lex<'_, '_, '_> {
         }))
     }
 
+    fn header_property_end(&mut self, end: usize) -> Parsed<usize> {
+        if !self.line[self.body.start + 1..end].eq_ignore_ascii_case("header-args") {
+            return Ok(end);
+        }
+        let word_end = self.word_end(end + 1)?;
+        if word_end > end + 1 && self.line.as_bytes()[word_end - 1] == b':' {
+            Ok(word_end - 1)
+        } else {
+            Ok(end)
+        }
+    }
     fn property_value(&mut self, start: usize) -> Parsed<Option<Range<usize>>> {
         if start < self.body.end && !b" \t".contains(&self.line.as_bytes()[start]) {
             return Ok(None);

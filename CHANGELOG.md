@@ -8,6 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Edit Org source blocks with `C-c '`, using available language highlighting in an isolated draft. Return with `C-c '` or `C-c C-c` as one source undo step, or abort with `C-c C-k`. Inspect inherited header data and insert checked local arguments; stale source retains the draft, and editing never saves or executes code.
+
 - Publish named Org projects with native document exports and binary asset copies. Select bounded source patterns, confirm replacements and inspect each file outcome; cancellation preserves completed files and source text. Optional configured upload requires separate confirmation.
 
 - Export Org buffers, subtrees or selected regions to ASCII, UTF-8 text, Markdown, Org, HTML, LaTeX, Beamer, OpenDocument text, Texinfo, man or iCalendar files through native commands. Export includes unsaved text, retains tables, links and footnotes, and never saves source or runs code. Select options explicitly, confirm existing destination replacements, and receive a diagnostic when ASCII cannot represent a character. HTML retains document structure, captions and admitted attributes, with escaped code and safe local image references. TeX output retains native structure and bounded math with escaped source; explicit PDF commands can run a configured compiler after confirmation, with bounded time/output and owned cleanup. OpenDocument text retains headings, lists, table cells and notes in a native package; unsupported rich content stays readable with diagnostics. Texinfo and man retain hierarchy, checked references and literal code with escaped formatter controls. iCalendar preserves event/task identities and checked UTC/date-only times, with explicit diagnostics for unsupported repeat semantics.

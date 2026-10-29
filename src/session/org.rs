@@ -1,4 +1,5 @@
 mod attachment;
+mod block;
 mod document;
 mod exports;
 mod links;
@@ -22,6 +23,7 @@ pub(super) struct Work {
     pub(super) sources_pending: Option<crate::org::agenda::SourceSelection>,
     pub(super) sources_running: bool,
     capture_running: bool,
+    block_running: bool,
     refile_running: bool,
     links_running: bool,
     document_running: bool,
@@ -39,6 +41,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    SourceBlock(Result<crate::org::block::Definition, String>),
     Publish(Result<crate::org::publish::Output, String>),
     Export(Result<crate::org::export::output::Output, String>),
     Table(Result<crate::org::table::Output, String>),
@@ -159,6 +162,13 @@ impl Session {
     }
 
     fn poll_org_files(&mut self) -> Option<bool> {
+        if self.org.block_running {
+            return Some(self.poll_block());
+        }
+        self.poll_org_outputs()
+            .or_else(|| self.poll_org_interactions())
+    }
+    fn poll_org_outputs(&mut self) -> Option<bool> {
         if self.org.publish_running {
             return Some(self.poll_publishing());
         }
@@ -171,6 +181,9 @@ impl Session {
         if self.org.document_running {
             return Some(self.poll_document());
         }
+        None
+    }
+    fn poll_org_interactions(&mut self) -> Option<bool> {
         if self.org.attachment_running {
             return Some(self.poll_attachment());
         }

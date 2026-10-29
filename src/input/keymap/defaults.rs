@@ -16,6 +16,11 @@ pub(super) fn capture_complete() -> &'static [(&'static str, &'static str)] {
     static COMPLETE: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| complete(EDITOR, ORG_CAPTURE));
     &COMPLETE
 }
+pub(super) fn source_complete() -> &'static [(&'static str, &'static str)] {
+    static COMPLETE: LazyLock<Vec<(&str, &str)>> =
+        LazyLock::new(|| complete(EDITOR, ORG_SOURCE_EDIT));
+    &COMPLETE
+}
 fn complete(
     base: &'static [(&'static str, &'static str)],
     local: &'static [(&'static str, &'static str)],
@@ -240,12 +245,19 @@ const ORG: &[(&str, &str)] = &[
     ("M-S-Up", "org-table-kill-row"),
     ("M-S-Down", "org-table-insert-row"),
     ("C-c -", "org-table-insert-hline"),
+    ("C-c '", "org-edit-special"),
+    ("C-c C-v I", "org-babel-view-src-block-info"),
+    ("C-c C-v h", "org-babel-insert-header-arg"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[
     ("C-c C-c", "org-capture-finalize"),
     ("C-c C-k", "org-capture-kill"),
 ];
-const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
+const ORG_SOURCE_EDIT: &[(&str, &str)] = &[
+    ("C-c '", "org-edit-src-exit"),
+    ("C-c C-c", "org-edit-src-exit"),
+    ("C-c C-k", "org-edit-src-abort"),
+];
 
 // Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[

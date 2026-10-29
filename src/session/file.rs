@@ -7,6 +7,11 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
+        if self.source_edit_selected() {
+            return Err(io::Error::other(
+                "Source draft owns this view; return or abort before visiting a file",
+            ));
+        }
         if self.capture_blocks_input() || self.capture_selected() {
             return Err(io::Error::other(
                 "Capture owns this view; abort the draft before visiting a file",
@@ -150,7 +155,8 @@ impl Pending {
     fn collection_argument(&self) -> bool {
         matches!(
             self,
-            Self::Capture(_)
+            Self::SourceHeader(_)
+                | Self::Capture(_)
                 | Self::Link(_)
                 | Self::Attachment
                 | Self::Document(_)
@@ -164,6 +170,7 @@ impl Pending {
 impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
+            Pending::SourceHeader(prompt) => self.source_header_argument(*prompt, draft),
             Pending::Export(prompt) => self.export_argument(*prompt, draft),
             Pending::Publish(prompt) => self.publishing_argument(*prompt, draft),
             Pending::Table(request) => self.table_argument(*request, draft),

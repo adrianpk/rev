@@ -8,7 +8,10 @@ use super::Buffer;
 impl Buffer {
     /// Resolve the first visiting basename from a supplied immutable snapshot.
     /// This query performs no file IO, syntax work or text/history mutation.
-    pub fn language<'a>(&self, settings: &'a Snapshot) -> &'a str {
+    pub fn language<'a>(&'a self, settings: &'a Snapshot) -> &'a str {
+        if let Some(language) = &self.source_language {
+            return language;
+        }
         self.file
             .as_ref()
             .map(|file| settings.language(Path::new(file.basename())))
@@ -20,7 +23,13 @@ impl Buffer {
     }
 
     pub fn mode(&self) -> &'static str {
-        if self.is_transient() {
+        if self.source_language.is_some() {
+            if self.syntax.mode(self.stamp()) == "Rust" {
+                "Org Src Rust"
+            } else {
+                "Org Src"
+            }
+        } else if self.is_transient() {
             "Capture"
         } else if self.is_org() {
             "Org"

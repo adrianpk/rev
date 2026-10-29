@@ -138,6 +138,7 @@ pub struct Buffer {
     text: Rope,
     read_only: bool,
     transient: bool,
+    source_language: Option<String>,
     mark: Option<Scalar>,
     mark_mode: region::Mode,
     history: VecDeque<edit::Transaction>,
@@ -188,6 +189,7 @@ impl Buffer {
             text,
             read_only: false,
             transient: false,
+            source_language: None,
             mark: None,
             mark_mode: region::Mode::Inactive,
             history: VecDeque::new(),
@@ -428,6 +430,15 @@ impl Buffers {
         buffer.transient = true;
         buffer.bom = false;
         buffer.mode_choice = Some(Mode::Text);
+        Ok(self.insert(buffer))
+    }
+
+    pub(crate) fn source_draft(&mut self, text: &str, language: &str) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = "*Org Source*".into();
+        buffer.transient = true;
+        buffer.source_language = Some(language.to_owned());
+        buffer.default_newline = crate::config::Newline::Lf;
         Ok(self.insert(buffer))
     }
 
