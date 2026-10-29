@@ -39,6 +39,7 @@ refile remains in the normal buffer inventory, with its modified state and undo
 history. `org-refile-results` reports the last operation's source and destination
 as unchanged, changed in buffer, saved, save rejected or completion unresolved.
 Later edits or buffer closure invalidate that participant's pinned result.
+A save captured before the move cannot acknowledge the later refile state.
 
 File saves remain independent. If source save succeeds and destination save
 fails, the destination buffer retains the moved text; the result never claims

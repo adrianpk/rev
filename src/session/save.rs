@@ -34,8 +34,9 @@ impl Session {
     ) -> Action {
         match self.buffers.request_save(id, target) {
             Ok(SaveRequest::Ready(save)) => {
+                let state = save.state();
                 let outcome = self.buffers.publish_save(save);
-                self.saved(&outcome, after)
+                self.saved_state(state, &outcome, after)
             }
             Ok(SaveRequest::Confirm(confirmation)) => self.confirm(confirmation, after),
             Err(error) => {
@@ -77,15 +78,25 @@ impl Session {
                 if !accepted {
                     return self.message("Save canceled");
                 }
+                let state = confirmation.state();
                 let outcome = self.buffers.confirm_save(*confirmation);
-                self.saved(&outcome, after)
+                self.saved_state(state, &outcome, after)
             }
             _ => self.message("No decision is pending"),
         }
     }
 
+    pub(super) fn saved_state(
+        &mut self,
+        state: crate::buffer::State,
+        outcome: &Outcome,
+        after: AfterSave,
+    ) -> Action {
+        self.note_refile_save(state, outcome);
+        self.saved(outcome, after)
+    }
+
     pub(super) fn saved(&mut self, outcome: &Outcome, after: AfterSave) -> Action {
-        self.note_refile_save(outcome);
         let refreshed = if outcome.publication() != Publication::NotPublished {
             self.tree.observe_path(outcome.target())
         } else {

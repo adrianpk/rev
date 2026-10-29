@@ -98,3 +98,39 @@ fn refile_copy_cancel() {
         "* Target\n"
     );
 }
+
+// The destination peer stays attached to its unchanged heading while insertion
+// maps its actual point/viewport; refile keeps the initiating source pane.
+#[test]
+fn refile_shared_views() {
+    use rev::command::Split;
+    let (fixture, mut session) = editor("* Note\n* Stay\n", "* Target\nbody\n* Peer\n");
+    session.execute(Command::Split(Split::Right));
+    let owner = session.windows().selected_id();
+    let peer = session
+        .windows()
+        .iter()
+        .find(|(id, _)| *id != owner)
+        .unwrap()
+        .0;
+    session.select_view(peer).unwrap();
+    session.load(&fixture.0.join("destination.org")).unwrap();
+    session.execute(Command::GotoLine);
+    argument(&mut session, "3");
+    session.select_view(owner).unwrap();
+    action(&mut session, C::Refile);
+    argument(&mut session, "1");
+    assert_eq!(session.windows().selected_id(), owner);
+    assert_eq!(text(&session), "* Stay\n");
+    session.select_view(peer).unwrap();
+    let point = session.view().point.position.0;
+    assert!(
+        text(&session)
+            .chars()
+            .skip(point)
+            .collect::<String>()
+            .starts_with("* Peer")
+    );
+    assert_eq!(text(&session), "* Target\nbody\n** Note\n* Peer\n");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+}

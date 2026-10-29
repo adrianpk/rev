@@ -41,15 +41,13 @@ impl Targets {
                 return Err("Cannot refile a subtree into itself or its descendants".into());
             }
         }
-        let newline = if text
+        let lf = text.len_lines() - 1;
+        let crlf = text
             .chars()
             .zip(text.chars().skip(1))
-            .any(|(a, b)| a == '\r' && b == '\n')
-        {
-            "\r\n"
-        } else {
-            "\n"
-        };
+            .filter(|(a, b)| *a == '\r' && *b == '\n')
+            .count();
+        let newline = if crlf > lf - crlf { "\r\n" } else { "\n" };
         let mut body = crate::org::structure::entry::relevel(
             &subtree.text,
             target.level + 1,

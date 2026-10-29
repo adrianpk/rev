@@ -110,3 +110,5 @@ mod capture_bounds;
 
 #[path = "org_io/refile.rs"]
 mod refile;
+#[path = "org_io/refile_failures.rs"]
+mod refile_failures;

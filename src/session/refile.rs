@@ -2,6 +2,8 @@
 mod publish;
 mod results;
 mod selection;
+#[cfg(test)]
+mod tests;
 use super::{Action, Pending, Session, outline::Request};
 use crate::{
     command::{Command, OrgCommand as C},

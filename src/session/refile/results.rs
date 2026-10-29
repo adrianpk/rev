@@ -88,31 +88,27 @@ impl Session {
         }
         let text = entries
             .iter()
-            .map(|e| {
-                format!(
-                    "{} {}: {}{}",
-                    e.role,
-                    e.path
-                        .as_ref()
-                        .map(|p| p.display().to_string())
-                        .unwrap_or_else(|| e.label.clone()),
-                    e.status.message(),
-                    e.error
-                        .as_ref()
-                        .map(|s| format!(" ({s})"))
-                        .unwrap_or_default()
-                )
-            })
+            .map(|e| format!("{}: {} [{}]", e.role, e.status.message(), e.label))
             .collect::<Vec<_>>()
             .join("; ");
-        self.message(&format!("Refile result: {text}"))
+        let errors = entries
+            .iter()
+            .filter_map(|e| e.error.as_ref().map(|error| format!("{}: {error}", e.role)))
+            .collect::<Vec<_>>()
+            .join("; ");
+        let mut message = format!("Refile result: {text}");
+        if !errors.is_empty() {
+            message.push_str(&format!("; {errors}"));
+        }
+        self.message(&message)
     }
-    pub(in crate::session) fn note_refile_save(&mut self, outcome: &Outcome) {
+    pub(in crate::session) fn note_refile_save(&mut self, saved_state: State, outcome: &Outcome) {
         for entry in &mut self.refile_result {
             let Ok(buffer) = self.buffers.get(entry.buffer) else {
                 continue;
             };
-            if buffer.state() != entry.state
+            if saved_state != entry.state
+                || buffer.state() != entry.state
                 || buffer.file().map(|f| f.path()) != Some(outcome.target())
             {
                 continue;
@@ -140,11 +136,11 @@ impl Status {
     fn message(self) -> &'static str {
         match self {
             Self::Unchanged => "unchanged",
-            Self::ChangedInBuffer => "changed in buffer; not saved",
+            Self::ChangedInBuffer => "unsaved in buffer",
             Self::Saved => "saved",
             Self::Rejected => "save rejected; canonical buffer retained",
             Self::CompletionUnresolved => "published; save completion unresolved",
-            Self::ChangedAfter => "changed after refile; prior save evidence no longer applies",
+            Self::ChangedAfter => "changed since refile",
             Self::Closed => "buffer closed",
         }
     }

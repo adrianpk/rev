@@ -18,6 +18,10 @@ pub struct Confirmation {
 }
 
 impl Confirmation {
+    pub(crate) fn state(&self) -> super::State {
+        self.save.state()
+    }
+
     pub fn message(&self) -> &str {
         &self.message
     }

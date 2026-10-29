@@ -29,7 +29,7 @@ fn value(buffer: &Buffer) -> String {
 // and BOM/newlines, and never writes either actual file during preparation.
 #[test]
 fn refile_plan() {
-    for copy in [false, true] {
+    for (name, copy) in [("move", false), ("copy", true)] {
         let fixture = Fixture::new();
         let source = "* Note\n:PROPERTIES:\n:ID: keep\n:END:\n** Child\n#+begin_example\n,* literal\n#+end_example\n* Stay\n";
         let dest = "\u{feff}* Projects\r\nbody EOF";
@@ -74,7 +74,8 @@ fn refile_plan() {
         }
         assert_eq!(
             value(buffers.get(a).unwrap()),
-            if copy { source } else { "* Stay\n" }
+            if copy { source } else { "* Stay\n" },
+            "{name}"
         );
         assert_eq!(
             value(buffers.get(b).unwrap()),

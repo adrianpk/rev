@@ -1,6 +1,6 @@
 # Slice 34: refile Org subtrees across canonical documents
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -83,7 +83,33 @@ T34.2 checks:
 - `cargo clippy --lib --test org_io -- -D warnings`: passed.
 - Changed-source quality passes at unchanged limits.
 
+T34.2: `c01a962955ec4f99ad3e42c273dce6515028cc9c`.
+
+T34.3 checks:
+
+- `cargo test --lib refile -- --nocapture`: five tests pass, including captured-save state qualification and actual
+  revision/read-only rejection and source-saved/target-rejected or target-
+  completion-unresolved outcomes through the real file publication boundary.
+- `cargo test --test org_io refile -- --nocapture`: five native workflows pass,
+  including duplicate titles, exact displayed selection, external replacement,
+  unavailable/read-only targets and shared-view mapping.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-refile`:
+  two owned RGB/NO_COLOR sessions pass cancellation, move, source/destination
+  saves, result inspection and undo/redo, with exact file-byte assertions.
+- `cargo clippy --lib --test org_io -- -D warnings`: passed.
+- Changed-source quality passes with unchanged limits.
+
+Fault injection overrides only ordinary file write or directory-sync methods;
+actual temporary-file replacement and canonical state transitions remain real.
+Rejected save leaves target disk unchanged; unresolved completion follows real
+rename. Retrying the same retained canonical destination writes one insertion.
+A save captured before refile cannot acknowledge its later logical state,
+even if the older save completes or has unresolved completion. Final controller
+receipts bind the clean pushed PR head after PR references.
+
 ## Risks and Follow-ups
 
-T34.3 failure/terminal evidence remains in progress. The delivery-set gate
-remains controller-owned.
+Refiling leaves independently modified buffers. Each durable file save has its
+own outcome; canonical source, undo history and ordinary save/close guards remain
+available after partial saving. No atomic multi-file disk success is claimed.
+The delivery-set gate remains controller-owned.
