@@ -16,3 +16,5 @@
 - [Syntax highlighting](syntax.md): language recognition, semantic palette and plain-text fallback.
 - [Native Org outline](org-mode.md): heading insertion and motion, drawer controls, independent views and targeted reveal.
 - [Failure recovery](recovery.md): retained state, publication outcomes and terminal restoration.
+
+- [Org agenda queries](org-agenda.md): TODO, text, tag/property grammar and checked source return.

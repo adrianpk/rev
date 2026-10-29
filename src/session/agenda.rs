@@ -5,8 +5,8 @@ use crate::{
     org::{
         Cancellation,
         agenda::{
-            Calendar, CalendarProjection, CalendarQuery, Navigation, NavigationCandidate,
-            SourceScan, SourceSelection, SourceSet,
+            AgendaQuery, Calendar, CalendarProjection, CalendarQuery, Navigation,
+            NavigationCandidate, QueryResult, SourceScan, SourceSelection, SourceSet,
         },
     },
     window::ViewId,
@@ -26,6 +26,14 @@ pub(super) enum Work {
         selection: SourceSelection,
         view: ViewId,
     },
+    Query {
+        scan: Box<SourceScan>,
+        query: AgendaQuery,
+        context: CalendarQuery,
+        policy: Box<crate::config::Org>,
+        selection: SourceSelection,
+        view: ViewId,
+    },
     Project {
         projection: CalendarProjection,
         view: ViewId,
@@ -39,6 +47,12 @@ pub(super) enum Output {
     Refresh {
         sources: SourceSet,
         calendar: Calendar,
+        selection: SourceSelection,
+        view: ViewId,
+    },
+    Query {
+        sources: SourceSet,
+        result: Box<QueryResult>,
         selection: SourceSelection,
         view: ViewId,
     },
@@ -70,6 +84,27 @@ impl Work {
                 Ok(Output::Refresh {
                     sources,
                     calendar,
+                    selection,
+                    view,
+                })
+            }
+            Self::Query {
+                scan,
+                query,
+                context,
+                policy,
+                selection,
+                view,
+            } => {
+                let bounded = cancel.bounded(
+                    std::time::Instant::now()
+                        + std::time::Duration::from_secs(policy.limits.job_seconds as u64),
+                );
+                let sources = scan.run(&bounded);
+                let result = QueryResult::observe(&sources, query, context, &policy, &bounded)?;
+                Ok(Output::Query {
+                    sources,
+                    result: Box::new(result),
                     selection,
                     view,
                 })
@@ -107,6 +142,17 @@ impl Session {
                 self.agenda_sources = Some(sources);
                 self.install_calendar(calendar, selection, view);
             }
+            Ok(Output::Query {
+                mut sources,
+                mut result,
+                selection,
+                view,
+            }) => {
+                sources.revalidate(&self.buffers);
+                result.revalidate(&self.buffers);
+                self.agenda_sources = Some(sources);
+                self.install_query(*result, selection, view);
+            }
             Ok(Output::Project { mut calendar, view }) => {
                 calendar.revalidate(&self.buffers);
                 if let Some(state) = &mut self.calendar_agenda
@@ -119,7 +165,7 @@ impl Session {
                 self.message("Calendar span changed; g refreshes sources");
             }
             Ok(Output::Visit { candidate, view }) => {
-                if !self.calendar_active() || self.windows.selected_id() != view {
+                if !self.agenda_active() || self.windows.selected_id() != view {
                     self.message("Agenda source return cancelled: view changed");
                     return;
                 }
@@ -127,13 +173,17 @@ impl Session {
                     self.error(&error);
                 }
             }
-            Err(error) => {
-                if let Some(state) = &mut self.calendar_agenda {
-                    state.calendar.truncated = true;
-                }
-                self.error(&error);
-            }
+            Err(error) => self.agenda_error(&error),
         }
+    }
+    fn agenda_error(&mut self, error: &str) {
+        if let Some(state) = &mut self.query_agenda {
+            state.result.truncated = true;
+        }
+        if let Some(state) = &mut self.calendar_agenda {
+            state.calendar.truncated = true;
+        }
+        self.error(error);
     }
     fn install_calendar(&mut self, calendar: Calendar, selection: SourceSelection, view: ViewId) {
         if self.windows.get(view).is_err() {
@@ -141,6 +191,7 @@ impl Session {
             return;
         }
         self.habit_agenda = None;
+        self.query_agenda = None;
         self.calendar_agenda = Some(State {
             calendar,
             selection,
@@ -167,6 +218,7 @@ impl Session {
         };
         let id = self.buffers.publish_visit(visit);
         self.calendar_agenda = None;
+        self.query_agenda = None;
         self.activate(id);
         self.sync_input_context();
         self.place_point(point).map_err(|e| e.to_string())?;

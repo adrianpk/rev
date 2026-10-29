@@ -220,6 +220,9 @@ const ORG_SOURCE_EDIT: &[(&str, &str)] = &[];
 // Non-text workspace owners admit implemented navigation and source actions.
 const ORG_AGENDA: &[(&str, &str)] = &[
     ("g", "org-agenda-redo"),
+    ("t", "org-todo-list"),
+    ("s", "org-search-view"),
+    ("m", "org-tags-view"),
     ("K", "org-habit-toggle-habits"),
     ("C-u K", "org-habit-toggle-habits-only-for-today"),
     ("A", "org-habit-toggle-show-all-today"),

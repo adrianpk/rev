@@ -197,6 +197,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x t R` | `tree-rename` | Rename one entry and reconcile visited paths. |
 | `C-x t D` | `tree-delete` | Confirm removal, including separate recursive consent. |
 
+| t in agenda / M-x org-todo-list | `org-todo-list` | Select unfinished tasks or explicit states. |
+| s in agenda / M-x org-search-view | `org-search-view` | Search entry text with phrases or signed terms. |
+| m in agenda / M-x org-tags-view | `org-tags-view` | Select Boolean tag/property matches. |
 | g in calendar/habit agenda | `org-agenda-redo` | Refresh current sources and captured time. |
 | v d in calendar agenda | `org-agenda-day-view` | Show one captured day. |
 | v w in calendar agenda | `org-agenda-week-view` | Show one configured week. |
@@ -275,6 +278,9 @@ role selection alone does not create an agenda or draft.
 
 | Keys | Target | Behavior |
 | --- | --- | --- |
+| `t` | `org-todo-list` | Select TODO states; empty means unfinished. |
+| `s` | `org-search-view` | Enter a text or Boolean search. |
+| `m` | `org-tags-view` | Enter a tag/property expression. |
 | `g` | `org-agenda-redo` | Explicitly refresh from current source and time. |
 | `K` | `org-habit-toggle-habits` | Toggle graph visibility. |
 | `C-u K` | `org-habit-toggle-habits-only-for-today` | Toggle today's agenda only. |
@@ -711,3 +717,5 @@ default deadline warning is fourteen days. Time grids retain wall-clock times;
 ambiguous/nonexistent local times remain marked unresolved. Partial sources,
 malformed data and limits stay visible as incomplete results. Date navigation
 and rendering never advance repeating source or poll a clock while idle.
+
+See [Org agenda queries](org-agenda.md) for source scopes, query grammar, limits and checked return.

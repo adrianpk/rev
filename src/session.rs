@@ -1,4 +1,5 @@
 mod agenda;
+mod agenda_queries;
 mod agenda_sources;
 mod buffers;
 mod edit;
@@ -93,6 +94,8 @@ pub struct Session {
     habit_agenda: Option<habits::State>,
     agenda_sources: Option<crate::org::agenda::SourceSet>,
     calendar_agenda: Option<agenda::State>,
+    query_agenda: Option<agenda_queries::State>,
+    agenda_query_plan: Option<crate::org::agenda::AgendaQuery>,
 }
 
 enum AfterSave {
@@ -104,6 +107,7 @@ enum AfterSave {
 enum Pending {
     AgendaSources,
     AgendaDate,
+    AgendaQuery(crate::org::agenda::QueryKind),
     Timer(timers::Prompt),
     Habit(habits::Prompt),
     ClockReport(Box<outline::reports::Prompt>),
@@ -215,6 +219,8 @@ impl Session {
             habit_agenda: None,
             agenda_sources: None,
             calendar_agenda: None,
+            query_agenda: None,
+            agenda_query_plan: None,
         })
     }
 
@@ -277,7 +283,8 @@ impl Session {
     ) -> Result<(), view::Error> {
         self.timer_frame(frame)?;
         self.habit_frame(frame, composition)?;
-        self.agenda_frame(frame, composition)
+        self.agenda_frame(frame, composition)?;
+        self.query_frame(frame, composition)
     }
 
     fn reveal_workspace(
@@ -355,7 +362,7 @@ impl Session {
     }
 
     fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
-        if (self.habit_agenda.is_some() || self.calendar_active())
+        if (self.habit_agenda.is_some() || self.agenda_active())
             && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
         {
             return self.message("Read-only Org agenda; C-g returns to source");
@@ -381,7 +388,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = match self
-            .agenda_view_command(command)
+            .query_view_command(command)
+            .or_else(|| self.agenda_view_command(command))
             .or_else(|| self.habit_command(command))
         {
             Some(action) => action,

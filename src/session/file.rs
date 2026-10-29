@@ -85,6 +85,7 @@ impl Pending {
         matches!(
             self,
             Self::AgendaSources
+                | Self::AgendaQuery(_)
                 | Self::AgendaDate
                 | Self::Habit(_)
                 | Self::Timer(_)
@@ -103,6 +104,7 @@ impl Session {
     fn observation_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
             Pending::AgendaSources => self.agenda_source_argument(draft),
+            Pending::AgendaQuery(kind) => self.agenda_query_argument(kind, draft),
             Pending::AgendaDate => self.agenda_date_argument(draft),
             Pending::Habit(prompt) => self.habit_argument(prompt, draft),
             Pending::ClockReport(prompt) => self.clock_report_argument(*prompt, draft),
@@ -115,7 +117,11 @@ impl Pending {
     pub(super) fn observation_argument(&self) -> bool {
         matches!(
             self,
-            Self::AgendaSources | Self::AgendaDate | Self::Habit(_) | Self::ClockReport(_)
+            Self::AgendaSources
+                | Self::AgendaQuery(_)
+                | Self::AgendaDate
+                | Self::Habit(_)
+                | Self::ClockReport(_)
         )
     }
 }

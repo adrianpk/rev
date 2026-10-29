@@ -701,14 +701,18 @@ Details and exact checks: [Slice 28](../plan/rev-org-mode.md#slice-28-query-org-
 
 - [x] T28.1: Deliver TODO/search/tag/property views with declared Boolean/comparison grammar and source scopes.
 - [x] T28.2: Evaluate bounded parsed queries against canonical metadata, including inheritance and effort.
-- [ ] T28.3: Verify escaping, invalid operators, completeness and stable result identity.
+- [x] T28.3: Verify escaping, invalid operators, completeness and stable result identity.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 T28.1 delivers typed query plans and the bounded Boolean/text/regexp language.
 Two parameterized grammar cases, focused Clippy, changed-source quality and the
 complete configuration reference pass. T28.2 adds canonical metadata evaluation,
 qualified row locations and truthful partial results. Four query cases and
-fourteen existing property cases pass; native query controls follow in T28.3.
+fourteen existing property cases pass. T28.3 verifies native query controls,
+invalid drafts, scope retention, canonical refresh/return, Unicode shared panes,
+regexp bounds and owned cancellation. Nine query cases plus the real cancellation
+case pass; focused Clippy, source quality and the complete reference agree.
+Final canonical PR references and clean-head controller evidence follow.
 
 ### Slice 29: configure native Org agenda views
 

@@ -25,10 +25,12 @@ impl Session {
         if command == Command::KeyboardQuit {
             self.clock_recovery_pin = None;
             self.org.cancel();
+            self.agenda_query_plan = None;
             if matches!(
                 self.pending,
                 Some(
                     Pending::AgendaSources
+                        | Pending::AgendaQuery(_)
                         | Pending::AgendaDate
                         | Pending::Habit(_)
                         | Pending::Timer(_)
@@ -71,6 +73,7 @@ impl Session {
             self.pending,
             Some(
                 Pending::AgendaSources
+                    | Pending::AgendaQuery(_)
                     | Pending::AgendaDate
                     | Pending::Habit(_)
                     | Pending::Timer(_)
@@ -128,6 +131,9 @@ impl Session {
         match self.pending {
             Some(Pending::AgendaSources) => {
                 self.message("Enter current, buffers or one literal local path; C-g cancels")
+            }
+            Some(Pending::AgendaQuery(_)) => {
+                self.message("Enter a typed query; C-g keeps the source or agenda")
             }
             Some(Pending::AgendaDate) => {
                 self.message("Enter YYYY-MM-DD or today; C-g keeps the calendar")

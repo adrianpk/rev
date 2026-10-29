@@ -168,6 +168,24 @@ fn habit_no_color() {
     assert_eq!(text(&s), SOURCE);
     assert!(s.buffer().unwrap().history().is_empty());
     assert_eq!(s.remaining_input(Instant::now()), None);
+    s.handle(key(KeyCode::Char('q')));
+    action(&mut s, OrgCommand::TodoList);
+    argument(&mut s, "");
+    argument(&mut s, "current");
+    settle(&mut s);
+    let frame = s.frame().unwrap();
+    let mut bytes = Vec::new();
+    frame.write(&mut bytes).unwrap();
+    let output = String::from_utf8(bytes).unwrap();
+    assert!(!output.contains("38;2;") && !output.contains("48;2;"));
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .any(|r| r.text().contains("Org TODO agenda"))
+    );
+    assert_eq!(text(&s), SOURCE);
+    assert!(s.buffer().unwrap().history().is_empty());
 }
 // The selected-buffer graph row bound rejects complete excess requests; no
 // silent truncation or source rewrite can turn the next row into an absent habit.

@@ -1,6 +1,6 @@
 # Slice 28: query Org tasks tags and properties
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -46,6 +46,13 @@ additive properties and native durations feed the same typed match plan.
 COMMENT/archive subtrees are excluded; malformed metadata and excess rows stay
 explicitly incomplete. Text search covers each entry's section, not descendants.
 
+Compiled TODO/search/match commands and local t/s/m controls publish read-only
+rows in one owned pane. Invalid/cancelled drafts preserve the previous view;
+changing query kind retains its selected sources. Refresh observes current
+canonical text and time; checked Enter return reuses buffer revision checks or
+bounded disk text/metadata equality. Peers remain editable, and owner deletion
+retires the projection. Native prompts retain their visible cursor.
+
 ## Contracts Added or Changed
 
 - ORG08: bounded query plans over explicitly selected canonical sources.
@@ -56,6 +63,9 @@ explicitly incomplete. Text search covers each entry's section, not descendants.
 - `src/org/query/`: Boolean matching, duration comparisons and finite text search.
 - `src/org/agenda/query.rs`: typed agenda query plans.
 - `tests/org_agenda/query_language.rs`: grammar, escaping and admission bounds.
+- `src/session/agenda_queries/`: native controls and pane ownership.
+- `tests/org_agenda/query_native.rs`: real refresh, return, cancel and peer panes.
+- `docs/reference/org-agenda.md`: supported grammar, source scopes and bounds.
 
 ## Validation
 
@@ -79,7 +89,30 @@ assertions or resource limits.
 - Focused Clippy and changed-source quality pass without exceptions after
   separating per-document and per-heading observation.
 
-## Risks and Follow-ups
+- `cargo test --test org_agenda query_ -- --nocapture`: nine query cases passed,
+  zero ignored cases, including native input, refresh, shared panes and stale
+  source rejection with BOM/CRLF ingress.
+- `cargo test --test org_agenda query_native::query_native_cancel -- --exact --nocapture`:
+  one real owned cancellation case passed with unchanged input/source/history.
+- `cargo clippy --lib --test org_agenda --test configuration -- -D warnings`:
+  passed. Changed-source quality passes at unchanged limits.
+- `python3 scripts/check-config-reference.py`: 146 entries, 54 RGB roles,
+  204 bindings and 17357 packaged bytes agree.
 
-Native query views and end-to-end ownership checks follow in T28.3.
+Native checks first exposed the missing compiled name entries. They now include
+all three actual query commands. A cancellation fixture initially spent its
+five-second settle deadline coloring an already open million-byte line before
+query launch. The same million-byte source is now an unopened selected file,
+so it exercises query ownership/cancellation without changing its source size,
+assertions or deadline.
+
+Final controller evidence binds the clean canonical PR head. Required order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_agenda --test org_source`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+## Risks and Follow-ups
 The delivery-set full gate has not run.

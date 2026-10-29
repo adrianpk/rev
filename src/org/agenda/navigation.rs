@@ -34,6 +34,16 @@ impl Calendar {
     ) -> Result<Navigation, String> {
         let row = self.rows.get(row).ok_or("Select an agenda entry")?;
         let origin = &self.sources[row.source];
+        Navigation::prepare(origin, row.byte, sources, limits)
+    }
+}
+impl Navigation {
+    pub(crate) fn prepare(
+        origin: &super::CalendarSource,
+        byte: usize,
+        sources: &SourceSet,
+        limits: &crate::config::OrgLimits,
+    ) -> Result<Self, String> {
         let SourceVersion::Disk(expected) = &origin.version else {
             return Err("Agenda row belongs to an open buffer".into());
         };
@@ -46,7 +56,7 @@ impl Calendar {
             path: origin.path.clone().ok_or("Disk source has no path")?,
             expected: expected.clone(),
             text: source.snapshot(),
-            byte: row.byte,
+            byte,
             limit: limits.agenda_file_bytes,
             seconds: limits.job_seconds,
         })

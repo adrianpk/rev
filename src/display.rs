@@ -1,4 +1,6 @@
 mod agenda;
+mod query;
+pub use query::QueryDisplay;
 mod calendar;
 mod clip;
 mod completion;

@@ -12,7 +12,14 @@ impl Session {
         {
             self.calendar_agenda = None;
         }
-        let role = if self.calendar_active() || self.habit_agenda.is_some() {
+        if self
+            .query_agenda
+            .as_ref()
+            .is_some_and(|s| self.windows.get(s.view).is_err())
+        {
+            self.query_agenda = None;
+        }
+        let role = if self.agenda_active() || self.habit_agenda.is_some() {
             Some(crate::input::OrgContext::Agenda)
         } else {
             self.buffer()

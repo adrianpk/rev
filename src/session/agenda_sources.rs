@@ -92,6 +92,7 @@ impl Session {
         let result = self
             .prepare_agenda_refresh(selection)
             .and_then(|work| self.org.start_sources(self.view().point.stamp, work));
+        self.agenda_query_plan = None;
         if let Err(error) = result {
             self.error(&error);
         }
@@ -112,6 +113,10 @@ impl Session {
         if let Some(state) = &mut self.calendar_agenda {
             state.calendar.cancelled = true;
         }
+        if let Some(state) = &mut self.query_agenda {
+            state.result.cancelled = true;
+        }
+        self.agenda_query_plan = None;
         Some(self.message("Org agenda source discovery cancelled; result incomplete"))
     }
 }
@@ -140,6 +145,16 @@ impl Session {
             )?;
         }
         let scan = SourceScan::new(&self.buffers, selection.clone(), &policy.limits)?;
+        if let Some(plan) = &self.agenda_query_plan {
+            return Ok(super::agenda::Work::Query {
+                scan: Box::new(scan),
+                query: plan.clone(),
+                context: query,
+                policy: Box::new(policy.clone()),
+                selection,
+                view: self.windows.selected_id(),
+            });
+        }
         Ok(super::agenda::Work::Refresh {
             scan: Box::new(scan),
             selection,

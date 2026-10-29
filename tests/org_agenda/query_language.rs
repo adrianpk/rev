@@ -77,3 +77,25 @@ fn query_match_bounds() {
     };
     assert!(query.matches(&data).unwrap());
 }
+
+// Nested repetition consumes finite active-state sets, not recursive search.
+// Cancellation revokes evaluation even when an empty-match regexp could accept.
+#[test]
+fn query_regexp_resources() {
+    let regex = Regexp::parse("(a+)+b", 32).unwrap();
+    let text = Rope::from_str(&"a".repeat(50000));
+    assert!(
+        !regex
+            .matches(text.slice(..), &Cancellation::default())
+            .unwrap()
+    );
+    let cancel = Cancellation::default();
+    cancel.cancel();
+    assert!(
+        Regexp::parse("a*", 32)
+            .unwrap()
+            .matches(text.slice(..), &cancel)
+            .is_err()
+    );
+    assert!(Regexp::parse(&"a".repeat(512), 32).is_err());
+}

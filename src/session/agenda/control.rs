@@ -23,6 +23,9 @@ impl Session {
         }
     }
     fn calendar_org(&mut self, command: C) -> Option<Action> {
+        if command.agenda_query() {
+            return Some(self.prompt_agenda_query(command, ""));
+        }
         if command.timer_control() {
             return None;
         }
@@ -130,12 +133,17 @@ impl Session {
         &mut self,
         command: Command,
     ) -> Option<Action> {
-        if command != Command::KeyboardQuit || !self.calendar_active() {
+        if command != Command::KeyboardQuit || !self.agenda_active() {
             return None;
         }
         if !matches!(
             self.pending,
-            Some(Pending::AgendaDate | Pending::Command | Pending::Timer(_))
+            Some(
+                Pending::AgendaDate
+                    | Pending::AgendaQuery(_)
+                    | Pending::Command
+                    | Pending::Timer(_)
+            )
         ) {
             return None;
         }
@@ -184,7 +192,7 @@ impl Session {
         self.message("Checking agenda source; C-g cancels");
         Ok(())
     }
-    fn visit_calendar_buffer(
+    pub(in crate::session) fn visit_calendar_buffer(
         &mut self,
         stamp: crate::buffer::Stamp,
         byte: usize,
@@ -203,6 +211,7 @@ impl Session {
             position: crate::coordinates::Scalar(position),
         };
         self.calendar_agenda = None;
+        self.query_agenda = None;
         self.activate(stamp.buffer);
         self.place_point(point).map_err(|e| e.to_string())?;
         self.sync_input_context();

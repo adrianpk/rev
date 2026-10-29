@@ -119,9 +119,12 @@ pub enum OrgCommand {
     AgendaRefresh,
     AgendaVisit,
     AgendaDate,
+    TodoList,
+    SearchView,
+    TagsView,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 117] = [
+    pub const ALL: [Self; 120] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -239,6 +242,9 @@ impl OrgCommand {
         Self::AgendaRefresh,
         Self::AgendaVisit,
         Self::AgendaDate,
+        Self::TodoList,
+        Self::SearchView,
+        Self::TagsView,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -359,6 +365,9 @@ impl OrgCommand {
             "org-agenda-redo",
             "org-agenda-switch-to",
             "org-agenda-goto-date",
+            "org-todo-list",
+            "org-search-view",
+            "org-tags-view",
         ][self as usize]
     }
 
@@ -560,6 +569,9 @@ impl OrgCommand {
 }
 
 impl OrgCommand {
+    pub(crate) fn agenda_query(self) -> bool {
+        matches!(self, Self::TodoList | Self::SearchView | Self::TagsView)
+    }
     pub(crate) fn agenda_control(self) -> bool {
         (Self::AgendaDay as usize..=Self::AgendaDate as usize).contains(&(self as usize))
     }

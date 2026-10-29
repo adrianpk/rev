@@ -108,6 +108,10 @@ fn calendar_configuration() {
         "org.agenda.week_start=8",
         "org.limits.agenda_rows=0",
         "org.limits.agenda_rows=100001",
+        "org.limits.query_bytes=0",
+        "org.limits.query_bytes=65537",
+        "org.limits.query_depth=0",
+        "org.limits.query_depth=129",
     ] {
         let s = prepare(&f.write("candidate.toml", value));
         assert!(s.diagnostic.is_some(), "{value}");
