@@ -1,5 +1,6 @@
 //! Checked immutable export data. Preparation has no save, edit, destination,
 //! process or network authority. Projected offsets never identify canonical text.
+pub(crate) mod compiler;
 mod current;
 mod html;
 pub(crate) mod output;

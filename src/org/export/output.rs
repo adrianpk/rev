@@ -8,11 +8,13 @@ pub(crate) struct Prepared {
     pub snapshot: Snapshot,
     pub target: Location,
     pub rendered: Rendered,
+    pub pdf: Option<Vec<u8>>,
 }
 pub(crate) struct Publication {
     snapshot: Snapshot,
     save: Save,
     diagnostics: Vec<String>,
+    pdf: Option<Vec<u8>>,
 }
 pub(crate) struct Published {
     pub outcome: Outcome,
@@ -25,6 +27,7 @@ pub(crate) enum Output {
 pub(crate) enum Work {
     Prepare(Box<super::Work>, Location),
     Publish(Box<Publication>),
+    Compile(Box<super::compiler::Compilation>),
 }
 impl Work {
     pub fn effect(&self) -> bool {
@@ -40,18 +43,24 @@ impl Work {
                     snapshot,
                     target,
                     rendered,
+                    pdf: None,
                 })))
             }
+            Self::Compile(work) => Ok(Output::Prepared(Box::new(work.run(cancel)?))),
             Self::Publish(work) => Ok(Output::Published(work.run(cancel))),
         }
     }
 }
 impl Prepared {
+    pub(super) fn protect(&self, cancel: &Cancellation) -> Result<(), String> {
+        protect(&self.snapshot, &self.target, cancel)
+    }
     pub fn publication(self, buffer: &Buffer) -> Publication {
         Publication {
             snapshot: self.snapshot,
             save: Save::projection(buffer, self.rendered.text, self.target),
             diagnostics: self.rendered.diagnostics,
+            pdf: self.pdf,
         }
     }
 }
@@ -62,7 +71,12 @@ impl Publication {
     fn run(self, cancel: &Cancellation) -> Published {
         let guard = || protect(&self.snapshot, &self.save.target, cancel);
         let outcome = match guard() {
-            Ok(()) => crate::org::io::publication::publish(&self.save, cancel, guard),
+            Ok(()) => match &self.pdf {
+                Some(bytes) => {
+                    crate::org::io::publication::publish_bytes(&self.save, bytes, cancel, guard)
+                }
+                None => crate::org::io::publication::publish(&self.save, cancel, guard),
+            },
             Err(e) => Outcome::failed(self.save.target(), std::io::Error::other(e)),
         };
         Published {

@@ -11,15 +11,20 @@ use std::{
 struct Checked<'a, F> {
     cancel: &'a Cancellation,
     guard: F,
+    bytes: Option<&'a [u8]>,
 }
 impl<F: Fn() -> Result<(), String>> Output for Checked<'_, F> {
     fn write(&mut self, save: &Save, file: &mut File) -> io::Result<()> {
         check(self.cancel)?;
         (self.guard)().map_err(io::Error::other)?;
-        save.write(&mut Writer {
+        let mut writer = Writer {
             file,
             cancel: self.cancel,
-        })
+        };
+        match self.bytes {
+            Some(bytes) => writer.write_all(bytes),
+            None => save.write(&mut writer),
+        }
     }
     fn replace(&mut self, temporary: &Path, target: &Path) -> io::Result<()> {
         check(self.cancel)?;
@@ -45,7 +50,29 @@ pub(in crate::org) fn publish(
     cancel: &Cancellation,
     guard: impl Fn() -> Result<(), String>,
 ) -> Outcome {
-    file::publish(save, &mut Checked { cancel, guard })
+    file::publish(
+        save,
+        &mut Checked {
+            cancel,
+            guard,
+            bytes: None,
+        },
+    )
+}
+pub(in crate::org) fn publish_bytes(
+    save: &Save,
+    bytes: &[u8],
+    cancel: &Cancellation,
+    guard: impl Fn() -> Result<(), String>,
+) -> Outcome {
+    file::publish(
+        save,
+        &mut Checked {
+            cancel,
+            guard,
+            bytes: Some(bytes),
+        },
+    )
 }
 fn check(cancel: &Cancellation) -> io::Result<()> {
     if cancel.is_cancelled() {

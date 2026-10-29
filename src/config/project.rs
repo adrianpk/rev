@@ -52,9 +52,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     if let Some(value) = &document.org.attachments.directory {
         settings.org.attachments.directory.clone_from(value);
     }
-    if let Some(value) = &document.org.tools.viewer {
-        settings.org.tools.viewer.clone_from(value);
-    }
+    tools(&mut settings.org.tools, &document.org.tools);
     clock(&mut settings.org.clock, &document.org.clock);
     if let Some(value) = &document.org.timer.default {
         settings.org.timer.default.clone_from(value);
@@ -357,4 +355,13 @@ fn export(base: &mut super::Org, partial: &super::PartialOrg) {
         partial.limits.expansion_bytes,
     );
     count(&mut base.limits.export_bytes, partial.limits.export_bytes);
+}
+
+fn tools(base: &mut super::Tools, partial: &super::PartialTools) {
+    if let Some(value) = &partial.viewer {
+        base.viewer.clone_from(value);
+    }
+    if let Some(value) = &partial.pdf {
+        base.pdf.clone_from(value);
+    }
 }

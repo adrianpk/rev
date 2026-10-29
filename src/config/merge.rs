@@ -106,6 +106,11 @@ impl Document {
             &mut self.org.tools.viewer,
             &later.org.tools.viewer,
         );
+        merge.leaf(
+            &["org", "tools", "pdf"],
+            &mut self.org.tools.pdf,
+            &later.org.tools.pdf,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.tables(&mut self.org, &later.org);
         merge.export(&mut self.org, &later.org);

@@ -45,6 +45,9 @@ impl Session {
             Stage::Path(scope, options) => {
                 self.export_path(request, (backend, scope, options), draft)
             }
+            Stage::Compiler(prepared, compiler) => {
+                self.compiler_argument(request, prepared, compiler, draft)
+            }
             Stage::Confirm(prepared) => match draft {
                 "yes" => self.publish_export(request, *prepared),
                 "no" => {

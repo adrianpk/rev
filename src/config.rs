@@ -955,9 +955,11 @@ pub struct PartialAttachments {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Tools {
     pub viewer: Vec<String>,
+    pub pdf: Vec<String>,
 }
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTools {
     pub viewer: Option<Vec<String>>,
+    pub pdf: Option<Vec<String>>,
 }

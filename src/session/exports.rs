@@ -15,6 +15,7 @@ use crate::{
 };
 use std::path::{Path, PathBuf};
 mod arguments;
+mod compiler;
 pub(super) struct Prompt {
     request: Request,
     backend: ExportBackend,
@@ -25,6 +26,7 @@ enum Stage {
     Options(Scope),
     Path(Scope, Option<Options>),
     Confirm(Box<Prepared>),
+    Compiler(Box<Prepared>, export::compiler::Compiler),
 }
 impl Session {
     pub(super) fn begin_export(&mut self, command: OrgCommand, backend: ExportBackend) -> Action {
@@ -88,6 +90,9 @@ impl Session {
     fn review_export(&mut self, request: Request, prepared: Box<Prepared>) -> Result<(), String> {
         prepared.snapshot.buffers_current(&self.buffers)?;
         self.export_target_available(&prepared.target)?;
+        if request.command.export_pdf() && prepared.pdf.is_none() {
+            return self.confirm_compiler(request, prepared);
+        }
         if !prepared.target.is_present() {
             return self.publish_export(request, *prepared);
         }

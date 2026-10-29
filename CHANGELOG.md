@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Export Org buffers, subtrees or selected regions to ASCII, UTF-8 text, Markdown, Org or HTML files through native commands. Export includes unsaved text, retains tables, links and footnotes, and never saves source or runs code. Select options explicitly, confirm existing destination replacements, and receive a diagnostic when ASCII cannot represent a character. HTML retains document structure, captions and admitted attributes, with escaped code and safe local image references.
+- Export Org buffers, subtrees or selected regions to ASCII, UTF-8 text, Markdown, Org, HTML, LaTeX or Beamer files through native commands. Export includes unsaved text, retains tables, links and footnotes, and never saves source or runs code. Select options explicitly, confirm existing destination replacements, and receive a diagnostic when ASCII cannot represent a character. HTML retains document structure, captions and admitted attributes, with escaped code and safe local image references. TeX output retains native structure and bounded math with escaped source; explicit PDF commands can run a configured compiler after confirmation, with bounded time/output and owned cleanup.
 
 - Inspect source hierarchies with `org-columns` and capture property, effort and clock totals in native `columnview` reports. Summaries remain projections; explicit updates replace only recognized report bodies and undo as one change.
 

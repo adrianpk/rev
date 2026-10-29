@@ -110,6 +110,7 @@ default_file = "" # Empty requires an explicit file; resolution never creates it
 
 [org.tools]
 viewer = [] # Explicit argv; {target} substitutes one token, otherwise appended.
+pdf = [] # Explicit optional compiler argv; exactly one whole {input} token.
 
 [org.tables]
 significant_digits = 12 # 1..15 finite binary64 output digits; fixed formats stay explicit.

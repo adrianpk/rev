@@ -21,7 +21,7 @@ File-preamble TITLE, AUTHOR, EMAIL, DATE and LANGUAGE values are retained as
 metadata, at most 4096 UTF-8 bytes each before and after macro expansion.
 OPTIONS admits `toc`, `num`, `author`, `title`, `todo` and `tags`, each with
 `t`, `nil`, `1` or `0`. All default true. Multiple OPTIONS lines compose by leaf;
-the last assignment wins. An explicit request options value overrides the whole
+the last assignment wins. `H:1` through `H:5` select the Beamer frame level (default one). An explicit request options value overrides the whole
 file options selection. Unknown options and unsupported value forms reject.
 
 ## Includes
@@ -180,3 +180,60 @@ lists retain their first numeric marker, including after an unordered list.
 Missing local anchors reject publication; a selected scope cannot silently emit
 links to omitted source. Link descriptions use minimal inline context so that
 nested links or footnotes cannot create invalid nested HTML anchors.
+
+
+## Native LaTeX and Beamer
+
+`org-export-to-latex` and `org-export-to-beamer` use the same scope, options and
+checked destination prompts. They emit UTF-8 TeX source with an article or Beamer
+envelope. Article headings map to sections through subparagraphs. Beamer headings
+at the `H` level start fragile frames; headings above it become sections and
+nested headings become blocks. Body text outside a slide receives its own frame.
+Lists preserve their first numeric marker, tables preserve cells, and footnotes
+retain definitions and repeated references. Named targets and supported external
+links use hyperref; unsupported links remain literal with diagnostics.
+
+TeX control characters in ordinary text, metadata and source/export blocks are
+escaped. Raw source blocks do not become compiler directives. Math fragments
+use `$...$`, `$$...$$`, `\(...\)` or `\[...\]`. They admit 4096 bytes and 32
+balanced group levels, mathematical operators and a fixed command subset:
+Greek letters, frac, sqrt, sum, prod, int, infty, cdot, times, pm, leq, geq, neq,
+approx, sin, cos, tan, log, ln, exp, text, mathrm, mathbf, mathit, left and right.
+Unknown controls and TeX mouth escapes remain escaped data with diagnostics.
+This is a bounded native subset; source block evaluation is never implicit.
+
+## Explicit optional PDF compilation
+
+`org-export-to-latex-pdf` and `org-export-to-beamer-pdf` prepare the same checked
+TeX source and then ask `Run PDF compiler ...? yes/no`. Empty `org.tools.pdf`
+reports that no compiler is configured. Command discovery, configuration loading
+and native TeX export never probe or launch a compiler.
+
+Configure literal argv, for example:
+
+```toml
+[org.tools]
+pdf = ["pdflatex", "-no-shell-escape", "-interaction=nonstopmode", "-halt-on-error", "-output-directory", "{output_dir}", "{input}"]
+```
+
+Exactly one whole `{input}` token names the private `document.tex` file. Optional
+whole `{output}` and `{output_dir}` tokens name `document.pdf` and its private
+working directory. Each may appear once; embedded or unknown placeholders reject.
+Relative executables containing a slash resolve against the assigning config
+source. Other executable names use PATH. Rev invokes argv directly without a
+shell. The configured program retains ordinary host authority; process ownership
+is not a sandbox. Select a compiler and arguments appropriate for the document.
+
+The existing bounded external owner enforces `job_seconds` and combined
+`job_output_bytes`, stops its owned Unix process group and reaps the direct child.
+A private mode-0700 directory holds only this job's intermediate files and is
+removed after success, failure or cancellation. A successful compiler must produce
+a regular `document.pdf` within `export_bytes`, with a PDF header and EOF marker.
+These envelope checks do not prove PDF semantics or compiler correctness.
+
+Source freshness is checked before and after compilation. Existing destinations
+still require the ordinary observed replacement confirmation. Binary publication
+uses the same checked atomic file owner; compile failures and stale source leave
+the destination unchanged. Fonts, packages, engine availability and PDF rendering
+depend on the selected optional TeX installation. Native tests require no TeX
+installation; fixture programs verify adapter and publication behavior only.

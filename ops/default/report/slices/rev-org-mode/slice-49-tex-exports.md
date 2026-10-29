@@ -1,6 +1,6 @@
 # Slice 49: export Org to LaTeX and Beamer
 
-Status: implementing
+Status: drafting
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -23,6 +23,14 @@ export blocks remain escaped literal data. Unsupported math controls remain
 escaped with a diagnostic; missing, duplicate or cyclic note definitions reject
 output.
 
+T49.2 adds native LaTeX/Beamer commands and explicit PDF variants. Optional
+`org.tools.pdf` is literal, validated argv with whole-token input/output paths.
+Only an explicit PDF command and compiler confirmation launch the existing
+bounded process owner. Private mode-0700 staging is cleaned after execution;
+nonzero exit, absent tools, invalid or oversized output and stale evidence reject
+before destination publication. PDF bytes use the existing checked atomic file
+publisher, preserving observed replacement confirmation and source state.
+
 ## Implementation Notes
 
 The renderer shares immutable source evidence, cancellation, operation deadline
@@ -44,9 +52,13 @@ TeX mouth escapes and unbalanced groups remain inert escaped text.
 
 ## Validation
 
+- `cargo test --test org_io tex_job`: two adapter/publication workflows passed, zero failures or ignored tests.
+- `cargo test --test configuration pdf_configuration`: layered argv and rejection workflow passed.
+- `cargo test --test commands visibility_keys`: compiled catalog round-trip passed.
+
 - `cargo test --test org_io tex_export`: four workflows passed, zero failures or ignored tests.
 - Changed-source quality passed with unchanged native limits.
 
 ## Risks and Follow-ups
 
-Optional compiler integration and full slice validation remain in progress.
+No TeX engine is installed in the validation environment. Fixture programs verify adapter and binary publication mechanics; they do not establish compiler semantics or PDF rendering. Full slice validation remains in progress.

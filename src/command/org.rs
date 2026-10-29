@@ -202,9 +202,13 @@ pub enum OrgCommand {
     ExportMarkdown,
     ExportOrg,
     ExportHtml,
+    ExportLatex,
+    ExportBeamer,
+    ExportLatexPdf,
+    ExportBeamerPdf,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 200] = [
+    pub const ALL: [Self; 204] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -405,6 +409,10 @@ impl OrgCommand {
         Self::ExportMarkdown,
         Self::ExportOrg,
         Self::ExportHtml,
+        Self::ExportLatex,
+        Self::ExportBeamer,
+        Self::ExportLatexPdf,
+        Self::ExportBeamerPdf,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -608,6 +616,10 @@ impl OrgCommand {
             "org-export-to-markdown",
             "org-export-to-org",
             "org-export-to-html",
+            "org-export-to-latex",
+            "org-export-to-beamer",
+            "org-export-to-latex-pdf",
+            "org-export-to-beamer-pdf",
         ][self as usize]
     }
 
@@ -927,7 +939,15 @@ impl OrgCommand {
             Self::ExportMarkdown => Some(B::Markdown),
             Self::ExportOrg => Some(B::Org),
             Self::ExportHtml => Some(B::Html),
+            Self::ExportLatex | Self::ExportLatexPdf => Some(B::Latex),
+            Self::ExportBeamer | Self::ExportBeamerPdf => Some(B::Beamer),
             _ => None,
         }
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn export_pdf(self) -> bool {
+        matches!(self, Self::ExportLatexPdf | Self::ExportBeamerPdf)
     }
 }

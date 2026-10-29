@@ -574,6 +574,9 @@ fn viewer(partial: &super::PartialOrg) -> Result<(), Failure> {
     if let Some(argv) = &partial.tools.viewer {
         crate::org::links::viewer_argv(argv).map_err(|e| Failure::new("org.tools.viewer", e))?;
     }
+    if let Some(argv) = &partial.tools.pdf {
+        crate::org::export::compiler::argv(argv).map_err(|e| Failure::new("org.tools.pdf", e))?;
+    }
     Ok(())
 }
 
