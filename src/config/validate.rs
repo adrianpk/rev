@@ -85,7 +85,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     clock(document)?;
     timer(document)?;
     capture(&document.org.capture)?;
-    refile(&document.org.refile)?;
+    moves(&document.org)?;
     estimates(document)
 }
 
@@ -501,10 +501,18 @@ fn capture(partial: &super::PartialCapture) -> Result<(), Failure> {
     Ok(())
 }
 
-fn refile(partial: &super::PartialRefile) -> Result<(), Failure> {
-    if let Some(paths) = &partial.targets {
+fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
+    if let Some(paths) = &partial.refile.targets {
         crate::org::agenda::SourceSelection::paths(paths)
             .map_err(|e| Failure::new("org.refile.targets", e))?;
+    }
+    archive(&partial.archive)
+}
+
+fn archive(partial: &super::PartialArchive) -> Result<(), Failure> {
+    if let Some(value) = &partial.location {
+        crate::org::archive::location(value)
+            .map_err(|e| Failure::new("org.archive.location", e))?;
     }
     Ok(())
 }

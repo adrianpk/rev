@@ -1,4 +1,5 @@
 pub(in crate::org) use tags::{query_file_tags, query_header};
+mod archive;
 mod insertion;
 pub(crate) use tags::{ClockInsertion, ClockObservation};
 mod model;
@@ -52,6 +53,7 @@ pub(crate) struct Outline {
     pub(super) lists: super::list::Lists,
     pub(super) properties: super::property::Properties,
     tags: tags::Tags,
+    archive_location: Result<Option<String>, String>,
 }
 
 impl Outline {
@@ -64,6 +66,7 @@ impl Outline {
         model.lists = super::list::Lists::observe(structure, text, cancel);
         model.properties = super::property::Properties::observe(structure, text, cancel);
         model.tags = tags::Tags::observe(structure, text, cancel);
+        model.archive_location = archive::declaration(structure, text, cancel);
         model
     }
     fn heading(&self, byte: usize) -> Option<usize> {

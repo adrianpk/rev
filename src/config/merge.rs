@@ -86,6 +86,11 @@ impl Document {
             &mut self.org.refile.targets,
             &later.org.refile.targets,
         );
+        merge.leaf(
+            &["org", "archive", "location"],
+            &mut self.org.archive.location,
+            &later.org.archive.location,
+        );
         merge.agenda_limits(&mut self.org.limits, &later.org.limits);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(

@@ -107,6 +107,9 @@ week_start = 1 # 1=Monday through 7=Sunday.
 templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
+[org.archive]
+location = "%s_archive::"
+
 [org.refile]
 # Explicit local file/directory roots; empty uses admitted agenda/source headings.
 targets = []
@@ -398,6 +401,9 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Org text roles inherit keys.editor; only local overrides belong in these maps.
 [keys.org]
+"C-c C-x C-a" = "org-archive-subtree"
+"C-c C-x a" = "org-toggle-archive-tag"
+"C-c C-x A" = "org-archive-to-archive-sibling"
 "C-c C-w" = "org-refile"
 "C-c M-w" = "org-refile-copy"
 "C-c C-x h" = "org-habit-show-graph"

@@ -205,3 +205,5 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org refile and copy | `org-refile`, `org-refile-copy`, `org-refile-results` |
 | Org capture drafts | `org-capture`, `org-capture-kill`, `org-capture-finalize` |
 | Org agenda source actions | `org-agenda-bulk-mark`, `org-agenda-bulk-unmark`, `org-agenda-bulk-mark-all`, `org-agenda-bulk-unmark-all`, `org-agenda-bulk-action`, `org-agenda-action-results`, `org-agenda-undo` |
+
+| Org archive | `org-archive-subtree`, `org-toggle-archive-tag`, `org-archive-to-archive-sibling`, `org-archive-results` |

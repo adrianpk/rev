@@ -39,6 +39,7 @@ TABLES = {
     "org.agenda":"PartialAgenda",
     "org.capture":"PartialCapture",
     "org.refile":"PartialRefile",
+    "org.archive":"PartialArchive",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",
@@ -203,7 +204,7 @@ def check_catalog(document, models, rows):
     expected = leaves(models)
     same_keys(rows, expected, "configuration catalog")
     for key, row in rows.items():
-        label = "String" if key in ("org.todo.log_drawer", "org.clock.drawer", "org.timer.default", "org.capture.default_file") or (key.startswith("org.priority.") or key == "org.time.zone") else type_label(expected[key])
+        label = "String" if key in ("org.todo.log_drawer", "org.clock.drawer", "org.timer.default", "org.capture.default_file", "org.archive.location") or (key.startswith("org.priority.") or key == "org.time.zone") else type_label(expected[key])
         require(row[0].startswith(label), f"{key}: type documentation drift")
         check_default(document, key, row)
 

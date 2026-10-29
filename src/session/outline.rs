@@ -130,6 +130,9 @@ impl Session {
         if matches!(request.command, OrgCommand::Refile | OrgCommand::RefileCopy) {
             return self.start_refile(model, request);
         }
+        if request.command.archive() {
+            return self.start_archive(model, request);
+        }
         if request.command.estimate() {
             return self.start_estimate(model, request);
         }
@@ -250,7 +253,9 @@ impl Session {
 impl Session {
     fn org_collection_command(&mut self, command: OrgCommand) -> Option<Action> {
         match command {
-            OrgCommand::RefileResults => Some(self.show_refile_results()),
+            OrgCommand::RefileResults | OrgCommand::ArchiveResults => {
+                Some(self.show_refile_results())
+            }
             OrgCommand::Capture => Some(self.begin_capture()),
             OrgCommand::CaptureKill | OrgCommand::CaptureFinalize => {
                 Some(self.message("No capture draft is active"))

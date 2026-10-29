@@ -12,7 +12,7 @@ struct PreparedRefile {
     copy: bool,
 }
 impl Session {
-    pub(super) fn publish_refile(&mut self, plan: Plan) -> Result<(), String> {
+    pub(in crate::session) fn publish_refile(&mut self, plan: Plan) -> Result<(), String> {
         let PreparedRefile {
             mut visit,
             insertion,

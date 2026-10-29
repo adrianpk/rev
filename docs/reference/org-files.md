@@ -26,6 +26,35 @@ unopened file. Moving into the selected subtree or its descendants is rejected.
 Missing, malformed, stale, read-only or externally replaced participants reject
 before either canonical text changes.
 
+## Archive
+
+`C-c C-x a` toggles the current heading's local `ARCHIVE` tag without
+removing its source. `C-c C-x A` moves the complete entry under the same
+parent's `Archive :ARCHIVE:` sibling, creating that sibling when absent.
+Duplicate archive siblings reject rather than choosing an arbitrary owner.
+
+`C-c C-x C-a` moves the current subtree to `org.archive.location`, initially
+`%s_archive::`. `%s` expands to the associated source file's canonical path;
+relative literal paths use the source directory. `file::` appends a level-one
+entry; `file::* Heading` appends below an exact unique heading and creates it
+when absent. The nearest inherited `ARCHIVE` property overrides the native
+`#+ARCHIVE:` keyword, which overrides configuration. Unsupported escapes and
+heading forms reject explicitly. Associate the origin with a file before
+external archiving. The archive file can be missing, but its parent directory
+must already exist and be writable. Archiving never creates directories.
+
+External moves preserve the subtree's task, planning, properties, descendants
+and literal body. The root receives `ARCHIVE_TIME`, `ARCHIVE_FILE`,
+`ARCHIVE_OLPATH`, `ARCHIVE_CATEGORY`, `ARCHIVE_TODO` when it is a task, and
+`ARCHIVE_ITAGS` for inherited tags. The origin file and outline path remain
+inspectable source properties. Existing IDs and other metadata remain intact.
+Archive commands target one current subtree; cancel an active region first.
+
+Archive and refile share coherent canonical publication and independently
+acknowledged file saves. `org-archive-results` exposes the last move result.
+A rejected target preserves both texts; a failed later Save retains the
+canonical archive buffer and reports that file's actual outcome.
+
 ## Publication and saving
 
 Refiling changes canonical buffers; it does not save files. Both sides pass
@@ -56,3 +85,5 @@ selection retains at most `min(org.limits.agenda_rows, 4096)` headings and 1 MiB
 of labels. No worker or polling deadline remains active after work completes.
 
 Reference: [Org refile and copy](https://orgmode.org/manual/Refile-and-Copy.html).
+
+Archive references: [Moving subtrees](https://orgmode.org/manual/Moving-subtrees.html), [Internal archiving](https://orgmode.org/manual/Internal-archiving.html).

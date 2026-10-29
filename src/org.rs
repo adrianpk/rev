@@ -44,3 +44,5 @@ pub mod agenda;
 pub mod capture;
 
 pub mod refile;
+
+pub mod archive;

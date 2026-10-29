@@ -1,4 +1,5 @@
 //! One checked native refile interaction and the last recoverable move result.
+mod archive;
 mod publish;
 mod results;
 mod selection;
@@ -48,7 +49,11 @@ impl Session {
         self.message("Refile targets pending; source unchanged; C-g cancels");
         Ok(())
     }
-    fn refile_subtree(&self, model: &Outline, request: &Request) -> Result<Subtree, String> {
+    pub(super) fn refile_subtree(
+        &self,
+        model: &Outline,
+        request: &Request,
+    ) -> Result<Subtree, String> {
         if self.capture.is_some() {
             return Err("Capture owns its draft; finalize or abort before refiling".into());
         }
@@ -98,6 +103,11 @@ impl Session {
         });
         match result {
             Ok(()) => {
+                self.refile_label = if state.request.command.archive() {
+                    "Archive"
+                } else {
+                    "Refile"
+                };
                 self.show_refile_results();
             }
             Err(error) => self.fail_refile(&error),

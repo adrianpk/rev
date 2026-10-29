@@ -64,7 +64,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 217] = [
+    pub const ALL: [Self; 221] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -231,6 +231,10 @@ impl Command {
         Self::Org(OrgCommand::Refile),
         Self::Org(OrgCommand::RefileCopy),
         Self::Org(OrgCommand::RefileResults),
+        Self::Org(OrgCommand::ArchiveSubtree),
+        Self::Org(OrgCommand::ToggleArchiveTag),
+        Self::Org(OrgCommand::ArchiveSibling),
+        Self::Org(OrgCommand::ArchiveResults),
         Self::Mode(Mode::Org),
         Self::Mode(Mode::Text),
         Self::Gutter(GutterCommand::Toggle),

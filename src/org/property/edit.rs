@@ -30,7 +30,7 @@ impl Properties {
         }
         self.insert(buffer, entry, key, value).map(|r| vec![r])
     }
-    fn local(&self, record: usize, key: &str) -> bool {
+    pub(super) fn local(&self, record: usize, key: &str) -> bool {
         let record = &self.records[record];
         !record.directive
             && record.key == key.trim_end_matches('+')
@@ -60,10 +60,23 @@ impl Properties {
         key: &str,
         value: &str,
     ) -> Result<Replacement, String> {
+        let newline = buffer.newline();
+        let lines = format!(":{key}: {value}{newline}");
+        self.insert_lines(buffer, entry, &lines)
+    }
+    pub(super) fn insert_lines(
+        &self,
+        buffer: &Buffer,
+        entry: usize,
+        lines: &str,
+    ) -> Result<Replacement, String> {
         let entry = &self.entries[entry];
         let newline = buffer.newline();
         if let Some(drawer) = &entry.drawer {
-            let line = format!("{}:{key}: {value}{newline}", drawer.indent);
+            let line = lines
+                .split_inclusive('\n')
+                .map(|s| format!("{}{s}", drawer.indent))
+                .collect::<String>();
             return replacement(buffer, drawer.closing..drawer.closing, line);
         }
         let anchor = entry.anchor;
@@ -78,7 +91,7 @@ impl Properties {
         } else {
             ""
         };
-        let content = format!("{lead}:PROPERTIES:{newline}:{key}: {value}{newline}:END:{tail}");
+        let content = format!("{lead}:PROPERTIES:{newline}{lines}:END:{tail}");
         replacement(buffer, anchor..anchor, content)
     }
 }

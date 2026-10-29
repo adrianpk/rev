@@ -13,6 +13,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
+| `C-c C-x C-a` in Org | `org-archive-subtree` | Move the complete subtree to the checked archive location with origin metadata. |
+| `C-c C-x a` in Org | `org-toggle-archive-tag` | Toggle the local ARCHIVE tag without removing source. |
+| `C-c C-x A` in Org | `org-archive-to-archive-sibling` | Move the entry below its checked Archive sibling, creating it when absent. |
+| M-x | `org-archive-results` | Inspect archive participants and independent save outcomes. |
 | `C-c C-w` in Org | `org-refile` | Select a checked heading and move complete subtrees into its canonical buffer. |
 | `C-c M-w` in Org | `org-refile-copy` | Copy complete subtrees without removing the source. |
 | M-x | `org-refile-results` | Inspect each participant and its ordinary save outcome. |

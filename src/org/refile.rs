@@ -1,5 +1,6 @@
 //! Revision-qualified complete subtree moves. Observations and plans have no
 //! publication authority; the canonical edit owner admits all participants.
+mod destination;
 mod plan;
 mod targets;
 #[cfg(test)]
@@ -8,6 +9,7 @@ use crate::{
     buffer::{Buffer, Span, Stamp, edit::Point},
     org::{Cancellation, ColorScan, Limits},
 };
+pub(in crate::org) use destination::Destination;
 pub use plan::Plan;
 use ropey::Rope;
 pub use targets::{Target, Targets};
@@ -41,7 +43,10 @@ impl Subtree {
     pub fn source(&self) -> &Span {
         &self.source
     }
-    fn current(&self, buffer: &Buffer) -> Result<(), String> {
+    pub(in crate::org) fn text(&self) -> &Rope {
+        &self.text
+    }
+    pub(in crate::org) fn current(&self, buffer: &Buffer) -> Result<(), String> {
         if buffer.slice(&self.source).map_err(|e| e.to_string())? != self.text.slice(..) {
             return Err("Refile source changed; nothing moved".into());
         }

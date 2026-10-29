@@ -112,3 +112,6 @@ mod capture_bounds;
 mod refile;
 #[path = "org_io/refile_failures.rs"]
 mod refile_failures;
+
+#[path = "org_io/archive.rs"]
+mod archive;

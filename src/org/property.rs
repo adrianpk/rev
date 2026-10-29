@@ -1,3 +1,4 @@
+mod archive;
 mod edit;
 mod model;
 mod resolve;

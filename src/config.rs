@@ -134,6 +134,7 @@ pub struct Org {
     pub agenda: Agenda,
     pub capture: Capture,
     pub refile: Refile,
+    pub archive: Archive,
     pub limits: OrgLimits,
 }
 
@@ -153,6 +154,7 @@ impl Default for Org {
             agenda: Agenda::default(),
             capture: Capture::default(),
             refile: Refile::default(),
+            archive: Archive::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -174,6 +176,7 @@ pub struct PartialOrg {
     pub agenda: PartialAgenda,
     pub capture: PartialCapture,
     pub refile: PartialRefile,
+    pub archive: PartialArchive,
     pub limits: PartialOrgLimits,
 }
 
@@ -849,4 +852,22 @@ pub struct Refile {
 #[serde(default, deny_unknown_fields)]
 pub struct PartialRefile {
     pub targets: Option<Vec<String>>,
+}
+
+/// Literal native Org archive destination, expanded relative to the source file.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Archive {
+    pub location: String,
+}
+impl Default for Archive {
+    fn default() -> Self {
+        Self {
+            location: "%s_archive::".into(),
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialArchive {
+    pub location: Option<String>,
 }

@@ -150,3 +150,18 @@ fn draft_snapshot(draft: &Buffer) -> Result<Rope, String> {
     }
     Ok(text)
 }
+
+impl Resolved {
+    pub(in crate::org) fn entry_insertion(
+        &self,
+        text: &Rope,
+        cancel: &Cancellation,
+    ) -> Result<Insertion, String> {
+        let newline = newline(&self.source, Newline::Lf);
+        let edits = placement::insert(self, text, newline, cancel)?;
+        Ok(Insertion {
+            source: self.source.clone(),
+            edits,
+        })
+    }
+}

@@ -1,15 +1,12 @@
 use super::*;
-use crate::{
-    buffer::edit::Replacement,
-    org::agenda::{AgendaSource, SourceVersion},
-};
+use crate::{buffer::edit::Replacement, org::agenda::SourceVersion};
 
 pub struct Plan {
-    pub destination: AgendaSource,
+    destination: Destination,
     pub subtree: Subtree,
     pub copy: bool,
-    at: usize,
-    body: String,
+    pub(in crate::org) at: usize,
+    pub(in crate::org) body: String,
 }
 impl Targets {
     pub fn plan(
@@ -58,7 +55,7 @@ impl Targets {
             body.push_str(newline);
         }
         Ok(Plan {
-            destination,
+            destination: Destination::Agenda(destination),
             subtree,
             copy,
             at: target.bytes.end,
@@ -113,21 +110,7 @@ impl Plan {
         Ok((self.at == start || self.at == end).then_some(start))
     }
     fn check_destination(&self, buffer: &Buffer) -> Result<(), String> {
-        let stamp = match self.destination.version {
-            SourceVersion::Buffer(stamp) => stamp == buffer.stamp(),
-            _ => true,
-        };
-        let span = buffer
-            .span(0..buffer.len_chars())
-            .map_err(|e| e.to_string())?;
-        if !stamp
-            || buffer.file().map(|f| f.path()) != self.destination.path.as_deref()
-            || buffer.has_bom() != self.destination.bom
-            || buffer.slice(&span).map_err(|e| e.to_string())? != self.destination.text()
-        {
-            return Err("Refile destination changed; nothing moved".into());
-        }
-        Ok(())
+        self.destination.check(buffer)
     }
     fn payload(&self, buffer: &Buffer, at: usize) -> Result<String, String> {
         let before = buffer.byte_span(0..at).map_err(|e| e.to_string())?;
@@ -150,25 +133,20 @@ impl Plan {
         &self,
         buffers: &crate::buffer::Buffers,
     ) -> Result<crate::buffer::Visit, String> {
-        match &self.destination.version {
-            SourceVersion::Buffer(stamp) => {
-                let buffer = buffers.get(stamp.buffer).map_err(|e| e.to_string())?;
-                self.check_destination(buffer)?;
-                Ok(crate::buffer::Visit::Existing(stamp.buffer))
-            }
-            SourceVersion::Disk(observed) => buffers
-                .prepare_observed_visit(
-                    self.destination
-                        .path
-                        .as_deref()
-                        .ok_or("Refile disk target has no path")?,
-                    crate::file::Loaded::from_snapshot(
-                        self.destination.snapshot(),
-                        self.destination.bom,
-                    ),
-                    observed,
-                )
-                .map_err(|e| e.to_string()),
+        self.destination.visit(buffers)
+    }
+    pub(in crate::org) fn prepared(
+        destination: Destination,
+        subtree: Subtree,
+        at: usize,
+        body: String,
+    ) -> Self {
+        Self {
+            destination,
+            subtree,
+            copy: false,
+            at,
+            body,
         }
     }
 }

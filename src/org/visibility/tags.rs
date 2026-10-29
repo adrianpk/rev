@@ -1,3 +1,4 @@
+mod archive;
 mod query;
 pub(in crate::org) use query::{query_file_tags, query_header};
 mod edit;

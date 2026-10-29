@@ -143,9 +143,13 @@ pub enum OrgCommand {
     Refile,
     RefileCopy,
     RefileResults,
+    ArchiveSubtree,
+    ToggleArchiveTag,
+    ArchiveSibling,
+    ArchiveResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 141] = [
+    pub const ALL: [Self; 145] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -287,6 +291,10 @@ impl OrgCommand {
         Self::Refile,
         Self::RefileCopy,
         Self::RefileResults,
+        Self::ArchiveSubtree,
+        Self::ToggleArchiveTag,
+        Self::ArchiveSibling,
+        Self::ArchiveResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -431,6 +439,10 @@ impl OrgCommand {
             "org-refile",
             "org-refile-copy",
             "org-refile-results",
+            "org-archive-subtree",
+            "org-toggle-archive-tag",
+            "org-archive-to-archive-sibling",
+            "org-archive-results",
         ][self as usize]
     }
 
@@ -657,5 +669,14 @@ impl OrgCommand {
     }
     pub(crate) fn agenda_control(self) -> bool {
         (Self::AgendaDay as usize..=Self::AgendaDate as usize).contains(&(self as usize))
+    }
+}
+
+impl OrgCommand {
+    pub(crate) fn archive(self) -> bool {
+        matches!(
+            self,
+            Self::ArchiveSubtree | Self::ToggleArchiveTag | Self::ArchiveSibling
+        )
     }
 }

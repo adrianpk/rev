@@ -96,7 +96,7 @@ impl Session {
             .filter_map(|e| e.error.as_ref().map(|error| format!("{}: {error}", e.role)))
             .collect::<Vec<_>>()
             .join("; ");
-        let mut message = format!("Refile result: {text}");
+        let mut message = format!("{} result: {text}", self.refile_label);
         if !errors.is_empty() {
             message.push_str(&format!("; {errors}"));
         }
@@ -140,7 +140,7 @@ impl Status {
             Self::Saved => "saved",
             Self::Rejected => "save rejected; canonical buffer retained",
             Self::CompletionUnresolved => "published; save completion unresolved",
-            Self::ChangedAfter => "changed since refile",
+            Self::ChangedAfter => "changed since move",
             Self::Closed => "buffer closed",
         }
     }

@@ -61,3 +61,22 @@ impl Session {
         true
     }
 }
+
+impl Work {
+    pub(in crate::session) fn start_archive(
+        &mut self,
+        work: crate::org::archive::Archive,
+        seconds: usize,
+    ) -> Result<(), String> {
+        self.job
+            .start(work.stamp(), move |cancel| {
+                let bounded = cancel.bounded(Instant::now() + Duration::from_secs(seconds as u64));
+                Observation::RefilePlan(work.run(&bounded))
+            })
+            .map_err(|e| e.to_string())?;
+        self.refile_running = true;
+        self.source = None;
+        self.deadline = Some(Instant::now() + POLL);
+        Ok(())
+    }
+}
