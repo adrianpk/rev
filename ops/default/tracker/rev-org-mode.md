@@ -962,7 +962,7 @@ Contracts: ORG21 ORG23 ORG27.
 Details and exact checks: [Slice 45](../plan/rev-org-mode.md#slice-45-display-org-property-columns-and-native-reports).
 
 - [x] T45.1: Deliver property column views and declared native dynamic report blocks, including effort and clock totals.
-- [ ] T45.2: Keep projections separate from source; replace only recognized explicit report bodies on update.
+- [x] T45.2: Keep projections separate from source; replace only recognized explicit report bodies on update.
 - [ ] T45.3: Verify aggregates, source provenance, unknown dynamic blocks and atomic update undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

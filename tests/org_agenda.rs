@@ -119,3 +119,6 @@ mod capture_shapes;
 
 #[path = "org_agenda/columns.rs"]
 mod columns;
+
+#[path = "org_agenda/column_failures.rs"]
+mod column_failures;

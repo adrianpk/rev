@@ -22,6 +22,13 @@ heading's own intervals and descendants. Opening and refreshing columns do not
 write source or property drawers. Open, unresolved and overlapping intervals
 remain visible. Native clock-table commands retain their existing behavior.
 
+T45.2 keeps report definitions and computed values separate from source
+properties. Unknown writers, malformed/unsupported options, invalid late aggregate
+values and unrepresentable cells preserve the complete existing body. Actual
+source edits, selected-pane changes, cancellation and read-only authority cannot
+publish a retained result. Generic agenda presentation commands cannot discard
+the source-owned COLUMNS semantics; the view refreshes through its native owner.
+
 ## Implementation Notes
 
 The existing source, query, clock-scan, report-worker and checked transaction
@@ -53,6 +60,9 @@ No additional task database, worker slot, runtime dependency or evaluator is add
 - `cargo test --test org_agenda --test commands -- column_ visibility_keys catalog_reference`: four projection, report and compiled-catalog workflows passed, zero failures or ignored tests.
 - `cargo clippy --lib --test org_agenda --test commands -- -D warnings`: passed; changed-source quality passed with unchanged parameter, nesting and cyclomatic limits.
 - `git diff --check`: passed.
+
+- `cargo test --test org_agenda column_ -- --nocapture`: six native projection, report and rejection workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_agenda -- -D warnings`: passed; changed-source quality passed after publication guard coverage.
 
 ## Risks and Follow-ups
 

@@ -40,6 +40,12 @@ fn column_projection() {
     assert_eq!(text(&session), SOURCE);
     assert_eq!(session.view(), &view);
     assert!(session.buffer().unwrap().history().is_empty());
+    session.execute(Command::Org(OrgCommand::AgendaColumns));
+    assert!(session.echo().contains("source COLUMNS declaration"));
+    assert_eq!(
+        session.query_agenda().unwrap().rows[0].fields["POINTS"],
+        "5"
+    );
     session.handle(Event::Paste("unwanted".into()));
     assert_eq!(text(&session), SOURCE);
     session.handle(key(KeyCode::Char('g')));
