@@ -9,9 +9,9 @@ pub(super) struct Inline<'a> {
     pub diagnostics: Vec<String>,
 }
 impl<'a> Inline<'a> {
-    pub fn new(snapshot: &'a Snapshot, cancel: &'a Cancellation) -> Self {
+    pub fn new(text: &'a Rope, snapshot: &'a Snapshot, cancel: &'a Cancellation) -> Self {
         Self {
-            text: &snapshot.text,
+            text,
             cancel,
             markdown: snapshot.request.backend == ExportBackend::Markdown,
             limit: snapshot.export_bytes,
@@ -77,6 +77,9 @@ impl<'a> Inline<'a> {
     }
     fn link(&mut self, n: &native::Raw, depth: usize) -> Result<String, String> {
         let target = self.text.byte_slice(n.content.clone()).to_string();
+        if target.len() > 4096 {
+            return Err("Export link target exceeds 4096 bytes".into());
+        }
         let label = if let Some(r) = &n.detail {
             self.range(r.clone(), depth)?
         } else {
@@ -109,7 +112,7 @@ impl<'a> Inline<'a> {
         if !self.markdown {
             return Ok(value);
         }
-        let fence = fence(&value, 1)?;
+        let fence = fence(&value, 1, self.cancel)?;
         let pad = if value.starts_with('`') || value.ends_with('`') {
             " "
         } else {
@@ -148,10 +151,13 @@ pub(super) fn literal(value: &str, markdown: bool) -> String {
     }
     out
 }
-pub(super) fn fence(value: &str, minimum: usize) -> Result<String, String> {
+pub(super) fn fence(value: &str, minimum: usize, cancel: &Cancellation) -> Result<String, String> {
     let mut run = 0;
     let mut longest = 0;
-    for c in value.chars() {
+    for (i, c) in value.chars().enumerate() {
+        if i % 4096 == 0 {
+            check(cancel)?;
+        }
         if c == '`' {
             run += 1;
             longest = longest.max(run);

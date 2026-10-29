@@ -1,6 +1,6 @@
 # Slice 47: export Org to text Markdown and Org
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -27,11 +27,19 @@ Canonical and disk inputs, live destination buffers and physical aliases are
 checked before publication. Sources, view changes and cancellation retain their
 ordinary owners; a late cancellation cannot hide a completed file effect.
 
+T47.3 verifies handwritten document expectations, scope/options, source and peer
+view preservation, replacement freshness, Unicode failures and finite rendering
+budgets. RGB and NO_COLOR terminal journeys verify exact output bytes, ordinary
+undo, declined replacement, cancellation, terminal restoration and owned process
+cleanup. Known dynamic report bodies render their recorded data without refresh;
+unknown bodies remain literal. All admitted metadata leaves retain output.
+
 ## Implementation Notes
 
 Rendering uses the native structure and inline observations over immutable
-projection text. Task keywords come from the existing native workflow owner. The bounded file
-writer is shared with table interchange; the ordinary atomic publisher owns
+projection text. Task keywords come from the existing native workflow owner.
+Recorded report bodies share original snapshot policy and source evidence; their
+derived offsets never become canonical source identity. The bounded file writer is shared with table interchange; the ordinary atomic publisher owns
 staging, replacement, permissions and truthful completion outcomes.
 
 ## Contracts Added or Changed
@@ -43,16 +51,15 @@ staging, replacement, permissions and truthful completion outcomes.
 
 - `src/org/export/render.rs`: bounded native output traversal.
 - `src/org/export/render/inline.rs`: markup, code, link and note conversion.
-- `tests/org_io/text_exports.rs`: handwritten document expectations.
+- `tests/org_io/text_exports.rs`: handwritten document expectations and native file workflows.
+- `scripts/configuration_ui/org_exports.py`: owned terminal journeys.
 
 ## Validation
 
-- `cargo test --test org_io text_export`: four renderer workflows passed, zero failures or ignored tests.
+- `cargo test --test org_io text_export`: 13 renderer and file workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed during implementation.
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-exports`: two owned RGB/NO_COLOR sessions passed, zero skipped.
 - Changed-source quality: passed with unchanged native limits.
-
-- `cargo test --test org_io text_export`: eight renderer and file workflows passed, zero failures or ignored tests.
-- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
-- Changed-source quality: passed after command, scope and publication integration.
 
 ## Risks and Follow-ups
 

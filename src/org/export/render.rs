@@ -22,17 +22,23 @@ impl Snapshot {
     pub fn render(&self, cancel: &Cancellation) -> Result<Rendered, String> {
         let cancel = cancel.bounded(Instant::now() + Duration::from_secs(self.job_seconds as u64));
         check(&cancel)?;
-        if !matches!(
-            self.request.backend,
-            ExportBackend::Text
-                | ExportBackend::Utf8
-                | ExportBackend::Markdown
-                | ExportBackend::Org
-        ) {
+        if !available(self.request.backend) {
             return Err("Selected native export renderer is not available".into());
         }
-        let mut render = Render::new(self, &cancel);
+        let mut render = Render::new(
+            self,
+            Document {
+                text: &self.text,
+                nodes: &self.nodes,
+            },
+            &cancel,
+        )?;
         let text = render.run()?;
+        let text = if self.request.backend == ExportBackend::Org {
+            text
+        } else {
+            text.replace("\r\n", "\n")
+        };
         if self.request.backend == ExportBackend::Text {
             ascii(&text)?;
         }
@@ -42,7 +48,15 @@ impl Snapshot {
         })
     }
 }
+struct Document<'a> {
+    text: &'a Rope,
+    nodes: &'a [structure::Raw],
+}
 struct Render<'a> {
+    text: &'a Rope,
+    nodes: &'a [structure::Raw],
+    fragment_depth: usize,
+    observed: usize,
     snapshot: &'a Snapshot,
     cancel: &'a Cancellation,
     children: Vec<Vec<usize>>,
@@ -56,18 +70,14 @@ struct Render<'a> {
 }
 type Change = (Range<usize>, String);
 impl<'a> Render<'a> {
-    fn new(snapshot: &'a Snapshot, cancel: &'a Cancellation) -> Self {
-        let mut children = vec![Vec::new(); snapshot.nodes.len()];
-        let mut roots = Vec::new();
-        for (i, n) in snapshot.nodes.iter().enumerate() {
-            if let Some(parent) = n.parent {
-                children[parent].push(i);
-            } else {
-                roots.push(i);
-            }
-        }
+    fn new(
+        snapshot: &'a Snapshot,
+        document: Document<'a>,
+        cancel: &'a Cancellation,
+    ) -> Result<Self, String> {
+        let (children, roots) = tree(document.nodes, cancel)?;
         let base = if matches!(snapshot.request.scope, Scope::Subtree(_)) {
-            snapshot
+            document
                 .nodes
                 .iter()
                 .find_map(|n| {
@@ -81,26 +91,26 @@ impl<'a> Render<'a> {
         } else {
             0
         };
-        Self {
+        Ok(Self {
             snapshot,
+            text: document.text,
+            nodes: document.nodes,
+            fragment_depth: 0,
+            observed: document.nodes.len(),
             cancel,
             children,
             roots,
-            inline: inline::Inline::new(snapshot, cancel),
+            inline: inline::Inline::new(document.text, snapshot, cancel),
             diagnostics: snapshot.diagnostics.clone(),
             headings: Vec::new(),
             numbers: Vec::new(),
             generated: 0,
             base,
-        }
+        })
     }
     fn run(&mut self) -> Result<String, String> {
-        let mut changes = Vec::new();
-        for id in self.roots.clone() {
-            self.paint(id, 0, &mut changes)?;
-        }
+        let body = self.body()?;
         let mut output = self.header()?;
-        let body = self.compose(0..self.snapshot.text.len_bytes(), changes)?;
         append(&mut output, &body, self.snapshot.export_bytes)?;
         self.inline.notes.finish()?;
         let notes = if self.org() {
@@ -112,12 +122,52 @@ impl<'a> Render<'a> {
         self.diagnostics.append(&mut self.inline.diagnostics);
         Ok(output)
     }
+    fn body(&mut self) -> Result<String, String> {
+        let mut changes = Vec::new();
+        for id in self.roots.clone() {
+            self.paint(id, 0, &mut changes)?;
+        }
+        self.compose(0..self.text.len_bytes(), changes)
+    }
+    fn fragment(&mut self, body: &str) -> Result<String, String> {
+        if self.fragment_depth == 16 {
+            return Err("Export report nesting limit reached".into());
+        }
+        let text = Rope::from_str(body);
+        let nodes = document::nodes(&text, self.cancel)?;
+        let mut child = Render::new(
+            self.snapshot,
+            Document {
+                text: &text,
+                nodes: &nodes,
+            },
+            self.cancel,
+        )?;
+        child.observed = self
+            .observed
+            .checked_add(nodes.len())
+            .ok_or("Export node count overflows")?;
+        if child.observed > super::super::Limits::default().nodes {
+            return Err("Export report source node limit reached".into());
+        }
+        child.fragment_depth = self.fragment_depth + 1;
+        child.diagnostics = Vec::new();
+        child.inline.notes = std::mem::take(&mut self.inline.notes);
+        let output = child.body()?;
+        self.observed = child.observed;
+        self.inline.notes = std::mem::take(&mut child.inline.notes);
+        child.diagnostics.append(&mut child.inline.diagnostics);
+        for message in child.diagnostics {
+            self.diagnostic(message)?;
+        }
+        Ok(output)
+    }
     fn paint(&mut self, id: usize, depth: usize, changes: &mut Vec<Change>) -> Result<(), String> {
         check(self.cancel)?;
         if depth >= super::super::Limits::default().depth {
             return Err("Export rendering depth limit reached".into());
         }
-        let node = &self.snapshot.nodes[id];
+        let node = &self.nodes[id];
         if self.org() {
             return self.org_node(id, depth, changes);
         }
@@ -139,10 +189,7 @@ impl<'a> Render<'a> {
         match self.element(id, depth)? {
             Some((range, text)) => {
                 self.change(changes, range, text)?;
-                Ok(matches!(
-                    self.snapshot.nodes[id].kind,
-                    StructureKind::Heading { .. }
-                ))
+                Ok(matches!(self.nodes[id].kind, StructureKind::Heading { .. }))
             }
             None => Ok(true),
         }
@@ -154,14 +201,14 @@ impl<'a> Render<'a> {
         changes: &mut Vec<Change>,
     ) -> Result<(), String> {
         for child in self.children[id].clone() {
-            if self.snapshot.nodes[child].kind == StructureKind::AffiliatedKeyword {
+            if self.nodes[child].kind == StructureKind::AffiliatedKeyword {
                 self.paint(child, depth + 1, changes)?;
             }
         }
         Ok(())
     }
     fn element(&mut self, id: usize, depth: usize) -> Result<Option<Change>, String> {
-        let n = &self.snapshot.nodes[id];
+        let n = &self.nodes[id];
         match n.kind {
             StructureKind::Heading { level } => self
                 .heading(n, level)
@@ -187,7 +234,7 @@ impl<'a> Render<'a> {
         changes: &mut Vec<Change>,
     ) -> Result<(), String> {
         for child in self.children[id].clone() {
-            if self.snapshot.nodes[child].kind != StructureKind::AffiliatedKeyword {
+            if self.nodes[child].kind != StructureKind::AffiliatedKeyword {
                 self.paint(child, depth + 1, changes)?;
             }
         }
@@ -226,7 +273,7 @@ impl<'a> Render<'a> {
         Ok(out)
     }
     fn copy(&self, out: &mut String, range: Range<usize>) -> Result<(), String> {
-        for chunk in self.snapshot.text.byte_slice(range).chunks() {
+        for chunk in self.text.byte_slice(range).chunks() {
             check(self.cancel)?;
             append(out, chunk, self.snapshot.export_bytes)?;
         }
@@ -295,4 +342,27 @@ fn hidden(kind: StructureKind) -> bool {
             | StructureKind::Comment
             | StructureKind::Block(BlockKind::Comment)
     )
+}
+
+fn available(backend: ExportBackend) -> bool {
+    matches!(
+        backend,
+        ExportBackend::Text | ExportBackend::Utf8 | ExportBackend::Markdown | ExportBackend::Org
+    )
+}
+fn tree(
+    nodes: &[structure::Raw],
+    cancel: &Cancellation,
+) -> Result<(Vec<Vec<usize>>, Vec<usize>), String> {
+    let mut children = vec![Vec::new(); nodes.len()];
+    let mut roots = Vec::new();
+    for (i, n) in nodes.iter().enumerate() {
+        check(cancel)?;
+        if let Some(parent) = n.parent {
+            children[parent].push(i);
+        } else {
+            roots.push(i);
+        }
+    }
+    Ok((children, roots))
 }

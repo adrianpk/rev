@@ -35,12 +35,7 @@ impl Render<'_> {
         Ok(format!("{marker}{title}\n"))
     }
     fn title(&mut self, node: &structure::Raw) -> Result<String, String> {
-        let range = title_range(
-            &self.snapshot.text,
-            node,
-            &self.snapshot.options,
-            &self.snapshot.todo,
-        );
+        let range = title_range(self.text, node, &self.snapshot.options, &self.snapshot.todo);
         self.inline.range(range, 0)
     }
     pub(super) fn header(&self) -> Result<String, String> {
@@ -56,7 +51,9 @@ impl Render<'_> {
         for (value, enabled, prefix) in [
             (&metadata.title, self.snapshot.options.title, title_prefix),
             (&metadata.author, self.snapshot.options.author, ""),
+            (&metadata.email, self.snapshot.options.author, "Email: "),
             (&metadata.date, true, ""),
+            (&metadata.language, true, "Language: "),
         ] {
             if let Some(value) = value.as_ref().filter(|_| enabled) {
                 append(
@@ -111,7 +108,7 @@ impl Render<'_> {
         depth: usize,
         changes: &mut Vec<Change>,
     ) -> Result<(), String> {
-        let n = &self.snapshot.nodes[id];
+        let n = &self.nodes[id];
         if matches!(
             n.kind,
             StructureKind::Drawer | StructureKind::PropertyDrawer
@@ -119,16 +116,11 @@ impl Render<'_> {
             return Ok(());
         }
         if let StructureKind::Heading { level } = n.kind {
-            let range = title_range(
-                &self.snapshot.text,
-                n,
-                &self.snapshot.options,
-                &self.snapshot.todo,
-            );
+            let range = title_range(self.text, n, &self.snapshot.options, &self.snapshot.todo);
             self.change(
                 changes,
                 n.content.clone(),
-                self.snapshot.text.byte_slice(range).to_string(),
+                self.text.byte_slice(range).to_string(),
             )?;
             if self.base > 0 {
                 let prefix = n.opening.as_ref().expect("heading").start..n.content.start;
@@ -148,8 +140,8 @@ impl Render<'_> {
         changes: &mut Vec<Change>,
     ) -> Result<(), String> {
         if n.kind == StructureKind::Keyword
-            && super::super::options::preamble(&self.snapshot.nodes, n)
-            && let Some((key, _)) = document::keyword(&self.snapshot.text, n)
+            && super::super::options::preamble(self.nodes, n)
+            && let Some((key, _)) = document::keyword(self.text, n)
             && (suppressed(&key, &self.snapshot.options)
                 || key == "OPTIONS" && self.org_options_selected())
         {
@@ -162,8 +154,7 @@ impl Render<'_> {
             .name
             .as_ref()
             .map(|r| {
-                self.snapshot
-                    .text
+                self.text
                     .byte_slice(r.clone())
                     .to_string()
                     .to_ascii_uppercase()
@@ -179,7 +170,7 @@ impl Render<'_> {
             "Unsupported export keyword retained literally: {key}"
         ))?;
         Ok(inline::literal(
-            &self.snapshot.text.byte_slice(n.source.clone()).to_string(),
+            &self.text.byte_slice(n.source.clone()).to_string(),
             self.markdown(),
         ))
     }

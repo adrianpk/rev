@@ -93,6 +93,13 @@ fn text_export_file() {
     let (f, mut session) = editor(source);
     session.handle(Event::Paste("#+TITLE: Unsaved\r\n".into()));
     settle(&mut session);
+    use rev::command::{Split, WindowCommand};
+    session.execute(Command::Split(Split::Right));
+    let peer = session.windows().selected_id();
+    session.execute(Command::Window(WindowCommand::Other));
+    session.execute(Command::GotoLine);
+    argument(&mut session, "3");
+    let peer_before = session.windows().get(peer).unwrap().clone();
     let before = text(&session);
     let stamp = session.buffer().unwrap().stamp();
     let history = session.buffer().unwrap().history().len();
@@ -112,6 +119,7 @@ fn text_export_file() {
     );
     let output = std::fs::read_to_string(f.0.join("output.md")).unwrap();
     assert!(output.starts_with("# Unsaved\n\n# Heading 界"), "{output}");
+    assert_eq!(session.windows().get(peer).unwrap(), &peer_before);
     assert_eq!(text(&session), before);
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert_eq!(session.buffer().unwrap().history().len(), history);
@@ -266,4 +274,157 @@ fn text_export_failed_output() {
         session.echo()
     );
     assert_eq!(text(&session), before);
+}
+
+// Selected subtree and region scope use native coordinates and inherited task
+// keywords. Explicit options apply without changing selection or source bytes.
+#[test]
+fn text_export_selected_scope() {
+    let source = "#+TITLE: Hidden\n#+AUTHOR: Author\n#+TODO: NEXT | FINISHED\n* Parent\n** NEXT Child :work:\nregion界 tail\n** Sibling\nkeep\n";
+    let (f, mut session) = editor(source);
+    session.execute(Command::GotoLine);
+    argument(&mut session, "5");
+    let options = "title:nil author:nil toc:nil num:nil todo:nil tags:nil";
+    export_file(
+        &mut session,
+        C::ExportMarkdown,
+        "subtree",
+        options,
+        "child.md",
+    );
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("child.md")).unwrap(),
+        "# Child\nregion界 tail\n"
+    );
+    export_file(&mut session, C::ExportOrg, "subtree", options, "child.org");
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("child.org")).unwrap(),
+        "#+OPTIONS: toc:nil num:nil author:nil title:nil todo:nil tags:nil\n* Child\nregion界 tail\n"
+    );
+    session.execute(Command::GotoLine);
+    argument(&mut session, "6");
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char(' '),
+        KeyModifiers::CONTROL,
+    )));
+    for _ in 0..7 {
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Right,
+            KeyModifiers::NONE,
+        )));
+    }
+    let before = session
+        .buffer()
+        .unwrap()
+        .region(session.view().point)
+        .unwrap();
+    assert!(before.is_some());
+    export_file(&mut session, C::ExportUtf8, "region", "", "region.txt");
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("region.txt")).unwrap(),
+        "region界"
+    );
+    assert_eq!(
+        session
+            .buffer()
+            .unwrap()
+            .region(session.view().point)
+            .unwrap(),
+        before
+    );
+    assert_eq!(
+        std::fs::read_to_string(f.0.join("source.org")).unwrap(),
+        source
+    );
+    assert_eq!(session.buffer().unwrap().history().len(), 0);
+}
+// A completed native report body is export data. Exporting it must render its
+// table, retain its recorded values and never run the dynamic report writer.
+#[test]
+fn text_export_report_body() {
+    for name in ["columnview", "clocktable"] {
+        let source = format!(
+            "#+OPTIONS: toc:nil num:nil\n#+BEGIN: {name} :id global\n| ITEM | EFFORT |\n|------+--------|\n| Recorded | 1:00 |\n#+END:\n"
+        );
+        let expected = "| ITEM | EFFORT |\n| --- | --- |\n| Recorded | 1:00 |\n\n";
+        assert_eq!(rendered(&source, B::Markdown).unwrap(), expected, "{name}");
+        assert_eq!(rendered(&source, B::Org).unwrap(), source, "{name}");
+    }
+    let source = "#+BEGIN: unknown\n| Keep | 7 |\n#+END:\n";
+    let expected = "```org\n#+BEGIN: unknown\n| Keep | 7 |\n#+END:\n```\n";
+    assert_eq!(rendered(source, B::Markdown).unwrap(), expected);
+}
+// The public pane API retains prompt ownership. A pane switch cannot redirect
+// an overwrite decision; decline preserves both source history and output.
+#[test]
+fn text_export_pane_ownership() {
+    use rev::command::{Split, WindowCommand};
+    let (f, mut session) = editor("* Task\nbody\n");
+    let target = f.write("output.txt", "keep");
+    session.execute(Command::Split(Split::Right));
+    let first = session.windows().selected_id();
+    session.execute(Command::Window(WindowCommand::Other));
+    let other = session.windows().selected_id();
+    session.execute(Command::Window(WindowCommand::Other));
+    export_file(
+        &mut session,
+        C::ExportUtf8,
+        "buffer",
+        "toc:nil num:nil",
+        "output.txt",
+    );
+    session.execute(Command::Window(WindowCommand::Other));
+    assert_eq!(session.windows().selected_id(), first);
+    assert!(session.select_view(other).is_err());
+    argument(&mut session, "no");
+    assert_eq!(std::fs::read_to_string(target).unwrap(), "keep");
+    assert_eq!(session.buffer().unwrap().history().len(), 0);
+}
+// Output budgets apply to the complete generated document and late failures
+// cannot create output, including an unrepresentable table or missing note.
+#[test]
+fn text_export_render_bounds() {
+    let f = Fixture::new();
+    let path = f.write(
+        "source.org",
+        "#+OPTIONS: toc:nil num:nil\n* Heading\nbody\n",
+    );
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    for (name, limit, success) in [("exact", 13, true), ("short", 12, false)] {
+        let mut policy = Org::default();
+        policy.limits.export_bytes = limit;
+        let snapshot = Work::new(&buffers, id, request(B::Utf8), &policy)
+            .unwrap()
+            .run(&Cancellation::default())
+            .unwrap();
+        assert_eq!(
+            snapshot.render(&Cancellation::default()).is_ok(),
+            success,
+            "{name}"
+        );
+    }
+    assert!(rendered("| A | B |\n| C |\n", B::Markdown).is_err());
+    assert!(rendered("[fn:x] One.\n\n[fn:x] Two.\n", B::Markdown).is_err());
+    let source = format!("#+begin_src sh\n{}\n#+end_src\n", "`".repeat(128));
+    assert!(rendered(&source, B::Markdown).is_err());
+}
+
+// Every admitted metadata leaf has an explicit representation in text output.
+// Disabling author removes both author and email without touching source data.
+#[test]
+fn text_export_metadata() {
+    let source = "#+TITLE: Title\n#+AUTHOR: Author\n#+EMAIL: writer@example.test\n#+DATE: 2026-01-02\n#+LANGUAGE: en\n#+OPTIONS: toc:nil num:nil\n* Item\n";
+    let plain =
+        "Title\n\nAuthor\n\nEmail: writer@example.test\n\n2026-01-02\n\nLanguage: en\n\nItem\n";
+    for backend in [B::Text, B::Utf8] {
+        assert_eq!(rendered(source, backend).unwrap(), plain);
+    }
+    let md =
+        "# Title\n\nAuthor\n\nEmail: writer@example.test\n\n2026-01-02\n\nLanguage: en\n\n# Item\n";
+    assert_eq!(rendered(source, B::Markdown).unwrap(), md);
+    assert_eq!(rendered(source, B::Org).unwrap(), source);
+    let hidden = source.replace("num:nil", "num:nil author:nil");
+    let expected = "Title\n\n2026-01-02\n\nLanguage: en\n\nItem\n";
+    assert_eq!(rendered(&hidden, B::Utf8).unwrap(), expected);
 }

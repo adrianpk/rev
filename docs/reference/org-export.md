@@ -137,3 +137,12 @@ subtree options are written as a data-only OPTIONS declaration. Unknown keyword
 or dynamic forms retain a literal representation with diagnostics. Named and
 inline footnotes retain references and bodies; missing or duplicate definitions
 reject the output rather than dropping content.
+
+Text and Markdown render TITLE, AUTHOR, EMAIL, DATE and LANGUAGE metadata;
+`author:nil` suppresses both author and email. They use LF output newlines,
+while Org preserves the prepared source newlines. Recorded `columnview` and
+`clocktable` bodies render as document data without recalculating either report.
+Nested report bodies admit at most 16 levels and share the 200000-node budget.
+Link targets admit 4096 bytes, footnotes admit 4096 labels of at most 1024 bytes,
+and generated code fences admit at most 128 backticks. Oversized output rejects
+without creating a partial destination.

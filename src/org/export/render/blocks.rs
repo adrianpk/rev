@@ -6,7 +6,7 @@ impl Render<'_> {
         let mut columns = None;
         for row in self.children[id].clone() {
             check(self.cancel)?;
-            let StructureKind::TableRow { separator } = self.snapshot.nodes[row].kind else {
+            let StructureKind::TableRow { separator } = self.nodes[row].kind else {
                 continue;
             };
             let cells = self.cells(row)?;
@@ -46,10 +46,7 @@ impl Render<'_> {
     fn cells(&mut self, row: usize) -> Result<Vec<String>, String> {
         let mut cells = Vec::new();
         for cell in self.children[row].clone() {
-            cells.push(
-                self.inline
-                    .range(self.snapshot.nodes[cell].content.clone(), 0)?,
-            );
+            cells.push(self.inline.range(self.nodes[cell].content.clone(), 0)?);
         }
         Ok(cells)
     }
@@ -59,8 +56,8 @@ impl Render<'_> {
         kind: BlockKind,
         depth: usize,
     ) -> Result<String, String> {
-        let n = &self.snapshot.nodes[id];
-        let body = self.snapshot.text.byte_slice(n.content.clone()).to_string();
+        let n = &self.nodes[id];
+        let body = self.text.byte_slice(n.content.clone()).to_string();
         if kind == BlockKind::Greater {
             let mut changes = Vec::new();
             self.descend(id, depth, &mut changes)?;
@@ -69,8 +66,7 @@ impl Render<'_> {
                 .name
                 .as_ref()
                 .map(|r| {
-                    self.snapshot
-                        .text
+                    self.text
                         .byte_slice(r.clone())
                         .to_string()
                         .to_ascii_lowercase()
@@ -88,24 +84,38 @@ impl Render<'_> {
             return self.inline.range(n.content.clone(), 0);
         }
         if kind == BlockKind::Dynamic {
-            self.diagnostic("Unknown dynamic block retained as literal source".into())?;
-            return self.fenced(
-                &self.snapshot.text.byte_slice(n.source.clone()).to_string(),
-                "org",
-            );
+            return self.dynamic(id, &body);
         }
         let language = if kind == BlockKind::Source {
-            language(&self.snapshot.text, n)
+            language(self.text, n)
         } else {
             "text".into()
         };
         self.fenced(&body, &language)
     }
+    fn dynamic(&mut self, id: usize, body: &str) -> Result<String, String> {
+        let n = &self.nodes[id];
+        let name = n
+            .name
+            .as_ref()
+            .map(|r| {
+                self.text
+                    .byte_slice(r.clone())
+                    .to_string()
+                    .to_ascii_lowercase()
+            })
+            .unwrap_or_default();
+        if matches!(name.as_str(), "clocktable" | "columnview") {
+            return self.fragment(body);
+        }
+        self.diagnostic("Unknown dynamic block retained as literal source".into())?;
+        self.fenced(&self.text.byte_slice(n.source.clone()).to_string(), "org")
+    }
     fn fenced(&self, body: &str, language: &str) -> Result<String, String> {
         if !self.markdown() {
             return Ok(body.lines().map(|l| format!("    {l}\n")).collect());
         }
-        let fence = inline::fence(body, 3)?;
+        let fence = inline::fence(body, 3, self.cancel)?;
         Ok(format!(
             "{fence}{language}\n{}{ending}{fence}\n",
             body,
