@@ -1,4 +1,6 @@
 //! Native OpenDocument packages have no file, tool, asset or network authority.
+mod content;
+mod styles;
 mod xml;
 mod zip;
 use super::*;
@@ -26,8 +28,8 @@ impl Snapshot {
         }
         let cancel = cancel.bounded(Instant::now() + Duration::from_secs(self.job_seconds as u64));
         document::check(&cancel)?;
-        let content = content(self, &cancel)?;
-        let styles = styles(self.export_bytes, &cancel)?;
+        let (content, diagnostics) = content::render(self, &cancel)?;
+        let styles = styles::render(self.export_bytes, &cancel)?;
         let meta = metadata(self, &cancel)?;
         let manifest = manifest(self.export_bytes, &cancel)?;
         let members = [
@@ -38,25 +40,8 @@ impl Snapshot {
             ("META-INF/manifest.xml", manifest.as_bytes()),
         ];
         let bytes = zip::package(members, self.export_bytes, &cancel)?;
-        Ok(Archive {
-            bytes,
-            diagnostics: self.diagnostics.clone(),
-        })
+        Ok(Archive { bytes, diagnostics })
     }
-}
-fn content(snapshot: &Snapshot, cancel: &Cancellation) -> Result<String, String> {
-    let mut xml = Xml::new(snapshot.export_bytes, cancel);
-    xml.start("document-content")?;
-    xml.emit("<office:body><office:text><text:p>")?;
-    xml.prose(&snapshot.text.to_string())?;
-    xml.emit("</text:p></office:text></office:body></office:document-content>")?;
-    Ok(xml.output)
-}
-fn styles(limit: usize, cancel: &Cancellation) -> Result<String, String> {
-    let mut xml = Xml::new(limit, cancel);
-    xml.start("document-styles")?;
-    xml.emit("<office:styles/></office:document-styles>")?;
-    Ok(xml.output)
 }
 fn metadata(snapshot: &Snapshot, cancel: &Cancellation) -> Result<String, String> {
     let mut xml = Xml::new(snapshot.export_bytes, cancel);
@@ -74,6 +59,7 @@ fn metadata(snapshot: &Snapshot, cancel: &Cancellation) -> Result<String, String
             xml.emit(&format!("</{tag}>"))?;
         }
     }
+    user_metadata(&mut xml, snapshot)?;
     xml.emit("</office:meta></office:document-meta>")?;
     Ok(xml.output)
 }
@@ -92,4 +78,21 @@ fn manifest(limit: usize, cancel: &Cancellation) -> Result<String, String> {
     }
     xml.emit("</manifest:manifest>")?;
     Ok(xml.output)
+}
+
+fn user_metadata(xml: &mut Xml<'_>, snapshot: &Snapshot) -> Result<(), String> {
+    let m = &snapshot.metadata;
+    for (name, value, enabled) in [
+        ("Email", &m.email, snapshot.options.author),
+        ("OrgDate", &m.date, true),
+    ] {
+        if let Some(value) = value.as_ref().filter(|_| enabled) {
+            xml.emit(&format!(
+                "<meta:user-defined meta:name=\"{name}\" meta:value-type=\"string\">"
+            ))?;
+            xml.text(value)?;
+            xml.emit("</meta:user-defined>")?;
+        }
+    }
+    Ok(())
 }

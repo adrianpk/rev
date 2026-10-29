@@ -8,13 +8,13 @@ pub(crate) struct Prepared {
     pub snapshot: Snapshot,
     pub target: Location,
     pub rendered: Rendered,
-    pub pdf: Option<Vec<u8>>,
+    pub binary: Option<Vec<u8>>,
 }
 pub(crate) struct Publication {
     snapshot: Snapshot,
     save: Save,
     diagnostics: Vec<String>,
-    pdf: Option<Vec<u8>>,
+    binary: Option<Vec<u8>>,
 }
 pub(crate) struct Published {
     pub outcome: Outcome,
@@ -37,13 +37,24 @@ impl Work {
         match self {
             Self::Prepare(work, target) => {
                 let snapshot = work.run(cancel)?;
-                let rendered = snapshot.render(cancel)?;
+                let (rendered, binary) = if snapshot.request.backend == ExportBackend::Odt {
+                    let archive = snapshot.package(cancel)?;
+                    (
+                        Rendered {
+                            text: String::new(),
+                            diagnostics: archive.diagnostics,
+                        },
+                        Some(archive.bytes),
+                    )
+                } else {
+                    (snapshot.render(cancel)?, None)
+                };
                 protect(&snapshot, &target, cancel)?;
                 Ok(Output::Prepared(Box::new(Prepared {
                     snapshot,
                     target,
                     rendered,
-                    pdf: None,
+                    binary,
                 })))
             }
             Self::Compile(work) => Ok(Output::Prepared(Box::new(work.run(cancel)?))),
@@ -60,7 +71,7 @@ impl Prepared {
             snapshot: self.snapshot,
             save: Save::projection(buffer, self.rendered.text, self.target),
             diagnostics: self.rendered.diagnostics,
-            pdf: self.pdf,
+            binary: self.binary,
         }
     }
 }
@@ -71,7 +82,7 @@ impl Publication {
     fn run(self, cancel: &Cancellation) -> Published {
         let guard = || protect(&self.snapshot, &self.save.target, cancel);
         let outcome = match guard() {
-            Ok(()) => match &self.pdf {
+            Ok(()) => match &self.binary {
                 Some(bytes) => {
                     crate::org::io::publication::publish_bytes(&self.save, bytes, cancel, guard)
                 }

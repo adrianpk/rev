@@ -1,0 +1,36 @@
+#+TITLE: Notes & Plans 界
+#+AUTHOR: Writer
+#+LANGUAGE: en
+#+OPTIONS: toc:nil num:nil
+* Forms 界
+Body *bold* and /italic/.
+α é 界
+
+two  spaces	end
+
+- one
+- two
+
+3. third
+4. fourth
+
+#+NAME: data
+#+CAPTION: Caption & data
+| Name | Count |
+|------+-------|
+| A&B | 2_3 |
+
+See [[https://example.test/a?x=1&y=2][*site*]] and [[data][target]].
+Notes [fn:n] [fn:n] [fn::inline body].
+
+[fn:n] A *note*.
+
+** Detail
+#+begin_src sh
+\write18{touch marker}
+<script>unsafe()</script>
+#+end_src
+#+begin_export html
+<script>unsafe()</script>
+#+end_export
+[[file:images/missing.png]]

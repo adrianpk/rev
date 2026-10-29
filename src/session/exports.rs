@@ -90,7 +90,7 @@ impl Session {
     fn review_export(&mut self, request: Request, prepared: Box<Prepared>) -> Result<(), String> {
         prepared.snapshot.buffers_current(&self.buffers)?;
         self.export_target_available(&prepared.target)?;
-        if request.command.export_pdf() && prepared.pdf.is_none() {
+        if request.command.export_pdf() && prepared.binary.is_none() {
             return self.confirm_compiler(request, prepared);
         }
         if !prepared.target.is_present() {

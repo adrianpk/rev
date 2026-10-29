@@ -111,7 +111,7 @@ impl Compilation {
         let result = self.compile(&scratch, cancel);
         let cleanup = scratch.clean();
         cleanup?;
-        self.prepared.pdf = Some(result?);
+        self.prepared.binary = Some(result?);
         self.prepared.protect(cancel)?;
         Ok(self.prepared)
     }

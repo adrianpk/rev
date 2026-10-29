@@ -206,9 +206,10 @@ pub enum OrgCommand {
     ExportBeamer,
     ExportLatexPdf,
     ExportBeamerPdf,
+    ExportOdt,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 204] = [
+    pub const ALL: [Self; 205] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -413,6 +414,7 @@ impl OrgCommand {
         Self::ExportBeamer,
         Self::ExportLatexPdf,
         Self::ExportBeamerPdf,
+        Self::ExportOdt,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -620,6 +622,7 @@ impl OrgCommand {
             "org-export-to-beamer",
             "org-export-to-latex-pdf",
             "org-export-to-beamer-pdf",
+            "org-export-to-odt",
         ][self as usize]
     }
 
@@ -933,16 +936,20 @@ impl OrgCommand {
 impl OrgCommand {
     pub(crate) fn export(self) -> Option<crate::config::ExportBackend> {
         use crate::config::ExportBackend as B;
-        match self {
-            Self::ExportText => Some(B::Text),
-            Self::ExportUtf8 => Some(B::Utf8),
-            Self::ExportMarkdown => Some(B::Markdown),
-            Self::ExportOrg => Some(B::Org),
-            Self::ExportHtml => Some(B::Html),
-            Self::ExportLatex | Self::ExportLatexPdf => Some(B::Latex),
-            Self::ExportBeamer | Self::ExportBeamerPdf => Some(B::Beamer),
-            _ => None,
-        }
+        [
+            (Self::ExportText, B::Text),
+            (Self::ExportUtf8, B::Utf8),
+            (Self::ExportMarkdown, B::Markdown),
+            (Self::ExportOrg, B::Org),
+            (Self::ExportHtml, B::Html),
+            (Self::ExportLatex, B::Latex),
+            (Self::ExportLatexPdf, B::Latex),
+            (Self::ExportBeamer, B::Beamer),
+            (Self::ExportBeamerPdf, B::Beamer),
+            (Self::ExportOdt, B::Odt),
+        ]
+        .into_iter()
+        .find_map(|(command, backend)| (self == command).then_some(backend))
     }
 }
 

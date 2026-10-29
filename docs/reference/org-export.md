@@ -237,3 +237,40 @@ uses the same checked atomic file owner; compile failures and stale source leave
 the destination unchanged. Fonts, packages, engine availability and PDF rendering
 depend on the selected optional TeX installation. Native tests require no TeX
 installation; fixture programs verify adapter and publication behavior only.
+
+
+## Native OpenDocument text
+
+Run `org-export-to-odt` with the same buffer, subtree or region selection,
+OPTIONS and explicit local destination prompts. The native package retains
+Unicode, headings and outline levels, lists with their original numeric markers,
+table cells, emphasis, footnotes, named targets, captions and supported links.
+A contents option produces local links to the selected headings. A subtree
+starts at heading level one; region output has no generated title/contents.
+Repeated spaces, tabs, line breaks and literal code retain explicit ODF text
+forms. Tables remain string data; formula recalculation is never implicit.
+
+The OpenDocument 1.3 profile contains exactly five stored ZIP members: first the
+uncompressed `mimetype` without extra fields, followed by `content.xml`,
+`styles.xml`, `meta.xml` and `META-INF/manifest.xml`. Native CRC32 and ZIP32 records
+are deterministic. The manifest names exactly the content, styles, metadata and
+document media type. Style, bookmark and note references resolve within the
+package. TITLE, AUTHOR and LANGUAGE retain document metadata; EMAIL and original
+Org DATE spelling use string metadata rather than inventing a date conversion.
+
+ODT export reads no image or attachment assets. Local image links, unsupported
+resource kinds, raw export blocks, unknown attributes and other rich forms remain
+literal data with diagnostics. Entity/math spelling is retained rather than
+converted to embedded math objects. Tables within lists remain literal because
+this profile admits paragraph/heading/list children in list items. Ragged tables,
+missing or duplicate note definitions, cyclic notes, unresolved named targets
+and XML 1.0-invalid scalars reject the complete output.
+
+XML generation, CRC and ZIP assembly share the snapshot's finite output limit,
+including all headers and directory records, and check cancellation/deadline.
+No archiver, office application, new crate or external converter is required.
+Publication uses the same checked atomic binary file owner as other export jobs;
+source freshness, aliases, live buffers and observed destination replacement
+retain their ordinary guards. Export never saves or edits canonical source.
+
+The package profile follows the [OpenDocument 1.3 package specification](https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part2-packages/OpenDocument-v1.3-os-part2-packages.html).

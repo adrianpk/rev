@@ -32,29 +32,8 @@ fn odt_package_envelope() {
     assert_eq!(bytes, package(source, 16777216).unwrap());
     let path = f.0.join("document.odt");
     std::fs::write(&path, bytes).unwrap();
-    let check = std::process::Command::new("python3").args(["-c", r#"import pathlib, sys, zipfile, xml.etree.ElementTree as E
-p = pathlib.Path(sys.argv[1]); data = p.read_bytes()
-with zipfile.ZipFile(p) as z:
-    assert z.namelist() == ['mimetype', 'content.xml', 'styles.xml', 'meta.xml', 'META-INF/manifest.xml']
-    assert z.testzip() is None
-    first = z.infolist()[0]
-    assert first.header_offset == 0 and first.compress_type == zipfile.ZIP_STORED
-    assert first.extra == b'' and data[28:30] == b'\x00\x00'
-    mime = z.read('mimetype').decode('ascii')
-    assert mime == 'application/vnd.oasis.opendocument.text'
-    assert data[38:38+len(mime)] == mime.encode()
-    for name in z.namelist()[1:]: E.fromstring(z.read(name))
-    ns = {'m': 'urn:oasis:names:tc:opendocument:xmlns:manifest:1.0', 'dc': 'http://purl.org/dc/elements/1.1/'}
-    manifest = E.fromstring(z.read('META-INF/manifest.xml'))
-    entries = {e.attrib['{'+ns['m']+'}full-path']: e.attrib['{'+ns['m']+'}media-type'] for e in manifest}
-    assert entries == {'/': mime, 'content.xml': 'text/xml', 'styles.xml': 'text/xml', 'meta.xml': 'text/xml'}
-    assert E.fromstring(z.read('meta.xml')).find('.//dc:title', ns).text == 'Notes & plans'
-"#, path.to_str().unwrap()]).output().unwrap();
-    assert!(
-        check.status.success(),
-        "{}",
-        String::from_utf8_lossy(&check.stderr)
-    );
+    verify(&path, false);
+    assert!(!f.0.join("marker").exists());
 }
 // XML-invalid scalars and a finite final package budget reject output rather
 // than substituting data or returning a partial or malformed archive.
@@ -68,4 +47,59 @@ fn odt_package_bounds() {
         );
     }
     assert!(package("body\n", 100).is_err());
+}
+
+fn verify(path: &Path, fixture: bool) {
+    let mut command = std::process::Command::new("python3");
+    command.args([
+        "scripts/configuration_ui/odt_document.py",
+        path.to_str().unwrap(),
+    ]);
+    if fixture {
+        command.arg("--fixture");
+    }
+    let check = command.output().unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+// A representative whole document is checked by independent namespace-aware
+// XML semantics: headings, list starts, cell values, styles, links and notes.
+#[test]
+fn odt_native_forms() {
+    let f = Fixture::new();
+    let bytes = package(include_str!("../fixtures/org-odt/document.org"), 16777216).unwrap();
+    let path = f.0.join("document.odt");
+    std::fs::write(&path, bytes).unwrap();
+    verify(&path, true);
+    assert!(!f.0.join("marker").exists());
+}
+// The ODT command publishes current unsaved source using binary file ownership
+// without changing source association, format, view, revision or undo history.
+#[test]
+fn odt_file_publication() {
+    let f = Fixture::new();
+    let source = "\u{feff}* Heading 界\r\nBody";
+    let path = f.write("source.org", source);
+    let mut s = host(&f, Some(&path), false);
+    s.handle(Event::Paste("#+TITLE: Unsaved\r\n".into()));
+    settle(&mut s);
+    let before = text(&s);
+    let stamp = s.buffer().unwrap().stamp();
+    let history = s.buffer().unwrap().history().len();
+    let view = s.view().clone();
+    action(&mut s, C::ExportOdt);
+    for value in ["buffer", "toc:nil num:nil", "document.odt"] {
+        argument(&mut s, value);
+    }
+    assert!(s.echo().contains("Exported Org document"), "{}", s.echo());
+    verify(&f.0.join("document.odt"), false);
+    assert_eq!(text(&s), before);
+    assert_eq!(s.buffer().unwrap().stamp(), stamp);
+    assert_eq!(s.buffer().unwrap().history().len(), history);
+    assert_eq!(s.view(), &view);
+    assert!(s.buffer().unwrap().is_modified());
+    assert_eq!(std::fs::read_to_string(path).unwrap(), source);
 }
