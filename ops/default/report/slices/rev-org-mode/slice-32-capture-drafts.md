@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-32-capture-drafts`
-PR: pending
+PR: `#133`
 
 ## Purpose
 
@@ -67,6 +67,7 @@ The original 8-second/1-MiB driver budgets and full-frame assertions remain.
 
 T32.1: `75774e457d81ca69e3f5e0dc434683c30daa6b00` (report introduction).
 T32.2: `bbfabe138789bb07d2061d70566ebf036aba58b2`.
+T32.3: `d7a9c1e40cd555696d64470cce14f2c695ceaf0f`.
 
 - `cargo test --test org_agenda capture_expansion -- --nocapture`: five tests
   pass, zero failures or ignored tests.
@@ -107,3 +108,5 @@ T32.2: `bbfabe138789bb07d2061d70566ebf036aba58b2`.
 
 Destination publication remains the recorded Slice 33 responsibility.
 The delivery-set full gate has not run.
+
+[Canonical PR #133](https://forge.adrianpk.com/adrianpk/rev/pulls/133) targets dev. All task commits and this PR-reference follow-up are pushed before final exact-head controller validation. Required and focused receipts are recorded through the controller and Acta; integration remains pending.

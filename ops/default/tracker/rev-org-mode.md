@@ -774,6 +774,8 @@ Details and exact checks: [Slice 32](../plan/rev-org-mode.md#slice-32-expand-and
 - [x] T32.3: Verify malformed expansion, literal preservation, cancellation and return to the originating view.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical [PR #133](https://forge.adrianpk.com/adrianpk/rev/pulls/133) targets dev; the Slice 32 report is reviewing. T32.1 is `75774e457d81`, T32.2 is `bbfabe138789` and T32.3 is `d7a9c1e40cd5`. Five expansion cases, nine native session workflows, backend save/mode admission and two owned RGB/NO_COLOR terminal sessions pass. Final controller evidence binds the clean pushed PR head; integration remains controller-owned.
+
 ### Slice 33: finalize or abort Org capture safely
 
 Contracts: ORG10 ORG18.
