@@ -712,7 +712,9 @@ fourteen existing property cases pass. T28.3 verifies native query controls,
 invalid drafts, scope retention, canonical refresh/return, Unicode shared panes,
 regexp bounds and owned cancellation. Nine query cases plus the real cancellation
 case pass; focused Clippy, source quality and the complete reference agree.
-Final canonical PR references and clean-head controller evidence follow.
+Canonical [PR #129](https://forge.adrianpk.com/adrianpk/rev/pulls/129) targets
+dev; the report is reviewing. Controller evidence binds its final clean pushed
+head. Integration remains controller-owned.
 
 ### Slice 29: configure native Org agenda views
 

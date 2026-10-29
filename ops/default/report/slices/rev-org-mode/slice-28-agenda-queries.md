@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-28-agenda-queries`
-PR: pending
+PR: `#129`
 
 ## Purpose
 
@@ -69,6 +69,10 @@ retires the projection. Native prompts retain their visible cursor.
 
 ## Validation
 
+T28.1: `82119810b9a5ddfd2e82311e3c4ac8a8206cce90`.
+T28.2: `153010d778bd659d7db642e143bc324f292233ee`.
+T28.3: `99c634d747f493ad9d0e8025c1f2678f7d7ce86f`.
+
 - `cargo test --test org_agenda query_ -- --nocapture`: two parameterized cases
   passed with zero ignored tests.
 - `cargo clippy --lib --test org_agenda -- -D warnings`: passed.
@@ -116,3 +120,5 @@ Final controller evidence binds the clean canonical PR head. Required order:
 
 ## Risks and Follow-ups
 The delivery-set full gate has not run.
+
+[Canonical PR #129](https://forge.adrianpk.com/adrianpk/rev/pulls/129) targets dev.
