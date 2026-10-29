@@ -819,7 +819,9 @@ Details and exact checks: [Slice 35](../plan/rev-org-mode.md#slice-35-archive-or
 T35.1 is `1ca449bbe1e2`; T35.2 is `c6f0246d7266`. Native archive plans,
 metadata, exact target admission, archived agenda policy, retained per-file
 save outcomes and the combined owned RGB/NO_COLOR journey pass focused checks.
-The canonical PR and clean-head controller evidence are prepared after T35.3.
+T35.3 is `d807b2fd7d03`. Canonical [PR #136](https://forge.adrianpk.com/adrianpk/rev/pulls/136)
+targets dev; the existing Slice 35 report is reviewing. Final controller receipts
+bind the clean pushed head after PR references. Integration remains controller-owned.
 
 ### Slice 36: store and follow checked Org links
 

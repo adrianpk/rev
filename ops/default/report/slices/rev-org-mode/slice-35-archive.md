@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-35-archive`
-PR: pending
+PR: [#136](https://forge.adrianpk.com/adrianpk/rev/pulls/136)
 
 ## Purpose
 
@@ -96,7 +96,11 @@ T35.3 checks:
 - The combined case extends the existing terminal harness with its unchanged
   time/output bounds. Existing terminal cases and the full gate are unchanged.
 
-Final controller receipts will bind the clean pushed head after PR references.
+T35.3: `d807b2fd7d03e14a95f7be3eb5c9706788a169ac`.
+
+Canonical PR #136 targets dev. Final controller receipts bind the clean pushed
+head after this PR-reference commit, with required commands in approved order;
+focused evidence also covers shared refile, file-save and window contracts.
 
 ## Risks and Follow-ups
 
