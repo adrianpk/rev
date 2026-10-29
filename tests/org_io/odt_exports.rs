@@ -6,7 +6,7 @@ use rev::{
         export::{Request, Scope, Work},
     },
 };
-fn package(source: &str, limit: usize) -> Result<Vec<u8>, String> {
+fn archive(source: &str, limit: usize) -> Result<rev::org::export::Archive, String> {
     let f = Fixture::new();
     let path = f.write("source.org", source);
     let mut buffers = Buffers::new().unwrap();
@@ -20,7 +20,10 @@ fn package(source: &str, limit: usize) -> Result<Vec<u8>, String> {
         time: clock(&policy.time).unwrap(),
     };
     let snapshot = Work::new(&buffers, id, request, &policy)?.run(&Cancellation::default())?;
-    Ok(snapshot.package(&Cancellation::default())?.bytes().into())
+    snapshot.package(&Cancellation::default())
+}
+fn package(source: &str, limit: usize) -> Result<Vec<u8>, String> {
+    Ok(archive(source, limit)?.bytes().into())
 }
 // Python's independent ZIP/CRC and namespace-aware XML readers check the actual
 // binary output, including the special first uncompressed mimetype record.
@@ -47,6 +50,13 @@ fn odt_package_bounds() {
         );
     }
     assert!(package("body\n", 100).is_err());
+    let bytes = package("body\n", 16777216).unwrap();
+    assert_eq!(package("body\n", bytes.len()).unwrap(), bytes);
+    assert!(
+        package("body\n", bytes.len() - 1)
+            .unwrap_err()
+            .contains("ODT package output byte limit")
+    );
 }
 
 fn verify(path: &Path, fixture: bool) {
@@ -102,4 +112,234 @@ fn odt_file_publication() {
     assert_eq!(s.view(), &view);
     assert!(s.buffer().unwrap().is_modified());
     assert_eq!(std::fs::read_to_string(path).unwrap(), source);
+}
+
+fn begin(s: &mut Session, scope: &str, options: &str, path: &str) {
+    action(s, C::ExportOdt);
+    for value in [scope, options, path] {
+        argument(s, value);
+    }
+}
+// Unsupported assets, raw export and entity/math syntax remain readable source
+// with diagnostics. XML characters cannot inject executable package members.
+#[test]
+fn odt_rich_diagnostics() {
+    let source = "#+ATTR_ODT: :onclick execute\nText </text:p> & \\alpha and $x^2$ plus $x *bold* y$.\n\n[[file:missing.png]]\n#+begin_export odt\n<office:scripts>run</office:scripts>\n#+end_export\n";
+    let result = archive(source, 16777216).unwrap();
+    for expected in ["rich form", "entity/math", "literal link"] {
+        assert!(
+            result.diagnostics().iter().any(|d| d.contains(expected)),
+            "{expected}: {:?}",
+            result.diagnostics()
+        );
+    }
+    let f = Fixture::new();
+    let path = f.0.join("rich.odt");
+    std::fs::write(&path, result.bytes()).unwrap();
+    verify(&path, false);
+    let check = std::process::Command::new("python3")
+        .args([
+            "-c",
+            r#"import sys
+from pathlib import Path
+from scripts.configuration_ui.odt_document import Document, text
+d = Document(Path(sys.argv[1]).read_bytes()); body = text(d.content)
+for source in ['#+ATTR_ODT: :onclick execute', '</text:p> & \\alpha',
+               '[[file:missing.png]]', '$x *bold* y$', '<office:scripts>run</office:scripts>']:
+    assert source in body, (source, body)
+"#,
+            path.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+    let long_math = format!("$x {}*bold* y$", " ".repeat(4096));
+    let long = archive(&long_math, 16777216).unwrap();
+    assert!(
+        long.diagnostics()
+            .iter()
+            .any(|d| d.contains("math retained as literal"))
+    );
+    assert!(!f.0.join("missing.png").exists());
+}
+// Invalid XML, unresolved/cyclic notes, ragged cells and duplicate targets reject
+// before any destination effect and preserve source history and current bytes.
+#[test]
+fn odt_failed_output() {
+    for (name, source, expected) in [
+        ("XML", "invalid \u{1} scalar\n", "ODT XML cannot represent"),
+        ("note", "Missing [fn:x]\n", "Unresolved ODT footnote"),
+        (
+            "duplicate note",
+            "[fn:x] one\n\n[fn:x] two\n",
+            "Duplicate ODT footnote",
+        ),
+        (
+            "cycle",
+            "Text [fn:x]\n\n[fn:x] [fn:x]\n",
+            "Cyclic ODT footnote",
+        ),
+        ("table", "| A | B |\n| one |\n", "Ragged ODT table"),
+        (
+            "target",
+            "[[missing][label]]\n",
+            "Unresolved ODT local target",
+        ),
+        (
+            "duplicate",
+            "<<same>> and <<same>>\n",
+            "Duplicate ODT bookmark",
+        ),
+    ] {
+        let f = Fixture::new();
+        let path = f.write("source.org", source);
+        let output = f.write("document.odt", "keep");
+        let mut s = host(&f, Some(&path), false);
+        let point = s.view().point;
+        begin(&mut s, "buffer", "", "document.odt");
+        assert!(s.echo().contains(expected), "{name}: {}", s.echo());
+        assert_eq!(std::fs::read(output).unwrap(), b"keep", "{name}");
+        assert_eq!(text(&s), source, "{name}");
+        assert_eq!(s.view().point, point, "{name}");
+        assert!(s.buffer().unwrap().history().is_empty(), "{name}");
+    }
+    let (f, mut s) = super::links::editor("org.limits.export_bytes=100", "Body\n", "");
+    f.write("document.odt", "keep");
+    begin(&mut s, "buffer", "", "document.odt");
+    assert!(s.echo().contains("byte limit"), "{}", s.echo());
+    assert_eq!(std::fs::read(f.0.join("document.odt")).unwrap(), b"keep");
+}
+// Read-only subtree selection keeps real source/view state, rebases outline
+// levels and suppresses excluded metadata. Native packaging observes cancellation.
+#[test]
+fn odt_selected_readonly() {
+    let f = Fixture::new();
+    let source = "#+TITLE: Hidden\n* Parent\n** TODO Child :work:\nbody 界\n** Sibling\nkeep\n";
+    let path = f.write("source.org", source);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.visit(&path).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(true);
+    let policy = Org::default();
+    let request = Request {
+        backend: B::Odt,
+        scope: Scope::Buffer,
+        options: None,
+        time: clock(&policy.time).unwrap(),
+    };
+    let snapshot = Work::new(&buffers, id, request, &policy)
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    let cancelled = Cancellation::default();
+    cancelled.cancel();
+    assert!(snapshot.package(&cancelled).is_err());
+    let view = View::new(buffers.get(id).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 100,
+            height: 12,
+        },
+    )
+    .unwrap()
+    .with_org_clock(clock);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "3");
+    let view = s.view().clone();
+    begin(
+        &mut s,
+        "subtree",
+        "toc:nil num:nil title:nil author:nil todo:nil tags:nil",
+        "child.odt",
+    );
+    let check = std::process::Command::new("python3")
+        .args([
+            "-c",
+            r#"import sys
+from pathlib import Path
+from scripts.configuration_ui.odt_document import Document, text, NS, key
+d = Document(Path(sys.argv[1]).read_bytes())
+assert d.texts('text:h') == ['Child']
+assert d.content.find('.//text:h', NS).get(key('text', 'outline-level')) == '1'
+assert d.meta.find('.//dc:title', NS) is None
+for value in ['Hidden', 'Parent', 'Sibling', 'TODO', ':work:']: assert value not in text(d.content)
+"#,
+            f.0.join("child.odt").to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(
+        check.status.success(),
+        "{}",
+        String::from_utf8_lossy(&check.stderr)
+    );
+    assert_eq!(s.view(), &view);
+    assert_eq!(text(&s), source);
+    assert!(s.buffer().unwrap().history().is_empty());
+    assert!(!s.buffer().unwrap().is_modified());
+}
+// Declined/cancelled confirmation, source/target changes and aliases cannot
+// authorize replacement. ODT stays independent of configured compiler tools.
+#[test]
+fn odt_publication_guards() {
+    use std::os::unix::fs::PermissionsExt;
+    let (f, mut s) =
+        super::links::editor("org.tools.pdf=['./absent','{input}']", "* Head\nBody\n", "");
+    let output = f.write("document.odt", "keep");
+    begin(&mut s, "buffer", "toc:nil num:nil", "document.odt");
+    argument(&mut s, "no");
+    assert_eq!(std::fs::read(&output).unwrap(), b"keep");
+    begin(&mut s, "buffer", "toc:nil num:nil", "document.odt");
+    cancel(&mut s);
+    settle(&mut s);
+    assert_eq!(std::fs::read(&output).unwrap(), b"keep");
+    begin(&mut s, "buffer", "toc:nil num:nil", "document.odt");
+    f.write("document.odt", "external change");
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("not published"), "{}", s.echo());
+    assert_eq!(std::fs::read(&output).unwrap(), b"external change");
+    std::fs::set_permissions(&output, std::fs::Permissions::from_mode(0o640)).unwrap();
+    begin(&mut s, "buffer", "toc:nil num:nil", "document.odt");
+    argument(&mut s, "yes");
+    verify(&output, false);
+    assert_eq!(
+        std::fs::metadata(&output).unwrap().permissions().mode() & 0o777,
+        0o640
+    );
+    begin(&mut s, "buffer", "", "document.odt");
+    s.insert('X');
+    let before = std::fs::read(&output).unwrap();
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("source or view changed"), "{}", s.echo());
+    assert_eq!(std::fs::read(&output).unwrap(), before);
+    let source = std::fs::read(f.0.join("source.org")).unwrap();
+    std::fs::hard_link(f.0.join("source.org"), f.0.join("alias.odt")).unwrap();
+    for name in ["source.org", "alias.odt"] {
+        begin(&mut s, "buffer", "", name);
+        assert_eq!(std::fs::read(f.0.join(name)).unwrap(), source);
+        assert!(!s.echo().contains("Exported Org document"));
+    }
+}
+// Disk-only includes retain independent freshness authority until publication;
+// the export cannot overwrite a checked input or use its stale observation.
+#[test]
+fn odt_include_guards() {
+    let f = Fixture::new();
+    let source = f.write("source.org", "#+INCLUDE: \"child.org\"\n");
+    let child = f.write("child.org", "Included\n");
+    let output = f.write("document.odt", "keep");
+    let mut s = host(&f, Some(&source), false);
+    begin(&mut s, "buffer", "toc:nil num:nil", "document.odt");
+    std::fs::write(&child, "Changed\n").unwrap();
+    argument(&mut s, "yes");
+    assert!(s.echo().contains("not published"), "{}", s.echo());
+    assert_eq!(std::fs::read(output).unwrap(), b"keep");
+    begin(&mut s, "buffer", "", "child.org");
+    assert!(s.echo().contains("input source"), "{}", s.echo());
+    assert_eq!(std::fs::read_to_string(child).unwrap(), "Changed\n");
 }

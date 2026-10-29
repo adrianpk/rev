@@ -1,3 +1,4 @@
+use super::super::math::fragment;
 use super::*;
 impl Document<'_> {
     pub(super) fn math(
@@ -33,7 +34,7 @@ impl Document<'_> {
                 at = n.source.end - range.start;
                 continue;
             }
-            if let Some((end, body, display)) = fragment(&value, at) {
+            if let Some((end, body, display)) = fragment(&value, at, 4096) {
                 self.objects(tex, range.start + cursor..range.start + at, depth, context)?;
                 tex.math_fragment(&value[at..end], body, display)?;
                 at = end;
@@ -59,23 +60,6 @@ impl Tex<'_> {
         self.emit(body)?;
         self.emit(if display { "\\]" } else { "\\)" })
     }
-}
-fn fragment(value: &str, at: usize) -> Option<(usize, &str, bool)> {
-    let tail = &value[at..];
-    let (open, close, display) = [
-        ("$$", "$$", true),
-        ("$", "$", false),
-        (r"\(", r"\)", false),
-        (r"\[", r"\]", true),
-    ]
-    .into_iter()
-    .find(|(open, _, _)| tail.starts_with(open))?;
-    let body = tail.get(open.len()..)?;
-    let end = body.find(close)?;
-    if end == 0 || end > 4096 {
-        return None;
-    }
-    Some((at + open.len() + end + close.len(), &body[..end], display))
 }
 fn admitted(value: &str) -> bool {
     if value.contains("^^") {

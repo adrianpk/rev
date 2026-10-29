@@ -13,6 +13,7 @@ mod document;
 mod include;
 mod limits;
 mod macros;
+mod math;
 mod options;
 mod scope;
 use super::{io::source::Budget, structure};

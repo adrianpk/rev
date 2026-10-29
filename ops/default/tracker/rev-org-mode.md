@@ -1037,7 +1037,7 @@ Details and exact checks: [Slice 50](../plan/rev-org-mode.md#slice-50-export-nat
 
 - [x] T50.1: Deliver bounded native ODT XML and ZIP packaging without adding a runtime service or crate.
 - [x] T50.2: Preserve document structure, Unicode, links, lists and tables with validated package relationships.
-- [ ] T50.3: Verify generated archives with Python zipfile/XML tooling and truthful unsupported-rich-content handling.
+- [x] T50.3: Verify generated archives with Python zipfile/XML tooling and truthful unsupported-rich-content handling.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 51: export Org to Texinfo and man formats

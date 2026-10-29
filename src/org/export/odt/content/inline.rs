@@ -1,7 +1,7 @@
 use super::*;
 use crate::org::{inline as native, links::Target};
 impl Document<'_> {
-    pub(super) fn inline(
+    pub(super) fn objects(
         &self,
         odt: &mut Odt<'_>,
         range: Range<usize>,

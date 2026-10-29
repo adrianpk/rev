@@ -57,6 +57,7 @@ class Document:
             assert root.get(key('office', 'version')) == '1.3'
         manifest = parts[MEMBERS[-1]]
         assert manifest.tag == key('manifest', 'manifest')
+        assert manifest.get(key('manifest', 'version')) == '1.3'
         entries = [(n.get(key('manifest', 'full-path')),
                     n.get(key('manifest', 'media-type'))) for n in manifest]
         assert len(entries) == 4

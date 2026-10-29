@@ -3,6 +3,7 @@ from .org_document import encoded, exact
 from .org_tasks import goto, named
 from .org_time import quiet
 from .html_document import parse
+from .odt_document import Document as OdtDocument
 from .support import (BINARY, PTY, close, completed, environment, finish,
                       send, snapshot, step, write)
 
@@ -55,6 +56,12 @@ def journey(root, colored):
         choose(session, 'org-export-to-latex-pdf', 'missing.pdf', b'No PDF compiler configured')
         assert not (source.parent / 'missing.pdf').exists()
         assert source.read_bytes() == encoded(LINES)
+        choose(session, 'org-export-to-odt', 'document.odt', b'Exported Org document')
+        odt_bytes = (source.parent / 'document.odt').read_bytes()
+        odt = OdtDocument(odt_bytes)
+        assert odt.texts('text:h') == ['Heading 界']
+        assert odt.texts('text:p') == ['Body unsaved\nEOF']
+        assert source.read_bytes() == encoded(LINES)
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
         choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
@@ -74,6 +81,7 @@ def journey(root, colored):
         before['work/output.html'] = html_bytes
         before['work/article.tex'] = article
         before['work/slides.tex'] = slides
+        before['work/document.odt'] = odt_bytes
         assert snapshot(root) == before
     finally:
         close(session)

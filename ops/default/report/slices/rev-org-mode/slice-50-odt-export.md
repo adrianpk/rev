@@ -1,6 +1,6 @@
 # Slice 50: export native Org to OpenDocument text
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -30,6 +30,15 @@ readable literal data with diagnostics. Binary publication shares the existing
 checked file owner; successful export retains source format, revision, view and
 undo history without acknowledging a source save.
 
+T50.3 checks independent ZIP/CRC/XML semantics and exact source preservation,
+including the final archive byte boundary, invalid scalars, unsupported rich
+content, missing/cyclic notes, duplicate targets, ragged cells, stale inputs and
+replacement observations, aliases, cancellation and read-only subtree selection.
+The owned RGB/NO_COLOR journey now parses actual ODT output as well as the other
+native formats. Unsupported math initially lost native emphasis delimiters;
+shared bounded delimiter recognition now retains the complete ODT math spelling
+with diagnostics while TeX keeps its existing admission limit.
+
 ## Implementation Notes
 
 `Snapshot::package` returns binary archive bytes separately from text rendering.
@@ -52,6 +61,11 @@ The package profile follows the OASIS OpenDocument 1.3 package specification.
 
 ## Validation
 
+- `cargo test --test org_io odt_`: nine package, semantic, selection and publication workflows passed, zero failures or ignored tests.
+- `cargo test --test org_io tex_export`: five shared-delimiter regression workflows passed, zero failures or ignored tests.
+- `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed.
+- `xmllint --noout --relaxng OpenDocument-v1.3-schema.rng content.xml styles.xml meta.xml`: the representative generated XML parts passed the published ODF 1.3 Relax NG schema in an owned temporary validation directory. No office-application GUI was run.
+
 - `cargo test --test org_io odt_`: four package, native-document and publication workflows passed, zero failures or ignored tests.
 - `cargo test --test commands visibility_keys`: compiled command catalog round-trip passed.
 
@@ -60,4 +74,4 @@ The package profile follows the OASIS OpenDocument 1.3 package specification.
 
 ## Risks and Follow-ups
 
-Failure-boundary, selection and terminal checks plus final candidate validation remain in progress.
+None recorded.

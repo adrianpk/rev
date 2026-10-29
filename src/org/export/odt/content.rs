@@ -2,6 +2,7 @@
 mod blocks;
 mod headings;
 mod inline;
+mod math;
 mod notes;
 use super::*;
 use crate::org::{BlockKind, InlineKind};
