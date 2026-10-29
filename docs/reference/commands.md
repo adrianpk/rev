@@ -212,6 +212,8 @@ supported. Unsupported or uncovered local time rejects before mutation.
 
 | Org attachments | `org-attach`, `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link`, `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs`, `org-attach-set-directory`, `org-attach-results` |
 
+| Org exports | `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown`, `org-export-to-org` |
+
 | Org document editing | `org-footnote-action`, `org-footnote-new`, `org-footnote-renumber`, `org-emphasize`, `org-insert-entity`, `org-edit-affiliated-keyword` |
 
 | Org tables | `org-table-create`, `org-table-align`, `org-table-next-field`, `org-table-previous-field`, `org-table-next-row`, `org-table-beginning-of-field`, `org-table-end-of-field`, `org-table-insert-row`, `org-table-insert-hline`, `org-return` |

@@ -37,7 +37,7 @@ def journey(root, colored):
         assert source.read_bytes() == encoded(LINES)
         choose(session, 'org-export-to-text', 'ascii.txt', b'U+754C')
         assert not (source.parent / 'ascii.txt').exists()
-        choose(session, 'org-export-to-utf8', 'keep.txt', b'yes/no:')
+        choose(session, 'org-export-to-unicode', 'keep.txt', b'yes/no:')
         frame = step(session, b'no\r', b'Org export declined')
         assert exact(frame, current)
         assert (source.parent / 'keep.txt').read_bytes() == b'keep'

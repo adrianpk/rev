@@ -64,6 +64,7 @@ Canonical PR: [#148](https://forge.adrianpk.com/adrianpk/rev/pulls/148).
 - `cargo clippy --lib --test org_io --test commands -- -D warnings`: passed during implementation.
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-exports`: two owned RGB/NO_COLOR sessions passed, zero skipped.
 - Changed-source quality: passed with unchanged native limits.
+- `cargo test --test commands`: the first final-candidate run detected a digit in the UTF-8 command identity and missing complete-catalog documentation. The identity is now `org-export-to-unicode`; both independent references include all four commands. Final evidence follows this correction.
 
 Final acceptance runs through controller validation on the clean PR-reference
 HEAD. The canonical PR and controller evidence retain that exact candidate.

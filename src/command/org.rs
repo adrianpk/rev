@@ -602,7 +602,7 @@ impl OrgCommand {
             "org-columns",
             "org-columns-insert-dblock",
             "org-export-to-text",
-            "org-export-to-utf8",
+            "org-export-to-unicode",
             "org-export-to-markdown",
             "org-export-to-org",
         ][self as usize]

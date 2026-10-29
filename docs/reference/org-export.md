@@ -107,7 +107,7 @@ publication remain with the ordinary file owner and renderer.
 
 ## Native text and Org file commands
 
-Run `org-export-to-text`, `org-export-to-utf8`, `org-export-to-markdown` or
+Run `org-export-to-text`, `org-export-to-unicode`, `org-export-to-markdown` or
 `org-export-to-org` through M-x. Enter `buffer`, `subtree` or `region` scope;
 empty selects the buffer. Region requires an active region. Enter an OPTIONS
 selection or leave it empty to use file declarations, then enter the literal
