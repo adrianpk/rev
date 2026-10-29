@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 38 document conveniences
+Active slice: Slice 39 table basics
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -863,9 +863,11 @@ Details and exact checks: [Slice 38](../plan/rev-org-mode.md#slice-38-edit-nativ
 - [x] T38.3: Verify Unicode, malformed references, radio targets and coherent edit/history behavior.
 Task commits: T38.1: `34374ac5f4b97bc735e4f554bc1d311a672e0035`, T38.2: `508aee2c666ba74aae01bc8e39b5875dc61fa4aa`, T38.3: `c70f78a1add18ea785603dc364ce7490912e55e2`.
 
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-### Slice 39: navigate and align native Org tables
+Canonical PR #139 merged into dev at `c754558125d33a9b400ed58921b62cba41ce5ad5`, verified against Forgejo and origin/dev. Required receipt `G2QMJXDYBO73K2K2US5HK7EWIH` passed five ordered checks and 319 tests. Focused receipt `GLOQUWSDGVCFE722MLZZJUBY2E` passed 304 tests and six owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions; prior diagnostics remain in the report. Slice 38 is delivered.
+
+## Slice 39: navigate and align native Org tables
 
 Contracts: ORG12 ORG17.
 Details and exact checks: [Slice 39](../plan/rev-org-mode.md#slice-39-navigate-and-align-native-org-tables).

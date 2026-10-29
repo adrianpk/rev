@@ -1,6 +1,6 @@
 # Slice 38: edit native Org footnotes and inline content
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -106,3 +106,7 @@ Final validation diagnostics:
 ## Risks and Follow-ups
 
 The full delivery-set gate remains controller-owned.
+
+## Integration
+
+Canonical PR #139 merged into dev at `c754558125d33a9b400ed58921b62cba41ce5ad5`, verified against Forgejo and origin/dev. Required receipt `G2QMJXDYBO73K2K2US5HK7EWIH` passed five ordered checks and 319 tests. Focused receipt `GLOQUWSDGVCFE722MLZZJUBY2E` passed 304 tests and six owned terminal sessions. Final receipts have zero failures, ignored tests or skipped sessions; prior diagnostics remain recorded above. Slice 38 of 64 is delivered.
