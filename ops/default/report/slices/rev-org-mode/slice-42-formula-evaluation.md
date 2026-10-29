@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-42-formula-evaluation`
-PR: pending
+PR: [#143](https://forge.adrianpk.com/adrianpk/rev/pulls/143)
 
 ## Purpose
 
@@ -22,6 +22,8 @@ binary64 values, explicit half-away rounding and bounded significant/fixed
 decimal formatting. Results are private row-major values and text.
 
 ## Implementation Notes
+
+Task commits: T42.1 `9b64692c22d779254de9e0bc673a835ed37ccf4d`, T42.2 `a82d0bafe9b0c99def549d265c6a87a2bc401712`, T42.3 `858a37838e90fee2cc6d83cc6da767c542a19ac4`.
 
 The numerical layer consumes the existing typed syntax arena. It neither
 interprets external expressions nor acquires source publication authority.
@@ -80,6 +82,9 @@ the original bytes, stamp, state, modification flag and history unchanged.
 - `cargo clippy --lib --test org_tables -- -D warnings`: passed after failure handling changes; changed-source quality passed.
 - `cargo test --test org_tables --test org_source evaluation -- --nocapture`: 15 focused workflows passed, zero failed or ignored.
 - `cargo clippy --lib --test org_tables --test org_source -- -D warnings`: passed; changed-source quality passed after the final expected-result cases.
+
+Final ordered validation is recorded by the controller for the clean PR head
+before handoff.
 
 ## Risks and Follow-ups
 

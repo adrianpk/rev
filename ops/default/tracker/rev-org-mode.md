@@ -921,6 +921,9 @@ Details and exact checks: [Slice 42](../plan/rev-org-mode.md#slice-42-evaluate-b
 - [x] T42.3: Verify expected arithmetic independently, including negative half rounding and reference direction.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#143](https://forge.adrianpk.com/adrianpk/rev/pulls/143).
+Task commits: T42.1 `9b64692c22d779254de9e0bc673a835ed37ccf4d`, T42.2 `a82d0bafe9b0c99def549d265c6a87a2bc401712`, T42.3 `858a37838e90fee2cc6d83cc6da767c542a19ac4`.
+
 ### Slice 43: publish Org recalculation as one transaction
 
 Contracts: ORG13 ORG14 ORG17.
