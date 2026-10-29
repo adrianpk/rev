@@ -877,6 +877,10 @@ Details and exact checks: [Slice 39](../plan/rev-org-mode.md#slice-39-navigate-a
 - [x] T39.3: Verify tabs, wide graphemes, CRLF, empty cells and one-operation undo.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#140](https://forge.adrianpk.com/adrianpk/rev/pulls/140).
+Task commits: T39.1 `e9f5e768b05b5b76f14725c0922963b14a54370b`, T39.2 `7b7da9152943c2426df8dc03cce5598fa70e0214`, T39.3 `a1777bf863707211f7b884dbacd2f6d2b6f974e2`.
+The controller records final exact-candidate receipts; integration remains pending.
+
 ### Slice 40: edit Org table rows columns and references
 
 Contracts: ORG12 ORG14.

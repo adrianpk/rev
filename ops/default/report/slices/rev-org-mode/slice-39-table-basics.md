@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-39-table-basics`
-PR: pending
+PR: https://forge.adrianpk.com/adrianpk/rev/pulls/140
 
 ## Purpose
 
@@ -36,6 +36,11 @@ positions and provides ordinary undo. No buffer identity is invented for a
 rendered fragment. Leading combining marks are measured together with the real
 preceding padding space. Field destinations use complete rendered grapheme
 boundaries. All analysis runs on the existing single cancellable worker.
+
+Task commits: T39.1 `e9f5e768b05b5b76f14725c0922963b14a54370b`,
+T39.2 `7b7da9152943c2426df8dc03cce5598fa70e0214`, and
+T39.3 `a1777bf863707211f7b884dbacd2f6d2b6f974e2`.
+The T39.1 commit introduces this report and is the immutable canonical PR link.
 
 ## Contracts Added or Changed
 
@@ -69,6 +74,8 @@ boundaries. All analysis runs on the existing single cancellable worker.
 
 ## Risks and Follow-ups
 
-All three tracker tasks are complete. Final clean-HEAD controller receipts and
-canonical PR references remain pending. Formula-changing row insertion rejects
+All three tracker tasks are complete. Canonical PR #140 tracks integration.
+Final ordered checks are recorded by the controller for the pushed candidate,
+including the PR-reference follow-up commit, and in the canonical PR Validation
+section. Integration into dev remains pending. Formula-changing row insertion rejects
 atomically; checked reference rewrites belong to the recorded Slice 40.
