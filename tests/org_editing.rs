@@ -343,3 +343,6 @@ mod timers;
 
 #[path = "org_editing/source_blocks.rs"]
 mod source_blocks;
+
+#[path = "org_editing/source_edges.rs"]
+mod source_edges;

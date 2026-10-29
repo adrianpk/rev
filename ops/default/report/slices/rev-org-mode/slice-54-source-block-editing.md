@@ -1,6 +1,6 @@
 # Slice 54: edit native Org source blocks and headers
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -24,6 +24,10 @@ Unknown languages and Org-looking code retain literal text behavior. Eight
 presentation cases cover declared and overridden grammars, disabled syntax, the
 byte cutoff, unknown/empty languages and an Org declaration using Rust syntax.
 Language-specific editing widths apply without granting Org behavior.
+Stale source retains the draft; read-only source permits inspection and rejects
+editing. Shared-view publication and undo restore the actual originating cursor.
+Queued observation, header entry, malformed metadata and draft abort leave source
+unchanged and finish owned work.
 
 ## Implementation Notes
 
@@ -50,14 +54,18 @@ and [header arguments](https://orgmode.org/manual/Using-Header-Arguments.html).
 - `src/session/source_edit.rs`: retained draft lifecycle and header interaction.
 - `src/buffer/syntax.rs`: language presentation without a synthetic file identity.
 - `tests/org_source/source_blocks.rs`: header and reinsertion contracts.
-- `tests/org_editing/source_blocks.rs`: real editor draft and history workflows.
+- `tests/org_editing/source_blocks.rs` and `source_edges.rs`: real draft, failure,
+  shared-view and history workflows.
 
 ## Validation
 
 Development check `cargo test --test org_source source_blocks` passed four tests.
 Development check `cargo test --test org_editing source_blocks` passed three
 session tests. Changed-source quality passed. `cargo test --test syntax source_edit` passed its table of eight presentation cases.
-Required exact-HEAD checks remain pending.
+`cargo test --test org_source --test org_editing source_` passed 24 focused tests,
+including additive headers, ambiguous names, single-argument admission and stale
+source. A reproduced undo cursor regression now passes with retained source-view
+initiation. Required exact-HEAD checks remain pending.
 
 ## Risks and Follow-ups
 

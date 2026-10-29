@@ -129,6 +129,12 @@ impl Windows {
 }
 
 impl Points {
+    pub(crate) fn retained_initiator(&self) -> Option<usize> {
+        self.members
+            .iter()
+            .position(|(member, _)| *member == Member::Saved)
+    }
+
     pub(crate) fn map_tops(&self, prepared: &Prepared) -> Result<Vec<usize>, Error> {
         self.members
             .iter()

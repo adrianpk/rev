@@ -15,6 +15,25 @@ pub(super) struct PreparedSource {
     tops: Vec<usize>,
 }
 impl PreparedSource {
+    /// A special-edit draft retains its real source view outside the visible
+    /// pane. Undo restores that source point rather than a peer or draft point.
+    pub(super) fn prepare_retained(
+        buffer: &mut Buffer,
+        windows: &Windows,
+        edits: &[Replacement],
+    ) -> Result<Self, String> {
+        let mut candidate = Self::prepare(buffer, windows, edits)?;
+        let initiator = candidate
+            .points
+            .retained_initiator()
+            .ok_or("Source edit home view is unavailable; draft retained")?;
+        candidate
+            .prepared
+            .retain_initiator(initiator)
+            .map_err(|e| e.to_string())?;
+        Ok(candidate)
+    }
+
     pub(super) fn prepare(
         buffer: &mut Buffer,
         windows: &Windows,

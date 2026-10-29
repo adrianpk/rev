@@ -51,8 +51,11 @@ impl Session {
         if text == state.definition.draft {
             return Ok(());
         }
-        let prepared =
-            super::super::source_batch::PreparedSource::prepare(source, &self.windows, &[edit])?;
+        let prepared = super::super::source_batch::PreparedSource::prepare_retained(
+            source,
+            &self.windows,
+            &[edit],
+        )?;
         prepared.publish(source, &mut self.windows);
         Ok(())
     }

@@ -63,6 +63,8 @@ fn rejected_blocks() {
             "duplicate name",
             "#+NAME: first\n#+NAME: second\n#+BEGIN_SRC sh\nbody\n#+END_SRC\n".into(),
         ),
+        ("ambiguous name","#+NAME: same\n#+BEGIN_SRC sh\nx\n#+END_SRC\n#+NAME: same\n#+BEGIN_SRC sh\ny\n#+END_SRC\n".into()),
+        ("duplicate property","* A\n:PROPERTIES:\n:header-args: :cache yes\n:header-args: :cache no\n:END:\n#+BEGIN_SRC sh\nx\n#+END_SRC\n".into()),
         (
             "no language args",
             "#+BEGIN_SRC :cache yes\nbody\n#+END_SRC\n".into(),
@@ -120,4 +122,48 @@ fn observation_bounds() {
     assert!(buffer.history().is_empty());
     let headers = "#+HEADER: :var x=1\n".repeat(256);
     assert!(observe(&format!("{headers}{source}")).is_err());
+}
+
+// Ordered additive defaults retain generic and language-specific header data
+// without needing the ordinary property inheritance configuration.
+#[test]
+fn additive_headers() {
+    let source = "#+PROPERTY: header-args :cache yes\n#+PROPERTY: header-args+ :exports both\n* A\n:PROPERTIES:\n:header-args:rust: :results output\n:header-args:rust+: :noweb yes\n:END:\n#+BEGIN_SRC rust\nbody\n#+END_SRC\n";
+    let d = observe(source).unwrap();
+    for (key, value) in [
+        ("cache", "yes"),
+        ("exports", "both"),
+        ("results", "output"),
+        ("noweb", "yes"),
+    ] {
+        assert_eq!(d.headers.get(key), Some(value), "{key}");
+    }
+}
+
+// A header prompt admits one literal argument only; rejected input cannot
+// smuggle a second argument or line into the block opening.
+#[test]
+fn header_argument_admission() {
+    let source = "#+BEGIN_SRC sh\nexit 99\n#+END_SRC\n";
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(source).unwrap();
+    let b = buffers.get(id).unwrap();
+    let d = Scan::new(b, Byte(0))
+        .unwrap()
+        .run(&Cancellation::default())
+        .unwrap();
+    for (name, value) in [
+        ("empty", ""),
+        ("missing key", "cache yes"),
+        ("multiple", ":cache yes :exports no"),
+        ("newline", ":var x=1\n"),
+        ("unclosed", ":var x=(1"),
+        ("control", ":var x=\u{0001}"),
+    ] {
+        assert!(d.header_replacement(b, value).is_err(), "{name}");
+    }
+    let edit = d.header_replacement(b, ":var x=\"a :cache yes\"").unwrap();
+    assert_eq!(edit.text, "#+BEGIN_SRC sh :var x=\"a :cache yes\"\n");
+    assert_eq!(bytes(b), source.as_bytes());
+    assert!(b.history().is_empty());
 }
