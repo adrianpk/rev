@@ -1,11 +1,12 @@
 # Slice 2: Independent Org Documentation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-02-org`
 PR: `#169`
+Integrated commit: `b9b572642ddf069113e7eb0c186eda72602e5208`
 
 ## Purpose
 
@@ -67,6 +68,10 @@ heading anchors, reachability, both learning paths and eleven legacy anchors.
 
 ## Validation
 
+Controller receipt `7MY7XWGOBP6OFKET2VGMDKV5TO` passed all five ordered
+handoff commands below for the exact integrated commit
+`b9b572642ddf069113e7eb0c186eda72602e5208`. Canonical PR #169 is verified merged.
+
 Implementation checks passed: 304 commands in each combined inventory, 178
 configuration entries, 58 reachable pages and 320 local links/anchors. Seven
 checker tests, ten native command-reference tests and eleven native
@@ -90,4 +95,5 @@ documentation checks; executable examples are unchanged.
 ## Risks and Follow-ups
 
 Slice 3 reconciles v0.1.0 documentation and the changelog after this slice
-integrates. PR integration remains controller-owned.
+integrated through PR #169. Slice 3 is active; subsequent PR integration
+remains controller-owned.

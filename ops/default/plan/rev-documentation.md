@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 2 - Independent Org documentation; reviewing in PR #169
+Active slice: Slice 3 - v0.1.0 documentation closure
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
 ## Outcome
@@ -257,4 +257,12 @@ Slice 1 integrated through canonical PR #168 at
 `01f03f00729f4465d3d853ee68fd9c30aa26c7cf`. Controller receipt
 `E5KZ2QKMPB33LEFR44KLTMDIUW` passed the six ordered checks for that exact
 candidate. The original task history and report introduction remain intact.
-The controller owns subsequent PR integration. Slice 2 is now active.
+The controller owns subsequent PR integration.
+
+## Slice 2 integration
+
+Slice 2 integrated through canonical PR #169 at
+`b9b572642ddf069113e7eb0c186eda72602e5208`. Controller receipt
+`7MY7XWGOBP6OFKET2VGMDKV5TO` passed all five ordered checks for that exact
+candidate: 304 commands per inventory, 178 configuration entries, 58 reachable
+pages, 320 local links/anchors and 28 native tests. Slice 3 is now active.
