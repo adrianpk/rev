@@ -1251,10 +1251,16 @@ Details and exact checks: [Slice 63](../plan/rev-org-mode.md#slice-63-reconcile-
 
 - [x] T63.1: Reconcile delivered Org mode with editor/configuration/view baselines and complete user references.
 - [x] T63.2: Preserve all previous tested candidates and make the new capability matrix and optional-tool boundaries explicit.
-- [ ] T63.3: Verify every requirement/scenario links to native, real-terminal and resource evidence; keep historical closures intact.
+- [x] T63.3: Verify every requirement/scenario links to native, real-terminal and resource evidence; keep historical closures intact.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 63](../report/slices/rev-org-mode/slice-63-baseline-reconciliation.md) (drafting).
+Report: [Slice 63](../report/slices/rev-org-mode/slice-63-baseline-reconciliation.md) (reviewing).
+
+Implementation required receipt `LXWSBQR6G3PWDECFSIGCVZ4KY6` passed all 1042 selected
+native tests, complete reference/template agreement, baseline/Org link checks and
+31-requirement/34-scenario prerequisite resolution. Focused receipt `NVWGVBUGEOE4A2I2BFFFRBOR3B`
+passed all 22 evidence-checker tests on the same implementation candidate.
+Canonical PR and final PR-reference evidence are pending.
 
 ### Slice 64: prepare complete native Org delivery acceptance
 

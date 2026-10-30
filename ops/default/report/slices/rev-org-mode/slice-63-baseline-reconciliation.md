@@ -1,6 +1,6 @@
 # Slice 63: reconcile native Org contracts and references
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -73,8 +73,41 @@ with every earlier validated-candidate/gate field.
 
 ## Validation
 
-Implementation checks are in progress. Required commands retain the approved
-order. No full delivery gate is run by this slice.
+Required ordered checks passed on clean implementation candidate
+`4184c6ccae7898398769589a4442a57e38d2ef5f`, controller receipt `LXWSBQR6G3PWDECFSIGCVZ4KY6`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test org_editing --test org_time --test org_agenda --test org_tables --test org_io --test configuration --test commands`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite prerequisites`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 1042 selected native tests passed: 161 commands, 133 configuration, 97 agenda,
+226 editing, 192 IO, 81 source, 73 tables and 79 time; zero failures, ignored or
+filtered tests. Reference checks confirm 178 schema/catalog entries, 54 RGB roles,
+263 bindings, nine optional examples and the 24545-byte packaged template.
+All baseline/Org reference links and anchors resolve. The existing prerequisite
+collector compiled/resolved every named native assertion for all 31 Org requirements
+and 34 scenarios, with known owned terminal/resource selectors. A listing remains
+prerequisite evidence; it is not a terminal/resource runtime pass on this candidate.
+
+Focused controller receipt `NVWGVBUGEOE4A2I2BFFFRBOR3B` passed on the same candidate:
+
+- `python3 scripts/test_acceptance.py`
+- `git diff --check`
+
+All 22 checker tests passed, including negative scenario/native/journey/resource
+mapping and literal-code versus real-link cases. Existing accepted requirement
+blocks and all earlier validated-candidate fields remain unchanged. Current native
+tests, historical terminal execution and historical release resource measurements
+retain their separate candidate meanings; the final full gate remains pending.
+Source quality retains safe Rust, five parameters, nesting three and cyclomatic ten.
+
+Task commits: T63.1 `491d2b5322e0`, T63.2 `5b083a95fd3a`, T63.3 `4184c6ccae78`.
+Final readiness requires fresh required and focused receipts on the clean
+PR-reference candidate. The controller owns merge and final delivery acceptance.
 
 ## Risks and Follow-ups
 
