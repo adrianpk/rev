@@ -44,4 +44,4 @@ the [Org reference](../../reference/org-mode.md) for all outline controls.
 
 Next: [Plan Tasks](07-org-tasks-and-agenda.md).
 
-[Previous](05-file-tree.md) · [User Guide](index.md)
+[Org mode guide](org/index.md)

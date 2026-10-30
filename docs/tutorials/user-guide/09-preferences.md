@@ -53,4 +53,4 @@ You have completed the User Guide. Continue with a
 [command](../../reference/commands.md), or return to
 [all documentation](../../index.md).
 
-[Previous](08-org-tables.md) · [User Guide](index.md)
+[Previous](05-file-tree.md) · [User Guide](index.md)

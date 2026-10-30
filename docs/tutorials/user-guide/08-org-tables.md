@@ -32,6 +32,7 @@ The [table reference](../../reference/org-tables.md) describes sums, rounding,
 row and column editing, and import/export. rev supports a bounded numeric
 formula language; it does not evaluate Emacs Lisp or the full Emacs Calc language.
 
-Next: [Set Your Preferences](09-preferences.md).
+Continue from the [Org mode guide](org/index.md) for capture, source blocks,
+exports and the complete Org reference.
 
-[Previous](07-org-tasks-and-agenda.md) · [User Guide](index.md)
+[Previous](07-org-tasks-and-agenda.md) · [Org mode guide](org/index.md)

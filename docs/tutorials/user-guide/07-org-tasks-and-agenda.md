@@ -45,4 +45,4 @@ deadlines and clocks are described in the [Org reference](../../reference/org-mo
 
 Next: [Calculate a Table](08-org-tables.md).
 
-[Previous](06-org-notes.md) · [User Guide](index.md)
+[Previous](06-org-notes.md) · [Org mode guide](org/index.md)

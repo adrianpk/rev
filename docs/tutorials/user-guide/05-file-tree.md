@@ -27,6 +27,6 @@ The [file tree reference](../../reference/file-tree.md) covers file creation,
 rename, deletion and refresh. [Focused prompts](../../reference/prompts.md)
 describes path completion in detail.
 
-Next: [Write Org Notes](06-org-notes.md).
+Next: [Set Your Preferences](09-preferences.md).
 
 [Previous](04-search-and-commands.md) · [User Guide](index.md)
