@@ -1,5 +1,8 @@
 """List, checkbox and literal-context steps inside the owned Org PTY journey."""
 
+import re
+import time
+
 from .support import canvas, send, step, visit
 
 LINES = ['* Tasks [0/2]', '- [ ] Parent [0/2]', '  - [ ] One',
@@ -46,9 +49,19 @@ def list_journey(session, source, goto, document):
     undo()
     goto(session, 14)
     step(session, b'\x05', b'-- RW -- L14 C18')
-    expected = LINES[:14] + ['-  :: '] + LINES[14:]
+    # ORG22 gives timed description continuation an elapsed field. Freeze the
+    # explicitly started timer and bound its reading by real elapsed time;
+    # undo must still restore every original list byte as before.
+    started = time.monotonic()
+    step(session, b'\x03\x180', b'Org relative timer started')
+    frame = step(session, b'\x03\x18,', b'timer paused: ')
+    stamp = re.search(rb'timer paused: (\d+:\d{2}:\d{2})', frame).group(1).decode()
+    hours, minutes, seconds = map(int, stamp.split(':'))
+    assert 0 <= hours * 3600 + minutes * 60 + seconds <= time.monotonic() - started
+    expected = LINES[:14] + ['- ' + stamp + ' :: '] + LINES[14:]
     action(b'\x1b\r', 'org-meta-return', expected)
     undo()
+    step(session, b'\x03\x18_', b'Org timer stopped')
     goto(session, 5)
     step(session, b'\x05', b'-- RW -- L5 C11')
     expected = LINES[:5] + ['- [ ] '] + LINES[5:]
