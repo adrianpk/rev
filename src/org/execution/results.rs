@@ -13,7 +13,7 @@ pub(crate) struct Site {
     range: Range<usize>,
     policy: Policy,
     prefix: String,
-    suffix: String,
+    source_bytes: usize,
     old: String,
     newline: String,
     indent: String,
@@ -35,6 +35,10 @@ enum Handling {
     Silent,
 }
 impl Site {
+    pub fn collection(headers: &Headers, result: config::SourceResult) -> Result<(), String> {
+        let policy = Policy::parse(headers.get("results").unwrap_or("replace"))?;
+        policy.admit(result)
+    }
     pub fn stamp(&self) -> Stamp {
         self.stamp
     }
@@ -53,11 +57,10 @@ impl Site {
     ) -> Result<Self, String> {
         let mut headers = definition.headers.clone();
         headers.apply(&call.end_headers, &Cancellation::default())?;
-        // End headers describe publication, never a new execution environment.
-        for h in call.end_headers.split(" :") {
-            if !h.trim().is_empty() && !h.trim_start_matches(':').starts_with("results ") {
-                return Err("Call end headers support :results only".into());
-            }
+        let mut end = Headers::default();
+        end.apply(&call.end_headers, &Cancellation::default())?;
+        if end.iter().any(|h| h.key != "results") {
+            return Err("Call end headers support :results only".into());
         }
         let range = if call.inline {
             call.range.clone()
@@ -92,8 +95,12 @@ impl Site {
             range: previous.range,
             policy: Policy::parse(headers.get("results").unwrap_or("replace"))?,
             prefix: previous.prefix,
-            suffix: String::new(),
-            old: previous.body,
+            source_bytes: text.len_bytes(),
+            old: previous
+                .body
+                .lines()
+                .map(|l| format!("{}\n", l.strip_prefix(&indent).unwrap_or(l)))
+                .collect(),
             newline,
             indent,
             inline: false,
@@ -125,21 +132,33 @@ impl Site {
         if buffer.is_readonly() {
             return Err("Source results publication is read-only".into());
         }
+        let text = out
+            .proposed
+            .clone()
+            .ok_or("Execution has no admitted result proposal")?;
+        let source = buffer
+            .byte_span(self.range.clone())
+            .map_err(|e| e.to_string())?;
+        Ok(Some(Replacement { source, text }))
+    }
+    pub fn prepare(&self, out: &Outcome, cancel: &Cancellation) -> Result<Option<String>, String> {
+        super::check(cancel)?;
+        if self.policy.handling == Handling::Silent {
+            return Ok(None);
+        }
         let value = format::render(&self.policy, out)?;
         let text = if self.inline {
             self.inline_text(&value)?
         } else {
             self.block_text(&value)
         };
-        if buffer.len_bytes().saturating_sub(self.range.len()) + text.len()
+        if self.source_bytes.saturating_sub(self.range.len()) + text.len()
             > crate::org::Limits::default().bytes
         {
             return Err("Updated results exceed native source byte limit".into());
         }
-        let source = buffer
-            .byte_span(self.range.clone())
-            .map_err(|e| e.to_string())?;
-        Ok(Some(Replacement { source, text }))
+        super::check(cancel)?;
+        Ok(Some(text))
     }
     fn inline_text(&self, value: &str) -> Result<String, String> {
         let value = value
@@ -161,15 +180,26 @@ impl Site {
             .lines()
             .map(|l| format!("{}{l}{}", self.indent, self.newline))
             .collect();
-        format!(
-            "{}{body}{}",
-            self.prefix.replace('\n', &self.newline),
-            self.suffix
-        )
+        let prefix: String = self
+            .prefix
+            .lines()
+            .map(|l| {
+                if l.is_empty() {
+                    self.newline.clone()
+                } else {
+                    format!("{}{l}{}", self.indent, self.newline)
+                }
+            })
+            .collect();
+        format!("{prefix}{body}")
     }
     pub fn admit(&self, result: config::SourceResult) -> Result<(), String> {
+        self.policy.admit(result)
+    }
+}
+impl Policy {
+    fn admit(&self, result: config::SourceResult) -> Result<(), String> {
         if self
-            .policy
             .collection
             .is_some_and(|r| r != result && result != config::SourceResult::Table)
         {
@@ -180,8 +210,6 @@ impl Site {
         }
         Ok(())
     }
-}
-impl Policy {
     fn parse(value: &str) -> Result<Self, String> {
         let mut p = Self::default();
         let mut handling = false;

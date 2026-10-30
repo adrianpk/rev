@@ -194,3 +194,153 @@ fn result_library() {
         }
     }
 }
+// Restrictions belong to both the call context and referenced target; an
+// override cannot erase no/never or query. Unsupported collection/expressions
+// fail before any confirmed host operation can start.
+#[test]
+fn result_call_admission() {
+    for (name, properties, target, call, expected) in [
+        (
+            "target never",
+            "",
+            ":eval never",
+            "greet[:eval yes]()",
+            "forbids execution",
+        ),
+        (
+            "call context",
+            "#+PROPERTY: header-args :eval no\n",
+            "",
+            "greet[:eval yes]()",
+            "forbids execution",
+        ),
+        (
+            "expression",
+            "",
+            ":var n=2",
+            "greet(n=(system))",
+            "unsupported",
+        ),
+        (
+            "collection",
+            "",
+            ":results value",
+            "greet() :results drawer",
+            "matching declared",
+        ),
+        (
+            "end hook",
+            "",
+            "",
+            "greet() :results drawer\t:eval no",
+            "end headers",
+        ),
+        ("comment", "* COMMENT Hidden\n", "", "greet()", "COMMENT"),
+    ] {
+        let source = format!(
+            "{properties}#+NAME: greet\n#+BEGIN_SRC sh {target}\nprintf bad > marker\n#+END_SRC\n#+CALL: {call}\n#+RESULTS: greet\n: previous\n"
+        );
+        let (f, mut s) = configured(
+            &source,
+            &format!("org.source.confirm_execution=false\n{PROFILE}"),
+        );
+        let line = source
+            .lines()
+            .position(|l| l.starts_with("#+CALL:"))
+            .unwrap()
+            + 1;
+        s.execute(Command::GotoLine);
+        argument(&mut s, &line.to_string());
+        action(&mut s, C::ExecuteSrc);
+        assert!(s.echo().contains(expected), "{name}: {}", s.echo());
+        assert!(s.execution_result().is_none(), "{name}");
+        assert!(!f.0.join("marker").exists(), "{name}");
+        assert_eq!(text(&s), source, "{name}");
+    }
+    let source = "#+NAME: greet\n#+BEGIN_SRC sh :eval query\nprintf bad > marker\n#+END_SRC\n#+CALL: greet[:eval yes]()\n";
+    let (f, mut s) = configured(
+        source,
+        &format!("org.source.confirm_execution=false\n{PROFILE}"),
+    );
+    s.execute(Command::GotoLine);
+    argument(&mut s, "5");
+    action(&mut s, C::ExecuteSrc);
+    assert!(s.execution_result().is_none());
+    assert!(!f.0.join("marker").exists());
+    argument(&mut s, "no");
+    assert!(!f.0.join("marker").exists());
+}
+// A file changed by an actual running program invalidates the retained library
+// observation after cleanup. Its output is inspectable but cannot replace text.
+#[test]
+fn result_library_stale() {
+    let source = "#+CALL: greet()\n#+RESULTS: greet\n: previous\n";
+    let (f, mut s) = configured(
+        source,
+        &format!("org.source.library_files=['lib.org']\n{PROFILE}"),
+    );
+    f.write(
+        "lib.org",
+        "#+NAME: greet\n#+BEGIN_SRC sh\nprintf changed > lib.org; printf result\n#+END_SRC\n",
+    );
+    run(&mut s);
+    let out = s.execution_result().unwrap();
+    assert_eq!(out.state, State::Stale, "{}", out.detail);
+    assert_eq!(out.stdout, b"result");
+    assert_eq!(text(&s), source);
+    assert!(s.buffer().unwrap().history().is_empty());
+}
+// Canonical unsaved library text wins over disk. Observation and publication do
+// not visit/save that library, and its retained source path stays inspectable.
+#[test]
+fn result_library_buffer() {
+    let f = Fixture::new();
+    let config = f.write(
+        "config.toml",
+        &format!("org.source.library_files=['lib.org']\n{PROFILE}"),
+    );
+    let snapshot = prepare(&config).snapshot;
+    let library = f.write(
+        "lib.org",
+        "#+NAME: greet\n#+BEGIN_SRC sh\nprintf disk\n#+END_SRC\n",
+    );
+    let mut buffers = Buffers::with_settings(snapshot).unwrap();
+    let id = buffers.visit(&library).unwrap();
+    let draft = "#+NAME: greet\n#+BEGIN_SRC sh\nprintf unsaved\n#+END_SRC\n";
+    let buffer = buffers.get_mut(id).unwrap();
+    let edit = rev::buffer::edit::Replacement {
+        source: buffer.span(0..buffer.len_chars()).unwrap(),
+        text: draft.into(),
+    };
+    let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+    buffer.publish(prepared, &mut []).unwrap();
+    let selected = buffers
+        .visit(&f.write("source.org", "#+CALL: greet()\n"))
+        .unwrap();
+    let view = View::new(buffers.get(selected).unwrap());
+    let mut s = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 110,
+            height: 16,
+        },
+    )
+    .unwrap();
+    run(&mut s);
+    assert_eq!(s.execution_result().unwrap().state, State::Succeeded);
+    assert_eq!(
+        s.execution_result().unwrap().source_path.as_ref(),
+        Some(&library)
+    );
+    assert!(text(&s).ends_with(": unsaved\n"));
+    assert!(
+        std::fs::read_to_string(&library)
+            .unwrap()
+            .contains("printf disk")
+    );
+    s.load(&library).unwrap();
+    settle(&mut s);
+    assert_eq!(text(&s), draft);
+    assert!(s.buffer().unwrap().is_modified());
+}

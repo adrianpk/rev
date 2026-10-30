@@ -1,5 +1,8 @@
 use super::*;
 pub(super) fn render(policy: &Policy, out: &Outcome) -> Result<String, String> {
+    if out.value.len() > crate::org::Limits::default().bytes {
+        return Err("Result data exceed native source byte limit".into());
+    }
     let raw =
         std::str::from_utf8(&out.value).map_err(|_| "Result adapter returned invalid UTF-8")?;
     if raw

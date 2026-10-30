@@ -70,3 +70,47 @@ fn source_profile_rejections() {
         );
     }
 }
+// Library arrays retain their assigning-file origin, replace by layer, reject
+// unbounded paths and perform no eager reads or process startup.
+#[test]
+fn source_libraries() {
+    let f = Fixture::new();
+    let base = f.write(
+        "nested/base.toml",
+        "org.source.library_files=['missing.org']",
+    );
+    let root = f.write("config.toml", "include=['nested/base.toml']");
+    let startup = prepare(&root);
+    assert!(startup.diagnostic.is_none());
+    assert_eq!(
+        startup.snapshot.settings().org.source.library_files,
+        ["missing.org"]
+    );
+    assert_eq!(
+        startup.snapshot.origin(&["org", "source", "library_files"]),
+        Some(base.as_path())
+    );
+    f.write(
+        "config.toml",
+        "include=['nested/base.toml']\norg.source.library_files=[]",
+    );
+    assert!(
+        prepare(&root)
+            .snapshot
+            .settings()
+            .org
+            .source
+            .library_files
+            .is_empty()
+    );
+    for (name, value) in [
+        ("empty", "['']".into()),
+        ("count", format!("[{}]", ["'file.org'"; 33].join(","))),
+        ("length", format!("['{}']", "x".repeat(4097))),
+        ("control", "[\"line\\nfile\"]".into()),
+    ] {
+        f.write("config.toml", &format!("org.source.library_files={value}"));
+        assert!(prepare(&root).diagnostic.is_some(), "{name}");
+    }
+    assert!(!f.0.join("nested/missing.org").exists());
+}

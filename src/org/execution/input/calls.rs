@@ -67,11 +67,7 @@ impl Call {
         {
             headers.apply(&layer, cancel)?;
         }
-        match headers.get("eval") {
-            Some("no" | "never") => Err("Call :eval no/never forbids execution".into()),
-            Some("query") => Ok(true),
-            _ => Ok(false),
-        }
+        super::super::headers::evaluation(headers.get("eval"))
     }
     pub fn arguments(
         &self,

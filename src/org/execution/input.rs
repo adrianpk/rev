@@ -71,9 +71,8 @@ impl Prepare {
         let call = calls::Call::observe(&self.scan, cancel)?;
         let (definition, scan, related, path) = self.resolve(&call, cancel)?;
         // A call override cannot remove the target's execution restriction.
-        headers::admit(&definition)?;
-        let query = call.restrictions(&self.scan, &definition.language, cancel)?
-            || definition.headers.get("eval") == Some("query");
+        let target_query = headers::evaluation(definition.headers.get("eval"))?;
+        let query = call.restrictions(&self.scan, &definition.language, cancel)? || target_query;
         let mut definition = definition;
         definition.headers.apply(&call.inside, cancel)?;
         call.arguments(&mut definition, cancel)?;

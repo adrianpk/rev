@@ -49,9 +49,12 @@ Development checks passed:
 - `cargo check --lib`
 - `cargo test --test org_io block_results -- --test-threads=4`
 
-Four integration cases passed, including BOM/CRLF undo, literal call arguments,
-explicit library reads and changed-library refusal. Required final validation
-and remaining task evidence are pending.
+Seven integration cases passed, including BOM/CRLF undo, literal call arguments,
+explicit library reads, canonical unsaved library precedence, call/target eval
+restrictions, and changed-library refusal both before launch and after a real
+job. `cargo test --test configuration source_libraries` also passed, validating
+layer origin, replacement and finite file/path admission. Development Clippy and
+the unchanged source checker pass. Required final validation remains pending.
 
 ## Risks and Follow-ups
 

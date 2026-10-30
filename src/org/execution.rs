@@ -30,6 +30,7 @@ pub enum State {
 pub struct Outcome {
     pub definition: Definition,
     pub program: String,
+    pub source_path: Option<PathBuf>,
     pub result: config::SourceResult,
     pub state: State,
     pub status: Option<i32>,
@@ -39,6 +40,7 @@ pub struct Outcome {
     pub(crate) site: results::Site,
     pub(crate) related: Vec<crate::org::io::DestinationSource>,
     pub(crate) value: Vec<u8>,
+    pub(crate) proposed: Option<String>,
 }
 pub(crate) struct Work {
     scan: Scan,
@@ -61,6 +63,7 @@ impl Work {
         let definition = input.definition.clone();
         headers::admit(&definition)?;
         input.site.admit(profile.result)?;
+        results::Site::collection(&definition.headers, profile.result)?;
         variables::body(&definition, "", &profile)?;
         profile.validate()?;
         let mut profile = profile;
@@ -79,8 +82,16 @@ impl Work {
     }
     pub fn label(&self) -> String {
         format!(
-            "{} ({}) using {}",
-            self.profile.name, self.profile.language, self.profile.executable
+            "{} ({}) using {}; target {} in {}",
+            self.profile.name,
+            self.profile.language,
+            self.profile.executable,
+            self.definition.name.as_deref().unwrap_or("selected block"),
+            self.input
+                .source_path
+                .as_ref()
+                .map(|p| format!("{p:?}"))
+                .unwrap_or("unsaved source".into())
         )
     }
     pub fn force_query(&self) -> bool {
@@ -131,11 +142,13 @@ pub(super) fn check(cancel: &Cancellation) -> Result<(), String> {
 }
 
 impl Outcome {
+    pub(crate) fn current(&self, buffers: &crate::buffer::Buffers) -> Result<(), String> {
+        input::related_current(&self.related, buffers)
+    }
     pub(crate) fn publication(
         &self,
         buffers: &crate::buffer::Buffers,
     ) -> Result<Option<crate::buffer::edit::Replacement>, String> {
-        input::related_current(&self.related, buffers)?;
         let buffer = buffers
             .get(self.site.stamp().buffer)
             .map_err(|e| e.to_string())?;

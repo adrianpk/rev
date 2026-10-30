@@ -1,10 +1,6 @@
 use super::*;
 pub(super) fn admit(definition: &Definition) -> Result<(), String> {
-    match definition.headers.get("eval").unwrap_or("yes") {
-        "no" | "never" => return Err("Source :eval no/never forbids execution".into()),
-        "yes" | "query" | "no-export" | "never-export" | "query-export" => (),
-        _ => return Err("Unsupported source :eval value".into()),
-    }
+    evaluation(definition.headers.get("eval"))?;
     behavior(definition)
 }
 fn behavior(definition: &Definition) -> Result<(), String> {
@@ -45,4 +41,15 @@ pub(super) fn expand(definition: &Definition) -> Result<bool, String> {
         "no" | "tangle" => Ok(false),
         _ => Err("Unsupported noweb header value".into()),
     }
+}
+
+pub(super) fn evaluation(value: Option<&str>) -> Result<bool, String> {
+    let value = value.unwrap_or("yes");
+    if ["no", "never"].contains(&value) {
+        return Err("Source :eval no/never forbids execution".into());
+    }
+    if !["yes", "query", "no-export", "never-export", "query-export"].contains(&value) {
+        return Err("Unsupported source :eval value".into());
+    }
+    Ok(value == "query")
 }

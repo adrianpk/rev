@@ -10,6 +10,7 @@ impl Work {
         let mut out = Outcome {
             definition: self.definition.clone(),
             program: self.profile.name.clone(),
+            source_path: self.input.source_path.clone(),
             result: self.profile.result,
             state: State::Succeeded,
             status: None,
@@ -19,12 +20,24 @@ impl Work {
             site: self.input.site.clone(),
             related: self.input.related.clone(),
             value: Vec::new(),
+            proposed: None,
         };
-        if let Err(e) = self.perform(&cancel, &mut out) {
+        if let Err(e) = self.complete(&cancel, &mut out) {
             out.state = failed(&cancel, &e);
             out.detail = e;
         }
         out
+    }
+    fn complete(&self, cancel: &Cancellation, out: &mut Outcome) -> Result<(), String> {
+        self.perform(cancel, out)?;
+        out.proposed = self.input.site.prepare(out, cancel)?;
+        out.detail = if out.proposed.is_some() {
+            "Checked results prepared"
+        } else {
+            "Output retained; silent results"
+        }
+        .into();
+        Ok(())
     }
     fn perform(&self, cancel: &Cancellation, out: &mut Outcome) -> Result<(), String> {
         let body = self.body(cancel)?;

@@ -164,12 +164,7 @@ impl Session {
                     out.detail =
                         "Source context changed; output retained without publication".into();
                 }
-                if out.state == State::Succeeded
-                    && let Err(e) = self.publish_execution(&out)
-                {
-                    out.state = State::Failed;
-                    out.detail = format!("Results not published: {e}; output retained");
-                }
+                self.complete_execution(&mut out);
                 self.message(&format!(
                     "Source {:?}: {}; org-babel-execution-results inspects output",
                     out.state, out.detail
@@ -179,6 +174,20 @@ impl Session {
             Err(e) => {
                 self.error(&e);
             }
+        }
+    }
+    fn complete_execution(&mut self, out: &mut Outcome) {
+        if out.state != State::Succeeded {
+            return;
+        }
+        if let Err(e) = out.current(&self.buffers) {
+            out.state = State::Stale;
+            out.detail = format!("Related source changed: {e}; output retained");
+            return;
+        }
+        if let Err(e) = self.publish_execution(out) {
+            out.state = State::Failed;
+            out.detail = format!("Results not published: {e}; output retained");
         }
     }
     fn publish_execution(&mut self, out: &Outcome) -> Result<(), String> {
