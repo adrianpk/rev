@@ -165,6 +165,19 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             'stage duplicated': good.replace('combined-rgb selection', 'combined-rgb navigation'),
             'stage order': good.replace('PASS combined-rgb workspace\nPASS combined-rgb selection', 'PASS combined-rgb selection\nPASS combined-rgb workspace'),
             'failed': good + 'FAIL unavailable stage\n',
+            'Org missing': good.replace('PASS org-workflows org-outline\n', ''),
+            'Org duplicate': good.replace('PASS org-workflows org-outline', 'PASS org-workflows org-tasks'),
+            'Org order': good.replace('PASS org-workflows org-feeds\nPASS org-workflows org-execution', 'PASS org-workflows org-execution\nPASS org-workflows org-feeds'),
+            'Org stage missing': good.replace('PASS org-combined-rgb capture-refile\n', ''),
+            'Org cleanup missing': good.replace('PASS org-combined-no-color restoration\n', ''),
+            'Org stage duplicate': good.replace('org-combined-rgb clocks', 'org-combined-rgb habits'),
+            'Org count': good.replace('"org-agenda": 6', '"org-agenda": 5'),
+            'Org stale head': good.replace('"head": "' + 'a' * 40, '"head": "' + 'c' * 40),
+            'Org stale tree': good.replace('"tree": "' + 'b' * 40, '"tree": "' + 'c' * 40),
+            'Org roots': good.replace('"isolated_roots": true', '"isolated_roots": false'),
+            'Org lifetime': good.replace('"restored_reaped_closed": true', '"restored_reaped_closed": false'),
+            'Org receipt duplicate': good + 'Org terminal evidence: ' + json.dumps(receipt) + '\n',
+
         }.items():
             with self.subTest(name=name), self.assertRaises(ValueError):
                 terminal(bad, candidate)
@@ -177,9 +190,9 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
                 'Configuration reference: 178 schema/catalog entries, 54 active RGB roles, 263 default bindings and nine optional examples agree; links valid.\n')
         reference(good)
         for name, bad in {
-            'prior catalog': good.replace('72 schema', '59 schema'),
-            'prior palette': good.replace('29 active', '25 active'),
-            'missing bindings': good.replace('111 default bindings', '110 default bindings'),
+            'prior catalog': good.replace('178 schema', '72 schema'),
+            'prior palette': good.replace('54 active', '29 active'),
+            'missing bindings': good.replace('263 default bindings', '111 default bindings'),
             'missing compiled': good.split('\n', 1)[1],
             'empty compiled': good.replace('10013 exact', '0 exact'),
             'oversize compiled': good.replace('10013 exact', '262145 exact'),

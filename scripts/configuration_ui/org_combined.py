@@ -31,7 +31,7 @@ def habits(session, path):
     assert canvas(frame)[1].startswith('Habit agenda ')
     assert any('Practice' in line for line in canvas(frame).values())
     # The retained graph must consume text without changing its canonical source.
-    org_agenda.step(session, b'X', b'Read-only Org habit agenda')
+    org_agenda.step(session, PTY['paste_wire'](b'X'), b'Read-only Org agenda')
     frame = org_agenda.step(session, b'\x07', b'Returned to Org source')
     assert exact(frame, HABIT)
     assert path.read_bytes() == encoded(HABIT)
@@ -44,8 +44,8 @@ def agenda(session):
                             and any('Note 界e\u0301' in line for line in canvas(f).values())
                             and any('Practice' in line for line in canvas(f).values()))
     assert not frame.endswith(PTY['SHOW'])
-    org_agenda.step(session, b'X', b'Read-only Org agenda')
-    frame = org_agenda.step(session, b'\x07', b'Returned to Org source')
+    org_agenda.step(session, PTY['paste_wire'](b'X'), b'Read-only Org agenda')
+    frame = org_agenda.step(session, b'\x07', b'Returned to source')
     assert exact(frame, HABIT)
 
 

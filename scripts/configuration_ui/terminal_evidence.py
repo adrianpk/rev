@@ -22,8 +22,9 @@ def owned(root):
             for key, name in names.items():
                 assert Path(env[key]).is_relative_to(root), key
                 assert Path(env[key]).name == name, key
-            if cwd is not None:
-                assert Path(cwd).is_relative_to(root), 'fixture cwd escaped ownership'
+            if cwd is None:
+                cwd = root / 'work' if (root / 'work').is_dir() else root
+            assert Path(cwd).is_relative_to(root), 'fixture cwd escaped ownership'
             super().__init__(command, colors, env, cwd)
             self.restored = False
             self.closed = False
@@ -51,4 +52,9 @@ def owned(root):
         assert sessions, 'scenario created no owned terminal'
         assert all(s.restored and s.closed for s in sessions), 'incomplete terminal lifetime'
     finally:
-        PTY['Session'] = original
+        try:
+            for session in sessions:
+                if not session.closed:
+                    session.close()
+        finally:
+            PTY['Session'] = original

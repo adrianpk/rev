@@ -12,7 +12,7 @@ from configuration_ui.combined import combined
 from configuration_ui import org_combined
 from configuration_ui.journeys import configured, fallback
 from acceptance import identity
-from configuration_ui.evidence import GROUPS, ORG_GROUPS, discover
+from configuration_ui.evidence import GROUPS, ORG_GROUPS, ORG_COMBINED_STAGES, discover
 from configuration_ui.terminal_evidence import owned
 from configuration_ui.lifetime import fault
 from configuration_ui.performance import KINDS, run as performance
@@ -105,6 +105,7 @@ def main():
 
 def org_terminal(selected):
     if selected == 'org-combined':
+        assert org_combined.STAGES == ORG_COMBINED_STAGES
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
             run_scenario(org_combined.journey, colored)
             print(f'PASS org-combined {label}')
