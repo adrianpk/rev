@@ -1180,6 +1180,11 @@ Details and exact checks: [Slice 59](../plan/rev-org-mode.md#slice-59-preview-na
 
 Report: [Slice 59](../report/slices/rev-org-mode/slice-59-previews.md) (reviewing).
 
+Canonical PR: [#160](https://forge.adrianpk.com/adrianpk/rev/pulls/160), targeting `dev`. Required
+implementation checks passed 514 native regressions and four owned terminal
+sessions; focused checks passed 343 tests. Fresh final-head receipts are required
+after this PR-reference commit. Integration remains pending.
+
 ### Slice 60: complete the native Org control catalog
 
 Contracts: ORG17 ORG31.
