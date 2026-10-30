@@ -65,6 +65,13 @@ The [documentation index](docs/index.md) links to task guides, the
 [key bindings](docs/reference/bindings.md), configuration and explanations.
 See the [changelog](CHANGELOG.md) for changes.
 
+## Links
+
+- [Website](https://rev.adrianpk.com/)
+- [User Guide](https://rev.adrianpk.com/userguide/)
+- [Codeberg mirror](https://codeberg.org/adrianpk/rev)
+- [GitHub mirror](https://github.com/adrianpk/rev)
+
 ## License
 
 Copyright (C) 2026 Adrian PK.
