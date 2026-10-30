@@ -16,11 +16,12 @@ ORG01, ORG02, ORG17 and ORG18. [Plan](../../../plan/rev-org-mode.md) and
 ## Delivered Behavior
 
 The default terminal stage retains all ten historical configuration/UI sessions
-and invokes every earlier named Org journey. Two connected RGB/NO_COLOR sessions
+and invokes all 17 earlier named Org journeys, observing 57 owned sessions. Two connected RGB/NO_COLOR sessions
 use one process each for canonical task metadata/history, clocks, capture/refile,
 habit and multi-source agenda views, table publication and real missing-tool
 consent/failure. Focused selectors remain available.
-An execution receipt identifies the clean commit/tree, observed session counts,
+The two connected sessions bring the terminal total to 69: ten historical plus
+59 Org sessions. An execution receipt identifies the clean commit/tree, observed session counts,
 isolated roots, successful terminal restoration, reaped children and closed PTYs.
 
 ## Implementation Notes
@@ -42,6 +43,21 @@ deadline, source byte assertions, consent steps and resource limits are unchange
 Reference admission now expects the complete
 shipped catalog rather than its earlier preparatory counts.
 
+The native process-lifetime driver originally checked descendant state in the
+same instant as leader reap. Group signaling does not synchronize that kernel
+state observation. It now polls the same stopped-state predicate within the
+existing 150 ms response budget; immediate leader reap, private-directory cleanup,
+source, timeout and cancellation assertions remain unchanged. Focused receipt
+`BZU5XNRJVC5VSI6F6OYZZEI4HR` at `5662300fabe99c37d2a3884206c25b8a8c3944c5`
+passed all four lifetime modes, observing stopped descendants in 5.941..6.261 us,
+plus all 19 evidence-checker tests.
+
+The complete collector also exposed a local capture-loop name that hid the
+read-only task function; the corrected runner retains both scenarios. Focused
+receipt `EQMKAQZPA5N7LCHIIP7W4BZ53Q` at
+`70ad3be3b9d3df8e413d21f306d74793e0e43186` passed all eight owned task sessions
+and all 19 checker tests. Neither correction changes product behavior.
+
 The full terminal stage is broader than a focused selector. Existing journeys
 remain batched through one native build. The approved complete-gate target is
 three to six warm minutes; actual terminal cost will be recorded without raising
@@ -60,6 +76,7 @@ timeouts or resource budgets.
 - `scripts/configuration_ui/evidence.py`: historical and Org evidence admission.
 - `scripts/configuration_ui/terminal_evidence.py`: actual owned PTY lifetime observations.
 - `scripts/configuration_ui/acceptance.json`: additive Org terminal identities/counts.
+- `tests/org_io/execution_edges.rs`: bounded observation of actual descendant stop.
 - `scripts/test_acceptance.py`: rejection of missing, stale or incomplete evidence.
 
 ## Validation

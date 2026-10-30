@@ -1215,6 +1215,8 @@ Details and exact checks: [Slice 61](../plan/rev-org-mode.md#slice-61-verify-com
 - [x] T61.3: Retain every earlier journey and verify zero skips, isolated HOME/XDG roots and owned process cleanup.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Report: [Slice 61](../report/slices/rev-org-mode/slice-61-combined-terminal.md) (drafting).
+
 ### Slice 62: verify bounded Org work and idle resources
 
 Contracts: ORG18 ORG31.
