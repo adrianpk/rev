@@ -9,7 +9,11 @@ fn editor(source: &str, extra: &str) -> (Fixture, Session) {
 pub(super) fn configured(source: &str, config: &str) -> (Fixture, Session) {
     configured_readonly(source, config, false)
 }
-fn configured_readonly(source: &str, config: &str, readonly: bool) -> (Fixture, Session) {
+pub(super) fn configured_readonly(
+    source: &str,
+    config: &str,
+    readonly: bool,
+) -> (Fixture, Session) {
     let f = Fixture::new();
     let snapshot = prepare(&f.write("config.toml", config));
     assert!(snapshot.diagnostic.is_none(), "{:?}", snapshot.diagnostic);

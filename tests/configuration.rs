@@ -203,3 +203,6 @@ mod org_publishing;
 
 #[path = "configuration/org_source.rs"]
 mod org_source;
+
+#[path = "configuration/org_feeds.rs"]
+mod org_feeds;

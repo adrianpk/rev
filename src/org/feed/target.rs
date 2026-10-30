@@ -74,7 +74,7 @@ pub(super) fn plan(
     if source.text().len_bytes() - removed + inserted > Limits::default().bytes {
         return Err("Imported feed exceeds native Org source byte limit".into());
     }
-    let point = target.parent.map_or(target.subtree_end.0, |p| p.0);
+    let point = inbox_point(&source, &target, newline);
     Ok(Plan {
         insertion: Insertion { source, edits },
         added,
@@ -209,6 +209,14 @@ fn separate(source: &DestinationSource, at: usize, text: &mut String, newline: &
         text.insert_str(0, newline);
     }
 }
+fn inbox_point(source: &DestinationSource, target: &Target, newline: &str) -> usize {
+    if let Some(parent) = target.parent {
+        return parent.0;
+    }
+    let at = target.subtree_end.0;
+    let separator = !target.missing.is_empty() && at > 0 && source.text().byte(at - 1) != b'\n';
+    at + usize::from(separator) * newline.len()
+}
 fn entry(item: &Entry, level: usize, newline: &str) -> String {
     let mut text = format!("{} {}{newline}", "*".repeat(level), item.title);
     if let Some(link) = &item.link {
@@ -259,6 +267,7 @@ pub(super) fn inbox(
         ));
     }
     separate(&source, at, &mut text, newline);
+    let point = inbox_point(&source, &target, newline);
     let edits = if text.is_empty() {
         Vec::new()
     } else {
@@ -271,7 +280,7 @@ pub(super) fn inbox(
         insertion: Insertion { source, edits },
         added: 0,
         skipped: 0,
-        point: target.parent.map_or(at, |p| p.0),
+        point,
         evidence: Vec::new(),
     })
 }

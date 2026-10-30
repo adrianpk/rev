@@ -40,11 +40,8 @@ pub(crate) fn validate(sources: &[FeedSource]) -> Result<(), String> {
 }
 impl FeedSource {
     pub(crate) fn validate(&self) -> Result<(), String> {
-        text(&self.name, 128)?;
-        text(&self.headline, 256)?;
-        text(&self.source, 4096)?;
-        text(&self.file, 4096)?;
-        text(&self.drawer, 64)?;
+        self.fields()?;
+        self.source_check()?;
         if !self
             .drawer
             .bytes()
@@ -57,13 +54,37 @@ impl FeedSource {
         }
         Ok(())
     }
+    fn fields(&self) -> Result<(), String> {
+        text(&self.name, 128)?;
+        text(&self.headline, 256)?;
+        text(&self.source, 4096)?;
+        text(&self.file, 4096)?;
+        text(&self.drawer, 64)?;
+        super::capture::path(&self.file)
+    }
     pub fn remote(&self) -> bool {
         self.source.starts_with("https://") || self.source.starts_with("http://")
     }
+    fn source_check(&self) -> Result<(), String> {
+        if !self.remote() {
+            return super::capture::path(&self.source);
+        }
+        let authority = self
+            .source
+            .split_once("://")
+            .unwrap()
+            .1
+            .split(['/', '?', '#'])
+            .next()
+            .unwrap();
+        if authority.is_empty() || self.source.chars().any(char::is_whitespace) {
+            return Err("Feed HTTP source requires an authority and no whitespace".into());
+        }
+        Ok(())
+    }
 }
 fn text(value: &str, max: usize) -> Result<(), String> {
-    super::capture::path(value)?;
-    if value.trim().is_empty() || value.len() > max {
+    if value.trim().is_empty() || value.len() > max || value.chars().any(char::is_control) {
         return Err(format!("Feed values require 1..{max} bytes"));
     }
     Ok(())

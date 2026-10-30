@@ -66,3 +66,31 @@ fn feed_rejections() {
     cancel.cancel();
     assert!(Feed::parse(RSS, None, &limits, &cancel).is_err());
 }
+
+// Exact item ceilings admit a complete feed; overflow is a diagnosed failure,
+// while foreign namespace fields never replace the native stable identity.
+#[test]
+fn feed_items() {
+    let source = RSS.replace("</channel>", "<item xmlns:x='urn:extension'><x:guid>spoof</x:guid><guid>two</guid><title>Second</title></item></channel>");
+    let limits = OrgLimits {
+        feed_items: 1,
+        ..OrgLimits::default()
+    };
+    assert!(
+        Feed::parse(&source, None, &limits, &Cancellation::default())
+            .unwrap_err()
+            .contains("item limit")
+    );
+    let limits = OrgLimits {
+        feed_items: 2,
+        ..limits
+    };
+    let feed = Feed::parse(&source, None, &limits, &Cancellation::default()).unwrap();
+    assert_eq!(
+        feed.entries
+            .iter()
+            .map(|e| e.id.as_str())
+            .collect::<Vec<_>>(),
+        ["one", "two"]
+    );
+}

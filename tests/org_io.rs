@@ -177,3 +177,6 @@ mod feed_import;
 
 #[path = "org_io/feeds.rs"]
 mod feeds;
+
+#[path = "org_io/feed_edges.rs"]
+mod feed_edges;
