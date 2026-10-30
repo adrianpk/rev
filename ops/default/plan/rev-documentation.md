@@ -6,7 +6,7 @@ Delivery set: rev-documentation
 Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
-Approval: approved by the product owner, 2026-10-30; three-slice plan and execution through PRs to dev
+Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
 Active slice: Slice 1 - Everyday editor guide
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
@@ -21,10 +21,11 @@ Use three slices. Each delivers one reader-visible outcome with its navigation,
 links and affected checks intact. Do not introduce separate inventory, skeleton,
 formatting or controller slices. The inventory below is planning evidence.
 
-The product owner approved this three-slice plan on 2026-10-30. Execute
-the ordered set with one branch and PR to `dev` per slice. A controller cycle
-requires explicit startup authorization. Release tagging and publication remain
-a separate stage after documentation preparation.
+The product owner approved this three-slice plan and clarified that Looper
+owns the tracker and PR integration. Execute the ordered set in one autonomous
+Looper cycle with one branch and PR to `dev` per slice. The controller validates
+and merges each PR with Rebase + Fast-forward; do not wait for individual human
+PR approvals. Release tagging and publication remain a separate stage.
 
 ## Baseline findings
 
@@ -115,20 +116,23 @@ Prerequisite: the planning baseline and an approved, committed plan/tracker.
   Create the independent Org learning entry and reconnect its three chapters
   so no existing material is orphaned during the transition.
 - T1.2: Align README and quadrant indexes with those two reader paths. Keep
-  Org discoverable as a built-in capability, give editor recovery and preferences
-  normal prominence, and record the slice report and tracker evidence.
+  Org discoverable as a built-in capability and foreground ordinary recovery
+  and preferences. Add the native Rust documentation checker and Bash gate
+  driver, validate the actual candidate and record report/tracker evidence.
 
 Primary paths: README; documentation indexes; User Guide index and chapter
-navigation; the new Org tutorial index. No application or configuration changes.
+navigation; the new Org tutorial index; `examples/documentation-check.rs` and
+`scripts/check-documentation.sh`. These are development checks, without new
+dependencies or application/configuration changes.
 
 Acceptance: a newcomer completes opening, editing, saving, buffers, search,
 tree navigation and preferences without entering Org. An Org reader can start
 its guide directly, and every existing page remains reachable.
 
-Validation: local Markdown targets/anchors and graph reachability, a manual
-Next/Previous walk of both paths, and `git diff --check`. Preserve the native
-examples already validated at the baseline; rerun only a workflow whose actual
-instructions change.
+Validation: `cargo run --quiet --example documentation-check` checks local
+Markdown targets, heading anchors, reachability and both learning paths; finish
+with `git diff --check`. Preserve the native examples already validated at the
+baseline; rerun only a workflow whose actual instructions change.
 
 ## Slice 2: Independent Org documentation
 
@@ -146,18 +150,23 @@ Primary paths: `docs/reference/commands.md`, `bindings.md`, `defaults.md`,
 `org-controls.md`, existing Org feature pages, new `docs/reference/org/` pages,
 and task/explanation indexes. The packaged TOML sample stays unchanged.
 
-Affected guards include `tests/commands/palette.rs` catalog/context checks,
-`tests/commands/org_catalog.rs` control-reference checks,
-`tests/configuration/reference_bounds.rs`, `scripts/check-config-reference.py`
-and their existing Python tests. Some currently embed or parse a single
-reference file. Update their explicit input set when extracting material;
-do not suppress assertions or accept an incomplete catalog.
+Affected native guards include `tests/commands/palette.rs` catalog/context
+checks, `tests/commands/org_catalog.rs` control-reference checks and
+`tests/configuration/reference_bounds.rs`. Extend the native documentation
+checker to verify the union of the split command and configuration catalogs.
+Retain omission/duplicate rejection, real context inheritance and typed bounds.
 
-Extend the existing documentation link check to cover all Markdown pages under
-`docs/` and the changed entry files. Verify reachability from indexes. Reuse
-the existing parser and drift tests; add only a regression that catches a new
-split-catalog omission, duplicate or broken destination. Do not create a new
-documentation framework, renderer or generic test infrastructure.
+The documentation gate and PR validation commands use Rust and Bash. Do not
+introduce Python checks or hide Python behind a wrapper. Existing historical
+Python guards may need path/input compatibility updates to remain valid after
+reference extraction; preserve their assertions without making them the new
+delivery's gate. This is not a repository-wide tooling migration.
+
+The native checker covers all Markdown pages under `docs/`, changed entry files,
+local anchors, index reachability and the independent learning paths. Reuse the
+repository's Rust dependencies, reference assertions and fixtures. Add only
+regressions for meaningful omissions, duplicates or broken navigation; do not
+create a documentation framework, renderer or generic test infrastructure.
 
 Acceptance: the core command/key references begin with ordinary editing; Org
 has complete, independently navigable reference coverage. The union of the
@@ -197,24 +206,32 @@ and mirror/site publication need their own authorized release stage.
 
 ## Selected delivery gate
 
-Run these commands against the exact final documentation candidate:
+The exact controller gate is:
 
 ```sh
-python3 scripts/check-config-reference.py
-python3 -m unittest discover -s scripts -p 'test_config_reference.py'
-python3 -m unittest discover -s scripts -p 'test_acceptance.py'
-cargo test --test commands reference
-cargo test --test configuration reference
-git diff --check
+scripts/check-documentation.sh && git diff --check
 ```
 
-The first command must include the expanded link and reachability coverage by
-Slice 2. Native reference filters must select real tests and retain registry,
-context and parser-bound assertions. The selected gate protects the affected
-documentation contracts; it is not the full release gate. Expect short Python
-checks and two native test binaries, normally minutes with a warm build cache.
-Do not add the entire editor/Org workload or repeat performance runs for prose
-and link moves. Recheck changed executable examples in an owned terminal fixture.
+The Bash driver runs native checks only, in this order:
+
+```sh
+cargo run --quiet --example documentation-check
+cargo test --test commands reference
+cargo test --test configuration reference
+```
+
+The native checker includes links, anchors, reachability and learning-path
+coverage from Slice 1, then complete split catalogs from Slice 2. Native
+reference filters must select real tests and retain registry, context and
+parser-bound assertions. The driver must propagate every failure. PRs list
+successful Rust/Bash commands and finish with `git diff --check`; no Python
+one-liners or wrappers belong in this new validation contract.
+
+This gate protects the affected documentation contracts; it is not the full
+release gate. Expect one small Rust checker and two native test binaries,
+normally minutes with a warm build cache. Do not add the whole editor/Org
+workload or repeat performance runs for prose and link moves. Recheck changed
+executable examples in an owned terminal fixture.
 
 For later release publication, require `scripts/check-all.sh` evidence for the
 exact final release candidate and the authorized main-integration route. No
@@ -230,5 +247,22 @@ six task IDs agree. No implementation branch, report marked delivered,
 controller configuration, release date or tag is created during planning.
 Implementation preserves unrelated work and excludes application source,
 dependencies, pending feature tickets, screenshots, website content and mirrors.
-Limited test/checker edits needed for extracted reference ownership belong only
-to Slice 2. No optional feature work is bundled with the documentation.
+Native checker/driver creation belongs to Slice 1; split-reference checker/test
+adaptation belongs to Slice 2. No optional feature work is bundled with the
+documentation.
+
+## Retained Slice 1 handoff
+
+Slice 1 already has two implementation commits on its exact configured branch,
+`docs/rev-documentation-01-editor`, and canonical PR #168 targeting dev. Its
+current published head is `0c207ece72388bac167fed080351a65890b34a4a`; T1.1 is
+`4f8c8dc13d169fbbcb13f2477b5f828b8067ddfb`. Reconcile live state before acting.
+Reuse that PR and its dedicated worktree. Preserve its implementation/history;
+do not create a replacement PR or count it integrated before controller checks.
+
+Bring the current approved plan/tracker into that branch, keeping these updated
+Looper and Rust/Bash requirements when resolving operational-document conflicts.
+T1.1's content can be retained after verification. T1.2 remains active until the
+native checker/driver, Rust-based PR/report validation and exact-HEAD controller
+evidence are ready. Finish PR-reference metadata before returning pr_ready.
+The controller owns merges and subsequent tracker progression for all slices.

@@ -6,10 +6,11 @@ Delivery set: rev-documentation
 Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
-Approval: approved by the product owner, 2026-10-30; three-slice plan and execution through PRs to dev
+Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
 Active slice: Slice 1 - Everyday editor guide
 Plan: [Documentation Plan](../plan/rev-documentation.md)
-Gate: focused documentation/reference gate defined in the plan
+Gate: `scripts/check-documentation.sh && git diff --check`
+Execution: one autonomous Looper cycle; the controller owns PR merges and tracker progression
 
 ## Canonical slice map
 
@@ -23,10 +24,10 @@ Gate: focused documentation/reference gate defined in the plan
 
 | Task | Outcome | Depends on | Status | Commit | Validation |
 | --- | --- | --- | --- | --- | --- |
-| T1.1 | Complete the six-chapter editor path and independent Org tutorial path. | Approved and committed planning artifacts. | pending | pending | Both Next/Previous walks; local links; no orphaned pages. |
-| T1.2 | Align README/indexes and record Slice 1 evidence. | T1.1 | pending | pending | Entry-point review; graph reachability; whitespace check. |
+| T1.1 | Complete the six-chapter editor path and independent Org tutorial path. | Approved and committed planning artifacts. | retained; controller verification pending | `4f8c8dc13d169fbbcb13f2477b5f828b8067ddfb` | Recheck retained navigation with the native checker. |
+| T1.2 | Align README/indexes, add native Rust/Bash checks and record Slice 1 evidence. | T1.1 | in progress | retained PR head `0c207ece72388bac167fed080351a65890b34a4a` | Native documentation checker, entry review, graph reachability and whitespace. |
 | T2.1 | Separate Org commands, bindings and settings, with focused task/reference entries. | Slice 1 integrated. | pending | pending | Complete feature inventory and compatible destinations. |
-| T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | pending | pending | Native registry/context/bounds tests and Python reference/link checks. |
+| T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | pending | pending | Native registry/context/bounds tests and Rust documentation checks. |
 | T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | pending | pending | Source/guide/changelog audit; version/date consistency. |
 | T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | pending | pending | Exact-candidate documentation gate; reports and tracker consistency. |
 
@@ -34,7 +35,7 @@ Gate: focused documentation/reference gate defined in the plan
 
 | Slice | State | PR | Integrated commit | Report state |
 | --- | --- | --- | --- | --- |
-| Slice 1 | active | pending | pending | not created |
+| Slice 1 | retained; controller verification pending | `#168` | pending | reviewing on the existing slice branch |
 | Slice 2 | queued | pending | pending | not created |
 | Slice 3 | queued | pending | pending | not created |
 
@@ -62,3 +63,11 @@ Local checks passed for the three identical plan/tracker slice mappings, six
 task IDs, existing links, draft/active state, private-context exclusion and
 new-file whitespace. No implementation or release validation has run for this
 new delivery set.
+
+## Controller handoff
+
+The existing Slice 1 branch and PR #168 are retained work, not a completed
+integration. Looper must adopt them, finish the native Rust/Bash validation and
+PR-reference follow-up, then validate/merge through its normal controller path.
+No manual human PR approval is a prerequisite for any of these three slices.
+The current approved plan owns the updated validation and execution contract.
