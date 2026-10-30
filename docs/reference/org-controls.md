@@ -57,6 +57,8 @@ startup authority. Unknown keys, record fields and M-x names reject.
 
 C-g cancels in every context. A key and its M-x name select the same compiled
 handler; named invocation still requires that handler's admitted context.
+Agenda bulk controls invoked from source report that an agenda is required and
+preserve the current source view.
 
 `palette.org` contains 17 source roles: heading, keyword, drawer, property,
 planning, block, code, comment, list, table, formula, emphasis, link, target,

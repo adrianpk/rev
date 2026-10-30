@@ -46,15 +46,22 @@ impl Session {
             return Some(action);
         }
         match command {
-            Command::Org(c) if self.agenda_active() && c.agenda_bulk() => {
-                Some(self.agenda_bulk_command(c))
-            }
-            Command::Org(c) if self.agenda_active() && c.agenda_source_action() => {
-                Some(self.begin_agenda_action(c))
-            }
-            Command::Org(c) if c.agenda_bulk() => Some(self.message("Open an Org agenda first")),
+            Command::Org(c) => self.agenda_entry_command(c),
             _ => None,
         }
+    }
+    fn agenda_entry_command(&mut self, command: C) -> Option<Action> {
+        if command.agenda_bulk() {
+            return Some(if self.agenda_active() {
+                self.agenda_bulk_command(command)
+            } else {
+                self.message("Open an Org agenda first")
+            });
+        }
+        if self.agenda_active() && command.agenda_source_action() {
+            return Some(self.begin_agenda_action(command));
+        }
+        None
     }
     fn running_agenda_command(&mut self, command: Command) -> Option<Action> {
         match command {

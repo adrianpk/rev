@@ -107,6 +107,8 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
+- Org agenda bulk commands invoked from source report that an agenda is required and preserve subtree visibility.
+
 - Repeated vertical navigation stops promptly after input ends, including wide terminal surfaces; queued edits and commands retain their original order.
 
 - Rectangle copy expands selected tabs into retained spaces without changing source text; rectangle kill preserves complete tabs. Yanking aligns row starts at the destination column, retaining whole destination graphemes and using the destination tab stops.
