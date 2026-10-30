@@ -162,19 +162,23 @@ fn native_catalog() {
 // plausible-looking operation added to reference text before its implementation.
 #[test]
 fn control_reference() {
-    let reference = include_str!("../../docs/reference/org-controls.md");
-    let names = reference
-        .split('`')
-        .skip(1)
-        .step_by(2)
-        .filter(|name| name.starts_with("org-") || *name == "text-mode");
-    let mut count = 0;
-    for name in names {
-        assert!(
-            Command::named(name).is_some(),
-            "unsupported documented command: {name}"
-        );
-        count += 1;
+    for reference in [
+        include_str!("../../docs/reference/org-controls.md"),
+        include_str!("../../docs/reference/org/commands.md"),
+    ] {
+        let names = reference
+            .split('`')
+            .skip(1)
+            .step_by(2)
+            .filter(|name| name.starts_with("org-") || *name == "text-mode");
+        let mut count = 0;
+        for name in names {
+            assert!(
+                Command::named(name).is_some(),
+                "unsupported documented command: {name}"
+            );
+            count += 1;
+        }
+        assert!(count > 50);
     }
-    assert!(count > 50);
 }

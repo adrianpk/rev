@@ -531,15 +531,29 @@ fn catalog_reference() {
     let cases = [
         (
             "catalog",
-            include_str!("../../docs/reference/commands.md"),
+            concat!(
+                include_str!("../../docs/reference/commands.md"),
+                "\n",
+                include_str!("../../docs/reference/org/commands.md")
+            )
+            .to_owned(),
             None,
         ),
         (
             "bindings",
-            include_str!("../../docs/reference/bindings.md")
-                .split("## Configuration keymap contracts")
-                .next()
-                .unwrap(),
+            [
+                include_str!("../../docs/reference/bindings.md"),
+                include_str!("../../docs/reference/org/bindings.md"),
+            ]
+            .into_iter()
+            .map(|source| {
+                source
+                    .split("## Configuration keymap contracts")
+                    .next()
+                    .unwrap()
+            })
+            .collect::<Vec<_>>()
+            .join("\n"),
             Some(2),
         ),
     ];
@@ -566,7 +580,8 @@ fn catalog_reference() {
 fn context_reference() {
     use rev::input::keymap::Context;
     use std::collections::BTreeSet;
-    let source = include_str!("../../docs/reference/bindings.md");
+    let core = include_str!("../../docs/reference/bindings.md");
+    let org = include_str!("../../docs/reference/org/bindings.md");
     for (context, heading) in [
         (
             Context::Minibuffer,
@@ -582,6 +597,11 @@ fn context_reference() {
             "### Org calendar defaults and availability",
         ),
     ] {
+        let source = if matches!(context, Context::OrgAgenda | Context::OrgCalendar) {
+            org
+        } else {
+            core
+        };
         let section = source
             .split_once(heading)
             .unwrap()

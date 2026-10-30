@@ -145,18 +145,6 @@ No keymap edits the underlying document from a prompt.
 Org context inheritance and role availability are described in
 [Org keymap contracts](org/bindings.md#configuration-keymap-contracts).
 
-### Org agenda defaults and availability
-
-See [Org org agenda defaults and availability](org/bindings.md#org-agenda-defaults-and-availability).
-
-### Org calendar defaults and availability
-
-See [Org org calendar defaults and availability](org/bindings.md#org-calendar-defaults-and-availability).
-
-### Native mode selection
-
-See [Org native mode selection](org/bindings.md#native-mode-selection).
-
 ### Sequence vocabulary
 
 A sequence has one through eight normalized chords separated by ASCII whitespace.
@@ -301,13 +289,25 @@ mutation and workspace transitions require fresh presses. Pending prefixes are
 cleared by prompt acquisition, cancellation and workspace changes. Tree text
 and paste never enter the visiting buffer while tree focus is retained.
 
+### Org agenda defaults and availability
+
+See [Org agenda defaults and availability](org/bindings.md#org-agenda-defaults-and-availability).
+
+### Org calendar defaults and availability
+
+See [Org calendar defaults and availability](org/bindings.md#org-calendar-defaults-and-availability).
+
+### Native mode selection
+
+See [Org native mode selection](org/bindings.md#native-mode-selection).
+
 ### Org date entry and calendar
 
-See [Org org date entry and calendar](org/bindings.md#org-date-entry-and-calendar).
+See [Org date entry and calendar](org/bindings.md#org-date-entry-and-calendar).
 
 ### Org timestamp context actions
 
-See [Org org timestamp context actions](org/bindings.md#org-timestamp-context-actions).
+See [Org timestamp context actions](org/bindings.md#org-timestamp-context-actions).
 
 ### Native task clocks
 
@@ -323,7 +323,7 @@ See [Org session timers](org/bindings.md#session-timers).
 
 ### Org agenda source discovery
 
-See [Org org agenda source discovery](org/bindings.md#org-agenda-source-discovery).
+See [Org agenda source discovery](org/bindings.md#org-agenda-source-discovery).
 
 ### Native day and week calendars
 

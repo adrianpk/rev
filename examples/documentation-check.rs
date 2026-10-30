@@ -7,6 +7,9 @@ use std::path::{Path, PathBuf};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+#[path = "documentation_check/catalogs.rs"]
+mod catalogs;
+
 const EDITOR: &[&str] = &[
     "01-first-file.md",
     "02-edit-text.md",
@@ -35,12 +38,41 @@ fn main() -> Result<()> {
         graph.insert(path.canonicalize()?, targets);
     }
     check_reachability(&graph, &root.join("docs/index.md").canonicalize()?)?;
-    let guide = root.join("docs/tutorials/user-guide");
-    check_path(&guide, "index.md", EDITOR)?;
-    check_path(&guide, "org/index.md", ORG)?;
+    check_navigation(root)?;
+    catalogs::check(root)?;
     println!(
         "Documentation passed: {count} reachable pages, {links} local links and anchors, independent editor and Org learning paths."
     );
+    Ok(())
+}
+
+fn check_navigation(root: &Path) -> Result<()> {
+    let guide = root.join("docs/tutorials/user-guide");
+    check_path(&guide, "index.md", EDITOR)?;
+    check_path(&guide, "org/index.md", ORG)?;
+    check_legacy_anchors(root)
+}
+
+fn check_legacy_anchors(root: &Path) -> Result<()> {
+    let bindings = root.join("docs/reference/bindings.md");
+    for anchor in [
+        "org-agenda-defaults-and-availability",
+        "org-calendar-defaults-and-availability",
+        "native-mode-selection",
+        "org-date-entry-and-calendar",
+        "org-timestamp-context-actions",
+        "native-task-clocks",
+        "clock-totals-and-reports",
+        "session-timers",
+        "org-agenda-source-discovery",
+        "native-day-and-week-calendars",
+    ] {
+        local_target(&bindings, &format!("#{anchor}"))?;
+    }
+    local_target(
+        &root.join("docs/reference/commands.md"),
+        "#native-task-workflows",
+    )?;
     Ok(())
 }
 

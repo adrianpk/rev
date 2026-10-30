@@ -170,6 +170,11 @@ def catalog(text):
     return rows
 
 
+def configuration_catalog(root):
+    paths = ["defaults.md", "org/configuration.md"]
+    return catalog("\n".join((root / "docs/reference" / path).read_text() for path in paths))
+
+
 def leaves(models):
     result = {}
     for table, name in TABLES.items():
@@ -269,6 +274,7 @@ def check_links(root):
         "rev-editor", "rev-editor-model", "editor-configuration", "editor-configuration-model",
         "editor-interaction", "editor-org-mode", "editor-org-mode-model", "editor-org-mode-evidence"]]
     paths = list(dict.fromkeys(paths))
+    paths += [str(path.relative_to(root)) for path in sorted((root / "docs/reference/org").glob("*.md"))]
     for name in paths:
         path = root / name
         for target in link_targets(path.read_text()):
@@ -335,7 +341,7 @@ def main():
     sample = asset.decode("utf-8")
     document = tomllib.loads(sample)
     models = model(ROOT)
-    rows = catalog((ROOT / "docs/reference/defaults.md").read_text())
+    rows = configuration_catalog(ROOT)
     check_schema(document, models)
     check_examples(sample, models)
     check_maps(ROOT, document)

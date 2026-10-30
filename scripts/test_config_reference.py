@@ -33,7 +33,7 @@ class ReferenceDrift(unittest.TestCase):
     def reject(self, owner, key, change, message):
         sample = tomllib.loads((ROOT / "docs/reference/config.toml").read_text())
         models = CHECK["model"](ROOT)
-        rows = CHECK["catalog"]((ROOT / "docs/reference/defaults.md").read_text())
+        rows = CHECK["configuration_catalog"](ROOT)
         data = {"sample": sample, "model": models, "catalog": rows}
         target = data[owner][key] if key and owner != "sample" else data[owner]
         if key and owner == "sample":

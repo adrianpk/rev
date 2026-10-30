@@ -2,7 +2,11 @@ use std::path::Path;
 
 use rev::config::parse;
 
-const REFERENCE: &str = include_str!("../../docs/reference/defaults.md");
+const REFERENCE: &str = concat!(
+    include_str!("../../docs/reference/defaults.md"),
+    "\n",
+    include_str!("../../docs/reference/org/configuration.md")
+);
 
 fn rows(prefix: &str) -> Vec<(&str, &str)> {
     REFERENCE
