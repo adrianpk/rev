@@ -2,12 +2,15 @@
 
 Status: draft
 Date: 2026-10-27
+Reviewed: 2026-10-31
 Format: OpenSpec capability proposal
 Source: product-owner discussion; captured for later refinement
-Delivery boundary: outside rev-configuration-ui; no implementation or slicing authorized
+Delivery boundary: future capability; no implementation or slicing authorized
 Baseline: [rev Editor](rev-editor.md)
 Related: [Language Server Support](editor-language-server-support.md)
+Model: [Native Autocompletion Model](editor-autocompletion-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
+Readiness: native interaction and source precedence confirmed; triggers, extraction scope and limits remain open
 
 ## Purpose
 
@@ -87,10 +90,25 @@ without changing the startup-only TOML loading contract.
 - Trigger policy: manual invocation, automatic triggers, delay and defaults.
 - Initial grammar/query coverage, extraction kinds and context ranking.
 - Project boundaries, indexing schedule, limits and whether a persistent cache
-  is useful. Add a model companion if a stored index format is selected.
+  is useful. The model distinguishes disposable observations from any future
+  persisted index; no stored format is selected.
 - Behavior for valid empty LSP results, late replies, candidate list bounds and
   unsupported completion forms such as snippets.
 - Exact settings, command names and validation/performance fixtures.
+
+## Dependencies and planning readiness
+
+Reuse native input, checked edits/history, configuration and admitted
+Tree-sitter grammars. Decide whether completion is buffer-local or uses a
+directory-bounded index; directory-root ownership is required only for the
+latter scope. The future LSP client supplies an optional semantic source and
+must be integrated with this UI/fallback contract. Managed server installation
+is not required to use an already installed server.
+
+Close the listed trigger, coverage, source/result, settings and resource
+decisions before planning. A native-only stage does not satisfy the full
+source-switching acceptance contract. No generic programmable provider surface
+or additional local indexing engine is implied.
 
 ## Validation direction
 
