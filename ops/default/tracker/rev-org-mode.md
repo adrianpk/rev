@@ -1215,7 +1215,13 @@ Details and exact checks: [Slice 61](../plan/rev-org-mode.md#slice-61-verify-com
 - [x] T61.3: Retain every earlier journey and verify zero skips, isolated HOME/XDG roots and owned process cleanup.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 61](../report/slices/rev-org-mode/slice-61-combined-terminal.md) (drafting).
+Report: [Slice 61](../report/slices/rev-org-mode/slice-61-combined-terminal.md) (reviewing).
+
+Implementation receipt `XDLFXLAJ6G6YWFXYY6IAKHRSGF` passed all 948 selected native
+tests, 69 owned terminal sessions and unchanged format/lint/source/whitespace
+checks. Focused receipt `J4R5J4UBGSRHJ3XUWSYMA4TNJ4` passed all 19 evidence-checker
+tests and both retained outline sessions on the same implementation candidate.
+Canonical PR and final-head evidence remain pending.
 
 ### Slice 62: verify bounded Org work and idle resources
 
