@@ -10,7 +10,7 @@ Integrated: `48923e0c8a83743721c46cd465abd34f8f1605ce`
 Repair 1 status: reviewing
 Repair 1 branch: `fix/rev-org-mode-validation-1`
 Repair 1 title: `fix(gate): correct native Org acceptance`
-Repair 1 PR: pending
+Repair 1 PR: [#166](https://forge.adrianpk.com/adrianpk/rev/pulls/166)
 Repair 1 failed candidate: `85992b8bd289bd309fba64da169fb04a32640847`
 
 ## Purpose
@@ -161,8 +161,9 @@ Focused controller receipt `5E7P7ACV7SFIDNS7KDB5ODX5RT` passed on the same candi
 The owned long-root fixture was removed after its selected test. Original 64
 canonical reports/integrations, 192 task outcomes and the reviewed Slice 64
 snapshot still pass delivery admission with separate repair metadata. This is
-focused repair evidence, not a successful complete gate. Fresh final PR-reference
-receipts remain required; the controller owns the unchanged full-gate retry.
+focused repair evidence, not a successful complete gate. Canonical repair PR [#166](https://forge.adrianpk.com/adrianpk/rev/pulls/166)
+targets dev on the pinned repair branch. This PR-reference follow-up requires
+fresh exact-HEAD receipts; the controller owns the unchanged full-gate retry.
 
 
 ## Risks and Follow-ups
