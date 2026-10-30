@@ -5,7 +5,7 @@ Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-03-v0.1.0`
-PR: pending
+PR: `#170`
 
 ## Purpose
 
@@ -69,6 +69,11 @@ Version/date consistency was checked against Cargo metadata and the actual
 preparation date. The source-backed reconciliation retained file-only launch,
 the hidden initial tree, Rust/Org highlighting and startup-only settings.
 Practical code blocks are unchanged; no terminal fixture was needed.
+
+Pre-PR controller receipt `TZO3S4JLX7GFKJ5MQU3NG53TMY` passed both ordered
+commands on report introduction `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada`:
+304 commands per inventory, 178 configuration entries, 58 reachable pages,
+330 local links/anchors and 21 native reference tests.
 
 The controller records these commands in order against the clean candidate:
 

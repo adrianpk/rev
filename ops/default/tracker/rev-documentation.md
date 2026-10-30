@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 3 - v0.1.0 documentation closure; reviewing
+Active slice: Slice 3 - v0.1.0 documentation closure; reviewing in PR #170
 Plan: [Documentation Plan](../plan/rev-documentation.md)
 Gate: `scripts/check-documentation.sh && git diff --check`
 Execution: one autonomous Looper cycle; the controller owns PR merges and tracker progression
@@ -29,7 +29,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | T2.1 | Separate Org commands, bindings and settings, with focused task/reference entries. | Slice 1 integrated. | completed | `8a8dfd94b1fe6c2b740dc9fb35f8870784dfd3bf` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: complete inventories, 58 reachable pages, 320 links/anchors and eleven legacy destinations. |
 | T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | completed | `9c7d8d0deb7f2d1496027d97772dfcacca0d4b04` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: all five ordered checks passed on the integrated candidate. |
 | T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | reviewing; integration pending | `bda1c338ff36b1680da768c95f108648d2862d28` | Source/guide/changelog reconciliation; Cargo 0.1.0 and actual preparation date 2026-10-30 agree. |
-| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | reviewing; integrated gate pending | record report-introduction commit in PR follow-up | Cross-quadrant consistency checked; exact-HEAD documentation checks required before handoff and integrated gate required before closure. |
+| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | reviewing; integrated gate pending | `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada` | Pre-PR receipt `TZO3S4JLX7GFKJ5MQU3NG53TMY` passed both ordered checks; regenerate for PR-reference follow-up. Integrated gate required before closure. |
 
 ## Slice integration
 
@@ -37,7 +37,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | --- | --- | --- | --- | --- |
 | Slice 1 | delivered | `#168` | `01f03f00729f4465d3d853ee68fd9c30aa26c7cf` | delivered |
 | Slice 2 | delivered | `#169` | `b9b572642ddf069113e7eb0c186eda72602e5208` | delivered |
-| Slice 3 | reviewing; controller integration pending | pending | pending | reviewing |
+| Slice 3 | reviewing; controller integration pending | `#170` | pending | reviewing; PR reference recorded |
 
 ## Delivery acceptance
 
@@ -78,3 +78,7 @@ receipt `7MY7XWGOBP6OFKET2VGMDKV5TO` passed all five ordered checks.
 Slice 3 starts from that integration and this documentation closure. Its
 required command prefix is `scripts/check-documentation.sh`. Delivery-set
 closure waits for the controller's exact integrated-candidate gate evidence.
+
+Slice 3 is reviewing in canonical PR #170, with immutable report introduction
+`c9a50bd46f7b3c7c52b00ac246d31f2295c98ada`. PR references are recorded; the
+controller records a fresh receipt for the final clean HEAD before integration.
