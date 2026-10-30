@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 62 bounded work
+Active slice: Slice 63 baseline reconciliation
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1232,17 +1232,17 @@ Details and exact checks: [Slice 62](../plan/rev-org-mode.md#slice-62-verify-bou
 - [x] T62.1: Extend existing performance collection for large Org source, many files, habit graphs, formulas and exports.
 - [x] T62.2: Measure responsive cancellation and inactive/armed timer behavior under the frozen resource ceilings.
 - [x] T62.3: Retain baseline ceilings, same-candidate provenance and explicit warm gate cost; investigate regressions.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 62](../report/slices/rev-org-mode/slice-62-bounded-work.md) (reviewing).
+Report: [Slice 62](../report/slices/rev-org-mode/slice-62-bounded-work.md) (delivered).
 
-Implementation required receipt `47AMM4CQMPHRLKWXKUPS66ESVB` passed 522 selected
-native tests and the complete historical/Org resource stage in 14.658 seconds
-excluding build. Focused receipt `UBMRES45DDOSP5JS5ABV4ZYUOG` passed both owned
-lifetime tests and 20 evidence-checker tests on that same implementation candidate.
-Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), targeting `dev`.
-Fresh final-head required and focused receipts are required after this PR-reference
-commit. Integration remains pending.
+Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), verified merged into `dev`
+at `18f55af4af0ecef5a88feeab388edbb3a53d66b7`. Final required receipt
+`SLV234DTE5VQ7XX7PJVCU22J5S` passed 522 selected native tests and the complete
+historical/Org resource stage in 14.730 seconds excluding build. Focused receipt
+`OOY5Y23VIQFZXW344O5KQQUTNN` passed all 20 checker tests on that exact candidate.
+The actual final resource log and owned cleanup were verified; baseline ceilings
+and the Org 150 ms / 96 MiB / 32 MiB budgets remain unchanged.
 
 ### Slice 63: reconcile native Org contracts and references
 

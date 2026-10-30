@@ -1,6 +1,6 @@
 # Slice 62: verify bounded Org work and idle resources
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -78,7 +78,8 @@ reap, private HOME cleanup, unchanged source, unpublished inbox and no idle poll
 remain mandatory. Kernel state is observed with a finite predicate loop rather
 than inferred from leader reap. No process runtime or acceptance budget changed.
 
-Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), targeting `dev`.
+Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), verified merged into `dev`
+at `18f55af4af0ecef5a88feeab388edbb3a53d66b7`.
 
 ## Contracts Added or Changed
 
@@ -148,9 +149,20 @@ verified the entrypoint source-quality correction and all 20 checker tests.
 
 Task commits: T62.1 `caf38b6ea4f1`, T62.2 `6d97dc26eadc`, T62.3 `b2f41d52875a`.
 Follow-up fixture and dispatch corrections preserve the approved observable
-assertions and resource ceilings. Final readiness requires fresh required and
-focused evidence on the clean PR-reference candidate; the controller owns merge
-and the unchanged full delivery gate.
+assertions and resource ceilings.
+
+Final required receipt `SLV234DTE5VQ7XX7PJVCU22J5S` passed the same ordered
+commands on merged PR-reference candidate `18f55af4af0ecef5a88feeab388edbb3a53d66b7`:
+522 native tests, complete historical/Org resource stage, format, lint, source
+quality and whitespace. Focused final receipt `OOY5Y23VIQFZXW344O5KQQUTNN`
+passed `python3 scripts/test_acceptance.py` and `git diff --check` on that same
+candidate, with all 20 checker tests passing. The actual final resource log was
+admitted for its clean commit/tree. The complete stage took 14.730 seconds,
+including 5.324 seconds for Org; native peak RSS was 11068 KiB, largest index
+chunk 730.615 us and cancellation maximum 56.013 us. All ten idle states remained
+quiescent. Owned fixtures were closed and references pushed. Earlier implementation
+measurements above retain their original candidate identities. The unchanged full
+delivery gate remains controller-owned.
 
 ## Risks and Follow-ups
 
