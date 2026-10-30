@@ -14,7 +14,7 @@ Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
 Active slice: Slice 1
-Execution owner: Looper; Slice 1 PR preparation
+Execution owner: Looper; Slice 1 PR #174 reviewing
 
 ## Canonical slice map
 
@@ -102,7 +102,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
 | Delivery slice | State | PR | Integrated commit | Validation/report |
 | --- | --- | --- | --- | --- |
-| 1 | reviewing | pending | pending | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
+| 1 | reviewing | #174 | pending | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
 | 2 | pending | pending | pending | pending |
 | 3 | pending | pending | pending | pending |
 | 4 | pending | pending | pending | pending |
