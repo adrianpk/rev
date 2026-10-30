@@ -116,7 +116,8 @@ retain ordinary readable source. Pixel decompression belongs to the terminal.
 Only a direct `TERM=xterm-kitty`, outside tmux/screen, admits native PNG output.
 There is no capability query, implicit fetch or image conversion. Source remains
 readable in other terminals, with `org-open-at-point` as the explicit configured
-viewer path. `org.tools.viewer` uses the existing confirmation, checked resource,
+viewer path. For other local file kinds, an explicit `file+sys:` link selects
+that viewer instead of a native text visit. `org.tools.viewer` uses the existing confirmation, checked resource,
 process-group, output/time ceiling and child cleanup owner. Missing tools are a
 usable diagnostic. A preview command never grants viewer authority.
 

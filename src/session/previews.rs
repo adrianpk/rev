@@ -106,7 +106,7 @@ impl Session {
         let capability = if crate::terminal::graphics::supported() {
             "Kitty PNG output admitted"
         } else {
-            "terminal PNG unavailable; org-open-at-point selects configured viewer"
+            "terminal PNG unavailable; org-open-at-point or file+sys: selects viewer"
         };
         let detail = output.details.first().map_or("", String::as_str);
         self.message(&format!(

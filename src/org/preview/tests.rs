@@ -1,6 +1,5 @@
 use super::*;
-#[path = "../../../tests/configuration/fixture.rs"]
-mod fixture;
+use crate::fixture;
 const PNG: &[u8] = include_bytes!("../../../tests/fixtures/org-preview.png");
 fn work(f: &fixture::Fixture, source: &str) -> Work {
     let p = f.write("config.toml", "");

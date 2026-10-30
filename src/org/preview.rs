@@ -104,7 +104,7 @@ impl Resource {
         };
         if !search.is_empty() || !png_path(&path) {
             return Err(
-                "Native previews support local PNG; org-open-at-point selects the viewer path"
+                "Native previews support local PNG; file+sys: with org-open-at-point selects the configured viewer"
                     .into(),
             );
         }
