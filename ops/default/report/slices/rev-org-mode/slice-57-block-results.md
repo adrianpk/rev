@@ -1,6 +1,6 @@
 # Slice 57: insert checked Org block and call results
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -51,8 +51,8 @@ Canonical PR: [#158](https://forge.adrianpk.com/adrianpk/rev/pulls/158), targeti
 
 ## Validation
 
-Required pre-PR receipt `QXUOLVUPGFOZ3LDB4XAVHPMD5W` passed on
-`ba9f585ffe4895e6c2fca4c2bf62649d98c7d568`:
+Final required receipt `DEY6V5PSR6KKSFAXLBNFVZXSVA` passed on
+`4f7f562b78706cfcd866e0b73244875b015f2a5a`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -64,8 +64,11 @@ All 482 tests passed: 226 editing, 178 I/O and 78 source; zero failures,
 ignored or filtered tests. The unchanged source checker retains safe Rust,
 five parameters, three nesting levels and cyclomatic complexity ten.
 
-Terminal receipt `QDDKAM7NKY3KMHNV52YEPAH6DC` passed on the same head:
+Focused receipt `ORKBAGMOOQTPL6OU6PNEOKTX5F` passed on the same final head:
 
+- `cargo test --test configuration -- --test-threads=4`
+- `cargo test --lib org::io::process -- --test-threads=1`
+- `python3 scripts/check-config-reference.py`
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-execution`
 - `git diff --check`
 
@@ -84,12 +87,12 @@ read-only refusal, output limits and source fidelity. The boundary driver sends
 consent only after successful preparation, preserving the unchanged-source
 assertion on refusal.
 
-Development configuration checks passed 127 cases, including library layer
-origins, replacement and finite file/path admission. Three shared process cases
-also passed. References agree on 172 schema/catalog entries, 54 active RGB roles
-and 259 default bindings. The PR-reference follow-up receives fresh focused and
-required controller receipts on its exact clean head; final receipts are recorded
-in Acta. Controller-owned `dev` integration remains pending.
+All 130 focused tests passed: 127 configuration and three shared process cases.
+The library filter intentionally excluded 46 unrelated cases. References agree
+on 172 schema/catalog entries, 54 active RGB roles and 259 default bindings.
+Canonical PR #158 merged into `dev` at
+`4f7f562b78706cfcd866e0b73244875b015f2a5a`. Acta records the final receipts
+and completed delivery. Slice 58 is the next active recorded slice.
 
 ## Risks and Follow-ups
 
