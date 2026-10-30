@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 59 previews
+Active slice: Slice 60 complete controls
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1176,14 +1176,15 @@ Details and exact checks: [Slice 59](../plan/rev-org-mode.md#slice-59-preview-na
 - [x] T59.1: Deliver bounded link/image preview controls over explicit source/resource observations.
 - [x] T59.2: Use admitted terminal PNG presentation when supported and explicit external viewers otherwise; retain readable fallback.
 - [x] T59.3: Verify clipping, terminal restoration, source immutability and child cleanup in the owned external-feature journey.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 59](../report/slices/rev-org-mode/slice-59-previews.md) (reviewing).
+Report: [Slice 59](../report/slices/rev-org-mode/slice-59-previews.md) (delivered).
 
-Canonical PR: [#160](https://forge.adrianpk.com/adrianpk/rev/pulls/160), targeting `dev`. Required
-implementation checks passed 514 native regressions and four owned terminal
-sessions; focused checks passed 343 tests. Fresh final-head receipts are required
-after this PR-reference commit. Integration remains pending.
+Canonical PR: [#160](https://forge.adrianpk.com/adrianpk/rev/pulls/160), verified merged into `dev`
+at `6ed453aac1b56401015cb28052f77789916d7462`. Required receipt
+`EPXCV5VCF3PLMDDTFNWZWUEHDQ` and focused receipt `PN6L7BUOIZ6DOPLFKMGFODCJXG`
+passed all 857 selected native tests and four owned terminal sessions on
+that exact final candidate.
 
 ### Slice 60: complete the native Org control catalog
 

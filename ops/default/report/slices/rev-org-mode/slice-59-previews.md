@@ -1,6 +1,6 @@
 # Slice 59: preview native Org links and images
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -63,7 +63,9 @@ Canonical PR: [#160](https://forge.adrianpk.com/adrianpk/rev/pulls/160), targeti
 
 ## Validation
 
-Required ordered commands passed on the clean implementation candidate:
+Required ordered commands passed on the clean final candidate
+`6ed453aac1b56401015cb28052f77789916d7462`, verified merged through
+canonical PR #160 into `dev`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -73,9 +75,7 @@ Required ordered commands passed on the clean implementation candidate:
 - `git diff --check`
 
 All 514 native regressions passed: 39 display, 226 editing, 192 I/O and 57 pointer;
-zero failures, ignored or filtered tests. Implementation receipt
-`X7FWFHNTZ3ATDN3XUD7A4MVTGH` identifies
-`6ba48d0c90451d2507642dc2bc042ee501549fdd`.
+zero failures, ignored or filtered tests. Final required receipt: `EPXCV5VCF3PLMDDTFNWZWUEHDQ`.
 
 Focused commands passed:
 
@@ -85,11 +85,8 @@ Focused commands passed:
 - `git diff --check`
 
 All 343 focused tests passed: 158 commands, 130 configuration and 55 library
-cases, with zero failures, ignored or filtered tests. Focused implementation
-receipt `FT5YIXZ2R3S5QO65I3X7AVTUFE` identifies
-`e03dd17ab7bb5828d6766cf9e3d40eefd57afc8a`. Final readiness requires both ordered
-lists on the clean PR-reference head; controller receipts and Acta retain that
-candidate and the final validation IDs.
+cases, with zero failures, ignored or filtered tests. Final focused receipt `PN6L7BUOIZ6DOPLFKMGFODCJXG` identifies the same merged
+candidate. Controller logs and Acta retain both successful ordered checks.
 
 Native cases cover exact PNG bytes, source/point/history preservation, resource
 revalidation, URI/format fallback, byte/resource-count limits, cancellation,
