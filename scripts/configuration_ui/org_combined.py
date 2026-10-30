@@ -65,10 +65,12 @@ def missing_tool(session, root, path):
     goto(session, 2)
     quiet(session)
     assert not (root / 'work/missing-runner').exists()
-    step(session, b'\x03\x16e', b'Execute missing')
+    frame = step(session, b'\x03\x16e', b'with host authority? yes/no:')
+    assert b'missing-runner' in frame
     step(session, b'no\r', b'cancelled before launch')
     assert path.read_bytes() == encoded(BLOCK)
-    step(session, b'\x03\x16e', b'Execute missing')
+    frame = step(session, b'\x03\x16e', b'with host authority? yes/no:')
+    assert b'missing-runner' in frame
     frame = step(session, b'yes\r', b'Source Failed')
     assert exact(frame, BLOCK), 'failed execution published a result'
     assert path.read_bytes() == encoded(BLOCK)
