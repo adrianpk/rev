@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `test/rev-org-61-combined-terminal`
-PR: pending
+PR: `#162`
 
 ## Purpose
 
@@ -69,6 +69,8 @@ The retained outline list probe now explicitly pauses a relative timer, bounds
 its elapsed reading and checks that timed-list continuation inserts that exact
 field under ORG22; undo and stop preserve the original bytes. Literal C-c C-c
 checks the precise ORG17 document refusal instead of a generic checkbox fallback.
+
+Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), targeting `dev`.
 
 ## Contracts Added or Changed
 

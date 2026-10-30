@@ -1221,7 +1221,9 @@ Implementation receipt `XDLFXLAJ6G6YWFXYY6IAKHRSGF` passed all 948 selected nati
 tests, 69 owned terminal sessions and unchanged format/lint/source/whitespace
 checks. Focused receipt `J4R5J4UBGSRHJ3XUWSYMA4TNJ4` passed all 19 evidence-checker
 tests and both retained outline sessions on the same implementation candidate.
-Canonical PR and final-head evidence remain pending.
+Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), targeting `dev`.
+Fresh final-head receipts are required after this PR-reference commit.
+Integration remains pending.
 
 ### Slice 62: verify bounded Org work and idle resources
 
