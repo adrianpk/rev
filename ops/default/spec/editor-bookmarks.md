@@ -2,11 +2,13 @@
 
 Status: draft
 Date: 2026-10-27
+Reviewed: 2026-10-31
 Format: OpenSpec capability proposal
 Source: product-owner discussion; captured for later refinement
-Delivery boundary: outside rev-configuration-ui; no implementation or slicing authorized
+Delivery boundary: future capability; no implementation or slicing authorized
 Gutter owner: [Editor Gutter](editor-gutter.md)
 Model: [Native Bookmarks Model](editor-bookmarks-model.md)
+Readiness: native bookmark/gutter direction confirmed; location and lifecycle choices remain open
 
 ## Purpose
 
@@ -51,6 +53,45 @@ supported bookmark workflow SHALL be available through compiled Rust commands.
 - **WHEN** the user attempts to navigate to it
 - **THEN** the owner reports the selected stale/unavailable outcome
 - **AND** it does not claim an unrelated position is the original valid location.
+
+### Requirement: BMK03 Derive current gutter markers
+
+Marker presentation SHALL use the current bookmark/location observation and
+the existing gutter geometry. Scrolling, resizing, numbering mode or hiding the
+gutter SHALL NOT change bookmark identity. Glyphs, collisions and resource
+limits SHALL be specified before delivery; stale locations SHALL NOT produce
+functional-looking markers on unrelated source lines.
+
+#### Scenario: Resize a bookmarked view
+
+- **GIVEN** a valid bookmark shown through the gutter
+- **WHEN** the view is resized or its numbering mode changes
+- **THEN** its marker is derived from the current source/view mapping
+- **AND** bookmark identity and document text remain unchanged.
+
+### Requirement: BMK04 Provide native user controls
+
+The accepted bookmark workflow SHALL be available through compiled editor
+commands with TOML and runtime controls where appropriate. Setting or removing
+a bookmark SHALL NOT insert marker characters into document text. Exact
+command names, shortcuts and persistence effects SHALL be decided explicitly.
+
+#### Scenario: Mark a source location
+
+- **GIVEN** a location admitted by the chosen bookmark policy
+- **WHEN** the user invokes the native marking operation
+- **THEN** the bookmark owner records the admitted location
+- **AND** saving the document does not add bookmark glyphs to its source.
+
+## Dependencies and planning readiness
+
+Reuse canonical buffers/locations, native commands and the delivered gutter.
+Bookmarks do not require completion, LSP or AI. The modal jump history is a
+different capability, even if both reuse checked location primitives.
+
+Before planning, resolve the choices below and specify their concrete
+navigation/edit/lifecycle examples in this spec and model. Draft capture is
+not implementation approval; no storage format or command catalog ships yet.
 
 ## Open decisions
 
