@@ -28,7 +28,9 @@ fn file_candidates() {
         session.buffer().unwrap().state(),
     );
     session.execute(Command::FindFile);
-    let draft = format!("{}/al", fixture.0.display());
+    // Relative input uses the visited file directory without making the
+    // 61-column prompt expectation depend on the temporary root length.
+    let draft = String::from("al");
     session.handle(Event::Paste(draft.clone()));
     for (width, height) in [
         (61, 13),

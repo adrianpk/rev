@@ -7,6 +7,11 @@ Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `test/rev-org-64-delivery-acceptance`
 PR: [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165)
 Integrated: `48923e0c8a83743721c46cd465abd34f8f1605ce`
+Repair 1 status: reviewing
+Repair 1 branch: `fix/rev-org-mode-validation-1`
+Repair 1 title: `fix(gate): correct native Org acceptance`
+Repair 1 PR: pending
+Repair 1 failed candidate: `85992b8bd289bd309fba64da169fb04a32640847`
 
 ## Purpose
 
@@ -51,6 +56,27 @@ reject changed canonical records, unrelated task commits, incomplete reports,
 altered gate order, omitted native assertions, stale HEAD/tree evidence and
 premature use of a later closure commit. Fixture Git history tests the reviewed
 snapshot boundary independently of runtime execution.
+
+The retained gate failed during `cargo test --all` in
+`gutter::completion::file_candidates`. The fixture typed its full temporary root
+into a 61-column prompt, then expected the entire label and draft to remain
+visible. The longer owned temporary path exceeded that width; the existing prompt
+correctly scrolled horizontally to retain its cursor. This was a fixture input
+error, not a source or layout regression.
+
+Repair 1 uses the relative draft `al`, resolved by the native path navigator from
+the visited fixture file's parent. It retains the exact `alpha.txt`/`alpine.txt`
+candidates, every original resize including zero/tiny geometry, cursor ownership,
+full prompt assertion, cancellation, independent views, source identity and empty
+history assertions. No width, deadline, resource ceiling, runtime behavior or
+acceptance assertion changes. GUT06's preserved draft/focus/view contract remains
+intact. Absolute-path behavior remains covered by the existing path-completion
+suite. A long owned TMPDIR reproduction confirms the fixture no longer depends
+on temporary root length. All test files remain privately owned and cleaned up.
+
+The original delivery metadata above continues to identify merged Slice 64.
+The separate repair metadata identifies the active approved repair; it does not
+replace the original canonical integration or reuse its validation as repair proof.
 
 ## Contracts Added or Changed
 
@@ -105,6 +131,16 @@ native assertions in actual execution, with zero skips. All 64 canonical PRs
 and their integrated ancestry are verified. This integration closure changes
 documentation only; the controller must run the unchanged full gate on its
 new clean, pushed candidate before delivery-set closure.
+
+Retained controller gate receipt `2SQHFEABZZYGZ66KYYIHGDKSZV` failed on
+`85992b8bd289bd309fba64da169fb04a32640847`; execution stopped at the gutter
+fixture before later gate stages. A focused reproduction of
+`cargo test --test gutter completion::file_candidates -- --exact --nocapture`
+failed before the correction and passed afterward (one selected test).
+The same focused test passed with an owned TMPDIR prefix exceeding 100 bytes;
+the original geometry and all assertions remain unchanged. Required repair
+prefix and fresh exact-HEAD receipts remain pending. The controller owns the
+unchanged full-gate retry after canonical repair integration.
 
 ## Risks and Follow-ups
 
