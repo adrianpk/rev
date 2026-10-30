@@ -70,6 +70,14 @@ native samples, CPU ticks, RSS, fixture fingerprints and exact commit/tree.
 The full delivery gate was not run; the warm target above is not a measured
 full-gate result.
 
+A subsequent required run exposed the same unsynchronized descendant-state
+observation in the feed lifetime fixture after session drop. The existing execution
+fixture's stopped-state observer is now shared with feeds. It still requires a
+missing or zombie descendant within the same 150 ms response budget; direct-leader
+reap, private HOME cleanup, unchanged source, unpublished inbox and no idle polling
+remain mandatory. Kernel state is observed with a finite predicate loop rather
+than inferred from leader reap. No process runtime or acceptance budget changed.
+
 ## Contracts Added or Changed
 
 - ORG18: actual bounded source/projection/job observations.

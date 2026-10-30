@@ -180,14 +180,7 @@ fn feed_lifetime() {
             !Path::new(&format!("/proc/{}", leader.trim())).exists(),
             "{mode}: leader not reaped"
         );
-        assert!(
-            std::fs::read_to_string(format!("/proc/{}/stat", child.trim())).map_or(true, |v| v
-                .split_once(") ")
-                .unwrap()
-                .1
-                .starts_with('Z')),
-            "{mode}: descendant running"
-        );
+        super::lifetime::descendant_stopped(&child, mode);
         assert!(!f.0.join("inbox.org").exists());
     }
 }

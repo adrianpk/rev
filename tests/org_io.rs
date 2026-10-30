@@ -180,6 +180,8 @@ mod feeds;
 
 #[path = "org_io/feed_edges.rs"]
 mod feed_edges;
+#[path = "org_io/lifetime.rs"]
+mod lifetime;
 
 #[path = "org_io/previews.rs"]
 mod previews;
