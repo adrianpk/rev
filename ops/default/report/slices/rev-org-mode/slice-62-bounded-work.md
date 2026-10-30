@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `perf/rev-org-62-bounded-work`
-PR: pending
+PR: `#163`
 
 ## Purpose
 
@@ -77,6 +77,8 @@ missing or zombie descendant within the same 150 ms response budget; direct-lead
 reap, private HOME cleanup, unchanged source, unpublished inbox and no idle polling
 remain mandatory. Kernel state is observed with a finite predicate loop rather
 than inferred from leader reap. No process runtime or acceptance budget changed.
+
+Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), targeting `dev`.
 
 ## Contracts Added or Changed
 

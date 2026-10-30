@@ -1240,7 +1240,9 @@ Implementation required receipt `47AMM4CQMPHRLKWXKUPS66ESVB` passed 522 selected
 native tests and the complete historical/Org resource stage in 14.658 seconds
 excluding build. Focused receipt `UBMRES45DDOSP5JS5ABV4ZYUOG` passed both owned
 lifetime tests and 20 evidence-checker tests on that same implementation candidate.
-Canonical PR and final PR-reference evidence are pending.
+Canonical PR: [#163](https://forge.adrianpk.com/adrianpk/rev/pulls/163), targeting `dev`.
+Fresh final-head required and focused receipts are required after this PR-reference
+commit. Integration remains pending.
 
 ### Slice 63: reconcile native Org contracts and references
 
