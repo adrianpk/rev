@@ -1201,7 +1201,9 @@ Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) 
 Implementation receipt `FRVFU2W6T2L6V3ZI4S5NKMUZU6` passed all 617 selected tests,
 format/lint/source checks and diff whitespace. Catalog/example receipt
 `XMLDT2M76W27LM7JVMDLDSILF5` passed six new cases and all nine optional examples.
-Canonical PR and final-head evidence remain pending.
+Canonical PR: [#161](https://forge.adrianpk.com/adrianpk/rev/pulls/161), targeting `dev`.
+Fresh final-head receipts are required after this PR-reference commit.
+Integration remains pending.
 
 ### Slice 61: verify complete native Org terminal workflows
 

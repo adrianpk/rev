@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-60-complete-controls`
-PR: pending
+PR: `#161`
 
 ## Purpose
 
@@ -45,6 +45,8 @@ Follow-up corrections: `7dc2960233b3`, `3f8f0a74935b`, `9a6b1fdd3dee`.
 
 Existing native suites establish feature behavior; catalog checks alone do not
 prove terminal capability or optional tool success.
+
+Canonical PR: [#161](https://forge.adrianpk.com/adrianpk/rev/pulls/161), targeting `dev`.
 
 ## Contracts Added or Changed
 
