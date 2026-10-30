@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 2 - Independent Org documentation
+Active slice: Slice 2 - Independent Org documentation; reviewing
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
 ## Outcome
