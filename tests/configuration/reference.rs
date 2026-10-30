@@ -6,6 +6,9 @@ use rev::input::keymap::Context;
 
 use super::fixture::Fixture;
 
+#[path = "reference/org_examples.rs"]
+mod org_examples;
+
 const SAMPLE: &str = rev::config::default_template();
 
 fn document() -> Document {

@@ -1193,7 +1193,7 @@ Details and exact checks: [Slice 60](../plan/rev-org-mode.md#slice-60-complete-t
 
 - [x] T60.1: Reconcile every shipped command, default context binding, typed preference and palette role with the catalog.
 - [x] T60.2: Extend the complete sample and embedded template with actual supported Org controls and optional tool examples.
-- [ ] T60.3: Verify no inert controls, no unimplemented M-x entries and exact parser/default/template/reference agreement.
+- [x] T60.3: Verify no inert controls, no unimplemented M-x entries and exact parser/default/template/reference agreement.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) (drafting).

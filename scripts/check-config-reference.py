@@ -129,6 +129,15 @@ def check_examples(sample, models):
         same_keys(language, models["Language"], "language example")
     associations = example(sample, "# Optional associations:")
     require(bool(associations), "association example must contain rules")
+    for name, table in [("agenda", "agenda"), ("capture", "capture"),
+                        ("publishing", "publish"), ("source", "source"),
+                        ("feeds", "feeds"), ("tools", "tools")]:
+        declaration = example(sample, f"# Optional Org {name}:")
+        same_keys(declaration, {"org"}, f"{name} example root")
+        same_keys(declaration["org"], {table}, f"{name} example table")
+        expected = models[TABLES[f"org.{table}"]]
+        require(set(declaration["org"][table]) <= set(expected), f"{name}: unknown leaves")
+        require(bool(declaration["org"][table]), f"{name}: empty declaration")
 
 
 def compiled_bindings(root, context):
@@ -254,7 +263,7 @@ def check_enums(root, models, rows):
 
 
 def check_links(root):
-    paths = ["README.md", "CHANGELOG.md", "docs/reference/index.md", "docs/reference/defaults.md", "docs/reference/bindings.md", "docs/reference/syntax.md", "docs/reference/rectangles.md"]
+    paths = ["README.md", "CHANGELOG.md", "docs/reference/index.md", "docs/reference/defaults.md", "docs/reference/bindings.md", "docs/reference/syntax.md", "docs/reference/rectangles.md", "docs/reference/org-controls.md"]
     for name in paths:
         path = root / name
         for target in re.findall(r"\]\(([^)]+)\)", path.read_text()):
@@ -311,7 +320,7 @@ def main():
     check_enums(ROOT, models, rows)
     check_links(ROOT)
     bindings = sum(len(entries) for entries in document["keys"].values())
-    print(f"Configuration reference: {len(rows)} schema/catalog entries, 54 active RGB roles, {bindings} default bindings and three optional examples agree; links valid.")
+    print(f"Configuration reference: {len(rows)} schema/catalog entries, 54 active RGB roles, {bindings} default bindings and nine optional examples agree; links valid.")
     print(f"Packaged template: {len(asset)} exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation.")
     print("Typed defaults and published parser bounds are checked by cargo test --test configuration; UI effects require separate native/terminal evidence.")
 
