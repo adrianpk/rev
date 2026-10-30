@@ -1,11 +1,12 @@
 # Slice 3: v0.1.0 Documentation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-03-v0.1.0`
 PR: `#170`
+Integrated commit: `02b50f661910575d578df94cd3e42df9b446b44c`
 
 ## Purpose
 
@@ -64,6 +65,12 @@ The accepted command/schema sets and validation policy are unchanged.
 - `ops/default/tracker/rev-documentation.md`: task and integration evidence.
 
 ## Validation
+
+Controller receipt `36LWSCOEVGDGBEYPG3I2L3ZKVG` passed both ordered PR
+checks below for the exact integrated commit
+`02b50f661910575d578df94cd3e42df9b446b44c`: 304 commands per inventory,
+178 configuration entries, 58 reachable pages, 330 local links/anchors and
+21 native reference tests. Canonical PR #170 is verified merged.
 
 Version/date consistency was checked against Cargo metadata and the actual
 preparation date. The source-backed reconciliation retained file-only launch,
