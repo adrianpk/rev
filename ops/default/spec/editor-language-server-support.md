@@ -2,12 +2,15 @@
 
 Status: draft
 Date: 2026-10-27
+Reviewed: 2026-10-31
 Format: OpenSpec capability proposal
 Source: product-owner discussion; captured for later refinement
-Delivery boundary: outside rev-configuration-ui; no implementation or slicing authorized
+Delivery boundary: future capability; no implementation or slicing authorized
 Completion owner: [Native Autocompletion](editor-autocompletion.md)
 Installation owner: [Language Server Installation](editor-language-server-installation.md)
+Model: [Language Server Support Model](editor-language-server-support-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
+Readiness: optional completion-focused client confirmed; protocol and process policy remain open
 
 ## Purpose
 
@@ -96,3 +99,18 @@ server/runtime requirements SHALL produce clear recoverable feedback.
 
 These decisions belong in this draft before implementation. No generic plugin
 system, bundled-server strategy or new persisted settings shape is selected.
+
+## Dependencies and validation direction
+
+The client depends on the shared completion contract, canonical documents and
+revision/coordinate conversion, native settings and cancellable nonblocking
+IO. It can use a compatible externally installed server; the managed installer
+is not a prerequisite. Resolve launch/root policy against the actual admitted
+directory context without introducing mandatory workspace registration.
+
+Validate source switching and valid-empty versus unavailable responses with
+the completion owner, unsaved document synchronization, encoding conversion,
+stale replies, read-only admission, cancellation, server loss/disable/exit and
+bounded queues. Include representative real Rust-server integration after
+pinning the protocol profile. These are future acceptance requirements, not
+checks performed by this documentation update.
