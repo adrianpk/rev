@@ -1250,7 +1250,7 @@ Contracts: ORG01 ORG17 ORG31.
 Details and exact checks: [Slice 63](../plan/rev-org-mode.md#slice-63-reconcile-native-org-contracts-and-references).
 
 - [x] T63.1: Reconcile delivered Org mode with editor/configuration/view baselines and complete user references.
-- [ ] T63.2: Preserve all previous tested candidates and make the new capability matrix and optional-tool boundaries explicit.
+- [x] T63.2: Preserve all previous tested candidates and make the new capability matrix and optional-tool boundaries explicit.
 - [ ] T63.3: Verify every requirement/scenario links to native, real-terminal and resource evidence; keep historical closures intact.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

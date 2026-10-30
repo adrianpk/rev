@@ -4,7 +4,7 @@ Status: accepted
 Approved: product owner, 2026-10-27; specification and model accepted, with the explicitly listed open decisions retained.
 Scope refinement: product owner, 2026-10-28; clocking, habits and effort approved; remaining choices follow Org in Emacs without further feature-by-feature questions. Advanced spreadsheet evaluation remains excluded.
 Date: 2026-10-27
-Format: OpenSpec capability proposal
+Format: OpenSpec additive capability requirements
 Source: product-owner discussion and confirmed interaction decisions
 Model: [Org Mode Model](editor-org-mode-model.md)
 Baseline: [rev Editor](rev-editor.md)
@@ -809,6 +809,19 @@ through real terminal journeys, plus configuration/default/sample consistency.
 
 Measure large-document, many-source, bounded calculation and idle workloads.
 This specification contains acceptance obligations, not runtime test results.
+
+## Baseline and evidence reconciliation
+
+The [editor](rev-editor.md), [text/view model](rev-editor-model.md),
+[configuration](editor-configuration.md), [configuration model](editor-configuration-model.md)
+and [interaction](editor-interaction.md) baselines now reference the native Org
+amendments without changing their earlier completed status or tested candidates.
+The [capability and evidence map](editor-org-mode-evidence.md) connects every
+requirement/scenario to native tests, owned terminal journeys and the applicable
+shared or dedicated resource profile. Its prerequisite resolution is distinct
+from actually executing those assertions on the final integrated candidate.
+The [user control catalog](../../../docs/reference/org-controls.md) links all
+shipped controls and their fixed/native versus typed startup policies.
 
 ## Delivery state
 

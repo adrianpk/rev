@@ -95,6 +95,24 @@ asks about an incomplete interval; it cannot substitute a stale display row.
 | Feed observation | Declared URL/local file, feed/item identity, target locator and FEEDSTATUS source. | Explicit import; no independent polling database. |
 | Preview | Checked link/resource, admitted terminal geometry/capability and optional viewer job. | View-local and disposable; ordinary text remains authoritative. |
 
+## Optional clock recovery representation
+
+The selected XDG state namespace contains `org-clock.toml` only after explicit
+opt-in checkpointing. Its version-1 TOML record has optional `[clock]` data:
+canonical `path`, checked `file` observation, `heading`, `heading_source`,
+`line_start`, `line_end`, original CLOCK `source`, `start_seconds` and
+`acknowledged_seconds`. Absence of a clock records version 1 without an active
+locator. This bounded locator is recovery evidence, not a substitute for saved
+Org text or a source edit permission. Actual path, heading/CLOCK bytes, context,
+file identity and chosen instant are revalidated independently.
+
+Opening a missing store does not create directories. Explicit checkpoints use
+checked temporary-file replacement and retain the ordinary not-published,
+published or published-with-completion-unresolved outcome. A failed checkpoint
+cannot roll back a real source clock transition. The [clock reference](../../../docs/reference/bindings.md#native-task-clocks)
+owns user-facing recovery and source-visit bounds; no timer or agenda persistence
+is added.
+
 ## Typed configuration profile
 
 Extend the existing startup TOML owner; do not build a second loader. Global
@@ -105,7 +123,13 @@ authority. Relative tool argv/path data receives the normal checked treatment.
 
 The following are the semantic fields for the native [org] family and typed
 subtables. Implementation uses these names and units consistently in native
-settings, schema/catalog, sample and embedded template. Arrays replace on merge;
+settings, schema/catalog, sample and embedded template where they are startup
+controls. Semantic profile labels also describe fixed native policy: startup
+visibility is show-all; empty numeric cells use zero and rounding is half away
+from zero. `startup_fold`, `tables.empty_numeric` and `tables.rounding` are not
+additional accepted TOML keys. Overview/contents visibility is selected through
+native view commands. The [actual catalog](../../../docs/reference/defaults.md#configuration-value-catalog)
+is the parser allowlist; unsupported keys remain rejected. Arrays replace on merge;
 absent values inherit. No unimplemented leaf may appear operational.
 
 | Field under org | Factory value | Bounds and meaning |
@@ -209,7 +233,12 @@ publication rather than inventing an undocumented escape.
 
 ## Resource profile
 
-Limits are configurable only within the stated finite bounds and must remain
+The rows below preserve the selected finite semantic bounds. The source-analysis
+byte/node/depth profile and one active job are native limits, not extra startup
+leaves named `analysis_bytes`, `source_nodes`, `source_depth` or `active_job_count`.
+The [shipped catalog](../../../docs/reference/defaults.md#configuration-value-catalog)
+identifies the configurable limits. Those controls vary only within their stated
+finite bounds and must remain
 truthful on truncation. Cancellation uses the ordinary C-g/native event path.
 OS reads are checked at bounded chunk/source boundaries; no hard kernel-I/O
 latency is falsely promised. At most one outstanding owned analysis/IO job
@@ -250,6 +279,15 @@ formula graph and supported export fixtures. Target additional retained caches
 at or below 32MiB and fixture RSS at or below 96MiB. Record raw observations;
 these are selected acceptance budgets, not claims of measured performance.
 Earlier delivery ceilings remain mandatory and cannot be inflated to pass.
+
+## Measured delivery profile
+
+The [capability/evidence map](editor-org-mode-evidence.md) retains the separate
+historical editor/configuration/input candidates and the actual Slice 61 terminal
+and Slice 62 resource candidates. The original resource ceilings above stay
+acceptance obligations. The recorded release measurements are evidence only for
+their exact fixture/build/commit/tree, not certification of arbitrary OS latency
+or of an unexecuted final delivery gate.
 
 ## Model readiness
 

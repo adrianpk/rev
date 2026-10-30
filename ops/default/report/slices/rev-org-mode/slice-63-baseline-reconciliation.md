@@ -29,6 +29,13 @@ cross-document draft language now points to the delivered policies instead of
 unresolved implementation choices. All source/runtime behavior remains governed
 by the existing native owners.
 
+The capability/evidence document preserves all three earlier tested baselines and
+records the distinct terminal/resource candidates. It lists native formats and
+every optional program boundary without treating installed tools as successful
+execution. The model now distinguishes semantic fixed policy from actual TOML
+leaves and documents the delivered opt-in version-1 clock recovery record; fixed
+values, native limits, source authority and parser rejection remain unchanged.
+
 ## Contracts Added or Changed
 
 - ORG01: reconcile native activation with the base runtime boundary.
