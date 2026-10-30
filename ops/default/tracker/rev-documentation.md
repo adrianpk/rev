@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 2 - Independent Org documentation; reviewing
+Active slice: Slice 2 - Independent Org documentation; reviewing in PR #169
 Plan: [Documentation Plan](../plan/rev-documentation.md)
 Gate: `scripts/check-documentation.sh && git diff --check`
 Execution: one autonomous Looper cycle; the controller owns PR merges and tracker progression
@@ -36,7 +36,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | Slice | State | PR | Integrated commit | Report state |
 | --- | --- | --- | --- | --- |
 | Slice 1 | delivered | `#168` | `01f03f00729f4465d3d853ee68fd9c30aa26c7cf` | delivered |
-| Slice 2 | reviewing; controller integration pending | pending | pending | reviewing |
+| Slice 2 | reviewing; controller integration pending | `#169` | pending | reviewing; PR reference recorded |
 | Slice 3 | queued | pending | pending | not created |
 
 ## Delivery acceptance
@@ -71,3 +71,8 @@ its exact-candidate receipt passed all six ordered checks. Slice 2 starts from
 that integration and this documentation closure. The configured Slice 2
 validation prefix is `scripts/check-documentation.sh`. The controller owns
 PR integration; the approved plan retains the execution and validation policy.
+
+Slice 2 is reviewing in canonical PR #169. Its immutable report introduction
+is `2434b16b116299a763ce9d8b41bb9ab7d42e033f`. The PR-reference follow-up is
+complete; the controller records fresh checks for the final clean candidate
+before integration.

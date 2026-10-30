@@ -5,7 +5,7 @@ Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-02-org`
-PR: pending
+PR: `#169`
 
 ## Purpose
 
