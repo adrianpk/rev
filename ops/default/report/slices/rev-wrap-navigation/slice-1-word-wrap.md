@@ -1,11 +1,12 @@
 # Slice 1: Word-aware source display
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-01-word-wrap`
 PR: `#174`
+Integrated commit: `366efcd384b163e69478c3bf4bda918bd1d7547a`
 
 ## Purpose
 
@@ -82,12 +83,18 @@ precedence rather than relying on this shared provenance alone.
   now assert both startup policies; the command-catalog failure was corrected
   by documenting the new binding. Assertions were retained for both modes.
 
-The controller records final checks against the clean PR head after its PR
-reference commit and lint correction. The canonical PR Validation section carries
-the configured formatter, wrapping/display/configuration/commands tests and
-`git diff --check` in that exact order. A separate exact-HEAD controller batch
-records focused library Clippy and documentation checks, then `git diff --check`.
-These are slice checks; the integrated delivery gate remains controller-owned.
+The controller passed canonical receipt `Y7GHL424WJD6IBUZMYYYXSN7K7` against
+`366efcd384b163e69478c3bf4bda918bd1d7547a` with these exact ordered commands:
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo test --locked --test wrapping --test display --test configuration --test commands`: passed, 339 tests.
+- `git diff --check`: passed.
+
+Supplemental receipt `J6QBLUQYPVO2BSTYEB2QOYP537` passed library Clippy,
+documentation checks (58 pages, 330 local links) and `git diff --check` at the
+same candidate. Canonical PR #174 integrated that exact head through the
+controller's Rebase + Fast-forward path. These are slice checks; the integrated
+delivery gate remains controller-owned.
 
 ## Risks and Follow-ups
 

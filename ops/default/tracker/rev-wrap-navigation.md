@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1
-Execution owner: Looper; Slice 1 PR #174 reviewing
+Active slice: Slice 2
+Execution owner: Looper; Slice 1 integrated, Slice 2 active
 
 ## Canonical slice map
 
@@ -35,12 +35,14 @@ Acceptance: WRP01, WRP02, WRP06.
 
 - [x] T1.1: Implement one checked source-to-visual fragment owner, word-aware/grapheme-safe rendering and point reveal at each pane text width.
 - [x] T1.2: Add editor.soft_wrap with compiled true default, complete TOML/sample/reference coverage and the buffer-local visual-line-mode command; create tests/wrapping.rs with actual session/render cases.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 1 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 1 report.
 
 Implementation commits: T1.1 `aa7c739f30ba097955193c43852508716cf6017e`;
 T1.2 `9946e539aaa39b1e81cc78f40e2e339f08cb6536`.
 Focused wrapping tests (six native tests) and the command-catalog regression passed.
-Final exact-HEAD slice evidence is recorded through the controller before handoff.
+Canonical receipt `Y7GHL424WJD6IBUZMYYYXSN7K7` passed the configured checks and 339 tests
+at `366efcd384b163e69478c3bf4bda918bd1d7547a`. PR #174 is merged at that exact
+commit; the controller recorded its merge in Acta. Slice 1 is delivered.
 
 ## Slice 2: Emacs visual-line editing
 
@@ -102,7 +104,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
 | Delivery slice | State | PR | Integrated commit | Validation/report |
 | --- | --- | --- | --- | --- |
-| 1 | reviewing | #174 | pending | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
+| 1 | delivered | #174 | `366efcd384b163e69478c3bf4bda918bd1d7547a` | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
 | 2 | pending | pending | pending | pending |
 | 3 | pending | pending | pending | pending |
 | 4 | pending | pending | pending | pending |
