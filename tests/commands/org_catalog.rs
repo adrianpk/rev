@@ -18,9 +18,10 @@ fn press(input: &mut Input, sequence: &Sequence) -> Outcome {
     outcome
 }
 
-// Exercise every inherited Org-role command chord through native input, using
+// Exercise Org-role command chords through native input, using
 // both absent-file defaults and the real packaged template. Identity equality
-// here complements feature suites that exercise the shared command handlers.
+// complements feature suites. Calendar's inherited text editing requires the
+// real focused prompt, covered separately; host-role controls still dispatch.
 #[test]
 fn default_routes() {
     let fixture = super::config_fixture::Fixture::new();
@@ -34,7 +35,12 @@ fn default_routes() {
 }
 
 fn check_role(snapshot: &Snapshot, role: OrgContext) {
-    for (chord, name) in role.keymap().defaults() {
+    let bindings = if role == OrgContext::Calendar {
+        role.keymap().local_defaults()
+    } else {
+        role.keymap().defaults()
+    };
+    for (chord, name) in bindings {
         let Some(Binding::Command(command)) = Binding::named(name) else {
             continue;
         };
@@ -106,6 +112,7 @@ fn outline_notice(command: OrgCommand) -> bool {
 fn native_catalog() {
     let fixture = super::config_fixture::Fixture::new();
     let path = fixture.write("source.org", "* TODO Parent\nBody\n** TODO Child\nText\n");
+    let mut unhandled = Vec::new();
     for command in OrgCommand::ALL {
         let mut session = session(&path);
         let stamp = session.buffer().unwrap().stamp();
@@ -123,13 +130,8 @@ fn native_catalog() {
             "{}",
             command.name()
         );
-        if !outline_notice(command) {
-            assert_ne!(
-                session.echo(),
-                command.name(),
-                "unhandled {} reached visibility",
-                command.name()
-            );
+        if !outline_notice(command) && session.echo() == command.name() {
+            unhandled.push(command.name());
         }
         assert_eq!(
             session.buffer().unwrap().stamp(),
@@ -145,6 +147,10 @@ fn native_catalog() {
         );
         session.execute(Command::KeyboardQuit);
     }
+    assert!(
+        unhandled.is_empty(),
+        "unhandled commands reached visibility: {unhandled:?}"
+    );
     assert_eq!(
         std::fs::read_to_string(path).unwrap(),
         "* TODO Parent\nBody\n** TODO Child\nText\n"

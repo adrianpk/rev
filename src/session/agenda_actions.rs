@@ -52,6 +52,7 @@ impl Session {
             Command::Org(c) if self.agenda_active() && c.agenda_source_action() => {
                 Some(self.begin_agenda_action(c))
             }
+            Command::Org(c) if c.agenda_bulk() => Some(self.message("Open an Org agenda first")),
             _ => None,
         }
     }
