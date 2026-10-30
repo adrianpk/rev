@@ -112,6 +112,7 @@ def final(root, text, previous, fields, expected):
 
 def delivery(root, document, readiness):
     gate_contract(root)
+    coherence(root, document)
     rows = maps(root, document)
     metadata = document['org_delivery']
     tracker = (root / TRACKER).read_text()
@@ -146,3 +147,28 @@ def gate_contract(root):
     for path in [PLAN, TRACKER]:
         require('Full gate: `scripts/check-all.sh`\n' in (root / path).read_text(),
                 'Org gate ownership changed')
+
+
+def coherence(root, document):
+    plan = (root / PLAN).read_text()
+    tracker = (root / TRACKER).read_text()
+    approved = re.findall(r'^- (T\d+\.\d+): (.+)$', plan, re.M)
+    tracked = re.findall(r'^- \[[ x]\] (T\d+\.\d+): (.+)$', tracker, re.M)
+    require(approved == tracked and len(approved) == 192, 'Org plan/tracker task contract mismatch')
+    require(digest(json.dumps(approved, separators=(',', ':'))) ==
+            'ae66e5da2a1751f5e36cba52650f99316df67bf1d9955eb346d84ef02b89e87b',
+            'approved Org task descriptions changed')
+    states = [re.search(r'^Status: (.+)$', text, re.M)[1] for text in [plan, tracker]]
+    require(states[0] == states[1] and states[0] in ['Approved', 'Completed'], 'Org lifecycle mismatch')
+    spec = (root / 'ops/default/spec/editor-org-mode.md').read_text()
+    model = (root / 'ops/default/spec/editor-org-mode-model.md').read_text()
+    require('Model: [Org Mode Model](editor-org-mode-model.md)\n' in spec and
+            'Specification: [Org Mode](editor-org-mode.md)\n' in model, 'Org spec/model ownership mismatch')
+    historical = document['org_delivery']['historical_closures']
+    require(digest(json.dumps(historical, sort_keys=True, separators=(',', ':'))) ==
+            '355f70003fa6f853f5360ab07b96ccd48034ecf602f5aebdda958522380b50a2',
+            'historical closure identities changed')
+    for row in historical:
+        text = (root / row['path']).read_text()
+        for key, value in row['fields'].items():
+            require(f'{key}: `{value}`\n' in text, 'historical tested candidate/gate changed')

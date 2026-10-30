@@ -1,6 +1,6 @@
 # Slice 64: prepare complete native Org delivery acceptance
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -43,6 +43,14 @@ runtime observations separately from its later documentation SHA. Existing
 historical closure metadata stays unchanged. No final runtime result is claimed
 by fixture preparation or this slice's prerequisite checks.
 
+The approved 192 task descriptions must match between plan and tracker, with
+unchanged identities and spec/model ownership links. All 18 historical closure
+records retain their original candidate and gate identifiers. Negative fixtures
+reject changed canonical records, unrelated task commits, incomplete reports,
+altered gate order, omitted native assertions, stale HEAD/tree evidence and
+premature use of a later closure commit. Fixture Git history tests the reviewed
+snapshot boundary independently of runtime execution.
+
 ## Contracts Added or Changed
 
 - ORG01: complete source-preserving native scenario admission.
@@ -59,7 +67,7 @@ by fixture preparation or this slice's prerequisite checks.
 ## Validation
 
 Development check `python3 -m unittest discover -s scripts -p test_acceptance.py`
-passed all 23 checker tests. A read-only admission check resolved all 63 pinned
+passed all 26 checker tests. A read-only admission check resolved all 63 pinned
 canonical reports and 189 task commits in their owning Git ranges.
 Required exact-head controller checks are pending. The full gate belongs to the
 controller after canonical integration.

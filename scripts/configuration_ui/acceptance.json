@@ -3526,6 +3526,132 @@
         ]
       }
     ],
-    "final_pr": null
+    "final_pr": null,
+    "historical_closures": [
+      {
+        "path": "ops/default/spec/editor-configuration-bootstrap.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-configuration-model.md",
+        "fields": {
+          "Validated candidate": "95713efb7f79fbc72417615a921841f8d49730ed",
+          "Gate validation": "FWDUCVRJCYBKFXEWEFLKPKA35E"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-configuration.md",
+        "fields": {
+          "Validated candidate": "95713efb7f79fbc72417615a921841f8d49730ed",
+          "Gate validation": "FWDUCVRJCYBKFXEWEFLKPKA35E"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-gutter-model.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-gutter.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-interaction.md",
+        "fields": {
+          "Validated candidate": "95713efb7f79fbc72417615a921841f8d49730ed",
+          "Gate validation": "FWDUCVRJCYBKFXEWEFLKPKA35E"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-line-navigation.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-pointer-interaction.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-status-layout.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/editor-whitespace-conversion.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/spec/rev-editor-model.md",
+        "fields": {
+          "Validated candidate": "b56d705c7a84b823bf069fc874bc762938d6d897"
+        }
+      },
+      {
+        "path": "ops/default/spec/rev-editor.md",
+        "fields": {
+          "Validated candidate": "b56d705c7a84b823bf069fc874bc762938d6d897"
+        }
+      },
+      {
+        "path": "ops/default/plan/rev-configuration-ui.md",
+        "fields": {
+          "Validated candidate": "95713efb7f79fbc72417615a921841f8d49730ed",
+          "Gate validation": "FWDUCVRJCYBKFXEWEFLKPKA35E"
+        }
+      },
+      {
+        "path": "ops/default/plan/rev-editor.md",
+        "fields": {
+          "Validated candidate": "b56d705c7a84b823bf069fc874bc762938d6d897",
+          "Gate validation": "ECG376EW4AS7H7M4ST6BSW47K3"
+        }
+      },
+      {
+        "path": "ops/default/plan/rev-input-navigation.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      },
+      {
+        "path": "ops/default/tracker/rev-configuration-ui.md",
+        "fields": {
+          "Validated candidate": "95713efb7f79fbc72417615a921841f8d49730ed",
+          "Gate validation": "FWDUCVRJCYBKFXEWEFLKPKA35E"
+        }
+      },
+      {
+        "path": "ops/default/tracker/rev-editor.md",
+        "fields": {
+          "Validated candidate": "b56d705c7a84b823bf069fc874bc762938d6d897",
+          "Gate validation": "ECG376EW4AS7H7M4ST6BSW47K3"
+        }
+      },
+      {
+        "path": "ops/default/tracker/rev-input-navigation.md",
+        "fields": {
+          "Validated candidate": "dedd85064cb5565a5382a9d8e2e2902daae24d88",
+          "Gate validation": "PZ4OIPXA6GUBSWDH5ZS7MJUOGX"
+        }
+      }
+    ]
   }
 }

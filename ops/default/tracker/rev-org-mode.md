@@ -1273,7 +1273,7 @@ Details and exact checks: [Slice 64](../plan/rev-org-mode.md#slice-64-prepare-co
 
 - [x] T64.1: Admit all sixty-four canonical integrations, reports and agreed requirement mappings without declaring prerequisites runtime proof.
 - [x] T64.2: Prepare clean integrated dev for the unchanged controller full gate and exact-path documentation closure.
-- [ ] T64.3: Verify coherent plan/model/tracker state, zero skips and the distinction between tested head and later closure head.
+- [x] T64.3: Verify coherent plan/model/tracker state, zero skips and the distinction between tested head and later closure head.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ## Delivery closure
@@ -1288,3 +1288,9 @@ Details and exact checks: [Slice 64](../plan/rev-org-mode.md#slice-64-prepare-co
 
 No controller has been started by preparing this tracker. The product owner approved this exact single-cycle startup on 2026-10-28.
 The planning set must be committed before native execution begins.
+
+Slice 64 implementation: all 64 fixed report identities and 192 task descriptions
+agree with the approved plan. Admission pins 63 earlier canonical integrations
+and 189 owning task commits, preserves 18 historical closure records, and
+requires actual same-candidate native/terminal/resource evidence. The controller
+must merge Slice 64, close its integration record and run the unchanged full gate.

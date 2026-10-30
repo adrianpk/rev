@@ -123,6 +123,7 @@ class AcceptanceTests(unittest.TestCase):
             self.assertEqual(execution(directory, current), dict.fromkeys(EVIDENCE_COMMANDS, NATIVE))
             changes = {}
             bad = copy.deepcopy(run); bad["identity"]["head"] = "c" * 40; changes["stale"] = bad
+            bad = copy.deepcopy(run); bad["identity"]["tree"] = "c" * 40; changes["closure tree"] = bad
             bad = copy.deepcopy(run); bad["checks"].pop(); changes["missing"] = bad
             bad = copy.deepcopy(run); bad["checks"].reverse(); changes["order"] = bad
             bad = copy.deepcopy(run); bad["checks"][0]["passed"] = False; changes["failed"] = bad
@@ -675,7 +676,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
                 with self.subTest(name=name), self.assertRaises(ValueError):
                     report(fixture, rows[0], expected, False)
             path = fixture / rows[-1][4]
-            text = path.read_text().replace('Status: drafting', 'Status: reviewing')
+            text = path.read_text().replace('Status: drafting', 'Status: reviewing').replace('Status: delivered', 'Status: reviewing')
             path.write_text(text)
             final_pr = document['org_delivery']['final_pr']
             final_expected = {'pr': final_pr} if final_pr else None
@@ -706,6 +707,66 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             (fixture / 'scripts/check-all.sh').write_text('exit 0\n')
             with self.assertRaisesRegex(ValueError, 'entrypoint'):
                 gate_contract(fixture)
+
+    # A coherent task map cannot be edited in both documents to weaken scope;
+    # older tested candidates stay attached to their original gate identities.
+    def test_org_coherence(self):
+        from configuration_ui.org_delivery import PLAN, TRACKER, coherence
+        root = Path(__file__).resolve().parent.parent
+        document = json.loads((root / 'scripts/configuration_ui/acceptance.json').read_text())
+        coherence(root, document)
+        paths = [PLAN, TRACKER, 'ops/default/spec/editor-org-mode.md',
+                 'ops/default/spec/editor-org-mode-model.md']
+        paths += [row['path'] for row in document['org_delivery']['historical_closures']]
+        with tempfile.TemporaryDirectory(prefix='rev-org-coherence-') as directory:
+            fixture = Path(directory); navigation_fixture(root, fixture, paths)
+            coherence(fixture, document)
+            for relative, old, new in [
+                (TRACKER, 'Status: Approved', 'Status: Completed'),
+                ('ops/default/spec/editor-org-mode-model.md', '(editor-org-mode.md)', '(missing.md)'),
+                ('ops/default/spec/editor-interaction.md', '95713efb7f79fbc72417615a921841f8d49730ed', 'a' * 40),
+            ]:
+                path = fixture / relative; original = path.read_text()
+                path.write_text(original.replace(old, new))
+                with self.subTest(path=relative), self.assertRaises(ValueError):
+                    coherence(fixture, document)
+                path.write_text(original)
+            for relative in [PLAN, TRACKER]:
+                path = fixture / relative
+                path.write_text(path.read_text().replace('without declaring prerequisites runtime proof', 'claiming prerequisite success'))
+            with self.assertRaisesRegex(ValueError, 'task descriptions'):
+                coherence(fixture, document)
+
+    # Real fixture commits distinguish the integrated reviewed PR snapshot from
+    # its later documentation closure, even when the latter is an ancestor too.
+    def test_org_final_candidate(self):
+        from configuration_ui.org_delivery import final
+        with tempfile.TemporaryDirectory(prefix='rev-org-final-') as directory:
+            root = Path(directory)
+            git = ['git', '-C', str(root)]
+            subprocess.run(git + ['init', '-q'], check=True)
+            subprocess.run(git + ['config', 'user.name', 'Acceptance fixture'], check=True)
+            subprocess.run(git + ['config', 'user.email', 'fixture@example.test'], check=True)
+            path = root / 'report.md'
+            text = 'Status: reviewing\nBranch: `test/org-final`\nPR: [#999](https://forge.adrianpk.com/adrianpk/rev/pulls/999)\n'
+            path.write_text(text)
+            subprocess.run(git + ['add', '.'], check=True)
+            subprocess.run(git + ['commit', '-qm', 'test: fixture base'], check=True)
+            base = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+            for i in range(1, 4):
+                (root / 'outcome').write_text(str(i))
+                subprocess.run(git + ['add', '.'], check=True)
+                subprocess.run(git + ['commit', '-qm', f'test: fixture outcome (T64.{i})'], check=True)
+            reviewed = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+            path.write_text(text.replace('reviewing', 'delivered'))
+            subprocess.run(git + ['add', '.'], check=True)
+            subprocess.run(git + ['commit', '-qm', 'docs: fixture closure'], check=True)
+            closure = subprocess.check_output(git + ['rev-parse', 'HEAD'], text=True).strip()
+            fields = ['Slice 64', 'final', 'test/org-final', 'title', 'report.md']
+            self.assertEqual(final(root, f'Integrated: `{reviewed}`', base, fields, {'pr': 999}), reviewed)
+            for name, head, pr in [('closure', closure, 999), ('wrong PR', reviewed, 998)]:
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    final(root, f'Integrated: `{head}`', base, fields, {'pr': pr})
 
 
 def navigation_fixture(root, fixture, paths):
