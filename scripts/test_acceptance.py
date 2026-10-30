@@ -137,7 +137,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
     # All prior cases plus each combined stage and owned cleanup are required;
     # missing work, reordered stages or a copied footer cannot establish delivery.
     def test_config_terminal(self):
-        from configuration_ui.evidence import COMBINED_CASES, COMBINED_STAGES, PTY_CASES, ORG_GROUPS, terminal
+        from configuration_ui.evidence import COMBINED_CASES, COMBINED_STAGES, PTY_CASES, ORG_GROUPS, ORG_COMBINED_STAGES, terminal
         good = ''.join(f'PASS configuration-ui {name}\n' for name in PTY_CASES if name not in COMBINED_CASES)
         for name in COMBINED_CASES:
             good += ''.join(f'PASS {name} {stage}\n' for stage in COMBINED_STAGES)
@@ -145,6 +145,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
         good += 'Configuration/UI terminal suite: 10 sessions passed, 0 skipped.\n'
         candidate = {'head': 'a' * 40, 'tree': 'b' * 40}
         good += ''.join(f'PASS org-workflows {name}\n' for name in ORG_GROUPS)
+        good += ''.join(f'PASS org-combined-{mode} {stage}\n' for mode in ['rgb', 'no-color'] for stage in ORG_COMBINED_STAGES)
         receipt = dict(candidate=candidate, cases=ORG_GROUPS, sessions=sum(ORG_GROUPS.values()),
                        isolated_roots=True, restored_reaped_closed=True)
         good += 'Org terminal evidence: ' + json.dumps(receipt) + '\n'

@@ -9,6 +9,7 @@ import tempfile
 import time
 
 from configuration_ui.combined import combined
+from configuration_ui import org_combined
 from configuration_ui.journeys import configured, fallback
 from acceptance import identity
 from configuration_ui.evidence import GROUPS, ORG_GROUPS, discover
@@ -60,7 +61,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export', 'org-execution', 'org-feeds', 'org-external'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export', 'org-execution', 'org-feeds', 'org-external', 'org-combined'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -103,6 +104,12 @@ def main():
 
 
 def org_terminal(selected):
+    if selected == 'org-combined':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            run_scenario(org_combined.journey, colored)
+            print(f'PASS org-combined {label}')
+        print('Org combined terminal suite: 2 owned sessions passed, 0 skipped.')
+        return True
     if selected == 'org-external':
         for colored, label in [(True, 'kitty-rgb'), (False, 'fallback-no-color')]:
             run_scenario(org_external.journey, colored)

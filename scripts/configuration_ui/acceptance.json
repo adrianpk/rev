@@ -1609,6 +1609,7 @@
     "org-agenda": 6,
     "org-time": 9,
     "org-tasks": 8,
-    "org-outline": 2
+    "org-outline": 2,
+    "org-combined": 2
   }
 }
