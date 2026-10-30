@@ -73,5 +73,7 @@ def run(native, baseline):
         before = fixture(root)
         with Observation(root, ['work', 'agenda', 'user/rev']) as watch:
             result = native(root, 'org', watch, records)
+        from .org_resource_terminal import run as terminal
+        terminal_result = terminal(root, baseline)
         assert fingerprint(root) == before, 'Org measurement changed source bytes'
-        return {'limits': LIMITS, 'fixture_identity': before, 'native': result['records']}
+        return {'limits': LIMITS, 'fixture_identity': before, 'native': result['records'], 'terminal': terminal_result}

@@ -30,6 +30,22 @@ are separate from the unchanged historical 128 MiB ceiling. Resident growth is
 measured while results are retained and includes allocator retention; it is not
 an exact count of logical heap allocation.
 
+Sixteen actual analysis cancellations verify progress before cancellation,
+Busy refusal, worker observation, source/history preservation and eventual return
+to one thread, unchanged descriptors and zero children within 150 ms. The owned
+release terminal measures Org idle, relative/paused timers, armed/paused countdown,
+one-shot expiry, explicit stop, closed habit view and inactive text mode.
+No timer state writes source. Each quiescent interval checks output, CPU, file
+reads and process ownership; terminal restoration/reap/descriptor closure remains
+mandatory.
+
+Initial native controller receipt `JT537DVCUWIND2HHKPP27BLM6M` at
+`caf38b6ea4f115a6c6008e918c6e84b3a214e5f8` passed the six workloads. Source
+maximum was 129.305 ms, largest index chunk 624.601 us, cancellation maximum
+37.860 us and process RSS 11608 KiB. Later checks must cover the added terminal
+observations and final candidate. Source helpers were split by result ownership
+to retain the existing complexity ceiling without exceptions.
+
 ## Contracts Added or Changed
 
 - ORG18: actual bounded source/projection/job observations.

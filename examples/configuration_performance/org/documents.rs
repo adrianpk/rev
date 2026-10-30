@@ -25,27 +25,7 @@ pub(super) fn source(root: &Path) -> Result<()> {
     observe(
         "org_source",
         || {
-            let mut scan = Scan::new(buffer, Limits::default())?;
-            let mut maximum = Duration::ZERO;
-            let mut steps = 0;
-            loop {
-                let start = Instant::now();
-                let coverage = scan.advance(&Cancellation::default());
-                maximum = maximum.max(start.elapsed());
-                steps += 1;
-                if coverage != Coverage::Pending {
-                    break;
-                }
-            }
-            require(
-                scan.index().coverage() == Coverage::Complete,
-                "large index incomplete",
-            )?;
-            require(
-                steps >= 256 && maximum <= Duration::from_millis(10),
-                "index compute chunk exceeded 10ms",
-            )?;
-            maximum_chunk.set(maximum_chunk.get().max(maximum));
+            let scan = indexed(buffer, &maximum_chunk)?;
             let structure =
                 StructureScan::new(buffer, Limits::default())?.run(&Cancellation::default());
             require(
@@ -65,6 +45,34 @@ pub(super) fn source(root: &Path) -> Result<()> {
             )
         },
     )
+}
+
+fn indexed(
+    buffer: &rev::buffer::Buffer,
+    maximum_chunk: &std::cell::Cell<Duration>,
+) -> Result<Scan> {
+    let mut scan = Scan::new(buffer, Limits::default())?;
+    let mut maximum = Duration::ZERO;
+    let mut steps = 0;
+    loop {
+        let start = Instant::now();
+        let coverage = scan.advance(&Cancellation::default());
+        maximum = maximum.max(start.elapsed());
+        steps += 1;
+        if coverage != Coverage::Pending {
+            break;
+        }
+    }
+    require(
+        scan.index().coverage() == Coverage::Complete,
+        "large index incomplete",
+    )?;
+    require(
+        steps >= 256 && maximum <= Duration::from_millis(10),
+        "index compute chunk exceeded 10ms",
+    )?;
+    maximum_chunk.set(maximum_chunk.get().max(maximum));
+    Ok(scan)
 }
 
 pub(super) fn formulas() -> Result<()> {
@@ -121,31 +129,43 @@ pub(super) fn exports(root: &Path) -> Result<()> {
         || {
             let mut outputs = Vec::new();
             for backend in ExportBackend::ALL {
-                let request = Request {
-                    backend,
-                    scope: Scope::Buffer,
-                    options: None,
-                    time: clock()?,
-                };
-                let snapshot =
-                    Work::new(&buffers, id, request, &policy)?.run(&Cancellation::default())?;
-                outputs.push(output(&snapshot, backend)?);
+                outputs.push(exported(&buffers, id, backend, &policy)?);
             }
-            require(outputs.len() == 11, "native export backend omitted")?;
-            require(
-                outputs[0].windows(6).any(|s| s == b"Native"),
-                "text export lost title",
-            )?;
-            require(
-                outputs[7].starts_with(b"PK\x03\x04"),
-                "ODT package signature missing",
-            )?;
-            require(
-                outputs[10].windows(15).any(|s| s == b"BEGIN:VCALENDAR"),
-                "calendar component missing",
-            )?;
+            verified_exports(&outputs)?;
             Ok(outputs)
         },
         || "\"backends\":11".into(),
+    )
+}
+
+fn exported(
+    buffers: &Buffers,
+    id: rev::buffer::BufferId,
+    backend: ExportBackend,
+    policy: &Org,
+) -> Result<Vec<u8>> {
+    let request = Request {
+        backend,
+        scope: Scope::Buffer,
+        options: None,
+        time: clock()?,
+    };
+    let snapshot = Work::new(buffers, id, request, policy)?.run(&Cancellation::default())?;
+    output(&snapshot, backend)
+}
+
+fn verified_exports(outputs: &[Vec<u8>]) -> Result<()> {
+    require(outputs.len() == 11, "native export backend omitted")?;
+    require(
+        outputs[0].windows(6).any(|s| s == b"Native"),
+        "text export lost title",
+    )?;
+    require(
+        outputs[7].starts_with(b"PK\x03\x04"),
+        "ODT package signature missing",
+    )?;
+    require(
+        outputs[10].windows(15).any(|s| s == b"BEGIN:VCALENDAR"),
+        "calendar component missing",
     )
 }

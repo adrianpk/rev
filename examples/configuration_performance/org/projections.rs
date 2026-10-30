@@ -20,16 +20,7 @@ pub(super) fn agenda(root: &Path) -> Result<()> {
     observe(
         "org_agenda",
         || {
-            let selection = SourceSelection {
-                paths: vec![root.join("agenda")],
-                buffers: Vec::new(),
-            };
-            let sources =
-                SourceScan::new(&buffers, selection, &policy.limits)?.run(&Cancellation::default());
-            require(
-                sources.complete() && sources.documents.len() == 256,
-                "agenda source set incomplete",
-            )?;
+            let sources = discovered(root, &buffers, &policy)?;
             let query = AgendaQuery::parse(QueryKind::Todo, "", &policy.limits)?;
             let context = CalendarQuery::new(super::documents::clock()?, &policy)?;
             let result =
@@ -53,19 +44,7 @@ pub(super) fn habits(root: &Path) -> Result<()> {
     let id = buffers.visit(&root.join("work/habit.org"))?;
     let buffer = buffers.get(id)?;
     let policy = Org::default();
-    let structure = StructureScan::new(buffer, Limits::default())?.run(&Cancellation::default());
-    require(
-        structure.coverage() == Coverage::Complete,
-        "habit structure incomplete",
-    )?;
-    let record = HabitRecord::observe(
-        buffer,
-        &structure,
-        Scalar(0),
-        &policy.todo,
-        &Cancellation::default(),
-    )?
-    .ok_or("habit missing")?;
+    let record = habit(buffer, &policy)?;
     let window = rev::config::Habit {
         preceding_days: 366,
         following_days: 366,
@@ -89,4 +68,34 @@ pub(super) fn habits(root: &Path) -> Result<()> {
         },
         || "\"days\":733,\"completions\":1".into(),
     )
+}
+
+fn discovered(root: &Path, buffers: &Buffers, policy: &Org) -> Result<rev::org::agenda::SourceSet> {
+    let selection = SourceSelection {
+        paths: vec![root.join("agenda")],
+        buffers: Vec::new(),
+    };
+    let sources =
+        SourceScan::new(buffers, selection, &policy.limits)?.run(&Cancellation::default());
+    require(
+        sources.complete() && sources.documents.len() == 256,
+        "agenda source set incomplete",
+    )?;
+    Ok(sources)
+}
+
+fn habit(buffer: &rev::buffer::Buffer, policy: &Org) -> Result<HabitRecord> {
+    let structure = StructureScan::new(buffer, Limits::default())?.run(&Cancellation::default());
+    require(
+        structure.coverage() == Coverage::Complete,
+        "habit structure incomplete",
+    )?;
+    Ok(HabitRecord::observe(
+        buffer,
+        &structure,
+        Scalar(0),
+        &policy.todo,
+        &Cancellation::default(),
+    )?
+    .ok_or("habit missing")?)
 }

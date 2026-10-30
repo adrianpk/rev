@@ -80,11 +80,7 @@ fn cycle(buffer: &rev::buffer::Buffer) -> Result<Duration> {
     let start = Instant::now();
     require(job.cancel(), "active cancel missing")?;
     reaped(&mut job, buffer)?;
-    require(
-        observed.load(std::sync::atomic::Ordering::Acquire),
-        "worker did not observe cancellation",
-    )?;
-    require(!job.is_active(), "cancel retained job slot")?;
+    cancelled(&job, &observed)?;
     Ok(start.elapsed())
 }
 
@@ -98,15 +94,35 @@ pub(super) fn run(root: &Path) -> Result<()> {
         "native fixture has unexpected children",
     )?;
     let memory = rss("VmRSS:")?;
-    let mut samples = Vec::new();
-    for _ in 0..16 {
-        samples.push(cycle(buffer)?);
-        released(&before)?;
-    }
+    let samples = repeated(buffer, &before)?;
     require(
         buffer.history().is_empty() && !buffer.is_modified(),
         "cancel changed canonical source",
     )?;
+    report(memory, &before, samples)
+}
+
+fn repeated(
+    buffer: &rev::buffer::Buffer,
+    before: &(usize, usize, String),
+) -> Result<Vec<Duration>> {
+    let mut samples = Vec::new();
+    for _ in 0..16 {
+        samples.push(cycle(buffer)?);
+        released(before)?;
+    }
+    Ok(samples)
+}
+
+fn cancelled(job: &Job<Coverage>, observed: &std::sync::atomic::AtomicBool) -> Result<()> {
+    require(
+        observed.load(std::sync::atomic::Ordering::Acquire),
+        "worker did not observe cancellation",
+    )?;
+    require(!job.is_active(), "cancel retained job slot")
+}
+
+fn report(memory: usize, before: &(usize, usize, String), samples: Vec<Duration>) -> Result<()> {
     let growth = rss("VmRSS:")?.saturating_sub(memory);
     emit(
         "org_cancel",

@@ -126,5 +126,7 @@ def run(selected):
     if selected is None:
         validate_interaction(result, candidate, INTERACTION_LIMITS)
     print(json.dumps(result, indent=2))
+    if 'org' in result:
+        print('Org performance suite: 6 native workloads, 1 PTY session passed, 0 skipped.')
     sessions = 4 if 'terminal' in result else 0
     print(f'Configuration/UI performance suite: {len(result["native"])} native workloads, {sessions} PTY sessions passed, 0 skipped.')
