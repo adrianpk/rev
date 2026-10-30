@@ -1260,7 +1260,9 @@ Implementation required receipt `LXWSBQR6G3PWDECFSIGCVZ4KY6` passed all 1042 sel
 native tests, complete reference/template agreement, baseline/Org link checks and
 31-requirement/34-scenario prerequisite resolution. Focused receipt `NVWGVBUGEOE4A2I2BFFFRBOR3B`
 passed all 22 evidence-checker tests on the same implementation candidate.
-Canonical PR and final PR-reference evidence are pending.
+Canonical PR: [#164](https://forge.adrianpk.com/adrianpk/rev/pulls/164), targeting `dev`.
+Fresh final-head required and focused receipts are required after this PR-reference
+commit. Integration remains pending.
 
 ### Slice 64: prepare complete native Org delivery acceptance
 

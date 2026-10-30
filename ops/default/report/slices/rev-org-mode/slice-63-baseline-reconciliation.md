@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `docs/rev-org-63-baseline-reconciliation`
-PR: pending
+PR: `#164`
 
 ## Purpose
 
@@ -53,6 +53,8 @@ cases and invalid real links/anchors. All 22 checker tests passed during develop
 A bounded comparison also confirmed all 63 editor, 28 configuration, four
 interaction and 31 Org requirement blocks retain their original text, together
 with every earlier validated-candidate/gate field.
+
+Canonical PR: [#164](https://forge.adrianpk.com/adrianpk/rev/pulls/164), targeting `dev`.
 
 ## Contracts Added or Changed
 
