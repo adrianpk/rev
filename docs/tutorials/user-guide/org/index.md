@@ -30,8 +30,9 @@ the learning path above.
 
 [Org support in rev](../../../explanation/org-support.md) explains how source,
 views, formulas and source blocks relate. The
-[Org control catalog](../../../reference/org-controls.md) leads to the complete
-reference, including clocks, habits, links, attachments, refile, publishing
-and feeds.
+[Org reference](../../../reference/org/index.md) provides commands, bindings,
+settings and feature details, including clocks, habits, links, attachments,
+refile, publishing and feeds. The [Org task index](../../../how-to/org/index.md)
+groups the focused procedures above.
 
 [User Guide](../index.md) · [All documentation](../../../index.md)

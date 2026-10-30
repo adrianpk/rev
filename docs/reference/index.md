@@ -27,6 +27,6 @@ Use this section to look up exact behavior. For a guided start, read the
 ## Org mode
 
 The [Org mode guide](../tutorials/user-guide/org/index.md) provides a separate
-learning path. For exact controls, the [Org control catalog](org-controls.md)
-connects outlines, tasks, agenda, capture, tables, source blocks, exports and
-other Org features to their reference pages and startup preferences.
+learning path. The [Org reference](org/index.md) provides commands, bindings,
+startup settings and every feature reference, from outlines and tasks to
+tables, source blocks, exports and feeds.

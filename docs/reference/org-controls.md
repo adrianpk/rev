@@ -1,11 +1,14 @@
 # Native Org controls
 
-The [command catalog](commands.md) lists every compiled M-x name once. The
-[binding reference](bindings.md) describes familiar keys and focus ownership.
+The [Org reference](org/index.md) groups the complete feature references.
+The [Org command catalog](org/commands.md) and [editor catalog](commands.md)
+together list every compiled M-x name once. The
+[Org binding reference](org/bindings.md) describes keys and focus ownership.
 The [complete sample](config.toml), also embedded in the executable, contains
 all 178 schema/catalog entries, 54 RGB roles and 263 local default bindings
-across eight contexts. [Defaults](defaults.md) owns their types, bounds and
-factory values. Empty arrays disable optional declarations; they do not hide
+across eight contexts. [Org configuration](org/configuration.md) and
+[core defaults](defaults.md) own their types, bounds and factory values.
+Empty arrays disable optional declarations; they do not hide
 an implicit program, source scan or destination.
 
 ## Capability map
@@ -23,8 +26,8 @@ file, process or publication consent.
 | [Tags and properties](org-mode.md) | `org-set-tags-command`, `org-set-property`, `org-inspect-property`, `org-match-tags` | `org.tags.inherit`, `org.properties.inherit`; admitted document declarations affect data semantics. |
 | [Priority and effort](org-mode.md) | `org-priority`, `org-set-effort`, `org-inc-effort` | `org.priority.highest`, `lowest`, `default`; `org.duration.units` defines finite work-minute scales. |
 | [Time and timestamps](org-mode.md#operation-time-zones) | `org-timestamp`, `org-schedule`, `org-deadline`, `org-goto-calendar` | `org.time.zone`, `ambiguous`, `nonexistent`, `extend_today_until`; repeaters remain source data. |
-| [Clocks and reports](bindings.md#native-task-clocks) | `org-clock-in`, `org-clock-out`, `org-resolve-clocks`, `org-clock-report` | `org.clock.drawer`, `persist`, `out_when_done`, `remove_zero`, `history_limit`. |
-| [Timers](bindings.md#session-timers) and [habits](org-mode.md#habit-consistency-graphs) | `org-timer-start`, `org-timer-set-timer`, `org-habit-show-graph` | `org.timer.default`; all six `org.habit` window/display preferences. Timers start unarmed. |
+| [Clocks and reports](org/bindings.md#native-task-clocks) | `org-clock-in`, `org-clock-out`, `org-resolve-clocks`, `org-clock-report` | `org.clock.drawer`, `persist`, `out_when_done`, `remove_zero`, `history_limit`. |
+| [Timers](org/bindings.md#session-timers) and [habits](org-mode.md#habit-consistency-graphs) | `org-timer-start`, `org-timer-set-timer`, `org-habit-show-graph` | `org.timer.default`; all six `org.habit` window/display preferences. Timers start unarmed. |
 | [Agenda and queries](org-agenda.md) | `org-agenda`, `org-todo-list`, `org-search-view`, `org-tags-view`, `org-agenda-custom-view` | `org.agenda.sources`, `span`, `week_start`, `include_archived`, `views`; finite agenda/query limits. |
 | [Capture](org-capture.md) | `org-capture`, `org-capture-finalize`, `org-capture-kill` | `org.capture.templates`, `default_file`; empty templates select native Task with explicit destination entry. |
 | [Refile and archive](org-files.md) | `org-refile`, `org-refile-copy`, `org-archive-subtree`, `org-refile-results` | `org.refile.targets`, `org.archive.location`; each canonical participant has its own save outcome. |

@@ -40,8 +40,9 @@ planning, tables, source editing or tangling. See
 Native exports likewise render document content; optional PDF compilation and
 publishing tools have their own configuration and invocation.
 
-Start with [Write Org Notes](../tutorials/user-guide/06-org-notes.md).
-The [Org control catalog](../reference/org-controls.md) links the full delivered
+Start with the [Org guide](../tutorials/user-guide/org/index.md), then use the
+[Org task guides](../how-to/org/index.md) for a specific procedure.
+The [Org reference](../reference/org/index.md) links the full delivered
 set: outlines, tasks, agenda, capture, clocks, links, attachments, tables,
 exports, source blocks and feeds. It describes rev's supported Org behavior,
 not every capability of Emacs Org mode.

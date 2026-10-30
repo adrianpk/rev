@@ -12,11 +12,8 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 
 ## Org mode
 
+The [Org task guides](org/index.md) group capture, code extraction and export.
 For a guided introduction, use the [Org mode guide](../tutorials/user-guide/org/index.md).
-
-- [Capture a task](capture-task.md): add a task to an inbox from another document.
-- [Extract code from Org](extract-org-code.md): write source blocks into ordinary code files.
-- [Export an Org document](export-org.md): produce HTML or Markdown.
 
 ## Repository validation
 
