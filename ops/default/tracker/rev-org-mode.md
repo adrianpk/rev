@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 58 feeds
+Active slice: Slice 59 previews
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1158,14 +1158,15 @@ Details and exact checks: [Slice 58](../plan/rev-org-mode.md#slice-58-import-nat
 - [x] T58.1: Deliver bounded native RSS/Atom parsing, declared feed targets and compatible FEEDSTATUS deduplication.
 - [x] T58.2: Fetch only explicit updates using configured optional transport, with no background poller or new service.
 - [x] T58.3: Verify local XML fixtures, repeat imports, hostile entity rejection and failed fetch/destination preservation.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 58](../report/slices/rev-org-mode/slice-58-feeds.md) (reviewing).
+Report: [Slice 58](../report/slices/rev-org-mode/slice-58-feeds.md) (delivered).
 
-Canonical PR: [#159](https://forge.adrianpk.com/adrianpk/rev/pulls/159), targeting `dev`. Required
-implementation checks passed all 399 native tests; focused checks passed 387
-native tests and two owned HTTP terminal sessions. Fresh final-head receipts
-are required after this PR-reference commit. Integration remains pending.
+Canonical PR: [#159](https://forge.adrianpk.com/adrianpk/rev/pulls/159), merged
+into `dev` at `267fae8f3345d10a8d5ed21a00542d0286bd1b2a`. Required receipt
+`ZU2KUS5YJMUNQOV4KE62Z2EFQC` and focused receipt `QFZRELRUEHKO2UILK7757AATVN`
+passed all 786 selected native tests and two owned HTTP terminal sessions on
+that exact final candidate.
 
 ### Slice 59: preview native Org links and images
 

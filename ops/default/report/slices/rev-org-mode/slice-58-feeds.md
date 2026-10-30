@@ -1,6 +1,6 @@
 # Slice 58: import native Org feed entries on demand
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -74,9 +74,9 @@ Required ordered commands passed on the clean implementation candidate:
 - `git diff --check`
 
 All 399 native tests passed: 129 configuration, 189 I/O and 81 source tests;
-zero failures, ignored or filtered tests. Required implementation receipt
-`3MNSBQZMTWAUPBRKPOJDCBSAIB` identifies candidate
-`4a52e1ba10814650a94e8662e7c73c187c5c8db6`.
+zero failures, ignored or filtered tests. Required final receipt
+`ZU2KUS5YJMUNQOV4KE62Z2EFQC` identifies final candidate
+`267fae8f3345d10a8d5ed21a00542d0286bd1b2a`.
 
 Focused commands passed:
 
@@ -88,10 +88,9 @@ Focused commands passed:
 
 All 387 focused tests passed: 158 commands, 226 editing and three shared process
 cases. The library filter intentionally excludes 46 unrelated tests. Focused
-implementation receipt `VNOOPHFHOGIYO265DPGNN4GZYM` identifies candidate
-`aba31dbcc6f12ff537709143757c7c6095a04e30`. Final readiness requires both ordered
-lists again for the clean PR-reference head; controller receipts and Acta retain
-that candidate and the final validation IDs.
+final receipt `QFZRELRUEHKO2UILK7757AATVN` identifies the same final candidate.
+Canonical PR #159 merged into `dev` at that commit. Acta records the final
+receipts and completed delivery. Slice 59 is the next active recorded slice.
 
 Sixteen focused feed tests passed before the ordered checks. Cases cover RSS/RDF/Atom namespaces and bases,
 hostile entities, exact byte/item limits, literal FEEDSTATUS compatibility,
