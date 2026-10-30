@@ -31,7 +31,7 @@ impl Session {
             );
         }
         let buffer = self.buffer().map_err(|e| e.to_string())?;
-        if request.command != C::ViewSrcInfo && buffer.is_readonly() {
+        if !matches!(request.command, C::ViewSrcInfo | C::ExecuteSrc) && buffer.is_readonly() {
             return Err("Source buffer is read-only".into());
         }
         let byte = Coordinates::new(buffer)
@@ -59,6 +59,7 @@ impl Session {
     }
     fn block_result(&mut self, request: Request, definition: Definition) -> Result<(), String> {
         match request.command {
+            C::ExecuteSrc => self.prepare_execution(request, definition),
             C::ViewSrcInfo => {
                 self.message(&definition.info());
                 Ok(())

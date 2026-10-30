@@ -249,6 +249,7 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-v I", "org-babel-view-src-block-info"),
     ("C-c C-v h", "org-babel-insert-header-arg"),
     ("C-c C-v t", "org-babel-tangle"),
+    ("C-c C-v e", "org-babel-execute-src-block"),
     ("C-u C-c C-v t", "org-babel-tangle-single-block"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[

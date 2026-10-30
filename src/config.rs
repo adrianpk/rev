@@ -11,8 +11,13 @@ pub(crate) mod capture;
 pub use capture::{CaptureKind, CaptureTarget, CaptureTemplate};
 mod export;
 pub mod publishing;
+pub mod source;
 pub use export::{Export, ExportBackend, PartialExport};
 pub use publishing::{PartialPublish, Publish, PublishProject};
+pub use source::{
+    PartialSourcePrograms, ProgramAction, ProgramStep, SourceCwd, SourceDelivery, SourceProgram,
+    SourcePrograms, SourceResult,
+};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -144,6 +149,7 @@ pub struct Org {
     pub tables: Tables,
     pub export: Export,
     pub publish: Publish,
+    pub source: SourcePrograms,
     pub limits: OrgLimits,
 }
 
@@ -169,6 +175,7 @@ impl Default for Org {
             tables: Tables::default(),
             export: Export::default(),
             publish: Publish::default(),
+            source: SourcePrograms::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -196,6 +203,7 @@ pub struct PartialOrg {
     pub tables: PartialTables,
     pub export: PartialExport,
     pub publish: PartialPublish,
+    pub source: PartialSourcePrograms,
     pub limits: PartialOrgLimits,
 }
 

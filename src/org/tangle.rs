@@ -1,6 +1,6 @@
 //! Explicit native tangling: a bounded immutable expansion plan precedes every
 //! checked file effect. Source text and history are never acknowledged as saved.
-mod expand;
+pub(in crate::org) mod expand;
 mod options;
 mod output;
 use crate::{

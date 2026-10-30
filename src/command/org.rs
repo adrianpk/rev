@@ -220,9 +220,11 @@ pub enum OrgCommand {
     Tangle,
     TangleBlock,
     TangleResults,
+    ExecuteSrc,
+    ExecutionResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 218] = [
+    pub const ALL: [Self; 220] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -441,6 +443,8 @@ impl OrgCommand {
         Self::Tangle,
         Self::TangleBlock,
         Self::TangleResults,
+        Self::ExecuteSrc,
+        Self::ExecutionResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -662,6 +666,8 @@ impl OrgCommand {
             "org-babel-tangle",
             "org-babel-tangle-single-block",
             "org-babel-tangle-results",
+            "org-babel-execute-src-block",
+            "org-babel-execution-results",
         ][self as usize]
     }
 
@@ -1005,7 +1011,7 @@ impl OrgCommand {
     pub(crate) fn source_block(self) -> bool {
         matches!(
             self,
-            Self::EditSpecial | Self::ViewSrcInfo | Self::InsertHeaderArg
+            Self::EditSpecial | Self::ViewSrcInfo | Self::InsertHeaderArg | Self::ExecuteSrc
         )
     }
 }

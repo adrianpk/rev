@@ -95,7 +95,8 @@ impl Session {
         self.dispatch_org_request(model, request);
     }
 
-    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, request: Request) {
+    fn dispatch_org_request(&mut self, model: Arc<crate::org::Outline>, mut request: Request) {
+        request.command = self.source_context_command(&model, &request);
         if request.command.source_block() {
             if let Err(error) = self.begin_block(request) {
                 self.error(&error);
@@ -126,6 +127,17 @@ impl Session {
             return;
         }
         self.resume_document_context(model, request);
+    }
+    fn source_context_command(&self, model: &crate::org::Outline, request: &Request) -> OrgCommand {
+        if request.command == OrgCommand::CtrlCCtrlC
+            && self
+                .buffer()
+                .is_ok_and(|b| model.source_block_at(b, request.origin.point.position))
+        {
+            OrgCommand::ExecuteSrc
+        } else {
+            request.command
+        }
     }
     pub(in crate::session) fn resume_document_context(
         &mut self,

@@ -1,5 +1,5 @@
 use super::*;
-pub(super) struct Expansion<'a> {
+pub(in crate::org) struct Expansion<'a> {
     blocks: &'a [Definition],
     names: BTreeMap<String, usize>,
     groups: BTreeMap<String, Vec<usize>>,
@@ -35,6 +35,9 @@ impl<'a> Expansion<'a> {
             self.groups.entry(name).or_default().push(index);
         }
         Ok(())
+    }
+    pub(in crate::org) fn execute(&mut self, index: usize) -> Result<String, String> {
+        self.expanded(index)
     }
     pub fn block(&mut self, index: usize) -> Result<String, String> {
         let mut text = if options::expands(&self.blocks[index])? {

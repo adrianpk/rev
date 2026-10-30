@@ -41,6 +41,7 @@ struct Drawer {
 /// A bounded native fold model prepared by the existing observation worker.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct Outline {
+    source_blocks: Vec<std::ops::Range<usize>>,
     pub(crate) stamp: Stamp,
     coverage: Coverage,
     headings: Vec<Heading>,
@@ -245,3 +246,21 @@ impl Outline {
 }
 
 mod reports;
+
+impl Outline {
+    pub(crate) fn source_block_at(
+        &self,
+        buffer: &crate::buffer::Buffer,
+        point: crate::coordinates::Scalar,
+    ) -> bool {
+        let Ok(c) = crate::coordinates::Coordinates::new(buffer) else {
+            return false;
+        };
+        let Ok(byte) = c.to_byte(point) else {
+            return false;
+        };
+        self.source_blocks.iter().any(|r| {
+            r.start <= byte.0 && (byte.0 < r.end || byte.0 == r.end && byte.0 == buffer.len_bytes())
+        })
+    }
+}

@@ -1,6 +1,7 @@
 mod attachment;
 mod block;
 mod document;
+mod execution;
 mod exports;
 mod links;
 mod publishing;
@@ -26,6 +27,7 @@ pub(super) struct Work {
     capture_running: bool,
     block_running: bool,
     pub(super) tangle_running: bool,
+    pub(super) execution_running: bool,
     tangle_effect: bool,
     refile_running: bool,
     links_running: bool,
@@ -44,6 +46,7 @@ pub(super) struct Work {
 }
 
 enum Observation {
+    Execution(crate::org::execution::Outcome),
     Tangle(Result<crate::org::tangle::Output, String>),
     SourceBlock(Result<crate::org::block::Definition, String>),
     Publish(Result<crate::org::publish::Output, String>),
@@ -173,6 +176,9 @@ impl Session {
             .or_else(|| self.poll_org_interactions())
     }
     fn poll_org_outputs(&mut self) -> Option<bool> {
+        if self.org.execution_running {
+            return Some(self.poll_execution());
+        }
         if self.org.tangle_running {
             return Some(self.poll_tangle());
         }

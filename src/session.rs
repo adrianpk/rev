@@ -24,6 +24,7 @@ mod links;
 mod publishing;
 mod tables;
 pub use attachment::{AttachmentResult, HeadingStatus};
+mod execution;
 mod mode;
 mod motion;
 mod org;
@@ -86,6 +87,8 @@ pub struct Session {
     block_request: Option<outline::Request>,
     source_edit: Option<source_edit::Draft>,
     tangling: Option<tangling::State>,
+    execution: Option<execution::Selection>,
+    execution_result: Option<crate::org::execution::Outcome>,
     tangling_results: Vec<crate::org::tangle::Outcome>,
     refile: Option<refile::State>,
     refile_result: Vec<refile::ResultEntry>,
@@ -142,6 +145,7 @@ enum AfterSave {
 
 enum Pending {
     Tangle(tangling::Prompt),
+    Execution(execution::Prompt),
     SourceHeader(Box<source_edit::HeaderPrompt>),
     Capture(capture::Prompt),
     Refile,
@@ -245,6 +249,8 @@ impl Session {
             block_request: None,
             source_edit: None,
             tangling: None,
+            execution: None,
+            execution_result: None,
             tangling_results: Vec::new(),
             refile: None,
             refile_result: Vec::new(),
@@ -441,7 +447,7 @@ impl Session {
             return self.message("Read-only Org agenda; C-g returns to source");
         }
         if self.tangle_input_blocked(&outcome) {
-            return self.message("Tangling owns source input; C-g cancels remaining files");
+            return self.message("Source output owns input; C-g cancels remaining work");
         }
         if self.capture_blocks_input() {
             return self.message("Capture input pending; C-g cancels");
@@ -462,6 +468,7 @@ impl Session {
         if let Some(action) = self
             .source_edit_command(command)
             .or_else(|| self.capture_command(command))
+            .or_else(|| self.execution_command(command))
             .or_else(|| self.tangle_command(command))
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))

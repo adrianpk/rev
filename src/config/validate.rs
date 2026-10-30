@@ -553,6 +553,7 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
             ));
         }
     }
+    source_programs(&partial.source)?;
     publishing(partial)?;
     viewer(partial)?;
     archive(&partial.archive)
@@ -604,6 +605,13 @@ fn publishing(partial: &super::PartialOrg) -> Result<(), Failure> {
     }
     if let Some(argv) = &partial.tools.upload {
         super::publishing::upload(argv).map_err(|e| Failure::new("org.tools.upload", e))?;
+    }
+    Ok(())
+}
+
+fn source_programs(partial: &super::PartialSourcePrograms) -> Result<(), Failure> {
+    if let Some(programs) = &partial.programs {
+        super::source::validate(programs).map_err(|e| Failure::new("org.source.programs", e))?;
     }
     Ok(())
 }

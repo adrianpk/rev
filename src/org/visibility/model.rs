@@ -3,6 +3,7 @@ use crate::org::{Cancellation, Coverage, Limit, Structure, StructureKind};
 
 pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
     let mut result = Outline {
+        source_blocks: Vec::new(),
         stamp: structure.stamp(),
         coverage: structure.coverage(),
         headings: Vec::new(),
@@ -26,6 +27,15 @@ pub(super) fn observe(structure: &Structure, cancel: &Cancellation) -> Outline {
         if at_limit(&result, node) {
             result.coverage = Coverage::Incomplete(Limit::SourceNodes);
             break;
+        }
+        if node.kind == StructureKind::Block(crate::org::BlockKind::Source)
+            && node.closing.is_some()
+        {
+            result.source_blocks.push(
+                node.affiliated
+                    .as_ref()
+                    .map_or(node.source.clone(), |r| r.start..node.source.end),
+            );
         }
         collect(&mut result, node);
         block(&mut result, node, structure.covered_bytes().0);

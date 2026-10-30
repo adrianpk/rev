@@ -124,6 +124,16 @@ impl Document {
             &mut self.org.tools.upload,
             &later.org.tools.upload,
         );
+        merge.leaf(
+            &["org", "source", "confirm_execution"],
+            &mut self.org.source.confirm_execution,
+            &later.org.source.confirm_execution,
+        );
+        merge.leaf(
+            &["org", "source", "programs"],
+            &mut self.org.source.programs,
+            &later.org.source.programs,
+        );
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],

@@ -100,7 +100,7 @@ fn process_descendants() {
     assert!(stopped(
         &std::fs::read_to_string(f.0.join("descendant")).unwrap()
     ));
-    let owned = program(&f.0, "sleep 30", 1024).launch().unwrap();
+    let owned = program(&f.0, "sleep 30", 1024).launch(None, None).unwrap();
     let pid = owned.pid;
     drop(owned);
     assert!(!PathBuf::from(format!("/proc/{pid}")).exists());

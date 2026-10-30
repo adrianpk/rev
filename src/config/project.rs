@@ -37,6 +37,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     agenda(&mut settings.org, &document.org);
     tables(&mut settings.org, &document.org);
     export(&mut settings.org, &document.org);
+    source(&mut settings.org.source, &document.org.source);
     if let Some(value) = &document.org.publish.projects {
         settings.org.publish.projects.clone_from(value);
     }
@@ -369,5 +370,12 @@ fn tools(base: &mut super::Tools, partial: &super::PartialTools) {
     }
     if let Some(value) = &partial.pdf {
         base.pdf.clone_from(value);
+    }
+}
+
+fn source(base: &mut super::SourcePrograms, partial: &super::PartialSourcePrograms) {
+    scalar(&mut base.confirm_execution, partial.confirm_execution);
+    if let Some(programs) = &partial.programs {
+        base.programs.clone_from(programs);
     }
 }

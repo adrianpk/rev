@@ -29,11 +29,19 @@ struct Owned {
 }
 impl Program {
     pub(crate) fn run(self, cancel: &Cancellation) -> Result<Outcome, String> {
+        self.run_input(None, None, cancel)
+    }
+    pub(crate) fn run_input(
+        self,
+        input: Option<std::fs::File>,
+        environment: Option<&std::path::Path>,
+        cancel: &Cancellation,
+    ) -> Result<Outcome, String> {
         self.validate()?;
         if cancel.is_cancelled() {
             return Err("External job cancelled before launch".into());
         }
-        let mut owned = self.launch()?;
+        let mut owned = self.launch(input, environment)?;
         let result = owned.collect(&self, cancel);
         let cleanup = owned.stop();
         cleanup?;
@@ -51,16 +59,21 @@ impl Program {
         }
         group::available()
     }
-    fn launch(&self) -> Result<Owned, String> {
+    fn launch(
+        &self,
+        input: Option<std::fs::File>,
+        environment: Option<&std::path::Path>,
+    ) -> Result<Owned, String> {
         let (streams, stdout, stderr) = Streams::new()?;
         let mut command = Command::new(&self.argv[0]);
         command
             .args(&self.argv[1..])
             .current_dir(&self.directory)
-            .stdin(Stdio::null())
+            .stdin(input.map_or_else(Stdio::null, Stdio::from))
             .stdout(stdout)
             .stderr(stderr)
             .process_group(0);
+        environment_for(&mut command, environment);
         let child = command
             .spawn()
             .map_err(|e| format!("Start configured program: {e}"))?;
@@ -151,3 +164,18 @@ impl Drop for Owned {
 
 #[cfg(test)]
 mod tests;
+
+fn environment_for(command: &mut Command, root: Option<&std::path::Path>) {
+    let Some(root) = root else { return };
+    for (key, directory) in [
+        ("HOME", "home"),
+        ("XDG_CONFIG_HOME", "config"),
+        ("XDG_CACHE_HOME", "cache"),
+        ("XDG_DATA_HOME", "data"),
+        ("XDG_STATE_HOME", "state"),
+        ("XDG_RUNTIME_DIR", "runtime"),
+        ("TMPDIR", "tmp"),
+    ] {
+        command.env(key, root.join(directory));
+    }
+}

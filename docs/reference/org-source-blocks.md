@@ -124,3 +124,83 @@ extracted. Idle tangling adds no deadline.
 
 See the Org manual's [tangling](https://orgmode.org/manual/Extracting-Source-Code.html)
 and [noweb reference syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.html).
+
+## Execution
+
+`C-c C-v e` (`org-babel-execute-src-block`) selects the block at point;
+`C-c C-c` has the same meaning on a source block. Native execution requires an
+explicit matching profile in `org.source.programs`; no language runner is
+installed or inferred. If several profiles match the exact declared language,
+select one by name. `org.source.confirm_execution` defaults true. Each launch
+asks yes/no with the profile, language and executable. Invalid answers repeat
+confirmation, and decline or `C-g` before launch creates no process/workspace.
+`:eval no` and `never` always reject, including inherited declarations.
+`:eval query` always asks. `yes`, `no-export`, `never-export` and `query-export`
+permit interactive execution according to configuration. Other values reject.
+Visiting, coloring, tangling, exporting and recalculating never execute blocks.
+
+A minimal explicit shell profile is:
+
+```toml
+[[org.source.programs]]
+name = "shell"
+language = "sh"
+action = "execute"
+executable = "/bin/sh"
+argv = []
+delivery = "stdin"
+cwd = "workspace"
+result = "output"
+seconds = 30
+output_bytes = 1048576
+```
+
+Records reject unknown fields. Names/languages use 1..128 ASCII letters, digits,
+`_`, `+` or `-`; names are unique. `action` supports `execute`. `delivery` is
+`stdin` (default) or `file`; `cwd` is `workspace` (default) or `source`, which
+requires an associated Org file. Relative executables containing a slash resolve
+against the configuration file that assigned the program array; bare executable
+names use PATH. There is no shell interpolation of profile tokens. The executable
+can also be the whole `{output}` token for an explicitly compiled owned program.
+
+Arguments accept whole `{input}`, `{output}` and `{workspace}` substitutions for
+an owned source file, compiled program path and private workspace. File delivery
+requires `{input}` in the final argv or an explicit compile step. `steps` is an
+optional array of up to three `{ executable, argv }` records, run sequentially
+before the final executable. Every step shares the operation deadline and
+combined output budget. There are at most 64 executable/argv tokens per step,
+4096 bytes per token and 64 KiB of executable/argument data per profile.
+`seconds` admits 1..600 and `output_bytes` 1..16777216; the effective bound is the
+smaller profile/global `org.limits.job_seconds` or `job_output_bytes` value.
+`result` declares `output`, `value` or `table`; this operation retains raw bytes
+and never implicitly inserts or formats canonical RESULTS text.
+
+The selected unsaved body uses native indentation, LF and literal-unescaping
+rules. `:noweb yes`, `eval`, `no-export`, `strip-export` and `strip-tangle` expand
+bounded literal references; `no` and `tangle` retain them literally. `:no-expand`
+keeps literal code. Cycles, evaluated references and unresolved names reject
+before launch. Expansion retains the existing 512-block, 64-level and 100000-step
+bounds and must fit `org.limits.expansion_bytes`. Persistent sessions, variable
+assignments, `:dir`, prologue/epilogue transformations and cache requests reject
+until a compatible native adapter can preserve their semantics.
+
+The operation owns one worker, a mode-0700 workspace, mode-0600 input and all
+child process groups. Staged input is delivered by a regular stdin file or a
+literal argv path. HOME, all XDG home/runtime directories and TMPDIR point inside
+the private workspace. Programs retain normal host authority; these settings
+provide lifetime and file ownership rather than a sandbox. Source input and
+buffer/window changes remain held until owned cleanup finishes. `C-g` stops
+and reaps the direct child and stops its owned group; time/output failures do
+the same. Only the owned workspace is removed. No idle polling remains.
+
+`org-babel-execution-results` inspects the last state, exit code, byte counts,
+stdout, stderr or retained source. Inspection displays an escaped 1024-character
+prefix; the public native result retains bounded actual bytes. Nonzero exits,
+missing programs, cancellation, timeout, cleanup failures and stale contexts
+remain distinct from successful execution. Failed or cancelled work retains the
+selected source definition and leaves existing RESULTS, buffer history and file
+saved state untouched. Source context is revalidated before confirmed launch
+and after completion. Programs can perform their explicitly confirmed host
+operations; the editor does not save or edit canonical source for execution.
+
+See the Org manual's [evaluation and eval restrictions](https://orgmode.org/manual/Evaluating-Code-Blocks.html).

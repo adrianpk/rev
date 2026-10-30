@@ -200,3 +200,6 @@ mod org_links;
 
 #[path = "configuration/org_publishing.rs"]
 mod org_publishing;
+
+#[path = "configuration/org_source.rs"]
+mod org_source;

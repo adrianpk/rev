@@ -16,6 +16,7 @@ impl Session {
         self.cancel_pointer_capture();
         self.yank = None;
         if self.tangling.is_some()
+            || self.execution.is_some()
             || self.capture_blocks_input()
             || self.input.focus() != Focus::Editing
             || self.tree.focused()

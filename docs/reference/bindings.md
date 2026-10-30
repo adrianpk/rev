@@ -294,6 +294,8 @@ configuration snapshot; source edits take effect after restarting.
 | C-c ' | `org-edit-special` | Edit the selected source block in a retained draft. |
 | C-c C-v I | `org-babel-view-src-block-info` | Inspect declared language, name and effective header data. |
 | C-c C-v h | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
+| C-c C-v e / C-c C-c on a source block | `org-babel-execute-src-block` | Select a configured runner and explicitly confirm a bounded source job. |
+| M-x | `org-babel-execution-results` | Inspect retained stdout, stderr and source without inserting results. |
 | C-c C-v t | `org-babel-tangle` | Tangle declared blocks from the current canonical document into checked files. |
 | C-u C-c C-v t | `org-babel-tangle-single-block` | Tangle only the block at point, retaining its declared named references. |
 | M-x | `org-babel-tangle-results` | Inspect the actual outcome of each file from the last tangling operation. |
