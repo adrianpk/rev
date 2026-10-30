@@ -10,3 +10,5 @@ pub(in crate::org) mod source;
 pub use capture::{CaptureRead, DestinationSource, DestinationVersion};
 
 pub(crate) mod process;
+
+pub(in crate::org) mod bytes;

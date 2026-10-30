@@ -213,7 +213,7 @@ fn sources(
     }
     Ok(matches.pop().expect("one checked destination"))
 }
-pub(super) fn contained(path: &Path, root: Option<&Path>) -> Result<(), String> {
+pub(crate) fn contained(path: &Path, root: Option<&Path>) -> Result<(), String> {
     if let Some(root) = root {
         let root = root.canonicalize().map_err(|e| e.to_string())?;
         if !path.starts_with(root) {

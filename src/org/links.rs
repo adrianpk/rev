@@ -3,6 +3,7 @@
 mod document;
 mod external;
 mod observe;
+mod preview;
 mod resolve;
 mod target;
 mod visit;
@@ -46,6 +47,7 @@ pub(crate) struct Snapshot {
     directory: PathBuf,
     text: Rope,
     policy: crate::config::Org,
+    region: Option<Range<usize>>,
 }
 pub(crate) struct Stored {
     pub target: String,
@@ -69,7 +71,7 @@ impl Snapshot {
         point: Point,
         policy: &crate::config::Org,
     ) -> Result<Self, String> {
-        buffer.region(point).map_err(|e| e.to_string())?;
+        let region = buffer.region(point).map_err(|e| e.to_string())?;
         let text = Source::new(buffer).snapshot().map_err(|e| e.to_string())?;
         if text.len_bytes() > Limits::default().bytes {
             return Err("Link source exceeds native byte limit".into());
@@ -82,6 +84,8 @@ impl Snapshot {
                 || std::env::current_dir().map_err(|e| e.to_string()),
                 |p| Ok(p.to_owned()),
             )?,
+            region: region
+                .map(|s| text.char_to_byte(s.range.start)..text.char_to_byte(s.range.end)),
             text,
             policy: policy.clone(),
         })
@@ -145,3 +149,5 @@ impl Snapshot {
         Ok(target)
     }
 }
+
+pub(crate) use resolve::contained as preview_contained;
