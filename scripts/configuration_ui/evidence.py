@@ -24,6 +24,13 @@ COMBINED_STAGES = ['bootstrap', 'navigation', 'workspace', 'selection', 'whitesp
 ADDITIONS = ['GUT14'] + [f'PTR{i:02}' for i in range(1, 7)] + ['NAV01', 'NAV02', 'WSP01', 'WSP02', 'CFG23', 'CFG24', 'STA01', 'STA02']
 GUTTER_ADDITIONS = [f'GUT{i:02}' for i in [1, 2, 3, 4, 5, 6, 10, 11, 12]]
 IDS = [f'CFG{i:02}' for i in range(1, 23)] + ['R01', 'R17', 'R20', 'R22'] + [f'UI{i:02}' for i in range(1, 5)] + ADDITIONS + ['GUT13', 'R07'] + GUTTER_ADDITIONS + ['R05', 'R16']
+ORG_GROUPS = {
+    'org-external': 4, 'org-feeds': 2, 'org-execution': 2, 'org-export': 2,
+    'org-exports': 2, 'org-tables': 2, 'org-document': 2, 'org-attachments': 2,
+    'org-links': 4, 'org-capture': 2, 'org-refile': 2, 'org-capture-finalize': 4,
+    'org-capture-drafts': 2, 'org-agenda': 6, 'org-time': 9, 'org-tasks': 8,
+    'org-outline': 2,
+}
 MAP = 'scripts/configuration_ui/acceptance.json'
 PLAN = 'ops/default/plan/rev-configuration-ui.md'
 TRACKER = 'ops/default/tracker/rev-configuration-ui.md'
@@ -34,6 +41,7 @@ SECTIONS = ['Purpose', 'Delivered Behavior', 'Implementation Notes', 'Contracts 
 def manifest(root):
     document = json.loads((root / MAP).read_text())
     require(document['version'] == 1, 'unknown configuration acceptance map')
+    require(document['org_terminal'] == ORG_GROUPS, 'Org terminal identities/counts changed')
     require(digest(json.dumps(document['cases'][:30], sort_keys=True, separators=(',', ':'))) == '26ce0576cd41a30ccad2c1bd2a2c5f500d4ee359a113f12661c091165caaa0d6', 'historical configuration protections changed')
     require([row['id'] for row in document['cases']] == IDS, 'configuration requirement identities changed')
     for row in document['cases']:
@@ -87,7 +95,7 @@ def prerequisites(root, cases):
     print('Configuration/UI prerequisites: 58 requirements, named native cases, ten PTY cases, thirteen performance workloads, 30 historical and 20 current slice identities resolved; no gate result claimed.')
 
 
-def terminal(text):
+def terminal(text, candidate):
     # A whole journey must complete its actual assertions and cleanup before its
     # case label. Old eight-case logs or a copied footer cannot prove the pair.
     events = re.findall(r'^PASS (configuration-ui [a-z-]+|combined-(?:rgb|no-color) [a-z-]+)$', text, re.M)
@@ -98,6 +106,22 @@ def terminal(text):
     require(events == expected, 'missing, reordered or duplicate configuration PTY case/stage')
     require('Configuration/UI terminal suite: 10 sessions passed, 0 skipped.' in text, 'missing full configuration PTY summary')
     require(not re.search(r'\b(?:SKIP|FAIL)\b', text), 'configuration PTY skip/failure')
+    org_terminal(text, candidate)
+
+
+def org_terminal(text, candidate):
+    events = re.findall(r'^PASS org-workflows ([a-z-]+)$', text, re.M)
+    require(events == list(ORG_GROUPS), 'missing, reordered or duplicate Org terminal journey')
+    receipts = re.findall(r'^Org terminal evidence: (.+)$', text, re.M)
+    require(len(receipts) == 1, 'missing or duplicate Org terminal receipt')
+    result = json.loads(receipts[0])
+    require(result['candidate'] == candidate, 'stale Org terminal candidate')
+    require(result['cases'] == ORG_GROUPS, 'incomplete Org terminal cases/counts')
+    require(result['sessions'] == sum(ORG_GROUPS.values()), 'incomplete Org terminal sessions')
+    require(result['isolated_roots'] is True and result['restored_reaped_closed'] is True,
+            'missing owned Org root/restoration/cleanup evidence')
+    require(f'Org terminal suite: {sum(ORG_GROUPS.values())} owned sessions passed, 0 skipped.' in text,
+            'missing Org terminal completion')
 
 
 def performance(text, candidate):
@@ -137,7 +161,7 @@ def performance(text, candidate):
 
 
 def reference(text):
-    require('Configuration reference: 72 schema/catalog entries, 29 active RGB roles, 111 default bindings and three optional examples agree; links valid.' in text, 'missing configuration catalog evidence')
+    require('Configuration reference: 178 schema/catalog entries, 54 active RGB roles, 263 default bindings and nine optional examples agree; links valid.' in text, 'missing configuration catalog evidence')
     packaged = re.search(r'Packaged template: ([1-9][0-9]*) exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation\.', text)
     require(packaged is not None and 0 < int(packaged[1]) <= 262144, 'missing/bounded compiled template evidence')
 
@@ -148,7 +172,7 @@ def validate(root, logs, cases):
     references(document['cases'], cases)
     reference_text, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
     reference(reference_text)
-    terminal(pty)
+    terminal(pty, identity(root))
     performance(measured, identity(root))
     print('Configuration/UI acceptance: CFG01-CFG24, R01/R17/R20/R22, UI01-UI04 and combined GUT13/GUT14, R07, pointer/navigation/whitespace/status contracts passed on the same clean HEAD; zero skips.')
 

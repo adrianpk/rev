@@ -1591,5 +1591,24 @@
         ]
       }
     ]
+  },
+  "org_terminal": {
+    "org-external": 4,
+    "org-feeds": 2,
+    "org-execution": 2,
+    "org-export": 2,
+    "org-exports": 2,
+    "org-tables": 2,
+    "org-document": 2,
+    "org-attachments": 2,
+    "org-links": 4,
+    "org-capture": 2,
+    "org-refile": 2,
+    "org-capture-finalize": 4,
+    "org-capture-drafts": 2,
+    "org-agenda": 6,
+    "org-time": 9,
+    "org-tasks": 8,
+    "org-outline": 2
   }
 }

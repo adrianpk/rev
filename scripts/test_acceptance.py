@@ -137,13 +137,19 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
     # All prior cases plus each combined stage and owned cleanup are required;
     # missing work, reordered stages or a copied footer cannot establish delivery.
     def test_config_terminal(self):
-        from configuration_ui.evidence import COMBINED_CASES, COMBINED_STAGES, PTY_CASES, terminal
+        from configuration_ui.evidence import COMBINED_CASES, COMBINED_STAGES, PTY_CASES, ORG_GROUPS, terminal
         good = ''.join(f'PASS configuration-ui {name}\n' for name in PTY_CASES if name not in COMBINED_CASES)
         for name in COMBINED_CASES:
             good += ''.join(f'PASS {name} {stage}\n' for stage in COMBINED_STAGES)
             good += f'PASS configuration-ui {name}\n'
         good += 'Configuration/UI terminal suite: 10 sessions passed, 0 skipped.\n'
-        terminal(good)
+        candidate = {'head': 'a' * 40, 'tree': 'b' * 40}
+        good += ''.join(f'PASS org-workflows {name}\n' for name in ORG_GROUPS)
+        receipt = dict(candidate=candidate, cases=ORG_GROUPS, sessions=sum(ORG_GROUPS.values()),
+                       isolated_roots=True, restored_reaped_closed=True)
+        good += 'Org terminal evidence: ' + json.dumps(receipt) + '\n'
+        good += f'Org terminal suite: {sum(ORG_GROUPS.values())} owned sessions passed, 0 skipped.\n'
+        terminal(good, candidate)
         for name, bad in {
             'missing': good.replace('PASS configuration-ui unwind\n', ''),
             'duplicate': good.replace('PASS configuration-ui unwind', 'PASS configuration-ui io'),
@@ -160,14 +166,14 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             'failed': good + 'FAIL unavailable stage\n',
         }.items():
             with self.subTest(name=name), self.assertRaises(ValueError):
-                terminal(bad)
+                terminal(bad, candidate)
 
     # Prior catalog totals and unbounded/missing compiled-template output cannot
     # establish the delivered bootstrap and gutter/mouse reference contract.
     def test_config_reference(self):
         from configuration_ui.evidence import reference
         good = ('Packaged template: 10013 exact reference bytes; copied native binary works without runtime sample files or HOME/XDG creation.\n'
-                'Configuration reference: 72 schema/catalog entries, 29 active RGB roles, 111 default bindings and three optional examples agree; links valid.\n')
+                'Configuration reference: 178 schema/catalog entries, 54 active RGB roles, 263 default bindings and nine optional examples agree; links valid.\n')
         reference(good)
         for name, bad in {
             'prior catalog': good.replace('72 schema', '59 schema'),
