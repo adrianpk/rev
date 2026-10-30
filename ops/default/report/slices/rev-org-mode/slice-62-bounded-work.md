@@ -43,8 +43,21 @@ Initial native controller receipt `JT537DVCUWIND2HHKPP27BLM6M` at
 `caf38b6ea4f115a6c6008e918c6e84b3a214e5f8` passed the six workloads. Source
 maximum was 129.305 ms, largest index chunk 624.601 us, cancellation maximum
 37.860 us and process RSS 11608 KiB. Later checks must cover the added terminal
-observations and final candidate. Source helpers were split by result ownership
+observations and final candidate. The first terminal fixture incorrectly selected graph preferences rather than
+opening the habit view. The corrected call uses the shipped show-graph command
+and C-g return, preserving the same closed-view observation and eight-second
+PTY deadline. Source helpers were split by result ownership
 to retain the existing complexity ceiling without exceptions.
+
+Acceptance extends the existing manifest additively. Same-commit/tree identity,
+raw counts, source chunk and cancellation timing, all nine idle states, memory,
+read controls and actual cleanup are mandatory. Negative fixtures reject stale
+identity, missing/duplicated/reordered work, changed ceilings, fabricated completion
+counts, continuing CPU, timer repetition and leaked process resources. The earlier
+thirteen native workloads, four PTY sessions and every baseline budget remain
+unchanged. Expected additional warm resource cost is about five seconds; the
+actual complete performance-stage cost will be recorded after measurement. The
+approved complete-gate target remains three to six warm minutes.
 
 ## Contracts Added or Changed
 

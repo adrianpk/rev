@@ -335,7 +335,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
     def test_config_performance(self):
         from configuration_ui.evidence import performance
         good = performance_document()
-        footer = '\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
+        footer = '\nOrg performance suite: 6 native workloads, 1 PTY session passed, 0 skipped.\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
         performance(json.dumps(good, indent=2) + footer, good['candidate'])
         for name in ['missing', 'samples', 'time', 'rss', 'fixture', 'reads', 'recursive', 'parser', 'idle']:
             bad = copy.deepcopy(good)
@@ -348,7 +348,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
     def test_interaction_performance(self):
         from configuration_ui.evidence import performance
         good = performance_document()
-        footer = '\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
+        footer = '\nOrg performance suite: 6 native workloads, 1 PTY session passed, 0 skipped.\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
         indices = {row['workload']: index for index, row in enumerate(good['native'])}
         changes = [
             ('stale HEAD', ['candidate', 'head'], 'c' * 40),
@@ -401,6 +401,63 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 performance(bad, good['candidate'])
 
+
+    # Each resource dimension must fail closed independently. Matching HEAD/tree
+    # and successful process exit cannot replace counts, bounds or owner cleanup.
+    def test_org_performance(self):
+        from configuration_ui.evidence import performance
+        good = performance_document()
+        footer = '\nOrg performance suite: 6 native workloads, 1 PTY session passed, 0 skipped.\nConfiguration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.\n'
+        performance(json.dumps(good, indent=2) + footer, good['candidate'])
+        changes = [
+            ('candidate', ['candidate', 'head'], 'c' * 40),
+            ('tree', ['candidate', 'tree'], 'c' * 40),
+            ('profile', ['profile'], 'debug'),
+            ('ceiling', ['limits', 'peak_rss_kib'], 131072),
+            ('fixture', ['fixture_identity', 'files'], 259),
+            ('hash', ['fixture_identity', 'sha256'], 'unknown'),
+            ('source', ['native', 0, 'headings'], 9999),
+            ('chunk', ['native', 0, 'max_chunk_us'], 10001),
+            ('agenda', ['native', 1, 'sources'], 255),
+            ('habit', ['native', 2, 'days'], 31),
+            ('formula', ['native', 3, 'last_value'], 9999),
+            ('export', ['native', 4, 'backends'], 10),
+            ('cancel', ['native', 5, 'max_us'], 150001),
+            ('busy', ['native', 5, 'busy_rejected'], 15),
+            ('thread', ['native', 5, 'threads_after'], 2),
+            ('fd', ['native', 5, 'fds_after'], 5),
+            ('child', ['native', 5, 'children_after'], 1),
+            ('RSS', ['native', 0, 'peak_rss_kib'], 98305),
+            ('growth', ['native', 0, 'retained_growth_kib'], 32769),
+            ('missing idle', ['terminal', 'idle'], {}),
+            ('polling', ['terminal', 'idle', 'relative', 'cpu_ms'], 100),
+            ('output', ['terminal', 'idle', 'armed', 'output_bytes'], 1),
+            ('IO', ['terminal', 'idle', 'inactive', 'open_access_events'], 1),
+            ('timer', ['terminal', 'expiry_count'], 2),
+            ('slow response', ['terminal', 'responses_ms', 0], 151),
+            ('cleanup', ['terminal', 'restored_reaped_closed'], False),
+        ]
+        for name, path, replacement in changes:
+            bad = copy.deepcopy(good)
+            field = bad['org']
+            for key in path[:-1]:
+                field = field[key]
+            field[path[-1]] = replacement
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                performance(json.dumps(bad, indent=2) + footer, good['candidate'])
+        for name in ['missing', 'duplicate', 'reordered']:
+            bad = copy.deepcopy(good)
+            rows = bad['org']['native']
+            if name == 'missing':
+                rows.pop()
+            elif name == 'duplicate':
+                rows.append(rows[-1])
+            else:
+                rows.reverse()
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                performance(json.dumps(bad, indent=2) + footer, good['candidate'])
+        with self.assertRaises(ValueError):
+            performance(json.dumps(good, indent=2) + footer.split('Configuration/UI')[0], good['candidate'])
 
     # Current capability text must retain every approved scenario, precise startup
     # exception and typed model default without relabeling earlier gate evidence.
@@ -553,6 +610,7 @@ def performance_document():
     proof['graph']['work_open_access_events'] = 64
     idle = {'elapsed_ms': 350.0, 'output_bytes': 0, 'cpu_ms': 0.0}
     return {'hardware': {'profile': 'release'}, 'native': values, 'observation': proof,
+            'org': org_performance_document(),
             **interaction_document(values),
             'budgets_us': BUDGET_US, 'peak_rss_limit_kib': 131072, 'filter_growth_limit_kib': 4096,
             'clock_ticks_per_second': 100,
@@ -560,6 +618,25 @@ def performance_document():
             'fixture_identity': {'entries': 6280, 'sha256': 'a' * 64},
             'terminal': {'startup_ms': 20, 'restored_reaped_closed': True, 'editing_idle': idle.copy(),
                          'prompt_idle': idle.copy(), 'idle_open_access_events': 0, 'peak_rss_kib': 8192}}
+
+
+def org_performance_document():
+    from configuration_ui.org_performance import NAMES, DETAILS, LIMITS
+    from configuration_ui.org_resource_terminal import STAGES
+    rows = [dict(workload=name, samples=3, median_us=10, max_us=11,
+                 peak_rss_kib=8192, baseline_rss_kib=4096, retained_growth_kib=2048,
+                 elapsed_ms=1, cpu_ticks=0, **detail) for name, detail in zip(NAMES, DETAILS)]
+    rows[0]['max_chunk_us'] = 100
+    rows[-1].update(samples=16, threads_before=1, threads_after=1,
+                    fds_before=4, fds_after=4, children_after=0, busy_rejected=16, cancelled=16)
+    owners = dict(threads=1, fds=6, children='')
+    idle = dict(elapsed_ms=350, output_bytes=0, cpu_ms=0, open_access_events=0, **owners)
+    return dict(candidate={'head': 'a' * 40, 'tree': 'b' * 40}, profile='release',
+                elapsed_ms=4000, limits=LIMITS.copy(), native=rows,
+                fixture_identity=dict(files=260, entries=264, sha256='a' * 64),
+                terminal=dict(startup_ms=20, peak_rss_kib=8192, restored_reaped_closed=True,
+                              expiry_count=1, baseline_owners=owners,
+                              responses_ms=[1] * 11, idle={stage: idle.copy() for stage in STAGES}))
 
 
 def interaction_document(values):

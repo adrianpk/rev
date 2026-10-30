@@ -44,6 +44,9 @@ def manifest(root):
     document = json.loads((root / MAP).read_text())
     require(document['version'] == 1, 'unknown configuration acceptance map')
     require(document['org_terminal'] == ORG_GROUPS, 'Org terminal identities/counts changed')
+    from configuration_ui.org_performance import NAMES, LIMITS
+    from configuration_ui.org_resource_terminal import STAGES
+    require(document['org_performance'] == {'workloads': NAMES, 'limits': LIMITS, 'idle': STAGES, 'export_backends': 11}, 'Org performance identities/budgets changed')
     require(digest(json.dumps(document['cases'][:30], sort_keys=True, separators=(',', ':'))) == '26ce0576cd41a30ccad2c1bd2a2c5f500d4ee359a113f12661c091165caaa0d6', 'historical configuration protections changed')
     require([row['id'] for row in document['cases']] == IDS, 'configuration requirement identities changed')
     for row in document['cases']:
@@ -166,6 +169,12 @@ def performance(text, candidate):
         require(idle['elapsed_ms'] >= 350 and idle['output_bytes'] == 0 and 0 <= idle['cpu_ms'] <= budget, 'missing configured idle evidence')
     require(terminal['idle_open_access_events'] == 0 and 0 < terminal['peak_rss_kib'] <= 131072, 'configured idle/memory guard failed')
     interaction(result, candidate, INTERACTION_LIMITS)
+    from configuration_ui.org_performance import validate as org_performance
+    try:
+        org_performance(result['org'], candidate, result['clock_ticks_per_second'])
+    except (AssertionError, KeyError, TypeError, IndexError, OverflowError) as error:
+        raise ValueError(f'incomplete Org performance evidence: {error}') from error
+    require('Org performance suite: 6 native workloads, 1 PTY session passed, 0 skipped.' in text, 'missing Org performance completion')
     require('Configuration/UI performance suite: 13 native workloads, 4 PTY sessions passed, 0 skipped.' in text, 'missing configuration performance completion')
     require(not re.search(r'\b(?:SKIP|FAIL)\b', text), 'configuration performance skip/failure')
 

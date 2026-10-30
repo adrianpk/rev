@@ -120,7 +120,9 @@ def run(selected):
         assert ('terminal' in result) == (selected is None or selected == 'idle'), 'missing PTY evidence'
     if selected in [None, 'org']:
         from configuration_ui.org_performance import run as org_performance
-        result['org'] = org_performance(native, baseline)
+        result['org'] = org_performance(native, baseline, candidate)
+        from configuration_ui.org_performance import validate as validate_org
+        validate_org(result['org'], candidate, result['clock_ticks_per_second'])
     result['measurement_elapsed_ms'] = round((time.perf_counter() - started) * 1000, 3)
     assert identity(ROOT) == candidate, 'performance candidate changed during measurements'
     if selected is None:

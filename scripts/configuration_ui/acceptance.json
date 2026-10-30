@@ -1611,5 +1611,34 @@
     "org-tasks": 8,
     "org-outline": 2,
     "org-combined": 2
+  },
+  "org_performance": {
+    "workloads": [
+      "org_source",
+      "org_agenda",
+      "org_habits",
+      "org_formulas",
+      "org_exports",
+      "org_cancel"
+    ],
+    "limits": {
+      "peak_rss_kib": 98304,
+      "retained_growth_kib": 32768,
+      "response_ms": 150,
+      "chunk_ms": 10,
+      "job_ms": 30000
+    },
+    "idle": [
+      "org_idle",
+      "relative",
+      "paused_relative",
+      "armed",
+      "paused_countdown",
+      "expired",
+      "stopped",
+      "closed_view",
+      "inactive"
+    ],
+    "export_backends": 11
   }
 }
