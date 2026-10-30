@@ -26,7 +26,7 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 54 active RGB roles and all three default binding maps. Its
+global default, all 54 active RGB roles and all eight default context maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -115,6 +115,9 @@ keymap rejects the complete candidate. A bad included value cannot be hidden by
 a later valid override. The editor remains usable with complete built-ins and
 one source/key diagnostic. No settings source is executed or repaired; creation
 is confined to the absent implicit root during normal startup.
+
+See [Native Org controls](org-controls.md) for capability, command, context,
+preference and palette coverage.
 
 ## Configuration value catalog
 

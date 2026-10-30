@@ -2,7 +2,7 @@
 
 - [Bindings](bindings.md): complete keys and names for editing and focused tree commands.
 - [Scope and defaults](defaults.md): startup discovery, complete configuration catalog, file fidelity, history and interaction bounds.
-- [Configuration sample](config.toml): all supported defaults, 29 RGB roles, complete context maps and optional examples.
+- [Configuration sample](config.toml): all supported defaults, 54 RGB roles, complete context maps and optional examples.
 
 - [Commands](commands.md): M-x matching, completion, session history and implemented names.
 - [Focused prompts](prompts.md): argument stages, editing, decisions and cancellation.
@@ -30,3 +30,5 @@
 - [Org tables](org-tables.md): source-preserving alignment, cell navigation and row insertion.
 
 - [Checked Org export snapshots](org-export.md): native preparation, declarations, includes, text macros and source evidence.
+
+- [Native Org controls](org-controls.md): compiled commands, context maps, typed preferences and optional tool examples.

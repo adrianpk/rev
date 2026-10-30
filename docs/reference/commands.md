@@ -1,5 +1,8 @@
 # Commands
 
+See [Native Org controls](org-controls.md) for the implemented Org capability
+map and its typed startup preferences.
+
 `M-x` opens the command prompt. Reported Alt/Meta and compatible Escape input
 follow the [terminal input policy](terminal-input.md). Command entry uses the
 same fixed command registry and handlers as keyboard bindings.

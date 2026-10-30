@@ -5,6 +5,9 @@ fully visible. Visibility controls change only the selected editing view; they a
 work on read-only text. Folding never changes saved bytes, modification state,
 regions or undo history.
 
+The [control catalog](org-controls.md) connects all shipped Org capabilities
+to their commands, context maps, typed defaults and palette roles.
+
 ## Keys and named commands
 
 | Key | Command | Behavior |
