@@ -633,6 +633,63 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'missing/duplicate/unsolved'):
                 navigation_ticket(fixture, row, slices)
 
+    # Fixed canonical identities and owning Git ranges prevent altered plans,
+    # unrelated task commits or premature final-slice delivery from passing.
+    def test_org_delivery(self):
+        from configuration_ui.org_delivery import PLAN, TRACKER, BASE, maps, report, tasks, ancestry
+        root = Path(__file__).resolve().parent.parent
+        document = json.loads((root / 'scripts/configuration_ui/acceptance.json').read_text())
+        rows = maps(root, document)
+        tracker = (root / TRACKER).read_text()
+        expected = document['org_delivery']['integrations'][0]
+        ancestry(root, BASE, expected['head'], expected['tasks'])
+        with tempfile.TemporaryDirectory(prefix='rev-org-delivery-') as directory:
+            fixture = Path(directory)
+            paths = [PLAN, TRACKER, rows[0][4], rows[-1][4]]
+            navigation_fixture(root, fixture, paths)
+            maps(fixture, document)
+            for relative in [PLAN, TRACKER]:
+                path = fixture / relative
+                path.write_text(path.read_text().replace('test/rev-org-64-delivery-acceptance', 'test/rev-org-64-altered'))
+            with self.assertRaisesRegex(ValueError, 'approved Org slice identities'):
+                maps(fixture, document)
+            for name, change in {
+                'integration': lambda d: d['integrations'][0].update(head='a' * 40),
+                'task': lambda d: d['integrations'][0]['tasks'][0].update(head='a' * 40),
+                'missing': lambda d: d['integrations'].pop(),
+                'duplicate': lambda d: d['integrations'].append(d['integrations'][0]),
+            }.items():
+                bad = copy.deepcopy(document); change(bad['org_delivery'])
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    maps(root, bad)
+            path = fixture / rows[0][4]; original = path.read_text()
+            report(fixture, rows[0], expected, False)
+            for name, text in {
+                'PR': original.replace('pulls/102', 'pulls/999'),
+                'integration': original.replace(expected['head'], 'a' * 40),
+                'branch': original.replace(rows[0][2], 'altered-branch'),
+                'state': original.replace('Status: delivered', 'Status: reviewing'),
+                'section': original.replace('## Validation', '## Missing'),
+            }.items():
+                path.write_text(text)
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    report(fixture, rows[0], expected, False)
+            path = fixture / rows[-1][4]
+            text = path.read_text().replace('Status: drafting', 'Status: reviewing')
+            path.write_text(text)
+            final_pr = document['org_delivery']['final_pr']
+            final_expected = {'pr': final_pr} if final_pr else None
+            report(fixture, rows[-1], final_expected, True)
+            with self.assertRaises(ValueError):
+                report(fixture, rows[-1], final_expected, False)
+        tasks(tracker, 1, False)
+        for bad in [tracker.replace('[x] T1.1:', '[ ] T1.1:'), tracker.replace('T1.1:', 'T1.4:')]:
+            with self.assertRaises(ValueError):
+                tasks(bad, 1, False)
+        wrong = copy.deepcopy(expected['tasks']); wrong[0]['head'] = BASE
+        with self.assertRaisesRegex(ValueError, 'task outside'):
+            ancestry(root, BASE, expected['head'], wrong)
+
 
 def navigation_fixture(root, fixture, paths):
     for name in paths:

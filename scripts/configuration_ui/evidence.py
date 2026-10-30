@@ -99,8 +99,11 @@ def prerequisites(root, cases):
     document = manifest(root)
     delivery(root, document, readiness=True)
     references(document['cases'], cases)
+    from configuration_ui.org_delivery import delivery as org_delivery
+    org_delivery(root, document, readiness=True)
     from configuration_ui.org_contracts import prerequisites as org_prerequisites
     org_prerequisites(root, document, ORG_GROUPS, cases)
+    print('Org delivery prerequisites: 64 fixed slice identities/reports, 63 pinned canonical integrations and 189 task commits resolved; Slice 64 readiness is not integration or runtime proof.')
     print('Configuration/UI prerequisites: 58 requirements, named native cases, ten PTY cases, thirteen performance workloads, 30 historical and 20 current slice identities resolved; no gate result claimed.')
 
 
@@ -193,10 +196,15 @@ def validate(root, logs, cases):
     document = manifest(root)
     delivery(root, document, readiness=False)
     references(document['cases'], cases)
+    from configuration_ui.org_delivery import delivery as org_delivery
+    from configuration_ui.org_contracts import rows as org_rows
+    org_delivery(root, document, readiness=False)
+    references(org_rows(root, document, ORG_GROUPS), cases)
     reference_text, pty, measured = (logs[command] for command in CONFIGURATION_COMMANDS)
     reference(reference_text)
     terminal(pty, identity(root))
     performance(measured, identity(root))
+    print('Org acceptance: 64 integrations, 192 task outcomes and all 34 ORG01-ORG31 scenarios admitted from actual native, owned terminal and release resource evidence on the same clean HEAD; zero skips.')
     print('Configuration/UI acceptance: CFG01-CFG24, R01/R17/R20/R22, UI01-UI04 and combined GUT13/GUT14, R07, pointer/navigation/whitespace/status contracts passed on the same clean HEAD; zero skips.')
 
 
