@@ -138,9 +138,32 @@ fixture before later gate stages. A focused reproduction of
 `cargo test --test gutter completion::file_candidates -- --exact --nocapture`
 failed before the correction and passed afterward (one selected test).
 The same focused test passed with an owned TMPDIR prefix exceeding 100 bytes;
-the original geometry and all assertions remain unchanged. Required repair
-prefix and fresh exact-HEAD receipts remain pending. The controller owns the
-unchanged full-gate retry after canonical repair integration.
+the original geometry and all assertions remain unchanged. Required repair prefix passed on clean implementation candidate
+`9ec70bea291925e6195b47d5116f0ab6c6f35f24`, controller receipt `2IKQB6IPP3XXY5REOBHL2MIRCZ`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --all`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 1716 native tests passed with zero failures, ignored or filtered tests,
+including all 33 gutter tests and every existing path-completion test. All 34
+mapped Org native assertions occur in these actual results. Source-quality
+limits remain safe Rust, five parameters, nesting three and cyclomatic ten.
+
+Focused controller receipt `5E7P7ACV7SFIDNS7KDB5ODX5RT` passed on the same candidate:
+
+- `python3 -c 'import os, subprocess, tempfile; from_context = tempfile.TemporaryDirectory(prefix="rev-gutter-long-root-" + "x" * 96); root = from_context.__enter__(); result = subprocess.run(["cargo", "test", "--test", "gutter", "completion::file_candidates", "--", "--exact", "--nocapture"], env=dict(os.environ, TMPDIR=root)); from_context.cleanup(); result.check_returncode(); print("Long owned TMPDIR: original geometry/assertions passed; fixture removed.")'`
+- `python3 -c 'import json, sys; from pathlib import Path; sys.path.insert(0, "scripts"); from configuration_ui.org_delivery import delivery; root = Path.cwd(); delivery(root, json.loads((root / "scripts/configuration_ui/acceptance.json").read_text()), readiness=False); print("Original 64 canonical delivery records and reviewed snapshot preserved; repair metadata remains separate.")'`
+- `git diff --check`
+
+The owned long-root fixture was removed after its selected test. Original 64
+canonical reports/integrations, 192 task outcomes and the reviewed Slice 64
+snapshot still pass delivery admission with separate repair metadata. This is
+focused repair evidence, not a successful complete gate. Fresh final PR-reference
+receipts remain required; the controller owns the unchanged full-gate retry.
+
 
 ## Risks and Follow-ups
 
