@@ -1123,7 +1123,7 @@ Details and exact checks: [Slice 56](../plan/rev-org-mode.md#slice-56-execute-se
 
 - [x] T56.1: Deliver explicit execution confirmation and typed external program adapters without an embedded interpreter.
 - [x] T56.2: Own child groups, stdin/out/err, temporary files, result ceilings, cancellation and finite deadlines.
-- [ ] T56.3: Verify real owned shell jobs, missing tools, timeout and reaping; visiting/exporting source never executes it.
+- [x] T56.3: Verify real owned shell jobs, missing tools, timeout and reaping; visiting/exporting source never executes it.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
 ### Slice 57: insert checked Org block and call results

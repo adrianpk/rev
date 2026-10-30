@@ -1,6 +1,6 @@
 # Slice 56: execute selected Org blocks through bounded tools
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -48,16 +48,28 @@ and the Org manual's [evaluation](https://orgmode.org/manual/Evaluating-Code-Blo
 
 ## Validation
 
-Development `cargo check --lib` passed. Two initial real filesystem/editor tests
-passed with `cargo test --test org_io --test configuration execution` (the filter
-selected no configuration tests). Two typed profile tests passed with `cargo test --test configuration source_profile`.
-Seven focused execution tests now cover stdin/file delivery, a real owned
-multi-step pipeline, missing/nonzero programs, combined output limits, noweb,
-actual cancellation, global/profile timeout and session-drop cleanup. Direct
-children are reaped; descendants stop; owned workspace/input modes and removal
-are checked. A corrected pipeline fixture checks that output overflow prevents later
-stages; it does not assume rollback of already performed external effects.
-Required exact-head checks remain pending.
+Development checks passed:
+
+- `cargo check --lib`
+- `cargo test --test configuration source_profile`
+- `cargo test --test org_io execution`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal --case org-execution`
+
+Two configuration tests and nine native execution tests passed. The real terminal
+journey passed in RGB and NO_COLOR modes, zero skips. It checks both physical
+execution chords, default confirmation, decline, retained output inspection,
+unchanged source/old RESULTS and absence of execution during visit/export.
+Native cases cover read-only and unsaved BOM/CRLF source, explicit runner
+selection, stdin/file delivery, real multi-step programs, missing/nonzero tools,
+combined output limits, bounded noweb and actual cancel/timeout/drop cleanup.
+Direct children are reaped, descendants stop and private workspace/input modes
+and removal are checked. The corrected pipeline fixture checks that overflow
+prevents subsequent stages, without assuming rollback of earlier host effects.
+
+References agree on 171 schema/catalog entries, 54 active RGB roles and 259
+default bindings. The unchanged Rust source checker accepts the changed files.
+Required exact-head controller validation remains pending.
 
 ## Risks and Follow-ups
 

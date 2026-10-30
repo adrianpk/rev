@@ -7,11 +7,15 @@ fn editor(source: &str, extra: &str) -> (Fixture, Session) {
     configured(source, &config)
 }
 pub(super) fn configured(source: &str, config: &str) -> (Fixture, Session) {
+    configured_readonly(source, config, false)
+}
+fn configured_readonly(source: &str, config: &str, readonly: bool) -> (Fixture, Session) {
     let f = Fixture::new();
     let snapshot = prepare(&f.write("config.toml", config));
     assert!(snapshot.diagnostic.is_none(), "{:?}", snapshot.diagnostic);
     let mut buffers = Buffers::with_settings(snapshot.snapshot).unwrap();
     let id = buffers.visit(&f.write("source.org", source)).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(readonly);
     let view = View::new(buffers.get(id).unwrap());
     let s = Session::new(
         buffers,
@@ -76,4 +80,60 @@ fn execute_admission() {
     argument(&mut s, "no");
     assert!(!f.0.join("marker").exists());
     assert_eq!(text(&s), source);
+}
+
+// Unsaved Unicode source is the job input; BOM/CRLF disk bytes remain exact.
+// Read-only source can also run after consent, without implicit source writes.
+#[test]
+fn execute_source_fidelity() {
+    let source =
+        "\u{feff}#+BEGIN_SRC sh\r\nprintf original\r\n#+END_SRC\r\n#+RESULTS:\r\n: previous\r\n";
+    let profile = "[[org.source.programs]]\nname='shell'\nlanguage='sh'\nexecutable='/bin/sh'";
+    for readonly in [false, true] {
+        let (f, mut s) = configured_readonly(source, profile, readonly);
+        if !readonly {
+            s.execute(Command::GotoLine);
+            argument(&mut s, "2");
+            s.handle(Event::Paste("printf unsaved; ".into()));
+        }
+        let before = text(&s);
+        let stamp = s.buffer().unwrap().stamp();
+        let history = s.buffer().unwrap().history().len();
+        action(&mut s, C::ExecuteSrc);
+        argument(&mut s, "yes");
+        let out = s.execution_result().unwrap();
+        assert_eq!(out.state, State::Succeeded, "{}", out.detail);
+        assert_eq!(
+            out.stdout,
+            if readonly {
+                b"original".as_slice()
+            } else {
+                b"unsavedoriginal".as_slice()
+            }
+        );
+        assert_eq!(text(&s), before);
+        assert_eq!(s.buffer().unwrap().stamp(), stamp);
+        assert_eq!(s.buffer().unwrap().history().len(), history);
+        assert_eq!(s.buffer().unwrap().is_modified(), !readonly);
+        assert_eq!(
+            std::fs::read(f.0.join("source.org")).unwrap(),
+            source.as_bytes()
+        );
+    }
+}
+// Several matching runners require explicit name selection, even when launch
+// confirmation is disabled. Selecting cat proves code is not sent to a shell.
+#[test]
+fn execute_program_selection() {
+    let profile = "org.source.confirm_execution=false\n[[org.source.programs]]\nname='shell'\nlanguage='sh'\nexecutable='/bin/sh'\ncwd='source'\n[[org.source.programs]]\nname='reader'\nlanguage='sh'\nexecutable='/bin/cat'";
+    let (f, mut s) = configured(SOURCE, profile);
+    action(&mut s, C::ExecuteSrc);
+    assert!(!f.0.join("marker").exists());
+    argument(&mut s, "reader");
+    let out = s.execution_result().unwrap();
+    assert_eq!(out.state, State::Succeeded, "{}", out.detail);
+    assert_eq!(out.program, "reader");
+    assert!(out.stdout.starts_with(b"printf started"));
+    assert!(!f.0.join("marker").exists());
+    assert_eq!(text(&s), SOURCE);
 }

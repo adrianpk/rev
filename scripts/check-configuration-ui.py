@@ -17,7 +17,7 @@ from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
 from configuration_ui.org_clock_state import persistence
-from configuration_ui import org_time, org_agenda, org_capture_drafts, org_capture_finalize, org_refile, org_capture, org_links, org_attachments, org_document, org_tables, org_exports, org_publish
+from configuration_ui import org_time, org_agenda, org_capture_drafts, org_capture_finalize, org_refile, org_capture, org_links, org_attachments, org_document, org_tables, org_exports, org_publish, org_execution
 
 
 def terminal(selected):
@@ -52,7 +52,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export', 'org-execution'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -76,6 +76,12 @@ def main():
     if args.case=='org-time':
         build.extend(['--example','terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-execution':
+        for colored, label in [(True, 'rgb'), (False, 'no-color')]:
+            run_scenario(org_execution.journey, colored)
+            print(f'PASS org-execution {label}')
+        print('Org execution terminal suite: 2 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-export':
         for label, colored in [('RGB', True), ('NO_COLOR', False)]:
             run_scenario(org_publish.journey, colored)
