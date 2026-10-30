@@ -4,7 +4,6 @@ use crate::buffer::Buffer;
 use crate::config::{Palette, Rgb};
 use crate::coordinates::{Coordinates, Glyph};
 use crate::syntax::{Capture, Style};
-use crate::view::View;
 
 use super::Error;
 
@@ -18,7 +17,7 @@ pub struct Paint {
 
 pub(super) fn row(
     buffer: &Buffer,
-    view: &View,
+    left: usize,
     row: usize,
     width: u16,
 ) -> Result<Vec<Paint>, Error> {
@@ -26,7 +25,7 @@ pub(super) fn row(
         return Ok(Vec::new());
     }
     let coordinates = Coordinates::new(buffer)?;
-    let visible = visible(&coordinates, view, row, width)?;
+    let visible = visible(&coordinates, left, row, width)?;
     let (Some(first), Some(last)) = (visible.first(), visible.last()) else {
         return Ok(Vec::new());
     };
@@ -36,16 +35,16 @@ pub(super) fn row(
     } else {
         buffer.syntax().captures(buffer, bytes)
     };
-    paint(&coordinates, &visible, &captures, view.left)
+    paint(&coordinates, &visible, &captures, left)
 }
 
 fn visible<'a>(
     coordinates: &Coordinates<'a>,
-    view: &View,
+    left: usize,
     row: usize,
     width: u16,
 ) -> Result<Vec<Glyph<'a>>, Error> {
-    let right = view.left.saturating_add(usize::from(width));
+    let right = left.saturating_add(usize::from(width));
     let visible = coordinates
         .glyphs(row)?
         .take_while(|glyph| match glyph {
@@ -53,7 +52,7 @@ fn visible<'a>(
             Err(_) => true,
         })
         .filter(|glyph| match glyph {
-            Ok(glyph) => glyph.columns.start >= view.left && glyph.columns.end <= right,
+            Ok(glyph) => glyph.columns.start >= left && glyph.columns.end <= right,
             Err(_) => true,
         })
         .collect::<Result<Vec<_>, _>>()?;

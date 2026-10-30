@@ -3,6 +3,8 @@ mod hit;
 pub use fold::FoldError;
 mod scroll;
 mod visibility;
+mod wrap;
+pub use wrap::Fragment;
 
 use std::fmt;
 
@@ -95,6 +97,8 @@ pub struct View {
     pub column: Option<usize>,
     pub top: usize,
     pub left: usize,
+    /// Source anchor within the top logical line; reflow resolves it afresh.
+    wrap_start: Scalar,
     folds: Option<fold::Folds>,
     visibility: Option<std::sync::Arc<crate::org::Visibility>>,
     alignment: scroll::Alignment,
@@ -126,6 +130,7 @@ impl View {
             column: None,
             top: 0,
             left: 0,
+            wrap_start: Scalar(0),
             folds: None,
             visibility: None,
             alignment: scroll::Alignment::Center,
@@ -169,6 +174,10 @@ impl View {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
                 .ok_or(coordinates::Error::Overflow)?;
             let width = self.gutter_geometry(buffer, content)?.text().width();
+            if buffer.soft_wrap() && width > 0 {
+                self.left = 0;
+                return self.reveal_wrapped(buffer, width, size.text_rows());
+            }
             let mut top = self.projected_top(buffer);
             let row = self
                 .project_row(buffer, point.row)

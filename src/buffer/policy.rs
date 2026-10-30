@@ -3,6 +3,18 @@ use crate::config::{Editor, Snapshot};
 use super::Buffer;
 
 impl Buffer {
+    /// Presentation is shared by this buffer's views and never enters history.
+    pub fn soft_wrap(&self) -> bool {
+        self.wrap_override.unwrap_or(true)
+    }
+
+    /// Toggle this live buffer only; new buffers retain the startup default.
+    pub fn toggle_soft_wrap(&mut self) -> bool {
+        let enabled = !self.soft_wrap();
+        self.wrap_override = Some(enabled);
+        enabled
+    }
+
     /// The effective editing/display policy belongs to this buffer, shared by
     /// every view. Widths retain the snapshot's admitted 1..=32 bounds.
     pub fn policy(&self) -> &Editor {

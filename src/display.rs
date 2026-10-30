@@ -209,11 +209,23 @@ impl Frame {
     ) -> Result<(), Error> {
         let coordinates = Coordinates::new(buffer)?;
         let content = panel.content();
+        let fragments = if buffer.soft_wrap() {
+            view.wrapped_rows(buffer, content.width(), content.height())?
+        } else {
+            Vec::new()
+        };
         for row in 0..content.height() {
-            let source = view
-                .source_row(buffer, usize::from(row))
-                .unwrap_or(buffer.len_lines());
-            let text = if source < buffer.len_lines() {
+            let fragment = fragments.get(usize::from(row));
+            let source = if buffer.soft_wrap() {
+                fragment.map_or(buffer.len_lines(), |f| f.line)
+            } else {
+                view.source_row(buffer, usize::from(row))
+                    .unwrap_or(buffer.len_lines())
+            };
+            let left = fragment.map_or(view.left, |f| f.columns.start);
+            let text = if let Some(fragment) = fragment {
+                fragment.text.clone()
+            } else if source < buffer.len_lines() {
                 clip::line(coordinates.glyphs(source)?, view.left, content.width())?
             } else {
                 " ".repeat(usize::from(content.width()))
@@ -221,14 +233,14 @@ impl Frame {
             let projected = Row {
                 row,
                 text,
-                syntax: syntax::row(buffer, view, source, content.width())?,
+                syntax: syntax::row(buffer, left, source, content.width())?,
                 band: Band::Document,
                 tone: Tone::Document,
                 faces: Vec::new(),
                 search: None,
                 selection: highlight
                     .as_ref()
-                    .map(|h| h.selected_row(buffer, source, view.left, content.width()))
+                    .map(|h| h.selected_row(buffer, source, left, content.width()))
                     .transpose()?
                     .flatten(),
             }
@@ -288,6 +300,19 @@ impl Frame {
     }
 
     fn position(point: Cell, view: &View, panel: Panel, buffer: &Buffer) -> Option<Position> {
+        if buffer.soft_wrap() {
+            let content = panel.content();
+            let fragments = view
+                .wrapped_rows(buffer, content.width(), content.height())
+                .ok()?;
+            let (row, fragment) = fragments.iter().enumerate().find(|(_, f)| {
+                f.line == point.row && f.contains(view.point.position, content.width())
+            })?;
+            return panel.position(Position {
+                column: u16::try_from(point.column.checked_sub(fragment.columns.start)?).ok()?,
+                row: u16::try_from(row).ok()?,
+            });
+        }
         panel.position(Position {
             column: u16::try_from(point.column.checked_sub(view.left)?).ok()?,
             row: u16::try_from(view.screen_row(buffer, point.row)?).ok()?,
