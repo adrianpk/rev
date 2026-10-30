@@ -28,7 +28,14 @@ def owned(root):
             super().__init__(command, colors, env, cwd)
             self.restored = False
             self.closed = False
+            self.no_color = bool(env.get('NO_COLOR'))
             sessions.append(self)
+
+        def drain(self):
+            super().drain()
+            if self.no_color:
+                assert b'\x1b[38;2;' not in self.output and b'\x1b[48;2;' not in self.output
+                assert b'\x1b]12;' not in self.output and b'\x1b]112' not in self.output
 
         def finish(self, expected):
             super().finish(expected)
