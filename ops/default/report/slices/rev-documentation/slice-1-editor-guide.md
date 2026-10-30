@@ -5,7 +5,7 @@ Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-01-editor`
-PR: pending
+PR: `#168`
 
 ## Purpose
 
@@ -21,6 +21,9 @@ available through its own learning entry and preserve the existing examples.
 - README and all quadrant indexes distinguish those paths. Editor recovery
   stays with ordinary file tasks; Org procedures have their own heading.
 - All 53 documentation pages remain reachable from the documentation index.
+- A native Rust checker validates local targets, heading anchors, page
+  reachability and both learning paths. A Bash driver defines the selected
+  documentation gate in the approved command order.
 
 ## Implementation Notes
 
@@ -34,12 +37,27 @@ the baseline's native workflow evidence rather than repeating unrelated PTY,
 performance or whole-editor checks. T1.1 is commit
 `4f8c8dc13d169fbbcb13f2477b5f828b8067ddfb`.
 
+T1.2 retains entry-point commit `0c207ece72388bac167fed080351a65890b34a4a`.
+Native checks are commit `53641811317a5545ee306f147f8bf5d6a9429aaf`.
+The checker uses the Rust standard library without new dependencies. It scans
+README, CHANGELOG and every Markdown page under docs; fenced examples and
+inline code do not become links. Cycles are allowed, orphan pages reject,
+and each guide must retain its own exact index and chapter sequence.
+
+The branch adopts the approved controller-owned execution contract and reuses
+PR #168. The immutable report link remains its original introduction commit,
+`0c207ece72388bac167fed080351a65890b34a4a`.
+
 ## Contracts Added or Changed
 
 The core learning sequence no longer crosses Org before reaching preferences.
 The Org guide states its shared editing prerequisites and returns to the
 User Guide index. This does not change the CLI, keybindings, configuration,
 packaged sample or application behavior.
+
+The Bash driver propagates failures and runs the native documentation checker,
+command reference tests and configuration reference tests in that order.
+Split-catalog completeness adaptation remains T2.2.
 
 ## Files of Interest
 
@@ -48,18 +66,32 @@ packaged sample or application behavior.
 - `docs/tutorials/user-guide/05-file-tree.md` and `09-preferences.md`:
   the direct tree-to-preferences navigation.
 - `README.md` and the four quadrant indexes: separate reader entry points.
+- `examples/documentation-check.rs`: native link, anchor and navigation checks.
+- `scripts/check-documentation.sh`: the approved Rust/Bash gate driver.
 
 ## Validation
 
-- `python3 -c 'from pathlib import Path; import runpy; c=runpy.run_path("scripts/check-config-reference.py"); links=[(p,t) for p in [Path("README.md"),*Path("docs").rglob("*.md")] for t in c["link_targets"](p.read_text()) if "://" not in t]; [c["check_link"](p,t) for p,t in links]; print(f"PASS {len(links)} local links and anchors")'` passed: 253 local links and heading anchors.
-- An inline check using the existing Markdown parser confirmed reachability
-  of all 53 documentation pages from `docs/index.md`.
-- Both Next/Previous sequences were checked, including their first/last
-  chapters. All existing chapter URLs, guide code blocks and the packaged
-  reference sample were compared with the slice base and retained.
-- `git diff --check` passed. Changes are limited to documentation and this
-  delivery's plan, tracker and report.
-- External HTTP links were not checked. No runtime instructions changed.
+- `cargo test --example documentation-check` passed during implementation:
+  four tests cover Markdown literals, missing targets/anchors, orphan pages
+  and rejection of navigation crossing between the two learning paths.
+- `cargo run --quiet --example source-check -- --root examples/documentation-check.rs`
+  passed during implementation: safe Rust, at most five parameters, nesting
+  at most three and cyclomatic complexity at most ten.
+- The retained chapter diff changes navigation only; original guide code
+  blocks and the complete configuration sample are unchanged.
+
+The controller receipt records these handoff commands in order against the
+final clean HEAD; integration requires its successful result:
+
+- `cargo run --quiet --example documentation-check`
+- `cargo test --example documentation-check`
+- `cargo run --quiet --example source-check -- --root examples/documentation-check.rs`
+- `rustfmt --check --edition 2024 examples/documentation-check.rs`
+- `bash -n scripts/check-documentation.sh`
+- `git diff --check`
+
+External HTTP links are outside the local checker. No runtime instructions
+changed. The combined documentation gate runs after all three slices integrate.
 
 ## Risks and Follow-ups
 
