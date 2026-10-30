@@ -20,7 +20,7 @@ from configuration_ui.interaction_evidence import validate as validate_interacti
 from configuration_ui.support import ROOT, environment
 
 
-KINDS = ['graph', 'entries', 'names', 'redraw', 'syntax', 'gutter', 'drag', 'idle']
+KINDS = ['graph', 'entries', 'names', 'redraw', 'syntax', 'gutter', 'drag', 'idle', 'org']
 BUDGET_US = {'graph': 1_000_000, 'entries_observe': 250_000, 'names_observe': 250_000,
              'entries_filter': 10_000, 'names_filter': 10_000, 'redraw': 100_000, 'syntax': 10_000}
 BUDGET_US.update(gutter_absolute=100_000, gutter_relative=100_000, drag_active=100_000, drag_idle=10_000)
@@ -57,9 +57,9 @@ def records(lines, kind):
     return values
 
 
-def native(root, kind, watch):
+def native(root, kind, watch, decode=records):
     command = [str(ROOT / 'target/release/examples/configuration-performance'), kind, str(root)]
-    process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+    process = subprocess.Popen(command, cwd=root, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, env=dict(os.environ, **environment(root)))
     prefix = bytearray()
     deadline = time.monotonic() + 15
@@ -76,9 +76,10 @@ def native(root, kind, watch):
         before = watch.drain()
         output, error = process.communicate(b'go\n', timeout=15)
         assert process.returncode == 0, (error[-4000:] + output[-4000:]).decode(errors='replace')
-        proof = evidence(kind, before, watch.drain())
+        events = watch.drain()
+        proof = evidence(kind, before, events) if kind != 'org' else {'work_open_access_events': len(events)}
         assert len(output) + len(prefix) <= 65536, 'native output exceeded 64 KiB'
-        return {'records': records((prefix + output).decode(), kind), 'observation': proof}
+        return {'records': decode((prefix + output).decode(), kind), 'observation': proof}
     finally:
         if process.poll() is None:
             process.kill()
@@ -103,7 +104,7 @@ def run(selected):
         root = Path(directory)
         result['fixtures'] = fixture(root)
         before = fingerprint(root)
-        kinds = KINDS[:-1] if selected is None else [selected]
+        kinds = list(EXPECTED) if selected is None else ([] if selected == 'org' else [selected])
         for kind in [value for value in kinds if value != 'idle']:
             measured = watched(root, kind)
             result['native'].extend(measured['records'])
@@ -117,6 +118,9 @@ def run(selected):
         expected = sum(map(len, EXPECTED.values())) if selected is None else len(EXPECTED.get(selected, []))
         assert len(result['native']) == expected, 'missing required native workload'
         assert ('terminal' in result) == (selected is None or selected == 'idle'), 'missing PTY evidence'
+    if selected in [None, 'org']:
+        from configuration_ui.org_performance import run as org_performance
+        result['org'] = org_performance(native, baseline)
     result['measurement_elapsed_ms'] = round((time.perf_counter() - started) * 1000, 3)
     assert identity(ROOT) == candidate, 'performance candidate changed during measurements'
     if selected is None:

@@ -16,6 +16,9 @@ mod metrics;
 #[path = "configuration_performance/presentation.rs"]
 mod presentation;
 
+#[path = "configuration_performance/org.rs"]
+mod org;
+
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 fn require(condition: bool, message: &str) -> Result<()> {
@@ -64,6 +67,7 @@ fn main() -> Result<()> {
     require(args.len() == 3, "expected workload and fixture root")?;
     let root = Path::new(&args[2]);
     match args[1].to_str() {
+        Some("org") => org::run(root),
         Some("graph") => graph::run(root),
         Some("entries" | "names") => candidates::run(root, args[1].to_str().unwrap()),
         Some("redraw") => presentation::redraw(root),

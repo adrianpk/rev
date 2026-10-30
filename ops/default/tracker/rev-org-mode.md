@@ -1229,10 +1229,12 @@ that exact final candidate. Terminal admission and owned cleanup were verified.
 Contracts: ORG18 ORG31.
 Details and exact checks: [Slice 62](../plan/rev-org-mode.md#slice-62-verify-bounded-org-work-and-idle-resources).
 
-- [ ] T62.1: Extend existing performance collection for large Org source, many files, habit graphs, formulas and exports.
+- [x] T62.1: Extend existing performance collection for large Org source, many files, habit graphs, formulas and exports.
 - [ ] T62.2: Measure responsive cancellation and inactive/armed timer behavior under the frozen resource ceilings.
 - [ ] T62.3: Retain baseline ceilings, same-candidate provenance and explicit warm gate cost; investigate regressions.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+Report: [Slice 62](../report/slices/rev-org-mode/slice-62-bounded-work.md) (drafting).
 
 ### Slice 63: reconcile native Org contracts and references
 
