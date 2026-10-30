@@ -98,7 +98,7 @@ impl<'a> Reader<'a> {
             .get(self.at)
             .copied()
             .ok_or("Unclosed XML attribute")?;
-        if ![b'\'', b'"'].contains(&quote) {
+        if !b"'\"".contains(&quote) {
             return Err("XML attributes require quotes".into());
         }
         self.at += 1;

@@ -57,8 +57,10 @@ fn feed_rejections() {
     ] {
         assert!(Feed::parse(&source,None,&OrgLimits::default(),&Cancellation::default()).is_err(),"{name}");
     }
-    let mut limits = OrgLimits::default();
-    limits.feed_bytes = RSS.len() - 1;
+    let mut limits = OrgLimits {
+        feed_bytes: RSS.len() - 1,
+        ..OrgLimits::default()
+    };
     assert!(Feed::parse(RSS, None, &limits, &Cancellation::default()).is_err());
     limits.feed_bytes = RSS.len();
     assert!(Feed::parse(RSS, None, &limits, &Cancellation::default()).is_ok());
