@@ -2,12 +2,14 @@
 
 Status: draft
 Date: 2026-10-27
+Reviewed: 2026-10-31
 Format: OpenSpec capability proposal
 Source: product-owner discussion; captured for later refinement
-Delivery boundary: outside rev-configuration-ui; no implementation or slicing authorized
+Delivery boundary: future capability; no implementation or slicing authorized
 Client owner: [Language Server Support](editor-language-server-support.md)
 Model: [Language Server Installation Model](editor-language-server-installation-model.md)
 Storage reference: [Editor Configuration](editor-configuration.md)
+Readiness: language priorities and external payload ownership confirmed; catalog, acquisition and trust policies remain open
 
 ## Purpose
 
@@ -83,3 +85,18 @@ A partial failure SHALL NOT destroy a previously usable managed installation.
 
 The model records candidate ownership without freezing a manifest or catalog
 format. This draft does not authorize downloads, installations or updates now.
+
+## Dependencies and validation direction
+
+Use the LSP client's admitted launch/configuration contract and existing XDG
+configuration/data/cache ownership. Installation is separate from activation:
+the client remains usable with unmanaged compatible servers. The listed
+language priorities do not establish equal recipe availability or substitute
+for checking each chosen server's current prerequisites and distribution terms.
+
+Before planning, select the actual catalog and supported platforms, acquisition
+and verification policy, failure/cancellation behavior and managed/external
+precedence. Cover existing-server reuse, missing runtimes, unavailable network,
+incomplete payloads, failed replacement, cancellation and verified launchability
+without implicitly enabling continuous analysis. No machine installation is
+performed by this formalization.
