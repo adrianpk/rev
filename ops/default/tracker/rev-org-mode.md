@@ -1175,8 +1175,10 @@ Details and exact checks: [Slice 59](../plan/rev-org-mode.md#slice-59-preview-na
 
 - [x] T59.1: Deliver bounded link/image preview controls over explicit source/resource observations.
 - [x] T59.2: Use admitted terminal PNG presentation when supported and explicit external viewers otherwise; retain readable fallback.
-- [ ] T59.3: Verify clipping, terminal restoration, source immutability and child cleanup in the owned external-feature journey.
+- [x] T59.3: Verify clipping, terminal restoration, source immutability and child cleanup in the owned external-feature journey.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+Report: [Slice 59](../report/slices/rev-org-mode/slice-59-previews.md) (reviewing).
 
 ### Slice 60: complete the native Org control catalog
 

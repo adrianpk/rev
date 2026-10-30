@@ -17,7 +17,7 @@ from configuration_ui.workspace import workspace
 from configuration_ui.org_outline import outline
 from configuration_ui.org_tasks import tasks, readonly
 from configuration_ui.org_clock_state import persistence
-from configuration_ui import org_time, org_agenda, org_capture_drafts, org_capture_finalize, org_refile, org_capture, org_links, org_attachments, org_document, org_tables, org_exports, org_publish, org_execution, org_feeds
+from configuration_ui import org_time, org_agenda, org_capture_drafts, org_capture_finalize, org_refile, org_capture, org_links, org_attachments, org_document, org_tables, org_exports, org_publish, org_execution, org_feeds, org_external
 
 
 def terminal(selected):
@@ -52,7 +52,7 @@ def run_scenario(scenario, variant):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', choices=['terminal', 'performance', 'prerequisites'], required=True)
-    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export', 'org-execution', 'org-feeds'])
+    parser.add_argument('--case', choices=['configured', 'missing', 'rejected', 'workspace', 'io', 'unwind', 'combined', 'org-outline', 'org-tasks', 'org-time', 'org-agenda', 'org-capture-drafts', 'org-capture-finalize', 'org-refile', 'org-capture', 'org-links', 'org-attachments', 'org-document', 'org-tables', 'org-exports', 'org-export', 'org-execution', 'org-feeds', 'org-external'])
     parser.add_argument('--workload', choices=KINDS)
     args = parser.parse_args()
     if args.suite == 'prerequisites':
@@ -69,13 +69,22 @@ def main():
     if args.workload is not None:
         parser.error('--workload requires the performance suite')
     build = ['cargo', 'build', '--bin', 'rev']
-    if args.case in [None, 'io', 'unwind']:
+    if args.case in [None, 'io', 'unwind', 'org-external']:
         build.extend(['--example', 'terminal-probe'])
     if args.case in ['org-tasks','org-time','org-agenda','org-links']:
         build.extend(['--example', 'org-task-session'])
     if args.case=='org-time':
         build.extend(['--example','terminal-probe'])
     subprocess.run(build, cwd=ROOT, check=True)
+    if args.case == 'org-external':
+        for colored, label in [(True, 'kitty-rgb'), (False, 'fallback-no-color')]:
+            run_scenario(org_external.journey, colored)
+            print(f'PASS org-external {label}')
+        for mode in ['org-preview-io', 'org-preview-unwind']:
+            run_scenario(org_external.fault, mode)
+            print(f'PASS org-external {mode}')
+        print('Org external terminal suite: 4 owned sessions passed, 0 skipped.')
+        return
     if args.case == 'org-feeds':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
             run_scenario(org_feeds.journey, colored)

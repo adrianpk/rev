@@ -206,3 +206,6 @@ mod org_source;
 
 #[path = "configuration/org_feeds.rs"]
 mod org_feeds;
+
+#[path = "configuration/org_previews.rs"]
+mod org_previews;

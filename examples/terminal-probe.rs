@@ -11,6 +11,8 @@ use rev::terminal::Terminal;
 
 #[path = "terminal_probe/pointer.rs"]
 mod pointer;
+#[path = "terminal_probe/preview.rs"]
+mod preview;
 #[path = "terminal_probe/timer.rs"]
 mod timer;
 
@@ -54,7 +56,7 @@ fn pattern(mode: &str) -> Option<&'static [u8]> {
         "color-set" => Some(b"\x1b]12;"),
         "color-stop" => Some(b"\x1b]112"),
         "screen-stop" => Some(b"\x1b[?1049l"),
-        _ => timer::pattern(mode),
+        _ => preview::pattern(mode).or_else(|| timer::pattern(mode)),
     }
 }
 
@@ -108,6 +110,7 @@ fn palette(terminal: &mut Terminal<Fault>) -> io::Result<()> {
 fn finish(terminal: &mut Terminal<Fault>, mode: &str) -> io::Result<()> {
     match mode {
         "org-timer-io" => timer::failure(terminal),
+        "org-preview-io" | "org-preview-unwind" => preview::failure(terminal, mode),
         "io" => {
             terminal.writer().write_all(b"probe-io")?;
             terminal.writer().flush()

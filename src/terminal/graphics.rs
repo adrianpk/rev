@@ -161,3 +161,6 @@ fn base64(bytes: &[u8]) -> Vec<u8> {
     }
     output
 }
+
+#[cfg(test)]
+mod tests;
