@@ -1,5 +1,7 @@
 # Native capture templates and targets
 
+For the default interactive flow, see [Capture a task](../how-to/capture-task.md).
+
 Capture configuration is typed data. Template selection and target discovery
 are non-writing operations. `C-c c` / `M-x org-capture` selects a template,
 collects required input and opens an editable transient draft. `C-c C-c` /

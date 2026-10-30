@@ -1,5 +1,7 @@
 # Checked Org export snapshots
 
+For the HTML and Markdown workflow, see [Export an Org document](../how-to/export-org.md).
+
 The native export preparation layer captures one canonical buffer revision,
 including unsaved text, BOM metadata and exact newlines/EOF. Its request selects
 a native backend, whole buffer, checked region or subtree at a byte position,

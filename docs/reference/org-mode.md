@@ -1,5 +1,7 @@
 # Native Org mode
 
+For a first outline, follow [Write Org Notes](../tutorials/user-guide/06-org-notes.md).
+
 An admitted `.org` file or `M-x org-mode` uses native Org mode. Source starts
 fully visible. Visibility controls change only the selected editing view; they also
 work on read-only text. Folding never changes saved bytes, modification state,

@@ -1,5 +1,7 @@
 # Org source blocks
 
+For a small tangling example, see [Extract code from Org](../how-to/extract-org-code.md).
+
 Use `C-c '` (`org-edit-special`) on a complete `#+BEGIN_SRC` block, its body,
 closing line or affiliated metadata. The body opens in a transient **Org Src**
 buffer. Edit with ordinary text controls and undo. Available configured language
