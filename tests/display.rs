@@ -62,31 +62,37 @@ fn initial_frame() {
     assert!(buffer.history().is_empty());
 }
 
-// Both scroll axes belong to the view. Revealing a point projects only its
-// visible logical rows and uses terminal-cell rather than scalar columns.
+// Factory wrapping reveals continuation rows; explicit no-wrap retains horizontal
+// cell scrolling. Both modes preserve the source-qualified point and history.
 #[test]
 fn viewport_reveal() {
-    let mut buffers = Buffers::new().unwrap();
-    let id = buffers
-        .create("first\nsecond\na\t界e\u{301}\nlast")
-        .unwrap();
-    let buffer = buffers.get(id).unwrap();
-    let mut view = View::new(buffer);
-    view.point.position = Scalar(18);
-    let size = Size {
-        width: 4,
-        height: 4,
-    };
-    view.reveal(buffer, size).unwrap();
-    assert_eq!((view.top, view.left), (1, 4));
-    let frame = Frame::project(buffer, &view, size, "").unwrap();
-    assert_eq!(frame.rows()[0].text(), "nd  ");
-    assert_eq!(frame.rows()[1].text(), "界e\u{301} ");
-    assert_eq!(frame.cursor(), Some(Position { column: 3, row: 1 }));
-    let mut independent = View::new(buffer);
-    independent.reveal(buffer, size).unwrap();
-    assert_eq!((independent.top, independent.left), (0, 0));
-    assert_eq!(buffer.stamp(), view.point.stamp);
+    let fixture = config_fixture::Fixture::new();
+    for (wrap, top, left, first) in [(true, 2, 0, "a   "), (false, 1, 4, "nd  ")] {
+        let startup = rev::config::prepare(
+            &fixture.write("config.toml", &format!("editor.soft_wrap = {wrap}")),
+        );
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        let id = buffers
+            .create("first\nsecond\na\t界e\u{301}\nlast")
+            .unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let mut view = View::new(buffer);
+        view.point.position = Scalar(18);
+        let size = Size {
+            width: 4,
+            height: 4,
+        };
+        view.reveal(buffer, size).unwrap();
+        assert_eq!((view.top, view.left), (top, left));
+        let frame = Frame::project(buffer, &view, size, "").unwrap();
+        assert_eq!(frame.rows()[0].text(), first);
+        assert_eq!(frame.rows()[1].text(), "界e\u{301} ");
+        assert_eq!(frame.cursor(), Some(Position { column: 3, row: 1 }));
+        let mut independent = View::new(buffer);
+        independent.reveal(buffer, size).unwrap();
+        assert_eq!((independent.top, independent.left), (0, 0));
+        assert_eq!(buffer.stamp(), view.point.stamp);
+    }
 }
 
 fn bounded(frame: &Frame, size: Size) {
@@ -117,25 +123,44 @@ fn mixed_clipping() {
         ("leading mark", "\u{301}x", 0, 3, "◌\u{301}x "),
         ("CRLF", "a\r\nb", 0, 3, "a  "),
     ];
-    let mut buffers = Buffers::new().unwrap();
-    for (name, source, left, width, expected) in cases {
-        let id = buffers.create(source).unwrap();
-        let buffer = buffers.get(id).unwrap();
-        let mut view = View::new(buffer);
-        view.left = left;
-        let size = Size { width, height: 3 };
-        let frame = Frame::project(buffer, &view, size, "").unwrap();
-        assert_eq!(frame.rows()[0].text(), expected, "{name}");
-        bounded(&frame, size);
-        assert_eq!(
-            buffer
-                .slice(&buffer.span(0..buffer.len_chars()).unwrap())
-                .unwrap()
-                .to_string(),
-            source,
-            "{name}"
+    let fixture = config_fixture::Fixture::new();
+    for wrap in [true, false] {
+        let startup = rev::config::prepare(
+            &fixture.write("config.toml", &format!("editor.soft_wrap = {wrap}")),
         );
-        assert!(!buffer.is_modified(), "{name}");
+        let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+        for (name, source, left, width, unwrapped) in cases {
+            let expected = if wrap {
+                match name {
+                    "right wide" | "left wide" | "whole wide" => "ab ",
+                    "both edges" => "界 ",
+                    "tab fragment" => "a   ",
+                    "tab stops" => "      ",
+                    "combining" => "ae\u{301}z",
+                    "emoji edge" => "a👩\u{200d}💻",
+                    _ => unwrapped,
+                }
+            } else {
+                unwrapped
+            };
+            let id = buffers.create(source).unwrap();
+            let buffer = buffers.get(id).unwrap();
+            let mut view = View::new(buffer);
+            view.left = left;
+            let size = Size { width, height: 3 };
+            let frame = Frame::project(buffer, &view, size, "").unwrap();
+            assert_eq!(frame.rows()[0].text(), expected, "{name}, wrap={wrap}");
+            bounded(&frame, size);
+            assert_eq!(
+                buffer
+                    .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+                    .unwrap()
+                    .to_string(),
+                source,
+                "{name}"
+            );
+            assert!(!buffer.is_modified(), "{name}");
+        }
     }
 }
 
@@ -237,8 +262,8 @@ fn extreme_geometry() {
         "",
     )
     .unwrap();
-    assert_eq!(clipped.rows()[0].text(), "   ");
-    assert_eq!(clipped.cursor(), None);
+    assert_eq!(clipped.rows()[0].text(), "界 ");
+    assert_eq!(clipped.cursor(), Some(Position { column: 0, row: 0 }));
     view.reveal(
         buffer,
         Size {

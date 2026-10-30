@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 use std::ops::Range;
 
-use crate::buffer::Buffer;
+use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyph, Glyphs, Scalar};
 
 use super::{Error, View};
@@ -10,16 +10,19 @@ use super::{Error, View};
 /// cells only; the scalar span always addresses the unchanged canonical buffer.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Fragment {
+    pub stamp: Stamp,
     pub line: usize,
     pub source: Range<Scalar>,
     pub columns: Range<usize>,
     pub text: String,
+    pub end_of_line: bool,
 }
 
 impl Fragment {
     pub(crate) fn contains(&self, point: Scalar, width: u16) -> bool {
         self.source.contains(&point)
-            || point == self.source.end
+            || self.end_of_line
+                && point == self.source.end
                 && self.columns.end - self.columns.start < usize::from(width)
     }
 }
@@ -27,6 +30,7 @@ impl Fragment {
 /// Streaming one-line layout retains at most one pane-width of lookahead.
 /// Word fallback never consumes part of a grapheme, even in a one-cell pane.
 struct Line<'a> {
+    stamp: Stamp,
     glyphs: std::iter::Peekable<Glyphs<'a>>,
     pending: VecDeque<Glyph<'a>>,
     line: usize,
@@ -40,6 +44,7 @@ impl<'a> Line<'a> {
     fn new(buffer: &'a Buffer, line: usize, width: u16) -> Result<Self, Error> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
+            stamp: buffer.stamp(),
             glyphs: coordinates.glyphs(line)?.peekable(),
             pending: VecDeque::new(),
             line,
@@ -100,10 +105,12 @@ impl<'a> Line<'a> {
         // An exact-width EOL needs a final insertion cell on the next row.
         self.done = !more && self.pending.is_empty() && (count == 0 || cells < self.width);
         Ok(Some(Fragment {
+            stamp: self.stamp,
             line: self.line,
             source: source..self.end,
             columns: start..self.column,
             text,
+            end_of_line: !more && self.pending.is_empty(),
         }))
     }
 }

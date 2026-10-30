@@ -105,6 +105,7 @@ fn color(base: &mut Rgb, value: &Option<String>) {
 }
 
 fn editor(base: &mut Editor, partial: &PartialEditor) {
+    scalar(&mut base.soft_wrap, partial.soft_wrap);
     scalar(&mut base.indent_style, partial.indent_style);
     count(&mut base.indent_width, partial.indent_width);
     count(&mut base.tab_width, partial.tab_width);

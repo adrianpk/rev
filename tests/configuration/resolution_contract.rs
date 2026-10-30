@@ -44,6 +44,7 @@ files.bom = true
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let expected = Settings {
         editor: Editor {
+            soft_wrap: true,
             indent_style: IndentStyle::Tabs,
             indent_width: 2,
             tab_width: 8,

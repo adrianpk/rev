@@ -20,31 +20,47 @@ fn policy_clipping() {
         (4, 2, 8, "  界e\u{301}👩\u{200d}💻z"),
         (8, 9, 6, " e\u{301}👩\u{200d}💻z "),
     ];
-    for (tab_width, left, width, expected) in cases {
-        let root = fixture.write("config.toml", &format!("editor.tab_width = {tab_width}"));
-        let mut buffers = Buffers::with_settings(prepare(&root).snapshot).unwrap();
-        let source = "a\t界e\u{301}👩\u{200d}💻z";
-        let id = buffers.create(source).unwrap();
-        let buffer = buffers.get(id).unwrap();
-        let mut view = View::new(buffer);
-        view.left = left;
-        let size = Size {
-            width: width + 6,
-            height: 4,
-        };
-        let frame = Frame::project(buffer, &view, size, "").unwrap();
-        assert_eq!(
-            frame.rows()[0].text(),
-            format!("   1 │{expected}"),
-            "tab {tab_width}, left {left}"
-        );
-        bounded(&frame, size);
-        assert_eq!(
-            buffer
-                .slice(&buffer.span(0..buffer.len_chars()).unwrap())
-                .unwrap(),
-            source
-        );
+    for wrap in [true, false] {
+        for (tab_width, left, width, unwrapped) in cases {
+            let root = fixture.write(
+                "config.toml",
+                &format!("editor.tab_width = {tab_width}\neditor.soft_wrap = {wrap}"),
+            );
+            let mut buffers = Buffers::with_settings(prepare(&root).snapshot).unwrap();
+            let source = "a\t界e\u{301}👩\u{200d}💻z";
+            let id = buffers.create(source).unwrap();
+            let buffer = buffers.get(id).unwrap();
+            let mut view = View::new(buffer);
+            view.left = left;
+            let size = Size {
+                width: width + 6,
+                height: 4,
+            };
+            let expected = if wrap {
+                match (tab_width, left) {
+                    (8, 0) => "a           ",
+                    (32, _) => "a         ",
+                    (4, 2) => "a       ",
+                    (8, 9) => "a     ",
+                    _ => unwrapped,
+                }
+            } else {
+                unwrapped
+            };
+            let frame = Frame::project(buffer, &view, size, "").unwrap();
+            assert_eq!(
+                frame.rows()[0].text(),
+                format!("   1 │{expected}"),
+                "tab {tab_width}, left {left}, wrap={wrap}"
+            );
+            bounded(&frame, size);
+            assert_eq!(
+                buffer
+                    .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+                    .unwrap(),
+                source
+            );
+        }
     }
 }
 

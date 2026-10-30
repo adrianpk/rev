@@ -392,6 +392,7 @@ pub enum Grammar {
 /// Buffer policy: widths are 1..=32 display columns/cells, respectively.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Editor {
+    pub soft_wrap: bool,
     pub indent_style: IndentStyle,
     pub indent_width: usize,
     pub tab_width: usize,
@@ -400,6 +401,7 @@ pub struct Editor {
 impl Default for Editor {
     fn default() -> Self {
         Self {
+            soft_wrap: true,
             indent_style: IndentStyle::Spaces,
             indent_width: 4,
             tab_width: 4,
@@ -410,6 +412,7 @@ impl Default for Editor {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialEditor {
+    pub soft_wrap: Option<bool>,
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,
     pub tab_width: Option<i64>,

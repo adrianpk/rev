@@ -6,6 +6,13 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Long source lines wrap at word boundaries by default, preserving file bytes,
+  tabs and Unicode graphemes at each split pane's width. Use
+  `editor.soft_wrap = false` for horizontal scrolling or `M-x visual-line-mode`
+  to toggle wrapping for one buffer and all its views.
+
 ## 0.1.0 - 2026-10-30
 
 The initial terminal editor includes everyday editing and native Org support.

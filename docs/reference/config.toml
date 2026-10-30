@@ -14,6 +14,9 @@ include = []
 # include = ["editing.toml", "colors.toml"]
 
 [editor]
+# Boolean; word-aware source wrapping at each pane's text width. M-x visual-line-mode
+# toggles one buffer for all its views, without changing text or this file.
+soft_wrap = true
 # "spaces" or "tabs"; global policy, overridable per language.
 indent_style = "spaces"
 # Integer 1..=32 display columns between indentation stops.

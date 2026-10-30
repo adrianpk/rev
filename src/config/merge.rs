@@ -281,6 +281,11 @@ impl Merge {
 
     fn editor(&mut self, base: &mut PartialEditor, later: &PartialEditor) {
         self.leaf(
+            &["editor", "soft_wrap"],
+            &mut base.soft_wrap,
+            &later.soft_wrap,
+        );
+        self.leaf(
             &["editor", "indent_style"],
             &mut base.indent_style,
             &later.indent_style,

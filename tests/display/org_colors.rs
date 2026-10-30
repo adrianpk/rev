@@ -21,21 +21,35 @@ fn prepared(source: &str) -> (Buffers, rev::buffer::BufferId) {
 // stops through clipped views. Blank half-glyph edge cells remain unstyled.
 #[test]
 fn clipped_source() {
-    let (buffers, id) = prepared("* 界e\u{301}\ttext");
-    let buffer = buffers.get(id).unwrap();
-    for (name, left, width, expected, paints) in [
-        ("whole", 0, 5, "* 界e\u{301}", 0..5),
-        ("wide edge", 3, 4, " e\u{301}  ", 1..2),
-        ("tab", 6, 4, "  te", 2..4),
-    ] {
-        let mut view = View::new(buffer);
-        view.left = left;
-        let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
-        assert_eq!(frame.rows()[0].text(), expected, "{name}");
-        let syntax = frame.rows()[0].syntax();
-        assert_eq!(syntax.len(), 1, "{name}");
-        assert_eq!(syntax[0].columns, paints, "{name}");
-        assert_eq!(syntax[0].style, Style::Org(Role::Heading), "{name}");
+    for wrap in [true, false] {
+        let (mut buffers, id) = prepared("* 界e\u{301}\ttext");
+        if !wrap {
+            buffers.get_mut(id).unwrap().toggle_soft_wrap();
+        }
+        let buffer = buffers.get(id).unwrap();
+        for (name, left, width, unwrapped, paints) in [
+            ("whole", 0, 5, "* 界e\u{301}", 0..5),
+            ("wide edge", 3, 4, " e\u{301}  ", 1..2),
+            ("tab", 6, 4, "  te", 2..4),
+        ] {
+            let mut view = View::new(buffer);
+            view.left = left;
+            let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
+            let expected = if wrap {
+                if width == 5 { "*    " } else { "*   " }
+            } else {
+                unwrapped
+            };
+            assert_eq!(frame.rows()[0].text(), expected, "{name}, wrap={wrap}");
+            let syntax = frame.rows()[0].syntax();
+            assert_eq!(syntax.len(), 1, "{name}");
+            assert_eq!(
+                syntax[0].columns,
+                if wrap { 0..2 } else { paints },
+                "{name}"
+            );
+            assert_eq!(syntax[0].style, Style::Org(Role::Heading), "{name}");
+        }
     }
 }
 

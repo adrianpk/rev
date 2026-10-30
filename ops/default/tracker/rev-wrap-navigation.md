@@ -34,7 +34,7 @@ Execution owner: Looper; Slice 1 implementation in progress
 Acceptance: WRP01, WRP02, WRP06.
 
 - [x] T1.1: Implement one checked source-to-visual fragment owner, word-aware/grapheme-safe rendering and point reveal at each pane text width.
-- [ ] T1.2: Add editor.soft_wrap with compiled true default, complete TOML/sample/reference coverage and the buffer-local visual-line-mode command; create tests/wrapping.rs with actual session/render cases.
+- [x] T1.2: Add editor.soft_wrap with compiled true default, complete TOML/sample/reference coverage and the buffer-local visual-line-mode command; create tests/wrapping.rs with actual session/render cases.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 1 report.
 
 ## Slice 2: Emacs visual-line editing

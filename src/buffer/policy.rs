@@ -5,7 +5,7 @@ use super::Buffer;
 impl Buffer {
     /// Presentation is shared by this buffer's views and never enters history.
     pub fn soft_wrap(&self) -> bool {
-        self.wrap_override.unwrap_or(true)
+        self.wrap_override.unwrap_or(self.policy.soft_wrap)
     }
 
     /// Toggle this live buffer only; new buffers retain the startup default.

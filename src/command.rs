@@ -40,6 +40,7 @@ pub enum Command {
     FindFile,
     GotoLine,
     MouseMode,
+    VisualLineMode,
     Mode(Mode),
     Org(OrgCommand),
     Gutter(GutterCommand),
@@ -64,7 +65,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 304] = [
+    pub const ALL: [Self; 305] = [
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -90,6 +91,7 @@ impl Command {
         Self::FindFile,
         Self::GotoLine,
         Self::MouseMode,
+        Self::VisualLineMode,
         Self::Org(OrgCommand::Cycle),
         Self::Org(OrgCommand::GlobalCycle),
         Self::Org(OrgCommand::Overview),
@@ -406,6 +408,7 @@ impl Command {
             Self::Region(command) => command.name(),
             Self::Tree(command) => command.name(),
             Self::MouseMode => "mouse-mode",
+            Self::VisualLineMode => "visual-line-mode",
             Self::QueryReplace => "query-replace",
             Self::SearchForward => "isearch-forward",
             Self::SearchBackward => "isearch-backward",

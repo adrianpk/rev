@@ -23,6 +23,7 @@ mod linear;
 mod links;
 mod publishing;
 mod tables;
+mod wrap;
 pub use attachment::{AttachmentResult, HeadingStatus};
 mod execution;
 mod feeds;
@@ -525,6 +526,7 @@ impl Session {
             Command::Whitespace(command) => self.whitespace_command(command),
             Command::Gutter(command) => self.gutter_command(command),
             Command::MouseMode => self.toggle_mouse(),
+            Command::VisualLineMode => self.toggle_wrap(),
             Command::Mode(mode) => self.select_mode(mode),
             Command::Org(command) => self.org_command(command),
             _ => self.dispatch(command),

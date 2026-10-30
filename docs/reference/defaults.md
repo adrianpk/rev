@@ -173,6 +173,7 @@ change only that view's overrides and never reload or write this snapshot.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
+| `editor.soft_wrap` | Boolean | `true` | Word-aware wrapping at each pane's available text width. M-x visual-line-mode toggles one live buffer for all its views; false retains horizontal scrolling. No source or history changes. |
 | `editor.indent_style` | String: "spaces" or "tabs" | `"spaces"` | Buffer policy; Tab emits the selected indentation form. Language-overridable. |
 | `editor.indent_width` | Integer 1..=32 | `4` | Buffer policy; indentation-stop display columns, independently of tab display width. Language-overridable. |
 | `editor.tab_width` | Integer 1..=32 | `4` | Buffer policy; literal-tab display cells. Shared views use the same width. Language-overridable. |

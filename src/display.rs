@@ -223,6 +223,9 @@ impl Frame {
                     .unwrap_or(buffer.len_lines())
             };
             let left = fragment.map_or(view.left, |f| f.columns.start);
+            let painted = fragment.map_or(content.width(), |f| {
+                (f.columns.end - f.columns.start).min(usize::from(content.width())) as u16
+            });
             let text = if let Some(fragment) = fragment {
                 fragment.text.clone()
             } else if source < buffer.len_lines() {
@@ -233,14 +236,14 @@ impl Frame {
             let projected = Row {
                 row,
                 text,
-                syntax: syntax::row(buffer, left, source, content.width())?,
+                syntax: syntax::row(buffer, left, source, painted)?,
                 band: Band::Document,
                 tone: Tone::Document,
                 faces: Vec::new(),
                 search: None,
                 selection: highlight
                     .as_ref()
-                    .map(|h| h.selected_row(buffer, source, left, content.width()))
+                    .map(|h| h.selected_row(buffer, source, left, painted))
                     .transpose()?
                     .flatten(),
             }
