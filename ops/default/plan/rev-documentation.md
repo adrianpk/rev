@@ -1,13 +1,13 @@
 # Documentation and v0.1.0 Preparation
 
-Status: In progress
+Status: Completed
 Date: 2026-10-30
 Delivery set: rev-documentation
 Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: None; all three slices integrated, controller gate pending
+Active slice: None; all three slices delivered and documentation closure completed
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
 ## Outcome
@@ -275,9 +275,18 @@ Slice 3 integrated through canonical PR #170 at
 candidate: 304 commands per inventory, 178 configuration entries, 58 reachable
 pages, 330 local links/anchors and 21 native reference tests.
 
-All three slice reports record their delivered integrations. The delivery set
-remains in progress until the controller validates the exact prepared dev
-candidate with the unchanged selected gate. Cargo/Rust 1.98, a C compiler and
-Bash are available. The gate needs no persistent service or external fixture;
-native reference tests create and remove their own temporary files. No full
-gate is run during preparation.
+## Delivery closure
+
+The controller passed the unchanged selected gate
+`scripts/check-documentation.sh && git diff --check` at immutable candidate
+`770d783a3147a24cc613460554b6261d22c92749`, with receipt
+`QARF7RQ3WL333CPQYZPN45TXC4` on 2026-10-30. It verified 304 commands in
+each combined inventory, 178 configuration entries, 58 reachable pages,
+330 local links/anchors and 21 native reference tests, with no failures or
+ignored tests.
+
+All three slices are delivered and all six tasks are completed. The reports
+retain their integrated commits and exact-candidate PR evidence. Final closure
+changes only the configured plan, tracker and three reports after the tested
+candidate. Native reference fixtures cleaned up their temporary directories;
+no persistent service or owned fixture remains to stop.

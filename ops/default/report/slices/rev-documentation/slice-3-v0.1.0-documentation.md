@@ -82,7 +82,8 @@ commands on report introduction `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada`:
 304 commands per inventory, 178 configuration entries, 58 reachable pages,
 330 local links/anchors and 21 native reference tests.
 
-The controller records these commands in order against the clean candidate:
+The controller receipt recorded these successful commands in order against
+the exact integrated candidate:
 
 - `scripts/check-documentation.sh`
 - `git diff --check`
@@ -90,14 +91,19 @@ The controller records these commands in order against the clean candidate:
 The required Bash driver checks links, heading anchors, reachability, both
 learning paths, legacy destinations, 304 commands in each combined inventory,
 178 configuration entries and the native command/configuration references.
-PR-reference follow-up changes require a fresh exact-HEAD receipt.
+The final delivery gate `scripts/check-documentation.sh && git diff --check`
+passed under controller receipt `QARF7RQ3WL333CPQYZPN45TXC4` at immutable
+candidate `770d783a3147a24cc613460554b6261d22c92749` on 2026-10-30. It
+verified 304 commands per inventory, 178 configuration entries, 58 reachable
+pages, 330 local links/anchors and 21 native reference tests, with no failures
+or ignored tests. Final closure changes only the configured plan, tracker and
+three reports after that tested candidate; the worker did not repeat the gate.
 
-These are documentation checks. The controller owns the delivery gate on the
-integrated candidate and subsequent documentation closure. The full release
-gate, main integration, tags and publication remain a separate authorized stage.
+These are documentation checks. The full release gate, main integration, tags
+and publication remain a separate authorized stage.
 
 ## Risks and Follow-ups
 
-Keep the delivery set in progress until the controller supplies successful
-integrated-candidate gate evidence. The prepared 0.1.0 section does not create
-a version tag or published release.
+The documentation delivery set is completed with successful controller gate
+evidence and all three slice integrations recorded. The prepared 0.1.0 section
+does not create a version tag or published release.

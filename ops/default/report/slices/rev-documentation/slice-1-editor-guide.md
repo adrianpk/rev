@@ -54,7 +54,8 @@ The integration repair includes approved dev baseline
 conflicts were plan/tracker metadata. Resolution retains the approved
 controller-owned execution and Rust/Bash validation contract together with
 Slice 1's reviewing state. Original task commits and the report introduction
-are preserved; the new clean HEAD requires a fresh controller receipt.
+are preserved; the repaired candidate received the successful controller
+receipt recorded below.
 
 ## Contracts Added or Changed
 
@@ -65,7 +66,7 @@ packaged sample or application behavior.
 
 The Bash driver propagates failures and runs the native documentation checker,
 command reference tests and configuration reference tests in that order.
-Split-catalog completeness adaptation remains T2.2.
+Split-catalog completeness adaptation was completed in Slice 2 under T2.2.
 
 ## Files of Interest
 
@@ -93,8 +94,8 @@ links/anchors and four regression tests. Canonical PR #168 is verified merged.
 - The retained chapter diff changes navigation only; original guide code
   blocks and the complete configuration sample are unchanged.
 
-The controller receipt records these handoff commands in order against the
-final clean HEAD; integration requires its successful result:
+The controller receipt recorded these successful handoff commands in order
+against the exact integrated candidate:
 
 - `cargo run --quiet --example documentation-check`
 - `cargo test --example documentation-check`
@@ -103,12 +104,20 @@ final clean HEAD; integration requires its successful result:
 - `bash -n scripts/check-documentation.sh`
 - `git diff --check`
 
+The controller passed the combined delivery gate
+`scripts/check-documentation.sh && git diff --check` at immutable candidate
+`770d783a3147a24cc613460554b6261d22c92749`, receipt
+`QARF7RQ3WL333CPQYZPN45TXC4`. The integrated result covers 58 reachable
+pages, 330 local links/anchors, complete command/configuration catalogs and
+21 native reference tests. Final closure changes only the configured
+operational documents after that tested candidate.
+
 External HTTP links are outside the local checker. No runtime instructions
-changed. The combined documentation gate runs after all three slices integrate.
+changed.
 
 ## Risks and Follow-ups
 
-The shared command, binding and configuration references still contain Org
-material. Their extraction and completeness-guard updates belong to Slice 2.
-The v0.1.0 changelog and final documentation gate belong to Slice 3. This report
-records Slice 1 delivered through PR #168 on dev.
+The reference extraction and completeness-guard updates are delivered through
+PR #169. The v0.1.0 documentation and changelog are delivered through PR #170,
+and the controller's final integrated-candidate gate passed. No follow-up
+remains in this delivery set.

@@ -1,13 +1,13 @@
 # Documentation and v0.1.0 Tracker
 
-Status: In progress
+Status: Completed
 Date: 2026-10-30
 Delivery set: rev-documentation
 Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: None; all three slices integrated, controller gate pending
+Active slice: None; all three slices delivered and documentation closure completed
 Plan: [Documentation Plan](../plan/rev-documentation.md)
 Gate: `scripts/check-documentation.sh && git diff --check`
 Execution: one autonomous Looper cycle; the controller owns PR merges and tracker progression
@@ -29,7 +29,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | T2.1 | Separate Org commands, bindings and settings, with focused task/reference entries. | Slice 1 integrated. | completed | `8a8dfd94b1fe6c2b740dc9fb35f8870784dfd3bf` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: complete inventories, 58 reachable pages, 320 links/anchors and eleven legacy destinations. |
 | T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | completed | `9c7d8d0deb7f2d1496027d97772dfcacca0d4b04` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: all five ordered checks passed on the integrated candidate. |
 | T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | completed | `bda1c338ff36b1680da768c95f108648d2862d28` | Source/guide/changelog reconciliation; Cargo 0.1.0 and preparation date 2026-10-30 agree; integrated PR receipt `36LWSCOEVGDGBEYPG3I2L3ZKVG` passed. |
-| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | implementation delivered; controller gate and final closure pending | `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada` | Integrated PR receipt `36LWSCOEVGDGBEYPG3I2L3ZKVG` passed both ordered checks. Final prepared-candidate gate remains controller-owned. |
+| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | completed | `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada`; final documentation closure on dev | Controller gate receipt `QARF7RQ3WL333CPQYZPN45TXC4` passed the unchanged selected gate on `770d783a3147a24cc613460554b6261d22c92749`; plan, tracker and reports closed. |
 
 ## Slice integration
 
@@ -37,7 +37,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | --- | --- | --- | --- | --- |
 | Slice 1 | delivered | `#168` | `01f03f00729f4465d3d853ee68fd9c30aa26c7cf` | delivered |
 | Slice 2 | delivered | `#169` | `b9b572642ddf069113e7eb0c186eda72602e5208` | delivered |
-| Slice 3 | delivered | `#170` | `02b50f661910575d578df94cd3e42df9b446b44c` | delivered; final delivery gate pending |
+| Slice 3 | delivered | `#170` | `02b50f661910575d578df94cd3e42df9b446b44c` | delivered |
 
 ## Delivery acceptance
 
@@ -77,18 +77,23 @@ Its immutable report introduction is `2434b16b116299a763ce9d8b41bb9ab7d42e033f`;
 receipt `7MY7XWGOBP6OFKET2VGMDKV5TO` passed all five ordered checks.
 Slice 3 starts from that integration and this documentation closure. Its
 required command prefix is `scripts/check-documentation.sh`. Delivery-set
-closure waits for the controller's exact integrated-candidate gate evidence.
+closure uses the successful integrated-candidate gate evidence recorded below.
 
 PR #170 is verified merged at `02b50f661910575d578df94cd3e42df9b446b44c`,
 with immutable report introduction `c9a50bd46f7b3c7c52b00ac246d31f2295c98ada`.
 Receipt `36LWSCOEVGDGBEYPG3I2L3ZKVG` passed both ordered PR checks.
 
-## Full-gate preparation
+## Final gate and closure
 
-All three canonical PR contracts and integrated commits are verified. Cargo and
-Rust 1.98, the C compiler and Bash are available. Native reference fixtures own
-their temporary directories and cleanup; no persistent fixture is required.
-The controller runs the unchanged gate `scripts/check-documentation.sh && git diff --check`
-on the prepared clean, pushed dev candidate. The worker does not run that gate
-during preparation. Status remains In progress until its exact-candidate result
-authorizes final documentation closure.
+All three canonical PRs are integrated and all six tasks are completed. The
+controller passed `scripts/check-documentation.sh && git diff --check` at
+immutable candidate `770d783a3147a24cc613460554b6261d22c92749` on 2026-10-30.
+Receipt `QARF7RQ3WL333CPQYZPN45TXC4` records 304 commands in each combined
+inventory, 178 configuration entries, 58 reachable pages, 330 local
+links/anchors and 21 native reference tests, with no failures or ignored tests.
+
+The plan, tracker and three delivered reports record final documentation
+closure. Only those five configured closure paths differ from the tested
+candidate. Native reference fixtures cleaned up their temporary directories;
+no persistent service or owned fixture remains to stop. The full gate was
+executed by the controller and was not repeated by the worker.

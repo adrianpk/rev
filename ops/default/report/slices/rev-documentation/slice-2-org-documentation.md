@@ -78,8 +78,8 @@ checker tests, ten native command-reference tests and eleven native
 configuration-reference tests passed during implementation. The focused native
 source-quality check passed for all changed Rust files.
 
-The controller records these commands in order for the final clean HEAD before
-handoff; PR-reference follow-up changes require a new receipt:
+The controller receipt recorded these successful commands in order for the
+exact integrated candidate after the PR-reference follow-up:
 
 - `scripts/check-documentation.sh`
 - `cargo test --example documentation-check`
@@ -92,7 +92,16 @@ reference tests and native configuration reference tests in the approved order.
 External HTTP destinations and whole-editor runtime journeys are outside these
 documentation checks; executable examples are unchanged.
 
+The controller passed the combined delivery gate
+`scripts/check-documentation.sh && git diff --check` at immutable candidate
+`770d783a3147a24cc613460554b6261d22c92749`, receipt
+`QARF7RQ3WL333CPQYZPN45TXC4`: 304 commands per inventory, 178 configuration
+entries, 58 reachable pages, 330 local links/anchors and 21 native reference
+tests. Final closure changes only the configured operational documents after
+that tested candidate.
+
 ## Risks and Follow-ups
 
-Slice 2 integrated through PR #169. Slice 3 reconciles v0.1.0 documentation
-and the changelog; subsequent PR integration remains controller-owned.
+Slice 2 integrated through PR #169. The v0.1.0 documentation and changelog
+reconciliation is delivered through PR #170, and the controller's final
+integrated-candidate gate passed. No follow-up remains in this delivery set.
