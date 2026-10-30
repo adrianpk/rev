@@ -1,6 +1,6 @@
 # Slice 56: execute selected Org blocks through bounded tools
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -52,8 +52,8 @@ Canonical PR: [#157](https://forge.adrianpk.com/adrianpk/rev/pulls/157), targeti
 
 ## Validation
 
-Required pre-PR receipt `LBMNF52MM2E67Q4RS6LK5KNDG7` passed on
-`926161b067ecb13eacab6611612f591e7ea6ad04`:
+Final required receipt `YKY4RUANELNCNC4EIHB32D54WK` passed on
+`95c6ec8348096dce7189c2351768605d2c591d9f`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -65,32 +65,31 @@ All 350 tests passed: 158 commands, 167 I/O and 25 recovery; zero failures,
 ignored or filtered tests. Source quality retains safe Rust, at most five
 parameters, three nesting levels and cyclomatic complexity ten.
 
-Development checks passed:
+Focused receipt `2EIU6HWMMWSD4OXTGFN357O256` passed on the same final head:
 
-
-- `cargo check --lib`
-- `cargo test --test configuration source_profile`
-- `cargo test --test org_io execution`
+- `cargo test --test configuration --test org_editing --test org_source -- --test-threads=4`
+- `cargo test --lib org::io::process -- --test-threads=1`
 - `python3 scripts/check-config-reference.py`
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-execution`
+- `git diff --check`
 
-Two configuration tests and nine native execution tests passed. The real terminal
-journey passed in RGB and NO_COLOR modes, zero skips. It checks both physical
-execution chords, default confirmation, decline, retained output inspection,
+All 433 focused tests passed: 126 configuration, 226 editing, 78 source and three
+process ownership cases. The library filter intentionally excluded 46 unrelated
+cases. The real terminal journey passed in RGB and NO_COLOR modes, zero skips.
+It checks physical execution chords, confirmation, decline, retained output,
 unchanged source/old RESULTS and absence of execution during visit/export.
-Native cases cover read-only and unsaved BOM/CRLF source, explicit runner
-selection, stdin/file delivery, real multi-step programs, missing/nonzero tools,
-combined output limits, bounded noweb and actual cancel/timeout/drop cleanup.
-Direct children are reaped, descendants stop and private workspace/input modes
-and removal are checked. The corrected pipeline fixture checks that overflow
-prevents subsequent stages, without assuming rollback of earlier host effects.
+Native cases cover read-only and unsaved BOM/CRLF source, runner selection,
+stdin/file delivery, real multi-step programs, missing/nonzero tools, combined
+output limits, bounded noweb and cancel/timeout/drop cleanup. Direct children are
+reaped, descendants stop, and private workspace modes and removal are checked.
+The pipeline fixture checks that overflow prevents subsequent stages without
+assuming rollback of earlier host effects.
 
 References agree on 171 schema/catalog entries, 54 active RGB roles and 259
-default bindings. The unchanged Rust source checker accepts the changed files.
-The PR-reference follow-up head receives fresh required and focused validation
-through the controller, including source/editing/configuration regressions,
-shared process ownership and the terminal case. Exact final receipts are recorded
-in Acta. Controller-owned `dev` integration remains pending.
+default bindings. The unchanged source checker accepts the candidate.
+Canonical PR #157 merged into `dev` at
+`95c6ec8348096dce7189c2351768605d2c591d9f`. Acta records the final receipts
+and completed delivery. Slice 57 is the next active recorded slice.
 
 ## Risks and Follow-ups
 

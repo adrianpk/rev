@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 56 block-execution
+Active slice: Slice 57 block-results
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1124,13 +1124,14 @@ Details and exact checks: [Slice 56](../plan/rev-org-mode.md#slice-56-execute-se
 - [x] T56.1: Deliver explicit execution confirmation and typed external program adapters without an embedded interpreter.
 - [x] T56.2: Own child groups, stdin/out/err, temporary files, result ceilings, cancellation and finite deadlines.
 - [x] T56.3: Verify real owned shell jobs, missing tools, timeout and reaping; visiting/exporting source never executes it.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
 Canonical PR: [#157](https://forge.adrianpk.com/adrianpk/rev/pulls/157).
-Report: [Slice 56](../report/slices/rev-org-mode/slice-56-block-execution.md) (reviewing).
-Pre-PR required receipt `LBMNF52MM2E67Q4RS6LK5KNDG7` passed five checks and
-350 tests. Final PR-head evidence and controller-owned integration remain to be
-recorded.
+Report: [Slice 56](../report/slices/rev-org-mode/slice-56-block-execution.md) (delivered).
+Final required receipt `YKY4RUANELNCNC4EIHB32D54WK` and focused receipt
+`2EIU6HWMMWSD4OXTGFN357O256` passed on
+`95c6ec8348096dce7189c2351768605d2c591d9f`: 783 selected tests and two
+owned terminal journeys. Canonical PR #157 is merged into `dev` at that commit.
 
 ### Slice 57: insert checked Org block and call results
 
