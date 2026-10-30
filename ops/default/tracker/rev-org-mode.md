@@ -1126,6 +1126,12 @@ Details and exact checks: [Slice 56](../plan/rev-org-mode.md#slice-56-execute-se
 - [x] T56.3: Verify real owned shell jobs, missing tools, timeout and reaping; visiting/exporting source never executes it.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#157](https://forge.adrianpk.com/adrianpk/rev/pulls/157).
+Report: [Slice 56](../report/slices/rev-org-mode/slice-56-block-execution.md) (reviewing).
+Pre-PR required receipt `LBMNF52MM2E67Q4RS6LK5KNDG7` passed five checks and
+350 tests. Final PR-head evidence and controller-owned integration remain to be
+recorded.
+
 ### Slice 57: insert checked Org block and call results
 
 Contracts: ORG28 ORG14.

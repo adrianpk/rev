@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-56-block-execution`
-PR: pending
+PR: `#157`
 
 ## Purpose
 
@@ -33,6 +33,10 @@ replacement. All controls retain finite limits and source revision admission.
 See [source execution](../../../../../docs/reference/org-source-blocks.md#execution)
 and the Org manual's [evaluation](https://orgmode.org/manual/Evaluating-Code-Blocks.html).
 
+Task commits: T56.1 `2e6b5af51ae11d0a6d9ff407cd7779fc038f53e2`, T56.2 `2632eb3a834f3a354bb50280e50f0ae0b1ef507d`, T56.3 `926161b067ecb13eacab6611612f591e7ea6ad04`.
+
+Canonical PR: [#157](https://forge.adrianpk.com/adrianpk/rev/pulls/157), targeting `dev`.
+
 ## Contracts Added or Changed
 
 - ORG28: explicit confirmed source jobs and retained revision-qualified input.
@@ -48,7 +52,21 @@ and the Org manual's [evaluation](https://orgmode.org/manual/Evaluating-Code-Blo
 
 ## Validation
 
+Required pre-PR receipt `LBMNF52MM2E67Q4RS6LK5KNDG7` passed on
+`926161b067ecb13eacab6611612f591e7ea6ad04`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_io --test commands --test recovery`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 350 tests passed: 158 commands, 167 I/O and 25 recovery; zero failures,
+ignored or filtered tests. Source quality retains safe Rust, at most five
+parameters, three nesting levels and cyclomatic complexity ten.
+
 Development checks passed:
+
 
 - `cargo check --lib`
 - `cargo test --test configuration source_profile`
@@ -69,7 +87,10 @@ prevents subsequent stages, without assuming rollback of earlier host effects.
 
 References agree on 171 schema/catalog entries, 54 active RGB roles and 259
 default bindings. The unchanged Rust source checker accepts the changed files.
-Required exact-head controller validation remains pending.
+The PR-reference follow-up head receives fresh required and focused validation
+through the controller, including source/editing/configuration regressions,
+shared process ownership and the terminal case. Exact final receipts are recorded
+in Acta. Controller-owned `dev` integration remains pending.
 
 ## Risks and Follow-ups
 
