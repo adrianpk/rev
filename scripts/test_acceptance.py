@@ -144,8 +144,11 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             good += f'PASS configuration-ui {name}\n'
         good += 'Configuration/UI terminal suite: 10 sessions passed, 0 skipped.\n'
         candidate = {'head': 'a' * 40, 'tree': 'b' * 40}
-        good += ''.join(f'PASS org-workflows {name}\n' for name in ORG_GROUPS)
-        good += ''.join(f'PASS org-combined-{mode} {stage}\n' for mode in ['rgb', 'no-color'] for stage in ORG_COMBINED_STAGES)
+        for name in ORG_GROUPS:
+            if name == 'org-combined':
+                good += ''.join(f'PASS org-combined-{mode} {stage}\n' for mode in ['rgb', 'no-color']
+                                for stage in ORG_COMBINED_STAGES)
+            good += f'PASS org-workflows {name}\n' 
         receipt = dict(candidate=candidate, cases=ORG_GROUPS, sessions=sum(ORG_GROUPS.values()),
                        elapsed_seconds=1.0, isolated_roots=True, restored_reaped_closed=True)
         good += 'Org terminal evidence: ' + json.dumps(receipt) + '\n'

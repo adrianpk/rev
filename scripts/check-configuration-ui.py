@@ -185,8 +185,8 @@ def org_terminal(selected):
         return True
     if selected == 'org-capture-finalize':
         for colored, label in [(True, 'rgb'), (False, 'no-color')]:
-            for readonly, mode in [(False, 'saved'), (True, 'read-only')]:
-                run_scenario(org_capture_finalize.finalize, (colored, readonly))
+            for read_only, mode in [(False, 'saved'), (True, 'read-only')]:
+                run_scenario(org_capture_finalize.finalize, (colored, read_only))
                 print(f'PASS org-capture-finalize {mode} {label}')
         print('Org capture finalize terminal suite: 4 owned sessions passed, 0 skipped.')
         return True

@@ -112,11 +112,14 @@ def terminal(text, candidate):
 
 
 def org_terminal(text, candidate):
-    events = re.findall(r'^PASS org-workflows ([a-z-]+)$', text, re.M)
-    require(events == list(ORG_GROUPS), 'missing, reordered or duplicate Org terminal journey')
-    stages = re.findall(r'^PASS (org-combined-(?:rgb|no-color) [a-z-]+)$', text, re.M)
-    expected = [f'org-combined-{mode} {stage}' for mode in ['rgb', 'no-color'] for stage in ORG_COMBINED_STAGES]
-    require(stages == expected, 'missing, reordered or duplicate connected Org stage')
+    events = re.findall(r'^PASS (org-workflows [a-z-]+|org-combined-(?:rgb|no-color) [a-z-]+)$', text, re.M)
+    expected = []
+    for name in ORG_GROUPS:
+        if name == 'org-combined':
+            expected.extend(f'org-combined-{mode} {stage}' for mode in ['rgb', 'no-color']
+                            for stage in ORG_COMBINED_STAGES)
+        expected.append(f'org-workflows {name}')
+    require(events == expected, 'missing, reordered or duplicate Org terminal journey/stage')
     receipts = re.findall(r'^Org terminal evidence: (.+)$', text, re.M)
     require(len(receipts) == 1, 'missing or duplicate Org terminal receipt')
     result = json.loads(receipts[0])
