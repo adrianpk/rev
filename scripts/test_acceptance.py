@@ -690,6 +690,23 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'task outside'):
             ancestry(root, BASE, expected['head'], wrong)
 
+    # Preparation must retain every frozen stage and its order; a smaller gate
+    # or a later closure commit cannot reuse another HEAD/tree's runtime logs.
+    def test_org_gate(self):
+        from configuration_ui.org_delivery import PLAN, TRACKER, gate_contract, GATE
+        root = Path(__file__).resolve().parent.parent
+        gate_contract(root)
+        for name, commands in {'missing': GATE[:-1], 'reordered': list(reversed(GATE))}.items():
+            from unittest.mock import patch
+            with self.subTest(name=name), patch('configuration_ui.org_delivery.COMMANDS', commands), self.assertRaises(ValueError):
+                gate_contract(root)
+        with tempfile.TemporaryDirectory(prefix='rev-org-gate-') as directory:
+            fixture = Path(directory)
+            navigation_fixture(root, fixture, [PLAN, TRACKER, 'scripts/check-all.sh'])
+            (fixture / 'scripts/check-all.sh').write_text('exit 0\n')
+            with self.assertRaisesRegex(ValueError, 'entrypoint'):
+                gate_contract(fixture)
+
 
 def navigation_fixture(root, fixture, paths):
     for name in paths:

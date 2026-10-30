@@ -1272,7 +1272,7 @@ Contracts: ORG01 ORG18 ORG31.
 Details and exact checks: [Slice 64](../plan/rev-org-mode.md#slice-64-prepare-complete-native-org-delivery-acceptance).
 
 - [x] T64.1: Admit all sixty-four canonical integrations, reports and agreed requirement mappings without declaring prerequisites runtime proof.
-- [ ] T64.2: Prepare clean integrated dev for the unchanged controller full gate and exact-path documentation closure.
+- [x] T64.2: Prepare clean integrated dev for the unchanged controller full gate and exact-path documentation closure.
 - [ ] T64.3: Verify coherent plan/model/tracker state, zero skips and the distinction between tested head and later closure head.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

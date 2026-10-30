@@ -3,7 +3,7 @@ import json
 import re
 import subprocess
 
-from acceptance import digest, require
+from acceptance import COMMANDS, digest, require
 from acceptance_delivery import SECTIONS, integrated
 
 PLAN = 'ops/default/plan/rev-org-mode.md'
@@ -12,6 +12,20 @@ BASE = '887feeb6c8dfec2a616d7943ac6f2a298d133bbf'
 MAP = '43a5aeba71c2673acd4984c6bd62d64f20e76f22eb7f3ee4d8b20e4535cbb0a2'
 INTEGRATIONS = 'd68208554c48097f6565291c7d62d00941d53afeca6cc630c894ec86d3b57cb7'
 FORGE = 'https://forge.adrianpk.com/adrianpk/rev/pulls/'
+FINAL_PR = None
+GATE = [
+    'cargo fmt --all -- --check',
+    'cargo clippy --all-targets --all-features -- -D warnings',
+    'cargo test --all',
+    'python3 scripts/check-source.py',
+    'python3 scripts/check-pty.py --suite acceptance',
+    'python3 scripts/check-performance.py',
+    'python3 scripts/check-config-reference.py',
+    'python3 scripts/check-configuration-ui.py --suite terminal',
+    'python3 scripts/check-configuration-ui.py --suite performance',
+    'python3 scripts/check-acceptance.py',
+    'git diff --check',
+]
 
 
 def maps(root, document):
@@ -22,6 +36,7 @@ def maps(root, document):
     require(len(tables[0]) == 64 and tables[0] == tables[1], 'Org plan/tracker map mismatch')
     require(digest('\n'.join(tables[0])) == metadata['canonical_map_sha256'] == MAP,
             'approved Org slice identities changed')
+    require(metadata['final_pr'] == FINAL_PR, 'canonical final Org PR changed')
     prior = metadata['integrations']
     require(digest(json.dumps(prior, sort_keys=True, separators=(',', ':'))) == INTEGRATIONS,
             'verified Org integration/task identities changed')
@@ -78,7 +93,7 @@ def ancestry(root, previous, head, outcomes):
     require(len({task['head'] for task in outcomes}) == 3, 'duplicate Org task commit')
 
 
-def final(root, text, previous):
+def final(root, text, previous, fields, expected):
     head = integrated(text)
     log = subprocess.check_output(['git', 'log', '--format=%H\t%s', previous + '..' + head], cwd=root, text=True)
     outcomes = []
@@ -87,10 +102,16 @@ def final(root, text, previous):
         require(len(matches) == 1, 'missing/duplicate final Org task commit')
         outcomes.append({'head': matches[0]})
     ancestry(root, previous, head, outcomes)
+    snapshot = subprocess.check_output(['git', 'show', head + ':' + fields[4]], cwd=root, text=True)
+    require('Status: reviewing\n' in snapshot and f'Branch: `{fields[2]}`\n' in snapshot,
+            'final Org integration is not the reviewed candidate')
+    require(f"PR: [#{expected['pr']}]({FORGE}{expected['pr']})\n" in snapshot,
+            'final Org integration lacks canonical PR reference')
     return head
 
 
 def delivery(root, document, readiness):
+    gate_contract(root)
     rows = maps(root, document)
     metadata = document['org_delivery']
     tracker = (root / TRACKER).read_text()
@@ -111,6 +132,17 @@ def delivery(root, document, readiness):
             continue
         else:
             require(expected is not None, 'final Org PR not registered')
-            head = final(root, text, previous)
+            head = final(root, text, previous, fields, expected)
         require(head in ancestors, 'unintegrated Org delivery head')
         previous = head
+
+
+def gate_contract(root):
+    require(COMMANDS == GATE, 'frozen Org gate commands/order changed')
+    wrapper = (root / 'scripts/check-all.sh').read_text()
+    require(wrapper.splitlines() == ['#!/bin/sh', 'set -eu', 'cd "$(dirname "$0")/.."',
+                                    'exec python3 scripts/check-acceptance.py --gate'],
+            'frozen Org gate entrypoint changed')
+    for path in [PLAN, TRACKER]:
+        require('Full gate: `scripts/check-all.sh`\n' in (root / path).read_text(),
+                'Org gate ownership changed')

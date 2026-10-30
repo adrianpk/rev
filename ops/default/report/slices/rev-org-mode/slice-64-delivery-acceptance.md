@@ -30,6 +30,19 @@ report and pending integration only. Provenance does not replace semantic checks
 all 34 native assertions must occur in actual Cargo results, alongside the existing
 same-candidate terminal stage assertions and release resource observations.
 
+The eleven frozen gate commands and their order are explicitly admitted, with
+no change to `scripts/check-all.sh`. Final integration must point to the reviewed
+PR-reference report stored at that commit, not a later closure commit. Native,
+terminal and resource records must still share that exact clean HEAD and tree.
+
+The controller pins 91 exact documentation closure paths; 88 currently exist.
+The absent `docs/reference/panels.md`, `docs/reference/org-time.md` and
+`docs/how-to/org-mode.md` are permissions, not required new documents. Closure
+must retain the actual tested SHA, validation identifier, ordered commands and
+runtime observations separately from its later documentation SHA. Existing
+historical closure metadata stays unchanged. No final runtime result is claimed
+by fixture preparation or this slice's prerequisite checks.
+
 ## Contracts Added or Changed
 
 - ORG01: complete source-preserving native scenario admission.
