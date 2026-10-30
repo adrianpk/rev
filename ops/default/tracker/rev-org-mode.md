@@ -1162,6 +1162,11 @@ Details and exact checks: [Slice 58](../plan/rev-org-mode.md#slice-58-import-nat
 
 Report: [Slice 58](../report/slices/rev-org-mode/slice-58-feeds.md) (reviewing).
 
+Canonical PR: [#159](https://forge.adrianpk.com/adrianpk/rev/pulls/159), targeting `dev`. Required
+implementation checks passed all 399 native tests; focused checks passed 387
+native tests and two owned HTTP terminal sessions. Fresh final-head receipts
+are required after this PR-reference commit. Integration remains pending.
+
 ### Slice 59: preview native Org links and images
 
 Contracts: ORG30 ORG15.

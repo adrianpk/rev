@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `feat/rev-org-58-feeds`
-PR: pending
+PR: `#159`
 
 ## Purpose
 
@@ -44,6 +44,12 @@ The reference behavior follows the [Org feed manual](https://orgmode.org/manual/
 [RSS specification](https://www.rssboard.org/rss-specification) and
 [Atom specification](https://www.rfc-editor.org/rfc/rfc4287).
 
+Task commits: T58.1 `408e378b14c2c1bb14db98c9d2ae9252149d5db5`,
+T58.2 `0e8c7d1d48bda010dcb02cf5fa03aafdf7517258`,
+T58.3 `aba31dbcc6f12ff537709143757c7c6095a04e30`.
+
+Canonical PR: [#159](https://forge.adrianpk.com/adrianpk/rev/pulls/159), targeting `dev`.
+
 ## Contracts Added or Changed
 
 - ORG29: bounded RSS/Atom observations and compatible FEEDSTATUS identities.
@@ -59,16 +65,35 @@ The reference behavior follows the [Org feed manual](https://orgmode.org/manual/
 
 ## Validation
 
-Development checks passed:
+Required ordered commands passed on the clean implementation candidate:
 
-- `cargo test --test commands --test configuration -- --test-threads=4`
-- `cargo test --test org_io --test configuration --test org_source feed -- --test-threads=4`
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_io --test org_source --test configuration`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 399 native tests passed: 129 configuration, 189 I/O and 81 source tests;
+zero failures, ignored or filtered tests. Required implementation receipt
+`3MNSBQZMTWAUPBRKPOJDCBSAIB` identifies candidate
+`4a52e1ba10814650a94e8662e7c73c187c5c8db6`.
+
+Focused commands passed:
+
+- `cargo test --test commands --test org_editing -- --test-threads=4`
+- `cargo test --lib org::io::process -- --test-threads=1`
 - `python3 scripts/check-config-reference.py`
 - `python3 scripts/check-configuration-ui.py --suite terminal --case org-feeds`
 - `git diff --check`
 
-All 285 command/configuration tests passed before the final boundary additions;
-16 focused feed tests then passed. Cases cover RSS/RDF/Atom namespaces and bases,
+All 387 focused tests passed: 158 commands, 226 editing and three shared process
+cases. The library filter intentionally excludes 46 unrelated tests. Focused
+implementation receipt `VNOOPHFHOGIYO265DPGNN4GZYM` identifies candidate
+`aba31dbcc6f12ff537709143757c7c6095a04e30`. Final readiness requires both ordered
+lists again for the clean PR-reference head; controller receipts and Acta retain
+that candidate and the final validation IDs.
+
+Sixteen focused feed tests passed before the ordered checks. Cases cover RSS/RDF/Atom namespaces and bases,
 hostile entities, exact byte/item limits, literal FEEDSTATUS compatibility,
 BOM/CRLF source, repeat imports, batch outcomes, stale disk contents, read-only
 admission, invalid UTF-8, failed exits, output limits, cancellation, timeout,
@@ -85,8 +110,7 @@ all request-count, file-byte and history assertions remain unchanged. Each owned
 HTTP server and editor is stopped/reaped in finally cleanup.
 
 The unchanged source checker accepts the changed Rust. References agree on 176
-schema/catalog entries, 54 active RGB roles and 261 default bindings. Required
-and focused exact-head controller validation remains pending.
+schema/catalog entries, 54 active RGB roles and 261 default bindings.
 
 ## Risks and Follow-ups
 
