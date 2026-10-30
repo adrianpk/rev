@@ -1196,7 +1196,12 @@ Details and exact checks: [Slice 60](../plan/rev-org-mode.md#slice-60-complete-t
 - [x] T60.3: Verify no inert controls, no unimplemented M-x entries and exact parser/default/template/reference agreement.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) (drafting).
+Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) (reviewing).
+
+Implementation receipt `FRVFU2W6T2L6V3ZI4S5NKMUZU6` passed all 617 selected tests,
+format/lint/source checks and diff whitespace. Catalog/example receipt
+`XMLDT2M76W27LM7JVMDLDSILF5` passed six new cases and all nine optional examples.
+Canonical PR and final-head evidence remain pending.
 
 ### Slice 61: verify complete native Org terminal workflows
 

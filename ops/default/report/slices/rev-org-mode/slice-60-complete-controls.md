@@ -1,6 +1,6 @@
 # Slice 60: complete the native Org control catalog
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -20,12 +20,29 @@ entry commands, focused context maps, typed preferences, palette roles and
 feature references. It distinguishes accepted settings from fixed native policy.
 The complete sample and embedded template include six commented, data-only Org
 examples: agenda, capture, publishing, source execution, feeds and optional tools.
-Active factory defaults remain identical.
+Active factory defaults remain identical. Agenda bulk commands invoked from
+source now refuse with the required agenda context and preserve visibility.
 
 ## Implementation Notes
 
 One compiled command catalog and the existing configuration loader remain the
 owners. The reference sample is the executable's embedded template source.
+The native catalog probe exercises all 228 Org operations against real read-only
+Org source, including wrong-context diagnostics; edit suites supply successful
+mutation coverage. All five Org roles use native input dispatch; calendar host
+controls use its local map while inherited text editing belongs to an active
+prompt. The probe exposed agenda bulk commands falling through to visibility
+outside the agenda; the existing agenda owner now rejects that context.
+Running/result ownership and source-action routing retain their original order.
+
+The source checker initially measured that correction at complexity 11. A
+separate agenda-entry admission helper restores the unchanged ceiling of 10.
+The commented-record rejection probe uses sample bytes directly because TOML
+serialization is intentionally absent from the existing dependency features.
+
+Task commits: T60.1 `5b508307bdf6`, T60.2 `a2347cbd5712`, T60.3 `c479c16779a6`.
+Follow-up corrections: `7dc2960233b3`, `3f8f0a74935b`, `9a6b1fdd3dee`.
+
 Existing native suites establish feature behavior; catalog checks alone do not
 prove terminal capability or optional tool success.
 
@@ -40,10 +57,15 @@ prove terminal capability or optional tool success.
 - `docs/reference/defaults.md`: exhaustive typed leaf and map catalog.
 - `docs/reference/config.toml`: complete defaults and optional declarations.
 - `scripts/check-config-reference.py`: packaged/reference consistency.
+- `tests/commands/org_catalog.rs`: native routes, read-only catalog admission and supported reference names.
+- `tests/configuration/reference/org_examples.rs`: real-loader examples, origins, reset and closed records.
+- `src/session/agenda_actions.rs`: agenda context admission.
 
 ## Validation
 
-Required ordered checks remain pending:
+Required ordered checks passed on clean implementation candidate
+`9a6b1fdd3deee944cdfe3f4ff5c8f2204886f446`, controller receipt
+`FRVFU2W6T2L6V3ZI4S5NKMUZU6`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -51,8 +73,30 @@ Required ordered checks remain pending:
 - `python3 scripts/check-source.py`
 - `git diff --check`
 
-Focused configuration reference and new catalog checks will use controller
-receipts on a clean candidate. The full delivery gate remains controller-owned.
+All 617 selected tests passed: 161 commands, 133 configuration, 97 agenda and
+226 editing; zero failures, ignored or filtered tests. Source quality passed
+with safe Rust, at most five parameters, three nesting levels and cyclomatic
+ten. No required checks were changed.
+
+Focused commands passed on `3f8f0a74935b2621e45a51b195c198695fb297e1`, receipt
+`XMLDT2M76W27LM7JVMDLDSILF5`:
+
+- `cargo test --test configuration reference::org_examples -- --test-threads=4`
+- `cargo test --test commands org_catalog -- --test-threads=4`
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
+All six selected new cases passed; other cases were filtered by those two
+focused commands and subsequently included in the required suites. The reference
+check agrees on 178 schema/catalog entries, 54 RGB roles, 263 bindings and nine
+optional examples. The copied native template executable emits all 24,545 exact
+reference bytes without runtime files or HOME/XDG creation. Real loader checks
+retain record values and leaf origins, admit explicit empty-array replacement,
+reject unknown record fields and create no declared paths or tool effects.
+
+Final readiness requires fresh ordered required checks and the focused reference
+check on the clean PR-reference candidate. Controller receipts and Acta retain
+that exact head and validation IDs. The full delivery gate remains controller-owned.
 
 ## Risks and Follow-ups
 
