@@ -1,11 +1,12 @@
 # Slice 64: prepare complete native Org delivery acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `test/rev-org-64-delivery-acceptance`
 PR: [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165)
+Integrated: `48923e0c8a83743721c46cd465abd34f8f1605ce`
 
 ## Purpose
 
@@ -96,12 +97,17 @@ parameters, nesting three and cyclomatic ten.
 
 Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
 T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
-Canonical PR [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165) targets dev. Its identity is pinned in the
-existing acceptance manifest and checker. The PR-reference follow-up must pass
-fresh exact-HEAD controller checks before readiness. The unchanged full gate remains pending after integration.
+Canonical PR [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165) is verified merged
+into dev at `48923e0c8a83743721c46cd465abd34f8f1605ce`. Final PR-reference receipt
+`TYB2VHDJJPD7RTVIYICVMZLU2Z` passed the same eight ordered commands on that
+exact clean candidate: 1081 native tests, 26 checker tests and all 34 mapped
+native assertions in actual execution, with zero skips. All 64 canonical PRs
+and their integrated ancestry are verified. This integration closure changes
+documentation only; the controller must run the unchanged full gate on its
+new clean, pushed candidate before delivery-set closure.
 
 ## Risks and Follow-ups
 
-Canonical merge, the unchanged full gate and exact-path documentation closure
+The unchanged full gate and later exact-path delivery documentation closure
 remain controller-owned. A later documentation head cannot inherit the tested
 candidate identity.

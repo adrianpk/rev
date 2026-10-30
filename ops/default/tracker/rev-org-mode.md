@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 64 delivery acceptance
+Active slice: none; all 64 slices integrated; controller full gate pending
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1274,19 +1274,23 @@ Details and exact checks: [Slice 64](../plan/rev-org-mode.md#slice-64-prepare-co
 - [x] T64.1: Admit all sixty-four canonical integrations, reports and agreed requirement mappings without declaring prerequisites runtime proof.
 - [x] T64.2: Prepare clean integrated dev for the unchanged controller full gate and exact-path documentation closure.
 - [x] T64.3: Verify coherent plan/model/tracker state, zero skips and the distinction between tested head and later closure head.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 64](../report/slices/rev-org-mode/slice-64-delivery-acceptance.md) (reviewing).
+Report: [Slice 64](../report/slices/rev-org-mode/slice-64-delivery-acceptance.md) (delivered).
 Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
 T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
 Implementation receipt `XYGFTOC3SF3NHFK5SUWGDAGXD7` passed all eight ordered
 checks, 1081 native tests and 26 checker tests with zero skips. All 34 scenario
 native assertions occur in the actual execution log. Canonical PR [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165) targets dev; its identity is pinned.
-Fresh final-HEAD evidence remains required before readiness.
+Final PR-reference candidate `48923e0c8a83743721c46cd465abd34f8f1605ce` passed the same
+eight checks under `TYB2VHDJJPD7RTVIYICVMZLU2Z`: 1081 native and 26 checker
+tests, with all 34 native scenario assertions and zero skips. Canonical PR #165
+is verified merged into dev at that exact head. All 64 canonical integrations
+and 192 completed task outcomes are verified; the controller full gate is pending.
 
 ## Delivery closure
 
-- [ ] All 64 canonical slice integrations and 192 task outcomes are verified.
+- [x] All 64 canonical slice integrations and 192 task outcomes are verified.
 - [ ] All ORG01-ORG31 requirements have actual native, terminal and resource evidence.
 - [ ] Complete operational command/binding/configuration/template/reference coverage agrees.
 - [ ] Previous editor/configuration/input acceptance and historical provenance are preserved.
@@ -1300,5 +1304,5 @@ The planning set must be committed before native execution begins.
 Slice 64 implementation: all 64 fixed report identities and 192 task descriptions
 agree with the approved plan. Admission pins 63 earlier canonical integrations
 and 189 owning task commits, preserves 18 historical closure records, and
-requires actual same-candidate native/terminal/resource evidence. The controller
-must merge Slice 64, close its integration record and run the unchanged full gate.
+requires actual same-candidate native/terminal/resource evidence. All 64 integrations are closed. The controller must run the unchanged full gate
+on clean pushed dev before final delivery-set closure.
