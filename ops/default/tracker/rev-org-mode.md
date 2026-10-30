@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 63 baseline reconciliation
+Active slice: Slice 64 delivery acceptance
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1252,17 +1252,19 @@ Details and exact checks: [Slice 63](../plan/rev-org-mode.md#slice-63-reconcile-
 - [x] T63.1: Reconcile delivered Org mode with editor/configuration/view baselines and complete user references.
 - [x] T63.2: Preserve all previous tested candidates and make the new capability matrix and optional-tool boundaries explicit.
 - [x] T63.3: Verify every requirement/scenario links to native, real-terminal and resource evidence; keep historical closures intact.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 63](../report/slices/rev-org-mode/slice-63-baseline-reconciliation.md) (reviewing).
+Report: [Slice 63](../report/slices/rev-org-mode/slice-63-baseline-reconciliation.md) (delivered).
 
 Implementation required receipt `LXWSBQR6G3PWDECFSIGCVZ4KY6` passed all 1042 selected
 native tests, complete reference/template agreement, baseline/Org link checks and
 31-requirement/34-scenario prerequisite resolution. Focused receipt `NVWGVBUGEOE4A2I2BFFFRBOR3B`
 passed all 22 evidence-checker tests on the same implementation candidate.
 Canonical PR: [#164](https://forge.adrianpk.com/adrianpk/rev/pulls/164), targeting `dev`.
-Fresh final-head required and focused receipts are required after this PR-reference
-commit. Integration remains pending.
+Final candidate `6e53e29bde7218bed721b2b90776475605fca956` passed the same required
+checks under `ZB6JLIOSZKCIWMB7H43F4VVU2L` (1042 native tests) and focused checks
+under `CQ5BRJ6IRONYAU2K5YZYB5FMDY` (22 checker tests). Canonical PR #164 is
+verified merged into dev at that exact head; all 34 native references resolve.
 
 ### Slice 64: prepare complete native Org delivery acceptance
 

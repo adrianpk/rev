@@ -1,11 +1,12 @@
 # Slice 63: reconcile native Org contracts and references
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `docs/rev-org-63-baseline-reconciliation`
-PR: `#164`
+PR: [#164](https://forge.adrianpk.com/adrianpk/rev/pulls/164)
+Integrated: `6e53e29bde7218bed721b2b90776475605fca956`
 
 ## Purpose
 
@@ -108,8 +109,12 @@ retain their separate candidate meanings; the final full gate remains pending.
 Source quality retains safe Rust, five parameters, nesting three and cyclomatic ten.
 
 Task commits: T63.1 `491d2b5322e0`, T63.2 `5b083a95fd3a`, T63.3 `4184c6ccae78`.
-Final readiness requires fresh required and focused receipts on the clean
-PR-reference candidate. The controller owns merge and final delivery acceptance.
+Final PR-reference candidate `6e53e29bde7218bed721b2b90776475605fca956` passed
+the same ordered required commands under receipt `ZB6JLIOSZKCIWMB7H43F4VVU2L`
+(1042 native tests) and focused commands under `CQ5BRJ6IRONYAU2K5YZYB5FMDY`
+(22 checker tests). All 34 native scenario references resolve against the final
+execution log. Canonical PR #164 is verified merged into dev at that exact head.
+The controller retains final delivery-gate ownership.
 
 ## Risks and Follow-ups
 
