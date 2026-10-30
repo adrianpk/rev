@@ -1,11 +1,14 @@
 use super::*;
 use rev::org::execution::State;
 fn editor(source: &str, extra: &str) -> (Fixture, Session) {
-    let f = Fixture::new();
     let config = format!(
         "org.time.zone='UTC'\n{extra}\n[[org.source.programs]]\nname='shell'\nlanguage='sh'\nexecutable='/bin/sh'\ncwd='source'\n"
     );
-    let snapshot = prepare(&f.write("config.toml", &config));
+    configured(source, &config)
+}
+pub(super) fn configured(source: &str, config: &str) -> (Fixture, Session) {
+    let f = Fixture::new();
+    let snapshot = prepare(&f.write("config.toml", config));
     assert!(snapshot.diagnostic.is_none(), "{:?}", snapshot.diagnostic);
     let mut buffers = Buffers::with_settings(snapshot.snapshot).unwrap();
     let id = buffers.visit(&f.write("source.org", source)).unwrap();

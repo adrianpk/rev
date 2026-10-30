@@ -51,6 +51,12 @@ and the Org manual's [evaluation](https://orgmode.org/manual/Evaluating-Code-Blo
 Development `cargo check --lib` passed. Two initial real filesystem/editor tests
 passed with `cargo test --test org_io --test configuration execution` (the filter
 selected no configuration tests). Two typed profile tests passed with `cargo test --test configuration source_profile`.
+Seven focused execution tests now cover stdin/file delivery, a real owned
+multi-step pipeline, missing/nonzero programs, combined output limits, noweb,
+actual cancellation, global/profile timeout and session-drop cleanup. Direct
+children are reaped; descendants stop; owned workspace/input modes and removal
+are checked. A corrected pipeline fixture checks that output overflow prevents later
+stages; it does not assume rollback of already performed external effects.
 Required exact-head checks remain pending.
 
 ## Risks and Follow-ups

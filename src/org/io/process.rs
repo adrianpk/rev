@@ -170,8 +170,10 @@ fn environment_for(command: &mut Command, root: Option<&std::path::Path>) {
     for (key, directory) in [
         ("HOME", "home"),
         ("XDG_CONFIG_HOME", "config"),
+        ("XDG_CONFIG_DIRS", "config"),
         ("XDG_CACHE_HOME", "cache"),
         ("XDG_DATA_HOME", "data"),
+        ("XDG_DATA_DIRS", "data"),
         ("XDG_STATE_HOME", "state"),
         ("XDG_RUNTIME_DIR", "runtime"),
         ("TMPDIR", "tmp"),
