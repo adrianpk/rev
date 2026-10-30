@@ -11,7 +11,7 @@ are everyday comforts you can use from the start, without first assembling a
 set of editor packages. The goal is a light, responsive editor with a
 deliberately small scope.
 
-![rev editing Rust source with the file tree open](docs/reference/images/rev.png)
+![rev with Rust and Org panes, the file tree and M-x completion](docs/reference/images/rev.png)
 
 ## Install
 
