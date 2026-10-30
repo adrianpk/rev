@@ -123,6 +123,8 @@ def org_terminal(text, candidate):
     require(result['candidate'] == candidate, 'stale Org terminal candidate')
     require(result['cases'] == ORG_GROUPS, 'incomplete Org terminal cases/counts')
     require(result['sessions'] == sum(ORG_GROUPS.values()), 'incomplete Org terminal sessions')
+    require(math.isfinite(result['elapsed_seconds']) and result['elapsed_seconds'] > 0,
+            'missing actual terminal elapsed time')
     require(result['isolated_roots'] is True and result['restored_reaped_closed'] is True,
             'missing owned Org root/restoration/cleanup evidence')
     require(f'Org terminal suite: {sum(ORG_GROUPS.values())} owned sessions passed, 0 skipped.' in text,

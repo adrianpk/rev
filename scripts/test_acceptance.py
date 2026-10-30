@@ -147,7 +147,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
         good += ''.join(f'PASS org-workflows {name}\n' for name in ORG_GROUPS)
         good += ''.join(f'PASS org-combined-{mode} {stage}\n' for mode in ['rgb', 'no-color'] for stage in ORG_COMBINED_STAGES)
         receipt = dict(candidate=candidate, cases=ORG_GROUPS, sessions=sum(ORG_GROUPS.values()),
-                       isolated_roots=True, restored_reaped_closed=True)
+                       elapsed_seconds=1.0, isolated_roots=True, restored_reaped_closed=True)
         good += 'Org terminal evidence: ' + json.dumps(receipt) + '\n'
         good += f'Org terminal suite: {sum(ORG_GROUPS.values())} owned sessions passed, 0 skipped.\n'
         terminal(good, candidate)
@@ -175,6 +175,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             'Org stale head': good.replace('"head": "' + 'a' * 40, '"head": "' + 'c' * 40),
             'Org stale tree': good.replace('"tree": "' + 'b' * 40, '"tree": "' + 'c' * 40),
             'Org roots': good.replace('"isolated_roots": true', '"isolated_roots": false'),
+            'Org elapsed': good.replace('"elapsed_seconds": 1.0', '"elapsed_seconds": 0'),
             'Org lifetime': good.replace('"restored_reaped_closed": true', '"restored_reaped_closed": false'),
             'Org receipt duplicate': good + 'Org terminal evidence: ' + json.dumps(receipt) + '\n',
 

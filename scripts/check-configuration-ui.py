@@ -87,6 +87,7 @@ def main():
     subprocess.run(build, cwd=ROOT, check=True)
     if args.case is None:
         candidate = identity(ROOT)
+        started = time.monotonic()
         terminal(None)
         counts = {}
         for case, expected in ORG_GROUPS.items():
@@ -97,7 +98,8 @@ def main():
             print(f'PASS org-workflows {case}', flush=True)
         assert identity(ROOT) == candidate, 'terminal candidate changed during execution'
         print('Org terminal evidence: ' + json.dumps(dict(candidate=candidate, cases=counts,
-              sessions=sum(counts.values()), isolated_roots=True, restored_reaped_closed=True), sort_keys=True))
+              sessions=sum(counts.values()), elapsed_seconds=time.monotonic() - started,
+              isolated_roots=True, restored_reaped_closed=True), sort_keys=True))
         print(f'Org terminal suite: {sum(counts.values())} owned sessions passed, 0 skipped.')
     elif not org_terminal(args.case):
         terminal(args.case)
