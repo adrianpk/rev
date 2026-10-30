@@ -213,6 +213,7 @@ supported. Unsupported or uncovered local time rejects before mutation.
 | Org attachments | `org-attach`, `org-attach-attach`, `org-attach-copy`, `org-attach-move`, `org-attach-link`, `org-attach-open`, `org-attach-open-in-emacs`, `org-attach-reveal-in-emacs`, `org-attach-set-directory`, `org-attach-results` |
 
 | Org source blocks | `org-edit-special`, `org-edit-src-exit`, `org-edit-src-abort`, `org-babel-view-src-block-info`, `org-babel-insert-header-arg` |
+| Org feeds | `org-feed-update-all`, `org-feed-update`, `org-feed-goto-inbox`, `org-feed-results` |
 | Org execution | `org-babel-execute-src-block`, `org-babel-execution-results` |
 | Org tangling | `org-babel-tangle`, `org-babel-tangle-single-block`, `org-babel-tangle-results` |
 | Org publishing | `org-publish`, `org-publish-results` |

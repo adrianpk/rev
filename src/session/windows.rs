@@ -17,6 +17,7 @@ impl Session {
         self.yank = None;
         if self.tangling.is_some()
             || self.execution.is_some()
+            || self.feeds.is_some()
             || self.capture_blocks_input()
             || self.input.focus() != Focus::Editing
             || self.tree.focused()

@@ -25,6 +25,8 @@ mod publishing;
 mod tables;
 pub use attachment::{AttachmentResult, HeadingStatus};
 mod execution;
+mod feeds;
+pub use feeds::FeedOutcome;
 mod mode;
 mod motion;
 mod org;
@@ -89,6 +91,8 @@ pub struct Session {
     tangling: Option<tangling::State>,
     execution: Option<execution::Selection>,
     execution_result: Option<crate::org::execution::Outcome>,
+    feeds: Option<feeds::State>,
+    feed_results: Vec<FeedOutcome>,
     tangling_results: Vec<crate::org::tangle::Outcome>,
     refile: Option<refile::State>,
     refile_result: Vec<refile::ResultEntry>,
@@ -146,6 +150,7 @@ enum AfterSave {
 enum Pending {
     Tangle(tangling::Prompt),
     Execution(execution::Prompt),
+    Feed(feeds::Prompt),
     SourceHeader(Box<source_edit::HeaderPrompt>),
     Capture(capture::Prompt),
     Refile,
@@ -250,6 +255,8 @@ impl Session {
             source_edit: None,
             tangling: None,
             execution: None,
+            feeds: None,
+            feed_results: Vec::new(),
             execution_result: None,
             tangling_results: Vec::new(),
             refile: None,
@@ -469,6 +476,7 @@ impl Session {
             .source_edit_command(command)
             .or_else(|| self.capture_command(command))
             .or_else(|| self.execution_command(command))
+            .or_else(|| self.feed_command(command))
             .or_else(|| self.tangle_command(command))
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))

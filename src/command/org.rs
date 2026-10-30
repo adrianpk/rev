@@ -222,9 +222,13 @@ pub enum OrgCommand {
     TangleResults,
     ExecuteSrc,
     ExecutionResults,
+    FeedUpdateAll,
+    FeedUpdate,
+    FeedGotoInbox,
+    FeedResults,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 220] = [
+    pub const ALL: [Self; 224] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -445,6 +449,10 @@ impl OrgCommand {
         Self::TangleResults,
         Self::ExecuteSrc,
         Self::ExecutionResults,
+        Self::FeedUpdateAll,
+        Self::FeedUpdate,
+        Self::FeedGotoInbox,
+        Self::FeedResults,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -668,6 +676,10 @@ impl OrgCommand {
             "org-babel-tangle-results",
             "org-babel-execute-src-block",
             "org-babel-execution-results",
+            "org-feed-update-all",
+            "org-feed-update",
+            "org-feed-goto-inbox",
+            "org-feed-results",
         ][self as usize]
     }
 

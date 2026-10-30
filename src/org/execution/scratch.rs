@@ -8,7 +8,7 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 static NEXT: AtomicU64 = AtomicU64::new(0);
-pub(super) struct Scratch {
+pub(in crate::org) struct Scratch {
     root: PathBuf,
     owned: bool,
 }

@@ -5,7 +5,7 @@ mod results;
 mod variables;
 pub(crate) use input::{Input, Prepare};
 mod run;
-mod scratch;
+pub(in crate::org) mod scratch;
 use crate::{
     buffer::Buffer,
     config::{self, SourceProgram},

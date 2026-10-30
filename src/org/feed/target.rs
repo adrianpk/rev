@@ -16,6 +16,7 @@ pub struct Plan {
     pub added: usize,
     pub skipped: usize,
     pub point: usize,
+    pub(crate) evidence: Vec<DestinationSource>,
 }
 pub(super) fn resolve(
     source: &DestinationSource,
@@ -79,6 +80,7 @@ pub(super) fn plan(
         added,
         skipped: items.entries.len() - added,
         point,
+        evidence: Vec::new(),
     })
 }
 fn newline(source: &DestinationSource) -> &'static str {
@@ -227,4 +229,57 @@ fn entry(item: &Entry, level: usize, newline: &str) -> String {
         text.push_str(&format!(": {line}{newline}"));
     }
     text
+}
+
+pub(super) fn admit(
+    source: &DestinationSource,
+    target: &Target,
+    name: &str,
+    cancel: &Cancellation,
+) -> Result<(), String> {
+    if let Some((_, value)) = drawer(source, target, name, cancel)? {
+        super::status::Status::parse(&value, cancel)?;
+    }
+    Ok(())
+}
+pub(super) fn inbox(
+    source: DestinationSource,
+    target: Target,
+    cancel: &Cancellation,
+) -> Result<Plan, String> {
+    xml::check(cancel)?;
+    let newline = newline(&source);
+    let at = target.subtree_end.0;
+    let mut text = String::new();
+    for heading in &target.missing {
+        text.push_str(&format!(
+            "{} {}{newline}",
+            "*".repeat(heading.level),
+            heading.title
+        ));
+    }
+    separate(&source, at, &mut text, newline);
+    let edits = if text.is_empty() {
+        Vec::new()
+    } else {
+        vec![CaptureEdit {
+            bytes: at..at,
+            text,
+        }]
+    };
+    Ok(Plan {
+        insertion: Insertion { source, edits },
+        added: 0,
+        skipped: 0,
+        point: target.parent.map_or(at, |p| p.0),
+        evidence: Vec::new(),
+    })
+}
+impl Plan {
+    pub(crate) fn current(&self, buffers: &crate::buffer::Buffers) -> Result<(), String> {
+        for source in &self.evidence {
+            source.prepare_visit(buffers)?;
+        }
+        Ok(())
+    }
 }

@@ -7,6 +7,45 @@ configuration, load entities or start a background poller.
 HTTP(S) `source`, target `file` and `headline`, optional `drawer` (FEEDSTATUS by
 default) and optional transport argv. Paths retain their assigning-file origin.
 
+`C-c C-x g` (`org-feed-update-all`) updates declared sources serially.
+`org-feed-update` selects one by name. `C-c C-x G` (`org-feed-goto-inbox`)
+opens the selected canonical file/heading without fetching; a missing heading is
+an unsaved ordinary edit. `org-feed-results` inspects retained per-feed outcomes.
+Visiting a file never reads a feed or starts a transport.
+
+A local update uses bounded native file ingress; canonical unsaved XML wins over
+disk. HTTP(S) uses the feed's `transport` override or `org.tools.fetch`. Empty
+transport is a diagnosed missing prerequisite. Each actual tool launch requires
+confirmation; decline and pre-launch cancellation create no process. Typed argv
+admits at most 64 tokens of 4096 bytes each. One whole `{target}` token receives
+the source URL or local path; otherwise it is appended once. Relative executables
+with a slash resolve against the assigning configuration file. No token is
+interpolated by a shell.
+
+```toml
+[org.tools]
+fetch = ["curl", "--fail", "--silent", "--show-error", "{target}"]
+
+[[org.feeds.sources]]
+name = "News"
+source = "news.xml"
+file = "inbox.org"
+headline = "News"
+```
+
+The existing process owner provides private HOME/XDG/TMP paths, no stdin,
+combined output/time ceilings, child groups and cleanup. Confirmed programs have
+normal host authority; isolation does not sandbox them. Effective fetch output
+is the smaller `feed_bytes`/`job_output_bytes` ceiling, and `job_seconds` bounds
+the operation. `C-g` cancels and reaps owned work. No idle poller remains.
+
+Successful updates save the canonical destination, including its unsaved text,
+using the ordinary checked file owner. Read-only, stale or failed publication
+retains previous source/history. An unresolved completion remains a distinct
+outcome with the inserted canonical status retained; repeating an update can
+retry its save without duplicating entries. Update-all reports each source
+separately and continues after a source failure.
+
 The native parser supports RSS 0.91/0.92/2.0, RDF RSS 1.0 and Atom 1.0 namespaces.
 UTF-8, XML comments/CDATA, predefined/numeric references, namespace bindings and
 HTTP-relative links are observed as literal data. DTD/entity declarations,

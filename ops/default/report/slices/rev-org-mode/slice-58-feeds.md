@@ -54,9 +54,15 @@ Development checks passed:
 
 Four focused cases passed, including namespace/base resolution, hostile XML,
 canonical BOM/CRLF transactions and FEEDSTATUS deduplication. References agree
-on 176 schema/catalog entries, 54 active RGB roles and 259 default bindings.
-The unchanged source checker accepts the changed Rust. Fetch/session work and
-required exact-head validation remain pending.
+on 176 schema/catalog entries, 54 active RGB roles and 261 default bindings.
+The unchanged source checker accepts the changed Rust. Four additional native
+session cases pass: local import/save/repeat, inbox navigation, real confirmed
+shell transport and failed source/tool/destination preservation. Repeat updates
+use ordinary save when there is no proposed source edit, preserving history.
+All 285 command/configuration tests passed. Transport/session evidence, command
+identities and release notes are integrated;
+remaining validation expands failure/resource and terminal coverage. Required
+exact-head validation remains pending.
 
 ## Risks and Follow-ups
 

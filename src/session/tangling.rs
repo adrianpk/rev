@@ -46,7 +46,7 @@ impl Session {
         }
     }
     pub(super) fn tangle_input_blocked(&self, outcome: &crate::input::Outcome) -> bool {
-        (self.tangling.is_some() || self.execution.is_some())
+        (self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some())
             && matches!(
                 outcome,
                 crate::input::Outcome::Pointer(_) | crate::input::Outcome::Editing(_)

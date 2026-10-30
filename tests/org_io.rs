@@ -174,3 +174,6 @@ mod block_results;
 
 #[path = "org_io/feed_import.rs"]
 mod feed_import;
+
+#[path = "org_io/feeds.rs"]
+mod feeds;

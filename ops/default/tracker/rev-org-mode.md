@@ -1156,7 +1156,7 @@ Contracts: ORG29 ORG18.
 Details and exact checks: [Slice 58](../plan/rev-org-mode.md#slice-58-import-native-org-feed-entries-on-demand).
 
 - [x] T58.1: Deliver bounded native RSS/Atom parsing, declared feed targets and compatible FEEDSTATUS deduplication.
-- [ ] T58.2: Fetch only explicit updates using configured optional transport, with no background poller or new service.
+- [x] T58.2: Fetch only explicit updates using configured optional transport, with no background poller or new service.
 - [ ] T58.3: Verify local XML fixtures, repeat imports, hostile entity rejection and failed fetch/destination preservation.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

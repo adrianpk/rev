@@ -250,6 +250,8 @@ const ORG: &[(&str, &str)] = &[
     ("C-c C-v h", "org-babel-insert-header-arg"),
     ("C-c C-v t", "org-babel-tangle"),
     ("C-c C-v e", "org-babel-execute-src-block"),
+    ("C-c C-x g", "org-feed-update-all"),
+    ("C-c C-x G", "org-feed-goto-inbox"),
     ("C-u C-c C-v t", "org-babel-tangle-single-block"),
 ];
 const ORG_CAPTURE: &[(&str, &str)] = &[

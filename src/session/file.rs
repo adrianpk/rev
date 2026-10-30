@@ -7,7 +7,7 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
-        if self.tangling.is_some() || self.execution.is_some() {
+        if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
             return Err(io::Error::other(
                 "Source output owns input; C-g cancels remaining files",
             ));
@@ -161,6 +161,7 @@ impl Pending {
         matches!(
             self,
             Self::Execution(_)
+                | Self::Feed(_)
                 | Self::Tangle(_)
                 | Self::SourceHeader(_)
                 | Self::Capture(_)
@@ -177,6 +178,7 @@ impl Pending {
 impl Session {
     fn collection_argument(&mut self, pending: Pending, draft: &str) -> Action {
         match pending {
+            Pending::Feed(prompt) => self.feed_argument(prompt, draft),
             Pending::Execution(prompt) => self.execution_argument(prompt, draft),
             Pending::Tangle(prompt) => self.tangle_argument(prompt, draft),
             Pending::Export(prompt) => self.export_argument(*prompt, draft),
