@@ -1,5 +1,7 @@
 # Documentation
 
+These pages describe rev 0.1.0.
+
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
 your first file, then learn buffers, search, file browsing and preferences.
 

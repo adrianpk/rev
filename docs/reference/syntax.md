@@ -6,7 +6,8 @@ language table can override recognition and choose either `rust` or `plain`.
 Canonical reuse retains the first visiting alias; display labels such as
 `main.rs<2>` do not determine the language. No runtime grammar installation,
 network access or external language service is required. Other identities default
-to plain `Text` presentation; see the [complete language rules](defaults.md#language-rules).
+to plain `Text` grammar presentation; [native Org source](#native-org-source)
+uses its own coloring. See the [complete language rules](defaults.md#language-rules).
 
 The status line shows `Rust` only for a prepared syntax tree of the current
 buffer revision. A failed or missing query uses `Text`; incomplete Rust source
@@ -109,7 +110,8 @@ have separate ownership.
 boundaries, properties, planning lines, block boundaries, literal code, comments,
 list markers, table rows, formula directives, emphasis, links, targets, footnotes,
 entities and malformed structural delimiters. The [complete sample](config.toml)
-and [default catalog](defaults.md#palette-roles) list every active leaf and RGB default.
+and [Org palette catalog](org/configuration.md#palette-roles) list every active
+Org leaf and RGB default.
 Nested inline captures take precedence over their enclosing heading/table style.
 Code/verbatim inline objects and source, example, export and comment blocks keep
 literal context. Their text never becomes an outer heading or inline object.
@@ -136,8 +138,7 @@ and install a `ColorScan` result before standalone `Frame::project`.
 Colors use the same grapheme/tab/wide-cell projection, selection/search precedence
 and NO_COLOR fallback as Rust. NO_COLOR keeps original source and delimiters,
 selection reverse video and search underlining without RGB output. Task-state,
-tag and timestamp-specific semantic roles arrive with those semantic owners;
-heading and planning source currently retain their enclosing roles.
+tag and timestamp text retain their enclosing heading and planning roles.
 
 ## Library fold projection
 

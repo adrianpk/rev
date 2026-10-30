@@ -357,9 +357,11 @@ or one third of the frame when shown.
 
 ## Product boundary
 
-Native mode activation includes `.org` and `.org_archive` files; bundled syntax highlighting supports Rust.
-Other files and syntax failures retain editable plain presentation. TOML startup preferences configure
-existing actions. This baseline has no plugins, macros, package runtime, LSP,
+Native mode activation includes `.org` and `.org_archive` files, with
+[native Org source coloring](syntax.md#native-org-source). Rust uses the
+bundled grammar; other files and syntax failures retain editable plain
+presentation. TOML startup preferences configure existing actions. This
+version has no plugins, macros, package runtime, LSP,
 language completion, automatic
 indentation, OS clipboard bridge, regex/project search, soft wrap or session
 persistence. The command catalog describes the implemented editing subset.

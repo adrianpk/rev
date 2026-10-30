@@ -3,7 +3,8 @@
 Open a file, make a change and save it. Start there; no configuration is needed.
 
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
-These chapters use the default key bindings and small files you create yourself.
+These chapters describe rev 0.1.0, using the default key bindings and small
+files you create yourself.
 
 1. [Edit Your First File](01-first-file.md): write, save, quit and reopen.
 2. [Move and Edit Text](02-edit-text.md): select, copy, move and undo text.
@@ -23,4 +24,5 @@ editor path above does not depend on them.
 
 See [all documentation](../../index.md) for task guides, exact controls and
 explanations. The [key binding reference](../../reference/bindings.md) lists
-the complete keyboard interface.
+the core keyboard interface; [Org bindings](../../reference/org/bindings.md)
+cover the additional Org contexts.
