@@ -102,13 +102,8 @@ fn combined_examples() {
 // ignored as an inert hook or silently fall back to an empty declaration.
 #[test]
 fn closed_records() {
-    for (name, table, leaf) in EXAMPLES.into_iter().take(5) {
-        let mut value: toml::Value = toml::from_str(&source(name)).unwrap();
-        value["org"][table][leaf][0].as_table_mut().unwrap().insert(
-            "startup_hook".into(),
-            toml::Value::String("unsupported".into()),
-        );
-        let text = toml::to_string(&value).unwrap();
+    for (name, _, _) in EXAMPLES.into_iter().take(5) {
+        let text = source(name).replacen('{', "{ startup_hook = 'unsupported',", 1);
         let error =
             rev::config::parse(std::path::Path::new("example.toml"), text.as_bytes()).unwrap_err();
         assert!(
