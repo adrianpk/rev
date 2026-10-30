@@ -18,6 +18,9 @@ template under ORG17 and ORG31. [Plan](../../../plan/rev-org-mode.md) and
 The control reference connects each shipped Org capability to its compiled
 entry commands, focused context maps, typed preferences, palette roles and
 feature references. It distinguishes accepted settings from fixed native policy.
+The complete sample and embedded template include six commented, data-only Org
+examples: agenda, capture, publishing, source execution, feeds and optional tools.
+Active factory defaults remain identical.
 
 ## Implementation Notes
 

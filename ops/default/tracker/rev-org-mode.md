@@ -1192,7 +1192,7 @@ Contracts: ORG17 ORG31.
 Details and exact checks: [Slice 60](../plan/rev-org-mode.md#slice-60-complete-the-native-org-control-catalog).
 
 - [x] T60.1: Reconcile every shipped command, default context binding, typed preference and palette role with the catalog.
-- [ ] T60.2: Extend the complete sample and embedded template with actual supported Org controls and optional tool examples.
+- [x] T60.2: Extend the complete sample and embedded template with actual supported Org controls and optional tool examples.
 - [ ] T60.3: Verify no inert controls, no unimplemented M-x entries and exact parser/default/template/reference agreement.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 

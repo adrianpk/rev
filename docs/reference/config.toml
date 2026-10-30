@@ -3,6 +3,8 @@
 # The comments below describe supported types, bounds and optional examples.
 # Retain or change the values you need; restart the editor to apply changes.
 # All paths are literal. No shell expansion or implicit project config is used.
+# Org examples below replace their existing table values; keep one table per name.
+# All examples are data-only. Loading never fetches, launches tools or creates targets.
 
 # Integer schema version; only 1 is accepted. Omission also means 1.
 version = 1
@@ -109,6 +111,7 @@ templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
 [org.tools]
+# Optional explicit HTTP feed transport; whole {target} token or appended URL.
 fetch = []
 # Optional separately confirmed uploader; whole {output_dir} argument substitution.
 upload = []
@@ -129,16 +132,20 @@ location = "%s_archive::"
 targets = []
 
 [org.preview]
+# Initial per-view preference; image reads still require a native preview command.
 enabled = false
+# 1..16777216 bytes per local PNG, also subject to fixed aggregate/frame bounds.
 max_bytes = 4194304
 
 [org.feeds]
+# Up to 64 local/HTTP sources; see org-feeds.md. No polling or startup reads.
 sources = []
 
 [org.source]
+# Explicit execution retains confirmation; no program is inferred from language.
 confirm_execution = true
-programs = []
-library_files = []
+programs = [] # Up to 32 typed runners; see org-source-blocks.md.
+library_files = [] # Up to 32 explicit named-block source files; no startup reads.
 
 [org.publish]
 # Data-only named projects; explicit org-publish selection performs discovery.
@@ -150,8 +157,8 @@ default_format = "html"
 backends = ["text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar"]
 
 [org.limits]
-feed_bytes = 4194304
-feed_items = 1000
+feed_bytes = 4194304 # 1..16777216 input bytes per declared feed.
+feed_items = 1000 # 1..10000 admitted items per feed.
 # Include nesting 1..64 and occurrences 1..512, excluding the root document.
 include_depth = 16
 include_files = 128
@@ -237,6 +244,40 @@ inherit = true
 # Names are case-insensitive; arrays replace on merge, including empty arrays.
 inherit = []
 
+# Optional Org agenda: replace values in [org.agenda]; paths are config-relative.
+# [org.agenda]
+# sources = ["notes/inbox.org", "notes/projects.org"]
+# span = "week"
+# week_start = 1
+# include_archived = false
+# views = [{ key = "w", title = "Week and tasks", blocks = [{ kind = "calendar", span = "week", row_limit = 200 }, { kind = "todo", query = "TODO", filter = "work", sort = ["priority-down", "title-up"], columns = ["ITEM", "TODO", "PRIORITY"], row_limit = 100 }] }]
+
+# Optional Org capture: replace values in [org.capture]; existing targets are checked on use.
+# [org.capture]
+# default_file = "notes/inbox.org"
+# templates = [{ key = "t", description = "Task", kind = "entry", target = { type = "file+headline", file = "notes/inbox.org", headline = "Tasks" }, template = "* TODO %?\n  %u\n  %a", prepend = false }]
+
+# Optional Org publishing: replace [org.publish] values; output starts only by command.
+# [org.publish]
+# projects = [{ name = "notes", roots = ["notes"], include = ["**/*.org"], exclude = ["private/**"], output = "site", formats = ["html", "markdown"], assets = ["images/*.png"], upload = false }]
+
+# Optional Org source: replace [org.source] values; explicit Python input uses stdin.
+# [org.source]
+# confirm_execution = true
+# library_files = ["blocks/library.org"]
+# programs = [{ name = "python-output", language = "python", action = "execute", executable = "python3", argv = [], delivery = "stdin", cwd = "workspace", steps = [], result = "output", seconds = 5, output_bytes = 65536 }]
+
+# Optional Org feeds: replace [org.feeds] values; imports target the selected heading.
+# [org.feeds]
+# sources = [{ name = "local-news", source = "news.atom", file = "notes/inbox.org", headline = "News", drawer = "FEEDSTATUS" }, { name = "remote-news", source = "https://example.org/feed.atom", file = "notes/inbox.org", headline = "News", drawer = "FEEDSTATUS", transport = ["curl", "--fail", "--silent", "--show-error", "--max-time", "10", "{target}"] }]
+
+# Optional Org tools: replace [org.tools] values; programs must be installed separately.
+# [org.tools]
+# fetch = ["curl", "--fail", "--silent", "--show-error", "--max-time", "10", "{target}"]
+# viewer = ["xdg-open", "{target}"]
+# pdf = ["pdflatex", "-interaction=nonstopmode", "-halt-on-error", "-output-directory", "{output_dir}", "{input}"]
+# upload = ["rsync", "-a", "{output_dir}", "user@example.org:site/"]
+
 [syntax]
 # Boolean; enable the existing bundled grammar/query, with plain-text fallback.
 enabled = true
@@ -257,7 +298,7 @@ bom = false
 # Patterns are exact basenames or leading *.suffix; IDs start with [a-z],
 # followed by [a-z0-9-]. Exact basename wins, then longest suffix; case matters.
 
-# Tokyo Night night defaults. All 46 roles are active six-digit #RRGGBB strings.
+# Tokyo Night night defaults. All 54 roles are active six-digit #RRGGBB strings.
 # Terminal true-color/cursor support and NO_COLOR determine visible capability.
 [palette]
 background = "#1a1b26"          # Document and ordinary prompt background.
@@ -307,6 +348,7 @@ footnote = "#ff9e64" # Footnote objects.
 entity = "#2ac3de" # Recognized entity source.
 malformed = "#e0af68" # Malformed structural delimiters.
 
+# Native habit backgrounds, paired with the future-column variant below.
 habit_clear = "#0000ff"
 habit_clear_future = "#191970"
 habit_ready = "#228b22"
