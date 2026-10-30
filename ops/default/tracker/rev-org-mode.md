@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 60 complete controls
+Active slice: Slice 61 combined terminal
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1194,16 +1194,16 @@ Details and exact checks: [Slice 60](../plan/rev-org-mode.md#slice-60-complete-t
 - [x] T60.1: Reconcile every shipped command, default context binding, typed preference and palette role with the catalog.
 - [x] T60.2: Extend the complete sample and embedded template with actual supported Org controls and optional tool examples.
 - [x] T60.3: Verify no inert controls, no unimplemented M-x entries and exact parser/default/template/reference agreement.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) (reviewing).
+Report: [Slice 60](../report/slices/rev-org-mode/slice-60-complete-controls.md) (delivered).
 
-Implementation receipt `FRVFU2W6T2L6V3ZI4S5NKMUZU6` passed all 617 selected tests,
-format/lint/source checks and diff whitespace. Catalog/example receipt
-`XMLDT2M76W27LM7JVMDLDSILF5` passed six new cases and all nine optional examples.
-Canonical PR: [#161](https://forge.adrianpk.com/adrianpk/rev/pulls/161), targeting `dev`.
-Fresh final-head receipts are required after this PR-reference commit.
-Integration remains pending.
+Canonical PR: [#161](https://forge.adrianpk.com/adrianpk/rev/pulls/161), verified merged into `dev`
+at `ffccfe94175703d69242acebef956b7d83e7ff32`. Required receipt
+`NPEZJ4ZIMZKBOZI4NDGC6ZDLCH` passed all 617 selected native tests and unchanged
+format/lint/source/whitespace checks. Focused receipt `6KNDIFNLUDX2B7AOQRPAGWN6HH`
+verified 178 entries, 54 RGB roles, 263 bindings, nine examples and the packaged
+template on that exact final candidate.
 
 ### Slice 61: verify complete native Org terminal workflows
 

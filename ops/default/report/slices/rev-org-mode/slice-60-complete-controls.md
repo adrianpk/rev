@@ -1,6 +1,6 @@
 # Slice 60: complete the native Org control catalog
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -65,9 +65,9 @@ Canonical PR: [#161](https://forge.adrianpk.com/adrianpk/rev/pulls/161), targeti
 
 ## Validation
 
-Required ordered checks passed on clean implementation candidate
-`9a6b1fdd3deee944cdfe3f4ff5c8f2204886f446`, controller receipt
-`FRVFU2W6T2L6V3ZI4S5NKMUZU6`:
+Required ordered checks passed on clean final candidate
+`ffccfe94175703d69242acebef956b7d83e7ff32`, verified merged through canonical
+PR #161 into `dev`, controller receipt `NPEZJ4ZIMZKBOZI4NDGC6ZDLCH`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -96,9 +96,14 @@ reference bytes without runtime files or HOME/XDG creation. Real loader checks
 retain record values and leaf origins, admit explicit empty-array replacement,
 reject unknown record fields and create no declared paths or tool effects.
 
-Final readiness requires fresh ordered required checks and the focused reference
-check on the clean PR-reference candidate. Controller receipts and Acta retain
-that exact head and validation IDs. The full delivery gate remains controller-owned.
+The final focused list also passed on the same merged candidate, receipt
+`6KNDIFNLUDX2B7AOQRPAGWN6HH`:
+
+- `python3 scripts/check-config-reference.py`
+- `git diff --check`
+
+Controller logs and Acta retain both final ordered checks. The full delivery
+gate remains controller-owned.
 
 ## Risks and Follow-ups
 
