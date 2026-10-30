@@ -1276,6 +1276,14 @@ Details and exact checks: [Slice 64](../plan/rev-org-mode.md#slice-64-prepare-co
 - [x] T64.3: Verify coherent plan/model/tracker state, zero skips and the distinction between tested head and later closure head.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Report: [Slice 64](../report/slices/rev-org-mode/slice-64-delivery-acceptance.md) (reviewing).
+Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
+T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
+Implementation receipt `XYGFTOC3SF3NHFK5SUWGDAGXD7` passed all eight ordered
+checks, 1081 native tests and 26 checker tests with zero skips. All 34 scenario
+native assertions occur in the actual execution log. Canonical PR reference and
+fresh final-HEAD evidence remain required before readiness.
+
 ## Delivery closure
 
 - [ ] All 64 canonical slice integrations and 192 task outcomes are verified.

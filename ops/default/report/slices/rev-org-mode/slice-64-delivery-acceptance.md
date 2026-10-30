@@ -66,11 +66,38 @@ snapshot boundary independently of runtime execution.
 
 ## Validation
 
-Development check `python3 -m unittest discover -s scripts -p test_acceptance.py`
-passed all 26 checker tests. A read-only admission check resolved all 63 pinned
-canonical reports and 189 task commits in their owning Git ranges.
-Required exact-head controller checks are pending. The full gate belongs to the
-controller after canonical integration.
+Required ordered checks passed on clean implementation candidate
+`0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`, controller receipt
+`XYGFTOC3SF3NHFK5SUWGDAGXD7`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test org_editing --test org_time --test org_agenda --test org_tables --test org_io --test configuration --test commands --test display`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-acceptance.py --prerequisites`
+- `python3 -m unittest discover -s scripts -p test_acceptance.py`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 1081 selected native tests passed, including 39 display tests and the 1042
+Org/command/configuration tests selected in Slice 63; zero failures, ignored or
+filtered tests. All 34 scenario native assertions resolve against these actual
+execution results. All 26 checker tests passed, including adversarial integration,
+task, report, frozen-gate, historical closure and reviewed-snapshot fixtures.
+
+The reference checker confirms 178 schema/catalog entries, 54 RGB roles, 263
+bindings, nine optional examples and 24545 exact packaged template bytes. The
+prerequisite collector resolves 64 fixed slice identities/reports, 63 integrated
+canonical PRs, 189 owning task commits, all 192 task descriptions and every Org
+scenario's compiled native/terminal/resource reference. Catalog resolution is not
+terminal/resource runtime proof. All prior manifest entries are unchanged; the
+new delivery object is additive. Source quality retains safe Rust, five
+parameters, nesting three and cyclomatic ten.
+
+Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
+T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
+Final readiness requires the canonical PR-reference follow-up and fresh exact-HEAD
+controller evidence. The unchanged full gate remains pending after integration.
 
 ## Risks and Follow-ups
 
