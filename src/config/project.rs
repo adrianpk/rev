@@ -38,6 +38,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     tables(&mut settings.org, &document.org);
     export(&mut settings.org, &document.org);
     source(&mut settings.org.source, &document.org.source);
+    feeds(&mut settings.org, &document.org);
     if let Some(value) = &document.org.publish.projects {
         settings.org.publish.projects.clone_from(value);
     }
@@ -381,4 +382,15 @@ fn source(base: &mut super::SourcePrograms, partial: &super::PartialSourceProgra
     if let Some(programs) = &partial.programs {
         base.programs.clone_from(programs);
     }
+}
+
+fn feeds(base: &mut super::Org, partial: &super::PartialOrg) {
+    if let Some(sources) = &partial.feeds.sources {
+        base.feeds.sources.clone_from(sources);
+    }
+    if let Some(argv) = &partial.tools.fetch {
+        base.tools.fetch.clone_from(argv);
+    }
+    count(&mut base.limits.feed_bytes, partial.limits.feed_bytes);
+    count(&mut base.limits.feed_items, partial.limits.feed_items);
 }

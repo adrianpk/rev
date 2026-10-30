@@ -139,6 +139,7 @@ impl Document {
             &mut self.org.source.library_files,
             &later.org.source.library_files,
         );
+        merge.feeds(&mut self.org, &later.org);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -887,6 +888,31 @@ impl Merge {
             &["org", "limits", "export_bytes"],
             &mut base.limits.export_bytes,
             &later.limits.export_bytes,
+        );
+    }
+}
+
+impl Merge {
+    fn feeds(&mut self, base: &mut super::PartialOrg, later: &super::PartialOrg) {
+        self.leaf(
+            &["org", "feeds", "sources"],
+            &mut base.feeds.sources,
+            &later.feeds.sources,
+        );
+        self.leaf(
+            &["org", "tools", "fetch"],
+            &mut base.tools.fetch,
+            &later.tools.fetch,
+        );
+        self.leaf(
+            &["org", "limits", "feed_bytes"],
+            &mut base.limits.feed_bytes,
+            &later.limits.feed_bytes,
+        );
+        self.leaf(
+            &["org", "limits", "feed_items"],
+            &mut base.limits.feed_items,
+            &later.limits.feed_items,
         );
     }
 }

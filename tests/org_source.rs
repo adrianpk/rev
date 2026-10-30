@@ -298,3 +298,6 @@ mod tangling;
 
 #[path = "org_source/tangle_bounds.rs"]
 mod tangle_bounds;
+
+#[path = "org_source/feeds.rs"]
+mod feeds;

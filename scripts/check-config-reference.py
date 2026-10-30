@@ -46,6 +46,7 @@ TABLES = {
     "org.export":"PartialExport",
     "org.publish":"PartialPublish",
     "org.source":"PartialSourcePrograms",
+    "org.feeds":"PartialFeeds",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",
@@ -79,6 +80,7 @@ def model(root):
     source += (root / "src/config/export.rs").read_text()
     source += (root / "src/config/publishing.rs").read_text()
     source += (root / "src/config/source.rs").read_text()
+    source += (root / "src/config/feeds.rs").read_text()
     names = set(TABLES.values()) | {"Language"}
     return {name: fields(source, name) for name in names}
 
@@ -186,6 +188,7 @@ def type_label(kind):
         "Option<Vec<CaptureTemplate>>": "Array",
         "Option<Vec<PublishProject>>": "Array",
         "Option<Vec<SourceProgram>>": "Array",
+        "Option<Vec<FeedSource>>": "Array",
         "Option<RepeatLogging>": "String:",
         "Option<Grammar>": "String:",
         "Option<crate::gutter::Mode>": "String:",
@@ -240,6 +243,7 @@ def check_enums(root, models, rows):
     source += (root / "src/config/export.rs").read_text()
     source += (root / "src/config/publishing.rs").read_text()
     source += (root / "src/config/source.rs").read_text()
+    source += (root / "src/config/feeds.rs").read_text()
     for key, kind in leaves(models).items():
         if type_label(kind) != "String:":
             continue

@@ -554,6 +554,7 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
         }
     }
     source_programs(&partial.source)?;
+    feeds(partial)?;
     publishing(partial)?;
     viewer(partial)?;
     archive(&partial.archive)
@@ -617,4 +618,23 @@ fn source_programs(partial: &super::PartialSourcePrograms) -> Result<(), Failure
         super::source::validate(programs).map_err(|e| Failure::new("org.source.programs", e))?;
     }
     Ok(())
+}
+
+fn feeds(partial: &super::PartialOrg) -> Result<(), Failure> {
+    if let Some(sources) = &partial.feeds.sources {
+        super::feeds::validate(sources).map_err(|e| Failure::new("org.feeds.sources", e))?;
+    }
+    if let Some(argv) = &partial.tools.fetch {
+        super::feeds::argv_check(argv).map_err(|e| Failure::new("org.tools.fetch", e))?;
+    }
+    integer(
+        "org.limits.feed_bytes",
+        partial.limits.feed_bytes,
+        1..=16777216,
+    )?;
+    integer(
+        "org.limits.feed_items",
+        partial.limits.feed_items,
+        1..=10000,
+    )
 }

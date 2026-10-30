@@ -109,6 +109,7 @@ templates = [] # Up to 64 typed definitions; see org-capture.md.
 default_file = "" # Empty requires an explicit file; resolution never creates it.
 
 [org.tools]
+fetch = []
 # Optional separately confirmed uploader; whole {output_dir} argument substitution.
 upload = []
 viewer = [] # Explicit argv; {target} substitutes one token, otherwise appended.
@@ -127,6 +128,9 @@ location = "%s_archive::"
 # Explicit local file/directory roots; empty uses admitted agenda/source headings.
 targets = []
 
+[org.feeds]
+sources = []
+
 [org.source]
 confirm_execution = true
 programs = []
@@ -142,6 +146,8 @@ default_format = "html"
 backends = ["text", "utf8", "org", "markdown", "html", "latex", "beamer", "odt", "texinfo", "man", "icalendar"]
 
 [org.limits]
+feed_bytes = 4194304
+feed_items = 1000
 # Include nesting 1..64 and occurrences 1..512, excluding the root document.
 include_depth = 16
 include_files = 128

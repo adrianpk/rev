@@ -171,3 +171,6 @@ mod execution_edges;
 
 #[path = "org_io/block_results.rs"]
 mod block_results;
+
+#[path = "org_io/feed_import.rs"]
+mod feed_import;

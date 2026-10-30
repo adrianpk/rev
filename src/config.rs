@@ -9,6 +9,8 @@
 
 pub(crate) mod capture;
 pub use capture::{CaptureKind, CaptureTarget, CaptureTemplate};
+pub(crate) mod feeds;
+pub use feeds::{FeedSource, Feeds, PartialFeeds};
 mod export;
 pub mod publishing;
 pub mod source;
@@ -150,6 +152,7 @@ pub struct Org {
     pub export: Export,
     pub publish: Publish,
     pub source: SourcePrograms,
+    pub feeds: Feeds,
     pub limits: OrgLimits,
 }
 
@@ -176,6 +179,7 @@ impl Default for Org {
             export: Export::default(),
             publish: Publish::default(),
             source: SourcePrograms::default(),
+            feeds: Feeds::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -204,6 +208,7 @@ pub struct PartialOrg {
     pub export: PartialExport,
     pub publish: PartialPublish,
     pub source: PartialSourcePrograms,
+    pub feeds: PartialFeeds,
     pub limits: PartialOrgLimits,
 }
 
@@ -827,6 +832,8 @@ pub struct PartialAgenda {
 /// existing owners until their typed operations are delivered.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct OrgLimits {
+    pub feed_bytes: usize,
+    pub feed_items: usize,
     pub export_bytes: usize,
     pub expansion_bytes: usize,
     pub include_files: usize,
@@ -847,6 +854,8 @@ pub struct OrgLimits {
 impl Default for OrgLimits {
     fn default() -> Self {
         Self {
+            feed_bytes: 4194304,
+            feed_items: 1000,
             export_bytes: 16777216,
             expansion_bytes: 1048576,
             include_files: 128,
@@ -869,6 +878,8 @@ impl Default for OrgLimits {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrgLimits {
+    pub feed_bytes: Option<i64>,
+    pub feed_items: Option<i64>,
     pub export_bytes: Option<i64>,
     pub expansion_bytes: Option<i64>,
     pub include_files: Option<i64>,
@@ -967,6 +978,7 @@ pub struct PartialAttachments {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Tools {
+    pub fetch: Vec<String>,
     pub viewer: Vec<String>,
     pub pdf: Vec<String>,
     pub upload: Vec<String>,
@@ -974,6 +986,7 @@ pub struct Tools {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialTools {
+    pub fetch: Option<Vec<String>>,
     pub viewer: Option<Vec<String>>,
     pub pdf: Option<Vec<String>>,
     pub upload: Option<Vec<String>>,

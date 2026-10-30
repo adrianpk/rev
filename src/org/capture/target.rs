@@ -35,7 +35,7 @@ pub enum Container {
     MissingTable,
 }
 impl Target {
-    pub(super) fn resolve(
+    pub(in crate::org) fn resolve(
         source: &DestinationSource,
         template: &CaptureTemplate,
         policy: &Org,

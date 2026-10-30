@@ -216,6 +216,10 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
 | `org.source.confirm_execution` | Boolean | `true` | Ask before each selected block job; `:eval query` always asks and no/never always reject. |
+| `org.feeds.sources` | Array of typed feed records | `[]` | At most 64 named local/HTTP feed sources with target file/headline, optional drawer and transport argv. No startup IO; see [feeds](org-feeds.md). |
+| `org.tools.fetch` | Array of argv strings | `[]` | Optional bounded feed transport, one whole `{target}` token or one appended target. |
+| `org.limits.feed_bytes` | Integer 1..=16777216 | `4194304` | Maximum complete XML source bytes per feed. |
+| `org.limits.feed_items` | Integer 1..=10000 | `1000` | Maximum admitted items per complete feed observation. |
 | `org.source.library_files` | Array of local path strings | `[]` | At most 32 explicit files, 4096 bytes per path, relative to the assigning config source; bounded observations only on explicit named calls. |
 | `org.source.programs` | Array of typed program profiles | `[]` | At most 32 named explicit language runners; arrays replace by layer. See [source execution](org-source-blocks.md#execution) for closed fields, finite limits and argv substitution. |
 | `org.publish.projects` | Array of typed project records | `[]` | At most 64 named data-only projects, explicit roots/output/formats and bounded include/exclude/asset patterns. No startup discovery or automatic cleanup; see [publishing](org-export.md#project-publishing). |

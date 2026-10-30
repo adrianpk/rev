@@ -68,3 +68,5 @@ pub mod block;
 pub mod tangle;
 
 pub mod execution;
+
+pub mod feed;
