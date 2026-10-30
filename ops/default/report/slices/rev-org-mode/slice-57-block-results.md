@@ -60,7 +60,9 @@ output, structural result boundaries, shared-view anchors, read-only refusal and
 ordinary history. The boundary driver supplies consent only after successful
 preparation, so refusal itself cannot paste text into source. The real terminal
 case now checks block and named-call publication and physical undo; its required
-controller validation is pending. Full required exact-head validation is pending.
+controller validation exposed an overlong confirmation prompt. The prompt now
+retains the concise program/language/executable label; the complete source path
+stays in the retained outcome. Terminal validation is pending on the correction. Full required exact-head validation is pending.
 
 ## Risks and Follow-ups
 

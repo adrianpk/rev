@@ -82,16 +82,8 @@ impl Work {
     }
     pub fn label(&self) -> String {
         format!(
-            "{} ({}) using {}; target {} in {}",
-            self.profile.name,
-            self.profile.language,
-            self.profile.executable,
-            self.definition.name.as_deref().unwrap_or("selected block"),
-            self.input
-                .source_path
-                .as_ref()
-                .map(|p| format!("{p:?}"))
-                .unwrap_or("unsaved source".into())
+            "{} ({}) using {}",
+            self.profile.name, self.profile.language, self.profile.executable
         )
     }
     pub fn force_query(&self) -> bool {
