@@ -9,7 +9,7 @@ from .org_time import START, SET, PAUSE, STOP, quiesce
 from .observation import Observation
 
 STAGES = ['org_idle', 'relative', 'paused_relative', 'armed', 'paused_countdown',
-          'expired', 'stopped', 'closed_view', 'inactive']
+          'expired', 'stopped', 'open_view', 'closed_view', 'inactive']
 
 
 def owners(process):
@@ -17,6 +17,12 @@ def owners(process):
     return {'threads': len(list((root / 'task').iterdir())),
             'fds': len(list((root / 'fd').iterdir())),
             'children': (root / f'task/{process.pid}/children').read_text().strip()}
+
+
+def memory(process):
+    lines = Path(f'/proc/{process.pid}/status').read_text().splitlines()
+    return {name: int(next(s.split()[1] for s in lines if s.startswith(name + ':')))
+            for name in ['VmRSS', 'VmHWM']}
 
 
 def idle(session, watch, baseline):
@@ -27,6 +33,11 @@ def idle(session, watch, baseline):
     measured = baseline['idle'](session)
     assert not watch.drain(), 'inactive Org state read fixture files'
     assert owners(session.process) == state, 'idle owner counts changed'
+    observed = memory(session.process)
+    measured['rss_kib'] = observed['VmRSS']
+    measured['peak_rss_kib'] = observed['VmHWM']
+    measured['retained_growth_kib'] = max(0, observed['VmRSS'] - session.org_rss_before)
+    assert measured['peak_rss_kib'] <= 98304 and measured['retained_growth_kib'] <= 32768
     measured.update(state)
     measured['open_access_events'] = 0
     return measured
@@ -74,10 +85,13 @@ def run(root, baseline):
             session.wait(lambda: completed(session, lambda f: b'> habit.org -- RW -- L1 C1' in f))
             result['startup_ms'] = round((time.perf_counter() - started) * 1000, 3)
             assert result['startup_ms'] <= 2000
+            session.org_rss_before = memory(session.process)['VmRSS']
+            result['baseline_rss_kib'] = session.org_rss_before
             result['idle']['org_idle'] = idle(session, watch, baseline)
             result['baseline_owners'] = owners(session.process)
             timers(session, watch, baseline, result)
             stage(session, b'\x1bxorg-habit-show-graph\r', b'Habit agenda: ')
+            result['idle']['open_view'] = idle(session, watch, baseline)
             stage(session, b'\x07', b'> habit.org -- RW --')
             result['idle']['closed_view'] = idle(session, watch, baseline)
             stage(session, b'\x1bxtext-mode\r', b'Text mode')

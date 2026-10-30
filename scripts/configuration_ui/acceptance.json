@@ -1636,6 +1636,7 @@
       "paused_countdown",
       "expired",
       "stopped",
+      "open_view",
       "closed_view",
       "inactive"
     ],

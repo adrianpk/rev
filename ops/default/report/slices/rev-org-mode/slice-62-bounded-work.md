@@ -34,7 +34,7 @@ Sixteen actual analysis cancellations verify progress before cancellation,
 Busy refusal, worker observation, source/history preservation and eventual return
 to one thread, unchanged descriptors and zero children within 150 ms. The owned
 release terminal measures Org idle, relative/paused timers, armed/paused countdown,
-one-shot expiry, explicit stop, closed habit view and inactive text mode.
+one-shot expiry, explicit stop, open/closed habit view and inactive text mode.
 No timer state writes source. Each quiescent interval checks output, CPU, file
 reads and process ownership; terminal restoration/reap/descriptor closure remains
 mandatory.
@@ -51,12 +51,12 @@ PTY deadline. Source helpers were split by result ownership
 to retain the existing complexity ceiling without exceptions.
 
 Acceptance extends the existing manifest additively. Same-commit/tree identity,
-raw counts, source chunk and cancellation timing, all nine idle states, memory,
+raw counts, source chunk and cancellation timing, all ten idle states, memory,
 read controls and actual cleanup are mandatory. Negative fixtures reject stale
 identity, missing/duplicated/reordered work, changed ceilings, fabricated completion
 counts, continuing CPU, timer repetition and leaked process resources. The earlier
 thirteen native workloads, four PTY sessions and every baseline budget remain
-unchanged. Expected additional warm resource cost is about five seconds; the
+unchanged. Expected additional warm resource cost is about six seconds; the
 actual complete performance-stage cost will be recorded after measurement. The
 approved complete-gate target remains three to six warm minutes.
 

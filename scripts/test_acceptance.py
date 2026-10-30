@@ -435,6 +435,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             ('output', ['terminal', 'idle', 'armed', 'output_bytes'], 1),
             ('IO', ['terminal', 'idle', 'inactive', 'open_access_events'], 1),
             ('timer', ['terminal', 'expiry_count'], 2),
+            ('retained view', ['terminal', 'idle', 'open_view', 'retained_growth_kib'], 32769),
             ('slow response', ['terminal', 'responses_ms', 0], 151),
             ('cleanup', ['terminal', 'restored_reaped_closed'], False),
         ]
@@ -631,12 +632,13 @@ def org_performance_document():
     rows[-1].update(samples=16, threads_before=1, threads_after=1,
                     fds_before=4, fds_after=4, children_after=0, busy_rejected=16, cancelled=16)
     owners = dict(threads=1, fds=6, children='')
-    idle = dict(elapsed_ms=350, output_bytes=0, cpu_ms=0, open_access_events=0, **owners)
+    idle = dict(elapsed_ms=350, output_bytes=0, cpu_ms=0, open_access_events=0,
+                rss_kib=8192, peak_rss_kib=8192, retained_growth_kib=4096, **owners)
     return dict(candidate={'head': 'a' * 40, 'tree': 'b' * 40}, profile='release',
                 elapsed_ms=4000, limits=LIMITS.copy(), native=rows,
                 observation=dict(work_open_events=260, work_access_events=260),
                 fixture_identity=dict(files=260, entries=264, sha256='a' * 64),
-                terminal=dict(startup_ms=20, peak_rss_kib=8192, restored_reaped_closed=True,
+                terminal=dict(startup_ms=20, baseline_rss_kib=4096, peak_rss_kib=8192, restored_reaped_closed=True,
                               expiry_count=1, baseline_owners=owners,
                               responses_ms=[1] * 11, idle={stage: idle.copy() for stage in STAGES}))
 

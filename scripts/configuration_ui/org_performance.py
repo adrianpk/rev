@@ -101,6 +101,7 @@ def validate(result, candidate, rate):
     terminal = result['terminal']
     assert 0 < terminal['startup_ms'] <= 2000
     assert 0 < terminal['peak_rss_kib'] <= LIMITS['peak_rss_kib']
+    assert 0 < terminal['baseline_rss_kib'] <= LIMITS['peak_rss_kib']
     assert terminal['restored_reaped_closed'] is True and terminal['expiry_count'] == 1
     before = terminal['baseline_owners']
     assert before['threads'] == 1 and not before['children'] and before['fds'] >= 3
@@ -109,6 +110,8 @@ def validate(result, candidate, rate):
     assert all(math.isfinite(t) and 0 < t <= LIMITS['response_ms'] for t in terminal['responses_ms'])
     assert rate > 0
     for idle in terminal['idle'].values():
+        assert 0 < idle['rss_kib'] <= idle['peak_rss_kib'] <= LIMITS['peak_rss_kib']
+        assert 0 <= idle['retained_growth_kib'] <= LIMITS['retained_growth_kib']
         assert idle['threads'] == before['threads'] and idle['fds'] == before['fds']
         assert idle['children'] == '' and idle['open_access_events'] == idle['output_bytes'] == 0
         budget = max(2, math.ceil(idle['elapsed_ms'] / 1000 * rate * 0.1)) * 1000 / rate

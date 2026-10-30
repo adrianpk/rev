@@ -64,7 +64,8 @@ fn indexed(
         }
     }
     require(
-        scan.index().coverage() == Coverage::Complete,
+        scan.index().coverage() == Coverage::Complete
+            && scan.index().covered_bytes() == rev::coordinates::Byte(1048576),
         "large index incomplete",
     )?;
     require(
