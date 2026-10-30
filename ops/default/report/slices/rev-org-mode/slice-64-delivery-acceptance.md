@@ -129,9 +129,8 @@ into dev at `48923e0c8a83743721c46cd465abd34f8f1605ce`. Final PR-reference recei
 `TYB2VHDJJPD7RTVIYICVMZLU2Z` passed the same eight ordered commands on that
 exact clean candidate: 1081 native tests, 26 checker tests and all 34 mapped
 native assertions in actual execution, with zero skips. All 64 canonical PRs
-and their integrated ancestry are verified. This integration closure changes
-documentation only; the controller must run the unchanged full gate on its
-new clean, pushed candidate before delivery-set closure.
+and their integrated ancestry are verified. That integration closure changed documentation only. The final controller gate
+result below records its actual tested candidate.
 
 Retained controller gate receipt `2SQHFEABZZYGZ66KYYIHGDKSZV` failed on
 `85992b8bd289bd309fba64da169fb04a32640847`; execution stopped at the gutter
@@ -169,12 +168,57 @@ dev at `501cd6d49ce412fb49342b6cfc015c5d67a6f822`. Final required receipt
 native tests with zero skips on that exact clean PR-reference candidate. Final
 focused receipt `ADEZXU3ATMZHJH5ZENTKJCEDLW` passed the same three focused
 commands there, including the long-root fixture and original integration admission.
-This later documentation closure preserves those tested identities. The controller
-must run the unchanged full gate on the new clean, pushed candidate.
+That integration closure preserves those tested identities. The final controller
+gate below passed on the later integrated candidate.
 
+
+
+Final delivery acceptance: the controller ran `scripts/check-all.sh` successfully
+on immutable clean candidate `72160e46648f3f28a9c8bb7f3eecc49173fca09d`, tree
+`8249daaf355af4f7be00173b5b107fb4d9c80fea`, receipt `EXPY4POPOBG2CKQH6C4JTM5AVI`.
+The complete ordered command list passed:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --all`
+- `python3 scripts/check-source.py`
+- `python3 scripts/check-pty.py --suite acceptance`
+- `python3 scripts/check-performance.py`
+- `python3 scripts/check-config-reference.py`
+- `python3 scripts/check-configuration-ui.py --suite terminal`
+- `python3 scripts/check-configuration-ui.py --suite performance`
+- `python3 scripts/check-acceptance.py`
+- `git diff --check`
+
+All 1716 native tests and all 34 mapped Org scenario assertions passed, with zero
+failures, ignored or filtered cases. Four baseline terminal journeys passed;
+configuration/Org terminal stages completed 10 plus 59 owned sessions with zero
+skips, private HOME/XDG/cwd/source roots, restoration, reaping and closed descriptors.
+The configuration stage took 11.114 seconds and Org journeys 58.939 seconds,
+excluding build. All old semantic assertions and control fixtures remain admitted.
+
+Release resources passed the two earlier 20000/40000-line fixtures with eight
+native workloads and terminal observations each, 13 configuration workloads and
+four terminal sessions, and six Org workloads plus one owned terminal session.
+Org native peak RSS was 10928 KiB, retained growth at most 3828 KiB, source chunks
+at most 626.183 us and cancellation at most 34.984 us. Org terminal peak RSS was
+9716 KiB and maximum observed response 12.313 ms. All ten idle states recorded
+zero output, zero observed CPU work and zero open/access events, with one thread,
+six descriptors and no children. One expiry and owned cleanup passed. Limits
+remain 96MiB RSS, 32MiB retained growth, 10ms source chunks and 150ms response.
+
+Reference/template validation retained 178 schema/catalog entries, 54 RGB roles,
+263 bindings, nine optional examples and 24545 exact packaged template bytes.
+ORG01-ORG31 admission covered actual native, owned terminal and resource evidence
+on this same HEAD/tree. All 64 canonical integrations, 192 task outcomes and
+repair #166 are verified. Earlier tested candidates and the retained failed gate
+remain recorded above; the later documentation head does not acquire this runtime
+result. The final documentation delta is checked against exact configured paths.
 
 ## Risks and Follow-ups
 
-The unchanged full gate and later exact-path delivery documentation closure
-remain controller-owned. A later documentation head cannot inherit the tested
-candidate identity.
+Native arithmetic/aggregate/rounding formulas retain the advanced-spreadsheet
+exclusion. Optional external tools remain explicit consented adapters with
+truthful missing-tool/failure results; native export validation does not claim
+PDF generation. Resource results apply to the documented owned fixtures, not
+arbitrary OS latency. No incomplete delivery task remains.

@@ -1,6 +1,10 @@
 # Org Mode Model
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-30
+Validated candidate: `72160e46648f3f28a9c8bb7f3eecc49173fca09d`
+Validated tree: `8249daaf355af4f7be00173b5b107fb4d9c80fea`
+Gate validation: `EXPY4POPOBG2CKQH6C4JTM5AVI`
 Approved: product owner, 2026-10-27; specification and model accepted, with the explicitly listed open decisions retained.
 Scope refinement: product owner, 2026-10-28; remaining product choices use Org in Emacs, preserving the advanced-spreadsheet exclusion.
 Date: 2026-10-27
@@ -287,12 +291,36 @@ historical editor/configuration/input candidates and the actual Slice 61 termina
 and Slice 62 resource candidates. The original resource ceilings above stay
 acceptance obligations. The recorded release measurements are evidence only for
 their exact fixture/build/commit/tree, not certification of arbitrary OS latency
-or of an unexecuted final delivery gate.
+or of another candidate. The final controller-gate observations below have their
+own tested identity.
+
+
+Final controller gate `EXPY4POPOBG2CKQH6C4JTM5AVI` passed on `72160e46648f3f28a9c8bb7f3eecc49173fca09d`
+with tree `8249daaf355af4f7be00173b5b107fb4d9c80fea`, using Linux x86-64 release resource fixtures.
+The native profile covered 1MiB/10000 headings, 256 agenda sources, 733 habit days,
+10000 formula cells, 11 export backends and 16 cancellation cycles. Owned fixture
+identity: 260 files / 264 entries, SHA-256
+`be5fc5e3a9f49e0ac2adc971121f66c92460a4d16315f86a1f0d2cc0fefcb41f`.
+
+| Observation | Actual maximum | Existing limit |
+| --- | --- | --- |
+| Native process peak RSS | 10928 KiB | 98304 KiB |
+| Native retained growth | 3828 KiB | 32768 KiB |
+| Source analysis chunk | 626.183 us | 10000 us |
+| Cancellation observation | 34.984 us | 150000 us |
+| Owned terminal peak RSS | 9716 KiB | 98304 KiB |
+| Owned terminal response | 12.313 ms | 150 ms |
+
+All ten idle/timer/view states recorded zero output, zero observed CPU work and
+zero open/access events, with one thread, six descriptors and no child processes.
+Countdown expiry occurred once; terminal restoration, direct-child reaping and
+descriptor closure passed. Org resource collection took 5.290 seconds within the
+14.613-second configuration/resource stage. These observations cover the owned
+fixtures and exact release build, retaining the stated OS-operation limits.
 
 ## Model readiness
 
 Product choices follow the delegated Org behavior profile. Concrete native
-fields, defaults, limits, authority and lifetimes are recorded above. During
-implementation, record any real incompatible external form or impossible
-resource contract as a finding; do not silently weaken behavior or invent a
-successful result. The approved plan/tracker are the execution owners.
+fields, defaults, limits, authority and lifetimes are recorded above. The controller gate verifies the selected native contracts and resource profile;
+remaining compatibility boundaries stay as specified. The completed plan/tracker
+retain execution and tested-candidate provenance.

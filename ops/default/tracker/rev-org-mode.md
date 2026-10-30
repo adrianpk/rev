@@ -1,12 +1,16 @@
 # Native Org Mode Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-10-30
+Validated candidate: `72160e46648f3f28a9c8bb7f3eecc49173fca09d`
+Validated tree: `8249daaf355af4f7be00173b5b107fb4d9c80fea`
+Gate validation: `EXPY4POPOBG2CKQH6C4JTM5AVI`
 Date: 2026-10-28
 Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: none; all 64 slices integrated; controller full gate pending
+Active slice: none; all 64 slices completed
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1286,7 +1290,8 @@ Final PR-reference candidate `48923e0c8a83743721c46cd465abd34f8f1605ce` passed t
 eight checks under `TYB2VHDJJPD7RTVIYICVMZLU2Z`: 1081 native and 26 checker
 tests, with all 34 native scenario assertions and zero skips. Canonical PR #165
 is verified merged into dev at that exact head. All 64 canonical integrations
-and 192 completed task outcomes are verified; the controller full gate is pending.
+and 192 completed task outcomes are verified; the controller full gate passed
+on the validated candidate recorded above.
 
 Gate repair 1: canonical PR [#166](https://forge.adrianpk.com/adrianpk/rev/pulls/166)
 is verified merged into dev at `501cd6d49ce412fb49342b6cfc015c5d67a6f822`.
@@ -1294,23 +1299,38 @@ The gutter fixture correction preserves every original assertion and geometry.
 Final required receipt `RDUOKIX2PS6CK5LM4JD52FK5D3` passed five pinned commands
 and 1716 native tests with zero skips. Focused receipt `ADEZXU3ATMZHJH5ZENTKJCEDLW`
 passed owned long-root cleanup and original 64-integration/192-task admission.
-The repair is delivered; the unchanged controller full-gate retry remains pending.
+The repair is delivered; the unchanged controller full-gate retry passed on
+the validated candidate recorded above.
 
 ## Delivery closure
 
 - [x] All 64 canonical slice integrations and 192 task outcomes are verified.
-- [ ] All ORG01-ORG31 requirements have actual native, terminal and resource evidence.
-- [ ] Complete operational command/binding/configuration/template/reference coverage agrees.
-- [ ] Previous editor/configuration/input acceptance and historical provenance are preserved.
-- [ ] The single controller full gate passes the exact clean integrated dev candidate with zero skips.
-- [ ] Later documentation closure stays within exact granted paths and retains tested-head provenance.
-- [ ] Final plan/model/tracker/report state, canonical push and Acta outcome match actual delivery.
+- [x] All ORG01-ORG31 requirements have actual native, terminal and resource evidence.
+- [x] Complete operational command/binding/configuration/template/reference coverage agrees.
+- [x] Previous editor/configuration/input acceptance and historical provenance are preserved.
+- [x] The single controller full gate passes the exact clean integrated dev candidate with zero skips.
+- [x] Later documentation closure stays within exact granted paths and retains tested-head provenance.
+- [x] Final plan/model/tracker/report state, canonical push and Acta outcome match actual delivery.
 
-No controller has been started by preparing this tracker. The product owner approved this exact single-cycle startup on 2026-10-28.
-The planning set must be committed before native execution begins.
+The approved single cycle completed all integrations, the bounded repair and
+the controller gate. The final documentation commit preserves tested-head
+provenance and stays within the configured exact closure paths.
 
 Slice 64 implementation: all 64 fixed report identities and 192 task descriptions
 agree with the approved plan. Admission pins 63 earlier canonical integrations
 and 189 owning task commits, preserves 18 historical closure records, and
-requires actual same-candidate native/terminal/resource evidence. All 64 integrations are closed. The controller must run the unchanged full gate
-on clean pushed dev before final delivery-set closure.
+requires actual same-candidate native/terminal/resource evidence. All 64
+integrations and the controller gate are complete.
+
+The controller completed `scripts/check-all.sh` on immutable clean candidate
+`72160e46648f3f28a9c8bb7f3eecc49173fca09d` (tree `8249daaf355af4f7be00173b5b107fb4d9c80fea`),
+receipt `EXPY4POPOBG2CKQH6C4JTM5AVI`. All eleven ordered commands passed: 1716
+native tests, all 34 ORG01-ORG31 scenarios, four baseline terminal journeys,
+10 configuration and 59 owned Org terminal sessions, baseline/configuration/Org
+release workloads, complete control/reference/template agreement and zero skips.
+All 64 canonical slice PRs, 192 task outcomes and repair PR #166 are integrated.
+
+Later documentation closure retains that tested candidate and receipt. Its own
+Git head identifies documentation only; runtime evidence is not relabeled as
+belonging to the later head. Earlier editor/configuration/input candidates and
+separate Slice 61/62 observations retain their original identities.

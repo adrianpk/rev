@@ -1,6 +1,10 @@
 # Org Mode
 
-Status: accepted
+Status: Completed
+Completed: 2026-10-30
+Validated candidate: `72160e46648f3f28a9c8bb7f3eecc49173fca09d`
+Validated tree: `8249daaf355af4f7be00173b5b107fb4d9c80fea`
+Gate validation: `EXPY4POPOBG2CKQH6C4JTM5AVI`
 Approved: product owner, 2026-10-27; specification and model accepted, with the explicitly listed open decisions retained.
 Scope refinement: product owner, 2026-10-28; clocking, habits and effort approved; remaining choices follow Org in Emacs without further feature-by-feature questions. Advanced spreadsheet evaluation remains excluded.
 Date: 2026-10-27
@@ -830,3 +834,22 @@ product decisions. The approved [delivery plan](../plan/rev-org-mode.md) and
 [tracker](../tracker/rev-org-mode.md) organize one 64-slice cycle. The product owner explicitly requested starting this single cycle on
 2026-10-28. Planning checks are not implementation evidence. Technical defaults and bounds are explicit in the
 paired model, and the advanced-spreadsheet exclusion is unchanged.
+
+## Delivery acceptance
+
+The controller completed `scripts/check-all.sh` on immutable clean candidate
+`72160e46648f3f28a9c8bb7f3eecc49173fca09d` (tree `8249daaf355af4f7be00173b5b107fb4d9c80fea`),
+receipt `EXPY4POPOBG2CKQH6C4JTM5AVI`. All eleven ordered commands passed: 1716
+native tests, all 34 ORG01-ORG31 scenarios, four baseline terminal journeys,
+10 configuration and 59 owned Org terminal sessions, baseline/configuration/Org
+release workloads, complete control/reference/template agreement and zero skips.
+All 64 canonical slice PRs, 192 task outcomes and repair PR #166 are integrated.
+
+Later documentation closure retains that tested candidate and receipt. Its own
+Git head identifies documentation only; runtime evidence is not relabeled as
+belonging to the later head. Earlier editor/configuration/input candidates and
+separate Slice 61/62 observations retain their original identities.
+
+The [Slice 64 report](../report/slices/rev-org-mode/slice-64-delivery-acceptance.md)
+records the exact commands, retained failure and correction, actual resource
+observations and compatible optional-tool boundaries.
