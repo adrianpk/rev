@@ -6,7 +6,7 @@ Delivery set: rev-org-mode
 Scope authority: product owner; Org-in-Emacs behavior with the advanced-spreadsheet exception.
 Approved: product owner, 2026-10-28; explicitly requested starting this single 64-slice Looper cycle after delegating remaining behavior choices to Org in Emacs.
 Slice strategy: layered
-Active slice: Slice 61 combined terminal
+Active slice: Slice 62 bounded work
 Plan: [Native Org Plan](../plan/rev-org-mode.md)
 Spec: [Org Mode](../spec/editor-org-mode.md)
 Model: [Org Mode Model](../spec/editor-org-mode-model.md)
@@ -1213,17 +1213,16 @@ Details and exact checks: [Slice 61](../plan/rev-org-mode.md#slice-61-verify-com
 - [x] T61.1: Extend existing terminal admission with the declared representative Org journeys and same-head receipts.
 - [x] T61.2: Exercise canonical editing, capture/refile, clocks/habits, agenda, tables and optional-tool failures together.
 - [x] T61.3: Retain every earlier journey and verify zero skips, isolated HOME/XDG roots and owned process cleanup.
-- [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+- [x] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 61](../report/slices/rev-org-mode/slice-61-combined-terminal.md) (reviewing).
+Report: [Slice 61](../report/slices/rev-org-mode/slice-61-combined-terminal.md) (delivered).
 
-Implementation receipt `XDLFXLAJ6G6YWFXYY6IAKHRSGF` passed all 948 selected native
-tests, 69 owned terminal sessions and unchanged format/lint/source/whitespace
-checks. Focused receipt `J4R5J4UBGSRHJ3XUWSYMA4TNJ4` passed all 19 evidence-checker
-tests and both retained outline sessions on the same implementation candidate.
-Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), targeting `dev`.
-Fresh final-head receipts are required after this PR-reference commit.
-Integration remains pending.
+Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), verified merged into `dev`
+at `14cbf761a6492994da8d1f6674c8013046cb4878`. Required receipt
+`B6DJ6COVBO6RDOADHXBI24YS5G` passed all 948 selected native tests and 69 owned
+terminal sessions in 55.850 seconds excluding build, with zero skips. Focused
+receipt `3SXQNHTSXRAW3NJCMD6JOR5X4N` passed all 19 evidence-checker tests on
+that exact final candidate. Terminal admission and owned cleanup were verified.
 
 ### Slice 62: verify bounded Org work and idle resources
 

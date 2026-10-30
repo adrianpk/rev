@@ -1,6 +1,6 @@
 # Slice 61: verify complete native Org terminal workflows
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -70,7 +70,8 @@ its elapsed reading and checks that timed-list continuation inserts that exact
 field under ORG22; undo and stop preserve the original bytes. Literal C-c C-c
 checks the precise ORG17 document refusal instead of a generic checkbox fallback.
 
-Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), targeting `dev`.
+Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), verified merged into `dev` at
+`14cbf761a6492994da8d1f6674c8013046cb4878`.
 
 ## Contracts Added or Changed
 
@@ -90,9 +91,9 @@ Canonical PR: [#162](https://forge.adrianpk.com/adrianpk/rev/pulls/162), targeti
 
 ## Validation
 
-Required ordered checks passed on clean implementation candidate
-`3d376ba39994668482cb5836dbf852a46dffb1c3`, controller receipt
-`XDLFXLAJ6G6YWFXYY6IAKHRSGF`:
+Required ordered checks passed on clean final PR candidate
+`14cbf761a6492994da8d1f6674c8013046cb4878`, controller receipt
+`B6DJ6COVBO6RDOADHXBI24YS5G`:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --all-targets --all-features -- -D warnings`
@@ -106,25 +107,25 @@ All 948 native tests passed: 161 commands, 39 display, 97 agenda, 226 editing,
 Source quality retains safe Rust, at most five parameters, three nesting levels
 and cyclomatic ten. All 69 owned terminal sessions passed, zero skips: ten
 historical and 59 Org, including all eight connected stages in both color modes.
-The complete terminal stage measured 55.807 seconds excluding build. Its actual
+The complete terminal stage measured 55.850 seconds excluding build. Its actual
 log passes the extended historical/Org admission, including the clean commit/tree,
 exact ordered cases/stages, observed counts, isolated roots and completed lifetime.
 
-Focused controller receipt `J4R5J4UBGSRHJ3XUWSYMA4TNJ4` passed on the same candidate:
+Focused controller receipt `3SXQNHTSXRAW3NJCMD6JOR5X4N` passed on the same final candidate:
 
 - `python3 scripts/test_acceptance.py`
-- `python3 scripts/check-configuration-ui.py --suite terminal --case org-outline`
 - `git diff --check`
 
-All 19 evidence-checker tests and both retained outline sessions passed. The
+All 19 evidence-checker tests passed. The required terminal stage includes both
+retained outline sessions. The
 focused connected-session receipt `UPR5RKQ45WBOTS6XOSOTFU6YE2` at
 `83b53cbfffae77865abec8b6b0d7d5c520139b39` also passed all sixteen connected
 stages; the complete required run above includes those stages with continuous
 NO_COLOR checks. No scenario, source assertion or existing deadline was dropped.
 
-Final readiness requires fresh ordered required checks and focused checker tests
-on the clean PR-reference candidate. Controller receipts and Acta retain that
-exact head and the final validation IDs. The full delivery gate remains controller-owned.
+Final required and focused receipts identify the merged PR-reference candidate.
+The actual terminal log was admitted for that commit/tree. All owned fixtures
+were closed. The full delivery gate remains controller-owned.
 
 ## Risks and Follow-ups
 
