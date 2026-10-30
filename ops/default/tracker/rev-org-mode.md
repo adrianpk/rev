@@ -1281,8 +1281,8 @@ Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
 T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
 Implementation receipt `XYGFTOC3SF3NHFK5SUWGDAGXD7` passed all eight ordered
 checks, 1081 native tests and 26 checker tests with zero skips. All 34 scenario
-native assertions occur in the actual execution log. Canonical PR reference and
-fresh final-HEAD evidence remain required before readiness.
+native assertions occur in the actual execution log. Canonical PR [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165) targets dev; its identity is pinned.
+Fresh final-HEAD evidence remains required before readiness.
 
 ## Delivery closure
 

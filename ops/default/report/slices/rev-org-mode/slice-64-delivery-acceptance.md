@@ -5,7 +5,7 @@ Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
 Branch: `test/rev-org-64-delivery-acceptance`
-PR: pending
+PR: [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165)
 
 ## Purpose
 
@@ -96,8 +96,9 @@ parameters, nesting three and cyclomatic ten.
 
 Task commits: T64.1 `269eaa204e335e6d69d4a6482323f9ff5bc8edef`,
 T64.2 `77457cd6fa91`, T64.3 `0a6e1e3eec7f1159ae7546b356c8850bdd6c737b`.
-Final readiness requires the canonical PR-reference follow-up and fresh exact-HEAD
-controller evidence. The unchanged full gate remains pending after integration.
+Canonical PR [#165](https://forge.adrianpk.com/adrianpk/rev/pulls/165) targets dev. Its identity is pinned in the
+existing acceptance manifest and checker. The PR-reference follow-up must pass
+fresh exact-HEAD controller checks before readiness. The unchanged full gate remains pending after integration.
 
 ## Risks and Follow-ups
 
