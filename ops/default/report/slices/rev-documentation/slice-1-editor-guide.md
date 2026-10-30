@@ -48,6 +48,13 @@ The branch adopts the approved controller-owned execution contract and reuses
 PR #168. The immutable report link remains its original introduction commit,
 `0c207ece72388bac167fed080351a65890b34a4a`.
 
+The integration repair includes approved dev baseline
+`34d8dba32dffcc78b0189fea33dd734f3458111f` in the slice history. The only
+conflicts were plan/tracker metadata. Resolution retains the approved
+controller-owned execution and Rust/Bash validation contract together with
+Slice 1's reviewing state. Original task commits and the report introduction
+are preserved; the new clean HEAD requires a fresh controller receipt.
+
 ## Contracts Added or Changed
 
 The core learning sequence no longer crosses Org before reaching preferences.

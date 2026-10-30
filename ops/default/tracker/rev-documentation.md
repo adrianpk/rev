@@ -73,3 +73,8 @@ documentation command first; Looper records the final clean-HEAD validation
 before its normal controller-owned integration path.
 No manual human PR approval is a prerequisite for any of these three slices.
 The current approved plan owns the updated validation and execution contract.
+
+The Slice 1 integration repair includes dev baseline
+`34d8dba32dffcc78b0189fea33dd734f3458111f` without rewriting its task history.
+Plan/tracker conflicts retain the approved policy and current review state;
+the controller must verify fresh exact-HEAD evidence before PR integration.
