@@ -1288,6 +1288,14 @@ tests, with all 34 native scenario assertions and zero skips. Canonical PR #165
 is verified merged into dev at that exact head. All 64 canonical integrations
 and 192 completed task outcomes are verified; the controller full gate is pending.
 
+Gate repair 1: canonical PR [#166](https://forge.adrianpk.com/adrianpk/rev/pulls/166)
+is verified merged into dev at `501cd6d49ce412fb49342b6cfc015c5d67a6f822`.
+The gutter fixture correction preserves every original assertion and geometry.
+Final required receipt `RDUOKIX2PS6CK5LM4JD52FK5D3` passed five pinned commands
+and 1716 native tests with zero skips. Focused receipt `ADEZXU3ATMZHJH5ZENTKJCEDLW`
+passed owned long-root cleanup and original 64-integration/192-task admission.
+The repair is delivered; the unchanged controller full-gate retry remains pending.
+
 ## Delivery closure
 
 - [x] All 64 canonical slice integrations and 192 task outcomes are verified.
