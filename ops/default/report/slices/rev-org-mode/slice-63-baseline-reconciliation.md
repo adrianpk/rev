@@ -36,6 +36,24 @@ execution. The model now distinguishes semantic fixed policy from actual TOML
 leaves and documents the delivered opt-in version-1 clock recovery record; fixed
 values, native limits, source authority and parser rejection remain unchanged.
 
+The existing acceptance manifest now maps ORG01-ORG31 and all 34 scenario names
+to existing native assertions, actual owned terminal selectors and dedicated or
+explicitly shared resource records. The prerequisite stage resolves the compiled
+native catalog and links, rather than treating that listing as execution. Earlier
+manifest cases, integration identities, terminal counts and resource ceilings are
+unchanged. Final same-candidate runtime admission remains the owning delivery
+stage's work.
+
+The reference checker now covers every Org feature page and reconciled baseline.
+It skips literal Markdown code spans/fences when extracting links: Org call
+syntax such as `[headers](args)` is source text, while real file links and anchors
+remain checked. Negative fixtures cover missing/reordered/renamed requirements
+and scenarios, unknown native/terminal/resource identities, omitted compiled
+cases and invalid real links/anchors. All 22 checker tests passed during development.
+A bounded comparison also confirmed all 63 editor, 28 configuration, four
+interaction and 31 Org requirement blocks retain their original text, together
+with every earlier validated-candidate/gate field.
+
 ## Contracts Added or Changed
 
 - ORG01: reconcile native activation with the base runtime boundary.
@@ -48,6 +66,10 @@ values, native limits, source authority and parser rejection remain unchanged.
 - `ops/default/spec/editor-configuration.md` and model: shared startup owner.
 - `ops/default/spec/editor-interaction.md`: compatible retained projections.
 - `docs/reference/org-mode.md`, `org-controls.md`, `bindings.md`, `index.md`: complete reference navigation.
+- `ops/default/spec/editor-org-mode-evidence.md`: capabilities, boundaries, candidates and scenario links.
+- `scripts/configuration_ui/org_contracts.py`: scenario/native/terminal/resource prerequisite resolution.
+- `scripts/configuration_ui/acceptance.json`: additive Org scenario identities.
+- `scripts/check-config-reference.py`, `scripts/test_acceptance.py`: reference links and negative evidence fixtures.
 
 ## Validation
 

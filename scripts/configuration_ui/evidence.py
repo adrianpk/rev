@@ -62,6 +62,8 @@ def manifest(root):
         require(set(row['performance']) <= set(PERFORMANCE) and len(set(row['performance'])) == len(row['performance']), 'unknown/duplicate configuration performance reference')
     require({case for row in document['cases'] for case in row['pty']} == set(PTY_CASES), 'incomplete configuration terminal map')
     require({case for row in document['cases'] for case in row['performance']} == set(PERFORMANCE), 'incomplete configuration performance map')
+    from configuration_ui.org_contracts import rows as org_rows
+    org_rows(root, document, ORG_GROUPS)
     return document
 
 
@@ -97,6 +99,8 @@ def prerequisites(root, cases):
     document = manifest(root)
     delivery(root, document, readiness=True)
     references(document['cases'], cases)
+    from configuration_ui.org_contracts import prerequisites as org_prerequisites
+    org_prerequisites(root, document, ORG_GROUPS, cases)
     print('Configuration/UI prerequisites: 58 requirements, named native cases, ten PTY cases, thirteen performance workloads, 30 historical and 20 current slice identities resolved; no gate result claimed.')
 
 

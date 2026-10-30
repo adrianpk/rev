@@ -1641,5 +1641,686 @@
       "inactive"
     ],
     "export_backends": 11
-  }
+  },
+  "org_contracts": [
+    {
+      "id": "ORG01",
+      "scenarios": [
+        {
+          "name": "Open and edit without setup",
+          "native": [
+            {
+              "target": "tests/org_source.rs",
+              "test": "mode::visiting_mode"
+            }
+          ],
+          "pty": [
+            "org-outline"
+          ],
+          "performance": [
+            "org_source",
+            "idle:org_idle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG02",
+      "scenarios": [
+        {
+          "name": "Preserve an unfamiliar form",
+          "native": [
+            {
+              "target": "tests/org_source.rs",
+              "test": "inline_bounds::unknown_fidelity"
+            }
+          ],
+          "pty": [
+            "org-outline"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG03",
+      "scenarios": [
+        {
+          "name": "Fold one shared view",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "folds::independent_map"
+            }
+          ],
+          "pty": [
+            "org-outline"
+          ],
+          "performance": [
+            "org_source",
+            "idle:closed_view"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG04",
+      "scenarios": [
+        {
+          "name": "Move a complete subtree",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "subtrees::subtree_moves"
+            }
+          ],
+          "pty": [
+            "org-outline"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG05",
+      "scenarios": [
+        {
+          "name": "Inspect inherited metadata",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "properties::selective_properties"
+            }
+          ],
+          "pty": [
+            "org-tasks"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG06",
+      "scenarios": [
+        {
+          "name": "Complete a task coherently",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "tasks::task_transaction"
+            }
+          ],
+          "pty": [
+            "org-tasks"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG07",
+      "scenarios": [
+        {
+          "name": "Complete an overdue repeating task",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "repeaters::repeater_completion"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG08",
+      "scenarios": [
+        {
+          "name": "Keep unsaved work visible in the agenda",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "sources::agenda_source_selection"
+            }
+          ],
+          "pty": [
+            "org-agenda"
+          ],
+          "performance": [
+            "org_agenda"
+          ]
+        },
+        {
+          "name": "Report a partial source set",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "agenda_sources::agenda_partial_sources"
+            }
+          ],
+          "pty": [
+            "org-agenda"
+          ],
+          "performance": [
+            "org_agenda"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG09",
+      "scenarios": [
+        {
+          "name": "Act on an entry whose source changed",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "source_actions::source_action_stale"
+            }
+          ],
+          "pty": [
+            "org-agenda"
+          ],
+          "performance": [
+            "org_agenda"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG10",
+      "scenarios": [
+        {
+          "name": "Abort capture",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "capture_drafts::native_draft"
+            }
+          ],
+          "pty": [
+            "org-capture-drafts"
+          ],
+          "performance": [
+            "org_cancel"
+          ]
+        },
+        {
+          "name": "Reject a stale capture destination",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "capture_publication::finalize_stale_cancel"
+            }
+          ],
+          "pty": [
+            "org-capture-finalize"
+          ],
+          "performance": [
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG11",
+      "scenarios": [
+        {
+          "name": "Refile to an unavailable destination",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "refile_failures::refile_file_rejections"
+            }
+          ],
+          "pty": [
+            "org-refile"
+          ],
+          "performance": [
+            "org_source",
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG12",
+      "scenarios": [
+        {
+          "name": "Move a table column",
+          "native": [
+            {
+              "target": "tests/org_tables.rs",
+              "test": "structure::column_structure"
+            }
+          ],
+          "pty": [
+            "org-tables"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG13",
+      "scenarios": [
+        {
+          "name": "Recalculate a column",
+          "native": [
+            {
+              "target": "tests/org_tables.rs",
+              "test": "recalculation::recalculation_selection"
+            }
+          ],
+          "pty": [
+            "org-tables"
+          ],
+          "performance": [
+            "org_formulas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG14",
+      "scenarios": [
+        {
+          "name": "Preserve a formula outside the native subset",
+          "native": [
+            {
+              "target": "tests/org_tables.rs",
+              "test": "recalculation::recalculation_preservation"
+            }
+          ],
+          "pty": [
+            "org-tables"
+          ],
+          "performance": [
+            "org_formulas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG15",
+      "scenarios": [
+        {
+          "name": "Follow an internal target",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "links::links_internal"
+            }
+          ],
+          "pty": [
+            "org-links"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG16",
+      "scenarios": [
+        {
+          "name": "Display a literal example",
+          "native": [
+            {
+              "target": "tests/org_source.rs",
+              "test": "color::literal_colors"
+            }
+          ],
+          "pty": [
+            "org-outline"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG17",
+      "scenarios": [
+        {
+          "name": "Use the same operation by key and name",
+          "native": [
+            {
+              "target": "tests/commands.rs",
+              "test": "org_catalog::default_routes"
+            }
+          ],
+          "pty": [
+            "org-combined"
+          ],
+          "performance": [
+            "idle:inactive"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG18",
+      "scenarios": [
+        {
+          "name": "Cancel a bounded multi-file query",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "sources::agenda_source_cancel"
+            }
+          ],
+          "pty": [
+            "org-agenda"
+          ],
+          "performance": [
+            "org_agenda",
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG19",
+      "scenarios": [
+        {
+          "name": "Record time against a task",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "clocks::owned_interval"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "idle:org_idle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG20",
+      "scenarios": [
+        {
+          "name": "Complete a habit with an interval range",
+          "native": [
+            {
+              "target": "tests/org_editing.rs",
+              "test": "habits::habit_completion"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "org_habits"
+          ]
+        },
+        {
+          "name": "Inspect consistency without changing the document",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "habits::habit_agenda_controls"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "org_habits",
+            "idle:open_view"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG21",
+      "scenarios": [
+        {
+          "name": "Compare estimated and recorded effort",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "contracts::source_provenance"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "org_agenda"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG22",
+      "scenarios": [
+        {
+          "name": "Finish and stop a countdown",
+          "native": [
+            {
+              "target": "tests/org_time.rs",
+              "test": "timers::countdown_lifecycle"
+            }
+          ],
+          "pty": [
+            "org-time"
+          ],
+          "performance": [
+            "idle:armed",
+            "idle:expired",
+            "idle:stopped"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG23",
+      "scenarios": [
+        {
+          "name": "Apply an action to selected agenda entries",
+          "native": [
+            {
+              "target": "tests/org_agenda.rs",
+              "test": "bulk_actions::bulk_action_sources"
+            }
+          ],
+          "pty": [
+            "org-agenda"
+          ],
+          "performance": [
+            "org_agenda",
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG24",
+      "scenarios": [
+        {
+          "name": "Reject a conflicting attachment destination",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "attachments::attachments_collision"
+            }
+          ],
+          "pty": [
+            "org-attachments"
+          ],
+          "performance": [
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG25",
+      "scenarios": [
+        {
+          "name": "Export unsaved source without executing it",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "export::export_snapshot_contract"
+            }
+          ],
+          "pty": [
+            "org-exports"
+          ],
+          "performance": [
+            "org_exports"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG26",
+      "scenarios": [
+        {
+          "name": "Publish a partially failing project",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "publishing::project_partial_sources"
+            }
+          ],
+          "pty": [
+            "org-export"
+          ],
+          "performance": [
+            "org_exports",
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG27",
+      "scenarios": [
+        {
+          "name": "Import quoted table data",
+          "native": [
+            {
+              "target": "tests/org_tables.rs",
+              "test": "interchange::interchange_roundtrip"
+            }
+          ],
+          "pty": [
+            "org-tables"
+          ],
+          "performance": [
+            "org_source"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG28",
+      "scenarios": [
+        {
+          "name": "Cancel a selected block execution",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "execution_edges::execute_lifetime"
+            }
+          ],
+          "pty": [
+            "org-execution"
+          ],
+          "performance": [
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG29",
+      "scenarios": [
+        {
+          "name": "Refresh the same feed twice",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "feed_import::feed_transaction"
+            }
+          ],
+          "pty": [
+            "org-feeds"
+          ],
+          "performance": [
+            "org_cancel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG30",
+      "scenarios": [
+        {
+          "name": "Preview without terminal image capability",
+          "native": [
+            {
+              "target": "tests/org_io.rs",
+              "test": "previews::preview_fallback"
+            }
+          ],
+          "pty": [
+            "org-external"
+          ],
+          "performance": [
+            "idle:closed_view"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ORG31",
+      "scenarios": [
+        {
+          "name": "Verify the complete selected delivery",
+          "native": [
+            {
+              "target": "tests/commands.rs",
+              "test": "org_catalog::control_reference"
+            }
+          ],
+          "pty": [
+            "org-combined"
+          ],
+          "performance": [
+            "org_source",
+            "org_agenda",
+            "org_habits",
+            "org_formulas",
+            "org_exports",
+            "org_cancel"
+          ]
+        }
+      ]
+    }
+  ]
 }

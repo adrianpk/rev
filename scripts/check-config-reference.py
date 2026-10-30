@@ -264,10 +264,33 @@ def check_enums(root, models, rows):
 
 def check_links(root):
     paths = ["README.md", "CHANGELOG.md", "docs/reference/index.md", "docs/reference/defaults.md", "docs/reference/bindings.md", "docs/reference/syntax.md", "docs/reference/rectangles.md", "docs/reference/org-controls.md"]
+    paths += [str(path.relative_to(root)) for path in sorted((root / "docs/reference").glob("org-*.md"))]
+    paths += ["ops/default/spec/" + name + ".md" for name in [
+        "rev-editor", "rev-editor-model", "editor-configuration", "editor-configuration-model",
+        "editor-interaction", "editor-org-mode", "editor-org-mode-model", "editor-org-mode-evidence"]]
+    paths = list(dict.fromkeys(paths))
     for name in paths:
         path = root / name
-        for target in re.findall(r"\]\(([^)]+)\)", path.read_text()):
+        for target in link_targets(path.read_text()):
             check_link(path, target)
+
+
+def link_targets(text):
+    # Markdown code is literal source, including Org calls such as [headers](args).
+    # Retain real links even when their visible label itself contains code spans.
+    lines = []
+    fence = None
+    for line in text.splitlines(keepends=True):
+        marker = re.match(r" {0,3}(`{3,}|~{3,})(.*)$", line)
+        if fence is not None:
+            if marker and marker[1][0] == fence[0] and len(marker[1]) >= fence[1] and not marker[2].strip():
+                fence = None
+        elif marker:
+            fence = (marker[1][0], len(marker[1]))
+        else:
+            lines.append(line)
+    prose = re.sub(r"(?<!`)(`+)(?!`)(.*?)\1(?!`)", "", "".join(lines), flags=re.S)
+    return re.findall(r"\]\(([^)]+)\)", prose)
 
 
 def check_link(path, target):

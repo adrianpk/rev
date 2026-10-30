@@ -259,6 +259,62 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
                 with self.subTest(name=name), self.assertRaises(ValueError):
                     manifest(fixture)
 
+    # The approved scenario map resolves existing compiled assertions. Renaming
+    # a scenario, using an unknown journey or omitting a real native case fails
+    # even when requirement counts and historical gate metadata still agree.
+    def test_org_contracts(self):
+        from configuration_ui.evidence import MAP, ORG_GROUPS
+        from configuration_ui.org_contracts import rows
+        root = Path(__file__).resolve().parent.parent
+        good = json.loads((root / MAP).read_text())
+        mapped = rows(root, good, ORG_GROUPS)
+        self.assertEqual(len(mapped), 34)
+        cases = {(case['target'], case['test']) for row in mapped for case in row['native']}
+        references(mapped, cases)
+        changes = ['missing', 'duplicate', 'scenario', 'renamed', 'native', 'terminal', 'resource', 'order']
+        for name in changes:
+            bad = copy.deepcopy(good)
+            declared = bad['org_contracts']
+            scenario = declared[0]['scenarios'][0]
+            if name == 'missing':
+                declared.pop()
+            elif name == 'duplicate':
+                declared[-1]['id'] = declared[0]['id']
+            elif name == 'scenario':
+                declared[7]['scenarios'].pop()
+            elif name == 'renamed':
+                scenario['name'] = 'Changed acceptance'
+            elif name == 'native':
+                scenario['native'][0]['test'] = 'absent::unknown'
+            elif name == 'terminal':
+                scenario['pty'] = ['unknown']
+            elif name == 'resource':
+                scenario['performance'] = ['idle:unknown']
+            else:
+                declared.reverse()
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                rows(root, bad, ORG_GROUPS)
+        removed = next(iter(cases))
+        with self.assertRaisesRegex(ValueError, 'missing native case'):
+            references(mapped, cases - {removed})
+
+    # Source examples can contain link-like Org syntax. Genuine Markdown links
+    # and anchors still require actual destinations after literal code is ignored.
+    def test_reference_links(self):
+        import runpy
+        root = Path(__file__).resolve().parent.parent
+        check = runpy.run_path(str(root / 'scripts/check-config-reference.py'))
+        text = "`call[headers](args)` and [real `label`](page.md#section)\n"
+        text += "```org\n[not a link](literal)\n```\n[missing](absent.md)"
+        self.assertEqual(check['link_targets'](text), ['page.md#section', 'absent.md'])
+        with tempfile.TemporaryDirectory(prefix='rev-reference-links-') as directory:
+            path = Path(directory) / 'index.md'
+            (path.parent / 'page.md').write_text('# Section\n')
+            check['check_link'](path, 'page.md#section')
+            for target in ['absent.md', 'page.md#missing']:
+                with self.subTest(target=target), self.assertRaises(ValueError):
+                    check['check_link'](path, target)
+
     # Frozen slice identity and required report metadata reject missing or
     # altered artifacts before a prerequisite pass can be mistaken for delivery.
     def test_config_reports(self):
