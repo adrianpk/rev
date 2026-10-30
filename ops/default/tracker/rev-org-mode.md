@@ -1249,10 +1249,12 @@ and the Org 150 ms / 96 MiB / 32 MiB budgets remain unchanged.
 Contracts: ORG01 ORG17 ORG31.
 Details and exact checks: [Slice 63](../plan/rev-org-mode.md#slice-63-reconcile-native-org-contracts-and-references).
 
-- [ ] T63.1: Reconcile delivered Org mode with editor/configuration/view baselines and complete user references.
+- [x] T63.1: Reconcile delivered Org mode with editor/configuration/view baselines and complete user references.
 - [ ] T63.2: Preserve all previous tested candidates and make the new capability matrix and optional-tool boundaries explicit.
 - [ ] T63.3: Verify every requirement/scenario links to native, real-terminal and resource evidence; keep historical closures intact.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
+
+Report: [Slice 63](../report/slices/rev-org-mode/slice-63-baseline-reconciliation.md) (drafting).
 
 ### Slice 64: prepare complete native Org delivery acceptance
 

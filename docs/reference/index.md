@@ -14,7 +14,7 @@
 - [Rectangles](rectangles.md): display-column selection, Unicode edges and separate retained rows.
 - [Terminal input](terminal-input.md): key reports, Escape timing and undo aliases.
 - [Syntax highlighting](syntax.md): language recognition, semantic palette and plain-text fallback.
-- [Native Org outline](org-mode.md): heading insertion and motion, drawer controls, independent views and targeted reveal.
+- [Native Org mode](org-mode.md): canonical outline, tasks, metadata, dates, clocks, timers, habits and independent views.
 - [Failure recovery](recovery.md): retained state, publication outcomes and terminal restoration.
 
 - [Org agenda queries](org-agenda.md): TODO, text, tag/property grammar and checked source return.
@@ -27,8 +27,14 @@
 
 - [Org document editing](org-document.md): footnotes, emphasis, entities and affiliated source.
 
-- [Org tables](org-tables.md): source-preserving alignment, cell navigation and row insertion.
+- [Org tables](org-tables.md): navigation, structural editing, bounded formulas, recalculation and data interchange.
 
-- [Checked Org export snapshots](org-export.md): native preparation, declarations, includes, text macros and source evidence.
+- [Org export and publishing](org-export.md): checked snapshots, eleven native formats, explicit PDF compilation and project outcomes.
 
 - [Native Org controls](org-controls.md): compiled commands, context maps, typed preferences and optional tool examples.
+
+- [Org capture](org-capture.md): target discovery, editable drafts, checked finalize, abort and retry.
+- [Org columns](org-columns.md): property projections and explicit dynamic-block updates.
+- [Org source blocks](org-source-blocks.md): native editing, headers, bounded noweb tangling, explicit execution and checked results.
+- [Org feeds](org-feeds.md): explicit bounded local/remote imports, stable identities and FEEDSTATUS.
+- [Org clocks](bindings.md#native-task-clocks), [reports](bindings.md#clock-totals-and-reports) and [timers](bindings.md#session-timers): source tracking, optional recovery and session deadlines.

@@ -37,6 +37,27 @@ recorded above, preserving the earlier validation identity.
 OpenSpec is the shared workspace Markdown format. Reading or validating this
 proposal does not require the OpenSpec CLI or another runtime service.
 
+## Native Org controls
+
+The accepted [Org capability](editor-org-mode.md) extends this same startup
+configuration owner; its [model](editor-org-mode-model.md) owns document records,
+operation bounds and the selected native profile. The [control reference](../../../docs/reference/org-controls.md)
+connects shipped commands, context maps, palette roles and actual typed settings.
+The [complete value catalog](../../../docs/reference/defaults.md#configuration-value-catalog)
+and embedded sample describe parser-admitted leaves; fixed native policies are
+identified separately. No second loader or document-evaluation configuration path
+is introduced. Org keymaps layer only for their admitted source/transient context;
+a focused prompt or tree keeps its existing owner.
+
+Org arrays use the existing per-leaf include layering and whole-candidate
+validation. Relative declarations retain their assigning file's origin. Reading
+preferences or opening Org source does not discover agenda roots, finalize a
+capture, publish files or launch an external program. Optional clock recovery
+reads only its selected bounded state record and asks before visiting source.
+The original configuration and input/navigation validated candidates remain
+unchanged; Org has separate terminal/resource evidence and pending final delivery
+acceptance.
+
 ## Decision state
 
 ### Confirmed direction

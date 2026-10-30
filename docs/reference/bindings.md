@@ -639,6 +639,8 @@ Explicit priority commands retain their priority meaning. On other contexts,
 `C-c .` commands, or two `C-c !` commands, enter a checked date range; another
 editing command or cancellation retires that succession.
 
+### Native task clocks
+
 Native task clocks insert `CLOCK: [YYYY-MM-DD Ddd HH:MM]` in LOGBOOK by
 factory policy. CLOCK_INTO_DRAWER overrides LOG_INTO_DRAWER; either accepts a
 selected drawer, t for LOGBOOK or nil for normal source placement. Clock-out
@@ -712,6 +714,8 @@ Accepting an empty clock end uses the captured operation instant. A minute-value
 end within the starting UTC minute records zero; backwards operation clocks still
 reject independently.
 
+### Clock totals and reports
+
 `org-clock-display` reads actual task, subtree or file intervals without editing.
 Enter `task`, `subtree` (the empty default) or `file`, optionally followed by
 `YYYY-MM-DD YYYY-MM-DD` date bounds; the end date is exclusive. Each operation
@@ -753,6 +757,8 @@ cannot publish a report. Completion retires the worker deadline; idle reports
 add no polling or source writes. `org::agenda::ClockScan` exposes the same
 bounded native snapshot/result contracts for explicit host analysis without
 file discovery or edit authority.
+
+### Session timers
 
 Native timers use one session-owned monotonic observation, independent of task
 clocks, civil zones and file changes. Start/reset selects zero relative time.

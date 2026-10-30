@@ -1,4 +1,4 @@
-# Native Org outline
+# Native Org mode
 
 An admitted `.org` file or `M-x org-mode` uses native Org mode. Source starts
 fully visible. Visibility controls change only the selected editing view; they also
@@ -7,6 +7,20 @@ regions or undo history.
 
 The [control catalog](org-controls.md) connects all shipped Org capabilities
 to their commands, context maps, typed defaults and palette roles.
+
+## Clocks, timers and reports
+
+Task clocks edit compatible CLOCK records in canonical source. Use
+`org-clock-in`, `org-clock-out`, `org-clock-cancel` and `org-resolve-clocks` for
+explicit tracking and recovery. [Clock commands and persistence](bindings.md#native-task-clocks)
+explain checked switching, completion, recent tasks and opt-in state recovery.
+[Clock totals and reports](bindings.md#clock-totals-and-reports) compare actual
+intervals with effort and explicitly update clocktable source.
+
+[Session timers](bindings.md#session-timers) are independent monotonic state.
+Relative/paused timers do no periodic work; only an armed countdown owns a wake.
+Timer insertion is a normal source transaction, while undo does not rewind time.
+See [controls](org-controls.md) for startup values and all other Org capabilities.
 
 ## Keys and named commands
 

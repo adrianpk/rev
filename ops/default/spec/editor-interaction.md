@@ -16,6 +16,16 @@ Give rev's existing panes a small structural presentation owner and make its
 command and file prompts discoverable. Buffer, view, layout, command and file
 owners retain their existing authority.
 
+## Native Org projection compatibility
+
+[Native Org](editor-org-mode.md) retains these panel, focus, clipping and prompt
+contracts. Agenda/habit/column projections and source-edit/capture drafts have
+explicit retained source/view ownership. Moving between them does not make a
+projection's display row canonical text. Pending source jobs and active countdowns
+share the native event owner; quiescent Org states add no polling or repaint loop.
+NO_COLOR retains readable source, markers and diagnostics. This additive contract
+does not relabel the historical candidate or completed interaction gate above.
+
 ## ADDED Requirements
 
 ### Requirement: UI01 Common panel composition

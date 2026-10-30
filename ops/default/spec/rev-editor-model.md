@@ -26,6 +26,25 @@ a module per record, a custom rope, a database, or a multi-crate workspace.
 The specification owns observable commands and acceptance. This companion
 shares its accepted status and accepted clarifications D01-D07.
 
+## Native Org model extension
+
+The [Org model](editor-org-mode-model.md) adds revision-qualified source
+observations, independent visibility, checked projections and operation-owned
+jobs to these records. It preserves the original tested candidates above.
+A buffer's native Org/text choice is distinct from grammar availability. Canonical
+text, file association, history and saved-state ownership remain with the buffer.
+Views retain their own folds and reveal choices; a split copies visibility once,
+then changes independently. Edits/history invalidate obsolete derived ranges.
+
+The session owns one active task-clock locator, one independent monotonic timer,
+explicit capture/source-edit drafts and at most one active Org analysis/IO job.
+Agenda and preview results retain source identities and completeness, without
+turning a projected offset into an editable source position. Query controls may
+change their retained view without changing startup TOML or document text.
+Timer deadlines exist only while an unpaused countdown is armed; completed jobs
+retire their own polling deadline. Optional clock recovery is the separate,
+opt-in XDG state record described by the Org model, not editor-history persistence.
+
 ## Ownership
 
 | Owner | State and authority |

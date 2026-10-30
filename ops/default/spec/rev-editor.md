@@ -39,6 +39,26 @@ model are accepted by the product owner. The approved delivery plan and tracker
 own execution authority and state. Markdown scenarios state
 acceptance obligations; they are not evidence that tests have run.
 
+## Native Org reconciliation
+
+The [Org specification](editor-org-mode.md) and [model](editor-org-mode-model.md)
+extend this baseline with ORG01-ORG31. All existing R01-R37, A01-A20 and
+input/navigation requirements retain their identities and guarantees. Canonical
+ropes, distinct coordinate domains, shared-view remapping, read-only admission,
+semantic history, safe saves and terminal cleanup apply to Org operations.
+Derived folds, agenda rows, tables and previews never acquire independent source
+edit authority. Source edits use existing transactions; cross-document work
+records each actual in-memory publication and durable save separately.
+
+Native functions and explicit operation-owned jobs provide Org behavior. No
+analysis service or idle agenda/recalculation loop is introduced. Source blocks,
+includes, macros, links and document directives are data until an admitted action
+selects a documented effect. [Coverage and evidence](editor-org-mode-evidence.md)
+separate native tests, owned terminals, release measurements and historical gates.
+Org delivery acceptance is still pending its own controller gate; the three
+earlier validated candidates above and in the configuration baseline remain
+historical evidence for their original deliveries.
+
 ## Scope and priority
 
 Priorities, in order:
@@ -51,10 +71,14 @@ Priorities, in order:
 
 Compatibility concerns the specified commands, keys, cursor behavior, and
 screen organization. It does not import the complete GNU Emacs feature set.
-The baseline excludes a GUI, Lisp or another scripting runtime, plugins or
-package installation, LSP or language-completion engines, Git UI, Org, embedded
-shells, a Dired-style editable directory listing, and built-in compilers,
-formatters, test runners, or other IDE subsystems. Tree-sitter is for highlighting.
+The baseline excludes a GUI, Lisp or another embedded scripting runtime, plugins
+or package installation, LSP or language-completion engines, Git UI, embedded
+shells, a Dired-style editable directory listing and general IDE subsystems.
+Tree-sitter is for highlighting. Native Org is the accepted additive capability
+in [Org Mode](editor-org-mode.md), with its own source, command and resource
+contracts. Explicit Org adapters may run a selected language program, PDF compiler,
+transport or viewer after their documented consent. This does not introduce an
+embedded interpreter, general build/test runner or startup execution hook.
 
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior

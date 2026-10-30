@@ -17,8 +17,9 @@ editable document database. Normal save preserves unaffected source bytes.
 
 User preferences use the existing TOML store. Allowed file-local Org directives
 are document data and affect only their documented semantics. Runtime view and
-query choices do not rewrite TOML implicitly. No new disk record/cache format
-is selected by this model; add such a contract only if it becomes necessary.
+query choices do not rewrite TOML implicitly. Derived indexes, folds, agenda results and previews have no persistent cache
+format. The optional active-clock recovery record below is the one selected
+additional state format; document CLOCK records remain canonical text.
 
 ## Source records in document order
 
@@ -32,7 +33,7 @@ is selected by this model; add such a contract only if it becomes necessary.
 | Task state | Workflow identity, keyword, unfinished/finished classification and optional selected logging facts. | Keywords derive from admitted defaults/source directives. |
 | Planning fact | SCHEDULED/DEADLINE/CLOSED kind and owned timestamp source. | Only in its valid heading context. |
 | Timestamp | Active/inactive delimiters, date/day spelling, optional time/range, repeater, warning delay and exact text. | Invalid values remain preserved and diagnosable; query time/zone is separate. |
-| Clock interval | Task/source owner, start timestamp, optional end timestamp, duration and original source. | Native clock-in/clock-out edit canonical Org text; exact storage and active-clock policies remain for review. |
+| Clock interval | Task/source owner, start timestamp, optional end timestamp, duration and original source. | Native clock-in/clock-out edit canonical Org text; the shipped clock placement, switching and recovery policies are documented in the [clock reference](../../../docs/reference/bindings.md#native-task-clocks). |
 | Effort | Task/source owner, duration property, parsed minutes and original text. | Estimated work remains distinct from measured intervals. |
 | Habit | Task owner, STYLE, repeating schedule/range, LAST_REPEAT and completion history. | Ordinary Org task source; no independent habit store. |
 | Link | Form, target, optional description/search suffix and owned source. | Recognition has no external effect. |
@@ -61,13 +62,13 @@ Indexing does not insert IDs or normalize source merely to simplify navigation.
 ## Capture and move states
 
 Capture has explicit choosing/collecting/editing, validating, finalized, aborted
-and failed-with-draft outcomes. The exact user-visible transitions and recovery
-choices must be finalized with the spec. A failed destination must not cause a
+and failed-with-draft outcomes. [Capture reference](../../../docs/reference/org-capture.md)
+records the delivered transition, retry and abort behavior. A failed destination must not cause a
 valid draft to disappear or claim a committed insertion.
 
 Cross-document refile/archive identifies source and destination and records
-which edits and durable saves actually succeeded. The future implementation
-must provide an atomic or explicitly recoverable outcome; it must not collapse
+which edits and durable saves actually succeeded. The [native file operations](../../../docs/reference/org-files.md)
+provide coherent in-memory publication and explicitly recoverable file outcomes; they must not collapse
 partial publication into a single false success state.
 
 ## Cross-document publication and job states
