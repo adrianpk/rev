@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approval: approved by the product owner, 2026-10-30; three-slice plan and execution through PRs to dev
-Active slice: Slice 1 - Everyday editor guide
+Active slice: Slice 1 - Everyday editor guide; reviewing
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
 ## Outcome

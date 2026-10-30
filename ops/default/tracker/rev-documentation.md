@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approval: approved by the product owner, 2026-10-30; three-slice plan and execution through PRs to dev
-Active slice: Slice 1 - Everyday editor guide
+Active slice: Slice 1 - Everyday editor guide; reviewing
 Plan: [Documentation Plan](../plan/rev-documentation.md)
 Gate: focused documentation/reference gate defined in the plan
 
@@ -23,8 +23,8 @@ Gate: focused documentation/reference gate defined in the plan
 
 | Task | Outcome | Depends on | Status | Commit | Validation |
 | --- | --- | --- | --- | --- | --- |
-| T1.1 | Complete the six-chapter editor path and independent Org tutorial path. | Approved and committed planning artifacts. | pending | pending | Both Next/Previous walks; local links; no orphaned pages. |
-| T1.2 | Align README/indexes and record Slice 1 evidence. | T1.1 | pending | pending | Entry-point review; graph reachability; whitespace check. |
+| T1.1 | Complete the six-chapter editor path and independent Org tutorial path. | Approved and committed planning artifacts. | completed | `4f8c8dc13d169fbbcb13f2477b5f828b8067ddfb` | Passed both navigation walks, 262 local targets and 53-page reachability. |
+| T1.2 | Align README/indexes and record Slice 1 evidence. | T1.1 | completed | record on integration | Passed entry review, 253 local targets, 53-page reachability and whitespace. |
 | T2.1 | Separate Org commands, bindings and settings, with focused task/reference entries. | Slice 1 integrated. | pending | pending | Complete feature inventory and compatible destinations. |
 | T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | pending | pending | Native registry/context/bounds tests and Python reference/link checks. |
 | T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | pending | pending | Source/guide/changelog audit; version/date consistency. |
@@ -34,7 +34,7 @@ Gate: focused documentation/reference gate defined in the plan
 
 | Slice | State | PR | Integrated commit | Report state |
 | --- | --- | --- | --- | --- |
-| Slice 1 | active | pending | pending | not created |
+| Slice 1 | reviewing | pending | pending | reviewing |
 | Slice 2 | queued | pending | pending | not created |
 | Slice 3 | queued | pending | pending | not created |
 

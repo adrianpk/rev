@@ -6,7 +6,7 @@ editing.
 
 Multiple buffers, split windows, search and replace, a file tree,
 [syntax highlighting](docs/reference/syntax.md) and
-[native Org mode](docs/tutorials/user-guide/06-org-notes.md) come built in. These
+[native Org mode](docs/tutorials/user-guide/org/index.md) come built in. These
 are everyday comforts you can use from the start, without first assembling a
 set of editor packages. The goal is a light, responsive editor with a
 deliberately small scope.
@@ -56,9 +56,12 @@ separated by spaces in sequence: `C-x C-s` means Control-x, then Control-s.
 
 ## Documentation
 
-Start with the [User Guide](docs/tutorials/user-guide/index.md) for a short path
-from your first file to everyday editing and Org documents. The
-[documentation index](docs/index.md) also links to task guides, the
+Start with the [User Guide](docs/tutorials/user-guide/index.md) for everyday
+editing, from your first file to buffers, search and preferences.
+The [Org mode guide](docs/tutorials/user-guide/org/index.md) has its own path
+for outlines, tasks, agendas and tables.
+
+The [documentation index](docs/index.md) links to task guides, the
 [key bindings](docs/reference/bindings.md), configuration and explanations.
 See the [changelog](CHANGELOG.md) for changes.
 
