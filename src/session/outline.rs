@@ -130,9 +130,10 @@ impl Session {
     }
     fn source_context_command(&self, model: &crate::org::Outline, request: &Request) -> OrgCommand {
         if request.command == OrgCommand::CtrlCCtrlC
-            && self
-                .buffer()
-                .is_ok_and(|b| model.source_block_at(b, request.origin.point.position))
+            && self.buffer().is_ok_and(|b| {
+                model.source_block_at(b, request.origin.point.position)
+                    || crate::org::execution::call_at(b, request.origin.point.position)
+            })
         {
             OrgCommand::ExecuteSrc
         } else {

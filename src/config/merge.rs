@@ -134,6 +134,11 @@ impl Document {
             &mut self.org.source.programs,
             &later.org.source.programs,
         );
+        merge.leaf(
+            &["org", "source", "library_files"],
+            &mut self.org.source.library_files,
+            &later.org.source.library_files,
+        );
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],

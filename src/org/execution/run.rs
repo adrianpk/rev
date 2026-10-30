@@ -16,6 +16,9 @@ impl Work {
             stdout: Vec::new(),
             stderr: Vec::new(),
             detail: String::new(),
+            site: self.input.site.clone(),
+            related: self.input.related.clone(),
+            value: Vec::new(),
         };
         if let Err(e) = self.perform(&cancel, &mut out) {
             out.state = failed(&cancel, &e);
@@ -43,6 +46,7 @@ impl Work {
         } else {
             self.definition.draft.clone()
         };
+        let text = variables::body(&self.definition, &text, &self.profile)?;
         if text.len() > self.expansion_bytes {
             return Err("Source expansion byte limit reached".into());
         }
@@ -68,7 +72,10 @@ impl Work {
             executable: self.profile.executable.clone(),
             argv: self.profile.argv.clone(),
         };
-        self.step(&step, scratch, (input, cancel), out)
+        let start = out.stdout.len();
+        self.step(&step, scratch, (input, cancel), out)?;
+        out.value = out.stdout[start..].to_vec();
+        Ok(())
     }
     fn step(
         &self,
@@ -105,7 +112,9 @@ impl Work {
     ) -> Result<Program, String> {
         let mut argv = vec![scratch.substitute(&step.executable)?];
         for token in &step.argv {
-            argv.push(scratch.substitute(token)?);
+            argv.push(
+                variables::token(&self.definition, token)?.unwrap_or(scratch.substitute(token)?),
+            );
         }
         Ok(Program {
             argv,

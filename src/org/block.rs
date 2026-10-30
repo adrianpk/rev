@@ -19,13 +19,14 @@ pub struct Definition {
     pub switches: String,
     pub headers: Headers,
     pub body: Range<usize>,
+    pub(crate) end: usize,
     opening: Range<usize>,
     original: String,
     pub draft: String,
     indent: String,
     newline: String,
 }
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Scan {
     text: Rope,
     stamp: Stamp,
@@ -108,6 +109,7 @@ impl Scan {
             switches: metadata.switches,
             headers: metadata.headers,
             body: node.content.clone(),
+            end: node.closing.as_ref().expect("checked closing").end,
             opening,
             original,
             draft,
@@ -219,4 +221,27 @@ fn commented(
         parent = header.parent;
     }
     Ok(false)
+}
+
+impl Scan {
+    pub(in crate::org) fn stamp(&self) -> Stamp {
+        self.stamp
+    }
+    pub(in crate::org) fn text(&self) -> &Rope {
+        &self.text
+    }
+    pub(in crate::org) fn at(&self) -> usize {
+        self.at
+    }
+    pub(in crate::org) fn observed(
+        source: &crate::org::io::DestinationSource,
+    ) -> Result<Self, String> {
+        let loaded = crate::file::Loaded::from_snapshot(source.snapshot(), source.bom);
+        let buffer = Buffer::from_loaded(loaded).map_err(|e| e.to_string())?;
+        let mut scan = Self::new(&buffer, Byte(0))?;
+        if let crate::org::io::DestinationVersion::Buffer(stamp) = source.version {
+            scan.stamp = stamp;
+        }
+        Ok(scan)
+    }
 }

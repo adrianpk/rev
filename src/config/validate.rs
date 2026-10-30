@@ -610,6 +610,9 @@ fn publishing(partial: &super::PartialOrg) -> Result<(), Failure> {
 }
 
 fn source_programs(partial: &super::PartialSourcePrograms) -> Result<(), Failure> {
+    if let Some(files) = &partial.library_files {
+        super::source::libraries(files).map_err(|e| Failure::new("org.source.library_files", e))?;
+    }
     if let Some(programs) = &partial.programs {
         super::source::validate(programs).map_err(|e| Failure::new("org.source.programs", e))?;
     }

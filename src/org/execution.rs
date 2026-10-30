@@ -1,5 +1,9 @@
 //! Confirmed external source jobs. Profiles carry host authority, not a sandbox.
 mod headers;
+mod input;
+mod results;
+mod variables;
+pub(crate) use input::{Input, Prepare};
 mod run;
 mod scratch;
 use crate::{
@@ -32,9 +36,13 @@ pub struct Outcome {
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
     pub detail: String,
+    pub(crate) site: results::Site,
+    pub(crate) related: Vec<crate::org::io::DestinationSource>,
+    pub(crate) value: Vec<u8>,
 }
 pub(crate) struct Work {
     scan: Scan,
+    input: Input,
     definition: Definition,
     profile: SourceProgram,
     directory: Option<PathBuf>,
@@ -45,19 +53,23 @@ pub(crate) struct Work {
 impl Work {
     pub fn new(
         buffer: &Buffer,
-        definition: Definition,
+        input: Input,
         profile: SourceProgram,
         snapshot: &config::Snapshot,
     ) -> Result<Self, String> {
-        definition.current(buffer)?;
+        crate::org::source::current(buffer, input.stamp).map_err(|e| e.to_string())?;
+        let definition = input.definition.clone();
         headers::admit(&definition)?;
+        input.site.admit(profile.result)?;
+        variables::body(&definition, "", &profile)?;
         profile.validate()?;
         let mut profile = profile;
         resolve(&mut profile, snapshot)?;
         let policy = &snapshot.settings().org.limits;
         Ok(Self {
-            scan: Scan::new(buffer, Byte(definition.body.start))?,
-            directory: source_directory(buffer, profile.cwd)?,
+            scan: input.scan.clone(),
+            directory: source_directory(input.source_path.as_deref(), profile.cwd)?,
+            input,
             seconds: (profile.seconds as usize).min(policy.job_seconds),
             output_bytes: (profile.output_bytes as usize).min(policy.job_output_bytes),
             expansion_bytes: policy.expansion_bytes,
@@ -72,16 +84,17 @@ impl Work {
         )
     }
     pub fn force_query(&self) -> bool {
-        self.definition.headers.get("eval") == Some("query")
+        self.input.query || self.definition.headers.get("eval") == Some("query")
     }
 }
-fn source_directory(buffer: &Buffer, cwd: config::SourceCwd) -> Result<Option<PathBuf>, String> {
+fn source_directory(
+    path: Option<&std::path::Path>,
+    cwd: config::SourceCwd,
+) -> Result<Option<PathBuf>, String> {
     if cwd == config::SourceCwd::Workspace {
         return Ok(None);
     }
-    buffer
-        .file()
-        .and_then(|f| f.path().parent())
+    path.and_then(std::path::Path::parent)
         .map(PathBuf::from)
         .map(Some)
         .ok_or("Source cwd requires an associated Org file".into())
@@ -115,4 +128,26 @@ pub(super) fn check(cancel: &Cancellation) -> Result<(), String> {
     } else {
         Ok(())
     }
+}
+
+impl Outcome {
+    pub(crate) fn publication(
+        &self,
+        buffers: &crate::buffer::Buffers,
+    ) -> Result<Option<crate::buffer::edit::Replacement>, String> {
+        input::related_current(&self.related, buffers)?;
+        let buffer = buffers
+            .get(self.site.stamp().buffer)
+            .map_err(|e| e.to_string())?;
+        self.site.edit(buffer, self)
+    }
+}
+pub(crate) fn call_at(buffer: &Buffer, at: crate::coordinates::Scalar) -> bool {
+    let Ok(coordinates) = crate::coordinates::Coordinates::new(buffer) else {
+        return false;
+    };
+    let Ok(byte) = coordinates.to_byte(at) else {
+        return false;
+    };
+    Scan::new(buffer, byte).is_ok_and(|s| input::calls::at(&s))
 }

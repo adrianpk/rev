@@ -39,7 +39,11 @@ impl Headers {
         }
         headers
     }
-    pub(super) fn apply(&mut self, value: &str, cancel: &Cancellation) -> Result<(), String> {
+    pub(in crate::org) fn apply(
+        &mut self,
+        value: &str,
+        cancel: &Cancellation,
+    ) -> Result<(), String> {
         self.bytes = self
             .bytes
             .checked_add(value.len())

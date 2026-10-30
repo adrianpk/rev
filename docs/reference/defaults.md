@@ -216,6 +216,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
 | `org.source.confirm_execution` | Boolean | `true` | Ask before each selected block job; `:eval query` always asks and no/never always reject. |
+| `org.source.library_files` | Array of local path strings | `[]` | At most 32 explicit files, 4096 bytes per path, relative to the assigning config source; bounded observations only on explicit named calls. |
 | `org.source.programs` | Array of typed program profiles | `[]` | At most 32 named explicit language runners; arrays replace by layer. See [source execution](org-source-blocks.md#execution) for closed fields, finite limits and argv substitution. |
 | `org.publish.projects` | Array of typed project records | `[]` | At most 64 named data-only projects, explicit roots/output/formats and bounded include/exclude/asset patterns. No startup discovery or automatic cleanup; see [publishing](org-export.md#project-publishing). |
 | `org.tools.upload` | Array of argv strings | `[]` | Optional explicit upload tool, at most 64 nonempty tokens of 4096 bytes each. Whole `{output_dir}` substitution only; separate confirmation after successful project publication. |

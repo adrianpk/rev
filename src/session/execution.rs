@@ -4,10 +4,7 @@ use super::{Action, Pending, Session, outline::Request};
 use crate::{
     command::{Command, OrgCommand as C},
     config::SourceProgram,
-    org::{
-        block::Definition,
-        execution::{self, Outcome, State},
-    },
+    org::execution::{self, Outcome, State},
 };
 pub(super) enum Prompt {
     Profile,
@@ -16,12 +13,12 @@ pub(super) enum Prompt {
 }
 pub(super) struct Selection {
     request: Request,
-    definition: Definition,
+    input: execution::Input,
     profiles: Vec<SourceProgram>,
     work: Option<execution::Work>,
 }
 impl Session {
-    /// Last bounded execution record; canonical RESULTS text is never implicit.
+    /// Last bounded execution record, including rejected result publication.
     pub fn execution_result(&self) -> Option<&Outcome> {
         self.execution_result.as_ref()
     }
@@ -48,13 +45,13 @@ impl Session {
             self.windows.selected_id() == s.request.view
                 && self
                     .buffer()
-                    .is_ok_and(|b| b.stamp() == s.definition.stamp && b.is_org())
+                    .is_ok_and(|b| b.stamp() == s.input.stamp && b.is_org())
         })
     }
     pub(in crate::session) fn prepare_execution(
         &mut self,
         request: Request,
-        definition: Definition,
+        input: execution::Input,
     ) -> Result<(), String> {
         if self.execution.is_some() || self.pending.is_some() || self.windows.retained_view_active()
         {
@@ -68,18 +65,18 @@ impl Session {
             .source
             .programs
             .iter()
-            .filter(|p| p.language == definition.language)
+            .filter(|p| p.language == input.definition.language)
             .cloned()
             .collect();
         if profiles.is_empty() {
             return Err(format!(
                 "No source program configured for {}; set org.source.programs",
-                definition.language
+                input.definition.language
             ));
         }
         self.execution = Some(Selection {
             request,
-            definition,
+            input,
             profiles,
             work: None,
         });
@@ -123,7 +120,7 @@ impl Session {
             .ok_or("Choose a declared program name")?;
         let work = execution::Work::new(
             self.buffer().map_err(|e| e.to_string())?,
-            selection.definition.clone(),
+            selection.input.clone(),
             profile,
             self.buffers.snapshot(),
         )?;
@@ -146,9 +143,14 @@ impl Session {
         if !self.execution_current() {
             return Err("Source changed before confirmed launch".into());
         }
+        self.execution
+            .as_ref()
+            .ok_or("No source selection")?
+            .input
+            .current(&self.buffers)?;
         let selection = self.execution.as_mut().ok_or("No source selection")?;
         let work = selection.work.take().ok_or("No confirmed source program")?;
-        self.org.start_execution(selection.definition.stamp, work)?;
+        self.org.start_execution(selection.input.stamp, work)?;
         self.message("Source program running; C-g cancels and reaps owned work");
         Ok(())
     }
@@ -162,6 +164,12 @@ impl Session {
                     out.detail =
                         "Source context changed; output retained without publication".into();
                 }
+                if out.state == State::Succeeded
+                    && let Err(e) = self.publish_execution(&out)
+                {
+                    out.state = State::Failed;
+                    out.detail = format!("Results not published: {e}; output retained");
+                }
                 self.message(&format!(
                     "Source {:?}: {}; org-babel-execution-results inspects output",
                     out.state, out.detail
@@ -172,6 +180,12 @@ impl Session {
                 self.error(&e);
             }
         }
+    }
+    fn publish_execution(&mut self, out: &Outcome) -> Result<(), String> {
+        if let Some(edit) = out.publication(&self.buffers)? {
+            self.publish_org_edits(&[edit]).map_err(|e| e.to_string())?;
+        }
+        Ok(())
     }
     fn cancel_execution(&mut self) -> Action {
         self.pending = None;

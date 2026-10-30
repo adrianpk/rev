@@ -127,8 +127,8 @@ and [noweb reference syntax](https://orgmode.org/manual/Noweb-Reference-Syntax.h
 
 ## Execution
 
-`C-c C-v e` (`org-babel-execute-src-block`) selects the block at point;
-`C-c C-c` has the same meaning on a source block. Native execution requires an
+`C-c C-v e` (`org-babel-execute-src-block`) selects the block or named call at point;
+`C-c C-c` has the same meaning on either construct. Native execution requires an
 explicit matching profile in `org.source.programs`; no language runner is
 installed or inferred. If several profiles match the exact declared language,
 select one by name. `org.source.confirm_execution` defaults true. Each launch
@@ -173,16 +173,16 @@ combined output budget. There are at most 64 executable/argv tokens per step,
 `seconds` admits 1..600 and `output_bytes` 1..16777216; the effective bound is the
 smaller profile/global `org.limits.job_seconds` or `job_output_bytes` value.
 `result` declares `output`, `value` or `table`; this operation retains raw bytes
-and never implicitly inserts or formats canonical RESULTS text.
+and publishes successful results as a checked source transaction.
 
 The selected unsaved body uses native indentation, LF and literal-unescaping
 rules. `:noweb yes`, `eval`, `no-export`, `strip-export` and `strip-tangle` expand
 bounded literal references; `no` and `tangle` retain them literally. `:no-expand`
 keeps literal code. Cycles, evaluated references and unresolved names reject
 before launch. Expansion retains the existing 512-block, 64-level and 100000-step
-bounds and must fit `org.limits.expansion_bytes`. Persistent sessions, variable
-assignments, `:dir`, prologue/epilogue transformations and cache requests reject
-until a compatible native adapter can preserve their semantics.
+bounds and must fit `org.limits.expansion_bytes`. Persistent sessions, `:dir`,
+prologue/epilogue transformations, executable post-processing and cache requests
+reject before launch.
 
 The operation owns one worker, a mode-0700 workspace, mode-0600 input and all
 child process groups. Staged input is delivered by a regular stdin file or a
@@ -201,6 +201,52 @@ remain distinct from successful execution. Failed or cancelled work retains the
 selected source definition and leaves existing RESULTS, buffer history and file
 saved state untouched. Source context is revalidated before confirmed launch
 and after completion. Programs can perform their explicitly confirmed host
-operations; the editor does not save or edit canonical source for execution.
+operations; result publication changes the unsaved source through ordinary undo
+without saving the file.
 
 See the Org manual's [evaluation and eval restrictions](https://orgmode.org/manual/Evaluating-Code-Blocks.html).
+
+### Calls and results
+
+A named call uses `#+CALL: name(arguments)` or
+`#+CALL: name[inside headers](arguments) end headers`. Inline
+`call_name(arguments)[end headers]` at point uses a verbatim results macro.
+Local named blocks take precedence. `org.source.library_files` declares at most
+32 explicit Org files, resolved relative to the assigning configuration file.
+They are read only during an explicit unresolved call, through bounded canonical
+source observations; open unsaved text takes precedence over disk. A qualified
+`file.org:name` call must match a declared file. Missing or ambiguous definitions
+reject. There is no startup ingest, search path or arbitrary file loading.
+
+`:var name=literal` defaults and call `name=literal` arguments admit quoted
+strings and finite numbers. Inside headers override target headers; call
+arguments override defaults by variable name. Shell-family blocks receive safely
+quoted assignments. Other adapters consume each variable through an explicit
+whole `{var:name}` argv token, preserving one argument without shell evaluation.
+Expressions, recursive calls and executable argument forms reject. The selected
+target's no/never restriction cannot be removed by a call override. Query
+restrictions and default confirmation remain effective for library calls.
+
+A profile's `result` declares the external adapter contract: `output` returns
+stdout text; `value` returns an externally collected scalar; `table` returns
+rectangular tab-delimited rows. Rev does not synthesize a language interpreter
+or infer a function-return wrapper. A collection header must agree with the
+selected adapter. Only the final step's stdout becomes canonical result data;
+all step streams remain available for inspection.
+
+`:results` supports output/value collection, table/vector or scalar/verbatim
+format, drawer/html/latex/org/code wrapping, and replace/append/prepend handling.
+Silent/none/discard retain inspected output without changing source. Call end
+headers support result formatting/handling. Unsupported options reject before
+execution. UTF-8/control admission, rectangular tables (256 columns, 10000 rows),
+wrapping delimiters and the native 8 MiB updated-source ceiling are checked before
+publication. Inline publication requires one verbatim scalar.
+
+The editor replaces only recognized adjacent RESULTS content: fixed-width text,
+tables, drawers or delimited blocks. Ambiguous or unclosed old content is retained
+with a diagnostic. Replacement drops obsolete result hashes. A successful edit
+is one undo transaction and preserves unrelated bytes, BOM, line endings and
+shared source views. Source and library observations are checked again before
+launch and publication; failed, cancelled, stale and read-only publication keeps
+prior results. See the Org manual's [result options](https://orgmode.org/manual/Results-of-Evaluation.html)
+and [Library of Babel](https://orgmode.org/manual/Library-of-Babel.html).

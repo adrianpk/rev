@@ -15,7 +15,16 @@ fn behavior(definition: &Definition) -> Result<(), String> {
     {
         return Err("Native source execution requires :session none".into());
     }
-    for key in ["var", "dir", "prologue", "epilogue"] {
+    for key in [
+        "dir",
+        "prologue",
+        "epilogue",
+        "post",
+        "wrap",
+        "file",
+        "file-mode",
+        "output-dir",
+    ] {
         if definition.headers.get(key).is_some() {
             return Err(format!(
                 "Source :{key} requires a supported language/header adapter"

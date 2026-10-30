@@ -38,11 +38,22 @@ impl Session {
             .map_err(|e| e.to_string())?
             .to_byte(request.origin.point.position)
             .map_err(|e| e.to_string())?;
-        let scan = Scan::new(buffer, byte)?;
-        let seconds = self.buffers.snapshot().settings().org.limits.job_seconds;
-        self.org.start_block(buffer.stamp(), scan, seconds)?;
+        self.observe_block(request.command, byte)?;
         self.block_request = Some(request);
         self.message("Source block observation pending; C-g cancels");
+        Ok(())
+    }
+    fn observe_block(&mut self, command: C, byte: crate::coordinates::Byte) -> Result<(), String> {
+        let buffer = self.buffer().map_err(|e| e.to_string())?;
+        let scan = Scan::new(buffer, byte)?;
+        let seconds = self.buffers.snapshot().settings().org.limits.job_seconds;
+        if command == C::ExecuteSrc {
+            let prepare = crate::org::execution::Prepare::new(&self.buffers, buffer, byte)?;
+            self.org
+                .start_execution_input(buffer.stamp(), prepare, seconds)?;
+        } else {
+            self.org.start_block(buffer.stamp(), scan, seconds)?;
+        }
         Ok(())
     }
     pub(in crate::session) fn finish_block(&mut self, result: Result<Definition, String>) {
@@ -57,9 +68,23 @@ impl Session {
             self.error(&e);
         }
     }
+    pub(in crate::session) fn finish_execution_input(
+        &mut self,
+        result: Result<crate::org::execution::Input, String>,
+    ) {
+        let Some(request) = self.block_request.take() else {
+            return;
+        };
+        if !self.org_source_current(&request) {
+            self.error("Call source or view changed during observation");
+            return;
+        }
+        if let Err(e) = result.and_then(|input| self.prepare_execution(request, input)) {
+            self.error(&e);
+        }
+    }
     fn block_result(&mut self, request: Request, definition: Definition) -> Result<(), String> {
         match request.command {
-            C::ExecuteSrc => self.prepare_execution(request, definition),
             C::ViewSrcInfo => {
                 self.message(&definition.info());
                 Ok(())

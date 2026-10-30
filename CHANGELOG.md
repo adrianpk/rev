@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Run a selected Org source block with `C-c C-v e` or `C-c C-c` using an explicitly configured language program. Confirm each job by default, inspect retained output and errors, and cancel bounded child work with `C-g`. Source execution restrictions remain effective; existing source and RESULTS stay unchanged.
+- Run a selected Org source block with `C-c C-v e` or `C-c C-c` using an explicitly configured language program. Confirm each job by default, inspect retained output and errors, and cancel bounded child work with `C-g`. Call local named blocks or explicitly declared Org libraries with literal arguments. Successful output, value and table results update canonical RESULTS as one undo step; failed or stale work preserves prior content. Source execution restrictions remain effective.
 
 - Edit Org source blocks with `C-c '`, using available language highlighting in an isolated draft. Return with `C-c '` or `C-c C-c` as one source undo step, or abort with `C-c C-k`. Inspect inherited header data and insert checked local arguments; stale source retains the draft, and editing never saves or executes code. Tangle declared blocks with `C-c C-v t`, or only the current block with `C-u C-c C-v t`. Bounded named references preserve relative indentation; checked destinations require replacement confirmation. Inspect each file outcome after cancellation or partial failure without saving or changing source.
 

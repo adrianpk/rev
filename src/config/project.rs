@@ -374,6 +374,9 @@ fn tools(base: &mut super::Tools, partial: &super::PartialTools) {
 }
 
 fn source(base: &mut super::SourcePrograms, partial: &super::PartialSourcePrograms) {
+    if let Some(files) = &partial.library_files {
+        base.library_files.clone_from(files);
+    }
     scalar(&mut base.confirm_execution, partial.confirm_execution);
     if let Some(programs) = &partial.programs {
         base.programs.clone_from(programs);

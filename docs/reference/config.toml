@@ -130,6 +130,7 @@ targets = []
 [org.source]
 confirm_execution = true
 programs = []
+library_files = []
 
 [org.publish]
 # Data-only named projects; explicit org-publish selection performs discovery.

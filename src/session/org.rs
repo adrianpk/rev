@@ -49,6 +49,7 @@ enum Observation {
     Execution(crate::org::execution::Outcome),
     Tangle(Result<crate::org::tangle::Output, String>),
     SourceBlock(Result<crate::org::block::Definition, String>),
+    ExecutionInput(Result<crate::org::execution::Input, String>),
     Publish(Result<crate::org::publish::Output, String>),
     Export(Result<crate::org::export::output::Output, String>),
     Table(Result<crate::org::table::Output, String>),

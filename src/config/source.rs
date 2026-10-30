@@ -5,12 +5,14 @@ use std::collections::BTreeSet;
 pub struct SourcePrograms {
     pub confirm_execution: bool,
     pub programs: Vec<SourceProgram>,
+    pub library_files: Vec<String>,
 }
 impl Default for SourcePrograms {
     fn default() -> Self {
         Self {
             confirm_execution: true,
             programs: Vec::new(),
+            library_files: Vec::new(),
         }
     }
 }
@@ -19,6 +21,7 @@ impl Default for SourcePrograms {
 pub struct PartialSourcePrograms {
     pub confirm_execution: Option<bool>,
     pub programs: Option<Vec<SourceProgram>>,
+    pub library_files: Option<Vec<String>>,
 }
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -170,10 +173,32 @@ fn text(value: &str) -> Result<(), String> {
 }
 fn argument(value: &str) -> Result<(), String> {
     text(value)?;
-    if value.contains(['{', '}']) && !["{input}", "{output}", "{workspace}"].contains(&value) {
+    let variable = value
+        .strip_prefix("{var:")
+        .and_then(|s| s.strip_suffix('}'))
+        .is_some_and(|s| {
+            !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+        });
+    if value.contains(['{', '}'])
+        && !["{input}", "{output}", "{workspace}"].contains(&value)
+        && !variable
+    {
         return Err(
             "Source placeholders must be whole {input}, {output} or {workspace} tokens".into(),
         );
+    }
+    Ok(())
+}
+
+pub fn libraries(files: &[String]) -> Result<(), String> {
+    if files.len() > 32 {
+        return Err("Source library permits at most 32 explicit files".into());
+    }
+    for file in files {
+        super::capture::path(file)?;
+        if file.is_empty() {
+            return Err("Source library files require nonempty paths".into());
+        }
     }
     Ok(())
 }
