@@ -344,3 +344,145 @@ fn result_library_buffer() {
     assert_eq!(text(&s), draft);
     assert!(s.buffer().unwrap().is_modified());
 }
+// Inline calls replace their adjacent result macro without consuming prose.
+// A second execution replaces the same span and each publication has one undo.
+#[test]
+fn result_inline() {
+    let source = "#+NAME: greet\n#+BEGIN_SRC sh\nprintf hello\n#+END_SRC\ncall_greet() tail 界\n";
+    let (_f, mut s) = configured(source, PROFILE);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "5");
+    run(&mut s);
+    let out = s.execution_result().unwrap();
+    assert_eq!(out.state, State::Succeeded, "{}", out.detail);
+    let expected = source.replace("call_greet()", "call_greet() {{{results(=hello=)}}}");
+    assert_eq!(text(&s), expected);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "5");
+    run(&mut s);
+    assert_eq!(text(&s), expected);
+    s.execute(Command::History(History::Undo));
+    settle(&mut s);
+    assert_eq!(text(&s), expected);
+    s.execute(Command::History(History::Undo));
+    settle(&mut s);
+    assert_eq!(text(&s), source);
+}
+// Source result spans stop at structural boundaries, preserve indentation and
+// reject ambiguous prior prose before launching a tool. Delimited append output
+// remains one recognized result on subsequent replacement.
+#[test]
+fn result_boundaries() {
+    for (name, suffix, header, expected, run_job) in [
+        (
+            "next heading",
+            "#+RESULTS:\n: previous\n* Keep\n",
+            "",
+            "#+RESULTS:\n: new\n* Keep\n",
+            true,
+        ),
+        (
+            "old drawer",
+            "#+RESULTS:\n:RESULTS:\nold\n:END:\n* Keep\n",
+            "",
+            "#+RESULTS:\n: new\n* Keep\n",
+            true,
+        ),
+        (
+            "old blocks",
+            "#+RESULTS:\n#+BEGIN_EXAMPLE\nold\n#+END_EXAMPLE\n#+BEGIN_EXAMPLE\nolder\n#+END_EXAMPLE\n* Keep\n",
+            "",
+            "#+RESULTS:\n: new\n* Keep\n",
+            true,
+        ),
+        (
+            "ambiguous",
+            "#+RESULTS:\nunknown prose\n* Keep\n",
+            "",
+            "#+RESULTS:\nunknown prose\n* Keep\n",
+            false,
+        ),
+        (
+            "wrong name",
+            "#+RESULTS: other\n: previous\n",
+            "",
+            "#+RESULTS: other\n: previous\n",
+            false,
+        ),
+    ] {
+        let prefix =
+            format!("#+BEGIN_SRC sh {header}\nprintf ran > marker; printf new\n#+END_SRC\n");
+        let source = prefix.clone() + suffix;
+        let (f, mut s) = configured(&source, PROFILE);
+        action(&mut s, C::ExecuteSrc);
+        if run_job {
+            argument(&mut s, "yes");
+        }
+        assert_eq!(f.0.join("marker").exists(), run_job, "{name}: {}", s.echo());
+        assert_eq!(text(&s), prefix + expected, "{name}");
+    }
+    let source = "  #+BEGIN_SRC sh :results append\n  printf new\n  #+END_SRC\n  \n  #+RESULTS:\n  : previous\n";
+    let (_f, mut s) = configured(source, PROFILE);
+    run(&mut s);
+    assert_eq!(s.execution_result().unwrap().state, State::Succeeded);
+    assert_eq!(
+        text(&s),
+        source.replace("  : previous\n", "  : previous\n  : new\n")
+    );
+}
+// Every shared view maps through the canonical result transaction; undo restores
+// the peer's exact scalar anchor after Unicode result expansion.
+#[test]
+fn result_shared_views() {
+    use rev::command::{Split, WindowCommand};
+    let source = "#+BEGIN_SRC sh\nprintf 'hello 界'\n#+END_SRC\n#+RESULTS:\n: x\n* Peer\nmarker\n";
+    let (_f, mut s) = configured(source, PROFILE);
+    s.execute(Command::GotoLine);
+    argument(&mut s, "7");
+    s.execute(Command::Split(Split::Right));
+    s.execute(Command::Window(WindowCommand::Other));
+    let peer = s
+        .windows()
+        .order()
+        .iter()
+        .copied()
+        .find(|id| *id != s.windows().selected_id())
+        .unwrap();
+    let anchor = s.windows().get(peer).unwrap().point.position;
+    s.execute(Command::GotoLine);
+    argument(&mut s, "1");
+    run(&mut s);
+    let expected = source.replace(": x", ": hello 界");
+    assert_eq!(text(&s), expected);
+    assert_eq!(
+        s.windows().get(peer).unwrap().point.position.0,
+        expected[..expected.find("marker").unwrap()].chars().count()
+    );
+    s.execute(Command::History(History::Undo));
+    settle(&mut s);
+    assert_eq!(text(&s), source);
+    assert_eq!(s.windows().get(peer).unwrap().point.position, anchor);
+}
+// Typed argv consumes one literal value and never evaluates it as shell syntax.
+// Compile diagnostics remain inspectable while only final stdout is published.
+#[test]
+fn result_adapter() {
+    let source = "#+BEGIN_SRC plain :var text=\"a b; $(touch injected)\" :results value\nunused adapter input\n#+END_SRC\n";
+    let config = "[[org.source.programs]]\nname='literal'\nlanguage='plain'\nexecutable='/usr/bin/printf'\nargv=['%s','{var:text}']\nresult='value'\ncwd='source'";
+    let (f, mut s) = configured(source, config);
+    run(&mut s);
+    assert_eq!(s.execution_result().unwrap().state, State::Succeeded);
+    assert_eq!(
+        s.execution_result().unwrap().stdout,
+        b"a b; $(touch injected)"
+    );
+    assert!(text(&s).ends_with(": a b; $(touch injected)\n"));
+    assert!(!f.0.join("injected").exists());
+    let source = "#+BEGIN_SRC sh\nprintf value\n#+END_SRC\n";
+    let config = format!("{PROFILE}steps=[{{executable='/bin/sh',argv=['-c','printf compiled']}}]");
+    let (_f, mut s) = configured(source, &config);
+    run(&mut s);
+    assert_eq!(s.execution_result().unwrap().state, State::Succeeded);
+    assert_eq!(s.execution_result().unwrap().stdout, b"compiledvalue");
+    assert!(text(&s).ends_with("#+RESULTS:\n: value\n"));
+}

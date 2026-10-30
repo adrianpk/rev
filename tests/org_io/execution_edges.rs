@@ -40,8 +40,14 @@ fn execute_delivery() {
         let out = s.execution_result().unwrap();
         assert_eq!(out.state, State::Succeeded, "{name}: {}", out.detail);
         assert_eq!(out.stdout, wanted, "{name}");
-        assert_eq!(text(&s), before);
-        assert!(s.buffer().unwrap().history().is_empty());
+        assert_eq!(
+            text(&s),
+            before.replace(
+                ": previous",
+                &format!(": {}", std::str::from_utf8(wanted).unwrap())
+            )
+        );
+        assert_eq!(s.buffer().unwrap().history().len(), 1);
     }
 }
 // Missing tools, nonzero exits and combined output ceilings remain failures;
@@ -115,7 +121,15 @@ fn execute_failures() {
             assert_eq!(out.stderr, b"def");
         }
         assert!(!f.0.join("marker").exists(), "{name}");
-        assert_eq!(text(&s), before, "{name}");
+        assert_eq!(
+            text(&s),
+            if name == "exact" {
+                before.replace(": previous", ": abc")
+            } else {
+                before
+            },
+            "{name}"
+        );
     }
 }
 const LIVE: &str =
@@ -225,7 +239,14 @@ fn execute_noweb() {
         let out = s.execution_result().unwrap();
         assert_eq!(out.state, state, "{name}: {}", out.detail);
         assert_eq!(f.0.join("marker").exists(), name == "resolved");
-        assert_eq!(text(&s), source);
+        assert_eq!(
+            text(&s),
+            if name == "resolved" {
+                source.replace(": previous", ":")
+            } else {
+                source
+            }
+        );
     }
 }
 

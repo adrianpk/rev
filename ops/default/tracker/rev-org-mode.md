@@ -1140,10 +1140,10 @@ Details and exact checks: [Slice 57](../plan/rev-org-mode.md#slice-57-insert-che
 
 - [x] T57.1: Deliver named calls, declared Library of Babel observations and results insertion/replacement as checked edits.
 - [x] T57.2: Retain header/argument semantics, source stamps and confirmation across related block resolution.
-- [ ] T57.3: Verify output/value/table results and reject stale/failed publication without disturbing prior results.
+- [x] T57.3: Verify output/value/table results and reject stale/failed publication without disturbing prior results.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
-Report: [Slice 57](../report/slices/rev-org-mode/slice-57-block-results.md) (drafting).
+Report: [Slice 57](../report/slices/rev-org-mode/slice-57-block-results.md) (reviewing).
 
 ### Slice 58: import native Org feed entries on demand
 

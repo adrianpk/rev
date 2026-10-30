@@ -1,6 +1,6 @@
 # Slice 57: insert checked Org block and call results
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -54,7 +54,13 @@ explicit library reads, canonical unsaved library precedence, call/target eval
 restrictions, and changed-library refusal both before launch and after a real
 job. `cargo test --test configuration source_libraries` also passed, validating
 layer origin, replacement and finite file/path admission. Development Clippy and
-the unchanged source checker pass. Required final validation remains pending.
+the unchanged source checker pass. The eleven result cases and nine existing execution cases now pass. They cover
+output/value/table results, inline replacement, typed argv literals, final-stage
+output, structural result boundaries, shared-view anchors, read-only refusal and
+ordinary history. The boundary driver supplies consent only after successful
+preparation, so refusal itself cannot paste text into source. The real terminal
+case now checks block and named-call publication and physical undo; its required
+controller validation is pending. Full required exact-head validation is pending.
 
 ## Risks and Follow-ups
 

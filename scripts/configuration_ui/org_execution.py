@@ -6,8 +6,9 @@ from .org_exports import choose
 from .support import (BINARY, PTY, close, completed, environment, finish,
                       send, snapshot, step, write)
 
-LINES = ['#+BEGIN_SRC sh', 'printf executed > marker', "printf 'hello'",
-         '#+END_SRC', '#+RESULTS:', ': previous']
+LINES = ['#+NAME: say', '#+BEGIN_SRC sh', 'printf executed > marker', "printf 'hello'",
+         '#+END_SRC', '#+RESULTS: say', ': previous', '',
+         '#+CALL: say()', '#+RESULTS: say', ': old call']
 POLICY = b"org.time.zone='UTC'\n[[org.source.programs]]\nname='shell'\nlanguage='sh'\nexecutable='/bin/sh'\ncwd='source'\n"
 
 
@@ -26,18 +27,28 @@ def journey(root, colored):
         assert not (source.parent / 'marker').exists(), 'export executed source'
         exported = (source.parent / 'output.md').read_bytes()
         assert b'printf executed > marker' in exported
-        goto(session, 2)
+        goto(session, 3)
         step(session, b'\x03\x16e', b'Execute shell')
         assert not (source.parent / 'marker').exists(), 'ran before confirmation'
         step(session, b'no\r', b'cancelled before launch')
         assert not (source.parent / 'marker').exists(), 'decline executed source'
         step(session, b'\x03\x03', b'Execute shell')
         frame = step(session, b'yes\r', b'Source Succeeded')
-        assert exact(frame, LINES)
+        updated = LINES.copy()
+        updated[6] = ': hello'
+        assert exact(frame, updated)
         assert (source.parent / 'marker').read_bytes() == b'executed'
         named(session, 'org-babel-execution-results', b'Execution detail')
         frame = step(session, b'stdout\r', b'hello')
-        assert exact(frame, LINES)
+        assert exact(frame, updated)
+        send(session, b'\x18u', lambda frame: exact(frame, LINES))
+        goto(session, 9)
+        step(session, b'\x03\x03', b'Execute shell')
+        frame = step(session, b'yes\r', b'Source Succeeded')
+        called = LINES.copy()
+        called[10] = ': hello'
+        assert exact(frame, called)
+        send(session, b'\x18u', lambda frame: exact(frame, LINES))
         assert source.read_bytes() == encoded(LINES)
         quiet(session)
         if not colored:

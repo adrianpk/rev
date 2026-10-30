@@ -184,7 +184,8 @@ fn argument(value: &str) -> Result<(), String> {
         && !variable
     {
         return Err(
-            "Source placeholders must be whole {input}, {output} or {workspace} tokens".into(),
+            "Source placeholders must be whole {input}, {output}, {workspace} or {var:name} tokens"
+                .into(),
         );
     }
     Ok(())
