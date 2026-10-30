@@ -1,6 +1,6 @@
 # Slice 62: verify bounded Org work and idle resources
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-org-mode
 Plan: `ops/default/plan/rev-org-mode.md`
 Tracker: `ops/default/tracker/rev-org-mode.md`
@@ -88,11 +88,67 @@ than inferred from leader reap. No process runtime or acceptance budget changed.
 - `examples/configuration_performance/org.rs`: native resource observations.
 - `scripts/configuration_ui/org_performance.py`: isolated fixtures and frozen Org budgets.
 - `scripts/configuration_ui/performance.py`: additive collection through the existing stage.
+- `scripts/configuration_ui/org_resource_terminal.py`: real release timer/view measurements.
+- `scripts/configuration_ui/evidence.py`: same-candidate baseline and Org admission.
+- `tests/org_io/lifetime.rs`: shared bounded descendant-state observation.
 
 ## Validation
 
-Implementation checks are in progress. The approved required command order is
-unchanged. No full delivery gate has run in this slice.
+Required ordered checks passed on clean implementation candidate
+`650d140a0b3654d15f3246cda7ef047acabbd8c2`, controller receipt
+`47AMM4CQMPHRLKWXKUPS66ESVB`:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo test --test org_source --test org_time --test org_agenda --test org_tables --test org_io`
+- `python3 scripts/check-configuration-ui.py --suite performance`
+- `python3 scripts/check-source.py`
+- `git diff --check`
+
+All 522 selected native tests passed: 81 source, 79 time, 97 agenda, 73 tables
+and 192 IO, with zero failures, ignored or filtered tests. Source quality retains
+safe Rust, five parameters, nesting three and cyclomatic ten. The actual complete
+performance log was admitted for the same commit/tree. All thirteen historical
+native workloads and four historical PTY sessions remain admitted, plus six Org
+workloads and one owned Org PTY session, with zero skips.
+
+| Org workload | Maximum sample, ms | Peak RSS, KiB | Retained resident growth, KiB |
+| --- | ---: | ---: | ---: |
+| 1 MiB / 10000 headings | 134.440 | 11200 | 3828 |
+| 256-source agenda | 8.441 | 11200 | 776 |
+| 733-day habit window | 0.009 | 11200 | 48 |
+| 10000-cell dependency chain | 6.906 | 11200 | 880 |
+| Eleven native exports | 2.703 | 11200 | 176 |
+| Sixteen cancellation cycles | 0.037 | 11200 | 208 |
+
+The largest source chunk was 669.302 us, below 10 ms. Native observations saw
+775 actual opens and 778 accesses. Terminal responses peaked at 12.174 ms. All
+ten idle states observed zero output, zero measured CPU and no filesystem reads,
+with one thread, six descriptors and no children. Countdown expiry occurred once.
+Owned restoration, leader reap and descriptor closure passed. The complete warm
+performance stage took 14.658 seconds excluding build, including 5.294 seconds for
+Org. Existing baseline ceilings and the Org 150 ms / 96 MiB / 32 MiB budgets
+remain unchanged. These release observations are separate from debug native tests
+and are not a full-gate result.
+
+Focused controller receipt `UBMRES45DDOSP5JS5ABV4ZYUOG` passed on the same candidate:
+
+- `cargo test --test org_io lifetime -- --nocapture`
+- `python3 scripts/test_acceptance.py`
+- `git diff --check`
+
+Both lifetime tests passed all seven execution/feed modes, observing descendant
+stop in 5.850..8.436 us; the other 190 IO tests were intentionally filtered in
+that focused command. All 20 evidence-checker tests passed. The full required
+command above ran all 192 IO tests without filtering. Earlier focused receipt
+`DMW7INDQCRPFXLDAY5E5TG7GR5` at `768fa497cb624a28a233b630d51f90e27f80c832`
+verified the entrypoint source-quality correction and all 20 checker tests.
+
+Task commits: T62.1 `caf38b6ea4f1`, T62.2 `6d97dc26eadc`, T62.3 `b2f41d52875a`.
+Follow-up fixture and dispatch corrections preserve the approved observable
+assertions and resource ceilings. Final readiness requires fresh required and
+focused evidence on the clean PR-reference candidate; the controller owns merge
+and the unchanged full delivery gate.
 
 ## Risks and Follow-ups
 
