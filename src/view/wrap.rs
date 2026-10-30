@@ -66,10 +66,7 @@ impl<'a> Line<'a> {
             .pending
             .front()
             .map_or(self.column, |g| g.columns.start);
-        loop {
-            let Some(next) = self.glyphs.peek() else {
-                break;
-            };
+        while let Some(next) = self.glyphs.peek() {
             match next {
                 Ok(glyph) if glyph.columns.end - start <= self.width => {}
                 Ok(_) if self.pending.is_empty() => {}

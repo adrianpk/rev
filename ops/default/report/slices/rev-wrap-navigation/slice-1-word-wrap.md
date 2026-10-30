@@ -72,14 +72,21 @@ precedence rather than relying on this shared provenance alone.
 - `cargo test --locked --test wrapping`: passed, six native tests; the observed
   warm test execution took 0.17 seconds, excluding compilation.
 - `cargo test --locked --test commands palette::catalog_reference`: passed.
+- `cargo test --locked --test wrapping --test display --test configuration --test commands`:
+  passed, 339 tests in the first controller batch at
+  `b32f67bb702e9ed411ebb7d38d8aa65d58ec500e`.
+- `cargo clippy --locked --lib -- -D warnings`: that batch failed on the new
+  iterator's loop form. Replaced it with the requested `while let` form before
+  final validation; the batch diagnostics remain in the controller ledger.
 - The earlier display run identified five obsolete no-wrap expectations. They
   now assert both startup policies; the command-catalog failure was corrected
   by documenting the new binding. Assertions were retained for both modes.
 
 The controller records final checks against the clean PR head after its PR
-reference commit. The canonical PR Validation section carries the exact ordered
-commands: formatter, configured wrapping/display/configuration/commands tests,
-focused library Clippy and documentation checks, then `git diff --check`.
+reference commit and lint correction. The canonical PR Validation section carries
+the configured formatter, wrapping/display/configuration/commands tests and
+`git diff --check` in that exact order. A separate exact-HEAD controller batch
+records focused library Clippy and documentation checks, then `git diff --check`.
 These are slice checks; the integrated delivery gate remains controller-owned.
 
 ## Risks and Follow-ups
