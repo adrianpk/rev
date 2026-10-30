@@ -416,6 +416,7 @@ class ConfigurationAcceptanceTests(unittest.TestCase):
             ('ceiling', ['limits', 'peak_rss_kib'], 131072),
             ('fixture', ['fixture_identity', 'files'], 259),
             ('hash', ['fixture_identity', 'sha256'], 'unknown'),
+            ('read control', ['observation', 'work_open_events'], 0),
             ('source', ['native', 0, 'headings'], 9999),
             ('chunk', ['native', 0, 'max_chunk_us'], 10001),
             ('agenda', ['native', 1, 'sources'], 255),
@@ -633,6 +634,7 @@ def org_performance_document():
     idle = dict(elapsed_ms=350, output_bytes=0, cpu_ms=0, open_access_events=0, **owners)
     return dict(candidate={'head': 'a' * 40, 'tree': 'b' * 40}, profile='release',
                 elapsed_ms=4000, limits=LIMITS.copy(), native=rows,
+                observation=dict(work_open_events=260, work_access_events=260),
                 fixture_identity=dict(files=260, entries=264, sha256='a' * 64),
                 terminal=dict(startup_ms=20, peak_rss_kib=8192, restored_reaped_closed=True,
                               expiry_count=1, baseline_owners=owners,

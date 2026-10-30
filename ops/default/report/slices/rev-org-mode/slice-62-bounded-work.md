@@ -45,7 +45,8 @@ maximum was 129.305 ms, largest index chunk 624.601 us, cancellation maximum
 37.860 us and process RSS 11608 KiB. Later checks must cover the added terminal
 observations and final candidate. The first terminal fixture incorrectly selected graph preferences rather than
 opening the habit view. The corrected call uses the shipped show-graph command
-and C-g return, preserving the same closed-view observation and eight-second
+and C-g return. It also uses the existing agenda frame collector, which admits
+a fully drawn hidden-cursor projection as well as a source cursor. This preserves the same closed-view observation and eight-second
 PTY deadline. Source helpers were split by result ownership
 to retain the existing complexity ceiling without exceptions.
 

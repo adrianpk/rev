@@ -83,7 +83,7 @@ def run(native, baseline, candidate):
         from .org_resource_terminal import run as terminal
         terminal_result = terminal(root, baseline)
         assert fingerprint(root) == before, 'Org measurement changed source bytes'
-        return {'candidate': candidate, 'profile': 'release', 'elapsed_ms': round((time.perf_counter() - started) * 1000, 3), 'limits': LIMITS, 'fixture_identity': before, 'native': result['records'], 'terminal': terminal_result}
+        return {'candidate': candidate, 'profile': 'release', 'elapsed_ms': round((time.perf_counter() - started) * 1000, 3), 'limits': LIMITS, 'fixture_identity': before, 'native': result['records'], 'observation': result['observation'], 'terminal': terminal_result}
 
 
 def validate(result, candidate, rate):
@@ -96,6 +96,8 @@ def validate(result, candidate, rate):
     import re
     assert re.fullmatch('[a-f0-9]{64}', identity['sha256']), 'missing Org fixture hash'
     validate_native(result['native'])
+    assert result['observation']['work_open_events'] >= 260
+    assert result['observation']['work_access_events'] >= 260
     terminal = result['terminal']
     assert 0 < terminal['startup_ms'] <= 2000
     assert 0 < terminal['peak_rss_kib'] <= LIMITS['peak_rss_kib']

@@ -2,8 +2,9 @@
 import os
 from pathlib import Path
 import time
-from .support import ROOT, PTY, close, completed, environment, finish, passive, send, step
+from .support import ROOT, PTY, close, completed, environment, finish, passive
 from .terminal_evidence import owned
+from .org_agenda import step
 from .org_time import START, SET, PAUSE, STOP, quiesce
 from .observation import Observation
 
@@ -29,10 +30,6 @@ def idle(session, watch, baseline):
     measured.update(state)
     measured['open_access_events'] = 0
     return measured
-
-
-def named(session, command, marker):
-    return step(session, b'\x1bx' + command.encode() + b'\r', marker)
 
 
 def stage(session, wire, marker):

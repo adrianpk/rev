@@ -11,7 +11,7 @@ import tempfile
 import time
 
 from acceptance import identity
-from configuration_ui.observation import Observation, evidence
+from configuration_ui.observation import Observation, evidence, OPEN, ACCESS
 from configuration_ui.interaction_terminal import run as interaction_terminal
 from configuration_ui.performance_bootstrap import run as bootstrap
 from configuration_ui.performance_terminal import run as terminal
@@ -77,7 +77,8 @@ def native(root, kind, watch, decode=records):
         output, error = process.communicate(b'go\n', timeout=15)
         assert process.returncode == 0, (error[-4000:] + output[-4000:]).decode(errors='replace')
         events = watch.drain()
-        proof = evidence(kind, before, events) if kind != 'org' else {'work_open_access_events': len(events)}
+        proof = evidence(kind, before, events) if kind != 'org' else {'work_open_events': sum(bool(mask & OPEN) for _, mask, _ in events),
+                            'work_access_events': sum(bool(mask & ACCESS) for _, mask, _ in events)}
         assert len(output) + len(prefix) <= 65536, 'native output exceeded 64 KiB'
         return {'records': decode((prefix + output).decode(), kind), 'observation': proof}
     finally:
