@@ -1,14 +1,15 @@
 ---
 id: TKT-20261028224018
 title: Define comfortable long-line wrapping
-status: open
-kind: unclassified
+status: ready
+kind: task
 severity: unclassified
 priority: unclassified
 scope: ui
 tags: wrapping, display, navigation
 source: chat
 reported_at: 2026-10-28T22:40:18Z
+ready_at: 2026-10-30T23:41:32Z
 commits: []
 ---
 
@@ -50,33 +51,34 @@ There is no existing wrap toggle to enable in the delivered configuration.
 Approved by the product owner on 2026-10-28: native word-aware soft wrapping,
 with a visual result comparable to Emacs Visual Line mode, plus an explicit
 no-wrap alternative. Wrapping changes presentation without inserting real
-newlines. This approval does not adopt Emacs's changes to line-editing commands.
-Factory defaults, per-language policy, configuration spelling and keybindings
-remain open decisions.
+newlines. The initial approval covered presentation; the subsequent decisions
+below also adopt the selected Emacs Visual Line command behavior.
+The owner subsequently approved word-aware wrapping enabled by default at the
+pane's available text width, with TOML and M-x controls to disable it. Ordinary
+long text should stay readable without manual activation or routine horizontal
+scrolling. The owner reaffirmed maximum Emacs similarity in keybindings and
+behavior, accepting Visual Line semantics: Up/Down and C-n/C-p move by visual
+rows; C-a/C-e address the visible beginning/end; C-k follows kill-visual-line.
+Structured regions, override lifetime and exact configuration/command spelling
+remain to be finalized.
 
 Use rev's existing configuration and native command model where appropriate.
 Do not introduce an addon, external formatter or plugin requirement. An
 automatic hard-wrap/fill feature is a separate product decision; it must not
 be added implicitly to solve this display problem.
 
-## Decisions required before implementation
+## Accepted delivery contract
 
-- Factory behavior and whether Org, Markdown, plain text and source code use
-  different startup preferences; scope of runtime overrides across views.
-- Viewport wrapping versus an optional configured column; continuation
-  indentation/markers, unbroken tokens, tabs, wide graphemes and tiny panes.
-- Logical versus visual behavior of Up/Down, C-n/C-p, C-a/C-e, C-k and their
-  native command identities. Do not silently import all Emacs Visual Line
-  editing semantics merely because its display is a reference.
-- Interaction with shared buffers, splits/resizes, horizontal scrolling,
-  pointer hit testing, selection, rectangles, searches and goto-line.
-- Existing absolute/relative gutter numbers retain logical source-line
-  identities. A continuation row must not invent another document line.
-- Org folded projections, list/heading indentation and source-preserving
-  table editing must remain coherent. Coordinate later modal editing rather
-  than defining competing motion or selection owners.
-- Bound layout and input work on very long logical lines; preserve the
-  delivered navigation responsiveness and normal cancellation.
+The accepted specification fixes editor.soft_wrap = true, pane-width breaks,
+M-x visual-line-mode with buffer-local lifetime across all views, Visual Line
+motion/editing, grapheme-safe long-token continuation and source-preserving Org
+wrapping without implicit table/source-block no-wrap exceptions. Gutter labels
+and rectangle rows/columns retain logical source identities. The implementation
+must enforce the specified bounded cache and record bounded work measurements.
+
+This ticket is ready. Slices 1-3 build shared display/input behavior; Slice 4
+owns full wrap acceptance and the ticket lifecycle in the single
+[Wrap and Navigation delivery](../../plan/rev-wrap-navigation.md).
 
 ## Validation direction and delivery boundary
 
@@ -86,12 +88,12 @@ Enabling or disabling visual wrap alone must not change document bytes, dirty
 state or undo history. An explicit future fill operation would require its own
 source-edit contract.
 
-This ticket records the approved visual direction with unresolved editing and
-configuration details. The [Word-Aware Soft Wrapping specification](../../spec/editor-soft-wrap.md)
+This ticket records the accepted wrapping and Emacs interaction contract. The [Word-Aware Soft Wrapping specification](../../spec/editor-soft-wrap.md)
 and its model now capture the coordinated proposal. Reconcile the delivered
-no-wrap contracts and close the listed decisions before implementation planning.
-This ticket stays open; no slices or new delivery cycle are created. Scheduling
-is not assigned.
+no-wrap contracts during implementation under the approved plan.
+This ticket is ready for the selected delivery. It belongs
+to the selected five-topic future interaction delivery, with soft wrap first;
+no slice map or controller is created by this update.
 
 ## References
 

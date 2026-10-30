@@ -3,26 +3,29 @@
 Status: proposed
 Date: 2026-10-31
 Scope: pending behavior after the completed native Org delivery
-Owner decision: directory opening is first; other ordering remains proposed
+Owner decision: soft wrapping first; the five interaction topics belong to one future Looper cycle
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
 linked artifacts retain their own status. Capturing and versioning a proposal
 does not approve its open decisions or start implementation.
 
+Emacs similarity in keybindings and behavior remains the interaction guide.
+Use its equivalent behavior where applicable; preserve explicit rev product
+decisions and identify cases where rev has no direct Emacs counterpart.
+
 ## Complete inventory
 
-The fifteen topics below are pending. Broad capabilities have draft specs and
-models; bounded navigation requests remain individual open tickets under one
+The fifteen topics below are pending. Broad capabilities have specs and models with explicit states; bounded navigation requests retain their individual tickets under one
 shared behavior contract. No topic is marked delivered by this documentation.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/open/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Draft/open. Accept-versus-descend gesture and full root-policy precedence. First priority selected by the owner. |
-| Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/open/20261028153707-expand-file-tree-root-on-first-display.md) | Draft/open. First level only; retain deliberate later collapse. Coordinate with directory opening. |
-| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/open/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Draft/open. Selected/default-first candidate, continued directory completion and separate final acceptance; reconcile delivered UI03. |
-| Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/open/20261030231016-select-the-clicked-file-tree-entry.md) | Draft/open. Selection requested; same-click activation and any preference remain undecided. |
-| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/open/20261028224018-define-comfortable-long-line-wrapping.md) | Draft/open. Visual direction approved; defaults, motions, structured Org regions and display limits remain open. No hard newline insertion. |
+| Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/ready/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Accepted spec / ready ticket. Final directory acceptance and root precedence are defined; Slice 5 owns delivery. |
+| Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/ready/20261028153707-expand-file-tree-root-on-first-display.md) | Accepted spec / ready ticket. First level only; retain deliberate later collapse. Coordinate with directory opening. |
+| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/ready/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Accepted spec / ready ticket. Selected/default-first candidate, continued directory completion and separate final acceptance; reconcile delivered UI03. |
+| Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/ready/20261030231016-select-the-clicked-file-tree-entry.md) | Accepted spec / ready ticket. Dired-style native activation by default, configurable selection-only; Slice 7 owns delivery. |
+| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/ready/20261028224018-define-comfortable-long-line-wrapping.md) | Accepted spec / ready ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 own delivery. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md) | Draft. Naming/scope, edit anchors, navigation, persistence and marker collision policy. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md) | Draft. Native UI; operational LSP preferred, Tree-sitter fallback, no ctags. Trigger/coverage/index scope and limits remain open. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md) | Draft. Completion first; protocol, launch/sharing, synchronization, encoding and failure limits remain open. |
@@ -36,22 +39,20 @@ shared behavior contract. No topic is marked delivered by this documentation.
 
 ## Proposed execution order
 
-Only directory opening's first position is an owner decision. The remaining
-positions retain the earlier recommendation; they are not an approved delivery
-set, slice count or instruction to launch Looper.
+The owner selected these five interaction topics for one future Looper cycle,
+with soft wrapping first:
 
-1. File/directory opening, coordinated with first-level expansion and selected
-   Tab completion through the shared navigation contract.
-2. Native bookmarks.
-3. Native completion and its Tree-sitter path.
-4. Optional LSP client, integrated with completion source switching.
-5. Language-server installation and discovery.
-6. AI commands with independent native API and optional Pi execution paths.
+1. Word-aware soft wrapping.
+2. File/directory opening.
+3. Initial tree-root expansion.
+4. Highlighted path completion with Tab.
+5. Clicked tree-entry selection.
 
-Tree pointer selection, soft wrapping, modal editing, heading presentation and
-integrated terminals have no assigned position yet. Their dependencies below
-allow a later scheduling decision without implying they must wait for AI.
-External extensions have no implementation commitment or assigned position.
+The [Wrap and Navigation plan](plan/rev-wrap-navigation.md) and
+[tracker](tracker/rev-wrap-navigation.md) define the approved eight-slice map
+for one autonomous Looper cycle. The owner requested startup.
+The other capabilities retain proposed scheduling only; external extensions
+remain optional exploration without an implementation commitment.
 
 ## Actual dependencies
 
@@ -61,8 +62,8 @@ The proposed order is not a chain of prerequisites.
   AI experience and eventual terminal launch defaults. It does not grant AI
   permission to transmit content or settle file-only discovery boundaries.
 - First expansion and Tab completion share navigation observations with
-  directory opening. Tree-click activation is an independent product choice;
-  do not silently select an activation default while implementing navigation.
+  directory opening. Tree clicking follows the accepted activation preference;
+  retain its checked row identity independently of root initialization.
 - Bookmarks reuse the existing gutter and canonical location/edit owners.
   They are not prerequisites for completion, LSP, AI or modal jump history.
 - Native completion owns the shared UI, checked edits and Tree-sitter source.
@@ -90,10 +91,11 @@ The proposed order is not a chain of prerequisites.
 
 ## Readiness and next planning boundary
 
-All twelve capability specs and their twelve models remain drafts; all five
-linked tickets remain open. The artifacts now capture behavior, ownership,
-failure/validation direction, dependencies and explicit unresolved decisions.
-There is no new plan, tracker, slice allocation or controller configuration.
+The soft-wrap and file-navigation specifications and models are accepted; all
+five selected tickets are ready. The approved plan/tracker own their eight-slice
+implementation and joint gate. The other ten capability specs/models retain
+their existing draft state, including optional external-program exploration.
+No runtime implementation or successful delivery gate is claimed by preparation.
 
 Before planning a selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope

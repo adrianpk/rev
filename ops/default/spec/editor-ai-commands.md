@@ -9,7 +9,7 @@ Source: product-owner AI Commands proto-specification; prerequisite, optional Pi
 Model: [AI Commands Model](editor-ai-commands-model.md)
 Baseline: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Required directory context: [Directory Opening](../ticket/open/20261028094803-open-directory-targets-from-cli-and-find-file.md)
+Required directory context: [Directory Opening](../ticket/ready/20261028094803-open-directory-targets-from-cli-and-find-file.md)
 Optional enrichment: [Language Server Support](editor-language-server-support.md)
 Optional harness backend: [Pi Integration](editor-ai-pi-integration.md)
 Delivery boundary: future AI delivery; no implementation or slicing authorized.

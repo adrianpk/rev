@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028094803
 title: Open directories from startup and find-file
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: files, directories, tree
 source: chat
 reported_at: 2026-10-28T09:48:03Z
+ready_at: 2026-10-30T23:41:32Z
 commits: []
 ---
 
@@ -96,8 +97,8 @@ all paths have been tested. They identify the existing owners to reconcile.
 - Accepting a directory through C-x C-f shows the same expanded browsing
   context; C-x t t initializes expansion correctly in ordinary file sessions.
 - Make accepting a directory and navigating within it usable and unambiguous.
-  Retain completion; settle the exact accept-versus-descend interaction before
-  implementation without inventing a new shortcut family during capture.
+  Return accepts a directory as the final opening target; Tab completes/descends
+  while retaining the prompt. Keep the two actions distinct.
 - Distinguish automatic file-parent rooting from an explicit directory root.
   Verify nested files and later changes of the explicit root.
 - Keep canonical buffer reuse and checked alias/symlink handling; directory
@@ -109,6 +110,6 @@ all paths have been tested. They identify the existing owners to reconcile.
 ## Delivery boundary
 
 The shared [File and Directory Navigation specification](../../spec/editor-file-navigation.md)
-captures directory identity, root precedence and prompt acceptance. Settle its
-remaining choices before implementation planning. This ticket stays open;
-versioning the proposal does not implement it or alter completed Org records.
+fixes directory identity, root precedence and prompt acceptance. This ticket
+is ready and owned by Slice 5 of [Wrap and Navigation](../../plan/rev-wrap-navigation.md).
+Versioning readiness does not implement it or alter completed Org records.

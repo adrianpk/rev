@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028170748
 title: Complete the highlighted find-file path with Tab
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: completion, paths, minibuffer
 source: chat
 reported_at: 2026-10-28T17:07:48Z
+ready_at: 2026-10-30T23:24:55Z
 commits: []
 ---
 
@@ -100,6 +101,7 @@ Use that behavioral reference without importing its implementation stack.
 ## Delivery boundary
 
 The shared [File and Directory Navigation specification](../../spec/editor-file-navigation.md)
-owns NAV04 and the distinction between completion and opening. This ticket
-stays open. Runtime changes and UI03 reconciliation belong to later approved
-implementation; historical delivery records remain intact.
+owns NAV04 and the distinction between completion and opening. This ticket is
+ready: selected-candidate Tab behavior is defined independently of the final
+directory-acceptance gesture. Runtime changes and UI03 reconciliation belong to
+the selected joint delivery; historical delivery records remain intact.

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028153707
 title: Show the file-tree root expanded on first display
-status: open
+status: ready
 kind: task
 severity: unclassified
 priority: unclassified
@@ -9,6 +9,7 @@ scope: ui
 tags: tree, navigation, directories
 source: chat
 reported_at: 2026-10-28T15:37:07Z
+ready_at: 2026-10-30T23:24:55Z
 commits: []
 ---
 
@@ -73,6 +74,7 @@ change to the initial policy, not evidence of a newly reproduced runtime fault.
 ## Delivery boundary
 
 The shared [File and Directory Navigation specification](../../spec/editor-file-navigation.md)
-owns NAV03 and the related directory-opening interaction. This ticket stays
-open; versioning it does not implement the change or alter completed delivery
-records.
+owns NAV03 and the related directory-opening interaction. This ticket is ready:
+first-display behavior and acceptance cases are defined. The accepted
+navigation policies preserve this independent initialization behavior. Implementation belongs to
+the selected joint delivery; no runtime change is claimed by this transition.
