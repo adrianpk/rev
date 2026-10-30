@@ -1143,7 +1143,12 @@ Details and exact checks: [Slice 57](../plan/rev-org-mode.md#slice-57-insert-che
 - [x] T57.3: Verify output/value/table results and reject stale/failed publication without disturbing prior results.
 - [ ] Record exact-head validation, canonical PR/report and verified dev integration.
 
+Canonical PR: [#158](https://forge.adrianpk.com/adrianpk/rev/pulls/158).
 Report: [Slice 57](../report/slices/rev-org-mode/slice-57-block-results.md) (reviewing).
+Pre-PR required receipt `QXUOLVUPGFOZ3LDB4XAVHPMD5W` passed five checks and
+482 tests. Terminal receipt `QDDKAM7NKY3KMHNV52YEPAH6DC` passed both owned
+sessions. Fresh PR-head evidence and controller-owned integration remain to be
+recorded.
 
 ### Slice 58: import native Org feed entries on demand
 
