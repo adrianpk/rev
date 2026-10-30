@@ -156,6 +156,21 @@ fn stopped(pid: &str) -> bool {
     std::fs::read_to_string(format!("/proc/{}/stat", pid.trim()))
         .map_or(true, |s| s.split_once(") ").unwrap().1.starts_with('Z'))
 }
+fn descendant_stopped(pid: &str, mode: &str) {
+    // A successful group signal and leader reap do not synchronize the kernel's
+    // descendant state transition. Observe that same required stopped state
+    // within the existing 150 ms response budget, without a blind grace sleep.
+    let started = Instant::now();
+    let deadline = started + Duration::from_millis(150);
+    while !stopped(pid) {
+        assert!(Instant::now() < deadline, "{mode}: descendant running");
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    eprintln!(
+        "{mode}: descendant stop observed in {:?}",
+        started.elapsed()
+    );
+}
 // Cancel, timeout and session drop stop only the owned process group. The direct
 // child is reaped, descendants stop, private directories disappear and idle ends.
 #[test]
@@ -214,7 +229,7 @@ fn execute_lifetime() {
             !std::path::PathBuf::from(format!("/proc/{}", leader.trim())).exists(),
             "{mode}: leader not reaped"
         );
-        assert!(stopped(&descendant), "{mode}: descendant running");
+        descendant_stopped(&descendant, mode);
         assert!(!Path::new(&home).exists(), "{mode}: private HOME remains");
     }
 }
