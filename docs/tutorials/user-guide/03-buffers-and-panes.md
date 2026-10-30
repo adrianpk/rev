@@ -5,8 +5,8 @@ put both files on screen.
 
 ## Open another file
 
-Press `C-x C-f`, type `todo.txt` and press Enter. Type a short reminder and
-save it with `C-x C-s`.
+Press `C-x C-f`, type `todo.txt` and press Enter. Type `Check the forecast.`
+and save it with `C-x C-s`.
 
 Both files now have live buffers: rev's in-memory copies of their text.
 Switching files does not close or save the other buffer.
@@ -21,6 +21,15 @@ initially show the same buffer.
 
 Press `C-x o` to select the other pane. Use `C-x b`, enter `todo.txt` and press
 Enter. You can now see the notes and reminder together.
+
+The two panes contain the following text. This sketch labels each pane with
+its filename and omits gutters and status details:
+
+```text
+notes.txt              │ todo.txt
+Pack the notebook.     │ Check the forecast.
+Bring a pencil.        │
+```
 
 Edits belong to the buffer. If both panes show the same buffer, a change in
 one appears in the other, while each pane keeps its own cursor and scroll.

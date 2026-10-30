@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" data-edition-appearance="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@meta[key = title] · rev User Guide</title>
+<script src="@asset[path = "appearance.js"]"></script>
+<link rel="stylesheet" href="@asset[path = "book.css"]">
+</head>
+<body class="spore-edition">
+<div class="spore-appearance-picker" role="group" aria-label="Reading appearance" data-edition-appearance-open="false">
+<button type="button" class="spore-appearance-swatch spore-appearance-swatch--parchment" data-edition-appearance-choice="parchment" aria-label="Parchment" title="Parchment" aria-pressed="false"></button>
+<button type="button" class="spore-appearance-swatch spore-appearance-swatch--paper" data-edition-appearance-choice="paper" aria-label="Paper" title="Paper" aria-pressed="false"></button>
+<button type="button" class="spore-appearance-swatch spore-appearance-swatch--night" data-edition-appearance-choice="night" aria-label="Night" title="Night" aria-pressed="true"></button>
+</div>
+<a class="spore-skip-nav" href="#spore-content">Skip to content</a>
+<header class="spore-header"><nav aria-label="Primary"><a href="/">rev</a> · <a href="/userguide/">User Guide</a> · <a href="/userguide/org/">Org mode</a></nav></header>
+<main id="spore-content" class="spore-book" data-prose-alignment="@prose-alignment">@breadcrumb@content</main>
+<nav class="spore-document-navigation" aria-label="Document">@previous @up @next</nav>
+<footer class="spore-colophon">Built with <a href="https://forge.adrianpk.com/adrianpk/spore">Spore</a></footer>
+</body>
+</html>

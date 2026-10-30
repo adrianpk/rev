@@ -5,7 +5,13 @@ Use `notes.txt` to find a word, replace it and visit a line by command name.
 ## Find text
 
 Move to the beginning of the first line. Press `C-s` and type `notebook`.
-rev highlights the match as you type. Press Enter to stay there.
+rev highlights the match as you type. The search prompt reads:
+
+```text
+I-search: notebook
+```
+
+Press Enter to stay there.
 
 During a search, `C-s` finds the next match and `C-r` searches backward.
 `C-g` cancels the search and restores your starting position.
@@ -19,13 +25,32 @@ On many keyboards this is Alt-Shift-5.
 2. Enter `journal`, then press Enter.
 3. Press `y` to replace the highlighted occurrence.
 
+The first line now reads:
+
+```text
+Pack the journal.
+```
+
 If there are more matches, `n` skips one and `q` stops. `C-x u` undoes one
 accepted replacement. Save the result with `C-x C-s`.
 
 ## Run a named command
 
-Press `M-x`, type `goto-line` and press Enter. At `Goto line:`, enter `2` and
-press Enter. The cursor moves to the second line.
+Press `M-x` and type `goto`. The prompt and matching command appear together:
+
+```text
+M-x goto
+goto-line
+```
+
+Press Tab to complete `goto-line`, then Enter to run it. At `Goto line:`,
+enter `2`:
+
+```text
+Goto line: 2
+```
+
+Press Enter. The cursor moves to the second line.
 
 M-x shows matching commands vertically. Up/Down selects a candidate; Tab
 completes it and Enter runs it. `C-g` leaves without running a command.

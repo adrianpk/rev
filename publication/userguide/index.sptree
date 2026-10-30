@@ -1,0 +1,16 @@
+@book[id = "rev-user-guide"]{
+  @part[id = "Everyday editing", opening = "guide-index"]{
+    @page[id = "guide-01-first-file"]
+    @page[id = "guide-02-edit-text"]
+    @page[id = "guide-03-buffers-and-panes"]
+    @page[id = "guide-04-search-and-commands"]
+    @page[id = "guide-05-file-tree"]
+    @page[id = "guide-09-preferences"]
+  }
+
+  @part[id = "Org mode", opening = "guide-org-index"]{
+    @page[id = "guide-06-org-notes"]
+    @page[id = "guide-07-org-tasks-and-agenda"]
+    @page[id = "guide-08-org-tables"]
+  }
+}

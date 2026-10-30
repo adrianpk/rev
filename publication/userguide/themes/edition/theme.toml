@@ -1,0 +1,12 @@
+format_version = 1
+name = "edition"
+version = "1.0.0"
+targets = ["html"]
+
+[templates]
+html = "templates/book.html.spt"
+
+[assets]
+"appearance.js" = { source = "scripts/appearance.js", output = "assets/edition/appearance.js" }
+"book.css" = { source = "styles/book.css", output = "assets/edition/book.css" }
+"numberpile-reversed.woff2" = { source = "fonts/numberpile-reversed.woff2", output = "assets/edition/numberpile-reversed.woff2" }

@@ -21,10 +21,22 @@ Bring a pencil.
 Press Enter between the lines. The modified marker `**` means the buffer has
 changes to save. The file does not exist on disk until you save it.
 
+At the left of the status line, you will see:
+
+```text
+> notes.txt ** RW
+```
+
 ## Save
 
 Press `C-x C-s`: hold Control and press x, then hold Control and press s.
 The message area reports `Saved`, and `**` changes to `--`.
+
+That part of the status line now reads:
+
+```text
+> notes.txt -- RW
+```
 
 Throughout this guide, `C-` means Control and `M-` means Alt/Meta.
 Keys separated by spaces are pressed in sequence. `M-x`, for example, means

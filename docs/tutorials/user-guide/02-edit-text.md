@@ -16,9 +16,11 @@ Press `C-SPC` to set the mark, then `C-e` to select the line's text.
 The region between the mark and cursor is highlighted.
 
 Press `M-w` to copy it. Move to the end of the second line and press Enter,
-then `C-y` to insert the copied text. A third line now reads:
+then `C-y` to insert the copied text. The buffer now contains:
 
 ```text
+Pack the notebook.
+Bring a pencil.
 Pack the notebook.
 ```
 

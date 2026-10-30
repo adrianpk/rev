@@ -25,6 +25,16 @@ Move to the `* Trip` heading and press Tab. Its body and child headings fold
 away. Press Tab again to show its child headings, then again to show the
 complete subtree.
 
+After the first Tab, that part of the buffer shows:
+
+```org
+* Trip
+* Notes
+Check the forecast before leaving.
+```
+
+The `Trip` heading remains visible, while its text and children are hidden.
+
 Tab acts on a heading or drawer, so place the cursor on the heading line for
 this exercise. To cycle visibility across the whole document, use Shift-Tab.
 `M-x org-show-all` restores all source in the current pane.

@@ -1,0 +1,17 @@
+format_version = 1
+
+[project]
+name = "rev User Guide"
+main_tree = "index.sptree"
+
+[render]
+targets = ["html"]
+output_directory = "public"
+public_base_path = "/userguide"
+
+[book]
+theme = "edition"
+prose_alignment = "start"
+
+[paths]
+exclude = [".spore/**", ".spore-manifest.json", "public/**", "downloads/**", "_fragments/**"]

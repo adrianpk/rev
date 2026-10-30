@@ -33,6 +33,15 @@ an already running session. If you set `XDG_CONFIG_HOME`, the file is
 Run `M-x gutter-set-line-numbers-relative`. Other lines show their distance
 from the cursor; the current line keeps its absolute number.
 
+With the cursor on line 2, the number column changes like this:
+
+```text
+Absolute    Relative
+1 │         1 │
+2 │         2 │
+3 │         1 │
+```
+
 Run `M-x gutter-set-line-numbers-absolute` to restore the default presentation.
 These commands affect this pane for the session. They do not write settings.
 
