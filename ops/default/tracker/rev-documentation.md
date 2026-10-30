@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 3 - v0.1.0 documentation closure
+Active slice: Slice 3 - v0.1.0 documentation closure; reviewing
 Plan: [Documentation Plan](../plan/rev-documentation.md)
 Gate: `scripts/check-documentation.sh && git diff --check`
 Execution: one autonomous Looper cycle; the controller owns PR merges and tracker progression
@@ -28,8 +28,8 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | T1.2 | Align README/indexes, add native Rust/Bash checks and record Slice 1 evidence. | T1.1 | completed | entries `0c207ece72388bac167fed080351a65890b34a4a`; native checks `53641811317a5545ee306f147f8bf5d6a9429aaf` | Receipt `E5KZ2QKMPB33LEFR44KLTMDIUW`: six ordered checks passed on the integrated candidate. |
 | T2.1 | Separate Org commands, bindings and settings, with focused task/reference entries. | Slice 1 integrated. | completed | `8a8dfd94b1fe6c2b740dc9fb35f8870784dfd3bf` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: complete inventories, 58 reachable pages, 320 links/anchors and eleven legacy destinations. |
 | T2.2 | Adapt split-catalog guards, validate both reference areas and record Slice 2 evidence. | T2.1 | completed | `9c7d8d0deb7f2d1496027d97772dfcacca0d4b04` | Receipt `7MY7XWGOBP6OFKET2VGMDKV5TO`: all five ordered checks passed on the integrated candidate. |
-| T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | in progress | pending | Source/guide/changelog audit; version/date consistency. |
-| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | pending | pending | Exact-candidate documentation gate; reports and tracker consistency. |
+| T3.1 | Reconcile the delivered product and prepare balanced 0.1.0 release notes. | Slice 2 integrated. | reviewing; integration pending | `bda1c338ff36b1680da768c95f108648d2862d28` | Source/guide/changelog reconciliation; Cargo 0.1.0 and actual preparation date 2026-10-30 agree. |
+| T3.2 | Finish ergonomic review, run the selected gate and record documentation closure. | T3.1 | reviewing; integrated gate pending | record report-introduction commit in PR follow-up | Cross-quadrant consistency checked; exact-HEAD documentation checks required before handoff and integrated gate required before closure. |
 
 ## Slice integration
 
@@ -37,7 +37,7 @@ Execution: one autonomous Looper cycle; the controller owns PR merges and tracke
 | --- | --- | --- | --- | --- |
 | Slice 1 | delivered | `#168` | `01f03f00729f4465d3d853ee68fd9c30aa26c7cf` | delivered |
 | Slice 2 | delivered | `#169` | `b9b572642ddf069113e7eb0c186eda72602e5208` | delivered |
-| Slice 3 | active | pending | pending | not created |
+| Slice 3 | reviewing; controller integration pending | pending | pending | reviewing |
 
 ## Delivery acceptance
 

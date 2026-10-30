@@ -94,6 +94,5 @@ documentation checks; executable examples are unchanged.
 
 ## Risks and Follow-ups
 
-Slice 3 reconciles v0.1.0 documentation and the changelog after this slice
-integrated through PR #169. Slice 3 is active; subsequent PR integration
-remains controller-owned.
+Slice 2 integrated through PR #169. Slice 3 reconciles v0.1.0 documentation
+and the changelog; subsequent PR integration remains controller-owned.

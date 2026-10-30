@@ -1,0 +1,91 @@
+# Slice 3: v0.1.0 Documentation
+
+Status: reviewing
+Delivery set: rev-documentation
+Plan: `ops/default/plan/rev-documentation.md`
+Tracker: `ops/default/tracker/rev-documentation.md`
+Branch: `docs/rev-documentation-03-v0.1.0`
+PR: pending
+
+## Purpose
+
+Prepare accurate initial-version notes and documentation for the delivered
+editor and native Org features, with clear independent learning paths.
+
+## Delivered Behavior
+
+- CHANGELOG has an empty Unreleased section above `0.1.0 - 2026-10-30`.
+  Notes group everyday editing, configuration, input/display behavior and Org
+  features into user outcomes with links to supporting references.
+- Documentation and User Guide entries identify version 0.1.0. Core editing
+  remains a six-chapter path; Org keeps its separate guide and complete catalogs.
+- Startup configuration creation is described consistently. Rust grammar
+  highlighting and native Org coloring have distinct, accurate explanations;
+  Org palette links point to their actual owner.
+- Existing practical examples, file-only CLI behavior, default tree behavior,
+  startup-only preferences and catalog coverage remain intact.
+
+## Implementation Notes
+
+T3.1 is `bda1c338ff36b1680da768c95f108648d2862d28`.
+
+The changelog was reconciled with the User Guide, reference pages, compiled
+command/configuration inventories and current source. Notes cover text, files,
+buffers, panes, history, selections, commands, search, file navigation,
+configuration, presentation/input and all delivered Org feature areas. Repeated
+development-stage prose and shortcut inventories were consolidated into reader
+outcomes. Existing meaningful fixes remain visible.
+
+The preparation date is the actual local date, 2026-10-30. Cargo already declares
+0.1.0, so package metadata stays unchanged. Canonical tag discovery returned no
+existing tags; the notes do not invent an earlier release.
+
+The four documentation quadrants retain their distinct purposes. Tutorials lead
+through small files, task guides cover specific operations, references own exact
+commands/settings and explanations describe the editing and Org models. Index
+links, chapter order and legacy destinations remain protected by the native
+checker. No executable example or terminal procedure changed.
+
+## Contracts Added or Changed
+
+The versioned notes describe actual delivered behavior. Startup creates the
+default configuration only when absent; configuration edits require restart.
+Rust uses the bundled grammar, while Org uses native source coloring. Core
+references link to additional Org contexts instead of claiming one page owns
+the entire keyboard interface.
+
+The accepted command/schema sets and validation policy are unchanged.
+
+## Files of Interest
+
+- `CHANGELOG.md`: consolidated initial-version notes and retained Unreleased.
+- `docs/index.md` and `docs/tutorials/user-guide/index.md`: versioned reader entries.
+- `docs/reference/defaults.md` and `syntax.md`: reconciled source/display behavior.
+- `ops/default/tracker/rev-documentation.md`: task and integration evidence.
+
+## Validation
+
+Version/date consistency was checked against Cargo metadata and the actual
+preparation date. The source-backed reconciliation retained file-only launch,
+the hidden initial tree, Rust/Org highlighting and startup-only settings.
+Practical code blocks are unchanged; no terminal fixture was needed.
+
+The controller records these commands in order against the clean candidate:
+
+- `scripts/check-documentation.sh`
+- `git diff --check`
+
+The required Bash driver checks links, heading anchors, reachability, both
+learning paths, legacy destinations, 304 commands in each combined inventory,
+178 configuration entries and the native command/configuration references.
+PR-reference follow-up changes require a fresh exact-HEAD receipt.
+
+These are documentation checks. The controller owns the delivery gate on the
+integrated candidate and subsequent documentation closure. The full release
+gate, main integration, tags and publication remain a separate authorized stage.
+
+## Risks and Follow-ups
+
+Keep the delivery set in progress until the controller supplies successful
+integrated-candidate gate evidence. The prepared 0.1.0 section does not create
+a version tag or published release.
