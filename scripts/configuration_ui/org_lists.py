@@ -73,6 +73,7 @@ def list_journey(session, source, goto, document):
     action(b'\x03#', 'org-update-statistics-cookies', LINES)
     goto(session, 17)
     send(session, b'\x03\x03', lambda frame: exact(frame, LINES)
-         and 'No Org checkbox' in canvas(frame)[24] and b'-- RW --' in frame)
+         and canvas(frame)[24].rstrip() == 'Literal block, macro or unsupported context; source unchanged'
+         and b'-- RW --' in frame)
     step(session, b'\x18\x13', b'Saved')
     assert source.read_bytes() == SOURCE, 'list operations changed BOM/CRLF/EOF bytes after undo'
