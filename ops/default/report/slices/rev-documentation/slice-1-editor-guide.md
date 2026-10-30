@@ -1,11 +1,12 @@
 # Slice 1: Everyday Editor Guide
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-documentation
 Plan: `ops/default/plan/rev-documentation.md`
 Tracker: `ops/default/tracker/rev-documentation.md`
 Branch: `docs/rev-documentation-01-editor`
 PR: `#168`
+Integrated commit: `01f03f00729f4465d3d853ee68fd9c30aa26c7cf`
 
 ## Purpose
 
@@ -78,6 +79,11 @@ Split-catalog completeness adaptation remains T2.2.
 
 ## Validation
 
+Controller receipt `E5KZ2QKMPB33LEFR44KLTMDIUW` passed all six ordered
+handoff commands below for the exact integrated commit
+`01f03f00729f4465d3d853ee68fd9c30aa26c7cf`: 53 reachable pages, 255 local
+links/anchors and four regression tests. Canonical PR #168 is verified merged.
+
 - `cargo test --example documentation-check` passed during implementation:
   four tests cover Markdown literals, missing targets/anchors, orphan pages
   and rejection of navigation crossing between the two learning paths.
@@ -105,4 +111,4 @@ changed. The combined documentation gate runs after all three slices integrate.
 The shared command, binding and configuration references still contain Org
 material. Their extraction and completeness-guard updates belong to Slice 2.
 The v0.1.0 changelog and final documentation gate belong to Slice 3. This report
-records a review candidate; the slice is not yet integrated into dev.
+records Slice 1 delivered through PR #168 on dev.

@@ -7,7 +7,7 @@ Slice strategy: behavior-first
 Planning baseline: `0301d34d9f2d43e3ad5247fa0671a7dbaf65fe7b`
 Target version: `0.1.0`
 Approved: product owner, 2026-10-30; one autonomous Looper cycle for all three slices, including controller-owned Rebase + Fast-forward merges into dev
-Active slice: Slice 1 - Everyday editor guide; reviewing in PR #168
+Active slice: Slice 2 - Independent Org documentation
 Tracker: [Documentation Tracker](../tracker/rev-documentation.md)
 
 ## Outcome
@@ -251,18 +251,10 @@ Native checker/driver creation belongs to Slice 1; split-reference checker/test
 adaptation belongs to Slice 2. No optional feature work is bundled with the
 documentation.
 
-## Retained Slice 1 handoff
+## Slice 1 integration
 
-Slice 1 already has two implementation commits on its exact configured branch,
-`docs/rev-documentation-01-editor`, and canonical PR #168 targeting dev. Its
-current published head is `0c207ece72388bac167fed080351a65890b34a4a`; T1.1 is
-`4f8c8dc13d169fbbcb13f2477b5f828b8067ddfb`. Reconcile live state before acting.
-Reuse that PR and its dedicated worktree. Preserve its implementation/history;
-do not create a replacement PR or count it integrated before controller checks.
-
-Bring the current approved plan/tracker into that branch, keeping these updated
-Looper and Rust/Bash requirements when resolving operational-document conflicts.
-T1.1's content can be retained after verification. T1.2 remains active until the
-native checker/driver, Rust-based PR/report validation and exact-HEAD controller
-evidence are ready. Finish PR-reference metadata before returning pr_ready.
-The controller owns merges and subsequent tracker progression for all slices.
+Slice 1 integrated through canonical PR #168 at
+`01f03f00729f4465d3d853ee68fd9c30aa26c7cf`. Controller receipt
+`E5KZ2QKMPB33LEFR44KLTMDIUW` passed the six ordered checks for that exact
+candidate. The original task history and report introduction remain intact.
+The controller owns subsequent PR integration. Slice 2 is now active.
