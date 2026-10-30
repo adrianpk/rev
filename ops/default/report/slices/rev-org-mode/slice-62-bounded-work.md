@@ -56,9 +56,19 @@ read controls and actual cleanup are mandatory. Negative fixtures reject stale
 identity, missing/duplicated/reordered work, changed ceilings, fabricated completion
 counts, continuing CPU, timer repetition and leaked process resources. The earlier
 thirteen native workloads, four PTY sessions and every baseline budget remain
-unchanged. Expected additional warm resource cost is about six seconds; the
-actual complete performance-stage cost will be recorded after measurement. The
+unchanged. The first complete release performance stage measured 14.643 seconds excluding
+build, including 5.260 seconds of additional Org measurements. The
 approved complete-gate target remains three to six warm minutes.
+
+The required implementation run passed all 522 selected native tests and the
+complete historical/Org performance stage, then correctly rejected entrypoint
+complexity 11. Argument parsing and workload dispatch are now separate owners;
+no source-quality rule or resource limit changed. Measurements use Linux
+7.2.2-arch1-1 on x86_64, Ryzen 5 7430U, 12 logical CPUs, 14.54 GiB RAM,
+Rust 1.98.0, release profile and an 80 by 24 terminal. Raw receipts retain
+native samples, CPU ticks, RSS, fixture fingerprints and exact commit/tree.
+The full delivery gate was not run; the warm target above is not a measured
+full-gate result.
 
 ## Contracts Added or Changed
 

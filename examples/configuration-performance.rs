@@ -66,13 +66,17 @@ fn main() -> Result<()> {
     let args: Vec<_> = std::env::args_os().collect();
     require(args.len() == 3, "expected workload and fixture root")?;
     let root = Path::new(&args[2]);
-    match args[1].to_str() {
-        Some("org") => org::run(root),
-        Some("graph") => graph::run(root),
-        Some("entries" | "names") => candidates::run(root, args[1].to_str().unwrap()),
-        Some("redraw") => presentation::redraw(root),
-        Some("syntax") => presentation::syntax(root),
-        Some("gutter" | "drag") => interaction::run(root, args[1].to_str().unwrap()),
+    run(args[1].to_str().ok_or("workload is not UTF-8")?, root)
+}
+
+fn run(kind: &str, root: &Path) -> Result<()> {
+    match kind {
+        "org" => org::run(root),
+        "graph" => graph::run(root),
+        "entries" | "names" => candidates::run(root, kind),
+        "redraw" => presentation::redraw(root),
+        "syntax" => presentation::syntax(root),
+        "gutter" | "drag" => interaction::run(root, kind),
         _ => Err("unknown workload".into()),
     }
 }
