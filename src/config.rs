@@ -153,6 +153,7 @@ pub struct Org {
     pub publish: Publish,
     pub source: SourcePrograms,
     pub feeds: Feeds,
+    pub preview: Preview,
     pub limits: OrgLimits,
 }
 
@@ -180,6 +181,7 @@ impl Default for Org {
             publish: Publish::default(),
             source: SourcePrograms::default(),
             feeds: Feeds::default(),
+            preview: Preview::default(),
             limits: OrgLimits::default(),
         }
     }
@@ -209,6 +211,7 @@ pub struct PartialOrg {
     pub publish: PartialPublish,
     pub source: PartialSourcePrograms,
     pub feeds: PartialFeeds,
+    pub preview: PartialPreview,
     pub limits: PartialOrgLimits,
 }
 
@@ -990,4 +993,25 @@ pub struct PartialTools {
     pub viewer: Option<Vec<String>>,
     pub pdf: Option<Vec<String>>,
     pub upload: Option<Vec<String>>,
+}
+
+/// Initial view preference; resource reads still require an explicit command.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Preview {
+    pub enabled: bool,
+    pub max_bytes: usize,
+}
+impl Default for Preview {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            max_bytes: 4194304,
+        }
+    }
+}
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PartialPreview {
+    pub enabled: Option<bool>,
+    pub max_bytes: Option<i64>,
 }

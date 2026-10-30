@@ -5,6 +5,7 @@ mod execution;
 mod exports;
 mod feeds;
 mod links;
+mod previews;
 mod publishing;
 mod refile;
 mod tables;
@@ -30,6 +31,7 @@ pub(super) struct Work {
     pub(super) tangle_running: bool,
     pub(super) execution_running: bool,
     pub(super) feed_running: bool,
+    pub(super) preview_running: bool,
     tangle_effect: bool,
     refile_running: bool,
     links_running: bool,
@@ -50,6 +52,7 @@ pub(super) struct Work {
 enum Observation {
     Execution(crate::org::execution::Outcome),
     Feed(Result<crate::org::feed::Plan, String>),
+    Preview(Result<crate::org::preview::Output, String>),
     Tangle(Result<crate::org::tangle::Output, String>),
     SourceBlock(Result<crate::org::block::Definition, String>),
     ExecutionInput(Result<crate::org::execution::Input, String>),
@@ -180,6 +183,9 @@ impl Session {
             .or_else(|| self.poll_org_interactions())
     }
     fn poll_org_outputs(&mut self) -> Option<bool> {
+        if self.org.preview_running {
+            return Some(self.poll_preview());
+        }
         if self.org.feed_running {
             return Some(self.poll_feed());
         }

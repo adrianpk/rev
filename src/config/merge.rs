@@ -140,6 +140,7 @@ impl Document {
             &later.org.source.library_files,
         );
         merge.feeds(&mut self.org, &later.org);
+        merge.preview(&mut self.org.preview, &later.org.preview);
         merge.clock(&mut self.org.clock, &later.org.clock);
         merge.leaf(
             &["org", "timer", "default"],
@@ -913,6 +914,21 @@ impl Merge {
             &["org", "limits", "feed_items"],
             &mut base.limits.feed_items,
             &later.limits.feed_items,
+        );
+    }
+}
+
+impl Merge {
+    fn preview(&mut self, base: &mut super::PartialPreview, later: &super::PartialPreview) {
+        self.leaf(
+            &["org", "preview", "enabled"],
+            &mut base.enabled,
+            &later.enabled,
+        );
+        self.leaf(
+            &["org", "preview", "max_bytes"],
+            &mut base.max_bytes,
+            &later.max_bytes,
         );
     }
 }

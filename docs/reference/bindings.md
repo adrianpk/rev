@@ -295,6 +295,10 @@ configuration snapshot; source edits take effect after restarting.
 | C-c C-v I | `org-babel-view-src-block-info` | Inspect declared language, name and effective header data. |
 | C-c C-v h | `org-babel-insert-header-arg` | Insert one checked header argument on the opening line. |
 | C-c C-v e / C-c C-c on a source block | `org-babel-execute-src-block` | Select a configured runner and explicitly confirm a bounded source job. |
+| C-c C-x C-v | `org-link-preview` | Explicitly preview the local image at point, in a region or in the current section. |
+| C-c C-x C-M-v | `org-link-preview-refresh` | Refresh bounded local previews in the current view. |
+| M-x | `org-link-preview-clear` | Remove this view's disposable previews. |
+| M-x | `org-link-preview-region` | Preview the active region, or the buffer when no region is active. |
 | C-c C-x g | `org-feed-update-all` | Explicitly update declared feeds with checked native imports. |
 | C-c C-x G | `org-feed-goto-inbox` | Open a declared canonical inbox without fetching. |
 | M-x | `org-feed-update` | Select one declared feed for an explicit update. |

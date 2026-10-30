@@ -554,9 +554,8 @@ fn moves(partial: &super::PartialOrg) -> Result<(), Failure> {
         }
     }
     source_programs(&partial.source)?;
-    feeds(partial)?;
+    resources(partial)?;
     publishing(partial)?;
-    viewer(partial)?;
     archive(&partial.archive)
 }
 
@@ -637,4 +636,14 @@ fn feeds(partial: &super::PartialOrg) -> Result<(), Failure> {
         partial.limits.feed_items,
         1..=10000,
     )
+}
+
+fn preview(partial: &super::PartialPreview) -> Result<(), Failure> {
+    integer("org.preview.max_bytes", partial.max_bytes, 1..=16777216)
+}
+
+fn resources(partial: &super::PartialOrg) -> Result<(), Failure> {
+    feeds(partial)?;
+    preview(&partial.preview)?;
+    viewer(partial)
 }

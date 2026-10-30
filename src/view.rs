@@ -90,6 +90,7 @@ pub struct View {
     pub point: Point,
     /// Session-only presentation values, copied by splits and never text data.
     pub gutter: crate::gutter::Policy,
+    pub preview: crate::org::preview::State,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
     pub top: usize,
@@ -121,6 +122,7 @@ impl View {
                 position: Scalar(0),
             },
             gutter: crate::gutter::Policy::default(),
+            preview: crate::org::preview::State::default(),
             column: None,
             top: 0,
             left: 0,
@@ -136,6 +138,7 @@ impl View {
     pub fn with_settings(buffer: &Buffer, settings: &crate::config::Snapshot) -> Self {
         let mut view = Self::new(buffer);
         view.gutter = crate::gutter::Policy::new(settings.settings().gutter);
+        view.preview.enabled = settings.settings().org.preview.enabled;
         view
     }
 
@@ -143,8 +146,10 @@ impl View {
     /// retaining only this view's independent presentation policy and provenance.
     pub fn rebind(&mut self, buffer: &Buffer) {
         let gutter = self.gutter;
+        let enabled = self.preview.enabled;
         *self = Self::new(buffer);
         self.gutter = gutter;
+        self.preview.enabled = enabled;
     }
 
     pub fn cell(&self, buffer: &Buffer) -> Result<Cell, Error> {

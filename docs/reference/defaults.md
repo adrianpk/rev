@@ -135,7 +135,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 71 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
-| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 79 entries in its local map are active in the sample. |
+| `keys.org` | Map of chord sequences to existing editor command names | Compiled map | Org editing role inherits keys.editor; all 81 entries in its local map are active in the sample. |
 | `keys.org_capture` | Map of chord sequences to existing editor command names | Compiled map | Capture editing role inherits keys.editor; all 2 entries in its local map are active in the sample. |
 | `keys.org_source_edit` | Map of chord sequences to existing editor command names | Compiled map | Special-edit role inherits keys.editor; all 3 entries in its local map are active in the sample. |
 | `keys.org_agenda` | Map of chord sequences to admitted navigation, query and estimate commands | Compiled map | Agenda role consumes unbound text; all 47 entries are active in the sample. |
@@ -216,6 +216,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `org.limits.query_bytes` | Integer 1..=65536 | `4096` | Maximum query UTF-8 bytes. |
 | `org.limits.query_depth` | Integer 1..=128 | `32` | Maximum nested query forms. |
 | `org.source.confirm_execution` | Boolean | `true` | Ask before each selected block job; `:eval query` always asks and no/never always reject. |
+| `org.preview.enabled` | Boolean | `false` | Initial per-view preference; explicit commands own resource reads. |
+| `org.preview.max_bytes` | Integer: 1..16777216 | `4194304` | Per-resource byte bound for explicit local PNG observations. |
 | `org.feeds.sources` | Array of typed feed records | `[]` | At most 64 named local/HTTP feed sources with target file/headline, optional drawer and transport argv. No startup IO; see [feeds](org-feeds.md). |
 | `org.tools.fetch` | Array of argv strings | `[]` | Optional bounded feed transport, one whole `{target}` token or one appended target. |
 | `org.limits.feed_bytes` | Integer 1..=16777216 | `4194304` | Maximum complete XML source bytes per feed. |

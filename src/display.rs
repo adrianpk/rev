@@ -11,6 +11,7 @@ mod habit;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
 mod inventory;
+pub mod preview;
 mod prompt;
 mod search;
 mod selection;
@@ -100,6 +101,7 @@ pub struct Frame {
     palette: crate::config::Palette,
     rows: Vec<Row>,
     cursor: Option<Position>,
+    previews: Vec<preview::Placement>,
 }
 
 impl Frame {
@@ -111,6 +113,7 @@ impl Frame {
             palette: crate::config::Palette::default(),
             rows: Vec::new(),
             cursor: None,
+            previews: Vec::new(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);
@@ -141,6 +144,7 @@ impl Frame {
         self.document(buffer, view, text, highlight)?;
         self.numbers(buffer, view, geometry, point.row)?;
         self.status(buffer, point, panel)?;
+        self.preview(buffer, view, text.content())?;
         if panel.active() {
             self.cursor = Self::position(point, view, text, buffer);
         }
@@ -172,11 +176,22 @@ impl Frame {
         writer: &mut impl Write,
         separator: crate::gutter::Separator,
     ) -> io::Result<()> {
+        self.write_surface(writer, separator)?;
+        self.finish(writer)
+    }
+    pub(crate) fn write_surface(
+        &self,
+        writer: &mut impl Write,
+        separator: crate::gutter::Separator,
+    ) -> io::Result<()> {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
             row.write(writer, &self.palette, separator)?;
         }
+        Ok(())
+    }
+    pub(crate) fn finish(&self, writer: &mut impl Write) -> io::Result<()> {
         if let Some(cursor) = self.cursor {
             writer
                 .queue(MoveTo(cursor.column, cursor.row))?

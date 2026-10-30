@@ -47,6 +47,7 @@ TABLES = {
     "org.publish":"PartialPublish",
     "org.source":"PartialSourcePrograms",
     "org.feeds":"PartialFeeds",
+    "org.preview":"PartialPreview",
     "org.limits":"PartialOrgLimits",
     "org.duration": "PartialDuration",
     "org.duration.units": "PartialDurationUnits",

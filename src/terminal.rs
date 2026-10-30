@@ -8,6 +8,7 @@ use crossterm::terminal::{
 };
 use crossterm::{Command, ExecutableCommand};
 
+pub mod graphics;
 mod mouse;
 
 /// Owns terminal restoration, including partially completed acquisition.
@@ -20,6 +21,7 @@ pub struct Terminal<W: Write> {
     paste: bool,
     cursor_color: bool,
     mouse: mouse::Reporting,
+    images: graphics::Images,
 }
 
 impl<W: Write> Terminal<W> {
@@ -35,6 +37,7 @@ impl<W: Write> Terminal<W> {
             paste: false,
             cursor_color: false,
             mouse: mouse::Reporting::default(),
+            images: graphics::Images::default(),
         })
     }
 
@@ -55,10 +58,24 @@ impl<W: Write> Terminal<W> {
         &mut self.output
     }
 
+    /// Present source first, then admitted bounded graphics; restore the exact
+    /// source cursor after placement. This terminal owns every cleanup ID.
+    pub fn draw(&mut self, frame: &crate::display::Frame) -> io::Result<()> {
+        frame.write_surface(&mut self.output, crate::gutter::Separator::default())?;
+        let placements = if graphics::supported() {
+            frame.previews()
+        } else {
+            &[]
+        };
+        self.images.present(&mut self.output, placements)?;
+        frame.finish(&mut self.output)
+    }
+
     /// Attempts every acquired restoration, even if an earlier one fails.
     /// Failed obligations remain owned so drop can retry them.
     pub fn restore(&mut self) -> io::Result<()> {
         restoration([
+            self.images.clear(&mut self.output),
             self.set_mouse_reporting(false),
             self.disable_paste(),
             self.show(),

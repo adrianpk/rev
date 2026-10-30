@@ -37,7 +37,7 @@ impl Snapshot {
 impl Document {
     fn preview_range(&self, point: usize, all: bool, region: Option<Range<usize>>) -> Range<usize> {
         if all {
-            return 0..self.text.len_bytes();
+            return region.unwrap_or(0..self.text.len_bytes());
         }
         if let Some(region) = region {
             return region;

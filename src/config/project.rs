@@ -39,6 +39,14 @@ pub(super) fn settings(document: &Document) -> Settings {
     export(&mut settings.org, &document.org);
     source(&mut settings.org.source, &document.org.source);
     feeds(&mut settings.org, &document.org);
+    scalar(
+        &mut settings.org.preview.enabled,
+        document.org.preview.enabled,
+    );
+    count(
+        &mut settings.org.preview.max_bytes,
+        document.org.preview.max_bytes,
+    );
     if let Some(value) = &document.org.publish.projects {
         settings.org.publish.projects.clone_from(value);
     }

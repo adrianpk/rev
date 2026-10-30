@@ -49,6 +49,7 @@ impl Frame {
             palette: buffers.palette().clone(),
             rows: Vec::new(),
             cursor: None,
+            previews: Vec::new(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);

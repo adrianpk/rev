@@ -26,6 +26,7 @@ mod tables;
 pub use attachment::{AttachmentResult, HeadingStatus};
 mod execution;
 mod feeds;
+mod previews;
 pub use feeds::FeedOutcome;
 mod mode;
 mod motion;
@@ -92,6 +93,7 @@ pub struct Session {
     execution: Option<execution::Selection>,
     execution_result: Option<crate::org::execution::Outcome>,
     feeds: Option<feeds::State>,
+    preview_request: Option<outline::Request>,
     feed_results: Vec<FeedOutcome>,
     tangling_results: Vec<crate::org::tangle::Outcome>,
     refile: Option<refile::State>,
@@ -221,7 +223,7 @@ impl Session {
             terminal.set_mouse_reporting(self.mouse_enabled())?;
             match action {
                 Action::Exit => return Ok(()),
-                Action::Redraw => self.draw(terminal.writer())?,
+                Action::Redraw => self.draw(terminal)?,
                 Action::Wait => {}
             }
         }
@@ -230,7 +232,7 @@ impl Session {
     fn start_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         terminal.set_mouse_reporting(self.mouse_enabled())?;
         terminal.set_cursor_color(self.buffers.palette().cursor)?;
-        self.draw(terminal.writer())
+        self.draw(terminal)
     }
 
     /// Takes ownership of canonical buffers and a qualified initial view.
@@ -256,6 +258,7 @@ impl Session {
             tangling: None,
             execution: None,
             feeds: None,
+            preview_request: None,
             feed_results: Vec::new(),
             execution_result: None,
             tangling_results: Vec::new(),
@@ -428,8 +431,8 @@ impl Session {
         frame.prompt(prompt, &self.echo)
     }
 
-    fn draw(&mut self, writer: &mut impl Write) -> io::Result<()> {
-        self.frame().map_err(io::Error::other)?.write(writer)
+    fn draw(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        terminal.draw(&self.frame().map_err(io::Error::other)?)
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
@@ -477,6 +480,7 @@ impl Session {
             .or_else(|| self.capture_command(command))
             .or_else(|| self.execution_command(command))
             .or_else(|| self.feed_command(command))
+            .or_else(|| self.preview_command(command))
             .or_else(|| self.tangle_command(command))
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))

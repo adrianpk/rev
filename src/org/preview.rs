@@ -76,11 +76,11 @@ impl Work {
         for resource in resources {
             check(cancel)?;
             let limit = self.limit.min(16777216usize.saturating_sub(total));
-            match resource.read(limit, cancel) {
-                Ok(image) => {
-                    total += image.png.bytes.len();
-                    output.images.push(Arc::new(image));
-                }
+            match resource
+                .read(limit, cancel)
+                .and_then(|image| output.admit(image))
+            {
+                Ok(bytes) => total += bytes,
                 Err(detail) => {
                     output.fallback += 1;
                     output.details.push(detail);
@@ -148,3 +148,19 @@ impl Output {
 
 #[cfg(test)]
 mod tests;
+
+impl Output {
+    fn admit(&mut self, image: Image) -> Result<usize, String> {
+        let pixels = self
+            .images
+            .iter()
+            .map(|i| u64::from(i.png.width) * u64::from(i.png.height))
+            .sum::<u64>();
+        if pixels + u64::from(image.png.width) * u64::from(image.png.height) > 16777216 {
+            return Err("Preview aggregate pixel limit reached".into());
+        }
+        let bytes = image.png.bytes.len();
+        self.images.push(Arc::new(image));
+        Ok(bytes)
+    }
+}

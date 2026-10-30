@@ -226,9 +226,13 @@ pub enum OrgCommand {
     FeedUpdate,
     FeedGotoInbox,
     FeedResults,
+    LinkPreview,
+    LinkPreviewClear,
+    LinkPreviewRefresh,
+    LinkPreviewRegion,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 224] = [
+    pub const ALL: [Self; 228] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -453,6 +457,10 @@ impl OrgCommand {
         Self::FeedUpdate,
         Self::FeedGotoInbox,
         Self::FeedResults,
+        Self::LinkPreview,
+        Self::LinkPreviewClear,
+        Self::LinkPreviewRefresh,
+        Self::LinkPreviewRegion,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -680,6 +688,10 @@ impl OrgCommand {
             "org-feed-update",
             "org-feed-goto-inbox",
             "org-feed-results",
+            "org-link-preview",
+            "org-link-preview-clear",
+            "org-link-preview-refresh",
+            "org-link-preview-region",
         ][self as usize]
     }
 

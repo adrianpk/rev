@@ -93,3 +93,42 @@ placement admits at most 2 MiB of insertion text. No worker or polling deadline 
 Reference: [Org refile and copy](https://orgmode.org/manual/Refile-and-Copy.html).
 
 Archive references: [Moving subtrees](https://orgmode.org/manual/Moving-subtrees.html), [Internal archiving](https://orgmode.org/manual/Internal-archiving.html).
+
+## Link and image previews
+
+`C-c C-x C-v` (`org-link-preview`) explicitly observes description-free external
+links in the active region, at point, or in the current section. `org-link-preview-region`
+uses the active region, or the buffer. `C-c C-x C-M-v` (`org-link-preview-refresh`)
+refreshes an enabled view across the region/buffer; `org-link-preview-clear`
+removes that view's previews and disables them. Splits copy the current preference
+and observation; subsequent clear/refresh operations remain independent.
+
+`org.preview.enabled` defaults to false and supplies the initial view preference.
+A preview command enables it; refresh of a disabled view diagnoses the enabling
+command. Even with the preference enabled, visiting, highlighting and redraws
+never read image files, fetch remote content or launch viewers.
+`org.preview.max_bytes` defaults to 4194304 (1..16777216) per local resource.
+Selections keep at most 32 resources and 16 MiB of encoded image data. Static PNG
+containers admit 4096 chunks, 8192 pixels per axis and 16,777,216 pixels per
+selection. CRC, truncation, animation and unsupported critical-chunk failures
+retain ordinary readable source. Pixel decompression belongs to the terminal.
+
+Only a direct `TERM=xterm-kitty`, outside tmux/screen, admits native PNG output.
+There is no capability query, implicit fetch or image conversion. Source remains
+readable in other terminals, with `org-open-at-point` as the explicit configured
+viewer path. `org.tools.viewer` uses the existing confirmation, checked resource,
+process-group, output/time ceiling and child cleanup owner. Missing tools are a
+usable diagnostic. A preview command never grants viewer authority.
+
+Graphics are a disposable layer behind existing text. They add no source rows or
+coordinates and change no text, mark, point, gutter, search, mouse mapping or
+history. Placements clip to the owning text pane (at most 40 columns and 12 rows)
+and exclude statuses, prompts, gutters and neighboring panes. Hidden, off-screen
+and horizontally scrolled anchors have no placement. Each frame caps 32 placements,
+16 MiB encoded bytes and 16,777,216 pixels. Edits invalidate the retained source
+revision; scroll, resize, folds and view changes recompute geometry without IO.
+Clear/removal, normal exit, unwind and output failure retain cleanup obligations
+for only the terminal owner's image IDs. Geometry changes reuse transferred data.
+
+References: [Org previews](https://orgmode.org/manual/Images-and-link-previews.html),
+[Kitty graphics](https://sw.kovidgoyal.net/kitty/graphics-protocol/).

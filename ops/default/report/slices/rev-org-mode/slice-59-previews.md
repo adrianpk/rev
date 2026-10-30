@@ -26,9 +26,13 @@ checks own resource admission. Binary reads verify identity before/after bounded
 ingress and recheck before a result is attached to a view. PNG container checks
 retain exact encoded bytes, CRCs and finite dimensions; pixel decoding belongs
 to the terminal. Fixed ceilings are 32 resources, 16 MiB aggregate image bytes,
-4096 PNG chunks, 8192 pixels per axis and 16,777,216 pixels per image. Cancellation
+4096 PNG chunks, 8192 pixels per axis and 16,777,216 aggregate pixels. Cancellation
 is checked during reads and CRC work. Unsupported resources retain viewer-path
-feedback. Commands and terminal ownership are the next task.
+feedback. Four native preview commands, typed per-view preferences and explicit viewer
+fallback now use these observations. Terminal output owns chunked transfers,
+geometry updates and deletion of only its own image identifiers. Partial-write
+cleanup closes incomplete graphics before retrying owned deletion. Each frame
+keeps the ordinary completed-frame/cursor boundary after graphics.
 
 Reference behavior: [Org previews](https://orgmode.org/manual/Images-and-link-previews.html)
 and [Kitty graphics](https://sw.kovidgoyal.net/kitty/graphics-protocol/).
@@ -44,6 +48,8 @@ and [Kitty graphics](https://sw.kovidgoyal.net/kitty/graphics-protocol/).
 - `src/org/links/preview.rs`: native source/selection observations.
 - `src/org/io/bytes.rs`: bounded binary ingress through file identity checks.
 - `src/org/preview/tests.rs`: real resource, hostile container and limit cases.
+- `src/session/previews.rs`: explicit commands and revision-qualified view publication.
+- `src/display/preview.rs` and `src/terminal/graphics.rs`: bounded geometry and output ownership.
 
 ## Validation
 
@@ -51,16 +57,23 @@ Development checks passed:
 
 - `cargo check --lib`
 - `cargo test --lib org::preview -- --test-threads=4`
+- `cargo test --test org_io previews -- --test-threads=4`
+- `cargo test --test commands --test configuration -- --test-threads=4`
+- `python3 scripts/check-config-reference.py`
 - `git diff --check`
 
 Three native cases passed, covering exact PNG bytes, source preservation,
 resource revalidation, URI/format fallback, byte/resource-count limits,
 cancellation, regular-file admission, corrupt CRCs, truncation, trailing bytes,
 animation and excessive decoded dimensions. The unchanged source checker accepts
-the new native code. Command/rendering integration and exact-head validation
-remain pending.
+the new native code. Three additional session cases passed for exact source/point/history, split-local
+clear, read-only fallback, cancellation and stale-result rejection. All 287
+command/configuration tests passed. References agree on 178 schema/catalog
+entries, 54 RGB roles and 263 default bindings. Terminal/fault boundary coverage
+and required exact-head validation remain pending.
 
 ## Risks and Follow-ups
 
-PNG container admission does not decode compressed pixels. Terminal integration
-must retain readable source and own transfer, geometry and restoration.
+PNG container admission does not decode compressed pixels. Native terminal
+presentation is admitted only in direct Kitty environments; other terminals
+retain source and an explicit configured viewer path.
