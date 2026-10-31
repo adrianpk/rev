@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-06-path-tab`
-PR: pending
+PR: [#179](https://forge.adrianpk.com/adrianpk/rev/pulls/179)
 
 ## Purpose
 
@@ -88,14 +88,36 @@ find-file aliases, explicit tree refresh and the full native binding set. Input
 phase, dirty-state, disk preservation and recursive deletion consent assertions
 remain active; no runtime admission or acceptance limits are weakened.
 
-The configured three-command prefix and focused all-target Clippy,
-documentation and existing PTY checks require a clean-head controller receipt.
-Final PR-reference changes receive fresh configured evidence before handoff.
-The combined delivery gate remains reserved for final acceptance.
+T6.1 commit `28ff1967c7330a6619e144a70487f6dc73d7a3cd` introduces the
+implementation and this report. T6.2 commit
+`1f061dea66754b5090dcbd42b24faad2d0f7a46c` completes continuation, retained
+error kinds, regression coverage and full UI03/reference reconciliation.
+Commit `e1122a0ba59b326671c9ab97109be6191c1b801f` aligns the stale command
+expectations and completes the tree binding table.
+
+Controller receipt `3I26EZ2A36CO2PZGTFKU2M7DGM` passed these exact ordered
+commands at clean head `e1122a0ba59b326671c9ab97109be6191c1b801f`:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test path_completion --test files --test commands --test configuration`
+3. `git diff --check`
+4. `cargo clippy --locked --all-targets -- -D warnings`
+5. `cargo run --locked --quiet --example documentation-check`
+6. `python3 scripts/check-path-navigation.py`
+
+The native suites passed 414 tests: 161 command, 133 configuration, 74 file and
+46 path-completion cases. Documentation passed 305 commands, 179 configuration
+entries, 58 pages and 330 local links/anchors. Both terminal sessions passed,
+with RGB and NO_COLOR selection, cancellation/acceptance and fixture cleanup.
+
+Canonical PR #179 targets `dev` with the approved title and immutable report
+introduction link. Its final PR-reference head receives a fresh configured
+three-command receipt before handoff; the exact final identity is retained in
+controller evidence. The combined delivery gate remains reserved for final
+acceptance.
 
 ## Risks and Follow-ups
 
 Directory observation can wait on the filesystem within the existing finite
 listing bounds. No background traversal or observation during rendering is added.
-Record the canonical PR, implementation commits and successful controller
-receipts. The path-completion ticket remains under review until verified merge.
+The path-completion ticket remains under review until verified merge.

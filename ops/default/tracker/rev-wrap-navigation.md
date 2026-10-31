@@ -14,7 +14,7 @@ Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
 Active slice: Slice 6
-Execution owner: Looper; Slice 6 implementation active
+Execution owner: Looper; Slice 6 PR #179 under review
 
 ## Canonical slice map
 
@@ -135,9 +135,13 @@ T6.1 commit `28ff1967c7330a6619e144a70487f6dc73d7a3cd` delivers highlighted
 native path completion and atomic refresh. T6.2 preserves IO error kinds,
 exercises continuation, stale/denied retries and clipping, applies full UI03/R12
 reconciliation, and updates reader guidance plus the focused existing PTY probe.
-All 46 path-completion tests and two RGB/NO_COLOR terminal journeys passed during
-development. The ticket is under review; canonical PR and clean-head evidence
-remain pending in the [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md).
+T6.2 commit `1f061dea66754b5090dcbd42b24faad2d0f7a46c` and command/reference
+alignment commit `e1122a0ba59b326671c9ab97109be6191c1b801f` passed all six
+controller commands, 414 tests and two RGB/NO_COLOR terminal sessions in receipt
+`3I26EZ2A36CO2PZGTFKU2M7DGM` at the latter exact clean head. Canonical
+[PR #179](https://forge.adrianpk.com/adrianpk/rev/pulls/179) targets `dev`; the
+ticket remains under review. The PR-reference head requires fresh configured
+controller evidence before handoff. See the [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md).
 
 ## Slice 7: Clicked tree entry and activation
 
@@ -164,7 +168,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | 3 | delivered | #176 | `622309c6e57c11aa70dab4ce7e64f8f384a1dd3a` | [Slice 3 report](../report/slices/rev-wrap-navigation/slice-3-wrapped-interaction.md) |
 | 4 | delivered | #177 | `279242c0351ce10d2415d97c0aa11f1196b0b63c` | [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md) |
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
-| 6 | pending | pending | pending | pending |
+| 6 | reviewing | #179 | pending | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
 | 7 | pending | pending | pending | pending |
 | 8 | pending | pending | pending | pending |
 

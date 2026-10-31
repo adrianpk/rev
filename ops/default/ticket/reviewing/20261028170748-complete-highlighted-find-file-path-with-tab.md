@@ -13,7 +13,8 @@ ready_at: 2026-10-30T23:24:55Z
 started_at: 2026-10-31T03:31:51Z
 branch: feat/rev-wrap-navigation-06-path-tab
 reviewed_at: 2026-10-31T03:36:28Z
-commits: [28ff1967c7330a6619e144a70487f6dc73d7a3cd]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/179
+commits: [28ff1967c7330a6619e144a70487f6dc73d7a3cd, 1f061dea66754b5090dcbd42b24faad2d0f7a46c, e1122a0ba59b326671c9ab97109be6191c1b801f]
 ---
 
 # Complete the highlighted find-file path with Tab
@@ -121,4 +122,8 @@ semantics. The provider and configured prompt bounds remain unchanged.
 The [Slice 6 report](../../report/slices/rev-wrap-navigation/slice-6-path-tab.md)
 records native dirty-source/history, permission, clipping and identity checks,
 plus RGB/NO_COLOR real-terminal directory continuation and explicit acceptance.
-Canonical PR references and exact clean-head controller evidence precede handoff.
+Canonical [PR #179](https://forge.adrianpk.com/adrianpk/rev/pulls/179) targets
+`dev`. Receipt `3I26EZ2A36CO2PZGTFKU2M7DGM` passed 414 tests, all-target Clippy,
+documentation and both terminal sessions on clean head
+`e1122a0ba59b326671c9ab97109be6191c1b801f`. Fresh configured evidence for the
+final PR-reference head is recorded by the controller before handoff.
