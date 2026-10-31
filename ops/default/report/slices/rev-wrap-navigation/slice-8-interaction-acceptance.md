@@ -65,7 +65,7 @@ startup usage, the inventory and the existing Unreleased outcomes. GUT03 and its
 consolidated copy already specify blank continuation labels and logical distances.
 The complete config asset, compiled template, command and ordinary binding
 catalogs retain the delivered soft_wrap/visual-line-mode and click policy.
-Historical gate identities remain unchanged; the final delivery state stays open.
+Historical gate identities remain unchanged; final closure is recorded below.
 
 ## Files of Interest
 
@@ -115,8 +115,7 @@ Canonical PR #181 merged into `dev` at
 clean head: 499 tests, all three native settings journeys, the Linux PTY route
 (472 ms, 70,025 output bytes), all five long-line fixtures and documentation.
 The controller recorded the merge in Acta as `01M682VDRQ3BVAVDSPBZAYWXC3`.
-Slice 8 is delivered; the integrated delivery gate and metadata closure remain
-controller-owned and pending.
+Slice 8 is delivered; final integrated validation and closure are recorded below.
 
 ## Gate repair 1: failed-open fixture
 
@@ -156,8 +155,8 @@ into `dev` at `16debf9b98acdac1581a203726041b61ac036774`. Final controller
 receipt `VBNOTDVN3ENDHZIBSSQUQ4ERCJ` passed the four policy-required commands
 and all 110 tests on that exact clean PR-reference head. The controller recorded
 the merge in Acta as `01M68JWDE5DYK7H87XWWFGA9R8`. Gate repair 1 is delivered.
-The unchanged full gate remains pending its controller-owned rerun; earlier
-slice and failed-gate evidence retain their original candidate identities.
+At repair 1 integration, the unchanged full gate awaited its controller rerun.
+The final pass below preserves earlier slice and failed-gate candidate identities.
 
 ## Gate repair 2: explicit horizontal clipping fixtures
 
@@ -200,8 +199,24 @@ into `dev` at `ccfc383bf301425ebb21cd95bb5fb6de32c3e0cc`. Final controller
 receipt `XSCA366D6QCOO6S3NT7UIYPBPI` passed the three policy-required commands
 and all 165 tests on that exact clean PR-reference head. The controller recorded
 the merge in Acta as `01M68KC86KT18T7ZKR7F4R1AR7`. Gate repair 2 is delivered.
-The unchanged full gate remains pending its controller-owned rerun; prior repair,
-original slice and failed-gate evidence retain their recorded candidate identities.
+At repair 2 integration, the unchanged full gate awaited its controller rerun.
+The final pass below preserves prior repair, slice and failed-gate identities.
+
+## Delivery-set closure
+
+The controller passed the exact pinned full gate at
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All-target testing passed 1,800 tests. The
+three native settings journeys and Linux PTY route passed (448 ms, 70,025 bytes),
+with exact source/save fidelity, idle silence and restored terminal attributes.
+All five long-line probes passed; maximum observed native step was 1.645 ms,
+resize 5.837 ms and queued reversal 12.582 ms. Documentation passed 305 commands,
+180 configuration entries, 58 pages and 331 local links/anchors. Earlier focused
+and failed-gate evidence remains identified above.
+
+All eight slices and both authorized repairs are integrated; all five selected
+tickets are solved. The delivery set is completed by the documentation-only
+closure recorded in the [tracker](../../../tracker/rev-wrap-navigation.md).
 
 ## Risks and Follow-ups
 

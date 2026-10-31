@@ -127,6 +127,16 @@ Canonical PR #178 merged into `dev` at
 and all 336 tests on that clean PR-reference head. The controller recorded the
 merge in Acta. Slice 5 of 8 completed.
 
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
+
 ## Risks and Follow-ups
 
 A bounded directory observation can still wait on the filesystem. Incomplete

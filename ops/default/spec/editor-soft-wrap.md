@@ -1,7 +1,10 @@
 # Word-Aware Soft Wrapping
 
-Status: accepted
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `6b2afd4e07f269c979cd26faf60b6863314e69e9`
+Gate receipt: `F7OQU2CWIOPB3VW234VVECCQNG`
 Approved: product owner, 2026-10-31; selected five-topic delivery, Emacs interaction criterion and explicit Looper start request
 Plan: [Wrap and Navigation](../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
@@ -9,7 +12,7 @@ Format: OpenSpec capability proposal
 Source: approved visual direction in the [long-line ticket](../ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md)
 Model: [Soft Wrap Model](editor-soft-wrap-model.md)
 Baselines: [rev Editor](rev-editor.md), [Editor Gutter](editor-gutter.md), [Org Mode](editor-org-mode.md)
-Readiness: accepted behavior and finite delivery scope; implementation is owned by rev-wrap-navigation
+Readiness: delivered and validated through completed rev-wrap-navigation
 
 ## Purpose
 
@@ -208,3 +211,14 @@ prerequisite for delivering a coherent Emacs-like wrapping feature.
 
 - [Emacs Visual Line mode](https://www.gnu.org/software/emacs/manual/html_node/emacs/Visual-Line-Mode.html).
 - [Emacs continuation lines](https://www.gnu.org/software/emacs/manual/html_node/emacs/Continuation-Lines.html).
+
+## Completed delivery evidence
+
+The approved rev-wrap-navigation delivery is completed through eight slices and
+two authorized fixture repairs. The controller passed the pinned full gate at
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. See the
+[tracker](../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the exact
+command and results, and the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md)
+for joint acceptance and retained repair evidence. Historical baseline gates
+keep their original candidate identities.

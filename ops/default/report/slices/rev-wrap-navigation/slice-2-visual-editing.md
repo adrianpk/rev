@@ -114,7 +114,20 @@ read-only admission and grapheme-safe coordinate rules. Native Rev tests also
 verify preservation of whole CRLF separators. The reference probe is
 development evidence, not an added runtime or gate dependency.
 
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
+
 ## Risks and Follow-ups
+
+The following describes the slice-local state before later integration; the
+recorded later-slice follow-ups are completed in the final candidate above.
 
 Slice 3 owns complete pointer/search/selection and continuation-gutter mapping.
 Slice 4 owns full Org projection integration and bounded resumable long-line

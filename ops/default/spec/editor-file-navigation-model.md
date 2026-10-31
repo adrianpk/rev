@@ -1,7 +1,10 @@
 # File and Directory Navigation Model
 
-Status: accepted
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `6b2afd4e07f269c979cd26faf60b6863314e69e9`
+Gate receipt: `F7OQU2CWIOPB3VW234VVECCQNG`
 Approved: product owner, 2026-10-31; selected five-topic delivery, Emacs interaction criterion and explicit Looper start request
 Plan: [Wrap and Navigation](../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
@@ -50,3 +53,14 @@ schema migration or implicit AI access grant. Existing startup preferences keep
 their own loader and storage contract; the new mouse.tree_activate_on_click
 boolean defaults true and uses the existing loader, validation and complete
 sample catalog.
+
+## Completed delivery evidence
+
+The approved rev-wrap-navigation delivery is completed through eight slices and
+two authorized fixture repairs. The controller passed the pinned full gate at
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. See the
+[tracker](../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the exact
+command and results, and the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md)
+for joint acceptance and retained repair evidence. Historical baseline gates
+keep their original candidate identities.

@@ -1,7 +1,10 @@
 # Wrap and File Navigation Tracker
 
-Status: approved
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `6b2afd4e07f269c979cd26faf60b6863314e69e9`
+Gate receipt: `F7OQU2CWIOPB3VW234VVECCQNG`
 Delivery set: rev-wrap-navigation
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; five selected topics in one autonomous Looper cycle, Emacs interaction criterion and explicit request to start
@@ -13,8 +16,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: none; all eight slices integrated, full gate pending
-Execution owner: Looper; full-gate preparation complete, controller gate pending
+Active slice: none; delivery completed
+Execution owner: Looper; completed after controller gate and documentation closure
 
 ## Canonical slice map
 
@@ -100,7 +103,7 @@ commands and 942 tests in receipt `JNLPDE7N5VZQHLQ33J3U6447EA`. T4.2 commits
 and settled Org request admission. Canonical [PR #177](https://forge.adrianpk.com/adrianpk/rev/pulls/177)
 merged into `dev` at `279242c0351ce10d2415d97c0aa11f1196b0b63c`. Its final
 configured checks passed 596 tests in receipt `K6BO6PQAFLAXYANN27HMXLOHZG`.
-Slice 4 of 8 completed; the wrap ticket is solved. Slice 5 is active.
+Slice 4 of 8 completed; the wrap ticket is solved. Slice 5 subsequently integrated.
 
 ## Slice 5: Directory targets and initial tree expansion
 
@@ -121,7 +124,7 @@ merged into `dev` at `941faa796047ef7b2dbc809afe495903f690baaa`. Both directory
 tickets are solved. See the
 [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md).
 Final configured receipt `HAYGF7IDRKHEKYSHCJNEVE2NZW` passed 336 tests on
-that exact merge head; the controller recorded its merge in Acta. Slice 6 is active.
+that exact merge head; the controller recorded its merge in Acta. Slice 6 subsequently integrated.
 
 ## Slice 6: Highlighted path completion
 
@@ -142,7 +145,7 @@ controller commands, 414 tests and two RGB/NO_COLOR terminal sessions in receipt
 [PR #179](https://forge.adrianpk.com/adrianpk/rev/pulls/179) merged into `dev` at
 `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7`. Final configured receipt
 `AQEZSXJGMWQTINQSMKLKESZQP6` passed 414 tests at that exact head. The controller
-recorded its merge in Acta. The ticket is solved; Slice 7 is active. See the [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md).
+recorded its merge in Acta. The ticket is solved; Slice 7 subsequently integrated. See the [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md).
 
 ## Slice 7: Clicked tree entry and activation
 
@@ -206,7 +209,7 @@ now-valid directory target with invalid UTF-8 for failed-file coverage, retainin
 all view/peer/source/history assertions. The prior gate failure at
 `90712acf1ba4dc4bb8db091b87285f0929897039` remains identifiable in the
 [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md);
-the unchanged full gate awaits its controller rerun.
+the final exact-candidate pass is recorded below.
 
 Gate repair 2 integrated through [PR #183](https://forge.adrianpk.com/adrianpk/rev/pulls/183)
 at `ccfc383bf301425ebb21cd95bb5fb6de32c3e0cc`. Final policy receipt
@@ -217,7 +220,7 @@ The two horizontal syntax fixtures explicitly select the supported unwrapped
 alternative while retaining their clipping, source-row and resource-bound
 assertions. The prior gate failure at `ef210e1aef98b4e9d6a907a46767c90f8d2d3ca1`
 remains identifiable in the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md);
-the unchanged full gate awaits its controller rerun.
+the final exact-candidate pass is recorded below.
 
 ## Delivery acceptance
 
@@ -230,8 +233,8 @@ the unchanged full gate awaits its controller rerun.
 - [x] All five tickets are solved with implementation/PR evidence and valid final links.
 - [x] Core guidance, supporting references, samples and Unreleased match delivered behavior.
 - [x] All eight configured reports exist and accurately identify focused validation.
-- [ ] Controller passes the pinned full gate on one exact clean integrated dev candidate.
-- [ ] Metadata-only closure completes plan/tracker/specs/models/index/reports within allowed paths.
+- [x] Controller passes the pinned full gate on one exact clean integrated dev candidate.
+- [x] Metadata-only closure completes plan/tracker/specs/models/index/reports within allowed paths.
 
 Full-gate preparation verified Rust/Cargo 1.98, rustfmt, Clippy, Bash and the
 installed Linux PTY/core utilities, writable owned temporary storage and PTY
@@ -239,12 +242,37 @@ device access. `bash -n scripts/check-wrap-navigation.sh` and
 `cargo metadata --locked --offline --no-deps --format-version 1` passed.
 These prerequisites were rechecked after gate repair 2 integrated.
 The joint gate owns fixture creation and cleanup; no persistent fixture or
-service is needed. Preparation did not execute the full gate. Plan/tracker and
-spec/model completion remain pending its exact-candidate result.
+service is needed. Preparation did not execute the full gate; the controller
+subsequently passed it at the immutable candidate recorded below.
+
+## Final gate and closure
+
+The controller passed the pinned full gate on clean integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9`; immutable receipt
+`F7OQU2CWIOPB3VW234VVECCQNG` records this exact command:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+All-target testing passed 1,800 tests with zero failures. The native joint
+journey passed with built-in, packaged and compiled settings; the Linux PTY
+journey completed in 448 ms with 70,025 output bytes, exact saved files, idle
+silence and restored terminal attributes. All five long-line probes passed;
+maximum measured native step was 1.645 ms, resize 5.837 ms and queued reversal
+12.582 ms. These are measurements on this candidate, not latency guarantees.
+Documentation passed 305 commands, 180 configuration entries, 58 pages and 331
+local links/anchors. No owned persistent fixture remains to stop.
+
+All eight reports are delivered. The selected specification/model metadata is
+Completed and the five-topic index records delivery while preserving the ten
+remaining proposals. Closure changes only configured operational documentation;
+the tested source, fixtures, user guidance, template and Unreleased are intact.
+Earlier slice checks and both failed-gate/repair records retain their own hashes.
 
 ## Boundaries
 
-No implemented checks, PRs, commits, merges or timing measurements are claimed
-by this initial tracker. Looper updates progress and evidence during execution.
+The initial planning baseline claimed no implementation or measurements. The
+records above identify the completed implementation, integration and validation.
 The selected gate and branch/report identities are immutable after startup;
 follow native recovery rather than rewriting configuration or checkpoints.

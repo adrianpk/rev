@@ -1,7 +1,10 @@
 # Wrap and File Navigation
 
-Status: approved
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `6b2afd4e07f269c979cd26faf60b6863314e69e9`
+Gate receipt: `F7OQU2CWIOPB3VW234VVECCQNG`
 Delivery set: rev-wrap-navigation
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; five selected topics in one autonomous Looper cycle, Emacs interaction criterion and explicit request to start
@@ -13,7 +16,7 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: none; all eight slices integrated, full gate pending
+Active slice: none; delivery completed
 
 ## Outcome and authority
 
@@ -329,3 +332,19 @@ changelog and ticket path/content changes must precede the full gate.
 Do not claim completion from eight merged slices alone. Gate failure retains
 the same run/checkpoint for diagnosis and the supported recovery workflow;
 never weaken its gate, resubmit an uncertain merge or start a successor.
+
+## Completed delivery
+
+All eight planned slices integrated through PRs #174-#181; authorized fixture
+repairs integrated through PRs #182-#183. The controller passed the exact pinned
+full gate at `6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`: 1,800 tests, native joint interaction under three
+settings sources, the bounded Linux PTY journey, five long-line probes and the
+documentation/catalog checks passed. The final record is in the
+[tracker](../tracker/rev-wrap-navigation.md) and
+[Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md).
+
+The five selected tickets are solved and all eight reports are delivered.
+This closure changes only the configured operational documentation paths;
+source, tests, user guidance, templates and Unreleased retain the tested candidate.
+Earlier candidates and gate diagnostics keep their original identities.

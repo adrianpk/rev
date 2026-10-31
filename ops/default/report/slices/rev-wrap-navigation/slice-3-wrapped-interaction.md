@@ -103,7 +103,20 @@ documentation validation (58 pages, 330 local links) on that same head.
 PR #176 is merged through Rebase + Fast-forward; the controller recorded its
 merge in Acta. The integrated delivery gate remains separately owned.
 
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
+
 ## Risks and Follow-ups
+
+The following describes the slice-local state before later integration; the
+recorded later-slice follow-ups are completed in the final candidate above.
 
 Slice 4 owns complete Org projection integration and bounded resumable layout
 work. The shared fragment traversal still may rescan a long source-line prefix;

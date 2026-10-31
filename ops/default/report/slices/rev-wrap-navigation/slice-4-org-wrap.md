@@ -179,6 +179,16 @@ and delayed expiry. No acceptance or resource limit was weakened.
 These are local fixture measurements, not universal latency ceilings. The full
 delivery gate and combined file-navigation acceptance remain controller-owned.
 
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
+
 ## Risks and Follow-ups
 
 One extended grapheme can contain arbitrarily many bytes. Glyph-read budgets
@@ -187,5 +197,4 @@ or existing canonical source-edit admission. Visible canvas work also scales
 with terminal geometry. The finite measurements do not promise fixed latency
 for arbitrary text or hosts.
 
-PR #177 is merged and the wrap ticket is solved. The combined delivery gate
-remains owned by the final acceptance phase.
+PR #177 is merged and the wrap ticket is solved. The combined delivery gate passed on the final candidate recorded above.

@@ -115,7 +115,17 @@ Canonical PR #179 merged into `dev` at
 `AQEZSXJGMWQTINQSMKLKESZQP6` passed the exact three-command prefix and all
 414 tests on that clean PR-reference head. The controller recorded the merge
 in Acta. Slice 6 of 8 completed; the path-completion ticket is solved. The
-combined delivery gate remains reserved for final acceptance.
+combined delivery gate was reserved for final acceptance, now recorded below.
+
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
 
 ## Risks and Follow-ups
 

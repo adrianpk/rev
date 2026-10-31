@@ -16,18 +16,18 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains five implemented interaction topics and ten remaining
-proposals. The five solved tickets retain their implementation/PR evidence;
-the approved delivery still requires its final joint gate and metadata closure.
-Broad capabilities retain their own specification/model state.
+The inventory contains five delivered interaction topics and ten remaining
+proposals. The five solved tickets retain their implementation/PR evidence.
+The completed delivery passed its controller-owned full gate; other capabilities
+retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
-| Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Accepted spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
-| Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Accepted spec / solved ticket. Slice 5 delivered one-time first-level expansion through PR #178; deliberate collapse is retained. |
-| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Accepted spec / solved ticket. Slice 6 delivered selected-candidate Tab and separate final acceptance through PR #179; UI03 is reconciled. |
-| Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Accepted spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
-| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Accepted spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
+| Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
+| Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered one-time first-level expansion through PR #178; deliberate collapse is retained. |
+| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Delivered / Completed spec / solved ticket. Slice 6 delivered selected-candidate Tab and separate final acceptance through PR #179; UI03 is reconciled. |
+| Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
+| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md) | Draft. Naming/scope, edit anchors, navigation, persistence and marker collision policy. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md) | Draft. Native UI; operational LSP preferred, Tree-sitter fallback, no ctags. Trigger/coverage/index scope and limits remain open. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md) | Draft. Completion first; protocol, launch/sharing, synchronization, encoding and failure limits remain open. |
@@ -93,13 +93,15 @@ The proposed order is not a chain of prerequisites.
 
 ## Readiness and next planning boundary
 
-The soft-wrap and file-navigation specifications and models are accepted. All
-five selected tickets are solved after verified integration through PRs #174-#180.
-The approved plan/tracker record the eight-slice implementation and joint gate;
-Slice 8 adds native joint acceptance and guidance. The other ten capability
+The soft-wrap and file-navigation specifications and models are Completed. All
+five selected tickets are solved after verified implementation integration through
+PRs #174-#181 and authorized fixture repairs #182-#183. The controller passed the
+pinned full gate at `6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`; the [tracker](tracker/rev-wrap-navigation.md#final-gate-and-closure)
+and [Slice 8 report](report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md)
+record exact validation and documentation closure. The other ten capability
 specs/models retain their existing draft state, including optional external-program
-exploration. The delivery set remains open until its controller-owned final gate
-and metadata closure; earlier completed gates keep their historical identity.
+exploration. Earlier completed gates keep their historical identities.
 
 Before planning a selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope

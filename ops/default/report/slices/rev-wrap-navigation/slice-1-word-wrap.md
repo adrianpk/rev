@@ -96,7 +96,20 @@ same candidate. Canonical PR #174 integrated that exact head through the
 controller's Rebase + Fast-forward path. These are slice checks; the integrated
 delivery gate remains controller-owned.
 
+## Delivery-set closure
+
+The controller passed the pinned full gate on integrated candidate
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. All eight slices and both authorized repairs
+are integrated, and the delivery set is completed. This final result does not
+relabel this report's earlier focused evidence. See the
+[tracker](../../../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the
+exact command and aggregate results.
+
 ## Risks and Follow-ups
+
+The following describes the slice-local state before later integration; the
+recorded later-slice follow-ups are completed in the final candidate above.
 
 The approved later slices own visual-line motion/kills, pointer/search/selection
 and continuation gutter mapping, complete Org integration, and measured bounded

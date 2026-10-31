@@ -1,7 +1,10 @@
 # Soft Wrap Model
 
-Status: accepted
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `6b2afd4e07f269c979cd26faf60b6863314e69e9`
+Gate receipt: `F7OQU2CWIOPB3VW234VVECCQNG`
 Approved: product owner, 2026-10-31; selected five-topic delivery, Emacs interaction criterion and explicit Looper start request
 Plan: [Wrap and Navigation](../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
@@ -57,3 +60,14 @@ migration or project-local configuration. Any eventual startup setting belongs
 to the existing TOML catalog. Enabled word-aware wrapping at pane text width
 is the selected factory policy under editor.soft_wrap. No per-language table,
 fixed-column mode or persistent layout record is introduced.
+
+## Completed delivery evidence
+
+The approved rev-wrap-navigation delivery is completed through eight slices and
+two authorized fixture repairs. The controller passed the pinned full gate at
+`6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
+`F7OQU2CWIOPB3VW234VVECCQNG`. See the
+[tracker](../tracker/rev-wrap-navigation.md#final-gate-and-closure) for the exact
+command and results, and the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md)
+for joint acceptance and retained repair evidence. Historical baseline gates
+keep their original candidate identities.
