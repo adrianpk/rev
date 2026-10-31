@@ -1,5 +1,6 @@
 mod cache;
 pub(super) use cache::Cache;
+pub(crate) use cache::Scope as LayoutScope;
 use std::collections::VecDeque;
 use std::ops::Range;
 
@@ -7,6 +8,7 @@ use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::{Cell, Coordinates, Glyph, GlyphCheckpoint, Glyphs, Scalar};
 
 use super::{Error, View};
+pub(crate) use crate::coordinates::Budget;
 
 /// A checked source observation at one pane width. Text contains presentation
 /// cells only; the scalar span always addresses the unchanged canonical buffer.
@@ -23,6 +25,25 @@ pub struct Fragment {
 }
 
 impl Fragment {
+    pub(crate) fn remember_columns(&self, buffer: &Buffer) -> Result<(), Error> {
+        let coordinates = Coordinates::new(buffer)?;
+        coordinates.remember_cell(
+            self.source.start,
+            Cell {
+                row: self.line,
+                column: self.columns.start,
+            },
+        );
+        coordinates.remember_cell(
+            self.source.end,
+            Cell {
+                row: self.line,
+                column: self.columns.end,
+            },
+        );
+        Ok(())
+    }
+
     pub(crate) fn painted_width(&self, width: u16) -> u16 {
         (self.columns.end - self.columns.start).min(usize::from(width)) as u16
     }
@@ -72,28 +93,6 @@ pub(super) struct Continuation {
     after_line: Scalar,
     column: usize,
     done: bool,
-}
-
-pub(crate) struct Budget {
-    remaining: usize,
-}
-
-impl Budget {
-    pub(crate) const GLYPHS: usize = 4096;
-
-    pub(crate) fn new() -> Self {
-        Self {
-            remaining: Self::GLYPHS,
-        }
-    }
-
-    fn charge(&mut self) -> bool {
-        if self.remaining == 0 {
-            return false;
-        }
-        self.remaining -= 1;
-        true
-    }
 }
 
 pub(super) enum Step {
@@ -271,13 +270,17 @@ impl<'a> Line<'a> {
 }
 
 impl View {
+    pub(crate) fn layout_scope(&self, work: crate::coordinates::Work) -> LayoutScope {
+        self.wrap_cache.scope(work)
+    }
+
     pub(crate) fn cancel_layout(&self) {
         self.wrap_cache.cancel_work();
     }
 
     /// Prepare the source anchors needed by a frame without monopolizing its
     /// host. The same builder/segmentation state resumes on the next deadline.
-    pub(crate) fn prepare_layout(
+    pub(crate) fn prepare_point(
         &self,
         buffer: &Buffer,
         size: super::Size,
@@ -296,9 +299,32 @@ impl View {
         })?;
         let coordinates = Coordinates::new(buffer)?;
         let row = coordinates.to_line(self.point.position)?.row;
-        if !self.prepare_fragment(buffer, width, row, self.point.position, budget)? {
+        if self
+            .prepare_fragment(buffer, width, row, self.point.position, budget)?
+            .is_none()
+        {
             return Ok(false);
         }
+        Ok(true)
+    }
+
+    pub(crate) fn prepare_layout(
+        &self,
+        buffer: &Buffer,
+        size: super::Size,
+        budget: &mut Budget,
+    ) -> Result<bool, Error> {
+        if !self.prepare_point(buffer, size, budget)? {
+            return Ok(false);
+        }
+        if !buffer.soft_wrap() || !size.usable() {
+            return Ok(true);
+        }
+        let width = self.text_width(buffer, size)?;
+        if width == 0 {
+            return Ok(true);
+        }
+        let coordinates = Coordinates::new(buffer)?;
         let Some(row) = self.source_at(buffer, self.projected_top(buffer)) else {
             return Ok(true);
         };
@@ -309,7 +335,9 @@ impl View {
         } else {
             start
         };
-        self.prepare_fragment(buffer, width, row, target, budget)
+        Ok(self
+            .prepare_fragment(buffer, width, row, target, budget)?
+            .is_some())
     }
 
     fn prepare_fragment(
@@ -319,13 +347,15 @@ impl View {
         row: usize,
         point: Scalar,
         budget: &mut Budget,
-    ) -> Result<bool, Error> {
+    ) -> Result<Option<Fragment>, Error> {
         let checkpoint = self.wrap_cache.before(buffer, width, row, point);
         if checkpoint
             .as_ref()
             .is_some_and(|f| f.contains(point, width))
         {
-            return Ok(true);
+            let fragment = checkpoint.expect("checked cached fragment");
+            fragment.remember_columns(buffer)?;
+            return Ok(Some(fragment));
         }
         let mut line = if let Some(at) = self.wrap_cache.take_work(buffer, width, row, point) {
             Line::continue_from(buffer, at)?
@@ -340,33 +370,18 @@ impl View {
         } else {
             Line::new(buffer, row, width)?
         };
-        let coordinates = Coordinates::new(buffer)?;
         loop {
             match line.advance(budget)? {
                 Step::Fragment(fragment) => {
-                    coordinates.remember_cell(
-                        fragment.source.start,
-                        Cell {
-                            row,
-                            column: fragment.columns.start,
-                        },
-                    );
-                    coordinates.remember_cell(
-                        fragment.source.end,
-                        Cell {
-                            row,
-                            column: fragment.columns.end,
-                        },
-                    );
                     let found = fragment.contains(point, width);
-                    self.wrap_cache.remember(buffer, width, fragment);
+                    self.wrap_cache.remember(buffer, width, fragment.clone())?;
                     if found {
-                        return Ok(true);
+                        return Ok(Some(fragment));
                     }
                 }
                 Step::Pending => {
                     self.wrap_cache.suspend(buffer, width, line.suspend());
-                    return Ok(false);
+                    return Ok(None);
                 }
                 Step::Finished => return Err(crate::coordinates::Error::Scalar(point).into()),
             }
@@ -416,10 +431,20 @@ impl View {
                 let Some(source) = self.source_at(buffer, projected) else {
                     break;
                 };
-                let Some(next) = Line::new(buffer, source, width)?.next()? else {
-                    break;
-                };
-                self.wrap_cache.remember(buffer, width, next.clone());
+                let start = coordinates.from_cell(Cell {
+                    row: source,
+                    column: 0,
+                })?;
+                let next =
+                    if let Some(fragment) = self.wrap_cache.exact(buffer, width, source, start) {
+                        fragment
+                    } else {
+                        let Some(next) = Line::new(buffer, source, width)?.next()? else {
+                            break;
+                        };
+                        next
+                    };
+                self.wrap_cache.remember(buffer, width, next.clone())?;
                 current = next;
             } else {
                 current = self.next_fragment(buffer, width, &current)?;
@@ -435,10 +460,21 @@ impl View {
         row: usize,
         point: Scalar,
     ) -> Result<Fragment, Error> {
+        if let Some(work) = self.wrap_cache.work() {
+            let result = self.prepare_fragment(
+                buffer,
+                width,
+                row,
+                point,
+                &mut work.lock().expect("layout budget poisoned"),
+            )?;
+            return result.ok_or(crate::coordinates::Error::Pending.into());
+        }
         let checkpoint = self.wrap_cache.before(buffer, width, row, point);
         if let Some(fragment) = &checkpoint
             && fragment.contains(point, width)
         {
+            fragment.remember_columns(buffer)?;
             return Ok(fragment.clone());
         }
         let mut line = if let Some(fragment) = checkpoint {
@@ -454,7 +490,7 @@ impl View {
         };
         while let Some(fragment) = line.next()? {
             let found = fragment.contains(point, width);
-            self.wrap_cache.remember(buffer, width, fragment.clone());
+            self.wrap_cache.remember(buffer, width, fragment.clone())?;
             if found {
                 return Ok(fragment);
             }
@@ -472,6 +508,7 @@ impl View {
             self.wrap_cache
                 .exact(buffer, width, current.line, current.source.end)
         {
+            fragment.remember_columns(buffer)?;
             return Ok(fragment);
         }
         let mut line = Line::resume(
@@ -482,7 +519,7 @@ impl View {
             current.columns.end,
         )?;
         let next = line.next()?.ok_or(crate::coordinates::Error::Overflow)?;
-        self.wrap_cache.remember(buffer, width, next.clone());
+        self.wrap_cache.remember(buffer, width, next.clone())?;
         Ok(next)
     }
 

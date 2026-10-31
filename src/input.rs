@@ -128,6 +128,12 @@ pub struct Input {
 }
 
 impl Input {
+    /// The same reserved interrupt as route(), without consuming queued input.
+    pub(crate) fn interrupt(event: &Event) -> bool {
+        matches!(event, Event::Key(key) if key.kind == KeyEventKind::Press
+            && Key::normalize(*key).is_some_and(|key| key.control('g')))
+    }
+
     /// Uses admitted context maps and session-local prompt/history bounds.
     /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {

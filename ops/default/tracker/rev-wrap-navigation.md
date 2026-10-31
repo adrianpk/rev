@@ -82,23 +82,18 @@ that exact commit; the controller recorded its merge in Acta. Slice 3 is deliver
 Acceptance: WRP04, WRP05; complete WRP01-WRP07.
 
 - [x] T4.1: Compose wrapping with existing Org folds, headings, table fields, source blocks and preview projections; retain logical command targets and source-preserving alignment.
-- [ ] T4.2: Complete buffer-local override/split/close/invalidation and bounded cache/work ownership. Measure large/long-line resize, sustained input/reversal and idle costs; resolve the wrap ticket with exact evidence.
+- [x] T4.2: Complete buffer-local override/split/close/invalidation and bounded cache/work ownership. Measure large/long-line resize, sustained input/reversal and idle costs; resolve the wrap ticket with exact evidence.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 4 report.
 
-T4.1 commit `ba7233b763b514be0c0fb0cf205abd2c4ae4c227` completes wrapped Org
-source/field/draft integration and maps preview
-anchors through current visual fragments. Focused Org wrapping and existing
-preview cases pass. T4.2 has bounded fragment retention (8192 entries and
-1 MiB per view), coordinate retention (1024 per buffer), prefix invalidation
-and independent split ownership. Warm native API paths improved to about
-1 ms; cold frame/reflow still takes 61-192 ms in the debug probe. These are
-intermediate measurements, not accepted performance ceilings. Native cold
-frame anchors now yield after at most 4096 glyph reads through the existing
-deadline owner; the measured largest host step is about 6-8 ms in the probe.
-Direct cold command handlers, complete cancellation/idle CPU evidence and
-ticket resolution remain active.
-Override lifetime through split/close/revisit is covered under both defaults.
-Slice 4 has no canonical PR yet.
+T4.1 commit `ba7233b763b514be0c0fb0cf205abd2c4ae4c227` delivers wrapped Org
+source/field/draft/preview integration. T4.2 completes bounded retention,
+resumable coordinate/fragment work, cold command/pointer preparation, finite
+ordered input, cancellation and shared frame mapping. Native API and release
+PTY probes restore exact source, settle input/reversal and record idle costs.
+See the [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md)
+for work ceilings, measurements and their limits. Override lifetime through
+split/close/revisit is covered under both defaults. Final exact-HEAD checks and
+the canonical PR reference remain pending; the wrap ticket is under review.
 
 ## Slice 5: Directory targets and initial tree expansion
 

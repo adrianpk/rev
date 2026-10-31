@@ -127,6 +127,96 @@ fn cold_reflow() {
     assert_eq!(session.remaining_input(Instant::now()), None);
 }
 
+// Region endpoints and reveal of a preceding long logical line can miss after
+// frame anchors are ready. Those consumers must yield through the same owner.
+#[test]
+fn cold_consumers() {
+    use crate::buffer::{Buffers, edit::Point};
+    use crate::coordinates::Scalar;
+    use crate::gutter::Change;
+    use crate::view::View;
+    for region in [false, true] {
+        let source = format!("{}\nend\n", "a".repeat(65536));
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(&source).unwrap();
+        let b = buffers.get_mut(id).unwrap();
+        let mut view = View::new(b);
+        view.gutter.apply(Change::Visible(false));
+        if region {
+            b.activate_mark(Point {
+                stamp: b.stamp(),
+                position: Scalar(65536),
+            })
+            .unwrap();
+        } else {
+            view.point.position = Scalar(65537);
+        }
+        let original = view.point;
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 80,
+                height: 6,
+            },
+        )
+        .unwrap();
+        assert!(session.poll_frame().unwrap().cursor().is_none());
+        let mut ready = false;
+        for _ in 0..100 {
+            session.expire_input(Instant::now());
+            if !session.layout_pending {
+                ready = true;
+                break;
+            }
+        }
+        assert!(ready, "{region}");
+        let native = session.poll_frame().unwrap();
+        let complete = session.frame().unwrap();
+        assert_eq!(native.cursor(), complete.cursor());
+        for (actual, expected) in native.rows().iter().zip(complete.rows()) {
+            assert_eq!(actual.text(), expected.text());
+            assert_eq!(actual.selection(), expected.selection());
+        }
+        assert_eq!(session.view().point, original);
+        assert_eq!(text(&session), source);
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert_eq!(session.remaining_input(Instant::now()), None);
+    }
+}
+
+// A visible canvas can exceed retained-fragment capacity. Its text and cursor
+// use one current map, rather than failing after one consumer evicts another.
+#[test]
+fn tall_canvas() {
+    use crate::buffer::Buffers;
+    use crate::gutter::Change;
+    use crate::view::View;
+    let source = "abc".repeat(8400);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&source).unwrap();
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.gutter.apply(Change::Visible(false));
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 3,
+            height: 8300,
+        },
+    )
+    .unwrap();
+    let frame = session.poll_frame().unwrap();
+    assert_eq!(
+        frame.cursor(),
+        Some(crate::display::Position { row: 0, column: 0 })
+    );
+    assert_eq!(frame.rows()[8297].text(), "abc");
+    assert_eq!(session.remaining_input(Instant::now()), None);
+    assert_eq!(text(&session), source);
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
 // A busy source cannot starve drawing. All events left at the count boundary
 // remain available to the next batch, with no change to text or history.
 #[test]

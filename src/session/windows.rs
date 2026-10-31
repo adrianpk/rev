@@ -29,7 +29,7 @@ impl Session {
 
     pub(super) fn select_editing_view(&mut self, id: ViewId) -> Result<(), Error> {
         let view = self.windows.get(id)?;
-        view.cell(self.buffers.get(view.point.stamp.buffer)?)?;
+        view.check_source(self.buffers.get(view.point.stamp.buffer)?)?;
         self.stop_typing()?;
         self.kills.break_chain();
         self.windows.select(id)?;

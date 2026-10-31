@@ -102,6 +102,14 @@ pub struct Frame {
     rows: Vec<Row>,
     cursor: Option<Position>,
     previews: Vec<preview::Placement>,
+    source_rows: Vec<SourceRows>,
+}
+
+/// Metadata for this immutable frame only, separate from retained view caches.
+struct SourceRows {
+    area: Area,
+    stamp: Stamp,
+    rows: Vec<(usize, usize, u16)>,
 }
 
 impl Frame {
@@ -119,6 +127,7 @@ impl Frame {
             rows: Vec::new(),
             cursor: None,
             previews: Vec::new(),
+            source_rows: Vec::new(),
         };
         if size.width > 0 && size.height > 0 {
             frame.blank_rows();
@@ -136,6 +145,7 @@ impl Frame {
             rows: Vec::new(),
             cursor: None,
             previews: Vec::new(),
+            source_rows: Vec::new(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);
@@ -162,13 +172,34 @@ impl Frame {
         let point = view.cell(buffer)?;
         let geometry = view.gutter_geometry(buffer, panel.content())?;
         let text = Panel::new(geometry.text(), false, panel.active());
+        let fragments = if buffer.soft_wrap() {
+            view.wrapped_rows(buffer, text.content().width(), text.content().height())?
+        } else {
+            Vec::new()
+        };
         let highlight = selection::Highlight::new(buffer, view, panel.active())?;
-        self.document(buffer, view, text, highlight)?;
-        self.numbers(buffer, view, geometry, point.row)?;
+        self.document(buffer, view, text, highlight, &fragments)?;
+        self.numbers(buffer, view, geometry, point.row, &fragments)?;
         self.status(buffer, point, panel)?;
-        self.preview(buffer, view, text.content())?;
+        self.preview(buffer, view, text.content(), &fragments)?;
         if panel.active() {
-            self.cursor = Self::position(point, view, text, buffer);
+            self.cursor = Self::position(point, view, text, buffer, &fragments);
+        }
+        if buffer.soft_wrap() {
+            self.source_rows.push(SourceRows {
+                area: text.content(),
+                stamp: buffer.stamp(),
+                rows: fragments
+                    .iter()
+                    .map(|f| {
+                        (
+                            f.line,
+                            f.columns.start,
+                            f.highlight_width(text.content().width()),
+                        )
+                    })
+                    .collect(),
+            });
         }
         Ok(())
     }
@@ -228,16 +259,15 @@ impl Frame {
         view: &View,
         panel: Panel,
         highlight: Option<selection::Highlight>,
+        fragments: &[crate::view::Fragment],
     ) -> Result<(), Error> {
         let coordinates = Coordinates::new(buffer)?;
         let content = panel.content();
-        let fragments = if buffer.soft_wrap() {
-            view.wrapped_rows(buffer, content.width(), content.height())?
-        } else {
-            Vec::new()
-        };
         for row in 0..content.height() {
             let fragment = fragments.get(usize::from(row));
+            if let Some(fragment) = fragment {
+                fragment.remember_columns(buffer)?;
+            }
             let source = if buffer.soft_wrap() {
                 fragment.map_or(buffer.len_lines(), |f| f.line)
             } else {
@@ -336,12 +366,15 @@ impl Frame {
         }
     }
 
-    fn position(point: Cell, view: &View, panel: Panel, buffer: &Buffer) -> Option<Position> {
+    fn position(
+        point: Cell,
+        view: &View,
+        panel: Panel,
+        buffer: &Buffer,
+        fragments: &[crate::view::Fragment],
+    ) -> Option<Position> {
         if buffer.soft_wrap() {
             let content = panel.content();
-            let fragments = view
-                .wrapped_rows(buffer, content.width(), content.height())
-                .ok()?;
             let (row, fragment) = fragments.iter().enumerate().find(|(_, f)| {
                 f.line == point.row && f.contains(view.point.position, content.width())
             })?;

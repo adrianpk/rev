@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use crate::buffer::{Buffer, Stamp};
-use crate::coordinates::Scalar;
+use crate::coordinates::{Scalar, Work};
 
 use super::{Continuation, Fragment};
 
@@ -13,6 +13,7 @@ type Key = (usize, Scalar);
 
 #[derive(Default)]
 struct Entries {
+    work: Option<Work>,
     identity: Option<(Stamp, u16, usize, bool)>,
     fragments: BTreeMap<Key, Fragment>,
     order: VecDeque<Key>,
@@ -24,6 +25,14 @@ struct Entries {
 /// Derived work is excluded from semantic View equality and retained requests.
 #[derive(Clone, Default)]
 pub(in crate::view) struct Cache(Arc<Mutex<Entries>>);
+pub(crate) struct Scope(Arc<Mutex<Entries>>, bool);
+impl Drop for Scope {
+    fn drop(&mut self) {
+        if self.1 {
+            self.0.lock().expect("fragment cache poisoned").work = None;
+        }
+    }
+}
 impl std::fmt::Debug for Cache {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let entries = self.0.lock().expect("fragment cache poisoned");
@@ -41,6 +50,39 @@ impl PartialEq for Cache {
 impl Eq for Cache {}
 
 impl Cache {
+    pub(in crate::view) fn scope(&self, work: Work) -> Scope {
+        let mut entries = self.0.lock().expect("fragment cache poisoned");
+        let owner = entries.work.is_none();
+        if owner {
+            entries.work = Some(work);
+        }
+        Scope(self.0.clone(), owner)
+    }
+
+    pub(in crate::view) fn work(&self) -> Option<Work> {
+        self.0.lock().expect("fragment cache poisoned").work.clone()
+    }
+
+    pub(in crate::view) fn remember_point_columns(
+        &self,
+        buffer: &Buffer,
+        row: usize,
+        point: Scalar,
+    ) -> Result<(), crate::view::Error> {
+        let width = self
+            .0
+            .lock()
+            .expect("fragment cache poisoned")
+            .identity
+            .map(|id| id.1);
+        if let Some(width) = width
+            && let Some(fragment) = self.before(buffer, width, row, point)
+        {
+            fragment.remember_columns(buffer)?;
+        }
+        Ok(())
+    }
+
     pub(in crate::view) fn cancel_work(&self) {
         self.0.lock().expect("fragment cache poisoned").building = None;
     }
@@ -74,7 +116,9 @@ impl Cache {
                 entries.bytes = entries.fragments.values().map(|f| f.text.len()).sum();
                 entries.identity = Some(identity);
             } else {
+                let work = entries.work.take();
                 *entries = Entries {
+                    work,
                     identity: Some(identity),
                     ..Entries::default()
                 };
@@ -144,11 +188,17 @@ impl Cache {
             .cloned()
     }
 
-    pub(in crate::view) fn remember(&self, buffer: &Buffer, width: u16, fragment: Fragment) {
+    pub(in crate::view) fn remember(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        fragment: Fragment,
+    ) -> Result<(), crate::view::Error> {
+        fragment.remember_columns(buffer)?;
         let mut entries = self.observe(buffer, width);
         let key = (fragment.line, fragment.source.start);
         if entries.fragments.contains_key(&key) {
-            return;
+            return Ok(());
         }
         entries.bytes += fragment.text.len();
         entries.order.push_back(key);
@@ -164,6 +214,7 @@ impl Cache {
                 .expect("retained fragment exists");
             entries.bytes -= fragment.text.len();
         }
+        Ok(())
     }
 }
 

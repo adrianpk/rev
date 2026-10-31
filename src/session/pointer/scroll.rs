@@ -33,14 +33,24 @@ impl Session {
     }
 
     fn scroll_editing(&mut self, id: ViewId, panel: Panel, backward: bool) -> Result<bool, Error> {
+        let candidate = self.scrolling_editing(id, panel, backward)?;
+        let changed = candidate != *self.windows.get(id)?;
+        *self.windows.get_mut(id)? = candidate;
+        Ok(changed)
+    }
+
+    pub(in crate::session) fn scrolling_editing(
+        &self,
+        id: ViewId,
+        panel: Panel,
+        backward: bool,
+    ) -> Result<crate::view::View, Error> {
         let before = self.windows.get(id)?;
         let buffer = self.buffers.get(before.point.stamp.buffer)?;
         let mut candidate = before.clone();
         let size = panel.outer().view_size();
         candidate.reveal(buffer, size)?;
         candidate.scroll_viewport(buffer, backward, self.mouse_scroll_lines(), size)?;
-        let changed = candidate != *before;
-        *self.windows.get_mut(id)? = candidate;
-        Ok(changed)
+        Ok(candidate)
     }
 }

@@ -42,7 +42,7 @@ impl Session {
     fn move_to_line(&mut self, line: i64) -> Result<(), Error> {
         let buffer = self.buffer()?;
         let mut candidate = self.view().clone();
-        candidate.cell(buffer)?;
+        candidate.check_source(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
         candidate.point.position = if line <= 0 {
             Scalar(0)
@@ -54,8 +54,6 @@ impl Session {
             coordinates.end()
         };
         candidate.reset_navigation();
-        candidate.reveal(buffer, self.pane_size())?;
-        *self.windows.selected_mut() = candidate;
-        Ok(())
+        self.place_view(candidate)
     }
 }

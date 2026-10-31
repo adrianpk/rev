@@ -40,7 +40,15 @@ impl View {
             let right = left
                 .checked_add(usize::from(text.width()))
                 .ok_or(crate::coordinates::Error::Overflow)?;
-            return Ok(Coordinates::new(buffer)?
+            let coordinates = Coordinates::new(buffer)?;
+            coordinates.remember_cell(
+                fragment.source.start,
+                Cell {
+                    row: fragment.line,
+                    column: fragment.columns.start,
+                },
+            );
+            return Ok(coordinates
                 .hit_cell(
                     Cell {
                         row: fragment.line,

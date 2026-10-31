@@ -45,6 +45,7 @@ impl<'a> Glyph<'a> {
 /// Projects a line incrementally with bounded chunk context and per-cluster text.
 pub struct Glyphs<'a> {
     text: RopeSlice<'a>,
+    context_start: Scalar,
     cursor: Cursor<'a>,
     byte: usize,
     point: Scalar,
@@ -54,6 +55,7 @@ pub struct Glyphs<'a> {
 }
 
 pub(crate) struct Checkpoint {
+    context_start: Scalar,
     cursor: super::cursor::Checkpoint,
     byte: usize,
     point: Scalar,
@@ -64,6 +66,7 @@ pub(crate) struct Checkpoint {
 impl<'a> Glyphs<'a> {
     pub(crate) fn checkpoint(&self) -> Checkpoint {
         Checkpoint {
+            context_start: self.context_start,
             cursor: self.cursor.checkpoint(),
             byte: self.byte,
             point: self.point,
@@ -74,11 +77,19 @@ impl<'a> Glyphs<'a> {
 
     pub(super) fn resume(
         text: RopeSlice<'a>,
+        start: Scalar,
         tab_width: usize,
         at: Checkpoint,
     ) -> Result<Self, Error> {
+        let offset = at
+            .context_start
+            .0
+            .checked_sub(start.0)
+            .ok_or(Error::Segmentation)?;
+        let text = text.get_slice(offset..).ok_or(Error::Segmentation)?;
         Ok(Self {
             text,
+            context_start: at.context_start,
             cursor: Cursor::resume(text, at.cursor)?,
             byte: at.byte,
             point: at.point,
@@ -111,6 +122,7 @@ impl<'a> Glyphs<'a> {
     pub(super) fn new(text: RopeSlice<'a>, start: Scalar, tab_width: usize) -> Result<Self, Error> {
         Ok(Self {
             text,
+            context_start: start,
             cursor: Cursor::new(text, 0)?,
             byte: 0,
             point: start,
@@ -128,17 +140,16 @@ impl<'a> Glyphs<'a> {
         column: usize,
     ) -> Result<Self, Error> {
         let local = point.0.checked_sub(start.0).ok_or(Error::Scalar(point))?;
-        let byte = text
-            .try_char_to_byte(local)
-            .map_err(|_| Error::Scalar(point))?;
-        let mut cursor = Cursor::new(text, byte)?;
-        if !cursor.boundary()? {
-            return Err(Error::Cluster(point));
-        }
+        // The caller supplies an observed extended-grapheme boundary. UAX #29
+        // section 6.3 permits finding the next boundary from that known break.
+        // Starting the suffix here avoids rescanning an arbitrarily long RI
+        // prefix. Tabs still use the observed absolute logical column.
+        let text = text.get_slice(local..).ok_or(Error::Scalar(point))?;
         Ok(Self {
             text,
-            cursor,
-            byte,
+            context_start: point,
+            cursor: Cursor::new(text, 0)?,
+            byte: 0,
             point,
             column,
             tab_width,
@@ -209,4 +220,39 @@ fn control_text(control: char) -> String {
         return "^?".into();
     }
     format!("<{:02X}>", control as u32)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Known-boundary suffix restarts must preserve every source span, absolute
+    // tab column and glyph. Include RI parity and context-sensitive EGC rules
+    // across rope chunks; arbitrary scalar offsets are not admitted here.
+    #[test]
+    fn observed_boundaries() {
+        for source in [
+            format!("{}🇨", "🇦🇧".repeat(600)),
+            "\u{600}a e\u{301}\t👩‍💻 क्\u{200d}ष क्ष 각 \r\n".repeat(40),
+        ] {
+            let rope = ropey::Rope::from_str(&source);
+            let expected = Glyphs::new(rope.slice(..), Scalar(13), 4)
+                .unwrap()
+                .map(|g| {
+                    let g = g.unwrap();
+                    (g.source, g.columns, g.text.into_owned())
+                })
+                .collect::<Vec<_>>();
+            for (index, (span, columns, _)) in expected.iter().enumerate() {
+                let actual = Glyphs::at(rope.slice(..), Scalar(13), 4, span.start, columns.start)
+                    .unwrap()
+                    .map(|g| {
+                        let g = g.unwrap();
+                        (g.source, g.columns, g.text.into_owned())
+                    })
+                    .collect::<Vec<_>>();
+                assert_eq!(actual, expected[index..], "{index}");
+            }
+        }
+    }
 }

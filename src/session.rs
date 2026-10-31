@@ -19,6 +19,7 @@ mod gutter;
 mod habits;
 mod history;
 mod kill;
+mod layout;
 mod linear;
 mod links;
 mod publishing;
@@ -118,6 +119,7 @@ pub struct Session {
     input: Input,
     size: Size,
     layout_pending: bool,
+    layout: layout::Work,
     echo: String,
     echo_kind: Message,
     pending: Option<Pending>,
@@ -240,13 +242,7 @@ impl Session {
     /// Takes ownership of canonical buffers and a qualified initial view.
     pub fn new(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
         let buffer = buffers.get(view.point.stamp.buffer)?;
-        buffer.slice(&crate::buffer::Span {
-            stamp: view.point.stamp,
-            range: view.point.position.0..view.point.position.0,
-        })?;
-        if !crate::coordinates::Coordinates::new(buffer)?.is_boundary(view.point.position)? {
-            return Err(crate::coordinates::Error::Cluster(view.point.position).into());
-        }
+        view.check_point(buffer)?;
         let tree = crate::tree::Tree::startup(
             &buffers.snapshot().settings().tree,
             buffer.file().map(|file| file.path()),
@@ -291,6 +287,7 @@ impl Session {
             input,
             size,
             layout_pending: false,
+            layout: layout::Work::default(),
             echo: "C-x C-c: exit".into(),
             echo_kind: Message::Normal,
             pending: None,
@@ -337,15 +334,17 @@ impl Session {
         &self.echo
     }
 
-    fn prepare_frame_layout(&mut self) -> Result<bool, view::Error> {
-        let mut budget = view::LayoutBudget::new();
+    fn prepare_frame_layout(
+        &mut self,
+        budget: &mut view::LayoutBudget,
+    ) -> Result<bool, view::Error> {
         let geometry = self.windows.geometry(self.editing_size());
         self.layout_pending = false;
         if let Some(geometry) = geometry {
             for (id, area) in geometry.panes() {
                 let view = self.windows.get(*id)?;
                 let buffer = self.buffers.get(view.point.stamp.buffer)?;
-                if !view.prepare_layout(buffer, area.view_size(), &mut budget)? {
+                if !view.prepare_layout(buffer, area.view_size(), budget)? {
                     self.layout_pending = true;
                     self.cancel_pointer_capture();
                     return Ok(false);
@@ -355,21 +354,71 @@ impl Session {
         Ok(true)
     }
 
+    fn layout_scopes(
+        &self,
+        mut work: crate::coordinates::Work,
+    ) -> Result<(Vec<crate::coordinates::Scope>, Vec<view::LayoutScope>), view::Error> {
+        for (_, view) in self.windows.iter() {
+            let buffer = self.buffers.get(view.point.stamp.buffer)?;
+            if let Some(current) = crate::coordinates::Coordinates::new(buffer)?.work() {
+                work = current;
+                break;
+            }
+        }
+        let mut sources = std::collections::BTreeSet::new();
+        let mut coordinates = Vec::new();
+        let mut fragments = Vec::new();
+        for (_, view) in self.windows.iter() {
+            if sources.insert(view.point.stamp.buffer) {
+                coordinates.push(crate::coordinates::Scope::new(
+                    self.buffers.get(view.point.stamp.buffer)?,
+                    work.clone(),
+                ));
+            }
+            fragments.push(view.layout_scope(work.clone()));
+        }
+        Ok((coordinates, fragments))
+    }
+
     /// Advance cold native projection by one bounded batch. An unfinished
     /// projection has no source cursor/hits; remaining_input owns its next wake.
     pub fn poll_frame(&mut self) -> Result<Frame, view::Error> {
-        if !self.prepare_frame_layout()? {
+        if self.layout_active() {
             return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
         }
-        self.frame()
+        // Observe completed source work before installing a derived-work budget.
+        // Its canonical callbacks must never receive a projection-only yield.
+        self.refresh_frame()?;
+        if self.layout_active() {
+            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+        }
+        let mut budget = view::LayoutBudget::new();
+        if !self.prepare_frame_layout(&mut budget)? {
+            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+        }
+        let work = std::sync::Arc::new(std::sync::Mutex::new(budget));
+        let scopes = self.layout_scopes(work)?;
+        let result = self.project_frame();
+        drop(scopes);
+        match result {
+            Err(error) if error.pending() => {
+                self.layout_pending = true;
+                self.cancel_pointer_capture();
+                Frame::pending(self.buffer()?, self.size, self.buffers.palette())
+            }
+            result => result,
+        }
     }
 
     /// Produce a complete synchronous observation for an embedding caller.
     /// The native terminal uses poll_frame so cold anchor work can yield.
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
-        self.layout_pending = false;
+        self.refresh_frame()?;
+        self.project_frame()
+    }
+
+    fn refresh_frame(&mut self) -> Result<(), view::Error> {
         for (_, view) in self.windows.iter() {
-            view.cancel_layout();
             self.buffers
                 .get_mut(view.point.stamp.buffer)?
                 .refresh_syntax();
@@ -379,6 +428,10 @@ impl Session {
         self.advance_capture();
         self.invalidate_search();
         self.invalidate_replace();
+        Ok(())
+    }
+
+    fn project_frame(&mut self) -> Result<Frame, view::Error> {
         let composition = self.composition();
         let candidate_rows = composition
             .as_ref()
@@ -401,6 +454,10 @@ impl Session {
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame, composition.as_ref())?;
+        for (_, view) in self.windows.iter() {
+            view.cancel_layout();
+        }
+        self.layout_pending = false;
         Ok(frame)
     }
 
@@ -513,6 +570,13 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if let Some(action) = self.defer_layout_command(command) {
+            return action;
+        }
+        self.execute_now(command)
+    }
+
+    fn execute_now(&mut self, command: Command) -> Action {
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self
@@ -525,6 +589,9 @@ impl Session {
             .or_else(|| self.agenda_action_command(command))
             .or_else(|| self.prepare_command(command))
         {
+            return action;
+        }
+        if let Some(action) = self.layout_command(command) {
             return action;
         }
         self.command_boundary(command);

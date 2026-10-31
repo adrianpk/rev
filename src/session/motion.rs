@@ -13,6 +13,12 @@ impl Session {
     }
 
     fn scroll_point(&mut self, scroll: Scroll) -> Result<(), Error> {
+        let candidate = self.scrolling_view(scroll)?;
+        *self.windows.selected_mut() = candidate;
+        Ok(())
+    }
+
+    pub(super) fn scrolling_view(&self, scroll: Scroll) -> Result<crate::view::View, Error> {
         let buffer = self
             .buffers
             .get(self.windows.selected().point.stamp.buffer)?;
@@ -30,8 +36,7 @@ impl Session {
             }
         }
         candidate.reveal(buffer, self.pane_size())?;
-        *self.windows.selected_mut() = candidate;
-        Ok(())
+        Ok(candidate)
     }
 
     pub(super) fn motion(&mut self, motion: Motion) -> Action {
@@ -42,12 +47,30 @@ impl Session {
     }
 
     fn move_point(&mut self, motion: Motion) -> Result<(), Error> {
+        let target = self.motion_target(motion)?;
+        let mut candidate = self.view().clone();
+        candidate.point.position = target;
+        candidate.check_source(self.buffer()?)?;
+        candidate.reset_navigation();
+        self.place_view(candidate)
+    }
+
+    pub(super) fn motion_target(
+        &self,
+        motion: Motion,
+    ) -> Result<crate::coordinates::Scalar, Error> {
         let buffer = self
             .buffers
             .get(self.windows.selected().point.stamp.buffer)?;
-        self.windows.selected().cell(buffer)?;
+        self.windows.selected().check_source(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
         let width = self.view().text_width(buffer, self.pane_size())?;
+        if motion == Motion::ForwardChar {
+            return Ok(coordinates.next_observed(self.view().point.position)?);
+        }
+        if motion == Motion::BackwardChar {
+            return Ok(coordinates.previous_observed(self.view().point.position)?);
+        }
         let target = if buffer.soft_wrap()
             && width > 0
             && matches!(motion, Motion::LineStart | Motion::LineEnd)
@@ -57,19 +80,35 @@ impl Session {
         } else {
             motion.target(&coordinates, self.view().point.position)?
         };
-        self.place_point(crate::buffer::edit::Point {
-            position: target,
-            ..self.view().point
-        })
+        Ok(target)
     }
 
     pub(super) fn place_point(&mut self, point: crate::buffer::edit::Point) -> Result<(), Error> {
         let buffer = self.buffer()?;
         let mut candidate = self.windows.selected().clone();
         candidate.point = point;
-        candidate.cell(buffer)?;
+        candidate.check_point(buffer)?;
         candidate.reset_navigation();
-        candidate.reveal(buffer, self.pane_size())?;
+        self.place_view(candidate)
+    }
+
+    pub(super) fn place_view(&mut self, candidate: crate::view::View) -> Result<(), Error> {
+        let buffer = self.buffer()?;
+        let work = std::sync::Arc::new(std::sync::Mutex::new(crate::view::LayoutBudget::new()));
+        let coordinates = crate::coordinates::Scope::new(buffer, work);
+        let fragments = candidate.layout_scope(coordinates.work());
+        let mut revealed = candidate.clone();
+        let result = revealed.reveal(buffer, self.pane_size());
+        drop(fragments);
+        drop(coordinates);
+        let candidate = match result {
+            Ok(()) => revealed,
+            Err(error) if error.pending() => {
+                self.layout_pending = true;
+                candidate
+            }
+            Err(error) => return Err(error),
+        };
         *self.windows.selected_mut() = candidate;
         Ok(())
     }

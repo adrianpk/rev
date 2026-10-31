@@ -16,16 +16,13 @@ impl Frame {
         buffer: &Buffer,
         view: &View,
         area: Area,
+        fragments: &[crate::view::Fragment],
     ) -> Result<(), Error> {
         let images = view.preview.images(buffer.stamp());
         if images.is_empty() {
             return Ok(());
         }
-        let fragments = if buffer.soft_wrap() {
-            Some(view.wrapped_rows(buffer, area.width(), area.height())?)
-        } else {
-            None
-        };
+        let fragments = buffer.soft_wrap().then_some(fragments);
         let mut bytes = self
             .previews
             .iter()
@@ -44,8 +41,7 @@ impl Frame {
             if self.previews.len() == 32 || bytes + image.png.bytes.len() > 16777216 {
                 break;
             }
-            let Some(place) = image_area(buffer, view, image.row, area, fragments.as_deref())
-            else {
+            let Some(place) = image_area(buffer, view, image.row, area, fragments) else {
                 continue;
             };
             bytes += image.png.bytes.len();

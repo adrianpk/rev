@@ -7,6 +7,7 @@ mod visual;
 mod wrap;
 pub(crate) use wrap::Budget as LayoutBudget;
 pub use wrap::Fragment;
+pub(crate) use wrap::LayoutScope;
 
 use std::fmt;
 
@@ -56,6 +57,18 @@ impl fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+impl Error {
+    pub(crate) fn pending(self) -> bool {
+        matches!(
+            self,
+            Self::Coordinates(coordinates::Error::Pending)
+                | Self::Edit(buffer::edit::Error::Coordinates(
+                    coordinates::Error::Pending
+                ))
+        )
+    }
+}
 
 impl From<crate::gutter::Error> for Error {
     fn from(error: crate::gutter::Error) -> Self {
@@ -176,7 +189,29 @@ impl View {
             stamp: self.point.stamp,
             range: self.point.position.0..self.point.position.0,
         })?;
-        Ok(Coordinates::new(buffer)?.to_cell(self.point.position)?)
+        let coordinates = Coordinates::new(buffer)?;
+        self.wrap_cache.remember_point_columns(
+            buffer,
+            coordinates.to_line(self.point.position)?.row,
+            self.point.position,
+        )?;
+        Ok(coordinates.to_cell(self.point.position)?)
+    }
+
+    pub(crate) fn check_point(&self, buffer: &Buffer) -> Result<(), Error> {
+        self.check_source(buffer)?;
+        if !Coordinates::new(buffer)?.is_boundary(self.point.position)? {
+            return Err(coordinates::Error::Cluster(self.point.position).into());
+        }
+        Ok(())
+    }
+
+    pub(crate) fn check_source(&self, buffer: &Buffer) -> Result<(), Error> {
+        buffer.slice(&Span {
+            stamp: self.point.stamp,
+            range: self.point.position.0..self.point.position.0,
+        })?;
+        Ok(())
     }
 
     /// Reveal point in usable geometry. Suspended presentation preserves scroll.

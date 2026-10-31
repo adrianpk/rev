@@ -320,7 +320,7 @@ impl Buffer {
         self.syntax.edit(before, after, &prepared.syntax);
         self.edit_org(before, after, &prepared.syntax);
         self.coordinates
-            .get_mut()
+            .lock()
             .expect("coordinate cache poisoned")
             .retain_prefix(before, after, crate::coordinates::Scalar(changed));
         self.text = prepared.text;

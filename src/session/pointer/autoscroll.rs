@@ -48,6 +48,12 @@ fn direction(position: Position, content: Area) -> Option<bool> {
 }
 
 impl Session {
+    pub(in crate::session) fn stop_pointer_scroll(&mut self) {
+        if let Some(selection) = &mut self.selection {
+            selection.autoscroll = None;
+        }
+    }
+
     pub(in crate::session) fn pointer_remaining(&self, now: Instant) -> Option<Duration> {
         let selection = self.selection.as_ref()?;
         self.capture_panel(selection.capture)?;
@@ -61,16 +67,30 @@ impl Session {
     }
 
     pub(in crate::session) fn expire_pointer(&mut self, now: Instant) -> Action {
+        if self.layout_active() {
+            return Action::Wait;
+        }
         let Some(mut selection) = self.selection.take() else {
             return Action::Wait;
         };
         let Some(panel) = self.capture_panel(selection.capture) else {
             return Action::Wait;
         };
-        match self.pointer_tick(&mut selection, panel, now) {
+        let work = std::sync::Arc::new(std::sync::Mutex::new(crate::view::LayoutBudget::new()));
+        let scopes = match self.layout_scopes(work) {
+            Ok(scopes) => scopes,
+            Err(error) => return self.error(&error.to_string()),
+        };
+        let result = self.pointer_tick(&mut selection, panel, now);
+        drop(scopes);
+        match result {
             Ok(action) => {
                 self.selection = Some(selection);
                 action
+            }
+            Err(error) if error.pending() => {
+                self.selection = Some(selection);
+                Action::Wait
             }
             Err(error) => self.error(&error.to_string()),
         }

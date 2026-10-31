@@ -5,11 +5,14 @@ use crossterm::event::{self, Event};
 
 use super::{Action, Session};
 
-const INPUT_BATCH_EVENTS: usize = 32;
-const INPUT_BATCH_TIME: Duration = Duration::from_millis(4);
+pub(super) const INPUT_BATCH_EVENTS: usize = 32;
+pub(super) const INPUT_BATCH_TIME: Duration = Duration::from_millis(4);
 
 impl Session {
     pub(super) fn read_input(&mut self) -> io::Result<Action> {
+        if self.layout_full() {
+            return Ok(self.expire_input(Instant::now()));
+        }
         if !self.input_ready(Instant::now(), event::poll)? {
             return Ok(self.expire_input(Instant::now()));
         }
@@ -35,7 +38,7 @@ impl Session {
             self.timer_remaining(now),
             self.agenda_action_remaining(),
             self.capture_remaining(),
-            self.layout_pending.then_some(Duration::ZERO),
+            (self.layout_pending || self.layout_active()).then_some(Duration::ZERO),
         ]
         .into_iter()
         .flatten()
@@ -60,14 +63,15 @@ impl Session {
 
     // Keep every handler transition in order. Only intermediate presentation is
     // combined; finite event/time budgets guarantee progress to the next frame.
-    fn drain_input(
+    pub(super) fn drain_input(
         &mut self,
         mut action: Action,
         started: Instant,
         mut next: impl FnMut() -> io::Result<Option<Event>>,
     ) -> io::Result<Action> {
         for _ in 1..INPUT_BATCH_EVENTS {
-            if action == Action::Exit || started.elapsed() >= INPUT_BATCH_TIME {
+            if action == Action::Exit || started.elapsed() >= INPUT_BATCH_TIME || self.layout_full()
+            {
                 break;
             }
             let Some(event) = next()? else {
@@ -87,6 +91,13 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
+        match self.defer_layout_event(event, now) {
+            Ok(event) => self.handle_ready_at(event, now),
+            Err(action) => action,
+        }
+    }
+
+    pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
         self.timer_notice = false;
         if self.layout_pending && matches!(event, Event::Mouse(_)) {
             // The pending frame exposes no current source mapping. Do not let
@@ -141,12 +152,15 @@ impl Session {
     }
 
     fn expire_layout(&mut self) -> Action {
+        if let Some(action) = self.expire_layout_input() {
+            return action;
+        }
         if !self.layout_pending {
             return Action::Wait;
         }
-        match self.prepare_frame_layout() {
-            Ok(true) => Action::Redraw,
-            Ok(false) => Action::Wait,
+        match self.poll_frame() {
+            Ok(_) if self.layout_pending => Action::Wait,
+            Ok(_) => Action::Redraw,
             Err(error) => self.error(&error.to_string()),
         }
     }

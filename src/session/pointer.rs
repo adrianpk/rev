@@ -30,6 +30,13 @@ impl Session {
     }
 
     pub(super) fn pointer(&mut self, event: Event, now: std::time::Instant) -> Action {
+        if let Some(action) = self.layout_pointer(event, now) {
+            return action;
+        }
+        self.pointer_now(event, now)
+    }
+
+    pub(super) fn pointer_now(&mut self, event: Event, now: std::time::Instant) -> Action {
         if !self.mouse_enabled || self.input.focus() != Focus::Editing {
             return Action::Wait;
         }
@@ -39,6 +46,45 @@ impl Session {
             Kind::Release => self.release_pointer(event.position, now),
             Kind::ScrollUp | Kind::ScrollDown => self.pointer_scroll(event),
         }
+    }
+
+    pub(super) fn prepare_pointer(&self, event: Event) -> Result<(), Error> {
+        if matches!(event.kind, Kind::ScrollUp | Kind::ScrollDown) && self.selection.is_some() {
+            return Ok(());
+        }
+        let Some(composition) = self.composition() else {
+            return Ok(());
+        };
+        if matches!(
+            crate::pointer::Target::resolve(&composition, event.position),
+            Some(crate::pointer::Target::Tree(_))
+        ) {
+            return Ok(());
+        }
+        let mut windows = self.windows.clone();
+        windows.reveal(&self.buffers, composition.editing_size())?;
+        match event.kind {
+            Kind::Press => {
+                Hit::resolve(&composition, &windows, &self.buffers, event.position)?;
+            }
+            Kind::Drag | Kind::Release => {
+                if let Some(selection) = &self.selection
+                    && let Some(panel) = self.capture_panel(selection.capture)
+                {
+                    let view = windows.selected();
+                    view.hit(self.buffer()?, panel.content(), event.position)?;
+                }
+            }
+            Kind::ScrollUp | Kind::ScrollDown if self.selection.is_none() => {
+                if let Some(crate::pointer::Target::Editing { view, panel }) =
+                    crate::pointer::Target::resolve(&composition, event.position)
+                {
+                    self.scrolling_editing(view, panel, event.kind == Kind::ScrollUp)?;
+                }
+            }
+            _ => {}
+        }
+        Ok(())
     }
 
     fn press(&mut self, position: crate::display::Position) -> Action {

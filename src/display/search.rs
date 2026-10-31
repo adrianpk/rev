@@ -21,16 +21,15 @@ impl Frame {
         let panel = Panel::new(geometry.text(), false, panel.active());
         let highlight = Highlight::from_span(buffer, span)?;
         let text = panel.content();
-        let fragments = if buffer.soft_wrap() {
-            view.wrapped_rows(buffer, text.width(), text.height())?
-        } else {
-            Vec::new()
-        };
+        let source_rows = self
+            .source_rows
+            .iter()
+            .find(|map| map.area == text && map.stamp == buffer.stamp());
         for local in 0..panel.content().height() {
             let columns = if buffer.soft_wrap() {
-                fragments.get(usize::from(local)).and_then(|f| {
-                    highlight.row(f.line, f.columns.start, f.highlight_width(text.width()))
-                })
+                source_rows
+                    .and_then(|map| map.rows.get(usize::from(local)))
+                    .and_then(|(row, left, width)| highlight.row(*row, *left, *width))
             } else {
                 view.source_row(buffer, usize::from(local))
                     .and_then(|source| highlight.row(source, view.left, text.width()))

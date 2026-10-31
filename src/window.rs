@@ -55,6 +55,7 @@ impl std::error::Error for Error {}
 
 /// Sole owner of live views and their split tree. Selection always names one
 /// registry entry; only this owner can publish structural changes.
+#[derive(Clone)]
 pub struct Windows {
     views: BTreeMap<ViewId, View>,
     selected: ViewId,

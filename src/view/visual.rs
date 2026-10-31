@@ -27,7 +27,7 @@ impl View {
         if fragment.end_of_line {
             Ok(fragment.source.end)
         } else {
-            Ok(Coordinates::new(buffer)?.previous(fragment.source.end)?)
+            Ok(Coordinates::new(buffer)?.previous_observed(fragment.source.end)?)
         }
     }
 
@@ -52,7 +52,7 @@ impl View {
         let point = self.point.position;
         let end = if point == edge {
             if fragment.end_of_line {
-                coordinates.next(point)?
+                coordinates.next_observed(point)?
             } else {
                 fragment.source.end
             }
@@ -84,10 +84,14 @@ impl View {
         }
         if backward {
             if let Some(previous) = self.wrap_cache.previous(buffer, width, current) {
+                previous.remember_columns(buffer)?;
                 return Ok(Some(previous));
             }
             if current.columns.start > 0 {
-                let before = Coordinates::new(buffer)?.previous(current.source.start)?;
+                // This is a containment query, not a point publication. The
+                // preceding scalar identifies the prior fragment even inside
+                // its final cluster; no unbounded backwards context is needed.
+                let before = Scalar(current.source.start.0 - 1);
                 return self
                     .line_fragment(buffer, width, current.line, before)
                     .map(Some);

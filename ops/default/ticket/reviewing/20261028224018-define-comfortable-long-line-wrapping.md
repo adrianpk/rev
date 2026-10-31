@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028224018
 title: Define comfortable long-line wrapping
-status: ready
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,7 +10,10 @@ tags: wrapping, display, navigation
 source: chat
 reported_at: 2026-10-28T22:40:18Z
 ready_at: 2026-10-30T23:41:32Z
-commits: []
+started_at: 2026-10-31T02:43:02Z
+reviewed_at: 2026-10-31T02:43:02Z
+branch: feat/rev-wrap-navigation-04-org-wrap
+commits: [ba7233b763b514be0c0fb0cf205abd2c4ae4c227, f8e7e974a8863f05f7fee9750eb31001cd9f3a04, ec60f353372f90d7a58627b3848e34ec7b915db8, 7a45df87806500aac2bdcbc52f33ee90447de913]
 ---
 
 # Define comfortable long-line wrapping
@@ -76,8 +79,8 @@ wrapping without implicit table/source-block no-wrap exceptions. Gutter labels
 and rectangle rows/columns retain logical source identities. The implementation
 must enforce the specified bounded cache and record bounded work measurements.
 
-This ticket is ready. Slices 1-3 build shared display/input behavior; Slice 4
-owns full wrap acceptance and the ticket lifecycle in the single
+This ticket is under review. Slices 1-3 delivered shared display/input
+behavior; Slice 4 owns full wrap acceptance and the ticket lifecycle in the single
 [Wrap and Navigation delivery](../../plan/rev-wrap-navigation.md).
 
 ## Validation direction and delivery boundary
@@ -91,9 +94,8 @@ source-edit contract.
 This ticket records the accepted wrapping and Emacs interaction contract. The [Word-Aware Soft Wrapping specification](../../spec/editor-soft-wrap.md)
 and its model now capture the coordinated proposal. Reconcile the delivered
 no-wrap contracts during implementation under the approved plan.
-This ticket is ready for the selected delivery. It belongs
-to the selected five-topic future interaction delivery, with soft wrap first;
-no slice map or controller is created by this update.
+The approved eight-slice delivery records the selected five interaction
+topics, with soft wrap owned by Slices 1-4.
 
 ## References
 
@@ -101,3 +103,14 @@ no slice map or controller is created by this update.
 - [Neovim wrap, linebreak, breakindent and textwidth](https://neovim.io/doc/user/options/).
 - [Emacs continuation lines](https://www.gnu.org/software/emacs/manual/html_node/emacs/Continuation-Lines.html).
 - [Emacs Visual Line mode](https://www.gnu.org/software/emacs/manual/html_node/emacs/Visual-Line-Mode.html).
+
+## Implemented resolution
+
+Slices 1-4 implement the accepted native word-aware wrapping, buffer-local
+Visual Line controls, source-preserving Org behavior and bounded derived work.
+The [Slice 4 report](../../report/slices/rev-wrap-navigation/slice-4-org-wrap.md)
+records cache/work limits, exact source/undo checks, cold input cancellation,
+resize/reversal measurements and real PTY idle CPU evidence. The canonical
+slice PR and final clean-head validation will be recorded before handoff.
+This ticket moved through implementation and is now under review; integration
+and the solved transition remain owned by the controller delivery workflow.

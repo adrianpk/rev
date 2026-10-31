@@ -4,6 +4,8 @@ pub(crate) use checkpoints::Checkpoints;
 mod display;
 mod hit;
 mod motion;
+mod work;
+pub(crate) use work::{Budget, Scope, Work};
 
 use std::fmt;
 
@@ -42,6 +44,7 @@ pub enum Error {
     Cluster(Scalar),
     Segmentation,
     Overflow,
+    Pending,
 }
 
 impl fmt::Display for Error {
@@ -57,6 +60,7 @@ impl fmt::Display for Error {
             Self::Cluster(point) => write!(formatter, "scalar {} is inside a grapheme", point.0),
             Self::Segmentation => formatter.write_str("grapheme context could not be resolved"),
             Self::Overflow => formatter.write_str("display column overflow"),
+            Self::Pending => formatter.write_str("source projection pending"),
         }
     }
 }
@@ -149,6 +153,13 @@ impl<'a> Coordinates<'a> {
     }
 
     pub fn is_boundary(&self, point: Scalar) -> Result<bool, Error> {
+        let row = self.to_line(point)?.row;
+        if self
+            .checkpoint(point, row)
+            .is_some_and(|(at, _)| at == point)
+        {
+            return Ok(true);
+        }
         Cursor::new(self.text, self.to_byte(point)?.0)?.boundary()
     }
 
@@ -172,7 +183,7 @@ impl<'a> Coordinates<'a> {
     }
 
     /// Resume only from an observed grapheme boundary at its logical column.
-    /// Keeping the complete line as cursor context preserves chunk/RI semantics.
+    /// The source observation supplies the boundary; tabs keep absolute columns.
     pub(crate) fn glyphs_at(
         &self,
         row: usize,
@@ -188,8 +199,8 @@ impl<'a> Coordinates<'a> {
         row: usize,
         at: GlyphCheckpoint,
     ) -> Result<Glyphs<'a>, Error> {
-        let (line, _) = self.body(row)?;
-        Glyphs::resume(line, self.tab_width, at)
+        let (line, start) = self.body(row)?;
+        Glyphs::resume(line, start, self.tab_width, at)
     }
 
     pub(crate) fn remember_cell(&self, point: Scalar, cell: Cell) {
@@ -218,11 +229,33 @@ impl<'a> Coordinates<'a> {
         }
     }
 
+    fn pause(&self, point: Scalar, cell: Cell) {
+        if let Some(cache) = self.checkpoints {
+            let mut cache = cache.lock().expect("coordinate cache poisoned");
+            cache.observe(self.stamp, self.tab_width);
+            cache.pause(point, cell);
+        }
+    }
+
+    pub(crate) fn work(&self) -> Option<Work> {
+        self.checkpoints?
+            .lock()
+            .expect("coordinate cache poisoned")
+            .work
+            .clone()
+    }
+
+    fn charge(work: &Option<Work>) -> bool {
+        work.as_ref()
+            .is_none_or(|work| work.lock().expect("layout budget poisoned").charge())
+    }
+
     pub(crate) fn glyphs_from_column(&self, cell: Cell) -> Result<Glyphs<'a>, Error> {
         let (line, start) = self.body(cell.row)?;
         if cell.column == 0 {
             return Glyphs::new(line, start, self.tab_width);
         }
+        self.from_cell(cell)?;
         let (point, column) = self.column_checkpoint(cell).unwrap_or((start, 0));
         self.glyphs_at(cell.row, point, column)
     }
@@ -238,7 +271,16 @@ impl<'a> Coordinates<'a> {
         if from == point {
             return Ok(Cell { row, column });
         }
-        for (index, glyph) in self.glyphs_at(row, from, column)?.enumerate() {
+        let work = self.work();
+        let mut last = from;
+        let mut glyphs = self.glyphs_at(row, from, column)?;
+        let mut index = 0;
+        loop {
+            if !Self::charge(&work) {
+                self.pause(last, Cell { row, column });
+                return Err(Error::Pending);
+            }
+            let Some(glyph) = glyphs.next() else { break };
             let glyph = glyph?;
             if point < glyph.source.end {
                 let cell = cluster_cell(point, &glyph, row)?;
@@ -246,7 +288,9 @@ impl<'a> Coordinates<'a> {
                 return Ok(cell);
             }
             column = glyph.columns.end;
-            if (index + 1) % checkpoints::INTERVAL == 0 {
+            last = glyph.source.end;
+            index += 1;
+            if index % checkpoints::INTERVAL == 0 {
                 self.remember(glyph.source.end, Cell { row, column });
             }
         }
@@ -264,8 +308,25 @@ impl<'a> Coordinates<'a> {
         if cell.column == 0 {
             return Ok(start);
         }
-        let mut column = 0;
-        for (index, glyph) in self.glyphs_from_column(cell)?.enumerate() {
+        let (mut last, mut column) = self.column_checkpoint(cell).unwrap_or((start, 0));
+        if column == cell.column || last.0 == start.0 + line.len_chars() {
+            return Ok(last);
+        }
+        let work = self.work();
+        let mut glyphs = self.glyphs_at(cell.row, last, column)?;
+        let mut index = 0;
+        loop {
+            if !Self::charge(&work) {
+                self.pause(
+                    last,
+                    Cell {
+                        row: cell.row,
+                        column,
+                    },
+                );
+                return Err(Error::Pending);
+            }
+            let Some(glyph) = glyphs.next() else { break };
             let glyph = glyph?;
             column = glyph.columns.end;
             if cell.column < column {
@@ -278,7 +339,9 @@ impl<'a> Coordinates<'a> {
                 );
                 return Ok(glyph.source.start);
             }
-            if (index + 1) % checkpoints::INTERVAL == 0 {
+            last = glyph.source.end;
+            index += 1;
+            if index % checkpoints::INTERVAL == 0 {
                 self.remember(
                     glyph.source.end,
                     Cell {

@@ -50,7 +50,7 @@ impl Session {
         Ok(true)
     }
 
-    fn kill_span(&self, command: KillCommand) -> Result<Span, crate::view::Error> {
+    pub(super) fn kill_span(&self, command: KillCommand) -> Result<Span, crate::view::Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
         let width = self.view().text_width(buffer, self.pane_size())?;

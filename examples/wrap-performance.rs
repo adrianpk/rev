@@ -1,5 +1,5 @@
 //! Bounded native-session latency probe; this is not the terminal input gate.
-//! All cases use unsaved in-memory source, eight typed/reversed events and no IO.
+//! All cases use unsaved in-memory source and finite native event sequences.
 use std::time::{Duration, Instant};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
@@ -43,11 +43,15 @@ fn sample(
     action: impl FnOnce(&mut Session),
 ) -> Result<Duration, Error> {
     let start = Instant::now();
+    step(session, max_step, action);
+    render(session, max_step)?;
+    Ok(start.elapsed())
+}
+
+fn step(session: &mut Session, max_step: &mut Duration, action: impl FnOnce(&mut Session)) {
     let step = Instant::now();
     action(session);
     *max_step = (*max_step).max(step.elapsed());
-    render(session, max_step)?;
-    Ok(start.elapsed())
 }
 
 fn key(code: KeyCode) -> Event {
@@ -91,6 +95,38 @@ fn case(name: &str, source: &str) -> Result<(), Error> {
         })?);
     }
     assert_eq!(session.view().point.position, original);
+    // Queue edits while C-e is waiting on a cold resized projection. The
+    // native owner must retain their order and stop after the reversal burst.
+    let started = Instant::now();
+    step(&mut session, &mut max_step, |s| {
+        s.handle(Event::Resize(47, 24));
+    });
+    step(&mut session, &mut max_step, |s| {
+        s.execute(Command::Motion(Motion::LineEnd));
+    });
+    for code in std::iter::repeat_n(KeyCode::Char('x'), 64)
+        .chain(std::iter::repeat_n(KeyCode::Backspace, 64))
+    {
+        step(&mut session, &mut max_step, |s| {
+            s.handle(key(code));
+        });
+    }
+    render(&mut session, &mut max_step)?;
+    let queued = started.elapsed();
+    assert_eq!(session.view().point.position, original);
+    let started = Instant::now();
+    for motion in [Motion::BufferStart, Motion::BufferEnd, Motion::BufferStart] {
+        step(&mut session, &mut max_step, |s| {
+            s.execute(Command::Motion(motion));
+        });
+    }
+    render(&mut session, &mut max_step)?;
+    let far = started.elapsed();
+    assert_eq!(session.view().point.position, Scalar(0));
+    sample(&mut session, &mut max_step, |s| {
+        s.execute(Command::Motion(Motion::BufferEnd));
+    })?;
+    assert_eq!(session.view().point.position, original);
     let mut resize = Duration::ZERO;
     for width in [48, 81, 52, 80] {
         resize = resize.max(sample(&mut session, &mut max_step, |s| {
@@ -122,11 +158,13 @@ fn case(name: &str, source: &str) -> Result<(), Error> {
     );
     session.execute(Command::Motion(Motion::BufferEnd));
     println!(
-        "{name}: max_motion={}us max_resize={}us max_input={}us max_reversal={}us max_step={}us; exact source restored, no idle deadline",
+        "{name}: max_motion={}us max_resize={}us max_input={}us max_reversal={}us queued_reversal={}us far_reversal={}us max_step={}us; exact source restored, no idle deadline",
         motion.as_micros(),
         resize.as_micros(),
         input.as_micros(),
         reversal.as_micros(),
+        queued.as_micros(),
+        far.as_micros(),
         max_step.as_micros()
     );
     Ok(())
@@ -136,5 +174,7 @@ fn main() -> Result<(), Error> {
     case("token", &"a".repeat(65_536))?;
     case("words", &"one two three four ".repeat(3_276))?;
     case("unicode", &"a\t界e\u{301} words ".repeat(4_096))?;
+    case("regional", &"🇦🇧".repeat(8_192))?;
+    case("many-lines", &"short source line\n".repeat(40_000))?;
     Ok(())
 }

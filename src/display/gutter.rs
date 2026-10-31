@@ -12,16 +12,12 @@ impl Frame {
         view: &View,
         geometry: Geometry,
         current: usize,
+        fragments: &[crate::view::Fragment],
     ) -> Result<(), Error> {
         let Some(area) = geometry.numbers() else {
             return Ok(());
         };
         let settings = view.gutter.effective();
-        let fragments = if buffer.soft_wrap() {
-            view.wrapped_rows(buffer, geometry.text().width(), area.height())?
-        } else {
-            Vec::new()
-        };
         for row in 0..area.height() {
             let source = if buffer.soft_wrap() {
                 fragments

@@ -50,6 +50,7 @@ impl Frame {
             rows: Vec::new(),
             cursor: None,
             previews: Vec::new(),
+            source_rows: Vec::new(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);
