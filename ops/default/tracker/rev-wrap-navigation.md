@@ -208,6 +208,17 @@ all view/peer/source/history assertions. The prior gate failure at
 [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md);
 the unchanged full gate awaits its controller rerun.
 
+Gate repair 2 integrated through [PR #183](https://forge.adrianpk.com/adrianpk/rev/pulls/183)
+at `ccfc383bf301425ebb21cd95bb5fb6de32c3e0cc`. Final policy receipt
+`XSCA366D6QCOO6S3NT7UIYPBPI` passed formatting, 30 syntax, 26 wrapping, 68 tree
+and 41 window tests (165 total), and whitespace validation on that exact clean
+head. The controller recorded its merge in Acta as `01M68KC86KT18T7ZKR7F4R1AR7`.
+The two horizontal syntax fixtures explicitly select the supported unwrapped
+alternative while retaining their clipping, source-row and resource-bound
+assertions. The prior gate failure at `ef210e1aef98b4e9d6a907a46767c90f8d2d3ca1`
+remains identifiable in the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md);
+the unchanged full gate awaits its controller rerun.
+
 ## Delivery acceptance
 
 - [x] Factory word-aware wrap and Emacs visual-line commands work without configuration.
@@ -226,7 +237,7 @@ Full-gate preparation verified Rust/Cargo 1.98, rustfmt, Clippy, Bash and the
 installed Linux PTY/core utilities, writable owned temporary storage and PTY
 device access. `bash -n scripts/check-wrap-navigation.sh` and
 `cargo metadata --locked --offline --no-deps --format-version 1` passed.
-These prerequisites were rechecked after gate repair 1 integrated.
+These prerequisites were rechecked after gate repair 2 integrated.
 The joint gate owns fixture creation and cleanup; no persistent fixture or
 service is needed. Preparation did not execute the full gate. Plan/tracker and
 spec/model completion remain pending its exact-candidate result.

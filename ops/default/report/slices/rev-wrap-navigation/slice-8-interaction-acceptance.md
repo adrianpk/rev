@@ -1,6 +1,6 @@
 # Slice 8: User guidance and joint interaction acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -195,11 +195,13 @@ commands above at its exact clean head in controller receipt
 tests passed (165 total). Both reproduced syntax failures now pass with every
 original clipping and bounded-query assertion retained.
 
-Canonical [PR #183](https://forge.adrianpk.com/adrianpk/rev/pulls/183) targets
-`dev` with the pinned repair title and immutable original report-introduction
-link. Its PR-reference head receives fresh policy-required evidence before
-handoff. The controller owns integration and the unchanged full-gate rerun;
-repair 1 and original slice evidence retain their recorded candidate identities.
+Canonical [PR #183](https://forge.adrianpk.com/adrianpk/rev/pulls/183) merged
+into `dev` at `ccfc383bf301425ebb21cd95bb5fb6de32c3e0cc`. Final controller
+receipt `XSCA366D6QCOO6S3NT7UIYPBPI` passed the three policy-required commands
+and all 165 tests on that exact clean PR-reference head. The controller recorded
+the merge in Acta as `01M68KC86KT18T7ZKR7F4R1AR7`. Gate repair 2 is delivered.
+The unchanged full gate remains pending its controller-owned rerun; prior repair,
+original slice and failed-gate evidence retain their recorded candidate identities.
 
 ## Risks and Follow-ups
 
