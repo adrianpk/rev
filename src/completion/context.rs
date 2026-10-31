@@ -15,6 +15,7 @@ pub(crate) enum Context {
     JsonKey,
     TomlKey,
     TomlTable,
+    Org(crate::org::completion::Kind, bool),
     Unsupported,
 }
 
@@ -36,6 +37,7 @@ impl Context {
             Self::Selector => symbol.kind == "selector",
             Self::Property => symbol.kind == "property",
             Self::CustomProperty => symbol.kind == "property" && symbol.name.starts_with("--"),
+            Self::Org(kind, _) => kind.label() == symbol.kind,
             _ => self.accepts_format(symbol),
         }
     }
@@ -54,6 +56,10 @@ impl Context {
     }
 
     pub fn literals(self, candidates: &mut Vec<super::Candidate>) {
+        if let Self::Org(kind, closing) = self {
+            crate::org::completion::literals(candidates, kind, closing);
+            return;
+        }
         let grammar = match self {
             Self::JsonKey => Grammar::Json,
             Self::TomlKey => Grammar::Toml,
@@ -95,6 +101,9 @@ pub(super) fn trigger(buffer: &Buffer, point: Point) -> bool {
         return false;
     };
     let text = text.to_string();
+    if buffer.is_org() {
+        return crate::org::completion::trigger(&text);
+    }
     match buffer.completion_grammar() {
         Grammar::Html => {
             text.ends_with(['<', '/']) || text.chars().last().is_some_and(char::is_whitespace)

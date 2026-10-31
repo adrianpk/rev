@@ -22,15 +22,9 @@ impl Session {
                 limited = true;
                 continue;
             }
-            let observation = Observation::capture(buffer);
-            let buffer = self.buffers.get_mut(id).map_err(|e| e.to_string())?;
-            if let Ok((text, syntax)) = buffer.completion_snapshot() {
-                bytes += text.len_bytes();
-                sources.push(Source {
-                    observation,
-                    text,
-                    syntax,
-                });
+            if let Ok(source) = self.completion_source(id) {
+                bytes += source.text.len_bytes();
+                sources.push(source);
             }
         }
         if sources
@@ -43,15 +37,40 @@ impl Session {
         Ok((sources, limited))
     }
 
+    fn completion_source(&mut self, id: BufferId) -> Result<Source, String> {
+        let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
+        let observation = Observation::capture(buffer);
+        let org = if buffer.is_org() {
+            Some(crate::org::completion::Scan::new(
+                buffer,
+                &self.buffers.snapshot().settings().org.todo,
+            )?)
+        } else {
+            None
+        };
+        let buffer = self.buffers.get_mut(id).map_err(|e| e.to_string())?;
+        let (text, syntax) = buffer.completion_snapshot()?;
+        Ok(Source {
+            observation,
+            text,
+            syntax,
+            org,
+        })
+    }
+
     fn completion_source_ids(&self, current: BufferId) -> Result<Vec<BufferId>, String> {
         let buffer = self.buffers.get(current).map_err(|e| e.to_string())?;
+        if buffer.is_org() {
+            return Ok(vec![current]);
+        }
         let language = buffer.syntax_language();
         let grammar = buffer.completion_grammar();
         let mut ids: Vec<_> = self
             .buffers
             .iter()
             .filter(|buffer| {
-                buffer.completion_supported()
+                !buffer.is_org()
+                    && buffer.completion_supported()
                     && buffer.syntax_language() == language
                     && grammar.compatible(buffer.completion_grammar())
             })

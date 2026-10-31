@@ -226,6 +226,9 @@ impl Parser<'_> {
         };
         let end = self.postblank(close + 1, frame.rows.end)?;
         let mut node = Raw::new(kind, self.range(row..end), Some(frame.parent));
+        // Retain the native header/placement fact when an incomplete key makes
+        // the drawer body invalid. Completion may use known keys in that slot.
+        node.property_candidate = self.rows[row].properties && frame.properties == Some(row);
         node.opening = Some(self.rows[row].source.clone());
         node.closing = Some(self.rows[close].source.clone());
         node.content = self.rows[row].source.end..self.rows[close].source.start;

@@ -40,6 +40,9 @@ impl Buffer {
         self.completion_supported() && self.len_bytes() <= crate::completion::MAX_BYTES
     }
     pub(crate) fn completion_supported(&self) -> bool {
+        if self.is_org() {
+            return self.org_colors_admitted() && !self.is_readonly();
+        }
         self.syntax_active
             && self.grammar != Grammar::Plain
             && self.mode_choice.is_none()
@@ -52,6 +55,9 @@ impl Buffer {
         }
         if self.len_bytes() > crate::completion::MAX_BYTES {
             return Err("Native completion buffer exceeds 2 MiB".into());
+        }
+        if self.is_org() && self.org_colors_admitted() {
+            return Ok((self.text.clone(), Syntax::default()));
         }
         if !self.prepare_syntax() {
             return Err("Native completion syntax is unavailable".into());

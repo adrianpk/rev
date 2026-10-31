@@ -18,6 +18,13 @@ pub struct Cancellation {
 }
 
 impl Cancellation {
+    pub(crate) fn shared(flag: Arc<AtomicBool>, deadline: std::time::Instant) -> Self {
+        Self {
+            flag,
+            deadline: Some(deadline),
+        }
+    }
+
     pub(crate) fn bounded(&self, deadline: std::time::Instant) -> Self {
         Self {
             flag: self.flag.clone(),

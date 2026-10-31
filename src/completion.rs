@@ -113,6 +113,23 @@ impl Request {
         }
     }
 
+    pub(crate) fn org(
+        &mut self,
+        scan: crate::org::completion::Scan,
+        text: &ropey::Rope,
+        cancel: &crate::org::Cancellation,
+    ) -> Result<Vec<Symbol>, String> {
+        let Some(result) = scan.run(text, self.byte, cancel)? else {
+            return Ok(Vec::new());
+        };
+        self.source.range =
+            text.byte_to_char(result.range.start)..text.byte_to_char(result.range.end);
+        self.prefix = result.prefix;
+        self.original = result.original;
+        self.context = context::Context::Org(result.kind, result.closing);
+        Ok(result.symbols)
+    }
+
     pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
         self.context != context::Context::Unsupported
             && (self.context.structured()
@@ -137,7 +154,7 @@ mod tests;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Candidate {
     label: String,
-    text: String,
+    pub(crate) text: String,
 }
 
 impl Candidate {

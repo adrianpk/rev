@@ -116,20 +116,7 @@ impl Document {
         workflow: &crate::org::task::Workflow,
     ) -> Result<(), String> {
         let header = crate::org::visibility::query_header(node, &self.text)?;
-        let title = if workflow.state(&header.word).is_some() {
-            header.title[header.word.len()..].trim()
-        } else {
-            header.title.trim()
-        };
-        let title = if title.starts_with("[#") {
-            title
-                .split_once(']')
-                .ok_or("Malformed link heading priority")?
-                .1
-                .trim()
-        } else {
-            title
-        };
+        let title = header.target(workflow)?;
         self.headings.push(Heading {
             byte: node.source.start,
             end: node.source.end,

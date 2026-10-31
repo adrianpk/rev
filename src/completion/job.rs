@@ -115,7 +115,7 @@ impl Work {
     }
 }
 
-fn run(mut request: Request, mut sources: Vec<Source>, cancel: &AtomicBool) -> Output {
+fn run(mut request: Request, mut sources: Vec<Source>, cancel: &Arc<AtomicBool>) -> Output {
     let deadline = Instant::now() + WORK_TIME;
     let result = extract(&mut request, &mut sources, deadline, cancel)
         .map(|symbols| request.clone().complete(symbols))
@@ -137,8 +137,12 @@ fn extract(
     request: &mut Request,
     sources: &mut [Source],
     deadline: Instant,
-    cancel: &AtomicBool,
+    cancel: &Arc<AtomicBool>,
 ) -> Result<Vec<Symbol>, String> {
+    if let Some(scan) = sources.first_mut().and_then(|source| source.org.take()) {
+        let cancellation = crate::org::Cancellation::shared(cancel.clone(), deadline);
+        return request.org(scan, &sources[0].text, &cancellation);
+    }
     let mut symbols = Vec::new();
     let mut payload = 0;
     for (origin, source) in sources.iter_mut().enumerate() {

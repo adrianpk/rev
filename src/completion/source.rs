@@ -15,6 +15,7 @@ pub(crate) const MAX_PAYLOAD: usize = 8 * 1024 * 1024;
 pub(crate) struct Observation {
     pub stamp: Stamp,
     generation: u64,
+    org: bool,
     language: String,
     grammar: Grammar,
     path: Option<PathBuf>,
@@ -25,6 +26,7 @@ impl Observation {
         Self {
             stamp: buffer.stamp(),
             generation: buffer.syntax_generation(),
+            org: buffer.is_org(),
             language: buffer.syntax_language().to_owned(),
             grammar: buffer.completion_grammar(),
             path: buffer.file().map(|file| file.path().to_owned()),
@@ -33,7 +35,8 @@ impl Observation {
 
     pub fn current(&self, buffers: &Buffers) -> bool {
         buffers.get(self.stamp.buffer).is_ok_and(|buffer| {
-            self.stamp == buffer.stamp()
+            self.org == buffer.is_org()
+                && self.stamp == buffer.stamp()
                 && self.generation == buffer.syntax_generation()
                 && self.language == buffer.syntax_language()
                 && self.grammar == buffer.completion_grammar()
@@ -48,4 +51,5 @@ pub(crate) struct Source {
     pub observation: Observation,
     pub text: ropey::Rope,
     pub syntax: Syntax,
+    pub org: Option<crate::org::completion::Scan>,
 }

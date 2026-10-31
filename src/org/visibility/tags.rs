@@ -229,3 +229,19 @@ impl Outline {
         ))
     }
 }
+
+pub(in crate::org) fn completion_names(
+    structure: &Structure,
+    text: &ropey::Rope,
+    policy: &crate::config::Todo,
+    cancel: &Cancellation,
+) -> Result<(crate::org::task::Workflow, Vec<String>), String> {
+    let tags = Tags::observe(structure, text, cancel);
+    if !tags.complete || tags.candidates.len() > crate::completion::MAX_SYMBOLS {
+        return Err("Native Org completion tag limit reached".into());
+    }
+    Ok((
+        tags.workflow.effective(policy)?,
+        tags.candidates.into_iter().collect(),
+    ))
+}

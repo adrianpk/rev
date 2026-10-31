@@ -3,6 +3,7 @@
 
 mod color;
 pub(crate) mod columns;
+pub(crate) mod completion;
 mod form;
 mod index;
 mod inline;

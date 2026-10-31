@@ -11,6 +11,7 @@ pub(crate) use insertion::Insertion;
 pub(crate) use subtree::SubtreeEdit;
 pub(super) use subtree::movement_pieces;
 pub(crate) use tags::TaskChange;
+pub(in crate::org) use tags::completion_names;
 pub(super) use tags::valid_tag as tag_name;
 
 use std::ops::Range;

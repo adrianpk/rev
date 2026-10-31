@@ -29,3 +29,25 @@ pub(in crate::org) fn query_file_tags(value: &str) -> Result<Vec<String>, String
         .map(|tags| tags.into_iter().map(|t| t.name).collect())
         .ok_or_else(|| "Malformed Org FILETAGS".into())
 }
+
+impl QueryHeader {
+    pub(in crate::org) fn target(
+        &self,
+        workflow: &crate::org::task::Workflow,
+    ) -> Result<&str, String> {
+        let title = if workflow.state(&self.word).is_some() {
+            self.title[self.word.len()..].trim()
+        } else {
+            self.title.trim()
+        };
+        if title.starts_with("[#") {
+            Ok(title
+                .split_once(']')
+                .ok_or("Malformed link heading priority")?
+                .1
+                .trim())
+        } else {
+            Ok(title)
+        }
+    }
+}

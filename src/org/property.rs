@@ -198,3 +198,20 @@ fn valid_property_separators(base: &str) -> bool {
     }
     !base.contains([':', '+'])
 }
+
+pub(in crate::org) fn completion_names(
+    structure: &Structure,
+    text: &ropey::Rope,
+    cancel: &Cancellation,
+) -> Result<Vec<String>, String> {
+    let properties = Properties::observe(structure, text, cancel);
+    if !properties.complete || properties.records.len() > crate::completion::MAX_SYMBOLS {
+        return Err("Native Org completion property limit reached".into());
+    }
+    Ok(properties
+        .records
+        .iter()
+        .filter(|record| !properties.entries[record.owner].invalid)
+        .map(|record| record.key.trim_end_matches('+').to_owned())
+        .collect())
+}
