@@ -8,6 +8,11 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Name file positions with `C-x r m`, return with `C-x r b`, and remove names
+  with `M-x bookmark-delete`. `C-x r M` prevents accidental replacement.
+  Vertical name completion supports selection, Tab and cancellation. Bookmarks
+  last for the current session; changed or closed source locations report stale
+  targets while preserving the original view and source text.
 - Click a file-tree entry to select it and open its file or expand/collapse its
   directory. Set `mouse.tree_activate_on_click = false` for selection-only clicks.
   Blank tree space focuses the tree without activating an entry, and clicked

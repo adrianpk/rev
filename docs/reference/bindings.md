@@ -70,6 +70,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-y` | `yank` | Insert the newest linear ring entry. |
 | `M-y` | `yank-pop` | Rotate the current yank's exact insertion range. |
 | `C-x SPC` | `rectangle-mark-mode` | Toggle display-column selection. |
+| `C-x r m` | `bookmark-set` | Name or replace the current file position. |
+| `C-x r M` | `bookmark-set-no-overwrite` | Name the current position without replacement. |
+| `C-x r b` | `bookmark-jump` | Complete a name and visit its checked location. |
+| `M-x bookmark-delete` | `bookmark-delete` | Complete a name and remove that bookmark. |
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain selected rectangle rows. |
 | `C-x r k` | `kill-rectangle` | Remove and retain the rectangle as one edit. |
 | `C-x r y` | `yank-rectangle` | Insert retained rows with required padding. |

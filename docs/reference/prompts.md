@@ -4,14 +4,17 @@ The active prompt owns keyboard input until its current stage accepts, reports
 an error or is canceled. Find-file retains focus on ingress errors so its path
 can be corrected. Command names, paths, buffer names and decisions use
 separate focused contexts. Their text does not enter the document underneath.
-M-x and find-file queries appear above their vertical candidates when surplus
-rows fit; other argument and decision prompts retain the bottom prompt row.
+M-x, find-file and bookmark-name queries appear above their vertical candidates
+when surplus rows fit; other argument and decision prompts retain the bottom
+prompt row.
 
 ## Stages
 
 | Operation | Sequence |
 | --- | --- |
 | M-x | Command query, then the selected command's handler and any arguments. |
+| Bookmark set | Name, with the visiting basename as the empty-draft default; ordinary set replaces, no-overwrite refuses duplicates. |
+| Bookmark jump/delete | Exact name or explicitly navigated candidate; Tab fills a name, Return accepts, and C-g cancels. Errors retain the draft and origin. |
 | Goto line | Signed decimal line number; invalid or overflowing input retains the draft for correction. C-g preserves point and viewport. |
 | Query replace | Literal query, literal replacement, then a fresh y/n/q decision for each occurrence. C-g stops at any stage; accepted edits remain independently undoable. |
 | Find file | Selected or typed path; directories open their tree, files open/reuse, and ingress errors retain the draft. |

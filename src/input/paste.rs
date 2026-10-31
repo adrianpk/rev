@@ -11,6 +11,7 @@ impl Input {
             Context::Search(prompt) => prompt.literal_paste(&text),
             Context::Literal(prompt) => prompt.literal_paste(&text),
             Context::Command(palette) => palette.paste(&text),
+            Context::Names(names) => names.paste(&text),
             Context::Calendar(prompt) | Context::Argument(prompt) | Context::Path(prompt) => {
                 prompt.paste(&text)
             }

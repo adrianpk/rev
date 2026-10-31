@@ -35,6 +35,7 @@ impl Session {
             buffer
                 .file()
                 .and_then(|file| file.basename().to_str())
+                .filter(|name| !name.chars().any(char::is_control))
                 .unwrap_or("")
                 .to_owned()
         } else {
@@ -63,7 +64,14 @@ impl Session {
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
         };
-        if let Err(error) = self.input.argument(&label, draft) {
+        if let Err(error) = self.input.names_argument(
+            &label,
+            draft,
+            self.bookmarks
+                .iter()
+                .map(|record| record.name().to_owned())
+                .collect(),
+        ) {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Bookmark(prompt));

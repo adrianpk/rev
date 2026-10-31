@@ -83,6 +83,7 @@ compiled M-x name once.
 | Mouse | `mouse-mode` |
 | Source wrapping | `visual-line-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
+| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
@@ -168,3 +169,31 @@ text retains its separate owner. These preferences retain only session memory.
 ## Native task workflows
 
 See [Org native task workflows](org/commands.md#native-task-workflows).
+
+## Named bookmarks
+
+`C-x r m` (`bookmark-set`) records the current file position under a name.
+Return with an empty draft uses the visited basename shown as the default;
+type a name to distinguish positions in the same file. Names are case-sensitive,
+retain spaces literally, and contain 1..256 UTF-8 bytes without control characters.
+Setting an existing name replaces its location. `C-x r M`
+(`bookmark-set-no-overwrite`) refuses an occupied name. `C-x r b`
+(`bookmark-jump`) visits a name; `M-x bookmark-delete` removes it.
+
+These commands use a vertical name list with the configured minibuffer matching
+policy and row limit. Up/Down or C-p/C-n selects a candidate; Tab fills the
+highlighted name without accepting it. Return accepts an explicitly selected
+candidate or the exact typed name. The initial highlight alone does not select
+a name. C-g cancels; errors retain the draft for correction. Names are shared
+across this session's files, with at most 1024 records and 4096 encoded path
+bytes per record. Reaching the limit never evicts another name.
+
+Modified, read-only and intended new file buffers are eligible. Unnamed and
+synthetic buffers cannot supply a bookmark. Commands do not save source text,
+change its modified flag, or add source undo steps. Aliases reuse the canonical
+live file buffer, including unsaved text, and visiting a bookmark preserves an
+explicit file-tree root. Rectangle bindings under C-x r remain available.
+
+The current collection lasts for this session. A location whose source revision
+has changed or whose buffer was closed is reported as stale; the original view
+and record remain intact. Set the name again at a current point to replace it.

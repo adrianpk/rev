@@ -451,6 +451,7 @@ impl Session {
             .and_then(|composition| composition.auxiliary())
             .map_or(0, |panel| panel.content().height());
         self.input.reveal_commands(candidate_rows);
+        self.input.reveal_names(candidate_rows);
         self.reveal_paths(candidate_rows);
         self.reveal_workspace(composition.as_ref())?;
         let mut frame = match &composition {
@@ -492,7 +493,8 @@ impl Session {
     ) -> Result<(), view::Error> {
         // Completion borrows presentation rows. It cannot scroll the retained
         // editing/tree workspace while the query owns the visible cursor.
-        if self.input.palette().is_some()
+        if self.input.names().is_some()
+            || self.input.palette().is_some()
             || self.path_navigation().is_some()
             || self.timestamp_calendar().is_some()
         {
@@ -531,6 +533,9 @@ impl Session {
         };
         if let Some(path) = self.path_navigation() {
             return frame.paths(prompt, path, composition, &self.echo);
+        }
+        if let Some(names) = self.input.names() {
+            return frame.names(names, composition, &self.echo);
         }
         if let Some(palette) = self.input.palette() {
             return frame.commands(palette, composition, &self.echo);

@@ -4,6 +4,8 @@ mod inventory;
 mod key;
 pub mod keymap;
 mod meta;
+mod names;
+pub(crate) use names::Names;
 mod org;
 mod palette;
 mod paste;
@@ -103,6 +105,7 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    Names(Names),
     Calendar(Prompt),
     Path(Prompt),
     Literal(Prompt),
@@ -149,6 +152,7 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
+            Context::Names(_) => Focus::Argument,
             Context::Calendar(_)
             | Context::Argument(_)
             | Context::Path(_)
@@ -166,6 +170,7 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt),
             Context::Command(palette) => Some(palette.prompt()),
+            Context::Names(names) => Some(names.prompt()),
             Context::Calendar(prompt)
             | Context::Argument(prompt)
             | Context::Path(prompt)
@@ -178,6 +183,7 @@ impl Input {
         match &self.context {
             Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
+            Context::Names(names) => Some(names.prompt().label()),
             Context::Calendar(prompt)
             | Context::Argument(prompt)
             | Context::Path(prompt)
@@ -291,6 +297,7 @@ impl Input {
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
             Context::Command(_) => self.command_key(key),
+            Context::Names(_) => self.names_key(key),
         }
     }
 

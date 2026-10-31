@@ -5,6 +5,38 @@ use crate::panel::{Composition, Panel};
 use super::{Band, Error, Frame, Row, Tone, clip};
 
 impl Frame {
+    pub(crate) fn names(
+        &mut self,
+        names: &crate::input::Names,
+        composition: Option<&Composition>,
+        notice: &str,
+    ) -> Result<(), Error> {
+        let Some(composition) = composition else {
+            return self.prompt(names.prompt(), notice);
+        };
+        self.prompt_in(names.prompt(), notice, composition.prompt())?;
+        if let Some(panel) = composition.auxiliary() {
+            let candidates = names.candidates();
+            let content = panel.content();
+            for row in 0..content.height() {
+                let index = names.top() + usize::from(row);
+                let label = candidates
+                    .get(index)
+                    .copied()
+                    .unwrap_or(if candidates.is_empty() {
+                        "No matching bookmarks"
+                    } else {
+                        ""
+                    });
+                self.blit(
+                    content,
+                    candidate_row(panel, row, label, names.selected() == Some(index))?,
+                )?;
+            }
+        }
+        Ok(())
+    }
+
     pub(crate) fn commands(
         &mut self,
         palette: &Palette,
