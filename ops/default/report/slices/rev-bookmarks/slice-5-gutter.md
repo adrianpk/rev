@@ -78,7 +78,10 @@ The documentation checker passed 319 commands, 189 configuration entries,
 
 The initial controller focused batch passed owner/origin tests but clippy
 rejected a test module placed before its implementation. The module was moved
-to the end of its file; fresh validation must cover the resulting candidate.
+to the end of its file. The next focused batch passed; required configuration
+checks then identified the packaged palette count still expecting 54 roles.
+The fixture now expects all 55 roles and explicitly checks the new bookmark
+color. Fresh validation must cover the resulting candidate.
 
 Final exact-HEAD validation follows all task and canonical PR-reference commits:
 

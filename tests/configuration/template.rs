@@ -35,7 +35,8 @@ fn explicit_defaults() {
             roles += 1;
         }
     }
-    assert_eq!(roles, 54);
+    assert_eq!(roles, 55);
+    assert_eq!(palette["gutter"]["bookmark"].as_str(), Some("#e0af68"));
     assert_eq!(raw["gutter"].as_table().unwrap().len(), 7);
     assert_eq!(raw["mouse"].as_table().unwrap().len(), 3);
     assert_eq!(raw["mouse"]["tree_activate_on_click"].as_bool(), Some(true));
