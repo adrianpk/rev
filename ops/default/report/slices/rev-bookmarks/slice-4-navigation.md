@@ -1,11 +1,11 @@
 # Slice 4: List and ordered navigation
 
-Status: implementing
+Status: awaiting integration
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
 Branch: `feat/rev-bookmarks-04-navigation`
-PR: pending
+PR: [#188](https://forge.adrianpk.com/adrianpk/rev/pulls/188)
 
 ## Purpose
 
