@@ -16,14 +16,15 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains five delivered interaction topics, one open tree
-presentation follow-up and ten remaining capability proposals. The five solved
+The inventory contains five delivered interaction topics, two open presentation
+follow-ups and ten remaining capability proposals. The five solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
+| Keybinding hints in M-x | [Ticket](ticket/open/20261031095151-show-keybindings-beside-m-x-commands.md) | Open. Show assigned shortcuts beside command candidates using effective bindings; preserve command completion and invocation. |
 | Tree selection highlight and active-buffer synchronization | [Ticket](ticket/open/20261031093408-highlight-tree-selection-and-sync-active-buffer.md) | Open follow-up for later. Persistent selection feedback and displayed-buffer synchronization; multi-pane and tree-navigation indication policy remain to be settled. |
 | Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
 | Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Delivered / Completed spec / solved ticket. Slice 5 delivered one-time first-level expansion through PR #178; deliberate collapse is retained. |
