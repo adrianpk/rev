@@ -5,6 +5,7 @@ mod scroll;
 mod visibility;
 mod visual;
 mod wrap;
+pub(crate) use wrap::Budget as LayoutBudget;
 pub use wrap::Fragment;
 
 use std::fmt;

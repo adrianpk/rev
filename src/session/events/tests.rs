@@ -26,6 +26,107 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
+// Cold reflow yields to native input between finite batches. Source edits and
+// C-g remain admitted; pending surfaces expose no stale pointer destination.
+#[test]
+fn cold_reflow() {
+    use crate::buffer::Buffers;
+    use crate::coordinates::Scalar;
+    use crate::view::View;
+    use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+
+    let source = "one two a\t界e\u{301} ".repeat(6000);
+    let mut buffers = Buffers::new().unwrap();
+    let id = buffers.create(&source).unwrap();
+    let buffer = buffers.get(id).unwrap();
+    let mut view = View::new(buffer);
+    view.point.position = Scalar(buffer.len_chars());
+    let original = view.point.position;
+    let mut session = Session::new(
+        buffers,
+        view,
+        Size {
+            width: 80,
+            height: 6,
+        },
+    )
+    .unwrap();
+    assert!(session.poll_frame().unwrap().cursor().is_none());
+    assert_eq!(
+        session.remaining_input(Instant::now()),
+        Some(Duration::ZERO)
+    );
+    assert_eq!(
+        session.handle(Event::Mouse(MouseEvent {
+            kind: MouseEventKind::Down(MouseButton::Left),
+            column: 1,
+            row: 1,
+            modifiers: KeyModifiers::NONE,
+        })),
+        Action::Wait
+    );
+    assert_eq!(session.view().point.position, original);
+    assert_eq!(
+        session.handle(key(KeyCode::Char('x'), KeyModifiers::NONE)),
+        Action::Redraw
+    );
+    assert_eq!(text(&session), format!("{source}x"));
+    assert_eq!(
+        session.handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL)),
+        Action::Redraw
+    );
+    let point = session.view().point;
+    for _ in 0..100 {
+        if !session.layout_pending {
+            break;
+        }
+        let action = session.expire_input(Instant::now());
+        assert_eq!(
+            action,
+            if session.layout_pending {
+                Action::Wait
+            } else {
+                Action::Redraw
+            }
+        );
+    }
+    assert!(!session.layout_pending);
+    assert!(session.poll_frame().unwrap().cursor().is_some());
+    let buffer = session.buffer().unwrap();
+    let width = session
+        .view()
+        .text_width(buffer, session.pane_size())
+        .unwrap();
+    assert_eq!(
+        session.view().wrapped_rows(buffer, width, 4).unwrap(),
+        session
+            .view()
+            .clone_for_split()
+            .wrapped_rows(buffer, width, 4)
+            .unwrap(),
+    );
+    assert_eq!(session.view().point, point);
+    assert_eq!(text(&session), format!("{source}x"));
+    assert_eq!(session.remaining_input(Instant::now()), None);
+    assert_eq!(
+        session.expire_input(Instant::now() + Duration::from_secs(10)),
+        Action::Wait
+    );
+    session.handle(Event::Resize(47, 6));
+    assert!(session.poll_frame().unwrap().cursor().is_none());
+    for _ in 0..100 {
+        if !session.layout_pending {
+            break;
+        }
+        session.expire_input(Instant::now());
+    }
+    assert!(!session.layout_pending);
+    assert!(session.poll_frame().unwrap().cursor().is_some());
+    assert_eq!(session.view().point, point);
+    assert_eq!(text(&session), format!("{source}x"));
+    assert_eq!(session.remaining_input(Instant::now()), None);
+}
+
 // A busy source cannot starve drawing. All events left at the count boundary
 // remain available to the next batch, with no change to text or history.
 #[test]

@@ -14,7 +14,35 @@ pub(super) struct Cursor<'a> {
     start: usize,
 }
 
+/// The segmentation cursor carries RI/ZWJ context across cooperative batches.
+/// Only chunk coordinates are retained; source text remains in the buffer.
+pub(super) struct Checkpoint {
+    cursor: GraphemeCursor,
+    chunk: std::ops::Range<usize>,
+}
+
 impl<'a> Cursor<'a> {
+    pub(super) fn checkpoint(&self) -> Checkpoint {
+        Checkpoint {
+            cursor: self.cursor.clone(),
+            chunk: self.start..self.start + self.chunk.len(),
+        }
+    }
+
+    pub(super) fn resume(text: RopeSlice<'a>, at: Checkpoint) -> Result<Self, Error> {
+        let chunk = text
+            .get_byte_slice(at.chunk.clone())
+            .ok_or(Error::Segmentation)?;
+        Ok(Self {
+            text,
+            cursor: at.cursor,
+            chunk: chunk
+                .as_str()
+                .map_or_else(|| Cow::Owned(chunk.to_string()), Cow::Borrowed),
+            start: at.chunk.start,
+        })
+    }
+
     pub(super) fn new(text: RopeSlice<'a>, byte: usize) -> Result<Self, Error> {
         text.get_byte_slice(byte..byte)
             .ok_or(Error::Byte(Byte(byte)))?;

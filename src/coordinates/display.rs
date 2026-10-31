@@ -14,6 +14,14 @@ pub struct Glyph<'a> {
 }
 
 impl<'a> Glyph<'a> {
+    pub(crate) fn into_owned(self) -> Glyph<'static> {
+        Glyph {
+            source: self.source,
+            columns: self.columns,
+            text: Cow::Owned(self.text.into_owned()),
+        }
+    }
+
     fn new(
         text: RopeSlice<'a>,
         source: Range<Scalar>,
@@ -45,7 +53,41 @@ pub struct Glyphs<'a> {
     done: bool,
 }
 
+pub(crate) struct Checkpoint {
+    cursor: super::cursor::Checkpoint,
+    byte: usize,
+    point: Scalar,
+    column: usize,
+    done: bool,
+}
+
 impl<'a> Glyphs<'a> {
+    pub(crate) fn checkpoint(&self) -> Checkpoint {
+        Checkpoint {
+            cursor: self.cursor.checkpoint(),
+            byte: self.byte,
+            point: self.point,
+            column: self.column,
+            done: self.done,
+        }
+    }
+
+    pub(super) fn resume(
+        text: RopeSlice<'a>,
+        tab_width: usize,
+        at: Checkpoint,
+    ) -> Result<Self, Error> {
+        Ok(Self {
+            text,
+            cursor: Cursor::resume(text, at.cursor)?,
+            byte: at.byte,
+            point: at.point,
+            column: at.column,
+            tab_width,
+            done: at.done,
+        })
+    }
+
     pub(crate) fn for_text(text: &'a str) -> Result<Self, Error> {
         Self::new(
             RopeSlice::from(text),

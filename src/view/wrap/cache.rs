@@ -4,19 +4,20 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use crate::buffer::{Buffer, Stamp};
 use crate::coordinates::Scalar;
 
-use super::Fragment;
+use super::{Continuation, Fragment};
 
 const LIMIT: usize = 8192;
 const TEXT_BYTES: usize = 1024 * 1024;
 
 type Key = (usize, Scalar);
 
-#[derive(Clone, Debug, Default)]
+#[derive(Default)]
 struct Entries {
     identity: Option<(Stamp, u16, usize, bool)>,
     fragments: BTreeMap<Key, Fragment>,
     order: VecDeque<Key>,
     bytes: usize,
+    building: Option<Continuation>,
 }
 
 /// Candidate snapshots share disposable observations; a real split forks them.
@@ -40,6 +41,10 @@ impl PartialEq for Cache {
 impl Eq for Cache {}
 
 impl Cache {
+    pub(in crate::view) fn cancel_work(&self) {
+        self.0.lock().expect("fragment cache poisoned").building = None;
+    }
+
     fn observe(&self, buffer: &Buffer, width: u16) -> MutexGuard<'_, Entries> {
         let identity = (
             buffer.stamp(),
@@ -55,6 +60,9 @@ impl Cache {
                     .flatten()
             });
             if let Some(prefix) = prefix {
+                // A segmentation continuation retains the old complete line's
+                // byte length/context. Resume it only at the exact revision.
+                entries.building = None;
                 entries.fragments.retain(|_, f| f.observed_end < prefix);
                 let mut order = std::mem::take(&mut entries.order);
                 order.retain(|key| entries.fragments.contains_key(key));
@@ -73,6 +81,23 @@ impl Cache {
             }
         }
         entries
+    }
+
+    pub(in crate::view) fn take_work(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        row: usize,
+        point: Scalar,
+    ) -> Option<Continuation> {
+        self.observe(buffer, width)
+            .building
+            .take()
+            .filter(|at| at.line == row && at.end <= point)
+    }
+
+    pub(in crate::view) fn suspend(&self, buffer: &Buffer, width: u16, at: Continuation) {
+        self.observe(buffer, width).building = Some(at);
     }
 
     pub(in crate::view) fn before(

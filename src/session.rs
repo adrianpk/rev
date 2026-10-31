@@ -117,6 +117,7 @@ pub struct Session {
     mouse_enabled: bool,
     input: Input,
     size: Size,
+    layout_pending: bool,
     echo: String,
     echo_kind: Message,
     pending: Option<Pending>,
@@ -239,7 +240,13 @@ impl Session {
     /// Takes ownership of canonical buffers and a qualified initial view.
     pub fn new(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
         let buffer = buffers.get(view.point.stamp.buffer)?;
-        view.cell(buffer)?;
+        buffer.slice(&crate::buffer::Span {
+            stamp: view.point.stamp,
+            range: view.point.position.0..view.point.position.0,
+        })?;
+        if !crate::coordinates::Coordinates::new(buffer)?.is_boundary(view.point.position)? {
+            return Err(crate::coordinates::Error::Cluster(view.point.position).into());
+        }
         let tree = crate::tree::Tree::startup(
             &buffers.snapshot().settings().tree,
             buffer.file().map(|file| file.path()),
@@ -283,6 +290,7 @@ impl Session {
             mouse_enabled,
             input,
             size,
+            layout_pending: false,
             echo: "C-x C-c: exit".into(),
             echo_kind: Message::Normal,
             pending: None,
@@ -329,8 +337,39 @@ impl Session {
         &self.echo
     }
 
+    fn prepare_frame_layout(&mut self) -> Result<bool, view::Error> {
+        let mut budget = view::LayoutBudget::new();
+        let geometry = self.windows.geometry(self.editing_size());
+        self.layout_pending = false;
+        if let Some(geometry) = geometry {
+            for (id, area) in geometry.panes() {
+                let view = self.windows.get(*id)?;
+                let buffer = self.buffers.get(view.point.stamp.buffer)?;
+                if !view.prepare_layout(buffer, area.view_size(), &mut budget)? {
+                    self.layout_pending = true;
+                    self.cancel_pointer_capture();
+                    return Ok(false);
+                }
+            }
+        }
+        Ok(true)
+    }
+
+    /// Advance cold native projection by one bounded batch. An unfinished
+    /// projection has no source cursor/hits; remaining_input owns its next wake.
+    pub fn poll_frame(&mut self) -> Result<Frame, view::Error> {
+        if !self.prepare_frame_layout()? {
+            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+        }
+        self.frame()
+    }
+
+    /// Produce a complete synchronous observation for an embedding caller.
+    /// The native terminal uses poll_frame so cold anchor work can yield.
     pub fn frame(&mut self) -> Result<Frame, view::Error> {
+        self.layout_pending = false;
         for (_, view) in self.windows.iter() {
+            view.cancel_layout();
             self.buffers
                 .get_mut(view.point.stamp.buffer)?
                 .refresh_syntax();
@@ -433,7 +472,7 @@ impl Session {
     }
 
     fn draw(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
-        terminal.draw(&self.frame().map_err(io::Error::other)?)
+        terminal.draw(&self.poll_frame().map_err(io::Error::other)?)
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {

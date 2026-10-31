@@ -105,6 +105,28 @@ pub struct Frame {
 }
 
 impl Frame {
+    /// No text hit or cursor is exposed while a cooperative source projection
+    /// is incomplete. A later frame uses only the current admitted mapping.
+    pub(crate) fn pending(
+        buffer: &Buffer,
+        size: Size,
+        palette: &crate::config::Palette,
+    ) -> Result<Self, Error> {
+        let mut frame = Self {
+            size,
+            stamp: buffer.stamp(),
+            palette: palette.clone(),
+            rows: Vec::new(),
+            cursor: None,
+            previews: Vec::new(),
+        };
+        if size.width > 0 && size.height > 0 {
+            frame.blank_rows();
+            frame.echo("Reflowing text")?;
+        }
+        Ok(frame)
+    }
+
     pub fn project(buffer: &Buffer, view: &View, size: Size, echo: &str) -> Result<Self, Error> {
         view.cell(buffer)?;
         let mut frame = Self {

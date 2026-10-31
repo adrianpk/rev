@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 use std::ops::Range;
 
 use crate::buffer::{Buffer, Stamp};
-use crate::coordinates::{Cell, Coordinates, Glyph, Glyphs, Scalar};
+use crate::coordinates::{Cell, Coordinates, Glyph, GlyphCheckpoint, Glyphs, Scalar};
 
 use super::{Error, View};
 
@@ -48,7 +48,9 @@ impl Fragment {
 /// Word fallback never consumes part of a grapheme, even in a one-cell pane.
 pub(super) struct Line<'a> {
     stamp: Stamp,
-    glyphs: std::iter::Peekable<Glyphs<'a>>,
+    glyphs: Glyphs<'a>,
+    lookahead: Option<Glyph<'a>>,
+    exhausted: bool,
     pending: VecDeque<Glyph<'a>>,
     line: usize,
     width: usize,
@@ -58,12 +60,56 @@ pub(super) struct Line<'a> {
     done: bool,
 }
 
+pub(super) struct Continuation {
+    stamp: Stamp,
+    glyphs: GlyphCheckpoint,
+    lookahead: Option<Glyph<'static>>,
+    exhausted: bool,
+    pending: VecDeque<Glyph<'static>>,
+    pub(super) line: usize,
+    width: usize,
+    pub(super) end: Scalar,
+    after_line: Scalar,
+    column: usize,
+    done: bool,
+}
+
+pub(crate) struct Budget {
+    remaining: usize,
+}
+
+impl Budget {
+    pub(crate) const GLYPHS: usize = 4096;
+
+    pub(crate) fn new() -> Self {
+        Self {
+            remaining: Self::GLYPHS,
+        }
+    }
+
+    fn charge(&mut self) -> bool {
+        if self.remaining == 0 {
+            return false;
+        }
+        self.remaining -= 1;
+        true
+    }
+}
+
+pub(super) enum Step {
+    Fragment(Fragment),
+    Pending,
+    Finished,
+}
+
 impl<'a> Line<'a> {
     pub(super) fn new(buffer: &'a Buffer, line: usize, width: u16) -> Result<Self, Error> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
             stamp: buffer.stamp(),
-            glyphs: coordinates.glyphs(line)?.peekable(),
+            glyphs: coordinates.glyphs(line)?,
+            lookahead: None,
+            exhausted: false,
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
@@ -87,7 +133,9 @@ impl<'a> Line<'a> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
             stamp: buffer.stamp(),
-            glyphs: coordinates.glyphs_at(line, start, column)?.peekable(),
+            glyphs: coordinates.glyphs_at(line, start, column)?,
+            lookahead: None,
+            exhausted: false,
             pending: VecDeque::new(),
             line,
             width: usize::from(width),
@@ -96,6 +144,38 @@ impl<'a> Line<'a> {
             column,
             done: width == 0,
         })
+    }
+
+    fn continue_from(buffer: &'a Buffer, at: Continuation) -> Result<Self, Error> {
+        Ok(Self {
+            stamp: at.stamp,
+            glyphs: Coordinates::new(buffer)?.resume_glyphs(at.line, at.glyphs)?,
+            lookahead: at.lookahead,
+            exhausted: at.exhausted,
+            pending: at.pending,
+            line: at.line,
+            width: at.width,
+            end: at.end,
+            after_line: at.after_line,
+            column: at.column,
+            done: at.done,
+        })
+    }
+
+    fn suspend(self) -> Continuation {
+        Continuation {
+            stamp: self.stamp,
+            glyphs: self.glyphs.checkpoint(),
+            lookahead: self.lookahead.map(Glyph::into_owned),
+            exhausted: self.exhausted,
+            pending: self.pending.into_iter().map(Glyph::into_owned).collect(),
+            line: self.line,
+            width: self.width,
+            end: self.end,
+            after_line: self.after_line,
+            column: self.column,
+            done: self.done,
+        }
     }
 
     fn after_line(
@@ -114,25 +194,40 @@ impl<'a> Line<'a> {
     }
 
     pub(super) fn next(&mut self) -> Result<Option<Fragment>, Error> {
+        let mut budget = Budget {
+            remaining: usize::MAX,
+        };
+        match self.advance(&mut budget)? {
+            Step::Fragment(fragment) => Ok(Some(fragment)),
+            Step::Finished => Ok(None),
+            Step::Pending => unreachable!("unbounded reference iteration exhausted usize"),
+        }
+    }
+
+    fn advance(&mut self, budget: &mut Budget) -> Result<Step, Error> {
         if self.done {
-            return Ok(None);
+            return Ok(Step::Finished);
         }
         let start = self
             .pending
             .front()
             .map_or(self.column, |g| g.columns.start);
-        while let Some(next) = self.glyphs.peek() {
-            match next {
-                Ok(glyph) if glyph.columns.end - start <= self.width => {}
-                Ok(_) if self.pending.is_empty() => {}
-                Ok(_) => break,
-                Err(error) => return Err((*error).into()),
+        loop {
+            if self.lookahead.is_none() && !self.exhausted {
+                if !budget.charge() {
+                    return Ok(Step::Pending);
+                }
+                self.lookahead = self.glyphs.next().transpose()?;
+                self.exhausted = self.lookahead.is_none();
             }
-            if let Some(glyph) = self.glyphs.next() {
-                self.pending.push_back(glyph?);
+            let Some(glyph) = &self.lookahead else { break };
+            if glyph.columns.end - start > self.width && !self.pending.is_empty() {
+                break;
             }
+            self.pending
+                .push_back(self.lookahead.take().expect("observed lookahead"));
         }
-        let more = self.glyphs.peek().is_some();
+        let more = self.lookahead.is_some();
         let count = if more {
             self.pending
                 .iter()
@@ -141,14 +236,10 @@ impl<'a> Line<'a> {
         } else {
             self.pending.len()
         };
-        let observed_end = self
-            .glyphs
-            .peek()
-            .and_then(|glyph| glyph.as_ref().ok())
-            .map_or_else(
-                || self.pending.back().map_or(self.end, |g| g.source.end),
-                |g| g.source.end,
-            );
+        let observed_end = self.lookahead.as_ref().map_or_else(
+            || self.pending.back().map_or(self.end, |g| g.source.end),
+            |g| g.source.end,
+        );
         // EOL also observes the complete terminator. Removing only LF from
         // CRLF can change the body's final glyph and join the following row.
         let observed_end = if more { observed_end } else { self.after_line };
@@ -167,7 +258,7 @@ impl<'a> Line<'a> {
         text.extend(std::iter::repeat_n(' ', self.width - cells));
         // An exact-width EOL needs a final insertion cell on the next row.
         self.done = !more && self.pending.is_empty() && (count == 0 || cells < self.width);
-        Ok(Some(Fragment {
+        Ok(Step::Fragment(Fragment {
             stamp: self.stamp,
             line: self.line,
             source: source..self.end,
@@ -180,6 +271,108 @@ impl<'a> Line<'a> {
 }
 
 impl View {
+    pub(crate) fn cancel_layout(&self) {
+        self.wrap_cache.cancel_work();
+    }
+
+    /// Prepare the source anchors needed by a frame without monopolizing its
+    /// host. The same builder/segmentation state resumes on the next deadline.
+    pub(crate) fn prepare_layout(
+        &self,
+        buffer: &Buffer,
+        size: super::Size,
+        budget: &mut Budget,
+    ) -> Result<bool, Error> {
+        if !buffer.soft_wrap() || !size.usable() {
+            return Ok(true);
+        }
+        let width = self.text_width(buffer, size)?;
+        if width == 0 {
+            return Ok(true);
+        }
+        buffer.slice(&crate::buffer::Span {
+            stamp: self.point.stamp,
+            range: self.point.position.0..self.point.position.0,
+        })?;
+        let coordinates = Coordinates::new(buffer)?;
+        let row = coordinates.to_line(self.point.position)?.row;
+        if !self.prepare_fragment(buffer, width, row, self.point.position, budget)? {
+            return Ok(false);
+        }
+        let Some(row) = self.source_at(buffer, self.projected_top(buffer)) else {
+            return Ok(true);
+        };
+        let start = coordinates.from_cell(Cell { row, column: 0 })?;
+        let end = coordinates.line_end(start)?;
+        let target = if row == self.top {
+            self.wrap_start.max(start).min(end)
+        } else {
+            start
+        };
+        self.prepare_fragment(buffer, width, row, target, budget)
+    }
+
+    fn prepare_fragment(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        row: usize,
+        point: Scalar,
+        budget: &mut Budget,
+    ) -> Result<bool, Error> {
+        let checkpoint = self.wrap_cache.before(buffer, width, row, point);
+        if checkpoint
+            .as_ref()
+            .is_some_and(|f| f.contains(point, width))
+        {
+            return Ok(true);
+        }
+        let mut line = if let Some(at) = self.wrap_cache.take_work(buffer, width, row, point) {
+            Line::continue_from(buffer, at)?
+        } else if let Some(fragment) = checkpoint {
+            Line::resume(
+                buffer,
+                row,
+                width,
+                fragment.source.start,
+                fragment.columns.start,
+            )?
+        } else {
+            Line::new(buffer, row, width)?
+        };
+        let coordinates = Coordinates::new(buffer)?;
+        loop {
+            match line.advance(budget)? {
+                Step::Fragment(fragment) => {
+                    coordinates.remember_cell(
+                        fragment.source.start,
+                        Cell {
+                            row,
+                            column: fragment.columns.start,
+                        },
+                    );
+                    coordinates.remember_cell(
+                        fragment.source.end,
+                        Cell {
+                            row,
+                            column: fragment.columns.end,
+                        },
+                    );
+                    let found = fragment.contains(point, width);
+                    self.wrap_cache.remember(buffer, width, fragment);
+                    if found {
+                        return Ok(true);
+                    }
+                }
+                Step::Pending => {
+                    self.wrap_cache.suspend(buffer, width, line.suspend());
+                    return Ok(false);
+                }
+                Step::Finished => return Err(crate::coordinates::Error::Scalar(point).into()),
+            }
+        }
+    }
+
     /// Derive visible rows from checked fragment checkpoints. Cache disposal
     /// changes recomputation cost only, never source visibility or identity.
     pub fn wrapped_rows(
@@ -407,5 +600,47 @@ mod tests {
         b.publish(prepared, &mut points).unwrap();
         view.point = points[0];
         assert_eq!(view.wrapped_rows(b, 8, 1000).unwrap(), reference(b, 8));
+    }
+
+    // Suspending inside lookahead or a rope chunk must preserve the continuous
+    // word/grapheme partition. Each batch charges at most its glyph allowance.
+    #[test]
+    fn cooperative_batches() {
+        let mut buffers = Buffers::new().unwrap();
+        for source in [
+            "one two longtoken a\t界e\u{301}👩‍💻 ".repeat(150),
+            "🇦🇧".repeat(600),
+        ] {
+            let id = buffers.create(&source).unwrap();
+            let b = buffers.get(id).unwrap();
+            for width in [1, 13, 4097] {
+                let expected = reference(b, width);
+                for allowance in [1, 7, 256] {
+                    let mut actual = Vec::new();
+                    let mut line = Line::new(b, 0, width).unwrap();
+                    let mut batches = 0;
+                    loop {
+                        let mut budget = Budget {
+                            remaining: allowance,
+                        };
+                        loop {
+                            match line.advance(&mut budget).unwrap() {
+                                Step::Fragment(f) => actual.push(f),
+                                Step::Pending => break,
+                                Step::Finished => break,
+                            }
+                        }
+                        batches += 1;
+                        assert!(batches <= b.len_chars() + 2);
+                        if line.done {
+                            break;
+                        }
+                        assert_eq!(budget.remaining, 0);
+                        line = Line::continue_from(b, line.suspend()).unwrap();
+                    }
+                    assert_eq!(actual, expected, "{width}/{allowance}");
+                }
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@ impl Session {
             self.timer_remaining(now),
             self.agenda_action_remaining(),
             self.capture_remaining(),
+            self.layout_pending.then_some(Duration::ZERO),
         ]
         .into_iter()
         .flatten()
@@ -87,6 +88,12 @@ impl Session {
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
         self.timer_notice = false;
+        if self.layout_pending && matches!(event, Event::Mouse(_)) {
+            // The pending frame exposes no current source mapping. Do not let
+            // a click on an obsolete surface redirect a canonical source edit.
+            self.cancel_pointer_capture();
+            return Action::Wait;
+        }
         if !matches!(event, Event::Mouse(_)) {
             self.cancel_pointer_capture();
         }
@@ -120,6 +127,7 @@ impl Session {
             self.expire_timer(now),
             self.expire_agenda_action(),
             self.expire_capture(),
+            self.expire_layout(),
         ]
         .into_iter()
         .rev()
@@ -130,6 +138,17 @@ impl Session {
     fn expire_escape(&mut self, now: Instant) -> Action {
         let outcome = self.input.expire(now);
         self.outcome(outcome, now)
+    }
+
+    fn expire_layout(&mut self) -> Action {
+        if !self.layout_pending {
+            return Action::Wait;
+        }
+        match self.prepare_frame_layout() {
+            Ok(true) => Action::Redraw,
+            Ok(false) => Action::Wait,
+            Err(error) => self.error(&error.to_string()),
+        }
     }
 }
 

@@ -12,10 +12,41 @@ use rev::view::{Size, View};
 
 type Error = Box<dyn std::error::Error>;
 
-fn sample(session: &mut Session, action: impl FnOnce(&mut Session)) -> Result<Duration, Error> {
+fn render(session: &mut Session, max_step: &mut Duration) -> Result<(), Error> {
     let start = Instant::now();
+    let mut ready = session.poll_frame()?.cursor().is_some();
+    *max_step = (*max_step).max(start.elapsed());
+    for _ in 0..512 {
+        if ready {
+            return Ok(());
+        }
+        assert_eq!(
+            session.remaining_input(Instant::now()),
+            Some(Duration::ZERO)
+        );
+        let start = Instant::now();
+        let action = session.expire_input(Instant::now());
+        *max_step = (*max_step).max(start.elapsed());
+        if action == Action::Redraw {
+            let start = Instant::now();
+            ready = session.poll_frame()?.cursor().is_some();
+            *max_step = (*max_step).max(start.elapsed());
+        }
+    }
+    assert!(ready, "native projection did not settle within 512 batches");
+    Ok(())
+}
+
+fn sample(
+    session: &mut Session,
+    max_step: &mut Duration,
+    action: impl FnOnce(&mut Session),
+) -> Result<Duration, Error> {
+    let start = Instant::now();
+    let step = Instant::now();
     action(session);
-    session.frame()?;
+    *max_step = (*max_step).max(step.elapsed());
+    render(session, max_step)?;
     Ok(start.elapsed())
 }
 
@@ -40,7 +71,8 @@ fn case(name: &str, source: &str) -> Result<(), Error> {
             height: 24,
         },
     )?;
-    session.frame()?;
+    let mut max_step = Duration::ZERO;
+    render(&mut session, &mut max_step)?;
     let cold = start.elapsed();
     println!(
         "{name}: {} bytes, {} scalars, cold={}us",
@@ -54,28 +86,28 @@ fn case(name: &str, source: &str) -> Result<(), Error> {
         .cycle()
         .take(8)
     {
-        motion = motion.max(sample(&mut session, |s| {
+        motion = motion.max(sample(&mut session, &mut max_step, |s| {
             s.execute(Command::Scroll(command));
         })?);
     }
     assert_eq!(session.view().point.position, original);
     let mut resize = Duration::ZERO;
     for width in [48, 81, 52, 80] {
-        resize = resize.max(sample(&mut session, |s| {
+        resize = resize.max(sample(&mut session, &mut max_step, |s| {
             s.handle(Event::Resize(width, 24));
         })?);
         assert_eq!(session.view().point.position, original);
     }
     let mut input = Duration::ZERO;
     for _ in 0..8 {
-        input = input.max(sample(&mut session, |s| {
+        input = input.max(sample(&mut session, &mut max_step, |s| {
             s.handle(key(KeyCode::Char('x')));
         })?);
     }
     assert_eq!(session.view().point.position, Scalar(original.0 + 8));
     let mut reversal = Duration::ZERO;
     for _ in 0..8 {
-        reversal = reversal.max(sample(&mut session, |s| {
+        reversal = reversal.max(sample(&mut session, &mut max_step, |s| {
             s.handle(key(KeyCode::Backspace));
         })?);
     }
@@ -90,11 +122,12 @@ fn case(name: &str, source: &str) -> Result<(), Error> {
     );
     session.execute(Command::Motion(Motion::BufferEnd));
     println!(
-        "{name}: max_motion={}us max_resize={}us max_input={}us max_reversal={}us; exact source restored, no idle deadline",
+        "{name}: max_motion={}us max_resize={}us max_input={}us max_reversal={}us max_step={}us; exact source restored, no idle deadline",
         motion.as_micros(),
         resize.as_micros(),
         input.as_micros(),
-        reversal.as_micros()
+        reversal.as_micros(),
+        max_step.as_micros()
     );
     Ok(())
 }

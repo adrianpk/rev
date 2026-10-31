@@ -35,6 +35,9 @@ impl Session {
     }
 
     pub(super) fn keyboard_quit(&mut self) -> Action {
+        for (_, view) in self.windows.iter() {
+            view.cancel_layout();
+        }
         let buffer = match self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)

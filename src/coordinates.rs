@@ -11,6 +11,7 @@ use ropey::RopeSlice;
 
 use crate::buffer::{self, Buffer, Stamp};
 use cursor::Cursor;
+pub(crate) use display::Checkpoint as GlyphCheckpoint;
 pub use display::{Glyph, Glyphs};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -180,6 +181,19 @@ impl<'a> Coordinates<'a> {
     ) -> Result<Glyphs<'a>, Error> {
         let (line, start) = self.body(row)?;
         Glyphs::at(line, start, self.tab_width, point, column)
+    }
+
+    pub(crate) fn resume_glyphs(
+        &self,
+        row: usize,
+        at: GlyphCheckpoint,
+    ) -> Result<Glyphs<'a>, Error> {
+        let (line, _) = self.body(row)?;
+        Glyphs::resume(line, self.tab_width, at)
+    }
+
+    pub(crate) fn remember_cell(&self, point: Scalar, cell: Cell) {
+        self.remember(point, cell);
     }
 
     fn checkpoint(&self, point: Scalar, row: usize) -> Option<(Scalar, usize)> {

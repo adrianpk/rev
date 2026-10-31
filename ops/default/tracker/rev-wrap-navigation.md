@@ -92,8 +92,11 @@ preview cases pass. T4.2 has bounded fragment retention (8192 entries and
 1 MiB per view), coordinate retention (1024 per buffer), prefix invalidation
 and independent split ownership. Warm native API paths improved to about
 1 ms; cold frame/reflow still takes 61-192 ms in the debug probe. These are
-intermediate measurements, not accepted performance ceilings. Bounded resumable
-cold work, cancellation/idle CPU evidence and ticket resolution remain active.
+intermediate measurements, not accepted performance ceilings. Native cold
+frame anchors now yield after at most 4096 glyph reads through the existing
+deadline owner; the measured largest host step is about 6-8 ms in the probe.
+Direct cold command handlers, complete cancellation/idle CPU evidence and
+ticket resolution remain active.
 Override lifetime through split/close/revisit is covered under both defaults.
 Slice 4 has no canonical PR yet.
 

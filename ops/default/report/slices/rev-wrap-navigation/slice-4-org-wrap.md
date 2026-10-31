@@ -56,14 +56,29 @@ Rectangle painting scans the visible column range while copy and kill retain
 the full canonical rectangle. Syntax, clipping and pointer conversion use the
 same checked coordinate restarts.
 
+Cold native frame anchors now advance in batches of at most 4096 glyph reads,
+shared across visible views per step. One continuation per view retains its
+segmentation cursor, pending pane-width lookahead and source coordinates. It
+does not retain another source copy. Resumption preserves regional-indicator
+and ZWJ context rather than reconstructing a new cursor at every batch edge.
+Source/geometry/policy changes discard incompatible continuations; C-g discards
+unfinished builders while retaining checked completed fragments.
+
+The terminal uses `Session::poll_frame` and native deadlines. A pending frame
+shows no text cursor or pointer destination; ready input retains priority over
+the next batch. Deadline batches request a redraw only after the anchors are
+ready, and completion removes the deadline. `Session::frame` retains complete
+synchronous projection for embedding callers, using the same fragment owner.
+
 ## Contracts Added or Changed
 
 Preview anchor rows follow the current visual projection. Pictures neither
 create source rows nor acquire another anchor on a continuation. The accepted
 buffer policy applies to Org source and tables without an implicit exception.
 
-Retention limits and checked restarts are implemented. Cold misses still scan
-synchronously; the required bounded resumable work contract is not complete.
+Retention limits and cooperative cold frame anchors are implemented. Direct
+command lookups still have synchronous cold paths; the full bounded resumable
+work contract is not complete.
 
 ## Files of Interest
 
@@ -76,6 +91,9 @@ synchronously; the required bounded resumable work contract is not complete.
 - `src/view/wrap/cache.rs`: bounded, source-qualified fragment retention.
 - `src/coordinates/checkpoints.rs`: bounded coordinate and publication-prefix
   observations, independent of view width.
+- `src/coordinates/cursor.rs`: segmentation continuation across bounded batches.
+- `src/session/events.rs`: native layout deadline ownership and pending-surface
+  pointer rejection.
 
 ## Validation
 
@@ -132,12 +150,38 @@ cross-chunk Unicode restart case passed again. The focused CRLF terminator
 invalidation case also passed. All-target Clippy passed before that final
 terminator change; fresh clean-HEAD evidence is required for this increment.
 
+Cache increment `ec60f353372f90d7a58627b3848e34ec7b915db8` subsequently passed
+all seven controller commands and 399 tests in receipt
+`OIPQPYEYATXCWWN3RGGM5JJU4Q`, including all-target Clippy and the native probe.
+
+Development checks for cooperative frame work passed the exact continuous vs
+resumed partition case (1/7/256-glyph batches, multiple widths and Unicode rope
+seams), all ten native event-owner tests and all-target Clippy. The cold native
+case admits typing and C-g during reflow, rejects an obsolete pointer hit,
+preserves source/point across resize, and settles without an idle deadline.
+
+The updated probe services real native layout deadlines with a finite
+512-batch driver limit. It still completes every resize before the next
+command and retains all original source-restoration assertions. Observed debug
+results were:
+
+| Case | Cold total ms | Resize total ms | Largest native frame/deadline/handler step ms |
+| --- | --- | --- | --- |
+| Token | 99.432 | 101.727 | 7.341 |
+| Words | 85.157 | 88.483 | 6.393 |
+| Unicode/tabs | 71.381 | 70.865 | 7.078 |
+
+These intermediate API measurements distinguish total settling time from one
+host step. They are not PTY input, arbitrary cold-command or idle CPU evidence.
+
 ## Risks and Follow-ups
 
-T4.2 must make cold source/fragment misses resumable under explicit work
-ceilings. Current synchronous misses include geometry changes, far seeks,
-early source edits and cache eviction. Bounded retention and fast warm reuse
-do not establish an input or cancellation latency bound for those misses.
+T4.2 must complete bounded handling of direct native command lookups, including
+visual motions/kill, far point placement and coordinate misses. Frame anchor
+batches do not bound these handlers or all renderer consumers after anchor
+preparation. Geometry changes, early edits and eviction must remain safe when
+input arrives before frame reflow has settled. A glyph-read count also does not
+claim a fixed byte/time cost for an arbitrarily large individual grapheme.
 
 Complete native cold-work cancellation, input/resize/reversal and idle CPU
 measurements, exact successful final validation, and the approved long-line
