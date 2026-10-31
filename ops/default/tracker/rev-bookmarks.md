@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 5; native gutter markers, implementation in progress
+Active slice: Slice 5; canonical PR #189 open, exact-HEAD validation and integration pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -101,6 +101,11 @@ Acceptance: BMK03 and marker parts of BMK07.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 5 report.
 
 T5.1 projection commit: `494a53f70027c41e431e04046e362a52aa4291dc`.
+T5.2 configuration commit: `38b09af61b1b4958b43f5f94a70f8082d1dd647b`.
+Canonical PR: [#189](https://forge.adrianpk.com/adrianpk/rev/pulls/189).
+[Slice 5 report](../report/slices/rev-bookmarks/slice-5-gutter.md) records the
+current-row marker index, independent geometry, per-view settings and native
+coverage. Final controller validation follows this PR-reference commit.
 
 ## Slice 6: Joint acceptance and guidance
 

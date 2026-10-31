@@ -1,11 +1,11 @@
 # Slice 5: Gutter markers
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
 Branch: `feat/rev-bookmarks-05-gutter`
-PR: pending
+PR: [#189](https://forge.adrianpk.com/adrianpk/rev/pulls/189)
 
 ## Purpose
 
@@ -82,8 +82,11 @@ Final exact-HEAD validation follows all task and canonical PR-reference commits:
 2. `cargo test --locked --test bookmarks --test gutter --test wrapping --test pointer --test search --test panels --test configuration`
 3. `git diff --check`
 
-Separate focused validation checks bookmark owner tests, all-target clippy and
-the documentation catalog on the same candidate before the required batch.
+Separate focused validation checks `cargo test --locked --lib bookmark`,
+`cargo test --locked --test display --test windows --test commands --test editing --test files`,
+`cargo clippy --locked --all-targets -- -D warnings` and
+`cargo run --locked --quiet --example documentation-check` on the same candidate
+before the required batch.
 Both batches must pass before handoff. The controller owns integration and the
 combined gate after all recorded slices.
 
