@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 2 — Cursor popup and automatic invocation; in progress
+Active slice: Slice 3 — Rust, C and Go structural sources; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -44,9 +44,14 @@ Receipt `TCDTYFCOTRHYOQNLEVRIOXDZGJ` passed its three configured checks and
 
 Acceptance: CMP01, CMP04-CMP06.
 
-- [ ] T2.1: Integrate the cursor popup with automatic requests, single-border/full-row styling, above/below placement and source focus. Implement active-popup navigation/accept/cancel while retaining normal Tab/Enter and Org behavior outside that context.
-- [ ] T2.2: Add debounced automatic identifier/separator triggers, smart-case matching, suppression/cancellation/paste policy, finite settings and runtime controls. Update the complete sample, keymap/command catalogs and actual behavior references in this slice.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T2.1: Integrate the cursor popup with automatic requests, single-border/full-row styling, above/below placement and source focus. Implement active-popup navigation/accept/cancel while retaining normal Tab/Enter and Org behavior outside that context.
+- [x] T2.2: Add debounced automatic identifier/separator triggers, smart-case matching, suppression/cancellation/paste policy, finite settings and runtime controls. Update the complete sample, keymap/command catalogs and actual behavior references in this slice.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#196](https://forge.adrianpk.com/adrianpk/rev/pulls/196) merged
+through Rebase + Fast-forward at `1fc87e42f92a64d467e935343df41d06543bf2ad`.
+Receipt `OQMJASNUJJFUKHIDXZMAIPRC27` passed its three configured checks and
+397 tests at that exact candidate. Slice 2 of 8 completed.
 
 ## Slice 3: Rust, C and Go structural sources
 

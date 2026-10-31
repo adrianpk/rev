@@ -1,6 +1,6 @@
 # Slice 2: Cursor popup and automatic invocation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -117,8 +117,10 @@ Focused controller receipt `ODRI6E6D3OQNDJKQOK33KAWRAZ` passed at clean candidat
    198 configuration entries, 60 reachable pages and 346 local links/anchors passed.
 5. `git diff --check`: passed.
 
-After the PR-reference follow-up, the controller records a fresh receipt for the
-final clean PR head and its exact configured ordered list:
+Controller receipt `OQMJASNUJJFUKHIDXZMAIPRC27` passed all three checks and
+397 tests at final clean PR head `1fc87e42f92a64d467e935343df41d06543bf2ad`.
+Canonical PR #196 merged through Rebase + Fast-forward at that same commit.
+Its exact configured ordered list was:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test commands --test configuration --test display --test panels --test wrapping`
