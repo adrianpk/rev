@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Rust, C and Go declaration suggestions appear near the cursor after a short typing
+- Rust, C, Go, JavaScript and TypeScript/TSX declaration suggestions appear near the cursor after a short typing
   delay, using unsaved declarations in the current and same-language open buffers.
   Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.

@@ -1,0 +1,6 @@
+(class_declaration name: (identifier) @type)
+(formal_parameters (identifier) @parameter)
+(formal_parameters (rest_pattern (identifier) @parameter))
+(arrow_function parameter: (identifier) @parameter)
+(field_definition property: (property_identifier) @field)
+(field_definition property: (private_property_identifier) @field)

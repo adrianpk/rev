@@ -39,6 +39,11 @@ impl Snapshot {
                 "rust" => Grammar::Rust,
                 "c" => Grammar::C,
                 "go" => Grammar::Go,
+                "html" => Grammar::Html,
+                "css" => Grammar::Css,
+                "javascript" => Grammar::Javascript,
+                "typescript" => Grammar::Typescript,
+                "tsx" => Grammar::Tsx,
                 _ => Grammar::Plain,
             })
     }

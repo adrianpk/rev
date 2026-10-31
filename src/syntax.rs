@@ -55,7 +55,7 @@ impl Syntax {
 
     pub(crate) fn bundled(grammar: crate::config::Grammar) -> Self {
         Self {
-            parsed: catalog::highlights(grammar).and_then(|query| Parsed::new(grammar, query)),
+            parsed: catalog::highlights(grammar).and_then(|query| Parsed::new(grammar, &query)),
             ..Self::default()
         }
     }
@@ -67,10 +67,17 @@ impl Syntax {
                 .as_ref()
                 .is_some_and(|parsed| parsed.tree.is_some())
         {
-            catalog::name(self.parsed.as_ref().expect("current parser").grammar)
+            catalog::labels(self.parsed.as_ref().expect("current parser").grammar).mode
         } else {
             "Text"
         }
+    }
+
+    pub(crate) fn source_mode(&self, stamp: Stamp) -> &'static str {
+        if self.mode(stamp) == "Text" {
+            return "Org Src";
+        }
+        catalog::labels(self.parsed.as_ref().expect("current parser").grammar).source_mode
     }
 
     /// Whether the last successful parse reused a tree already edited to the

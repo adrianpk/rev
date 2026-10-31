@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::ops::ControlFlow;
 use std::time::Instant;
 
@@ -15,12 +16,24 @@ pub(super) fn query(
 ) -> Option<Query> {
     use crate::config::Grammar;
     let source = match grammar {
-        Grammar::Rust => include_str!("rust.scm"),
-        Grammar::C => include_str!("c.scm"),
-        Grammar::Go => include_str!("go.scm"),
+        Grammar::Rust => Cow::Borrowed(include_str!("rust.scm")),
+        Grammar::C => Cow::Borrowed(include_str!("c.scm")),
+        Grammar::Go => Cow::Borrowed(include_str!("go.scm")),
+        Grammar::Html => Cow::Borrowed(include_str!("html.scm")),
+        Grammar::Css => Cow::Borrowed(include_str!("css.scm")),
+        Grammar::Javascript => Cow::Owned(format!(
+            "{}\n{}",
+            include_str!("script.scm"),
+            include_str!("javascript.scm")
+        )),
+        Grammar::Typescript | Grammar::Tsx => Cow::Owned(format!(
+            "{}\n{}",
+            include_str!("script.scm"),
+            include_str!("typescript.scm")
+        )),
         Grammar::Plain => return None,
     };
-    Query::new(language, source).ok()
+    Query::new(language, &source).ok()
 }
 
 impl Syntax {
@@ -184,6 +197,16 @@ fn category(kind: &str) -> Option<&'static str> {
         "binding" => "binding",
         "parameter" => "parameter",
         "field" => "field",
+        _ => return structural_category(kind),
+    })
+}
+
+fn structural_category(kind: &str) -> Option<&'static str> {
+    Some(match kind {
+        "tag" => "tag",
+        "attribute" => "attribute",
+        "selector" => "selector",
+        "property" => "property",
         _ => return None,
     })
 }
@@ -199,6 +222,10 @@ fn literal_policy(kind: &str, policy: &crate::config::Completion) -> Option<bool
         "interpreted_string_literal",
         "rune_literal",
         "system_lib_string",
+        "string",
+        "template_string",
+        "regex",
+        "jsx_text",
     ]
     .contains(&kind)
     .then_some(policy.in_strings)

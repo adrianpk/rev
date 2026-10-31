@@ -6,6 +6,19 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(super) fn selected_grammar(&self, grammar: Grammar) -> Grammar {
+        if grammar == Grammar::Typescript
+            && self.file.as_ref().is_some_and(|file| {
+                Path::new(file.basename())
+                    .extension()
+                    .is_some_and(|ext| ext == "tsx")
+            })
+        {
+            Grammar::Tsx
+        } else {
+            grammar
+        }
+    }
     pub(crate) fn syntax_language(&self) -> &str {
         &self.language_identity
     }
@@ -104,12 +117,7 @@ impl Buffer {
 
     pub fn mode(&self) -> &'static str {
         if self.source_language.is_some() {
-            match self.syntax.mode(self.stamp()) {
-                "Rust" => "Org Src Rust",
-                "C" => "Org Src C",
-                "Go" => "Org Src Go",
-                _ => "Org Src",
-            }
+            self.syntax.source_mode(self.stamp())
         } else if self.is_transient() {
             "Capture"
         } else if self.is_org() {

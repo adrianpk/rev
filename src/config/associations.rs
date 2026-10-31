@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::Snapshot;
 
-const BUILTINS: [(&str, &str); 25] = [
+const BUILTINS: [(&str, &str); 28] = [
     ("*.rs", "rust"),
     ("*.org", "org"),
     ("*.org_archive", "org"),
@@ -17,6 +17,9 @@ const BUILTINS: [(&str, &str); 25] = [
     ("*.cxx", "cpp"),
     ("*.hpp", "cpp"),
     ("*.py", "python"),
+    ("*.html", "html"),
+    ("*.htm", "html"),
+    ("*.css", "css"),
     ("*.js", "javascript"),
     ("*.mjs", "javascript"),
     ("*.cjs", "javascript"),

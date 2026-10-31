@@ -396,7 +396,22 @@ pub enum Grammar {
     Rust,
     C,
     Go,
+    Html,
+    Css,
+    Javascript,
+    Typescript,
+    Tsx,
     Plain,
+}
+
+impl Grammar {
+    pub(crate) fn compatible(self, other: Self) -> bool {
+        self == other
+            || matches!(
+                (self, other),
+                (Self::Typescript, Self::Tsx) | (Self::Tsx, Self::Typescript)
+            )
+    }
 }
 
 /// Buffer policy: widths are 1..=32 display columns/cells, respectively.

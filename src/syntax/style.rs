@@ -22,8 +22,11 @@ impl Style {
     }
 
     fn symbol(name: &str) -> Option<Self> {
-        match name.split('.').next()? {
-            "type" | "constructor" => Some(Self::Type),
+        let name = name.split('.').next()?;
+        if ["type", "constructor", "tag", "attribute", "property"].contains(&name) {
+            return Some(Self::Type);
+        }
+        match name {
             "function" => Some(Self::Function),
             "constant" | "number" => Some(Self::Number),
             "punctuation" | "operator" => Some(Self::Punctuation),

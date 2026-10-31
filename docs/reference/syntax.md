@@ -1,16 +1,18 @@
 # Syntax highlighting
 
 By default, case-sensitive visiting basenames select bundled Rust (`.rs`),
-C (`.c`, `.h`) and Go (`.go`) grammars and highlight queries. User associations and the selected
-language table can override recognition and choose `rust`, `c`, `go` or `plain`.
+C (`.c`, `.h`), Go (`.go`), HTML (`.html`, `.htm`), CSS (`.css`), JavaScript
+(`.js`, `.mjs`, `.cjs`) and TypeScript (`.ts`, `.tsx`) grammars and queries.
+`.tsx` selects the distinct TSX parser while retaining the `typescript` settings
+identity. User associations and the selected language table can override recognition.
 Canonical reuse retains the first visiting alias; display labels such as
 `main.rs<2>` do not determine the language. No runtime grammar installation,
 network access or external language service is required. Other identities default
 to plain `Text` grammar presentation; [native Org source](#native-org-source)
 uses its own coloring. See the [complete language rules](defaults.md#language-rules).
 
-The status line shows `Rust`, `C` or `Go` only for a prepared syntax tree of the current
-buffer revision. A failed or missing query uses `Text`; incomplete source
+The status line names the selected grammar only for a prepared syntax tree of
+the current buffer revision. TypeScript and TSX have distinct mode labels. A failed or missing query uses `Text`; incomplete source
 remains editable and can still have valid captures. Syntax failures cannot
 reject a text edit or discard history. Renaming or saving to another extension
 updates recognition using the actual associated path. A missing `.rs` destination
@@ -19,7 +21,8 @@ can use Rust presentation without creating a disk file.
 ## Supplied syntax preferences
 
 Library sessions use their admitted snapshot's `syntax.enabled`, `max_bytes` and
-per-language `grammar`. Bundled `rust`, `c`, `go` and fallback `plain` choices are supported;
+per-language `grammar`. Bundled `rust`, `c`, `go`, `html`, `css`, `javascript`,
+`typescript`, `tsx` and fallback `plain` choices are supported;
 associations identify a language independently of its grammar. Disabling syntax
 or exceeding a positive UTF-8 byte cutoff drops derived styling without
 rejecting edits or changing history. Equality is admitted and zero means no
@@ -40,7 +43,7 @@ unless supplied a palette with `Frame::with_palette`.
 | Keywords | `palette.syntax.keyword` | `#9d7cd8` |
 | Strings and escapes | `palette.syntax.string` | `#9ece6a` |
 | Comments and documentation comments | `palette.syntax.comment` | `#565f89` |
-| Types and constructors | `palette.syntax.type` | `#2ac3de` |
+| Types, constructors, tags, attributes and properties | `palette.syntax.type` | `#2ac3de` |
 | Functions, methods and macros | `palette.syntax.function` | `#7aa2f7` |
 | Constants, booleans and numeric literals | `palette.syntax.number` | `#ff9e64` |
 | Grammar-provided punctuation and operators | `palette.syntax.punctuation` | `#89ddff` |

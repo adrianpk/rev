@@ -30,7 +30,7 @@ impl Buffer {
     pub fn apply_settings(&mut self, settings: &Snapshot) {
         let language = self.language(settings).to_owned();
         let policy = settings.editor(&language);
-        let grammar = settings.grammar(&language);
+        let grammar = self.selected_grammar(settings.grammar(&language));
         self.policy = policy;
         self.history_policy = settings.settings().history.clone();
         if self.syntax_policy != settings.settings().syntax {

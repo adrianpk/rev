@@ -53,7 +53,7 @@ impl Session {
             .filter(|buffer| {
                 buffer.completion_supported()
                     && buffer.syntax_language() == language
-                    && buffer.completion_grammar() == grammar
+                    && grammar.compatible(buffer.completion_grammar())
             })
             .map(|buffer| buffer.id())
             .collect();

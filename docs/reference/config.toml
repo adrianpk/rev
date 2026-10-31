@@ -705,8 +705,10 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 # tab_width = 8
 # grammar = "plain"
 
-# Bundled grammar choices are "rust", "c" and "go", with "plain" as fallback.
-# Rust, C and Go IDs default to their grammar; every other ID defaults to "plain".
+# Bundled grammars: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx".
+# Matching language IDs default to their grammar; other IDs default to "plain".
+# The typescript identity selects TSX for a first visiting .tsx basename.
+# An explicit "plain" override always disables derived parsing.
 # Language identity does not install a parser.
 
 # Native read-only bookmark list; these keys never edit the backing source.

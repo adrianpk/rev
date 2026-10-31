@@ -128,7 +128,17 @@ fn enum_values() {
         ("files.newline", &["'lf'", "'crlf'"]),
         (
             "language.rust.grammar",
-            &["'rust'", "'c'", "'go'", "'plain'"],
+            &[
+                "'rust'",
+                "'c'",
+                "'go'",
+                "'html'",
+                "'css'",
+                "'javascript'",
+                "'typescript'",
+                "'tsx'",
+                "'plain'",
+            ],
         ),
     ];
     for (key, values) in cases {

@@ -16,6 +16,9 @@ const BLOCKS: &[&str] = &[
     "expression_case",
     "type_case",
     "communication_case",
+    "statement_block",
+    "catch_clause",
+    "for_in_statement",
 ];
 const FUNCTIONS: &[&str] = &[
     "function_item",
@@ -24,6 +27,12 @@ const FUNCTIONS: &[&str] = &[
     "function_declaration",
     "method_declaration",
     "func_literal",
+    "function_expression",
+    "generator_function",
+    "generator_function_declaration",
+    "arrow_function",
+    "method_definition",
+    "method_signature",
 ];
 
 /// Only explicit query scopes can admit local names; no token scan creates

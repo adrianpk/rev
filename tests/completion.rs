@@ -331,3 +331,6 @@ mod automatic;
 
 #[path = "completion/systems.rs"]
 mod systems;
+
+#[path = "completion/web.rs"]
+mod web;
