@@ -1,11 +1,12 @@
 # Slice 2: Emacs visual-line editing
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-02-visual-editing`
 PR: `#175`
+Integrated commit: `70a20019d4bc043f178462eec578fa715c12895e`
 
 ## Purpose
 
@@ -87,11 +88,13 @@ recalculates that goal before movement.
   obsolete logical-only expectations. The failed batch remains in the ledger;
   complete display and source-quality checks are rerun for the corrected head.
 
-The configured final formatter, wrapping/editing/windows/core/coordinates tests
-and `git diff --check` are recorded by the controller after the PR-reference
-commit. Additional source-quality, display and documentation checks use a
-separate exact-HEAD receipt. The canonical PR carries the configured command
-list in its exact order. No integrated delivery gate is claimed here.
+Canonical controller receipt `MWK2ELBNYFS4FPNKGLAFEHR22Z` passed the exact
+configured formatter, wrapping/editing/windows/core/coordinates suite (180 tests)
+and `git diff --check` on the clean integrated commit above. Supplemental
+receipt `F7DUK4HPS4QFZ4TNSBLRJB23NG` passed library Clippy, 39 display tests,
+the documentation checker (58 pages, 330 local links) and whitespace checks on
+the same head. PR #175 is merged through Rebase + Fast-forward; the controller
+recorded the merge in Acta. The full delivery gate remains separately owned.
 
 Emacs 31.1 was observed in an owned, fresh `-Q -nw` terminal fixture with twelve
 text cells. These source offsets and removed bytes were checked against native
