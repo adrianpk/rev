@@ -77,7 +77,6 @@ and [complete sample](../../reference/config.toml) list every supported setting.
 Use [Configure indentation by language](../../how-to/language-indentation.md)
 when different file types need different values.
 
-Continue with [Complete Names](10-complete-names.md) to use suggestions while
-editing source text.
+Next: [Complete Names](10-complete-names.md).
 
-[Previous](05-file-tree.md) · [User Guide](index.md) · [Next](10-complete-names.md)
+[Previous](05-file-tree.md) · [User Guide](index.md)
