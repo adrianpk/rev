@@ -44,9 +44,14 @@ See the canonical Slice 1 report for task commits and documentation evidence.
 
 Acceptance: BMK02, BMK06.
 
-- [ ] T2.1: Integrate anchor outcomes with prepared edits, retained moves, stale transitions and source undo/redo.
-- [ ] T2.2: Implement context capture/resolution, cancellation, live-buffer preference and rename/save-as/close/discard lifetimes.
+- [x] T2.1: Integrate anchor outcomes with prepared edits, retained moves, stale transitions and source undo/redo.
+- [x] T2.2: Implement context capture/resolution, cancellation, live-buffer preference and rename/save-as/close/discard lifetimes.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 2 report.
+
+Implementation commits: T2.1 `dd5cb9fc0cc93b2934303ea78f7d3f2bdf04b1db`;
+T2.2 `b63e7834d9b06ab0ceb62b183da8c05295b38e6b`.
+[Slice 2 report](../report/slices/rev-bookmarks/slice-2-locations.md) is reviewing;
+canonical PR integration and final exact-HEAD evidence remain pending.
 
 ## Slice 3: Persistent collection
 
