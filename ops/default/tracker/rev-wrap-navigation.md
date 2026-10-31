@@ -14,7 +14,7 @@ Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
 Active slice: Slice 2
-Execution owner: Looper; Slice 1 integrated, Slice 2 active
+Execution owner: Looper; Slice 2 PR preparation
 
 ## Canonical slice map
 
@@ -51,6 +51,11 @@ Acceptance: WRP03, WRP07.
 - [x] T2.1: Resolve arrows, C-n/C-p, C-a/C-e and C-k through the current wrapped view while preserving canonical kill-ring/history and read-only admission.
 - [x] T2.2: Integrate goal columns, paging, recenter, goto-line and split point/scroll lifetimes; verify end-of-row/newline/EOF/repeated-kill boundaries against Emacs.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 2 report.
+
+Implementation commits: T2.1 `36c6253e6c797206f574beda907fea86e6dbfde3`;
+T2.2 `85e57005676c2562486d545a0b756836a5c267ce`.
+Focused wrapping/window/coordinate checks passed (78 tests), as did seven
+region regressions. Final exact-HEAD checks are recorded through the controller.
 
 ## Slice 3: Wrapped selection and gutter integration
 
@@ -105,7 +110,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | Delivery slice | State | PR | Integrated commit | Validation/report |
 | --- | --- | --- | --- | --- |
 | 1 | delivered | #174 | `366efcd384b163e69478c3bf4bda918bd1d7547a` | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
-| 2 | pending | pending | pending | pending |
+| 2 | reviewing | pending | pending | [Slice 2 report](../report/slices/rev-wrap-navigation/slice-2-visual-editing.md) |
 | 3 | pending | pending | pending | pending |
 | 4 | pending | pending | pending | pending |
 | 5 | pending | pending | pending | pending |
