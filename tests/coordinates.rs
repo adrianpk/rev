@@ -515,18 +515,33 @@ fn named_motion() {
         ("forward-word", 'f', Mod::ALT, 19),
         ("backward-word", 'b', Mod::ALT, 7),
     ];
-    for (name, character, modifiers, position) in cases {
-        let mut named = session(source, 10, true);
-        let mut bound = session(source, 10, true);
-        execute(&mut named, name, position);
-        assert_eq!(
-            bound.handle(key(KeyCode::Char(character), modifiers)),
-            rev::session::Action::Redraw,
-            "{name}"
-        );
-        assert_eq!(bound.view().point.position, Scalar(position), "{name}");
-        assert!(bound.echo().is_empty(), "{name}");
-        assert!(!bound.buffer().unwrap().is_modified(), "{name}");
+    for wrap in [true, false] {
+        for (name, character, modifiers, logical) in cases {
+            let position = if wrap && name == "move-end-of-line" {
+                14
+            } else {
+                logical
+            };
+            let mut named = session(source, 10, true);
+            let mut bound = session(source, 10, true);
+            if !wrap {
+                named.execute(rev::command::Command::VisualLineMode);
+                bound.execute(rev::command::Command::VisualLineMode);
+            }
+            execute(&mut named, name, position);
+            assert_eq!(
+                bound.handle(key(KeyCode::Char(character), modifiers)),
+                rev::session::Action::Redraw,
+                "{name}"
+            );
+            assert_eq!(
+                bound.view().point.position,
+                Scalar(position),
+                "{name}, wrap={wrap}"
+            );
+            assert!(bound.echo().is_empty(), "{name}");
+            assert!(!bound.buffer().unwrap().is_modified(), "{name}");
+        }
     }
 }
 
@@ -609,30 +624,51 @@ fn chunk_words() {
     }
 }
 
-// Horizontal and logical-row reveal use document cells, with a valid visible
+// Wrapped and explicit horizontal reveal use document cells, with a valid visible
 // cursor after word, line, character and whole-buffer destinations.
 #[test]
 fn motion_reveal() {
     let source = format!("a\t界{}\r\none\ntwo\n界\tend", "x".repeat(12));
-    let mut session = session(&source, 0, false);
-    let cases = [
-        ("move-end-of-line", 15, 0, 11, (7, 0)),
-        ("backward-char", 14, 0, 11, (6, 0)),
-        ("move-end-of-line", 15, 0, 11, (7, 0)),
-        ("forward-char", 17, 0, 0, (0, 1)),
-        ("end-of-buffer", 30, 2, 0, (7, 1)),
-        ("backward-word", 27, 2, 0, (4, 1)),
-        ("beginning-of-buffer", 0, 0, 0, (0, 0)),
-    ];
-    for (name, point, top, left, cursor) in cases {
-        execute(&mut session, name, point);
-        assert_eq!(
-            (session.view().top, session.view().left),
-            (top, left),
-            "{name}"
-        );
-        let position = session.frame().unwrap().cursor().unwrap();
-        assert_eq!((position.column, position.row), cursor, "{name}");
+    for wrap in [true, false] {
+        let mut session = session(&source, 0, false);
+        if !wrap {
+            session.execute(rev::command::Command::VisualLineMode);
+        }
+        let cases = if wrap {
+            [
+                ("move-end-of-line", 1, 0, 0, (1, 0)),
+                ("backward-char", 0, 0, 0, (0, 0)),
+                ("move-end-of-line", 1, 0, 0, (1, 0)),
+                ("forward-char", 2, 0, 0, (0, 1)),
+                ("end-of-buffer", 30, 2, 0, (7, 1)),
+                ("backward-word", 27, 2, 0, (4, 1)),
+                ("beginning-of-buffer", 0, 0, 0, (0, 0)),
+            ]
+        } else {
+            [
+                ("move-end-of-line", 15, 0, 11, (7, 0)),
+                ("backward-char", 14, 0, 11, (6, 0)),
+                ("move-end-of-line", 15, 0, 11, (7, 0)),
+                ("forward-char", 17, 0, 0, (0, 1)),
+                ("end-of-buffer", 30, 2, 0, (7, 1)),
+                ("backward-word", 27, 2, 0, (4, 1)),
+                ("beginning-of-buffer", 0, 0, 0, (0, 0)),
+            ]
+        };
+        for (name, point, top, left, cursor) in cases {
+            execute(&mut session, name, point);
+            assert_eq!(
+                (session.view().top, session.view().left),
+                (top, left),
+                "{name}, wrap={wrap}"
+            );
+            let position = session.frame().unwrap().cursor().unwrap();
+            assert_eq!(
+                (position.column, position.row),
+                cursor,
+                "{name}, wrap={wrap}"
+            );
+        }
     }
 }
 

@@ -33,13 +33,13 @@ Every command below is also available as `M-x` followed by its exact name.
 | Left, `C-b` | `backward-char` | Move back one grapheme. |
 | `M-f` | `forward-word` | Move to the next word end. |
 | `M-b` | `backward-word` | Move to the preceding word start. |
-| Home, `C-a` | `move-beginning-of-line` | Move to logical line start. |
-| End, `C-e` | `move-end-of-line` | Move to logical line end. |
+| Home, `C-a` | `move-beginning-of-line` | Move to visual line start when wrapped, otherwise logical line start. |
+| End, `C-e` | `move-end-of-line` | Move to visual line end when wrapped, otherwise logical line end. |
 | `M-<` | `beginning-of-buffer` | Move to buffer start. |
 | `M->` | `end-of-buffer` | Move to buffer end. |
 | `M-g g`, `M-g M-g` | `goto-line` | Prompt for a one-based logical line; M-g alone is a prefix. |
-| Down, `C-n` | `next-line` | Move down, retaining the intended display column. |
-| Up, `C-p` | `previous-line` | Move up, retaining the intended display column. |
+| Down, `C-n` | `next-line` | Move down one visual row when wrapped, otherwise one logical row; retain the intended display column. |
+| Up, `C-p` | `previous-line` | Move up one visual row when wrapped, otherwise one logical row; retain the intended display column. |
 | Page Down, `C-v` | `scroll-up-command` | Advance one page. |
 | Page Up, `M-v` | `scroll-down-command` | Move back one page. |
 | `C-l` | `recenter-top-bottom` | Cycle point's line through center/top/bottom. |

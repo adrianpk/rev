@@ -1,6 +1,7 @@
 use std::ops::Range;
 
 use crate::buffer::Buffer;
+use crate::command::Scroll;
 use crate::coordinates::{Cell, Coordinates, Scalar};
 
 use super::{Error, Fragment, Size, View, wrap::Line};
@@ -137,9 +138,13 @@ impl View {
         &mut self,
         buffer: &Buffer,
         width: u16,
-        backward: bool,
+        scroll: Scroll,
         distance: usize,
     ) -> Result<(), Error> {
+        self.sync_policy(buffer);
+        self.sync_wrap_width(Some(width));
+        self.reveal_fold(buffer, self.cell(buffer)?.row)?;
+        self.alignment = super::scroll::Alignment::Center;
         if distance == 0 {
             return Ok(());
         }
@@ -148,13 +153,47 @@ impl View {
         let column = *self
             .column
             .get_or_insert(point.column - fragment.columns.start);
+        let mut moved = 0;
         for _ in 0..distance {
-            let Some(next) = self.adjacent_fragment(buffer, width, &fragment, backward)? else {
+            let Some(next) = self.adjacent_fragment(buffer, width, &fragment, scroll.backward())?
+            else {
                 break;
             };
             fragment = next;
+            moved += 1;
         }
         self.point.position = Self::fragment_point(buffer, &fragment, column)?;
+        if scroll.page()
+            && let Some(mut top) = self.wrapped_rows(buffer, width, 1)?.into_iter().next()
+        {
+            for _ in 0..moved {
+                let Some(next) = self.adjacent_fragment(buffer, width, &top, scroll.backward())?
+                else {
+                    break;
+                };
+                top = next;
+            }
+            self.top = top.line;
+            self.wrap_start = top.source.start;
+        }
+        Ok(())
+    }
+
+    pub(super) fn align_wrapped(
+        &mut self,
+        buffer: &Buffer,
+        width: u16,
+        offset: usize,
+    ) -> Result<(), Error> {
+        let mut top = self.visual_fragment(buffer, width)?;
+        for _ in 0..offset {
+            let Some(previous) = self.adjacent_fragment(buffer, width, &top, true)? else {
+                break;
+            };
+            top = previous;
+        }
+        self.top = top.line;
+        self.wrap_start = top.source.start;
         Ok(())
     }
 }

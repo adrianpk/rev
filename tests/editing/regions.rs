@@ -142,59 +142,67 @@ fn clipped_regions() {
     use rev::display::{Frame, Size};
     use rev::view::View;
     use unicode_width::UnicodeWidthStr;
-    let mut buffers = Buffers::new().unwrap();
-    let id = buffers.create("a\t界e\u{301}👩\u{200d}💻\nlast").unwrap();
-    let buffer = buffers.get_mut(id).unwrap();
-    buffer
-        .activate_mark(Point {
-            stamp: buffer.stamp(),
-            position: Scalar(0),
-        })
-        .unwrap();
-    let mut view = View::new(buffer);
-    view.point.position = Scalar(buffer.len_chars());
-    for (left, expected) in [(0, "a  "), (3, " 界"), (5, " e\u{301} ")] {
-        view.left = left;
-        let frame = Frame::project(
-            buffer,
-            &view,
+    for wrap in [true, false] {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create("a\t界e\u{301}👩\u{200d}💻\nlast").unwrap();
+        let buffer = buffers.get_mut(id).unwrap();
+        if !wrap {
+            buffer.toggle_soft_wrap();
+        }
+        buffer
+            .activate_mark(Point {
+                stamp: buffer.stamp(),
+                position: Scalar(0),
+            })
+            .unwrap();
+        let mut view = View::new(buffer);
+        view.point.position = Scalar(buffer.len_chars());
+        for (left, expected) in [(0, "a  "), (3, " 界"), (5, " e\u{301} ")] {
+            view.left = left;
+            let frame = Frame::project(
+                buffer,
+                &view,
+                Size {
+                    width: 3,
+                    height: 4,
+                },
+                "notice",
+            )
+            .unwrap();
+            assert_eq!(frame.rows()[0].text(), if wrap { "a  " } else { expected });
+            assert_eq!(
+                frame.rows()[0].selection(),
+                Some(if wrap { 0..1 } else { 0..3 })
+            );
+            assert!(frame.rows().iter().all(|row| row.text().width() == 3));
+            assert!(
+                frame
+                    .rows()
+                    .iter()
+                    .skip(2)
+                    .all(|row| row.selection().is_none())
+            );
+        }
+        for size in [
             Size {
-                width: 3,
+                width: 0,
                 height: 4,
             },
-            "notice",
-        )
-        .unwrap();
-        assert_eq!(frame.rows()[0].text(), expected);
-        assert_eq!(frame.rows()[0].selection(), Some(0..3));
-        assert!(frame.rows().iter().all(|row| row.text().width() == 3));
-        assert!(
-            frame
-                .rows()
-                .iter()
-                .skip(2)
-                .all(|row| row.selection().is_none())
-        );
-    }
-    for size in [
-        Size {
-            width: 0,
-            height: 4,
-        },
-        Size {
-            width: 3,
-            height: 0,
-        },
-        Size {
-            width: 1,
-            height: 1,
-        },
-    ] {
-        let frame = Frame::project(buffer, &view, size, "notice").unwrap();
-        assert!(frame.rows().iter().all(|row| row.selection().is_none()));
-        let mut bytes = Vec::new();
-        frame.write(&mut bytes).unwrap();
-        assert!(!bytes.windows(4).any(|part| part == b"\x1b[7m"));
+            Size {
+                width: 3,
+                height: 0,
+            },
+            Size {
+                width: 1,
+                height: 1,
+            },
+        ] {
+            let frame = Frame::project(buffer, &view, size, "notice").unwrap();
+            assert!(frame.rows().iter().all(|row| row.selection().is_none()));
+            let mut bytes = Vec::new();
+            frame.write(&mut bytes).unwrap();
+            assert!(!bytes.windows(4).any(|part| part == b"\x1b[7m"));
+        }
     }
 }
 

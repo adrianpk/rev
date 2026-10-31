@@ -90,6 +90,18 @@ See [File tree](file-tree.md) for root, layout and keyboard focus.
 
 ## Line navigation
 
+With wrapping enabled, Up/Down and `C-n`/`C-p` move through visual rows.
+`C-a`/`C-e` address the current visual row. Following Emacs, `C-e` stops on
+the character where a continued row wraps; at a source EOL it reaches the
+insertion boundary. `C-k` kills to that visual end, including wrap whitespace.
+At the visual end, the next kill consumes the wrap character or real source
+newline. Kills retain the ordinary kill ring, undo and read-only admission.
+Disabling wrapping restores logical-line motion and kills.
+
+Paging and recentering use visual rows while wrapped. Goal columns follow
+terminal cells and are recalculated when pane width changes. Each split keeps
+its own point and viewport over the same source text.
+
 `M-g g`, `M-g M-g` and `M-x goto-line` open `Goto line: `. Enter a signed
 64-bit decimal integer and press Return. The configured `minibuffer.input_limit`
 bounds the draft (default 4096 Unicode scalars). Surrounding whitespace is

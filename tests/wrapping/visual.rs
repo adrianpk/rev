@@ -1,6 +1,8 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::buffer::Buffers;
-use rev::command::{Command, History, KillCommand, LinearCommand};
+use rev::command::{
+    Command, History, KillCommand, LinearCommand, Motion, Scroll, Split, WindowCommand,
+};
 use rev::coordinates::Scalar;
 use rev::gutter::Change;
 use rev::session::Session;
@@ -153,4 +155,147 @@ fn visual_kill_chain() {
     assert_eq!(text(&session), "ofive\nlast");
     session.execute(Command::History(History::Undo));
     assert_eq!(text(&session), "othree four five\nlast");
+}
+
+// Pages move the viewport and point by visual rows; recenter cycles through
+// center/top/bottom without inventing source lines. Goto still takes source rows.
+#[test]
+fn pages_and_goto() {
+    let source = "aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt\nlast";
+    let mut session = editor(source, 1, 6, true, false);
+    let stamp = session.buffer().unwrap().stamp();
+    control(&mut session, 'v');
+    assert_eq!(session.view().point.position, Scalar(19));
+    assert_eq!(session.frame().unwrap().cursor().unwrap().row, 0);
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('v'),
+        KeyModifiers::ALT,
+    )));
+    assert_eq!(session.view().point.position, Scalar(1));
+    for _ in 0..6 {
+        control(&mut session, 'n');
+    }
+    assert_eq!(session.view().point.position, Scalar(37));
+    for row in [2, 0, 4] {
+        control(&mut session, 'l');
+        assert_eq!(session.frame().unwrap().cursor().unwrap().row, row);
+    }
+    session.execute(Command::GotoLine);
+    session.handle(Event::Paste("2".into()));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Enter,
+        KeyModifiers::NONE,
+    )));
+    assert_eq!(
+        session.view().point.position,
+        Scalar(source.find('\n').unwrap() + 1)
+    );
+    assert_eq!(
+        session.view().cell(session.buffer().unwrap()).unwrap().row,
+        1
+    );
+    assert!(session.frame().unwrap().cursor().is_some());
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// Width changes invalidate visual goal columns before the next command even
+// without an intervening frame. Split siblings retain independent source points.
+#[test]
+fn resize_and_split_goals() {
+    let source = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let mut session = editor(source, 3, 8, true, false);
+    control(&mut session, 'n');
+    assert_eq!(session.view().point.position, Scalar(11));
+    session.handle(Event::Resize(10, 7));
+    control(&mut session, 'n');
+    assert_eq!(session.view().point.position, Scalar(21));
+    assert_eq!(session.view().column, Some(1));
+    session.execute(Command::Split(Split::Right));
+    let selected = session.windows().selected_id();
+    let sibling = session
+        .windows()
+        .iter()
+        .find(|(id, _)| *id != selected)
+        .unwrap()
+        .0;
+    control(&mut session, 'n');
+    assert_eq!(session.view().point.position, Scalar(25));
+    assert_eq!(
+        session.windows().get(sibling).unwrap().point.position,
+        Scalar(21)
+    );
+    session.frame().unwrap();
+    session.execute(Command::Window(WindowCommand::Keep));
+    session.frame().unwrap();
+    assert_eq!(session.windows().selected_id(), selected);
+    assert_eq!(session.view().point.position, Scalar(25));
+    assert_eq!(text(&session), source);
+    assert!(!session.buffer().unwrap().is_modified());
+}
+
+// Visual goals count cells, while every destination is a grapheme boundary.
+// Clamping on a short row retains intent for the return to a tab/wide source row.
+#[test]
+fn unicode_visual_goals() {
+    let source = "a\t界e\u{301} long words more";
+    let mut session = editor(source, 3, 8, true, false);
+    for (command, position) in [
+        (Scroll::NextLine, 10),
+        (Scroll::NextLine, 16),
+        (Scroll::PreviousLine, 10),
+        (Scroll::PreviousLine, 3),
+    ] {
+        session.execute(Command::Scroll(command));
+        assert_eq!(session.view().point.position, Scalar(position));
+        assert_eq!(session.view().column, Some(6));
+        assert!(
+            rev::coordinates::Coordinates::new(session.buffer().unwrap())
+                .unwrap()
+                .is_boundary(session.view().point.position)
+                .unwrap()
+        );
+        assert!(session.frame().unwrap().cursor().is_some());
+    }
+}
+
+// Shared edits map each viewport's source anchor before publication. Combining
+// insertion at an anchor reprojects that derived boundary and cannot reject an
+// otherwise valid edit. Undo restores both source points and exact text.
+#[test]
+fn shared_viewport_anchors() {
+    let source = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let mut session = editor(source, 55, 18, true, false);
+    session.execute(Command::Split(Split::Right));
+    session.frame().unwrap();
+    let selected = session.windows().selected_id();
+    let sibling = session
+        .windows()
+        .iter()
+        .find(|(id, _)| *id != selected)
+        .unwrap()
+        .0;
+    let peer = session.windows().get(sibling).unwrap();
+    let anchor = peer.wrapped_rows(session.buffer().unwrap(), 9, 1).unwrap()[0]
+        .source
+        .start
+        .0;
+    assert!(anchor > 0);
+    session.replace(0..0, "X").unwrap();
+    let peer = session.windows().get(sibling).unwrap();
+    assert_eq!(peer.point.position, Scalar(56));
+    let first = peer.wrapped_rows(session.buffer().unwrap(), 9, 1).unwrap();
+    assert!(first[0].source.contains(&Scalar(anchor + 1)));
+    session.replace(anchor + 1..anchor + 1, "\u{301}").unwrap();
+    session.frame().unwrap();
+    for _ in 0..2 {
+        session.execute(Command::History(History::Undo));
+    }
+    assert_eq!(text(&session), source);
+    assert_eq!(
+        session.windows().get(sibling).unwrap().point.position,
+        Scalar(55)
+    );
+    session.execute(Command::Motion(Motion::BufferEnd));
+    assert!(session.frame().unwrap().cursor().is_some());
 }

@@ -284,8 +284,15 @@ measurements SHALL retain their declared finite budgets and source-state checks.
 
 The focused region MUST be visibly highlighted across rows and scrolling.
 Syntax, selection, search indication, and cursor styles MUST compose in a
-stable order with readable text and status. **Design defaults:** no soft wrap,
-a horizontal viewport for long lines, and default four-cell tab stops.
+stable order with readable text and status. **Design defaults:** word-aware
+soft wrapping at each pane's text width and four-cell tab stops. The startup
+setting `editor.soft_wrap = false` selects the horizontal viewport alternative;
+`visual-line-mode` toggles the effective policy for one live buffer and its views.
+With wrapping enabled, Up/Down and C-n/C-p follow visual rows, C-a/C-e reach
+visual boundaries and C-k follows Emacs kill-visual-line behavior through normal
+source history and the kill ring. Paging and recentering use visual rows; line
+numbers and goto-line retain logical source identity. Width changes invalidate
+visual goal columns, and shared edits map source-qualified viewport anchors.
 The effective buffer policy applies coherently to every shared view. Actual tabs
 remain valid buffer content.
 
@@ -1675,7 +1682,7 @@ The complete form SHALL return when width is available again.
 | Tree | Initially hidden, left side, current directory or initial file parent as root. |
 | Tree toggle | `toggle-file-tree`; optional `C-x t t`. |
 | Tree focus | Separate from `other-window` cycling. |
-| Text display | No soft wrap; horizontal scrolling; default four-cell tab stops, with coherent buffer-specific overrides. |
+| Text display | Word-aware soft wrap by default, explicit horizontal alternative, Emacs visual-line commands and four-cell tab stops, with coherent buffer-specific overrides. |
 | Numbering | Visible left absolute logical numbers; independent current-line form and per-view runtime overrides. |
 | Pointer | Enabled native primary click/drag and three-row pointed scrolling; mouse-mode toggles the session. |
 | Status | Pane-local identity/state/position on the left and syntax mode on the right, with bounded narrow-width composition. |

@@ -24,12 +24,7 @@ impl Session {
             let overlap = self.buffers.snapshot().settings().scroll.page_overlap;
             let width = candidate.text_width(buffer, size)?;
             if buffer.soft_wrap() && width > 0 {
-                candidate.visual_scroll(
-                    buffer,
-                    width,
-                    scroll.backward(),
-                    distance(scroll, size, overlap),
-                )?;
+                candidate.visual_scroll(buffer, width, scroll, distance(scroll, size, overlap))?;
             } else {
                 candidate.scroll(buffer, scroll, distance(scroll, size, overlap))?;
             }

@@ -11,7 +11,9 @@ This project uses Semantic Versioning.
 - Long source lines wrap at word boundaries by default, preserving file bytes,
   tabs and Unicode graphemes at each split pane's width. Use
   `editor.soft_wrap = false` for horizontal scrolling or `M-x visual-line-mode`
-  to toggle wrapping for one buffer and all its views.
+  to toggle wrapping for one buffer and all its views. While wrapped, Up/Down,
+  `C-n`/`C-p`, `C-a`/`C-e` and `C-k` follow Emacs visual-line editing; paging and
+  recentering follow display rows while goto-line keeps source line numbers.
 
 ## 0.1.0 - 2026-10-30
 

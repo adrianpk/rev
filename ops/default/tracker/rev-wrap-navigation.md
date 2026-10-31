@@ -49,7 +49,7 @@ commit; the controller recorded its merge in Acta. Slice 1 is delivered.
 Acceptance: WRP03, WRP07.
 
 - [x] T2.1: Resolve arrows, C-n/C-p, C-a/C-e and C-k through the current wrapped view while preserving canonical kill-ring/history and read-only admission.
-- [ ] T2.2: Integrate goal columns, paging, recenter, goto-line and split point/scroll lifetimes; verify end-of-row/newline/EOF/repeated-kill boundaries against Emacs.
+- [x] T2.2: Integrate goal columns, paging, recenter, goto-line and split point/scroll lifetimes; verify end-of-row/newline/EOF/repeated-kill boundaries against Emacs.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 2 report.
 
 ## Slice 3: Wrapped selection and gutter integration

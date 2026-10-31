@@ -175,29 +175,35 @@ fn other(session: &Session) -> rev::window::ViewId {
 fn independent_navigation() {
     use rev::command::{Motion, Scroll};
     let text = ("0123456789\t界".repeat(12) + "\n").repeat(60);
-    for direction in [Split::Below, Split::Right] {
-        let dimensions = size(31, 13);
-        let mut session = editor(&text, dimensions);
-        let original = session.windows().selected_id();
-        split(&mut session, direction);
-        bounded(&mut session, dimensions);
-        let sibling = other(&session);
-        let sibling_before = session.windows().get(sibling).unwrap().clone();
-        session.execute(Command::Motion(Motion::BufferEnd));
-        session.execute(Command::Scroll(Scroll::PreviousLine));
-        session.execute(Command::Motion(Motion::LineEnd));
-        bounded(&mut session, dimensions);
-        let moved = session.view().clone();
-        assert!(moved.top > 0 && moved.left > 0);
-        assert_eq!(*session.windows().get(sibling).unwrap(), sibling_before);
-        session.select_view(sibling).unwrap();
-        session.execute(Command::Scroll(Scroll::NextLine));
-        bounded(&mut session, dimensions);
-        assert_ne!(session.view().point, moved.point);
-        assert_eq!(*session.windows().get(original).unwrap(), moved);
-        assert!(session.buffer().unwrap().history().is_empty());
-        session.select_view(original).unwrap();
-        assert_eq!(*session.view(), moved);
+    for wrap in [true, false] {
+        for direction in [Split::Below, Split::Right] {
+            let dimensions = size(31, 13);
+            let mut session = editor(&text, dimensions);
+            if !wrap {
+                session.execute(Command::VisualLineMode);
+            }
+            let original = session.windows().selected_id();
+            split(&mut session, direction);
+            bounded(&mut session, dimensions);
+            let sibling = other(&session);
+            let sibling_before = session.windows().get(sibling).unwrap().clone();
+            session.execute(Command::Motion(Motion::BufferEnd));
+            session.execute(Command::Scroll(Scroll::PreviousLine));
+            session.execute(Command::Motion(Motion::LineEnd));
+            bounded(&mut session, dimensions);
+            let moved = session.view().clone();
+            assert!(moved.top > 0);
+            assert_eq!(moved.left == 0, wrap);
+            assert_eq!(*session.windows().get(sibling).unwrap(), sibling_before);
+            session.select_view(sibling).unwrap();
+            session.execute(Command::Scroll(Scroll::NextLine));
+            bounded(&mut session, dimensions);
+            assert_ne!(session.view().point, moved.point);
+            assert_eq!(*session.windows().get(original).unwrap(), moved);
+            assert!(session.buffer().unwrap().history().is_empty());
+            session.select_view(original).unwrap();
+            assert_eq!(*session.view(), moved);
+        }
     }
 }
 
@@ -254,24 +260,50 @@ fn shared_publication() {
 #[test]
 fn composed_cells() {
     use rev::display::Position;
-    let dimensions = size(17, 9);
-    let mut session = editor("a\t界e\u{301}👩\u{200d}💻 tail\nsecond", dimensions);
-    split(&mut session, Split::Below);
-    split(&mut session, Split::Right);
-    let geometry = session.windows().geometry(dimensions).unwrap();
-    let right = geometry.panes()[1].0;
-    bounded(&mut session, dimensions);
-    let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].text(), "a   界e\u{301} │a   界e\u{301} ");
-    assert!(frame.rows()[2].text().starts_with("> "));
-    assert_eq!(&frame.rows()[2].text()[8..13], "│  ");
-    assert!(frame.rows()[7].text().starts_with("  "));
-    assert_eq!(frame.cursor(), Some(Position { column: 4, row: 0 }));
-    session.select_view(right).unwrap();
-    let frame = session.frame().unwrap();
-    assert!(frame.rows()[2].text().starts_with("  "));
-    assert_eq!(&frame.rows()[2].text()[8..13], "│> ");
-    assert_eq!(frame.cursor(), Some(Position { column: 13, row: 0 }));
+    for wrap in [true, false] {
+        let dimensions = size(17, 9);
+        let mut session = editor("a\t界e\u{301}👩\u{200d}💻 tail\nsecond", dimensions);
+        if !wrap {
+            session.execute(Command::VisualLineMode);
+        }
+        split(&mut session, Split::Below);
+        split(&mut session, Split::Right);
+        let geometry = session.windows().geometry(dimensions).unwrap();
+        let right = geometry.panes()[1].0;
+        bounded(&mut session, dimensions);
+        let frame = session.frame().unwrap();
+        assert_eq!(
+            frame.rows()[0].text(),
+            if wrap {
+                "a       │a       "
+            } else {
+                "a   界e\u{301} │a   界e\u{301} "
+            }
+        );
+        assert!(frame.rows()[2].text().starts_with("> "));
+        assert_eq!(&frame.rows()[2].text()[8..13], "│  ");
+        assert!(frame.rows()[7].text().starts_with("  "));
+        assert_eq!(
+            frame.cursor(),
+            Some(if wrap {
+                Position { column: 0, row: 1 }
+            } else {
+                Position { column: 4, row: 0 }
+            })
+        );
+        session.select_view(right).unwrap();
+        let frame = session.frame().unwrap();
+        assert!(frame.rows()[2].text().starts_with("  "));
+        assert_eq!(&frame.rows()[2].text()[8..13], "│> ");
+        assert_eq!(
+            frame.cursor(),
+            Some(if wrap {
+                Position { column: 9, row: 1 }
+            } else {
+                Position { column: 13, row: 0 }
+            })
+        );
+    }
 }
 
 // Closing a buffer already shown by several leaves repairs every live reference

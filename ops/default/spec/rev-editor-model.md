@@ -51,7 +51,7 @@ opt-in XDG state record described by the Org model, not editor-history persisten
 | --- | --- |
 | Application | Buffer/view registries, layout, focus, ring, rectangle, input, tree, and messages. |
 | Buffer | Canonical rope, text revision, file association, mark, history, save point, and syntax state. |
-| View | Buffer reference, point, desired display column, vertical/horizontal scroll, geometry, selection shape and independent gutter policy/overrides. |
+| View | Buffer reference, point, desired display column qualified by pane width, source-qualified viewport anchor, vertical/horizontal scroll, geometry, selection shape and independent gutter policy/overrides. |
 | Layout | One recursive tree of editing views and below/right split nodes. |
 | Terminal guard | Acquired raw mode, alternate screen, paste/cursor/color restoration and independently tracked SGR/button mouse-reporting obligations. |
 | Command | One bounded operation coordinated through the owning state. |

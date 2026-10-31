@@ -12,7 +12,7 @@ pub(super) struct PreparedSource {
     pub(super) id: BufferId,
     prepared: Prepared,
     points: Points,
-    tops: Vec<usize>,
+    tops: Vec<crate::window::Viewport>,
 }
 impl PreparedSource {
     /// A special-edit draft retains its real source view outside the visible

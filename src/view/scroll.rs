@@ -107,11 +107,18 @@ impl View {
             return Ok(());
         }
         let rows = usize::from(size.text_rows());
+        let width = self.text_width(buffer, size)?;
+        self.sync_wrap_width((buffer.soft_wrap() && width > 0).then_some(width));
         let (offset, next) = match self.alignment {
             Alignment::Center => (rows / 2, Alignment::Top),
             Alignment::Top => (0, Alignment::Bottom),
             Alignment::Bottom => (rows - 1, Alignment::Center),
         };
+        if buffer.soft_wrap() && width > 0 {
+            self.align_wrapped(buffer, width, offset)?;
+            self.alignment = next;
+            return Ok(());
+        }
         let row = self
             .project_row(buffer, point.row)
             .ok_or(crate::coordinates::Error::Overflow)?;

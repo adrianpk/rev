@@ -2,9 +2,15 @@ use crate::buffer::{
     Buffer,
     edit::{Error, History, Point, Prepared},
 };
-use crate::coordinates::{Coordinates, LineByte};
+use crate::coordinates::{Coordinates, LineByte, Scalar};
 
 use super::{ViewId, Windows};
+
+/// A mapped source viewport, independent of its eventual pane-width reflow.
+pub(crate) struct Viewport {
+    pub row: usize,
+    pub position: Scalar,
+}
 
 /// A synchronous capture of every point and source viewport for one buffer.
 /// Structural changes cannot occur between this capture and publication.
@@ -42,10 +48,7 @@ impl Windows {
             .iter()
             .filter(|(_, view)| view.point.stamp.buffer == buffer.id())
         {
-            let position = coordinates.from_line(LineByte {
-                row: view.top,
-                column: 0,
-            })?;
+            let position = viewport_position(view, &coordinates, buffer.soft_wrap())?;
             members.push((
                 Member::View(id),
                 Point {
@@ -58,10 +61,7 @@ impl Windows {
         if let Some((_, view)) = &self.saved
             && view.point.stamp.buffer == buffer.id()
         {
-            let position = coordinates.from_line(LineByte {
-                row: view.top,
-                column: 0,
-            })?;
+            let position = viewport_position(view, &coordinates, buffer.soft_wrap())?;
             members.push((
                 Member::Saved,
                 Point {
@@ -111,7 +111,7 @@ impl Windows {
         Ok(())
     }
 
-    pub(crate) fn publish_points(&mut self, points: Points, tops: Vec<usize>) {
+    pub(crate) fn publish_points(&mut self, points: Points, tops: Vec<Viewport>) {
         for (((id, _), point), top) in points.members.into_iter().zip(points.values).zip(tops) {
             let view = match id {
                 Member::View(id) => self.views.get_mut(&id).expect("captured live view"),
@@ -122,7 +122,8 @@ impl Windows {
                 }
             };
             view.point = point;
-            view.top = top;
+            view.top = top.row;
+            view.wrap_start = top.position;
             view.clear_folds();
         }
     }
@@ -135,7 +136,7 @@ impl Points {
             .position(|(member, _)| *member == Member::Saved)
     }
 
-    pub(crate) fn map_tops(&self, prepared: &Prepared) -> Result<Vec<usize>, Error> {
+    pub(crate) fn map_tops(&self, prepared: &Prepared) -> Result<Vec<Viewport>, Error> {
         self.members
             .iter()
             .map(|(_, top)| prepared.map_top(*top))
@@ -158,4 +159,24 @@ impl Points {
             })
             .unwrap_or(self.initiator)
     }
+}
+
+fn viewport_position(
+    view: &crate::view::View,
+    coordinates: &Coordinates<'_>,
+    wrap: bool,
+) -> Result<Scalar, Error> {
+    let start = coordinates.from_line(LineByte {
+        row: view.top,
+        column: 0,
+    })?;
+    if !wrap {
+        return Ok(start);
+    }
+    let position = view.wrap_start.clamp(start, coordinates.line_end(start)?);
+    Ok(if coordinates.is_boundary(position)? {
+        position
+    } else {
+        coordinates.previous(position)?
+    })
 }

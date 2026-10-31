@@ -3,7 +3,7 @@ mod layout;
 mod lifecycle;
 mod points;
 mod source_action;
-pub(crate) use points::Points;
+pub(crate) use points::{Points, Viewport};
 
 pub use geometry::{Area, Geometry, Split};
 pub use layout::Layout;

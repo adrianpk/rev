@@ -3,9 +3,9 @@ use crate::coordinates::Coordinates;
 use crate::window::ViewId;
 
 impl Prepared {
-    /// A viewport follows its source line start with left insertion affinity.
-    /// Resolve the final logical row while text is still a private candidate.
-    pub(crate) fn map_top(&self, top: Point) -> Result<usize, Error> {
+    /// A viewport follows its source anchor with left insertion affinity.
+    /// Resolve its row and grapheme-safe anchor before canonical publication.
+    pub(crate) fn map_top(&self, top: Point) -> Result<crate::window::Viewport, Error> {
         if top.stamp != self.record.before {
             return Err(Error::ChangedPositions);
         }
@@ -17,7 +17,15 @@ impl Prepared {
         )?;
         let coordinates =
             Coordinates::for_text(self.text.slice(..), self.record.after, self.tab_width);
-        Ok(coordinates.to_line(position)?.row)
+        let position = if coordinates.is_boundary(position)? {
+            position
+        } else {
+            coordinates.previous(position)?
+        };
+        Ok(crate::window::Viewport {
+            row: coordinates.to_line(position)?.row,
+            position,
+        })
     }
 
     /// Map an explicitly observed source anchor through this prepared change.

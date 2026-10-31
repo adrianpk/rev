@@ -243,7 +243,18 @@ impl Frame {
                 search: None,
                 selection: highlight
                     .as_ref()
-                    .map(|h| h.selected_row(buffer, source, left, painted))
+                    .map(|h| {
+                        h.selected_row(
+                            buffer,
+                            source,
+                            left,
+                            if fragment.is_some_and(|f| f.end_of_line) {
+                                content.width()
+                            } else {
+                                painted
+                            },
+                        )
+                    })
                     .transpose()?
                     .flatten(),
             }

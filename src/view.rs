@@ -99,7 +99,9 @@ pub struct View {
     pub top: usize,
     pub left: usize,
     /// Source anchor within the top logical line; reflow resolves it afresh.
-    wrap_start: Scalar,
+    pub(crate) wrap_start: Scalar,
+    wrap_width: Option<u16>,
+    wrap_active: bool,
     folds: Option<fold::Folds>,
     visibility: Option<std::sync::Arc<crate::org::Visibility>>,
     alignment: scroll::Alignment,
@@ -132,6 +134,8 @@ impl View {
             top: 0,
             left: 0,
             wrap_start: Scalar(0),
+            wrap_width: None,
+            wrap_active: buffer.soft_wrap(),
             folds: None,
             visibility: None,
             alignment: scroll::Alignment::Center,
@@ -175,6 +179,7 @@ impl View {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
                 .ok_or(coordinates::Error::Overflow)?;
             let width = self.gutter_geometry(buffer, content)?.text().width();
+            self.sync_wrap_width((buffer.soft_wrap() && width > 0).then_some(width));
             if buffer.soft_wrap() && width > 0 {
                 self.left = 0;
                 return self.reveal_wrapped(buffer, width, size.text_rows());
@@ -200,6 +205,16 @@ impl View {
             self.reset_navigation();
             self.tab_width = width;
         }
+    }
+
+    fn sync_wrap_width(&mut self, width: Option<u16>) {
+        if self.wrap_width.is_some() && self.wrap_width != width
+            || self.wrap_active != width.is_some()
+        {
+            self.reset_navigation();
+        }
+        self.wrap_width = width;
+        self.wrap_active = width.is_some();
     }
 }
 
