@@ -30,7 +30,7 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 54 active RGB roles and all nine default context maps. Its
+global default, all 54 active RGB roles and all ten default context maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -140,6 +140,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `include` | Array of nonempty local path strings | `[]` | Per source; explicit ordered include graph, with fixed limits above. Empty paths, NUL and URL forms reject. |
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
+| `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 76 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 15 entries are active in the sample. Prompts retain their own input maps. |
@@ -189,6 +190,14 @@ change only that view's overrides and never reload or write this snapshot.
 | `minibuffer.match` | String: "prefix-then-substring", "prefix" or "substring" | `"prefix-then-substring"` | Session; M-x matching only. File candidates retain literal component-prefix matching. |
 | `minibuffer.history_limit` | Integer 1..=4096 | `128` | Session; distinct accepted command names in memory, newest first. No persisted history. |
 | `minibuffer.input_limit` | Integer 1..=65536 | `4096` | Session; Unicode scalars per prompt, including paste, completion and history recall. Excess rejects wholly. |
+| `completion.enabled` | Boolean | `true` | Native manual and automatic completion; completion-mode toggles this session only. |
+| `completion.automatic` | Boolean | `true` | Requests after eligible native identifier/separator edits; completion-auto-mode toggles this session only. |
+| `completion.delay_ms` | Integer 0..=2000 | `150` | Milliseconds after the newest eligible edit; explicit invocation bypasses delay. |
+| `completion.min_prefix` | Integer 1..=64 | `2` | Unicode identifier characters; manual requests and Rust dot/double-colon separators bypass the minimum. |
+| `completion.in_comments` | Boolean | `false` | Allow automatic requests in admitted Rust comments. |
+| `completion.in_strings` | Boolean | `false` | Allow automatic requests in admitted Rust string/character literals. |
+| `completion.max_candidates` | Integer 1..=200 | `200` | Ranked, deduplicated current-request candidate limit. |
+| `completion.popup_rows` | Integer 1..=32 | `10` | Candidate rows, clipped inside the selected pane with a single border. |
 | `history.group_limit` | Integer 1..=65536 | `512` | Per buffer; maximum retained coherent undo/redo groups. Pruning never splits an operation. |
 | `history.payload_target_bytes` | Integer 1..=1073741824 | `67108864` | Per buffer; soft logical fragment-payload target in bytes, not resident memory. The newest complete group survives excess. |
 | `kill_ring.capacity` | Integer 1..=4096 | `32` | Session; linear entries, separate from retained rectangle rows. |

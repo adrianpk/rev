@@ -133,8 +133,7 @@ impl Session {
             return action;
         }
         let outcome = self.input.handle_at(event, now);
-        self.completion_outcome(&outcome);
-        let action = self.outcome(outcome, now);
+        let action = self.dispatch_completion_outcome(outcome, now);
         if action == Action::Wait {
             return expired;
         }

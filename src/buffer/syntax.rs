@@ -6,6 +6,17 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(crate) fn syntax_generation(&self) -> u64 {
+        self.syntax_generation
+    }
+    pub(crate) fn completion_available(&self) -> bool {
+        self.syntax_active
+            && self.grammar == Grammar::Rust
+            && self.mode_choice.is_none()
+            && !self.is_org()
+            && !self.is_readonly()
+            && self.len_bytes() <= crate::completion::MAX_BYTES
+    }
     pub(crate) fn completion_snapshot(&mut self) -> Result<(ropey::Rope, Syntax), String> {
         if self.is_readonly() {
             return Err("buffer is read-only".into());
@@ -120,6 +131,10 @@ impl Buffer {
             && (self.syntax_policy.max_bytes == 0
                 || self.len_bytes() <= self.syntax_policy.max_bytes);
         if admitted != self.syntax_active {
+            self.syntax_generation = self
+                .syntax_generation
+                .checked_add(1)
+                .expect("syntax generation exhausted");
             self.syntax = if admitted {
                 Syntax::rust(Some(tree_sitter_rust::HIGHLIGHTS_QUERY))
             } else {

@@ -67,13 +67,8 @@ impl Input {
     }
 
     pub(super) fn repeatable(&self, key: Key) -> bool {
-        if self.workspace_completion {
-            return key.control('n')
-                || key.control('p')
-                || matches!(
-                    key.plain(),
-                    Some(crossterm::event::KeyCode::Up | crossterm::event::KeyCode::Down)
-                );
+        if let Some(repeatable) = self.completion_repeat(key) {
+            return repeatable;
         }
         let Some(sequence) = Sequence::from_chords(&[key]) else {
             return false;

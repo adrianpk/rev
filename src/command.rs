@@ -71,8 +71,10 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 324] = [
+    pub const ALL: [Self; 326] = [
         Self::Completion(CompletionCommand::AtPoint),
+        Self::Completion(CompletionCommand::Mode),
+        Self::Completion(CompletionCommand::AutoMode),
         Self::Completion(CompletionCommand::Next),
         Self::Completion(CompletionCommand::Previous),
         Self::Completion(CompletionCommand::Accept),

@@ -93,7 +93,7 @@ fn placement(completion: &Completion, anchor: Position, pane: Area) -> Option<Ar
     }
     let above = anchor.row - pane.row();
     let below = pane.row() + pane.height() - anchor.row - 1;
-    let desired = completion.candidates().len().min(10) as u16 + 2;
+    let desired = completion.candidates().len().min(completion.popup_rows) as u16 + 2;
     let down = below >= desired || below >= above;
     let height = desired.min(if down { below } else { above });
     if height < 3 {

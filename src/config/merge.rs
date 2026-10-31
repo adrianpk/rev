@@ -32,6 +32,7 @@ impl Document {
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
+        merge.completion(&mut self.completion, &later.completion);
         merge.leaf(
             &["org", "enabled"],
             &mut self.org.enabled,
@@ -969,6 +970,55 @@ impl Merge {
             &["bookmarks", "search_chars"],
             &mut base.search_chars,
             &later.search_chars,
+        );
+    }
+}
+
+impl Merge {
+    fn completion(
+        &mut self,
+        base: &mut super::PartialCompletion,
+        later: &super::PartialCompletion,
+    ) {
+        self.leaf(
+            &["completion", "enabled"],
+            &mut base.enabled,
+            &later.enabled,
+        );
+        self.leaf(
+            &["completion", "automatic"],
+            &mut base.automatic,
+            &later.automatic,
+        );
+        self.leaf(
+            &["completion", "delay_ms"],
+            &mut base.delay_ms,
+            &later.delay_ms,
+        );
+        self.leaf(
+            &["completion", "min_prefix"],
+            &mut base.min_prefix,
+            &later.min_prefix,
+        );
+        self.leaf(
+            &["completion", "in_comments"],
+            &mut base.in_comments,
+            &later.in_comments,
+        );
+        self.leaf(
+            &["completion", "in_strings"],
+            &mut base.in_strings,
+            &later.in_strings,
+        );
+        self.leaf(
+            &["completion", "max_candidates"],
+            &mut base.max_candidates,
+            &later.max_candidates,
+        );
+        self.leaf(
+            &["completion", "popup_rows"],
+            &mut base.popup_rows,
+            &later.popup_rows,
         );
     }
 }

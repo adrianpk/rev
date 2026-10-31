@@ -39,6 +39,9 @@ impl Session {
     }
 
     pub(super) fn completion_outcome(&mut self, outcome: &Outcome) {
+        if matches!(outcome, Outcome::Prefix(_)) && self.input.completion_active() {
+            return;
+        }
         if !matches!(
             outcome,
             Outcome::Command(Command::Completion(_)) | Outcome::Ignored
@@ -57,6 +60,7 @@ impl Session {
 
     fn completion_command(&mut self, command: C) -> Action {
         match command {
+            C::Mode | C::AutoMode => self.toggle_completion(command == C::AutoMode),
             C::AtPoint => self.begin_completion(),
             C::Cancel => {
                 self.dismiss_completion();
@@ -75,10 +79,14 @@ impl Session {
 
     fn begin_completion(&mut self) -> Action {
         self.dismiss_completion();
+        if let Err(error) = self.stop_typing() {
+            return self.error(&error.to_string());
+        }
         let now = std::time::Instant::now();
-        let result = self
-            .capture_completion()
-            .map(|request| self.completion_work.queue(request));
+        let result = self.capture_completion().map(|mut request| {
+            request.due = now;
+            self.completion_work.queue(request);
+        });
         match result {
             Ok(()) => self.expire_completion(now),
             Err(error) => {
@@ -89,10 +97,12 @@ impl Session {
     }
 
     fn capture_completion(&mut self) -> Result<Request, String> {
-        if self.input.focus() != Focus::Editing || self.tree.focused() || self.pending.is_some() {
+        if !self.completion_policy.enabled {
+            return Err("Completion is disabled".into());
+        }
+        if !self.completion_focus() {
             return Err("Completion requires source editing focus".into());
         }
-        self.stop_typing().map_err(|e| e.to_string())?;
         self.completion_generation = self
             .completion_generation
             .checked_add(1)
@@ -110,7 +120,12 @@ impl Session {
         if buffer.len_bytes() > crate::completion::MAX_BYTES {
             return Err("Native completion buffer exceeds 2 MiB".into());
         }
-        Request::capture(buffer, view, self.completion_generation, point)
+        if !buffer.completion_available() {
+            return Err("Native completion syntax is unavailable".into());
+        }
+        let mut request = Request::capture(buffer, view, self.completion_generation, point)?;
+        request.policy = self.completion_policy.clone();
+        Ok(request)
     }
 
     pub(super) fn expire_completion(&mut self, now: std::time::Instant) -> Action {
@@ -153,11 +168,12 @@ impl Session {
 
     fn receive_completion(
         &mut self,
-        result: Result<crate::completion::job::Output, String>,
+        result: (Request, Result<crate::completion::job::Output, String>),
     ) -> Action {
+        let (request, result) = result;
         let output = match result {
             Ok(output) => output,
-            Err(error) => return self.error(&error),
+            Err(error) => return self.failed_completion(request, &error),
         };
         if let Ok(buffer) = self.buffers.get_mut(output.request.point.stamp.buffer) {
             buffer.restore_completion_syntax(output.syntax);
@@ -190,6 +206,16 @@ impl Session {
         }
     }
 
+    fn failed_completion(&mut self, request: Request, error: &str) -> Action {
+        if let Ok(buffer) = self.buffers.get_mut(request.point.stamp.buffer) {
+            buffer.abandon_completion_syntax();
+        }
+        if self.completion_request == Some(request.generation) {
+            self.dismiss_completion();
+        }
+        self.error(error)
+    }
+
     fn install_completion(&mut self, completion: Completion) -> Result<bool, String> {
         self.check_completion(&completion)?;
         if completion.candidates().is_empty() {
@@ -207,7 +233,7 @@ impl Session {
         {
             return Err("Stale completion target".into());
         }
-        if self.input.focus() != Focus::Editing || self.tree.focused() || self.pending.is_some() {
+        if !self.completion_focus() || !self.completion_policy.enabled {
             return Err("Completion requires source editing focus".into());
         }
         Ok(())
@@ -269,6 +295,77 @@ impl Session {
             frame.native_completion(completion, panel.content())?;
         }
         Ok(())
+    }
+}
+
+impl Session {
+    fn toggle_completion(&mut self, automatic: bool) -> Action {
+        self.dismiss_completion();
+        let value = if automatic {
+            &mut self.completion_policy.automatic
+        } else {
+            &mut self.completion_policy.enabled
+        };
+        *value = !*value;
+        let name = if automatic {
+            "Automatic completion"
+        } else {
+            "Completion"
+        };
+        let state = if *value { "enabled" } else { "disabled" };
+        self.message(&format!("{name} {state}"))
+    }
+
+    fn completion_focus(&self) -> bool {
+        self.input.focus() == Focus::Editing
+            && !self.tree.focused()
+            && self.pending.is_none()
+            && !self.bookmark_list_active()
+            && !self.agenda_active()
+            && self.habit_agenda.is_none()
+            && self.query_agenda.is_none()
+    }
+
+    pub(super) fn dispatch_completion_outcome(
+        &mut self,
+        outcome: Outcome,
+        now: std::time::Instant,
+    ) -> Action {
+        let edited = Self::completion_edit_outcome(&outcome);
+        let before = self.view().point.stamp;
+        self.completion_outcome(&outcome);
+        let action = self.outcome(outcome, now);
+        if edited && self.view().point.stamp != before {
+            self.schedule_completion(now);
+        }
+        action
+    }
+
+    pub(super) fn completion_edit_outcome(outcome: &Outcome) -> bool {
+        matches!(
+            outcome,
+            Outcome::Editing(_)
+                | Outcome::Command(Command::BackwardDeleteChar | Command::DeleteChar)
+        )
+    }
+
+    pub(super) fn schedule_completion(&mut self, now: std::time::Instant) {
+        if !self.completion_policy.enabled || !self.completion_policy.automatic {
+            return;
+        }
+        self.dismiss_completion();
+        let Ok(mut request) = self.capture_completion() else {
+            self.completion_request = None;
+            return;
+        };
+        if !self.buffer().is_ok_and(|buffer| request.automatic(buffer)) {
+            self.completion_request = None;
+            return;
+        }
+        request.manual = false;
+        request.due =
+            now + std::time::Duration::from_millis(self.completion_policy.delay_ms as u64);
+        self.completion_work.queue(request);
     }
 }
 

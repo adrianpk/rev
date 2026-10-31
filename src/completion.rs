@@ -15,6 +15,7 @@ pub(crate) const WORK_TIME: std::time::Duration = std::time::Duration::from_mill
 #[derive(Clone)]
 pub(crate) struct Request {
     pub generation: u64,
+    syntax_generation: u64,
     pub view: ViewId,
     pub point: Point,
     source: Span,
@@ -23,6 +24,7 @@ pub(crate) struct Request {
     byte: usize,
     pub manual: bool,
     pub due: std::time::Instant,
+    pub policy: crate::config::Completion,
 }
 
 impl Request {
@@ -44,6 +46,7 @@ impl Request {
             .0;
         Ok(Self {
             generation,
+            syntax_generation: buffer.syntax_generation(),
             view,
             point,
             source,
@@ -52,21 +55,47 @@ impl Request {
             byte,
             manual: true,
             due: std::time::Instant::now(),
+            policy: crate::config::Completion::default(),
         })
     }
     pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
-        let candidates = matching::candidates(symbols, &self.prefix, &self.original, self.byte);
+        let mut candidates = matching::candidates(symbols, &self.prefix, &self.original, self.byte);
+        candidates.truncate(self.policy.max_candidates);
         Completion {
             generation: self.generation,
+            syntax_generation: self.syntax_generation,
             view: self.view,
             point: self.point,
             source: self.source,
             candidates,
             selected: 0,
+            popup_rows: self.policy.popup_rows,
         }
     }
     pub(crate) fn current(&self, view: ViewId, point: Point) -> bool {
         self.view == view && self.point == point
+    }
+
+    pub(crate) fn automatic(&self, buffer: &Buffer) -> bool {
+        if self.prefix.trim_start_matches("r#").chars().count() >= self.policy.min_prefix {
+            return true;
+        }
+        if !self.prefix.is_empty() {
+            return false;
+        }
+        let end = self.point.position.0;
+        let Ok(span) = buffer.span(end.saturating_sub(2)..end) else {
+            return false;
+        };
+        let Ok(text) = buffer.slice(&span) else {
+            return false;
+        };
+        let text = text.to_string();
+        text.ends_with('.') || text.ends_with("::")
+    }
+
+    pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
+        self.manual || syntax.completion_allowed(self.byte, &self.policy)
     }
 }
 
@@ -100,11 +129,13 @@ impl Candidate {
 #[derive(Clone, Debug)]
 pub struct Completion {
     pub(crate) generation: u64,
+    syntax_generation: u64,
     view: ViewId,
     point: Point,
     source: Span,
     candidates: Vec<Candidate>,
     selected: usize,
+    pub(crate) popup_rows: usize,
 }
 
 impl Completion {
@@ -138,7 +169,10 @@ impl Completion {
     }
 
     pub(crate) fn current(&self, buffer: &Buffer, view: ViewId, point: Point) -> bool {
-        self.view == view && self.point == point && self.point.stamp == buffer.stamp()
+        self.view == view
+            && self.point == point
+            && self.point.stamp == buffer.stamp()
+            && self.syntax_generation == buffer.syntax_generation()
     }
 
     pub(crate) fn replacement(

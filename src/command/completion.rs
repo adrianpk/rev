@@ -1,6 +1,8 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CompletionCommand {
     AtPoint,
+    Mode,
+    AutoMode,
     Next,
     Previous,
     Accept,
@@ -10,6 +12,8 @@ pub enum CompletionCommand {
 impl CompletionCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Mode => "completion-mode",
+            Self::AutoMode => "completion-auto-mode",
             Self::AtPoint => "completion-at-point",
             Self::Next => "completion-next",
             Self::Previous => "completion-previous",

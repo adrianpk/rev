@@ -38,6 +38,7 @@ fn complete(
 
 pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {
+        Context::Completion => COMPLETION,
         Context::Editor => EDITOR,
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
@@ -358,4 +359,14 @@ const BOOKMARK_LIST: &[(&str, &str)] = &[
     ("M-x", "execute-extended-command"),
     ("C-x C-c", "save-buffers-kill-terminal"),
     ("C-x o", "other-window"),
+];
+
+const COMPLETION: &[(&str, &str)] = &[
+    ("Down", "completion-next"),
+    ("C-n", "completion-next"),
+    ("Up", "completion-previous"),
+    ("C-p", "completion-previous"),
+    ("TAB", "completion-accept"),
+    ("RET", "completion-accept"),
+    ("C-g", "keyboard-quit"),
 ];

@@ -13,6 +13,7 @@ pub use sequence::{Sequence, SyntaxError};
 /// argument, search, command, inventory and decision admission rules.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Context {
+    Completion,
     Editor,
     Minibuffer,
     Tree,
@@ -25,7 +26,8 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 10] = [
+        Self::Completion,
         Self::Editor,
         Self::Minibuffer,
         Self::Tree,
@@ -39,6 +41,7 @@ impl Context {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Completion => "completion",
             Self::Editor => "editor",
             Self::Minibuffer => "minibuffer",
             Self::Tree => "tree",
@@ -73,6 +76,7 @@ impl Context {
 /// Complete maps published together after all candidate checks succeed.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Effective {
+    completion: Map,
     editor: Map,
     minibuffer: Map,
     tree: Map,
@@ -93,6 +97,7 @@ impl Default for Effective {
 impl Effective {
     pub fn map(&self, context: Context) -> &Map {
         match context {
+            Context::Completion => &self.completion,
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
@@ -113,6 +118,7 @@ pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
     let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
     let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
     Ok(Effective {
+        completion: Map::compile(Context::Completion, &keys.completion)?,
         org: Map::inherit(&editor, Context::Org, &keys.org)?,
         org_capture: Map::inherit(&editor, Context::OrgCapture, &keys.org_capture)?,
         org_source_edit: Map::inherit(&editor, Context::OrgSourceEdit, &keys.org_source_edit)?,

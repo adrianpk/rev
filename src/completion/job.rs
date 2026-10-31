@@ -54,6 +54,10 @@ impl Work {
         self.active
             .as_ref()
             .is_some_and(|r| r.request.point.stamp.buffer == buffer)
+            || self
+                .pending
+                .as_ref()
+                .is_some_and(|r| r.point.stamp.buffer == buffer)
     }
     pub fn ready(&self, now: Instant) -> bool {
         self.active.is_none()
@@ -87,7 +91,7 @@ impl Work {
         self.poll_at = Some(now + POLL);
         Ok(())
     }
-    pub fn poll(&mut self, now: Instant) -> Option<Result<Output, String>> {
+    pub fn poll(&mut self, now: Instant) -> Option<(Request, Result<Output, String>)> {
         let active = self.active.as_ref()?;
         if !active.handle.is_finished() {
             self.poll_at = Some(now + POLL);
@@ -95,12 +99,13 @@ impl Work {
         }
         self.poll_at = None;
         let active = self.active.take().expect("finished native worker");
-        Some(
+        Some((
+            active.request,
             active
                 .handle
                 .join()
                 .map_err(|_| "Native completion worker panicked".into()),
-        )
+        ))
     }
 }
 
@@ -119,7 +124,11 @@ fn run(request: Request, snapshot: (ropey::Rope, Syntax), cancel: &AtomicBool) -
         request.point.stamp,
         tree_sitter::ParseOptions::new().progress_callback(&mut progress),
     );
-    let result = syntax.declarations_with(text.slice(..), request.point.stamp, deadline, cancel);
+    let result = if request.allowed(&syntax) {
+        syntax.declarations_with(text.slice(..), request.point.stamp, deadline, cancel)
+    } else {
+        Ok(Vec::new())
+    };
     Output {
         request,
         syntax,

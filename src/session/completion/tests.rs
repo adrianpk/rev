@@ -78,6 +78,23 @@ fn worker_replacement() {
     );
 }
 
+// Reusing the same revision/point after native syntax admission changes cannot
+// resurrect an old proposal. This is independent of source history and work ID.
+#[test]
+fn changed_syntax() {
+    let (_fixture, mut session) = session();
+    let old = prepared(&mut session);
+    let id = session.buffer().unwrap().id();
+    session
+        .buffers
+        .get_mut(id)
+        .unwrap()
+        .select_mode(crate::buffer::Mode::Text)
+        .unwrap();
+    assert!(session.install_completion(old).is_err());
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
 fn prepared(session: &mut Session) -> Completion {
     let request = session.capture_completion().unwrap();
     let buffer = session.buffers.get_mut(request.point.stamp.buffer).unwrap();

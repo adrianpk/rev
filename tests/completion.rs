@@ -16,11 +16,17 @@ use rev::view::View;
 const SOURCE: &str = "fn config() {}\nfn cfg_value() {}\nfn main() { cfg| }\n";
 
 fn source(text: &str) -> (fixture::Fixture, Session) {
+    configured_source(text, "")
+}
+
+fn configured_source(text: &str, config: &str) -> (fixture::Fixture, Session) {
     let fixture = fixture::Fixture::new();
     let offset = text.find('|').unwrap();
     let position = text[..offset].chars().count();
     let path = fixture.write("source.rs", &text.replace('|', ""));
-    let mut buffers = Buffers::new().unwrap();
+    let config = fixture.write("config.toml", config);
+    let snapshot = rev::config::resolve(&rev::config::load(&config).unwrap()).unwrap();
+    let mut buffers = Buffers::with_settings(snapshot).unwrap();
     let id = buffers.visit(&path).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
     view.point.position = Scalar(position);
@@ -315,3 +321,6 @@ fn complete(session: &mut Session) {
     session.execute(Command::Completion(C::AtPoint));
     settle(session);
 }
+
+#[path = "completion/automatic.rs"]
+mod automatic;

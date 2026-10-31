@@ -1,44 +1,70 @@
 # Native completion
 
-Use `M-TAB` or `M-x completion-at-point` to request declarations from the current
-Rust buffer, including unsaved text. Terminal or desktop shortcuts may intercept
-M-TAB; the named command uses the same handler. The editor uses its retained
-Rust syntax tree and explicit declaration queries. No server or file scan runs.
+Rust completion opens automatically after an identifier edit of at least two
+Unicode characters or a Rust `.` / `::` separator. The default debounce waits
+150 ms after the newest eligible native edit. `M-TAB` or
+`M-x completion-at-point` requests immediately without a minimum prefix.
+Terminal or desktop shortcuts may intercept M-TAB; the named command uses the
+same handler. Candidates come from declarations in the current unsaved buffer,
+using the retained Rust syntax owner. No server or file scan runs.
 
 The compact, single-border list appears below or above the source cursor within
 its pane. The first candidate is selected. Up/Down or C-p/C-n changes selection;
-Tab or Return inserts it. Escape or C-g cancels. These keys keep their ordinary
-behavior outside an active list. Unrelated editing, movement, prompts and pane
-changes dismiss the list before their normal action. Resizing retains a current
-selection; a pane too small for the border and a row hides the overlay.
-Source focus and document layout stay in place. Selected rows use the selection
-palette; the border uses the active border role. NO_COLOR keeps reverse video.
+Tab or Return inserts it. Escape or C-g cancels. These keys keep ordinary editing
+and Org behavior outside an active list. Unrelated movement, prompts, searches,
+pane and buffer changes dismiss the list before normal dispatch. Identifier
+edits and deletion schedule a fresh current context. Cancellation does not reopen
+the list until another eligible text edit or explicit request. Bracketed paste
+dismisses suggestions and does not schedule per-character work.
 
-Candidates are observed declaration names, with their kind shown separately.
-The display annotation is never inserted. Lowercase input matches without case
+Resize retains a current selection and recomputes placement; a pane too small
+for the border and a row hides the overlay. Source focus and document layout
+stay in place. Selected rows use selection colors; borders use the active border
+role. NO_COLOR keeps reverse video. `keys.completion` admits popup navigation,
+acceptance and cancellation commands, including finite chord sequences. C-g
+keeps its globally reserved `keyboard-quit` configuration value, interpreted as
+popup cancellation; Escape always cancels literally in the active list.
+
+Candidates are observed declaration names, with kinds displayed separately.
+Labels never become insertion text. Lowercase input matches without case
 sensitivity; uppercase input requires matching case. Prefix matches precede
-ordered subsequences, with nearer declarations and stable lexical ties next.
+ordered subsequences, followed by declaration proximity and stable lexical ties.
 Equal insertions are deduplicated. A single candidate still requires acceptance.
-No matches produce a notice and no popup. Manual invocation also works in comments
-and strings, subject to the same declaration coverage.
+No usable candidates produce no popup. Automatic requests stay quiet in admitted
+comments, strings and character literals by default; manual invocation bypasses
+that suppression while retaining the same declaration coverage.
 
 Acceptance replaces the full identifier around point with literal text through
 the ordinary edit owner, as one undo operation. Read-only buffers and obsolete
-view, point, revision or invocation identities cannot publish that edit.
-Cancellation and failed admission create no history entry. Native completion
-does not expand snippets, execute commands or save a file.
+view, point, revision, syntax or invocation identities cannot publish that edit.
+Selection, cancellation and failed admission create no history entry. Native
+completion does not expand snippets, execute commands or save a file.
 
-This manual Rust path observes direct function, type, trait, module, field,
-constant, simple local and parameter declarations. Destructured bindings,
-scope-aware coverage and other open buffers belong to the broader native
-completion delivery. An observed name does not imply type or member resolution.
-Automatic invocation and its controls are not part of this manual path.
+The current Rust source observes direct function, type, trait, module, field,
+constant, simple local and parameter declarations. These names do not imply
+scope, type or member resolution. Missing or unsupported syntax degrades
+assistance while preserving ordinary editing.
+
+## Preferences and work bounds
+
+The complete [startup sample](config.toml) and [configuration catalog](defaults.md)
+list all eight `completion` leaves and their finite ranges. Defaults are
+`enabled = true`, `automatic = true`, `delay_ms = 150`, `min_prefix = 2`,
+`in_comments = false`, `in_strings = false`, `max_candidates = 200` and
+`popup_rows = 10`. `completion-mode` toggles completion for this session;
+`completion-auto-mode` toggles automatic requests while retaining manual access.
+Neither command writes settings or changes the startup-only loading contract.
 
 Extraction admits at most 2 MiB and 4096 symbols in the current buffer, with
-512-byte labels and at most 200 displayed candidates. Parse/query callbacks
-share a 50 ms work deadline. Exceeding a work bound reports unavailable or
-limited assistance without editing source. Extraction occurs on explicit
-invocation; rendering and cursor movement only observe the retained list.
+512-byte labels. One temporary worker borrows the retained parser/tree and a
+shared rope snapshot. At most one worker and one newest pending request exist;
+cancellation retains the slot until the old worker is reaped. Parse/query
+callbacks check cancellation and a 50 ms work deadline. Limited results are
+omitted without editing source. Current targets are rechecked on arrival and
+acceptance, independently of worker completion.
 
-See [Syntax highlighting](syntax.md) for Rust grammar admission and fallback,
-and [Bindings](bindings.md) for the complete command catalog.
+Drawing observes retained candidates and performs no completion extraction.
+The native loop waits for the debounce deadline, polls only while a worker is
+owned, and has no completion timer while idle. Shutdown cancels and reaps owned
+work. See [Syntax highlighting](syntax.md) for grammar admission/fallback and
+[Bindings](bindings.md) for the complete command catalog.

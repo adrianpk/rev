@@ -28,6 +28,28 @@ pub(super) fn query(language: &tree_sitter::Language) -> Option<Query> {
 }
 
 impl Syntax {
+    pub(crate) fn completion_allowed(
+        &self,
+        byte: usize,
+        policy: &crate::config::Completion,
+    ) -> bool {
+        let Some(tree) = self.parsed.as_ref().and_then(|p| p.tree.as_ref()) else {
+            return false;
+        };
+        let mut node = tree
+            .root_node()
+            .descendant_for_byte_range(byte.saturating_sub(1), byte);
+        while let Some(current) = node {
+            match current.kind() {
+                "line_comment" | "block_comment" => return policy.in_comments,
+                "string_literal" | "raw_string_literal" | "char_literal" => {
+                    return policy.in_strings;
+                }
+                _ => node = current.parent(),
+            }
+        }
+        true
+    }
     #[cfg(test)]
     pub(crate) fn declarations(
         &self,

@@ -12,6 +12,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | Keys | Command | Result |
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
+| `M-x completion-mode` | `completion-mode` | Toggle native completion for this session. |
+| `M-x completion-auto-mode` | `completion-auto-mode` | Toggle automatic requests while retaining explicit invocation. |
 | `M-TAB` | `completion-at-point` | Show native Rust declarations near the source cursor. |
 | Down, `C-n` in a completion popup | `completion-next` | Select the next candidate without moving source point. |
 | Up, `C-p` in a completion popup | `completion-previous` | Select the previous candidate. |
@@ -137,9 +139,10 @@ all Org commands and the source, draft, agenda and calendar contexts.
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
-all nine contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
+all ten contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
 
+`keys.completion` supplies the active popup map; Escape remains literal cancel.
 `keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
 maps. Omitted entries keep their built-in command. An exact normalized override
 replaces that chord, including an earlier spelling from another included layer.

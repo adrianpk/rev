@@ -40,7 +40,7 @@ impl Failure {
 pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
-    retention(document)?;
+    completion_retention(document)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;
     float(
@@ -676,6 +676,20 @@ fn bookmarks(value: &super::PartialBookmarks) -> Result<(), Failure> {
             "bookmarks.file",
             "expected an absolute path without NUL".into(),
         ));
+    }
+    Ok(())
+}
+
+fn completion_retention(document: &Document) -> Result<(), Failure> {
+    retention(document)?;
+    let value = &document.completion;
+    for (key, value, range) in [
+        ("completion.delay_ms", value.delay_ms, 0..=2000),
+        ("completion.min_prefix", value.min_prefix, 1..=64),
+        ("completion.max_candidates", value.max_candidates, 1..=200),
+        ("completion.popup_rows", value.popup_rows, 1..=32),
+    ] {
+        integer(key, value, range)?;
     }
     Ok(())
 }

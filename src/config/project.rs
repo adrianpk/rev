@@ -22,6 +22,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     syntax(&mut settings.syntax, &document.syntax);
     files(&mut settings.files, &document.files);
     bookmarks(&mut settings.bookmarks, &document.bookmarks);
+    completion(&mut settings.completion, &document.completion);
     scalar(&mut settings.org.enabled, document.org.enabled);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {
@@ -422,4 +423,15 @@ fn bookmarks(base: &mut super::Bookmarks, partial: &super::PartialBookmarks) {
     count(&mut base.max_entries, partial.max_entries);
     count(&mut base.context_chars, partial.context_chars);
     count(&mut base.search_chars, partial.search_chars);
+}
+
+fn completion(base: &mut super::Completion, partial: &super::PartialCompletion) {
+    scalar(&mut base.enabled, partial.enabled);
+    scalar(&mut base.automatic, partial.automatic);
+    count(&mut base.delay_ms, partial.delay_ms);
+    count(&mut base.min_prefix, partial.min_prefix);
+    scalar(&mut base.in_comments, partial.in_comments);
+    scalar(&mut base.in_strings, partial.in_strings);
+    count(&mut base.max_candidates, partial.max_candidates);
+    count(&mut base.popup_rows, partial.popup_rows);
 }

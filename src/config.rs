@@ -23,6 +23,8 @@ pub use source::{
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
+mod completion;
+pub use completion::{Completion, PartialCompletion};
 mod bookmarks;
 pub use bookmarks::{BookmarkSave, Bookmarks, PartialBookmarks};
 mod diagnostic;
@@ -71,6 +73,7 @@ pub struct Settings {
     pub org: Org,
     pub files: Files,
     pub bookmarks: Bookmarks,
+    pub completion: Completion,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -98,6 +101,7 @@ pub struct Document {
     pub org: PartialOrg,
     pub files: PartialFiles,
     pub bookmarks: PartialBookmarks,
+    pub completion: PartialCompletion,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,
@@ -639,6 +643,7 @@ pub struct PartialFiles {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Keymaps {
+    pub completion: BTreeMap<String, String>,
     pub editor: BTreeMap<String, String>,
     pub minibuffer: BTreeMap<String, String>,
     pub tree: BTreeMap<String, String>,
@@ -654,6 +659,7 @@ impl Keymaps {
     pub fn map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::Completion => &self.completion,
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
@@ -672,6 +678,7 @@ impl Keymaps {
     ) -> &mut BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::Completion => &mut self.completion,
             Context::Editor => &mut self.editor,
             Context::Minibuffer => &mut self.minibuffer,
             Context::Tree => &mut self.tree,

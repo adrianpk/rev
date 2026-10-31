@@ -93,6 +93,7 @@ pub struct Session {
     completion_generation: u64,
     completion_request: Option<u64>,
     completion_work: crate::completion::job::Work,
+    completion_policy: crate::config::Completion,
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
@@ -280,7 +281,9 @@ impl Session {
         let bookmark_storage = bookmarks::Persistence::configured(
             buffers.snapshot().settings().bookmarks.file.clone(),
         );
+        let completion_policy = buffers.snapshot().settings().completion.clone();
         Ok(Self {
+            completion_policy,
             completion: None,
             completion_generation: 0,
             completion_request: None,

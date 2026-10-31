@@ -34,6 +34,17 @@ impl Context {
 
     pub fn available(self, target: Binding) -> bool {
         match self {
+            Self::Completion => matches!(
+                target,
+                Binding::Command(
+                    Command::Completion(
+                        crate::command::CompletionCommand::Next
+                            | crate::command::CompletionCommand::Previous
+                            | crate::command::CompletionCommand::Accept
+                            | crate::command::CompletionCommand::Cancel
+                    ) | Command::KeyboardQuit
+                )
+            ),
             Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit => {
                 matches!(target, Binding::Command(_))
             }

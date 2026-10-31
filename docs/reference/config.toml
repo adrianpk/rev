@@ -66,6 +66,22 @@ history_limit = 128
 # Integer 1..=65536 Unicode scalars per prompt; excess input rejects atomically.
 input_limit = 4096
 
+[completion]
+# Booleans; runtime toggles change only this session, not the startup file.
+enabled = true
+automatic = true
+# Integer 0..=2000 milliseconds after the newest eligible native edit.
+delay_ms = 150
+# Integer 1..=64 Unicode identifier characters; manual/separator requests bypass it.
+min_prefix = 2
+# Booleans; automatic literal-context policy. Manual invocation bypasses it.
+in_comments = false
+in_strings = false
+# Integer 1..=200 retained candidates after ranking and deduplication.
+max_candidates = 200
+# Integer 1..=32 candidate rows, further clipped to the current pane.
+popup_rows = 10
+
 [history]
 # Integer 1..=65536 complete undo/redo groups per buffer.
 group_limit = 512
@@ -709,3 +725,14 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "M-x" = "execute-extended-command"
 "C-x C-c" = "save-buffers-kill-terminal"
 "C-x o" = "other-window"
+
+# Popup-local bindings retain source focus. Escape always cancels literally.
+# C-g keeps its reserved keyboard-quit value, interpreted as popup cancellation.
+[keys.completion]
+"Down" = "completion-next"
+"C-n" = "completion-next"
+"Up" = "completion-previous"
+"C-p" = "completion-previous"
+"TAB" = "completion-accept"
+"RET" = "completion-accept"
+"C-g" = "keyboard-quit"
