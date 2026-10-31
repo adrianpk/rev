@@ -10,7 +10,7 @@ fn visiting_languages() {
     let root = fixture.file("config.toml", b"editor.tab_width = 8\nlanguage.go.indent_width = 2\n[files.associations]\n'*.h' = 'cpp'\n'*.note' = 'custom'");
     let settings = resolve(&load(&root).unwrap()).unwrap();
     let cases = [
-        ("body.rs", "alias.go", "go", "Text", 2),
+        ("body.rs", "alias.go", "go", "Go", 2),
         ("body.txt", "alias.rs", "rust", "Rust", 4),
         ("body.h", "alias.h", "cpp", "Text", 4),
         ("other.rs", "alias.note", "custom", "Text", 4),

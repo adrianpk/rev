@@ -59,7 +59,8 @@ fn tab_stops() {
 }
 
 // The registry supplies one frozen snapshot for scratch, raw ingress, new text
-// and visiting buffers. A Go table changes only its explicit editing leaves.
+// and visiting buffers. Explicit Go editing leaves preserve coordinates even
+// when its bundled grammar supplies presentation.
 #[test]
 fn buffer_defaults() {
     let fixture = Fixture::new();
@@ -89,7 +90,7 @@ fn buffer_defaults() {
         (2, 2)
     );
     assert_eq!(buffer.policy().indent_style, IndentStyle::Tabs);
-    assert_eq!(buffer.mode(), "Text");
+    assert_eq!(buffer.mode(), "Go");
     let cell = Coordinates::new(buffer)
         .unwrap()
         .to_cell(Scalar(2))

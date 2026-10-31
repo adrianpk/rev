@@ -113,6 +113,13 @@ ingress was removed, leaving that file identical to dev. Completion requests,
 observation reuse and buffer selection retain source recency ownership; the
 focused source command covers the final changed owners.
 
+Required receipt `QGQIRGCBMFKOKMBO2PYWGA7CAZ` passed formatting and all
+23 completion cases at `b7f3acb3cf5295d336e1c579a6b837c5767d1eb9`, then found
+an obsolete Go-as-Text expectation in coordinate policy. Coordinate, visiting
+alias and grammar-policy fixtures now expect the admitted Go/C modes; explicit
+plain fallback, text/history immutability and coordinate assertions are retained.
+The grammar-policy cases use valid representative source for each parser.
+
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
 Focused controller receipt `Y2O5S27HEXXLMGLPEXMZLCNNXZ` passed at clean

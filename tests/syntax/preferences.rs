@@ -5,7 +5,7 @@ use rev::file::Rename;
 
 use super::*;
 
-// A configured grammar selects only the bundled Rust parser or plain fallback;
+// A configured grammar selects a bundled parser or explicit plain fallback;
 // associations still identify language independently of grammar availability.
 #[test]
 fn grammar_policy() {
@@ -13,7 +13,11 @@ fn grammar_policy() {
         ("main.rs", "", "Rust"),
         ("main.rs", "syntax.enabled = false", "Text"),
         ("main.rs", "language.rust.grammar = 'plain'", "Text"),
-        ("main.go", "", "Text"),
+        ("main.go", "", "Go"),
+        ("main.c", "", "C"),
+        ("main.h", "", "C"),
+        ("main.go", "language.go.grammar = 'plain'", "Text"),
+        ("main.c", "language.c.grammar = 'plain'", "Text"),
         ("main.go", "language.go.grammar = 'rust'", "Rust"),
         (
             "main.txt",
@@ -22,7 +26,12 @@ fn grammar_policy() {
         ),
     ] {
         let fixture = Fixture::new();
-        let path = fixture.file(name, "fn main() {}\n");
+        let source = match mode {
+            "Go" => "package main\nfunc main() {}\n",
+            "C" => "int main(void) { return 1; }\n",
+            _ => "fn main() {}\n",
+        };
+        let path = fixture.file(name, source);
         let startup = prepare(&fixture.file("config.toml", config));
         assert!(startup.diagnostic.is_none(), "{config}");
         let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
@@ -32,9 +41,9 @@ fn grammar_policy() {
         let state = buffer.state();
         buffer.refresh_syntax();
         assert_eq!(buffer.mode(), mode, "{name}: {config}");
-        assert_eq!(!frame(buffer).rows()[0].syntax().is_empty(), mode == "Rust");
+        assert_eq!(!frame(buffer).rows()[0].syntax().is_empty(), mode != "Text");
         assert_eq!((buffer.stamp(), buffer.state()), (stamp, state));
-        assert_eq!(text(buffer), "fn main() {}\n");
+        assert_eq!(text(buffer), source);
         assert!(buffer.history().is_empty() && !buffer.is_modified());
     }
 }
