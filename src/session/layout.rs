@@ -261,7 +261,7 @@ impl Session {
                             self.windows.get(*id).is_ok_and(|current| current == view)
                         })
                 }
-            }
+            };
         if !valid {
             self.message("Layout source or geometry changed")
         } else if let Some(outcome) = self.prepare_request(held.request) {
