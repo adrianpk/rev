@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-08-interaction-acceptance`
-PR: pending
+PR: [#181](https://forge.adrianpk.com/adrianpk/rev/pulls/181)
 
 ## Purpose
 
@@ -90,6 +90,29 @@ tickets resolve to one solved path with canonical PR evidence; reports 1-7 are
 delivered. T8.1/report introduction is commit
 `ea088b08e97c1c108fabf81da857f7f6f3fbdbfe`. Final clean-HEAD
 controller evidence is recorded after the task and PR-reference commits.
+
+T8.2 commit `30945f95121559878db1e9f80c8b848bce59d475` passed controller receipt
+`GS6IDBXSHHMCRIIXMPJ6MBN7KW` with these exact ordered commands:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test wrapping --test path_completion --test tree --test pointer --test configuration --test commands`
+3. `bash scripts/check-wrap-navigation.sh`
+4. `cargo run --locked --quiet --example documentation-check`
+5. `git diff --check`
+6. `cargo clippy --locked --example wrap-navigation -- -D warnings`
+
+The six native suites passed 499 tests: 161 command, 133 configuration,
+46 path-completion, 65 pointer, 68 tree and 26 wrapping cases. The shell gate
+passed all three native settings journeys and the PTY route (464 ms, 70,025
+bytes). Long-line maximum observed native step was 2.261 ms; maximum resize
+was 6.316 ms and maximum queued reversal was 16.851 ms. Documentation passed
+305 commands, 180 configuration entries, 58 pages and 331 local links/anchors.
+Focused Clippy passed without warnings.
+
+Canonical PR #181 targets `dev` with the approved title and full immutable
+report-introduction link. Its PR-reference head receives a fresh configured
+five-command receipt before handoff. The controller retains that exact final
+identity; the integrated delivery gate and closure remain separate.
 
 ## Risks and Follow-ups
 

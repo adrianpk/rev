@@ -14,7 +14,7 @@ Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
 Active slice: Slice 8
-Execution owner: Looper; Slice 8 implementation active
+Execution owner: Looper; Slice 8 PR #181 under review
 
 ## Canonical slice map
 
@@ -171,8 +171,14 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
 T8.1 introduces native Rust/composition and Linux PTY joint acceptance plus the
 reused five-fixture long-line probe. T8.2 reconciles reader guidance, CLI/defaults,
-affected baseline clauses and all five solved tickets. Development shell acceptance
-passed; exact clean-HEAD controller evidence and canonical PR linkage follow.
+affected baseline clauses and all five solved tickets. T8.1 commit
+`ea088b08e97c1c108fabf81da857f7f6f3fbdbfe` and T8.2 commit
+`30945f95121559878db1e9f80c8b848bce59d475` are complete. Controller receipt
+`GS6IDBXSHHMCRIIXMPJ6MBN7KW` passed the six recorded commands, 499 tests, native
+joint acceptance, bounded PTY/performance probes, documentation and focused Clippy
+on the exact clean T8.2 head. Canonical [PR #181](https://forge.adrianpk.com/adrianpk/rev/pulls/181)
+targets `dev`; the PR-reference head requires fresh configured evidence before
+handoff. The controller owns the final integrated gate and closure.
 See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md).
 
 ## Integration evidence
@@ -186,7 +192,7 @@ See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interactio
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | delivered | #179 | `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7` | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
 | 7 | delivered | #180 | `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b` | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
-| 8 | reviewing | pending | pending | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
+| 8 | reviewing | #181 | pending | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
 
 ## Delivery acceptance
 
