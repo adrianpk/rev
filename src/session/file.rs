@@ -7,6 +7,14 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
+        self.load_target(path, true)
+    }
+
+    pub(super) fn load_file(&mut self, path: &Path) -> io::Result<()> {
+        self.load_target(path, false)
+    }
+
+    fn load_target(&mut self, path: &Path, directories: bool) -> io::Result<()> {
         if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
             return Err(io::Error::other(
                 "Source output owns input; C-g cancels remaining files",
@@ -25,16 +33,18 @@ impl Session {
         self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();
-        let result = self.ingress(path);
+        let result = self.ingress(path, directories);
         if let Err(error) = &result {
             self.error(&error.to_string());
         }
         result
     }
 
-    fn ingress(&mut self, path: &Path) -> io::Result<()> {
+    fn ingress(&mut self, path: &Path, directories: bool) -> io::Result<()> {
         match std::fs::metadata(path) {
-            Ok(metadata) if metadata.is_dir() => return self.ingress_directory(path),
+            Ok(metadata) if directories && metadata.is_dir() => {
+                return self.ingress_directory(path);
+            }
             Ok(_) => {}
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
             Err(error) => {
@@ -85,7 +95,11 @@ impl Session {
         self.tree = tree;
         self.input.cancel();
         self.pending = None;
-        self.message("Directory opened in file tree");
+        let message = self
+            .tree
+            .diagnostic()
+            .unwrap_or("Directory opened in file tree");
+        self.message(message);
         Ok(())
     }
 

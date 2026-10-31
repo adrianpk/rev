@@ -297,6 +297,7 @@ fn missing_paths() {
     let cases = [
         (fixture.0.join("missing"), io::ErrorKind::NotFound),
         (fixture.0.join("missing/child"), io::ErrorKind::NotFound),
+        (fixture.0.clone(), io::ErrorKind::InvalidInput),
         (PathBuf::from("/dev/null"), io::ErrorKind::InvalidInput),
     ];
     for (path, kind) in cases {
@@ -726,7 +727,6 @@ fn failed_association() {
     let before = snapshot(&session);
     let cases = [
         (invalid.clone(), io::ErrorKind::InvalidData),
-        (fixture.0.clone(), io::ErrorKind::InvalidInput),
         (invalid.join("child"), io::ErrorKind::NotADirectory),
         (fixture.denied(), io::ErrorKind::PermissionDenied),
         (PathBuf::new(), io::ErrorKind::InvalidInput),
@@ -875,7 +875,8 @@ fn prompt_geometry() {
     session.handle(chord('g'));
     session.execute(Command::FindFile);
     session.handle(press(KeyCode::Enter));
-    assert!(session.echo().contains("empty file path"));
+    assert!(session.tree().visible() && session.tree().focused());
+    assert!(session.tree().entries()[0].expanded());
     assert_eq!(snapshot(&session), before);
     session.handle(press(KeyCode::Char('z')));
     assert_eq!(snapshot(&session), before);

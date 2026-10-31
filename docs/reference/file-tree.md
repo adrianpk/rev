@@ -1,20 +1,27 @@
 # File tree
 
 `M-x toggle-file-tree` or `C-x t t` shows or hides the left pane. It starts
-hidden. Showing it focuses the retained selection, initially the collapsed root.
+hidden. First display expands the root's immediate entries and focuses the
+retained selection. Child directories stay collapsed. Later hide/show preserves
+deliberate collapse and selection.
 The focused selection uses its palette colors, or reverse video with `NO_COLOR`. The footer shows `Tree *` while the tree owns workspace input.
 The editor's selected window, text, point, mark and undo history remain live.
 The tree and editing panes share Unicode separators and connected junctions;
 content and footer stay inside reserved cells alongside nested splits.
 
-The initial file's resolved parent is the startup root. Without an initial
-file, the root is the current directory captured at session construction. The retained
-root survives hiding, resizing and later file visits. Root presentation reads
-no Git metadata. Drawing and visible movement perform no filesystem reads.
+Startup and `C-x C-f` accept a file or directory. An explicit directory opens
+its tree even when startup visibility is false, without allocating file text or
+changing launch cwd. Its root survives files opened inside or outside it until
+another explicit directory replaces it. Without that choice, automatic roots
+follow the visiting file's resolved parent; explicit `tree.root = "cwd"` retains
+launch cwd. A session without a file uses its chosen directory or launch cwd.
+Drawing and visible movement perform no filesystem reads or Git discovery.
 
 ## Keyboard focus
 
 - `C-x t f` or `M-x focus-file-tree` shows and focuses the pane.
+- `C-x C-f` opens the file/directory prompt while the tree retains workspace
+  focus. Canceling the prompt returns to that tree selection.
 - Tab or `C-g` in the tree returns to the retained editing window, leaving the
   pane visible. Editing keys and bracketed paste cannot change document text
   while the tree owns workspace focus.
@@ -46,14 +53,24 @@ Each expansion reads only that directory's direct children. Collapsing removes
 its loaded descendants; expanding again observes fresh children. There is no
 recursive scan or implicit symlink traversal.
 
+Each directory observation processes at most 4096 entries and 512 KiB of raw
+name bytes, including names filtered by hidden-file preferences. Reaching an
+exact bound marks the retained subset incomplete without another read. The
+entry label shows `[incomplete]` and the action reports
+`Incomplete tree listing: directory observation limit reached`. An incomplete
+listing is not an empty or complete observation. Failed initialization retains
+the previous root, source and usable tree state.
+
 Executable startup and supplied library snapshots apply `tree.visible`,
 `width`, `max_fraction`, `root`, `show_hidden` and `directories_first`. Initial
 visibility preserves editing focus. Width is the lesser of the preferred
 columns and maximum frame share; frames narrower than 32 columns still hide
-the tree and release its focus. `auto` and `file-parent` choose an initial
-file's parent, falling back to cwd; `cwd` always chooses cwd. Root selection
-reads no directory entries. Filtering and sorting apply only during expansion
-or refresh, with native case-sensitive filename ordering and symlinks as leaves.
+the tree temporarily. Widening restores its focus intent unless editing or
+explicit cancellation has taken over. Explicit directory targets take precedence
+over `root` policy. Initial visible presentation and a new visible root observe
+immediate children once. Filtering and sorting apply during initialization,
+expansion or refresh, with native case-sensitive filename ordering and symlinks
+as leaves.
 Startup reads these preferences once; source edits take effect after restarting.
 
 `C-x t r` or `M-x tree-refresh` reloads the root and previously expanded

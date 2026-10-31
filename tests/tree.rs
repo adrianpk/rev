@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
+#[path = "tree/initialization.rs"]
+mod initialization;
 #[path = "tree/preferences.rs"]
 mod preferences;
 
@@ -133,8 +135,8 @@ fn editing_views() {
     assert!(!session.buffer().unwrap().is_modified());
 }
 
-// Show preference survives unusable geometry, but auto-hiding releases focus.
-// Restoration shifts only presentation; native extents never produce bad cursors.
+// Unusable geometry retains tree intent until editing resumes. Restoration
+// stays within native extents and cannot steal focus after an explicit edit.
 #[test]
 fn geometry_lifecycle() {
     let mut session = editor();
@@ -158,7 +160,7 @@ fn geometry_lifecycle() {
         let frame = session.frame().unwrap();
         assert_eq!(session.tree().width(Size { width, height }), expected);
         assert!(session.tree().visible());
-        assert!(!session.tree().focused());
+        assert_eq!(session.tree().focused(), expected > 0);
         assert!(
             frame
                 .rows()
@@ -170,7 +172,7 @@ fn geometry_lifecycle() {
         }
         assert_eq!(session.tree().root(), Some(root.as_path()));
     }
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 23);
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 0);
     session.handle(Event::Resize(31, 8));
     session.insert('!');
     assert_eq!(text(&session), "!");
@@ -259,7 +261,14 @@ fn focused_admission() {
         assert_eq!(session.echo(), "File tree owns input focus", "{command:?}");
         assert!(session.tree().focused());
     }
-    session.execute(Command::FindFile);
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('x'),
+        KeyModifiers::CONTROL,
+    )));
+    session.handle(Event::Key(KeyEvent::new(
+        KeyCode::Char('f'),
+        KeyModifiers::CONTROL,
+    )));
     assert!(
         session
             .frame()

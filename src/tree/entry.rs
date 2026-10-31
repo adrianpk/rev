@@ -10,6 +10,12 @@ pub struct Entry {
     pub(super) directory: bool,
     pub(super) symlink: bool,
     pub(super) expanded: bool,
+    pub(super) incomplete: bool,
+}
+
+pub(super) struct Children {
+    pub(super) entries: Vec<Entry>,
+    pub(super) incomplete: bool,
 }
 
 impl Entry {
@@ -36,6 +42,7 @@ impl Entry {
             directory: true,
             symlink: false,
             expanded: false,
+            incomplete: false,
         }
     }
 
@@ -49,10 +56,12 @@ impl Entry {
             directory: kind.is_dir(),
             symlink: kind.is_symlink(),
             expanded: false,
+            incomplete: false,
         })
     }
 
-    pub(super) fn children(&self, policy: &crate::config::Tree) -> io::Result<Vec<Self>> {
+    pub(super) fn children(&self, policy: &crate::config::Tree) -> io::Result<Children> {
+        use crate::file::completion::{ENTRY_LIMIT, NAME_BYTE_LIMIT};
         // Revalidate the selected entry before reading: a replaced symlink must
         // not turn a stale directory observation into a traversable link.
         let current = Self::observe(self.path.clone(), self.depth)?;
@@ -66,17 +75,32 @@ impl Entry {
         let directory =
             fs::read_dir(&self.path).map_err(|e| failure("read directory", &self.path, e))?;
         let mut children = Vec::new();
-        for child in directory {
+        let mut name_bytes = 0;
+        let mut incomplete = false;
+        for (index, child) in directory.take(ENTRY_LIMIT).enumerate() {
             let child = child.map_err(|e| failure("read directory", &self.path, e))?;
+            let bytes = child.file_name().as_encoded_bytes().len();
+            if bytes > NAME_BYTE_LIMIT - name_bytes {
+                incomplete = true;
+                break;
+            }
+            name_bytes += bytes;
             if policy.show_hidden || !child.file_name().as_encoded_bytes().starts_with(b".") {
                 children.push(Self::observe(child.path(), self.depth + 1)?);
+            }
+            if index + 1 == ENTRY_LIMIT || name_bytes == NAME_BYTE_LIMIT {
+                incomplete = true;
+                break;
             }
         }
         children.sort_by(|a, b| {
             a.order_key(policy.directories_first)
                 .cmp(&b.order_key(policy.directories_first))
         });
-        Ok(children)
+        Ok(Children {
+            entries: children,
+            incomplete,
+        })
     }
 
     fn order_key(&self, directories_first: bool) -> (bool, Option<&std::ffi::OsStr>) {
@@ -101,7 +125,8 @@ impl Entry {
         } else {
             ""
         };
-        format!("{}{marker} {name}{slash}", "  ".repeat(indent))
+        let diagnostic = if self.incomplete { " [incomplete]" } else { "" };
+        format!("{}{marker} {name}{slash}{diagnostic}", "  ".repeat(indent))
     }
 }
 

@@ -488,7 +488,7 @@ fn workspace_lifecycle() {
             .text()
             .starts_with("M-x toggle-fi")
     );
-    assert!(!session.tree().focused());
+    assert!(session.tree().focused());
     session.execute(Command::KeyboardQuit);
     session.execute(Command::Tree(TreeCommand::Focus));
     session.execute(Command::Tree(TreeCommand::Toggle));

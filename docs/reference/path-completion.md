@@ -40,9 +40,9 @@ literal draft against its explicit roots.
 Native Return resolves the explicitly navigated candidate from its original path;
 without navigation it uses the literal draft, including new names. Acceptance
 checks only that requested identity, following symlinks there rather than during
-listing. An accepted directory validates access and installs its bounded editable
-spelling before observing the next component. Files pass to the existing canonical
-visit owner. Missing selected paths, unsupported encodings, denied access and file
+listing. The session prepares an accepted directory's bounded tree observation
+before closing the prompt and replacing its browsing context. An empty draft
+accepts the prompt base. Files pass to the existing canonical visit owner. Missing selected paths, unsupported encodings, denied access and file
 ingress errors retain the prompt and active buffer. Observation, completion and
 acceptance never publish saves or create filesystem entries.
 

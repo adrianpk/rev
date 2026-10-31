@@ -107,8 +107,14 @@ Slice 4 of 8 completed; the wrap ticket is solved. Slice 5 is active.
 Acceptance: NAV01, NAV02, NAV03, NAV06.
 
 - [x] T5.1: Unify CLI/find-file file-versus-directory admission, Return final directory acceptance, explicit-root precedence and failure-preserving publication.
-- [ ] T5.2: Initialize only immediate tree children on first presentation/root change, preserve later collapse/hide/show and configuration precedence; resolve both opening/initial-expansion tickets.
+- [x] T5.2: Initialize only immediate tree children on first presentation/root change, preserve later collapse/hide/show and configuration precedence; resolve both opening/initial-expansion tickets.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 5 report.
+
+T5.1 commit `c5a8568c938772c69018c18fa5f2bb935b003632` delivers shared target
+admission and explicit root precedence. T5.2 adds first-presentation ownership,
+bounded immediate listings and retained focus intent. Both directory tickets
+are under review. See the [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md);
+canonical PR references and fresh exact-head controller checks remain pending.
 
 ## Slice 6: Highlighted path completion
 

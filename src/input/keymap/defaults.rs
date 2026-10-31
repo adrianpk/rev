@@ -149,6 +149,7 @@ const MINIBUFFER: &[(&str, &str)] = &[
 ];
 
 const TREE: &[(&str, &str)] = &[
+    ("C-x C-f", "find-file"),
     ("C-g", "keyboard-quit"),
     ("TAB", "insert-tab"),
     ("M-x", "execute-extended-command"),

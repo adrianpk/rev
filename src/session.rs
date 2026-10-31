@@ -241,6 +241,15 @@ impl Session {
 
     /// Takes ownership of canonical buffers and a qualified initial view.
     pub fn new(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
+        let mut session = Self::from_buffers(buffers, view, size)?;
+        session
+            .tree
+            .present()
+            .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
+        Ok(session)
+    }
+
+    fn from_buffers(buffers: Buffers, view: View, size: Size) -> Result<Self, view::Error> {
         let buffer = buffers.get(view.point.stamp.buffer)?;
         view.check_point(buffer)?;
         let tree = crate::tree::Tree::startup(
@@ -656,6 +665,12 @@ impl Session {
     }
 
     fn command_boundary(&mut self, command: Command) {
+        if self.input.focus() == crate::input::Focus::Editing
+            && !self.tree.focused()
+            && !matches!(command, Command::Tree(_))
+        {
+            self.tree.edit();
+        }
         self.echo_kind = Message::Normal;
         if !matches!(command, Command::Org(_)) {
             self.org.cancel_request();
@@ -715,6 +730,7 @@ impl Session {
             return self.notice("Control character rejected");
         }
         let mut bytes = [0; 4];
+        self.tree.edit();
         let text = character.encode_utf8(&mut bytes);
         let result = self.type_text(text);
         self.finish(result)

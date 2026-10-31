@@ -82,6 +82,9 @@ impl Session {
     }
 
     fn tree_notice(&mut self) -> Action {
+        if let Some(message) = self.tree.diagnostic() {
+            return self.notice(message);
+        }
         let message = if self.tree.focused() {
             "File tree focused"
         } else if self.tree.visible() {
@@ -159,7 +162,10 @@ impl Session {
             _ => unreachable!("presentation commands route before tree navigation"),
         };
         match result {
-            Ok(()) => self.message("File tree updated"),
+            Ok(()) => match self.tree.diagnostic() {
+                Some(message) => self.notice(message),
+                None => self.message("File tree updated"),
+            },
             Err(error) => self.error(&error.to_string()),
         }
     }

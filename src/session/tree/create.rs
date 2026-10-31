@@ -55,7 +55,7 @@ impl Session {
             return self.tree_navigation(crate::command::TreeCommand::Activate);
         }
         let path = entry.path().to_path_buf();
-        let _ = self.load(&path);
+        let _ = self.load_file(&path);
         Action::Redraw
     }
 }

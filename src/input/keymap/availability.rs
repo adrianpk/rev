@@ -75,6 +75,7 @@ fn tree(target: Binding) -> bool {
             | Command::Quit
             | Command::MouseMode
             | Command::ExecuteExtended
+            | Command::FindFile
             | Command::InsertTab
             | Command::Newline
     ) || tree_navigation(command)

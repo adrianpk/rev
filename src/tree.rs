@@ -15,8 +15,8 @@ use std::path::{Path, PathBuf};
 use crate::view::Size;
 
 /// Workspace-side root and focus; editing views retain their own identities.
-/// The root starts collapsed. Filesystem reads happen only on explicit expansion
-/// or refresh; drawing and visible movement never read directories.
+/// First presentation initializes immediate children once. Filesystem reads
+/// happen on presentation, expansion or refresh; drawing/movement perform none.
 #[derive(Default)]
 pub struct Tree {
     root: Option<PathBuf>,
@@ -27,6 +27,8 @@ pub struct Tree {
     top: usize,
     policy: crate::config::Tree,
     explicit_root: bool,
+    initialized: bool,
+    focus_pending: bool,
 }
 
 impl Tree {
@@ -69,6 +71,7 @@ impl Tree {
         self.root = Some(root);
         self.selected = 0;
         self.top = 0;
+        self.initialized = false;
     }
 
     pub fn entries(&self) -> &[Entry] {
@@ -125,19 +128,49 @@ impl Tree {
         if self.root.is_none() {
             self.set_root(std::env::current_dir()?);
         }
+        self.initialize()?;
         self.visible = true;
         self.focused = self.width(size) > 0;
+        self.focus_pending = !self.focused;
         Ok(())
+    }
+
+    fn initialize(&mut self) -> io::Result<()> {
+        if !self.initialized {
+            self.expand()?;
+            self.initialized = true;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn present(&mut self) -> io::Result<()> {
+        if self.visible {
+            self.initialize()?;
+        }
+        Ok(())
+    }
+
+    /// Report incomplete retained directory observations without further IO.
+    pub fn diagnostic(&self) -> Option<&'static str> {
+        self.entries
+            .iter()
+            .any(|entry| entry.incomplete)
+            .then_some("Incomplete tree listing: directory observation limit reached")
     }
 
     pub(crate) fn edit(&mut self) {
         self.focused = false;
+        self.focus_pending = false;
     }
 
     pub(crate) fn resize(&mut self, size: Size) -> bool {
         let hidden = self.focused && self.width(size) == 0;
         if hidden {
-            self.edit();
+            self.focused = false;
+            self.focus_pending = true;
+        } else if self.focus_pending && self.width(size) > 0 {
+            self.focus_pending = false;
+            self.focused = true;
         }
         hidden
     }

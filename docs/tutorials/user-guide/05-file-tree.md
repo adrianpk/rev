@@ -3,11 +3,10 @@
 From your notes session, open the neighboring `todo.txt` through the file tree.
 
 1. Press `C-x t t` to show the tree on the left.
-2. If the root is collapsed, press Right to expand it.
-3. Use Up/Down to select `todo.txt`.
-4. Press Enter to open it. Keyboard focus returns to the editing pane.
+2. Its immediate entries are already shown. Use Up/Down to select `todo.txt`.
+3. Press Enter to open it. Keyboard focus returns to the editing pane.
 
-After expanding the root, look for these file rows; other entries are omitted:
+Look for these file rows; other entries are omitted:
 
 ```text
    notes.txt
@@ -15,8 +14,9 @@ After expanding the root, look for these file rows; other entries are omitted:
 ```
 
 The tree starts at the parent directory of the file used to launch rev.
-Launching without a file uses the current directory. Opening another file
-later does not change that root.
+Launching without a file uses the current directory. File visits follow the
+file's parent unless you chose a directory explicitly or configured cwd rooting.
+An explicit directory root stays selected when you visit files elsewhere.
 
 To return to the tree, press `C-x t f`. Right expands a directory; Left
 collapses it or moves to its parent. `C-g` returns to editing while leaving
@@ -25,7 +25,8 @@ the tree visible. `C-x t t` hides it.
 You can also open a file directly with `C-x C-f`. Type part of its name and
 use Tab to complete a unique match or shared prefix. To choose a particular
 suggestion, move to it with Up/Down, then use Tab to complete or Enter to open.
-Selecting a directory continues browsing inside the prompt.
+Tab continues through a completed directory inside the prompt. Enter accepts
+the directory itself, closes the prompt and opens its tree.
 
 With `todo.txt` as the only match, typing `to` and pressing Tab completes the
 prompt to:
@@ -34,8 +35,9 @@ prompt to:
 Find file: todo.txt
 ```
 
-The current version launches with file paths; `rev .` does not open a directory.
-Use the tree or file prompt to browse it instead.
+Run `rev .` to browse the current directory, or pass another directory path.
+Its tree opens with immediate entries shown and child directories collapsed.
+Hiding and showing it later preserves your selection and deliberate collapse.
 
 The [file tree reference](../../reference/file-tree.md) covers file creation,
 rename, deletion and refresh. [Focused prompts](../../reference/prompts.md)

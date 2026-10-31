@@ -7,7 +7,7 @@ Version: 0.2
 Specification: [AI Commands](editor-ai-commands.md)
 Optional adapter: [Pi Integration](editor-ai-pi-integration.md), [Pi Integration Model](editor-ai-pi-integration-model.md)
 Existing owners: [Editor Model](rev-editor-model.md), [Configuration Model](editor-configuration-model.md)
-Directory prerequisite: [Directory Opening](../ticket/in_progress/20261028094803-open-directory-targets-from-cli-and-find-file.md)
+Directory prerequisite: [Directory Opening](../ticket/reviewing/20261028094803-open-directory-targets-from-cli-and-find-file.md)
 
 ## Ownership
 

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028094803
 title: Open directories from startup and find-file
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-28T09:48:03Z
 ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T03:02:07Z
 branch: feat/rev-wrap-navigation-05-directory-targets
-commits: []
+reviewed_at: 2026-10-31T03:20:52Z
+commits: [c5a8568c938772c69018c18fa5f2bb935b003632]
 ---
 
 # Open directories from startup and find-file
@@ -115,3 +116,11 @@ The shared [File and Directory Navigation specification](../../spec/editor-file-
 fixes directory identity, root precedence and prompt acceptance. This ticket
 is ready and owned by Slice 5 of [Wrap and Navigation](../../plan/rev-wrap-navigation.md).
 Versioning readiness does not implement it or alter completed Org records.
+
+## Implemented resolution
+
+Slice 5 implements the accepted directory/root and first-presentation policies.
+The [Slice 5 report](../../report/slices/rev-wrap-navigation/slice-5-directory-targets.md)
+records canonical source preservation, root/configuration precedence, bounded
+first-level observation and native CLI/PTY evidence. The ticket is under review;
+canonical PR references and final clean-head controller checks precede handoff.

@@ -44,8 +44,12 @@ impl Tree {
         }
         let children = entry.children(&self.policy)?;
         self.entries[self.selected].expanded = true;
+        self.entries[self.selected].incomplete = children.incomplete;
+        if self.selected == 0 {
+            self.initialized = true;
+        }
         self.entries
-            .splice(self.selected + 1..self.selected + 1, children);
+            .splice(self.selected + 1..self.selected + 1, children.entries);
         Ok(())
     }
 
@@ -59,6 +63,7 @@ impl Tree {
             let end = self.descendants_end(self.selected);
             self.entries.drain(self.selected + 1..end);
             self.entries[self.selected].expanded = false;
+            self.entries[self.selected].incomplete = false;
         } else if depth > 0 {
             self.selected = self.entries[..self.selected]
                 .iter()

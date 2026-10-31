@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028153707
 title: Show the file-tree root expanded on first display
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-28T15:37:07Z
 ready_at: 2026-10-30T23:24:55Z
 started_at: 2026-10-31T03:02:07Z
 branch: feat/rev-wrap-navigation-05-directory-targets
-commits: []
+reviewed_at: 2026-10-31T03:20:52Z
+commits: [c5a8568c938772c69018c18fa5f2bb935b003632]
 ---
 
 # Show the file-tree root expanded on first display
@@ -80,3 +81,11 @@ owns NAV03 and the related directory-opening interaction. This ticket is ready:
 first-display behavior and acceptance cases are defined. The accepted
 navigation policies preserve this independent initialization behavior. Implementation belongs to
 the selected joint delivery; no runtime change is claimed by this transition.
+
+## Implemented resolution
+
+Slice 5 implements the accepted directory/root and first-presentation policies.
+The [Slice 5 report](../../report/slices/rev-wrap-navigation/slice-5-directory-targets.md)
+records canonical source preservation, root/configuration precedence, bounded
+first-level observation and native CLI/PTY evidence. The ticket is under review;
+canonical PR references and final clean-head controller checks precede handoff.

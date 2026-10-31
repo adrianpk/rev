@@ -3,10 +3,12 @@
 ## Runtime and invocation
 
 The executable is `rev`. It runs in a terminal and accepts zero arguments or
-one ordinary file path. With no path it opens an unnamed `*scratch*` buffer.
-A nonexistent path opens an empty visiting buffer without creating disk entries.
-The initial tree root is the file's parent, or the working directory without a
-file argument. The tree starts hidden.
+one file or directory path. With no path it opens an unnamed `*scratch*` buffer.
+A nonexistent file path opens an empty visiting buffer without creating disk entries.
+An explicit directory target opens its visible, first-level-expanded tree.
+Otherwise the tree starts hidden unless configured visible; file visits use their
+parent as the automatic root, or launch cwd under the explicit cwd preference.
+A chosen directory root takes precedence and survives later file visits.
 
 Linux terminals are the primary target. Ordinary execution is offline and uses
 compiled-in defaults unless startup configuration supplies supported overrides. [Terminal input](terminal-input.md)
@@ -190,7 +192,7 @@ change only that view's overrides and never reload or write this snapshot.
 | `tree.visible` | Boolean | `false` | Initial show preference; showing never steals editor focus. Narrow geometry can temporarily hide the pane. |
 | `tree.width` | Integer 1..=512 | `24` | Session; preferred tree columns, constrained by its frame share and complete editor geometry. |
 | `tree.max_fraction` | Finite float 0.1..=0.5 | `0.3333333333333333` | Session; maximum terminal-width fraction for the tree. The divider is separate. |
-| `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Initial root: auto/file-parent use the startup file's parent, falling back to cwd without a file; cwd keeps the working-directory root. |
+| `tree.root` | String: "auto", "cwd" or "file-parent" | `"auto"` | Explicit directory targets win. Otherwise auto/file-parent follow the visiting file parent, falling back to launch cwd; cwd retains launch cwd. |
 | `tree.show_hidden` | Boolean | `true` | Session; admit dot-prefixed tree entries. This does not filter find-file candidates. |
 | `tree.directories_first` | Boolean | `true` | Session; tree directories sort before leaves, then by filename bytes. This does not change find-file ordering. |
 | `syntax.enabled` | Boolean | `true` | Session; enable derived syntax styling where a bundled grammar is selected. Text remains editable on fallback. |
@@ -282,8 +284,9 @@ previous application's cursor color. See [Terminal input](terminal-input.md#pale
   no editing-window identity, so `C-x o` cycles editing panes only. Candidate rows
   borrow space without scrolling retained document views; tiny/zero geometry
   retains prompts, selection and view identities. No panes are created by completion.
-- [Find-file](prompts.md) starts at the visiting file's parent or cwd. Tab completes
-  selected/unique names or a shared component prefix; accepted directories descend.
+- [Find-file](prompts.md) starts at the visiting file's parent, otherwise a chosen
+  directory or launch cwd. Tab completes selected/unique names or a shared
+  component prefix; Return accepts a directory as its expanded tree context.
   Return uses an explicit selection, otherwise the freely typed filename, including
   a new name. Canonical aliases reuse dirty buffers; new names remain in memory
   until save. Errors retain the draft and original buffer. Observation is bounded

@@ -31,6 +31,8 @@ Open a file:
 rev notes.txt
 ```
 
+Run `rev .` to browse the current directory with its immediate entries shown.
+A relative or absolute directory path opens the same tree context.
 Run `rev` without a path for an empty buffer. If the file does not exist, saving
 creates it. The editor runs offline.
 
@@ -45,7 +47,7 @@ separated by spaces in sequence: `C-x C-s` means Control-x, then Control-s.
 
 | Keys | Action |
 | --- | --- |
-| `C-x C-f` | Open a file. |
+| `C-x C-f` | Open a file or directory. |
 | `C-x C-s` | Save the current buffer. |
 | `C-x b` | Switch buffers. |
 | `C-x t t` | Show or hide the file tree. |

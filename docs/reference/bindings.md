@@ -14,7 +14,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
-| `C-x C-f` | `find-file` | Open or reuse a visited file. |
+| `C-x C-f` | `find-file` | Open a file or directory; available in editing and tree focus. |
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |

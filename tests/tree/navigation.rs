@@ -172,7 +172,7 @@ fn command_navigation() {
     session.insert('!');
     super::tree(&mut session, TreeCommand::Toggle);
     session.handle(super::key(KeyCode::Enter));
-    assert!(session.tree().selected().unwrap().expanded());
+    assert!(!session.tree().selected().unwrap().expanded());
     let count = session.tree().entries().len();
     let mut repeat = KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE);
     repeat.kind = KeyEventKind::Repeat;

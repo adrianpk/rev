@@ -35,6 +35,7 @@ impl Session {
     }
 
     pub(super) fn keyboard_quit(&mut self) -> Action {
+        self.tree.edit();
         for (_, view) in self.windows.iter() {
             view.cancel_layout();
         }

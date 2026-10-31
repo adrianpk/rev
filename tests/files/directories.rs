@@ -3,7 +3,7 @@ use std::os::unix::fs::{PermissionsExt, symlink};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::buffer::Buffers;
-use rev::command::{Command, History, TreeCommand};
+use rev::command::{Command, History, Split, TreeCommand};
 use rev::config::prepare;
 use rev::session::Session;
 use rev::view::{Size, View};
@@ -54,16 +54,30 @@ fn root_precedence() {
         let nested = fixture.write("chosen/sub/main.txt", "source");
         let outside = fixture.write("outside.txt", "outside");
         let root = fixture.0.join("chosen");
-        symlink("chosen", fixture.0.join("alias")).unwrap();
+        symlink("chosen/sub", fixture.0.join("alias")).unwrap();
         let mut session = editor(&fixture, &format!("tree.root = '{policy}'"));
         session.load(&nested).unwrap();
         session.insert('!');
+        session.execute(Command::Split(Split::Right));
         let point = session.view().point;
+        let points = session
+            .windows()
+            .iter()
+            .map(|(id, view)| (id, view.point))
+            .collect::<Vec<_>>();
         let history = session.buffer().unwrap().history().len();
-        accept(&mut session, fixture.0.join("alias").to_str().unwrap());
+        accept(&mut session, fixture.0.join("alias/..").to_str().unwrap());
         assert_eq!(session.tree().root(), Some(root.as_path()));
         assert!(session.tree().visible() && session.tree().focused());
         assert_eq!(session.view().point, point);
+        assert_eq!(
+            session
+                .windows()
+                .iter()
+                .map(|(id, view)| (id, view.point))
+                .collect::<Vec<_>>(),
+            points
+        );
         assert_eq!(session.buffer().unwrap().history().len(), history);
         assert_eq!(text(&session), "!source");
         assert_eq!(session.tree().entries().len(), 2);

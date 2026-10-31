@@ -14,7 +14,7 @@ rows fit; other argument and decision prompts retain the bottom prompt row.
 | M-x | Command query, then the selected command's handler and any arguments. |
 | Goto line | Signed decimal line number; invalid or overflowing input retains the draft for correction. C-g preserves point and viewport. |
 | Query replace | Literal query, literal replacement, then a fresh y/n/q decision for each occurrence. C-g stops at any stage; accepted edits remain independently undoable. |
-| Find file | Selected or typed path; directories descend, files open/reuse, and ingress errors retain the draft. |
+| Find file | Selected or typed path; directories open their tree, files open/reuse, and ingress errors retain the draft. |
 | Write file | Destination path, then an explicit decision if the destination is occupied or a different referent requires consent, then save. |
 | Save buffer | Save the visited path, or request a destination if unnamed; external changes require a separate explicit decision. |
 | Switch buffer | Live buffer name; an empty argument selects the current buffer. |
@@ -24,7 +24,7 @@ rows fit; other argument and decision prompts retain the bottom prompt row.
 
 Buffer-name Tab completion uses live names and their common prefix; Return
 selects an exact name. Find-file starts in the visiting file's parent directory,
-otherwise cwd. Its blank draft filters that base directory; relative paths use
+otherwise the chosen directory context or launch cwd. Its blank draft filters that base directory; relative paths use
 that base, while absolute paths and leading `~/` choose explicit directories.
 The query stays above one candidate per row, bounded by
 `minibuffer.candidate_limit` and available geometry. Directory labels end in `/`.
@@ -42,8 +42,9 @@ the draft and focus. C-g cancels without visiting a candidate or editing text.
 Return after explicit candidate navigation accepts that exact observed path,
 independently of its safe display label. With a freely typed draft, Return accepts
 the draft even when suggestions exist. The initial highlight alone does not
-choose a candidate. An accepted directory lists its next component within the
-same bounded prompt, retaining relative/home spelling and a trailing separator.
+choose a candidate. An accepted directory closes the prompt and opens its
+visible, first-level-expanded tree without replacing document text. An empty
+accepted draft opens the base directory. Tab completion stays inside the prompt.
 Directory symlinks remain list leaves until explicitly accepted. A removed
 selected path reports an error instead of becoming a new file implicitly.
 
@@ -81,8 +82,8 @@ Repeated Return or a held decision suffix cannot accept the next stage.
 
 Return consumes ordinary arguments once before their handler continues. Goto-line
 reopens invalid numeric input with its draft and feedback. Find-file
-keeps its draft until file ingress succeeds or C-g cancels; directory acceptance
-continues within that prompt. An unknown buffer or failed save returns to editing
+keeps its draft until target admission succeeds or C-g cancels. Directory
+acceptance closes the prompt and presents the chosen tree. An unknown buffer or failed save returns to editing
 with its error and retains the source text. A failed required save keeps the buffer open. A later independent
 save does not inherit an earlier canceled close request.
 

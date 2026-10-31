@@ -44,7 +44,8 @@ impl Tree {
                 match entry.children(&self.policy) {
                     Ok(children) => {
                         self.entries[index].expanded = true;
-                        self.entries.splice(index + 1..index + 1, children);
+                        self.entries[index].incomplete = children.incomplete;
+                        self.entries.splice(index + 1..index + 1, children.entries);
                     }
                     Err(error) => {
                         first_error.get_or_insert(error);

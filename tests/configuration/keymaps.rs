@@ -112,9 +112,9 @@ fn rejected_maps() {
         ),
         (
             "tree context",
-            "[keys.tree]\n'M-j' = 'find-file'",
+            "[keys.tree]\n'M-j' = 'save-buffer'",
             "unavailable",
-            "'find-file'",
+            "'save-buffer'",
         ),
         (
             "duplicate",

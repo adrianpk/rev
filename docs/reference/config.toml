@@ -471,6 +471,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-r" = "isearch-backward"
 
 [keys.tree]
+"C-x C-f" = "find-file"
 "C-g" = "keyboard-quit"
 "TAB" = "insert-tab"
 "M-x" = "execute-extended-command"
