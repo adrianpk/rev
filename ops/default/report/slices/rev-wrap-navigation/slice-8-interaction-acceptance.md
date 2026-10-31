@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `fix/rev-wrap-navigation-validation-2`
-PR: pending
+PR: [#183](https://forge.adrianpk.com/adrianpk/rev/pulls/183)
 
 ## Purpose
 
@@ -189,8 +189,16 @@ The pinned final command order is:
 2. `cargo test --locked --no-fail-fast --test syntax --test wrapping --test tree --test windows`
 3. `git diff --check`
 
-Clean-HEAD controller results and the canonical repair PR reference are recorded
-before handoff. The controller owns integration and the unchanged full-gate rerun;
+Repair commit `413d805ccf9bf6e964313c313a809f08af059eef` passed all three
+commands above at its exact clean head in controller receipt
+`A3XDJU5G537CYNKN3LOHXY7HKO`: 30 syntax, 26 wrapping, 68 tree and 41 window
+tests passed (165 total). Both reproduced syntax failures now pass with every
+original clipping and bounded-query assertion retained.
+
+Canonical [PR #183](https://forge.adrianpk.com/adrianpk/rev/pulls/183) targets
+`dev` with the pinned repair title and immutable original report-introduction
+link. Its PR-reference head receives fresh policy-required evidence before
+handoff. The controller owns integration and the unchanged full-gate rerun;
 repair 1 and original slice evidence retain their recorded candidate identities.
 
 ## Risks and Follow-ups
