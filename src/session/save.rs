@@ -19,11 +19,22 @@ impl Session {
     }
 
     pub(super) fn write_argument(&mut self, buffer: BufferId, after: AfterSave) -> Action {
+        // A path-changing lifecycle operation is a bookmark-owner demand too:
+        // admit closed durable records before the canonical owner retargets them.
+        let bookmark_notice = if self
+            .buffers
+            .get(buffer)
+            .is_ok_and(|buffer| buffer.file().is_some())
+        {
+            self.ensure_bookmarks().err().unwrap_or_default()
+        } else {
+            String::new()
+        };
         if let Err(error) = self.input.argument("Write file: ", "") {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Write { buffer, after });
-        self.message("")
+        self.message(&bookmark_notice)
     }
 
     pub(super) fn save_to(

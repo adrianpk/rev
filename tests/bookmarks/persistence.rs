@@ -431,3 +431,49 @@ fn save_as_checkpoint() {
     assert!(!s.bookmarks().is_dirty());
     assert_eq!(fs::read_to_string(destination).unwrap(), "saved");
 }
+
+// A canonical path change is a first-use demand for durable associations even
+// if no bookmark command has yet loaded them. Closed records follow both paths.
+#[test]
+fn lazy_file_lifetime() {
+    use rev::command::TreeCommand;
+    for operation in ["save-as", "rename"] {
+        let f = fixture::Fixture::new();
+        let original = f.write("directory/original", "saved");
+        let destination = if operation == "save-as" {
+            f.0.join("directory/destination")
+        } else {
+            // Focus initially selects the visible root directory itself.
+            f.0.join("destination/original")
+        };
+        f.write("data/bookmarks.toml", &document(&original, "closed"));
+        let mut s = configured(&f, "on-change", "");
+        s.load(&original).unwrap();
+        assert!(s.bookmarks().is_empty());
+        if operation == "save-as" {
+            s.execute(Command::WriteFile);
+            answer(&mut s, destination.to_str().unwrap());
+        } else {
+            s.execute(Command::Tree(TreeCommand::Focus));
+            s.execute(Command::Tree(TreeCommand::Rename));
+            answer(&mut s, "destination");
+        }
+        assert!(destination.is_file(), "{operation}: {}", s.echo());
+        assert_eq!(
+            s.bookmarks().get("closed").unwrap().path(),
+            destination,
+            "{operation}"
+        );
+        assert!(!s.bookmarks().is_dirty(), "{operation}: {}", s.echo());
+        assert_eq!(original.exists(), operation == "save-as");
+        let mut restarted = configured(&f, "manual", "");
+        argument(&mut restarted, BookmarkCommand::Jump, "closed");
+        assert_eq!(
+            restarted.buffer().unwrap().file().unwrap().path(),
+            destination,
+            "{operation}: {}",
+            restarted.echo()
+        );
+        assert_eq!(text(&restarted), "saved");
+    }
+}

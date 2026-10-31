@@ -194,7 +194,8 @@ change its modified flag, or add source undo steps. Aliases reuse the canonical
 live file buffer, including unsaved text, and visiting a bookmark preserves an
 explicit file-tree root. Rectangle bindings under C-x r remain available.
 
-The user-wide collection loads lazily on first bookmark use. Live positions follow canonical
+The user-wide collection loads lazily on first bookmark use or a canonical
+rename/save-as demand, so closed records can follow that path change. Live positions follow canonical
 edits, structural moves and source undo/redo. Insertions at the point use left
 affinity. Removing the original position makes it stale; source undo can restore
 it, or an explicit set can replace it. Undo does not recreate deleted names or

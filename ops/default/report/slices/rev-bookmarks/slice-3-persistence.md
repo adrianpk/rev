@@ -14,7 +14,8 @@ configuration, file observation, staged publication and session owners.
 
 ## Delivered Behavior
 
-First bookmark use lazily admits one strict version-1 TOML collection. Reads
+First bookmark use or a canonical rename/save-as demand lazily admits one
+strict version-1 TOML collection. Reads
 allocate at most 16 MiB of store bytes. Names and context validate as a whole;
 native paths round trip losslessly, including non-UTF-8 Unix paths. Loaded
 records receive fresh session identities and remain unresolved until visited.
@@ -51,7 +52,7 @@ Development check: `cargo test --locked --lib bookmark::store -- --nocapture`
 passed five store tests, including two real writer processes, a separate held
 interprocess lock, strict admission, native path round trips and staged versus
 post-publication faults. Later development checks added permission and output
-size coverage, twelve native persistence journeys and two configuration tests.
+size coverage, native persistence journeys and two configuration tests.
 The documentation checker passed 311 commands, 185 configuration entries,
 58 reachable pages and 331 local links/anchors.
 
@@ -74,6 +75,11 @@ The first required batch exposed a Slice 1 catalog test that still classified
 save/reload as unimplemented. Its expectations now admit the delivered native
 commands while retaining rejection of the later commands. Both controller
 batches must be regenerated after this follow-up commit.
+
+A further lifecycle check covers a durable record before its first command use:
+rename/save-as must admit the lazy collection before canonical path publication,
+then persist the retargeted closed record under the selected policy. Native
+journeys verify both operations and checked restart at the new destination.
 
 ## Task Commits
 

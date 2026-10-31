@@ -25,6 +25,7 @@ impl Session {
     }
 
     pub(in crate::session) fn tree_renamed(&mut self, rename: Rename, name: &str) -> Action {
+        let bookmark_notice = self.ensure_bookmarks().err();
         let renamed = match self.buffers.rename(rename, name) {
             Ok(renamed) => renamed,
             Err(error) => return self.error(&error.to_string()),
@@ -35,6 +36,10 @@ impl Session {
             renamed.target().display()
         );
         let mut severity = crate::display::Message::Normal;
+        if let Some(error) = bookmark_notice {
+            severity = crate::display::Message::Warning;
+            notice.push_str(&format!("; {error}"));
+        }
         if let Some(warning) = renamed.warning() {
             severity = crate::display::Message::Warning;
             notice.push_str(&format!("; {warning}"));
