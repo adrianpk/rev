@@ -1,6 +1,6 @@
 # Native Bookmarks Tracker
 
-Status: Ready
+Status: Implementing
 Date: 2026-10-31
 Delivery set: rev-bookmarks
 Slice strategy: behavior-first
@@ -13,8 +13,8 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1; named bookmark commands, ready for controller startup
-Execution owner: Looper after startup; this is the initial tracker, not a second scheduler
+Active slice: Slice 2; checked location lifecycle, implementation in progress
+Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
 
@@ -31,9 +31,14 @@ Execution owner: Looper after startup; this is the initial tracker, not a second
 
 Acceptance: BMK01; initial command and naming parts of BMK04-BMK05.
 
-- [ ] T1.1: Implement the bounded native collection, stable IDs, set/no-overwrite/jump/delete and checked visit admission.
-- [ ] T1.2: Add C-x r bindings, vertical name completion/cancellation and complete current catalog/reference/native coverage.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 1 report.
+- [x] T1.1: Implement the bounded native collection, stable IDs, set/no-overwrite/jump/delete and checked visit admission.
+- [x] T1.2: Add C-x r bindings, vertical name completion/cancellation and complete current catalog/reference/native coverage.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 1 report.
+
+PR [#185](https://forge.adrianpk.com/adrianpk/rev/pulls/185) merged at
+`8a77b4857940bc34310434657ed0fa259f5f7a4f`; exact-candidate receipt
+`22OPS6UBYMWKZ5L2JUQOVXTVZI` passed 379 tests and all required checks.
+See the canonical Slice 1 report for task commits and documentation evidence.
 
 ## Slice 2: Checked location lifecycle
 
@@ -82,5 +87,5 @@ Acceptance: BMK01-BMK07 jointly.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-No implementation, test result, PR, controller run or completion is recorded by
-this preparation. Preserve previous delivery evidence under its original owners.
+Slice 1 is integrated. Slice 2 is active under the same controller run.
+Preserve previous delivery evidence under its original owners.

@@ -1,6 +1,6 @@
 # Native Bookmarks Delivery
 
-Status: Ready
+Status: Implementing
 Date: 2026-10-31
 Delivery set: rev-bookmarks
 Slice strategy: behavior-first
@@ -14,7 +14,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Bookmarks Tracker](../tracker/rev-bookmarks.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1; named bookmark commands, ready for controller startup
+Active slice: Slice 2; checked location lifecycle, implementation in progress
 
 ## Outcome and authority
 

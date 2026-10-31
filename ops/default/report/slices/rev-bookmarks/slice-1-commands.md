@@ -1,6 +1,6 @@
 # Slice 1: Named bookmark commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -92,6 +92,14 @@ An additional controller-owned `cargo run --locked --quiet --example documentati
 batch checks the current public references before the required batch.
 The worker hands off only after both batches succeed. The combined
 delivery-set gate remains assigned to the controller after all six integrations.
+
+Canonical PR #185 merged through Rebase + Fast-forward into `dev` at
+`8a77b4857940bc34310434657ed0fa259f5f7a4f`. Controller receipt
+`22OPS6UBYMWKZ5L2JUQOVXTVZI` passed the exact three-command list above at that
+clean head: 379 tests passed (11 bookmarks, 161 commands, 133 configuration,
+74 files). Documentation receipt `N4NDXVG2MJDW75XJ3ML62IHE3E` passed on the same
+candidate. The controller verified and recorded the merge in Acta.
+Slice 1 of 6 completed.
 
 ## Risks and Follow-ups
 
