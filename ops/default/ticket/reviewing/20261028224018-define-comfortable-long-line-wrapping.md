@@ -13,7 +13,8 @@ ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T02:43:02Z
 reviewed_at: 2026-10-31T02:43:02Z
 branch: feat/rev-wrap-navigation-04-org-wrap
-commits: [ba7233b763b514be0c0fb0cf205abd2c4ae4c227, f8e7e974a8863f05f7fee9750eb31001cd9f3a04, ec60f353372f90d7a58627b3848e34ec7b915db8, 7a45df87806500aac2bdcbc52f33ee90447de913]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/177
+commits: [ba7233b763b514be0c0fb0cf205abd2c4ae4c227, f8e7e974a8863f05f7fee9750eb31001cd9f3a04, ec60f353372f90d7a58627b3848e34ec7b915db8, 7a45df87806500aac2bdcbc52f33ee90447de913, 0fe5431e9ee449986bb56c3aadb669513c941331, 034b721bb110461e7106cdea970564548934d009]
 ---
 
 # Define comfortable long-line wrapping
@@ -110,7 +111,11 @@ Slices 1-4 implement the accepted native word-aware wrapping, buffer-local
 Visual Line controls, source-preserving Org behavior and bounded derived work.
 The [Slice 4 report](../../report/slices/rev-wrap-navigation/slice-4-org-wrap.md)
 records cache/work limits, exact source/undo checks, cold input cancellation,
-resize/reversal measurements and real PTY idle CPU evidence. The canonical
-slice PR and final clean-head validation will be recorded before handoff.
+resize/reversal measurements and real PTY idle CPU evidence. Canonical
+[PR #177](https://forge.adrianpk.com/adrianpk/rev/pulls/177) targets `dev`.
+Controller receipt `JNLPDE7N5VZQHLQ33J3U6447EA` passed all eleven configured
+and focused commands at `034b721bb110461e7106cdea970564548934d009`, including
+942 tests, all-target Clippy and native/PTY measurements. The final PR-reference
+head receives a fresh configured controller receipt before handoff.
 This ticket moved through implementation and is now under review; integration
 and the solved transition remain owned by the controller delivery workflow.

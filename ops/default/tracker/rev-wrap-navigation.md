@@ -92,8 +92,14 @@ ordered input, cancellation and shared frame mapping. Native API and release
 PTY probes restore exact source, settle input/reversal and record idle costs.
 See the [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md)
 for work ceilings, measurements and their limits. Override lifetime through
-split/close/revisit is covered under both defaults. Final exact-HEAD checks and
-the canonical PR reference remain pending; the wrap ticket is under review.
+split/close/revisit is covered under both defaults. Implementation candidate
+`034b721bb110461e7106cdea970564548934d009` passed all eleven controller
+commands and 942 tests in receipt `JNLPDE7N5VZQHLQ33J3U6447EA`. T4.2 commits
+`0fe5431e9ee449986bb56c3aadb669513c941331` and
+`034b721bb110461e7106cdea970564548934d009` complete native input ownership
+and settled Org request admission. Canonical [PR #177](https://forge.adrianpk.com/adrianpk/rev/pulls/177)
+targets `dev`; the PR-reference follow-up receives fresh configured checks.
+Integration remains pending, and the wrap ticket is under review.
 
 ## Slice 5: Directory targets and initial tree expansion
 

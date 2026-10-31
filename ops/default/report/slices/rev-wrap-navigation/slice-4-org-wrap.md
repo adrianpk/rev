@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-04-org-wrap`
-PR: pending
+PR: [#177](https://forge.adrianpk.com/adrianpk/rev/pulls/177)
 
 ## Purpose
 
@@ -102,28 +102,45 @@ the visible column range is traversed for rectangle painting.
 T4.1 was committed at `ba7233b763b514be0c0fb0cf205abd2c4ae4c227`.
 Intermediate cache and frame increments were validated by controller receipts
 `OIPQPYEYATXCWWN3RGGM5JJU4Q` and `CQDNH3ES5XDBYSZEIBO466AJMS`.
-Final clean-HEAD configured and focused evidence will be recorded before handoff.
+Implementation candidate `034b721bb110461e7106cdea970564548934d009` passed
+all eleven controller commands in receipt `JNLPDE7N5VZQHLQ33J3U6447EA`:
+
+- `cargo fmt --all -- --check`
+- `cargo test --locked --test wrapping --test org_editing --test org_tables --test org_source --test pointer --test configuration`
+- `git diff --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --lib coordinates::`
+- `cargo test --locked --lib view::wrap::`
+- `cargo test --locked --lib session::events::`
+- `cargo test --locked --lib session::layout::`
+- `cargo test --locked --test display --test coordinates --test rectangles --test search --test gutter --test editing --test windows --test core`
+- `cargo run --locked --quiet --example wrap-performance`
+- `python3 scripts/check-wrap-performance.py`
+
+The configured integration suites passed 596 tests; focused helper and affected
+integration suites passed another 346. The PR-reference follow-up requires its
+own fresh configured receipt for the clean head before controller handoff.
 
 Development checks passed for coordinates, continuous/resumed wrap partitions,
 queued input and cancellation, native event owners, and display/gutter/search/
 wrapping regressions. Added cases cover checkpoint eviction during a batch,
 changed source/geometry, and a canvas taller than retained fragment capacity.
-All-target Clippy passed during development; fresh exact-HEAD evidence is
-required for the final EOL-hit and Org admission corrections.
+The successful controller receipt includes all-target Clippy and the final
+EOL-hit, Org admission and queued Escape timing corrections.
 
 `cargo run --locked --quiet --example wrap-performance` uses the debug profile,
 in-memory sources, a finite 512-batch driver, eight alternating visual motions,
 four resizes, eight typed/reversed characters, 64 queued typed/reversed pairs
 and far point reversal. Each native handler, frame and deadline is measured
-separately. Development observations were:
+separately. Controller receipt observations were:
 
 | Fixture | Bytes / scalars | Cold ms | Max resize ms | Queued reversal ms | Largest native step ms |
 | --- | --- | --- | --- | --- | --- |
-| Token | 65536 / 65536 | 108.529 | 101.000 | 237.964 | 7.398 |
-| Words | 62244 / 62244 | 95.080 | 92.617 | 223.650 | 7.703 |
-| Unicode/tabs | 61440 / 49152 | 69.766 | 71.071 | 158.382 | 7.144 |
-| RI flags | 65536 / 16384 | 24.974 | 20.846 | 155.996 | 10.300 |
-| 40000 source lines | 720000 / 720000 | 8.633 | 1.792 | 29.409 | 3.397 |
+| Token | 65536 / 65536 | 107.022 | 99.695 | 238.424 | 6.879 |
+| Words | 62244 / 62244 | 87.342 | 93.553 | 198.153 | 7.175 |
+| Unicode/tabs | 61440 / 49152 | 73.977 | 65.286 | 169.197 | 6.708 |
+| RI flags | 65536 / 16384 | 25.145 | 20.974 | 148.156 | 10.107 |
+| 40000 source lines | 720000 / 720000 | 10.241 | 2.036 | 33.001 | 3.641 |
 
 All restore exact source bytes and point, then have no remaining native
 input deadline and return Wait on a later expiry. The initial synchronous
@@ -134,12 +151,12 @@ first three fixtures; warm navigation took up to 2539 ms.
 and reuses the repository's real controlling-PTY and idle measurement helpers.
 It exercises default visible gutters, a far point, four widths, 128 typed
 characters and 128 backspaces, a cold resized C-e/input/reversal/C-g burst,
-exact save and restored terminal lifetime. Development observations were:
+exact save and restored terminal lifetime. Controller receipt observations were:
 
 | Fixture | Far ms | Max resize ms | 128 input ms | 128 reversal ms | Cold queued reversal ms |
 | --- | --- | --- | --- | --- | --- |
-| Token | 6.149 | 6.646 | 2.530 | 2.699 | 6.407 |
-| Words | 5.621 | 5.410 | 2.321 | 2.601 | 5.458 |
+| Token | 6.574 | 7.876 | 2.759 | 2.755 | 6.662 |
+| Words | 6.249 | 7.151 | 2.721 | 2.898 | 5.693 |
 
 Each 350 ms idle observation emitted zero bytes and consumed zero measured
 process CPU ticks. Both saved files matched their original bytes exactly and
@@ -168,5 +185,6 @@ or existing canonical source-edit admission. Visible canvas work also scales
 with terminal geometry. The finite measurements do not promise fixed latency
 for arbitrary text or hosts.
 
-Record the canonical PR reference and fresh successful validation for its
-final clean head. The wrap ticket remains under review until verified merge.
+PR #177 contains the approved slice. The controller owns fresh configured
+validation for its final PR-reference head and integration. The wrap ticket
+remains under review until verified merge.

@@ -92,7 +92,7 @@ The proposed order is not a chain of prerequisites.
 ## Readiness and next planning boundary
 
 The soft-wrap and file-navigation specifications and models are accepted; all
-five selected tickets are ready. The approved plan/tracker own their eight-slice
+four remaining selected tickets are ready; the wrapping ticket is under review. The approved plan/tracker own their eight-slice
 implementation and joint gate. The other ten capability specs/models retain
 their existing draft state, including optional external-program exploration.
 No runtime implementation or successful delivery gate is claimed by preparation.
