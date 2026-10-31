@@ -86,6 +86,8 @@ Development checks passed:
 - `cargo test --locked --lib session::completion`: three request-lifetime,
   read-only and real worker-replacement cases passed before adding the syntax
   generation regression.
+- `cargo test --locked --lib session::completion::tests::worker_replacement`:
+  the corrected pending-slot case passed.
 
 Coverage includes debounce timing, idle shutdown, newest pending edits, active
 worker cancellation, Unicode minimums, separators, smart case, no matches,
@@ -96,10 +98,17 @@ An initial custom-prefix fixture used C-j, which aliases Return; the existing
 keymap correctly rejected its command/prefix conflict. The fixture now uses
 the distinct admitted C-c prefix and retains its acceptance assertion.
 
+The first controller-focused batch stopped in the worker-replacement test:
+manual invocation can eagerly reap an already finished worker before that test
+observes the pending slot. The fixture now queues before polling, which pins
+the actual single-slot boundary independently of thread timing. Its pending,
+newer-generation, idle-cleanup and source/history assertions remain intact;
+the work deadline and resource limits are unchanged.
+
 T2.1 is commit `14984e2853774740cef539de872075346c5a8156`.
 T2.2 is commit `85fe583f59ed28075bc4a9d95fd151221f7870cb`.
 The controller records focused completion-library, syntax, source-quality and
-documentation checks against the report-introduction candidate. After the
+documentation checks against the focused implementation candidate. After the
 PR-reference follow-up, a fresh receipt covers the final clean PR head and its
 exact configured ordered list:
 

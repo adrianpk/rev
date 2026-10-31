@@ -63,7 +63,10 @@ fn worker_replacement() {
     session.completion_work.queue(request);
     session.expire_completion(std::time::Instant::now() + std::time::Duration::from_millis(1));
     assert!(session.completion_work.owns(id));
-    session.begin_completion();
+    // Queue before polling: begin_completion may eagerly reap an already
+    // finished worker, so its pending-slot lifetime is not a timing guarantee.
+    let newest = session.capture_completion().unwrap();
+    session.completion_work.queue(newest);
     assert!(session.completion_work.pending.is_some());
     settle(&mut session);
     assert!(session.completion().unwrap().generation > old);
