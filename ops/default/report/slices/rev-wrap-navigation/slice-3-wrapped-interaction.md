@@ -1,11 +1,12 @@
 # Slice 3: Wrapped selection and gutter integration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-03-wrapped-interaction`
 PR: `#176`
+Integrated commit: `622309c6e57c11aa70dab4ce7e64f8f384a1dd3a`
 
 ## Purpose
 
@@ -94,11 +95,13 @@ fixtures now pin explicit paired modes and an outside-edge clamp respectively.
 They retain the original horizontal, Unicode, source/history and cancellation
 assertions alongside the delivered wrapped traces.
 
-Final configured formatter, wrapping/pointer/rectangles/search/gutter/panels
-checks and `git diff --check` are recorded through the controller after the
-PR-reference commit. The canonical PR carries those commands in configured
-order. Focused source-quality, display and documentation evidence is recorded
-separately. No integrated full gate is claimed by this report.
+Canonical receipt `LQUE67OGIACLOHM7ZOMG55YYUN` passed the configured formatter,
+wrapping/pointer/rectangles/search/gutter/panels suite (205 tests) and
+`git diff --check` on the clean integrated commit above. Supplemental receipt
+`SUYGOP5R6BF5ADQOGYP574L7OV` passed all-target Clippy, 39 display tests and
+documentation validation (58 pages, 330 local links) on that same head.
+PR #176 is merged through Rebase + Fast-forward; the controller recorded its
+merge in Acta. The integrated delivery gate remains separately owned.
 
 ## Risks and Follow-ups
 

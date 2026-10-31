@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3
-Execution owner: Looper; Slice 3 PR #176 reviewing
+Active slice: Slice 4
+Execution owner: Looper; Slice 4 implementation active
 
 ## Canonical slice map
 
@@ -66,13 +66,16 @@ Acceptance: WRP02, WRP03.
 
 - [x] T3.1: Use the same current mapping for pointer placement/drag/autoscroll, linear selections, search reveal and overlays; keep rectangle semantics in logical source rows/columns.
 - [x] T3.2: Render logical gutter labels only on a source line's first fragment, preserve relative logical distances and invalidate stale geometry after source/fold/resize changes.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 3 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 3 report.
 
 Implementation commits: T3.1 `f2e4779891ef87b84bda9a7613bc43012d303507`;
 T3.2 `27a8f5c903c890d11e1ed3fcbc5dabae15efb83b`. Native continuation interactions,
 paired no-wrap contracts and gutter/fold/resize cases passed focused checks.
-The final exact-HEAD command list is recorded through the controller after
-PR-reference publication.
+Canonical receipt `LQUE67OGIACLOHM7ZOMG55YYUN` passed the configured checks
+and 205 tests at `622309c6e57c11aa70dab4ce7e64f8f384a1dd3a`. Supplemental
+receipt `SUYGOP5R6BF5ADQOGYP574L7OV` passed all-target Clippy, 39 display tests
+and documentation validation (58 pages, 330 local links). PR #176 is merged at
+that exact commit; the controller recorded its merge in Acta. Slice 3 is delivered.
 
 ## Slice 4: Org projection and bounded wrap lifetimes
 
@@ -120,7 +123,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | --- | --- | --- | --- | --- |
 | 1 | delivered | #174 | `366efcd384b163e69478c3bf4bda918bd1d7547a` | [Slice 1 report](../report/slices/rev-wrap-navigation/slice-1-word-wrap.md) |
 | 2 | delivered | #175 | `70a20019d4bc043f178462eec578fa715c12895e` | [Slice 2 report](../report/slices/rev-wrap-navigation/slice-2-visual-editing.md) |
-| 3 | reviewing | #176 | pending | [Slice 3 report](../report/slices/rev-wrap-navigation/slice-3-wrapped-interaction.md) |
+| 3 | delivered | #176 | `622309c6e57c11aa70dab4ce7e64f8f384a1dd3a` | [Slice 3 report](../report/slices/rev-wrap-navigation/slice-3-wrapped-interaction.md) |
 | 4 | pending | pending | pending | pending |
 | 5 | pending | pending | pending | pending |
 | 6 | pending | pending | pending | pending |
