@@ -140,7 +140,7 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 71 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
-| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 21 entries are active in the sample. |
+| `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 22 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are
 accepted as keymap values. No value unbinds a key or supplies code or consent.
