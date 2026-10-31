@@ -1,7 +1,10 @@
 # Native Autocompletion Tracker
 
-Status: In progress
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
+Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
 Delivery set: rev-autocompletion
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; approved capability and explicit commit, push and Looper startup request; this breakdown elaborates that authorized scope
@@ -11,7 +14,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None; all 8 slices integrated, full gate pending
+Active slice: none; native delivery completed
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -136,11 +139,27 @@ tests at that exact candidate. Slice 8 of 8 completed.
 ## Final gate and closure
 
 - [x] Verify all 8 canonical slice merges and clean synchronized dev.
-- [ ] Run the pinned Full gate on that exact integrated candidate.
-- [ ] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
-- [ ] Close only configured operational documentation and preserve predecessor/historical evidence.
+- [x] Run the pinned Full gate on that exact integrated candidate.
+- [x] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
+- [x] Close only configured operational documentation and preserve predecessor/historical evidence.
 
-- [ ] Record native acceptance separately from semantic switching, then permit the already approved LSP successor.
+- [x] Record native acceptance separately from semantic switching, then permit the already approved LSP successor.
+
+The controller passed the unchanged full gate at immutable candidate
+`0f7cc36cb1082aa56954fa602294f47aac80e889`, receipt
+`DAIRXONWTTLVG6RDIQQZKBSGXA`. Exact successful command:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+All-target tests, all 700 production source files, native editing across ten
+parsers/Org/external assets, bounded observations, real PTY restoration and
+the exhaustive documentation catalogs passed. The normal release executable
+measured 18,068,672 bytes, ratio 1.355837 against the recorded baseline. Both
+350 ms idle probes recorded zero CPU ticks. The
+[Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md#delivery-set-closure)
+records exact resource observations and evidence limits. No gate repair was needed.
 
 Native completion uses no server, directory scan or persistent index. Gate
 prerequisites are prepared: the locked Rust/Python C sources are available
@@ -152,5 +171,7 @@ owners compile their libraries before constructing editors and retain their
 isolated HOME/XDG/source trees until their checks finish.
 
 The controller checkpoint and canonical merge evidence own delivery progress.
-The full delivery-set gate and closure remain pending. Full acceptance and remaining
-boundaries follow the linked plan/specification; no additional ticket is queued.
+The native delivery and its operational documentation are closed. CMP01 and
+CMP03-CMP09 native acceptance is complete; CMP02 semantic/native switching
+remains assigned to the approved LSP successor. Controller handoff follows
+verified documentation closure. No successor implementation is included here.

@@ -1,8 +1,11 @@
 # Native Autocompletion
 
-Status: Approved
+Status: Completed
 Date: 2026-10-27
 Reviewed: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
+Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
 Approved: product owner, 2026-10-31; implementation, preparation commit/push and ordered Looper execution requested
 Format: OpenSpec capability proposal
 Source: product-owner discussion and approved implementation scope
@@ -12,7 +15,7 @@ Related: [Language Server Support](editor-language-server-support.md)
 Org owner: [Org Mode](editor-org-mode.md)
 Model: [Native Autocompletion Model](editor-autocompletion-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Readiness: ready for development under the bounded delivery profile below
+Readiness: native CMP01 and CMP03-CMP09 delivered; CMP02 semantic switching remains assigned to the LSP successor
 Plan: [Native Completion Delivery](../plan/rev-autocompletion.md)
 Tracker: [Native Completion Tracker](../tracker/rev-autocompletion.md)
 
@@ -406,8 +409,22 @@ or additional local indexing engine is implied.
 
 Cover current/dirty-buffer symbols, Unicode positions, index invalidation,
 source switching, cancellation, atomic undo, real terminal interaction and
-bounded open-buffer/idle work. These are future delivery checks. The following
-experiment supplies separate grammar-linkage evidence, not delivery evidence.
+bounded open-buffer/idle work. The native subset passed the controller-owned
+full gate; source-switching acceptance remains assigned to the LSP successor.
+The following experiment retains its separate historical grammar-linkage
+evidence, independently of the integrated delivery result.
+
+## Native delivery state
+
+The eight canonical PRs #195-#202 deliver the selected native profile: manual
+and automatic interaction, ten bundled parser/query pairs, native Org contexts,
+bounded open-buffer observations, checked edits and registered external assets.
+The unchanged full gate passed at the validated candidate above. Exact command,
+receipt, integrated release bytes, idle/resource observations and real PTY
+acceptance are recorded in the [tracker](../tracker/rev-autocompletion.md#final-gate-and-closure)
+and [Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md#delivery-set-closure).
+Completion of this native scope does not claim CMP02 semantic/native source
+switching; that combined acceptance belongs to the approved LSP successor.
 
 ## Engineering evidence: executable footprint and grammar maintenance
 

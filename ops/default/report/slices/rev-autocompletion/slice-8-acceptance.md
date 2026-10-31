@@ -153,9 +153,40 @@ the 128-event burst took 213,909 microseconds with a longest event/frame of
 753 microseconds. Native and PTY idle probes each recorded zero CPU ticks.
 Peak native/PTY RSS was 31,496/13,700 kB; PTY output was 44,191 bytes.
 
+## Delivery-set closure
+
+The controller passed the unchanged full gate on immutable integrated candidate
+`0f7cc36cb1082aa56954fa602294f47aac80e889`, receipt
+`DAIRXONWTTLVG6RDIQQZKBSGXA`, on 2026-10-31. Exact successful command:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+The full gate passed formatting, all-target Clippy and tests, all 700 production
+source-quality checks, native completion acceptance and real Linux PTY
+restoration. Documentation passed with 326 commands, 202 configuration entries,
+63 reachable pages and 371 local links/anchors. The recorded gate took about
+7 minutes 50 seconds, including a 3 minute 16 second release build.
+
+The integrated release measured 18,068,672 bytes against the recorded
+13,326,584-byte baseline: +4,742,088 bytes, ratio 1.355837. Forty open peers
+retained 31 names, with a 2,708 microsecond request. The 1024-declaration,
+128-event burst took 210,681 microseconds; its longest event/frame was
+762 microseconds. Native and PTY idle probes each measured zero CPU ticks
+over 350 ms. Peak native/PTY RSS was 29,616/13,844 kB; the PTY emitted 44,191
+bytes and restored terminal attributes and screen/paste/cursor state.
+
+All eight canonical PRs are integrated. No gate repair was needed. Owned fixture
+processes and temporary roots finished their checks and were cleaned up by
+their owners. Documentation closure changes only configured operational paths;
+the tested runtime candidate and historical receipts remain unchanged. Native
+CMP01 and CMP03-CMP09 acceptance is complete. CMP02 semantic/native switching
+remains assigned to the approved LSP successor and its separate gate.
+
 ## Risks and Follow-ups
 
 Measurements describe this machine and fixture, not a production latency or
 memory guarantee. Native grammar code remains explicitly trusted and mapped for
-process lifetime. All eight canonical slices are integrated. The unchanged
-integrated full gate and delivery-set closure remain controller owned and pending.
+process lifetime. Native delivery and its full gate are complete. The approved
+LSP successor owns semantic/native source switching and controller handoff.

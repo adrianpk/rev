@@ -1,8 +1,12 @@
 # Native Autocompletion Model
 
-Status: Approved
+Status: Completed
 Date: 2026-10-31
 Reviewed: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
+Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
+Completion boundary: native interaction and sources delivered; semantic source precedence remains assigned to the LSP successor
 Approved: product owner, 2026-10-31; implementation and ordered Looper execution requested
 Specification: [Native Autocompletion](editor-autocompletion.md)
 Semantic source: [Language Server Support](editor-language-server-support.md)
@@ -90,7 +94,10 @@ libraries remain for process lifetime; replacing an admitted generation requires
 restart, and the registration count bounds that retention. No persisted symbol
 index is selected. Completion results carry literal, revision-checked edits.
 
-The approved [plan](../plan/rev-autocompletion.md) and
-[tracker](../tracker/rev-autocompletion.md) own implementation. Native-source
-delivery precedes the LSP set; full source-switching acceptance belongs to that
-successor. These documents do not claim that either implementation is delivered.
+The completed [plan](../plan/rev-autocompletion.md) and
+[tracker](../tracker/rev-autocompletion.md) record eight integrated native
+slices and the successful controller-owned full gate at the validated candidate
+above. Native session, candidate/edit, grammar generation, Org observation and
+bounded source-work contracts are delivered. Optional semantic readiness and
+source precedence remain assigned to the LSP set; CMP02's full source-switching
+acceptance is not claimed by native closure.

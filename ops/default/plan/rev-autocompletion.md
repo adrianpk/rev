@@ -1,7 +1,10 @@
 # Native Autocompletion Delivery
 
-Status: In progress
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
+Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
 Delivery set: rev-autocompletion
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; approved capability and explicit commit, push and Looper startup request; this breakdown elaborates that authorized scope
@@ -11,7 +14,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Native Autocompletion Tracker](../tracker/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None; all 8 slices integrated, full gate pending
+Active slice: none; native delivery completed
 
 ## Outcome and authority
 
@@ -221,7 +224,7 @@ All eight canonical PRs are integrated. Preparation verified offline locked
 grammar sources, compiled the three owned native fixtures and checked an
 isolated controlling PTY with terminal restoration. Required Rust/Bash/C/PTY
 tools are available; preparation fixtures were removed after their probes.
-The controller has not yet run the integrated full gate.
+The unchanged integrated full gate passed at the validated candidate above.
 Compile owned external-language fixtures ahead of editor startup; rev itself
 must never require a runtime compiler for grammar use.
 The acceptance wrapper batches the existing source-check example over all production Rust files, marks actual crate roots explicitly and checks introduced example roots. A checker invocation with no source arguments is not evidence. No checks have passed merely because they are listed here.
@@ -247,3 +250,19 @@ to the post-gate closure commit. Preserve exact candidate/receipt and historical
 delivery evidence. Record native completion as delivered while explicitly leaving semantic source
 switching to the queued LSP set; do not mark that combined acceptance complete.
 The controller can hand off only after verified closure; neither set promotes main.
+
+## Delivery completion
+
+All eight canonical PRs #195-#202 are integrated into dev and their reports are
+delivered. The controller passed the exact metadata Full gate on
+`0f7cc36cb1082aa56954fa602294f47aac80e889`, receipt
+`DAIRXONWTTLVG6RDIQQZKBSGXA`, without a gate repair. The
+[tracker](../tracker/rev-autocompletion.md#final-gate-and-closure) and
+[Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md#delivery-set-closure)
+record the command, result and measured native/resource/PTY evidence.
+
+Native acceptance for CMP01 and CMP03-CMP09 is complete. CMP02 semantic/native
+source switching remains assigned to the approved optional LSP set. That set
+remains queued for controller-owned handoff after documentation closure is
+verified. Closure changes only the configured operational documentation and
+preserves the tested runtime candidate and historical evidence.
