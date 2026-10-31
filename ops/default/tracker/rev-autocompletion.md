@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 7 — Explicit external grammar admission; in progress
+Active slice: Slice 8 — Native acceptance, footprint and guidance; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -109,9 +109,14 @@ Receipt `QEPJ6DEWDQJQVN5OYGUKUWZBWC` passed its three configured checks and
 
 Acceptance: CMP07, CMP09 and the R31 delta; preserve R35.
 
-- [ ] T7.1: Add the pinned safe tree-sitter-loader API with default features disabled. Implement explicit versioned parser/symbol/highlight/completion registration, lazy one-time bounded admission and bundled/plain fallback. Define and document the finite query capture profile.
-- [ ] T7.2: Test a real precompiled grammar replacement and an unbundled language through the actual safe loader. Reject missing/wrong-symbol/ABI/query assets without losing fallback; prove startup registration and process-lifetime retention. Reconcile the named R31 baseline restriction while preserving historical gate evidence and R35.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T7.1: Add the pinned safe tree-sitter-loader API with default features disabled. Implement explicit versioned parser/symbol/highlight/completion registration, lazy one-time bounded admission and bundled/plain fallback. Define and document the finite query capture profile.
+- [x] T7.2: Test a real precompiled grammar replacement and an unbundled language through the actual safe loader. Reject missing/wrong-symbol/ABI/query assets without losing fallback; prove startup registration and process-lifetime retention. Reconcile the named R31 baseline restriction while preserving historical gate evidence and R35.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#201](https://forge.adrianpk.com/adrianpk/rev/pulls/201) merged
+through Rebase + Fast-forward at `706590012c848231b0b0ff6cb9ba94e9eb4a2233`.
+Receipt `YGFKP3HPVAFOMYLF3YIW3XSRGF` passed its three configured checks and
+291 tests at that exact candidate. Slice 7 of 8 completed.
 
 ## Slice 8: Native acceptance, footprint and guidance
 

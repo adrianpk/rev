@@ -1,6 +1,6 @@
 # Slice 7: Explicit external grammar admission
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -112,13 +112,16 @@ commands, 202 configuration entries, 60 reachable pages and 350 local links/anch
 8. `git diff --check`: passed.
 
 Canonical PR #201 links full immutable report-introduction commit
-`a40ae470f08268b4848febd6aea02163d019afb8`. After this PR-reference
-follow-up, the controller records fresh final clean-HEAD
-validation in this exact configured order:
+`a40ae470f08268b4848febd6aea02163d019afb8`. Final controller receipt
+`YGFKP3HPVAFOMYLF3YIW3XSRGF` passed all three configured checks and 291
+tests at clean candidate `706590012c848231b0b0ff6cb9ba94e9eb4a2233` in this order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test language_assets --test syntax --test configuration --test files`
 3. `git diff --check`
+
+Canonical PR #201 merged through Rebase + Fast-forward at
+`706590012c848231b0b0ff6cb9ba94e9eb4a2233`. Slice 7 of 8 completed.
 
 ## Risks and Follow-ups
 
