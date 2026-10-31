@@ -23,6 +23,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     files(&mut settings.files, &document.files);
     bookmarks(&mut settings.bookmarks, &document.bookmarks);
     completion(&mut settings.completion, &document.completion);
+    settings.lsp = document.lsp.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {

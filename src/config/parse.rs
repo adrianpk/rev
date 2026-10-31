@@ -71,9 +71,9 @@ impl Locations {
     }
 
     fn children(&mut self, table: Option<&DeTable<'_>>, path: &[String]) {
-        // Accepted leaves have at most three components, including dynamic map
-        // keys. Stop before walking arbitrary rejected user-defined subtrees.
-        if path.len() < 3
+        // Four components cover server names and their leaves. Arbitrary JSON
+        // settings are data, so diagnostic discovery stops at that boundary.
+        if path.len() < 4
             && let Some(table) = table
         {
             self.collect(table, path);

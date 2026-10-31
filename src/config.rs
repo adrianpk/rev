@@ -27,6 +27,10 @@ mod external;
 pub(crate) use external::symbol as external_symbol;
 mod completion;
 pub use completion::{Completion, PartialCompletion};
+mod lsp;
+mod lsp_merge;
+mod lsp_validation;
+pub use lsp::{Lsp, PartialLsp, PartialServer, Server};
 mod bookmarks;
 pub use bookmarks::{BookmarkSave, Bookmarks, PartialBookmarks};
 mod diagnostic;
@@ -76,6 +80,7 @@ pub struct Settings {
     pub files: Files,
     pub bookmarks: Bookmarks,
     pub completion: Completion,
+    pub lsp: Lsp,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -104,6 +109,7 @@ pub struct Document {
     pub files: PartialFiles,
     pub bookmarks: PartialBookmarks,
     pub completion: PartialCompletion,
+    pub lsp: PartialLsp,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

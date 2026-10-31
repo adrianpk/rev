@@ -82,6 +82,32 @@ max_candidates = 200
 # Integer 1..=32 candidate rows, further clipped to the current pane.
 popup_rows = 10
 
+[lsp]
+# Optional owned stdio transport; no server or worker starts while disabled.
+enabled = false
+# Retention policy for document attachments (applied by the document lifecycle).
+shutdown_on_last_buffer = false
+# Positive finite milliseconds, at most 600000.
+request_timeout_ms = 2000
+initialize_timeout_ms = 10000
+shutdown_timeout_ms = 2000
+# Integer 1..=8388608 body bytes. Headers have a fixed 16 KiB limit.
+max_message_bytes = 8388608
+# Integer 1..=8 owned connections and 1..=16 pending client requests.
+max_servers = 8
+max_pending_requests = 16
+
+[lsp.servers.rust]
+# At most 32 named entries. Languages need no bundled grammar.
+languages = ["rust"]
+# Installed executable plus literal argv; never expanded through a shell.
+command = "rust-analyzer"
+args = []
+# Nearest ancestor marker; a chosen containing tree bounds upward lookup.
+root_markers = ["Cargo.toml"]
+initialization_options = {}
+settings = {}
+
 [history]
 # Integer 1..=65536 complete undo/redo groups per buffer.
 group_limit = 512

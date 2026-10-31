@@ -8,7 +8,7 @@ use super::{
 };
 
 #[derive(Default)]
-struct Merge {
+pub(super) struct Merge {
     paths: Vec<Vec<String>>,
 }
 
@@ -33,6 +33,7 @@ impl Document {
         merge.syntax(&mut self.syntax, &later.syntax);
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
         merge.completion(&mut self.completion, &later.completion);
+        merge.lsp(&mut self.lsp, &later.lsp);
         merge.leaf(
             &["org", "enabled"],
             &mut self.org.enabled,
@@ -264,7 +265,12 @@ impl Merge {
         );
     }
 
-    fn leaf<T: Clone>(&mut self, path: &[&str], base: &mut Option<T>, later: &Option<T>) {
+    pub(super) fn leaf<T: Clone>(
+        &mut self,
+        path: &[&str],
+        base: &mut Option<T>,
+        later: &Option<T>,
+    ) {
         if later.is_some() {
             base.clone_from(later);
             self.paths

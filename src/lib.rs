@@ -11,6 +11,7 @@ pub mod file;
 pub mod gutter;
 pub mod input;
 mod kill;
+pub mod lsp;
 pub mod org;
 pub mod panel;
 pub mod pointer;

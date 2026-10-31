@@ -176,6 +176,37 @@ change only that view's overrides and never reload or write this snapshot.
 | `mouse.scroll_lines` | Integer 1..=100 | `3` | Logical rows per wheel report; each drag-edge tick also clamps to the current text-area height. |
 | `mouse.tree_activate_on_click` | Boolean | `true` | Startup tree policy; false selects/focuses only. Global mouse disablement suppresses both selection and activation. |
 
+### Optional server transport
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `lsp.enabled` | Boolean | `false` | Start optional configured stdio servers for activated files; lsp-mode toggles the session. |
+| `lsp.shutdown_on_last_buffer` | Boolean | `false` | Retention preference for document attachment lifecycle. |
+| `lsp.request_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds allowed for an outbound write or subsequent client request. |
+| `lsp.initialize_timeout_ms` | Integer 1..=600000 | `10000` | Milliseconds to initialize a newly owned connection. |
+| `lsp.shutdown_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds for shutdown/exit before owned-child termination and reaping. |
+| `lsp.max_message_bytes` | Integer 1..=8388608 | `8388608` | Maximum incoming or outgoing JSON body bytes. |
+| `lsp.max_servers` | Integer 1..=8 | `8` | Maximum retained server/root connections, including failed entries. |
+| `lsp.max_pending_requests` | Integer 1..=16 | `16` | Maximum pending requests per connection; transport initializes one request. |
+| `lsp.servers` | Map of at most 32 server entries | `{ rust = { languages = ["rust"], command = "rust-analyzer", args = [], root_markers = ["Cargo.toml"], initialization_options = {}, settings = {} } }` | Named entries merge by leaf; the Rust default needs an installed executable. |
+
+Each `lsp.servers.<name>` entry declares `languages` (nonempty language array),
+`command` (nonempty executable), `args` (literal string array), `root_markers`
+(relative marker paths without traversal), `initialization_options` and `settings`
+(finite JSON-compatible TOML data). New entries need command and languages after
+source inheritance. Empty argument/marker arrays explicitly replace earlier values.
+The first matching server name in lexical order wins. No grammar allowlist,
+download, environment expansion or shell evaluation applies.
+
+Root lookup chooses the nearest configured ancestor marker. An explicitly opened
+containing tree bounds lookup and supplies the fallback; files outside that tree
+fall back to their own containing directory. Empty marker arrays use that directory.
+Canonical roots share a single process across file aliases. Queues retain at most
+64 messages and 16 MiB per direction; stderr retains a separate 64 KiB tail.
+The transport negotiates UTF-8/UTF-16 and full/incremental sync. Missing or failed
+servers remain unavailable until disable/enable. `lsp-status` reports transport
+readiness; semantic results enter native completion in the subsequent delivery layers.
+
 ### Editing, presentation and retention
 
 | Key | Type and bounds | Default | Scope and effect |

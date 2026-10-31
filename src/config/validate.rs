@@ -41,6 +41,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     integer("version", document.version, 1..=1)?;
     editing(document)?;
     completion_retention(document)?;
+    super::lsp_validation::validate(&document.lsp, false)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;
     layout(document)?;
@@ -388,6 +389,7 @@ fn estimates(document: &Document) -> Result<(), Failure> {
 }
 
 pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> {
+    super::lsp_validation::validate(&value.lsp, true)?;
     let keymaps = document(value)?;
     let mut priority = super::Priority::default();
     super::project::priority(&mut priority, &value.org.priority);
