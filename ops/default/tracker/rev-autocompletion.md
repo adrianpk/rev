@@ -1,6 +1,6 @@
 # Native Autocompletion Tracker
 
-Status: Approved
+Status: In progress
 Date: 2026-10-31
 Delivery set: rev-autocompletion
 Slice strategy: behavior-first
@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1 — Checked manual completion; pending controller activation
+Active slice: Slice 2 — Cursor popup and automatic invocation; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -31,9 +31,14 @@ Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 Acceptance: CMP01, CMP03-CMP04 and the manual part of CMP05.
 
-- [ ] T1.1: Implement a revision-qualified completion session and a real manual Rust path using explicit declaration queries on the current buffer. Keep candidate display/insertion identity separate; no fake provider registry or public extension interface.
-- [ ] T1.2: Add completion-at-point with its compact cursor popup, preselection and manual navigation/accept/cancel; checked literal replacement, deterministic filtering and one-transaction undo. Create tests/completion.rs and cover read-only admission, Unicode/range errors, stale revision/view/session results and source immutability on failure.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T1.1: Implement a revision-qualified completion session and a real manual Rust path using explicit declaration queries on the current buffer. Keep candidate display/insertion identity separate; no fake provider registry or public extension interface.
+- [x] T1.2: Add completion-at-point with its compact cursor popup, preselection and manual navigation/accept/cancel; checked literal replacement, deterministic filtering and one-transaction undo. Create tests/completion.rs and cover read-only admission, Unicode/range errors, stale revision/view/session results and source immutability on failure.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#195](https://forge.adrianpk.com/adrianpk/rev/pulls/195) merged
+through Rebase + Fast-forward at `15bd4321a5bfbbe36b4831fc0f310ab21b081516`.
+Receipt `TCDTYFCOTRHYOQNLEVRIOXDZGJ` passed its three configured checks and
+353 tests at that exact candidate. Slice 1 of 8 completed.
 
 ## Slice 2: Cursor popup and automatic invocation
 
@@ -104,6 +109,6 @@ Native completion uses no server, directory scan or persistent index. Before
 prepare_gate, compile the owned grammar fixtures and establish Rust/Bash/PTY
 prerequisites. Keep temporary HOME/XDG/source trees isolated from user data.
 
-No implementation, gate receipt or merge is claimed by this initial tracker.
-Looper alone updates progress after startup. Full acceptance and remaining
+The controller checkpoint and canonical merge evidence own delivery progress.
+The full delivery-set gate and closure remain pending. Full acceptance and remaining
 boundaries follow the linked plan/specification; no additional ticket is queued.

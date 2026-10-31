@@ -1,6 +1,6 @@
 # Native Autocompletion Delivery
 
-Status: Approved
+Status: In progress
 Date: 2026-10-31
 Delivery set: rev-autocompletion
 Slice strategy: behavior-first
@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Native Autocompletion Tracker](../tracker/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1 — Checked manual completion; pending controller activation
+Active slice: Slice 2 — Cursor popup and automatic invocation; in progress
 
 ## Outcome and authority
 

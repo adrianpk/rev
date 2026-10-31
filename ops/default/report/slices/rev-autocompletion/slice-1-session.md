@@ -1,6 +1,6 @@
 # Slice 1: Checked manual completion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -106,6 +106,12 @@ checks. After this report correction, the controller records fresh evidence for
 that exact list at the final clean PR head. The focused receipt above retains
 its original candidate identity. The full delivery-set gate remains
 controller-owned after Slice 8.
+
+Canonical PR #195 merged through Rebase + Fast-forward into `dev` at
+`15bd4321a5bfbbe36b4831fc0f310ab21b081516`. Controller receipt
+`TCDTYFCOTRHYOQNLEVRIOXDZGJ` passed the configured format, six-suite regression
+and diff checks at that clean candidate: 353 tests passed.
+Slice 1 of 8 completed.
 
 ## Risks and Follow-ups
 
