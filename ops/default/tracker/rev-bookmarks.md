@@ -134,6 +134,17 @@ on the same clean candidate. The controller recorded the canonical merge in Acta
 
 ## Final gate and closure
 
+The first full gate failed at `eba31f5dee666bb3cc02f009449fba0d6e7238dc`
+in receipt `674A2DA3QLY2I2GXI2ZXLOCXBO`: a mouse fixture targeted the new
+marker cell instead of text. Authorized repair
+PR [#191](https://forge.adrianpk.com/adrianpk/rev/pulls/191) merged at
+`f6f09ba63cea3e5f0af10984aa264ec9dc29db48`. Required receipt
+`INYL32A5XSUTQCTFTOHL3IVJGF` passed formatting, 12 event tests, 158
+pointer/gutter/bookmark integration tests and diff hygiene on that exact clean
+candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-1-mouse-fixture-geometry)
+records the diagnosis, preserved assertions and completed repair. The controller
+recorded its canonical merge in Acta; the unchanged full gate remains pending.
+
 - [x] Controller verifies all six canonical slice integrations.
 - [ ] Controller runs the pinned Full gate on the clean integrated dev candidate.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
