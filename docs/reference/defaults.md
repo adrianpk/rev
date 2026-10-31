@@ -18,7 +18,9 @@ Editing views show [absolute logical line numbers](gutter.md) with current-line
 emphasis and a stable four-digit minimum field. Numbering does not change text
 columns, copied data or saved bytes. Narrow views preserve their text area.
 
-Native mouse support starts enabled: primary clicks focus/place point, the wheel
+Native mouse support starts enabled: primary text clicks focus/place point;
+tree entry clicks select and activate by default. Set
+`mouse.tree_activate_on_click = false` for selection/focus only. The wheel
 scrolls the pointed pane or tree without changing keyboard focus, and a primary
 drag selects canonical text with bounded source-edge autoscroll. Use
 `M-x mouse-mode` to toggle only this session. The startup step is three logical
@@ -170,6 +172,7 @@ change only that view's overrides and never reload or write this snapshot.
 | --- | --- | --- | --- |
 | `mouse.enabled` | Boolean | `true` | Initial native pointer reporting; M-x mouse-mode changes only the session override. |
 | `mouse.scroll_lines` | Integer 1..=100 | `3` | Logical rows per wheel report; each drag-edge tick also clamps to the current text-area height. |
+| `mouse.tree_activate_on_click` | Boolean | `true` | Startup tree policy; false selects/focuses only. Global mouse disablement suppresses both selection and activation. |
 
 ### Editing, presentation and retention
 

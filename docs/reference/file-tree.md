@@ -30,6 +30,25 @@ Drawing and visible movement perform no filesystem reads or Git discovery.
 - `other-window` cycles only editing leaves. The tree never enters that order;
   return to the editor before cycling. Guarded session exit remains available.
 
+## Pointer actions
+
+A primary click selects its visible entry and activates it by default. Files
+open through the native tree-open owner in the remembered editing pane;
+directories and the root expand/collapse without changing the chosen root.
+Each press is one action; there is no double-click timing rule. A blank row or
+tree footer focuses without activating an entry. Shared dividers do not activate.
+
+Set `mouse.tree_activate_on_click = false` at startup to select/focus only;
+Enter still activates the selection. Global `mouse.enabled = false` or a disabled
+session mouse mode suppresses both selection and activation. No configuration
+is reloaded or written by a click.
+
+Hits use the current loaded viewport, full path and observed type, independently
+of indentation or clipped labels. A changed hit cannot substitute another row.
+Default activation rechecks the observed entry; missing, changed-type or failed
+file/directory actions report an error while retaining dirty buffers and the
+clicked cached selection. Selection-only reads no filesystem entries.
+
 ## Traversal and refresh
 
 Up/Down (or C-p/C-n) move through visible entries without wrapping. Right

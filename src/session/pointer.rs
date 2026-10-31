@@ -141,6 +141,15 @@ impl Session {
         if !self.tree.select_hit(&hit) {
             return self.notice("Tree entry is no longer current");
         }
+        if !self
+            .buffers
+            .snapshot()
+            .settings()
+            .mouse
+            .tree_activate_on_click
+        {
+            return self.message("");
+        }
         if let Some(entry) = self.tree.selected()
             && let Err(error) = entry.verify()
         {

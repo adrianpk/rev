@@ -916,6 +916,10 @@ are implementation defaults. Git metadata MUST NOT be required or scanned.
 - **THEN** the selected editor window displays its existing buffer
 - **AND** showing or hiding the tree does not close that buffer.
 
+Primary tree presses follow the checked selection/activation policy in PTR02
+and [Navigation NAV05](editor-file-navigation.md#requirement-nav05-select-the-clicked-tree-entry),
+including the startup selection-only preference and global mouse disablement.
+
 ### Requirement: R29 Tree traversal and refresh
 
 Source: sections 14.2-14.3, 17. Acceptance: A14.
@@ -1479,6 +1483,17 @@ Only the targeted view's viewport and its necessary view-local point adjustment
 may change during scrolling. Shared text, unrelated views and the active pane's
 editing state SHALL remain coherent. Geometry edges and document bounds SHALL
 clamp safely. The editor SHALL NOT add simulated momentum or an idle scroll loop.
+
+Primary tree entry clicks SHALL resolve the current rendered viewport and
+checked full entry identity, then select and focus that entry. With startup
+`mouse.tree_activate_on_click = true` (the default), the same click SHALL use the
+native tree-open action: files open in the remembered editing pane; directories
+and the root expand/collapse without replacing the chosen root. False SHALL
+select/focus only. Blank tree area SHALL focus without activation; stale or
+invalid hits SHALL NOT select or activate an unrelated row. Failed actions
+SHALL preserve valid selection, dirty source and history. Global mouse disablement
+SHALL suppress both selection and activation. Each press is an individual action;
+no double-click timer is required.
 
 #### Scenario: Scroll an inactive tree while editing text
 

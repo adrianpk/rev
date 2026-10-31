@@ -697,6 +697,7 @@ pub struct PartialGutter {
 pub struct Mouse {
     pub enabled: bool,
     pub scroll_lines: usize,
+    pub tree_activate_on_click: bool,
 }
 
 impl Default for Mouse {
@@ -704,6 +705,7 @@ impl Default for Mouse {
         Self {
             enabled: true,
             scroll_lines: 3,
+            tree_activate_on_click: true,
         }
     }
 }
@@ -713,6 +715,7 @@ impl Default for Mouse {
 pub struct PartialMouse {
     pub enabled: Option<bool>,
     pub scroll_lines: Option<i64>,
+    pub tree_activate_on_click: Option<bool>,
 }
 
 /// Canonical clock source placement and zero-minute retention.

@@ -255,6 +255,11 @@ impl Merge {
             &mut base.scroll_lines,
             &later.scroll_lines,
         );
+        self.leaf(
+            &["mouse", "tree_activate_on_click"],
+            &mut base.tree_activate_on_click,
+            &later.tree_activate_on_click,
+        );
     }
 
     fn leaf<T: Clone>(&mut self, path: &[&str], base: &mut Option<T>, later: &Option<T>) {

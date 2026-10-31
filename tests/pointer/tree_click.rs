@@ -7,7 +7,7 @@ use rev::view::Size;
 use super::config_fixture::Fixture;
 use super::focus::press;
 
-fn editor(fixture: &Fixture) -> Session {
+pub(super) fn editor(fixture: &Fixture) -> Session {
     let source = fixture.write("root/source.txt", "retained\ntext");
     fixture.write("root/alpha.txt", "alpha");
     fixture.write("root/bravo.txt", "bravo");
@@ -22,7 +22,7 @@ fn editor(fixture: &Fixture) -> Session {
     session
 }
 
-fn source(session: &Session) -> String {
+pub(super) fn source(session: &Session) -> String {
     let buffer = session.buffer().unwrap();
     buffer
         .slice(&buffer.span(0..buffer.len_chars()).unwrap())
@@ -30,7 +30,7 @@ fn source(session: &Session) -> String {
         .to_string()
 }
 
-fn cell(session: &mut Session, name: &str) -> Position {
+pub(super) fn cell(session: &mut Session, name: &str) -> Position {
     let frame = session.frame().unwrap();
     let row = frame
         .rows()
@@ -96,7 +96,7 @@ fn mouse(kind: MouseEventKind, position: Position) -> Event {
 }
 
 // Directory and root presses use the native toggle, once per press. Blank,
-// status and divider cells focus only; later drag/release cannot capture text.
+// status cells focus only; dividers and later drag/release cannot activate text.
 #[test]
 fn directory_cells() {
     let fixture = Fixture::new();

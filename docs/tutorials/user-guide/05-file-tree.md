@@ -6,6 +6,11 @@ From your notes session, open the neighboring `todo.txt` through the file tree.
 2. Its immediate entries are already shown. Use Up/Down to select `todo.txt`.
 3. Press Enter to open it. Keyboard focus returns to the editing pane.
 
+You can also click `todo.txt` to select and open it. Clicking a directory
+expands or collapses it. For selection-only clicks, set
+`mouse.tree_activate_on_click = false` in startup configuration, then use Enter
+to open the selected entry.
+
 Look for these file rows; other entries are omitted:
 
 ```text

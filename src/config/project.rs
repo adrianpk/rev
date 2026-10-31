@@ -220,6 +220,10 @@ fn gutter_palette(base: &mut GutterPalette, partial: &PartialGutterPalette) {
 fn mouse(base: &mut Mouse, partial: &PartialMouse) {
     scalar(&mut base.enabled, partial.enabled);
     count(&mut base.scroll_lines, partial.scroll_lines);
+    scalar(
+        &mut base.tree_activate_on_click,
+        partial.tree_activate_on_click,
+    );
 }
 
 fn org_palette(base: &mut OrgPalette, partial: &PartialOrgPalette) {

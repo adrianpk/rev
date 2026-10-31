@@ -149,8 +149,15 @@ recorded its merge in Acta. The ticket is solved; Slice 7 is active. See the [Sl
 Acceptance: NAV05, NAV06.
 
 - [x] T7.1: Carry rendered entry identity through tree hit testing, focus/select that row and apply the existing tree action to it; validate after viewport/listing changes.
-- [ ] T7.2: Add mouse.tree_activate_on_click default true with false selection-only, complete sample/reference validation and tests; preserve global mouse disablement and resolve the pointer ticket.
+- [x] T7.2: Add mouse.tree_activate_on_click default true with false selection-only, complete sample/reference validation and tests; preserve global mouse disablement and resolve the pointer ticket.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 7 report.
+
+T7.1 commit `65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41` delivers checked tree hits and native activation.
+T7.2 adds the startup selection-only preference, strict configuration/sample
+coverage, canonical alias and denied-access cases, pointer baseline amendments
+and focused native SGR terminal validation. The pointer ticket is under review;
+canonical PR and exact clean-head receipts remain pending in the
+[Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
 
 ## Slice 8: User guidance and joint interaction acceptance
 

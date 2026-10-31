@@ -52,6 +52,8 @@ right_padding = 1
 enabled = true
 # Integer 1..=100 logical rows per wheel report; drag steps also clamp to text height.
 scroll_lines = 3
+# Boolean; activate a clicked tree entry; false selects and focuses only.
+tree_activate_on_click = true
 
 [minibuffer]
 # Integer 1..=32 candidate rows, clipped to the available terminal geometry.

@@ -9,7 +9,8 @@ This project uses Semantic Versioning.
 ### Added
 
 - Click a file-tree entry to select it and open its file or expand/collapse its
-  directory. Blank tree space focuses the tree without activating an entry.
+  directory. Set `mouse.tree_activate_on_click = false` for selection-only clicks.
+  Blank tree space focuses the tree without activating an entry.
 
 - Open files or directories from startup and `C-x C-f`. Accepting a directory
   opens its expanded tree while preserving live documents. An explicit directory

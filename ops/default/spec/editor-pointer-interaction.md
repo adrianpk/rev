@@ -20,6 +20,10 @@ Support ordinary terminal mouse and trackpad events for scrolling, pane focus,
 point placement and linear text selection. Keep these interactions native in
 the Rust binary and consistent with existing keyboard commands and regions.
 
+The approved [Wrap and Navigation delivery](../plan/rev-wrap-navigation.md)
+amends PTR02 with checked tree selection/activation through Slice 7. The
+historical completed candidate and gate above retain their original identity.
+
 ## Selected direction
 
 - Scroll the pane beneath the pointer without changing keyboard focus.
@@ -66,6 +70,17 @@ Only the targeted view's viewport and its necessary view-local point adjustment
 may change during scrolling. Shared text, unrelated views and the active pane's
 editing state SHALL remain coherent. Geometry edges and document bounds SHALL
 clamp safely. The editor SHALL NOT add simulated momentum or an idle scroll loop.
+
+Primary tree entry clicks SHALL resolve the current rendered viewport and
+checked full entry identity, then select and focus that entry. With startup
+`mouse.tree_activate_on_click = true` (the default), the same click SHALL use the
+native tree-open action: files open in the remembered editing pane; directories
+and the root expand/collapse without replacing the chosen root. False SHALL
+select/focus only. Blank tree area SHALL focus without activation; stale or
+invalid hits SHALL NOT select or activate an unrelated row. Failed actions
+SHALL preserve valid selection, dirty source and history. Global mouse disablement
+SHALL suppress both selection and activation. Each press is an individual action;
+no double-click timer is required.
 
 #### Scenario: Scroll an inactive tree while editing text
 
@@ -179,6 +194,7 @@ The following concrete native defaults apply to this delivery:
 | Vertical step | `mouse.scroll_lines = 3`, integer 1..100 logical rows per admitted event |
 | Runtime mode | `M-x mouse-mode` toggles the session override |
 | Focus | Primary-button click; wheel and hover retain focus |
+| Tree activation | `mouse.tree_activate_on_click = true`; false selects/focuses only |
 | Text selection | Primary-button drag; no implicit clipboard write |
 
 ## Drag-edge behavior selected from existing editors

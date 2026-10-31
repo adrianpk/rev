@@ -1,6 +1,6 @@
 # Slice 7: Clicked tree entry and activation
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -15,8 +15,7 @@ Deliver NAV05 and NAV06 through checked native tree row selection and activation
 
 A primary press selects its rendered tree entry and uses the existing native
 open/toggle action. Files open in the remembered editing pane; directories and
-the root expand/collapse without replacing the chosen root. Blank, status and
-separator cells focus only. Tree presses do not create a document drag capture.
+the root expand/collapse without replacing the chosen root. Blank and status cells focus only; separators never activate entries. Tree presses do not create a document drag capture.
 
 ## Implementation Notes
 
@@ -35,8 +34,12 @@ The native tree-open method is shared within the session, not duplicated.
 
 Primary tree clicks select the checked row and activate it by default. Existing
 text hits, wheel targeting, prompt isolation, source identity and canonical file
-reuse remain authoritative. The configured selection-only preference and full
-reader/reference reconciliation belong to T7.2.
+reuse remain authoritative. The startup `mouse.tree_activate_on_click` Boolean defaults true; false selects
+and focuses without filesystem reads or activation. Its partial loader, ordered
+include merge/origin tracking, strict type/scope validation, complete sample and
+compiled default use the normal configuration owners. The startup snapshot stays
+frozen; global mouse disablement wins. PTR02 and its consolidated baseline now
+carry the approved NAV05 policy, preserving historical gate evidence.
 
 ## Files of Interest
 
@@ -44,8 +47,12 @@ reader/reference reconciliation belong to T7.2.
 - `src/pointer/hit.rs`: composed content bounds and row identity.
 - `src/session/pointer.rs`: native focus/select/activate routing.
 - `src/tree/entry.rs`: current observed-kind check before activation.
-- `tests/pointer/tree_click.rs`: native file, directory, root, clipping,
-  viewport/refresh, blank-cell and unsuccessful activation cases.
+- `tests/pointer/tree_click.rs`, `tree_click_policy.rs`: native file, directory,
+  root, clipping, viewport/refresh, configuration, aliases and failed actions.
+- `src/config.rs`, `config/merge.rs`, `config/project.rs`: typed startup leaf.
+- `docs/reference/config.toml`: exhaustive reference and compiled sample asset.
+- `scripts/check-directory-targets.py --tree-click`: focused existing-PTY mode.
+- Pointer/reader/configuration references and consolidated PTR02/R28 baseline.
 
 ## Validation
 
@@ -58,11 +65,32 @@ missing/changed/invalid file failures.
 
 The focused retained-hit test also passed across sorting shifts, changed kinds,
 collapse and root replacement; rejected hits preserve the current selection.
-Clean-head controller checks and T7.2 configuration coverage are pending.
+T7.2 development checks passed all 133 configuration cases and all 64 other
+pointer cases; the wheel-focus fixture now uses a footer press instead of an
+activating entry press, and its focused rerun passed. The original wheel/source
+and focus assertions remain intact. New policy cases cover both Booleans under
+global admission, frozen startup, selection-only without filesystem access,
+canonical dirty aliases and denied-directory recovery.
+
+The existing directory-target probe's focused SGR mode passed two sessions:
+
+- `python3 scripts/check-directory-targets.py --tree-click`
+
+The sessions exercise native directory/file presses under true and false,
+keyboard activation after selection-only, exact fixture bytes and terminal
+restoration. Its first selection-only wait expected the source pane's active
+marker. The corrected assertion requires tree focus, the inactive source's exact
+file/point status and absence of the active marker. The eight-second/1 MiB driver
+limits and complete-frame checks remain unchanged. No new gate or runtime
+dependency is introduced.
+
+Clean-head configured checks, Clippy, documentation and the focused SGR probe
+require a controller receipt before handoff. The final PR-reference head receives
+fresh configured evidence. The combined delivery gate remains unchanged.
 
 ## Risks and Follow-ups
 
 Activation uses existing filesystem admission and cannot eliminate external
 changes between observations. No background scanner, double-click timer or
-new pointer input mechanism is added. Complete the startup preference,
-configuration samples/references and ticket transition before handoff.
+new pointer input mechanism is added. Record the canonical PR and exact-head
+receipts before handoff; the pointer ticket remains under review until merge.

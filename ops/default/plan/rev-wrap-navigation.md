@@ -272,7 +272,7 @@ fixtures cannot cover their boundary. Do not repeat the full gate per slice.
 | [Directory opening](../ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Slice 5 | Uses the accepted root/Return contract. |
 | [Initial tree expansion](../ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Slice 5 | Share first-display initialization with directory opening. |
 | [Selected Tab completion](../ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Slice 6 | Uses the same prompt while keeping completion separate from acceptance. |
-| [Clicked tree entry](../ticket/in_progress/20261030231016-select-the-clicked-file-tree-entry.md) | Slice 7 | Reuse current entry identity, geometry and canonical activation. |
+| [Clicked tree entry](../ticket/reviewing/20261030231016-select-the-clicked-file-tree-entry.md) | Slice 7 | Reuse current entry identity, geometry and canonical activation. |
 
 Each ticket has one closing slice. Update its lifecycle, implementation commits,
 PR and validation in that slice. Complete ready/in_progress/reviewing/solved moves

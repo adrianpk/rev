@@ -12,15 +12,19 @@ fn layered_controls() {
         Settings::default().mouse,
         Mouse {
             enabled: true,
-            scroll_lines: 3
+            scroll_lines: 3,
+            tree_activate_on_click: true
         }
     );
     assert_eq!(Document::default().mouse, PartialMouse::default());
     let fixture = Fixture::new();
-    let base = fixture.write("base.toml", "mouse.enabled = true\nmouse.scroll_lines = 17");
+    let base = fixture.write(
+        "base.toml",
+        "mouse.enabled = true\nmouse.scroll_lines = 17\nmouse.tree_activate_on_click = true",
+    );
     let root = fixture.write(
         "config.toml",
-        "include = ['base.toml']\nmouse.enabled = false",
+        "include = ['base.toml']\nmouse.enabled = false\nmouse.tree_activate_on_click = false",
     );
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none());
@@ -28,7 +32,8 @@ fn layered_controls() {
         startup.snapshot.settings().mouse,
         Mouse {
             enabled: false,
-            scroll_lines: 17
+            scroll_lines: 17,
+            tree_activate_on_click: false
         }
     );
     assert_eq!(
@@ -39,9 +44,16 @@ fn layered_controls() {
         startup.snapshot.origin(&["mouse", "scroll_lines"]),
         Some(base.as_path())
     );
+    assert_eq!(
+        startup
+            .snapshot
+            .origin(&["mouse", "tree_activate_on_click"]),
+        Some(root.as_path())
+    );
     let partial = parse(Path::new("mouse.toml"), b"mouse.enabled = false").unwrap();
     assert_eq!(partial.mouse.enabled, Some(false));
     assert_eq!(partial.mouse.scroll_lines, None);
+    assert_eq!(partial.mouse.tree_activate_on_click, None);
 }
 
 // The fixed command is admitted through real context-map validation at both
@@ -68,6 +80,11 @@ fn rejected_controls() {
         ("excess", "mouse.scroll_lines = 101"),
         ("float", "mouse.scroll_lines = 3.0"),
         ("boolean", "mouse.enabled = 'true'"),
+        ("tree boolean", "mouse.tree_activate_on_click = 1"),
+        (
+            "language tree",
+            "language.rust.mouse.tree_activate_on_click = false",
+        ),
         ("unknown", "mouse.hover = true"),
         ("language", "language.rust.mouse.enabled = false"),
     ] {

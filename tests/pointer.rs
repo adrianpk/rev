@@ -30,6 +30,8 @@ mod selection;
 mod selection_edit;
 #[path = "pointer/tree_click.rs"]
 mod tree_click;
+#[path = "pointer/tree_click_policy.rs"]
+mod tree_click_policy;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

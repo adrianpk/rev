@@ -114,7 +114,13 @@ fn tree_target() {
             .text()
             .contains("file-02")
     );
-    session.handle(super::focus::press(Position { column: 1, row: 0 }));
+    let composition =
+        rev::panel::Composition::workspace(session.windows(), session.tree(), size(), 0).unwrap();
+    let status = composition.tree().unwrap().status().unwrap();
+    session.handle(super::focus::press(Position {
+        column: status.column(),
+        row: status.row(),
+    }));
     let selected = session.tree().selected().unwrap().path().to_owned();
     assert_eq!(session.handle(wheel(false, 40, 0)), Action::Redraw);
     assert!(session.tree().focused());

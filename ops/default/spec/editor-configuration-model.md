@@ -193,6 +193,7 @@ No future-inventory entry extends this table implicitly.
 | `gutter.right_padding` | Integer, `1` | 0..4 terminal cells | Global startup geometry |
 | `mouse.enabled` | Boolean, `true` | True/false | Session startup; mouse-mode override |
 | `mouse.scroll_lines` | Integer, `3` | 1..100 logical rows; drag tick also clamps to text height | Global native pointer policy |
+| `mouse.tree_activate_on_click` | Boolean, `true` | True/false | Global startup; false selects/focuses only; global mouse disablement wins |
 | `windows.split_ratio` | Float, `0.5` | Finite 0.1..0.9; clamp to geometry minima | Layout, global initial split |
 | `minibuffer.candidate_limit` | Integer, `8` | 1..32 rows, clipped to available geometry | Prompt completion, global |
 | `minibuffer.match` | String, `"prefix-then-substring"` | `prefix-then-substring`, `prefix`, `substring` | Command candidates only; deterministic registry order within rank |

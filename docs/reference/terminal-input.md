@@ -107,7 +107,11 @@ grapheme; scroll offsets and either gutter side use the rendering geometry.
 The exact end-of-line boundary is selectable, including an empty final row.
 Gutters, status rows, trailing fill, beyond-EOF rows and clipped glyph fragments
 may focus their owning pane without moving point. Shared separators do not
-select a pane. Tree hits focus without activating an entry. Prompts, completion,
+select a pane. Tree entry hits select and activate through the native tree-open
+owner by default; `mouse.tree_activate_on_click = false` selects/focuses only.
+Blank tree rows and the footer focus without entry activation. Hits retain the
+current viewport and full entry identity; stale rows cannot redirect an action.
+Prompts, completion,
 inventory and decisions retain ownership; clicks cannot accept or cancel them.
 Movement preserves an existing active mark/region and creates no undo item.
 
