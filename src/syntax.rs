@@ -1,3 +1,4 @@
+mod completion;
 mod source;
 mod style;
 
@@ -31,6 +32,7 @@ pub struct Syntax {
 struct Parsed {
     parser: Parser,
     query: Query,
+    completion: Option<Query>,
     tree: Option<Tree>,
 }
 
@@ -153,6 +155,7 @@ impl Parsed {
         Some(Self {
             parser,
             query,
+            completion: completion::query(&language),
             tree: None,
         })
     }

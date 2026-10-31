@@ -6,6 +6,28 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(crate) fn completion_symbols(
+        &mut self,
+        deadline: std::time::Instant,
+    ) -> Result<Vec<crate::completion::Symbol>, String> {
+        if self.is_readonly() {
+            return Err("buffer is read-only".into());
+        }
+        if self.len_bytes() > crate::completion::MAX_BYTES {
+            return Err("Native completion buffer exceeds 2 MiB".into());
+        }
+        let mut progress = |_: &tree_sitter::ParseState| {
+            if std::time::Instant::now() >= deadline {
+                std::ops::ControlFlow::Break(())
+            } else {
+                std::ops::ControlFlow::Continue(())
+            }
+        };
+        self.parse_with(tree_sitter::ParseOptions::new().progress_callback(&mut progress));
+        self.syntax
+            .declarations(self.text.slice(..), self.stamp(), deadline)
+    }
+
     /// Resolve the first visiting basename from a supplied immutable snapshot.
     /// This query performs no file IO, syntax work or text/history mutation.
     pub fn language<'a>(&'a self, settings: &'a Snapshot) -> &'a str {

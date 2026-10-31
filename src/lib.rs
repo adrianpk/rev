@@ -3,6 +3,7 @@
 pub mod bookmark;
 pub mod buffer;
 pub mod command;
+mod completion;
 pub mod config;
 pub mod coordinates;
 pub mod display;
