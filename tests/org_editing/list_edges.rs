@@ -4,6 +4,9 @@ use super::*;
 use rev::command::{History, Motion, OrgCommand, RegionCommand};
 
 fn rejected(session: &mut Session, command: OrgCommand, message: &str) {
+    // Observe the completed native view before pinning an admission snapshot;
+    // goto can now leave independent, resumable presentation work pending.
+    settle(session);
     let source = text(session);
     let view = session.view().clone();
     let stamp = session.buffer().unwrap().stamp();

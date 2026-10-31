@@ -106,6 +106,7 @@ impl Session {
             command,
             Command::Scroll(_)
                 | Command::Kill(KillCommand::Line)
+                | Command::Org(_)
                 | Command::Motion(
                     Motion::LineStart
                         | Motion::LineEnd
@@ -114,6 +115,7 @@ impl Session {
                 )
         );
         if !applicable
+            || matches!(command, Command::Org(_)) && !self.buffer().is_ok_and(|b| b.is_org())
             || self.input.focus() != Focus::Editing
             || self.tree.focused()
             || self.habit_agenda.is_some()
@@ -122,7 +124,25 @@ impl Session {
         {
             return None;
         }
-        self.prepare_request(Request::Command(command))
+        if let Some(action) = self.prepare_request(Request::Command(command)) {
+            return Some(action);
+        }
+        if matches!(command, Command::Org(_)) {
+            // Structural requests pin the semantic view. Finish its current
+            // reveal before that owner captures it, so automatic reflow cannot
+            // invalidate an otherwise unchanged source operation.
+            match self.revealing_view() {
+                Ok(candidate) => *self.windows.selected_mut() = candidate,
+                Err(error) => return Some(self.error(&error.to_string())),
+            }
+        }
+        None
+    }
+
+    fn revealing_view(&self) -> Result<View, Error> {
+        let mut candidate = self.view().clone();
+        candidate.reveal(self.buffer()?, self.pane_size())?;
+        Ok(candidate)
     }
 
     pub(super) fn layout_pointer(
@@ -185,6 +205,7 @@ impl Session {
             Request::Command(Command::Scroll(scroll)) => self.scrolling_view(scroll).map(|_| ()),
             Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
             Request::Command(Command::Kill(command)) => self.kill_span(command).map(|_| ()),
+            Request::Command(Command::Org(_)) => self.revealing_view().map(|_| ()),
             Request::Command(_) => unreachable!("only layout-dependent commands are prepared"),
             Request::Pointer(event, _) => self.prepare_pointer(event),
         };

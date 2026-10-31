@@ -253,3 +253,25 @@ fn changed_observation() {
     assert!(changed.killed_text().is_none());
     assert_eq!(changed.buffer().unwrap().history().len(), 1);
 }
+
+// A pre-existing Escape chord keeps the arrival time of input queued behind
+// a cold command, even if host expiry/resize happens after its real deadline.
+#[test]
+fn retained_meta_time() {
+    let source = format!("{}\nxyz", "a".repeat(65536));
+    let mut session = resized(&source);
+    let now = Instant::now();
+    session.handle_at(key(KeyCode::Esc, KeyModifiers::NONE), now);
+    session.execute(Command::Motion(Motion::LineEnd));
+    assert!(session.layout.held.is_some());
+    session.handle_at(
+        key(KeyCode::Char('f'), KeyModifiers::NONE),
+        now + Duration::from_millis(1),
+    );
+    session.handle_at(Event::Resize(51, 6), now + Duration::from_secs(1));
+    session.expire_input(now + Duration::from_secs(1));
+    settle(&mut session);
+    assert_eq!(text(&session), source);
+    assert!(session.buffer().unwrap().history().is_empty());
+    assert_eq!(session.input.prefix(), None);
+}

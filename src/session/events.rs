@@ -109,7 +109,11 @@ impl Session {
             self.cancel_pointer_capture();
         }
         self.sync_input_context();
-        let expired = self.expire_escape(now);
+        let expired = if matches!(event, Event::Resize(..)) && self.layout_active() {
+            Action::Wait
+        } else {
+            self.expire_escape(now)
+        };
         if let Event::Resize(width, height) = event {
             let action = self.resize(width, height);
             self.sync_input_context();
@@ -132,7 +136,11 @@ impl Session {
     /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
         [
-            self.expire_escape(now),
+            if self.layout_active() {
+                Action::Wait
+            } else {
+                self.expire_escape(now)
+            },
             self.expire_org(now),
             self.expire_pointer(now),
             self.expire_timer(now),

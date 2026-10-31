@@ -63,6 +63,9 @@ qualified forward observations. This evidence is not full Unicode conformance.
 Layout commands first compute a pure candidate. Source/point changes reject a
 held command before effects; resize recomputes it at the same source point.
 Pointer observations additionally require unchanged views and geometry.
+Org structural requests first settle their current reveal before pinning the
+view; automatic reflow cannot cancel a source-identical operation. Queued
+Escape chords retain arrival times even when resize or host expiry intervenes.
 Source completion callbacks execute outside projection budgets, so a derived
 layout yield cannot interrupt their canonical publication. Existing edit,
 undo, kill, Org request and preview resource owners remain authoritative.
@@ -105,8 +108,8 @@ Development checks passed for coordinates, continuous/resumed wrap partitions,
 queued input and cancellation, native event owners, and display/gutter/search/
 wrapping regressions. Added cases cover checkpoint eviction during a batch,
 changed source/geometry, and a canvas taller than retained fragment capacity.
-All-target Clippy passed before the final EOL-hit regression correction;
-fresh exact-HEAD evidence is required below.
+All-target Clippy passed during development; fresh exact-HEAD evidence is
+required for the final EOL-hit and Org admission corrections.
 
 `cargo run --locked --quiet --example wrap-performance` uses the debug profile,
 in-memory sources, a finite 512-batch driver, eight alternating visual motions,
@@ -144,6 +147,15 @@ both terminal sessions restored their original attributes and exited normally.
 The first probe attempt incorrectly expected byte-restoring edits to clear
 historical dirty state; the corrected driver requires dirty state until save
 and retains the exact source, cursor and exit assertions.
+
+The first configured controller check at
+`0fe5431e9ee449986bb56c3aadb669513c941331` failed two Org cases. The tag
+observation-limit case exposed a real request/view race, fixed by bounded
+reveal before structural admission. The rejection fixture now observes settled
+presentation before capturing its baseline. Its original source/view/stamp/
+mark/history assertions and the exact 8192/8193 observation limits remain.
+Both focused regressions pass, along with queued Escape timing across resize
+and delayed expiry. No acceptance or resource limit was weakened.
 
 These are local fixture measurements, not universal latency ceilings. The full
 delivery gate and combined file-navigation acceptance remain controller-owned.
