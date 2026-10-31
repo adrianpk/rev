@@ -1,11 +1,11 @@
 # Slice 3: Persistent collection
 
-Status: implementing
+Status: awaiting integration
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
 Branch: `feat/rev-bookmarks-03-persistence`
-PR: pending
+PR: [#187](https://forge.adrianpk.com/adrianpk/rev/pulls/187)
 
 ## Purpose
 
@@ -69,10 +69,10 @@ candidate before the required batch. Handoff requires both batches to pass.
 
 ## Task Commits
 
-T3.1: `88dc724e94764feb7be93fd59f18edca1167b540` introduces checked storage,
+T3.1: `88dc724e94768d26e5c7819bb9fedfe4ce47481b` introduces checked storage,
 lazy admission, typed settings and real writer/failure tests. T3.2 supplies the
 native policy continuations, commands, configuration coverage and reference
-catalog/sample updates. Full task references are recorded in the tracker.
+catalog/sample updates in `e642f451f6938722cc35b82c7cc6b5754f36997b`. Full task references are recorded in the tracker.
 
 ## Risks and Follow-ups
 

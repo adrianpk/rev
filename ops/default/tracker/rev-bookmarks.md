@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3; persistent collection, implementation in progress
+Active slice: Slice 3; canonical PR #187 awaiting controller checks and integration
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -64,7 +64,9 @@ Acceptance: BMK05 and storage/limit parts of BMK07.
 - [x] T3.2: Add save/reload and quit policies, complete storage settings/defaults/references and recovery coverage.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 3 report.
 
-T3.1 storage commit: `88dc724e94764feb7be93fd59f18edca1167b540`.
+T3.1 storage commit: `88dc724e94768d26e5c7819bb9fedfe4ce47481b`.
+T3.2 policy commit: `e642f451f6938722cc35b82c7cc6b5754f36997b`.
+Canonical PR: [#187](https://forge.adrianpk.com/adrianpk/rev/pulls/187).
 [Slice 3 report](../report/slices/rev-bookmarks/slice-3-persistence.md) records
 native persistence, policy, failure and configuration coverage.
 
