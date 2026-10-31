@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-02-interaction`
-PR: pending
+PR: [#196](https://forge.adrianpk.com/adrianpk/rev/pulls/196)
 
 ## Purpose
 
@@ -107,10 +107,18 @@ the work deadline and resource limits are unchanged.
 
 T2.1 is commit `14984e2853774740cef539de872075346c5a8156`.
 T2.2 is commit `85fe583f59ed28075bc4a9d95fd151221f7870cb`.
-The controller records focused completion-library, syntax, source-quality and
-documentation checks against the focused implementation candidate. After the
-PR-reference follow-up, a fresh receipt covers the final clean PR head and its
-exact configured ordered list:
+Focused controller receipt `ODRI6E6D3OQNDJKQOK33KAWRAZ` passed at clean candidate
+`4f6601a45dc0179a6927b61521a5104ef847bf54`:
+
+1. `cargo test --locked --lib completion`: 7 tests passed.
+2. `cargo test --locked --test syntax`: 30 tests passed.
+3. `cargo run --locked --quiet --example source-check -- --file src/completion.rs --file src/completion/job.rs --file src/session/completion.rs --file src/syntax.rs --file src/syntax/completion.rs --file src/buffer/syntax.rs --file src/input/completion.rs --file src/config/completion.rs --file src/display/native_completion.rs`: passed.
+4. `cargo run --locked --quiet --example documentation-check`: 326 commands,
+   198 configuration entries, 60 reachable pages and 346 local links/anchors passed.
+5. `git diff --check`: passed.
+
+After the PR-reference follow-up, the controller records a fresh receipt for the
+final clean PR head and its exact configured ordered list:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test commands --test configuration --test display --test panels --test wrapping`
