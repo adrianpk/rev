@@ -157,6 +157,18 @@ records explicit lock release, the retained-descriptor regression and preserved
 publication contracts. The controller recorded the canonical repair merge in
 Acta; the unchanged full gate remains pending.
 
+The third full gate failed at `a086cdbfe0f9619bdf859f8a0868b890aa408c16`
+in receipt `LTK6C3CB5LHLGF2J5B5N3FDIM7`: a display fixture expected terminal
+coordinates without the independent marker cell. Authorized repair
+PR [#193](https://forge.adrianpk.com/adrianpk/rev/pulls/193) merged at
+`442cf9b0120abceb6a167dbfade011ae1029357f`. Required receipt
+`AJSLHKQ2J6FSYPRE4LYTSTENDJ` passed formatting, 390 coordinate/Org/rectangle/
+syntax/tree tests, 127 gutter/wrapping/pointer tests and diff hygiene on that
+exact clean candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-3-marker-aware-display-fixtures)
+records the 13 reproduced fixture failures, preserved text budgets and completed
+repair. The controller recorded the canonical repair merge in Acta; the unchanged
+full gate remains pending.
+
 - [x] Controller verifies all six canonical slice integrations.
 - [ ] Controller runs the pinned Full gate on the clean integrated dev candidate.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.

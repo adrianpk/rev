@@ -1,6 +1,6 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -249,7 +249,7 @@ the correction. Changes stay within nine permitted test files and this report;
 no runtime code, source/history assertions, gate commands, deadlines or resource
 limits change.
 
-Final clean-HEAD validation follows the repair and canonical PR-reference
+Final clean-HEAD validation passed after the repair and canonical PR-reference
 commits in the pinned order:
 
 1. `cargo fmt --all -- --check`
@@ -257,4 +257,11 @@ commits in the pinned order:
 3. `cargo test --locked --test gutter --test wrapping --test pointer`
 4. `git diff --check`
 
-The controller owns repair integration and rerunning the unchanged full gate.
+Canonical repair PR [#193](https://forge.adrianpk.com/adrianpk/rev/pulls/193)
+merged through Rebase + Fast-forward into `dev` at
+`442cf9b0120abceb6a167dbfade011ae1029357f`. Required receipt
+`AJSLHKQ2J6FSYPRE4LYTSTENDJ` passed the exact four-command list: 390
+coordinate/Org/rectangle/syntax/tree tests and 127 gutter/wrapping/pointer
+tests, for 517 passing integration tests. The controller verified and recorded
+the repair merge in Acta. All six slices and three authorized repairs are
+integrated; the unchanged full gate remains pending under controller ownership.
