@@ -102,8 +102,8 @@ fn typed_file() {
     }
 }
 
-// Selected and typed directories descend without visiting a buffer. Held
-// Return cannot open a nested suggestion; only a new choice/press may continue.
+// Selected and typed directories finish opening without visiting a buffer.
+// Held Return cannot toggle the new root; a fresh tree choice opens its file.
 #[test]
 fn directory_return() {
     for selected in [false, true] {
@@ -118,11 +118,12 @@ fn directory_return() {
             session.handle(Event::Paste("./child".into()));
         }
         session.handle(key(KeyCode::Enter));
-        let draft = if selected { "child/" } else { "./child/" };
+        assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
         assert_eq!(
-            query(&session.frame().unwrap()),
-            format!("Find file: {draft}")
+            session.tree().root(),
+            Some(fixture.0.join("root/child").as_path())
         );
+        assert!(session.tree().focused() && session.tree().entries()[0].expanded());
         session.handle(Event::Key(KeyEvent::new_with_kind(
             KeyCode::Enter,
             KeyModifiers::NONE,
@@ -130,7 +131,8 @@ fn directory_return() {
         )));
         assert_eq!(*session.view(), view);
         assert_eq!(session.buffer().unwrap().stamp(), stamp);
-        session.handle(key(KeyCode::Up));
+        assert!(session.tree().entries()[0].expanded());
+        session.handle(key(KeyCode::Down));
         session.handle(key(KeyCode::Enter));
         assert_eq!(text(&session), "nested");
     }

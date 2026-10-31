@@ -5,8 +5,6 @@ use super::{Candidate, Provider, Query};
 mod accept;
 mod complete;
 
-pub(crate) use accept::Acceptance;
-
 /// Retained path draft, component observation and independent list selection.
 /// Only draft directory transitions or explicit refresh may observe disk.
 #[derive(Debug)]

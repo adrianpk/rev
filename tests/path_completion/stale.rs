@@ -52,7 +52,7 @@ fn changed_contents() {
 }
 
 // UI03-UI04: Return rechecks the selected path's current kind. Cached labels
-// cannot force an obsolete directory descent or visit a replacement list row.
+// cannot force an obsolete target kind or visit a replacement list row.
 #[test]
 fn changed_kind() {
     for was_directory in [false, true] {
@@ -74,9 +74,10 @@ fn changed_kind() {
             assert_eq!(text(&session), "replacement");
             assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
         } else {
-            assert_eq!(query(&session.frame().unwrap()), "Find file: choice/");
+            assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
+            assert_eq!(session.tree().root(), Some(target.as_path()));
             assert_eq!(text(&session), "retained\ntext");
-            session.handle(key(KeyCode::Up));
+            session.handle(key(KeyCode::Down));
             session.handle(key(KeyCode::Enter));
             assert_eq!(text(&session), "child contents");
         }

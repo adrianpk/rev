@@ -102,12 +102,13 @@ impl Session {
             return Some(self.tree_command(command));
         }
         match command {
-            Command::Tree(_) | Command::Quit | Command::MouseMode => None,
+            Command::Tree(_) | Command::Quit | Command::MouseMode | Command::FindFile => None,
             Command::KeyboardQuit
                 if matches!(
                     self.pending,
                     Some(
                         Pending::Command
+                            | Pending::Path(_)
                             | Pending::TreeCreate(_)
                             | Pending::TreeRename(_)
                             | Pending::TreeDelete(_)

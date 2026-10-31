@@ -107,8 +107,8 @@ fn initial_visibility() {
     }
 }
 
-// Initial file context chooses the root once. Cwd policy and scratch fallback
-// remain explicit; later visits never reset the retained workspace root.
+// Automatic file-parent roots follow visits. Configured cwd retains its root;
+// explicit directory precedence is exercised by the directory-opening cases.
 #[test]
 fn startup_roots() {
     for (policy, initial) in [
@@ -153,6 +153,11 @@ fn startup_roots() {
         tree(&mut session, TreeCommand::Focus);
         tree(&mut session, TreeCommand::Toggle);
         tree(&mut session, TreeCommand::Toggle);
+        let expected = if policy == "cwd" {
+            expected
+        } else {
+            later.parent().unwrap().to_owned()
+        };
         assert_eq!(session.tree().root(), Some(expected.as_path()));
         assert_eq!(text(&session), "retained");
     }

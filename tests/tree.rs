@@ -229,7 +229,8 @@ fn command_focus() {
     assert_eq!(text(&session), "x");
 }
 
-// Workspace focus blocks every document command family and paste. Returning
+// Workspace focus blocks document edits and paste, while find-file remains
+// available. Returning
 // preserves dirty state, mark, cursor and history rather than replacing a buffer.
 #[test]
 fn focused_admission() {
@@ -249,7 +250,6 @@ fn focused_admission() {
         Command::Motion(Motion::BufferStart),
         Command::Scroll(Scroll::PageForward),
         Command::History(History::Undo),
-        Command::FindFile,
         Command::Buffer(BufferCommand::Kill),
         Command::Linear(LinearCommand::Kill),
         Command::Rectangle(RectangleCommand::Mark),
@@ -259,6 +259,17 @@ fn focused_admission() {
         assert_eq!(session.echo(), "File tree owns input focus", "{command:?}");
         assert!(session.tree().focused());
     }
+    session.execute(Command::FindFile);
+    assert!(
+        session
+            .frame()
+            .unwrap()
+            .rows()
+            .iter()
+            .any(|row| row.band() == rev::display::Band::Completion)
+    );
+    session.execute(Command::KeyboardQuit);
+    assert!(session.tree().focused());
     session.handle(Event::Paste("\x18\x03bad".into()));
     assert_eq!(text(&session), "ab界e\u{301}\nlast");
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
@@ -305,8 +316,8 @@ fn overlay_coordinates() {
     assert_eq!(text(&session), "ab target tail\nsecond target");
 }
 
-// A later explicit visit uses the common file owner without relocating the
-// retained root. No Git metadata is needed by this real temporary directory.
+// A later file visit uses the common owner without relocating an explicitly
+// chosen root. No Git metadata is needed by this real temporary directory.
 #[test]
 fn retained_root() {
     use std::fs;
@@ -323,6 +334,7 @@ fn retained_root() {
     let mut session = editor();
     tree(&mut session, TreeCommand::Toggle);
     let root = session.tree().root().unwrap().to_path_buf();
+    session.load(&root).unwrap();
     session.load(&path).unwrap();
     assert!(!session.tree().focused());
     assert!(session.tree().visible());

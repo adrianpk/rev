@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "files/directories.rs"]
+mod directories;
+
 #[path = "files/format.rs"]
 mod format;
 
@@ -294,7 +297,6 @@ fn missing_paths() {
     let cases = [
         (fixture.0.join("missing"), io::ErrorKind::NotFound),
         (fixture.0.join("missing/child"), io::ErrorKind::NotFound),
-        (fixture.0.clone(), io::ErrorKind::InvalidInput),
         (PathBuf::from("/dev/null"), io::ErrorKind::InvalidInput),
     ];
     for (path, kind) in cases {
@@ -402,7 +404,6 @@ fn rejected_session() {
             fixture.file("bad-BOM", b"\xef\xbb\xbf\xff"),
             io::ErrorKind::InvalidData,
         ),
-        (fixture.0.clone(), io::ErrorKind::InvalidInput),
         (fixture.denied(), io::ErrorKind::PermissionDenied),
     ];
     let mut session = dirty_session();

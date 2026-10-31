@@ -109,7 +109,7 @@ fn vanished_choice() {
 }
 
 // A child symlink remains an untraversed list leaf until explicit Return.
-// Accepting a directory referent descends under the editable alias spelling.
+// Accepting a directory referent opens its canonical browsing root.
 #[test]
 fn symlink_directory() {
     let fixture = Fixture::new();
@@ -128,9 +128,13 @@ fn symlink_directory() {
     );
     session.handle(key(KeyCode::Up));
     session.handle(key(KeyCode::Enter));
-    assert_eq!(query(&session.frame().unwrap()), "Find file: link/");
+    assert!(!query(&session.frame().unwrap()).starts_with("Find file:"));
+    assert_eq!(
+        session.tree().root(),
+        Some(fixture.0.join("root/child").as_path())
+    );
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
-    session.handle(key(KeyCode::Up));
+    session.handle(key(KeyCode::Down));
     session.handle(key(KeyCode::Enter));
     assert_eq!(text(&session), "nested");
     assert_eq!(

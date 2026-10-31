@@ -8,6 +8,9 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Open files or directories from startup and `C-x C-f`. Accepting a directory
+  opens its expanded tree while preserving live documents. An explicit directory
+  root stays selected when visiting files inside or outside it.
 - Long source lines wrap at word boundaries by default, preserving file bytes,
   tabs and Unicode graphemes at each split pane's width. Use
   `editor.soft_wrap = false` for horizontal scrolling or `M-x visual-line-mode`

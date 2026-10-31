@@ -106,7 +106,7 @@ Slice 4 of 8 completed; the wrap ticket is solved. Slice 5 is active.
 
 Acceptance: NAV01, NAV02, NAV03, NAV06.
 
-- [ ] T5.1: Unify CLI/find-file file-versus-directory admission, Return final directory acceptance, explicit-root precedence and failure-preserving publication.
+- [x] T5.1: Unify CLI/find-file file-versus-directory admission, Return final directory acceptance, explicit-root precedence and failure-preserving publication.
 - [ ] T5.2: Initialize only immediate tree children on first presentation/root change, preserve later collapse/hide/show and configuration precedence; resolve both opening/initial-expansion tickets.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 5 report.
 

@@ -31,10 +31,6 @@ impl Session {
             return Ok(());
         };
         self.load(path)?;
-        if let Some(file) = self.buffer().map_err(io::Error::other)?.file() {
-            let path = file.path().to_path_buf();
-            self.tree.initial(&path);
-        }
         Ok(())
     }
 }

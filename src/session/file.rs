@@ -33,9 +33,26 @@ impl Session {
     }
 
     fn ingress(&mut self, path: &Path) -> io::Result<()> {
+        match std::fs::metadata(path) {
+            Ok(metadata) if metadata.is_dir() => return self.ingress_directory(path),
+            Ok(_) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => {
+                return Err(io::Error::new(
+                    error.kind(),
+                    format!("open {path:?}: {error}"),
+                ));
+            }
+        }
         let visit = self.buffers.prepare_visit(path)?;
         let buffer = visit.buffer(&self.buffers).map_err(io::Error::other)?;
         let observed = buffer.file().map(|file| file.path().to_path_buf());
+        let tree = observed
+            .as_deref()
+            .map(|path| self.tree.opening_file(path))
+            .transpose()?
+            .flatten();
+        let root_changed = tree.is_some();
         let mut view = self.windows.selected().clone();
         view.rebind(buffer);
         self.stop_typing().map_err(io::Error::other)?;
@@ -45,16 +62,30 @@ impl Session {
             *self.windows.selected_mut() = view;
         }
         self.tree.edit();
+        if let Some(tree) = tree {
+            self.tree = tree;
+        }
         self.input.cancel();
         self.pending = None;
         self.echo_kind = crate::display::Message::Normal;
         self.echo.clear();
-        if let Some(path) = observed
+        if !root_changed
+            && let Some(path) = observed
             && let Err(error) = self.tree.observe_path(&path)
         {
             self.echo = format!("Opened {}; tree refresh failed: {error}", path.display());
             self.echo_kind = crate::display::Message::Warning;
         }
+        Ok(())
+    }
+
+    fn ingress_directory(&mut self, path: &Path) -> io::Result<()> {
+        let tree = self.tree.opening_directory(path, self.size)?;
+        self.stop_typing().map_err(io::Error::other)?;
+        self.tree = tree;
+        self.input.cancel();
+        self.pending = None;
+        self.message("Directory opened in file tree");
         Ok(())
     }
 

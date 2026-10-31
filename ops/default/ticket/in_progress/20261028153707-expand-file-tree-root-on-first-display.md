@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028153707
 title: Show the file-tree root expanded on first display
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: tree, navigation, directories
 source: chat
 reported_at: 2026-10-28T15:37:07Z
 ready_at: 2026-10-30T23:24:55Z
+started_at: 2026-10-31T03:02:07Z
+branch: feat/rev-wrap-navigation-05-directory-targets
 commits: []
 ---
 

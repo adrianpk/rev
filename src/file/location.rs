@@ -87,6 +87,31 @@ pub fn resolve(path: &Path) -> io::Result<Location> {
 }
 
 fn resolve_path(path: &Path) -> io::Result<Location> {
+    let resolved = components(path)?;
+    let observed = observe(&resolved)?;
+    let present = observed.is_some();
+    Ok(Location {
+        path: resolved,
+        basename: path.file_name().unwrap_or(path.as_os_str()).to_owned(),
+        present,
+        observed,
+    })
+}
+
+/// Directory opening shares component/alias resolution with file visits while
+/// retaining the regular-file invariant of Location and its disk observations.
+pub(crate) fn directory(path: &Path) -> io::Result<PathBuf> {
+    let resolved = components(path)?;
+    if !fs::symlink_metadata(&resolved)?.is_dir() {
+        return Err(io::Error::new(
+            io::ErrorKind::NotADirectory,
+            "expected a directory",
+        ));
+    }
+    Ok(resolved)
+}
+
+fn components(path: &Path) -> io::Result<PathBuf> {
     if path.as_os_str().is_empty() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
@@ -102,14 +127,7 @@ fn resolve_path(path: &Path) -> io::Result<Location> {
             _ => resolved.push(component.as_os_str()),
         }
     }
-    let observed = observe(&resolved)?;
-    let present = observed.is_some();
-    Ok(Location {
-        path: resolved,
-        basename: path.file_name().unwrap_or(path.as_os_str()).to_owned(),
-        present,
-        observed,
-    })
+    Ok(resolved)
 }
 
 fn origin(path: &Path) -> io::Result<PathBuf> {

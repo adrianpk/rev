@@ -4,6 +4,7 @@ mod entry;
 mod navigation;
 mod refresh;
 mod rename;
+mod root;
 
 pub use create::{CreateKind, Creation};
 pub use entry::Entry;
@@ -25,6 +26,7 @@ pub struct Tree {
     selected: usize,
     top: usize,
     policy: crate::config::Tree,
+    explicit_root: bool,
 }
 
 impl Tree {
@@ -107,14 +109,6 @@ impl Tree {
         }
         let maximum = (f64::from(size.width) * self.policy.max_fraction).floor() as u16;
         (self.policy.width as u16).min(maximum)
-    }
-
-    pub(crate) fn initial(&mut self, file: &Path) {
-        if self.policy.root != crate::config::TreeRoot::Cwd
-            && let Some(parent) = file.parent()
-        {
-            self.set_root(parent.to_path_buf());
-        }
     }
 
     pub(crate) fn toggle(&mut self, size: Size) -> io::Result<()> {

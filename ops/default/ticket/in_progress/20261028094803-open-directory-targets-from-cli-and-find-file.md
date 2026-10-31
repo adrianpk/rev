@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028094803
 title: Open directories from startup and find-file
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: files, directories, tree
 source: chat
 reported_at: 2026-10-28T09:48:03Z
 ready_at: 2026-10-30T23:41:32Z
+started_at: 2026-10-31T03:02:07Z
+branch: feat/rev-wrap-navigation-05-directory-targets
 commits: []
 ---
 

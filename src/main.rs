@@ -19,7 +19,7 @@ fn argument() -> io::Result<Option<PathBuf>> {
     if arguments.next().is_some() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "usage: rev [file]",
+            "usage: rev [file-or-directory]",
         ));
     }
     Ok(path)

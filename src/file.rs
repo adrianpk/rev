@@ -100,6 +100,7 @@ mod save;
 pub(crate) mod temporary;
 
 pub use delete::{DeleteDecision, Deleted, Deletion};
+pub(crate) use location::directory;
 pub use location::{Location, resolve};
 pub use observation::{Observation, observe};
 pub use output::{Files, Output};
