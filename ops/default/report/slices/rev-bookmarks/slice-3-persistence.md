@@ -1,6 +1,6 @@
 # Slice 3: Persistent collection
 
-Status: awaiting integration
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -96,3 +96,10 @@ Source fragments stored as context may describe unsaved text. Checked reopening
 never recreates discarded source content or claims historical identity from a
 context match. Listing and marker projection remain assigned to their recorded
 successor slices.
+
+Canonical PR #187 merged through Rebase + Fast-forward into `dev` at
+`1e260f4b0cf6b7928ca253c6edd4825dded1b5ed`. Required receipt
+`T6PVDVN5AX7IFM3ZIHASLJRYH5` passed the exact three-command list and 432
+integration tests. Focused receipt `XC6MAZMV4MM4YCKZOULFJDTK77` passed 89
+library tests, all-target clippy and documentation on the same clean candidate.
+The controller verified and recorded the merge in Acta. Slice 3 of 6 completed.

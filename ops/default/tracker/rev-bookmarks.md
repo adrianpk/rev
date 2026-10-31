@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3; canonical PR #187 awaiting controller checks and integration
+Active slice: Slice 4; list and ordered navigation, implementation in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -62,13 +62,17 @@ Acceptance: BMK05 and storage/limit parts of BMK07.
 
 - [x] T3.1: Implement versioned bounded TOML, lossless paths, lazy admission, locked checked publication and real writer-conflict coverage.
 - [x] T3.2: Add save/reload and quit policies, complete storage settings/defaults/references and recovery coverage.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 3 report.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 3 report.
 
 T3.1 storage commit: `88dc724e94768d26e5c7819bb9fedfe4ce47481b`.
 T3.2 policy commit: `e642f451f6938722cc35b82c7cc6b5754f36997b`.
 Canonical PR: [#187](https://forge.adrianpk.com/adrianpk/rev/pulls/187).
 [Slice 3 report](../report/slices/rev-bookmarks/slice-3-persistence.md) records
-native persistence, policy, failure and configuration coverage.
+native persistence, policy, failure and configuration coverage. PR #187 merged
+at `1e260f4b0cf6b7928ca253c6edd4825dded1b5ed`; required receipt
+`T6PVDVN5AX7IFM3ZIHASLJRYH5` passed 432 integration tests and all required
+checks. Focused receipt `XC6MAZMV4MM4YCKZOULFJDTK77` passed 89 library tests,
+all-target clippy and documentation.
 
 ## Slice 4: List and ordered navigation
 
@@ -101,5 +105,5 @@ Acceptance: BMK01-BMK07 jointly.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-Slices 1 and 2 are integrated. Slice 3 is active under the same controller run.
+Slices 1 through 3 are integrated. Slice 4 is active under the same controller run.
 Preserve previous delivery evidence under its original owners.
