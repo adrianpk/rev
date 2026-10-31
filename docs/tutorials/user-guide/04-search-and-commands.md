@@ -62,6 +62,17 @@ case; a query containing uppercase characters matches case exactly.
 See [Search and replacement](../../reference/search.md) and
 [Commands](../../reference/commands.md) for the complete rules.
 
+## Keep a named location
+
+At a place you want to revisit, press `C-x r m`, type `checkpoint` and press
+Enter. After moving elsewhere, `C-x r b`, `checkpoint`, Enter returns there.
+Bookmarks follow live edits and persist on ordinary quit. They do not save
+source text; continue using `C-x C-s` for that.
+
+`C-x r l` lists names, and `M-x bookmark-markers-mode` toggles their markers
+for the current pane. The [bookmark guide](../../how-to/use-bookmarks.md)
+explains replacement, deletion, checked reopening and storage recovery.
+
 Next: [Browse Files](05-file-tree.md).
 
 [Previous](03-buffers-and-panes.md) · [User Guide](index.md)

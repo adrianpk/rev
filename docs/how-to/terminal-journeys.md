@@ -1,7 +1,32 @@
 # Run terminal journeys
 
-Use Linux, Python 3 with its standard library, and the repository's Cargo
-toolchain. Run commands from the repository root.
+Use Linux and the repository's Cargo toolchain. The bookmark journey also uses
+Bash, util-linux `script`, `stty` and GNU `timeout`; the other suites below use
+Python 3 with its standard library. Run commands from the repository root.
+
+## Run bookmark restart acceptance
+
+```sh
+bash scripts/check-bookmarks.sh
+```
+
+This builds the repository's release editor and native acceptance example.
+An owned temporary HOME and XDG roots isolate all files and stores. Native
+sessions connect set/refusal, edits and undo, save, alias identity, shared views,
+list deletion, restart and checked context, folded targets and protected failure
+states. Two real PTY editor processes verify persisted jumps and deletion across
+a restart, independent markers and numbers, resize, cancellation, idle silence
+and restored terminal attributes.
+
+Each PTY child has an eight-second deadline and 1 MiB output limit. Read-only
+list frames are complete screens with a hidden cursor. Cleanup reaps only owned
+children and readers and removes their temporary roots. Installed executables
+and user stores are not used.
+
+The same entrypoint reports measured admission/rendering for 1024 bookmarks,
+large-source reversal and resize, cooperative relocation, peak Linux RSS and
+idle behavior. These are local observations; the strict resource and store
+bounds are documented in the [bookmark reference](../reference/commands.md#named-bookmarks).
 
 ## Run acceptance workflows
 

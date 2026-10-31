@@ -28,7 +28,9 @@ configuration/UI gate remains historical evidence for its original surface.
 | Minimum number digits | `gutter.minimum_digits = 4` | Startup setting | Global default used by views |
 | Left padding | `gutter.left_padding = 0` | Startup setting | Global default used by views |
 | Right padding | `gutter.right_padding = 1` | Startup setting | Global default used by views |
-| Palette | Four `palette.gutter` roles below | Startup setting | Renderer palette snapshot |
+| Palette | Number and bookmark `palette.gutter` roles below | Startup setting | Renderer palette snapshot |
+| Bookmark visibility | `bookmarks.markers = true` | `bookmark-markers-mode` | Active editing view |
+| Bookmark glyph | `bookmarks.marker = "●"` | Startup setting | Immutable view startup glyph |
 | Effective policy/source | Derived from resolved settings and overrides | Inspect | Active editing view |
 | Restore configured defaults | Existing immutable startup settings | Reset | Active editing view |
 
@@ -47,6 +49,9 @@ configuration/UI gate remains historical evidence for its original surface.
 | `palette.gutter.foreground` | Six-digit RGB | `#565f89` |
 | `palette.gutter.current_line` | Six-digit RGB | `#7aa2f7` |
 | `palette.gutter.separator` | Six-digit RGB | `#3b4261` |
+| `palette.gutter.bookmark` | Six-digit RGB | `#e0af68` |
+| `bookmarks.markers` | Boolean | `true` |
+| `bookmarks.marker` | One printable non-control grapheme, terminal width one | `●` |
 
 Colors reuse the pinned Tokyo Night night palette selected by the existing
 configuration model. Omitted leaves inherit through built-ins, includes and
@@ -76,6 +81,11 @@ background = "#1a1b26"
 foreground = "#565f89"
 current_line = "#7aa2f7"
 separator = "#3b4261"
+bookmark = "#e0af68"
+
+[bookmarks]
+markers = true
+marker = "●"
 ```
 
 These keys and alternatives are documented in the exhaustive reference sample
@@ -87,8 +97,7 @@ M-x operations change view-local overrides immediately.
 
 Every listed command must have a real Rust handler and be discoverable through
 M-x. Aliases use existing context-keymap validation; no executable config body
-is evaluated. Do not claim Emacs or Odra command-name compatibility beyond the
-explicit names retained here.
+is evaluated. The explicit names retained here define the native control surface.
 
 | Command | Active-view outcome |
 | --- | --- |
@@ -119,10 +128,34 @@ startup policy, including visibility, width and padding, for that view only.
 Reuse existing buffer/view identities and source line metadata. Closing a view
 releases its policy/projection; switching its buffer invalidates old labels and
 recomputes width, without changing the view's chosen presentation policy.
-No marker store, provider generation registry or future bookmark/LSP adapter
-is introduced by these records.
+The number records introduce no marker store or provider generation registry.
+The fixed bookmark projection borrows the separate canonical bookmark owner;
+its derived index and view visibility do not introduce another source/history owner.
 
-## Related future specifications
+## Fixed marker projection
+
+The optional one-cell area is allocated from the remaining content after the
+complete available number field. Its side follows `gutter.side`; the final text
+area is shared by painting, reveal, wrapping, pointer hits and search. The marker
+is omitted first under narrow geometry, preserving the three-column text minimum.
+Both requested policies survive temporary omission. Reset clears number overrides
+only; it does not change the independent marker visibility.
+
+The buffer owns a derived logical-row set keyed by source stamp, canonical file
+identity and collection generation. Revision-current resolved anchors populate
+it using the rope's line index; peer views reuse it. A record mutation, edit,
+load/resolution or path change rejects the old index. Closing the buffer releases
+it. Each visible row performs a set lookup, not a collection scan. No index or
+view policy is serialized.
+
+Multiple names on one logical line coalesce to one glyph. Only the first visual
+fragment receives it. Folded bodies, continuation rows and filler remain blank.
+Lazy storage admission occurs through native session transitions on first enabled
+marker demand for a file-backed view. Painting neither reads storage/targets nor
+relocates or saves records. The original numbering validation metadata above
+remains historical; the bookmark tracker owns the extension's separate evidence.
+
+## Related contracts
 
 Bookmark state belongs to the separate [bookmark specification](editor-bookmarks.md)
 and its [model](editor-bookmarks-model.md). Completion and optional

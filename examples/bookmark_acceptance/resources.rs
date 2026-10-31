@@ -158,7 +158,7 @@ pub(super) fn run(root: &Path) -> Result<()> {
     bookmark(&mut reopened, B::Jump, "record-0512");
     let mut passes = 0;
     // The approved search window is 262144 scalars and each pass consumes at
-    // most 16384. This finite ceiling covers both streaming context passes and
+    // most 16384. This finite ceiling covers streaming context search and
     // native publication; cancellation above must retire the same pending work.
     while reopened.remaining_input(Instant::now()).is_some() {
         assert!(passes < 128, "bounded relocation failed to retire");

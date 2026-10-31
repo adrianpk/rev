@@ -12,15 +12,16 @@ Related contract: [Editor Interaction](editor-interaction.md), UI01
 Configuration: [Editor Configuration](editor-configuration.md)
 Rev baseline revision: `756e540b0830866fb0dfd59c045dff5958c11095`
 Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
-Scope clarified: product owner, 2026-10-27; native numbering now, bookmarks and LSP completion later
+Original scope: product owner, 2026-10-27; native numbering; bookmarks have a separate subsequent delivery
 Controls clarified: user settings, compiled M-x commands, or both according to the concern
 Model: [Editor Gutter Model](editor-gutter-model.md)
+Bookmark extension: [Bookmarks plan](../plan/rev-bookmarks.md); [tracker](../tracker/rev-bookmarks.md) owns its separate validation evidence
 
 ## Purpose
 
 Provide absolute and relative logical line numbers in rev's editing views,
-implemented entirely in Rust. Preserve Odra's numbering, geometry, Unicode,
-per-view ownership and lifecycle guarantees within rev's smaller product scope.
+implemented entirely in Rust. Keep logical numbering, checked terminal-cell
+geometry, Unicode fidelity, per-view ownership and coherent source lifetimes.
 
 Rev is a fast, CPU- and memory-efficient text editor with useful factory behavior.
 The common editing path must be comfortable without additional configuration.
@@ -37,7 +38,7 @@ The current gutter capability comprises:
 
 - absolute logical line numbers;
 - relative logical line numbers using each view's point;
-- Odra's independent current-line form: absolute, zero or hidden, defaulting
+- an independent current-line form: absolute, zero or hidden, defaulting
   to the real one-based number with distinct semantic styling;
 - stable number width, correct cell accounting and protected text geometry;
 - built-in Rust commands to select a mode and hide/restore numbers; and
@@ -50,7 +51,8 @@ Related work is captured separately in the specifications for
 [native autocompletion](editor-autocompletion.md),
 [optional LSP support](editor-language-server-support.md) and
 [language-server installation](editor-language-server-installation.md).
-These topics do not extend the accepted numbering implementation.
+The bookmark delivery adds only its fixed native marker projection under BMK03.
+The other capabilities retain their own scope and authority.
 
 The earlier programmable-provider, arbitrary-lane, marker-inspection and popup
 proposals are omitted. Search/mark annotations, clipping glyphs, VCS, debugging
@@ -62,32 +64,24 @@ The original proposal and adaptation record below retain their provenance.
 The approved input/navigation plan and tracker now own implementation and
 controller authority; this specification alone grants no publication authority.
 
-## Reference and adaptation
+## Native numbering contract
 
-Reference: Odra, `ops/default/spec/stable/gutter-and-line-annotations.md`,
-revision `f701c830b88e2088bb8de93ba9fee2dd0cd111f1`, file SHA256
-`33656dbfb012d807895f4fd4e8b25a8923addcbdfc3b3a11727fe99f8f7be0fe`.
-Read together with Odra's `docs/reference/gutter/index.md`, its User Guide
-chapter `interface/gutter-and-transient-details.md`, and its factory numbering
-and geometry contracts. This reference identifies behavior, not copied code.
-
-| Odra behavior | Rev treatment |
+| Concern | Native behavior |
 | --- | --- |
-| Gutter belongs to the text view | Retain inside the existing panel content bounds. |
-| Independent policies for views sharing text | Retain independent point, relative origin, visibility and mode. |
-| Absolute, relative, hybrid and hidden presentation | Two calculation modes: absolute and relative. Current-line form is independently selectable; visibility is separate. |
-| Logical line scope | Retain, including empty lines, CRLF and blank viewport padding. |
-| Four minimum digits, right alignment, stable width | Retain; width uses buffer line count rather than cursor distance. |
-| Unicode and terminal-cell accounting | Retain one checked geometry/display contract and ASCII separator fallback. |
-| Narrow-panel text protection | Retain; hide numbers before consuming the protected text area. |
-| Programmable providers and generic lanes | Omit; the current implementation only needs native numbering. |
-| Semantic annotation families | Future bookmarks have explicit product direction; other families are not implied. |
-| Theme/frontend extension surface | Reuse rev's palette and terminal renderer. |
+| Ownership | Derive the gutter within the editing panel; canonical text remains buffer-owned. |
+| Shared source | Each view retains independent point, relative origin, visibility and mode. |
+| Calculation | Absolute and relative modes; an independently selected current-line form and visibility. |
+| Logical lines | Preserve empty lines and CRLF identity; viewport filler has no source number. |
+| Width | Right-align at least four digits; derive width from the complete source count. |
+| Coordinates | One Unicode/terminal-cell contract, including the one-cell ASCII separator fallback. |
+| Narrow panes | Protect three text columns and hide a number field as a whole when necessary. |
+| Bookmark extension | One fixed marker cell under BMK03, with independent per-view visibility. |
+| Other annotations | No generic lanes, programmable providers or additional annotation families. |
+| Palette | Use the existing immutable semantic renderer palette. |
 
-Odra's relative and hybrid factory calculations use logical distance for
-non-current rows and a separate current-row policy. Rev retains that independent
-current-row policy and its absolute factory default with two user-facing
-calculation modes.
+The relative calculation uses logical distance for noncurrent rows and a
+separate current-row policy. The factory current-row form is absolute in either
+calculation mode.
 
 ## Factory behavior and controls
 
@@ -137,7 +131,7 @@ pane's point. Relative values SHALL NOT count terminal cells or visible rows.
 
 The current-line form SHALL be independently selectable as `absolute`, `zero`
 or `hidden`, with distinct semantic styling and absolute as the factory default,
-following Odra. Visibility SHALL be separate from the selected calculation;
+Visibility SHALL be separate from the selected calculation;
 hiding and restoring numbers SHALL retain the mode.
 
 #### Scenario: Relative numbers preserve the real current line
@@ -213,9 +207,11 @@ and syntax style ranges SHALL use that same final text origin and extent.
 A literal tab's logical stops SHALL NOT shift merely because a gutter becomes
 visible or changes sides. Gutter cells SHALL NOT scroll horizontally with text.
 
-The number field SHALL have explicit reserved bounds and order within its
-editing panel. It SHALL NOT overwrite borders, status, the prompt or another
-pane. Layout SHALL resolve before the text and number rows are drawn.
+The number field and optional native bookmark cell SHALL have explicit
+reserved bounds and order within their editing panel. They SHALL NOT overwrite
+borders, status, the prompt or another
+pane. Layout SHALL resolve before text, numbers and markers are drawn.
+The fixed bookmark cell follows BMK03; it introduces no generic lane API.
 
 #### Scenario: Tabbed text in a nested panel
 
@@ -229,8 +225,9 @@ pane. Layout SHALL resolve before the text and number rows are drawn.
 The gutter SHALL yield to the panel's admitted minimum text area. Numbers SHALL
 hide as a complete field
 rather than consume protected text columns or render a false truncated label.
-A temporarily hidden lane SHALL retain its requested policy and restore it
-when geometry permits.
+A temporarily hidden field SHALL retain its requested policy and restore it
+when geometry permits. The optional bookmark cell SHALL be omitted before
+sacrificing available complete number geometry or the three-column text minimum.
 
 Zero/tiny dimensions SHALL preserve view state through the baseline suspended
 presentation path. File tree, prompts and completion panels SHALL NOT receive
@@ -240,7 +237,7 @@ source-editor line numbers merely because they use the panel abstraction.
 
 - **GIVEN** two independently configured gutters and an active completion prompt
 - **WHEN** the terminal shrinks to unusable dimensions and grows again
-- **THEN** gutter lanes recover their prior requested policy within valid bounds
+- **THEN** gutter fields recover their prior requested policy within valid bounds
 - **AND** document text, independent points, prompt draft and focus remain intact.
 
 ### Requirement: GUT10 Safe number rendering and semantic palette
@@ -354,10 +351,12 @@ cursor/scroll and idle workloads; no runtime result is claimed by this specifica
 - **THEN** labels and text overlays agree with each view's current projection
 - **AND** canonical text, file fidelity, undo truth and terminal restoration remain correct.
 
-## Related future specifications
+## Related contracts
 
-- [Native Bookmarks](editor-bookmarks.md): real bookmark ownership and later
-  marker integration; location, navigation and persistence choices remain open.
+- [Native Bookmarks](editor-bookmarks.md) and its [model](editor-bookmarks-model.md)
+  own the user-wide named collection, checked navigation, persistence and fixed
+  marker projection. Runtime Slices 1-5 are integrated; joint acceptance and
+  guidance are the final slice of their separate approved delivery.
 - [Native Autocompletion](editor-autocompletion.md): compiled Rust interaction,
   preferred operational LSP and Tree-sitter-only fallback; no ctags.
 - [Language Server Support](editor-language-server-support.md): optional client,
@@ -366,8 +365,8 @@ cursor/scroll and idle workloads; no runtime result is claimed by this specifica
   optional installation/discovery, Rust priority, secondary languages including
   Odin and easy additional server connections.
 
-These drafts preserve the discussed direction and remaining questions. None
-adds runtime work or dependencies to this accepted gutter specification.
+The completion and server drafts preserve their own remaining questions. They
+add no runtime work or dependencies to the numbering or bookmark deliveries.
 
 ## Validation obligations
 
@@ -388,19 +387,40 @@ adds runtime work or dependencies to this accepted gutter specification.
 - A real PTY editing journey, file fidelity, terminal cleanup, bounded large-
   buffer CPU/memory work and event-driven idle behavior.
 
-These are future implementation obligations, not completed tests. Odra's
-cell-accounting and sanitization audit findings inform boundary coverage;
-they are not asserted as reproduced rev bugs.
+The original numbering candidate and gate above establish the completed
+numbering delivery. Bookmark marker validation belongs to its own plan, tracker
+and slice reports; the historical numbering gate does not validate that extension.
 
 ## State and delivery boundary
 
 The companion model adds preferences to the existing TOML schema. It creates no
 independent settings store or persistent annotation entity. Runtime overrides
-and geometry remain ordinary view/session state. Future bookmark or LSP
-contracts will define their own actual state and persistence when needed.
+and geometry remain ordinary view/session state. The bookmark model owns its
+canonical collection and persistence. Optional LSP state remains outside this
+capability.
 
 The accepted specification and model are versioned. The product owner selected
 this bounded capability for the combined input/navigation/presentation delivery.
 Its plan and tracker own slicing, implementation and controller authority; the
 completed configuration/UI validation remains historical evidence. Reconcile
 current configuration/view contracts without expanding gutter behavior.
+
+## Fixed bookmark marker extension
+
+BMK03 extends this projection with one cell while `bookmarks.markers` is enabled,
+independently of number visibility. It uses `gutter.side`, preserves number
+format/separator behavior and the protected text minimum, and restores requested
+presentation when space returns. Splits inherit marker visibility; later changes
+remain view-local. Number-policy reset does not reset marker visibility.
+
+The current buffer/revision index coalesces resolved locations by logical source
+line. Only its first visual fragment receives the configured glyph; continuations,
+filler and folded bodies remain blank. A jump reveals the actual target instead
+of painting a surrogate heading. Paint performs no filesystem IO, relocation or
+persistence. Named records and their store belong to the bookmark owner, with no
+new provider registry or source-text copy.
+
+The bookmark settings and semantic palette leaf are admitted through the
+existing startup schema and complete catalog. The bookmark tracker retains the
+new exact-candidate evidence and combined gate; the original GUT identities and
+numbering validation fields remain unchanged.

@@ -172,6 +172,8 @@ See [Org native task workflows](org/commands.md#native-task-workflows).
 
 ## Named bookmarks
 
+For a task sequence, see [Save and revisit named locations](../how-to/use-bookmarks.md).
+
 `C-x r m` (`bookmark-set`) records the current file position under a name.
 Return with an empty draft uses the visited basename shown as the default;
 type a name to distinguish positions in the same file. Names are case-sensitive,
@@ -194,8 +196,11 @@ change its modified flag, or add source undo steps. Aliases reuse the canonical
 live file buffer, including unsaved text, and visiting a bookmark preserves an
 explicit file-tree root. Rectangle bindings under C-x r remain available.
 
-The user-wide collection loads lazily on first bookmark use or a canonical
-rename/save-as demand, so closed records can follow that path change. Live positions follow canonical
+### Checked source locations
+
+The user-wide collection loads lazily on first bookmark use, enabled marker
+demand for a file-backed view, or canonical rename/save-as demand, so closed
+records can follow that path change. Live positions follow canonical
 edits, structural moves and source undo/redo. Insertions at the point use left
 affinity. Removing the original position makes it stale; source undo can restore
 it, or an explicit set can replace it. Undo does not recreate deleted names or
@@ -214,6 +219,8 @@ Discarded text is never recreated for a bookmark. Successful file or directory
 rename updates associated records, including closed targets; save-as follows
 the canonical buffer destination. Jumps reveal folded ancestors and wrapped
 fragments in the selected view without changing other splits' fold state.
+
+### Storage and recovery
 
 `M-x bookmark-save` stores the collection without saving any source document.
 By default, quitting saves bookmarks after all source save/discard decisions.
@@ -246,12 +253,45 @@ A failure after publication remains unresolved until actual candidate bytes
 and sync completion reconcile. Newly owned data directories/files are private
 to the user. The stable sibling lock file may remain after the OS lock releases.
 
+For a whole short file containing `Notes` and a final newline, a stored BOF
+record has this form:
+
+```toml
+version = 1
+
+[[bookmarks]]
+name = "notes-start"
+path = "/work/notes.txt"
+position = 0
+before = ""
+after = "Notes\n"
+at_start = true
+at_end = true
+```
+
+The example path is illustrative. Positions count source Unicode scalars,
+not bytes, screen columns or wrapped rows. Non-UTF-8 native paths use an encoded
+`path_bytes` array instead of `path`; exactly one is present. An empty store has
+only `version = 1`. View policy, transient IDs and lookup indexes are not stored.
+
+### Native list and ordered visits
+
 `C-x r l` (`list-bookmarks`) opens a native read-only `*Bookmarks*` view in the
 selected pane. It lists names lexically with file paths and observed resolved,
 unresolved, stale or unavailable status; opening and painting do not read target
 sources. Up/Down, C-p/C-n or p/n moves between rows. Return visits the selected
 stable record through the checked jump owner. A failed or canceled visit retains
 the list and originating source.
+
+| Observed status | Meaning |
+| --- | --- |
+| resolved | A valid anchor in the current live source revision. |
+| unresolved | Stored or closed-file context has not been checked against a live source. |
+| stale | An edit removed the original point; retained source history can restore it. |
+| unavailable | A checked target path could not be opened. |
+
+Status is an observation, not a background filesystem poll. A failed context
+check can retain an unresolved record with its diagnostic until another visit.
 
 In the list, `bookmark-bmenu-delete` (`d`) marks a record and advances;
 `bookmark-bmenu-unmark` (`u`) clears its mark and advances.
@@ -276,6 +316,8 @@ Changing direction steps back through that same order. Point movement, source
 edits, pane changes and collection mutations reset the repetition observation.
 Unresolved, stale and unavailable records are retained but skipped; an empty
 eligible set reports a clear result and suggests a checked jump by name.
+
+### Bookmark markers
 
 `M-x bookmark-markers-mode` toggles markers for the current editing view. Splits
 inherit its effective visibility; other views retain their policy. Enabled

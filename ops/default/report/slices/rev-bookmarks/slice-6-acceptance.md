@@ -1,6 +1,6 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -22,6 +22,12 @@ Two real editor processes exercise persisted jumps and deletion across a
 restart, independent markers/numbering, resize, cancellation, idle silence and
 terminal restoration.
 
+A task guide is linked from the existing search/commands learning chapter and
+the how-to index. The command reference documents exact status, store layout,
+save/reload and marker behavior, with focused prompt/feedback examples. The
+line-number reference describes the independent marker cell and number-priority
+geometry. The single Unreleased bookmark entry links the guide.
+
 ## Implementation Notes
 
 The Bash/Rust fixture follows the existing native/PTY approach. Each terminal
@@ -40,6 +46,10 @@ idle observations. They report actual latency and Linux peak RSS.
 
 The configured acceptance command gains its native/PTY producer. The existing
 runtime resource and persistence contracts remain the acceptance assertions.
+Directly related gutter clauses now include BMK03 while preserving every GUT
+requirement identity and the original numbering candidate/gate metadata. The
+bookmark tracker owns its separate integrated gate evidence; unrelated pending
+capabilities retain their own scope.
 The controller retains the unchanged combined gate and integration authority.
 
 ## Files of Interest
@@ -47,6 +57,9 @@ The controller retains the unchanged combined gate and integration authority.
 - `scripts/check-bookmarks.sh`: temporary roots, release build and PTY wrapper.
 - `examples/bookmark-acceptance.rs`: joint acceptance entrypoint.
 - `examples/bookmark_acceptance/`: native journey, resource probe and bounded PTY driver.
+- `docs/how-to/use-bookmarks.md`: task guide and focused feedback examples.
+- `docs/reference/commands.md` and `docs/reference/gutter.md`: exact behavior and presentation.
+- `ops/default/spec/editor-gutter*.md`: reconciled marker clauses and preserved numbering evidence.
 
 ## Validation
 
@@ -75,6 +88,12 @@ Development resource observations on a 2,477,825-byte source with 1024 records:
 | Longest measured projection/input/relocation pass | 0.898ms |
 | Process peak RSS | 24468 kB |
 | Idle | No deadline; future expiry returned Wait |
+
+Development `cargo run --locked --quiet --example documentation-check` passed
+319 commands, 189 configuration entries, 59 pages and 341 links/anchors. Its
+initial strict command-table check treated code-styled status labels as command
+names; those labels now use ordinary text. The checker and command assertions
+remain unchanged. All complete sample/catalog defaults remain consistent.
 
 Final clean-HEAD checks follow all task and canonical PR-reference commits,
 in this exact required order:

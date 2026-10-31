@@ -8,8 +8,8 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Name file positions with `C-x r m`, return with `C-x r b`, and remove names
-  with `M-x bookmark-delete`. `C-x r M` prevents accidental replacement.
+- [Name file positions](docs/how-to/use-bookmarks.md) with `C-x r m`, return
+  with `C-x r b`, and remove names with `M-x bookmark-delete`. `C-x r M` prevents accidental replacement.
   Vertical name completion supports selection, Tab and cancellation. Bookmarks
   persist across sessions and follow edits, structural moves, undo, rename
   and save-as. Closed files reopen through checked context; ambiguous, removed

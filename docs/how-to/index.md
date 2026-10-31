@@ -7,6 +7,7 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 
 - [Install rev](install-rev.md): install the editor from a source checkout.
 - [Edit and save files](edit-files.md): open a file, save it or choose another filename.
+- [Save and revisit named locations](use-bookmarks.md): keep bookmarks across sessions, manage names and control their markers.
 - [Configure indentation by language](language-indentation.md): give Rust files their own indentation settings.
 - [Recover edits](recover-edits.md): resolve file, save and tree errors while retaining live text.
 

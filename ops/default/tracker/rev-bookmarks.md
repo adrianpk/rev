@@ -116,8 +116,13 @@ checks. Focused receipt `SP6SDUHTN66V4MVJPA2CCVBFHT` passed 12 owner tests,
 Acceptance: BMK01-BMK07 jointly.
 
 - [x] T6.1: Add the bounded Bash/Rust native/PTY restart journey and resource measurements.
-- [ ] T6.2: Complete user guidance, focused text examples, changelog, sample/reference consistency and related gutter reconciliation.
+- [x] T6.2: Complete user guidance, focused text examples, changelog, sample/reference consistency and related gutter reconciliation.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 6 report.
+
+T6.1 acceptance commit: `fd2e7ea03f7bafdebeadea9dc6b5874d4e47e548`.
+The native/PTY journey and resource probe passed during development; the
+documentation checker passed 319 commands, 189 settings, 59 pages and 341 links.
+Final controller validation follows canonical PR preparation.
 
 ## Final gate and closure
 

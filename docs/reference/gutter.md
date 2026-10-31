@@ -73,6 +73,36 @@ for all supported values. Includes and root leaves merge independently. Invalid
 preferences reject the complete candidate. Editing TOML affects the next startup;
 runtime reset continues using the running session's snapshot.
 
+## Bookmark markers
+
+Each editing view initially reserves one additional marker cell between its
+number field and text, on `gutter.side`. A resolved bookmarked source line shows
+the configured glyph there, even when numbers are hidden. Several names on one
+line share one glyph. A simplified left-gutter example is:
+
+```text
+   2 │●TARGET here
+   3 │ next line
+```
+
+Only the first visual fragment receives a marker. Continuations, filler and
+folded bodies stay blank; a checked visit reveals a folded target. Loaded or
+stale records have no resolved marker. Painting never opens, relocates or saves
+a target. Markers, like numbers, are absent from source bytes and selections.
+
+`M-x bookmark-markers-mode` toggles only the selected pane. Splits inherit its
+visibility and later changes remain independent. Numbering commands, including
+reset, affect number policy; they do not reset marker visibility. With little
+space, numbers receive their existing complete field first. The marker is
+omitted before reducing available number geometry or the three-column text
+minimum, and reappears when space returns.
+
+`bookmarks.markers` defaults to `true`; `bookmarks.marker` defaults to `"●"`
+and must be one printable non-control grapheme of terminal width one.
+`palette.gutter.bookmark` defaults to `"#e0af68"`. See the
+[bookmark guide](../how-to/use-bookmarks.md) and
+[reference](commands.md#named-bookmarks) for setting, listing and saving names.
+
 In a folded native Org view, displayed labels retain original logical source
 line numbers across hidden ranges. Relative labels measure logical source-line
 distance from point, and current-line emphasis follows that same source identity.
