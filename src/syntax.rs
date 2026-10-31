@@ -27,6 +27,7 @@ pub struct Syntax {
     stamp: Option<Stamp>,
     source: Option<Stamp>,
     incremental: bool,
+    working: bool,
 }
 
 struct Parsed {
@@ -45,6 +46,7 @@ impl Syntax {
             stamp: None,
             source: None,
             incremental: false,
+            working: false,
         }
     }
 
@@ -92,6 +94,9 @@ impl Syntax {
     }
 
     fn refresh(&mut self, text: RopeSlice<'_>, stamp: Stamp, options: Option<ParseOptions<'_>>) {
+        if self.working {
+            return;
+        }
         if self.stamp == Some(stamp) {
             return;
         }
@@ -124,6 +129,20 @@ impl Syntax {
             )
             .expect("current whole buffer");
         parsed.captures(Source(text), bytes)
+    }
+}
+
+impl Syntax {
+    pub(crate) fn take_work(&mut self) -> Option<Self> {
+        if self.working || self.parsed.is_none() {
+            return None;
+        }
+        let work = std::mem::take(self);
+        self.working = true;
+        Some(work)
+    }
+    pub(crate) fn working(&self) -> bool {
+        self.working
     }
 }
 

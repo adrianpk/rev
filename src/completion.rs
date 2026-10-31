@@ -1,4 +1,5 @@
 //! Disposable native proposals. Canonical buffers retain edit/history ownership.
+pub(crate) mod job;
 mod matching;
 mod target;
 
@@ -10,6 +11,64 @@ pub(crate) const MAX_SYMBOLS: usize = 4096;
 pub(crate) const MAX_LABEL: usize = 512;
 pub(crate) const MAX_CANDIDATES: usize = 200;
 pub(crate) const WORK_TIME: std::time::Duration = std::time::Duration::from_millis(50);
+
+#[derive(Clone)]
+pub(crate) struct Request {
+    pub generation: u64,
+    pub view: ViewId,
+    pub point: Point,
+    source: Span,
+    prefix: String,
+    original: String,
+    byte: usize,
+    pub manual: bool,
+    pub due: std::time::Instant,
+}
+
+impl Request {
+    pub(crate) fn capture(
+        buffer: &Buffer,
+        view: ViewId,
+        generation: u64,
+        point: Point,
+    ) -> Result<Self, String> {
+        let (source, prefix) = target::at(buffer, point).map_err(|e| e.to_string())?;
+        let original = buffer
+            .slice(&source)
+            .map_err(|e| e.to_string())?
+            .to_string();
+        let byte = crate::coordinates::Coordinates::new(buffer)
+            .map_err(|e| e.to_string())?
+            .to_byte(point.position)
+            .map_err(|e| e.to_string())?
+            .0;
+        Ok(Self {
+            generation,
+            view,
+            point,
+            source,
+            prefix,
+            original,
+            byte,
+            manual: true,
+            due: std::time::Instant::now(),
+        })
+    }
+    pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
+        let candidates = matching::candidates(symbols, &self.prefix, &self.original, self.byte);
+        Completion {
+            generation: self.generation,
+            view: self.view,
+            point: self.point,
+            source: self.source,
+            candidates,
+            selected: 0,
+        }
+    }
+    pub(crate) fn current(&self, view: ViewId, point: Point) -> bool {
+        self.view == view && self.point == point
+    }
+}
 
 #[derive(Debug)]
 pub(crate) struct Symbol {
@@ -49,6 +108,7 @@ pub struct Completion {
 }
 
 impl Completion {
+    #[cfg(test)]
     pub(crate) fn new(
         buffer: &Buffer,
         view: ViewId,
@@ -56,25 +116,7 @@ impl Completion {
         context: (Point, Vec<Symbol>),
     ) -> Result<Self, String> {
         let (point, symbols) = context;
-        let (source, prefix) = target::at(buffer, point).map_err(|e| e.to_string())?;
-        let original = buffer
-            .slice(&source)
-            .map_err(|e| e.to_string())?
-            .to_string();
-        let byte = crate::coordinates::Coordinates::new(buffer)
-            .map_err(|e| e.to_string())?
-            .to_byte(point.position)
-            .map_err(|e| e.to_string())?
-            .0;
-        let candidates = matching::candidates(symbols, &prefix, &original, byte);
-        Ok(Self {
-            generation,
-            view,
-            point,
-            source,
-            candidates,
-            selected: 0,
-        })
+        Ok(Request::capture(buffer, view, generation, point)?.complete(symbols))
     }
 
     pub fn candidates(&self) -> &[Candidate] {

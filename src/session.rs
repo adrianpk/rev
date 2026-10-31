@@ -92,6 +92,7 @@ pub struct Session {
     completion: Option<Completion>,
     completion_generation: u64,
     completion_request: Option<u64>,
+    completion_work: crate::completion::job::Work,
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
@@ -283,6 +284,7 @@ impl Session {
             completion: None,
             completion_generation: 0,
             completion_request: None,
+            completion_work: crate::completion::job::Work::default(),
             bookmark_visit: None,
             bookmark_storage,
             bookmark_list: None,
@@ -453,6 +455,9 @@ impl Session {
     fn refresh_frame(&mut self) -> Result<(), view::Error> {
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
+            if self.completion_work.owns(view.point.stamp.buffer) {
+                continue;
+            }
             self.buffers
                 .get_mut(view.point.stamp.buffer)?
                 .refresh_syntax();

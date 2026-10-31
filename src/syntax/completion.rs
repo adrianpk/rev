@@ -28,11 +28,27 @@ pub(super) fn query(language: &tree_sitter::Language) -> Option<Query> {
 }
 
 impl Syntax {
+    #[cfg(test)]
     pub(crate) fn declarations(
         &self,
         text: RopeSlice<'_>,
         stamp: Stamp,
         deadline: Instant,
+    ) -> Result<Vec<Symbol>, String> {
+        self.declarations_with(
+            text,
+            stamp,
+            deadline,
+            &std::sync::atomic::AtomicBool::new(false),
+        )
+    }
+
+    pub(crate) fn declarations_with(
+        &self,
+        text: RopeSlice<'_>,
+        stamp: Stamp,
+        deadline: Instant,
+        cancel: &std::sync::atomic::AtomicBool,
     ) -> Result<Vec<Symbol>, String> {
         if self.mode(stamp) != "Rust" {
             return Err("Native Rust completion is unavailable for this buffer".into());
@@ -45,13 +61,13 @@ impl Syntax {
             .ok_or("Rust completion query is unavailable")?;
         let mut cursor = QueryCursor::new();
         cursor.set_match_limit(4096);
-        let mut progress = |_: &tree_sitter::QueryCursorState| expired(deadline);
+        let mut progress = |_: &tree_sitter::QueryCursorState| expired(deadline, cancel);
         let options = QueryCursorOptions::new().progress_callback(&mut progress);
         let mut captures =
             cursor.captures_with_options(query, tree.root_node(), Source(text), options);
         let mut symbols = Vec::new();
         while let Some((matched, index)) = captures.next() {
-            if Instant::now() >= deadline || symbols.len() >= MAX_SYMBOLS {
+            if stopped(deadline, cancel) || symbols.len() >= MAX_SYMBOLS {
                 return Err("Native completion work or symbol limit reached".into());
             }
             let capture = matched.captures()[*index];
@@ -63,15 +79,19 @@ impl Syntax {
                 symbols.push(symbol);
             }
         }
-        if cursor.did_exceed_match_limit() || Instant::now() >= deadline {
+        if cursor.did_exceed_match_limit() || stopped(deadline, cancel) {
             return Err("Native completion work limit reached".into());
         }
         Ok(symbols)
     }
 }
 
-fn expired(deadline: Instant) -> ControlFlow<()> {
-    if Instant::now() >= deadline {
+fn stopped(deadline: Instant, cancel: &std::sync::atomic::AtomicBool) -> bool {
+    Instant::now() >= deadline || cancel.load(std::sync::atomic::Ordering::Acquire)
+}
+
+fn expired(deadline: Instant, cancel: &std::sync::atomic::AtomicBool) -> ControlFlow<()> {
+    if stopped(deadline, cancel) {
         ControlFlow::Break(())
     } else {
         ControlFlow::Continue(())

@@ -6,6 +6,37 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(crate) fn completion_snapshot(&mut self) -> Result<(ropey::Rope, Syntax), String> {
+        if self.is_readonly() {
+            return Err("buffer is read-only".into());
+        }
+        if self.len_bytes() > crate::completion::MAX_BYTES {
+            return Err("Native completion buffer exceeds 2 MiB".into());
+        }
+        if !self.prepare_syntax() {
+            return Err("Native completion syntax is unavailable".into());
+        }
+        let syntax = self
+            .syntax
+            .take_work()
+            .ok_or("Native syntax work is already owned")?;
+        Ok((self.text.clone(), syntax))
+    }
+
+    pub(crate) fn restore_completion_syntax(&mut self, syntax: Syntax) {
+        if self.syntax.working() {
+            self.syntax = syntax;
+        }
+    }
+
+    pub(crate) fn abandon_completion_syntax(&mut self) {
+        if self.syntax.working() {
+            self.syntax = Syntax::default();
+            self.syntax_active = false;
+        }
+    }
+
+    #[cfg(test)]
     pub(crate) fn completion_symbols(
         &mut self,
         deadline: std::time::Instant,

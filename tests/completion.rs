@@ -46,6 +46,9 @@ fn text(session: &Session) -> String {
 
 fn key(session: &mut Session, code: KeyCode, modifiers: KeyModifiers) {
     session.handle(Event::Key(KeyEvent::new(code, modifiers)));
+    if code == KeyCode::Tab && modifiers == KeyModifiers::ALT {
+        settle(session);
+    }
 }
 
 // Native M-TAB and named invocation preselect without editing. Both acceptance
@@ -82,7 +85,7 @@ fn navigation_and_cancel() {
         let (_fixture, mut session) = source(SOURCE);
         let original = text(&session);
         let point = session.view().point;
-        session.execute(Command::Completion(C::AtPoint));
+        complete(&mut session);
         key(&mut session, KeyCode::Down, KeyModifiers::NONE);
         assert_eq!(session.completion().unwrap().selected(), Some(1));
         key(&mut session, KeyCode::Char('p'), KeyModifiers::CONTROL);
@@ -116,7 +119,7 @@ fn literal_ranges() {
         ("subsequence", SOURCE, "{ config }"),
     ] {
         let (_fixture, mut session) = source(document);
-        session.execute(Command::Completion(C::AtPoint));
+        complete(&mut session);
         if name == "subsequence" {
             session.execute(Command::Completion(C::Next));
         }
@@ -136,7 +139,7 @@ fn literal_ranges() {
 fn stale_targets() {
     for change in ["edit", "point", "view", "buffer", "paste"] {
         let (fixture, mut session) = source(SOURCE);
-        session.execute(Command::Completion(C::AtPoint));
+        complete(&mut session);
         match change {
             "edit" => {
                 session.replace(0..0, "// changed\n").unwrap();
@@ -181,7 +184,7 @@ fn admitted_sources() {
         ("fn sample() {}\nfn main() { no_match| }", None),
     ] {
         let (_fixture, mut session) = source(document);
-        session.execute(Command::Completion(C::AtPoint));
+        complete(&mut session);
         assert_eq!(
             session.completion().map(|c| c.candidates()[0].text()),
             expected
@@ -198,7 +201,7 @@ fn cursor_popup() {
     let (_fixture, mut session) = source(SOURCE);
     let original = session.frame().unwrap();
     let cursor = original.cursor();
-    session.execute(Command::Completion(C::AtPoint));
+    complete(&mut session);
     let frame = session.frame().unwrap();
     assert_eq!(frame.cursor(), cursor);
     let selected = frame
@@ -235,11 +238,11 @@ fn cursor_popup() {
 #[test]
 fn input_continuity() {
     let (_fixture, mut session) = source(SOURCE);
-    session.execute(Command::Completion(C::AtPoint));
+    complete(&mut session);
     key(&mut session, KeyCode::Char('x'), KeyModifiers::CONTROL);
     key(&mut session, KeyCode::Char('3'), KeyModifiers::NONE);
     assert_eq!(session.windows().iter().len(), 2);
-    session.execute(Command::Completion(C::AtPoint));
+    complete(&mut session);
     key(&mut session, KeyCode::Enter, KeyModifiers::NONE);
     let accepted = text(&session);
     session.handle(Event::Key(KeyEvent::new_with_kind(
@@ -259,7 +262,7 @@ fn pane_placement() {
     session.handle(Event::Resize(80, 8));
     let before = session.frame().unwrap();
     let cursor = before.cursor().unwrap();
-    session.execute(Command::Completion(C::AtPoint));
+    complete(&mut session);
     let after = session.frame().unwrap();
     let top = after
         .rows()
@@ -290,4 +293,25 @@ fn pane_placement() {
                 .collect::<String>()
         );
     }
+}
+
+fn settle(session: &mut Session) {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    loop {
+        let now = std::time::Instant::now();
+        session.expire_input(now);
+        if session.remaining_input(now).is_none() {
+            break;
+        }
+        assert!(
+            now < deadline,
+            "native completion did not settle: {}",
+            session.echo()
+        );
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+}
+fn complete(session: &mut Session) {
+    session.execute(Command::Completion(C::AtPoint));
+    settle(session);
 }

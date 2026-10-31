@@ -1,6 +1,6 @@
 use crate::buffer::edit::{Cursor, Replacement};
 use crate::command::{Command, CompletionCommand as C};
-use crate::completion::{Completion, WORK_TIME};
+use crate::completion::{Completion, Request};
 use crate::coordinates::Scalar;
 use crate::input::{Focus, Outcome};
 
@@ -20,11 +20,20 @@ impl Session {
     pub(super) fn dismiss_completion(&mut self) {
         self.completion = None;
         self.completion_request = None;
+        self.completion_work.cancel();
         self.input.set_completion(false);
     }
 
     pub(super) fn invalidate_completion(&mut self) {
-        if self.completion().is_none() {
+        if self.completion.is_some() && self.completion().is_none() {
+            self.dismiss_completion();
+        }
+        if self.completion_request.is_some()
+            && self.completion.is_none()
+            && !self
+                .completion_work
+                .current(self.windows.selected_id(), self.view().point)
+        {
             self.dismiss_completion();
         }
     }
@@ -66,15 +75,12 @@ impl Session {
 
     fn begin_completion(&mut self) -> Action {
         self.dismiss_completion();
+        let now = std::time::Instant::now();
         let result = self
-            .prepare_completion()
-            .and_then(|completion| self.install_completion(completion));
+            .capture_completion()
+            .map(|request| self.completion_work.queue(request));
         match result {
-            Ok(true) => self.message(""),
-            Ok(false) => {
-                self.dismiss_completion();
-                self.message("No matching native declarations")
-            }
+            Ok(()) => self.expire_completion(now),
             Err(error) => {
                 self.dismiss_completion();
                 self.error(&error)
@@ -82,7 +88,7 @@ impl Session {
         }
     }
 
-    fn prepare_completion(&mut self) -> Result<Completion, String> {
+    fn capture_completion(&mut self) -> Result<Request, String> {
         if self.input.focus() != Focus::Editing || self.tree.focused() || self.pending.is_some() {
             return Err("Completion requires source editing focus".into());
         }
@@ -98,8 +104,90 @@ impl Session {
             .buffers
             .get_mut(point.stamp.buffer)
             .map_err(|e| e.to_string())?;
-        let symbols = buffer.completion_symbols(std::time::Instant::now() + WORK_TIME)?;
-        Completion::new(buffer, view, self.completion_generation, (point, symbols))
+        if buffer.is_readonly() {
+            return Err("buffer is read-only".into());
+        }
+        if buffer.len_bytes() > crate::completion::MAX_BYTES {
+            return Err("Native completion buffer exceeds 2 MiB".into());
+        }
+        Request::capture(buffer, view, self.completion_generation, point)
+    }
+
+    pub(super) fn expire_completion(&mut self, now: std::time::Instant) -> Action {
+        let mut action = Action::Wait;
+        if let Some(result) = self.completion_work.poll(now) {
+            action = self.receive_completion(result);
+        }
+        if self.completion_work.ready(now) {
+            if let Err(error) = self.launch_completion(now) {
+                self.dismiss_completion();
+                return self.error(&error);
+            }
+        }
+        action
+    }
+
+    fn launch_completion(&mut self, now: std::time::Instant) -> Result<(), String> {
+        let id = self
+            .completion_work
+            .pending
+            .as_ref()
+            .ok_or("No completion pending")?
+            .point
+            .stamp
+            .buffer;
+        let snapshot = self
+            .buffers
+            .get_mut(id)
+            .map_err(|e| e.to_string())?
+            .completion_snapshot()?;
+        if let Err(error) = self.completion_work.start(snapshot, now) {
+            self.buffers
+                .get_mut(id)
+                .map_err(|e| e.to_string())?
+                .abandon_completion_syntax();
+            return Err(error);
+        }
+        Ok(())
+    }
+
+    fn receive_completion(
+        &mut self,
+        result: Result<crate::completion::job::Output, String>,
+    ) -> Action {
+        let output = match result {
+            Ok(output) => output,
+            Err(error) => return self.error(&error),
+        };
+        if let Ok(buffer) = self.buffers.get_mut(output.request.point.stamp.buffer) {
+            buffer.restore_completion_syntax(output.syntax);
+        }
+        if self.completion_request != Some(output.request.generation) {
+            return Action::Redraw;
+        }
+        let manual = output.request.manual;
+        let result = output
+            .result
+            .and_then(|symbols| self.install_completion(output.request.complete(symbols)));
+        match result {
+            Ok(true) => self.message(""),
+            Ok(false) => {
+                self.completion_request = None;
+                if manual {
+                    self.message("No matching native declarations")
+                } else {
+                    Action::Redraw
+                }
+            }
+            Err(error) => {
+                self.completion_request = None;
+                if manual {
+                    self.error(&error)
+                } else {
+                    Action::Redraw
+                }
+            }
+        }
     }
 
     fn install_completion(&mut self, completion: Completion) -> Result<bool, String> {

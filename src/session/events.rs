@@ -33,6 +33,7 @@ impl Session {
     pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
         [
             self.input.remaining(now),
+            self.completion_work.remaining(now),
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
@@ -150,6 +151,7 @@ impl Session {
                 self.expire_escape(now)
             },
             self.expire_org(now),
+            self.expire_completion(now),
             self.expire_pointer(now),
             self.expire_timer(now),
             self.expire_agenda_action(),
