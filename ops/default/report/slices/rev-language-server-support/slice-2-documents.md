@@ -1,6 +1,6 @@
 # Slice 2: Versioned documents and buffer eligibility
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -111,3 +111,12 @@ T2.2 is commit `8d3369ca1d73a9fe1d64467f539f659a8675cb44`, which introduces this
 
 Semantic candidates, request freshness and native fallback enter Slice 3.
 Resolved edits and complete interoperability/acceptance remain in Slices 4-6.
+
+## Integration
+
+Canonical PR [#204](https://forge.adrianpk.com/adrianpk/rev/pulls/204) merged
+through Rebase + Fast-forward into dev at
+`1fe415317613496a1e90c33a06757173c0cd99b5`. Exact configured validation
+receipt `XXWQOCGBQ2UDSAMYPZW4YFGD4V` passed the three ordered commands
+on that clean candidate, including 297 integration tests. The controller recorded
+the merge in Acta.
