@@ -86,12 +86,26 @@ geometry. The final library batch also covers oversized-buffer refusal.
 T1.1 is commit `f80f24b2d61c4dfba385d6206865779b46169137`.
 T1.2 is commit `195f30a2549f11108c7cfe4286b3d9375a5e91a6`, which introduces
 this report with the integrated manual interaction.
-After the PR-reference follow-up, the controller validates the final clean HEAD
-and retains its immutable receipt outside the repository. The canonical PR
-Validation section lists that batch's successful commands in order, including
-the required format and six-suite regression prefix, focused completion-library,
-configuration, new-owner source-quality and documentation checks, then diff
-hygiene. The full delivery-set gate remains controller-owned after Slice 8.
+Controller receipt `5DSGRI7H5BUT77S5DQAQZPVW7T` passed seven checks at clean
+candidate `fe8209dbc7152915cc230efe2035c0c6e96f1c75`, including 494 tests:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test completion --test syntax --test editing --test commands --test display --test panels`
+3. `cargo test --locked --lib completion`
+4. `cargo test --locked --test configuration`
+5. `cargo run --locked --quiet --example source-check -- --root src/lib.rs --file src/completion.rs --file src/completion/matching.rs --file src/completion/target.rs --file src/syntax/completion.rs --file src/buffer/syntax.rs --file src/command/completion.rs --file src/input/completion.rs --file src/input/dispatch.rs --file src/input/keymap/defaults.rs --file src/session/completion.rs --file src/display/native_completion.rs`
+6. `cargo run --locked --quiet --example documentation-check`
+7. `git diff --check`
+
+The documentation check verified 324 commands, 189 configuration entries,
+60 reachable pages and 344 local links/anchors. The configured PR contract
+requires its exact three-command list as a literal prefix, including the final
+diff check, and rejects additional commands before that check. The canonical
+PR therefore lists only the configured format, six-suite regression and diff
+checks. After this report correction, the controller records fresh evidence for
+that exact list at the final clean PR head. The focused receipt above retains
+its original candidate identity. The full delivery-set gate remains
+controller-owned after Slice 8.
 
 ## Risks and Follow-ups
 
