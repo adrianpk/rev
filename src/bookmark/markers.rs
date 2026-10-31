@@ -18,6 +18,48 @@ struct Index {
     rows: Arc<BTreeSet<usize>>,
 }
 
+impl Buffer {
+    /// Obtain a revision-current set once per panel, then query visible logical
+    /// rows. Only resolved live anchors contribute; this never reads a file,
+    /// relocates a stored target or changes the canonical collection.
+    pub(crate) fn bookmark_rows(&self) -> Result<Arc<BTreeSet<usize>>, crate::view::Error> {
+        let Some(file) = self.file() else {
+            return Ok(Arc::default());
+        };
+        let records = self.bookmarks.lock().expect("bookmark collection poisoned");
+        let mut cache = self.bookmark_rows.lock().expect("bookmark index poisoned");
+        if let Some(index) = &cache.0
+            && index.stamp == self.stamp()
+            && index.generation == records.generation()
+            && index.path == file.path()
+        {
+            return Ok(index.rows.clone());
+        }
+        let coordinates = Coordinates::new(self)?;
+        let rows = records
+            .iter()
+            .filter(|record| {
+                record.resolution() == Resolution::Resolved
+                    && record.point().stamp == self.stamp()
+                    && record.path() == file.path()
+            })
+            .map(|record| {
+                coordinates
+                    .to_line(record.point().position)
+                    .map(|line| line.row)
+            })
+            .collect::<Result<BTreeSet<_>, _>>()?;
+        let rows = Arc::new(rows);
+        cache.0 = Some(Index {
+            stamp: self.stamp(),
+            generation: records.generation(),
+            path: file.path().to_path_buf(),
+            rows: rows.clone(),
+        });
+        Ok(rows)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,47 +104,5 @@ mod tests {
         buffers.bookmarks_mut().delete("A").unwrap();
         assert!(buffer.bookmark_rows().unwrap().is_empty());
         assert_eq!(original.iter().copied().collect::<Vec<_>>(), [1]);
-    }
-}
-
-impl Buffer {
-    /// Obtain a revision-current set once per panel, then query visible logical
-    /// rows. Only resolved live anchors contribute; this never reads a file,
-    /// relocates a stored target or changes the canonical collection.
-    pub(crate) fn bookmark_rows(&self) -> Result<Arc<BTreeSet<usize>>, crate::view::Error> {
-        let Some(file) = self.file() else {
-            return Ok(Arc::default());
-        };
-        let records = self.bookmarks.lock().expect("bookmark collection poisoned");
-        let mut cache = self.bookmark_rows.lock().expect("bookmark index poisoned");
-        if let Some(index) = &cache.0
-            && index.stamp == self.stamp()
-            && index.generation == records.generation()
-            && index.path == file.path()
-        {
-            return Ok(index.rows.clone());
-        }
-        let coordinates = Coordinates::new(self)?;
-        let rows = records
-            .iter()
-            .filter(|record| {
-                record.resolution() == Resolution::Resolved
-                    && record.point().stamp == self.stamp()
-                    && record.path() == file.path()
-            })
-            .map(|record| {
-                coordinates
-                    .to_line(record.point().position)
-                    .map(|line| line.row)
-            })
-            .collect::<Result<BTreeSet<_>, _>>()?;
-        let rows = Arc::new(rows);
-        cache.0 = Some(Index {
-            stamp: self.stamp(),
-            generation: records.generation(),
-            path: file.path().to_path_buf(),
-            rows: rows.clone(),
-        });
-        Ok(rows)
     }
 }

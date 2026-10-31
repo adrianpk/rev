@@ -76,6 +76,10 @@ The documentation checker passed 319 commands, 189 configuration entries,
 96 editing and 41 window tests after their fixed geometry fixtures were updated;
 161 command and 74 file tests also passed during development.
 
+The initial controller focused batch passed owner/origin tests but clippy
+rejected a test module placed before its implementation. The module was moved
+to the end of its file; fresh validation must cover the resulting candidate.
+
 Final exact-HEAD validation follows all task and canonical PR-reference commits:
 
 1. `cargo fmt --all -- --check`
