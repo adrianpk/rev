@@ -300,7 +300,9 @@ impl<'a> Coordinates<'a> {
         let mut last = from;
         let mut glyphs = self.glyphs_at(row, from, column)?;
         let mut index = 0;
-        while let Some(glyph) = self.charged_glyph(&mut glyphs, &work, (last, Cell { row, column }))? {
+        while let Some(glyph) =
+            self.charged_glyph(&mut glyphs, &work, (last, Cell { row, column }))?
+        {
             if point < glyph.source.end {
                 let cell = cluster_cell(point, &glyph, row)?;
                 self.remember(point, cell);
@@ -328,16 +330,16 @@ impl<'a> Coordinates<'a> {
         let mut glyphs = self.glyphs_at(cell.row, last, column)?;
         let mut index = 0;
         while let Some(glyph) = self.charged_glyph(
-                &mut glyphs,
-                &work,
-                (
-                    last,
-                    Cell {
-                        row: cell.row,
-                        column,
-                    },
-                ),
-            )? {
+            &mut glyphs,
+            &work,
+            (
+                last,
+                Cell {
+                    row: cell.row,
+                    column,
+                },
+            ),
+        )? {
             column = glyph.columns.end;
             if cell.column < column {
                 self.remember(
