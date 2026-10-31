@@ -89,7 +89,7 @@ fn region_range(node: Node<'_>, kind: &str) -> Range<usize> {
 fn insertion_range(node: Node<'_>) -> Range<usize> {
     let mut range = node.byte_range();
     let body = node.child_by_field_name("body").unwrap_or(node);
-    let last = body.child(body.child_count().saturating_sub(1) as u32);
+    let last = body.child(body.child_count().saturating_sub(1));
     if last.is_some_and(|last| last.is_missing() && last.kind() == "}") {
         range.end = range.end.saturating_add(1);
     }

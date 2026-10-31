@@ -136,11 +136,11 @@ impl Session {
         if let Some(result) = self.completion_work.poll(now) {
             action = self.receive_completion(result);
         }
-        if self.completion_work.ready(now) {
-            if let Err(error) = self.launch_completion(now) {
-                self.dismiss_completion();
-                return self.error(&error);
-            }
+        if self.completion_work.ready(now)
+            && let Err(error) = self.launch_completion(now)
+        {
+            self.dismiss_completion();
+            return self.error(&error);
         }
         action
     }

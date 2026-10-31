@@ -98,7 +98,13 @@ read-only publication check now preserves its explicit read-only diagnostic
 before stale-source checks. These corrections preserve source/history assertions
 and the configured resource limits.
 
-T3.1 is commit `fcf66225fbce` (full identity recorded by Git).
+The first controller batch `VNCSYH6KHB7G2HW3BLY6OZQII2` passed all 11 internal
+completion cases and 136 configuration cases at `185fd05e1442cda8cc7ef45bbba0ec2f606f5057`,
+then stopped in Clippy on a nested conditional and redundant integer cast.
+Both style diagnostics were corrected without changing admission, deadlines or
+observable assertions; fresh exact-candidate evidence follows.
+
+T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
 Controller-focused evidence and the final PR-reference follow-up are recorded
 before the exact final configured ordered checks:
