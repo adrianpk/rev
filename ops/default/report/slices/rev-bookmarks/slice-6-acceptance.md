@@ -1,11 +1,13 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
-Branch: `feat/rev-bookmarks-06-acceptance`
-PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190)
+Branch: `fix/rev-bookmarks-gate-1`
+PR: Pending
+Original slice branch: `feat/rev-bookmarks-06-acceptance`
+Original slice PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190)
 
 ## Purpose
 
@@ -127,3 +129,36 @@ Documentation passed 319 commands, 189 settings, 59 pages and 341 links.
 Focused receipt `HXGI5YRKCZCGNXGX572RYYK45M` passed 12 bookmark owner tests and
 all-target clippy on the same clean candidate. The controller verified and
 recorded the canonical merge in Acta. Slice 6 of 6 completed.
+
+## Gate repair 1: Mouse fixture geometry
+
+The controller's unchanged full gate failed at
+`eba31f5dee666bb3cc02f009449fba0d6e7238dc` in receipt
+`674A2DA3QLY2I2GXI2ZXLOCXBO`. Formatting and all-target clippy passed; the
+library suite passed 89 tests and failed `session::events::tests::timeout_release`.
+The remaining combined-gate commands did not run.
+
+The shared event-test helper still pressed column 6. Default numbering occupies
+six cells and BMK03 reserves the next cell for markers, so column 6 now belongs
+to the gutter. Native hit admission correctly refused that press; no selection
+or autoscroll deadline existed when the fixture expected to exercise timed input.
+`cargo test --locked --lib session::events::tests::timeout_release -- --exact`
+reproduced the retained failure on the failed base and passed after correction.
+
+The helper now derives its text column from the selected editing pane's current
+gutter projection. Both callers assert a live selection; the timeout fixture
+also asserts the original 100 ms deadline before testing polling. The existing
+ready/boundary/timeout answers, release-before-tick ordering, top-row results
+of 0 or 3 and indefinite idle wait remain intact. Markers stay enabled. The
+repair changes only `src/session/events/tests.rs` and this report, with no
+runtime, gate, acceptance, deadline or resource-limit changes.
+
+Final clean-HEAD validation follows the repair and canonical PR-reference
+commits in the pinned order:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --lib session::events::tests`
+3. `cargo test --locked --test pointer --test gutter --test bookmarks`
+4. `git diff --check`
+
+The controller owns repair integration and rerunning the unchanged full gate.

@@ -390,7 +390,8 @@ fn no_idle_poll() {
         crossterm::event::MouseEventKind::Down(crossterm::event::MouseButton::Left),
         crossterm::event::MouseEventKind::Drag(crossterm::event::MouseButton::Left),
     ] {
-        session.handle(mouse(kind, 0));
+        session.handle(mouse(&session, kind, 0));
+        assert!(session.selection.is_some());
         assert!(
             session
                 .input_ready(Instant::now(), |_| panic!("idle polling"))
@@ -399,10 +400,21 @@ fn no_idle_poll() {
     }
 }
 
-fn mouse(kind: crossterm::event::MouseEventKind, row: u16) -> Event {
+fn mouse(session: &Session, kind: crossterm::event::MouseEventKind, row: u16) -> Event {
+    // Numbers and bookmark markers share the pane: target its current text area.
+    let gutter = session
+        .composition()
+        .unwrap()
+        .gutter(
+            &session.windows,
+            session.buffer().unwrap(),
+            session.windows.selected_id(),
+        )
+        .unwrap()
+        .unwrap();
     Event::Mouse(crossterm::event::MouseEvent {
         kind,
-        column: 6,
+        column: gutter.geometry.text().column(),
         row,
         modifiers: KeyModifiers::NONE,
     })
@@ -422,8 +434,20 @@ fn timeout_release() {
         session.handle(Event::Paste("row\n".repeat(100)));
         session.execute(Command::Motion(Motion::BufferStart));
         let now = Instant::now();
-        session.handle_at(mouse(MouseEventKind::Down(MouseButton::Left), 0), now);
-        session.handle_at(mouse(MouseEventKind::Drag(MouseButton::Left), 23), now);
+        session.handle_at(
+            mouse(&session, MouseEventKind::Down(MouseButton::Left), 0),
+            now,
+        );
+        assert!(session.selection.is_some(), "{name}");
+        session.handle_at(
+            mouse(&session, MouseEventKind::Drag(MouseButton::Left), 23),
+            now,
+        );
+        assert_eq!(
+            session.pointer_remaining(now),
+            Some(Duration::from_millis(100)),
+            "{name}"
+        );
         let due = now + Duration::from_millis(100);
         let mut answers = VecDeque::from(answers);
         let ready = session
@@ -434,7 +458,10 @@ fn timeout_release() {
             .unwrap();
         assert!(answers.is_empty(), "{name}");
         if ready {
-            session.handle_at(mouse(MouseEventKind::Up(MouseButton::Left), 23), due);
+            session.handle_at(
+                mouse(&session, MouseEventKind::Up(MouseButton::Left), 23),
+                due,
+            );
         }
         session.expire_input(due);
         assert_eq!(session.view().top, if ready { 0 } else { 3 }, "{name}");
