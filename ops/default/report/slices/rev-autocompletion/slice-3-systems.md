@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-03-systems`
-PR: pending
+PR: [#197](https://forge.adrianpk.com/adrianpk/rev/pulls/197)
 
 ## Purpose
 
@@ -115,8 +115,21 @@ focused source command covers the final changed owners.
 
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
-Controller-focused evidence and the final PR-reference follow-up are recorded
-before the exact final configured ordered checks:
+Focused controller receipt `Y2O5S27HEXXLMGLPEXMZLCNNXZ` passed at clean
+candidate `aa5df81df2b4a7ab65289ce37f402484991a829b`:
+
+1. `cargo test --locked --lib completion`: 11 tests passed.
+2. `cargo test --locked --test configuration`: 136 tests passed.
+3. `cargo clippy --locked --lib -- -D warnings`: passed.
+4. `cargo run --locked --quiet --example source-check -- --file src/buffer.rs --file src/buffer/policy.rs --file src/buffer/syntax.rs --file src/completion.rs --file src/completion/job.rs --file src/completion/matching.rs --file src/completion/source.rs --file src/config.rs --file src/config/resolve.rs --file src/session/buffers.rs --file src/session/completion.rs --file src/session/completion/sources.rs --file src/syntax.rs --file src/syntax/catalog.rs --file src/syntax/completion.rs --file src/syntax/scope.rs --file src/syntax/style.rs`: passed.
+5. `cargo run --locked --quiet --example documentation-check`: passed.
+6. `git diff --check`: passed.
+
+The documentation check admitted 326 commands, 198 configuration entries,
+60 reachable pages and 347 local links/anchors. Canonical PR #197 references the
+full immutable report-introduction commit. After this PR-reference follow-up,
+the controller records fresh evidence for the exact final clean PR head and
+its configured ordered list:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test files --test coordinates`
