@@ -116,6 +116,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),
             Some(Pending::GotoLine { view, source }) => self.goto_argument(view, source, &path),
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),

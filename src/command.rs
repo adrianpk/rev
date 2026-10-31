@@ -1,4 +1,5 @@
 mod binding;
+mod bookmark;
 mod buffer;
 mod gutter;
 mod kill;
@@ -17,6 +18,7 @@ pub use crate::buffer::edit::History;
 pub use crate::buffer::{Mode, Whitespace};
 pub use crate::window::Split;
 pub use binding::{Binding, PromptAction};
+pub use bookmark::BookmarkCommand;
 pub use buffer::BufferCommand;
 pub use gutter::GutterCommand;
 pub use kill::KillCommand;
@@ -31,6 +33,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Bookmark(BookmarkCommand),
     Tree(TreeCommand),
     QueryReplace,
     SearchForward,
@@ -65,7 +68,11 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 305] = [
+    pub const ALL: [Self; 309] = [
+        Self::Bookmark(BookmarkCommand::Set),
+        Self::Bookmark(BookmarkCommand::SetNoOverwrite),
+        Self::Bookmark(BookmarkCommand::Jump),
+        Self::Bookmark(BookmarkCommand::Delete),
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),
@@ -375,6 +382,7 @@ impl Command {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Bookmark(command) => command.name(),
             Self::Motion(motion) => motion.name(),
             Self::Scroll(scroll) => scroll.name(),
             Self::History(history) => history.name(),

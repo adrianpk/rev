@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod bookmark;
 pub mod buffer;
 pub mod command;
 pub mod config;
