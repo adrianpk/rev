@@ -100,6 +100,7 @@ pub struct View {
     pub left: usize,
     /// Source anchor within the top logical line; reflow resolves it afresh.
     pub(crate) wrap_start: Scalar,
+    wrap_cache: wrap::Cache,
     wrap_width: Option<u16>,
     wrap_active: bool,
     folds: Option<fold::Folds>,
@@ -134,6 +135,7 @@ impl View {
             top: 0,
             left: 0,
             wrap_start: Scalar(0),
+            wrap_cache: wrap::Cache::default(),
             wrap_width: None,
             wrap_active: buffer.soft_wrap(),
             folds: None,
@@ -160,6 +162,12 @@ impl View {
         *self = Self::new(buffer);
         self.gutter = gutter;
         self.preview.enabled = enabled;
+    }
+
+    pub(crate) fn clone_for_split(&self) -> Self {
+        let mut view = self.clone();
+        view.wrap_cache = wrap::Cache::default();
+        view
     }
 
     pub fn cell(&self, buffer: &Buffer) -> Result<Cell, Error> {

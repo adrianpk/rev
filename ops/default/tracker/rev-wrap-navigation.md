@@ -88,11 +88,13 @@ Acceptance: WRP04, WRP05; complete WRP01-WRP07.
 T4.1 commit `ba7233b763b514be0c0fb0cf205abd2c4ae4c227` completes wrapped Org
 source/field/draft integration and maps preview
 anchors through current visual fragments. Focused Org wrapping and existing
-preview cases pass. T4.2 remains active: bounded resumable layout, cache/work
-ceilings, lifecycle acceptance, long-line measurements and ticket resolution
-are not complete. The finite native API probe records the current debug-profile
-prefix-scan costs; these are not accepted performance ceilings. Override
-lifetime through split/close/revisit is covered under both startup defaults.
+preview cases pass. T4.2 has bounded fragment retention (8192 entries and
+1 MiB per view), coordinate retention (1024 per buffer), prefix invalidation
+and independent split ownership. Warm native API paths improved to about
+1 ms; cold frame/reflow still takes 61-192 ms in the debug probe. These are
+intermediate measurements, not accepted performance ceilings. Bounded resumable
+cold work, cancellation/idle CPU evidence and ticket resolution remain active.
+Override lifetime through split/close/revisit is covered under both defaults.
 Slice 4 has no canonical PR yet.
 
 ## Slice 5: Directory targets and initial tree expansion

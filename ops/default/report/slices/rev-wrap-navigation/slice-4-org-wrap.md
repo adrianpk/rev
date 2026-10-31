@@ -25,6 +25,9 @@ lifetimes and measured long-line control. T4.1 is implemented at `ba7233b763b514
 - Image rectangles begin at the actual first visible source fragment after
   preceding wrapped text. Reflow changes placement; folded or scrolled-past
   anchors receive no rectangle. Empty preview sets require no wrap traversal.
+- Repeated navigation, hit testing and painting reuse checked source and
+  fragment observations. Actual split views own independent fragment caches;
+  disposing or evicting observations preserves source and visible text.
 
 ## Implementation Notes
 
@@ -37,13 +40,30 @@ The existing folded-Unicode hit fixture now explicitly covers both factory wrap
 and the retained horizontal policy. It asserts complete grapheme destinations
 and rejects the appropriate padding/partial-glyph cells in each mode.
 
+T4.2 now retains at most 8192 fragments and 1 MiB of projected text per view,
+and 1024 coordinate checkpoints per buffer. Coordinates sample every 256
+glyphs and remember requested boundaries. A 64-publication journal proves the
+unchanged source prefix across edits, undo and redo; missing proof discards the
+derived observations. Fragment validity includes the glyph lookahead that
+chooses word breaks and the complete CRLF/LF terminator, not just painted text.
+Width, tab policy, effective wrap policy and source identity qualify all reuse.
+
+Candidate view snapshots share disposable observations, which do not enter
+semantic view equality. A real split starts a separate cache. Fold projection
+stays current rather than caching screen rows. Glyph restarts retain the full
+source-line context for regional indicators, ZWJ and combining clusters.
+Rectangle painting scans the visible column range while copy and kill retain
+the full canonical rectangle. Syntax, clipping and pointer conversion use the
+same checked coordinate restarts.
+
 ## Contracts Added or Changed
 
 Preview anchor rows follow the current visual projection. Pictures neither
 create source rows nor acquire another anchor on a continuation. The accepted
 buffer policy applies to Org source and tables without an implicit exception.
 
-The bounded layout/cache contract is not yet implemented by this partial slice.
+Retention limits and checked restarts are implemented. Cold misses still scan
+synchronously; the required bounded resumable work contract is not complete.
 
 ## Files of Interest
 
@@ -53,6 +73,9 @@ The bounded layout/cache contract is not yet implemented by this partial slice.
 - `tests/org_editing/fold_edges.rs`: paired wrap/no-wrap folded Unicode hits.
 - `examples/wrap-performance.rs`: finite native API baseline probe with exact
   source restoration and idle-deadline assertions; no terminal gate replacement.
+- `src/view/wrap/cache.rs`: bounded, source-qualified fragment retention.
+- `src/coordinates/checkpoints.rs`: bounded coordinate and publication-prefix
+  observations, independent of view width.
 
 ## Validation
 
@@ -90,15 +113,32 @@ input deadline, and returned Wait on a later expiry. This proves source
 restoration and absence of scheduled idle work; it does not measure idle CPU.
 The observed prefix costs are baseline failures to resolve under T4.2.
 
+The same development probe after adding fragment and coordinate reuse observed:
+
+| Case | Cold frame ms | Motion ms | Resize ms | Input ms | Reversal ms |
+| --- | --- | --- | --- | --- | --- |
+| Token | 191.594 | 1.157 | 95.238 | 1.090 | 1.017 |
+| Words | 168.992 | 1.195 | 89.385 | 1.143 | 1.063 |
+| Unicode/tabs | 119.912 | 1.125 | 61.425 | 0.841 | 0.779 |
+
+These intermediate debug-profile measurements retain the same probe limits;
+they establish improved warm paths, not accepted cold-work ceilings. The later
+CRLF invalidation correction is checked separately.
+
+Development regressions passed after the cache changes: 24 coordinate tests,
+26 wrapping tests and 341 display/pointer/gutter/rectangle/search/window/editing
+tests. After bounding rectangle paint traversal, all 42 rectangle tests and the
+cross-chunk Unicode restart case passed again. The focused CRLF terminator
+invalidation case also passed. All-target Clippy passed before that final
+terminator change; fresh clean-HEAD evidence is required for this increment.
+
 ## Risks and Follow-ups
 
-T4.2 must replace repeated line-prefix scans with bounded resumable work and
-retained derived state capped at 8192 fragments per view. Current expensive
-paths include `View::cell`/`Coordinates::to_cell`, `Line::new`, reveal and neighbor
-lookup, and independent frame consumers. Source edits, folds, width/tab/wrap
-policy, split/rebind/close and Unicode boundary context all need coherent
-invalidation. A fragment cache alone does not bound coordinate-prefix scans.
+T4.2 must make cold source/fragment misses resumable under explicit work
+ceilings. Current synchronous misses include geometry changes, far seeks,
+early source edits and cache eviction. Bounded retention and fast warm reuse
+do not establish an input or cancellation latency bound for those misses.
 
-Complete lifecycle and cache-eviction acceptance, native input/resize/reversal
-and idle measurements, exact successful final validation, and the approved
-long-line ticket transition before preparing the canonical PR.
+Complete native cold-work cancellation, input/resize/reversal and idle CPU
+measurements, exact successful final validation, and the approved long-line
+ticket transition before preparing the canonical PR.

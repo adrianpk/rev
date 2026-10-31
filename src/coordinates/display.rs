@@ -78,6 +78,32 @@ impl<'a> Glyphs<'a> {
         })
     }
 
+    pub(super) fn at(
+        text: RopeSlice<'a>,
+        start: Scalar,
+        tab_width: usize,
+        point: Scalar,
+        column: usize,
+    ) -> Result<Self, Error> {
+        let local = point.0.checked_sub(start.0).ok_or(Error::Scalar(point))?;
+        let byte = text
+            .try_char_to_byte(local)
+            .map_err(|_| Error::Scalar(point))?;
+        let mut cursor = Cursor::new(text, byte)?;
+        if !cursor.boundary()? {
+            return Err(Error::Cluster(point));
+        }
+        Ok(Self {
+            text,
+            cursor,
+            byte,
+            point,
+            column,
+            tab_width,
+            done: false,
+        })
+    }
+
     fn advance(&mut self) -> Result<Option<Glyph<'a>>, Error> {
         let Some(end) = self.cursor.next()? else {
             return Ok(None);

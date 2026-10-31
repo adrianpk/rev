@@ -10,9 +10,10 @@ impl Coordinates<'_> {
         cell: Cell,
         visible: Range<usize>,
     ) -> Result<Option<Scalar>, Error> {
-        let mut end = Scalar(0);
-        let mut column = 0;
-        for glyph in self.glyphs(cell.row)? {
+        let checkpoint = self.column_checkpoint(cell);
+        let mut end = checkpoint.map_or(Scalar(0), |(point, _)| point);
+        let mut column = checkpoint.map_or(0, |(_, column)| column);
+        for glyph in self.glyphs_from_column(cell)? {
             let glyph = glyph?;
             if cell.column < glyph.columns.end {
                 return Ok((glyph.columns.start >= visible.start

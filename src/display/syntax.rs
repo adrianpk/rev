@@ -46,7 +46,7 @@ fn visible<'a>(
 ) -> Result<Vec<Glyph<'a>>, Error> {
     let right = left.saturating_add(usize::from(width));
     let visible = coordinates
-        .glyphs(row)?
+        .glyphs_from_column(crate::coordinates::Cell { row, column: left })?
         .take_while(|glyph| match glyph {
             Ok(glyph) => glyph.columns.start < right,
             Err(_) => true,

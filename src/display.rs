@@ -227,7 +227,14 @@ impl Frame {
             let text = if let Some(fragment) = fragment {
                 fragment.text.clone()
             } else if source < buffer.len_lines() {
-                clip::line(coordinates.glyphs(source)?, view.left, content.width())?
+                clip::line(
+                    coordinates.glyphs_from_column(Cell {
+                        row: source,
+                        column: view.left,
+                    })?,
+                    view.left,
+                    content.width(),
+                )?
             } else {
                 " ".repeat(usize::from(content.width()))
             };

@@ -20,7 +20,7 @@ impl Selection {
     }
 
     fn deletion(&self, buffer: &Buffer, row: usize) -> Result<Option<Replacement>, Error> {
-        let mut parts = self.parts(buffer, row)?;
+        let mut parts = self.parts(buffer, row, None)?;
         let Some(first) = parts.next().transpose()? else {
             return Ok(None);
         };
@@ -46,7 +46,7 @@ impl Selection {
             column: self.columns.start,
         })?;
         let prefix = self
-            .parts(buffer, row)?
+            .parts(buffer, row, None)?
             .next()
             .transpose()?
             .map_or(0, |part| part.prefix);

@@ -54,7 +54,8 @@ impl Highlight {
         let Some(rectangle) = &self.rectangle else {
             return Ok(self.row(row, left, width));
         };
-        let columns = rectangle.columns(buffer, row)?;
+        let columns =
+            rectangle.columns(buffer, row, left..left.saturating_add(usize::from(width)))?;
         Ok(columns.and_then(|columns| clipped(columns, left, width)))
     }
 

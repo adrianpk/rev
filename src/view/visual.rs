@@ -4,7 +4,7 @@ use crate::buffer::Buffer;
 use crate::command::Scroll;
 use crate::coordinates::{Cell, Coordinates, Scalar};
 
-use super::{Error, Fragment, Size, View, wrap::Line};
+use super::{Error, Fragment, Size, View};
 
 impl View {
     pub(crate) fn text_width(&self, buffer: &Buffer, size: Size) -> Result<u16, Error> {
@@ -18,13 +18,7 @@ impl View {
 
     pub(super) fn visual_fragment(&self, buffer: &Buffer, width: u16) -> Result<Fragment, Error> {
         let row = self.cell(buffer)?.row;
-        let mut line = Line::new(buffer, row, width)?;
-        while let Some(fragment) = line.next()? {
-            if fragment.contains(self.point.position, width) {
-                return Ok(fragment);
-            }
-        }
-        Err(crate::coordinates::Error::Scalar(self.point.position).into())
+        self.line_fragment(buffer, width, row, self.point.position)
     }
 
     // Emacs leaves C-e on the wrap character. On an actual source EOL it
@@ -82,22 +76,22 @@ impl View {
         current: &Fragment,
         backward: bool,
     ) -> Result<Option<Fragment>, Error> {
-        let mut line = Line::new(buffer, current.line, width)?;
-        let mut previous = None;
-        let mut found = false;
-        while let Some(fragment) = line.next()? {
-            if found {
-                return Ok(Some(fragment));
+        if !backward
+            && (!current.end_of_line
+                || !current.source.is_empty() && current.painted_width(width) == width)
+        {
+            return self.next_fragment(buffer, width, current).map(Some);
+        }
+        if backward {
+            if let Some(previous) = self.wrap_cache.previous(buffer, width, current) {
+                return Ok(Some(previous));
             }
-            if fragment.source == current.source && fragment.columns == current.columns {
-                if backward && previous.is_some() {
-                    return Ok(previous);
-                }
-                if !backward {
-                    found = true;
-                }
+            if current.columns.start > 0 {
+                let before = Coordinates::new(buffer)?.previous(current.source.start)?;
+                return self
+                    .line_fragment(buffer, width, current.line, before)
+                    .map(Some);
             }
-            previous = Some(fragment);
         }
         let projected = self
             .project_row(buffer, current.line)
@@ -110,14 +104,17 @@ impl View {
         let Some(source) = neighbor.and_then(|row| self.source_at(buffer, row)) else {
             return Ok(None);
         };
-        let mut line = Line::new(buffer, source, width)?;
-        let mut result = line.next()?;
-        if backward {
-            while let Some(fragment) = line.next()? {
-                result = Some(fragment);
-            }
-        }
-        Ok(result)
+        let coordinates = Coordinates::new(buffer)?;
+        let start = coordinates.from_cell(Cell {
+            row: source,
+            column: 0,
+        })?;
+        let target = if backward {
+            coordinates.line_end(start)?
+        } else {
+            start
+        };
+        self.line_fragment(buffer, width, source, target).map(Some)
     }
 
     pub(crate) fn fragment_point(

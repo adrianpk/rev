@@ -1,4 +1,6 @@
+mod checkpoints;
 mod cursor;
+pub(crate) use checkpoints::Checkpoints;
 mod display;
 mod hit;
 mod motion;
@@ -66,6 +68,7 @@ pub struct Coordinates<'a> {
     text: RopeSlice<'a>,
     stamp: Stamp,
     tab_width: usize,
+    checkpoints: Option<&'a std::sync::Mutex<Checkpoints>>,
 }
 
 impl<'a> Coordinates<'a> {
@@ -75,6 +78,7 @@ impl<'a> Coordinates<'a> {
             text: buffer.slice(&span)?,
             stamp: span.stamp,
             tab_width: buffer.policy().tab_width,
+            checkpoints: Some(&buffer.coordinates),
         })
     }
 
@@ -83,6 +87,7 @@ impl<'a> Coordinates<'a> {
             text,
             stamp,
             tab_width,
+            checkpoints: None,
         }
     }
 
@@ -165,34 +170,121 @@ impl<'a> Coordinates<'a> {
         Glyphs::new(line, start, self.tab_width)
     }
 
+    /// Resume only from an observed grapheme boundary at its logical column.
+    /// Keeping the complete line as cursor context preserves chunk/RI semantics.
+    pub(crate) fn glyphs_at(
+        &self,
+        row: usize,
+        point: Scalar,
+        column: usize,
+    ) -> Result<Glyphs<'a>, Error> {
+        let (line, start) = self.body(row)?;
+        Glyphs::at(line, start, self.tab_width, point, column)
+    }
+
+    fn checkpoint(&self, point: Scalar, row: usize) -> Option<(Scalar, usize)> {
+        let mut cache = self.checkpoints?.lock().expect("coordinate cache poisoned");
+        cache.observe(self.stamp, self.tab_width);
+        cache.before(point, row)
+    }
+
+    fn column_checkpoint(&self, cell: Cell) -> Option<(Scalar, usize)> {
+        let (line, start) = self.body(cell.row).ok()?;
+        let end = Scalar(start.0 + line.len_chars());
+        let mut cache = self.checkpoints?.lock().expect("coordinate cache poisoned");
+        cache.observe(self.stamp, self.tab_width);
+        cache.column(cell, start..=end)
+    }
+
+    fn remember(&self, point: Scalar, cell: Cell) {
+        if let Some(cache) = self.checkpoints {
+            let mut cache = cache.lock().expect("coordinate cache poisoned");
+            cache.observe(self.stamp, self.tab_width);
+            cache.remember(point, cell);
+        }
+    }
+
+    pub(crate) fn glyphs_from_column(&self, cell: Cell) -> Result<Glyphs<'a>, Error> {
+        let (line, start) = self.body(cell.row)?;
+        if cell.column == 0 {
+            return Glyphs::new(line, start, self.tab_width);
+        }
+        let (point, column) = self.column_checkpoint(cell).unwrap_or((start, 0));
+        self.glyphs_at(cell.row, point, column)
+    }
+
     /// Converts only grapheme boundaries; an interior cluster has no unique cell.
     pub fn to_cell(&self, point: Scalar) -> Result<Cell, Error> {
         let row = self.to_line(point)?.row;
-        let mut column = 0;
         let (line, start) = self.body(row)?;
-        for glyph in Glyphs::new(line, start, self.tab_width)? {
+        if point == start {
+            return Ok(Cell { row, column: 0 });
+        }
+        let (from, mut column) = self.checkpoint(point, row).unwrap_or((start, 0));
+        if from == point {
+            return Ok(Cell { row, column });
+        }
+        for (index, glyph) in self.glyphs_at(row, from, column)?.enumerate() {
             let glyph = glyph?;
-            if point.0 < glyph.source.end.0 {
-                return cluster_cell(point, &glyph, row);
+            if point < glyph.source.end {
+                let cell = cluster_cell(point, &glyph, row)?;
+                self.remember(point, cell);
+                return Ok(cell);
             }
             column = glyph.columns.end;
+            if (index + 1) % checkpoints::INTERVAL == 0 {
+                self.remember(glyph.source.end, Cell { row, column });
+            }
         }
         if point.0 != start.0 + line.len_chars() {
             return Err(Error::Cluster(point));
         }
-        Ok(Cell { row, column })
+        let cell = Cell { row, column };
+        self.remember(point, cell);
+        Ok(cell)
     }
 
     /// Interior wide/tab cells map to their source start; columns past EOL clamp.
     pub fn from_cell(&self, cell: Cell) -> Result<Scalar, Error> {
         let (line, start) = self.body(cell.row)?;
-        for glyph in Glyphs::new(line, start, self.tab_width)? {
+        if cell.column == 0 {
+            return Ok(start);
+        }
+        let mut column = 0;
+        for (index, glyph) in self.glyphs_from_column(cell)?.enumerate() {
             let glyph = glyph?;
-            if cell.column < glyph.columns.end {
+            column = glyph.columns.end;
+            if cell.column < column {
+                self.remember(
+                    glyph.source.start,
+                    Cell {
+                        row: cell.row,
+                        column: glyph.columns.start,
+                    },
+                );
                 return Ok(glyph.source.start);
             }
+            if (index + 1) % checkpoints::INTERVAL == 0 {
+                self.remember(
+                    glyph.source.end,
+                    Cell {
+                        row: cell.row,
+                        column,
+                    },
+                );
+            }
         }
-        Ok(Scalar(start.0 + line.len_chars()))
+        // The checkpoint may itself be EOL and have no remaining glyph.
+        column = column.max(self.column_checkpoint(cell).map_or(0, |(_, column)| column));
+        let end = Scalar(start.0 + line.len_chars());
+        self.remember(
+            end,
+            Cell {
+                row: cell.row,
+                column,
+            },
+        );
+        Ok(end)
     }
 
     fn body(&self, row: usize) -> Result<(RopeSlice<'a>, Scalar), Error> {

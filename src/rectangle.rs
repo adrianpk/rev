@@ -39,7 +39,7 @@ impl Rectangle {
         let mut rows = Vec::new();
         for row in selection.rows.clone() {
             let mut text = String::new();
-            for part in selection.parts(buffer, row)? {
+            for part in selection.parts(buffer, row, None)? {
                 part?.append(buffer, &mut text, capture)?;
             }
             rows.push(text);
@@ -85,12 +85,13 @@ impl Selection {
         &self,
         buffer: &Buffer,
         row: usize,
+        visible: Range<usize>,
     ) -> Result<Option<Range<usize>>, Error> {
         if !self.rows.contains(&row) {
             return Ok(None);
         }
         let mut columns: Option<Range<usize>> = None;
-        for part in self.parts(buffer, row)? {
+        for part in self.parts(buffer, row, Some(visible))? {
             let part = part?;
             columns = Some(columns.map_or(part.columns.clone(), |old| old.start..part.columns.end));
         }
@@ -101,17 +102,25 @@ impl Selection {
         &'a self,
         buffer: &'a Buffer,
         row: usize,
+        visible: Option<Range<usize>>,
     ) -> Result<impl Iterator<Item = Result<Part, Error>> + 'a, Error> {
         buffer.slice(&Span {
             stamp: self.stamp,
             range: 0..0,
         })?;
-        let glyphs = Coordinates::new(buffer)?.glyphs(row)?;
+        let columns = visible.map_or(self.columns.clone(), |visible| {
+            self.columns.start.max(visible.start)..self.columns.end.min(visible.end)
+        });
+        let glyphs = Coordinates::new(buffer)?.glyphs_from_column(crate::coordinates::Cell {
+            row,
+            column: columns.start,
+        })?;
+        let end = columns.end;
         Ok(glyphs
-            .take_while(|glyph| {
+            .take_while(move |glyph| {
                 glyph
                     .as_ref()
-                    .map_or(true, |glyph| glyph.columns.start < self.columns.end)
+                    .map_or(true, |glyph| glyph.columns.start < end)
             })
             .filter_map(|glyph| self.part(buffer, glyph).transpose()))
     }

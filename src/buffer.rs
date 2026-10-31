@@ -134,6 +134,7 @@ pub struct Buffer {
     name: String,
     policy: crate::config::Editor,
     wrap_override: Option<bool>,
+    pub(crate) coordinates: std::sync::Mutex<crate::coordinates::Checkpoints>,
     crlf: usize,
     revision: u64,
     text: Rope,
@@ -186,6 +187,7 @@ impl Buffer {
             name: format!("*buffer-{id}*"),
             policy: crate::config::Editor::default(),
             wrap_override: None,
+            coordinates: std::sync::Mutex::default(),
             crlf: endings::count(text.slice(..)),
             revision: 1,
             text,
@@ -225,6 +227,13 @@ impl Buffer {
         let mut buffer = Self::from_rope(text)?;
         buffer.bom = bom;
         Ok(buffer)
+    }
+
+    pub(crate) fn unchanged_prefix(&self, before: Stamp) -> Option<Scalar> {
+        self.coordinates
+            .lock()
+            .expect("coordinate cache poisoned")
+            .unchanged_prefix(before, self.stamp())
     }
 
     /// Transient text participates in checked edits, never source publication.

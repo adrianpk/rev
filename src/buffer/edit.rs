@@ -310,10 +310,19 @@ impl Buffer {
         let state = prepared.record.after_state;
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
+        let changed = prepared
+            .record
+            .changes
+            .first()
+            .map_or(0, |change| change.before.start);
         self.record(prepared.record, prepared.operation, prepared.group)?;
         // From here onward there are no recoverable operations or callbacks.
         self.syntax.edit(before, after, &prepared.syntax);
         self.edit_org(before, after, &prepared.syntax);
+        self.coordinates
+            .get_mut()
+            .expect("coordinate cache poisoned")
+            .retain_prefix(before, after, crate::coordinates::Scalar(changed));
         self.text = prepared.text;
         self.crlf = prepared.crlf;
         self.revision = after.revision;

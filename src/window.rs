@@ -148,7 +148,7 @@ impl Windows {
         area.divide(direction, self.ratio)
             .ok_or(Error::DoesNotFit)?;
         let id = ViewId::next()?;
-        let view = self.selected().clone();
+        let view = self.selected().clone_for_split();
         let mut candidate = self.layout.clone();
         if !candidate.split(self.selected, id, direction) {
             return Err(Error::Missing(self.selected));
