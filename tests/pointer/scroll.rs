@@ -16,7 +16,8 @@ pub(super) fn size() -> Size {
 pub(super) fn editor(source: &str) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     Session::new(buffers, view, size()).unwrap()
 }
 
@@ -93,7 +94,8 @@ fn tree_target() {
     }
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     session.execute(Command::Tree(TreeCommand::Toggle));
     session.execute(Command::Tree(TreeCommand::Expand));

@@ -74,13 +74,14 @@ impl Default for Palette {
     }
 }
 
-/// Compiled number-field roles in the same immutable renderer palette snapshot.
+/// Compiled gutter roles in the same immutable renderer palette snapshot.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GutterPalette {
     pub background: Rgb,
     pub foreground: Rgb,
     pub current_line: Rgb,
     pub separator: Rgb,
+    pub bookmark: Rgb,
 }
 
 impl Default for GutterPalette {
@@ -90,6 +91,7 @@ impl Default for GutterPalette {
             foreground: Rgb(0x56, 0x5f, 0x89),
             current_line: Rgb(0x7a, 0xa2, 0xf7),
             separator: Rgb(0x3b, 0x42, 0x61),
+            bookmark: Rgb(0xe0, 0xaf, 0x68),
         }
     }
 }
@@ -160,7 +162,7 @@ pub struct PartialSyntaxPalette {
     pub punctuation: Option<String>,
 }
 
-/// Optional semantic number-field colors, admitted with the whole candidate.
+/// Optional semantic gutter colors, admitted with the whole candidate.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialGutterPalette {
@@ -168,6 +170,7 @@ pub struct PartialGutterPalette {
     pub foreground: Option<String>,
     pub current_line: Option<String>,
     pub separator: Option<String>,
+    pub bookmark: Option<String>,
 }
 
 /// Active native Org source roles, independent of Rust capture groups.

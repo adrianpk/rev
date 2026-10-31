@@ -67,6 +67,7 @@ fn form_case(mode: Mode, form: CurrentLine, expected: [&str; 3]) {
     let id = buffers.create("界\te\u{301}\r\nmid\n").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     point(&mut view, buffer, 1);
     view.gutter.apply(Change::Mode(mode));
     view.gutter.apply(Change::CurrentLine(form));
@@ -153,6 +154,7 @@ fn stable_origin() {
     let id = buffers.create(&"\n".repeat(9_999)).unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Mode(Mode::Relative));
     for (top, current, first) in [
         (39, 41, "    2 │"),
@@ -200,6 +202,7 @@ fn logical_rows() {
         let id = buffers.create(source).unwrap();
         let buffer = buffers.get(id).unwrap();
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.gutter.apply(Change::Mode(Mode::Relative));
         point(&mut view, buffer, labels.len() - 1);
         let frame = Frame::project(buffer, &view, SIZE, "").unwrap();
@@ -224,6 +227,7 @@ fn visible_bound() {
     let id = buffers.create(&"\n".repeat(99_999)).unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     point(&mut view, buffer, 99_999);
     view.top = 99_997;
     view.gutter.apply(Change::Mode(Mode::Relative));

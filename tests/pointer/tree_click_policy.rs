@@ -19,7 +19,8 @@ fn configured(fixture: &Fixture, enabled: bool, activate: bool) -> Session {
     fixture.write("root/choice.txt", "choice");
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(
         buffers,
         view,

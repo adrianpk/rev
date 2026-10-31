@@ -16,6 +16,8 @@ pub enum BookmarkSave {
 pub struct Bookmarks {
     pub file: Option<PathBuf>,
     pub save: BookmarkSave,
+    pub markers: bool,
+    pub marker: String,
     pub max_entries: usize,
     pub context_chars: usize,
     pub search_chars: usize,
@@ -25,6 +27,8 @@ impl Default for Bookmarks {
         Self {
             file: None,
             save: BookmarkSave::OnExit,
+            markers: true,
+            marker: "●".into(),
             max_entries: 1024,
             context_chars: 64,
             search_chars: 262144,
@@ -36,6 +40,8 @@ impl Default for Bookmarks {
 pub struct PartialBookmarks {
     pub file: Option<PathBuf>,
     pub save: Option<BookmarkSave>,
+    pub markers: Option<bool>,
+    pub marker: Option<String>,
     pub max_entries: Option<i64>,
     pub context_chars: Option<i64>,
     pub search_chars: Option<i64>,

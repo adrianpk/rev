@@ -11,7 +11,8 @@ use rev::window::Split;
 fn session() -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("alpha\nbeta\n").unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     Session::new(
         buffers,
         view,

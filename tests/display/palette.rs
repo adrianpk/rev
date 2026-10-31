@@ -46,7 +46,8 @@ fn session() -> (config_fixture::Fixture, Session, Palette) {
     let id = buffers
         .visit(&fixture.write("main.rs", "fn alpha() {}\n// note\n"))
         .unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let session = Session::new(
         buffers,
         view,
@@ -223,9 +224,11 @@ fn safe_colors() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("\x1b]12;red\x07").unwrap();
     let buffer = buffers.get(id).unwrap();
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let frame = Frame::project(
         buffer,
-        &View::new(buffer),
+        &view,
         Size {
             width: 30,
             height: 4,
@@ -273,6 +276,7 @@ fn selected_syntax() {
             buffer.toggle_rectangle(mark).unwrap();
         }
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.position = Scalar(end);
         let frame = Frame::project(
             buffer,

@@ -14,6 +14,7 @@ fn editor(source: &str, width: u16, height: u16) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Visible(false));
     Session::new(buffers, view, Size { width, height }).unwrap()
 }
@@ -239,6 +240,7 @@ fn logical_rectangle() {
         })
         .unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = end;
     view.gutter.apply(Change::Visible(false));
     let mut session = Session::new(

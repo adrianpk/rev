@@ -14,6 +14,8 @@ mod ordered;
 mod persistence;
 #[path = "bookmarks/reopening.rs"]
 mod reopening;
+#[path = "support/surface.rs"]
+mod surface;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{BookmarkCommand, Command, History, Motion, RegionCommand};
@@ -309,6 +311,7 @@ fn bookmark_bindings() {
         BookmarkCommand::List,
         BookmarkCommand::Next,
         BookmarkCommand::Previous,
+        BookmarkCommand::Markers,
         BookmarkCommand::MenuDelete,
         BookmarkCommand::MenuUnmark,
         BookmarkCommand::MenuExecute,
@@ -319,7 +322,6 @@ fn bookmark_bindings() {
             Some(Command::Bookmark(command))
         );
     }
-    assert_eq!(Command::named("bookmark-markers-mode"), None);
 }
 
 // An empty set draft uses the visiting basename, not a canonical alias basename

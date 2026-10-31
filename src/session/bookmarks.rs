@@ -3,6 +3,7 @@ mod navigation;
 mod ordered;
 pub(super) use list::List;
 pub(super) use ordered::Iteration;
+mod markers;
 mod persistence;
 mod quit;
 pub(super) use navigation::Navigation;
@@ -30,6 +31,7 @@ impl Session {
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
         match command {
+            BookmarkCommand::Markers => return self.toggle_bookmark_markers(),
             BookmarkCommand::List => return self.list_bookmarks(),
             BookmarkCommand::Next => return self.step_bookmark(false),
             BookmarkCommand::Previous => return self.step_bookmark(true),
@@ -98,6 +100,7 @@ impl Session {
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
             BookmarkCommand::Save
+            | BookmarkCommand::Markers
             | BookmarkCommand::Reload
             | BookmarkCommand::List
             | BookmarkCommand::Next
@@ -145,6 +148,7 @@ impl Session {
             BookmarkCommand::Jump => unreachable!("jump owns its cancellable navigation"),
             BookmarkCommand::Delete => self.buffers.bookmarks_mut().delete(name),
             BookmarkCommand::Save
+            | BookmarkCommand::Markers
             | BookmarkCommand::Reload
             | BookmarkCommand::List
             | BookmarkCommand::Next
@@ -162,6 +166,7 @@ impl Session {
                 BookmarkCommand::Jump => "Bookmark destination",
                 BookmarkCommand::Delete => "Bookmark deleted",
                 BookmarkCommand::Save
+                | BookmarkCommand::Markers
                 | BookmarkCommand::Reload
                 | BookmarkCommand::List
                 | BookmarkCommand::Next

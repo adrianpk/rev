@@ -50,6 +50,7 @@ fn source_numbers() {
         ),
     ] {
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.position = point;
         view.gutter = Policy::new(Settings {
             mode,

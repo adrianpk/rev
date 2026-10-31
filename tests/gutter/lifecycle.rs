@@ -10,6 +10,7 @@ pub(super) fn editor(source: &str) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter = Policy::new(super::policy::startup());
     view.gutter.apply(Change::Visible(true));
     view.gutter.apply(Change::Mode(Mode::Absolute));
@@ -79,6 +80,7 @@ fn buffer_lifetime() {
     let second = buffers.create(&"\n".repeat(9_999)).unwrap();
     let second_name = buffers.get(second).unwrap().name().to_owned();
     let mut view = View::new(buffers.get(first).unwrap());
+    view.bookmark_markers = false;
     view.gutter = Policy::new(super::policy::startup());
     view.gutter.apply(Change::Visible(true));
     let policy = view.gutter;

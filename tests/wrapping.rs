@@ -37,7 +37,8 @@ fn source_fragments() {
         let mut buffers = Buffers::new().unwrap();
         let id = buffers.create(source).unwrap();
         let buffer = buffers.get(id).unwrap();
-        let view = View::new(buffer);
+        let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         let fragments = view.wrapped_rows(buffer, width, 20).unwrap();
         assert_eq!(
             fragments
@@ -80,6 +81,7 @@ fn pane_widths() {
     let buffer = buffers.get(id).unwrap();
     let stamp = buffer.stamp();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Visible(false));
     view.point.position = Scalar(buffer.len_chars());
     for width in [12, 8, 3, 15] {
@@ -93,6 +95,7 @@ fn pane_widths() {
         assert_eq!(view.left, 0);
     }
     let mut other = View::new(buffer);
+    other.bookmark_markers = false;
     other.gutter.apply(Change::Visible(false));
     let frame = Frame::project(
         buffer,
@@ -163,7 +166,8 @@ fn native_toggle_and_save() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
     let stamp = buffers.get(id).unwrap().stamp();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = rev::session::Session::new(
         buffers,
         view,
@@ -224,6 +228,7 @@ fn unwrapped_alternative() {
     let id = buffers.create("one two three four five").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Visible(false));
     view.point.position = Scalar(buffer.len_chars());
     let size = Size {
@@ -258,6 +263,7 @@ fn cursor_affinity() {
         let id = buffers.create(source).unwrap();
         let buffer = buffers.get(id).unwrap();
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.gutter.apply(Change::Visible(false));
         view.point.position = Scalar(point);
         let size = Size {

@@ -23,7 +23,8 @@ fn editor(read_only: bool) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("alpha\nbeta\n").unwrap();
     buffers.get_mut(id).unwrap().set_readonly(read_only);
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     Session::new(buffers, view, size()).unwrap()
 }
 
@@ -189,7 +190,8 @@ fn different_buffers() {
     let mut buffers = Buffers::new().unwrap();
     let a = buffers.visit(&first).unwrap();
     buffers.visit(&second).unwrap();
-    let view = View::new(buffers.get(a).unwrap());
+    let mut view = View::new(buffers.get(a).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     let original = session.windows().selected_id();
     session.execute(Command::Split(Split::Right));
@@ -275,7 +277,8 @@ fn scrolled_text() {
         if !wrap {
             buffers.get_mut(id).unwrap().toggle_soft_wrap();
         }
-        let view = View::new(buffers.get(id).unwrap());
+        let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         let mut session = Session::new(buffers, view, size()).unwrap();
         session.execute(Command::GotoLine);
         session.handle(Event::Paste("25".into()));

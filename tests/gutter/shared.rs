@@ -32,6 +32,7 @@ fn editor(source: &str) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Mode(Mode::Relative));
     Session::new(buffers, view, SIZE).unwrap()
 }
@@ -120,6 +121,7 @@ fn divergent_modes() {
     let id = buffers.create(&"x\n".repeat(100)).unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     point(&mut view, buffer, 41);
     view.top = 39;
     view.gutter.apply(Change::Mode(Mode::Relative));

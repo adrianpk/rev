@@ -6,7 +6,7 @@ use crate::window::Area;
 use super::{Error, View};
 
 impl View {
-    /// Resolve text through the same number/text partition used by painting.
+    /// Resolve text through the same gutter/text partition used by painting.
     /// A source row beyond EOF or a non-text cell cannot invent a document point.
     pub fn hit(
         &self,

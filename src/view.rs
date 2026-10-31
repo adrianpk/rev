@@ -127,7 +127,7 @@ pub struct View {
 }
 
 impl View {
-    /// One number/text partition shared by rendering, overlays and reveal.
+    /// One gutter/text partition shared by rendering, overlays and reveal.
     pub fn gutter_geometry(
         &self,
         buffer: &Buffer,
@@ -142,14 +142,15 @@ impl View {
     }
 
     pub fn new(buffer: &Buffer) -> Self {
+        let bookmarks = crate::config::Bookmarks::default();
         Self {
             point: Point {
                 stamp: buffer.stamp(),
                 position: Scalar(0),
             },
             gutter: crate::gutter::Policy::default(),
-            bookmark_markers: false,
-            bookmark_marker: "●".into(),
+            bookmark_markers: bookmarks.markers,
+            bookmark_marker: bookmarks.marker,
             preview: crate::org::preview::State::default(),
             column: None,
             top: 0,
@@ -170,6 +171,8 @@ impl View {
     pub fn with_settings(buffer: &Buffer, settings: &crate::config::Snapshot) -> Self {
         let mut view = Self::new(buffer);
         view.gutter = crate::gutter::Policy::new(settings.settings().gutter);
+        view.bookmark_markers = settings.settings().bookmarks.markers;
+        view.bookmark_marker = settings.settings().bookmarks.marker.clone();
         view.preview.enabled = settings.settings().org.preview.enabled;
         view
     }

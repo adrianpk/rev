@@ -13,7 +13,8 @@ fn auxiliary_workspace() {
     owner.execute(Command::Tree(TreeCommand::Toggle));
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("a\t界e\u{301}\r\nlast").unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut windows = Windows::new(view).unwrap();
     let size = Size {
         width: 61,

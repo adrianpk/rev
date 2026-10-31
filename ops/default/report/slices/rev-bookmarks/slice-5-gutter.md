@@ -24,6 +24,13 @@ marker. Continuations, filler and folded bodies remain blank. Multiple names on
 one line share the glyph while retaining their independent record identities.
 Source edits, undo/redo and collection-only mutations invalidate the projection.
 
+`bookmarks.markers` defaults to true for each initial editing view;
+`bookmarks.marker` defaults to `●` and admits exactly one printable non-control
+grapheme of terminal width one. `palette.gutter.bookmark` defaults to `#e0af68`.
+`M-x bookmark-markers-mode` toggles only the selected view, with no factory
+shortcut. Splits inherit visibility; file rebinds and close/reopen preserve the
+view policy and independent bookmark records.
+
 ## Implementation Notes
 
 A buffer-owned derived index holds logical rows, keyed by canonical source
@@ -31,6 +38,12 @@ stamp, file identity and collection generation. It is built once when invalid
 from revision-current resolved anchors using the rope's existing line index.
 Panels query that set for visible source rows; there is no per-row collection
 scan, second source copy or serialized marker index.
+
+First enabled marker demand for a file-backed view loads storage through session
+startup/input/file transitions. The frame owner does not discover storage or
+resolve loaded records. Existing fixed-width number, wrap, pointer and overlay
+fixtures explicitly disable markers; factory and combined marker fixtures cover
+the changed default geometry without relaxing their source assertions.
 
 ## Contracts Added or Changed
 
@@ -44,12 +57,24 @@ Marker projection performs no filesystem IO, relocation or persistence.
 - `src/gutter/geometry.rs`: number-priority cell allocation and text protection.
 - `src/display/gutter.rs`: first-fragment semantic marker projection.
 - `tests/bookmarks/markers.rs`: native marker and geometry journeys.
+- `src/session/bookmarks/markers.rs`: per-view toggle and lazy admission boundary.
+- `src/config/bookmarks.rs`: admitted marker settings and defaults.
 
 ## Validation
 
 Development check `cargo test --locked --test bookmarks markers::` passed five
 native marker tests. Initial test setup was corrected to use the native newline
 command and distinguish logical rows from the view's mapped scroll origin.
+
+Subsequent `cargo test --locked --test bookmarks --test configuration marker`
+passed eight marker journeys and the Unicode/provenance configuration matrix.
+`cargo test --locked --lib bookmark_index` passed cache reuse and record-only
+invalidation. Native fold setup waits for the existing session-owned work before
+asserting visibility; no source assertion or resource allowance was weakened.
+The documentation checker passed 319 commands, 189 configuration entries,
+58 pages and 331 links/anchors. Additional origin checks passed 39 display,
+96 editing and 41 window tests after their fixed geometry fixtures were updated;
+161 command and 74 file tests also passed during development.
 
 Final exact-HEAD validation follows all task and canonical PR-reference commits:
 

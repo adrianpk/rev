@@ -32,6 +32,7 @@ fn logical_labels() {
                 CurrentLine::Hidden,
             ] {
                 let mut view = View::new(buffer);
+                view.bookmark_markers = false;
                 view.point.position = Scalar(5);
                 view.gutter = Policy::new(Settings {
                     side,
@@ -105,6 +106,7 @@ fn fold_and_width() {
     let source = Source::new(buffer).range(Byte(14)..Byte(21)).unwrap();
     for side in [Side::Left, Side::Right] {
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.position = Scalar(5);
         view.gutter = Policy::new(Settings {
             side,

@@ -1,6 +1,6 @@
 use super::{CurrentLine, Mode, Settings};
 
-/// Semantic number-field roles in the existing frame palette.
+/// Semantic gutter roles in the existing frame palette.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Role {
     Number,

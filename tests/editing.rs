@@ -527,6 +527,7 @@ fn editor(source: &str, position: usize, read_only: bool) -> rev::session::Sessi
     let buffer = buffers.get_mut(id).unwrap();
     buffer.set_readonly(read_only);
     let mut view = rev::view::View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = Scalar(position);
     rev::session::Session::new(
         buffers,

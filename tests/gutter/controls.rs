@@ -12,6 +12,7 @@ fn editor(snapshot: Snapshot) -> Session {
     let id = buffers.create("界\te\u{301}\r\nsecond\n").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::with_settings(buffer, &snapshot);
+    view.bookmark_markers = false;
     point(&mut view, buffer, 1);
     Session::new(
         buffers,

@@ -19,6 +19,7 @@ pub(super) fn editor(format: Format) -> Session {
         .create("\t界e\u{301}0123456789\r\n\nlast\n")
         .unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter = Policy::new(Settings {
         format,
         ..Settings::default()

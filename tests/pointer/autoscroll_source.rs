@@ -33,6 +33,7 @@ fn unicode_edges() {
             buffer.toggle_soft_wrap();
         }
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.gutter.apply(Change::Side(side));
         view.point.position = Scalar(3);
         view.left = width.max(3);

@@ -205,6 +205,8 @@ change only that view's overrides and never reload or write this snapshot.
 | `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
 | `bookmarks.file` | Absolute native path string, no NUL | Unset | User-wide collection; unset resolves to `$XDG_DATA_HOME/rev/bookmarks.toml` or `$HOME/.local/share/rev/bookmarks.toml`. No shell expansion. |
 | `bookmarks.save` | String: "on-exit", "on-change" or "manual" | `"on-exit"` | Save after source quit decisions, after explicit bookmark mutations, or only on explicit save. Source edits dirty evidence without IO. |
+| `bookmarks.markers` | Boolean | `true` | Initial per-view marker visibility, independent of numbering; splits inherit the current view. |
+| `bookmarks.marker` | One printable non-control grapheme, terminal width one | `"●"` | Glyph for resolved logical source rows; continuations, folds and filler are blank. |
 | `bookmarks.max_entries` | Integer 1..=4096 | `1024` | Admission cap for both memory and disk; excess rejects without eviction. |
 | `bookmarks.context_chars` | Integer 16..=256 | `64` | Source scalars captured on each side at a checked checkpoint. Existing stored context remains bounded to 256 per side. |
 | `bookmarks.search_chars` | Integer 0..=1048576 | `262144` | Total scalar search window on reopen; zero disables relocation. Each pass consumes at most 16384 scalars. |
@@ -265,6 +267,7 @@ All palette roles are global, with no language-scoped color override.
 | `palette.gutter.background` | RGB string | `"#1a1b26"` | Number-field background. |
 | `palette.gutter.foreground` | RGB string | `"#565f89"` | Ordinary logical labels. |
 | `palette.gutter.current_line` | RGB string | `"#7aa2f7"` | Current-line label; bold emphasis remains without color. |
+| `palette.gutter.bookmark` | RGB string | `"#e0af68"` | Resolved bookmark marker foreground. |
 | `palette.gutter.separator` | RGB string | `"#3b4261"` | Number/text separator foreground. |
 | `palette.syntax.keyword` | RGB string | `"#9d7cd8"` | Keyword captures. |
 | `palette.syntax.string` | RGB string | `"#9ece6a"` | String/escape captures. |

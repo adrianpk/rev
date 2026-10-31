@@ -212,6 +212,7 @@ fn gutter(base: &mut crate::gutter::Settings, partial: &PartialGutter) {
 }
 
 fn gutter_palette(base: &mut GutterPalette, partial: &PartialGutterPalette) {
+    color(&mut base.bookmark, &partial.bookmark);
     color(&mut base.background, &partial.background);
     color(&mut base.foreground, &partial.foreground);
     color(&mut base.current_line, &partial.current_line);
@@ -414,6 +415,10 @@ fn bookmarks(base: &mut super::Bookmarks, partial: &super::PartialBookmarks) {
         base.file = Some(path.clone());
     }
     scalar(&mut base.save, partial.save);
+    scalar(&mut base.markers, partial.markers);
+    if let Some(marker) = &partial.marker {
+        base.marker = marker.clone();
+    }
     count(&mut base.max_entries, partial.max_entries);
     count(&mut base.context_chars, partial.context_chars);
     count(&mut base.search_chars, partial.search_chars);

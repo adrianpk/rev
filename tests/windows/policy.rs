@@ -35,6 +35,7 @@ fn shared_policy() {
         buffer.redo_history().len(),
     );
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = Scalar(3);
     view.column = Some(4);
     let mut windows = Windows::new(view).unwrap();
@@ -99,6 +100,7 @@ fn policy_goals() {
             .create(&format!("a\tb\nx\n{}", "0123456789".repeat(7)))
             .unwrap();
         let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         view.point.position = Scalar(2);
         view.column = Some(4);
         buffers
@@ -135,6 +137,7 @@ fn policy_lifecycle() {
     let id = buffers.initial();
     let buffer = buffers.get_mut(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.column = Some(7);
     buffer.apply_settings(&prepare(&root).snapshot);
     view.reveal(buffer, size(12, 5)).unwrap();

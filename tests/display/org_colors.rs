@@ -33,6 +33,7 @@ fn clipped_source() {
             ("tab", 6, 4, "  te", 2..4),
         ] {
             let mut view = View::new(buffer);
+            view.bookmark_markers = false;
             view.left = left;
             let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
             let expected = if wrap {
@@ -66,6 +67,7 @@ fn selected_org() {
         })
         .unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = Scalar(4);
     let frame = Frame::project(
         buffer,
@@ -117,6 +119,7 @@ fn no_color_source() {
         })
         .unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = Scalar(5);
     let frame = Frame::project(
         buffer,

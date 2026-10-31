@@ -155,6 +155,7 @@ fn admission_and_resize() {
 fn rejected_sources(session: &Session) {
     let other = Buffers::new().unwrap();
     let mut view = View::new(session.buffer().unwrap());
+    view.bookmark_markers = false;
     let mut windows = Windows::new(view.clone()).unwrap();
     windows
         .split(

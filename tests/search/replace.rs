@@ -153,7 +153,8 @@ fn view_scope() {
         let id = buffers.create("cat cat\nlast").unwrap();
         let other_id = buffers.create("other buffer").unwrap();
         let label = buffers.get(other_id).unwrap().name().to_string();
-        let view = View::new(buffers.get(id).unwrap());
+        let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         let mut session = Session::new(
             buffers,
             view,
@@ -321,7 +322,8 @@ fn read_only() {
         let buffer = buffers.get_mut(id).unwrap();
         buffer.set_mark(Some(Scalar(4))).unwrap();
         buffer.set_readonly(true);
-        let view = View::new(buffer);
+        let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         let mut session = Session::new(
             buffers,
             view,

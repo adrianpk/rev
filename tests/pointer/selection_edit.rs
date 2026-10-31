@@ -22,7 +22,8 @@ fn selected(read_only: bool) -> Session {
     let id = buffers.create(SOURCE).unwrap();
     let buffer = buffers.get_mut(id).unwrap();
     buffer.set_readonly(read_only);
-    let view = View::new(buffer);
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     session.handle(super::focus::press(Position { column: 7, row: 0 }));
     session.handle(drag(8, 1));
@@ -88,6 +89,7 @@ fn unicode_endpoints() {
             buffers.get_mut(id).unwrap().toggle_soft_wrap();
         }
         let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         view.gutter.apply(Change::Side(side));
         view.point.position = Scalar(2);
         view.left = width.max(2);
@@ -155,7 +157,8 @@ fn source_edges() {
     }
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("ab界").unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(
         buffers,
         view,

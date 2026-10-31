@@ -67,7 +67,8 @@ fn projected_overlays() {
     let path = fixture.write("main.rs", source);
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(
         buffers,
         view,
@@ -323,7 +324,8 @@ fn workspace_tree() {
         if !wrap {
             buffers.get_mut(id).unwrap().toggle_soft_wrap();
         }
-        let view = View::new(buffers.get(id).unwrap());
+        let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         let size = Size {
             width: 61,
             height: 13,
@@ -404,7 +406,8 @@ fn workspace_lifecycle() {
     let source = format!("{}界e\u{301}", "a".repeat(12));
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(&source).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(
         buffers,
         view,

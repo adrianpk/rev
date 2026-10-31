@@ -66,7 +66,8 @@ fn different_sources() {
     let id = buffers.visit(&first).unwrap();
     let other = buffers.visit(&second).unwrap();
     let target_stamp = buffers.get(other).unwrap().stamp();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     let active = session.windows().selected_id();
     session.execute(Command::Split(Split::Right));
@@ -104,7 +105,8 @@ fn loaded_tree_bounds() {
     }
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     session.execute(Command::Tree(TreeCommand::Toggle));
     session.execute(Command::Tree(TreeCommand::Expand));

@@ -254,6 +254,7 @@ impl Session {
             .tree
             .present()
             .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
+        session.prepare_bookmark_markers();
         Ok(session)
     }
 

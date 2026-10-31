@@ -20,13 +20,14 @@ impl Session {
         // Admit the actual startup target before observing a visible root;
         // configured visibility must not enumerate an unrelated launch cwd.
         let mut session = Self::from_buffers(buffers, view, size).map_err(io::Error::other)?;
+        session.startup_bookmarks();
         session.startup_file(path)?;
         session.tree.present()?;
         if let Some(message) = session.tree.diagnostic() {
             session.notice(message);
         }
         session.startup_clock_state();
-        session.startup_bookmarks();
+        session.prepare_bookmark_markers();
         if let Some(diagnostic) = startup.diagnostic {
             session.notice(&format!("Configuration: {diagnostic}"));
         }

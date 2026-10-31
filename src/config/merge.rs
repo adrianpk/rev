@@ -539,6 +539,11 @@ impl Merge {
 
     fn gutter_palette(&mut self, base: &mut PartialGutterPalette, later: &PartialGutterPalette) {
         self.leaf(
+            &["palette", "gutter", "bookmark"],
+            &mut base.bookmark,
+            &later.bookmark,
+        );
+        self.leaf(
             &["palette", "gutter", "background"],
             &mut base.background,
             &later.background,
@@ -948,6 +953,8 @@ impl Merge {
     fn bookmarks(&mut self, base: &mut super::PartialBookmarks, later: &super::PartialBookmarks) {
         self.leaf(&["bookmarks", "file"], &mut base.file, &later.file);
         self.leaf(&["bookmarks", "save"], &mut base.save, &later.save);
+        self.leaf(&["bookmarks", "markers"], &mut base.markers, &later.markers);
+        self.leaf(&["bookmarks", "marker"], &mut base.marker, &later.marker);
         self.leaf(
             &["bookmarks", "max_entries"],
             &mut base.max_entries,

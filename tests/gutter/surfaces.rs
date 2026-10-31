@@ -17,7 +17,8 @@ pub(super) fn editor(fixture: &Fixture, side: bool, visible: bool) -> Session {
     let path = fixture.write("main.rs", SOURCE);
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(
         buffers,
         view,

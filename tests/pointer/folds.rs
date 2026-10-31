@@ -35,6 +35,7 @@ fn editor(edges: bool) -> Session {
     let buffer = buffers.get_mut(id).unwrap();
     buffer.select_mode(Mode::Org).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let ranges = if edges {
         view.point.position = Coordinates::new(buffer)
             .unwrap()

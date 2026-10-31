@@ -119,6 +119,7 @@ fn checked_columns() {
             buffer.toggle_soft_wrap();
         }
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.position = Scalar(2);
         view.left = width.max(2);
         let mut session = rev::session::Session::new(buffers, view, size()).unwrap();

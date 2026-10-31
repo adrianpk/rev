@@ -38,7 +38,7 @@ fn initial_frame() {
     )
     .unwrap();
     assert_eq!(frame.stamp(), buffer.stamp());
-    assert_eq!(frame.cursor(), Some(Position { column: 6, row: 0 }));
+    assert_eq!(frame.cursor(), Some(Position { column: 7, row: 0 }));
     assert_eq!(frame.rows().len(), 24);
     for (index, row) in frame.rows()[..22].iter().enumerate() {
         let prefix = if index == 0 { "   1 │" } else { "     │" };
@@ -77,6 +77,7 @@ fn viewport_reveal() {
             .unwrap();
         let buffer = buffers.get(id).unwrap();
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.position = Scalar(18);
         let size = Size {
             width: 4,
@@ -89,6 +90,7 @@ fn viewport_reveal() {
         assert_eq!(frame.rows()[1].text(), "界e\u{301} ");
         assert_eq!(frame.cursor(), Some(Position { column: 3, row: 1 }));
         let mut independent = View::new(buffer);
+        independent.bookmark_markers = false;
         independent.reveal(buffer, size).unwrap();
         assert_eq!((independent.top, independent.left), (0, 0));
         assert_eq!(buffer.stamp(), view.point.stamp);
@@ -146,6 +148,7 @@ fn mixed_clipping() {
             let id = buffers.create(source).unwrap();
             let buffer = buffers.get(id).unwrap();
             let mut view = View::new(buffer);
+            view.bookmark_markers = false;
             view.left = left;
             let size = Size { width, height: 3 };
             let frame = Frame::project(buffer, &view, size, "").unwrap();
@@ -172,7 +175,8 @@ fn safe_echo() {
     let source = "x\x1b[2J\u{9b}";
     let id = buffers.create(source).unwrap();
     let buffer = buffers.get(id).unwrap();
-    let view = View::new(buffer);
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let size = Size {
         width: 40,
         height: 4,
@@ -199,6 +203,7 @@ fn tiny_geometry() {
     let id = buffers.create("界e\u{301}\r\nlast").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut original = View::new(buffer);
+    original.bookmark_markers = false;
     original.point.position = Scalar(buffer.len_chars());
     original.top = 1;
     original.left = 2;
@@ -231,6 +236,7 @@ fn extreme_geometry() {
     let id = buffers.create("界\tend").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.top = usize::MAX;
     view.left = usize::MAX;
     for size in [
@@ -284,6 +290,7 @@ fn fresh_projection() {
     let mut buffers = Buffers::new().unwrap();
     let buffer = buffers.get_mut(buffers.initial()).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let size = Size {
         width: 48,
         height: 4,
@@ -380,6 +387,7 @@ fn qualified_views() {
     ];
     for (name, stamp, position, expected) in cases {
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.point.stamp = stamp;
         view.point.position = Scalar(position);
         assert_eq!(
@@ -425,7 +433,8 @@ fn draw_boundary() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("a\x1b[2J").unwrap();
     let buffer = buffers.get(id).unwrap();
-    let view = View::new(buffer);
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     for size in [
         Size {
             width: 8,
@@ -464,6 +473,7 @@ fn editor(source: &str, point: rev::coordinates::Cell, size: Size) -> rev::sessi
     let id = buffers.create(source).unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = rev::coordinates::Coordinates::new(buffer)
         .unwrap()
         .from_cell(point)
@@ -867,7 +877,8 @@ fn scroll_state() {
     buffer.set_mark(Some(Scalar(3))).unwrap();
     buffer.set_readonly(true);
     let stamp = buffer.stamp();
-    let view = View::new(buffer);
+    let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     let size = Size {
         width: 5,
         height: 7,

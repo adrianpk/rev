@@ -83,7 +83,7 @@ compiled M-x name once.
 | Mouse | `mouse-mode` |
 | Source wrapping | `visual-line-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
-| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
+| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-markers-mode`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
@@ -276,3 +276,12 @@ Changing direction steps back through that same order. Point movement, source
 edits, pane changes and collection mutations reset the repetition observation.
 Unresolved, stale and unavailable records are retained but skipped; an empty
 eligible set reports a clear result and suggests a checked jump by name.
+
+`M-x bookmark-markers-mode` toggles markers for the current editing view. Splits
+inherit its effective visibility; other views retain their policy. Enabled
+markers reserve one cell on `gutter.side` independently of number labels, after
+protecting available number geometry and at least three text columns. Only the
+first visual fragment of a resolved logical line receives the configured glyph.
+Multiple names on a line share that glyph and remain independently navigable.
+Hiding markers never deletes records. Storage admission occurs on first native
+marker demand for a file-backed view; painting never loads, relocates or saves.

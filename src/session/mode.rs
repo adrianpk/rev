@@ -4,6 +4,7 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn sync_input_context(&mut self) {
+        self.prepare_bookmark_markers();
         self.input.set_tree_focus(self.tree.focused());
         if self
             .bookmark_list

@@ -13,6 +13,7 @@ fn editor(source: &str, width: u16, height: u16) -> (super::fixture::Fixture, Se
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&fixture.write("notes.org", source)).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Visible(false));
     (
         fixture,
@@ -199,6 +200,7 @@ fn override_lifetime() {
         let mut buffers = Buffers::with_settings(rev::config::prepare(&config).snapshot).unwrap();
         let original = buffers.visit(&first).unwrap();
         let mut view = View::new(buffers.get(original).unwrap());
+        view.bookmark_markers = false;
         view.gutter.apply(Change::Visible(false));
         let mut session = Session::new(
             buffers,

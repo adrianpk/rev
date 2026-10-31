@@ -14,8 +14,8 @@ fn configured(f: &fixture::Fixture, mode: &str, extra: &str) -> Session {
     );
     let startup = prepare(&config);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
-    let buffers = Buffers::with_settings(startup.snapshot).unwrap();
-    let view = View::new(buffers.get(buffers.initial()).unwrap());
+    let buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
+    let view = View::with_settings(buffers.get(buffers.initial()).unwrap(), &startup.snapshot);
     Session::new(
         buffers,
         view,
@@ -447,7 +447,7 @@ fn lazy_file_lifetime() {
             f.0.join("destination/original")
         };
         f.write("data/bookmarks.toml", &document(&original, "closed"));
-        let mut s = configured(&f, "on-change", "");
+        let mut s = configured(&f, "on-change", "markers=false\n");
         s.load(&original).unwrap();
         assert!(s.bookmarks().is_empty());
         if operation == "save-as" {

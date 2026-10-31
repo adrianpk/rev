@@ -18,7 +18,8 @@ fn configured(settings: &str) -> (Fixture, Session) {
     assert!(startup.diagnostic.is_none());
     let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
     let id = buffers.create(&lines(150)).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     (fixture, Session::new(buffers, view, size()).unwrap())
 }
 
@@ -161,7 +162,8 @@ fn tree_distance() {
     }
     let mut buffers = Buffers::with_settings(rev::config::prepare(&root).snapshot).unwrap();
     let id = buffers.visit(&source).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     let mut session = Session::new(buffers, view, size()).unwrap();
     session.execute(Command::Tree(TreeCommand::Toggle));
     session.execute(Command::Tree(TreeCommand::Expand));

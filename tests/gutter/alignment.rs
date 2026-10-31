@@ -31,6 +31,7 @@ fn origin_case(side: Side, width: u16, left: usize, expected: &str, wrap: bool) 
     }
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Side(side));
     view.point.position = Scalar(buffer.len_chars());
     let size = Size { width, height: 4 };

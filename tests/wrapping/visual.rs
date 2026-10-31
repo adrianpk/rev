@@ -17,6 +17,7 @@ fn editor(source: &str, position: usize, width: u16, wrap: bool, readonly: bool)
     let buffer = buffers.get_mut(id).unwrap();
     buffer.set_readonly(readonly);
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Visible(false));
     view.point.position = Scalar(position);
     Session::new(buffers, view, Size { width, height: 7 }).unwrap()

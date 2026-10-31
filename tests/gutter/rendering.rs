@@ -24,6 +24,7 @@ fn decimal_case(mode: Mode) {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(&"\n".repeat(9_998)).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.gutter.apply(Change::Mode(mode));
     let mut session = Session::new(
         buffers,
@@ -117,7 +118,8 @@ fn absolute_rows() {
         let mut buffers = Buffers::new().unwrap();
         let id = buffers.create(source).unwrap();
         let buffer = buffers.get(id).unwrap();
-        let view = View::new(buffer);
+        let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         let frame = Frame::project(
             buffer,
             &view,
@@ -202,6 +204,7 @@ fn semantic_cells() {
     let id = buffers.create("│a\nb").unwrap();
     let buffer = buffers.get(id).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.point.position = Scalar(3);
     let mut palette = Palette::default();
     palette.gutter.background = Rgb(1, 2, 3);

@@ -9,7 +9,7 @@ pub(in crate::session) struct Persistence {
     pub(super) path: Option<PathBuf>,
     store: Option<Store>,
     pub(super) error: Option<String>,
-    attempted: bool,
+    pub(super) attempted: bool,
 }
 impl Persistence {
     pub(in crate::session) fn configured(path: Option<PathBuf>) -> Self {

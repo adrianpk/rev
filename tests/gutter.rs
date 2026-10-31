@@ -66,8 +66,9 @@ fn factory_projection() {
     assert_eq!(projection.policy.side, Side::Left);
     assert_eq!(windows.selected().gutter.overrides(), Overrides::default());
     assert_eq!(projection.geometry.digits(), 4);
+    assert_eq!(projection.geometry.marker(), Some(area(8, 3, 1, 22)));
     assert_eq!(projection.geometry.numbers(), Some(area(2, 3, 6, 22)));
-    assert_eq!(projection.geometry.text(), area(8, 3, 74, 22));
+    assert_eq!(projection.geometry.text(), area(9, 3, 73, 22));
     assert_eq!(composition.panels()[0].1.status(), Some(area(2, 25, 80, 1)));
     assert_eq!(composition.prompt(), area(2, 26, 80, 1));
     assert_eq!(before, (buffer.stamp(), buffer.state()));

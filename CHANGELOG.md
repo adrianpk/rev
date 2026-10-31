@@ -20,7 +20,10 @@ This project uses Semantic Versioning.
   `C-x r l` opens a read-only list with checked visits and staged deletion;
   configurable local keys navigate rows without editing source text. Use
   `M-x bookmark-next` or `bookmark-previous` to step through resolved locations
-  in the current file, including distinct names at the same point.
+  in the current file, including distinct names at the same point. Gutter markers
+  show resolved locations independently of number labels; wrapped continuations
+  and hidden folded bodies stay blank. Configure the glyph and color, or toggle
+  markers per view with `M-x bookmark-markers-mode`.
 - Click a file-tree entry to select it and open its file or expand/collapse its
   directory. Set `mouse.tree_activate_on_click = false` for selection-only clicks.
   Blank tree space focuses the tree without activating an entry, and clicked

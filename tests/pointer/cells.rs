@@ -34,7 +34,8 @@ fn glyph_boundaries() {
     ] {
         let id = buffers.create(text).unwrap();
         let buffer = buffers.get(id).unwrap();
-        let view = View::new(buffer);
+        let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         for (column, &scalar) in expected.iter().enumerate() {
             assert_eq!(
                 hit(&view, buffer, 6 + column as u16, 0),
@@ -66,11 +67,9 @@ fn eof_padding() {
     ] {
         let id = buffers.create(text).unwrap();
         let buffer = buffers.get(id).unwrap();
-        assert_eq!(
-            hit(&View::new(buffer), buffer, 6 + column, row),
-            expected,
-            "{name}"
-        );
+        let mut view = View::new(buffer);
+        view.bookmark_markers = false;
+        assert_eq!(hit(&view, buffer, 6 + column, row), expected, "{name}");
     }
 }
 
@@ -133,6 +132,7 @@ fn clipped_cells() {
             };
             let buffer = buffers.get(id).unwrap();
             let mut view = View::new(buffer);
+            view.bookmark_markers = false;
             view.left = left;
             let frame = Frame::project(buffer, &view, Size { width, height: 5 }, "").unwrap();
             assert_eq!(
@@ -169,6 +169,7 @@ fn policy_origins() {
         let id = buffers.create("head\nx\t界\n").unwrap();
         let buffer = buffers.get(id).unwrap();
         let mut view = View::new(buffer);
+        view.bookmark_markers = false;
         view.top = 1;
         for side in [Side::Left, Side::Right] {
             view.gutter.apply(Change::Side(side));
@@ -214,7 +215,8 @@ fn checked_candidates() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("abc").unwrap();
     let foreign = buffers.create("xyz").unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     assert!(
         view.hit(
             buffers.get(foreign).unwrap(),
@@ -239,6 +241,7 @@ fn checked_candidates() {
         .is_err()
     );
     let mut current = View::new(buffer);
+    current.bookmark_markers = false;
     current.left = usize::MAX;
     assert_eq!(hit(&current, buffer, 7, 0), Some(1));
     // Horizontal origins are checked only in the explicit no-wrap policy.

@@ -105,6 +105,7 @@ fn split_case(direction: Split) {
     let buffers = Buffers::new().unwrap();
     let buffer = buffers.get(buffers.initial()).unwrap();
     let mut view = View::new(buffer);
+    view.bookmark_markers = false;
     view.gutter = Policy::new(startup());
     view.gutter.apply(Change::Mode(Mode::Absolute));
     let mut windows = Windows::new(view).unwrap();

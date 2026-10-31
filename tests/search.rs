@@ -23,6 +23,7 @@ fn editor(source: &str, position: usize) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(source).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.point.position = Scalar(position);
     Session::new(
         buffers,

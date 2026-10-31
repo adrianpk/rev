@@ -31,6 +31,7 @@ fn policy_clipping() {
             let id = buffers.create(source).unwrap();
             let buffer = buffers.get(id).unwrap();
             let mut view = View::new(buffer);
+            view.bookmark_markers = false;
             view.left = left;
             let size = Size {
                 width: width + 6,
@@ -75,6 +76,7 @@ fn marked_geometry() {
         let mut buffers = Buffers::with_settings(prepare(&root).snapshot).unwrap();
         let id = buffers.create("a\t界e\u{301}z").unwrap();
         let mut view = View::new(buffers.get(id).unwrap());
+        view.bookmark_markers = false;
         view.point.position = Scalar(1);
         let mut session = Session::new(
             buffers,

@@ -24,6 +24,7 @@ fn editor(text: &str, size: Size) -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create(text).unwrap();
     let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     view.point.position = Scalar(text.chars().count().min(2));
     view.column = Some(5);
     Session::new(buffers, view, size).unwrap()

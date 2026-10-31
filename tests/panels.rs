@@ -29,7 +29,8 @@ fn position(column: u16, row: u16) -> Position {
 fn editor() -> Session {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.create("a\t界e\u{301}\r\nlast").unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let mut view = View::new(buffers.get(id).unwrap());
+    view.bookmark_markers = false;
     Session::new(
         buffers,
         view,

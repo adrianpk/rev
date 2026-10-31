@@ -18,6 +18,53 @@ struct Index {
     rows: Arc<BTreeSet<usize>>,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::bookmark::Context;
+    use crate::buffer::{Buffers, edit::Point};
+    use crate::coordinates::Scalar;
+    use crate::fixture::Fixture;
+
+    // Visible-row queries and peer panels reuse one index. Record-only changes
+    // reject it without relying on a source edit to advance the buffer stamp.
+    #[test]
+    fn bookmark_index() {
+        let f = Fixture::new();
+        let path = f.write("source", "first\nsecond\n");
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&path).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        let set = |position| {
+            buffers
+                .bookmarks_mut()
+                .set(
+                    "A",
+                    path.clone(),
+                    Point {
+                        stamp: buffer.stamp(),
+                        position: Scalar(position),
+                    },
+                    true,
+                    Context::capture(buffer, Scalar(position)).unwrap(),
+                )
+                .unwrap();
+        };
+        set(6);
+        let original = buffer.bookmark_rows().unwrap();
+        assert_eq!(original.iter().copied().collect::<Vec<_>>(), [1]);
+        assert!(Arc::ptr_eq(&original, &buffer.bookmark_rows().unwrap()));
+        set(0);
+        let changed = buffer.bookmark_rows().unwrap();
+        assert!(!Arc::ptr_eq(&original, &changed));
+        assert_eq!(changed.iter().copied().collect::<Vec<_>>(), [0]);
+        assert!(Arc::ptr_eq(&changed, &buffer.bookmark_rows().unwrap()));
+        buffers.bookmarks_mut().delete("A").unwrap();
+        assert!(buffer.bookmark_rows().unwrap().is_empty());
+        assert_eq!(original.iter().copied().collect::<Vec<_>>(), [1]);
+    }
+}
+
 impl Buffer {
     /// Obtain a revision-current set once per panel, then query visible logical
     /// rows. Only resolved live anchors contribute; this never reads a file,
