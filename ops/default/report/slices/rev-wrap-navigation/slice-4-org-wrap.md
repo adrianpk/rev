@@ -10,7 +10,7 @@ PR: pending
 ## Purpose
 
 Complete WRP04 and WRP05 with shared Org projection geometry, bounded layout
-lifetimes and measured long-line control. T4.1 is implemented; T4.2 is active.
+lifetimes and measured long-line control. T4.1 is implemented at `ba7233b763b514be0c0fb0cf205abd2c4ae4c227`; T4.2 is active.
 
 ## Delivered Behavior
 
@@ -51,6 +51,8 @@ The bounded layout/cache contract is not yet implemented by this partial slice.
 - `tests/wrapping/org.rs`: native folds, logical fields, source drafts, preview
   reflow and source/history preservation.
 - `tests/org_editing/fold_edges.rs`: paired wrap/no-wrap folded Unicode hits.
+- `examples/wrap-performance.rs`: finite native API baseline probe with exact
+  source restoration and idle-deadline assertions; no terminal gate replacement.
 
 ## Validation
 
@@ -65,6 +67,28 @@ The bounded layout/cache contract is not yet implemented by this partial slice.
   PR-reference publication.
 
 No full delivery gate or complete wrap acceptance is claimed by this draft.
+
+The native override lifecycle case also passes: both startup defaults survive
+unequal splits, a buffer-local toggle, another buffer, close and revisit under
+a new source identity. Source files and the configuration file stay unchanged.
+
+`cargo run --locked --quiet --example wrap-performance` passed its development
+baseline assertions on this worktree. It uses the debug profile, one in-memory
+buffer per case, eight alternating visual motions, four resizes, eight typed
+characters and eight backspaces, with a frame after each event. These are
+maximum observed native API latencies, not terminal input/backlog measurements
+or accepted final ceilings:
+
+| Case | Bytes / scalars | Cold frame ms | Motion ms | Resize ms | Input ms | Reversal ms |
+| --- | --- | --- | --- | --- | --- | --- |
+| Token | 65536 / 65536 | 991.930 | 2538.942 | 1002.903 | 999.844 | 1085.815 |
+| Words | 62244 / 62244 | 1166.805 | 2282.533 | 855.795 | 789.813 | 811.892 |
+| Unicode/tabs | 61440 / 49152 | 848.942 | 1354.143 | 681.149 | 647.380 | 651.291 |
+
+Every case restored the exact source bytes and canonical point, had no remaining
+input deadline, and returned Wait on a later expiry. This proves source
+restoration and absence of scheduled idle work; it does not measure idle CPU.
+The observed prefix costs are baseline failures to resolve under T4.2.
 
 ## Risks and Follow-ups
 

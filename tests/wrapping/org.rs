@@ -182,3 +182,65 @@ fn preview_anchor() {
     assert_eq!(text(&session), source);
     assert!(session.buffer().unwrap().history().is_empty());
 }
+
+// Runtime policy belongs to a live buffer across unequal split widths. Closing
+// it removes its override from every affected view; revisiting the unchanged
+// file creates a new identity inheriting the frozen startup default again.
+#[test]
+fn override_lifetime() {
+    use rev::command::{BufferCommand, Split};
+    for startup in [true, false] {
+        let fixture = super::fixture::Fixture::new();
+        let config_text = format!("editor.soft_wrap = {startup}");
+        let config = fixture.write("config.toml", &config_text);
+        let source = "one two three four five six seven eight nine\r\n";
+        let first = fixture.write("first.org", source);
+        let other = fixture.write("other.org", "* other\n");
+        let mut buffers = Buffers::with_settings(rev::config::prepare(&config).snapshot).unwrap();
+        let original = buffers.visit(&first).unwrap();
+        let mut view = View::new(buffers.get(original).unwrap());
+        view.gutter.apply(Change::Visible(false));
+        let mut session = Session::new(
+            buffers,
+            view,
+            Size {
+                width: 40,
+                height: 14,
+            },
+        )
+        .unwrap();
+        let stamp = session.buffer().unwrap().stamp();
+        session.execute(Command::VisualLineMode);
+        session.execute(Command::Split(Split::Right));
+        session.execute(Command::Split(Split::Below));
+        let ids = session.windows().order();
+        assert_eq!(ids.len(), 3);
+        for id in &ids {
+            session.select_view(*id).unwrap();
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+            assert_eq!(session.buffer().unwrap().soft_wrap(), !startup);
+            assert!(session.buffer().unwrap().history().is_empty());
+        }
+        session.load(&other).unwrap();
+        assert_eq!(session.buffer().unwrap().soft_wrap(), startup);
+        session.select_view(ids[0]).unwrap();
+        session.execute(Command::Buffer(BufferCommand::Kill));
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Enter,
+            KeyModifiers::NONE,
+        )));
+        assert_eq!(session.echo(), "Buffer closed");
+        for id in ids {
+            session.select_view(id).unwrap();
+            assert_ne!(session.view().point.stamp.buffer, original);
+            assert_eq!(session.buffer().unwrap().soft_wrap(), startup);
+        }
+        session.load(&first).unwrap();
+        assert_ne!(session.view().point.stamp.buffer, original);
+        assert_eq!(session.buffer().unwrap().soft_wrap(), startup);
+        assert_eq!(text(&session), source);
+        assert!(session.buffer().unwrap().history().is_empty());
+        assert_eq!(std::fs::read(&first).unwrap(), source.as_bytes());
+        assert_eq!(std::fs::read_to_string(config).unwrap(), config_text);
+    }
+}
