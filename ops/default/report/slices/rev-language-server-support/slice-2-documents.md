@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-02-documents`
-PR: pending
+PR: [#204](https://forge.adrianpk.com/adrianpk/rev/pulls/204)
 
 ## Purpose
 
@@ -105,8 +105,7 @@ fixture establishes deterministic local behavior; real-server acceptance remains
 with its planned slice.
 
 T2.1 is commit `7049f12fb921e55d832fc1d266138189c0274c5c`.
-T2.2 introduces this report with the completed buffer-local status boundary and
-shared-connection exclusion regressions.
+T2.2 is commit `8d3369ca1d73a9fe1d64467f539f659a8675cb44`, which introduces this report with the completed buffer-local status boundary and shared-connection exclusion regressions.
 
 ## Risks and Follow-ups
 

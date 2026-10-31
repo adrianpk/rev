@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 2 — Versioned documents and buffer eligibility
+Active slice: Slice 2 — Versioned documents and buffer eligibility; PR #204 awaiting controller integration
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -43,7 +43,7 @@ Acceptance: LSP02, LSP05-LSP06 and document ownership parts of LSP01.
 - [x] T2.2: Implement current-buffer disconnect/connect across views, exclusion generation, reactivation/close behavior and normal automatic attachment. Retire document work without disrupting other attachments; preserve native completion when excluded or over limits.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T2.1 `7049f12fb921e55d832fc1d266138189c0274c5c`; T2.2 is the Slice 2 report-introduction commit. Canonical PR: pending. Integration remains controller-owned.
+Implementation: T2.1 `7049f12fb921e55d832fc1d266138189c0274c5c`; T2.2 `8d3369ca1d73a9fe1d64467f539f659a8675cb44` introduces the Slice 2 report. Canonical PR: [#204](https://forge.adrianpk.com/adrianpk/rev/pulls/204). Integration remains controller-owned.
 
 ## Slice 3: Semantic candidates and native fallback
 
