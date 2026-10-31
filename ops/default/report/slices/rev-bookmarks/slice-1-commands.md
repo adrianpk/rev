@@ -60,6 +60,7 @@ prompt behavior, the complete startup sample and Unreleased notes are current.
 - `tests/bookmarks.rs`: native workflow, limits, identity and preservation coverage.
 - `docs/reference/commands.md`, `bindings.md`, `prompts.md`, `config.toml`:
   current public controls and complete factory configuration.
+- `docs/reference/defaults.md`: complete 74-entry editor keymap reference.
 
 ## Validation
 
@@ -85,6 +86,8 @@ its exact-candidate receipt outside the repository. Its ordered check list is:
 2. `cargo test --locked --test bookmarks --test commands --test files --test configuration`
 3. `git diff --check`
 
+The documentation checker initially rejected the old 71-entry editor map count;
+the reference now records all 74 entries including the three bookmark chords.
 An additional controller-owned `cargo run --locked --quiet --example documentation-check`
 batch checks the current public references before the required batch.
 The worker hands off only after both batches succeed. The combined
