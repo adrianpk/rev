@@ -1,0 +1,114 @@
+# Slice 3: Rust, C and Go structural sources
+
+Status: reviewing
+Delivery set: rev-autocompletion
+Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
+Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
+Branch: `feat/rev-autocompletion-03-systems`
+PR: pending
+
+## Purpose
+
+Deliver the systems-language subset of CMP03 and CMP05-CMP07 through the existing
+syntax, completion interaction and canonical edit owners.
+
+## Delivered Behavior
+
+Rust, C and Go provide manual and automatic declaration suggestions with shared
+checked literal acceptance and undo. C includes typedef/type/enum names,
+functions, fields, enumerators and local/parameter declarations; Go includes
+functions/methods, types, fields, constants and local/parameter declarations.
+Rust adds representative destructuring, closure, conditional and enum coverage.
+Explicit scope captures keep local bindings and parameters within their lexical
+block/function; later bindings, closed blocks and other functions do not leak.
+Incomplete source retains independent valid declarations, including local names
+at an unfinished block's end. Error-dependent captures are omitted.
+
+Current unsaved declarations rank before other same-language open buffers within
+the same prefix/subsequence class. Proximity, source order and lexical ties are
+deterministic; identical insertion/range proposals collapse. Other buffers
+contribute their current unsaved global/member names. Unopened files and other
+language identities are excluded. Proposals do not infer imports, macro expansion
+or receiver types. C pointer `->` edits admit automatic requests; native comments
+and strings retain configured automatic suppression.
+
+## Implementation Notes
+
+The syntax catalog selects pinned Rust 0.24.2, C 0.24.2 and Go 0.25.0 grammars
+with one Tree-sitter 0.27.1 engine. Each buffer retains one parser/highlight query,
+completion query and tree. A temporary worker borrows that owner and a shared
+immutable rope snapshot; extraction and ranking stay off the input/render path.
+Returned trees retain their actual revision. A changed source requires reparsing
+rather than relabeling stale observations. Grammar or language-identity changes
+rebuild derived syntax and advance its admission generation.
+
+Admission enforces 2 MiB per analyzed buffer, 8 MiB total source snapshots and
+32 observations. Recent source use orders other-buffer admission; current context
+comes first. Extraction caps 4096 names per buffer, 16384 combined symbols, 8 MiB
+symbol payload, 512-byte labels and 64 KiB literal edits. Explicit lexical scope
+scratch data is bounded to 8192 nodes and 128 ancestor steps. Older other-buffer
+observations are omitted before current context under aggregate pressure.
+Manual notices distinguish limits from complete no-match outcomes. Cancellation,
+parse/query callbacks and final worker publication check the 50 ms job deadline;
+one active and one newest pending request remain the only native work slots.
+
+Every published observation pins canonical revision, applied language identity,
+grammar generation, associated path and live buffer availability. Edits, rename,
+grammar/language changes and close retire the list without changing the target.
+A change while work is in flight also rejects its result. Rendering reads only
+retained proposals and metadata; idle completion has no timer or source scan.
+
+## Contracts Added or Changed
+
+The grammar enum and startup reference now admit `rust`, `c`, `go` and `plain`.
+Rust/C/Go identities choose their bundled grammar by default; explicit plain
+selection remains effective. Existing C/header and Go associations are reused.
+Status presentation names the prepared grammar, including source-edit buffers.
+Numeric captures from C/Go use the existing number palette role. The complete
+sample, configuration/default catalog, syntax/completion references and the
+existing Unreleased completion entry describe the delivered behavior.
+
+## Files of Interest
+
+- `src/syntax/catalog.rs`, `rust.scm`, `c.scm`, `go.scm`: admitted parser/query payloads.
+- `src/syntax/completion.rs`, `scope.rs`: explicit names and lexical scopes.
+- `src/completion/source.rs`, `job.rs`: source pins, finite snapshots and worker ownership.
+- `src/session/completion/sources.rs`: current-first admission and source recency.
+- `tests/completion/systems.rs`: native language, scope, context and limit cases.
+- `src/session/completion/tests.rs`: invalidation, in-flight edits and aggregate snapshots.
+
+## Validation
+
+Development checks passed:
+
+- `cargo test --locked --test completion systems`: seven real systems-language
+  cases passed before the final incomplete-local extension.
+- `cargo test --locked --test completion systems::incomplete_source`: the extended
+  incomplete declarations/local-at-end case passed for all three grammars.
+- `cargo test --locked --test configuration`: all 136 configuration cases passed.
+- `cargo test --locked --lib completion`: ten ownership, admission and observation
+  cases passed before adding the in-flight edit regression and identity case.
+- `cargo tree --locked -i tree-sitter --depth 1`: one Tree-sitter 0.27.1 engine.
+
+The early systems fixture replaced every `sam` substring in its expected text,
+including a declaration's `sample` name. Its expectation now replaces the actual
+source token only. Configuration fixtures retain explicit `plain` behavior and
+reject an unsupported grammar instead of the newly admitted Go grammar. A
+read-only publication check now preserves its explicit read-only diagnostic
+before stale-source checks. These corrections preserve source/history assertions
+and the configured resource limits.
+
+T3.1 is commit `fcf66225fbce` (full identity recorded by Git).
+T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
+Controller-focused evidence and the final PR-reference follow-up are recorded
+before the exact final configured ordered checks:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test completion --test syntax --test files --test coordinates`
+3. `git diff --check`
+
+## Risks and Follow-ups
+
+Syntactic observations do not establish semantic imports, macro expansion or
+member types. Integrated PTY/resource acceptance and the remaining language
+families retain their approved slices. The full delivery-set gate remains pending.
