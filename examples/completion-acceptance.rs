@@ -2,6 +2,8 @@
 
 #[path = "../tests/support/language_assets.rs"]
 mod assets;
+#[path = "../tests/configuration/fixture.rs"]
+mod fixture;
 #[path = "completion_acceptance/native.rs"]
 mod native;
 #[path = "completion_acceptance/pty.rs"]

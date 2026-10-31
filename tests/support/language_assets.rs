@@ -4,8 +4,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, Mutex, Weak};
 
-#[path = "../configuration/fixture.rs"]
-mod fixture;
+use crate::fixture;
 
 static COMPILED: Mutex<Weak<Compiled>> = Mutex::new(Weak::new());
 pub struct Compiled {
