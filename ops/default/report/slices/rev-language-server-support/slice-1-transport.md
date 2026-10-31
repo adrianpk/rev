@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-01-transport`
-PR: pending
+PR: [#203](https://forge.adrianpk.com/adrianpk/rev/pulls/203)
 
 ## Purpose
 
@@ -97,7 +97,7 @@ canonical aliases, connection budgets, disable/enable and graceful shutdown/exit
 Owned local fixture processes are reaped after their checks.
 
 T1.1 is commit `dc8b3428da348d5f259c69134b7a742739fe8785`.
-T1.2 introduces this report with native activation/status and configuration tests.
+T1.2 is commit `37dff9caf62315049ee65fb98348548a52dd956c`, which introduces this report with native activation/status and configuration tests.
 
 ## Risks and Follow-ups
 
