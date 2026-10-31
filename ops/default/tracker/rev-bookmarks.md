@@ -51,7 +51,8 @@ Acceptance: BMK02, BMK06.
 Implementation commits: T2.1 `dd5cb9fc0cc93b2934303ea78f7d3f2bdf04b1db`;
 T2.2 `b63e7834d9b06ab0ceb62b183da8c05295b38e6b`.
 [Slice 2 report](../report/slices/rev-bookmarks/slice-2-locations.md) is reviewing;
-canonical PR integration and final exact-HEAD evidence remain pending.
+canonical PR [#186](https://forge.adrianpk.com/adrianpk/rev/pulls/186) is open.
+Integration and final exact-HEAD evidence remain pending.
 
 ## Slice 3: Persistent collection
 

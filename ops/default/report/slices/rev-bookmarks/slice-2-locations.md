@@ -5,7 +5,7 @@ Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
 Branch: `feat/rev-bookmarks-02-locations`
-PR: pending
+PR: [#186](https://forge.adrianpk.com/adrianpk/rev/pulls/186)
 
 ## Purpose
 
