@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-05-directory-targets`
-PR: pending
+PR: [#178](https://forge.adrianpk.com/adrianpk/rev/pulls/178)
 
 ## Purpose
 
@@ -85,11 +85,35 @@ separate approved slice owners.
 
 ## Validation
 
-T5.1 commit `c5a8568c938772c69018c18fa5f2bb935b003632` passed the three new
-native directory cases and 105 path/tree regressions during development.
-Subsequent development checks passed all 133 configuration and 19 panel cases,
-66 tree cases, eight CLI/PTY opening journeys and one denied-directory startup.
-The final split-view and tree-leaf regressions require fresh clean-head evidence.
+T5.1 commit `c5a8568c938772c69018c18fa5f2bb935b003632` implements target
+admission; T5.2 commit `18ce4a7f1138511ef060b79fbde16755a8a9c494` completes
+initialization, bounded listings, focus intent and native regression coverage.
+The latter passed all-target Clippy and five focused tree-pointer tests. Its
+documentation check caught an outdated tree keymap count; commit
+`121c167275df9e2f19f5d5470859bdb13bb86b49` corrects that reference without
+changing the check.
+
+Controller receipt `5BMRLUDPOYEPF7E4V3XQYLLXMZ` passed these exact ordered
+commands at clean head `121c167275df9e2f19f5d5470859bdb13bb86b49`:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test files --test tree --test path_completion --test configuration --test panels`
+3. `git diff --check`
+4. `cargo run --locked --quiet --example documentation-check`
+5. `python3 scripts/check-directory-targets.py`
+
+The native suites passed 336 tests: 133 configuration, 74 file, 19 panel,
+43 path-completion and 67 tree cases. These include split-view identity/history
+preservation and directory-symlink tree-leaf rejection. Documentation passed
+305 commands, 179 configuration entries, 58 pages and 330 local links/anchors.
+Eight successful CLI/PTY journeys and denied-directory startup verified exact
+source/cwd preservation, bounded immediate presentation and terminal restoration.
+
+Additional successful commands at the unchanged runtime implementation head
+`18ce4a7f1138511ef060b79fbde16755a8a9c494` were:
+
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test pointer tree`
 
 Legacy expectations now exercise approved directory acceptance, automatic-root
 updates, an initially expanded root and retained focus intent. Source/view/mark/
@@ -97,9 +121,10 @@ history assertions remain in place. The regular-file loader's original directory
 rejection case remains intact; session directory admission is a separate target
 operation. The combined delivery gate is reserved for the final acceptance phase.
 
-The controller must record the exact configured commands and focused Clippy,
-tree-pointer, documentation and CLI checks on a clean head before handoff.
-The final PR-reference head requires its own fresh configured receipt.
+PR #178 targets `dev` with the approved title and immutable report-introduction
+link. The final PR-reference head receives a fresh configured three-command
+receipt through the controller before handoff; its exact identity is retained
+in controller evidence rather than claimed by this earlier report revision.
 
 ## Risks and Follow-ups
 
@@ -107,5 +132,4 @@ A bounded directory observation can still wait on the filesystem. Incomplete
 lists retain an observed subset rather than claim full sorted coverage. Later
 refresh is explicit; no automatic retry or background discovery is introduced.
 
-Record the canonical PR and controller receipts. Both directory tickets remain
-under review until verified merge.
+Both directory tickets remain under review until verified merge.

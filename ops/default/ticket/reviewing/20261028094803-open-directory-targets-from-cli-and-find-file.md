@@ -13,7 +13,8 @@ ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T03:02:07Z
 branch: feat/rev-wrap-navigation-05-directory-targets
 reviewed_at: 2026-10-31T03:20:52Z
-commits: [c5a8568c938772c69018c18fa5f2bb935b003632]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/178
+commits: [c5a8568c938772c69018c18fa5f2bb935b003632, 18ce4a7f1138511ef060b79fbde16755a8a9c494, 121c167275df9e2f19f5d5470859bdb13bb86b49]
 ---
 
 # Open directories from startup and find-file
@@ -122,5 +123,8 @@ Versioning readiness does not implement it or alter completed Org records.
 Slice 5 implements the accepted directory/root and first-presentation policies.
 The [Slice 5 report](../../report/slices/rev-wrap-navigation/slice-5-directory-targets.md)
 records canonical source preservation, root/configuration precedence, bounded
-first-level observation and native CLI/PTY evidence. The ticket is under review;
-canonical PR references and final clean-head controller checks precede handoff.
+first-level observation and native CLI/PTY evidence. Canonical [PR #178](https://forge.adrianpk.com/adrianpk/rev/pulls/178)
+targets `dev`. Controller receipt `5BMRLUDPOYEPF7E4V3XQYLLXMZ` passed 336 native
+tests, documentation checks and nine CLI/PTY cases at
+`121c167275df9e2f19f5d5470859bdb13bb86b49`. The ticket remains under review
+until verified merge; final PR-reference validation is recorded by the controller.
