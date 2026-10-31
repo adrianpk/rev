@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-02-visual-editing`
-PR: pending
+PR: `#175`
 
 ## Purpose
 
@@ -92,11 +92,12 @@ Rev fixtures at the same text width:
 | Same source at 7 | 7 | One space |
 | `abcdefghijklmnopqrstuvwx` at 0 | 11 | `abcdefghijk` |
 | Same source at 11 | 11 | `l` |
-| Real source EOL | Same source EOL | LF, or the preserved whole CRLF separator |
+| Real source EOL | Same source EOL | LF |
 
 The [GNU Emacs command source](https://github.com/emacs-mirror/emacs/blob/master/lisp/simple.el)
 defines the visual-edge and wrap-character behavior. Rev retains its approved
-read-only admission and grapheme-safe coordinate rules. The reference probe is
+read-only admission and grapheme-safe coordinate rules. Native Rev tests also
+verify preservation of whole CRLF separators. The reference probe is
 development evidence, not an added runtime or gate dependency.
 
 ## Risks and Follow-ups
