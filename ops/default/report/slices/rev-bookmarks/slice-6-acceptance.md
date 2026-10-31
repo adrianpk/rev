@@ -1,6 +1,6 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -201,7 +201,7 @@ this report. BMK05 compare-and-publish serialization, disk/memory preservation,
 store bounds, process deadlines and the unchanged full gate retain their
 approved contracts.
 
-Final clean-HEAD validation follows the repair and canonical PR-reference
+Final clean-HEAD validation passed after the repair and canonical PR-reference
 commits in the pinned order:
 
 1. `cargo fmt --all -- --check`
@@ -209,4 +209,11 @@ commits in the pinned order:
 3. `cargo test --locked --test bookmarks --test recovery --test files`
 4. `git diff --check`
 
-The controller owns repair integration and rerunning the unchanged full gate.
+Canonical repair PR [#192](https://forge.adrianpk.com/adrianpk/rev/pulls/192)
+merged through Rebase + Fast-forward into `dev` at
+`0ac7450184554390a0cb7b4756576225c1212a27`. Required receipt
+`2FY5EHAFD4KIABIM5KK3GYTZBC` passed the exact four-command list: 91 library
+tests and 156 integration tests (57 bookmarks, 74 files and 25 recovery).
+The controller verified and recorded the repair merge in Acta. All six slices
+and both authorized repairs are integrated; the unchanged full gate remains
+pending under controller ownership.

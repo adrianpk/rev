@@ -145,6 +145,18 @@ candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptanc
 records the diagnosis, preserved assertions and completed repair. The controller
 recorded its canonical merge in Acta; the unchanged full gate remains pending.
 
+The next full gate failed at `359b392858646941fe5c65b384b9609c583341ad`
+in receipt `4QZXBGUBDCSJQ275WAQXLEQDWS`: an immediate publication retry
+found a store lock still busy. Authorized repair
+PR [#192](https://forge.adrianpk.com/adrianpk/rev/pulls/192) merged at
+`0ac7450184554390a0cb7b4756576225c1212a27`. Required receipt
+`2FY5EHAFD4KIABIM5KK3GYTZBC` passed formatting, 91 library tests, 156
+bookmark/file/recovery integration tests and diff hygiene on that exact clean
+candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-2-explicit-store-lock-release)
+records explicit lock release, the retained-descriptor regression and preserved
+publication contracts. The controller recorded the canonical repair merge in
+Acta; the unchanged full gate remains pending.
+
 - [x] Controller verifies all six canonical slice integrations.
 - [ ] Controller runs the pinned Full gate on the clean integrated dev candidate.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
