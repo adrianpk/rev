@@ -162,6 +162,11 @@ fn escaped_keys() {
         ("escaped.toml", "service.port = 80\nother.po| = 0\n", "port"),
         (
             "escaped.toml",
+            "[server]\nport = 80\n[\"ser|\"]\n",
+            "server",
+        ),
+        (
+            "escaped.toml",
             "[\"server.name\" . http]\nport = 80\n[\"server.name\".ht|]\n",
             "\"server.name\".http",
         ),

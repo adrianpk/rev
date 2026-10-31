@@ -90,6 +90,8 @@ A seventh real-workflow regression first demonstrated that escape expansion
 could silently drop an over-limit label. Encoded-label admission corrected that
 outcome; `cargo test --locked --test completion formats::label_limit` passed
 for JSON escapes and TOML literal tabs without modifying source/history.
+Quoted TOML header prefixes also normalize bare-equivalent segment spelling;
+the escaped-key workflow passed after correcting that prefix mismatch.
 `cargo test --locked --test syntax preferences::grammar_policy` passed its
 expanded parser/color/plain-override matrix. Development library Clippy and the
 changed-owner source-quality diagnostic passed.

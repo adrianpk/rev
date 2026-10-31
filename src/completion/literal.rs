@@ -139,6 +139,10 @@ fn path_part(raw: &str, partial: bool) -> Option<String> {
     if !partial {
         return None;
     }
+    path_prefix(raw)
+}
+
+fn path_prefix(raw: &str) -> Option<String> {
     let quote = raw.chars().next()?;
     let rest = raw.strip_prefix(quote)?;
     let name = match quote {
@@ -146,8 +150,11 @@ fn path_part(raw: &str, partial: bool) -> Option<String> {
         '\'' => rest.to_owned(),
         _ => return None,
     };
-    let encoded = encode(&name, Grammar::Json);
-    Some(encoded[..encoded.len() - 1].to_owned())
+    if name.is_empty() {
+        return Some(String::new());
+    }
+    let encoded = encode(&name, Grammar::Toml);
+    Some(encoded.strip_suffix('"').unwrap_or(&encoded).to_owned())
 }
 
 #[derive(Default)]
