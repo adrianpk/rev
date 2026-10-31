@@ -65,7 +65,13 @@ impl Session {
         windows.reveal(&self.buffers, composition.editing_size())?;
         match event.kind {
             Kind::Press => {
-                Hit::resolve(&composition, &windows, &self.buffers, event.position)?;
+                Hit::resolve(
+                    &composition,
+                    &windows,
+                    &self.buffers,
+                    &self.tree,
+                    event.position,
+                )?;
             }
             Kind::Drag | Kind::Release => {
                 if let Some(selection) = &self.selection
@@ -101,20 +107,46 @@ impl Session {
         self.reveal_workspace(composition.as_ref())?;
         composition
             .as_ref()
-            .map(|composition| Hit::resolve(composition, &self.windows, &self.buffers, position))
+            .map(|composition| {
+                Hit::resolve(
+                    composition,
+                    &self.windows,
+                    &self.buffers,
+                    &self.tree,
+                    position,
+                )
+            })
             .transpose()
             .map(Option::flatten)
     }
 
     fn focus_hit(&mut self, hit: Hit) -> Action {
         let result = match hit {
-            Hit::Tree => self.focus_tree(),
+            Hit::Tree { entry } => return self.click_tree(entry),
             Hit::Editing { view, point } => self.focus_editing(view, point),
         };
         match result {
             Ok(()) => self.message(""),
             Err(error) => self.error(&error.to_string()),
         }
+    }
+
+    fn click_tree(&mut self, entry: Option<crate::tree::Hit>) -> Action {
+        if let Err(error) = self.focus_tree() {
+            return self.error(&error.to_string());
+        }
+        let Some(hit) = entry else {
+            return self.message("");
+        };
+        if !self.tree.select_hit(&hit) {
+            return self.notice("Tree entry is no longer current");
+        }
+        if let Some(entry) = self.tree.selected()
+            && let Err(error) = entry.verify()
+        {
+            return self.error(&error.to_string());
+        }
+        self.tree_open()
     }
 
     fn focus_tree(&mut self) -> Result<(), Error> {

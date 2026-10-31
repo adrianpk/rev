@@ -40,7 +40,7 @@ impl Session {
         self.message(&notice)
     }
 
-    pub(super) fn tree_open(&mut self) -> Action {
+    pub(in crate::session) fn tree_open(&mut self) -> Action {
         if self.input.focus() != Focus::Editing {
             return self.message("a prompt owns input focus");
         }

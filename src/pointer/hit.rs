@@ -7,9 +7,9 @@ use crate::window::{ViewId, Windows};
 use super::Target;
 
 /// Disposable destination from the current projection, never a cached hit map.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Hit {
-    Tree,
+    Tree { entry: Option<crate::tree::Hit> },
     Editing { view: ViewId, point: Option<Point> },
 }
 
@@ -18,10 +18,17 @@ impl Hit {
         composition: &Composition,
         windows: &Windows,
         buffers: &Buffers,
+        tree: &crate::tree::Tree,
         position: Position,
     ) -> Result<Option<Self>, Error> {
         let (id, panel) = match Target::resolve(composition, position) {
-            Some(Target::Tree(_)) => return Ok(Some(Self::Tree)),
+            Some(Target::Tree(panel)) => {
+                let entry = panel
+                    .content()
+                    .local(position)
+                    .and_then(|local| tree.hit(local.row));
+                return Ok(Some(Self::Tree { entry }));
+            }
             Some(Target::Editing { view, panel }) => (view, panel),
             None => return Ok(None),
         };

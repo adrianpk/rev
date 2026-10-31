@@ -1,6 +1,7 @@
 mod create;
 mod delete;
 mod entry;
+mod hit;
 mod navigation;
 mod refresh;
 mod rename;
@@ -8,6 +9,7 @@ mod root;
 
 pub use create::{CreateKind, Creation};
 pub use entry::Entry;
+pub use hit::Hit;
 
 use std::io;
 use std::path::{Path, PathBuf};
@@ -179,9 +181,12 @@ impl Tree {
         if self.focused { "Tree *" } else { "Tree" }
     }
 
+    fn row_entry(&self, row: u16) -> Option<&Entry> {
+        self.entries.get(self.top + usize::from(row))
+    }
+
     pub(crate) fn line(&self, row: u16, width: u16) -> String {
-        self.entries
-            .get(self.top + usize::from(row))
+        self.row_entry(row)
             .map(|entry| entry.label(width))
             .unwrap_or_default()
     }

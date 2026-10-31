@@ -28,6 +28,8 @@ mod scroll_workspace;
 mod selection;
 #[path = "pointer/selection_edit.rs"]
 mod selection_edit;
+#[path = "pointer/tree_click.rs"]
+mod tree_click;
 #[path = "pointer/workspace.rs"]
 mod workspace;
 

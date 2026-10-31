@@ -148,7 +148,7 @@ recorded its merge in Acta. The ticket is solved; Slice 7 is active. See the [Sl
 
 Acceptance: NAV05, NAV06.
 
-- [ ] T7.1: Carry rendered entry identity through tree hit testing, focus/select that row and apply the existing tree action to it; validate after viewport/listing changes.
+- [x] T7.1: Carry rendered entry identity through tree hit testing, focus/select that row and apply the existing tree action to it; validate after viewport/listing changes.
 - [ ] T7.2: Add mouse.tree_activate_on_click default true with false selection-only, complete sample/reference validation and tests; preserve global mouse disablement and resolve the pointer ticket.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 7 report.
 

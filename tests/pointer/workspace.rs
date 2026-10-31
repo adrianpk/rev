@@ -59,8 +59,8 @@ fn source(session: &Session) -> String {
         .to_string()
 }
 
-// Tree ownership changes through the normal focus transition. A click does
-// not activate an entry, enumerate the directory or change a document point.
+// A tree status hit changes focus without an entry action. It cannot enumerate
+// a directory, move the editing point or consume an active prompt.
 #[test]
 fn tree_focus() {
     let mut session = editor(false);
@@ -78,8 +78,13 @@ fn tree_focus() {
     );
     assert!(!session.tree().focused());
     assert_eq!(session.view().point.position, Scalar(1));
+    let composition = Composition::workspace(session.windows(), session.tree(), size(), 0).unwrap();
+    let status = composition.tree().unwrap().status().unwrap();
     assert_eq!(
-        session.handle(press(Position { column: 1, row: 0 })),
+        session.handle(press(Position {
+            column: status.column(),
+            row: status.row()
+        })),
         Action::Redraw
     );
     assert!(session.tree().focused());

@@ -60,6 +60,18 @@ impl Entry {
         })
     }
 
+    pub(crate) fn verify(&self) -> io::Result<()> {
+        let current = Self::observe(self.path.clone(), self.depth)?;
+        if current.directory != self.directory || current.symlink != self.symlink {
+            return Err(failure(
+                "activate entry",
+                &self.path,
+                io::Error::other("entry type has changed; refresh the tree"),
+            ));
+        }
+        Ok(())
+    }
+
     pub(super) fn children(&self, policy: &crate::config::Tree) -> io::Result<Children> {
         use crate::file::completion::{ENTRY_LIMIT, NAME_BYTE_LIMIT};
         // Revalidate the selected entry before reading: a replaced symlink must

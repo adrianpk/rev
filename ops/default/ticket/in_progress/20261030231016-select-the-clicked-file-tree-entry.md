@@ -1,7 +1,7 @@
 ---
 id: TKT-20261030231016
 title: Select the clicked file-tree entry
-status: ready
+status: in_progress
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: mouse, tree, navigation
 source: chat
 reported_at: 2026-10-30T23:10:16Z
 ready_at: 2026-10-30T23:41:32Z
+started_at: 2026-10-31T03:48:50Z
+branch: feat/rev-wrap-navigation-07-tree-click
 commits: []
 ---
 
