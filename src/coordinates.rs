@@ -250,6 +250,31 @@ impl<'a> Coordinates<'a> {
             .is_none_or(|work| work.lock().expect("layout budget poisoned").charge())
     }
 
+    fn charged_glyph(
+        &self,
+        glyphs: &mut Glyphs<'a>,
+        work: &Option<Work>,
+        paused: (Scalar, Cell),
+    ) -> Result<Option<Glyph<'a>>, Error> {
+        if !Self::charge(work) {
+            self.pause(paused.0, paused.1);
+            return Err(Error::Pending);
+        }
+        glyphs.next().transpose()
+    }
+    fn remember_periodic(&self, index: usize, point: Scalar, cell: Cell) {
+        if index % checkpoints::INTERVAL == 0 {
+            self.remember(point, cell);
+        }
+    }
+    fn finish_cell(&self, point: Scalar, end: usize, cell: Cell) -> Result<Cell, Error> {
+        if point.0 != end {
+            return Err(Error::Cluster(point));
+        }
+        self.remember(point, cell);
+        Ok(cell)
+    }
+
     pub(crate) fn glyphs_from_column(&self, cell: Cell) -> Result<Glyphs<'a>, Error> {
         let (line, start) = self.body(cell.row)?;
         if cell.column == 0 {
@@ -276,12 +301,11 @@ impl<'a> Coordinates<'a> {
         let mut glyphs = self.glyphs_at(row, from, column)?;
         let mut index = 0;
         loop {
-            if !Self::charge(&work) {
-                self.pause(last, Cell { row, column });
-                return Err(Error::Pending);
-            }
-            let Some(glyph) = glyphs.next() else { break };
-            let glyph = glyph?;
+            let Some(glyph) =
+                self.charged_glyph(&mut glyphs, &work, (last, Cell { row, column }))?
+            else {
+                break;
+            };
             if point < glyph.source.end {
                 let cell = cluster_cell(point, &glyph, row)?;
                 self.remember(point, cell);
@@ -290,16 +314,9 @@ impl<'a> Coordinates<'a> {
             column = glyph.columns.end;
             last = glyph.source.end;
             index += 1;
-            if index % checkpoints::INTERVAL == 0 {
-                self.remember(glyph.source.end, Cell { row, column });
-            }
+            self.remember_periodic(index, glyph.source.end, Cell { row, column });
         }
-        if point.0 != start.0 + line.len_chars() {
-            return Err(Error::Cluster(point));
-        }
-        let cell = Cell { row, column };
-        self.remember(point, cell);
-        Ok(cell)
+        self.finish_cell(point, start.0 + line.len_chars(), Cell { row, column })
     }
 
     /// Interior wide/tab cells map to their source start; columns past EOL clamp.
@@ -316,18 +333,20 @@ impl<'a> Coordinates<'a> {
         let mut glyphs = self.glyphs_at(cell.row, last, column)?;
         let mut index = 0;
         loop {
-            if !Self::charge(&work) {
-                self.pause(
+            let Some(glyph) = self.charged_glyph(
+                &mut glyphs,
+                &work,
+                (
                     last,
                     Cell {
                         row: cell.row,
                         column,
                     },
-                );
-                return Err(Error::Pending);
-            }
-            let Some(glyph) = glyphs.next() else { break };
-            let glyph = glyph?;
+                ),
+            )?
+            else {
+                break;
+            };
             column = glyph.columns.end;
             if cell.column < column {
                 self.remember(
@@ -341,15 +360,14 @@ impl<'a> Coordinates<'a> {
             }
             last = glyph.source.end;
             index += 1;
-            if index % checkpoints::INTERVAL == 0 {
-                self.remember(
-                    glyph.source.end,
-                    Cell {
-                        row: cell.row,
-                        column,
-                    },
-                );
-            }
+            self.remember_periodic(
+                index,
+                glyph.source.end,
+                Cell {
+                    row: cell.row,
+                    column,
+                },
+            );
         }
         // The checkpoint may itself be EOL and have no remaining glyph.
         column = column.max(self.column_checkpoint(cell).map_or(0, |(_, column)| column));

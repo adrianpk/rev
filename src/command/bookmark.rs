@@ -26,6 +26,11 @@ impl BookmarkCommand {
             Self::Save => "bookmark-save",
             Self::Reload => "bookmark-reload",
             Self::List => "list-bookmarks",
+            _ => self.navigation_name(),
+        }
+    }
+    fn navigation_name(self) -> &'static str {
+        match self {
             Self::Next => "bookmark-next",
             Self::Previous => "bookmark-previous",
             Self::Markers => "bookmark-markers-mode",
@@ -33,6 +38,7 @@ impl BookmarkCommand {
             Self::MenuUnmark => "bookmark-bmenu-unmark",
             Self::MenuExecute => "bookmark-bmenu-execute-deletions",
             Self::MenuVisit => "bookmark-bmenu-this-window",
+            _ => unreachable!("bookmark navigation command"),
         }
     }
 }

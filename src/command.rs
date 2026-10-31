@@ -406,6 +406,11 @@ impl Command {
             Self::Motion(motion) => motion.name(),
             Self::Scroll(scroll) => scroll.name(),
             Self::History(history) => history.name(),
+            _ => self.family_name(),
+        }
+    }
+    fn family_name(self) -> &'static str {
+        match self {
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),
             Self::Window(command) => command.name(),

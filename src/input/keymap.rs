@@ -114,9 +114,7 @@ impl Effective {
 /// Exact normalized user chords replace inherited entries; all other defaults
 /// survive. No map escapes this boundary before context and prefix validation.
 pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
-    let editor = Map::compile(Context::Editor, &keys.editor)?;
-    let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
-    let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
+    let (editor, minibuffer, org_calendar) = base_maps(keys)?;
     Ok(Effective {
         completion: Map::compile(Context::Completion, &keys.completion)?,
         org: Map::inherit(&editor, Context::Org, &keys.org)?,
@@ -129,4 +127,11 @@ pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda)?,
         org_calendar,
     })
+}
+
+fn base_maps(keys: &crate::config::Keymaps) -> Result<(Map, Map, Map), Error> {
+    let editor = Map::compile(Context::Editor, &keys.editor)?;
+    let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
+    let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
+    Ok((editor, minibuffer, org_calendar))
 }

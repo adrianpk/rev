@@ -425,17 +425,17 @@ impl Session {
     /// projection has no source cursor/hits; remaining_input owns its next wake.
     pub fn poll_frame(&mut self) -> Result<Frame, view::Error> {
         if self.layout_active() {
-            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+            return self.pending_frame();
         }
         // Observe completed source work before installing a derived-work budget.
         // Its canonical callbacks must never receive a projection-only yield.
         self.refresh_frame()?;
         if self.layout_active() {
-            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+            return self.pending_frame();
         }
         let mut budget = view::LayoutBudget::new();
         if !self.prepare_frame_layout(&mut budget)? {
-            return Frame::pending(self.buffer()?, self.size, self.buffers.palette());
+            return self.pending_frame();
         }
         let work = std::sync::Arc::new(std::sync::Mutex::new(budget));
         let scopes = self.layout_scopes(work)?;
@@ -445,10 +445,14 @@ impl Session {
             Err(error) if error.pending() => {
                 self.layout_pending = true;
                 self.cancel_pointer_capture();
-                Frame::pending(self.buffer()?, self.size, self.buffers.palette())
+                self.pending_frame()
             }
             result => result,
         }
+    }
+
+    fn pending_frame(&self) -> Result<Frame, view::Error> {
+        Frame::pending(self.buffer()?, self.size, self.buffers.palette())
     }
 
     /// Produce a complete synchronous observation for an embedding caller.
@@ -591,6 +595,12 @@ impl Session {
         match outcome {
             Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
+            _ => self.argument_outcome(outcome, now),
+        }
+    }
+
+    fn argument_outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        match outcome {
             Outcome::Argument(path) => self.argument(path),
             Outcome::PathAccept => self.accept_path(),
             Outcome::Decision(accepted) => self.decision(accepted),
@@ -603,21 +613,8 @@ impl Session {
     }
 
     fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
-        if self.bookmark_list_active()
-            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
-        {
-            return self.message("Read-only bookmark list; q returns to source");
-        }
-        if (self.habit_agenda.is_some() || self.agenda_active())
-            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
-        {
-            return self.message("Read-only Org agenda; C-g returns to source");
-        }
-        if self.tangle_input_blocked(&outcome) {
-            return self.message("Source output owns input; C-g cancels remaining work");
-        }
-        if self.capture_blocks_input() {
-            return self.message("Capture input pending; C-g cancels");
+        if let Some(message) = self.blocked_input(&outcome) {
+            return self.message(message);
         }
         match outcome {
             Outcome::Pointer(event) => self.pointer(event, now),
@@ -626,6 +623,26 @@ impl Session {
             Outcome::Message(message) => self.notice(message),
             _ => Action::Wait,
         }
+    }
+
+    fn blocked_input(&self, outcome: &Outcome) -> Option<&'static str> {
+        if self.bookmark_list_active()
+            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
+        {
+            return Some("Read-only bookmark list; q returns to source");
+        }
+        if (self.habit_agenda.is_some() || self.agenda_active())
+            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
+        {
+            return Some("Read-only Org agenda; C-g returns to source");
+        }
+        if self.tangle_input_blocked(outcome) {
+            return Some("Source output owns input; C-g cancels remaining work");
+        }
+        if self.capture_blocks_input() {
+            return Some("Capture input pending; C-g cancels");
+        }
+        None
     }
 
     /// Executes the same implemented command enum produced by key bindings.

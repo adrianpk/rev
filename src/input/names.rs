@@ -64,13 +64,7 @@ impl Names {
         self.top = self.top.min(self.candidates().len().saturating_sub(rows));
     }
     fn handle(&mut self, key: Key) -> Outcome {
-        let direction = match key.plain() {
-            Some(KeyCode::Up) => Some(true),
-            Some(KeyCode::Down) => Some(false),
-            _ if key.control('p') => Some(true),
-            _ if key.control('n') => Some(false),
-            _ => None,
-        };
+        let direction = direction(key);
         if let Some(previous) = direction {
             let count = self.candidates().len();
             if count == 0 {
@@ -175,5 +169,15 @@ impl Input {
             return Outcome::Ignored;
         };
         names.handle(key)
+    }
+}
+
+fn direction(key: Key) -> Option<bool> {
+    match key.plain() {
+        Some(KeyCode::Up) => Some(true),
+        Some(KeyCode::Down) => Some(false),
+        _ if key.control('p') => Some(true),
+        _ if key.control('n') => Some(false),
+        _ => None,
     }
 }

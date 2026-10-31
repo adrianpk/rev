@@ -73,7 +73,6 @@ impl Entry {
     }
 
     pub(super) fn children(&self, policy: &crate::config::Tree) -> io::Result<Children> {
-        use crate::file::completion::{ENTRY_LIMIT, NAME_BYTE_LIMIT};
         // Revalidate the selected entry before reading: a replaced symlink must
         // not turn a stale directory observation into a traversable link.
         let current = Self::observe(self.path.clone(), self.depth)?;
@@ -86,6 +85,15 @@ impl Entry {
         }
         let directory =
             fs::read_dir(&self.path).map_err(|e| failure("read directory", &self.path, e))?;
+        self.read_children(policy, directory)
+    }
+
+    fn read_children(
+        &self,
+        policy: &crate::config::Tree,
+        directory: fs::ReadDir,
+    ) -> io::Result<Children> {
+        use crate::file::completion::{ENTRY_LIMIT, NAME_BYTE_LIMIT};
         let mut children = Vec::new();
         let mut name_bytes = 0;
         let mut incomplete = false;

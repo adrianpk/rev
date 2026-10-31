@@ -112,8 +112,13 @@ impl Session {
         if let Some(command) = tree_alias(command) {
             return Some(self.tree_command(command));
         }
+        if matches!(
+            command,
+            Command::Tree(_) | Command::Quit | Command::MouseMode | Command::FindFile
+        ) {
+            return None;
+        }
         match command {
-            Command::Tree(_) | Command::Quit | Command::MouseMode | Command::FindFile => None,
             Command::KeyboardQuit
                 if matches!(
                     self.pending,

@@ -49,19 +49,13 @@ impl Session {
     }
 
     fn ingress(&mut self, path: &Path, directories: bool) -> io::Result<()> {
-        match std::fs::metadata(path) {
-            Ok(metadata) if directories && metadata.is_dir() => {
-                return self.ingress_directory(path);
-            }
-            Ok(_) => {}
-            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
-            Err(error) => {
-                return Err(io::Error::new(
-                    error.kind(),
-                    format!("open {path:?}: {error}"),
-                ));
-            }
+        if directory_target(path, directories)? {
+            return self.ingress_directory(path);
         }
+        self.ingress_file(path)
+    }
+
+    fn ingress_file(&mut self, path: &Path) -> io::Result<()> {
         let visit = self.buffers.prepare_visit(path)?;
         let buffer = visit.buffer(&self.buffers).map_err(io::Error::other)?;
         let observed = buffer.file().map(|file| file.path().to_path_buf());
@@ -87,6 +81,11 @@ impl Session {
         self.pending = None;
         self.echo_kind = crate::display::Message::Normal;
         self.echo.clear();
+        self.refresh_ingress_tree(observed, root_changed);
+        Ok(())
+    }
+
+    fn refresh_ingress_tree(&mut self, observed: Option<std::path::PathBuf>, root_changed: bool) {
         if !root_changed
             && let Some(path) = observed
             && let Err(error) = self.tree.observe_path(&path)
@@ -94,7 +93,6 @@ impl Session {
             self.echo = format!("Opened {}; tree refresh failed: {error}", path.display());
             self.echo_kind = crate::display::Message::Warning;
         }
-        Ok(())
     }
 
     fn ingress_directory(&mut self, path: &Path) -> io::Result<()> {
@@ -131,6 +129,11 @@ impl Session {
             Some(Pending::TreeRename(rename)) => self.tree_renamed(rename, &path),
             Some(Pending::TreeCreate(creation)) => self.tree_created(creation, &path),
             Some(Pending::Replace(state)) => self.replace_argument(*state, path),
+            pending => self.file_destination_argument(pending, path),
+        }
+    }
+    fn file_destination_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
+        match pending {
             Some(Pending::Write { buffer, after }) => {
                 self.save_to(buffer, Some(Path::new(&path)), after)
             }
@@ -253,4 +256,21 @@ impl Session {
             _ => unreachable!("qualified collection argument"),
         }
     }
+}
+
+fn directory_target(path: &Path, directories: bool) -> io::Result<bool> {
+    match std::fs::metadata(path) {
+        Ok(metadata) if directories && metadata.is_dir() => {
+            return Ok(true);
+        }
+        Ok(_) => {}
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+        Err(error) => {
+            return Err(io::Error::new(
+                error.kind(),
+                format!("open {path:?}: {error}"),
+            ));
+        }
+    }
+    Ok(false)
 }

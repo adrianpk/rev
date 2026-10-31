@@ -83,12 +83,14 @@ mod tests {
                 .set(
                     "A",
                     path.clone(),
-                    Point {
-                        stamp: buffer.stamp(),
-                        position: Scalar(position),
-                    },
+                    crate::bookmark::Captured::new(
+                        Point {
+                            stamp: buffer.stamp(),
+                            position: Scalar(position),
+                        },
+                        Context::capture(buffer, Scalar(position)).unwrap(),
+                    ),
                     true,
-                    Context::capture(buffer, Scalar(position)).unwrap(),
                 )
                 .unwrap();
         };

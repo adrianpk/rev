@@ -103,12 +103,10 @@ impl Session {
     pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
         self.invalidate_completion();
         self.timer_notice = false;
-        if matches!(&event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
-            || matches!(&event, Event::Paste(_) | Event::Mouse(_))
-        {
+        if bookmark_input(&event) {
             self.bookmark_visit = None;
         }
-        if self.layout_pending && matches!(event, Event::Mouse(_)) {
+        if self.obsolete_pointer(&event) {
             // The pending frame exposes no current source mapping. Do not let
             // a click on an obsolete surface redirect a canonical source edit.
             self.cancel_pointer_capture();
@@ -139,6 +137,10 @@ impl Session {
             return expired;
         }
         action
+    }
+
+    fn obsolete_pointer(&self, event: &Event) -> bool {
+        self.layout_pending && matches!(event, Event::Mouse(_))
     }
 
     /// Service native deadlines after the host has processed ready input.
@@ -188,3 +190,8 @@ impl Session {
 
 #[cfg(test)]
 mod tests;
+
+fn bookmark_input(event: &Event) -> bool {
+    matches!(event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
+        || matches!(event, Event::Paste(_) | Event::Mouse(_))
+}

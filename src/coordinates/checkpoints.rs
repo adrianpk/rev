@@ -119,6 +119,23 @@ mod tests {
     use crate::buffer::{Buffers, edit::Replacement};
     use crate::coordinates::Coordinates;
 
+    fn reference_end(
+        coordinates: &Coordinates<'_>,
+        from_cell: bool,
+        len: usize,
+    ) -> Result<usize, crate::coordinates::Error> {
+        if from_cell {
+            coordinates
+                .from_cell(Cell {
+                    row: 0,
+                    column: usize::MAX,
+                })
+                .map(|point| point.0)
+        } else {
+            coordinates.to_cell(Scalar(len)).map(|cell| cell.column)
+        }
+    }
+
     // A coordinate miss can yield without losing its last complete boundary.
     // Subsequent scoped batches match the full source scan, including errors.
     #[test]
@@ -156,16 +173,7 @@ mod tests {
                         assert!(yields <= b.len_chars());
                     }
                     result => {
-                        let expected = if from_cell {
-                            reference
-                                .from_cell(Cell {
-                                    row: 0,
-                                    column: usize::MAX,
-                                })
-                                .map(|p| p.0)
-                        } else {
-                            reference.to_cell(Scalar(b.len_chars())).map(|p| p.column)
-                        };
+                        let expected = reference_end(&reference, from_cell, b.len_chars());
                         assert_eq!(result, expected);
                         break;
                     }

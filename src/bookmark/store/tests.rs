@@ -33,12 +33,14 @@ fn collection(name: &str) -> Bookmarks {
         .set(
             name,
             PathBuf::from("/intended/missing"),
-            crate::buffer::edit::Point {
-                stamp: buffer.stamp(),
-                position: Scalar(0),
-            },
+            crate::bookmark::Captured::new(
+                crate::buffer::edit::Point {
+                    stamp: buffer.stamp(),
+                    position: Scalar(0),
+                },
+                Context::capture(buffer, Scalar(0)).unwrap(),
+            ),
             true,
-            Context::capture(buffer, Scalar(0)).unwrap(),
         )
         .unwrap();
     records

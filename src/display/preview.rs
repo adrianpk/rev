@@ -66,14 +66,7 @@ fn image_area(
     if fragments.is_none() && view.left != 0 || area.width() == 0 || area.height() == 0 {
         return None;
     }
-    let offset = if let Some(fragments) = fragments {
-        fragments
-            .iter()
-            .position(|f| f.line == row && f.columns.start == 0)?
-    } else {
-        view.project_row(buffer, row)?
-            .checked_sub(view.projected_top(buffer))?
-    };
+    let offset = image_offset(buffer, view, row, fragments)?;
     let offset = u16::try_from(offset).ok()?;
     if offset >= area.height() {
         return None;
@@ -84,4 +77,20 @@ fn image_area(
         area.width().min(40),
         (area.height() - offset).min(12),
     )
+}
+
+fn image_offset(
+    buffer: &Buffer,
+    view: &View,
+    row: usize,
+    fragments: Option<&[crate::view::Fragment]>,
+) -> Option<usize> {
+    Some(if let Some(fragments) = fragments {
+        fragments
+            .iter()
+            .position(|f| f.line == row && f.columns.start == 0)?
+    } else {
+        view.project_row(buffer, row)?
+            .checked_sub(view.projected_top(buffer))?
+    })
 }

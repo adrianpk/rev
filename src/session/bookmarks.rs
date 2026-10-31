@@ -30,25 +30,8 @@ impl Session {
     }
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
-        match command {
-            BookmarkCommand::Markers => return self.toggle_bookmark_markers(),
-            BookmarkCommand::List => return self.list_bookmarks(),
-            BookmarkCommand::Next => return self.step_bookmark(false),
-            BookmarkCommand::Previous => return self.step_bookmark(true),
-            BookmarkCommand::MenuDelete
-            | BookmarkCommand::MenuUnmark
-            | BookmarkCommand::MenuExecute
-            | BookmarkCommand::MenuVisit => {
-                return self.message("This command requires the bookmark list");
-            }
-            BookmarkCommand::Save => {
-                return match self.save_bookmarks() {
-                    Ok(()) => self.message("Bookmarks saved"),
-                    Err(error) => self.error(&error),
-                };
-            }
-            BookmarkCommand::Reload => return self.reload_bookmarks(),
-            _ => {}
+        if let Some(action) = self.bookmark_action(command) {
+            return action;
         }
         let notice = self.ensure_bookmarks().err().unwrap_or_default();
         let point = self.view().point;
@@ -89,6 +72,30 @@ impl Session {
         self.bookmark_prompt(prompt, "", &notice)
     }
 
+    fn bookmark_action(&mut self, command: BookmarkCommand) -> Option<Action> {
+        Some(match command {
+            BookmarkCommand::Markers => self.toggle_bookmark_markers(),
+            BookmarkCommand::List => self.list_bookmarks(),
+            BookmarkCommand::Next => self.step_bookmark(false),
+            BookmarkCommand::Previous => self.step_bookmark(true),
+            _ => return self.bookmark_storage_action(command),
+        })
+    }
+    fn bookmark_storage_action(&mut self, command: BookmarkCommand) -> Option<Action> {
+        Some(match command {
+            BookmarkCommand::MenuDelete
+            | BookmarkCommand::MenuUnmark
+            | BookmarkCommand::MenuExecute
+            | BookmarkCommand::MenuVisit => self.message("This command requires the bookmark list"),
+            BookmarkCommand::Save => match self.save_bookmarks() {
+                Ok(()) => self.message("Bookmarks saved"),
+                Err(error) => self.error(&error),
+            },
+            BookmarkCommand::Reload => self.reload_bookmarks(),
+            _ => return None,
+        })
+    }
+
     fn bookmark_prompt(&mut self, prompt: Prompt, draft: &str, notice: &str) -> Action {
         let label = match prompt.command {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite
@@ -99,16 +106,7 @@ impl Session {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Set bookmark: ".into(),
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
-            BookmarkCommand::Save
-            | BookmarkCommand::Markers
-            | BookmarkCommand::Reload
-            | BookmarkCommand::List
-            | BookmarkCommand::Next
-            | BookmarkCommand::Previous
-            | BookmarkCommand::MenuDelete
-            | BookmarkCommand::MenuUnmark
-            | BookmarkCommand::MenuExecute
-            | BookmarkCommand::MenuVisit => {
+            _ => {
                 unreachable!("storage commands have no name argument")
             }
         };
@@ -141,42 +139,28 @@ impl Session {
                 Err(error) => self.bookmark_prompt(prompt, draft, &error),
             };
         }
-        let result = match prompt.command {
+        match self.apply_bookmark_argument(prompt.command, name) {
+            Ok(message) => self.bookmark_change_message(message),
+            Err(error) => self.bookmark_prompt(prompt, draft, &error),
+        }
+    }
+
+    fn apply_bookmark_argument(
+        &mut self,
+        command: BookmarkCommand,
+        name: &str,
+    ) -> Result<&'static str, String> {
+        match command {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => {
-                self.set_bookmark(name, prompt.command == BookmarkCommand::Set)
+                self.set_bookmark(name, command == BookmarkCommand::Set)?;
+                Ok("Bookmark set")
+            }
+            BookmarkCommand::Delete => {
+                self.buffers.bookmarks_mut().delete(name)?;
+                Ok("Bookmark deleted")
             }
             BookmarkCommand::Jump => unreachable!("jump owns its cancellable navigation"),
-            BookmarkCommand::Delete => self.buffers.bookmarks_mut().delete(name),
-            BookmarkCommand::Save
-            | BookmarkCommand::Markers
-            | BookmarkCommand::Reload
-            | BookmarkCommand::List
-            | BookmarkCommand::Next
-            | BookmarkCommand::Previous
-            | BookmarkCommand::MenuDelete
-            | BookmarkCommand::MenuUnmark
-            | BookmarkCommand::MenuExecute
-            | BookmarkCommand::MenuVisit => {
-                unreachable!("storage commands have no name argument")
-            }
-        };
-        match result {
-            Ok(()) => self.bookmark_change_message(match prompt.command {
-                BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Bookmark set",
-                BookmarkCommand::Jump => "Bookmark destination",
-                BookmarkCommand::Delete => "Bookmark deleted",
-                BookmarkCommand::Save
-                | BookmarkCommand::Markers
-                | BookmarkCommand::Reload
-                | BookmarkCommand::List
-                | BookmarkCommand::Next
-                | BookmarkCommand::Previous
-                | BookmarkCommand::MenuDelete
-                | BookmarkCommand::MenuUnmark
-                | BookmarkCommand::MenuExecute
-                | BookmarkCommand::MenuVisit => unreachable!("storage command"),
-            }),
-            Err(error) => self.bookmark_prompt(prompt, draft, &error),
+            _ => unreachable!("storage commands have no name argument"),
         }
     }
 
@@ -189,9 +173,12 @@ impl Session {
             self.buffers.snapshot().settings().bookmarks.context_chars,
         )
         .map_err(|e| e.to_string())?;
-        self.buffers
-            .bookmarks_mut()
-            .set(name, path, point, overwrite, context)?;
+        self.buffers.bookmarks_mut().set(
+            name,
+            path,
+            crate::bookmark::Captured::new(point, context),
+            overwrite,
+        )?;
         Ok(())
     }
 }

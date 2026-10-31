@@ -32,27 +32,25 @@ impl Context {
         }
     }
 
+    fn editing_context(self) -> bool {
+        matches!(
+            self,
+            Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit
+        )
+    }
+
     pub fn available(self, target: Binding) -> bool {
+        if self.editing_context() {
+            return matches!(target, Binding::Command(_));
+        }
         match self {
-            Self::Completion => matches!(
-                target,
-                Binding::Command(
-                    Command::Completion(
-                        crate::command::CompletionCommand::Next
-                            | crate::command::CompletionCommand::Previous
-                            | crate::command::CompletionCommand::Accept
-                            | crate::command::CompletionCommand::Cancel
-                    ) | Command::KeyboardQuit
-                )
-            ),
-            Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit => {
-                matches!(target, Binding::Command(_))
-            }
+            Self::Completion => completion(target),
             Self::OrgAgenda => org_navigation(target) || agenda_action(target),
             Self::OrgCalendar => calendar(target) || minibuffer(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
             Self::BookmarkList => bookmark_list(target),
+            _ => unreachable!("editing context handled"),
         }
     }
 }
@@ -147,6 +145,20 @@ fn bookmark_list(target: Binding) -> bool {
                         | Scroll::PageBackward
                 )
                 | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
+        )
+    )
+}
+
+fn completion(target: Binding) -> bool {
+    matches!(
+        target,
+        Binding::Command(
+            Command::Completion(
+                crate::command::CompletionCommand::Next
+                    | crate::command::CompletionCommand::Previous
+                    | crate::command::CompletionCommand::Accept
+                    | crate::command::CompletionCommand::Cancel
+            ) | Command::KeyboardQuit
         )
     )
 }

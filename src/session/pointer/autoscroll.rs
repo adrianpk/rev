@@ -163,25 +163,10 @@ impl Session {
         if text.width() == 0 {
             return Ok(None);
         }
-        candidate.point.position = if buffer.soft_wrap() {
-            let fragments = candidate.wrapped_rows(buffer, text.width(), text.height())?;
-            let edge = if pending.backward {
-                fragments.first()
-            } else {
-                fragments.last()
-            };
-            let Some(edge) = edge else {
-                return Ok(None);
-            };
-            let column = pending
-                .position
-                .column
-                .saturating_sub(text.column())
-                .min(text.width() - 1);
-            crate::view::View::fragment_point(buffer, edge, usize::from(column))?
-        } else {
-            Coordinates::new(buffer)?.from_cell(edge_cell(&candidate, buffer, text, pending)?)?
+        let Some(position) = drag_position(&candidate, buffer, text, pending)? else {
+            return Ok(None);
         };
+        candidate.point.position = position;
         candidate.reset_navigation();
         candidate.reveal(buffer, size)?;
         Ok(Some(candidate))
@@ -280,4 +265,31 @@ mod tests {
             assert_eq!(session.view(), &before);
         }
     }
+}
+
+fn drag_position(
+    view: &crate::view::View,
+    buffer: &crate::buffer::Buffer,
+    text: Area,
+    pending: &Autoscroll,
+) -> Result<Option<crate::coordinates::Scalar>, Error> {
+    Ok(Some(if buffer.soft_wrap() {
+        let fragments = view.wrapped_rows(buffer, text.width(), text.height())?;
+        let edge = if pending.backward {
+            fragments.first()
+        } else {
+            fragments.last()
+        };
+        let Some(edge) = edge else {
+            return Ok(None);
+        };
+        let column = pending
+            .position
+            .column
+            .saturating_sub(text.column())
+            .min(text.width() - 1);
+        crate::view::View::fragment_point(buffer, edge, usize::from(column))?
+    } else {
+        Coordinates::new(buffer)?.from_cell(edge_cell(view, buffer, text, pending)?)?
+    }))
 }

@@ -46,12 +46,7 @@ impl Context {
     pub(crate) fn matches(&self, buffer: &Buffer, position: usize) -> Result<bool, String> {
         let before = self.before.chars().count();
         let after = self.after.chars().count();
-        if position < before
-            || position > buffer.len_chars()
-            || after > buffer.len_chars() - position
-            || self.at_start && position != before
-            || self.at_end && position + after != buffer.len_chars()
-        {
+        if !self.contains(position, buffer.len_chars()) {
             return Ok(false);
         }
         let prefix = buffer
@@ -64,6 +59,15 @@ impl Context {
             buffer.slice(&prefix).map_err(|e| e.to_string())? == self.before.as_str()
                 && buffer.slice(&suffix).map_err(|e| e.to_string())? == self.after.as_str(),
         )
+    }
+    fn contains(&self, position: usize, len: usize) -> bool {
+        let before = self.before.chars().count();
+        let after = self.after.chars().count();
+        !(position < before
+            || position > len
+            || after > len - position
+            || self.at_start && position != before
+            || self.at_end && position + after != len)
     }
 }
 
@@ -135,24 +139,7 @@ impl Search {
         for character in source.chars() {
             self.cursor += 1;
             self.scanned += 1;
-            while self.matched > 0 && character != self.needle[self.matched] {
-                self.matched = self.failure[self.matched - 1];
-            }
-            if character == self.needle[self.matched] {
-                self.matched += 1;
-            }
-            if self.matched == self.needle.len() {
-                let position = self.cursor - self.needle.len() + self.before;
-                if (!self.context.at_start || position == self.before)
-                    && (!self.context.at_end || self.cursor == buffer.len_chars())
-                {
-                    if self.found.is_some() {
-                        return Err("Bookmark context is ambiguous".into());
-                    }
-                    self.found = Some(position);
-                }
-                self.matched = self.failure[self.matched - 1];
-            }
+            self.observe(character, buffer.len_chars())?;
         }
         if self.cursor < self.end {
             return Ok(Progress::Pending);
@@ -160,6 +147,32 @@ impl Search {
         self.found
             .map(|position| Progress::Found(Scalar(position)))
             .ok_or_else(|| "Bookmark context is stale or outside the search window".into())
+    }
+
+    fn observe(&mut self, character: char, len: usize) -> Result<(), String> {
+        while self.matched > 0 && character != self.needle[self.matched] {
+            self.matched = self.failure[self.matched - 1];
+        }
+        if character == self.needle[self.matched] {
+            self.matched += 1;
+        }
+        if self.matched == self.needle.len() {
+            let position = self.cursor - self.needle.len() + self.before;
+            self.record_match(position, len)?;
+            self.matched = self.failure[self.matched - 1];
+        }
+        Ok(())
+    }
+    fn record_match(&mut self, position: usize, len: usize) -> Result<(), String> {
+        if (!self.context.at_start || position == self.before)
+            && (!self.context.at_end || self.cursor == len)
+        {
+            if self.found.is_some() {
+                return Err("Bookmark context is ambiguous".into());
+            }
+            self.found = Some(position);
+        }
+        Ok(())
     }
 
     #[cfg(test)]

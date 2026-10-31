@@ -77,12 +77,14 @@ mod tests {
             .set(
                 name,
                 buffer.file().unwrap().path().into(),
-                Point {
-                    stamp: buffer.stamp(),
-                    position: Scalar(at),
-                },
+                crate::bookmark::Captured::new(
+                    Point {
+                        stamp: buffer.stamp(),
+                        position: Scalar(at),
+                    },
+                    crate::bookmark::Context::capture(buffer, Scalar(at)).unwrap(),
+                ),
                 true,
-                crate::bookmark::Context::capture(buffer, Scalar(at)).unwrap(),
             )
             .unwrap();
     }

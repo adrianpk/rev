@@ -65,20 +65,29 @@ impl Session {
         self.windows.selected().check_source(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
         let width = self.view().text_width(buffer, self.pane_size())?;
+        Self::observed_motion(self.view(), buffer, &coordinates, width, motion)
+    }
+
+    fn observed_motion(
+        view: &crate::view::View,
+        buffer: &crate::buffer::Buffer,
+        coordinates: &Coordinates<'_>,
+        width: u16,
+        motion: Motion,
+    ) -> Result<crate::coordinates::Scalar, Error> {
         if motion == Motion::ForwardChar {
-            return Ok(coordinates.next_observed(self.view().point.position)?);
+            return Ok(coordinates.next_observed(view.point.position)?);
         }
         if motion == Motion::BackwardChar {
-            return Ok(coordinates.previous_observed(self.view().point.position)?);
+            return Ok(coordinates.previous_observed(view.point.position)?);
         }
         let target = if buffer.soft_wrap()
             && width > 0
             && matches!(motion, Motion::LineStart | Motion::LineEnd)
         {
-            self.view()
-                .visual_boundary(buffer, width, motion == Motion::LineEnd)?
+            view.visual_boundary(buffer, width, motion == Motion::LineEnd)?
         } else {
-            motion.target(&coordinates, self.view().point.position)?
+            motion.target(coordinates, view.point.position)?
         };
         Ok(target)
     }

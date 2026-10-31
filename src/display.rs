@@ -174,23 +174,36 @@ impl Frame {
         let point = view.cell(buffer)?;
         let geometry = view.gutter_geometry(buffer, panel.content())?;
         let text = Panel::new(geometry.text(), false, panel.active());
-        let fragments = if buffer.soft_wrap() {
-            view.wrapped_rows(buffer, text.content().width(), text.content().height())?
-        } else {
-            Vec::new()
-        };
-        let highlight = selection::Highlight::new(buffer, view, panel.active())?;
-        self.document(buffer, view, text, highlight, &fragments)?;
-        self.numbers(buffer, view, geometry, point.row, &fragments)?;
+        let fragments = panel_fragments(buffer, view, text)?;
+        self.document(buffer, view, text, &fragments)?;
+        self.numbers(
+            buffer,
+            view,
+            geometry,
+            gutter::NumberRows {
+                current: point.row,
+                fragments: &fragments,
+            },
+        )?;
         self.bookmark_markers(buffer, view, geometry, &fragments)?;
         self.status(buffer, point, panel)?;
         self.preview(buffer, view, text.content(), &fragments)?;
         if panel.active() {
             self.cursor = Self::position(point, view, text, buffer, &fragments);
         }
+        self.record_source_rows(buffer, text, &fragments);
+        Ok(())
+    }
+
+    fn record_source_rows(
+        &mut self,
+        buffer: &Buffer,
+        panel: Panel,
+        fragments: &[crate::view::Fragment],
+    ) {
         if buffer.soft_wrap() {
             self.source_rows.push(SourceRows {
-                area: text.content(),
+                area: panel.content(),
                 stamp: buffer.stamp(),
                 rows: fragments
                     .iter()
@@ -198,13 +211,12 @@ impl Frame {
                         (
                             f.line,
                             f.columns.start,
-                            f.highlight_width(text.content().width()),
+                            f.highlight_width(panel.content().width()),
                         )
                     })
                     .collect(),
             });
         }
-        Ok(())
     }
 
     pub fn stamp(&self) -> Stamp {
@@ -261,16 +273,14 @@ impl Frame {
         buffer: &Buffer,
         view: &View,
         panel: Panel,
-        highlight: Option<selection::Highlight>,
         fragments: &[crate::view::Fragment],
     ) -> Result<(), Error> {
+        let highlight = selection::Highlight::new(buffer, view, panel.active())?;
         let coordinates = Coordinates::new(buffer)?;
         let content = panel.content();
         for row in 0..content.height() {
             let fragment = fragments.get(usize::from(row));
-            if let Some(fragment) = fragment {
-                fragment.remember_columns(buffer)?;
-            }
+            remember_columns(buffer, fragment)?;
             let source = if buffer.soft_wrap() {
                 fragment.map_or(buffer.len_lines(), |f| f.line)
             } else {
@@ -279,20 +289,16 @@ impl Frame {
             };
             let left = fragment.map_or(view.left, |f| f.columns.start);
             let painted = fragment.map_or(content.width(), |f| f.painted_width(content.width()));
-            let text = if let Some(fragment) = fragment {
-                fragment.text.clone()
-            } else if source < buffer.len_lines() {
-                clip::line(
-                    coordinates.glyphs_from_column(Cell {
-                        row: source,
-                        column: view.left,
-                    })?,
-                    view.left,
-                    content.width(),
-                )?
-            } else {
-                " ".repeat(usize::from(content.width()))
-            };
+            let text = document_text(
+                buffer,
+                &coordinates,
+                fragment,
+                Cell {
+                    row: source,
+                    column: left,
+                },
+                content.width(),
+            )?;
             let projected = Row {
                 row,
                 text,
@@ -377,18 +383,69 @@ impl Frame {
         fragments: &[crate::view::Fragment],
     ) -> Option<Position> {
         if buffer.soft_wrap() {
-            let content = panel.content();
-            let (row, fragment) = fragments.iter().enumerate().find(|(_, f)| {
-                f.line == point.row && f.contains(view.point.position, content.width())
-            })?;
-            return panel.position(Position {
-                column: u16::try_from(point.column.checked_sub(fragment.columns.start)?).ok()?,
-                row: u16::try_from(row).ok()?,
-            });
+            return wrapped_position(point, view, panel, fragments);
         }
         panel.position(Position {
             column: u16::try_from(point.column.checked_sub(view.left)?).ok()?,
             row: u16::try_from(view.screen_row(buffer, point.row)?).ok()?,
         })
     }
+}
+
+fn wrapped_position(
+    point: Cell,
+    view: &View,
+    panel: Panel,
+    fragments: &[crate::view::Fragment],
+) -> Option<Position> {
+    let content = panel.content();
+    let (row, fragment) = fragments
+        .iter()
+        .enumerate()
+        .find(|(_, f)| f.line == point.row && f.contains(view.point.position, content.width()))?;
+    panel.position(Position {
+        column: u16::try_from(point.column.checked_sub(fragment.columns.start)?).ok()?,
+        row: u16::try_from(row).ok()?,
+    })
+}
+fn document_text(
+    buffer: &Buffer,
+    coordinates: &Coordinates<'_>,
+    fragment: Option<&crate::view::Fragment>,
+    from: Cell,
+    width: u16,
+) -> Result<String, Error> {
+    if let Some(fragment) = fragment {
+        return Ok(fragment.text.clone());
+    }
+    if from.row < buffer.len_lines() {
+        return Ok(clip::line(
+            coordinates.glyphs_from_column(from)?,
+            from.column,
+            width,
+        )?);
+    }
+    Ok(" ".repeat(usize::from(width)))
+}
+
+fn panel_fragments(
+    buffer: &Buffer,
+    view: &View,
+    text: Panel,
+) -> Result<Vec<crate::view::Fragment>, Error> {
+    Ok(if buffer.soft_wrap() {
+        view.wrapped_rows(buffer, text.content().width(), text.content().height())?
+    } else {
+        Vec::new()
+    })
+}
+
+fn remember_columns(
+    buffer: &Buffer,
+    fragment: Option<&crate::view::Fragment>,
+) -> Result<(), Error> {
+    if let Some(fragment) = fragment {
+        fragment.remember_columns(buffer)?;
+    }
+    Ok(())
 }

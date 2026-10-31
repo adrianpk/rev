@@ -155,13 +155,9 @@ impl Input {
             Context::Editing => Focus::Editing,
             Context::Search(_) => Focus::Search,
             Context::Command(_) => Focus::Command,
-            Context::Names(_) => Focus::Argument,
-            Context::Calendar(_)
-            | Context::Argument(_)
-            | Context::Path(_)
-            | Context::Literal(_) => Focus::Argument,
             Context::Decision(_) | Context::ReplaceDecision => Focus::Decision,
             Context::Inventory => Focus::Inventory,
+            _ => Focus::Argument,
         }
     }
 
@@ -184,17 +180,11 @@ impl Input {
 
     pub fn label(&self) -> Option<&str> {
         match &self.context {
-            Context::Search(prompt) => Some(prompt.label()),
             Context::Command(_) => Some("M-x "),
-            Context::Names(names) => Some(names.prompt().label()),
-            Context::Calendar(prompt)
-            | Context::Argument(prompt)
-            | Context::Path(prompt)
-            | Context::Literal(prompt) => Some(prompt.label()),
             Context::ReplaceDecision => Some(replace::QUESTION),
             Context::Decision(label) => Some(label),
             Context::Inventory => Some("Buffers: arrows move, Enter selects, C-g cancels"),
-            _ => None,
+            _ => self.prompt().map(Prompt::label),
         }
     }
 
@@ -302,8 +292,15 @@ impl Input {
             Context::ReplaceDecision => replace::answer(key),
             Context::Decision(_) => decide(key),
             Context::Inventory => inventory::handle(key),
+            _ => self.chooser_key(key),
+        }
+    }
+
+    fn chooser_key(&mut self, key: Key) -> Outcome {
+        match self.context {
             Context::Command(_) => self.command_key(key),
             Context::Names(_) => self.names_key(key),
+            _ => unreachable!("chooser input context"),
         }
     }
 

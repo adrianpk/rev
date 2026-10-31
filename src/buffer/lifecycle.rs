@@ -56,15 +56,18 @@ impl Buffers {
         if let Some(file) = removed.file {
             self.files.remove(file.path());
         }
+        self.replace_killed(kill.id(), replacement, fresh);
+        Ok(replacement)
+    }
+    fn replace_killed(&mut self, id: BufferId, replacement: BufferId, fresh: Option<Buffer>) {
         if let Some(mut buffer) = fresh {
             buffer.bookmarks = self.bookmarks.clone();
             buffer.name = "*scratch*".into();
             buffer.apply_settings(&self.settings);
             self.entries.insert(buffer.id(), buffer);
         }
-        if self.initial == kill.id() {
+        if self.initial == id {
             self.initial = replacement;
         }
-        Ok(replacement)
     }
 }

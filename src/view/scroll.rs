@@ -28,7 +28,15 @@ impl View {
         self.reveal_fold(buffer, point.row)?;
         let width = self.text_width(buffer, size)?;
         if buffer.soft_wrap() && width > 0 {
-            return self.visual_viewport(buffer, backward, distance, width, size.text_rows());
+            return self.visual_viewport(
+                buffer,
+                backward,
+                distance,
+                Size {
+                    width,
+                    height: size.text_rows(),
+                },
+            );
         }
         let last = self.visible_lines(buffer) - 1;
         let top = destination(self.projected_top(buffer), distance, backward).min(last);
@@ -38,10 +46,20 @@ impl View {
         let bottom = top
             .saturating_add(usize::from(size.text_rows()) - 1)
             .min(last);
+        self.clamp_viewport_point(buffer, point, top..=bottom)?;
+        self.reveal(buffer, size)
+    }
+
+    fn clamp_viewport_point(
+        &mut self,
+        buffer: &Buffer,
+        point: Cell,
+        visible: std::ops::RangeInclusive<usize>,
+    ) -> Result<(), Error> {
         let projected = self
             .project_row(buffer, point.row)
             .ok_or(crate::coordinates::Error::Overflow)?;
-        let row = projected.clamp(top, bottom);
+        let row = projected.clamp(*visible.start(), *visible.end());
         if row != projected {
             let row = self
                 .source_at(buffer, row)
@@ -51,7 +69,7 @@ impl View {
                 column: point.column,
             })?;
         }
-        self.reveal(buffer, size)
+        Ok(())
     }
 
     pub(crate) fn reset_navigation(&mut self) {
@@ -88,6 +106,17 @@ impl View {
             row: source,
             column,
         })?;
+        self.scroll_top(buffer, scroll, origin, row)?;
+        Ok(())
+    }
+
+    fn scroll_top(
+        &mut self,
+        buffer: &Buffer,
+        scroll: Scroll,
+        origin: usize,
+        row: usize,
+    ) -> Result<(), Error> {
         if scroll.page() {
             let top = destination(
                 self.projected_top(buffer),
@@ -116,11 +145,7 @@ impl View {
         let rows = usize::from(size.text_rows());
         let width = self.text_width(buffer, size)?;
         self.sync_wrap_width((buffer.soft_wrap() && width > 0).then_some(width));
-        let (offset, next) = match self.alignment {
-            Alignment::Center => (rows / 2, Alignment::Top),
-            Alignment::Top => (0, Alignment::Bottom),
-            Alignment::Bottom => (rows - 1, Alignment::Center),
-        };
+        let (offset, next) = self.alignment.step(rows);
         if buffer.soft_wrap() && width > 0 {
             self.align_wrapped(buffer, width, offset)?;
             self.alignment = next;
@@ -142,5 +167,15 @@ fn destination(origin: usize, distance: usize, backward: bool) -> usize {
         origin.saturating_sub(distance)
     } else {
         origin.saturating_add(distance)
+    }
+}
+
+impl Alignment {
+    fn step(self, rows: usize) -> (usize, Self) {
+        match self {
+            Alignment::Center => (rows / 2, Alignment::Top),
+            Alignment::Top => (0, Alignment::Bottom),
+            Alignment::Bottom => (rows - 1, Alignment::Center),
+        }
     }
 }

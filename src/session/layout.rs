@@ -116,12 +116,7 @@ impl Session {
         );
         if !applicable
             || matches!(command, Command::Org(_)) && !self.buffer().is_ok_and(|b| b.is_org())
-            || self.input.focus() != Focus::Editing
-            || self.tree.focused()
-            || self.habit_agenda.is_some()
-            || self.agenda_active()
-            || self.bookmark_list_active()
-            || self.query_agenda.is_some()
+            || !self.source_layout_focus()
         {
             return None;
         }
@@ -138,6 +133,15 @@ impl Session {
             }
         }
         None
+    }
+
+    fn source_layout_focus(&self) -> bool {
+        self.input.focus() == Focus::Editing
+            && !self.tree.focused()
+            && self.habit_agenda.is_none()
+            && !self.agenda_active()
+            && !self.bookmark_list_active()
+            && self.query_agenda.is_none()
     }
 
     fn revealing_view(&self) -> Result<View, Error> {
@@ -202,16 +206,20 @@ impl Session {
         {
             return Err(crate::coordinates::Error::Pending.into());
         }
-        let result = match request {
+        let result = self.prepared_request(request);
+        drop(scopes);
+        result
+    }
+
+    fn prepared_request(&self, request: Request) -> Result<(), Error> {
+        match request {
             Request::Command(Command::Scroll(scroll)) => self.scrolling_view(scroll).map(|_| ()),
             Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
             Request::Command(Command::Kill(command)) => self.kill_span(command).map(|_| ()),
             Request::Command(Command::Org(_)) => self.revealing_view().map(|_| ()),
             Request::Command(_) => unreachable!("only layout-dependent commands are prepared"),
             Request::Pointer(event, _) => self.prepare_pointer(event),
-        };
-        drop(scopes);
-        result
+        }
     }
 
     pub(super) fn expire_layout_input(&mut self) -> Option<Action> {
@@ -222,27 +230,7 @@ impl Session {
         self.layout.replaying = true;
         let mut action = Action::Wait;
         if let Some(held) = self.layout.held.take() {
-            let valid = held.selected == self.windows.selected_id()
-                && match held.request {
-                    Request::Command(_) => held.point == self.view().point,
-                    Request::Pointer(..) => {
-                        held.size == self.size
-                            && held.views.len() == self.windows.iter().len()
-                            && held.views.iter().all(|(id, view)| {
-                                self.windows.get(*id).is_ok_and(|current| current == view)
-                            })
-                    }
-                };
-            if !valid {
-                action = self.message("Layout source or geometry changed");
-            } else if let Some(outcome) = self.prepare_request(held.request) {
-                action = outcome;
-            } else {
-                action = match held.request {
-                    Request::Command(command) => self.execute_now(command),
-                    Request::Pointer(event, now) => self.pointer_now(event, now),
-                };
-            }
+            action = self.replay_held(held);
         }
         for _ in 0..super::events::INPUT_BATCH_EVENTS {
             if self.layout.held.is_some()
@@ -254,23 +242,49 @@ impl Session {
             let Some(input) = self.layout.input.pop_front() else {
                 break;
             };
-            let interrupt = match &input {
-                Deferred::Command(command) => *command == Command::KeyboardQuit,
-                Deferred::Event(event, _) => Input::interrupt(event),
-            };
-            if interrupt {
-                self.layout.interrupt = false;
-            }
-            let outcome = match input {
-                Deferred::Command(command) => self.execute_now(command),
-                Deferred::Event(event, now) => self.handle_ready_at(event, now),
-            };
+            let outcome = self.replay_deferred(input);
             if outcome != Action::Wait {
                 action = outcome;
             }
         }
         self.layout.replaying = false;
         Some(action)
+    }
+    fn replay_held(&mut self, held: Held) -> Action {
+        let valid = held.selected == self.windows.selected_id()
+            && match held.request {
+                Request::Command(_) => held.point == self.view().point,
+                Request::Pointer(..) => {
+                    held.size == self.size
+                        && held.views.len() == self.windows.iter().len()
+                        && held.views.iter().all(|(id, view)| {
+                            self.windows.get(*id).is_ok_and(|current| current == view)
+                        })
+                }
+            };
+        if !valid {
+            return self.message("Layout source or geometry changed");
+        } else if let Some(outcome) = self.prepare_request(held.request) {
+            return outcome;
+        } else {
+            return match held.request {
+                Request::Command(command) => self.execute_now(command),
+                Request::Pointer(event, now) => self.pointer_now(event, now),
+            };
+        }
+    }
+    fn replay_deferred(&mut self, input: Deferred) -> Action {
+        let interrupt = match &input {
+            Deferred::Command(command) => *command == Command::KeyboardQuit,
+            Deferred::Event(event, _) => Input::interrupt(event),
+        };
+        if interrupt {
+            self.layout.interrupt = false;
+        }
+        match input {
+            Deferred::Command(command) => self.execute_now(command),
+            Deferred::Event(event, now) => self.handle_ready_at(event, now),
+        }
     }
 }
 

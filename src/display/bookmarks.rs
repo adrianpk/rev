@@ -21,38 +21,7 @@ impl Frame {
         for offset in 0..area.height() {
             let line = Area::new(area.column(), area.row() + offset, area.width(), 1)
                 .ok_or(crate::coordinates::Error::Overflow)?;
-            let text = if offset == 0 {
-                format!(
-                    "*Bookmarks* [read-only] {} entries{}",
-                    display.rows.len(),
-                    if display.stale {
-                        " [changed; refresh on action]"
-                    } else {
-                        ""
-                    }
-                )
-            } else {
-                let index = top + usize::from(offset - 1);
-                display.rows.get(index).map_or_else(String::new, |row| {
-                    let status = match row.resolution {
-                        Resolution::Resolved => "resolved",
-                        Resolution::Unresolved => "unresolved",
-                        Resolution::Stale => "stale",
-                        Resolution::Unavailable => "unavailable",
-                    };
-                    format!(
-                        "{}{} {:?} [{status}] {:?}",
-                        if index == display.cursor { ">" } else { " " },
-                        if display.marked.contains(&row.id) {
-                            "D"
-                        } else {
-                            " "
-                        },
-                        row.name,
-                        row.path
-                    )
-                })
-            };
+            let text = display.line(offset, top);
             self.projection_text(&text, line)?;
         }
         if let Some(status) = panel.status() {
@@ -80,5 +49,42 @@ impl Frame {
             self.cursor = None;
         }
         Ok(())
+    }
+}
+
+impl Display<'_> {
+    fn line(&self, offset: u16, top: usize) -> String {
+        if offset == 0 {
+            format!(
+                "*Bookmarks* [read-only] {} entries{}",
+                self.rows.len(),
+                if self.stale {
+                    " [changed; refresh on action]"
+                } else {
+                    ""
+                }
+            )
+        } else {
+            let index = top + usize::from(offset - 1);
+            self.rows.get(index).map_or_else(String::new, |row| {
+                let status = match row.resolution {
+                    Resolution::Resolved => "resolved",
+                    Resolution::Unresolved => "unresolved",
+                    Resolution::Stale => "stale",
+                    Resolution::Unavailable => "unavailable",
+                };
+                format!(
+                    "{}{} {:?} [{status}] {:?}",
+                    if index == self.cursor { ">" } else { " " },
+                    if self.marked.contains(&row.id) {
+                        "D"
+                    } else {
+                        " "
+                    },
+                    row.name,
+                    row.path
+                )
+            })
+        }
     }
 }

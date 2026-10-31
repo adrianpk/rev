@@ -37,33 +37,29 @@ impl Session {
             .get(name)
             .cloned()
             .ok_or("No bookmark with that name")?;
-        let visit = match self.buffers.prepare_bookmark_visit(record.path()) {
-            Ok(visit) => visit,
-            Err(error) => {
-                self.buffers
-                    .bookmarks_mut()
-                    .unavailable(record.id(), record.generation());
-                return Err(format!("Bookmark target is unavailable: {error}"));
-            }
-        };
-        let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
-        if record.resolution() == Resolution::Stale && record.point().stamp.buffer == buffer.id() {
-            return Err(
-                "Bookmark target is stale; source undo or an explicit set can restore it".into(),
-            );
-        }
-        let live =
-            record.resolution() == Resolution::Resolved && record.point().stamp == buffer.stamp();
-        let position = if live {
-            Some(record.point().position)
-        } else if record
-            .context()
-            .matches(buffer, record.context().position)?
-        {
-            Some(Scalar(record.context().position))
+        let visit = self.prepare_bookmark_visit(&record)?;
+        let navigation = self.bookmark_navigation(record, visit, from)?;
+        self.bookmark_visit = if navigation.search.is_some() {
+            // Original-position checking and a search batch belong to separate
+            // passes so the resolver's scalar budget is not spent twice.
+            Some(navigation)
         } else {
-            None
+            self.step_bookmark_navigation(navigation)?
         };
+        if self.bookmark_visit.is_some() {
+            self.message("Checking bookmark context; C-g cancels");
+        }
+        Ok(())
+    }
+
+    fn bookmark_navigation(
+        &self,
+        record: Record,
+        visit: Visit,
+        from: Origin,
+    ) -> Result<Navigation, String> {
+        let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
+        let (position, live) = observed_position(&record, buffer)?;
         let search = if position.is_none() {
             Some(Search::new(
                 record.context().clone(),
@@ -78,7 +74,7 @@ impl Session {
         if view.point.stamp.buffer != buffer.id() {
             view.rebind(buffer);
         }
-        let navigation = Navigation {
+        Ok(Navigation {
             from,
             record,
             visit,
@@ -89,24 +85,37 @@ impl Session {
             search,
             view,
             contextual: !live,
-        };
-        self.bookmark_visit = if navigation.search.is_some() {
-            // Original-position checking and a search batch belong to separate
-            // passes so the resolver's scalar budget is not spent twice.
-            Some(navigation)
-        } else {
-            self.step_bookmark_navigation(navigation)?
-        };
-        if self.bookmark_visit.is_some() {
-            self.message("Checking bookmark context; C-g cancels");
-        }
-        Ok(())
+        })
+    }
+
+    fn prepare_bookmark_visit(&mut self, record: &Record) -> Result<Visit, String> {
+        Ok(match self.buffers.prepare_bookmark_visit(record.path()) {
+            Ok(visit) => visit,
+            Err(error) => {
+                self.buffers
+                    .bookmarks_mut()
+                    .unavailable(record.id(), record.generation());
+                return Err(format!("Bookmark target is unavailable: {error}"));
+            }
+        })
     }
 
     fn step_bookmark_navigation(
         &mut self,
         mut work: Navigation,
     ) -> Result<Option<Navigation>, String> {
+        self.validate_bookmark_work(&work)?;
+        if !self.resolve_bookmark_search(&mut work)? {
+            return Ok(Some(work));
+        }
+        if !self.reveal_bookmark_target(&mut work)? {
+            return Ok(Some(work));
+        }
+        self.finish_bookmark_navigation(work)?;
+        Ok(None)
+    }
+
+    fn validate_bookmark_work(&self, work: &Navigation) -> Result<(), String> {
         if matches!(work.from, Origin::List(generation) | Origin::Ordered(generation) if generation != self.bookmarks().generation())
         {
             return Err("Bookmark collection changed during navigation; retry required".into());
@@ -121,6 +130,10 @@ impl Session {
         {
             return Err("Bookmark navigation changed; destination was not published".into());
         }
+        Ok(())
+    }
+
+    fn resolve_bookmark_search(&self, work: &mut Navigation) -> Result<bool, String> {
         let buffer = work
             .visit
             .buffer(&self.buffers)
@@ -130,14 +143,22 @@ impl Session {
         }
         if let Some(search) = &mut work.search {
             match search.step(buffer)? {
-                Progress::Pending => return Ok(Some(work)),
+                Progress::Pending => return Ok(false),
                 Progress::Found(position) => {
                     work.position = Some(position);
                     work.search = None;
-                    return Ok(Some(work));
+                    return Ok(false);
                 }
             }
         }
+        Ok(true)
+    }
+
+    fn reveal_bookmark_target(&self, work: &mut Navigation) -> Result<bool, String> {
+        let buffer = work
+            .visit
+            .buffer(&self.buffers)
+            .map_err(|e| e.to_string())?;
         let position = work.position.ok_or("Bookmark has no resolved boundary")?;
         work.view.point = Point {
             stamp: buffer.stamp(),
@@ -155,41 +176,50 @@ impl Session {
         drop(coordinates);
         if let Err(error) = result {
             if error.pending() {
-                return Ok(Some(work));
+                return Ok(false);
             }
             return Err(error.to_string());
         }
+        Ok(true)
+    }
+
+    fn finish_bookmark_navigation(&mut self, work: Navigation) -> Result<(), String> {
+        let buffer = work
+            .visit
+            .buffer(&self.buffers)
+            .map_err(|e| e.to_string())?;
         let file = buffer
             .file()
             .ok_or("Bookmark destination is not file-backed")?;
-        if matches!(work.visit, Visit::New(..)) {
-            let current = crate::file::resolve(work.record.path()).map_err(|e| e.to_string())?;
-            if !current.is_present()
-                || current.path() != file.path()
-                || current.observation() != file.observation()
-            {
-                return Err("Bookmark file changed during resolution; retry required".into());
-            }
-        }
+        verify_bookmark_file(&work, file)?;
         let tree = self
             .tree
             .opening_file(file.path())
             .map_err(|e| e.to_string())?;
         let context = Context::capture_with(
             buffer,
-            position,
+            work.view.point.position,
             self.buffers.snapshot().settings().bookmarks.context_chars,
         )
         .map_err(|e| e.to_string())?;
         let path = file.path().to_owned();
         self.stop_typing().map_err(|e| e.to_string())?;
+        self.publish_bookmark_navigation(work, context, tree, path)
+    }
+
+    fn publish_bookmark_navigation(
+        &mut self,
+        work: Navigation,
+        context: Context,
+        tree: Option<crate::tree::Tree>,
+        path: std::path::PathBuf,
+    ) -> Result<(), String> {
         // All source, context, geometry and file observations are admitted before
         // publishing the collection binding, canonical visit and destination view.
         self.buffers.bookmarks_mut().resolved(
             work.record.id(),
             work.record.generation(),
-            work.view.point,
-            context,
+            crate::bookmark::Captured::new(work.view.point, context),
             path,
         )?;
         self.buffers.publish_visit(work.visit);
@@ -205,14 +235,14 @@ impl Session {
         if matches!(work.from, Origin::Ordered(_)) {
             self.remember_bookmark_iteration(work.record.id());
             self.message(&format!("Bookmark {:?}", work.record.name()));
-            return Ok(None);
+            return Ok(());
         }
         self.message(if work.contextual {
             "Bookmark resolved by checked context"
         } else {
             "Bookmark destination"
         });
-        Ok(None)
+        Ok(())
     }
 
     pub(in crate::session) fn expire_bookmark_navigation(&mut self) -> Action {
@@ -249,4 +279,41 @@ impl Session {
             Err(error) => self.error(&error),
         }
     }
+}
+
+fn observed_position(
+    record: &Record,
+    buffer: &crate::buffer::Buffer,
+) -> Result<(Option<Scalar>, bool), String> {
+    if record.resolution() == Resolution::Stale && record.point().stamp.buffer == buffer.id() {
+        return Err(
+            "Bookmark target is stale; source undo or an explicit set can restore it".into(),
+        );
+    }
+    let live =
+        record.resolution() == Resolution::Resolved && record.point().stamp == buffer.stamp();
+    let position = if live {
+        Some(record.point().position)
+    } else if record
+        .context()
+        .matches(buffer, record.context().position)?
+    {
+        Some(Scalar(record.context().position))
+    } else {
+        None
+    };
+    Ok((position, live))
+}
+
+fn verify_bookmark_file(work: &Navigation, file: &crate::file::Location) -> Result<(), String> {
+    if matches!(work.visit, Visit::New(..)) {
+        let current = crate::file::resolve(work.record.path()).map_err(|e| e.to_string())?;
+        if !current.is_present()
+            || current.path() != file.path()
+            || current.observation() != file.observation()
+        {
+            return Err("Bookmark file changed during resolution; retry required".into());
+        }
+    }
+    Ok(())
 }

@@ -63,32 +63,58 @@ impl Session {
         }
         let mut windows = self.windows.clone();
         windows.reveal(&self.buffers, composition.editing_size())?;
+        self.prepare_pointer_hit(&composition, &windows, event)
+    }
+
+    fn prepare_pointer_hit(
+        &self,
+        composition: &crate::panel::Composition,
+        windows: &crate::window::Windows,
+        event: Event,
+    ) -> Result<(), Error> {
         match event.kind {
             Kind::Press => {
                 Hit::resolve(
-                    &composition,
-                    &windows,
+                    composition,
+                    windows,
                     &self.buffers,
                     &self.tree,
                     event.position,
                 )?;
             }
             Kind::Drag | Kind::Release => {
-                if let Some(selection) = &self.selection
-                    && let Some(panel) = self.capture_panel(selection.capture)
-                {
-                    let view = windows.selected();
-                    view.hit(self.buffer()?, panel.content(), event.position)?;
-                }
+                self.prepare_drag_hit(windows, event.position)?;
             }
             Kind::ScrollUp | Kind::ScrollDown if self.selection.is_none() => {
-                if let Some(crate::pointer::Target::Editing { view, panel }) =
-                    crate::pointer::Target::resolve(&composition, event.position)
-                {
-                    self.scrolling_editing(view, panel, event.kind == Kind::ScrollUp)?;
-                }
+                self.prepare_scroll_hit(composition, event)?;
             }
             _ => {}
+        }
+        Ok(())
+    }
+
+    fn prepare_drag_hit(
+        &self,
+        windows: &crate::window::Windows,
+        position: crate::display::Position,
+    ) -> Result<(), Error> {
+        if let Some(selection) = &self.selection
+            && let Some(panel) = self.capture_panel(selection.capture)
+        {
+            let view = windows.selected();
+            view.hit(self.buffer()?, panel.content(), position)?;
+        }
+        Ok(())
+    }
+    fn prepare_scroll_hit(
+        &self,
+        composition: &crate::panel::Composition,
+        event: Event,
+    ) -> Result<(), Error> {
+        if let Some(crate::pointer::Target::Editing { view, panel }) =
+            crate::pointer::Target::resolve(composition, event.position)
+        {
+            self.scrolling_editing(view, panel, event.kind == Kind::ScrollUp)?;
         }
         Ok(())
     }

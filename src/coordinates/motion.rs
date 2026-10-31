@@ -30,14 +30,11 @@ impl Coordinates<'_> {
         let work = self.work();
         let mut count = 0;
         loop {
-            if !Self::charge(&work) {
-                self.pause(last, super::Cell { row, column });
-                return Err(Error::Pending);
-            }
-            let Some(glyph) = glyphs.next() else {
+            let Some(glyph) =
+                self.charged_glyph(&mut glyphs, &work, (last, super::Cell { row, column }))?
+            else {
                 return Ok(last);
             };
-            let glyph = glyph?;
             if glyph.source.end >= point {
                 self.remember(
                     glyph.source.start,
@@ -51,9 +48,7 @@ impl Coordinates<'_> {
             last = glyph.source.end;
             column = glyph.columns.end;
             count += 1;
-            if count % super::checkpoints::INTERVAL == 0 {
-                self.remember(last, super::Cell { row, column });
-            }
+            self.remember_periodic(count, last, super::Cell { row, column });
         }
     }
 

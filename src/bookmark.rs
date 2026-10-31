@@ -24,6 +24,17 @@ impl std::ops::Deref for Collection<'_> {
     }
 }
 
+/// One source point and the bounded context captured for that exact point.
+pub(crate) struct Captured {
+    point: Point,
+    context: Context,
+}
+impl Captured {
+    pub(crate) fn new(point: Point, context: Context) -> Self {
+        Self { point, context }
+    }
+}
+
 pub(crate) type Shared = Arc<Mutex<Bookmarks>>;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -165,10 +176,10 @@ impl Bookmarks {
         &mut self,
         name: &str,
         path: PathBuf,
-        point: Point,
+        captured: Captured,
         overwrite: bool,
-        context: Context,
     ) -> Result<RecordId, String> {
+        let Captured { point, context } = captured;
         if name.is_empty() || name.len() > MAX_NAME_BYTES || name.chars().any(char::is_control) {
             return Err("Bookmark names must contain 1..256 UTF-8 bytes without controls".into());
         }
@@ -308,10 +319,10 @@ impl Bookmarks {
         &mut self,
         id: RecordId,
         generation: u64,
-        point: Point,
-        context: Context,
+        captured: Captured,
         path: PathBuf,
     ) -> Result<(), String> {
+        let Captured { point, context } = captured;
         let record = self
             .entries
             .values_mut()

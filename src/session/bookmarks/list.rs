@@ -101,7 +101,10 @@ impl Session {
                 ),
             );
         }
-        Some(match command {
+        Some(self.bookmark_list_action(command))
+    }
+    fn bookmark_list_action(&mut self, command: Command) -> Action {
+        match command {
             Command::Bookmark(BookmarkCommand::List) => self.list_bookmarks(),
             Command::Bookmark(BookmarkCommand::MenuDelete) => self.mark_bookmark_row(true),
             Command::Bookmark(BookmarkCommand::MenuUnmark) => self.mark_bookmark_row(false),
@@ -109,6 +112,11 @@ impl Session {
             Command::Bookmark(BookmarkCommand::MenuVisit) | Command::Newline => {
                 self.visit_bookmark_row()
             }
+            _ => self.bookmark_list_navigation(command),
+        }
+    }
+    fn bookmark_list_navigation(&mut self, command: Command) -> Action {
+        match command {
             Command::Scroll(Scroll::NextLine) => self.scroll_bookmark_list(1, false),
             Command::Scroll(Scroll::PreviousLine) => self.scroll_bookmark_list(1, true),
             Command::Scroll(Scroll::PageForward) => self.scroll_bookmark_list(
@@ -124,7 +132,7 @@ impl Session {
             _ => self.message(
                 "Read-only bookmark list; RET visits, d/u mark/unmark, x deletes, q returns",
             ),
-        })
+        }
     }
     fn scroll_bookmark_list(&mut self, distance: usize, backward: bool) -> Action {
         let extent = self.pane_size().height.saturating_sub(2).max(1) as usize;

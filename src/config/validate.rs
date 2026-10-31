@@ -43,12 +43,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     completion_retention(document)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;
-    float(
-        "windows.split_ratio",
-        document.windows.split_ratio,
-        0.1..=0.9,
-    )?;
-    float("tree.max_fraction", document.tree.max_fraction, 0.1..=0.5)?;
+    layout(document)?;
     palette(&document.palette)?;
     languages(document)?;
     associations(&document.files.associations)?;
@@ -693,5 +688,15 @@ fn completion_retention(document: &Document) -> Result<(), Failure> {
     ] {
         integer(key, value, range)?;
     }
+    Ok(())
+}
+
+fn layout(document: &Document) -> Result<(), Failure> {
+    float(
+        "windows.split_ratio",
+        document.windows.split_ratio,
+        0.1..=0.9,
+    )?;
+    float("tree.max_fraction", document.tree.max_fraction, 0.1..=0.5)?;
     Ok(())
 }

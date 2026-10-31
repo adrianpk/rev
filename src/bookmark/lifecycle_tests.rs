@@ -15,12 +15,14 @@ fn capture(buffers: &Buffers, id: crate::buffer::BufferId) {
         .set(
             "here",
             buffer.file().unwrap().path().into(),
-            Point {
-                stamp: buffer.stamp(),
-                position: Scalar(3),
-            },
+            crate::bookmark::Captured::new(
+                Point {
+                    stamp: buffer.stamp(),
+                    position: Scalar(3),
+                },
+                Context::capture(buffer, Scalar(3)).unwrap(),
+            ),
             true,
-            Context::capture(buffer, Scalar(3)).unwrap(),
         )
         .unwrap();
 }

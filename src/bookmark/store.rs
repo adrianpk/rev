@@ -88,8 +88,17 @@ impl Store {
             }
         }
         self.guard()?;
-        let directory = File::open(&parent).map_err(|e| e.to_string())?;
-        let mut temporary = Temporary::new(&parent).map_err(|e| e.to_string())?;
+        self.publish(bytes, &parent, output)
+    }
+
+    fn publish(
+        &mut self,
+        bytes: Vec<u8>,
+        parent: &Path,
+        output: &mut impl Output,
+    ) -> Result<(), String> {
+        let directory = File::open(parent).map_err(|e| e.to_string())?;
+        let mut temporary = Temporary::new(parent).map_err(|e| e.to_string())?;
         let mode = self
             .expected
             .observation
@@ -140,19 +149,7 @@ impl Store {
             OpenOptions::new().read(true).write(true).open(&path)
         }
         .map_err(|e| format!("Bookmark lock: {e}"))?;
-        let actual = observe(&path)
-            .map_err(|e| e.to_string())?
-            .ok_or("Bookmark lock disappeared")?;
-        use std::os::unix::fs::MetadataExt;
-        let metadata = file.metadata().map_err(|e| e.to_string())?;
-        if actual.device != metadata.dev()
-            || actual.inode != metadata.ino()
-            || before
-                .as_ref()
-                .is_some_and(|b| b.device != actual.device || b.inode != actual.inode)
-        {
-            return Err("Bookmark lock changed".into());
-        }
+        check_lock(&file, &path, before.as_ref())?;
         file.try_lock()
             .map_err(|e| format!("Bookmark store is busy; retry: {e}"))?;
         Ok(Lock(file))
@@ -206,19 +203,7 @@ fn read(path: &Path) -> Result<Evidence, String> {
     let observation = observe(path).map_err(|e| format!("Bookmark store: {e}"))?;
     let mut bytes = Vec::new();
     if let Some(expected) = &observation {
-        let len = usize::try_from(expected.length).map_err(|_| "Bookmark store exceeds 16 MiB")?;
-        if len > LIMIT {
-            return Err("Bookmark store exceeds 16 MiB".into());
-        }
-        // Allocate exactly the observed bounded length. Probe growth with one
-        // stack byte, never an allocation beyond the hard store bound.
-        bytes.resize(len, 0);
-        let mut file = File::open(path).map_err(|e| e.to_string())?;
-        file.read_exact(&mut bytes).map_err(|e| e.to_string())?;
-        let mut extra = [0];
-        if file.read(&mut extra).map_err(|e| e.to_string())? != 0 {
-            return Err("Bookmark store changed during reading".into());
-        }
+        bytes = read_contents(path, expected)?;
     }
     if observe(path).map_err(|e| e.to_string())? != observation {
         return Err("Bookmark store changed during reading".into());
@@ -259,4 +244,37 @@ impl Bookmarks {
         self.changed();
         Ok(())
     }
+}
+
+fn check_lock(file: &File, path: &Path, before: Option<&Observation>) -> Result<(), String> {
+    let actual = observe(path)
+        .map_err(|e| e.to_string())?
+        .ok_or("Bookmark lock disappeared")?;
+    use std::os::unix::fs::MetadataExt;
+    let metadata = file.metadata().map_err(|e| e.to_string())?;
+    if actual.device != metadata.dev()
+        || actual.inode != metadata.ino()
+        || before.is_some_and(|b| b.device != actual.device || b.inode != actual.inode)
+    {
+        return Err("Bookmark lock changed".into());
+    }
+    Ok(())
+}
+
+fn read_contents(path: &Path, expected: &Observation) -> Result<Vec<u8>, String> {
+    let mut bytes = Vec::new();
+    let len = usize::try_from(expected.length).map_err(|_| "Bookmark store exceeds 16 MiB")?;
+    if len > LIMIT {
+        return Err("Bookmark store exceeds 16 MiB".into());
+    }
+    // Allocate exactly the observed bounded length. Probe growth with one
+    // stack byte, never an allocation beyond the hard store bound.
+    bytes.resize(len, 0);
+    let mut file = File::open(path).map_err(|e| e.to_string())?;
+    file.read_exact(&mut bytes).map_err(|e| e.to_string())?;
+    let mut extra = [0];
+    if file.read(&mut extra).map_err(|e| e.to_string())? != 0 {
+        return Err("Bookmark store changed during reading".into());
+    }
+    Ok(bytes)
 }

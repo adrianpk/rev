@@ -56,17 +56,24 @@ impl View {
             } else {
                 fragment.source.end
             }
-        } else if !fragment.end_of_line
-            && buffer
-                .slice(&buffer.span(edge.0..fragment.source.end.0)?)?
-                .chars()
-                .all(|ch| ch == ' ' || ch == '\t')
-        {
+        } else if Self::trailing_wrap_space(buffer, &fragment, edge)? {
             fragment.source.end
         } else {
             edge
         };
         Ok(point.0..end.0)
+    }
+
+    fn trailing_wrap_space(
+        buffer: &Buffer,
+        fragment: &Fragment,
+        edge: Scalar,
+    ) -> Result<bool, Error> {
+        Ok(!fragment.end_of_line
+            && buffer
+                .slice(&buffer.span(edge.0..fragment.source.end.0)?)?
+                .chars()
+                .all(|ch| ch == ' ' || ch == '\t'))
     }
 
     pub(super) fn adjacent_fragment(
@@ -76,10 +83,7 @@ impl View {
         current: &Fragment,
         backward: bool,
     ) -> Result<Option<Fragment>, Error> {
-        if !backward
-            && (!current.end_of_line
-                || !current.source.is_empty() && current.painted_width(width) == width)
-        {
+        if !backward && !current.finished(width) {
             return self.next_fragment(buffer, width, current).map(Some);
         }
         if backward {
@@ -97,6 +101,16 @@ impl View {
                     .map(Some);
             }
         }
+        self.source_neighbor(buffer, width, current, backward)
+    }
+
+    fn source_neighbor(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        current: &Fragment,
+        backward: bool,
+    ) -> Result<Option<Fragment>, Error> {
         let projected = self
             .project_row(buffer, current.line)
             .ok_or(crate::coordinates::Error::Overflow)?;
@@ -140,9 +154,9 @@ impl View {
         buffer: &Buffer,
         backward: bool,
         distance: usize,
-        width: u16,
-        rows: u16,
+        text: Size,
     ) -> Result<(), Error> {
+        let (width, rows) = (text.width, text.height);
         self.sync_policy(buffer);
         let mut top = self.wrapped_rows(buffer, width, 1)?;
         let Some(mut top) = top.pop() else {
@@ -204,10 +218,7 @@ impl View {
         scroll: Scroll,
         distance: usize,
     ) -> Result<(), Error> {
-        self.sync_policy(buffer);
-        self.sync_wrap_width(Some(width));
-        self.reveal_fold(buffer, self.cell(buffer)?.row)?;
-        self.alignment = super::scroll::Alignment::Center;
+        self.sync_visual_scroll(buffer, width)?;
         if distance == 0 {
             return Ok(());
         }
@@ -226,12 +237,30 @@ impl View {
             moved += 1;
         }
         self.point.position = Self::fragment_point(buffer, &fragment, column)?;
-        if scroll.page()
-            && let Some(mut top) = self.wrapped_rows(buffer, width, 1)?.into_iter().next()
-        {
+        if scroll.page() {
+            self.scroll_page_top(buffer, width, scroll.backward(), moved)?;
+        }
+        Ok(())
+    }
+
+    fn sync_visual_scroll(&mut self, buffer: &Buffer, width: u16) -> Result<(), Error> {
+        self.sync_policy(buffer);
+        self.sync_wrap_width(Some(width));
+        self.reveal_fold(buffer, self.cell(buffer)?.row)?;
+        self.alignment = super::scroll::Alignment::Center;
+        Ok(())
+    }
+
+    fn scroll_page_top(
+        &mut self,
+        buffer: &Buffer,
+        width: u16,
+        backward: bool,
+        moved: usize,
+    ) -> Result<(), Error> {
+        if let Some(mut top) = self.wrapped_rows(buffer, width, 1)?.into_iter().next() {
             for _ in 0..moved {
-                let Some(next) = self.adjacent_fragment(buffer, width, &top, scroll.backward())?
-                else {
+                let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
                     break;
                 };
                 top = next;

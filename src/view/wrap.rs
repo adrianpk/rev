@@ -211,20 +211,8 @@ impl<'a> Line<'a> {
             .pending
             .front()
             .map_or(self.column, |g| g.columns.start);
-        loop {
-            if self.lookahead.is_none() && !self.exhausted {
-                if !budget.charge() {
-                    return Ok(Step::Pending);
-                }
-                self.lookahead = self.glyphs.next().transpose()?;
-                self.exhausted = self.lookahead.is_none();
-            }
-            let Some(glyph) = &self.lookahead else { break };
-            if glyph.columns.end - start > self.width && !self.pending.is_empty() {
-                break;
-            }
-            self.pending
-                .push_back(self.lookahead.take().expect("observed lookahead"));
+        if !self.fill(budget, start)? {
+            return Ok(Step::Pending);
         }
         let more = self.lookahead.is_some();
         let count = if more {
@@ -243,16 +231,7 @@ impl<'a> Line<'a> {
         // CRLF can change the body's final glyph and join the following row.
         let observed_end = if more { observed_end } else { self.after_line };
         let source = self.pending.front().map_or(self.end, |g| g.source.start);
-        let mut text = String::new();
-        for glyph in self.pending.drain(..count) {
-            self.end = glyph.source.end;
-            self.column = glyph.columns.end;
-            if glyph.columns.end - start <= self.width {
-                text.push_str(&glyph.text);
-            } else {
-                text.extend(std::iter::repeat_n(' ', self.width));
-            }
-        }
+        let mut text = self.take_text(count, start);
         let cells = (self.column - start).min(self.width);
         text.extend(std::iter::repeat_n(' ', self.width - cells));
         // An exact-width EOL needs a final insertion cell on the next row.
@@ -267,6 +246,43 @@ impl<'a> Line<'a> {
             observed_end,
         }))
     }
+    fn fill(&mut self, budget: &mut Budget, start: usize) -> Result<bool, Error> {
+        loop {
+            if self.lookahead.is_none() && !self.exhausted {
+                if !budget.charge() {
+                    return Ok(false);
+                }
+                self.lookahead = self.glyphs.next().transpose()?;
+                self.exhausted = self.lookahead.is_none();
+            }
+            let Some(glyph) = &self.lookahead else { break };
+            if glyph.columns.end - start > self.width && !self.pending.is_empty() {
+                break;
+            }
+            self.pending
+                .push_back(self.lookahead.take().expect("observed lookahead"));
+        }
+        Ok(true)
+    }
+    fn take_text(&mut self, count: usize, start: usize) -> String {
+        let mut text = String::new();
+        for glyph in self.pending.drain(..count) {
+            self.end = glyph.source.end;
+            self.column = glyph.columns.end;
+            if glyph.columns.end - start <= self.width {
+                text.push_str(&glyph.text);
+            } else {
+                text.extend(std::iter::repeat_n(' ', self.width));
+            }
+        }
+        text
+    }
+}
+
+#[derive(Clone, Copy)]
+struct Target {
+    row: usize,
+    point: Scalar,
 }
 
 impl View {
@@ -300,7 +316,15 @@ impl View {
         let coordinates = Coordinates::new(buffer)?;
         let row = coordinates.to_line(self.point.position)?.row;
         if self
-            .prepare_fragment(buffer, width, row, self.point.position, budget)?
+            .prepare_fragment(
+                buffer,
+                width,
+                Target {
+                    row,
+                    point: self.point.position,
+                },
+                budget,
+            )?
             .is_none()
         {
             return Ok(false);
@@ -324,6 +348,10 @@ impl View {
         if width == 0 {
             return Ok(true);
         }
+        self.prepare_top(buffer, width, budget)
+    }
+
+    fn prepare_top(&self, buffer: &Buffer, width: u16, budget: &mut Budget) -> Result<bool, Error> {
         let coordinates = Coordinates::new(buffer)?;
         let Some(row) = self.source_at(buffer, self.projected_top(buffer)) else {
             return Ok(true);
@@ -336,18 +364,17 @@ impl View {
             start
         };
         Ok(self
-            .prepare_fragment(buffer, width, row, target, budget)?
+            .prepare_fragment(buffer, width, Target { row, point: target }, budget)?
             .is_some())
     }
-
     fn prepare_fragment(
         &self,
         buffer: &Buffer,
         width: u16,
-        row: usize,
-        point: Scalar,
+        target: Target,
         budget: &mut Budget,
     ) -> Result<Option<Fragment>, Error> {
+        let Target { row, point } = target;
         let checkpoint = self.wrap_cache.before(buffer, width, row, point);
         if checkpoint
             .as_ref()
@@ -357,19 +384,7 @@ impl View {
             fragment.remember_columns(buffer)?;
             return Ok(Some(fragment));
         }
-        let mut line = if let Some(at) = self.wrap_cache.take_work(buffer, width, row, point) {
-            Line::continue_from(buffer, at)?
-        } else if let Some(fragment) = checkpoint {
-            Line::resume(
-                buffer,
-                row,
-                width,
-                fragment.source.start,
-                fragment.columns.start,
-            )?
-        } else {
-            Line::new(buffer, row, width)?
-        };
+        let mut line = self.resume_fragment(buffer, width, target, checkpoint)?;
         loop {
             match line.advance(budget)? {
                 Step::Fragment(fragment) => {
@@ -388,6 +403,31 @@ impl View {
         }
     }
 
+    fn resume_fragment<'a>(
+        &self,
+        buffer: &'a Buffer,
+        width: u16,
+        target: Target,
+        checkpoint: Option<Fragment>,
+    ) -> Result<Line<'a>, Error> {
+        let Target { row, point } = target;
+        Ok(
+            if let Some(at) = self.wrap_cache.take_work(buffer, width, row, point) {
+                Line::continue_from(buffer, at)?
+            } else if let Some(fragment) = checkpoint {
+                Line::resume(
+                    buffer,
+                    row,
+                    width,
+                    fragment.source.start,
+                    fragment.columns.start,
+                )?
+            } else {
+                Line::new(buffer, row, width)?
+            },
+        )
+    }
+
     /// Derive visible rows from checked fragment checkpoints. Cache disposal
     /// changes recomputation cost only, never source visibility or identity.
     pub fn wrapped_rows(
@@ -397,29 +437,22 @@ impl View {
         rows: u16,
     ) -> Result<Vec<Fragment>, Error> {
         self.cell(buffer)?;
-        let mut result = Vec::new();
         if width == 0 || rows == 0 {
-            return Ok(result);
+            return Ok(Vec::new());
         }
+        self.collect_rows(buffer, width, rows)
+    }
+
+    fn collect_rows(&self, buffer: &Buffer, width: u16, rows: u16) -> Result<Vec<Fragment>, Error> {
+        let mut result = Vec::new();
         let mut projected = self.projected_top(buffer);
         let Some(source) = self.source_at(buffer, projected) else {
             return Ok(result);
         };
         let coordinates = Coordinates::new(buffer)?;
-        let start = coordinates.from_cell(Cell {
-            row: source,
-            column: 0,
-        })?;
-        let end = coordinates.line_end(start)?;
-        let target = if source == self.top {
-            self.wrap_start.max(start).min(end)
-        } else {
-            start
-        };
-        let mut current = self.line_fragment(buffer, width, source, target)?;
+        let mut current = self.top_fragment(buffer, &coordinates, width, source)?;
         loop {
-            let finished = current.end_of_line
-                && (current.source.is_empty() || current.painted_width(width) < width);
+            let finished = current.finished(width);
             result.push(current.clone());
             if result.len() == usize::from(rows) {
                 break;
@@ -431,26 +464,57 @@ impl View {
                 let Some(source) = self.source_at(buffer, projected) else {
                     break;
                 };
-                let start = coordinates.from_cell(Cell {
-                    row: source,
-                    column: 0,
-                })?;
-                let next =
-                    if let Some(fragment) = self.wrap_cache.exact(buffer, width, source, start) {
-                        fragment
-                    } else {
-                        let Some(next) = Line::new(buffer, source, width)?.next()? else {
-                            break;
-                        };
-                        next
-                    };
-                self.wrap_cache.remember(buffer, width, next.clone())?;
+                let Some(next) = self.first_source_fragment(buffer, width, source)? else {
+                    break;
+                };
                 current = next;
             } else {
                 current = self.next_fragment(buffer, width, &current)?;
             }
         }
         Ok(result)
+    }
+
+    fn top_fragment(
+        &self,
+        buffer: &Buffer,
+        coordinates: &Coordinates<'_>,
+        width: u16,
+        source: usize,
+    ) -> Result<Fragment, Error> {
+        let start = coordinates.from_cell(Cell {
+            row: source,
+            column: 0,
+        })?;
+        let end = coordinates.line_end(start)?;
+        let target = if source == self.top {
+            self.wrap_start.max(start).min(end)
+        } else {
+            start
+        };
+        self.line_fragment(buffer, width, source, target)
+    }
+    fn first_source_fragment(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        source: usize,
+    ) -> Result<Option<Fragment>, Error> {
+        let coordinates = Coordinates::new(buffer)?;
+        let start = coordinates.from_cell(Cell {
+            row: source,
+            column: 0,
+        })?;
+        let next = if let Some(fragment) = self.wrap_cache.exact(buffer, width, source, start) {
+            fragment
+        } else {
+            let Some(next) = Line::new(buffer, source, width)?.next()? else {
+                return Ok(None);
+            };
+            next
+        };
+        self.wrap_cache.remember(buffer, width, next.clone())?;
+        Ok(Some(next))
     }
 
     pub(super) fn line_fragment(
@@ -464,20 +528,38 @@ impl View {
             let result = self.prepare_fragment(
                 buffer,
                 width,
-                row,
-                point,
+                Target { row, point },
                 &mut work.lock().expect("layout budget poisoned"),
             )?;
             return result.ok_or(crate::coordinates::Error::Pending.into());
         }
         let checkpoint = self.wrap_cache.before(buffer, width, row, point);
-        if let Some(fragment) = &checkpoint
-            && fragment.contains(point, width)
+        if checkpoint
+            .as_ref()
+            .is_some_and(|fragment| fragment.contains(point, width))
         {
+            let fragment = checkpoint.as_ref().expect("current cached fragment");
             fragment.remember_columns(buffer)?;
             return Ok(fragment.clone());
         }
-        let mut line = if let Some(fragment) = checkpoint {
+        let mut line = Self::checkpoint_line(buffer, width, row, checkpoint)?;
+        while let Some(fragment) = line.next()? {
+            let found = fragment.contains(point, width);
+            self.wrap_cache.remember(buffer, width, fragment.clone())?;
+            if found {
+                return Ok(fragment);
+            }
+        }
+        Err(crate::coordinates::Error::Scalar(point).into())
+    }
+
+    fn checkpoint_line(
+        buffer: &Buffer,
+        width: u16,
+        row: usize,
+        checkpoint: Option<Fragment>,
+    ) -> Result<Line<'_>, Error> {
+        Ok(if let Some(fragment) = checkpoint {
             Line::resume(
                 buffer,
                 row,
@@ -487,15 +569,7 @@ impl View {
             )?
         } else {
             Line::new(buffer, row, width)?
-        };
-        while let Some(fragment) = line.next()? {
-            let found = fragment.contains(point, width);
-            self.wrap_cache.remember(buffer, width, fragment.clone())?;
-            if found {
-                return Ok(fragment);
-            }
-        }
-        Err(crate::coordinates::Error::Scalar(point).into())
+        })
     }
 
     pub(super) fn next_fragment(
@@ -653,31 +727,40 @@ mod tests {
             for width in [1, 13, 4097] {
                 let expected = reference(b, width);
                 for allowance in [1, 7, 256] {
-                    let mut actual = Vec::new();
-                    let mut line = Line::new(b, 0, width).unwrap();
-                    let mut batches = 0;
-                    loop {
-                        let mut budget = Budget {
-                            remaining: allowance,
-                        };
-                        loop {
-                            match line.advance(&mut budget).unwrap() {
-                                Step::Fragment(f) => actual.push(f),
-                                Step::Pending => break,
-                                Step::Finished => break,
-                            }
-                        }
-                        batches += 1;
-                        assert!(batches <= b.len_chars() + 2);
-                        if line.done {
-                            break;
-                        }
-                        assert_eq!(budget.remaining, 0);
-                        line = Line::continue_from(b, line.suspend()).unwrap();
-                    }
-                    assert_eq!(actual, expected, "{width}/{allowance}");
+                    check_batches(b, width, allowance, &expected);
                 }
             }
         }
+    }
+    fn check_batches(b: &Buffer, width: u16, allowance: usize, expected: &[Fragment]) {
+        let mut actual = Vec::new();
+        let mut line = Line::new(b, 0, width).unwrap();
+        let mut batches = 0;
+        loop {
+            let mut budget = Budget {
+                remaining: allowance,
+            };
+            loop {
+                match line.advance(&mut budget).unwrap() {
+                    Step::Fragment(f) => actual.push(f),
+                    Step::Pending => break,
+                    Step::Finished => break,
+                }
+            }
+            batches += 1;
+            assert!(batches <= b.len_chars() + 2);
+            if line.done {
+                break;
+            }
+            assert_eq!(budget.remaining, 0);
+            line = Line::continue_from(b, line.suspend()).unwrap();
+        }
+        assert_eq!(actual.as_slice(), expected, "{width}/{allowance}");
+    }
+}
+
+impl Fragment {
+    pub(super) fn finished(&self, width: u16) -> bool {
+        self.end_of_line && (self.source.is_empty() || self.painted_width(width) < width)
     }
 }

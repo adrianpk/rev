@@ -5,6 +5,11 @@ use crate::window::Area;
 
 use super::{Band, Error, Face, Frame, Row, Tone};
 
+pub(super) struct NumberRows<'a> {
+    pub current: usize,
+    pub fragments: &'a [crate::view::Fragment],
+}
+
 impl Frame {
     pub(super) fn bookmark_markers(
         &mut self,
@@ -45,9 +50,9 @@ impl Frame {
         buffer: &Buffer,
         view: &View,
         geometry: Geometry,
-        current: usize,
-        fragments: &[crate::view::Fragment],
+        rows: NumberRows<'_>,
     ) -> Result<(), Error> {
+        let NumberRows { current, fragments } = rows;
         let Some(area) = geometry.numbers() else {
             return Ok(());
         };
