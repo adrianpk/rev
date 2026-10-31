@@ -74,6 +74,7 @@ existing Unreleased completion entry describe the delivered behavior.
 - `src/syntax/completion.rs`, `scope.rs`: explicit names and lexical scopes.
 - `src/completion/source.rs`, `job.rs`: source pins, finite snapshots and worker ownership.
 - `src/session/completion/sources.rs`: current-first admission and source recency.
+- `src/display/syntax.rs`: current grammar captures projected into terminal cells.
 - `tests/completion/systems.rs`: native language, scope, context and limit cases.
 - `src/session/completion/tests.rs`: invalidation, in-flight edits and aggregate snapshots.
 
@@ -139,13 +140,13 @@ assertions. Fresh focused and configured evidence cover this correction.
 
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
-Focused controller receipt `Y2O5S27HEXXLMGLPEXMZLCNNXZ` passed at clean
-candidate `aa5df81df2b4a7ab65289ce37f402484991a829b`:
+Fresh focused controller receipt `RCTNIXKPM7NUW5YMGGSKLDET5M` passed at clean
+candidate `1cab4b0b6549e4825b6c211f0ab85406b3b858e5`, including the renderer correction:
 
 1. `cargo test --locked --lib completion`: 11 tests passed.
 2. `cargo test --locked --test configuration`: 136 tests passed.
 3. `cargo clippy --locked --lib -- -D warnings`: passed.
-4. `cargo run --locked --quiet --example source-check -- --file src/buffer.rs --file src/buffer/policy.rs --file src/buffer/syntax.rs --file src/completion.rs --file src/completion/job.rs --file src/completion/matching.rs --file src/completion/source.rs --file src/config.rs --file src/config/resolve.rs --file src/session/buffers.rs --file src/session/completion.rs --file src/session/completion/sources.rs --file src/syntax.rs --file src/syntax/catalog.rs --file src/syntax/completion.rs --file src/syntax/scope.rs --file src/syntax/style.rs`: passed.
+4. `cargo run --locked --quiet --example source-check -- --file src/buffer.rs --file src/buffer/policy.rs --file src/buffer/syntax.rs --file src/completion.rs --file src/completion/job.rs --file src/completion/matching.rs --file src/completion/source.rs --file src/config.rs --file src/config/resolve.rs --file src/session/buffers.rs --file src/session/completion.rs --file src/session/completion/sources.rs --file src/syntax.rs --file src/syntax/catalog.rs --file src/syntax/completion.rs --file src/syntax/scope.rs --file src/syntax/style.rs --file src/display/syntax.rs`: passed.
 5. `cargo run --locked --quiet --example documentation-check`: passed.
 6. `git diff --check`: passed.
 
