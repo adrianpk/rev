@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-07-tree-click`
-PR: pending
+PR: [#180](https://forge.adrianpk.com/adrianpk/rev/pulls/180)
 
 ## Purpose
 
@@ -84,13 +84,34 @@ file/point status and absence of the active marker. The eight-second/1 MiB drive
 limits and complete-frame checks remain unchanged. No new gate or runtime
 dependency is introduced.
 
-Clean-head configured checks, Clippy, documentation and the focused SGR probe
-require a controller receipt before handoff. The final PR-reference head receives
-fresh configured evidence. The combined delivery gate remains unchanged.
+T7.1 commit `65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41` introduces checked
+row identity, native activation and this report. T7.2 commit
+`a6a3c97795feb45b63fbde01374c316d9a4b2cb1` adds the startup preference,
+configuration/reference coverage and focused SGR journeys.
+
+Controller receipt `WJGF4Y5IGUFXSHIPQFHPWJC5TP` passed these exact ordered
+commands at clean head `a6a3c97795feb45b63fbde01374c316d9a4b2cb1`:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test pointer --test tree --test panels --test configuration --test files`
+3. `git diff --check`
+4. `cargo clippy --locked --all-targets -- -D warnings`
+5. `cargo run --locked --quiet --example documentation-check`
+6. `python3 scripts/check-directory-targets.py --tree-click`
+
+The native suites passed 359 tests: 133 configuration, 74 file, 19 panel,
+65 pointer and 68 tree cases. Documentation passed 305 commands, 180 configuration
+entries, 58 pages and 330 local links/anchors. Both SGR sessions passed, retaining
+exact fixture bytes and restoring terminal attributes.
+
+Canonical PR #180 targets `dev` with the approved title and immutable report
+introduction link. Its PR-reference head receives a fresh configured
+three-command receipt before handoff; the controller retains that exact final
+identity and evidence. The combined delivery gate remains unchanged.
 
 ## Risks and Follow-ups
 
 Activation uses existing filesystem admission and cannot eliminate external
 changes between observations. No background scanner, double-click timer or
-new pointer input mechanism is added. Record the canonical PR and exact-head
-receipts before handoff; the pointer ticket remains under review until merge.
+new pointer input mechanism is added. The pointer ticket remains under review
+until verified merge.

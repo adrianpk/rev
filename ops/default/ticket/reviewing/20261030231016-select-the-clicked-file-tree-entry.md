@@ -13,7 +13,8 @@ ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T03:48:50Z
 branch: feat/rev-wrap-navigation-07-tree-click
 reviewed_at: 2026-10-31T03:56:13Z
-commits: [65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41]
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/180
+commits: [65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41, a6a3c97795feb45b63fbde01374c316d9a4b2cb1]
 ---
 
 # Select the clicked file-tree entry
@@ -68,5 +69,9 @@ The [Slice 7 report](../../report/slices/rev-wrap-navigation/slice-7-tree-click.
 records native event/render coverage for clipping, resize/scroll/refresh, split
 ownership, aliases, failures, configuration layering and frozen startup policy.
 The existing PTY probe now supplies a focused two-session SGR tree-click mode
-with exact file preservation and terminal restoration. Canonical PR references
-and clean-head controller validation precede handoff.
+with exact file preservation and terminal restoration. Canonical
+[PR #180](https://forge.adrianpk.com/adrianpk/rev/pulls/180) targets `dev`.
+Controller receipt `WJGF4Y5IGUFXSHIPQFHPWJC5TP` passed 359 tests, all-target Clippy,
+documentation and both SGR sessions at clean head
+`a6a3c97795feb45b63fbde01374c316d9a4b2cb1`. The controller records fresh configured
+evidence for the final PR-reference head before handoff.

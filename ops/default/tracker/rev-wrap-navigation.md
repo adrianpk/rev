@@ -14,7 +14,7 @@ Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
 Active slice: Slice 7
-Execution owner: Looper; Slice 7 implementation active
+Execution owner: Looper; Slice 7 PR #180 under review
 
 ## Canonical slice map
 
@@ -156,8 +156,12 @@ T7.1 commit `65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41` delivers checked tree hit
 T7.2 adds the startup selection-only preference, strict configuration/sample
 coverage, canonical alias and denied-access cases, pointer baseline amendments
 and focused native SGR terminal validation. The pointer ticket is under review;
-canonical PR and exact clean-head receipts remain pending in the
-[Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
+T7.2 commit `a6a3c97795feb45b63fbde01374c316d9a4b2cb1` passed all six
+controller commands, 359 tests and two native SGR sessions in receipt
+`WJGF4Y5IGUFXSHIPQFHPWJC5TP` on that exact clean head. Canonical
+[PR #180](https://forge.adrianpk.com/adrianpk/rev/pulls/180) targets `dev`;
+the PR-reference head requires fresh configured controller evidence before
+handoff. See the [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
 
 ## Slice 8: User guidance and joint interaction acceptance
 
@@ -177,7 +181,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | 4 | delivered | #177 | `279242c0351ce10d2415d97c0aa11f1196b0b63c` | [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md) |
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | delivered | #179 | `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7` | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
-| 7 | pending | pending | pending | pending |
+| 7 | reviewing | #180 | pending | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
 | 8 | pending | pending | pending | pending |
 
 ## Delivery acceptance
