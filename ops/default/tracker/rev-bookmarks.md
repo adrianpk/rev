@@ -96,7 +96,7 @@ tests, all-target clippy and documentation.
 
 Acceptance: BMK03 and marker parts of BMK07.
 
-- [ ] T5.1: Integrate marker geometry and current logical-row lookup with numbering, wrapping, folds, pointer and search owners.
+- [x] T5.1: Integrate marker geometry and current logical-row lookup with numbering, wrapping, folds, pointer and search owners.
 - [ ] T5.2: Add marker configuration, semantic palette, per-view toggle and complete sample/catalog/reference coverage.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 5 report.
 

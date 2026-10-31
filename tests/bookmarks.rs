@@ -6,6 +6,8 @@ mod fixture;
 mod list;
 #[path = "bookmarks/locations.rs"]
 mod locations;
+#[path = "bookmarks/markers.rs"]
+mod markers;
 #[path = "bookmarks/ordered.rs"]
 mod ordered;
 #[path = "bookmarks/persistence.rs"]

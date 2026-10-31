@@ -98,6 +98,7 @@ fn gutter_color(role: crate::gutter::Role, palette: &crate::config::GutterPalett
         crate::gutter::Role::Number => palette.foreground,
         crate::gutter::Role::CurrentLine => palette.current_line,
         crate::gutter::Role::Separator => palette.separator,
+        crate::gutter::Role::Bookmark => Rgb(0xe0, 0xaf, 0x68),
     }
 }
 

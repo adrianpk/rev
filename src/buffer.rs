@@ -134,6 +134,7 @@ impl std::error::Error for Error {}
 /// publish source files; all text access remains borrowed.
 pub struct Buffer {
     pub(crate) bookmarks: crate::bookmark::Shared,
+    pub(crate) bookmark_rows: std::sync::Mutex<crate::bookmark::markers::Cache>,
     id: BufferId,
     name: String,
     policy: crate::config::Editor,
@@ -188,6 +189,7 @@ impl Buffer {
         };
         Ok(Self {
             bookmarks: crate::bookmark::Shared::default(),
+            bookmark_rows: std::sync::Mutex::default(),
             id,
             name: format!("*buffer-{id}*"),
             policy: crate::config::Editor::default(),

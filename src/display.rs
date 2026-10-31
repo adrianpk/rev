@@ -181,6 +181,7 @@ impl Frame {
         let highlight = selection::Highlight::new(buffer, view, panel.active())?;
         self.document(buffer, view, text, highlight, &fragments)?;
         self.numbers(buffer, view, geometry, point.row, &fragments)?;
+        self.bookmark_markers(buffer, view, geometry, &fragments)?;
         self.status(buffer, point, panel)?;
         self.preview(buffer, view, text.content(), &fragments)?;
         if panel.active() {

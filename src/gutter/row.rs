@@ -6,6 +6,7 @@ pub enum Role {
     Number,
     CurrentLine,
     Separator,
+    Bookmark,
 }
 
 /// One real visible logical row. Empty viewport padding has no NumberRow.

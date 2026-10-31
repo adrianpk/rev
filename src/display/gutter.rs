@@ -6,6 +6,40 @@ use crate::window::Area;
 use super::{Band, Error, Face, Frame, Row, Tone};
 
 impl Frame {
+    pub(super) fn bookmark_markers(
+        &mut self,
+        buffer: &Buffer,
+        view: &View,
+        geometry: Geometry,
+        fragments: &[crate::view::Fragment],
+    ) -> Result<(), Error> {
+        let Some(area) = geometry.marker() else {
+            return Ok(());
+        };
+        let markers = buffer.bookmark_rows()?;
+        for row in 0..area.height() {
+            let source = source_row(buffer, view, row, fragments);
+            self.blit(
+                area,
+                Row {
+                    row,
+                    text: if source.is_some_and(|line| markers.contains(&line)) {
+                        view.bookmark_marker().into()
+                    } else {
+                        " ".into()
+                    },
+                    band: Band::Document,
+                    tone: Tone::Gutter(Role::Bookmark),
+                    faces: Vec::new(),
+                    syntax: Vec::new(),
+                    selection: None,
+                    search: None,
+                },
+            )?;
+        }
+        Ok(())
+    }
+
     pub(super) fn numbers(
         &mut self,
         buffer: &Buffer,
@@ -19,14 +53,7 @@ impl Frame {
         };
         let settings = view.gutter.effective();
         for row in 0..area.height() {
-            let source = if buffer.soft_wrap() {
-                fragments
-                    .get(usize::from(row))
-                    .filter(|f| f.columns.start == 0)
-                    .map(|f| f.line)
-            } else {
-                view.source_row(buffer, usize::from(row))
-            };
+            let source = source_row(buffer, view, row, fragments);
             let label =
                 source.and_then(|line| NumberRow::new(line, buffer.len_lines(), current, settings));
             let mut projected = field(area, geometry.digits(), settings, label)?;
@@ -34,6 +61,22 @@ impl Frame {
             self.blit(area, projected)?;
         }
         Ok(())
+    }
+}
+
+fn source_row(
+    buffer: &Buffer,
+    view: &View,
+    row: u16,
+    fragments: &[crate::view::Fragment],
+) -> Option<usize> {
+    if buffer.soft_wrap() {
+        fragments
+            .get(usize::from(row))
+            .filter(|fragment| fragment.columns.start == 0)
+            .map(|fragment| fragment.line)
+    } else {
+        view.source_row(buffer, usize::from(row))
     }
 }
 

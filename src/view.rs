@@ -107,6 +107,9 @@ pub struct View {
     pub point: Point,
     /// Session-only presentation values, copied by splits and never text data.
     pub gutter: crate::gutter::Policy,
+    /// Independent view presentation, inherited by splits and retained on rebind.
+    pub bookmark_markers: bool,
+    bookmark_marker: String,
     pub preview: crate::org::preview::State,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
@@ -130,10 +133,11 @@ impl View {
         buffer: &Buffer,
         content: crate::window::Area,
     ) -> Result<crate::gutter::Geometry, Error> {
-        Ok(crate::gutter::Geometry::new(
+        Ok(crate::gutter::Geometry::with_marker(
             content,
             buffer.len_lines(),
             self.gutter.effective(),
+            self.bookmark_markers,
         )?)
     }
 
@@ -144,6 +148,8 @@ impl View {
                 position: Scalar(0),
             },
             gutter: crate::gutter::Policy::default(),
+            bookmark_markers: false,
+            bookmark_marker: "●".into(),
             preview: crate::org::preview::State::default(),
             column: None,
             top: 0,
@@ -172,10 +178,18 @@ impl View {
     /// retaining only this view's independent presentation policy and provenance.
     pub fn rebind(&mut self, buffer: &Buffer) {
         let gutter = self.gutter;
+        let markers = self.bookmark_markers;
+        let marker = self.bookmark_marker.clone();
         let enabled = self.preview.enabled;
         *self = Self::new(buffer);
         self.gutter = gutter;
+        self.bookmark_markers = markers;
+        self.bookmark_marker = marker;
         self.preview.enabled = enabled;
+    }
+
+    pub(crate) fn bookmark_marker(&self) -> &str {
+        &self.bookmark_marker
     }
 
     pub(crate) fn clone_for_split(&self) -> Self {

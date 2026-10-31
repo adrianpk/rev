@@ -27,6 +27,7 @@ impl std::error::Error for Error {}
 pub struct Geometry {
     digits: u8,
     numbers: Option<Area>,
+    marker: Option<Area>,
     text: Area,
 }
 
@@ -36,11 +37,23 @@ impl Geometry {
     pub const MIN_TEXT_COLUMNS: u16 = 3;
 
     pub fn new(content: Area, lines: usize, settings: Settings) -> Result<Self, Error> {
+        Self::with_marker(content, lines, settings, false)
+    }
+
+    /// Allocate numbers first, then an independent one-cell bookmark field.
+    /// Narrow panes omit the marker before reducing available number geometry.
+    pub fn with_marker(
+        content: Area,
+        lines: usize,
+        settings: Settings,
+        markers: bool,
+    ) -> Result<Self, Error> {
         let digits = digits(lines, settings.format.minimum_digits())?;
         let width = field_width(digits, settings.format).ok_or(Error::Overflow)?;
         let mut geometry = Self {
             digits,
             numbers: None,
+            marker: None,
             text: content,
         };
         if settings.visible
@@ -48,6 +61,13 @@ impl Geometry {
             && let Some((numbers, text)) = partition(content, width, settings.side)
         {
             geometry.numbers = Some(numbers);
+            geometry.text = text;
+        }
+        if markers
+            && content.height() > 0
+            && let Some((marker, text)) = partition(geometry.text, 1, settings.side)
+        {
+            geometry.marker = Some(marker);
             geometry.text = text;
         }
         Ok(geometry)
@@ -63,6 +83,9 @@ impl Geometry {
     }
     pub fn text(self) -> Area {
         self.text
+    }
+    pub fn marker(self) -> Option<Area> {
+        self.marker
     }
 }
 
