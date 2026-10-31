@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6; joint acceptance and guidance, implementation in progress
+Active slice: Slice 6; canonical PR #190 open, exact-HEAD validation and integration pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -122,7 +122,11 @@ Acceptance: BMK01-BMK07 jointly.
 T6.1 acceptance commit: `fd2e7ea03f7bafdebeadea9dc6b5874d4e47e548`.
 The native/PTY journey and resource probe passed during development; the
 documentation checker passed 319 commands, 189 settings, 59 pages and 341 links.
-Final controller validation follows canonical PR preparation.
+T6.2 guidance commit: `4c5bf55c6a781e7c7efac620e4ef92ff109d4864`.
+Canonical PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190).
+[Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md) records
+the joint journey, resource observations and guidance. Final exact-HEAD
+controller validation follows this PR-reference commit.
 
 ## Final gate and closure
 
