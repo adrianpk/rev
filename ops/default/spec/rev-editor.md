@@ -990,11 +990,16 @@ strings, comments, types, functions, numbers, and punctuation/operators as
 provided by the grammar. Highlighting MUST be visual only and preserve
 document content. Unsupported files MUST remain fully editable as plain text.
 
-**Design default:** Rust first, selected by extension, with a safe plain-text
-fallback and one small readable palette. Extra fixed grammars MAY be added,
-but no language list beyond Rust is approved by this baseline. Runtime grammar
-installation, semantic completion, keyword popup completion, and a substitute
-language-server framework MUST NOT be introduced.
+**Baseline and approved delta:** The original baseline selected Rust first,
+with plain-text fallback and one small readable palette. The approved
+[Native Autocompletion R31 delta](editor-autocompletion.md#requirement-r31-bundled-tree-sitter-highlighting)
+supersedes its Rust-only selection and native completion/external grammar
+exclusion. The closed ten-parser catalog, native completion and explicitly
+registered precompiled assets follow CMP01-CMP09. Failed admission retains
+bundled/plain editing. Runtime grammar compilation, download or installation
+and a substitute language-server framework remain excluded; semantic completion
+belongs to the separately approved LSP delivery. R35 remains unchanged in full.
+Historical baseline gate evidence below retains its original meaning.
 
 #### Scenario: Highlight Rust and retain plain-text fallback
 

@@ -400,6 +400,16 @@ query or parse retains accepted text and switches to safe styling. Derived
 highlight ranges, cells, and viewport caches may be rebuilt or discarded;
 canonical rope, history, and file association may not.
 
+The approved [Native Autocompletion model](editor-autocompletion-model.md) owns
+the R31 successor delta: ten bundled parsers, native completion and explicit
+precompiled external assets. External admission runs off the input/render loop,
+validates parser ABI and both query profiles before generation publication, and
+pins that generation in derived observations. Failure preserves bundled/plain
+editing. Registrations are immutable for the session and mappings remain loaded
+for process lifetime; replacement requires a new versioned registration and
+restart. Historical baseline decisions/evidence and R35 remain unchanged.
+
+
 ## Lifecycle consistency
 
 | Operation | Required consistency boundary |

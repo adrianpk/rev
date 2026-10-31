@@ -340,3 +340,6 @@ mod formats;
 
 #[path = "completion/org.rs"]
 mod org;
+
+#[path = "completion/external.rs"]
+mod external;
