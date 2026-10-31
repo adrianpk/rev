@@ -9,11 +9,13 @@ This project uses Semantic Versioning.
 ### Added
 
 - Native completion suggests Rust, C, Go, JavaScript and TypeScript/TSX
-  declarations, HTML tags/attributes and CSS selectors/properties near the cursor
+  declarations, HTML tags/attributes, CSS selectors/properties, and observed
+  JSON/TOML keys and TOML tables near the cursor
   after a short typing delay. It uses unsaved names in the current and same-language
   open buffers, plus finite HTML/CSS vocabulary in structural contexts.
   Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
+  Quoted keys preserve literal escapes; ordinary JSON/TOML values stay quiet.
   Literal replacements undo in one step and refuse stale targets or read-only
   text. Configure timing, contexts, candidate limits and popup keys in TOML, or
   toggle completion and automatic requests with `completion-mode` and

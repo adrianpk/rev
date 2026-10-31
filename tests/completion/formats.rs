@@ -118,3 +118,206 @@ fn structural_contexts() {
         assert!(session.buffer().unwrap().history().is_empty());
     }
 }
+
+// Escaped spellings deduplicate by decoded key identity. Literal acceptance
+// escapes quotes/backslashes and keeps dotted table segments distinct.
+#[test]
+fn escaped_keys() {
+    for (file, document, expected) in [
+        (
+            "escaped.json",
+            r#"{"space\u0020key":1,"space key":2,"spa|":0}"#,
+            r#""space key""#,
+        ),
+        (
+            "escaped.json",
+            r#"{"quote\"key":1,"qu|":0}"#,
+            r#""quote\"key""#,
+        ),
+        (
+            "escaped.json",
+            r#"{"slash\/key":1,"sla|":0}"#,
+            r#""slash/key""#,
+        ),
+        (
+            "escaped.json",
+            r#"{"\uD83D\uDE80 launch":1,"🚀|":0}"#,
+            "\"🚀 launch\"",
+        ),
+        (
+            "escaped.toml",
+            "'space key' = 1\n\"spa|\" = 0\n",
+            "\"space key\"",
+        ),
+        (
+            "escaped.toml",
+            "\"space\\u0020key\" = 1\n'space key' = 2\n\"spa|\" = 0\n",
+            "\"space key\"",
+        ),
+        (
+            "escaped.toml",
+            "'quote\"key' = 1\nqu| = 0\n",
+            r#""quote\"key""#,
+        ),
+        ("escaped.toml", "service.port = 80\nother.po| = 0\n", "port"),
+        (
+            "escaped.toml",
+            "[\"server.name\" . http]\nport = 80\n[\"server.name\".ht|]\n",
+            "\"server.name\".http",
+        ),
+    ] {
+        let (_fixture, mut session) = named_source(file, document, "");
+        let original = text(&session);
+        complete(&mut session);
+        assert_eq!(
+            names(&session),
+            [expected],
+            "{document}: {}",
+            session.echo()
+        );
+        key(&mut session, KeyCode::Tab, KeyModifiers::NONE);
+        assert_eq!(session.buffer().unwrap().history().len(), 1, "{document}");
+        assert!(text(&session).contains(expected));
+        session.execute(Command::History(History::Undo));
+        assert_eq!(text(&session), original);
+    }
+}
+
+// Incomplete keys recover only bounded structural context. Valid independent
+// observations survive malformed neighbors; unknown schema names never appear.
+#[test]
+fn incomplete_keys() {
+    for (file, document, expected) in [
+        ("partial.json", "{\"sample\":1,\n \"sam|", "\"sample\""),
+        (
+            "partial.json",
+            "{\"sample\":1,\"broken\":,\"sam|\":0}",
+            "\"sample\"",
+        ),
+        ("partial.toml", "sample = 1\nbroken ???\nsam|", "sample"),
+        ("partial.toml", "sample = 1\n\"sam|", "sample"),
+        (
+            "partial.toml",
+            "[server.http]\nport = 80\n[server.ht|",
+            "server.http",
+        ),
+    ] {
+        let (_fixture, mut session) = named_source(file, document, "");
+        complete(&mut session);
+        assert_eq!(
+            names(&session),
+            [expected],
+            "{document}: {}",
+            session.echo()
+        );
+    }
+}
+
+// Opening delimiters bypass the ordinary prefix minimum only after structural
+// admission. Quoted keys work with in_strings=false; values never become keys.
+#[test]
+fn automatic_formats() {
+    for (file, document, ch, expected) in [
+        ("auto.json", "{\"sample\":1, |}", '"', "\"sample\""),
+        ("auto.json", "{\"sample\":1, \"sa|\":0}", 'm', "\"sample\""),
+        ("auto.toml", "sample = 1\n|", '"', "sample"),
+        ("auto.toml", "[server]\nport = 80\n|", '[', "server"),
+        ("auto.toml", "port = 80\nother|", '.', "port"),
+    ] {
+        let (_fixture, mut session) = named_source(file, document, "completion.delay_ms = 0");
+        key(&mut session, KeyCode::Char(ch), KeyModifiers::NONE);
+        settle(&mut session);
+        assert!(
+            names(&session).contains(&expected),
+            "{document}: {:?}: {}",
+            names(&session),
+            session.echo()
+        );
+    }
+    for (file, document) in [
+        ("auto.json", "{\"sample\":1,\"value\":\"sa|\"}"),
+        ("auto.toml", "sample = 1\nvalue = \"sa|\"\n"),
+        ("auto.toml", "sample = 1\nvalue = [\n  \"sa|\"\n]\n"),
+    ] {
+        let (_fixture, mut session) = named_source(
+            file,
+            document,
+            "completion.delay_ms = 0\ncompletion.in_strings = true",
+        );
+        key(&mut session, KeyCode::Char('m'), KeyModifiers::NONE);
+        settle(&mut session);
+        assert!(
+            session.completion().is_none(),
+            "{document}: {:?}",
+            names(&session)
+        );
+    }
+}
+
+// Shared observations use current unsaved revisions. Undoing a donor edit
+// retires its old name; unopened siblings and the other format remain absent.
+#[test]
+fn unsaved_formats() {
+    for (suffix, document, disk, addition, expected) in [
+        (
+            "json",
+            "{\"sam|\":0}",
+            "{\"sampleDisk\":1}\n",
+            "{\"sampleUnsaved\":2}\n",
+            "\"sampleUnsaved\"",
+        ),
+        (
+            "toml",
+            "sam|",
+            "sampleDisk = 1\n",
+            "sampleUnsaved = 2\n",
+            "sampleUnsaved",
+        ),
+    ] {
+        let name = format!("source.{suffix}");
+        let (fixture, mut session) = named_source(&name, document, "");
+        let current = fixture.0.join(&name);
+        let other = fixture.write(&format!("other.{suffix}"), disk);
+        fixture.write(
+            &format!("unopened.{suffix}"),
+            &addition.replace("Unsaved", "Unopened"),
+        );
+        let foreign = if suffix == "json" {
+            fixture.write("foreign.toml", "sampleForeign = 1")
+        } else {
+            fixture.write("foreign.json", "{\"sampleForeign\":1}")
+        };
+        session.load(&foreign).unwrap();
+        session.load(&other).unwrap();
+        session.execute(Command::Motion(Motion::BufferEnd));
+        session.handle(Event::Paste(addition.into()));
+        session.load(&current).unwrap();
+        restore_point(&mut session, document);
+        complete(&mut session);
+        assert!(
+            names(&session).contains(&expected),
+            "{suffix}: {:?}: {}",
+            names(&session),
+            session.echo()
+        );
+        assert!(!names(&session).iter().any(|name| name.contains("Unopened")));
+        assert!(!names(&session).iter().any(|name| name.contains("Foreign")));
+        assert_eq!(std::fs::read_to_string(&other).unwrap(), disk);
+        session.load(&other).unwrap();
+        session.execute(Command::History(History::Undo));
+        session.load(&current).unwrap();
+        restore_point(&mut session, document);
+        complete(&mut session);
+        assert!(
+            !names(&session).contains(&expected),
+            "{suffix}: stale unsaved name"
+        );
+    }
+}
+
+fn restore_point(session: &mut Session, document: &str) {
+    session.execute(Command::Motion(Motion::BufferStart));
+    for _ in 0..document[..document.find('|').unwrap()].chars().count() {
+        session.execute(Command::Motion(Motion::ForwardChar));
+    }
+}

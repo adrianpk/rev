@@ -3,7 +3,9 @@
 Native completion opens automatically after an admitted identifier edit of at
 least two Unicode characters or a language separator. Rust/C/Go and script
 languages admit member separators; C also admits `->`. HTML admits tag delimiters
-and attribute spacing, and CSS admits selector/declaration delimiters. The default debounce waits
+and attribute spacing, and CSS admits selector/declaration delimiters. JSON key
+quotes/object separators and TOML key quotes/table delimiters also trigger in
+admitted structural contexts. The default debounce waits
 150 ms after the newest eligible native edit. `M-TAB` or
 `M-x completion-at-point` requests immediately without a minimum prefix.
 Terminal or desktop shortcuts may intercept M-TAB; the named command uses the
@@ -36,7 +38,10 @@ Equal insertions are deduplicated. A single candidate still requires acceptance.
 No usable candidates produce no popup. Automatic requests stay quiet in admitted
 comments, strings and character literals by default; manual invocation bypasses
 that suppression while retaining the same declaration coverage. Structural
-HTML/CSS admission still excludes ordinary text and value strings.
+HTML/CSS admission still excludes ordinary text and value strings. JSON/TOML
+admission stays limited to keys and table headers even with literal suppression
+disabled or a manual request. Quoted structural keys work with the default
+`completion.in_strings = false`.
 
 Acceptance replaces the full identifier around point with literal text through
 the ordinary edit owner, as one undo operation. Read-only buffers and obsolete
@@ -81,6 +86,18 @@ list all eight `completion` leaves and their finite ranges. Defaults are
 `popup_rows = 10`. `completion-mode` toggles completion for this session;
 `completion-auto-mode` toggles automatic requests while retaining manual access.
 Neither command writes settings or changes the startup-only loading contract.
+
+JSON observes object keys, including nested objects. TOML observes pair-key
+components (including inline/dotted keys) and complete table/array-table header
+paths. Only current and admitted same-language open buffers contribute names;
+no schema keys or value vocabulary are supplied. Escaped spellings decode to one
+key identity for matching and deduplication. Acceptance replaces the complete key
+literal with valid quoting/escapes; TOML uses bare keys when permitted. A table
+completion replaces its full header path while preserving brackets. Dot-separated
+paths keep quoted segments distinct from literal dots inside a key. Bounded
+incomplete-key recovery uses the retained syntax tree and current token, so valid
+independent observations remain usable around malformed source. Ordinary values,
+array elements and comments do not become key contexts.
 
 Extraction admits at most 2 MiB and 4096 symbols per buffer, 32 observed buffers,
 8 MiB total shared source snapshots, 16384 retained symbols, 8 MiB observation
