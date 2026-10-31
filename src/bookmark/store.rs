@@ -21,6 +21,16 @@ struct Evidence {
     bytes: Vec<u8>,
 }
 
+struct Lock(File);
+
+impl Drop for Lock {
+    fn drop(&mut self) {
+        // A concurrent process spawn can retain a duplicate until exec. Release
+        // the shared lock explicitly rather than waiting for its last close.
+        let _ = self.0.unlock();
+    }
+}
+
 pub(crate) struct Store {
     path: PathBuf,
     expected: Evidence,
@@ -113,7 +123,7 @@ impl Store {
         }
         Ok(())
     }
-    fn lock(&self) -> Result<File, String> {
+    fn lock(&self) -> Result<Lock, String> {
         let mut name = self.path.as_os_str().to_owned();
         name.push(".lock");
         let path = PathBuf::from(name);
@@ -145,7 +155,7 @@ impl Store {
         }
         file.try_lock()
             .map_err(|e| format!("Bookmark store is busy; retry: {e}"))?;
-        Ok(file)
+        Ok(Lock(file))
     }
     pub(crate) fn guard(&self) -> Result<(), String> {
         if read(&self.path)? != self.expected {

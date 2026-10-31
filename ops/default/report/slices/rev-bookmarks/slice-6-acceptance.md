@@ -1,11 +1,11 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
-Branch: `fix/rev-bookmarks-gate-1`
-PR: [#191](https://forge.adrianpk.com/adrianpk/rev/pulls/191)
+Branch: `fix/rev-bookmarks-gate-2`
+PR: Pending
 Original slice branch: `feat/rev-bookmarks-06-acceptance`
 Original slice PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190)
 
@@ -169,3 +169,44 @@ tests and 158 integration tests (57 bookmarks, 36 gutter and 65 pointer).
 The controller verified and recorded the repair merge in Acta. All six slices
 and the authorized repair are integrated; the unchanged full gate remains
 pending under controller ownership.
+
+## Gate repair 2: Explicit store lock release
+
+The controller's unchanged full gate failed at
+`359b392858646941fe5c65b384b9609c583341ad` in receipt
+`4QZXBGUBDCSJQ275WAQXLEQDWS`. Formatting and all-target clippy passed; the
+library suite passed 89 tests and failed `bookmark::store::tests::publication_faults`
+when an immediate publication retry reported a busy lock. The remaining
+combined-gate commands did not run.
+
+The acquired lock was a raw `File`, so scope exit only closed that descriptor.
+A duplicate shares its lock and can retain it after the writer's handle closes;
+concurrent process creation can retain such a duplicate until exec. The gate
+log does not identify a particular inheriting child. A deterministic regression
+keeps a real duplicate open across owner release and checks fresh nonblocking
+acquisition. `cargo test --locked --lib bookmark::store::tests::lock_lifetime -- --exact`
+failed with the same busy-lock diagnostic before the correction.
+
+An owning lock guard now explicitly calls the standard library's unlock on
+drop, covering successful publication and every early error return. Acquisition
+remains nonblocking and retains the existing lock-inode checks. The regression
+also verifies exclusion while either owner is live and that closing the old
+duplicate cannot release a subsequent owner's lock. Existing fault-injection,
+external-change, unresolved-publication, permission and real-process conflict
+assertions remain intact. Development
+`cargo test --locked --lib bookmark::store::tests` passed all seven store tests.
+
+This repair changes only `src/bookmark/store.rs`, its existing test module and
+this report. BMK05 compare-and-publish serialization, disk/memory preservation,
+store bounds, process deadlines and the unchanged full gate retain their
+approved contracts.
+
+Final clean-HEAD validation follows the repair and canonical PR-reference
+commits in the pinned order:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --lib`
+3. `cargo test --locked --test bookmarks --test recovery --test files`
+4. `git diff --check`
+
+The controller owns repair integration and rerunning the unchanged full gate.

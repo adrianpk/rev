@@ -247,6 +247,24 @@ fn publication_faults() {
     assert_eq!(fs::read(f.path()).unwrap(), external);
 }
 
+// A duplicate can outlive the writer during process creation. Releasing the
+// owner must unlock immediately; closing the duplicate cannot release a later owner.
+#[test]
+fn lock_lifetime() {
+    let f = Fixture::new();
+    fs::create_dir_all(f.path().parent().unwrap()).unwrap();
+    let (store, _) = Store::open(&f.path(), MAX_ENTRIES).unwrap();
+    let lock = store.lock().unwrap();
+    let retained = lock.0.try_clone().unwrap();
+    assert!(store.lock().err().unwrap().contains("busy"));
+    drop(lock);
+    let next = store.lock().unwrap();
+    drop(retained);
+    assert!(store.lock().err().unwrap().contains("busy"));
+    drop(next);
+    store.lock().unwrap();
+}
+
 fn wait(path: &Path) {
     let end = std::time::Instant::now() + std::time::Duration::from_secs(8);
     while !path.exists() {
