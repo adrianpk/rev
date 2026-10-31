@@ -36,6 +36,9 @@ static NEXT: AtomicU64 = AtomicU64::new(1);
 pub struct BufferId(u64);
 
 impl BufferId {
+    /// Zero is never allocated to a live buffer. Loaded durable evidence has
+    /// no source binding until checked navigation publishes one.
+    pub(crate) const UNBOUND: Self = Self(0);
     fn next() -> Result<Self, Error> {
         NEXT.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)
@@ -414,6 +417,11 @@ impl Buffers {
         let mut buffer = Buffer::new("", &settings.settings().files)?;
         buffer.name = "*scratch*".into();
         buffer.apply_settings(&settings);
+        {
+            let mut bookmarks = buffer.bookmarks.lock().expect("bookmark owner");
+            bookmarks.max_entries = settings.settings().bookmarks.max_entries;
+            bookmarks.context_chars = settings.settings().bookmarks.context_chars;
+        }
         let initial = buffer.id();
         Ok(Self {
             bookmarks: buffer.bookmarks.clone(),

@@ -17,11 +17,15 @@ pub struct Context {
 
 impl Context {
     pub(crate) fn capture(buffer: &Buffer, position: Scalar) -> Result<Self, crate::buffer::Error> {
-        let start = position.0.saturating_sub(CONTEXT_CHARS);
-        let end = position
-            .0
-            .saturating_add(CONTEXT_CHARS)
-            .min(buffer.len_chars());
+        Self::capture_with(buffer, position, CONTEXT_CHARS)
+    }
+    pub(crate) fn capture_with(
+        buffer: &Buffer,
+        position: Scalar,
+        limit: usize,
+    ) -> Result<Self, crate::buffer::Error> {
+        let start = position.0.saturating_sub(limit);
+        let end = position.0.saturating_add(limit).min(buffer.len_chars());
         let before = buffer
             .span(start..position.0)
             .and_then(|span| buffer.slice(&span).map(|s| s.to_string()))?;

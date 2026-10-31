@@ -31,6 +31,7 @@ impl Document {
         merge.kill_ring(&mut self.kill_ring, &later.kill_ring);
         merge.tree(&mut self.tree, &later.tree);
         merge.syntax(&mut self.syntax, &later.syntax);
+        merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
         merge.leaf(
             &["org", "enabled"],
             &mut self.org.enabled,
@@ -939,6 +940,28 @@ impl Merge {
             &["org", "preview", "max_bytes"],
             &mut base.max_bytes,
             &later.max_bytes,
+        );
+    }
+}
+
+impl Merge {
+    fn bookmarks(&mut self, base: &mut super::PartialBookmarks, later: &super::PartialBookmarks) {
+        self.leaf(&["bookmarks", "file"], &mut base.file, &later.file);
+        self.leaf(&["bookmarks", "save"], &mut base.save, &later.save);
+        self.leaf(
+            &["bookmarks", "max_entries"],
+            &mut base.max_entries,
+            &later.max_entries,
+        );
+        self.leaf(
+            &["bookmarks", "context_chars"],
+            &mut base.context_chars,
+            &later.context_chars,
+        );
+        self.leaf(
+            &["bookmarks", "search_chars"],
+            &mut base.search_chars,
+            &later.search_chars,
         );
     }
 }

@@ -26,6 +26,7 @@ impl Session {
             session.notice(message);
         }
         session.startup_clock_state();
+        session.startup_bookmarks();
         if let Some(diagnostic) = startup.diagnostic {
             session.notice(&format!("Configuration: {diagnostic}"));
         }

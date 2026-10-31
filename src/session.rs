@@ -88,6 +88,7 @@ pub enum Action {
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
     bookmark_visit: Option<bookmarks::Navigation>,
+    bookmark_storage: bookmarks::Persistence,
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
@@ -265,8 +266,12 @@ impl Session {
         let mut input = Input::with_settings(buffers.snapshot());
         input.set_org_context(buffer.is_org().then_some(crate::input::OrgContext::Editing));
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
+        let bookmark_storage = bookmarks::Persistence::configured(
+            buffers.snapshot().settings().bookmarks.file.clone(),
+        );
         Ok(Self {
             bookmark_visit: None,
+            bookmark_storage,
             buffers,
             org: org::Work::default(),
             capture: None,

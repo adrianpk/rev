@@ -1,7 +1,7 @@
 use super::*;
 use crate::bookmark::{
     Context, Record, Resolution,
-    context::{Progress, SEARCH_CHARS, Search},
+    context::{Progress, Search},
 };
 use crate::buffer::{Stamp, Visit};
 use crate::coordinates::Scalar;
@@ -58,7 +58,7 @@ impl Session {
             Some(Search::new(
                 record.context().clone(),
                 buffer.len_chars(),
-                SEARCH_CHARS,
+                self.buffers.snapshot().settings().bookmarks.search_chars,
             )?)
         } else {
             None
@@ -160,7 +160,12 @@ impl Session {
             .tree
             .opening_file(file.path())
             .map_err(|e| e.to_string())?;
-        let context = Context::capture(buffer, position).map_err(|e| e.to_string())?;
+        let context = Context::capture_with(
+            buffer,
+            position,
+            self.buffers.snapshot().settings().bookmarks.context_chars,
+        )
+        .map_err(|e| e.to_string())?;
         let path = file.path().to_owned();
         self.stop_typing().map_err(|e| e.to_string())?;
         // All source, context, geometry and file observations are admitted before

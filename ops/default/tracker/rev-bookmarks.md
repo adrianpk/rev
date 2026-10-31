@@ -60,7 +60,7 @@ Focused receipt `UX6F7DXZRLYYOJMSRMQENMH42J` passed owner tests, clippy and docs
 
 Acceptance: BMK05 and storage/limit parts of BMK07.
 
-- [ ] T3.1: Implement versioned bounded TOML, lossless paths, lazy admission, locked checked publication and real writer-conflict coverage.
+- [x] T3.1: Implement versioned bounded TOML, lossless paths, lazy admission, locked checked publication and real writer-conflict coverage.
 - [ ] T3.2: Add save/reload and quit policies, complete storage settings/defaults/references and recovery coverage.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 3 report.
 

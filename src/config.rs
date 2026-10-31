@@ -23,6 +23,8 @@ pub use source::{
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
+mod bookmarks;
+pub use bookmarks::{BookmarkSave, Bookmarks, PartialBookmarks};
 mod diagnostic;
 mod load;
 mod merge;
@@ -68,6 +70,7 @@ pub struct Settings {
     pub syntax: Syntax,
     pub org: Org,
     pub files: Files,
+    pub bookmarks: Bookmarks,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -94,6 +97,7 @@ pub struct Document {
     pub syntax: PartialSyntax,
     pub org: PartialOrg,
     pub files: PartialFiles,
+    pub bookmarks: PartialBookmarks,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

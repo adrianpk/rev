@@ -21,6 +21,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     tree(&mut settings.tree, &document.tree);
     syntax(&mut settings.syntax, &document.syntax);
     files(&mut settings.files, &document.files);
+    bookmarks(&mut settings.bookmarks, &document.bookmarks);
     scalar(&mut settings.org.enabled, document.org.enabled);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {
@@ -406,4 +407,14 @@ fn feeds(base: &mut super::Org, partial: &super::PartialOrg) {
     }
     count(&mut base.limits.feed_bytes, partial.limits.feed_bytes);
     count(&mut base.limits.feed_items, partial.limits.feed_items);
+}
+
+fn bookmarks(base: &mut super::Bookmarks, partial: &super::PartialBookmarks) {
+    if let Some(path) = &partial.file {
+        base.file = Some(path.clone());
+    }
+    scalar(&mut base.save, partial.save);
+    count(&mut base.max_entries, partial.max_entries);
+    count(&mut base.context_chars, partial.context_chars);
+    count(&mut base.search_chars, partial.search_chars);
 }

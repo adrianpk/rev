@@ -1,5 +1,7 @@
 mod navigation;
+mod persistence;
 pub(super) use navigation::Navigation;
+pub(super) use persistence::Persistence;
 
 use crate::bookmark::Bookmarks;
 use crate::buffer::edit::Point;
@@ -22,6 +24,7 @@ impl Session {
     }
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
+        let notice = self.ensure_bookmarks().err().unwrap_or_default();
         let point = self.view().point;
         let setting = matches!(
             command,
@@ -43,7 +46,11 @@ impl Session {
                 .to_owned()
         } else {
             if self.buffers.bookmarks().is_empty() {
-                return self.message("No bookmarks in this session");
+                return if notice.is_empty() {
+                    self.message("No bookmarks in this session")
+                } else {
+                    self.error(&notice)
+                };
             }
             String::new()
         };
@@ -53,7 +60,7 @@ impl Session {
             point,
             default,
         };
-        self.bookmark_prompt(prompt, "", "")
+        self.bookmark_prompt(prompt, "", &notice)
     }
 
     fn bookmark_prompt(&mut self, prompt: Prompt, draft: &str, notice: &str) -> Action {
@@ -116,9 +123,10 @@ impl Session {
     fn set_bookmark(&mut self, name: &str, overwrite: bool) -> Result<(), String> {
         let point = self.view().point;
         let path = Bookmarks::target(self.buffer().map_err(|e| e.to_string())?, point)?;
-        let context = crate::bookmark::Context::capture(
+        let context = crate::bookmark::Context::capture_with(
             self.buffer().map_err(|e| e.to_string())?,
             point.position,
+            self.buffers.snapshot().settings().bookmarks.context_chars,
         )
         .map_err(|e| e.to_string())?;
         self.buffers

@@ -41,6 +41,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     integer("version", document.version, 1..=1)?;
     editing(document)?;
     retention(document)?;
+    bookmarks(&document.bookmarks)?;
     gutter(document)?;
     float(
         "windows.split_ratio",
@@ -646,4 +647,21 @@ fn resources(partial: &super::PartialOrg) -> Result<(), Failure> {
     feeds(partial)?;
     preview(&partial.preview)?;
     viewer(partial)
+}
+
+fn bookmarks(value: &super::PartialBookmarks) -> Result<(), Failure> {
+    integer("bookmarks.max_entries", value.max_entries, 1..=4096)?;
+    integer("bookmarks.context_chars", value.context_chars, 16..=256)?;
+    integer("bookmarks.search_chars", value.search_chars, 0..=1048576)?;
+    if value
+        .file
+        .as_ref()
+        .is_some_and(|p| !p.is_absolute() || p.as_os_str().as_encoded_bytes().contains(&0))
+    {
+        return Err(Failure::new(
+            "bookmarks.file",
+            "expected an absolute path without NUL".into(),
+        ));
+    }
+    Ok(())
 }
