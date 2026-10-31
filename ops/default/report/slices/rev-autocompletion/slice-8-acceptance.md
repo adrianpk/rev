@@ -1,6 +1,6 @@
 # Slice 8: Native acceptance, footprint and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: `ops/default/plan/rev-autocompletion.md`
 Tracker: `ops/default/tracker/rev-autocompletion.md`
@@ -128,9 +128,9 @@ insertion and Org's encoded heading target, and made PTY navigation wait for the
 observable popup before sending selection keys. No observable assertion or
 resource bound was weakened.
 
-The final PR candidate must carry the following ordered controller validation;
-its receipt is retained against its exact clean HEAD, independently of the
-earlier measurements above:
+Final controller receipt `HXYP54647FFOQV7IHZWI3OXGLO` passed all six required
+checks and 421 tests at clean PR candidate
+`646723ab0b1c123c53df042b290d1ac73b2c35e5`, in this exact order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test language_assets --test syntax --test coordinates --test wrapping --test pointer --test org_editing`
@@ -141,13 +141,21 @@ earlier measurements above:
 
 Canonical [PR #202](https://forge.adrianpk.com/adrianpk/rev/pulls/202) links the
 full immutable report-introduction commit
-`07473382afc1097b3a9e5c189842cc11c09def6b`. Final validation follows this
-PR-reference commit; integration remains controller owned.
+`07473382afc1097b3a9e5c189842cc11c09def6b`. Final validation covers the
+PR-reference commit. Canonical PR #202 merged through Rebase + Fast-forward
+into dev at `646723ab0b1c123c53df042b290d1ac73b2c35e5`. Slice 8 of 8 completed.
+
+That final candidate repeated all ten parser workflows, Org and real external
+assets, 700-file production source quality, checked PTY edits and restoration,
+and the complete documentation catalogs. Release size remained 18,068,672 bytes
+(delta +4,742,088; ratio 1.355837). The 40-peer request took 2,269 microseconds;
+the 128-event burst took 213,909 microseconds with a longest event/frame of
+753 microseconds. Native and PTY idle probes each recorded zero CPU ticks.
+Peak native/PTY RSS was 31,496/13,700 kB; PTY output was 44,191 bytes.
 
 ## Risks and Follow-ups
 
 Measurements describe this machine and fixture, not a production latency or
 memory guarantee. Native grammar code remains explicitly trusted and mapped for
-process lifetime. The controller owns canonical integration, the unchanged
-integrated full gate and delivery-set closure. Those outcomes are not claimed
-by this reviewing report.
+process lifetime. All eight canonical slices are integrated. The unchanged
+integrated full gate and delivery-set closure remain controller owned and pending.

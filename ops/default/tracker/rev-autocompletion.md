@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 8 — Native acceptance, footprint and guidance; in progress
+Active slice: None; all 8 slices integrated, full gate pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -124,25 +124,32 @@ Acceptance: CMP01 and CMP03-CMP09 jointly; CMP02 semantic switching reserved for
 
 - [x] T8.1: Add examples/completion-acceptance.rs and scripts/check-completion.sh using the existing Rust/Bash PTY approach. Exercise manual/automatic selection, edit/undo/cancel, all ten parsers, Org contexts, external admission and native fallback. Measure integrated release bytes against the recorded baseline, idle CPU/work, bounded indexing and burst responsiveness.
 - [x] T8.2: Complete concise completion tutorial/how-to/reference pages with small visual feedback examples, complete sample/command catalogs and Unreleased notes through the established skills. Record actual capability limits and distinguish syntax candidates from semantic LSP. Keep Org supplementary to ordinary editing.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 The [Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md)
 records implementation, focused receipts and actual normal-release measurements.
-Canonical [PR #202](https://forge.adrianpk.com/adrianpk/rev/pulls/202) is open;
-final candidate validation and controller integration remain in progress.
+Canonical [PR #202](https://forge.adrianpk.com/adrianpk/rev/pulls/202) merged
+through Rebase + Fast-forward at `646723ab0b1c123c53df042b290d1ac73b2c35e5`.
+Receipt `HXYP54647FFOQV7IHZWI3OXGLO` passed all six required checks and 421
+tests at that exact candidate. Slice 8 of 8 completed.
 
 ## Final gate and closure
 
-- [ ] Verify all 8 canonical slice merges and clean synchronized dev.
+- [x] Verify all 8 canonical slice merges and clean synchronized dev.
 - [ ] Run the pinned Full gate on that exact integrated candidate.
 - [ ] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
 - [ ] Close only configured operational documentation and preserve predecessor/historical evidence.
 
 - [ ] Record native acceptance separately from semantic switching, then permit the already approved LSP successor.
 
-Native completion uses no server, directory scan or persistent index. Before
-prepare_gate, compile the owned grammar fixtures and establish Rust/Bash/PTY
-prerequisites. Keep temporary HOME/XDG/source trees isolated from user data.
+Native completion uses no server, directory scan or persistent index. Gate
+prerequisites are prepared: the locked Rust/Python C sources are available
+offline, all three owned native fixtures compiled, and an isolated controlling
+PTY restored its terminal attributes within the existing eight-second/1 MiB
+bounds. Rust/Cargo, Bash, cc, script, stty, timeout and rg are available.
+Preparation removed its owned temporary fixtures after the probes. Gate fixture
+owners compile their libraries before constructing editors and retain their
+isolated HOME/XDG/source trees until their checks finish.
 
 The controller checkpoint and canonical merge evidence own delivery progress.
 The full delivery-set gate and closure remain pending. Full acceptance and remaining

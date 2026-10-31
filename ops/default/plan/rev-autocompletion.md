@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Native Autocompletion Tracker](../tracker/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 8 — Native acceptance, footprint and guidance; in progress
+Active slice: None; all 8 slices integrated, full gate pending
 
 ## Outcome and authority
 
@@ -217,6 +217,11 @@ Do not append all historical Org, export, wrap or bookmark journey scripts.
 Expected warm execution is a few minutes, dominated by Cargo compilation and
 release/native-grammar/PTY fixtures. First builds may take longer for new dependencies.
 Record actual timing/resources instead of treating this estimate as evidence.
+All eight canonical PRs are integrated. Preparation verified offline locked
+grammar sources, compiled the three owned native fixtures and checked an
+isolated controlling PTY with terminal restoration. Required Rust/Bash/C/PTY
+tools are available; preparation fixtures were removed after their probes.
+The controller has not yet run the integrated full gate.
 Compile owned external-language fixtures ahead of editor startup; rev itself
 must never require a runtime compiler for grammar use.
 The acceptance wrapper batches the existing source-check example over all production Rust files, marks actual crate roots explicitly and checks introduced example roots. A checker invocation with no source arguments is not evidence. No checks have passed merely because they are listed here.
