@@ -118,6 +118,17 @@ clean PR head in this exact configured order:
 2. `cargo test --locked --test completion --test org_editing --test org_source --test configuration --test commands`
 3. `git diff --check`
 
+Initial configured receipt `IIQW5CT5F6GCTAXSM4ZM3EYZPI` at
+`0335268a960d41d41df633f9f689ada00d4995b8` passed formatting and the
+commands (161), completion (42) and configuration (136) test binaries. Org editing
+passed 225 cases but clock_edges::clock_admission exceeded the existing five-
+second owned-work wait. The same candidate's unchanged
+`cargo test --locked --test org_editing clock_edges::clock_admission -- --exact`
+passed in isolation (one test, 2.14 seconds). Concurrent host load exceeded the
+available CPU count; scheduling pressure is a possible explanation, not proof of
+the failure's cause. No assertion, timeout, test concurrency or resource limit
+was changed. Fresh configured evidence must cover the final clean PR candidate.
+
 ## Risks and Follow-ups
 
 Org vocabulary remains limited to configured/native observed metadata and the
