@@ -52,6 +52,12 @@ fn document_contexts() {
             "work:",
             "* Item :work:",
         ),
+        (
+            "#+TAGS: 界work\n* Item\u{2003}:界|",
+            "",
+            "界work:",
+            "* Item\u{2003}:界work:",
+        ),
         ("* Other :work:\n* Item :wo|:", "", "work", "* Item :work:"),
         (
             "* One\n:PROPERTIES:\n:OWNER: Ada\n:END:\n* Two\n:PROPERTIES:\n:OW|\n:END:\n",

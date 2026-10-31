@@ -128,8 +128,10 @@ fn heading_target(line: &str, at: usize, title: usize) -> Option<Local> {
     }
     let prefix = &line[title..at];
     let start = prefix
-        .rfind(char::is_whitespace)
-        .map_or(title, |start| title + start + 1);
+        .char_indices()
+        .rev()
+        .find(|(_, ch)| ch.is_whitespace())
+        .map_or(title, |(offset, ch)| title + offset + ch.len_utf8());
     if line[start..at].starts_with(':') {
         let tag = line[start..at].rfind(':')? + start + 1;
         return word(line, at, tag, Kind::Tag);

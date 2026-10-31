@@ -92,7 +92,10 @@ The property-context regression first confirmed the native ordinary-drawer
 classification; its original Property assertion remains for recorded validation.
 The workflow cases also caught incomplete block-opener suppression and deletion
 of existing link brackets. Corrections preserved the original candidate and
-literal edit/undo assertions. Changed-owner source-quality diagnostics passed.
+literal edit/undo assertions. A Unicode-tag regression then reproduced a worker
+panic after a multibyte heading separator. Boundary calculation now advances by
+the actual UTF-8 separator width; the unchanged document-context assertion passed
+for that case. Changed-owner source-quality diagnostics passed.
 
 Focused controller evidence and the canonical PR reference will be recorded in
 the PR-reference follow-up. The final clean PR head requires this exact order:
