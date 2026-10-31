@@ -104,6 +104,15 @@ then stopped in Clippy on a nested conditional and redundant integer cast.
 Both style diagnostics were corrected without changing admission, deadlines or
 observable assertions; fresh exact-candidate evidence follows.
 
+Receipt `IWQSP6Z6OBVMOLMHOFYP7DCYW2` then passed the same 147 tests and
+library Clippy at `dda24bcb6de0df4663a0186a9bafbc5f6055e155`. Its expanded
+source check reported `ingress` (16) and `file_argument` (11) complexity in
+`src/session/file.rs`; both failures were reproduced on unchanged primary dev
+`bc9dbdd08526ad81dacc3f2c7a6fca3205dfa700`. The extra recency hook in file
+ingress was removed, leaving that file identical to dev. Completion requests,
+observation reuse and buffer selection retain source recency ownership; the
+focused source command covers the final changed owners.
+
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
 Controller-focused evidence and the final PR-reference follow-up are recorded
