@@ -1,5 +1,11 @@
 # Native completion
 
+Learn one insertion in [Complete Names](../tutorials/user-guide/10-complete-names.md),
+or use [Use completion](../how-to/use-completion.md) for invocation and settings.
+The delivered source is native syntax: observed declarations and finite structural
+vocabulary. Semantic LSP proposals and switching between semantic and native
+sources belong to the planned LSP successor; this version offers no such switch.
+
 Native completion opens automatically after an admitted identifier edit of at
 least two Unicode characters or a language separator. Rust/C/Go and script
 languages admit member separators; C also admits `->`. HTML admits tag delimiters

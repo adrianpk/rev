@@ -10,7 +10,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Commands](commands.md): M-x matching, completion, history and implemented names.
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.
 - [Search and replacement](search.md): literal smart-case queries and per-match replacement.
-- [Native completion](completion.md): manual Rust declarations, cursor popup and checked acceptance.
+- [Native completion](completion.md): automatic/manual names, structural language contexts and checked acceptance.
 - [Named bookmarks](commands.md#named-bookmarks): checked locations, persistent storage, listing and gutter markers.
 - [File tree](file-tree.md): root selection, focus and filesystem operations.
 - [Rectangles](rectangles.md): display-column selection and separate retained rows.

@@ -1,8 +1,39 @@
 # Run terminal journeys
 
-Use Linux and the repository's Cargo toolchain. The bookmark journey also uses
-Bash, util-linux `script`, `stty` and GNU `timeout`; the other suites below use
-Python 3 with its standard library. Run commands from the repository root.
+Use Linux and the repository's Cargo toolchain. Bookmark and completion journeys
+use Bash, util-linux `script`, `stty` and GNU `timeout`. Completion also needs
+`rg` and a C compiler (`cc`) for its owned native grammar fixtures. The Python
+suites below use Python 3 with its standard library. Run commands from the
+repository root.
+
+## Run native completion acceptance
+
+```sh
+bash scripts/check-completion.sh
+```
+
+This builds the normal release editor, native acceptance example and existing
+source checker with two build jobs. It applies the unchanged source-quality
+rules to every production Rust file, marks actual crate roots and checks the
+acceptance example modules. Isolated HOME/XDG roots and source files preserve
+user data. Locked Rust/Python grammar fixtures are compiled before editor
+construction; the running editor never compiles or downloads an asset.
+
+Native journeys check all ten bundled parsers, Unicode replacement, six Org
+contexts, actual external Python admission and bundled fallback. They connect
+manual selection/cancel/acceptance, automatic typing, resize, one-step undo/redo
+and unchanged disk bytes. A real PTY checks the same editing interaction,
+idle silence and terminal restoration using normal editor arguments. It keeps
+the existing eight-second child deadline and 1 MiB output limit. Cleanup reaps
+only owned children and removes the temporary fixture.
+
+The output reports actual release bytes, delta and ratio against the recorded
+13,326,584-byte normal-release baseline, bounded cross-buffer/symbol/source
+observations, a 128-event burst over 1024 declarations, peak Linux RSS and idle
+CPU ticks. Timing observations depend on the machine; they do not establish a
+latency guarantee. The historical grammar-only ratio is comparative evidence,
+not a release-size ceiling. Strict limits remain those in
+[Native completion](../reference/completion.md).
 
 ## Run bookmark restart acceptance
 

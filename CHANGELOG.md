@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Native completion suggests Rust, C, Go, JavaScript and TypeScript/TSX
+- [Native completion](docs/tutorials/user-guide/10-complete-names.md) suggests Rust, C, Go, JavaScript and TypeScript/TSX
   declarations, HTML tags/attributes, CSS selectors/properties, and observed
   JSON/TOML keys and TOML tables near the cursor
   after a short typing delay. It uses unsaved names in the current and same-language
@@ -19,7 +19,7 @@ This project uses Semantic Versioning.
   types and current-document heading targets while prose and literal blocks stay
   quiet. Source-edit drafts complete their declared language.
   Quoted keys preserve literal escapes; ordinary JSON/TOML values stay quiet.
-  Register precompiled native grammars and matching queries to complete other
+  [Register precompiled native grammars](docs/how-to/register-grammar.md) and matching queries to complete other
   languages or replace bundled syntax, with bundled/plain fallback on failure.
   Literal replacements undo in one step and refuse stale targets or read-only
   text. Configure timing, contexts, candidate limits and popup keys in TOML, or

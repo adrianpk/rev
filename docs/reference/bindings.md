@@ -14,7 +14,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
 | `M-x completion-mode` | `completion-mode` | Toggle native completion for this session. |
 | `M-x completion-auto-mode` | `completion-auto-mode` | Toggle automatic requests while retaining explicit invocation. |
-| `M-TAB` | `completion-at-point` | Show native Rust declarations near the source cursor. |
+| `M-TAB` | `completion-at-point` | Show native suggestions near the source cursor. |
 | Down, `C-n` in a completion popup | `completion-next` | Select the next candidate without moving source point. |
 | Up, `C-p` in a completion popup | `completion-previous` | Select the previous candidate. |
 | Tab or Return in a completion popup | `completion-accept` | Replace the admitted identifier as one undo operation. |

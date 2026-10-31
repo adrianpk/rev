@@ -3,7 +3,7 @@
 These pages describe rev 0.1.0.
 
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
-your first file, then learn buffers, search, file browsing and preferences.
+your first file, then learn buffers, search, file browsing, preferences and completion.
 
 - [Tutorials](tutorials/index.md): learn through the ordered User Guide.
 - [How-to guides](how-to/index.md): install rev or complete a specific task.

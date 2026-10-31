@@ -393,9 +393,13 @@ or one third of the frame when shown.
 ## Product boundary
 
 Native mode activation includes `.org` and `.org_archive` files, with
-[native Org source coloring](syntax.md#native-org-source). Rust, C, Go and web languages use
-bundled grammars and [native declaration completion](completion.md); other
-identities and syntax failures retain editable plain presentation. TOML startup
+[native Org source coloring](syntax.md#native-org-source). Rust, C, Go, HTML, CSS,
+JavaScript, TypeScript/TSX, JSON and TOML use ten bundled parsers and
+[native completion](completion.md). Org uses its native structural contexts.
+Explicit [external grammar assets](syntax.md#external-grammar-assets) can admit
+another language or replace bundled syntax. Failed admission retains bundled
+syntax when available; unsupported identities and syntax failures retain editable
+plain presentation. TOML startup
 preferences configure existing actions. This version has no plugins, macros,
 package runtime, LSP, automatic indentation, OS clipboard bridge, regex/project
 search or session

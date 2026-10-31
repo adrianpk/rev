@@ -17,6 +17,7 @@ const EDITOR: &[&str] = &[
     "04-search-and-commands.md",
     "05-file-tree.md",
     "09-preferences.md",
+    "10-complete-names.md",
 ];
 const ORG: &[&str] = &[
     "06-org-notes.md",

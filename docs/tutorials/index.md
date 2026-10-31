@@ -1,8 +1,8 @@
 # Tutorials
 
 The [User Guide](user-guide/index.md) is the starting point for learning rev.
-Its six chapters cover a first saved file, editing, buffers and panes, search,
-file browsing and preferences.
+Its seven chapters cover a first saved file, editing, buffers and panes, search,
+file browsing, preferences and native completion.
 
 For a specific task, use the [how-to guides](../how-to/index.md). Exact controls
 and settings belong in the [reference](../reference/index.md).

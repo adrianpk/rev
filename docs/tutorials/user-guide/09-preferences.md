@@ -77,9 +77,7 @@ and [complete sample](../../reference/config.toml) list every supported setting.
 Use [Configure indentation by language](../../how-to/language-indentation.md)
 when different file types need different values.
 
-You have completed the User Guide. Continue with a
-[task guide](../../how-to/index.md), look up a
-[command](../../reference/commands.md), or return to
-[all documentation](../../index.md).
+Continue with [Complete Names](10-complete-names.md) to use suggestions while
+editing source text.
 
-[Previous](05-file-tree.md) · [User Guide](index.md)
+[Previous](05-file-tree.md) · [User Guide](index.md) · [Next](10-complete-names.md)

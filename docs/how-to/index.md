@@ -9,6 +9,8 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Edit and save files](edit-files.md): open a file, save it or choose another filename.
 - [Save and revisit named locations](use-bookmarks.md): keep bookmarks across sessions, manage names and control their markers.
 - [Configure indentation by language](language-indentation.md): give Rust files their own indentation settings.
+- [Use completion](use-completion.md): choose names near the cursor and configure automatic requests.
+- [Register grammar assets](register-grammar.md): admit precompiled syntax and completion queries for an explicit language.
 - [Recover edits](recover-edits.md): resolve file, save and tree errors while retaining live text.
 
 ## Org mode
