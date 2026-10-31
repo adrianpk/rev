@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 2; checked location lifecycle, implementation in progress
+Active slice: Slice 3; persistent collection, implementation in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -46,13 +46,15 @@ Acceptance: BMK02, BMK06.
 
 - [x] T2.1: Integrate anchor outcomes with prepared edits, retained moves, stale transitions and source undo/redo.
 - [x] T2.2: Implement context capture/resolution, cancellation, live-buffer preference and rename/save-as/close/discard lifetimes.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 2 report.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 2 report.
 
 Implementation commits: T2.1 `dd5cb9fc0cc93b2934303ea78f7d3f2bdf04b1db`;
 T2.2 `b63e7834d9b06ab0ceb62b183da8c05295b38e6b`.
-[Slice 2 report](../report/slices/rev-bookmarks/slice-2-locations.md) is reviewing;
-canonical PR [#186](https://forge.adrianpk.com/adrianpk/rev/pulls/186) is open.
-Integration and final exact-HEAD evidence remain pending.
+[Slice 2 report](../report/slices/rev-bookmarks/slice-2-locations.md) is delivered.
+Canonical PR [#186](https://forge.adrianpk.com/adrianpk/rev/pulls/186) merged at
+`430441c4c3708bf70b416432767da4483dd1826c`; required receipt
+`4X5FHJFBNWQNSJWC6TJFMCMRAT` passed 535 tests and all required checks.
+Focused receipt `UX6F7DXZRLYYOJMSRMQENMH42J` passed owner tests, clippy and docs.
 
 ## Slice 3: Persistent collection
 
@@ -93,5 +95,5 @@ Acceptance: BMK01-BMK07 jointly.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-Slice 1 is integrated. Slice 2 is active under the same controller run.
+Slices 1 and 2 are integrated. Slice 3 is active under the same controller run.
 Preserve previous delivery evidence under its original owners.

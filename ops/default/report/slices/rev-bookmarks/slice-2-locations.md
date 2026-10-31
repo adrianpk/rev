@@ -1,6 +1,6 @@
 # Slice 2: Checked location lifecycle
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -109,6 +109,13 @@ A separate controller batch checks `cargo test --locked --lib bookmark`,
 candidate before the required batch. Handoff requires both batches to pass.
 The combined delivery-set gate remains assigned to the controller after all
 six slice integrations.
+
+Canonical PR #186 merged through Rebase + Fast-forward into `dev` at
+`430441c4c3708bf70b416432767da4483dd1826c`. Required receipt
+`4X5FHJFBNWQNSJWC6TJFMCMRAT` passed the exact three-command list above and
+535 native tests. Focused receipt `UX6F7DXZRLYYOJMSRMQENMH42J` passed five native
+owner tests, library clippy and documentation on that same clean candidate.
+The controller verified and recorded the merge in Acta. Slice 2 of 6 completed.
 
 ## Risks and Follow-ups
 
