@@ -1,3 +1,5 @@
+mod sources;
+
 use crate::buffer::edit::{Cursor, Replacement};
 use crate::command::{Command, CompletionCommand as C};
 use crate::completion::{Completion, Request};
@@ -12,7 +14,8 @@ impl Session {
         self.completion.as_ref().filter(|completion| {
             self.buffer().is_ok_and(|buffer| {
                 completion.current(buffer, self.windows.selected_id(), self.view().point)
-            }) && self.input.focus() == Focus::Editing
+            }) && completion.sources_current(&self.buffers)
+                && self.input.focus() == Focus::Editing
                 && !self.tree.focused()
         })
     }
@@ -151,16 +154,20 @@ impl Session {
             .point
             .stamp
             .buffer;
-        let snapshot = self
-            .buffers
-            .get_mut(id)
-            .map_err(|e| e.to_string())?
-            .completion_snapshot()?;
-        if let Err(error) = self.completion_work.start(snapshot, now) {
-            self.buffers
-                .get_mut(id)
-                .map_err(|e| e.to_string())?
-                .abandon_completion_syntax();
+        let (sources, limited) = self.completion_sources(id)?;
+        let ids = sources
+            .iter()
+            .map(|source| source.observation.stamp.buffer)
+            .collect();
+        if let Some(request) = self.completion_work.pending.as_mut() {
+            request.limited = limited;
+            request.observations = sources
+                .iter()
+                .map(|source| source.observation.clone())
+                .collect();
+        }
+        if let Err(error) = self.completion_work.start(sources, now) {
+            self.abandon_completion_sources(ids);
             return Err(error);
         }
         Ok(())
@@ -175,22 +182,37 @@ impl Session {
             Ok(output) => output,
             Err(error) => return self.failed_completion(request, &error),
         };
-        if let Ok(buffer) = self.buffers.get_mut(output.request.point.stamp.buffer) {
-            buffer.restore_completion_syntax(output.syntax);
-        }
+        self.restore_completion_sources(output.sources);
         if self.completion_request != Some(output.request.generation) {
             return Action::Redraw;
         }
         let manual = output.request.manual;
+        let limited = output.request.limited;
         let result = output
             .result
             .and_then(|symbols| self.install_completion(output.request.complete(symbols)));
+        self.completion_result(result, manual, limited)
+    }
+
+    fn completion_result(
+        &mut self,
+        result: Result<bool, String>,
+        manual: bool,
+        limited: bool,
+    ) -> Action {
         match result {
+            Ok(true) if manual && limited => {
+                self.message("Native completion limited to admitted observations")
+            }
             Ok(true) => self.message(""),
             Ok(false) => {
                 self.completion_request = None;
                 if manual {
-                    self.message("No matching native declarations")
+                    self.message(if limited {
+                        "Native completion observation limit reached"
+                    } else {
+                        "No matching native declarations"
+                    })
                 } else {
                     Action::Redraw
                 }
@@ -207,9 +229,13 @@ impl Session {
     }
 
     fn failed_completion(&mut self, request: Request, error: &str) -> Action {
-        if let Ok(buffer) = self.buffers.get_mut(request.point.stamp.buffer) {
-            buffer.abandon_completion_syntax();
-        }
+        self.abandon_completion_sources(
+            request
+                .observations
+                .iter()
+                .map(|source| source.stamp.buffer)
+                .collect(),
+        );
         if self.completion_request == Some(request.generation) {
             self.dismiss_completion();
         }
@@ -230,6 +256,7 @@ impl Session {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         if self.completion_request != Some(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
+            || !completion.sources_current(&self.buffers)
         {
             return Err("Stale completion target".into());
         }

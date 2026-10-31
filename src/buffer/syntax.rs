@@ -6,12 +6,23 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(crate) fn completion_grammar(&self) -> Grammar {
+        self.grammar
+    }
+    pub(super) fn reset_syntax(&mut self) {
+        self.syntax_generation = self
+            .syntax_generation
+            .checked_add(1)
+            .expect("syntax generation exhausted");
+        self.syntax = Syntax::default();
+        self.syntax_active = false;
+    }
     pub(crate) fn syntax_generation(&self) -> u64 {
         self.syntax_generation
     }
     pub(crate) fn completion_available(&self) -> bool {
         self.syntax_active
-            && self.grammar == Grammar::Rust
+            && self.grammar != Grammar::Plain
             && self.mode_choice.is_none()
             && !self.is_org()
             && !self.is_readonly()
@@ -88,10 +99,11 @@ impl Buffer {
 
     pub fn mode(&self) -> &'static str {
         if self.source_language.is_some() {
-            if self.syntax.mode(self.stamp()) == "Rust" {
-                "Org Src Rust"
-            } else {
-                "Org Src"
+            match self.syntax.mode(self.stamp()) {
+                "Rust" => "Org Src Rust",
+                "C" => "Org Src C",
+                "Go" => "Org Src Go",
+                _ => "Org Src",
             }
         } else if self.is_transient() {
             "Capture"
@@ -127,7 +139,7 @@ impl Buffer {
         let admitted = self.syntax_policy.enabled
             && self.mode_choice.is_none()
             && !self.is_org()
-            && self.grammar == Grammar::Rust
+            && self.grammar != Grammar::Plain
             && (self.syntax_policy.max_bytes == 0
                 || self.len_bytes() <= self.syntax_policy.max_bytes);
         if admitted != self.syntax_active {
@@ -136,7 +148,7 @@ impl Buffer {
                 .checked_add(1)
                 .expect("syntax generation exhausted");
             self.syntax = if admitted {
-                Syntax::rust(Some(tree_sitter_rust::HIGHLIGHTS_QUERY))
+                Syntax::bundled(self.grammar)
             } else {
                 Syntax::default()
             };

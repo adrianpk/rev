@@ -1,3 +1,4 @@
+mod catalog;
 mod completion;
 mod source;
 mod style;
@@ -19,7 +20,7 @@ pub struct Capture {
     pub style: Style,
 }
 
-/// Owns one optional Rust parser/query/tree. Setup or parse failure is local to
+/// Owns one optional language parser/query/tree. Setup or parse failure is local to
 /// styling; the canonical buffer and its edit/history admission are independent.
 #[derive(Default)]
 pub struct Syntax {
@@ -31,6 +32,7 @@ pub struct Syntax {
 }
 
 struct Parsed {
+    grammar: crate::config::Grammar,
     parser: Parser,
     query: Query,
     completion: Option<Query>,
@@ -42,11 +44,18 @@ impl Syntax {
     /// captures produce the ordinary Text fallback, with no runtime installer.
     pub fn rust(query: Option<&str>) -> Self {
         Self {
-            parsed: query.and_then(Parsed::new),
+            parsed: query.and_then(|source| Parsed::new(crate::config::Grammar::Rust, source)),
             stamp: None,
             source: None,
             incremental: false,
             working: false,
+        }
+    }
+
+    pub(crate) fn bundled(grammar: crate::config::Grammar) -> Self {
+        Self {
+            parsed: catalog::highlights(grammar).and_then(|query| Parsed::new(grammar, query)),
+            ..Self::default()
         }
     }
 
@@ -57,7 +66,7 @@ impl Syntax {
                 .as_ref()
                 .is_some_and(|parsed| parsed.tree.is_some())
         {
-            "Rust"
+            catalog::name(self.parsed.as_ref().expect("current parser").grammar)
         } else {
             "Text"
         }
@@ -111,16 +120,13 @@ impl Syntax {
     /// Query only the requested visible byte interval. Resource exhaustion
     /// discards this request's styles instead of publishing partial captures.
     pub fn captures(&self, buffer: &Buffer, bytes: Range<usize>) -> Vec<Capture> {
-        if self.mode(buffer.stamp()) != "Rust"
+        if self.mode(buffer.stamp()) == "Text"
             || bytes.start >= bytes.end
             || bytes.end > buffer.len_bytes()
         {
             return Vec::new();
         }
-        let parsed = self
-            .parsed
-            .as_ref()
-            .expect("current Rust mode has a parser");
+        let parsed = self.parsed.as_ref().expect("current syntax has a parser");
         let text = buffer
             .slice(
                 &buffer
@@ -159,8 +165,8 @@ impl Parsed {
         }
     }
 
-    fn new(source: &str) -> Option<Self> {
-        let language = tree_sitter_rust::LANGUAGE.into();
+    fn new(grammar: crate::config::Grammar, source: &str) -> Option<Self> {
+        let language = catalog::language(grammar)?;
         let mut parser = Parser::new();
         parser.set_language(&language).ok()?;
         let query = Query::new(&language, source).ok()?;
@@ -172,9 +178,10 @@ impl Parsed {
             return None;
         }
         Some(Self {
+            grammar,
             parser,
             query,
-            completion: completion::query(&language),
+            completion: completion::query(grammar, &language),
             tree: None,
         })
     }

@@ -54,6 +54,7 @@ impl Session {
         if self.windows.selected().point.stamp.buffer != id {
             self.windows.selected_mut().rebind(buffer);
         }
+        self.touch_completion_source(id);
         self.input.cancel();
         self.pending = None;
         self.message("")

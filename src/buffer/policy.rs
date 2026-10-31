@@ -37,6 +37,9 @@ impl Buffer {
             self.org_attempt = None;
         }
         self.syntax_policy = settings.settings().syntax.clone();
+        if self.grammar != grammar {
+            self.reset_syntax();
+        }
         self.grammar = grammar;
         self.apply_mode(settings);
         self.refresh_syntax();

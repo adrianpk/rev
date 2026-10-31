@@ -126,7 +126,10 @@ fn enum_values() {
         ),
         ("tree.root", &["'auto'", "'cwd'", "'file-parent'"]),
         ("files.newline", &["'lf'", "'crlf'"]),
-        ("language.rust.grammar", &["'rust'", "'plain'"]),
+        (
+            "language.rust.grammar",
+            &["'rust'", "'c'", "'go'", "'plain'"],
+        ),
     ];
     for (key, values) in cases {
         for value in values {

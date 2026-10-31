@@ -29,18 +29,17 @@ impl Snapshot {
         project::language(&self.settings.editor, self.settings.language.get(language))
     }
 
-    /// Rust identity selects the bundled grammar by default; all others are plain.
+    /// Bundled identities select their grammar by default; other identities are plain.
     pub fn grammar(&self, language: &str) -> Grammar {
         self.settings
             .language
             .get(language)
             .and_then(|language| language.grammar)
-            .unwrap_or_else(|| {
-                if language == "rust" {
-                    Grammar::Rust
-                } else {
-                    Grammar::Plain
-                }
+            .unwrap_or(match language {
+                "rust" => Grammar::Rust,
+                "c" => Grammar::C,
+                "go" => Grammar::Go,
+                _ => Grammar::Plain,
             })
     }
 

@@ -124,5 +124,5 @@ fn optional_associations() {
     assert_eq!(startup.snapshot.language(Path::new("unit.go")), "go");
     assert_eq!(startup.snapshot.language(Path::new("Buildfile")), "go");
     assert_eq!(startup.snapshot.language(Path::new("lib.rs")), "rust");
-    assert_eq!(startup.snapshot.grammar("go"), Grammar::Plain);
+    assert_eq!(startup.snapshot.grammar("go"), Grammar::Go);
 }

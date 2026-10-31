@@ -193,9 +193,9 @@ change only that view's overrides and never reload or write this snapshot.
 | `completion.enabled` | Boolean | `true` | Native manual and automatic completion; completion-mode toggles this session only. |
 | `completion.automatic` | Boolean | `true` | Requests after eligible native identifier/separator edits; completion-auto-mode toggles this session only. |
 | `completion.delay_ms` | Integer 0..=2000 | `150` | Milliseconds after the newest eligible edit; explicit invocation bypasses delay. |
-| `completion.min_prefix` | Integer 1..=64 | `2` | Unicode identifier characters; manual requests and Rust dot/double-colon separators bypass the minimum. |
-| `completion.in_comments` | Boolean | `false` | Allow automatic requests in admitted Rust comments. |
-| `completion.in_strings` | Boolean | `false` | Allow automatic requests in admitted Rust string/character literals. |
+| `completion.min_prefix` | Integer 1..=64 | `2` | Unicode identifier characters; manual requests and native language separators bypass the minimum. |
+| `completion.in_comments` | Boolean | `false` | Allow automatic requests in admitted native comments. |
+| `completion.in_strings` | Boolean | `false` | Allow automatic requests in admitted native string/character literals. |
 | `completion.max_candidates` | Integer 1..=200 | `200` | Ranked, deduplicated current-request candidate limit. |
 | `completion.popup_rows` | Integer 1..=32 | `10` | Candidate rows, clipped inside the selected pane with a single border. |
 | `history.group_limit` | Integer 1..=65536 | `512` | Per buffer; maximum retained coherent undo/redo groups. Pruning never splits an operation. |
@@ -235,7 +235,7 @@ versus kill tab semantics across source/destination policies.
 | `language.<id>.indent_style` | String: "spaces" or "tabs" | Inherit global | Selected language's buffer policy; replace only this editing leaf. |
 | `language.<id>.indent_width` | Integer 1..=32 | Inherit global | Selected language's indentation-stop display columns. |
 | `language.<id>.tab_width` | Integer 1..=32 | Inherit global | Selected language's literal-tab display cells. |
-| `language.<id>.grammar` | String: "rust" or "plain" | Rust for rust; plain otherwise | Selected language's grammar; no external parser download or installation. |
+| `language.<id>.grammar` | String: "rust", "c", "go" or "plain" | Matching bundled grammar for rust/c/go; plain otherwise | Selected language's grammar; no external parser download or installation. |
 
 Association keys are literal basenames or a leading `*.suffix`, including
 compound suffixes. Other wildcards, separators and controls reject. Matching is
@@ -244,8 +244,8 @@ basename wins, then the longest suffix. Recognition uses the visiting basename,
 retaining the first alias when canonical reuse finds an existing buffer; unique
 buffer-label suffixes do not participate. No language table is required for an
 identity. Unmatched or unnamed text is `plain`; only the `rust` identity defaults
-to the bundled Rust grammar. Other identities can use indentation without a
-parser, or explicitly select either admitted grammar.
+to their bundled Rust, C and Go grammars. Other identities can use indentation
+without a parser, or explicitly select an admitted grammar.
 
 ### Palette roles
 

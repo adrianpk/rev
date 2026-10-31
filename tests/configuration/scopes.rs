@@ -64,7 +64,7 @@ fn rejected_scopes() {
         ),
         (
             "grammar",
-            "[language.go]\ngrammar = 'go'",
+            "[language.go]\ngrammar = 'python'",
             vec!["language", "go", "grammar"],
         ),
         (

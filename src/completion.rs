@@ -1,6 +1,7 @@
 //! Disposable native proposals. Canonical buffers retain edit/history ownership.
 pub(crate) mod job;
 mod matching;
+pub(crate) mod source;
 mod target;
 
 use crate::buffer::{Buffer, Span, edit::Point};
@@ -25,6 +26,8 @@ pub(crate) struct Request {
     pub manual: bool,
     pub due: std::time::Instant,
     pub policy: crate::config::Completion,
+    pub observations: Vec<source::Observation>,
+    pub limited: bool,
 }
 
 impl Request {
@@ -56,6 +59,8 @@ impl Request {
             manual: true,
             due: std::time::Instant::now(),
             policy: crate::config::Completion::default(),
+            observations: Vec::new(),
+            limited: false,
         })
     }
     pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
@@ -70,6 +75,7 @@ impl Request {
             candidates,
             selected: 0,
             popup_rows: self.policy.popup_rows,
+            observations: self.observations,
         }
     }
     pub(crate) fn current(&self, view: ViewId, point: Point) -> bool {
@@ -104,6 +110,7 @@ pub(crate) struct Symbol {
     pub name: String,
     pub kind: &'static str,
     pub byte: usize,
+    pub origin: usize,
 }
 
 #[cfg(test)]
@@ -136,9 +143,15 @@ pub struct Completion {
     candidates: Vec<Candidate>,
     selected: usize,
     pub(crate) popup_rows: usize,
+    observations: Vec<source::Observation>,
 }
 
 impl Completion {
+    pub(crate) fn sources_current(&self, buffers: &crate::buffer::Buffers) -> bool {
+        self.observations
+            .iter()
+            .all(|source| source.current(buffers))
+    }
     #[cfg(test)]
     pub(crate) fn new(
         buffer: &Buffer,

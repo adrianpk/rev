@@ -1,4 +1,4 @@
-/// Fixed semantic palette groups supplied by the bundled Rust query.
+/// Fixed semantic palette groups supplied by bundled language queries.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Style {
     Keyword,

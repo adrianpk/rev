@@ -15,14 +15,22 @@ pub(super) fn candidates(
         .filter_map(|symbol| {
             let name = normalized(&symbol.name, sensitive);
             let class = rank(&name, &filter)?;
-            (symbol.name != original).then_some((class, symbol.byte.abs_diff(byte), symbol))
+            (symbol.name != original).then_some((
+                class,
+                symbol.origin,
+                symbol.byte.abs_diff(byte),
+                symbol,
+            ))
         })
         .collect();
-    ranked.sort_by(|a, b| (a.0, a.1, &a.2.name, a.2.kind).cmp(&(b.0, b.1, &b.2.name, b.2.kind)));
+    ranked.sort_by(|a, b| {
+        (a.0, a.1, a.2, a.3.byte, &a.3.name, a.3.kind)
+            .cmp(&(b.0, b.1, b.2, b.3.byte, &b.3.name, b.3.kind))
+    });
     let mut seen = BTreeSet::new();
     ranked
         .into_iter()
-        .filter_map(|(_, _, symbol)| {
+        .filter_map(|(_, _, _, symbol)| {
             if !seen.insert(symbol.name.clone()) {
                 return None;
             }

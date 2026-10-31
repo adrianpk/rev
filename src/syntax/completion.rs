@@ -9,22 +9,18 @@ use crate::completion::{MAX_LABEL, MAX_SYMBOLS, Symbol};
 
 use super::{Source, Syntax};
 
-const QUERY: &str = r#"
-(function_item name: (identifier) @function)
-(struct_item name: (type_identifier) @type)
-(enum_item name: (type_identifier) @type)
-(trait_item name: (type_identifier) @type)
-(type_item name: (type_identifier) @type)
-(mod_item name: (identifier) @module)
-(const_item name: (identifier) @constant)
-(static_item name: (identifier) @constant)
-(let_declaration pattern: (identifier) @binding)
-(parameter pattern: (identifier) @parameter)
-(field_declaration name: (field_identifier) @field)
-"#;
-
-pub(super) fn query(language: &tree_sitter::Language) -> Option<Query> {
-    Query::new(language, QUERY).ok()
+pub(super) fn query(
+    grammar: crate::config::Grammar,
+    language: &tree_sitter::Language,
+) -> Option<Query> {
+    use crate::config::Grammar;
+    let source = match grammar {
+        Grammar::Rust => include_str!("rust.scm"),
+        Grammar::C => include_str!("c.scm"),
+        Grammar::Go => include_str!("go.scm"),
+        Grammar::Plain => return None,
+    };
+    Query::new(language, source).ok()
 }
 
 impl Syntax {
@@ -40,13 +36,10 @@ impl Syntax {
             .root_node()
             .descendant_for_byte_range(byte.saturating_sub(1), byte);
         while let Some(current) = node {
-            match current.kind() {
-                "line_comment" | "block_comment" => return policy.in_comments,
-                "string_literal" | "raw_string_literal" | "char_literal" => {
-                    return policy.in_strings;
-                }
-                _ => node = current.parent(),
+            if let Some(allowed) = literal_policy(current.kind(), policy) {
+                return allowed;
             }
+            node = current.parent();
         }
         true
     }
@@ -72,15 +65,15 @@ impl Syntax {
         deadline: Instant,
         cancel: &std::sync::atomic::AtomicBool,
     ) -> Result<Vec<Symbol>, String> {
-        if self.mode(stamp) != "Rust" {
-            return Err("Native Rust completion is unavailable for this buffer".into());
+        if self.mode(stamp) == "Text" {
+            return Err("Native completion is unavailable for this buffer".into());
         }
-        let parsed = self.parsed.as_ref().expect("current Rust parser");
-        let tree = parsed.tree.as_ref().expect("current Rust tree");
+        let parsed = self.parsed.as_ref().expect("current native parser");
+        let tree = parsed.tree.as_ref().expect("current native tree");
         let query = parsed
             .completion
             .as_ref()
-            .ok_or("Rust completion query is unavailable")?;
+            .ok_or("Native completion query is unavailable")?;
         let mut cursor = QueryCursor::new();
         cursor.set_match_limit(4096);
         let mut progress = |_: &tree_sitter::QueryCursorState| expired(deadline, cancel);
@@ -135,6 +128,7 @@ fn symbol(node: tree_sitter::Node<'_>, kind: &str, text: RopeSlice<'_>) -> Optio
         name: text.byte_slice(bytes.clone()).to_string(),
         kind: category(kind)?,
         byte: bytes.start,
+        origin: 0,
     })
 }
 
@@ -149,4 +143,20 @@ fn category(kind: &str) -> Option<&'static str> {
         "field" => "field",
         _ => return None,
     })
+}
+
+fn literal_policy(kind: &str, policy: &crate::config::Completion) -> Option<bool> {
+    if ["line_comment", "block_comment", "comment"].contains(&kind) {
+        return Some(policy.in_comments);
+    }
+    [
+        "string_literal",
+        "raw_string_literal",
+        "char_literal",
+        "interpreted_string_literal",
+        "rune_literal",
+        "system_lib_string",
+    ]
+    .contains(&kind)
+    .then_some(policy.in_strings)
 }

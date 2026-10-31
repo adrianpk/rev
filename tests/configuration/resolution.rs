@@ -51,7 +51,7 @@ fn language_precedence() {
         (IndentStyle::Tabs, 2, 8)
     );
     assert_eq!(snapshot.editor("unknown"), snapshot.settings().editor);
-    assert_eq!(snapshot.grammar("go"), Grammar::Plain);
+    assert_eq!(snapshot.grammar("go"), Grammar::Go);
     assert_eq!(snapshot.grammar("rust"), Grammar::Plain);
     assert_eq!(
         resolve(&Sources::default()).unwrap().grammar("rust"),

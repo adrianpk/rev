@@ -20,10 +20,14 @@ fn source(text: &str) -> (fixture::Fixture, Session) {
 }
 
 fn configured_source(text: &str, config: &str) -> (fixture::Fixture, Session) {
+    named_source("source.rs", text, config)
+}
+
+fn named_source(name: &str, text: &str, config: &str) -> (fixture::Fixture, Session) {
     let fixture = fixture::Fixture::new();
     let offset = text.find('|').unwrap();
     let position = text[..offset].chars().count();
-    let path = fixture.write("source.rs", &text.replace('|', ""));
+    let path = fixture.write(name, &text.replace('|', ""));
     let config = fixture.write("config.toml", config);
     let snapshot = rev::config::resolve(&rev::config::load(&config).unwrap()).unwrap();
     let mut buffers = Buffers::with_settings(snapshot).unwrap();
@@ -324,3 +328,6 @@ fn complete(session: &mut Session) {
 
 #[path = "completion/automatic.rs"]
 mod automatic;
+
+#[path = "completion/systems.rs"]
+mod systems;

@@ -389,11 +389,13 @@ pub struct PartialProperties {
     pub inherit: Option<Vec<String>>,
 }
 
-/// Only the existing bundled Rust grammar or plain text may be selected.
+/// Bundled structural grammars and an explicit plain-text fallback.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Grammar {
     Rust,
+    C,
+    Go,
     Plain,
 }
 
@@ -427,7 +429,7 @@ pub struct PartialEditor {
 }
 
 /// Only these four leaves are permitted in a language table. Missing editing
-/// leaves inherit globals; grammar defaults to Rust for rust, plain otherwise.
+/// leaves inherit globals; grammar defaults to its bundled language, plain otherwise.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Language {

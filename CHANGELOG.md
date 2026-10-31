@@ -8,8 +8,9 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Rust declaration suggestions appear near the cursor after a short typing
-  delay. Use `M-TAB` or `M-x completion-at-point` for an immediate request.
+- Rust, C and Go declaration suggestions appear near the cursor after a short typing
+  delay, using unsaved declarations in the current and same-language open buffers.
+  Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
   Literal replacements undo in one step and refuse stale targets or read-only
   text. Configure timing, contexts, candidate limits and popup keys in TOML, or

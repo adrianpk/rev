@@ -5,8 +5,8 @@ use std::sync::{
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
+use super::source::{MAX_PAYLOAD, MAX_RETAINED, Source};
 use crate::buffer::BufferId;
-use crate::syntax::Syntax;
 
 use super::{Request, Symbol, WORK_TIME};
 
@@ -14,7 +14,7 @@ const POLL: Duration = Duration::from_millis(10);
 
 pub(crate) struct Output {
     pub request: Request,
-    pub syntax: Syntax,
+    pub sources: Vec<Source>,
     pub result: Result<Vec<Symbol>, String>,
 }
 
@@ -22,6 +22,7 @@ struct Running {
     request: Request,
     cancel: Arc<AtomicBool>,
     handle: JoinHandle<Output>,
+    sources: Vec<BufferId>,
 }
 
 /// The slot stays owned until its cancelled worker is reaped. Only the newest
@@ -53,7 +54,7 @@ impl Work {
     pub fn owns(&self, buffer: BufferId) -> bool {
         self.active
             .as_ref()
-            .is_some_and(|r| r.request.point.stamp.buffer == buffer)
+            .is_some_and(|r| r.sources.contains(&buffer))
             || self
                 .pending
                 .as_ref()
@@ -74,11 +75,15 @@ impl Work {
         };
         deadline.map(|deadline| deadline.saturating_duration_since(now))
     }
-    pub fn start(&mut self, snapshot: (ropey::Rope, Syntax), now: Instant) -> Result<(), String> {
+    pub fn start(&mut self, snapshot: Vec<Source>, now: Instant) -> Result<(), String> {
         let request = self.pending.take().ok_or("No native request is pending")?;
         let cancel = Arc::new(AtomicBool::new(false));
         let worker_cancel = cancel.clone();
         let worker_request = request.clone();
+        let sources = snapshot
+            .iter()
+            .map(|source| source.observation.stamp.buffer)
+            .collect();
         let handle = thread::Builder::new()
             .name("native-completion".into())
             .spawn(move || run(worker_request, snapshot, &worker_cancel))
@@ -87,6 +92,7 @@ impl Work {
             request,
             cancel,
             handle,
+            sources,
         });
         self.poll_at = Some(now + POLL);
         Ok(())
@@ -109,9 +115,69 @@ impl Work {
     }
 }
 
-fn run(request: Request, snapshot: (ropey::Rope, Syntax), cancel: &AtomicBool) -> Output {
-    let (text, mut syntax) = snapshot;
+fn run(mut request: Request, mut sources: Vec<Source>, cancel: &AtomicBool) -> Output {
     let deadline = Instant::now() + WORK_TIME;
+    let result = extract(&mut request, &mut sources, deadline, cancel);
+    Output {
+        request,
+        sources,
+        result,
+    }
+}
+
+fn extract(
+    request: &mut Request,
+    sources: &mut [Source],
+    deadline: Instant,
+    cancel: &AtomicBool,
+) -> Result<Vec<Symbol>, String> {
+    let mut symbols = Vec::new();
+    let mut payload = 0;
+    for (origin, source) in sources.iter_mut().enumerate() {
+        parse(source, deadline, cancel);
+        if origin == 0 && !request.allowed(&source.syntax) {
+            return Ok(Vec::new());
+        }
+        let result = source.syntax.declarations_with(
+            source.text.slice(..),
+            source.observation.stamp,
+            deadline,
+            cancel,
+        );
+        if origin == 0 {
+            append(&mut symbols, result?, origin, &mut payload);
+        } else {
+            match result {
+                Ok(found) if fits(&symbols, &found, payload) => {
+                    append(&mut symbols, found, origin, &mut payload)
+                }
+                _ => request.limited = true,
+            }
+        }
+    }
+    Ok(symbols)
+}
+
+fn fits(symbols: &[Symbol], found: &[Symbol], payload: usize) -> bool {
+    symbols.len() + found.len() <= MAX_RETAINED && payload + weight(found) <= MAX_PAYLOAD
+}
+
+fn weight(symbols: &[Symbol]) -> usize {
+    symbols
+        .iter()
+        .map(|symbol| std::mem::size_of::<Symbol>() + symbol.name.capacity())
+        .sum()
+}
+
+fn append(symbols: &mut Vec<Symbol>, mut found: Vec<Symbol>, origin: usize, payload: &mut usize) {
+    *payload += weight(&found);
+    for symbol in &mut found {
+        symbol.origin = origin;
+    }
+    symbols.extend(found);
+}
+
+fn parse(source: &mut Source, deadline: Instant, cancel: &AtomicBool) {
     let mut progress = |_: &tree_sitter::ParseState| {
         if cancel.load(Ordering::Acquire) || Instant::now() >= deadline {
             std::ops::ControlFlow::Break(())
@@ -119,21 +185,11 @@ fn run(request: Request, snapshot: (ropey::Rope, Syntax), cancel: &AtomicBool) -
             std::ops::ControlFlow::Continue(())
         }
     };
-    syntax.update_with(
-        text.slice(..),
-        request.point.stamp,
+    source.syntax.update_with(
+        source.text.slice(..),
+        source.observation.stamp,
         tree_sitter::ParseOptions::new().progress_callback(&mut progress),
     );
-    let result = if request.allowed(&syntax) {
-        syntax.declarations_with(text.slice(..), request.point.stamp, deadline, cancel)
-    } else {
-        Ok(Vec::new())
-    };
-    Output {
-        request,
-        syntax,
-        result,
-    }
 }
 
 impl Drop for Work {
