@@ -90,8 +90,8 @@ The documentation checker initially rejected the old 71-entry editor map count;
 the reference now records all 74 entries including the three bookmark chords.
 An additional controller-owned `cargo run --locked --quiet --example documentation-check`
 batch checks the current public references before the required batch.
-The worker hands off only after both batches succeed. The combined
-delivery-set gate remains assigned to the controller after all six integrations.
+Both slice batches passed before handoff. The completed delivery-set gate is
+recorded below.
 
 Canonical PR #185 merged through Rebase + Fast-forward into `dev` at
 `8a77b4857940bc34310434657ed0fa259f5f7a4f`. Controller receipt
@@ -103,6 +103,17 @@ Slice 1 of 6 completed.
 
 ## Risks and Follow-ups
 
-This increment is session-local and intentionally rejects changed or closed
-source revisions. The approved later slices own mapped/contextual locations,
+At integration this increment was session-local and rejected changed or closed
+source revisions. Later completed slices delivered mapped/contextual locations,
 persistence, native list/ordered navigation and gutter markers.
+
+## Delivery-set closure
+
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
+
+The controller passed the unchanged Full gate recorded in the
+[tracker](../../../tracker/rev-bookmarks.md#final-gate-and-closure) after all
+six slice PRs and three authorized repairs integrated. The delivery set is
+completed; the slice receipts above retain their original candidate identities.

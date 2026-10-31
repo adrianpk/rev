@@ -1,7 +1,10 @@
 # Native Bookmarks Delivery
 
-Status: Implementing
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 Delivery set: rev-bookmarks
 Slice strategy: behavior-first
 Scope direction: product owner, 2026-10-31; named persistent bookmarks using Emacs as the behavior reference, navigation and native gutter markers
@@ -14,7 +17,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Bookmarks Tracker](../tracker/rev-bookmarks.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None; all six slices integrated, controller-owned full gate pending
+Active slice: none; delivery completed
 
 ## Outcome and authority
 
@@ -228,3 +231,12 @@ spec/model, pending-work index, the six configured reports and directly related
 gutter specification/model metadata. Record gate SHA/receipt separately from
 historical gates. No code, tests, scripts, dependency or product-doc edits belong
 to the post-gate documentation closure. A pass does not authorize main promotion.
+
+All six canonical slice PRs #185-#190 and authorized repair PRs #191-#193 are
+integrated into `dev`. The controller passed the unchanged Full gate at
+`41ba5f89465b2be02adc613cd796271169c245e0` in receipt
+`7WOA4YIWYISUYIDTDT3ZC5SI5A`. BMK01-BMK07 are delivered; the
+[tracker](../tracker/rev-bookmarks.md#final-gate-and-closure) and
+[Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#delivery-set-closure)
+record the exact command, result and resource/PTY evidence. This documentation
+closure preserves the tested implementation candidate.

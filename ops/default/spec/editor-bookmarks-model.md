@@ -1,13 +1,16 @@
 # Native Bookmarks Model
 
-Status: Accepted
+Status: Completed
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 Date: 2026-10-27
 Reviewed: 2026-10-31
 Specification: [Native Bookmarks](editor-bookmarks.md)
 Text/view ownership: [rev Editor Model](rev-editor-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Approved: product owner, 2026-10-31; concrete profile approved with explicit Looper startup request
-Decision state: accepted contracts for the six-slice bookmark delivery
+Decision state: BMK01-BMK07 implemented and validated through the completed six-slice delivery and three authorized repairs
 
 ## Ownership and identity
 

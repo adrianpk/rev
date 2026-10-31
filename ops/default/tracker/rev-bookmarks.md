@@ -1,7 +1,10 @@
 # Native Bookmarks Tracker
 
-Status: Implementing
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 Delivery set: rev-bookmarks
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; complete scope, six-slice map, autonomous implementation, canonical PR merges into dev, final gate and documentation closure; explicit startup request
@@ -13,7 +16,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None; all six slices integrated, controller-owned full gate pending
+Active slice: none; delivery completed
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -143,7 +146,7 @@ PR [#191](https://forge.adrianpk.com/adrianpk/rev/pulls/191) merged at
 pointer/gutter/bookmark integration tests and diff hygiene on that exact clean
 candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-1-mouse-fixture-geometry)
 records the diagnosis, preserved assertions and completed repair. The controller
-recorded its canonical merge in Acta; the unchanged full gate remains pending.
+recorded its canonical merge in Acta. The subsequent full gate is recorded below.
 
 The next full gate failed at `359b392858646941fe5c65b384b9609c583341ad`
 in receipt `4QZXBGUBDCSJQ275WAQXLEQDWS`: an immediate publication retry
@@ -155,7 +158,7 @@ bookmark/file/recovery integration tests and diff hygiene on that exact clean
 candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-2-explicit-store-lock-release)
 records explicit lock release, the retained-descriptor regression and preserved
 publication contracts. The controller recorded the canonical repair merge in
-Acta; the unchanged full gate remains pending.
+Acta. The subsequent full gate is recorded below.
 
 The third full gate failed at `a086cdbfe0f9619bdf859f8a0868b890aa408c16`
 in receipt `LTK6C3CB5LHLGF2J5B5N3FDIM7`: a display fixture expected terminal
@@ -166,20 +169,28 @@ PR [#193](https://forge.adrianpk.com/adrianpk/rev/pulls/193) merged at
 syntax/tree tests, 127 gutter/wrapping/pointer tests and diff hygiene on that
 exact clean candidate. The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#gate-repair-3-marker-aware-display-fixtures)
 records the 13 reproduced fixture failures, preserved text budgets and completed
-repair. The controller recorded the canonical repair merge in Acta; the unchanged
-full gate remains pending.
+repair. The controller recorded the canonical repair merge in Acta. The subsequent
+full gate is recorded below.
 
 - [x] Controller verifies all six canonical slice integrations.
-- [ ] Controller runs the pinned Full gate on the clean integrated dev candidate.
-- [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
-- [ ] Close only the configured operational documentation after the gate passes.
+- [x] Controller runs the pinned Full gate on the clean integrated dev candidate.
+- [x] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
+- [x] Close only the configured operational documentation after the gate passes.
 
-All six slices are integrated under the same controller run. The combined gate
-and delivery-set closure remain pending.
+All six slices and three authorized repairs are integrated under the same
+controller run. The controller passed the exact Full gate command recorded in
+this tracker's metadata at `41ba5f89465b2be02adc613cd796271169c245e0` in
+receipt `7WOA4YIWYISUYIDTDT3ZC5SI5A`. Formatting, all-target clippy and native
+tests, the bookmark native/resource/PTY journey, documentation consistency and
+diff hygiene passed. BMK01-BMK07 and the delivery set are completed on 2026-10-31.
+The [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md#delivery-set-closure)
+records the exact command and measured acceptance results.
 
 Gate prerequisites are available: Cargo/Rust 1.98.0, Bash, util-linux `script`,
 `stty`, GNU `timeout`, `sed`, `mktemp`, `tty` and Linux procfs. The committed
 acceptance wrapper creates and removes its own temporary HOME/XDG roots,
 sources and PTY children; no persistent fixture needs to be started. The
-controller owns execution of the unchanged Full gate on the clean pushed `dev`.
+controller completed the unchanged Full gate on the immutable candidate above.
+No owned acceptance fixture remains active. Closure changes only configured
+operational documentation paths relative to that tested candidate.
 Preserve previous delivery evidence under its original owners.

@@ -94,8 +94,7 @@ The file lock serializes cooperating instances; arbitrary external writers can
 still race and are handled by checked observations and explicit uncertainty.
 Source fragments stored as context may describe unsaved text. Checked reopening
 never recreates discarded source content or claims historical identity from a
-context match. Listing and marker projection remain assigned to their recorded
-successor slices.
+context match. Listing and marker projection were completed in Slices 4 and 5.
 
 Canonical PR #187 merged through Rebase + Fast-forward into `dev` at
 `1e260f4b0cf6b7928ca253c6edd4825dded1b5ed`. Required receipt
@@ -103,3 +102,14 @@ Canonical PR #187 merged through Rebase + Fast-forward into `dev` at
 integration tests. Focused receipt `XC6MAZMV4MM4YCKZOULFJDTK77` passed 89
 library tests, all-target clippy and documentation on the same clean candidate.
 The controller verified and recorded the merge in Acta. Slice 3 of 6 completed.
+
+## Delivery-set closure
+
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
+
+The controller passed the unchanged Full gate recorded in the
+[tracker](../../../tracker/rev-bookmarks.md#final-gate-and-closure) after all
+six slice PRs and three authorized repairs integrated. The delivery set is
+completed; the slice receipts above retain their original candidate identities.

@@ -109,8 +109,8 @@ in this exact required order:
 
 A separate focused batch passed `cargo test --locked --lib bookmark` and
 `cargo clippy --locked --all-targets -- -D warnings`
-on the same candidate before the required receipt. The combined gate remains
-pending under controller ownership.
+on the same candidate before the required receipt. The completed combined gate
+is recorded under Delivery-set closure below.
 
 ## Risks and Follow-ups
 
@@ -167,8 +167,7 @@ merged through Rebase + Fast-forward into `dev` at
 `INYL32A5XSUTQCTFTOHL3IVJGF` passed the exact four-command list: 12 event
 tests and 158 integration tests (57 bookmarks, 36 gutter and 65 pointer).
 The controller verified and recorded the repair merge in Acta. All six slices
-and the authorized repair are integrated; the unchanged full gate remains
-pending under controller ownership.
+and this repair integrated before the subsequent delivery-set gate recorded below.
 
 ## Gate repair 2: Explicit store lock release
 
@@ -215,8 +214,7 @@ merged through Rebase + Fast-forward into `dev` at
 `2FY5EHAFD4KIABIM5KK3GYTZBC` passed the exact four-command list: 91 library
 tests and 156 integration tests (57 bookmarks, 74 files and 25 recovery).
 The controller verified and recorded the repair merge in Acta. All six slices
-and both authorized repairs are integrated; the unchanged full gate remains
-pending under controller ownership.
+and these repairs integrated before the subsequent delivery-set gate recorded below.
 
 ## Gate repair 3: Marker-aware display fixtures
 
@@ -264,4 +262,43 @@ merged through Rebase + Fast-forward into `dev` at
 coordinate/Org/rectangle/syntax/tree tests and 127 gutter/wrapping/pointer
 tests, for 517 passing integration tests. The controller verified and recorded
 the repair merge in Acta. All six slices and three authorized repairs are
-integrated; the unchanged full gate remains pending under controller ownership.
+integrated; the completed full gate is recorded below.
+
+## Delivery-set closure
+
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
+Result: Passed
+
+The controller executed the unchanged full gate on the immutable integrated
+candidate after all six slices and three authorized repairs:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+Formatting, all-target clippy, all-target native tests, the bookmark acceptance
+journey, documentation consistency and diff hygiene passed. The native journey
+completed in 127ms with set/refusal, edit/undo/save, alias/shared-view identity,
+list/delete, store restart/context, fold reveal, unavailable/malformed-store
+protection and idle assertions intact.
+
+The resource fixture used 1024 records and 2,477,825 source bytes. Admission took
+91.349ms; cold and maximum warm frames took 0.615ms and 0.311ms. Maximum movement
+and resize took 0.368ms and 0.514ms; far reversal took 0.569ms and the input
+reversal batch took 61.958ms. Checked relocation took 13.546ms over 17 passes;
+the maximum measured step was 0.828ms and peak RSS was 24180 kB. The cap refused
+the next record, source bytes stayed exact, canceled relocation retained its
+origin and idle had no deadline.
+
+The two real PTY sessions completed in 484ms, emitting 61135 and 21276 bytes
+within their unchanged eight-second/1 MiB bounds. They verified persisted jump
+and deletion, independent numbers/markers, resize and cancellation, 350ms of idle
+silence and restored TTY attributes. Documentation passed 319 commands, 189
+configuration entries, 59 reachable pages and 341 local links/anchors.
+
+The owned acceptance fixture completed its cleanup; no bookmark acceptance
+process remains active. BMK01-BMK07, all slice reports, the plan/tracker and
+related bookmark/gutter operational metadata are closed. Historical slice,
+repair and earlier gutter/navigation gate identities remain recorded separately.

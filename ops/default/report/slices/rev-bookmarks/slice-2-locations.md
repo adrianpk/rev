@@ -107,8 +107,7 @@ A separate controller batch checks `cargo test --locked --lib bookmark`,
 `cargo clippy --locked --lib -- -D warnings` and
 `cargo run --locked --quiet --example documentation-check` on the same final
 candidate before the required batch. Handoff requires both batches to pass.
-The combined delivery-set gate remains assigned to the controller after all
-six slice integrations.
+The completed combined delivery-set gate is recorded below.
 
 Canonical PR #186 merged through Rebase + Fast-forward into `dev` at
 `430441c4c3708bf70b416432767da4483dd1826c`. Required receipt
@@ -121,4 +120,15 @@ The controller verified and recorded the merge in Acta. Slice 2 of 6 completed.
 
 Repeated or unavailable context can prevent relocation; the origin and record
 remain available for an explicit retry or replacement. Collection persistence
-and configurable storage/limits belong to the approved Slice 3.
+and configurable storage/limits were completed in Slice 3.
+
+## Delivery-set closure
+
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
+
+The controller passed the unchanged Full gate recorded in the
+[tracker](../../../tracker/rev-bookmarks.md#final-gate-and-closure) after all
+six slice PRs and three authorized repairs integrated. The delivery set is
+completed; the slice receipts above retain their original candidate identities.

@@ -1,6 +1,9 @@
 # Native Bookmarks
 
-Status: Accepted
+Status: Completed
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 Date: 2026-10-27
 Reviewed: 2026-10-31
 Format: OpenSpec capability proposal
@@ -11,7 +14,7 @@ Gutter owner: [Editor Gutter](editor-gutter.md)
 Model: [Native Bookmarks Model](editor-bookmarks-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Tracker: [Bookmarks Tracker](../tracker/rev-bookmarks.md)
-Readiness: approved for implementation through the committed plan and tracker
+Readiness: BMK01-BMK07 delivered through six slices and three authorized repairs; controller-owned full gate passed
 
 ## Purpose
 
@@ -314,5 +317,8 @@ lifecycle; earlier delivered runs and unrelated pending tickets remain untouched
 The owner approved named persistence, the concrete profile, limits, terminal
 adaptation and six-slice plan, and explicitly requested Looper startup.
 The controller owns implementation, PR integration, the exact-candidate gate
-and closure. Approval is not a claim of delivered runtime behavior or passed
-implementation tests; those results belong to the tracker and slice reports.
+and closure. The six canonical slice PRs #185-#190 and authorized repair PRs
+#191-#193 are integrated. The unchanged full gate passed at the validated
+candidate above; exact commands, receipt and native/resource/PTY evidence are
+recorded in the tracker and Slice 6 report. The accepted behavior and limits
+remain the delivered contract.

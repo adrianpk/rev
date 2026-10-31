@@ -10,6 +10,10 @@ Specification: [Editor Gutter](editor-gutter.md)
 Configuration owner: [Editor Configuration Model](editor-configuration-model.md)
 View owner: [rev Editor Model](rev-editor-model.md)
 Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated gate passed
+Bookmark extension: BMK03 completed through the [Bookmarks plan](../plan/rev-bookmarks.md); [tracker](../tracker/rev-bookmarks.md) records its separate validation evidence
+Bookmark extension completed: 2026-10-31
+Bookmark extension candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Bookmark extension gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 
 ## Control model
 

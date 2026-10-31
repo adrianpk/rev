@@ -73,7 +73,7 @@ A separate controller batch checks `cargo test --locked --lib bookmark`,
 `cargo clippy --locked --all-targets -- -D warnings` and
 `cargo run --locked --quiet --example documentation-check` on that same final
 candidate before the required batch. Handoff requires both batches to pass.
-The controller owns the combined gate after all recorded slice integrations.
+The completed controller-owned combined gate is recorded below.
 
 ## Task Commits
 
@@ -87,7 +87,7 @@ are recorded in the tracker.
 Unresolved, stale or unavailable records have no eligible current-file order;
 the user can explicitly check them through a named jump or list visit. A changed
 list snapshot clears pending marks and requires a retry. Marker projection and
-joint acceptance remain assigned to the recorded successor slices.
+joint acceptance were completed in Slices 5 and 6.
 
 Canonical PR #188 merged through Rebase + Fast-forward into `dev` at
 `1fb81379420abf058a0273f82f9490a26f77a8f6`. Required receipt
@@ -96,3 +96,14 @@ integration tests. Focused receipt `3K345T2YHJMXYQXCHJTYEZA6G4` passed 11
 bookmark owner tests, all-target clippy and documentation on the same clean
 candidate. The controller verified and recorded the merge in Acta.
 Slice 4 of 6 completed.
+
+## Delivery-set closure
+
+Completed: 2026-10-31
+Validated candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Gate receipt: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
+
+The controller passed the unchanged Full gate recorded in the
+[tracker](../../../tracker/rev-bookmarks.md#final-gate-and-closure) after all
+six slice PRs and three authorized repairs integrated. The delivery set is
+completed; the slice receipts above retain their original candidate identities.

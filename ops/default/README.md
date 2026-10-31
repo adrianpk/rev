@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-10-31
 Scope: pending behavior after the completed native Org delivery
-Owner decision: wrap/navigation completed; the six-slice bookmark delivery is approved for one autonomous Looper cycle using Emacs as the behavior reference
+Owner decision: wrap/navigation and the six-slice bookmark delivery completed; remaining proposals retain their own approval state
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains five delivered interaction topics, two open presentation
-follow-ups, one approved bookmark delivery and nine remaining capability proposals. The five solved
+The inventory contains six delivered interaction topics, two open presentation
+follow-ups and nine remaining capability proposals. The five solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -31,7 +31,7 @@ retain their own specification/model state.
 | Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Delivered / Completed spec / solved ticket. Slice 6 delivered selected-candidate Tab and separate final acceptance through PR #179; UI03 is reconciled. |
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
-| Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Implementing. All six slices integrated through PRs #185-#190: named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate remains pending. |
+| Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md) | Draft. Native UI; operational LSP preferred, Tree-sitter fallback, no ctags. Trigger/coverage/index scope and limits remain open. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md) | Draft. Completion first; protocol, launch/sharing, synchronization, encoding and failure limits remain open. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
@@ -59,10 +59,11 @@ for one autonomous Looper cycle. The owner requested startup.
 The other capabilities retain proposed scheduling only; external extensions
 remain optional exploration without an implementation commitment.
 
-Active delivery: named persistent bookmarks, checked navigation and gutter
+Completed delivery: named persistent bookmarks, checked navigation and gutter
 markers. The [Bookmarks plan](plan/rev-bookmarks.md) and
-[tracker](tracker/rev-bookmarks.md) define six approved slices for one Looper cycle.
-All six slices are integrated; the controller-owned combined gate remains pending.
+[tracker](tracker/rev-bookmarks.md) record six integrated slices and three
+authorized repairs. The unchanged controller-owned combined gate passed;
+the delivery and its operational documentation are closed.
 The owner requested startup on 2026-10-31. The two presentation follow-ups remain
 separate pending tickets.
 
@@ -109,8 +110,14 @@ PRs #174-#181 and authorized fixture repairs #182-#183. The controller passed th
 pinned full gate at `6b2afd4e07f269c979cd26faf60b6863314e69e9` in receipt
 `F7OQU2CWIOPB3VW234VVECCQNG`; the [tracker](tracker/rev-wrap-navigation.md#final-gate-and-closure)
 and [Slice 8 report](report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md)
-record exact validation and documentation closure. Bookmarks now has an Accepted
-spec/model and approved six-slice plan/tracker, with explicit startup authority.
+record exact validation and documentation closure. The bookmark specification,
+model, plan and tracker are also Completed. Its six slices and three authorized
+repairs passed the unchanged full gate at
+`41ba5f89465b2be02adc613cd796271169c245e0` in receipt
+`7WOA4YIWYISUYIDTDT3ZC5SI5A`; the
+[bookmark tracker](tracker/rev-bookmarks.md#final-gate-and-closure) and
+[Slice 6 report](report/slices/rev-bookmarks/slice-6-acceptance.md#delivery-set-closure)
+record the exact command and acceptance evidence.
 The other nine capability proposals retain their prior state, including optional
 external-program exploration. Earlier completed gates keep their historical identities.
 

@@ -15,7 +15,10 @@ Delivery: [Input and Navigation](../plan/rev-input-navigation.md); integrated ga
 Original scope: product owner, 2026-10-27; native numbering; bookmarks have a separate subsequent delivery
 Controls clarified: user settings, compiled M-x commands, or both according to the concern
 Model: [Editor Gutter Model](editor-gutter-model.md)
-Bookmark extension: [Bookmarks plan](../plan/rev-bookmarks.md); [tracker](../tracker/rev-bookmarks.md) owns its separate validation evidence
+Bookmark extension: BMK03 completed through the [Bookmarks plan](../plan/rev-bookmarks.md); [tracker](../tracker/rev-bookmarks.md) records its separate validation evidence
+Bookmark extension completed: 2026-10-31
+Bookmark extension candidate: `41ba5f89465b2be02adc613cd796271169c245e0`
+Bookmark extension gate validation: `7WOA4YIWYISUYIDTDT3ZC5SI5A`
 
 ## Purpose
 
