@@ -1,11 +1,11 @@
 # Slice 8: User guidance and joint interaction acceptance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
-Branch: `fix/rev-wrap-navigation-validation-1`
-PR: [#182](https://forge.adrianpk.com/adrianpk/rev/pulls/182)
+Branch: `fix/rev-wrap-navigation-validation-2`
+PR: pending
 
 ## Purpose
 
@@ -158,6 +158,40 @@ and all 110 tests on that exact clean PR-reference head. The controller recorded
 the merge in Acta as `01M68JWDE5DYK7H87XWWFGA9R8`. Gate repair 1 is delivered.
 The unchanged full gate remains pending its controller-owned rerun; earlier
 slice and failed-gate evidence retain their original candidate identities.
+
+## Gate repair 2: explicit horizontal clipping fixtures
+
+The covering additional authorization pins this repair to
+`test(syntax): keep horizontal clipping checks explicitly unwrapped` and the
+failed candidate `ef210e1aef98b4e9d6a907a46767c90f8d2d3ca1`. The retained
+full-gate diagnostic `AWKEE7BOZ53PGQZYEQ6YE4DDNM` reached the syntax suite after
+formatting and all-target Clippy passed. `edges::cell_projection` and
+`incremental::failures::visible_queries` failed; the other 28 syntax tests passed.
+Focused reproduction `cargo test --locked --test syntax` reproduced both failures.
+
+Both fixtures set raw source-row/horizontal offsets but inherited the newly
+wrapped factory policy. Those offsets therefore did not describe their intended
+horizontal clipping setup. Each now asserts the wrapped factory state, explicitly
+toggles only its own live buffer to the WRP06 unwrapped alternative, and asserts
+that result before constructing the view. No shared helper or startup default is
+changed; other syntax fixtures and the wrapping suite keep their existing policy.
+
+The tests retain their source data, three wide-glyph clipping offsets, exact
+string paint ranges, unstyled partial-glyph cell, 1,000-line workload, incremental
+Unicode edit, at-most-32 capture bound, exact byte containment, 16-cell paint bound
+and `item_549` row assertion. This corrects fixture setup for the approved explicit
+horizontal alternative without replacing or weakening its observables. The repair
+changes only `tests/syntax/edges.rs`, `tests/syntax/failures.rs` and this report.
+
+The pinned final command order is:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --no-fail-fast --test syntax --test wrapping --test tree --test windows`
+3. `git diff --check`
+
+Clean-HEAD controller results and the canonical repair PR reference are recorded
+before handoff. The controller owns integration and the unchanged full-gate rerun;
+repair 1 and original slice evidence retain their recorded candidate identities.
 
 ## Risks and Follow-ups
 

@@ -101,7 +101,11 @@ fn cell_projection() {
     let path = fixture.file("main.rs", source);
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
-    let buffer = buffers.get(id).unwrap();
+    let buffer = buffers.get_mut(id).unwrap();
+    // These horizontal offsets exercise the explicit unwrapped alternative.
+    assert!(buffer.soft_wrap());
+    buffer.toggle_soft_wrap();
+    assert!(!buffer.soft_wrap());
     for (left, expected) in [(14, 0..3), (15, 1..2), (16, 0..1)] {
         let mut view = View::new(buffer);
         view.top = 1;

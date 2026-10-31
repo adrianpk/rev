@@ -265,6 +265,10 @@ fn visible_queries() {
     let mut buffers = Buffers::new().unwrap();
     let id = buffers.visit(&path).unwrap();
     let buffer = buffers.get_mut(id).unwrap();
+    // This source-row/horizontal-offset fixture explicitly opts out of wrap.
+    assert!(buffer.soft_wrap());
+    buffer.toggle_soft_wrap();
+    assert!(!buffer.soft_wrap());
     apply(buffer, 0..0, "// 🙂\n");
     buffer.refresh_syntax();
     assert!(buffer.syntax().is_incremental());
