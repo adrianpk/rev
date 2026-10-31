@@ -74,6 +74,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x r M` | `bookmark-set-no-overwrite` | Name the current position without replacement. |
 | `C-x r b` | `bookmark-jump` | Complete a name and visit its checked location. |
 | `M-x bookmark-delete` | `bookmark-delete` | Complete a name and remove that bookmark. |
+| `C-x r l` | `list-bookmarks` | Open the read-only native bookmark list. |
+| `d` in bookmark list | `bookmark-bmenu-delete` | Mark the selected record for deletion and advance. |
+| `u` in bookmark list | `bookmark-bmenu-unmark` | Unmark the selected record and advance. |
+| `x` in bookmark list | `bookmark-bmenu-execute-deletions` | Execute checked marked deletions. |
+| `RET` in bookmark list | `bookmark-bmenu-this-window` | Visit the selected stable record in this pane. |
 | `M-x bookmark-save` | `bookmark-save` | Checkpoint the user collection without saving sources. |
 | `M-x bookmark-reload` | `bookmark-reload` | Validate disk and confirm replacing unsaved bookmarks. |
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain selected rectangle rows. |
@@ -124,7 +129,7 @@ all Org commands and the source, draft, agenda and calendar contexts.
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
-all eight contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
+all nine contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
 
 `keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete
@@ -336,3 +341,8 @@ See [Org agenda source discovery](org/bindings.md#org-agenda-source-discovery).
 ### Native day and week calendars
 
 See [Org native day and week calendars](org/bindings.md#native-day-and-week-calendars).
+
+The read-only bookmark workspace uses `keys.bookmark_list`: arrows, C-n/C-p and
+n/p move rows; Return visits; d/u mark or unmark and advance; x deletes marked
+records; q/C-g returns and discards unexecuted marks. M-x opens the normal command
+prompt and C-x o changes panes. These local keys do not edit source text.

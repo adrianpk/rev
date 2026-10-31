@@ -246,6 +246,7 @@ impl Bookmarks {
         self.entries = entries;
         self.next_id = next;
         self.saved();
+        self.changed();
         Ok(())
     }
 }

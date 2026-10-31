@@ -6,6 +6,14 @@ impl Session {
     pub(super) fn sync_input_context(&mut self) {
         self.input.set_tree_focus(self.tree.focused());
         if self
+            .bookmark_list
+            .as_ref()
+            .is_some_and(|s| self.windows.get(s.view).is_err())
+        {
+            self.bookmark_list = None;
+        }
+        self.input.set_bookmark_list(self.bookmark_list_active());
+        if self
             .calendar_agenda
             .as_ref()
             .is_some_and(|s| self.windows.get(s.view).is_err())

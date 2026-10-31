@@ -42,6 +42,9 @@ impl Session {
     /// Replace a scalar range in the selected buffer through the same checked
     /// transaction as editing commands, reconciling every live shared view.
     pub fn replace(&mut self, range: Range<usize>, text: &str) -> Result<bool, Error> {
+        if self.bookmark_list_active() {
+            return Err(Error::ReadOnly);
+        }
         self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();

@@ -30,7 +30,7 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 54 active RGB roles and all eight default context maps. Its
+global default, all 54 active RGB roles and all nine default context maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -140,8 +140,9 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `include` | Array of nonempty local path strings | `[]` | Per source; explicit ordered include graph, with fixed limits above. Empty paths, NUL and URL forms reject. |
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 74 entries are active in the sample. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 75 entries are active in the sample. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
+| `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 15 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 22 entries are active in the sample. |
 
 Only the fixed implemented [commands and context actions](bindings.md) are

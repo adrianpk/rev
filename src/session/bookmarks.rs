@@ -1,4 +1,6 @@
+mod list;
 mod navigation;
+pub(super) use list::List;
 mod persistence;
 mod quit;
 pub(super) use navigation::Navigation;
@@ -26,6 +28,13 @@ impl Session {
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
         match command {
+            BookmarkCommand::List => return self.list_bookmarks(),
+            BookmarkCommand::MenuDelete
+            | BookmarkCommand::MenuUnmark
+            | BookmarkCommand::MenuExecute
+            | BookmarkCommand::MenuVisit => {
+                return self.message("This command requires the bookmark list");
+            }
             BookmarkCommand::Save => {
                 return match self.save_bookmarks() {
                     Ok(()) => self.message("Bookmarks saved"),
@@ -84,7 +93,13 @@ impl Session {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Set bookmark: ".into(),
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
-            BookmarkCommand::Save | BookmarkCommand::Reload => {
+            BookmarkCommand::Save
+            | BookmarkCommand::Reload
+            | BookmarkCommand::List
+            | BookmarkCommand::MenuDelete
+            | BookmarkCommand::MenuUnmark
+            | BookmarkCommand::MenuExecute
+            | BookmarkCommand::MenuVisit => {
                 unreachable!("storage commands have no name argument")
             }
         };
@@ -123,7 +138,13 @@ impl Session {
             }
             BookmarkCommand::Jump => unreachable!("jump owns its cancellable navigation"),
             BookmarkCommand::Delete => self.buffers.bookmarks_mut().delete(name),
-            BookmarkCommand::Save | BookmarkCommand::Reload => {
+            BookmarkCommand::Save
+            | BookmarkCommand::Reload
+            | BookmarkCommand::List
+            | BookmarkCommand::MenuDelete
+            | BookmarkCommand::MenuUnmark
+            | BookmarkCommand::MenuExecute
+            | BookmarkCommand::MenuVisit => {
                 unreachable!("storage commands have no name argument")
             }
         };
@@ -132,7 +153,13 @@ impl Session {
                 BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Bookmark set",
                 BookmarkCommand::Jump => "Bookmark destination",
                 BookmarkCommand::Delete => "Bookmark deleted",
-                BookmarkCommand::Save | BookmarkCommand::Reload => unreachable!("storage command"),
+                BookmarkCommand::Save
+                | BookmarkCommand::Reload
+                | BookmarkCommand::List
+                | BookmarkCommand::MenuDelete
+                | BookmarkCommand::MenuUnmark
+                | BookmarkCommand::MenuExecute
+                | BookmarkCommand::MenuVisit => unreachable!("storage command"),
             }),
             Err(error) => self.bookmark_prompt(prompt, draft, &error),
         }

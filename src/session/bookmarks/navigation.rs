@@ -7,7 +7,13 @@ use crate::buffer::{Stamp, Visit};
 use crate::coordinates::Scalar;
 use crate::view::View;
 
+#[derive(Clone, Copy)]
+pub(super) enum Origin {
+    Name,
+    List(u64),
+}
 pub(in crate::session) struct Navigation {
+    from: Origin,
     record: Record,
     visit: Visit,
     target: Stamp,
@@ -21,6 +27,9 @@ pub(in crate::session) struct Navigation {
 
 impl Session {
     pub(in crate::session) fn visit_bookmark(&mut self, name: &str) -> Result<(), String> {
+        self.visit_bookmark_from(name, Origin::Name)
+    }
+    pub(super) fn visit_bookmark_from(&mut self, name: &str, from: Origin) -> Result<(), String> {
         let record = self
             .buffers
             .bookmarks()
@@ -69,6 +78,7 @@ impl Session {
             view.rebind(buffer);
         }
         let navigation = Navigation {
+            from,
             record,
             visit,
             target,
@@ -96,6 +106,12 @@ impl Session {
         &mut self,
         mut work: Navigation,
     ) -> Result<Option<Navigation>, String> {
+        if matches!(work.from, Origin::List(generation) if generation != self.bookmarks().generation())
+        {
+            return Err(
+                "Bookmark collection changed during list navigation; retry required".into(),
+            );
+        }
         if work.origin != self.windows.selected_id()
             || work.point != self.view().point
             || !self
@@ -178,6 +194,9 @@ impl Session {
             path,
         )?;
         self.buffers.publish_visit(work.visit);
+        if matches!(work.from, Origin::List(_)) {
+            self.bookmark_list = None;
+        }
         *self.windows.selected_mut() = work.view;
         if let Some(tree) = tree {
             self.tree = tree;
@@ -196,6 +215,7 @@ impl Session {
         let Some(work) = self.bookmark_visit.take() else {
             return Action::Wait;
         };
+        let from = work.from;
         let origin = work.origin;
         let point = work.point;
         let name = work.record.name().to_owned();
@@ -205,7 +225,8 @@ impl Session {
                 Action::Redraw
             }
             Err(error)
-                if self.windows.selected_id() == origin
+                if matches!(from, Origin::Name)
+                    && self.windows.selected_id() == origin
                     && self.view().point == point
                     && self.input.focus() == crate::input::Focus::Editing
                     && self.pending.is_none() =>

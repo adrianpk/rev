@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "bookmarks/list.rs"]
+mod list;
 #[path = "bookmarks/locations.rs"]
 mod locations;
 #[path = "bookmarks/persistence.rs"]
@@ -300,6 +302,11 @@ fn bookmark_bindings() {
         BookmarkCommand::Delete,
         BookmarkCommand::Save,
         BookmarkCommand::Reload,
+        BookmarkCommand::List,
+        BookmarkCommand::MenuDelete,
+        BookmarkCommand::MenuUnmark,
+        BookmarkCommand::MenuExecute,
+        BookmarkCommand::MenuVisit,
     ] {
         assert_eq!(
             Command::named(command.name()),
@@ -307,7 +314,6 @@ fn bookmark_bindings() {
         );
     }
     for name in [
-        "list-bookmarks",
         "bookmark-next",
         "bookmark-previous",
         "bookmark-markers-mode",

@@ -17,6 +17,8 @@ This project uses Semantic Versioning.
   collection saves on exit by default, with explicit save/reload and configurable
   timing and limits. Checked atomic writes preserve malformed or conflicting
   stores and offer retry, discard or cancellation when quit cannot save.
+  `C-x r l` opens a read-only list with checked visits and staged deletion;
+  configurable local keys navigate rows without editing source text.
 - Click a file-tree entry to select it and open its file or expand/collapse its
   directory. Set `mouse.tree_activate_on_click = false` for selection-only clicks.
   Blank tree space focuses the tree without activating an entry, and clicked

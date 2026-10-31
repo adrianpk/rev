@@ -2,6 +2,7 @@
 //! owned or mutated by this collection.
 
 pub(crate) mod context;
+pub(crate) mod list;
 pub(crate) mod store;
 pub use context::Context;
 
@@ -92,6 +93,7 @@ pub struct Bookmarks {
     entries: BTreeMap<String, Record>,
     next_id: u64,
     dirty: bool,
+    generation: u64,
     pub(crate) max_entries: usize,
     pub(crate) context_chars: usize,
 }
@@ -102,6 +104,7 @@ impl Default for Bookmarks {
             entries: BTreeMap::new(),
             next_id: 0,
             dirty: false,
+            generation: 0,
             max_entries: MAX_ENTRIES,
             context_chars: context::CONTEXT_CHARS,
         }
@@ -109,6 +112,15 @@ impl Default for Bookmarks {
 }
 
 impl Bookmarks {
+    pub(crate) fn generation(&self) -> u64 {
+        self.generation
+    }
+    fn changed(&mut self) {
+        self.generation = self
+            .generation
+            .checked_add(1)
+            .expect("bookmark collection generation exhausted");
+    }
     pub fn is_dirty(&self) -> bool {
         self.dirty
     }
@@ -192,6 +204,7 @@ impl Bookmarks {
         self.entries.insert(name.into(), record);
         self.next_id = self.next_id.max(id.0);
         self.dirty = true;
+        self.changed();
         Ok(id)
     }
 
@@ -201,6 +214,7 @@ impl Bookmarks {
             .map(|_| ())
             .ok_or_else(|| "No bookmark with that name".to_owned())?;
         self.dirty = true;
+        self.changed();
         Ok(())
     }
 }
@@ -231,6 +245,7 @@ impl Bookmarks {
     pub(crate) fn publish_anchors(&mut self, stamp: crate::buffer::Stamp, anchors: &[Anchor]) {
         if !anchors.is_empty() {
             self.dirty = true;
+            self.changed();
         }
         for record in self.entries.values_mut() {
             let Ok(index) = anchors.binary_search_by_key(&record.id, |a| a.id) else {
@@ -267,17 +282,23 @@ impl Bookmarks {
                     .map(|context| (r.id, context))
             })
             .collect::<Result<BTreeMap<_, _>, _>>()?;
+        let mut changed = false;
         for record in self.entries.values_mut().filter(|r| {
             r.point.stamp.buffer == buffer.id()
                 && matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
         }) {
             if let Some(context) = captured.get(&record.id) {
+                changed |= record.context != *context;
                 self.dirty |= record.context != *context;
                 record.context = context.clone();
             }
             if closing {
+                changed = true;
                 record.resolution = Resolution::Unresolved;
             }
+        }
+        if changed {
+            self.changed();
         }
         Ok(())
     }
@@ -294,11 +315,18 @@ impl Bookmarks {
             .values_mut()
             .find(|r| r.id == id && r.generation == generation)
             .ok_or("Bookmark changed during navigation")?;
+        let changed = record.point != point
+            || record.context != context
+            || record.path != path
+            || record.resolution != Resolution::Resolved;
         self.dirty |= record.context != context || record.path != path;
         record.point = point;
         record.path = path;
         record.context = context;
         record.resolution = Resolution::Resolved;
+        if changed {
+            self.changed();
+        }
         Ok(())
     }
     pub(crate) fn unavailable(&mut self, id: RecordId, generation: u64) {
@@ -307,7 +335,10 @@ impl Bookmarks {
                 && r.generation == generation
                 && !matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
         }) {
-            record.resolution = Resolution::Unavailable;
+            if record.resolution != Resolution::Unavailable {
+                record.resolution = Resolution::Unavailable;
+                self.changed();
+            }
         }
     }
     pub(crate) fn retarget(
@@ -316,13 +347,18 @@ impl Bookmarks {
         prior: Option<&Path>,
         target: &Path,
     ) {
+        let mut changed = false;
         for record in self.entries.values_mut().filter(|r| {
             (r.point.stamp.buffer == buffer
                 && matches!(r.resolution, Resolution::Resolved | Resolution::Stale))
                 || prior == Some(r.path.as_path())
         }) {
+            changed |= record.path != target;
             self.dirty |= record.path != target;
             record.path = target.into();
+        }
+        if changed {
+            self.changed();
         }
     }
     pub(crate) fn renamed_paths(
@@ -352,11 +388,16 @@ impl Bookmarks {
         Ok(paths)
     }
     pub(crate) fn publish_paths(&mut self, paths: Vec<(RecordId, PathBuf)>) {
+        let mut changed = false;
         for (id, path) in paths {
             if let Some(record) = self.entries.values_mut().find(|r| r.id == id) {
+                changed |= record.path != path;
                 self.dirty |= record.path != path;
                 record.path = path;
             }
+        }
+        if changed {
+            self.changed();
         }
     }
 }

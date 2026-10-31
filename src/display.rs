@@ -1,5 +1,6 @@
 mod agenda;
 mod agenda_actions;
+pub(crate) mod bookmarks;
 mod query;
 pub use query::QueryDisplay;
 mod calendar;

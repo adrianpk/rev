@@ -13,6 +13,9 @@ impl Input {
         if self.focus() != Focus::Editing {
             return MapContext::Minibuffer;
         }
+        if self.workspace_bookmarks {
+            return MapContext::BookmarkList;
+        }
         if self.workspace_tree {
             return MapContext::Tree;
         }
@@ -142,5 +145,15 @@ fn search_key(command: Command) -> Key {
     Key {
         code: KeyCode::Char(character),
         modifiers: KeyModifiers::CONTROL,
+    }
+}
+
+impl Input {
+    pub(crate) fn set_bookmark_list(&mut self, active: bool) {
+        if self.workspace_bookmarks != active {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            self.workspace_bookmarks = active;
+        }
     }
 }

@@ -41,6 +41,7 @@ impl Context {
             Self::OrgCalendar => calendar(target) || minibuffer(target),
             Self::Minibuffer => minibuffer(target),
             Self::Tree => tree(target),
+            Self::BookmarkList => bookmark_list(target),
         }
     }
 }
@@ -108,4 +109,33 @@ fn calendar(target: Binding) -> bool {
 
 fn agenda_action(target: Binding) -> bool {
     matches!(target,Binding::Command(Command::Org(command)) if command.habit() || command.agenda_control() || command.agenda_query() || command.agenda_bulk() || command.agenda_source_action() || command.agenda_custom() || command.estimate() || command==crate::command::OrgCommand::TimerSet)
+}
+
+fn bookmark_list(target: Binding) -> bool {
+    use crate::command::BookmarkCommand as B;
+    matches!(
+        target,
+        Binding::Command(
+            Command::Bookmark(
+                B::List
+                    | B::MenuVisit
+                    | B::MenuDelete
+                    | B::MenuUnmark
+                    | B::MenuExecute
+                    | B::Save
+                    | B::Reload
+            ) | Command::KeyboardQuit
+                | Command::ExecuteExtended
+                | Command::Quit
+                | Command::Split(_)
+                | Command::Window(_)
+                | Command::Scroll(
+                    Scroll::NextLine
+                        | Scroll::PreviousLine
+                        | Scroll::PageForward
+                        | Scroll::PageBackward
+                )
+                | Command::Motion(Motion::BufferStart | Motion::BufferEnd)
+        )
+    )
 }

@@ -6,6 +6,11 @@ pub enum BookmarkCommand {
     Delete,
     Save,
     Reload,
+    List,
+    MenuDelete,
+    MenuUnmark,
+    MenuExecute,
+    MenuVisit,
 }
 
 impl BookmarkCommand {
@@ -17,6 +22,11 @@ impl BookmarkCommand {
             Self::Delete => "bookmark-delete",
             Self::Save => "bookmark-save",
             Self::Reload => "bookmark-reload",
+            Self::List => "list-bookmarks",
+            Self::MenuDelete => "bookmark-bmenu-delete",
+            Self::MenuUnmark => "bookmark-bmenu-unmark",
+            Self::MenuExecute => "bookmark-bmenu-execute-deletions",
+            Self::MenuVisit => "bookmark-bmenu-this-window",
         }
     }
 }

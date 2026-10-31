@@ -35,6 +35,10 @@ impl Session {
         self.yank = None;
         self.kills.break_chain();
         let result = self.ingress(path, directories);
+        if result.is_ok() && self.bookmark_list_active() {
+            self.bookmark_list = None;
+            self.sync_input_context();
+        }
         if let Err(error) = &result {
             self.error(&error.to_string());
         }

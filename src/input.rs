@@ -123,6 +123,7 @@ pub struct Input {
     chords: Vec<Key>,
     keymaps: keymap::Effective,
     workspace_tree: bool,
+    workspace_bookmarks: bool,
     workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,

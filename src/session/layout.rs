@@ -120,6 +120,7 @@ impl Session {
             || self.tree.focused()
             || self.habit_agenda.is_some()
             || self.agenda_active()
+            || self.bookmark_list_active()
             || self.query_agenda.is_some()
         {
             return None;

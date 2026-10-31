@@ -16,6 +16,7 @@ pub enum Context {
     Editor,
     Minibuffer,
     Tree,
+    BookmarkList,
     Org,
     OrgAgenda,
     OrgCapture,
@@ -24,10 +25,11 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 8] = [
+    pub const ALL: [Self; 9] = [
         Self::Editor,
         Self::Minibuffer,
         Self::Tree,
+        Self::BookmarkList,
         Self::Org,
         Self::OrgAgenda,
         Self::OrgCapture,
@@ -40,6 +42,7 @@ impl Context {
             Self::Editor => "editor",
             Self::Minibuffer => "minibuffer",
             Self::Tree => "tree",
+            Self::BookmarkList => "bookmark_list",
             Self::Org => "org",
             Self::OrgAgenda => "org_agenda",
             Self::OrgCapture => "org_capture",
@@ -73,6 +76,7 @@ pub struct Effective {
     editor: Map,
     minibuffer: Map,
     tree: Map,
+    bookmark_list: Map,
     org: Map,
     org_agenda: Map,
     org_capture: Map,
@@ -92,6 +96,7 @@ impl Effective {
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
+            Context::BookmarkList => &self.bookmark_list,
             Context::Org => &self.org,
             Context::OrgAgenda => &self.org_agenda,
             Context::OrgCapture => &self.org_capture,
@@ -114,6 +119,7 @@ pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
         editor,
         minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree)?,
+        bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list)?,
         org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda)?,
         org_calendar,
     })

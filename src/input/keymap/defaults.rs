@@ -41,6 +41,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Editor => EDITOR,
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
+        Context::BookmarkList => BOOKMARK_LIST,
         Context::Org => ORG,
         Context::OrgAgenda => ORG_AGENDA,
         Context::OrgCapture => ORG_CAPTURE,
@@ -113,6 +114,7 @@ const EDITOR: &[(&str, &str)] = &[
     ("C-x r m", "bookmark-set"),
     ("C-x r M", "bookmark-set-no-overwrite"),
     ("C-x r b", "bookmark-jump"),
+    ("C-x r l", "list-bookmarks"),
     ("C-x r M-w", "copy-rectangle-as-kill"),
     ("C-x r k", "kill-rectangle"),
     ("C-x r y", "yank-rectangle"),
@@ -337,4 +339,22 @@ const ORG_CALENDAR: &[(&str, &str)] = &[
     ("C-.", "org-calendar-goto-today"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
+];
+
+const BOOKMARK_LIST: &[(&str, &str)] = &[
+    ("Down", "next-line"),
+    ("C-n", "next-line"),
+    ("n", "next-line"),
+    ("Up", "previous-line"),
+    ("C-p", "previous-line"),
+    ("p", "previous-line"),
+    ("RET", "bookmark-bmenu-this-window"),
+    ("d", "bookmark-bmenu-delete"),
+    ("u", "bookmark-bmenu-unmark"),
+    ("x", "bookmark-bmenu-execute-deletions"),
+    ("q", "keyboard-quit"),
+    ("C-g", "keyboard-quit"),
+    ("M-x", "execute-extended-command"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("C-x o", "other-window"),
 ];

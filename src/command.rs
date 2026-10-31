@@ -68,13 +68,18 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 311] = [
+    pub const ALL: [Self; 316] = [
         Self::Bookmark(BookmarkCommand::Set),
         Self::Bookmark(BookmarkCommand::SetNoOverwrite),
         Self::Bookmark(BookmarkCommand::Jump),
         Self::Bookmark(BookmarkCommand::Delete),
         Self::Bookmark(BookmarkCommand::Save),
         Self::Bookmark(BookmarkCommand::Reload),
+        Self::Bookmark(BookmarkCommand::List),
+        Self::Bookmark(BookmarkCommand::MenuDelete),
+        Self::Bookmark(BookmarkCommand::MenuUnmark),
+        Self::Bookmark(BookmarkCommand::MenuExecute),
+        Self::Bookmark(BookmarkCommand::MenuVisit),
         Self::Rectangle(RectangleCommand::Mark),
         Self::Rectangle(RectangleCommand::Copy),
         Self::Rectangle(RectangleCommand::Kill),

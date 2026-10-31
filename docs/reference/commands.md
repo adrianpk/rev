@@ -83,7 +83,7 @@ compiled M-x name once.
 | Mouse | `mouse-mode` |
 | Source wrapping | `visual-line-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
-| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload` |
+| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
@@ -245,3 +245,24 @@ retry or explicit reload; explicit save alone never authorizes an overwrite.
 A failure after publication remains unresolved until actual candidate bytes
 and sync completion reconcile. Newly owned data directories/files are private
 to the user. The stable sibling lock file may remain after the OS lock releases.
+
+`C-x r l` (`list-bookmarks`) opens a native read-only `*Bookmarks*` view in the
+selected pane. It lists names lexically with file paths and observed resolved,
+unresolved, stale or unavailable status; opening and painting do not read target
+sources. Up/Down, C-p/C-n or p/n moves between rows. Return visits the selected
+stable record through the checked jump owner. A failed or canceled visit retains
+the list and originating source.
+
+In the list, `bookmark-bmenu-delete` (`d`) marks a record and advances;
+`bookmark-bmenu-unmark` (`u`) clears its mark and advances.
+`bookmark-bmenu-execute-deletions` (`x`) atomically removes marked records;
+`bookmark-bmenu-this-window` (Return) visits the selected record.
+`q` or C-g returns and discards unexecuted marks. Quit also discards those marks.
+The local keys are configurable in `keys.bookmark_list`. M-x retains ordinary
+prompt ownership; C-x o changes pane focus without editing the list's source.
+
+Collection changes invalidate menu observations and clear staged marks before
+an action can affect a replacement row. The list refreshes and asks for a retry.
+Returning rechecks the original source revision; a changed or closed origin
+retains the current valid source view with a diagnostic. Source text, dirty state
+and undo history are independent of row navigation and bookmark deletion.

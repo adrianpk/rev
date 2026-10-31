@@ -78,7 +78,7 @@ all-target clippy and documentation.
 
 Acceptance: complete BMK04.
 
-- [ ] T4.1: Implement native bookmark listing, stable row actions, deletion marks and local configurable keys.
+- [x] T4.1: Implement native bookmark listing, stable row actions, deletion marks and local configurable keys.
 - [ ] T4.2: Implement current-file next/previous, wrap, same-position ordering and safe invalidation.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 4 report.
 

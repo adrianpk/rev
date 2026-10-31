@@ -450,6 +450,7 @@ separator = "#3b4261"           # One-cell number/text separator.
 "C-x r m" = "bookmark-set"
 "C-x r M" = "bookmark-set-no-overwrite"
 "C-x r b" = "bookmark-jump"
+"C-x r l" = "list-bookmarks"
 "C-x r M-w" = "copy-rectangle-as-kill"
 "C-x r k" = "kill-rectangle"
 "C-x r y" = "yank-rectangle"
@@ -684,3 +685,21 @@ separator = "#3b4261"           # One-cell number/text separator.
 
 # Only "rust" and "plain" grammars exist. The rust ID defaults to "rust";
 # every other ID defaults to "plain". Language identity does not install a parser.
+
+# Native read-only bookmark list; these keys never edit the backing source.
+[keys.bookmark_list]
+"Down" = "next-line"
+"C-n" = "next-line"
+"n" = "next-line"
+"Up" = "previous-line"
+"C-p" = "previous-line"
+"p" = "previous-line"
+"RET" = "bookmark-bmenu-this-window"
+"d" = "bookmark-bmenu-delete"
+"u" = "bookmark-bmenu-unmark"
+"x" = "bookmark-bmenu-execute-deletions"
+"q" = "keyboard-quit"
+"C-g" = "keyboard-quit"
+"M-x" = "execute-extended-command"
+"C-x C-c" = "save-buffers-kill-terminal"
+"C-x o" = "other-window"

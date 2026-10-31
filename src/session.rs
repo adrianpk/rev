@@ -89,6 +89,7 @@ pub enum Action {
 pub struct Session {
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
+    bookmark_list: Option<bookmarks::List>,
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
@@ -274,6 +275,7 @@ impl Session {
         Ok(Self {
             bookmark_visit: None,
             bookmark_storage,
+            bookmark_list: None,
             buffers,
             org: org::Work::default(),
             capture: None,
@@ -491,7 +493,8 @@ impl Session {
         self.habit_frame(frame, composition)?;
         self.agenda_frame(frame, composition)?;
         self.query_frame(frame, composition)?;
-        self.agenda_results_frame(frame, composition)
+        self.agenda_results_frame(frame, composition)?;
+        self.bookmark_list_frame(frame, composition)
     }
 
     fn reveal_workspace(
@@ -558,6 +561,9 @@ impl Session {
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        if self.bookmark_list_active() && matches!(outcome, Outcome::Paste(_)) {
+            return self.message("Read-only bookmark list; q returns to source");
+        }
         match outcome {
             Outcome::Search(action) => self.search_action(action),
             Outcome::Command(command) => self.command_outcome(command),
@@ -573,6 +579,11 @@ impl Session {
     }
 
     fn input_feedback(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        if self.bookmark_list_active()
+            && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
+        {
+            return self.message("Read-only bookmark list; q returns to source");
+        }
         if (self.habit_agenda.is_some() || self.agenda_active())
             && matches!(outcome, Outcome::Pointer(_) | Outcome::Editing(_))
         {
@@ -606,7 +617,8 @@ impl Session {
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self
-            .source_edit_command(command)
+            .bookmark_list_command(command)
+            .or_else(|| self.source_edit_command(command))
             .or_else(|| self.capture_command(command))
             .or_else(|| self.execution_command(command))
             .or_else(|| self.feed_command(command))
@@ -734,6 +746,9 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.bookmark_list_active() {
+            return self.message("Read-only bookmark list; q returns to source");
+        }
         self.cancel_pointer_capture();
         if self.capture_blocks_input() {
             return self.message("Capture input pending; C-g cancels");
