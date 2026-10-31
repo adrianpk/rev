@@ -115,7 +115,7 @@ checks. Focused receipt `SP6SDUHTN66V4MVJPA2CCVBFHT` passed 12 owner tests,
 
 Acceptance: BMK01-BMK07 jointly.
 
-- [ ] T6.1: Add the bounded Bash/Rust native/PTY restart journey and resource measurements.
+- [x] T6.1: Add the bounded Bash/Rust native/PTY restart journey and resource measurements.
 - [ ] T6.2: Complete user guidance, focused text examples, changelog, sample/reference consistency and related gutter reconciliation.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 6 report.
 
