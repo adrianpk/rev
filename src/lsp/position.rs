@@ -16,10 +16,7 @@ pub fn encode(text: &Rope, scalar: usize, encoding: &Encoding) -> Result<Positio
     boundary(text, scalar)?;
     let row = text.char_to_line(scalar);
     let start = text.line_to_char(row);
-    let units = match encoding {
-        Encoding::Utf8 => text.char_to_byte(scalar) - text.line_to_byte(row),
-        Encoding::Utf16 => text.slice(start..scalar).chars().map(char::len_utf16).sum(),
-    };
+    let units = offset(text, scalar, encoding) - offset(text, start, encoding);
     Ok(Position {
         line: u32::try_from(row).map_err(|_| "LSP line overflow")?,
         character: u32::try_from(units).map_err(|_| "LSP column overflow")?,
@@ -33,20 +30,25 @@ pub fn decode(text: &Rope, position: Position, encoding: &Encoding) -> Result<us
     }
     let start = text.line_to_char(row);
     let end = line_end(text, row);
-    let mut units = 0;
-    for scalar in start..end {
-        if units == position.character as usize {
-            return Ok(scalar);
-        }
-        units += match encoding {
-            Encoding::Utf8 => text.char(scalar).len_utf8(),
-            Encoding::Utf16 => text.char(scalar).len_utf16(),
-        };
+    let target = offset(text, start, encoding)
+        .checked_add(position.character as usize)
+        .filter(|target| *target <= offset(text, end, encoding))
+        .ok_or("LSP column exceeds its line")?;
+    let scalar = match encoding {
+        Encoding::Utf8 => text.byte_to_char(target),
+        Encoding::Utf16 => text.utf16_cu_to_char(target),
+    };
+    if offset(text, scalar, encoding) != target {
+        return Err("LSP column splits an encoding unit".into());
     }
-    if units == position.character as usize {
-        Ok(end)
-    } else {
-        Err("LSP column splits an encoding unit or exceeds its line".into())
+    Ok(scalar)
+}
+
+// The rope index avoids rescanning a long line for every edit range endpoint.
+fn offset(text: &Rope, scalar: usize, encoding: &Encoding) -> usize {
+    match encoding {
+        Encoding::Utf8 => text.char_to_byte(scalar),
+        Encoding::Utf16 => text.char_to_utf16_cu(scalar),
     }
 }
 

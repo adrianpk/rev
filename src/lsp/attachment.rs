@@ -21,6 +21,7 @@ impl Client {
     /// Bind one canonical document, independent of how many views display it.
     /// Existing associations are checked without root IO or repeated snapshots.
     pub(crate) fn attach_buffer(&mut self, buffer: &mut Buffer, tree: Option<&Path>) -> Status {
+        self.selected_buffer = Some(buffer.id());
         if !self.enabled() {
             return Status::Disabled;
         }
@@ -145,7 +146,11 @@ impl Client {
             return Status::Excluded;
         }
         let Some(attachment) = self.attachments.get(&id) else {
-            return self.status();
+            return if self.selected_buffer == Some(id) {
+                self.status()
+            } else {
+                Status::Unavailable
+            };
         };
         if attachment.token.limited() {
             return Status::Limited;
@@ -182,6 +187,9 @@ impl Client {
     }
 
     pub(crate) fn closed(&mut self, id: BufferId) {
+        if self.selected_buffer == Some(id) {
+            self.selected_buffer = None;
+        }
         self.detach(id);
         self.excluded.remove(&id);
     }

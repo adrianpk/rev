@@ -203,7 +203,7 @@ containing tree bounds lookup and supplies the fallback; files outside that tree
 fall back to their own containing directory. Empty marker arrays use that directory.
 Canonical roots share a single process across file aliases. Queues retain at most
 64 messages and 16 MiB per direction; stderr retains a separate 64 KiB tail.
-The transport negotiates UTF-8/UTF-16 and full/incremental sync. Eligible visiting
+The transport negotiates UTF-8/UTF-16 and requires document open/close plus full or incremental sync to admit an unsaved document. Eligible visiting
 buffers publish unsaved text through didOpen/didChange and retire it through
 didClose; synchronization never saves a file. Successful saves send only the
 negotiated save notification. Wire columns count encoding units, with canonical

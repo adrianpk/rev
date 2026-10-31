@@ -39,9 +39,11 @@ Implementation: T1.1 `dc8b3428da348d5f259c69134b7a742739fe8785`; T1.2 `37dff9caf
 
 Acceptance: LSP02, LSP05-LSP06 and document ownership parts of LSP01.
 
-- [ ] T2.1: Implement didOpen/didChange/didClose and negotiated save notifications for full/incremental sync. Map UTF-8/UTF-16 using the original canonical transaction, synchronize unsaved text before requests and qualify protocol versions by connection/document generation.
-- [ ] T2.2: Implement current-buffer disconnect/connect across views, exclusion generation, reactivation/close behavior and normal automatic attachment. Retire document work without disrupting other attachments; preserve native completion when excluded or over limits.
+- [x] T2.1: Implement didOpen/didChange/didClose and negotiated save notifications for full/incremental sync. Map UTF-8/UTF-16 using the original canonical transaction, synchronize unsaved text before requests and qualify protocol versions by connection/document generation.
+- [x] T2.2: Implement current-buffer disconnect/connect across views, exclusion generation, reactivation/close behavior and normal automatic attachment. Retire document work without disrupting other attachments; preserve native completion when excluded or over limits.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Implementation: T2.1 `7049f12fb921e55d832fc1d266138189c0274c5c`; T2.2 is the Slice 2 report-introduction commit. Canonical PR: pending. Integration remains controller-owned.
 
 ## Slice 3: Semantic candidates and native fallback
 

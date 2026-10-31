@@ -211,12 +211,16 @@ fn buffer_exceptions() {
     assert_eq!(synchronized(&session), version);
     session.execute(Command::Split(Split::Right));
     assert_eq!(synchronized(&session), version);
+    session.load(&second).unwrap();
+    let other = synchronized(&session);
+    session.load(&first).unwrap();
+    assert_eq!(synchronized(&session), version);
     session.execute(Command::Lsp(LspCommand::Disconnect));
     assert_eq!(session.lsp_status(), Status::Excluded);
     session.execute(Command::Window(WindowCommand::Other));
     assert_eq!(session.lsp_status(), Status::Excluded);
     session.load(&second).unwrap();
-    let other = synchronized(&session);
+    assert_eq!(synchronized(&session), other);
     session.load(&first).unwrap();
     assert_eq!(session.lsp_status(), Status::Excluded);
     session.replace(0..0, "// native\n").unwrap();
@@ -407,4 +411,18 @@ fn last_buffer_shutdown() {
     let second = synchronized(&session);
     assert_ne!(second.connection, first.connection);
     assert_ne!(second.generation, first.generation);
+}
+
+// A ready shared transport is not synchronization or eligibility evidence for
+// an unrelated canonical buffer that has never attached to that connection.
+#[test]
+fn unattached_status() {
+    let fixture = Fixture::new();
+    let file = fixture.write("main.rs", "");
+    let mut client = Client::new(policy(&fixture, "ready"));
+    client.activate(&file, "rust", None);
+    assert!(matches!(wait(&client), Status::Ready(_)));
+    let buffers = Buffers::new().unwrap();
+    assert_eq!(client.buffer_status(buffers.initial()), Status::Unavailable);
+    assert!(client.document_version(buffers.initial()).is_none());
 }
