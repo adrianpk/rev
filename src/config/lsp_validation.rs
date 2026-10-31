@@ -131,13 +131,13 @@ fn markers(name: &str, values: &[String]) -> Result<(), Failure> {
 }
 
 fn json_data(name: &str, leaf: &str, value: &toml::Value) -> Result<(), Failure> {
-    if let toml::Value::Float(value) = value {
-        if !value.is_finite() {
-            return Err(failure(
-                &["lsp", "servers", name, leaf],
-                "JSON data must be finite",
-            ));
-        }
+    if let toml::Value::Float(value) = value
+        && !value.is_finite()
+    {
+        return Err(failure(
+            &["lsp", "servers", name, leaf],
+            "JSON data must be finite",
+        ));
     }
     match value {
         toml::Value::Table(table) => table.values().try_for_each(|v| json_data(name, leaf, v)),

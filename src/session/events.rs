@@ -35,6 +35,7 @@ impl Session {
             self.input.remaining(now),
             self.completion_work.remaining(now),
             self.assets_remaining(),
+            self.lsp_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
@@ -94,10 +95,14 @@ impl Session {
 
     /// Expire Escape before dispatch; pointer deadlines wait until input is drained.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Action {
-        match self.defer_layout_event(event, now) {
+        let action = match self.defer_layout_event(event, now) {
             Ok(event) => self.handle_ready_at(event, now),
             Err(action) => action,
+        };
+        if action != Action::Exit {
+            self.activate_lsp();
         }
+        action
     }
 
     pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
@@ -154,6 +159,7 @@ impl Session {
             },
             self.expire_org(now),
             self.expire_assets(),
+            self.expire_lsp(),
             self.expire_completion(now),
             self.expire_pointer(now),
             self.expire_timer(now),

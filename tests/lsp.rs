@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "lsp/controls.rs"]
+mod controls;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 

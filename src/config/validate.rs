@@ -40,8 +40,7 @@ impl Failure {
 pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
-    completion_retention(document)?;
-    super::lsp_validation::validate(&document.lsp, false)?;
+    completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;
     layout(document)?;
@@ -49,6 +48,11 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     languages(document)?;
     associations(&document.files.associations)?;
     bindings(&document.keys)
+}
+
+fn completion_and_lsp(document: &Document) -> Result<(), Failure> {
+    completion_retention(document)?;
+    super::lsp_validation::validate(&document.lsp, false)
 }
 
 fn editing(document: &Document) -> Result<(), Failure> {

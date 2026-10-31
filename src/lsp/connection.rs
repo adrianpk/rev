@@ -153,7 +153,7 @@ impl Supervisor {
                 self.timeout()?;
                 return Ok(true);
             }
-            Event::Message(message) => self.message(message, output, root)?,
+            Event::Message(message) => self.message(*message, output, root)?,
         }
         Ok(false)
     }

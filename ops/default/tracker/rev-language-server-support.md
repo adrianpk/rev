@@ -1,6 +1,6 @@
 # Optional Language Server Support Tracker
 
-Status: Approved
+Status: In progress
 Date: 2026-10-31
 Delivery set: rev-language-server-support
 Slice strategy: behavior-first
@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: none; queued after rev-autocompletion closure; next is Slice 1 — Optional owned server transport
+Active slice: Slice 1 — Optional owned server transport; preparing canonical PR
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -29,9 +29,11 @@ Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 Acceptance: LSP01-LSP02 transport/launch layer and LSP04-LSP05 configuration/root contracts.
 
-- [ ] T1.1: Implement the disabled-by-default stdio client, typed JSON framing/initialization and finite worker queues/deadlines. Launch argv without a shell and share connections by server configuration plus canonical root; no server process or polling when disabled.
-- [ ] T1.2: Add the declared server/root/lifetime settings, installed Rust default, root-marker policy and truthful native status/activation controls. Create tests/lsp.rs with a bounded local process fixture for framing, initialization and unavailable prerequisites; expose only working commands.
+- [x] T1.1: Implement the disabled-by-default stdio client, typed JSON framing/initialization and finite worker queues/deadlines. Launch argv without a shell and share connections by server configuration plus canonical root; no server process or polling when disabled.
+- [x] T1.2: Add the declared server/root/lifetime settings, installed Rust default, root-marker policy and truthful native status/activation controls. Create tests/lsp.rs with a bounded local process fixture for framing, initialization and unavailable prerequisites; expose only working commands.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Implementation: T1.1 `dc8b3428da348d5f259c69134b7a742739fe8785`; T1.2 is the Slice 1 report-introduction commit. Canonical PR: pending. Integration remains controller-owned.
 
 ## Slice 2: Versioned documents and buffer eligibility
 

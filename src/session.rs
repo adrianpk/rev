@@ -8,6 +8,7 @@ mod bookmarks;
 mod buffers;
 mod capture;
 mod completion;
+mod lsp;
 pub use crate::completion::{Candidate, Completion};
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
@@ -90,6 +91,8 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    lsp: crate::lsp::Client,
+    lsp_buffer: Option<BufferId>,
     completion: Option<Completion>,
     completion_generation: u64,
     completion_request: Option<u64>,
@@ -235,6 +238,7 @@ impl Session {
     pub fn run_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         let result = self.drive_terminal(terminal);
         self.end_timer_session();
+        self.lsp.set_enabled(false);
         result
     }
     fn drive_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
@@ -264,6 +268,7 @@ impl Session {
             .present()
             .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         session.prepare_bookmark_markers();
+        session.activate_lsp();
         Ok(session)
     }
 
@@ -284,7 +289,10 @@ impl Session {
             buffers.snapshot().settings().bookmarks.file.clone(),
         );
         let completion_policy = buffers.snapshot().settings().completion.clone();
+        let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
         Ok(Self {
+            lsp,
+            lsp_buffer: None,
             completion_policy,
             completion: None,
             completion_generation: 0,
@@ -650,7 +658,9 @@ impl Session {
         if let Some(action) = self.defer_layout_command(command) {
             return action;
         }
-        self.execute_now(command)
+        let action = self.execute_now(command);
+        self.activate_lsp();
+        action
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
@@ -689,7 +699,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = match self
-            .query_view_command(command)
+            .lsp_command(command)
+            .or_else(|| self.query_view_command(command))
             .or_else(|| self.agenda_view_command(command))
             .or_else(|| self.habit_command(command))
         {

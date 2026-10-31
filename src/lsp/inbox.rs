@@ -23,7 +23,7 @@ pub(super) struct Inbox {
 }
 
 pub(super) enum Event {
-    Message(Message),
+    Message(Box<Message>),
     Failed(String),
     Stop,
     Timeout,
@@ -73,7 +73,7 @@ impl Inbox {
         match state.messages.pop_front() {
             Some((message, bytes)) => {
                 state.bytes -= bytes;
-                Event::Message(message)
+                Event::Message(Box::new(message))
             }
             None => Event::Timeout,
         }

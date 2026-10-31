@@ -22,6 +22,8 @@ mod include_bounds;
 mod includes;
 #[path = "configuration/keymaps.rs"]
 mod keymaps;
+#[path = "configuration/lsp.rs"]
+mod lsp;
 #[path = "configuration/merging.rs"]
 mod merging;
 #[path = "configuration/mouse.rs"]

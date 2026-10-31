@@ -5,6 +5,7 @@ mod completion;
 mod gutter;
 mod kill;
 mod linear;
+mod lsp;
 mod motion;
 mod org;
 pub use org::OrgCommand;
@@ -25,6 +26,7 @@ pub use completion::CompletionCommand;
 pub use gutter::GutterCommand;
 pub use kill::KillCommand;
 pub use linear::LinearCommand;
+pub use lsp::LspCommand;
 pub use motion::Motion;
 pub use rectangle::RectangleCommand;
 pub use region::RegionCommand;
@@ -35,6 +37,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Lsp(LspCommand),
     Completion(CompletionCommand),
     Bookmark(BookmarkCommand),
     Tree(TreeCommand),
@@ -71,7 +74,9 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 326] = [
+    pub const ALL: [Self; 328] = [
+        Self::Lsp(LspCommand::Mode),
+        Self::Lsp(LspCommand::Status),
         Self::Completion(CompletionCommand::AtPoint),
         Self::Completion(CompletionCommand::Mode),
         Self::Completion(CompletionCommand::AutoMode),
@@ -438,6 +443,7 @@ impl Command {
 
     fn search_name(self) -> &'static str {
         match self {
+            Self::Lsp(command) => command.name(),
             Self::Completion(command) => command.name(),
             Self::Region(command) => command.name(),
             Self::Tree(command) => command.name(),
