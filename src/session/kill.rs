@@ -25,12 +25,15 @@ impl Session {
         if !matches!(result, Ok(true)) {
             self.kills.break_chain();
         }
-        self.finish(result)
+        match result {
+            Ok(changed) => self.finish(Ok(changed)),
+            Err(error) => self.error(&error.to_string()),
+        }
     }
 
-    fn kill(&mut self, command: KillCommand) -> Result<bool, Error> {
+    fn kill(&mut self, command: KillCommand) -> Result<bool, crate::view::Error> {
         let source = self.kill_span(command)?;
-        self.kill_source(source, command == KillCommand::BackwardWord)
+        Ok(self.kill_source(source, command == KillCommand::BackwardWord)?)
     }
 
     pub(super) fn kill_source(&mut self, source: Span, backward: bool) -> Result<bool, Error> {
@@ -47,10 +50,15 @@ impl Session {
         Ok(true)
     }
 
-    fn kill_span(&self, command: KillCommand) -> Result<Span, Error> {
+    fn kill_span(&self, command: KillCommand) -> Result<Span, crate::view::Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
-        let range = command.range(&coordinates, self.windows.selected().point.position)?;
+        let width = self.view().text_width(buffer, self.pane_size())?;
+        let range = if command == KillCommand::Line && buffer.soft_wrap() && width > 0 {
+            self.view().visual_kill(buffer, width)?
+        } else {
+            command.range(&coordinates, self.windows.selected().point.position)?
+        };
         Ok(buffer.span(range)?)
     }
 }

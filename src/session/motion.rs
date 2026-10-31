@@ -22,7 +22,17 @@ impl Session {
             candidate.recenter(buffer, size)?;
         } else {
             let overlap = self.buffers.snapshot().settings().scroll.page_overlap;
-            candidate.scroll(buffer, scroll, distance(scroll, size, overlap))?;
+            let width = candidate.text_width(buffer, size)?;
+            if buffer.soft_wrap() && width > 0 {
+                candidate.visual_scroll(
+                    buffer,
+                    width,
+                    scroll.backward(),
+                    distance(scroll, size, overlap),
+                )?;
+            } else {
+                candidate.scroll(buffer, scroll, distance(scroll, size, overlap))?;
+            }
         }
         candidate.reveal(buffer, self.pane_size())?;
         *self.windows.selected_mut() = candidate;
@@ -42,7 +52,16 @@ impl Session {
             .get(self.windows.selected().point.stamp.buffer)?;
         self.windows.selected().cell(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
-        let target = motion.target(&coordinates, self.view().point.position)?;
+        let width = self.view().text_width(buffer, self.pane_size())?;
+        let target = if buffer.soft_wrap()
+            && width > 0
+            && matches!(motion, Motion::LineStart | Motion::LineEnd)
+        {
+            self.view()
+                .visual_boundary(buffer, width, motion == Motion::LineEnd)?
+        } else {
+            motion.target(&coordinates, self.view().point.position)?
+        };
         self.place_point(crate::buffer::edit::Point {
             position: target,
             ..self.view().point

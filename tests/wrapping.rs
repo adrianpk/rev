@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "wrapping/visual.rs"]
+mod visual;
 
 use rev::buffer::Buffers;
 use rev::coordinates::Scalar;

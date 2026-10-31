@@ -29,7 +29,7 @@ impl Fragment {
 
 /// Streaming one-line layout retains at most one pane-width of lookahead.
 /// Word fallback never consumes part of a grapheme, even in a one-cell pane.
-struct Line<'a> {
+pub(super) struct Line<'a> {
     stamp: Stamp,
     glyphs: std::iter::Peekable<Glyphs<'a>>,
     pending: VecDeque<Glyph<'a>>,
@@ -41,7 +41,7 @@ struct Line<'a> {
 }
 
 impl<'a> Line<'a> {
-    fn new(buffer: &'a Buffer, line: usize, width: u16) -> Result<Self, Error> {
+    pub(super) fn new(buffer: &'a Buffer, line: usize, width: u16) -> Result<Self, Error> {
         let coordinates = Coordinates::new(buffer)?;
         Ok(Self {
             stamp: buffer.stamp(),
@@ -58,7 +58,7 @@ impl<'a> Line<'a> {
         })
     }
 
-    fn next(&mut self) -> Result<Option<Fragment>, Error> {
+    pub(super) fn next(&mut self) -> Result<Option<Fragment>, Error> {
         if self.done {
             return Ok(None);
         }

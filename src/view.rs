@@ -3,6 +3,7 @@ mod hit;
 pub use fold::FoldError;
 mod scroll;
 mod visibility;
+mod visual;
 mod wrap;
 pub use wrap::Fragment;
 
