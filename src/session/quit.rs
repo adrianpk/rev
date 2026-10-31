@@ -31,8 +31,7 @@ impl Session {
 
     fn ask_quit(&mut self, mut quit: Quit) -> Action {
         let Some(id) = quit.buffers.front() else {
-            self.end_timer_session();
-            return Action::Exit;
+            return self.finish_bookmark_quit();
         };
         let buffer = match self.buffers.get(*id) {
             Ok(buffer) => buffer,
@@ -88,6 +87,7 @@ impl Session {
             self.pending,
             Some(
                 Pending::Quit(_)
+                    | Pending::BookmarkQuit
                     | Pending::Write {
                         after: AfterSave::Quit(_),
                         ..

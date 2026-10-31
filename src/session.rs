@@ -158,6 +158,8 @@ enum AfterSave {
 
 enum Pending {
     Bookmark(bookmarks::Prompt),
+    BookmarkReload(Box<bookmarks::Reload>),
+    BookmarkQuit,
     Tangle(tangling::Prompt),
     Execution(execution::Prompt),
     Feed(feeds::Prompt),

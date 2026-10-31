@@ -83,7 +83,7 @@ compiled M-x name once.
 | Mouse | `mouse-mode` |
 | Source wrapping | `visual-line-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
-| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete` |
+| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
@@ -185,8 +185,8 @@ policy and row limit. Up/Down or C-p/C-n selects a candidate; Tab fills the
 highlighted name without accepting it. Return accepts an explicitly selected
 candidate or the exact typed name. The initial highlight alone does not select
 a name. C-g cancels; errors retain the draft for correction. Names are shared
-across this session's files, with at most 1024 records and 4096 encoded path
-bytes per record. Reaching the limit never evicts another name.
+across files, with a configurable cap of 1024 records by default and 4096
+encoded path bytes per record. Reaching the limit never evicts another name.
 
 Modified, read-only and intended new file buffers are eligible. Unnamed and
 synthetic buffers cannot supply a bookmark. Commands do not save source text,
@@ -194,7 +194,7 @@ change its modified flag, or add source undo steps. Aliases reuse the canonical
 live file buffer, including unsaved text, and visiting a bookmark preserves an
 explicit file-tree root. Rectangle bindings under C-x r remain available.
 
-The current collection lasts for this session. Live positions follow canonical
+The user-wide collection loads lazily on first bookmark use. Live positions follow canonical
 edits, structural moves and source undo/redo. Insertions at the point use left
 affinity. Removing the original position makes it stale; source undo can restore
 it, or an explicit set can replace it. Undo does not recreate deleted names or
@@ -213,3 +213,34 @@ Discarded text is never recreated for a bookmark. Successful file or directory
 rename updates associated records, including closed targets; save-as follows
 the canonical buffer destination. Jumps reveal folded ancestors and wrapped
 fragments in the selected view without changing other splits' fold state.
+
+`M-x bookmark-save` stores the collection without saving any source document.
+By default, quitting saves bookmarks after all source save/discard decisions.
+Set `bookmarks.save = "on-change"` to checkpoint explicit set/delete operations,
+rename and source-save boundaries; text edits only dirty evidence for the next
+checkpoint. `"manual"` saves only on explicit request and leaves unsaved bookmark
+changes unsaved on ordinary quit. A failed automatic quit checkpoint offers
+`retry`, `discard` or `cancel` in a name prompt; C-g also cancels. Discard permits
+that exit without changing source text or pretending the collection was stored.
+
+`M-x bookmark-reload` validates disk before offering to discard dirty in-memory
+bookmarks. No or C-g retains both states; yes rechecks disk before replacement.
+The default destination is the existing XDG user data root's `bookmarks.toml`;
+`bookmarks.file` can select an absolute destination. Storage is independent of
+launch directory and tree root. Embedded library sessions retain host ownership
+and use persistence only with an explicit configured destination.
+
+The strict version-1 TOML stores names, lossless native paths, scalar positions
+and bounded before/after context in lexical name order. Unknown fields/versions,
+duplicate names, malformed evidence, unreadable files, more than the configured
+entry cap or more than 16 MiB reject the complete candidate. Invalid stores and
+unsaved memory are retained; native in-memory operations remain available.
+After correcting storage, explicitly reload before replacing an unknown store.
+
+A nonblocking sibling file lock serializes cooperating writers. Saves compare
+exact observed identity and bytes, stage and sync in the same directory, then
+atomically replace and verify publication. A conflicting or busy store requires
+retry or explicit reload; explicit save alone never authorizes an overwrite.
+A failure after publication remains unresolved until actual candidate bytes
+and sync completion reconcile. Newly owned data directories/files are private
+to the user. The stable sibling lock file may remain after the OS lock releases.

@@ -1,7 +1,8 @@
 mod navigation;
 mod persistence;
+mod quit;
 pub(super) use navigation::Navigation;
-pub(super) use persistence::Persistence;
+pub(super) use persistence::{Persistence, Reload};
 
 use crate::bookmark::Bookmarks;
 use crate::buffer::edit::Point;
@@ -24,6 +25,16 @@ impl Session {
     }
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
+        match command {
+            BookmarkCommand::Save => {
+                return match self.save_bookmarks() {
+                    Ok(()) => self.message("Bookmarks saved"),
+                    Err(error) => self.error(&error),
+                };
+            }
+            BookmarkCommand::Reload => return self.reload_bookmarks(),
+            _ => {}
+        }
         let notice = self.ensure_bookmarks().err().unwrap_or_default();
         let point = self.view().point;
         let setting = matches!(
@@ -73,6 +84,9 @@ impl Session {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Set bookmark: ".into(),
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
+            BookmarkCommand::Save | BookmarkCommand::Reload => {
+                unreachable!("storage commands have no name argument")
+            }
         };
         let names = self
             .buffers
@@ -109,12 +123,16 @@ impl Session {
             }
             BookmarkCommand::Jump => unreachable!("jump owns its cancellable navigation"),
             BookmarkCommand::Delete => self.buffers.bookmarks_mut().delete(name),
+            BookmarkCommand::Save | BookmarkCommand::Reload => {
+                unreachable!("storage commands have no name argument")
+            }
         };
         match result {
-            Ok(()) => self.message(match prompt.command {
+            Ok(()) => self.bookmark_change_message(match prompt.command {
                 BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => "Bookmark set",
                 BookmarkCommand::Jump => "Bookmark destination",
                 BookmarkCommand::Delete => "Bookmark deleted",
+                BookmarkCommand::Save | BookmarkCommand::Reload => unreachable!("storage command"),
             }),
             Err(error) => self.bookmark_prompt(prompt, draft, &error),
         }

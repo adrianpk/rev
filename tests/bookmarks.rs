@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "bookmarks/locations.rs"]
 mod locations;
+#[path = "bookmarks/persistence.rs"]
+mod persistence;
 #[path = "bookmarks/reopening.rs"]
 mod reopening;
 

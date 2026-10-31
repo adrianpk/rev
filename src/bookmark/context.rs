@@ -2,6 +2,7 @@ use crate::buffer::Buffer;
 use crate::coordinates::Scalar;
 
 pub const CONTEXT_CHARS: usize = 64;
+#[cfg(test)]
 pub const SEARCH_CHARS: usize = 262144;
 pub const SEARCH_BATCH: usize = 16384;
 
@@ -16,6 +17,7 @@ pub struct Context {
 }
 
 impl Context {
+    #[cfg(test)]
     pub(crate) fn capture(buffer: &Buffer, position: Scalar) -> Result<Self, crate::buffer::Error> {
         Self::capture_with(buffer, position, CONTEXT_CHARS)
     }

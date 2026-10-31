@@ -79,6 +79,17 @@ capacity = 32
 # Boolean; join consecutive compatible directional kills into one entry.
 coalesce = true
 
+[bookmarks]
+# Unset file uses $XDG_DATA_HOME/rev/bookmarks.toml (HOME fallback .local/share/rev).
+# Optional absolute destination; no shell expansion or startup source visits.
+# file = "/home/user/.local/share/rev/bookmarks.toml"
+# "on-exit", "on-change" or "manual"; none saves source documents.
+save = "on-exit"
+max_entries = 1024 # 1..4096; excess rejects without eviction.
+context_chars = 64 # 16..256 Unicode scalars per side at each checkpoint.
+search_chars = 262144 # 0..1048576 total search scalars; zero disables relocation.
+# M-x bookmark-save and bookmark-reload are available without factory bindings.
+
 [tree]
 # Boolean; initial visibility. Tiny/narrow terminals can hide the pane.
 visible = false

@@ -44,7 +44,8 @@ impl Session {
             if matches!(
                 self.pending,
                 Some(
-                    Pending::AgendaSources
+                    Pending::BookmarkReload(_)
+                        | Pending::AgendaSources
                         | Pending::AgendaQuery(_)
                         | Pending::AgendaCustom(_)
                         | Pending::AgendaBulk(_)

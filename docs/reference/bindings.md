@@ -74,6 +74,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x r M` | `bookmark-set-no-overwrite` | Name the current position without replacement. |
 | `C-x r b` | `bookmark-jump` | Complete a name and visit its checked location. |
 | `M-x bookmark-delete` | `bookmark-delete` | Complete a name and remove that bookmark. |
+| `M-x bookmark-save` | `bookmark-save` | Checkpoint the user collection without saving sources. |
+| `M-x bookmark-reload` | `bookmark-reload` | Validate disk and confirm replacing unsaved bookmarks. |
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain selected rectangle rows. |
 | `C-x r k` | `kill-rectangle` | Remove and retain the rectangle as one edit. |
 | `C-x r y` | `yank-rectangle` | Insert retained rows with required padding. |

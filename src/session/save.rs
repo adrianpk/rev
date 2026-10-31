@@ -62,6 +62,9 @@ impl Session {
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
             Some(Pending::Quit(quit)) => self.quit_answer(quit, accepted),
+            Some(Pending::BookmarkReload(candidate)) => {
+                self.bookmark_reload_answer(*candidate, accepted)
+            }
             Some(Pending::TreeDelete(deletion)) => self.delete_answer(deletion, accepted),
             Some(Pending::Replace(state)) => self.replace_answer(*state, accepted),
             Some(Pending::Kill { kill, .. }) => {
@@ -107,7 +110,22 @@ impl Session {
         {
             return self.error(&format!("Source saved; {error}"));
         }
+        let bookmark_error = if outcome.is_complete()
+            && !matches!(&after, AfterSave::Quit(_))
+            && self.buffers.snapshot().settings().bookmarks.save
+                == crate::config::BookmarkSave::OnChange
+            && self.bookmarks().is_dirty()
+        {
+            self.save_bookmarks().err()
+        } else {
+            None
+        };
         let action = self.after_saved(outcome, after);
+        if let Some(error) = bookmark_error {
+            self.echo
+                .push_str(&format!("; {error}; bookmark changes remain unsaved"));
+            self.echo_kind = crate::display::Message::Warning;
+        }
         if let Err(error) = refreshed {
             self.echo
                 .push_str(&format!("; tree refresh failed: {error}"));

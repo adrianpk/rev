@@ -4,6 +4,8 @@ mod org_export;
 
 #[path = "configuration/associations.rs"]
 mod associations;
+#[path = "configuration/bookmarks.rs"]
+mod bookmarks;
 #[path = "configuration/boundaries.rs"]
 mod boundaries;
 #[path = "configuration/candidate.rs"]

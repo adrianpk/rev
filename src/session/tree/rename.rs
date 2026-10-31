@@ -43,6 +43,14 @@ impl Session {
             severity = crate::display::Message::Warning;
             notice.push_str(&format!("; tree refresh failed: {error}"));
         }
+        if self.buffers.snapshot().settings().bookmarks.save
+            == crate::config::BookmarkSave::OnChange
+            && self.bookmarks().is_dirty()
+            && let Err(error) = self.save_bookmarks()
+        {
+            severity = crate::display::Message::Warning;
+            notice.push_str(&format!("; {error}; bookmark changes remain unsaved"));
+        }
         let action = self.message(&notice);
         self.echo_kind = severity;
         action

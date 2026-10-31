@@ -4,6 +4,8 @@ pub enum BookmarkCommand {
     SetNoOverwrite,
     Jump,
     Delete,
+    Save,
+    Reload,
 }
 
 impl BookmarkCommand {
@@ -13,6 +15,8 @@ impl BookmarkCommand {
             Self::SetNoOverwrite => "bookmark-set-no-overwrite",
             Self::Jump => "bookmark-jump",
             Self::Delete => "bookmark-delete",
+            Self::Save => "bookmark-save",
+            Self::Reload => "bookmark-reload",
         }
     }
 }

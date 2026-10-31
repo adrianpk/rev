@@ -332,3 +332,54 @@ fn process_writer() {
     }
     drop(lock);
 }
+
+// Real filesystem denials reject admission/publication without overwriting
+// protected bytes. Over-limit output also rejects the whole candidate.
+#[test]
+fn permission_and_size() {
+    use std::os::unix::ffi::OsStringExt;
+    use std::os::unix::fs::PermissionsExt;
+    let f = Fixture::new();
+    let (mut store, _) = Store::open(&f.path(), MAX_ENTRIES).unwrap();
+    store.write(&collection("original")).unwrap();
+    let original = fs::read(f.path()).unwrap();
+    fs::set_permissions(f.path(), fs::Permissions::from_mode(0o0)).unwrap();
+    assert!(Store::open(&f.path(), MAX_ENTRIES).is_err());
+    assert!(store.write(&collection("denied")).is_err());
+    fs::set_permissions(f.path(), fs::Permissions::from_mode(0o600)).unwrap();
+    assert_eq!(fs::read(f.path()).unwrap(), original);
+    fs::set_permissions(f.path(), fs::Permissions::from_mode(0o400)).unwrap();
+    let (mut readonly, _) = Store::open(&f.path(), MAX_ENTRIES).unwrap();
+    assert!(
+        readonly
+            .write(&collection("readonly"))
+            .unwrap_err()
+            .contains("not writable")
+    );
+    assert_eq!(fs::read(f.path()).unwrap(), original);
+    fs::set_permissions(f.path(), fs::Permissions::from_mode(0o640)).unwrap();
+    let (mut permitted, _) = Store::open(&f.path(), MAX_ENTRIES).unwrap();
+    permitted.write(&collection("original")).unwrap();
+    assert_eq!(
+        fs::metadata(f.path()).unwrap().permissions().mode() & 0o777,
+        0o640
+    );
+    // Permission changes themselves invalidate the previously loaded observation.
+    let (mut store, _) = Store::open(&f.path(), MAX_ENTRIES).unwrap();
+    let mut records = collection("large");
+    records.max_entries = 4096;
+    let base = records.iter().next().unwrap().clone();
+    let mut native = vec![b'/'];
+    native.extend(std::iter::repeat_n(255, 4095));
+    let path = PathBuf::from(std::ffi::OsString::from_vec(native));
+    for index in 0..1024 {
+        let name = format!("large-{index:04}");
+        let mut record = base.clone();
+        record.name = name.clone();
+        record.path = path.clone();
+        records.entries.insert(name, record);
+    }
+    assert!(store.write(&records).unwrap_err().contains("16 MiB"));
+    assert_eq!(fs::read(f.path()).unwrap(), original);
+    assert!(records.is_dirty());
+}

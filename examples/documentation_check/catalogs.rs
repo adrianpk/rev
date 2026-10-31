@@ -129,6 +129,16 @@ fn check_default(sample: &toml::Value, key: &str, row: &[String; 3]) -> Result<(
             format!("{key}: inherited language default required"),
         );
     }
+    if key == "bookmarks.file" {
+        return require(
+            row[1] == "Unset"
+                && sample
+                    .get("bookmarks")
+                    .and_then(|value| value.get("file"))
+                    .is_none(),
+            "bookmarks.file: default must remain unset in the sample",
+        );
+    }
     let actual = value_at(sample, key)?;
     if key.starts_with("keys.") {
         let count = actual.as_table().ok_or("keymap must be a table")?.len();
@@ -155,6 +165,7 @@ fn models(root: &Path) -> Result<Models> {
     for name in [
         "src/config.rs",
         "src/config/palette.rs",
+        "src/config/bookmarks.rs",
         "src/config/export.rs",
         "src/config/publishing.rs",
         "src/config/source.rs",

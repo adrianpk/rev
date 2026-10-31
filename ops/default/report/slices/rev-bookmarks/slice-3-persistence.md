@@ -25,7 +25,17 @@ library file lock. It stages, syncs and atomically replaces in the destination
 directory through the existing concrete Output boundary. Publication failures
 retain memory and old disk; failures after rename retain an unresolved outcome
 that can only reconcile matching actual candidate bytes. Newly created data
-directories and files use user-only permissions.
+directories and files use user-only permissions. Existing store modes are
+preserved, and a read-only target cannot be bypassed through inode replacement.
+
+`bookmark-save` checkpoints in every mode without saving source text.
+`bookmark-reload` validates a complete fresh candidate, confirms replacement of
+dirty memory and rechecks disk after confirmation. Cancel, malformed input and
+concurrent changes retain both states. Default on-exit saves follow all source
+save/discard decisions. On-change saves explicit mutations and source-save or
+rename checkpoints; text edits only dirty evidence. Manual quit leaves pending
+changes unsaved. Quit-time failure offers retry, discard or cancel while
+retaining all live unsaved source and bookmark state.
 
 ## Implementation Notes
 
@@ -40,4 +50,35 @@ Typed startup settings merge by leaf and reject invalid paths, modes or limits.
 Development check: `cargo test --locked --lib bookmark::store -- --nocapture`
 passed five store tests, including two real writer processes, a separate held
 interprocess lock, strict admission, native path round trips and staged versus
-post-publication faults. Final exact-HEAD controller receipts are pending.
+post-publication faults. Later development checks added permission and output
+size coverage, twelve native persistence journeys and two configuration tests.
+The documentation checker passed 311 commands, 185 configuration entries,
+58 reachable pages and 331 local links/anchors.
+
+The controller records final receipts outside the repository for this exact
+ordered required list after the PR-reference follow-up commits:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test bookmarks --test files --test recovery --test configuration --test commands`
+3. `git diff --check`
+
+A separate controller batch checks `cargo test --locked --lib`,
+`cargo clippy --locked --all-targets -- -D warnings` and
+`cargo run --locked --quiet --example documentation-check` on that same final
+candidate before the required batch. Handoff requires both batches to pass.
+
+## Task Commits
+
+T3.1: `88dc724e94764feb7be93fd59f18edca1167b540` introduces checked storage,
+lazy admission, typed settings and real writer/failure tests. T3.2 supplies the
+native policy continuations, commands, configuration coverage and reference
+catalog/sample updates. Full task references are recorded in the tracker.
+
+## Risks and Follow-ups
+
+The file lock serializes cooperating instances; arbitrary external writers can
+still race and are handled by checked observations and explicit uncertainty.
+Source fragments stored as context may describe unsaved text. Checked reopening
+never recreates discarded source content or claims historical identity from a
+context match. Listing and marker projection remain assigned to their recorded
+successor slices.

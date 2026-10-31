@@ -6,12 +6,12 @@ mod tests;
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
-use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
+use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 
 use super::{Bookmarks, Record, RecordId, Resolution};
 use crate::file::{Files, Observation, Output, observe, temporary::Temporary};
-use format::Stored;
+pub(crate) use format::Stored;
 
 const LIMIT: usize = 16 * 1024 * 1024;
 
@@ -80,9 +80,15 @@ impl Store {
         self.guard()?;
         let directory = File::open(&parent).map_err(|e| e.to_string())?;
         let mut temporary = Temporary::new(&parent).map_err(|e| e.to_string())?;
+        let mode = self
+            .expected
+            .observation
+            .as_ref()
+            .map_or(0o600, |file| file.mode & 0o777);
         let staged = temporary
             .file
-            .write_all(&bytes)
+            .set_permissions(fs::Permissions::from_mode(mode))
+            .and_then(|()| temporary.file.write_all(&bytes))
             .and_then(|()| output.flush(&mut temporary.file))
             .and_then(|()| output.sync_file(&temporary.file));
         if let Err(error) = staged {
@@ -141,12 +147,20 @@ impl Store {
             .map_err(|e| format!("Bookmark store is busy; retry: {e}"))?;
         Ok(file)
     }
-    fn guard(&self) -> Result<(), String> {
+    pub(crate) fn guard(&self) -> Result<(), String> {
         if read(&self.path)? != self.expected {
             return Err(
                 "Bookmark store changed externally; memory and disk retained; reload before saving"
                     .into(),
             );
+        }
+        if self.expected.observation.is_some() {
+            // Match ordinary source publication: directory write permission is
+            // not permission to bypass a read-only target by replacing its inode.
+            OpenOptions::new()
+                .write(true)
+                .open(&self.path)
+                .map_err(|e| format!("Bookmark store is not writable: {e}"))?;
         }
         Ok(())
     }

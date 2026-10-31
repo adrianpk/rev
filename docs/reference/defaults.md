@@ -202,6 +202,11 @@ change only that view's overrides and never reload or write this snapshot.
 | `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and a larger buffer uses plain presentation. |
 | `files.newline` | String: "lf" or "crlf" | `"lf"` | Creation default for new buffers only; existing separators and final-newline state are preserved. |
 | `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
+| `bookmarks.file` | Absolute native path string, no NUL | Unset | User-wide collection; unset resolves to `$XDG_DATA_HOME/rev/bookmarks.toml` or `$HOME/.local/share/rev/bookmarks.toml`. No shell expansion. |
+| `bookmarks.save` | String: "on-exit", "on-change" or "manual" | `"on-exit"` | Save after source quit decisions, after explicit bookmark mutations, or only on explicit save. Source edits dirty evidence without IO. |
+| `bookmarks.max_entries` | Integer 1..=4096 | `1024` | Admission cap for both memory and disk; excess rejects without eviction. |
+| `bookmarks.context_chars` | Integer 16..=256 | `64` | Source scalars captured on each side at a checked checkpoint. Existing stored context remains bounded to 256 per side. |
+| `bookmarks.search_chars` | Integer 0..=1048576 | `262144` | Total scalar search window on reopen; zero disables relocation. Each pass consumes at most 16384 scalars. |
 
 Indentation, tab display, syntax and retained history use each buffer's policy
 across shared windows. Startup source changes do not update existing or later
