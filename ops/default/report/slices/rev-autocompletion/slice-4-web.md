@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-04-web`
-PR: pending
+PR: [#198](https://forge.adrianpk.com/adrianpk/rev/pulls/198)
 
 ## Purpose
 
@@ -96,8 +96,23 @@ correction retains that assertion for fresh recorded validation.
 
 T4.1 is commit `7adec3f3b4beceb3789c49e4b136fe3b0d4afb03`.
 T4.2 is commit `e5d4eeba950799674a6e018183c4504da2917fc9`.
-Focused controller evidence is recorded before the PR-reference follow-up and
-fresh validation of the final clean PR head with this exact configured order:
+Focused controller receipt `THY6F2VMXIYQZAM2QBJCC3MJDM` passed at clean
+candidate `0c0277a12e4500fe51a75071ca151ca9bbaf4afa`:
+
+1. `cargo test --locked --lib completion`: 11 tests passed.
+2. `cargo test --locked --lib syntax::web`: one parser recovery test passed.
+3. `cargo test --locked --test completion web`: six web tests passed.
+4. `cargo test --locked --test files typescript_aliases`: one alias test passed.
+5. `cargo test --locked --test syntax preferences::grammar_policy`: one grammar policy test passed.
+6. `cargo clippy --locked --lib -- -D warnings`: passed.
+7. `cargo run --locked --quiet --example source-check -- --file src/buffer/policy.rs --file src/buffer/syntax.rs --file src/completion.rs --file src/completion/job.rs --file src/completion/context.rs --file src/completion/vocabulary.rs --file src/completion/target.rs --file src/config.rs --file src/config/resolve.rs --file src/config/associations.rs --file src/session/completion/sources.rs --file src/syntax.rs --file src/syntax/catalog.rs --file src/syntax/completion.rs --file src/syntax/scope.rs --file src/syntax/style.rs --file src/syntax/web.rs`: passed.
+8. `cargo run --locked --quiet --example documentation-check`: passed.
+9. `git diff --check`: passed.
+
+Documentation admitted 326 commands, 198 configuration entries, 60 reachable
+pages and 347 local links/anchors. Canonical PR #198 links the full immutable
+report-introduction commit. After this PR-reference follow-up, the controller
+records fresh validation for the final clean PR head with this configured order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test configuration --test files`
