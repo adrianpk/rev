@@ -70,6 +70,15 @@ impl Buffer {
             prepared.record.after,
             self.policy.tab_width,
         );
+        super::bookmarks::restore(
+            &mut prepared.record.after_bookmarks,
+            match direction {
+                History::Undo => &record.before_bookmarks,
+                History::Redo => &record.after_bookmarks,
+            },
+            &coordinates,
+        )?;
+        prepared.record.bytes = prepared.record.payload();
         prepared.record.after_mark = record.mark(direction);
         if let Some(mark) = prepared.record.after_mark {
             mapping::boundary(&coordinates, mark)?;

@@ -9,6 +9,7 @@ mod modified;
 pub(super) struct Piece {
     pub(super) before: Range<usize>,
     pub(super) after: Range<usize>,
+    pub(super) retained: bool,
 }
 
 /// Original source fragments and their final positions. Counter replacements
@@ -31,6 +32,7 @@ impl Permutation {
                 .checked_add(source.range.len())
                 .ok_or(Error::Capacity)?;
             pieces.push(Piece {
+                retained: true,
                 before: source.range.clone(),
                 after: start..end,
             });
@@ -55,6 +57,26 @@ impl Permutation {
             .get(index.checked_sub(1)?)
             .filter(|p| position.0 <= p.before.end)
             .map(|p| Scalar(p.after.start + position.0 - p.before.start))
+    }
+
+    /// Bookmarks follow only unchanged fragments, including the canonical EOF
+    /// insertion-boundary permutation. Rewritten counters are not retained text.
+    pub(super) fn bookmark(&self, position: Scalar) -> Option<Scalar> {
+        if !self.sparse
+            && self
+                .endpoints
+                .iter()
+                .flatten()
+                .any(|(before, _)| *before == position.0)
+        {
+            return Some(self.position(position));
+        }
+        if let Some(piece) = self.pieces.iter().find(|p| p.before.contains(&position.0)) {
+            return piece
+                .retained
+                .then(|| Scalar(piece.after.start + position.0 - piece.before.start));
+        }
+        (!self.sparse).then(|| self.position(position))
     }
 
     fn position(&self, position: Scalar) -> Scalar {

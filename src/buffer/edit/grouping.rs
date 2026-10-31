@@ -101,6 +101,7 @@ impl Transaction {
     fn same_context(&self, next: &Self) -> bool {
         self.after_state == next.before_state
             && self.after_points == next.before_points
+            && self.after_bookmarks == next.before_bookmarks
             && self.after_mark == next.before_mark
             && self.cursor == next.cursor
     }
@@ -116,7 +117,8 @@ impl Transaction {
         group.after_state = next.after_state;
         group.after_points = next.after_points.clone();
         group.after_mark = next.after_mark;
-        group.bytes = self.bytes.checked_add(next.bytes).ok_or(Error::Capacity)?;
+        group.after_bookmarks = next.after_bookmarks.clone();
+        group.bytes = group.payload();
         Ok(group)
     }
 }

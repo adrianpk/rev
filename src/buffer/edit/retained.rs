@@ -68,6 +68,7 @@ fn admit_run(
         return Err(Error::Order);
     }
     Ok(Piece {
+        retained: true,
         before: run.source.range.clone(),
         after: run.output.clone(),
     })

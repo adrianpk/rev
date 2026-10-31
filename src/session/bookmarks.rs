@@ -14,8 +14,8 @@ pub(super) struct Prompt {
 
 impl Session {
     /// Read-only observation of this session's canonical bookmark collection.
-    pub fn bookmarks(&self) -> &Bookmarks {
-        &self.bookmarks
+    pub fn bookmarks(&self) -> std::sync::MutexGuard<'_, Bookmarks> {
+        self.buffers.bookmarks()
     }
 
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
@@ -39,7 +39,7 @@ impl Session {
                 .unwrap_or("")
                 .to_owned()
         } else {
-            if self.bookmarks.is_empty() {
+            if self.buffers.bookmarks().is_empty() {
                 return self.message("No bookmarks in this session");
             }
             String::new()
@@ -64,14 +64,13 @@ impl Session {
             BookmarkCommand::Jump => "Jump to bookmark: ".into(),
             BookmarkCommand::Delete => "Delete bookmark: ".into(),
         };
-        if let Err(error) = self.input.names_argument(
-            &label,
-            draft,
-            self.bookmarks
-                .iter()
-                .map(|record| record.name().to_owned())
-                .collect(),
-        ) {
+        let names = self
+            .buffers
+            .bookmarks()
+            .iter()
+            .map(|record| record.name().to_owned())
+            .collect();
+        if let Err(error) = self.input.names_argument(&label, draft, names) {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Bookmark(prompt));
@@ -92,7 +91,7 @@ impl Session {
                 self.set_bookmark(name, prompt.command == BookmarkCommand::Set)
             }
             BookmarkCommand::Jump => self.visit_bookmark(name),
-            BookmarkCommand::Delete => self.bookmarks.delete(name),
+            BookmarkCommand::Delete => self.buffers.bookmarks().delete(name),
         };
         match result {
             Ok(()) => self.message(match prompt.command {
@@ -107,14 +106,15 @@ impl Session {
     fn set_bookmark(&mut self, name: &str, overwrite: bool) -> Result<(), String> {
         let point = self.view().point;
         let path = Bookmarks::target(self.buffer().map_err(|e| e.to_string())?, point)?;
-        self.bookmarks.set(name, path, point, overwrite)?;
+        self.buffers.bookmarks().set(name, path, point, overwrite)?;
         Ok(())
     }
 
     fn visit_bookmark(&mut self, name: &str) -> Result<(), String> {
         let record = self
-            .bookmarks
+            .bookmarks()
             .get(name)
+            .cloned()
             .ok_or("No bookmark with that name")?;
         let point = record.point();
         let visit = self
@@ -122,7 +122,9 @@ impl Session {
             .prepare_visit(record.path())
             .map_err(|e| e.to_string())?;
         let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
-        if buffer.stamp() != point.stamp {
+        if record.resolution() != crate::bookmark::Resolution::Resolved
+            || buffer.stamp() != point.stamp
+        {
             return Err("Bookmark target is stale; set it again at a current location".into());
         }
         let tree = self

@@ -78,7 +78,7 @@ impl Assembly {
                 return Err(Error::Order);
             }
             self.original(buffer, start..edit.source.range.start)?;
-            self.append(edit.source.range.clone(), &edit.text);
+            self.append(edit.source.range.clone(), &edit.text, false);
             start = edit.source.range.end;
         }
         self.original(buffer, start..source.range.end)
@@ -89,14 +89,18 @@ impl Assembly {
             return Ok(());
         }
         let source = buffer.span(range.clone())?;
-        self.append(range, &buffer.slice(&source)?.to_string());
+        self.append(range, &buffer.slice(&source)?.to_string(), true);
         Ok(())
     }
 
-    fn append(&mut self, before: std::ops::Range<usize>, text: &str) {
+    fn append(&mut self, before: std::ops::Range<usize>, text: &str, retained: bool) {
         let after = self.position..self.position + text.chars().count();
         self.position = after.end;
         self.text.push_str(text);
-        self.pieces.push(Piece { before, after });
+        self.pieces.push(Piece {
+            before,
+            after,
+            retained,
+        });
     }
 }

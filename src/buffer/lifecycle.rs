@@ -53,6 +53,7 @@ impl Buffers {
             self.files.remove(file.path());
         }
         if let Some(mut buffer) = fresh {
+            buffer.bookmarks = self.bookmarks.clone();
             buffer.name = "*scratch*".into();
             buffer.apply_settings(&self.settings);
             self.entries.insert(buffer.id(), buffer);

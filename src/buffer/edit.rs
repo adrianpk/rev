@@ -1,3 +1,4 @@
+mod bookmarks;
 mod grouping;
 mod history;
 mod mapping;
@@ -152,6 +153,8 @@ pub struct Transaction {
     pub before_state: State,
     pub after_state: State,
     changes: Vec<Change>,
+    before_bookmarks: Vec<crate::bookmark::Anchor>,
+    after_bookmarks: Vec<crate::bookmark::Anchor>,
     before_points: Vec<Point>,
     after_points: Vec<Point>,
     pub before_mark: Option<Scalar>,
@@ -271,6 +274,12 @@ impl Buffer {
             after,
             before_state: self.state,
             after_state: state,
+            before_bookmarks: self
+                .bookmarks
+                .lock()
+                .expect("bookmark owner poisoned")
+                .anchors(self.stamp())?,
+            after_bookmarks: Vec::new(),
             changes,
             before_points: points.to_vec(),
             after_points,
@@ -282,10 +291,8 @@ impl Buffer {
             permutation,
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
-        record.bytes = record
-            .changes
-            .iter()
-            .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
+        record.after_bookmarks = bookmarks::map(&record, &coordinates)?;
+        record.bytes = record.payload();
         let syntax = syntax::edits(&self.text, &record.changes)?;
         Ok(Prepared {
             syntax,
@@ -310,6 +317,7 @@ impl Buffer {
         let state = prepared.record.after_state;
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
+        let after_bookmarks = prepared.record.after_bookmarks.clone();
         let changed = prepared
             .record
             .changes
@@ -331,6 +339,10 @@ impl Buffer {
         self.mark = mark;
         self.mark_mode = super::region::Mode::Inactive;
         points.copy_from_slice(&after_points);
+        self.bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .publish_anchors(after, &after_bookmarks);
         self.typing = match prepared.operation {
             Operation::Typing => Some(after),
             _ => None,
@@ -349,6 +361,15 @@ impl Buffer {
         if points != prepared.record.before_points
             || self.mark != prepared.record.before_mark
             || self.mark_mode != prepared.active
+        {
+            return Err(Error::ChangedPositions);
+        }
+        if self
+            .bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .anchors(self.stamp())?
+            != prepared.record.before_bookmarks
         {
             return Err(Error::ChangedPositions);
         }
@@ -440,5 +461,18 @@ fn insert(text: &mut Rope, mut position: usize, fragment: &Rope) -> Result<(), E
 impl Prepared {
     pub(in crate::buffer) fn saved_output(&self) -> (&Rope, Stamp, State) {
         (&self.text, self.record.after, self.record.after_state)
+    }
+}
+
+impl Transaction {
+    fn payload(&self) -> usize {
+        let text = self
+            .changes
+            .iter()
+            .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
+        text.saturating_add(
+            (self.before_bookmarks.len() + self.after_bookmarks.len())
+                .saturating_mul(std::mem::size_of::<crate::bookmark::Anchor>()),
+        )
     }
 }

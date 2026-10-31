@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "bookmarks/locations.rs"]
+mod locations;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{BookmarkCommand, Command, History, Motion, RegionCommand};
@@ -122,12 +124,16 @@ fn checked_visits() {
     assert_eq!(text(&s), "Xsource\n");
     assert!(s.buffer().unwrap().is_modified());
     s.insert('Y');
+    s.replace(0..2, "").unwrap();
     s.load(&f.0.join("other")).unwrap();
     let origin = s.view().clone();
     argument(&mut s, BookmarkCommand::Jump, "source");
     assert!(s.echo().contains("stale"));
     assert_eq!(s.view(), &origin);
-    assert_eq!(s.bookmarks().get("source").unwrap().point(), source);
+    assert_eq!(
+        s.bookmarks().get("source").unwrap().resolution(),
+        rev::bookmark::Resolution::Stale
+    );
     cancel(&mut s);
 }
 

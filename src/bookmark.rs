@@ -3,6 +3,26 @@
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
+
+pub(crate) type Shared = Arc<Mutex<Bookmarks>>;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Resolution {
+    Resolved,
+    Stale,
+    Unresolved,
+    Unavailable,
+}
+
+/// Text history retains only scalar outcomes and explicit target generations.
+/// No source snapshots or context strings belong to these observations.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct Anchor {
+    pub id: RecordId,
+    pub generation: u64,
+    pub position: Option<crate::coordinates::Scalar>,
+}
 
 use crate::buffer::{Buffer, edit::Point};
 
@@ -21,6 +41,8 @@ pub struct Record {
     name: String,
     path: PathBuf,
     point: Point,
+    generation: u64,
+    resolution: Resolution,
 }
 
 impl Record {
@@ -34,6 +56,9 @@ impl Record {
         &self.path
     }
     /// A revision-qualified location; callers must check it before navigation.
+    pub fn resolution(&self) -> Resolution {
+        self.resolution
+    }
     pub fn point(&self) -> Point {
         self.point
     }
@@ -102,11 +127,18 @@ impl Bookmarks {
                 )
             }
         };
+        let generation = self
+            .entries
+            .get(name)
+            .map_or(Some(1), |record| record.generation.checked_add(1))
+            .ok_or("Bookmark generation exhausted")?;
         let record = Record {
             id,
             name: name.into(),
             path,
             point,
+            generation,
+            resolution: Resolution::Resolved,
         };
         self.entries.insert(name.into(), record);
         self.next_id = self.next_id.max(id.0);
@@ -118,5 +150,48 @@ impl Bookmarks {
             .remove(name)
             .map(|_| ())
             .ok_or_else(|| "No bookmark with that name".into())
+    }
+}
+
+impl Bookmarks {
+    pub(crate) fn anchors(
+        &self,
+        stamp: crate::buffer::Stamp,
+    ) -> Result<Vec<Anchor>, crate::buffer::edit::Error> {
+        let mut anchors = Vec::new();
+        for record in self.entries.values().filter(|r| {
+            r.point.stamp.buffer == stamp.buffer
+                && matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
+        }) {
+            if record.point.stamp != stamp {
+                return Err(crate::buffer::edit::Error::ChangedPositions);
+            }
+            anchors.push(Anchor {
+                id: record.id,
+                generation: record.generation,
+                position: (record.resolution == Resolution::Resolved)
+                    .then_some(record.point.position),
+            });
+        }
+        anchors.sort_by_key(|a| a.id);
+        Ok(anchors)
+    }
+    pub(crate) fn publish_anchors(&mut self, stamp: crate::buffer::Stamp, anchors: &[Anchor]) {
+        for record in self.entries.values_mut() {
+            let Ok(index) = anchors.binary_search_by_key(&record.id, |a| a.id) else {
+                continue;
+            };
+            let anchor = anchors[index];
+            if anchor.generation != record.generation {
+                continue;
+            }
+            record.point.stamp = stamp;
+            record.resolution = if let Some(position) = anchor.position {
+                record.point.position = position;
+                Resolution::Resolved
+            } else {
+                Resolution::Stale
+            };
+        }
     }
 }
