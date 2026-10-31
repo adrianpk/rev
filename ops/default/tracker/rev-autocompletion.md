@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 5 — JSON and TOML key completion; in progress
+Active slice: Slice 6 — Native Org context completion; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -83,9 +83,14 @@ Receipt `5GMST5QOZS5KBPNTHKKH4PAPQP` passed its three configured checks and
 
 Acceptance: CMP03, CMP05-CMP07; structured-format subset.
 
-- [ ] T5.1: Add the measured JSON and TOML grammars, explicit highlight/extraction queries and structural key/table contexts to the existing language catalog.
-- [ ] T5.2: Complete observed keys/tables through the common interaction, including quoted structural-key admission without ordinary value-string suggestions. Cover nested/duplicate keys, escaped names, invalid documents and unsaved edits.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T5.1: Add the measured JSON and TOML grammars, explicit highlight/extraction queries and structural key/table contexts to the existing language catalog.
+- [x] T5.2: Complete observed keys/tables through the common interaction, including quoted structural-key admission without ordinary value-string suggestions. Cover nested/duplicate keys, escaped names, invalid documents and unsaved edits.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#199](https://forge.adrianpk.com/adrianpk/rev/pulls/199) merged
+through Rebase + Fast-forward at `843b4259a89ce05ea452adbd878b9c434240f110`.
+Receipt `5IYDBO5SS52SD334S6BUXLVBGL` passed its three configured checks and
+202 tests at that exact candidate. Slice 5 of 8 completed.
 
 ## Slice 6: Native Org context completion
 

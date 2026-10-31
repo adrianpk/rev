@@ -1,6 +1,6 @@
 # Slice 5: JSON and TOML key completion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -111,13 +111,17 @@ pages and 347 local links/anchors), followed by the clean diff check.
 6. `cargo run --locked --quiet --example documentation-check`: passed.
 7. `git diff --check`: passed.
 
-Canonical PR #199 links the full immutable report-introduction commit. After
-this PR-reference follow-up, the controller records fresh validation for the final
-clean PR head in this exact configured order:
+Canonical PR #199 links the full immutable report-introduction commit. Final
+controller receipt `5IYDBO5SS52SD334S6BUXLVBGL` passed three checks and 202
+tests at clean candidate `843b4259a89ce05ea452adbd878b9c434240f110` in this
+exact configured order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test configuration`
 3. `git diff --check`
+
+Canonical PR #199 merged that exact candidate into dev through Rebase +
+Fast-forward. Slice 5 of 8 is delivered.
 
 ## Risks and Follow-ups
 
