@@ -5,7 +5,7 @@ Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
 Branch: `feat/rev-bookmarks-01-commands`
-PR: pending
+PR: [#185](https://forge.adrianpk.com/adrianpk/rev/pulls/185)
 
 ## Purpose
 
@@ -83,10 +83,11 @@ its exact-candidate receipt outside the repository. Its ordered check list is:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test bookmarks --test commands --test files --test configuration`
-3. `cargo run --locked --quiet --example documentation-check`
-4. `git diff --check`
+3. `git diff --check`
 
-The worker hands off only after that final batch succeeds. The combined
+An additional controller-owned `cargo run --locked --quiet --example documentation-check`
+batch checks the current public references before the required batch.
+The worker hands off only after both batches succeed. The combined
 delivery-set gate remains assigned to the controller after all six integrations.
 
 ## Risks and Follow-ups
