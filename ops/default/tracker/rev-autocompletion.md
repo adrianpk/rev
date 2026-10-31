@@ -122,9 +122,13 @@ Receipt `YGFKP3HPVAFOMYLF3YIW3XSRGF` passed its three configured checks and
 
 Acceptance: CMP01 and CMP03-CMP09 jointly; CMP02 semantic switching reserved for the LSP successor.
 
-- [ ] T8.1: Add examples/completion-acceptance.rs and scripts/check-completion.sh using the existing Rust/Bash PTY approach. Exercise manual/automatic selection, edit/undo/cancel, all ten parsers, Org contexts, external admission and native fallback. Measure integrated release bytes against the recorded baseline, idle CPU/work, bounded indexing and burst responsiveness.
-- [ ] T8.2: Complete concise completion tutorial/how-to/reference pages with small visual feedback examples, complete sample/command catalogs and Unreleased notes through the established skills. Record actual capability limits and distinguish syntax candidates from semantic LSP. Keep Org supplementary to ordinary editing.
+- [x] T8.1: Add examples/completion-acceptance.rs and scripts/check-completion.sh using the existing Rust/Bash PTY approach. Exercise manual/automatic selection, edit/undo/cancel, all ten parsers, Org contexts, external admission and native fallback. Measure integrated release bytes against the recorded baseline, idle CPU/work, bounded indexing and burst responsiveness.
+- [x] T8.2: Complete concise completion tutorial/how-to/reference pages with small visual feedback examples, complete sample/command catalogs and Unreleased notes through the established skills. Record actual capability limits and distinguish syntax candidates from semantic LSP. Keep Org supplementary to ordinary editing.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+The [Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md)
+records implementation, focused receipts and actual normal-release measurements.
+Canonical PR preparation and integration remain in progress.
 
 ## Final gate and closure
 

@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Native Autocompletion Tracker](../tracker/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6 — Native Org context completion; in progress
+Active slice: Slice 8 — Native acceptance, footprint and guidance; in progress
 
 ## Outcome and authority
 
