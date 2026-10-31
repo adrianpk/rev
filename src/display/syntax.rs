@@ -126,5 +126,5 @@ impl super::Row {
 }
 
 fn colored(buffer: &Buffer) -> bool {
-    buffer.has_org_colors() || buffer.mode() == "Rust"
+    buffer.has_org_colors() || buffer.syntax().mode(buffer.stamp()) != "Text"
 }

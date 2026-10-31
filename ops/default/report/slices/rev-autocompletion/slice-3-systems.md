@@ -128,6 +128,15 @@ registry. It now uses `Buffers::with_settings` and also checks the buffer's actu
 editing policy. The C++ plain fallback and first-alias/text assertions remain
 intact; configured grammar identity now drives the real owner under test.
 
+Required receipt `VFCMBMOVFGC4H2FTZQNHUURO4U` passed formatting and all
+23 completion, 24 coordinate and 74 file cases at
+`b001f8fd5d9351399a2c3d596d176d4608e56e22`. The syntax grammar-policy
+assertion then exposed a real Rust-only color projection guard. The renderer
+now consults the buffer's current syntax owner, admitting C/Go colors through
+the same grapheme/cell projection. The systems interaction case also asserts
+colors in the actual session frame, retaining the direct query and edit/undo
+assertions. Fresh focused and configured evidence cover this correction.
+
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
 Focused controller receipt `Y2O5S27HEXXLMGLPEXMZLCNNXZ` passed at clean

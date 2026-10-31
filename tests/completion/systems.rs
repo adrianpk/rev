@@ -35,6 +35,15 @@ fn systems_grammars() {
                 .is_empty(),
             "{file}"
         );
+        assert!(
+            session
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|row| !row.syntax().is_empty()),
+            "{file}"
+        );
         complete(&mut session);
         let completion = session
             .completion()
