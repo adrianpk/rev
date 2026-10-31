@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-07-external`
-PR: pending
+PR: [#201](https://forge.adrianpk.com/adrianpk/rev/pulls/201)
 
 ## Purpose
 
@@ -111,8 +111,9 @@ commands, 202 configuration entries, 60 reachable pages and 350 local links/anch
 7. `cargo run --locked --quiet --example documentation-check`: passed.
 8. `git diff --check`: passed.
 
-The canonical PR will link the full immutable report-introduction commit. After
-its PR-reference follow-up, the controller records fresh final clean-HEAD
+Canonical PR #201 links full immutable report-introduction commit
+`a40ae470f08268b4848febd6aea02163d019afb8`. After this PR-reference
+follow-up, the controller records fresh final clean-HEAD
 validation in this exact configured order:
 
 1. `cargo fmt --all -- --check`
