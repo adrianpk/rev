@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: `ops/default/plan/rev-autocompletion.md`
 Tracker: `ops/default/tracker/rev-autocompletion.md`
 Branch: `feat/rev-autocompletion-08-acceptance`
-PR: pending
+PR: `#202`
 
 ## Purpose
 
@@ -138,6 +138,11 @@ earlier measurements above:
 4. `bash scripts/check-completion.sh`
 5. `cargo run --locked --quiet --example documentation-check`
 6. `git diff --check`
+
+Canonical [PR #202](https://forge.adrianpk.com/adrianpk/rev/pulls/202) links the
+full immutable report-introduction commit
+`07473382afc1097b3a9e5c189842cc11c09def6b`. Final validation follows this
+PR-reference commit; integration remains controller owned.
 
 ## Risks and Follow-ups
 

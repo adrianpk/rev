@@ -128,7 +128,8 @@ Acceptance: CMP01 and CMP03-CMP09 jointly; CMP02 semantic switching reserved for
 
 The [Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md)
 records implementation, focused receipts and actual normal-release measurements.
-Canonical PR preparation and integration remain in progress.
+Canonical [PR #202](https://forge.adrianpk.com/adrianpk/rev/pulls/202) is open;
+final candidate validation and controller integration remain in progress.
 
 ## Final gate and closure
 
