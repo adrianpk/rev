@@ -12,6 +12,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | Keys | Command | Result |
 | --- | --- | --- |
 | `M-x` | `execute-extended-command` | Find and invoke a command. |
+| `M-TAB` | `completion-at-point` | Show native Rust declarations near the source cursor. |
+| Down, `C-n` in a completion popup | `completion-next` | Select the next candidate without moving source point. |
+| Up, `C-p` in a completion popup | `completion-previous` | Select the previous candidate. |
+| Tab or Return in a completion popup | `completion-accept` | Replace the admitted identifier as one undo operation. |
+| Escape or `C-g` in a completion popup | `completion-cancel` | Dismiss the popup without editing source. |
 | `C-g` | `keyboard-quit` | Cancel the current interaction or deactivate the region. |
 | `C-x C-c` | `save-buffers-kill-terminal` | Guarded session exit. |
 | `C-x C-f` | `find-file` | Open a file or directory; available in editing and tree focus. |

@@ -89,7 +89,15 @@ fn symbol(node: tree_sitter::Node<'_>, kind: &str, text: RopeSlice<'_>) -> Optio
     if bytes.len() > MAX_LABEL {
         return None;
     }
-    let kind = match kind {
+    Some(Symbol {
+        name: text.byte_slice(bytes.clone()).to_string(),
+        kind: category(kind)?,
+        byte: bytes.start,
+    })
+}
+
+fn category(kind: &str) -> Option<&'static str> {
+    Some(match kind {
         "function" => "function",
         "type" => "type",
         "module" => "module",
@@ -98,10 +106,5 @@ fn symbol(node: tree_sitter::Node<'_>, kind: &str, text: RopeSlice<'_>) -> Optio
         "parameter" => "parameter",
         "field" => "field",
         _ => return None,
-    };
-    Some(Symbol {
-        name: text.byte_slice(bytes.clone()).to_string(),
-        kind,
-        byte: bytes.start,
     })
 }

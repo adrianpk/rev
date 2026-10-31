@@ -111,4 +111,13 @@ fn extraction_limits() {
             .contains("read-only")
     );
     assert!(buffer.history().is_empty());
+    let large = buffers.create(&"x".repeat(MAX_BYTES + 1)).unwrap();
+    let buffer = buffers.get_mut(large).unwrap();
+    assert!(
+        buffer
+            .completion_symbols(std::time::Instant::now() + WORK_TIME)
+            .unwrap_err()
+            .contains("2 MiB")
+    );
+    assert!(buffer.history().is_empty());
 }

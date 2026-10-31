@@ -10,21 +10,39 @@ pub(super) fn at(
         range: point.position.0..point.position.0,
     })?;
     Coordinates::new(buffer)?.to_cell(point.position)?;
-    let mut start = point.position.0;
-    let mut end = start;
-    while start > 0 && identifier(character(buffer, start - 1)?) {
-        start -= 1;
-        limit(point.position.0 - start)?;
-    }
-    while end < buffer.len_chars() && identifier(character(buffer, end)?) {
-        end += 1;
-        limit(end - start)?;
-    }
+    let start = start(buffer, point.position.0)?;
+    let end = end(buffer, point.position.0)?;
+    limit(end - start)?;
     let source = buffer.span(start..end)?;
     let prefix = buffer
         .slice(&buffer.span(start..point.position.0)?)?
         .to_string();
     Ok((source, prefix))
+}
+
+fn start(buffer: &Buffer, point: usize) -> Result<usize, crate::buffer::edit::Error> {
+    let mut start = point;
+    while start > 0 && identifier(character(buffer, start - 1)?) {
+        start -= 1;
+        limit(point - start)?;
+    }
+    Ok(raw_start(buffer, start)?)
+}
+
+fn end(buffer: &Buffer, point: usize) -> Result<usize, crate::buffer::edit::Error> {
+    let mut end = point;
+    while end < buffer.len_chars() && identifier(character(buffer, end)?) {
+        end += 1;
+        limit(end - point)?;
+    }
+    Ok(end)
+}
+
+fn raw_start(buffer: &Buffer, start: usize) -> Result<usize, crate::buffer::Error> {
+    if start >= 2 && character(buffer, start - 1)? == '#' && character(buffer, start - 2)? == 'r' {
+        return Ok(start - 2);
+    }
+    Ok(start)
 }
 
 fn character(buffer: &Buffer, position: usize) -> Result<char, crate::buffer::Error> {

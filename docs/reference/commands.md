@@ -68,6 +68,7 @@ compiled M-x name once.
 
 | Group | Names |
 | --- | --- |
+| Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |

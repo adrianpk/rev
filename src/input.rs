@@ -1,3 +1,4 @@
+mod completion;
 mod context;
 mod dispatch;
 mod inventory;
@@ -124,6 +125,7 @@ pub struct Input {
     keymaps: keymap::Effective,
     workspace_tree: bool,
     workspace_bookmarks: bool,
+    workspace_completion: bool,
     workspace_org: Option<OrgContext>,
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
@@ -241,6 +243,9 @@ impl Input {
             && (self.repeat_blocked(key.code) || !self.repeatable(key))
         {
             return Outcome::Ignored;
+        }
+        if let Some(outcome) = self.completion_key(key) {
+            return outcome;
         }
         self.meta_key(key, now)
     }

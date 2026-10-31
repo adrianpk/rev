@@ -99,6 +99,7 @@ impl Session {
     }
 
     pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
+        self.invalidate_completion();
         self.timer_notice = false;
         if matches!(&event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
             || matches!(&event, Event::Paste(_) | Event::Mouse(_))
@@ -131,6 +132,7 @@ impl Session {
             return action;
         }
         let outcome = self.input.handle_at(event, now);
+        self.completion_outcome(&outcome);
         let action = self.outcome(outcome, now);
         if action == Action::Wait {
             return expired;

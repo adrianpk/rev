@@ -1,6 +1,7 @@
 mod binding;
 mod bookmark;
 mod buffer;
+mod completion;
 mod gutter;
 mod kill;
 mod linear;
@@ -20,6 +21,7 @@ pub use crate::window::Split;
 pub use binding::{Binding, PromptAction};
 pub use bookmark::BookmarkCommand;
 pub use buffer::BufferCommand;
+pub use completion::CompletionCommand;
 pub use gutter::GutterCommand;
 pub use kill::KillCommand;
 pub use linear::LinearCommand;
@@ -33,6 +35,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Completion(CompletionCommand),
     Bookmark(BookmarkCommand),
     Tree(TreeCommand),
     QueryReplace,
@@ -68,7 +71,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 319] = [
+    pub const ALL: [Self; 324] = [
+        Self::Completion(CompletionCommand::AtPoint),
+        Self::Completion(CompletionCommand::Next),
+        Self::Completion(CompletionCommand::Previous),
+        Self::Completion(CompletionCommand::Accept),
+        Self::Completion(CompletionCommand::Cancel),
         Self::Bookmark(BookmarkCommand::Set),
         Self::Bookmark(BookmarkCommand::SetNoOverwrite),
         Self::Bookmark(BookmarkCommand::Jump),
@@ -423,6 +431,7 @@ impl Command {
 
     fn search_name(self) -> &'static str {
         match self {
+            Self::Completion(command) => command.name(),
             Self::Region(command) => command.name(),
             Self::Tree(command) => command.name(),
             Self::MouseMode => "mouse-mode",

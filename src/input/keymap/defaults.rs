@@ -56,6 +56,7 @@ const EDITOR: &[(&str, &str)] = &[
     ("C-c l", "org-store-link"),
     ("C-g", "keyboard-quit"),
     ("M-x", "execute-extended-command"),
+    ("M-TAB", "completion-at-point"),
     ("M-g g", "goto-line"),
     ("M-g M-g", "goto-line"),
     ("RET", "newline"),

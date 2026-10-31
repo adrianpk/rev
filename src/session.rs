@@ -6,6 +6,8 @@ mod agenda_sources;
 mod bookmarks;
 mod buffers;
 mod capture;
+mod completion;
+pub use crate::completion::{Candidate, Completion};
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
@@ -87,6 +89,9 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    completion: Option<Completion>,
+    completion_generation: u64,
+    completion_request: Option<u64>,
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
@@ -275,6 +280,9 @@ impl Session {
             buffers.snapshot().settings().bookmarks.file.clone(),
         );
         Ok(Self {
+            completion: None,
+            completion_generation: 0,
+            completion_request: None,
             bookmark_visit: None,
             bookmark_storage,
             bookmark_list: None,
@@ -443,6 +451,7 @@ impl Session {
     }
 
     fn refresh_frame(&mut self) -> Result<(), view::Error> {
+        self.invalidate_completion();
         for (_, view) in self.windows.iter() {
             self.buffers
                 .get_mut(view.point.stamp.buffer)?
@@ -480,6 +489,7 @@ impl Session {
         frame.message_kind(self.echo_kind);
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame, composition.as_ref())?;
+        self.completion_frame(&mut frame, composition.as_ref())?;
         for (_, view) in self.windows.iter() {
             view.cancel_layout();
         }
@@ -616,6 +626,9 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        if let Some(action) = self.completion_boundary(command) {
+            return action;
+        }
         self.bookmark_visit = None;
         if !matches!(
             command,
@@ -757,6 +770,7 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        self.dismiss_completion();
         if self.bookmark_list_active() {
             return self.message("Read-only bookmark list; q returns to source");
         }

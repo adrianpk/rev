@@ -9,6 +9,7 @@ mod completion;
 mod compose;
 mod gutter;
 mod habit;
+mod native_completion;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
 mod inventory;
