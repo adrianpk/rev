@@ -1,6 +1,6 @@
 # Slice 4: List and ordered navigation
 
-Status: awaiting integration
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -88,3 +88,11 @@ Unresolved, stale or unavailable records have no eligible current-file order;
 the user can explicitly check them through a named jump or list visit. A changed
 list snapshot clears pending marks and requires a retry. Marker projection and
 joint acceptance remain assigned to the recorded successor slices.
+
+Canonical PR #188 merged through Rebase + Fast-forward into `dev` at
+`1fb81379420abf058a0273f82f9490a26f77a8f6`. Required receipt
+`GGELYCSA3LAE4FPLTWNUIKMPJZ` passed the exact three-command list and 444
+integration tests. Focused receipt `3K345T2YHJMXYQXCHJTYEZA6G4` passed 11
+bookmark owner tests, all-target clippy and documentation on the same clean
+candidate. The controller verified and recorded the merge in Acta.
+Slice 4 of 6 completed.

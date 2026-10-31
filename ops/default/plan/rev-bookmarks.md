@@ -14,7 +14,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Bookmarks Tracker](../tracker/rev-bookmarks.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4; canonical PR #188 awaiting controller checks and integration
+Active slice: Slice 5; native gutter markers, implementation in progress
 
 ## Outcome and authority
 

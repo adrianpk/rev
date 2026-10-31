@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4; canonical PR #188 awaiting controller checks and integration
+Active slice: Slice 5; native gutter markers, implementation in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -80,13 +80,17 @@ Acceptance: complete BMK04.
 
 - [x] T4.1: Implement native bookmark listing, stable row actions, deletion marks and local configurable keys.
 - [x] T4.2: Implement current-file next/previous, wrap, same-position ordering and safe invalidation.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 4 report.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 4 report.
 
 T4.1 native-list commit: `96b4dc6bf4cd285a6b5f9a40d9d8fe9dd81a5248`.
 T4.2 ordered-navigation commit: `3ec7ffc43bbbac67654d17f557187b191ca6b661`.
 Canonical PR: [#188](https://forge.adrianpk.com/adrianpk/rev/pulls/188).
 [Slice 4 report](../report/slices/rev-bookmarks/slice-4-navigation.md) records
 checked list and ordered-navigation behavior, native coverage and final checks.
+PR #188 merged at `1fb81379420abf058a0273f82f9490a26f77a8f6`; required receipt
+`GGELYCSA3LAE4FPLTWNUIKMPJZ` passed 444 integration tests and all required
+checks. Focused receipt `3K345T2YHJMXYQXCHJTYEZA6G4` passed 11 bookmark owner
+tests, all-target clippy and documentation.
 
 ## Slice 5: Gutter markers
 
@@ -111,5 +115,5 @@ Acceptance: BMK01-BMK07 jointly.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-Slices 1 through 3 are integrated. Slice 4 is active under the same controller run.
+Slices 1 through 4 are integrated. Slice 5 is active under the same controller run.
 Preserve previous delivery evidence under its original owners.
