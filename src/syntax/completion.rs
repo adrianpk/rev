@@ -182,11 +182,14 @@ fn symbol(
     if bytes.len() + 2 + kind.len() > MAX_LABEL {
         return Err("Native completion label limit reached".into());
     }
+    let Some(name) = super::formats::name(node, kind, text) else {
+        return Ok(None);
+    };
+    if super::formats::label_bytes(&name, kind) > MAX_LABEL {
+        return Err("Native completion label limit reached".into());
+    }
     Ok(Some(Symbol {
-        name: match super::formats::name(node, kind, text) {
-            Some(name) => name,
-            None => return Ok(None),
-        },
+        name,
         kind,
         byte: bytes.start,
         origin: 0,

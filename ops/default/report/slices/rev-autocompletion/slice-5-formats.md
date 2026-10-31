@@ -56,6 +56,8 @@ The shared 2 MiB per-buffer/8 MiB total snapshot, 32-buffer, 4096 per-buffer/
 bounds remain unchanged. New token/context walks are bounded to 512 characters
 or 128 retained-tree steps. There is still one active worker, one newest pending
 request, cancellation and a 50 ms work deadline; no idle analysis or file scan.
+Label admission also checks the encoded display spelling: escape expansion past
+512 bytes reports a label limit instead of claiming a complete no-match result.
 
 ## Contracts Added or Changed
 
@@ -82,8 +84,12 @@ T5.1 is commit `45233ad8f5e8e40a5d0ef391bcefe7984e32b50a`.
 T5.2 is commit `6972747e5db4600bea9ce33adaaa93de2f0a86a7`.
 Development `cargo check --offline` passed with only the two approved grammar
 lockfile additions. `cargo test --locked --test completion formats` passed all
-six integration cases after the incomplete-JSON and unfinished-TOML-value
+six initial integration cases after the incomplete-JSON and unfinished-TOML-value
 corrections. The original admission/suppression assertions were preserved.
+A seventh real-workflow regression first demonstrated that escape expansion
+could silently drop an over-limit label. Encoded-label admission corrected that
+outcome; `cargo test --locked --test completion formats::label_limit` passed
+for JSON escapes and TOML literal tabs without modifying source/history.
 `cargo test --locked --test syntax preferences::grammar_policy` passed its
 expanded parser/color/plain-override matrix. Development library Clippy and the
 changed-owner source-quality diagnostic passed.

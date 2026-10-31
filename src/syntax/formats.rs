@@ -335,6 +335,14 @@ pub(super) fn name(node: Node<'_>, kind: &str, text: RopeSlice<'_>) -> Option<St
     }
 }
 
+pub(super) fn label_bytes(name: &str, kind: &str) -> usize {
+    match kind {
+        "json-key" => literal::encode(name, Grammar::Json).len() + 5,
+        "toml-key" => literal::encode(name, Grammar::Toml).len() + 5,
+        _ => name.len() + 2 + kind.len(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

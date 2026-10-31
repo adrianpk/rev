@@ -321,3 +321,31 @@ fn restore_point(session: &mut Session, document: &str) {
         session.execute(Command::Motion(Motion::ForwardChar));
     }
 }
+
+// Encoding control characters can expand a short observed key past the display
+// budget. That is a limit outcome, never a complete no-match claim or an edit.
+#[test]
+fn label_limit() {
+    for (file, document) in [
+        (
+            "limit.json",
+            format!(r#"{{"{}":1,"|":0}}"#, "\\n".repeat(100)),
+        ),
+        (
+            "limit.toml",
+            format!("'{}' = 1\n\"|\" = 0\n", "\t".repeat(100)),
+        ),
+    ] {
+        let (_fixture, mut session) = named_source(file, &document, "");
+        let original = text(&session);
+        complete(&mut session);
+        assert!(session.completion().is_none());
+        assert!(
+            session.echo().contains("label limit"),
+            "{file}: {}",
+            session.echo()
+        );
+        assert_eq!(text(&session), original);
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
+}
