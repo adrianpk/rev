@@ -1,6 +1,6 @@
 # Slice 6: Native Org context completion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -110,9 +110,10 @@ pages and 348 local links/anchors), followed by the clean diff check.
 4. `cargo run --locked --quiet --example documentation-check`: passed.
 5. `git diff --check`: passed.
 
-Canonical PR #200 links the full immutable report-introduction commit. After
-this PR-reference follow-up, the controller records fresh validation for the final
-clean PR head in this exact configured order:
+Canonical PR #200 links the full immutable report-introduction commit. Final
+controller receipt `QEPJ6DEWDQJQVN5OYGUKUWZBWC` passed all three configured
+checks and 646 tests at clean candidate
+`28a43ed88c143b0ef131806bdb48a159ec3fbf57` in this exact order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test org_editing --test org_source --test configuration --test commands`
@@ -127,7 +128,10 @@ second owned-work wait. The same candidate's unchanged
 passed in isolation (one test, 2.14 seconds). Concurrent host load exceeded the
 available CPU count; scheduling pressure is a possible explanation, not proof of
 the failure's cause. No assertion, timeout, test concurrency or resource limit
-was changed. Fresh configured evidence must cover the final clean PR candidate.
+was changed. The final receipt above covers the final clean PR candidate.
+
+Canonical PR #200 merged through Rebase + Fast-forward at
+`28a43ed88c143b0ef131806bdb48a159ec3fbf57`. Slice 6 of 8 completed.
 
 ## Risks and Follow-ups
 

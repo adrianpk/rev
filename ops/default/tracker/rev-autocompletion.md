@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6 — Native Org context completion; in progress
+Active slice: Slice 7 — Explicit external grammar admission; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -96,9 +96,14 @@ Receipt `5IYDBO5SS52SD334S6BUXLVBGL` passed its three configured checks and
 
 Acceptance: CMP08 with CMP01 and CMP04-CMP07.
 
-- [ ] T6.1: Adapt current Org observations and effective configuration for TODO positions, tags, property keys, supported directives/link types and current-document heading targets. Reuse the existing parser and document model.
-- [ ] T6.2: Integrate structural-prefix triggering, checked replacement and unsaved target invalidation. Preserve literal blocks, ordinary prose, Org Tab actions outside an active popup and declared-language completion in source-edit buffers.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T6.1: Adapt current Org observations and effective configuration for TODO positions, tags, property keys, supported directives/link types and current-document heading targets. Reuse the existing parser and document model.
+- [x] T6.2: Integrate structural-prefix triggering, checked replacement and unsaved target invalidation. Preserve literal blocks, ordinary prose, Org Tab actions outside an active popup and declared-language completion in source-edit buffers.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#200](https://forge.adrianpk.com/adrianpk/rev/pulls/200) merged
+through Rebase + Fast-forward at `28a43ed88c143b0ef131806bdb48a159ec3fbf57`.
+Receipt `QEPJ6DEWDQJQVN5OYGUKUWZBWC` passed its three configured checks and
+646 tests at that exact candidate. Slice 6 of 8 completed.
 
 ## Slice 7: Explicit external grammar admission
 
