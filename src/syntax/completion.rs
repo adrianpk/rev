@@ -96,7 +96,10 @@ impl Syntax {
         let options = QueryCursorOptions::new().progress_callback(&mut progress);
         let mut captures =
             cursor.captures_with_options(query, tree.root_node(), Source(text), options);
-        let mut declarations = Declarations::default();
+        let mut declarations = Declarations {
+            scopes: super::scope::Scopes::new(parsed.external),
+            ..Declarations::default()
+        };
         while let Some((matched, index)) = captures.next() {
             if stopped(deadline, cancel) {
                 return Err("Native completion work or symbol limit reached".into());
@@ -197,7 +200,7 @@ fn symbol(
     }))
 }
 
-fn category(kind: &str) -> Option<&'static str> {
+pub(super) fn category(kind: &str) -> Option<&'static str> {
     Some(match kind {
         "function" => "function",
         "type" => "type",

@@ -130,11 +130,27 @@ impl Request {
         Ok(result.symbols)
     }
 
-    pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
-        self.context != context::Context::Unsupported
+    pub(crate) fn allowed(
+        &self,
+        source: &source::Source,
+        deadline: std::time::Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<bool, String> {
+        let syntax = &source.syntax;
+        if !self.manual
+            && let Some(kind) =
+                syntax.external_literal(source.text.slice(..), self.byte, deadline, cancel)?
+        {
+            return Ok(if kind == "comment" {
+                self.policy.in_comments
+            } else {
+                self.policy.in_strings
+            });
+        }
+        Ok(self.context != context::Context::Unsupported
             && (self.context.structured()
                 || self.manual
-                || syntax.completion_allowed(self.byte, &self.policy))
+                || syntax.completion_allowed(self.byte, &self.policy)))
     }
 }
 

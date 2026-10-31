@@ -34,6 +34,7 @@ impl Session {
         [
             self.input.remaining(now),
             self.completion_work.remaining(now),
+            self.assets_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
@@ -150,6 +151,7 @@ impl Session {
                 self.expire_escape(now)
             },
             self.expire_org(now),
+            self.expire_assets(),
             self.expire_completion(now),
             self.expire_pointer(now),
             self.expire_timer(now),

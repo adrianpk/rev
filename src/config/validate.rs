@@ -28,7 +28,7 @@ impl Failure {
         }
     }
 
-    fn at(key: &[&str], message: &str, target: Target) -> Self {
+    pub(super) fn at(key: &[&str], message: &str, target: Target) -> Self {
         Self {
             key: key.iter().map(|key| (*key).to_owned()).collect(),
             message: message.to_owned(),
@@ -193,6 +193,7 @@ fn color(key: &str, value: Option<&str>) -> Result<(), Failure> {
 }
 
 fn languages(document: &Document) -> Result<(), Failure> {
+    super::external::registrations(document)?;
     for (id, language) in &document.language {
         if !language_id(id) {
             return Err(Failure::at(
@@ -201,6 +202,7 @@ fn languages(document: &Document) -> Result<(), Failure> {
                 Target::Key,
             ));
         }
+        super::external::validate(id, language.external.as_ref())?;
         integer(
             &format!("language.{id}.indent_width"),
             language.indent_width,

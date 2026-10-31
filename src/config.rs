@@ -23,6 +23,8 @@ pub use source::{
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
+mod external;
+pub(crate) use external::symbol as external_symbol;
 mod completion;
 pub use completion::{Completion, PartialCompletion};
 mod bookmarks;
@@ -445,7 +447,7 @@ pub struct PartialEditor {
     pub tab_width: Option<i64>,
 }
 
-/// Only these four leaves are permitted in a language table. Missing editing
+/// Missing editing
 /// leaves inherit globals; grammar defaults to its bundled language, plain otherwise.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
@@ -454,6 +456,18 @@ pub struct Language {
     pub indent_width: Option<i64>,
     pub tab_width: Option<i64>,
     pub grammar: Option<Grammar>,
+    pub external: Option<External>,
+}
+
+/// Explicit user-trusted, precompiled native assets; all four paths/symbol
+/// leaves are required. Missing registration preserves the bundled/plain source.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct External {
+    pub parser: String,
+    pub symbol: String,
+    pub highlights: String,
+    pub completions: String,
 }
 
 /// Page overlap is 0..=1000 rows, constrained by geometry to permit progress.

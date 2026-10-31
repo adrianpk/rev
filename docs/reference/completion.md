@@ -122,7 +122,7 @@ comments and literal block bodies stay quiet, including incomplete literal block
 The incomplete block-opening directive itself remains a directive position.
 Automatic and manual requests share these context checks. Tab keeps its native
 Org visibility action outside an active popup. A source-edit draft uses its
-declared bundled language, so completion and draft undo precede the existing
+declared admitted language, so completion and draft undo precede the existing
 checked one-transaction return to the Org source. Org uses the existing native
 structure/task/tag/property/link recognizers and the same completion worker,
 cancellation, source pins and work bounds. It requires no Org grammar.
@@ -145,3 +145,9 @@ The native loop waits for the debounce deadline, polls only while a worker is
 owned, and has no completion timer while idle. Shutdown cancels and reaps owned
 work. See [Syntax highlighting](syntax.md) for grammar admission/fallback and
 [Bindings](bindings.md) for the complete command catalog.
+
+Explicit [external grammar assets](syntax.md#external-grammar-assets) use the same
+checked completion worker and candidate limits. Their finite declaration/scope
+query profile supports languages outside the bundled catalog. Admission publishes
+an immutable grammar generation; proposals from the previous generation cannot
+be accepted. Failed admission retains bundled completion when available.

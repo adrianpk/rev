@@ -147,11 +147,8 @@ fn extract(
     let mut payload = 0;
     for (origin, source) in sources.iter_mut().enumerate() {
         parse(source, deadline, cancel);
-        if origin == 0 {
-            request.prepare(&source.syntax, source.text.slice(..));
-            if !request.allowed(&source.syntax) {
-                return Ok(Vec::new());
-            }
+        if !prepare_source(request, source, origin, deadline, cancel)? {
+            return Ok(Vec::new());
         }
         let result = source.syntax.declarations_with(
             source.text.slice(..),
@@ -220,4 +217,18 @@ impl Drop for Work {
             let _ = active.handle.join();
         }
     }
+}
+
+fn prepare_source(
+    request: &mut Request,
+    source: &Source,
+    origin: usize,
+    deadline: Instant,
+    cancel: &AtomicBool,
+) -> Result<bool, String> {
+    if origin != 0 {
+        return Ok(true);
+    }
+    request.prepare(&source.syntax, source.text.slice(..));
+    request.allowed(source, deadline, cancel)
 }

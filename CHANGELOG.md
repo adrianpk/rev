@@ -19,6 +19,8 @@ This project uses Semantic Versioning.
   types and current-document heading targets while prose and literal blocks stay
   quiet. Source-edit drafts complete their declared language.
   Quoted keys preserve literal escapes; ordinary JSON/TOML values stay quiet.
+  Register precompiled native grammars and matching queries to complete other
+  languages or replace bundled syntax, with bundled/plain fallback on failure.
   Literal replacements undo in one step and refuse stale targets or read-only
   text. Configure timing, contexts, candidate limits and popup keys in TOML, or
   toggle completion and automatic requests with `completion-mode` and

@@ -8,12 +8,27 @@ use super::{Diagnostic, Document, Editor, Grammar, Settings, Sources, project, v
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Snapshot {
     settings: Settings,
+    assets: crate::syntax::assets::Registry,
     keymaps: crate::input::keymap::Effective,
     sources: Vec<PathBuf>,
     origins: BTreeMap<Vec<String>, usize>,
 }
 
 impl Snapshot {
+    /// Resolve explicit grammar paths under a supplied, already resolved rev
+    /// data directory. Call before buffer construction; this performs no IO.
+    pub fn with_data_root(mut self, data: &Path) -> Self {
+        self.assets = crate::syntax::assets::Registry::new(
+            &self.settings.language,
+            Some(data.join("grammars")),
+        );
+        self
+    }
+
+    pub(crate) fn external(&self, language: &str) -> Option<crate::syntax::assets::Handle> {
+        self.assets.get(language)
+    }
+
     /// Complete admitted maps; user overrides are not activated by this accessor.
     pub fn keymaps(&self) -> &crate::input::keymap::Effective {
         &self.keymaps
@@ -79,8 +94,14 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
             .unwrap_or(Path::new("config.toml"));
         failure_at(path, failure)
     })?;
+    let settings = project::settings(&document);
+    let root = super::Roots::from_env()
+        .ok()
+        .map(|roots| roots.data.join("grammars"));
+    let assets = crate::syntax::assets::Registry::new(&settings.language, root);
     Ok(Snapshot {
-        settings: project::settings(&document),
+        settings,
+        assets,
         keymaps,
         sources: sources
             .sources

@@ -577,6 +577,16 @@ impl Merge {
     }
 
     fn language(&mut self, id: &str, base: &mut Language, later: &Language) {
+        if let Some(external) = &later.external {
+            base.external = Some(external.clone());
+            for leaf in ["parser", "symbol", "highlights", "completions"] {
+                self.paths.push(
+                    ["language", id, "external", leaf]
+                        .map(str::to_owned)
+                        .to_vec(),
+                );
+            }
+        }
         self.leaf(
             &["language", id, "indent_style"],
             &mut base.indent_style,

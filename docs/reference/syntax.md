@@ -171,3 +171,77 @@ publication, undo and redo release obsolete fold offsets in all affected views.
 Standalone stale maps also fall back to visible source; stale view points remain
 invalid until the caller supplies a current canonical point. Tiny geometry
 preserves source scroll and does not create a row alias or idle deadline.
+
+## External grammar assets
+
+Register a compatible precompiled native library and both UTF-8 queries in the
+startup TOML. An external registration can replace a bundled source or admit an
+unbundled language. Existing file associations choose the language identity;
+for example, `.py` already selects `python`. The four leaves are required together:
+
+```toml
+[language.python.external]
+parser = "python-0.25.0/parser.so"
+symbol = "tree_sitter_python"
+highlights = "python-0.25.0/highlights.scm"
+completions = "python-0.25.0/completions.scm"
+```
+
+Relative paths resolve under the resolved XDG data root's `rev/grammars`
+directory; absolute paths are also accepted. Relative parent escapes and symlinks
+outside that root fail admission. Paths must name regular local files. The
+symbol must begin `tree_sitter_` with a nonempty ASCII letter/digit/underscore
+suffix and fit 128 bytes. Register at most 32 languages; each nonempty query
+must fit 1 MiB. Registrations are frozen at startup; no asset directory is scanned.
+
+First use queues admission on one temporary worker. Library IO/loading and
+query compilation run outside terminal input and drawing. The parser ABI and
+both queries must validate before that generation becomes visible. While pending,
+and after a failed admission, the bundled source remains available if present;
+an unbundled language stays editable as `Text`. Successful external syntax uses
+`External` status (`Org Src External` in a declared-language source draft).
+A completed failure is cached, even if its files are subsequently corrected.
+There is no asset polling timer after admission finishes.
+
+Native libraries are user-trusted code, not a sandbox. Admission cannot contain
+arbitrary native-code faults. The upstream safe loader retains a successfully
+loaded mapping for the process lifetime, including when later query validation
+fails. Rev never unloads or replaces it in process. Install assets into a new
+versioned directory, update the registration, and restart to activate that version.
+Never overwrite a mapped library in place. Rev does not compile, download or
+install grammars; supply compiled assets before starting it.
+
+### External query profile
+
+Highlight capture families are `keyword`, `string`, `escape`, `comment`, `type`,
+`constructor`, `tag`, `attribute`, `property`, `function`, `constant`, `number`,
+`punctuation` and `operator`. Dot-qualified names use their first component.
+Unrecognized captures reject the complete registration.
+
+Completion captures are exactly `function`, `type`, `module`, `constant`,
+`binding`, `parameter`, `field`, `scope`, `comment` and `string`. At least one
+of the seven declaration kinds is required. Declaration captures name actual
+source nodes, not identifier occurrences or generated text. Their text becomes
+the literal candidate; the existing label, symbol, snapshot and work limits apply.
+The nearest explicitly captured ancestor `scope` bounds a declaration's visibility.
+Capture a body/block when the function name itself should remain visible outside
+that function. Unlike bundled adapters, the external profile does not infer
+language-specific scope node names, structural keys or HTML/CSS catalogs.
+
+The optional `comment` and `string` captures identify literal regions for the
+existing automatic completion policy; ordinary Tree-sitter comment/string node
+names are also recognized. Manual requests retain their existing explicit
+invocation policy. For example, a Python completion query can use:
+
+```scheme
+(function_definition name: (identifier) @function)
+(assignment left: (identifier) @binding)
+(block) @scope
+(comment) @comment
+(string) @string
+```
+
+Tree-sitter's built-in text predicates are supported. Unknown predicates,
+property tests/settings, invalid node names, unknown captures, malformed queries
+and incompatible parser ABIs reject the complete registration. These checks
+preserve the same bundled/plain fallback without changing canonical text/history.

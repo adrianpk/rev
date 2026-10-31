@@ -1,3 +1,4 @@
+pub(crate) mod assets;
 mod catalog;
 mod completion;
 mod formats;
@@ -37,8 +38,9 @@ pub struct Syntax {
 struct Parsed {
     grammar: crate::config::Grammar,
     parser: Parser,
-    query: Query,
-    completion: Option<Query>,
+    query: std::sync::Arc<Query>,
+    completion: Option<std::sync::Arc<Query>>,
+    external: bool,
     tree: Option<Tree>,
 }
 
@@ -62,6 +64,24 @@ impl Syntax {
         }
     }
 
+    pub(crate) fn external(assets: &assets::Assets) -> Self {
+        let mut parser = Parser::new();
+        if parser.set_language(&assets.language).is_err() {
+            return Self::default();
+        }
+        Self {
+            parsed: Some(Parsed {
+                grammar: crate::config::Grammar::Plain,
+                parser,
+                query: assets.highlights.clone(),
+                completion: Some(assets.completions.clone()),
+                external: true,
+                tree: None,
+            }),
+            ..Self::default()
+        }
+    }
+
     pub fn mode(&self, stamp: Stamp) -> &'static str {
         if self.stamp == Some(stamp)
             && self
@@ -69,7 +89,12 @@ impl Syntax {
                 .as_ref()
                 .is_some_and(|parsed| parsed.tree.is_some())
         {
-            catalog::labels(self.parsed.as_ref().expect("current parser").grammar).mode
+            let parsed = self.parsed.as_ref().expect("current parser");
+            if parsed.external {
+                "External"
+            } else {
+                catalog::labels(parsed.grammar).mode
+            }
         } else {
             "Text"
         }
@@ -79,7 +104,12 @@ impl Syntax {
         if self.mode(stamp) == "Text" {
             return "Org Src";
         }
-        catalog::labels(self.parsed.as_ref().expect("current parser").grammar).source_mode
+        let parsed = self.parsed.as_ref().expect("current parser");
+        if parsed.external {
+            "Org Src External"
+        } else {
+            catalog::labels(parsed.grammar).source_mode
+        }
     }
 
     /// Whether the last successful parse reused a tree already edited to the
@@ -190,8 +220,9 @@ impl Parsed {
         Some(Self {
             grammar,
             parser,
-            query,
-            completion: completion::query(grammar, &language),
+            query: std::sync::Arc::new(query),
+            completion: completion::query(grammar, &language).map(std::sync::Arc::new),
+            external: false,
             tree: None,
         })
     }

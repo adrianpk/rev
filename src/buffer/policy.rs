@@ -37,7 +37,18 @@ impl Buffer {
             self.org_attempt = None;
         }
         self.syntax_policy = settings.settings().syntax.clone();
-        if self.grammar != grammar || self.language_identity != language {
+        let external = settings.external(&language);
+        let same = match (&self.external, &external) {
+            (Some(old), Some(new)) => old.same(new),
+            (None, None) => true,
+            _ => false,
+        };
+        if !same {
+            self.external = external;
+            self.external_seen = false;
+            self.external_applied = false;
+        }
+        if !same || self.grammar != grammar || self.language_identity != language {
             self.reset_syntax();
         }
         self.grammar = grammar;

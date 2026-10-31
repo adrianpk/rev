@@ -44,7 +44,7 @@ impl Buffer {
             return self.org_colors_admitted() && !self.is_readonly();
         }
         self.syntax_active
-            && self.grammar != Grammar::Plain
+            && (self.grammar != Grammar::Plain || self.external_applied)
             && self.mode_choice.is_none()
             && !self.is_org()
             && !self.is_readonly()
@@ -158,21 +158,72 @@ impl Buffer {
         let admitted = self.syntax_policy.enabled
             && self.mode_choice.is_none()
             && !self.is_org()
-            && self.grammar != Grammar::Plain
+            && (self.grammar != Grammar::Plain || self.external.is_some())
             && (self.syntax_policy.max_bytes == 0
                 || self.len_bytes() <= self.syntax_policy.max_bytes);
-        if admitted != self.syntax_active {
+        let assets = self.external_assets(admitted);
+        let external = assets.is_some();
+        if admitted != self.syntax_active || external != self.external_applied {
             self.syntax_generation = self
                 .syntax_generation
                 .checked_add(1)
                 .expect("syntax generation exhausted");
             self.syntax = if admitted {
-                Syntax::bundled(self.grammar)
+                assets.as_ref().map_or_else(
+                    || Syntax::bundled(self.grammar),
+                    |assets| Syntax::external(assets),
+                )
             } else {
                 Syntax::default()
             };
             self.syntax_active = admitted;
+            self.external_applied = external;
         }
         admitted
+    }
+}
+
+impl Buffer {
+    fn external_assets(
+        &self,
+        admitted: bool,
+    ) -> Option<std::sync::Arc<crate::syntax::assets::Assets>> {
+        let handle = self.external.as_ref().filter(|_| admitted)?;
+        handle.start();
+        handle.admitted()
+    }
+
+    /// None means unregistered or not yet admitted; a completed failure is
+    /// retained for this session while bundled/plain editing stays available.
+    pub fn external_grammar_status(&self) -> Option<Result<(), &str>> {
+        self.external.as_ref()?.status()
+    }
+
+    fn assets_pending(&self) -> bool {
+        self.external.as_ref().is_some_and(|handle| {
+            handle.pending() || (!self.external_seen && handle.status().is_some())
+        })
+    }
+
+    fn poll_assets(&mut self) -> bool {
+        if self.external_seen || self.external_grammar_status().is_none() {
+            return false;
+        }
+        self.external_seen = true;
+        self.refresh_syntax();
+        true
+    }
+}
+
+impl super::Buffers {
+    pub(crate) fn assets_pending(&self) -> bool {
+        self.entries.values().any(Buffer::assets_pending)
+    }
+    pub(crate) fn poll_assets(&mut self) -> bool {
+        let mut changed = false;
+        for buffer in self.entries.values_mut() {
+            changed |= buffer.poll_assets();
+        }
+        changed
     }
 }

@@ -243,11 +243,18 @@ fn schema(models: &Models) -> Result<BTreeSet<String>> {
         }
     }
     let language = models.get("Language").ok_or("missing Language schema")?;
-    leaves.extend(
-        language
-            .iter()
-            .map(|(field, _)| format!("language.<id>.{field}")),
-    );
+    for (field, kind) in language {
+        if kind == "Option<External>" {
+            let external = models.get("External").ok_or("missing External schema")?;
+            leaves.extend(
+                external
+                    .iter()
+                    .map(|(leaf, _)| format!("language.<id>.external.{leaf}")),
+            );
+        } else {
+            leaves.insert(format!("language.<id>.{field}"));
+        }
+    }
     Ok(leaves)
 }
 

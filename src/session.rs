@@ -3,6 +3,7 @@ mod agenda_actions;
 mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
+mod assets;
 mod bookmarks;
 mod buffers;
 mod capture;

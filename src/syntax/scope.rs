@@ -38,20 +38,29 @@ const FUNCTIONS: &[&str] = &[
 /// Only explicit query scopes can admit local names; no token scan creates
 /// lexical regions. Scope nodes are scratch data bounded independently of names.
 #[derive(Default)]
-pub(super) struct Scopes(BTreeSet<usize>);
+pub(super) struct Scopes {
+    nodes: BTreeSet<usize>,
+    external: bool,
+}
 
 impl Scopes {
+    pub fn new(external: bool) -> Self {
+        Self {
+            external,
+            ..Self::default()
+        }
+    }
     pub fn insert(&mut self, node: Node<'_>) -> Result<(), String> {
-        if self.0.len() >= 8192 {
+        if self.nodes.len() >= 8192 {
             return Err("Native completion scope limit reached".into());
         }
-        self.0.insert(node.id());
+        self.nodes.insert(node.id());
         Ok(())
     }
 
     /// Fields remain observed member names without receiver type inference.
     pub fn declaration(&self, node: Node<'_>, kind: &str) -> Result<Option<Range<usize>>, String> {
-        if kind == "field" {
+        if kind == "field" && !self.external {
             return Ok(None);
         }
         let mut parent = node.parent();
@@ -63,11 +72,15 @@ impl Scopes {
             };
             function_scoped |= kind == "binding" && node.kind() == "variable_declaration";
             if self.region(node, kind, function_scoped) {
-                return Ok(Some(region_range(node, kind)));
+                return Ok(Some(if self.external {
+                    node.byte_range()
+                } else {
+                    region_range(node, kind)
+                }));
             }
             if kind == "parameter"
                 && node.kind() == "function_declarator"
-                && self.0.contains(&node.id())
+                && self.nodes.contains(&node.id())
             {
                 prototype = Some(node.byte_range());
             }
@@ -77,8 +90,9 @@ impl Scopes {
     }
 
     fn region(&self, node: Node<'_>, kind: &str, function_scoped: bool) -> bool {
-        self.0.contains(&node.id())
-            && ((!function_scoped && BLOCKS.contains(&node.kind()))
+        self.nodes.contains(&node.id())
+            && (self.external
+                || (!function_scoped && BLOCKS.contains(&node.kind()))
                 || (kind != "function" && FUNCTIONS.contains(&node.kind())))
     }
 }

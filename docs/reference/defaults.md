@@ -236,6 +236,10 @@ versus kill tab semantics across source/destination policies.
 | `language.<id>.indent_width` | Integer 1..=32 | Inherit global | Selected language's indentation-stop display columns. |
 | `language.<id>.tab_width` | Integer 1..=32 | Inherit global | Selected language's literal-tab display cells. |
 | `language.<id>.grammar` | String: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx", "json", "toml" or "plain" | Matching bundled grammar; plain otherwise | Selected language's grammar; no external parser download or installation. |
+| `language.<id>.external.parser` | Nonempty local path | Unset | Precompiled native library; relative to resolved XDG data root `rev/grammars`, or absolute. At most 32 complete registrations. |
+| `language.<id>.external.symbol` | ASCII `tree_sitter_` identifier, at most 128 bytes | Unset | Explicit parser export; required with the three asset paths. |
+| `language.<id>.external.highlights` | Nonempty local path | Unset | UTF-8 query, 1..=1048576 bytes; supported highlight captures only. |
+| `language.<id>.external.completions` | Nonempty local path | Unset | UTF-8 query, 1..=1048576 bytes; finite declaration/scope/literal profile. |
 
 Association keys are literal basenames or a leading `*.suffix`, including
 compound suffixes. Other wildcards, separators and controls reject. Matching is
@@ -245,6 +249,10 @@ retaining the first alias when canonical reuse finds an existing buffer; unique
 buffer-label suffixes do not participate. No language table is required for an
 identity. Unmatched or unnamed text is `plain`; Rust, C, Go, HTML, CSS,
 JavaScript, TypeScript, TSX, JSON and TOML identities default to their bundled grammars.
+A complete `external` table replaces its registration as a unit when layers
+override it. Assets are optional and user supplied; see
+[external grammar assets](syntax.md#external-grammar-assets) for admission,
+query captures, trust and restart requirements.
 `.tsx` retains the `typescript` preference identity while selecting its TSX parser. Other identities can use indentation
 without a parser, or explicitly select an admitted grammar.
 

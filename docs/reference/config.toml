@@ -315,7 +315,7 @@ inherit = []
 # upload = ["rsync", "-a", "{output_dir}", "user@example.org:site/"]
 
 [syntax]
-# Boolean; enable the existing bundled grammar/query, with plain-text fallback.
+# Boolean; enable admitted bundled/registered syntax, with plain-text fallback.
 enabled = true
 # Integer 0..=1073741824 UTF-8 bytes; zero means no configured cutoff.
 max_bytes = 0
@@ -739,3 +739,13 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "TAB" = "completion-accept"
 "RET" = "completion-accept"
 "C-g" = "keyboard-quit"
+
+# Optional precompiled native assets, installed separately before editor startup.
+# A complete registration replaces any earlier registration for this language.
+# Relative paths are under the resolved XDG data root's rev/grammars directory.
+# At most 32 registrations; UTF-8 queries must each fit 1 MiB. See syntax.md.
+# [language.python.external]
+# parser = "python-0.25.0/parser.so"
+# symbol = "tree_sitter_python"
+# highlights = "python-0.25.0/highlights.scm"
+# completions = "python-0.25.0/completions.scm"
