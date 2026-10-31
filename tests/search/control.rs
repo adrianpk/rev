@@ -78,27 +78,32 @@ fn backward_flow() {
 #[test]
 fn cancel_view() {
     let source = "abcdefghij\n".repeat(45) + &"x".repeat(120) + "TARGET";
-    let mut session = editor(&source, 5);
-    session.execute(Command::Split(Split::Right));
-    session.execute(Command::Scroll(Scroll::NextLine));
-    session.execute(Command::Scroll(Scroll::Recenter));
-    session.frame().unwrap();
-    let origin = session.view().clone();
-    let other = session.windows().order()[1];
-    let other_view = session.windows().get(other).unwrap().clone();
-    control(&mut session, 's');
-    query(&mut session, "target");
-    session.frame().unwrap();
-    assert!(session.view().top > origin.top);
-    assert!(session.view().left > origin.left);
-    control(&mut session, 'g');
-    assert_eq!(session.view(), &origin);
-    session.frame().unwrap();
-    assert_eq!(session.view(), &origin);
-    assert_eq!(session.windows().get(other).unwrap(), &other_view);
-    assert!(session.search_match().is_none());
-    assert_eq!(text(&session), source);
-    assert!(!session.buffer().unwrap().is_modified());
+    for wrap in [true, false] {
+        let mut session = editor(&source, 5);
+        if !wrap {
+            session.execute(Command::VisualLineMode);
+        }
+        session.execute(Command::Split(Split::Right));
+        session.execute(Command::Scroll(Scroll::NextLine));
+        session.execute(Command::Scroll(Scroll::Recenter));
+        session.frame().unwrap();
+        let origin = session.view().clone();
+        let other = session.windows().order()[1];
+        let other_view = session.windows().get(other).unwrap().clone();
+        control(&mut session, 's');
+        query(&mut session, "target");
+        session.frame().unwrap();
+        assert!(session.view().top > origin.top);
+        assert_eq!(session.view().left > origin.left, !wrap);
+        control(&mut session, 'g');
+        assert_eq!(session.view(), &origin);
+        session.frame().unwrap();
+        assert_eq!(session.view(), &origin);
+        assert_eq!(session.windows().get(other).unwrap(), &other_view);
+        assert!(session.search_match().is_none());
+        assert_eq!(text(&session), source);
+        assert!(!session.buffer().unwrap().is_modified());
+    }
 }
 
 // A backward scan crosses an actual chunk seam containing expanded Unicode,

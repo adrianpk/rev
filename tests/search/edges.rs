@@ -150,27 +150,32 @@ fn query_recovery() {
 // suspension. Multiline query input remains visible control notation, not ANSI.
 #[test]
 fn multiline_resize() {
-    let mut session = editor("before\na\t界\r\nend\nlast", 0);
-    control(&mut session, 's');
-    query(&mut session, "界\r\nend");
-    let point = session.view().point;
-    let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[1].search(), Some(10..80));
-    assert_eq!(frame.rows()[2].search(), Some(6..9));
-    for (width, height) in [(0, 0), (0, 8), (1, 1), (3, 3), (80, 10)] {
-        session.handle(Event::Resize(width, height));
+    for wrap in [true, false] {
+        let mut session = editor("before\na\t界\r\nend\nlast", 0);
+        if !wrap {
+            session.execute(Command::VisualLineMode);
+        }
+        control(&mut session, 's');
+        query(&mut session, "界\r\nend");
+        let point = session.view().point;
         let frame = session.frame().unwrap();
-        let mut wire = Vec::new();
-        frame.write(&mut wire).unwrap();
-        assert_eq!(session.view().point, point);
-        assert_eq!(session.search_match().unwrap().range, 9..15);
+        assert_eq!(frame.rows()[1].search(), Some(10..80));
+        assert_eq!(frame.rows()[2].search(), Some(6..9));
+        for (width, height) in [(0, 0), (0, 8), (1, 1), (3, 3), (80, 10)] {
+            session.handle(Event::Resize(width, height));
+            let frame = session.frame().unwrap();
+            let mut wire = Vec::new();
+            frame.write(&mut wire).unwrap();
+            assert_eq!(session.view().point, point);
+            assert_eq!(session.search_match().unwrap().range, 9..15);
+        }
+        let frame = session.frame().unwrap();
+        let visible_end = u16::try_from(3usize.saturating_sub(session.view().left)).unwrap();
+        assert_eq!(frame.rows()[0].search(), Some(6..6 + visible_end));
+        assert!(frame.rows().last().unwrap().text().contains("I-search:"));
+        assert!(frame.rows().iter().all(|row| !row.text().contains('\x1b')));
+        assert_eq!(text(&session), "before\na\t界\r\nend\nlast");
     }
-    let frame = session.frame().unwrap();
-    let visible_end = u16::try_from(3usize.saturating_sub(session.view().left)).unwrap();
-    assert_eq!(frame.rows()[0].search(), Some(6..6 + visible_end));
-    assert!(frame.rows().last().unwrap().text().contains("I-search:"));
-    assert!(frame.rows().iter().all(|row| !row.text().contains('\x1b')));
-    assert_eq!(text(&session), "before\na\t界\r\nend\nlast");
 }
 
 // Binding and exact M-x invocation share search ownership and result semantics;

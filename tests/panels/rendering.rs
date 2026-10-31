@@ -314,63 +314,83 @@ fn workspace_tree() {
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
     use rev::command::{Motion, RegionCommand, TreeCommand};
 
-    let fixture = Fixture::new();
-    let source = "\tfn target() {}\r\n界e\u{301}";
-    let path = fixture.write("main.rs", source);
-    let mut buffers = Buffers::new().unwrap();
-    let id = buffers.visit(&path).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
-    let size = Size {
-        width: 61,
-        height: 13,
-    };
-    let mut session = Session::new(buffers, view, size).unwrap();
-    session.execute(Command::Split(Split::Right));
-    session.execute(Command::Split(Split::Below));
-    let ids = session.windows().order();
-    session.execute(Command::Tree(TreeCommand::Toggle));
-    let composition = Composition::workspace(session.windows(), session.tree(), size, 0).unwrap();
-    let tree = composition.tree().unwrap();
-    let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].selection(), Some(0..20));
-    assert_eq!(frame.cursor(), tree.position(position(0, 0)));
-    assert_eq!(drawn(&frame, 20, 5), "├");
-    assert_eq!(drawn(&frame, 40, 5), "┤");
-    assert!(
-        composition
-            .panels()
-            .iter()
-            .all(|(_, panel)| !panel.active())
-    );
-    assert!(
-        frame.rows()[0]
-            .syntax()
-            .iter()
-            .all(|paint| paint.columns.start >= 21)
-    );
-    session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
-    session.execute(Command::Motion(Motion::ForwardChar));
-    session.execute(Command::Region(RegionCommand::Set));
-    session.execute(Command::SearchForward);
-    session.handle(Event::Paste("target".into()));
-    let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].selection(), Some(30..39));
-    assert_eq!(frame.rows()[0].search(), Some(33..39));
-    assert_eq!(drawn(&frame, 33, 0), "t");
-    session.handle(Event::Key(KeyEvent::new(
-        KeyCode::Enter,
-        KeyModifiers::NONE,
-    )));
-    assert_eq!(session.frame().unwrap().cursor(), Some(position(39, 0)));
-    assert_eq!(session.windows().order(), ids);
-    let buffer = session.buffer().unwrap();
-    assert_eq!(
-        buffer
-            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
-            .unwrap(),
-        source
-    );
-    assert!(buffer.history().is_empty());
+    for wrap in [true, false] {
+        let fixture = Fixture::new();
+        let source = "\tfn target() {}\r\n界e\u{301}";
+        let path = fixture.write("main.rs", source);
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.visit(&path).unwrap();
+        if !wrap {
+            buffers.get_mut(id).unwrap().toggle_soft_wrap();
+        }
+        let view = View::new(buffers.get(id).unwrap());
+        let size = Size {
+            width: 61,
+            height: 13,
+        };
+        let mut session = Session::new(buffers, view, size).unwrap();
+        session.execute(Command::Split(Split::Right));
+        session.execute(Command::Split(Split::Below));
+        let ids = session.windows().order();
+        session.execute(Command::Tree(TreeCommand::Toggle));
+        let composition =
+            Composition::workspace(session.windows(), session.tree(), size, 0).unwrap();
+        let tree = composition.tree().unwrap();
+        let frame = session.frame().unwrap();
+        assert_eq!(frame.rows()[0].selection(), Some(0..20));
+        assert_eq!(frame.cursor(), tree.position(position(0, 0)));
+        assert_eq!(drawn(&frame, 20, 5), "├");
+        assert_eq!(drawn(&frame, 40, 5), "┤");
+        assert!(
+            composition
+                .panels()
+                .iter()
+                .all(|(_, panel)| !panel.active())
+        );
+        assert!(
+            frame.rows()[0]
+                .syntax()
+                .iter()
+                .all(|paint| paint.columns.start >= 21)
+        );
+        session.handle(Event::Key(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)));
+        session.execute(Command::Motion(Motion::ForwardChar));
+        session.execute(Command::Region(RegionCommand::Set));
+        session.execute(Command::SearchForward);
+        session.handle(Event::Paste("target".into()));
+        let frame = session.frame().unwrap();
+        if wrap {
+            assert_eq!(frame.rows()[0].selection(), Some(31..34));
+            assert_eq!(frame.rows()[1].selection(), Some(27..33));
+            assert_eq!(frame.rows()[1].search(), Some(27..33));
+            assert_eq!(drawn(&frame, 27, 1), "t");
+        } else {
+            assert_eq!(frame.rows()[0].selection(), Some(30..39));
+            assert_eq!(frame.rows()[0].search(), Some(33..39));
+            assert_eq!(drawn(&frame, 33, 0), "t");
+        }
+        session.handle(Event::Key(KeyEvent::new(
+            KeyCode::Enter,
+            KeyModifiers::NONE,
+        )));
+        assert_eq!(
+            session.frame().unwrap().cursor(),
+            Some(if wrap {
+                position(33, 1)
+            } else {
+                position(39, 0)
+            })
+        );
+        assert_eq!(session.windows().order(), ids);
+        let buffer = session.buffer().unwrap();
+        assert_eq!(
+            buffer
+                .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+                .unwrap(),
+            source
+        );
+        assert!(buffer.history().is_empty());
+    }
 }
 
 // Hiding and reopening a tree during native resize preserves a pending Unicode

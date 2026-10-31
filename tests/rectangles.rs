@@ -267,41 +267,52 @@ fn unicode_edges() {
 #[test]
 fn clipped_surface() {
     use rev::display::Frame;
-    let mut session = selected(
-        "012345\na\t界z\nQ👩\u{200d}💻e\u{301}X\nx\n\n012345",
-        cell(0, 2),
-        cell(5, 5),
-    );
-    let mut view = session.view().clone();
-    view.top = 1;
-    view.left = 3;
-    let frame = Frame::project(
-        session.buffer().unwrap(),
-        &view,
-        Size {
-            width: 3,
-            height: 5,
-        },
-        "notice",
-    )
-    .unwrap();
-    assert_eq!(frame.rows()[0].selection(), Some(0..3));
-    assert_eq!(frame.rows()[1].selection(), Some(0..2));
-    assert!(
-        frame
-            .rows()
-            .iter()
-            .skip(2)
-            .all(|row| row.selection().is_none())
-    );
-    let cells = surface::draw(&frame);
-    let palette = rev::config::Palette::default();
-    assert_eq!(cells[&(0, 0)].foreground, Some(palette.selection_text));
-    assert_eq!(cells[&(0, 0)].background, Some(palette.selection));
-    assert_eq!(cells[&(1, 0)].background, Some(palette.selection));
-    assert_eq!(cells[&(1, 2)].background, Some(palette.background));
-    copy(&mut session);
-    assert_eq!(session.rectangle().unwrap().rows()[1], "  界");
+    for wrap in [true, false] {
+        let mut session = selected(
+            "012345\na\t界z\nQ👩\u{200d}💻e\u{301}X\nx\n\n012345",
+            cell(0, 2),
+            cell(5, 5),
+        );
+        if !wrap {
+            session.execute(Command::VisualLineMode);
+        }
+        let mut view = session.view().clone();
+        view.top = 1;
+        view.left = 3;
+        let frame = Frame::project(
+            session.buffer().unwrap(),
+            &view,
+            Size {
+                width: 3,
+                height: 5,
+            },
+            "notice",
+        )
+        .unwrap();
+        if wrap {
+            assert_eq!(frame.rows()[0].selection(), None);
+            assert_eq!(frame.rows()[1].selection(), Some(1..3));
+            assert_eq!(frame.rows()[2].selection(), Some(0..2));
+        } else {
+            assert_eq!(frame.rows()[0].selection(), Some(0..3));
+            assert_eq!(frame.rows()[1].selection(), Some(0..2));
+            assert!(
+                frame
+                    .rows()
+                    .iter()
+                    .skip(2)
+                    .all(|row| row.selection().is_none())
+            );
+            let cells = surface::draw(&frame);
+            let palette = rev::config::Palette::default();
+            assert_eq!(cells[&(0, 0)].foreground, Some(palette.selection_text));
+            assert_eq!(cells[&(0, 0)].background, Some(palette.selection));
+            assert_eq!(cells[&(1, 0)].background, Some(palette.selection));
+            assert_eq!(cells[&(1, 2)].background, Some(palette.background));
+        }
+        copy(&mut session);
+        assert_eq!(session.rectangle().unwrap().rows()[1], "  界");
+    }
 }
 
 // Copy scans the selected rope rows rather than the visible surface or a
@@ -312,24 +323,30 @@ fn scrolled_chunks() {
     let anchor = "a".repeat(1030);
     let middle = format!("{}e\u{301}界👩\u{200d}💻tail", "a".repeat(1020));
     let source = format!("{anchor}\n{}\n{anchor}", vec![middle; 80].join("\n"));
-    let mut session = selected(&source, cell(0, 1021), cell(81, 1024));
-    session.handle(Event::Resize(5, 4));
-    let frame = session.frame().unwrap();
-    assert!(session.view().top > 0 && session.view().left > 0);
-    assert!(frame.cursor().is_some());
-    copy(&mut session);
-    let block = session.rectangle().unwrap();
-    assert_eq!(block.width(), 3);
-    assert_eq!(block.rows().len(), 82);
-    assert_eq!(block.rows()[0], "aaa");
-    assert_eq!(block.rows()[81], "aaa");
-    assert!(
-        block.rows()[1..81]
-            .iter()
-            .all(|row| row == "界👩\u{200d}💻")
-    );
-    assert_eq!(text(&session), source);
-    assert!(session.buffer().unwrap().history().is_empty());
+    for wrap in [true, false] {
+        let mut session = selected(&source, cell(0, 1021), cell(81, 1024));
+        if !wrap {
+            session.execute(Command::VisualLineMode);
+        }
+        session.handle(Event::Resize(5, 4));
+        let frame = session.frame().unwrap();
+        assert!(session.view().top > 0);
+        assert_eq!(session.view().left > 0, !wrap);
+        assert!(frame.cursor().is_some());
+        copy(&mut session);
+        let block = session.rectangle().unwrap();
+        assert_eq!(block.width(), 3);
+        assert_eq!(block.rows().len(), 82);
+        assert_eq!(block.rows()[0], "aaa");
+        assert_eq!(block.rows()[81], "aaa");
+        assert!(
+            block.rows()[1..81]
+                .iter()
+                .all(|row| row == "界👩\u{200d}💻")
+        );
+        assert_eq!(text(&session), source);
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
 }
 
 // The rectangle replaces only its own store. Rejected empty/inactive copies

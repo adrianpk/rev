@@ -19,15 +19,19 @@ fn unicode_edges() {
     let fixture = super::config_fixture::Fixture::new();
     let line = "ab\t界e\u{301}👩‍💻\r\n";
     let source = line.repeat(30);
-    for (width, side) in [1, 4, 8, 32]
+    for (width, side, wrap) in [1, 4, 8, 32]
         .into_iter()
         .flat_map(|width| [Side::Left, Side::Right].map(move |side| (width, side)))
+        .flat_map(|(width, side)| [true, false].map(move |wrap| (width, side, wrap)))
     {
         let root = fixture.write("config.toml", &format!("editor.tab_width = {width}"));
         let mut buffers = Buffers::with_settings(rev::config::prepare(&root).snapshot).unwrap();
         let id = buffers.create(&source).unwrap();
         let buffer = buffers.get_mut(id).unwrap();
         buffer.set_readonly(true);
+        if !wrap {
+            buffer.toggle_soft_wrap();
+        }
         let mut view = View::new(buffer);
         view.gutter.apply(Change::Side(side));
         view.point.position = Scalar(3);
@@ -45,8 +49,13 @@ fn unicode_edges() {
         session.handle_at(drag(origin + 3, 10), now);
         assert_eq!(session.expire_input(now + TICK), Action::Redraw);
         let point = session.view().point.position;
-        assert_eq!(point, Scalar(12 * line.chars().count() + 6));
-        assert_eq!(range(&session), Some(3..point.0));
+        let (anchor, end) = if wrap {
+            (0, if width == 1 { 3 } else { 2 })
+        } else {
+            (3, 6)
+        };
+        assert_eq!(point, Scalar(12 * line.chars().count() + end));
+        assert_eq!(range(&session), Some(anchor..point.0));
         assert!(
             Coordinates::new(session.buffer().unwrap())
                 .unwrap()

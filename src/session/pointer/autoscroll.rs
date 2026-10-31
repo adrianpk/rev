@@ -18,16 +18,6 @@ pub(super) struct Autoscroll {
     due: Instant,
 }
 
-impl Autoscroll {
-    fn blocked(&self, top: usize, first: usize, last: usize) -> bool {
-        if self.backward {
-            top == first
-        } else {
-            top == last
-        }
-    }
-}
-
 impl Selection {
     pub(super) fn track(&mut self, position: Position, content: Area, now: Instant) {
         let Some(backward) = direction(position, content) else {
@@ -119,14 +109,11 @@ impl Session {
         };
         let before = self.view();
         let changed = candidate != *before;
-        let buffer = self.buffer()?;
-        let first = candidate
-            .source_at(buffer, 0)
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        let last = candidate
-            .source_at(buffer, candidate.visible_lines(buffer) - 1)
-            .ok_or(crate::coordinates::Error::Overflow)?;
-        if pending.blocked(candidate.top, first, last) {
+        if candidate.viewport_blocked(
+            self.buffer()?,
+            panel.outer().view_size(),
+            pending.backward,
+        )? {
             selection.autoscroll = None;
         }
         if changed {
@@ -156,8 +143,25 @@ impl Session {
         if text.width() == 0 {
             return Ok(None);
         }
-        candidate.point.position =
-            Coordinates::new(buffer)?.from_cell(edge_cell(&candidate, buffer, text, pending)?)?;
+        candidate.point.position = if buffer.soft_wrap() {
+            let fragments = candidate.wrapped_rows(buffer, text.width(), text.height())?;
+            let edge = if pending.backward {
+                fragments.first()
+            } else {
+                fragments.last()
+            };
+            let Some(edge) = edge else {
+                return Ok(None);
+            };
+            let column = pending
+                .position
+                .column
+                .saturating_sub(text.column())
+                .min(text.width() - 1);
+            crate::view::View::fragment_point(buffer, edge, usize::from(column))?
+        } else {
+            Coordinates::new(buffer)?.from_cell(edge_cell(&candidate, buffer, text, pending)?)?
+        };
         candidate.reset_navigation();
         candidate.reveal(buffer, size)?;
         Ok(Some(candidate))

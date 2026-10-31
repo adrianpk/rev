@@ -19,6 +19,19 @@ pub struct Fragment {
 }
 
 impl Fragment {
+    pub(crate) fn painted_width(&self, width: u16) -> u16 {
+        (self.columns.end - self.columns.start).min(usize::from(width)) as u16
+    }
+
+    // Only a real source newline can select the remaining blank cells.
+    pub(crate) fn highlight_width(&self, width: u16) -> u16 {
+        if self.end_of_line {
+            width
+        } else {
+            self.painted_width(width)
+        }
+    }
+
     pub(crate) fn contains(&self, point: Scalar, width: u16) -> bool {
         self.source.contains(&point)
             || self.end_of_line
@@ -133,6 +146,7 @@ impl View {
                 if source == self.top
                     && fragment.source.end <= self.wrap_start
                     && !fragment.source.is_empty()
+                    && !fragment.contains(self.wrap_start, width)
                 {
                     continue;
                 }

@@ -223,9 +223,7 @@ impl Frame {
                     .unwrap_or(buffer.len_lines())
             };
             let left = fragment.map_or(view.left, |f| f.columns.start);
-            let painted = fragment.map_or(content.width(), |f| {
-                (f.columns.end - f.columns.start).min(usize::from(content.width())) as u16
-            });
+            let painted = fragment.map_or(content.width(), |f| f.painted_width(content.width()));
             let text = if let Some(fragment) = fragment {
                 fragment.text.clone()
             } else if source < buffer.len_lines() {
@@ -248,11 +246,7 @@ impl Frame {
                             buffer,
                             source,
                             left,
-                            if fragment.is_some_and(|f| f.end_of_line) {
-                                content.width()
-                            } else {
-                                painted
-                            },
+                            fragment.map_or(painted, |f| f.highlight_width(content.width())),
                         )
                     })
                     .transpose()?

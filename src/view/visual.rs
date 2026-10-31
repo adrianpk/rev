@@ -120,7 +120,7 @@ impl View {
         Ok(result)
     }
 
-    pub(super) fn fragment_point(
+    pub(crate) fn fragment_point(
         buffer: &Buffer,
         fragment: &Fragment,
         column: usize,
@@ -132,6 +132,68 @@ impl View {
             row: fragment.line,
             column: fragment.columns.start.saturating_add(column).min(last),
         })?)
+    }
+
+    pub(super) fn visual_viewport(
+        &mut self,
+        buffer: &Buffer,
+        backward: bool,
+        distance: usize,
+        width: u16,
+        rows: u16,
+    ) -> Result<(), Error> {
+        self.sync_policy(buffer);
+        let mut top = self.wrapped_rows(buffer, width, 1)?;
+        let Some(mut top) = top.pop() else {
+            return Ok(());
+        };
+        let point = self.cell(buffer)?;
+        let current = self.visual_fragment(buffer, width)?;
+        let column = point.column - current.columns.start;
+        for _ in 0..distance {
+            let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
+                break;
+            };
+            top = next;
+        }
+        self.top = top.line;
+        self.wrap_start = top.source.start;
+        let visible = self.wrapped_rows(buffer, width, rows)?;
+        if !visible
+            .iter()
+            .any(|f| f.contains(self.point.position, width))
+        {
+            let edge = if self.point.position < top.source.start {
+                &top
+            } else {
+                visible.last().unwrap_or(&top)
+            };
+            self.point.position = Self::fragment_point(buffer, edge, column)?;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn viewport_blocked(
+        &self,
+        buffer: &Buffer,
+        size: Size,
+        backward: bool,
+    ) -> Result<bool, Error> {
+        let width = self.text_width(buffer, size)?;
+        if buffer.soft_wrap() && width > 0 {
+            let Some(top) = self.wrapped_rows(buffer, width, 1)?.pop() else {
+                return Ok(true);
+            };
+            return Ok(self
+                .adjacent_fragment(buffer, width, &top, backward)?
+                .is_none());
+        }
+        let top = self.projected_top(buffer);
+        Ok(if backward {
+            top == 0
+        } else {
+            top == self.visible_lines(buffer) - 1
+        })
     }
 
     pub(crate) fn visual_scroll(

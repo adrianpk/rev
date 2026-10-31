@@ -26,6 +26,10 @@ impl View {
             return Ok(());
         }
         self.reveal_fold(buffer, point.row)?;
+        let width = self.text_width(buffer, size)?;
+        if buffer.soft_wrap() && width > 0 {
+            return self.visual_viewport(buffer, backward, distance, width, size.text_rows());
+        }
         let last = self.visible_lines(buffer) - 1;
         let top = destination(self.projected_top(buffer), distance, backward).min(last);
         self.top = self

@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "wrapping/interaction.rs"]
+mod interaction;
 #[path = "wrapping/visual.rs"]
 mod visual;
 

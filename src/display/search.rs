@@ -20,10 +20,21 @@ impl Frame {
         let geometry = view.gutter_geometry(buffer, panel.content())?;
         let panel = Panel::new(geometry.text(), false, panel.active());
         let highlight = Highlight::from_span(buffer, span)?;
+        let text = panel.content();
+        let fragments = if buffer.soft_wrap() {
+            view.wrapped_rows(buffer, text.width(), text.height())?
+        } else {
+            Vec::new()
+        };
         for local in 0..panel.content().height() {
-            let columns = view
-                .source_row(buffer, usize::from(local))
-                .and_then(|source| highlight.row(source, view.left, panel.content().width()));
+            let columns = if buffer.soft_wrap() {
+                fragments.get(usize::from(local)).and_then(|f| {
+                    highlight.row(f.line, f.columns.start, f.highlight_width(text.width()))
+                })
+            } else {
+                view.source_row(buffer, usize::from(local))
+                    .and_then(|source| highlight.row(source, view.left, text.width()))
+            };
             if let Some((row, columns)) = columns.and_then(|columns| panel.clip(local, columns)) {
                 let target = self
                     .rows

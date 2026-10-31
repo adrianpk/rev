@@ -79,7 +79,7 @@ fn eof_padding() {
 #[test]
 fn clipped_cells() {
     let mut buffers = Buffers::new().unwrap();
-    for (name, text, left, width, rendered, expected) in [
+    for (name, text, left, width, rendered, expected, wrapped, wrapped_hits) in [
         (
             "left tab",
             "a\tb",
@@ -87,6 +87,8 @@ fn clipped_cells() {
             10,
             "  b ",
             &[None, None, Some(2), Some(3)][..],
+            "a   ",
+            &[Some(0), Some(1), Some(1), Some(1)][..],
         ),
         (
             "left wide",
@@ -95,12 +97,16 @@ fn clipped_cells() {
             9,
             " b ",
             &[None, Some(2), Some(3)][..],
+            "a界",
+            &[Some(0), Some(1), Some(1)][..],
         ),
         (
             "right wide",
             "ab界",
             0,
             9,
+            "ab ",
+            &[Some(0), Some(1), None][..],
             "ab ",
             &[Some(0), Some(1), None][..],
         ),
@@ -111,31 +117,43 @@ fn clipped_cells() {
             9,
             "ab ",
             &[Some(0), Some(1), None][..],
+            "ab ",
+            &[Some(0), Some(1), None][..],
         ),
     ] {
-        let id = buffers.create(text).unwrap();
-        let buffer = buffers.get(id).unwrap();
-        let mut view = View::new(buffer);
-        view.left = left;
-        let frame = Frame::project(buffer, &view, Size { width, height: 5 }, "").unwrap();
-        assert_eq!(
-            frame.rows()[0].text().chars().skip(6).collect::<String>(),
-            rendered,
-            "{name}"
-        );
-        let content = Area::new(0, 0, width, 3).unwrap();
-        for (column, &expected) in expected.iter().enumerate() {
-            let point = view
-                .hit(
-                    buffer,
-                    content,
-                    Position {
-                        column: 6 + column as u16,
-                        row: 0,
-                    },
-                )
-                .unwrap();
-            assert_eq!(point.map(|p| p.position.0), expected, "{name}/{column}");
+        for wrap in [true, false] {
+            let id = buffers.create(text).unwrap();
+            if !wrap {
+                buffers.get_mut(id).unwrap().toggle_soft_wrap();
+            }
+            let (rendered, expected) = if wrap {
+                (wrapped, wrapped_hits)
+            } else {
+                (rendered, expected)
+            };
+            let buffer = buffers.get(id).unwrap();
+            let mut view = View::new(buffer);
+            view.left = left;
+            let frame = Frame::project(buffer, &view, Size { width, height: 5 }, "").unwrap();
+            assert_eq!(
+                frame.rows()[0].text().chars().skip(6).collect::<String>(),
+                rendered,
+                "{name}"
+            );
+            let content = Area::new(0, 0, width, 3).unwrap();
+            for (column, &expected) in expected.iter().enumerate() {
+                let point = view
+                    .hit(
+                        buffer,
+                        content,
+                        Position {
+                            column: 6 + column as u16,
+                            row: 0,
+                        },
+                    )
+                    .unwrap();
+                assert_eq!(point.map(|p| p.position.0), expected, "{name}/{column}");
+            }
         }
     }
 }
@@ -222,6 +240,9 @@ fn checked_candidates() {
     );
     let mut current = View::new(buffer);
     current.left = usize::MAX;
+    assert_eq!(hit(&current, buffer, 7, 0), Some(1));
+    // Horizontal origins are checked only in the explicit no-wrap policy.
+    buffer.toggle_soft_wrap();
     assert!(
         current
             .hit(

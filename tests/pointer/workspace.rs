@@ -264,31 +264,41 @@ fn scrolled_text() {
     let text = (0..50)
         .map(|row| format!("{row:02}:{}\n", "x".repeat(100)))
         .collect::<String>();
-    let mut buffers = Buffers::new().unwrap();
-    let id = buffers.create(&text).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
-    let mut session = Session::new(buffers, view, size()).unwrap();
-    session.execute(Command::GotoLine);
-    session.handle(Event::Paste("25".into()));
-    session.handle(key(KeyCode::Enter));
-    session.execute(Command::Motion(rev::command::Motion::LineEnd));
-    let (top, left) = (session.view().top, session.view().left);
-    assert!(top > 0 && left > 0);
-    assert_eq!(
-        session.handle(press(Position { column: 8, row: 1 })),
-        Action::Redraw
-    );
-    assert_eq!(
-        session.view().point.position,
-        Scalar((top + 1) * 104 + left + 2)
-    );
-    assert_eq!((session.view().top, session.view().left), (top, left));
-    assert_eq!(
-        session.frame().unwrap().cursor(),
-        Some(Position { column: 8, row: 1 })
-    );
-    assert_eq!(source(&session), text);
-    assert!(session.buffer().unwrap().history().is_empty());
+    for wrap in [true, false] {
+        let mut buffers = Buffers::new().unwrap();
+        let id = buffers.create(&text).unwrap();
+        if !wrap {
+            buffers.get_mut(id).unwrap().toggle_soft_wrap();
+        }
+        let view = View::new(buffers.get(id).unwrap());
+        let mut session = Session::new(buffers, view, size()).unwrap();
+        session.execute(Command::GotoLine);
+        session.handle(Event::Paste("25".into()));
+        session.handle(key(KeyCode::Enter));
+        session.execute(Command::Motion(rev::command::Motion::LineEnd));
+        let (top, left) = (session.view().top, session.view().left);
+        assert!(top > 0);
+        assert_eq!(left > 0, !wrap);
+        assert_eq!(
+            session.handle(press(Position { column: 8, row: 1 })),
+            Action::Redraw
+        );
+        assert_eq!(
+            session.view().point.position,
+            Scalar(if wrap {
+                (top + 1) * 104 + 2
+            } else {
+                (top + 1) * 104 + left + 2
+            })
+        );
+        assert_eq!((session.view().top, session.view().left), (top, left));
+        assert_eq!(
+            session.frame().unwrap().cursor(),
+            Some(Position { column: 8, row: 1 })
+        );
+        assert_eq!(source(&session), text);
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
 }
 
 // Prompt/decision/inventory owners ignore presses/wheels over text and auxiliary

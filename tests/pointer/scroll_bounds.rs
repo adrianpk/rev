@@ -69,7 +69,21 @@ fn necessary_adjustment() {
     for top in [3, 6] {
         expected.top = top;
         session.handle(wheel(false, 6, 0));
-        assert_eq!(session.view(), &expected);
+        assert_eq!(session.view().point, expected.point);
+        assert_eq!(session.view().column, expected.column);
+        assert_eq!(
+            (session.view().top, session.view().left),
+            (expected.top, expected.left)
+        );
+        assert_eq!(
+            session
+                .view()
+                .wrapped_rows(session.buffer().unwrap(), 74, 1)
+                .unwrap()[0]
+                .source
+                .start,
+            Scalar(top * 8)
+        );
     }
     session.handle(wheel(false, 6, 0));
     assert_eq!(
@@ -92,12 +106,18 @@ fn necessary_adjustment() {
 fn checked_columns() {
     let fixture = super::config_fixture::Fixture::new();
     let source = "x\t界e\u{301}\r\n".repeat(20);
-    for width in [1, 4, 8, 32] {
+    for (width, wrap) in [1, 4, 8, 32]
+        .into_iter()
+        .flat_map(|width| [true, false].map(move |wrap| (width, wrap)))
+    {
         let config = fixture.write("config.toml", &format!("editor.tab_width = {width}"));
         let mut buffers = Buffers::with_settings(rev::config::prepare(&config).snapshot).unwrap();
         let id = buffers.create(&source).unwrap();
         let buffer = buffers.get_mut(id).unwrap();
         buffer.set_readonly(true);
+        if !wrap {
+            buffer.toggle_soft_wrap();
+        }
         let mut view = View::new(buffer);
         view.point.position = Scalar(2);
         view.left = width.max(2);
@@ -115,10 +135,13 @@ fn checked_columns() {
                 .column,
             width.max(2)
         );
-        assert_eq!(session.view().left, width.max(2));
+        assert_eq!(session.view().left, if wrap { 0 } else { width.max(2) });
         assert_eq!(
             session.frame().unwrap().cursor(),
-            Some(Position { column: 6, row: 0 })
+            Some(Position {
+                column: 6 + if wrap { width.max(2) as u16 } else { 0 },
+                row: 0
+            })
         );
         assert_eq!(session.buffer().unwrap().newline(), "\r\n");
         assert!(session.buffer().unwrap().history().is_empty());

@@ -76,13 +76,17 @@ fn editing_commands() {
 #[test]
 fn unicode_endpoints() {
     let fixture = super::config_fixture::Fixture::new();
-    for (width, side) in [1, 4, 8, 32]
+    for (width, side, wrap) in [1, 4, 8, 32]
         .into_iter()
         .flat_map(|width| [Side::Left, Side::Right].map(move |side| (width, side)))
+        .flat_map(|(width, side)| [true, false].map(move |wrap| (width, side, wrap)))
     {
         let root = fixture.write("config.toml", &format!("editor.tab_width = {width}"));
         let mut buffers = Buffers::with_settings(rev::config::prepare(&root).snapshot).unwrap();
         let id = buffers.create(SOURCE).unwrap();
+        if !wrap {
+            buffers.get_mut(id).unwrap().toggle_soft_wrap();
+        }
         let mut view = View::new(buffers.get(id).unwrap());
         view.gutter.apply(Change::Side(side));
         view.point.position = Scalar(2);
@@ -95,12 +99,33 @@ fn unicode_endpoints() {
         }));
         session.handle(drag(origin + 3, 0));
         session.handle(release(origin + 4, 0));
-        assert_eq!(range(&session), Some(2..5));
-        assert_eq!(session.view().point.position, Scalar(5));
-        assert_eq!(session.view().left, width.max(2));
+        let end = if wrap {
+            match width {
+                1 => 3,
+                4 => 2,
+                _ => 1,
+            }
+        } else {
+            5
+        };
+        assert_eq!(range(&session), Some(if wrap { 0..end } else { 2..end }));
+        assert_eq!(session.view().point.position, Scalar(end));
+        assert_eq!(session.view().left, if wrap { 0 } else { width.max(2) });
         assert_eq!(
             session.frame().unwrap().rows()[0].selection(),
-            Some(origin..origin + 3)
+            Some(
+                origin
+                    ..origin
+                        + if wrap {
+                            match width {
+                                1 => 4,
+                                4 => 4,
+                                _ => 1,
+                            }
+                        } else {
+                            3
+                        }
+            )
         );
         assert_eq!(bytes(&session), SOURCE.as_bytes());
         assert!(session.buffer().unwrap().history().is_empty());

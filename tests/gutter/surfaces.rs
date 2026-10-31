@@ -83,6 +83,7 @@ fn overlay_origins() {
 fn overlay_case(name: &str, width: u16, right: bool, visible: bool, expected: (u16, usize)) {
     let fixture = Fixture::new();
     let mut session = editor(&fixture, right, visible);
+    session.execute(Command::VisualLineMode);
     session.handle(Event::Resize(width, 13));
     let peers: Vec<_> = session
         .windows()
@@ -209,4 +210,58 @@ fn rectangle(session: &mut Session, width: u16) {
         );
     }
     assert!(frame.rows().iter().all(|row| row.search().is_none()));
+}
+
+// The same nested/tree geometries wrap with factory policy. Search and region
+// styles cover exactly the source text across fragments under either gutter
+// side, hiding or narrow suppression; the terminal writer keeps them on text.
+#[test]
+fn wrapped_overlays() {
+    for (width, right, visible) in [
+        (61, false, true),
+        (61, true, true),
+        (61, false, false),
+        (19, false, true),
+        (19, true, true),
+    ] {
+        let fixture = Fixture::new();
+        let mut session = editor(&fixture, right, visible);
+        session.handle(Event::Resize(width, 13));
+        session.execute(Command::Motion(Motion::ForwardChar));
+        session.execute(Command::Region(RegionCommand::Set));
+        session.execute(Command::SearchForward);
+        session.handle(Event::Paste("target".into()));
+        let frame = session.frame().unwrap();
+        let content = text_panel(&session, width).content();
+        let cells = surface::draw(&frame);
+        let mut searched = String::new();
+        let mut selected = String::new();
+        for (row, painted) in frame.rows().iter().enumerate() {
+            for (span, text) in [
+                (painted.search(), &mut searched),
+                (painted.selection(), &mut selected),
+            ] {
+                if let Some(span) = span {
+                    assert!(
+                        row >= usize::from(content.row())
+                            && row < usize::from(content.row() + content.height())
+                    );
+                    assert!(
+                        span.start >= content.column()
+                            && span.end <= content.column() + content.width()
+                    );
+                    for col in span {
+                        text.push(cells[&(row, usize::from(col))].character);
+                    }
+                }
+            }
+        }
+        assert_eq!(searched, "target", "{width}/{right}/{visible}");
+        assert_eq!(selected, "fn target", "{width}/{right}/{visible}");
+        assert_eq!(session.search_match().unwrap().range, 4..10);
+        assert_eq!(session.view().point.position, Scalar(10));
+        assert_eq!(session.view().left, 0);
+        assert!(frame.cursor().is_some());
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
 }

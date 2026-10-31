@@ -28,6 +28,32 @@ impl View {
         text: Area,
         local: Position,
     ) -> Result<Option<Point>, Error> {
+        if buffer.soft_wrap() {
+            let fragments = self.wrapped_rows(buffer, text.width(), local.row + 1)?;
+            let Some(fragment) = fragments.get(usize::from(local.row)) else {
+                return Ok(None);
+            };
+            let left = fragment.columns.start;
+            let column = left
+                .checked_add(usize::from(local.column))
+                .ok_or(crate::coordinates::Error::Overflow)?;
+            let right = left
+                .checked_add(usize::from(text.width()))
+                .ok_or(crate::coordinates::Error::Overflow)?;
+            return Ok(Coordinates::new(buffer)?
+                .hit_cell(
+                    Cell {
+                        row: fragment.line,
+                        column,
+                    },
+                    left..right,
+                )?
+                .filter(|point| fragment.contains(*point, text.width()))
+                .map(|position| Point {
+                    stamp: buffer.stamp(),
+                    position,
+                }));
+        }
         // Arithmetic overflow is an invalid viewport, distinct from an ordinary
         // blank row beyond EOF. Preserve the native checked-error contract.
         let projected = self
