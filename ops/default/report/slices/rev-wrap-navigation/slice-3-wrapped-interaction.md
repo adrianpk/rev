@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `feat/rev-wrap-navigation-03-wrapped-interaction`
-PR: pending
+PR: `#176`
 
 ## Purpose
 
