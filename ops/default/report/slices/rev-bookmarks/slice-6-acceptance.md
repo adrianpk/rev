@@ -1,11 +1,11 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
-Branch: `fix/rev-bookmarks-gate-2`
-PR: [#192](https://forge.adrianpk.com/adrianpk/rev/pulls/192)
+Branch: `fix/rev-bookmarks-gate-3`
+PR: Pending
 Original slice branch: `feat/rev-bookmarks-06-acceptance`
 Original slice PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190)
 
@@ -217,3 +217,44 @@ tests and 156 integration tests (57 bookmarks, 74 files and 25 recovery).
 The controller verified and recorded the repair merge in Acta. All six slices
 and both authorized repairs are integrated; the unchanged full gate remains
 pending under controller ownership.
+
+## Gate repair 3: Marker-aware display fixtures
+
+The controller's unchanged full gate failed at
+`a086cdbfe0f9619bdf859f8a0868b890aa408c16` in receipt
+`LTK6C3CB5LHLGF2J5B5N3FDIM7`. Formatting and all-target clippy passed;
+`coordinates::motion_reveal` expected the old terminal column without the
+independent marker cell. The other 23 coordinate tests passed. The remaining
+combined-gate commands did not run.
+
+The pinned five-target reproduction with `--no-fail-fast` exposed 13 failures:
+one coordinate, two Org projection/hit, two rectangle, three syntax and five
+tree cases. The fixtures assumed either six number cells followed immediately
+by text or an undecorated narrow text viewport. BMK03 reserves a separate marker
+cell even with no saved records or number labels, so those assumptions no longer
+describe the approved display profile.
+
+Markers remain enabled. Normal-pane label prefixes, cursor positions, selection,
+search and syntax ranges now include their one-cell field. Narrow motion and
+syntax fixtures retain exactly eight text cells; the folded Unicode fixture
+retains six. Their outer geometry adds the marker cell, and number labels remain
+omitted as in the former narrow projection. Explicit text-width assertions
+protect those budgets. Source points, scroll expectations, grapheme/CRLF
+boundaries, clipping and fold behavior remain unchanged. Hit tests reject both
+the number separator and marker, and the syntax clipping case still proves its
+partial-wide-glyph blank is unstyled after the marker.
+
+`cargo test --locked --test coordinates motion_reveal -- --exact` passed after
+the correction. Changes stay within nine permitted test files and this report;
+no runtime code, source/history assertions, gate commands, deadlines or resource
+limits change.
+
+Final clean-HEAD validation follows the repair and canonical PR-reference
+commits in the pinned order:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test coordinates --test org_editing --test rectangles --test syntax --test tree --no-fail-fast`
+3. `cargo test --locked --test gutter --test wrapping --test pointer`
+4. `git diff --check`
+
+The controller owns repair integration and rerunning the unchanged full gate.

@@ -92,7 +92,7 @@ fn initial_visibility() {
         );
         assert_eq!(
             session.frame().unwrap().cursor().unwrap().column,
-            expected + 1 + 6
+            expected + 1 + 6 + 1
         );
         tree(&mut session, TreeCommand::Focus);
         session.handle(Event::Resize(31, 4));

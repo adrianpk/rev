@@ -151,7 +151,7 @@ fn visual_only() {
             .any(|bytes| bytes == b"\x1b[38;2;157;124;216m")
     );
     assert!(terminal.windows(4).any(|bytes| bytes == b"\x1b[0m"));
-    assert_eq!(frame.cursor().unwrap().column, 6);
+    assert_eq!(frame.cursor().unwrap().column, 7);
     let mut output = Vec::new();
     rev::file::write(buffer, &mut output).unwrap();
     assert_eq!(output, source.as_bytes());

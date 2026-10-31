@@ -62,8 +62,8 @@ fn presentation() {
     session.handle(key(KeyCode::Tab));
     assert!(!session.tree().focused());
     assert!(session.tree().visible());
-    // Tree (16), shared separator (1), factory number field (6), source column 0.
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 23);
+    // Tree (16), separator (1), numbers (6), marker (1), source column 0.
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 24);
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert_eq!(text(&session), "");
     assert!(session.buffer().unwrap().history().is_empty());
@@ -180,9 +180,9 @@ fn geometry_lifecycle() {
     assert_eq!(text(&session), "!");
     session.handle(Event::Resize(48, 8));
     assert!(!session.tree().focused());
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 24);
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 25);
     tree(&mut session, TreeCommand::Toggle);
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 7);
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 8);
 }
 
 // Transient M-x input returns to its retained workspace owner on cancel/error.
@@ -298,7 +298,7 @@ fn focused_admission() {
     assert!(session.buffer().unwrap().mark_active());
 }
 
-// Selection/search include the tree offset and the six-cell factory gutter.
+// Selection/search include the tree, six number cells and independent marker.
 // Prompt coordinates stay in the global echo, and cancel restores the live point.
 #[test]
 fn overlay_coordinates() {
@@ -315,12 +315,12 @@ fn overlay_coordinates() {
     tree(&mut session, TreeCommand::Toggle);
     assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(0..16));
     session.handle(key(KeyCode::Tab));
-    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(25..37));
+    assert_eq!(session.frame().unwrap().rows()[0].selection(), Some(26..38));
     session.execute(Command::Motion(Motion::BufferStart));
     session.execute(Command::SearchForward);
     session.handle(Event::Paste("target".into()));
     let frame = session.frame().unwrap();
-    assert_eq!(frame.rows()[0].search(), Some(26..32));
+    assert_eq!(frame.rows()[0].search(), Some(27..33));
     assert_eq!(frame.cursor().unwrap().row, 7);
     session.execute(Command::KeyboardQuit);
     assert_eq!(session.view().point.position.0, 0);
@@ -375,7 +375,7 @@ fn nested_layout() {
     assert_eq!(frame.cursor().unwrap().column, 0);
     session.handle(key(KeyCode::Tab));
     assert_eq!(session.windows().selected_id(), first);
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 31);
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 32);
     session.execute(Command::Window(WindowCommand::Delete));
     let retained = session.windows().selected_id();
     tree(&mut session, TreeCommand::Focus);
@@ -384,7 +384,7 @@ fn nested_layout() {
     session.execute(Command::Window(WindowCommand::Keep));
     assert_eq!(session.windows().order().len(), 1);
     assert!(session.tree().visible());
-    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 31);
+    assert_eq!(session.frame().unwrap().cursor().unwrap().column, 32);
 }
 
 // Repeated prefixes/suffixes cannot toggle twice. Undefined nested keys and

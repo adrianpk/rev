@@ -194,12 +194,12 @@ fn reversed_edges() {
         assert_eq!(
             ranges,
             [
-                Some(8..11),
+                Some(9..12),
+                Some(9..13),
                 Some(8..12),
-                Some(7..11),
                 None,
                 None,
-                Some(8..11),
+                Some(9..12),
                 None,
                 None
             ]

@@ -80,7 +80,7 @@ fn source_policy() {
         let frame = session.frame().unwrap();
         assert_eq!(
             frame.rows()[1].selection(),
-            Some(7..u16::try_from(stop + 11).unwrap())
+            Some(8..u16::try_from(stop + 12).unwrap())
         );
         assert!(frame.rows()[2].selection().is_none());
         assert!(frame.rows()[4].selection().is_none());

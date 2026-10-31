@@ -106,15 +106,24 @@ fn cell_projection() {
     assert!(buffer.soft_wrap());
     buffer.toggle_soft_wrap();
     assert!(!buffer.soft_wrap());
-    for (left, expected) in [(14, 0..3), (15, 1..2), (16, 0..1)] {
+    for (left, expected) in [(14, 1..4), (15, 2..3), (16, 1..2)] {
         let mut view = View::new(buffer);
         view.top = 1;
         view.left = left;
+        // Keep eight source cells and the marker without admitting number labels.
+        view.gutter.apply(rev::gutter::Change::Visible(false));
+        assert_eq!(
+            view.gutter_geometry(buffer, rev::window::Area::new(0, 0, 9, 2).unwrap())
+                .unwrap()
+                .text()
+                .width(),
+            8
+        );
         let frame = Frame::project(
             buffer,
             &view,
             Size {
-                width: 8,
+                width: 9,
                 height: 4,
             },
             "",
@@ -129,12 +138,12 @@ fn cell_projection() {
             frame.rows()[0].syntax()
         );
         if left == 15 {
-            assert!(frame.rows()[0].text().starts_with(' '));
+            assert!(frame.rows()[0].text().starts_with("  "));
             assert!(
                 frame.rows()[0]
                     .syntax()
                     .iter()
-                    .all(|paint| paint.columns.start > 0)
+                    .all(|paint| paint.columns.start > 1)
             );
         }
     }
@@ -193,12 +202,12 @@ fn surface_layers() {
     session.execute(Command::Region(RegionCommand::Set));
     session.execute(Command::Motion(Motion::ForwardWord));
     let first = session.frame().unwrap();
-    assert_eq!(first.rows()[0].selection(), Some(6..8));
+    assert_eq!(first.rows()[0].selection(), Some(7..9));
     assert!(!first.rows()[0].syntax().is_empty());
     session.execute(Command::SearchForward);
     session.handle(Event::Paste("alpha".into()));
     let searched = session.frame().unwrap();
-    assert_eq!(searched.rows()[0].search(), Some(9..14));
+    assert_eq!(searched.rows()[0].search(), Some(10..15));
     assert!(!searched.rows()[0].syntax().is_empty());
     session.handle(Event::Key(KeyEvent::new(
         KeyCode::Enter,
@@ -211,7 +220,7 @@ fn surface_layers() {
         tree.rows()
             .iter()
             .flat_map(|row| row.syntax())
-            .all(|paint| paint.columns.start >= 31 && paint.columns.end <= 80)
+            .all(|paint| paint.columns.start >= 32 && paint.columns.end <= 80)
     );
     assert!(
         tree.rows()

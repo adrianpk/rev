@@ -201,6 +201,17 @@ fn unicode_hits() {
         view.set_folds(buffer, &[range(buffer, 1..2)]).unwrap();
         view.top = 2;
         view.left = 3;
+        // Six text cells retain the original clipping/wrap cases beside the marker.
+        let area = Area::new(0, 0, 7, 2).unwrap();
+        assert_eq!(
+            view.gutter_geometry(buffer, area).unwrap().text().width(),
+            6
+        );
+        assert_eq!(
+            view.hit(buffer, area, Position { row: 0, column: 0 })
+                .unwrap(),
+            None
+        );
         let coordinates = rev::coordinates::Coordinates::new(buffer).unwrap();
         for (name, column, horizontal, wrapped) in [
             ("wide edge", 0, None, Some(0)),
@@ -211,8 +222,11 @@ fn unicode_hits() {
             let point = view
                 .hit(
                     buffer,
-                    Area::new(0, 0, 6, 2).unwrap(),
-                    Position { row: 0, column },
+                    area,
+                    Position {
+                        row: 0,
+                        column: column + 1,
+                    },
                 )
                 .unwrap();
             let logical = if wrap { wrapped } else { horizontal };

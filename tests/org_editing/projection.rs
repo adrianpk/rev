@@ -46,7 +46,7 @@ fn source_display() {
         assert!(
             frame.rows()[local]
                 .text()
-                .starts_with(&format!("{label}{text}"))
+                .starts_with(&format!("{label} {text}"))
         );
     }
     assert!(
@@ -55,23 +55,25 @@ fn source_display() {
             .iter()
             .any(|row| row.text().contains("hidden") || row.text().contains("secret"))
     );
-    assert_eq!(frame.cursor(), Some(Position { row: 1, column: 8 }));
-    assert_eq!(frame.rows()[1].selection(), Some(6..8));
+    assert_eq!(frame.cursor(), Some(Position { row: 1, column: 9 }));
+    assert_eq!(frame.rows()[1].selection(), Some(7..9));
     assert!(!frame.rows()[1].syntax().is_empty());
     assert!(frame.rows()[8].text().contains("L4 C3"));
     let area = Area::new(0, 0, 40, 8).unwrap();
     let hit = view
-        .hit(buffer, area, Position { row: 1, column: 8 })
+        .hit(buffer, area, Position { row: 1, column: 9 })
         .unwrap()
         .unwrap();
     assert_eq!(hit.position, point);
+    // Both the number separator and the independent marker reject source hits.
+    for column in [5, 6] {
+        assert_eq!(
+            view.hit(buffer, area, Position { row: 1, column }).unwrap(),
+            None
+        );
+    }
     assert_eq!(
-        view.hit(buffer, area, Position { row: 1, column: 5 })
-            .unwrap(),
-        None
-    );
-    assert_eq!(
-        view.hit(buffer, area, Position { row: 6, column: 8 })
+        view.hit(buffer, area, Position { row: 6, column: 9 })
             .unwrap(),
         None
     );

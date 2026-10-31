@@ -435,11 +435,20 @@ fn session(source: &str, position: usize, read_only: bool) -> rev::session::Sess
     buffer.set_readonly(read_only);
     let mut view = rev::view::View::new(buffer);
     view.point.position = Scalar(position);
+    // Preserve eight text cells beside the enabled marker; numbers stay omitted.
+    view.gutter.apply(rev::gutter::Change::Visible(false));
+    assert_eq!(
+        view.gutter_geometry(buffer, rev::window::Area::new(0, 0, 9, 2).unwrap())
+            .unwrap()
+            .text()
+            .width(),
+        8
+    );
     rev::session::Session::new(
         buffers,
         view,
         rev::display::Size {
-            width: 8,
+            width: 9,
             height: 4,
         },
     )
@@ -665,7 +674,7 @@ fn motion_reveal() {
             let position = session.frame().unwrap().cursor().unwrap();
             assert_eq!(
                 (position.column, position.row),
-                cursor,
+                (cursor.0 + 1, cursor.1),
                 "{name}, wrap={wrap}"
             );
         }
