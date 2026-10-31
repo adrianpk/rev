@@ -45,7 +45,7 @@ The current gutter capability comprises:
 - documented user settings and runtime controls according to the companion
   model, using the existing TOML loader and static Rust command registry.
 
-Related future work is captured separately in the draft specifications for
+Related work is captured separately in the specifications for
 [native bookmarks](editor-bookmarks.md),
 [native autocompletion](editor-autocompletion.md),
 [optional LSP support](editor-language-server-support.md) and

@@ -124,8 +124,8 @@ is introduced by these records.
 
 ## Related future specifications
 
-Bookmark state belongs to the separate [bookmark draft](editor-bookmarks.md)
-and its [candidate model](editor-bookmarks-model.md). Completion and optional
+Bookmark state belongs to the separate [bookmark specification](editor-bookmarks.md)
+and its [model](editor-bookmarks-model.md). Completion and optional
 server processes belong to [native autocompletion](editor-autocompletion.md)
 and [LSP support](editor-language-server-support.md).
 [Server installation](editor-language-server-installation.md) owns optional
