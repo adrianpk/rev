@@ -23,7 +23,7 @@ shared behavior contract. No topic is marked delivered by this documentation.
 | --- | --- | --- |
 | Open a file or directory from CLI/find-file | [Navigation spec](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Accepted spec / solved ticket. Slice 5 delivered directory acceptance and root precedence through PR #178. |
 | Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Accepted spec / solved ticket. Slice 5 delivered one-time first-level expansion through PR #178; deliberate collapse is retained. |
-| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/reviewing/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Accepted spec / reviewing ticket. Selected/default-first candidate, continued directory completion and separate final acceptance; reconcile delivered UI03. |
+| Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Accepted spec / solved ticket. Slice 6 delivered selected-candidate Tab and separate final acceptance through PR #179; UI03 is reconciled. |
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/ready/20261030231016-select-the-clicked-file-tree-entry.md) | Accepted spec / ready ticket. Dired-style native activation by default, configurable selection-only; Slice 7 owns delivery. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Accepted spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 own delivery. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md) | Draft. Naming/scope, edit anchors, navigation, persistence and marker collision policy. |
@@ -92,8 +92,8 @@ The proposed order is not a chain of prerequisites.
 ## Readiness and next planning boundary
 
 The soft-wrap and file-navigation specifications and models are accepted; the
-path Tab ticket is under review and the clicked-entry ticket is ready; the directory
-and wrapping tickets are solved. The approved plan/tracker own their eight-slice
+clicked-entry ticket is ready; the path Tab, directory and wrapping tickets are
+solved. The approved plan/tracker own their eight-slice
 implementation and joint gate. The other ten capability specs/models retain
 their existing draft state, including optional external-program exploration.
 No runtime implementation or successful delivery gate is claimed by preparation.

@@ -1,6 +1,6 @@
 # Slice 6: Highlighted path completion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -110,14 +110,15 @@ The native suites passed 414 tests: 161 command, 133 configuration, 74 file and
 entries, 58 pages and 330 local links/anchors. Both terminal sessions passed,
 with RGB and NO_COLOR selection, cancellation/acceptance and fixture cleanup.
 
-Canonical PR #179 targets `dev` with the approved title and immutable report
-introduction link. Its final PR-reference head receives a fresh configured
-three-command receipt before handoff; the exact final identity is retained in
-controller evidence. The combined delivery gate remains reserved for final
-acceptance.
+Canonical PR #179 merged into `dev` at
+`e9aadd9805bcd5a8b418d3575ffcd974bfa080e7`. Final configured receipt
+`AQEZSXJGMWQTINQSMKLKESZQP6` passed the exact three-command prefix and all
+414 tests on that clean PR-reference head. The controller recorded the merge
+in Acta. Slice 6 of 8 completed; the path-completion ticket is solved. The
+combined delivery gate remains reserved for final acceptance.
 
 ## Risks and Follow-ups
 
 Directory observation can wait on the filesystem within the existing finite
 listing bounds. No background traversal or observation during rendering is added.
-The path-completion ticket remains under review until verified merge.
+The path-completion ticket is solved after verified integration.
