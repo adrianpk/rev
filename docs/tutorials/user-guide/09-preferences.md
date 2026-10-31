@@ -28,6 +28,26 @@ Settings load at startup. Saving the configuration does not reload it into
 an already running session. If you set `XDG_CONFIG_HOME`, the file is
 `rev/config.toml` beneath that directory instead.
 
+## Choose how long lines display
+
+Wrapping is enabled by default. Run `M-x visual-line-mode` to toggle wrapping
+for the current buffer and all panes showing it. Each pane reflows at its own
+text width; resizing keeps source positions. The toggle does not write settings
+or create an undo step.
+
+For horizontal scrolling at startup, change `soft_wrap` in the existing
+`[editor]` table and restart:
+
+```toml
+[editor]
+soft_wrap = false
+```
+
+With wrapping disabled, `C-n`/`C-p`, `C-a`/`C-e` and `C-k` use logical lines.
+The same choice applies to visible Org text, including tables and source blocks;
+folded text stays hidden. Use the separate [Org guide](org/index.md) for those
+structured editing commands.
+
 ## Change line numbers in a pane
 
 Run `M-x gutter-set-line-numbers-relative`. Other lines show their distance

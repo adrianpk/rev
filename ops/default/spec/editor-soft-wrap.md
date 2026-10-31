@@ -192,11 +192,11 @@ scope. They complete this proposal without adding another wrap mode or runtime.
 
 ## Baseline reconciliation and validation
 
-The current editor deliberately uses no wrap. Before implementation, prepare
-complete modified clauses for rev Editor's text-display default and Editor
-Gutter GUT03, including the copy in the consolidated editor specification.
-Keep historical delivery records intact. These accepted proposals describe future changes,
-not an existing toggle or current configurable key.
+Slices 1-4 implement this accepted contract and amend rev Editor R07 and Editor
+Gutter GUT03, including the consolidated copy. Slice 8 reconciles the reader
+guidance and joint acceptance. Historical delivery records retain their original
+candidate/gate identity; the current delivery's final gate is recorded separately
+by the [tracker](../tracker/rev-wrap-navigation.md).
 
 Validate exact byte preservation, undo/dirty state, split/resize, word and
 token breaks, Unicode/tabs, gutter numbering, pointer/selection/search/goto,

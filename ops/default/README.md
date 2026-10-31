@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-10-31
 Scope: pending behavior after the completed native Org delivery
-Owner decision: soft wrapping first; the five interaction topics belong to one future Looper cycle
+Owner decision: soft wrapping first; the five interaction topics belong to the approved rev-wrap-navigation delivery
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,10 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The fifteen topics below are pending. Broad capabilities have specs and models with explicit states; bounded navigation requests retain their individual tickets under one
-shared behavior contract. No topic is marked delivered by this documentation.
+The inventory contains five implemented interaction topics and ten remaining
+proposals. The five solved tickets retain their implementation/PR evidence;
+the approved delivery still requires its final joint gate and metadata closure.
+Broad capabilities retain their own specification/model state.
 
 | Topic | Artifacts | State and remaining decisions |
 | --- | --- | --- |
@@ -25,7 +27,7 @@ shared behavior contract. No topic is marked delivered by this documentation.
 | Expand the initial tree root | [Navigation NAV03](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Accepted spec / solved ticket. Slice 5 delivered one-time first-level expansion through PR #178; deliberate collapse is retained. |
 | Tab completes the highlighted path | [Navigation NAV04](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Accepted spec / solved ticket. Slice 6 delivered selected-candidate Tab and separate final acceptance through PR #179; UI03 is reconciled. |
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Accepted spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
-| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Accepted spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 own delivery. |
+| Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Accepted spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md) | Draft. Naming/scope, edit anchors, navigation, persistence and marker collision policy. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md) | Draft. Native UI; operational LSP preferred, Tree-sitter fallback, no ctags. Trigger/coverage/index scope and limits remain open. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md) | Draft. Completion first; protocol, launch/sharing, synchronization, encoding and failure limits remain open. |
@@ -37,9 +39,9 @@ shared behavior contract. No topic is marked delivered by this documentation.
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
-## Proposed execution order
+## Selected execution order
 
-The owner selected these five interaction topics for one future Looper cycle,
+The owner selected these five interaction topics for one approved Looper cycle,
 with soft wrapping first:
 
 1. Word-aware soft wrapping.
@@ -91,12 +93,13 @@ The proposed order is not a chain of prerequisites.
 
 ## Readiness and next planning boundary
 
-The soft-wrap and file-navigation specifications and models are accepted; the
-clicked-entry ticket is under review; the path Tab, directory and wrapping tickets are
-solved. The approved plan/tracker own their eight-slice
-implementation and joint gate. The other ten capability specs/models retain
-their existing draft state, including optional external-program exploration.
-No runtime implementation or successful delivery gate is claimed by preparation.
+The soft-wrap and file-navigation specifications and models are accepted. All
+five selected tickets are solved after verified integration through PRs #174-#180.
+The approved plan/tracker record the eight-slice implementation and joint gate;
+Slice 8 adds native joint acceptance and guidance. The other ten capability
+specs/models retain their existing draft state, including optional external-program
+exploration. The delivery set remains open until its controller-owned final gate
+and metadata closure; earlier completed gates keep their historical identity.
 
 Before planning a selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope

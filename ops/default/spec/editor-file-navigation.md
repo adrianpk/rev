@@ -180,17 +180,17 @@ spelling without recursive discovery or incidental filesystem writes.
 
 ## Baseline reconciliation and validation
 
-Prepare a complete amendment to Editor Interaction UI03's shared-prefix Tab
-policy and the delivered tree initialization/pointer focus contracts before
-implementation. Historical completed specifications and solved tickets remain
-evidence of their original delivery, not proof of these requested changes.
+Slices 5-7 implement this contract. Editor Interaction UI03, Editor Pointer
+PTR02 and consolidated rev Editor R02/R12/R28 now carry the accepted directory,
+completion, initialization and activation clauses. Historical completed gates
+retain their original candidate identity; the current [tracker](../tracker/rev-wrap-navigation.md)
+records this delivery's separate implementation and final joint acceptance.
 
 Validate CLI and actual find-file input routes, empty and unreadable roots,
 Unicode/spaces, explicit and automatic roots, Tab after list selection,
 hide/show, pointer hits after scroll/resize, cancellation and dirty buffers.
-AI may depend on directory ownership; navigation does not depend on AI.
 Implementation, slicing and closure belong to the single rev-wrap-navigation
-delivery. This accepted proposal is not evidence that its behavior has shipped.
+delivery. Its final controller gate and metadata closure remain required.
 
 ## MODIFIED Requirements
 

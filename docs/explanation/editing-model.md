@@ -9,8 +9,9 @@ without being displayed. Two panes can show the same buffer, and editing either
 one changes the shared text.
 
 The tree is a separate filesystem view. It is not part of the editing-pane
-cycle. Its root comes from the initial file's parent or the launch directory,
-so visiting another file does not redefine what the tree is browsing.
+cycle. An explicitly opened directory remains its root across file visits.
+Otherwise the default follows the visiting file's parent, falling back to the
+launch directory without a file; `tree.root = "cwd"` retains the launch directory.
 
 ## Saving and history
 

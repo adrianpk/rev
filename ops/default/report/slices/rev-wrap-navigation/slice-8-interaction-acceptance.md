@@ -1,6 +1,6 @@
 # Slice 8: User guidance and joint interaction acceptance
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -20,7 +20,10 @@ it, then clicks a different entry into a remembered split pane. Rust and Org
 views retain their canonical documents while wrapping, folding, visual motion,
 kill/yank/undo, cross-fragment selection/copy, search cancellation and resizing
 operate together. Explicit visual-line-mode disablement verifies logical-line
-motion; canceling a filename draft creates no file.
+motion; canceling a filename draft creates no file. The User Guide now explains
+continuation rows, visual editing, browsing while split and explicit no-wrap
+preferences. CLI, defaults, tree focus/root references and affected baseline
+clauses agree with the implemented behavior; all five selected tickets are solved.
 
 ## Implementation Notes
 
@@ -56,8 +59,13 @@ and the existing bounded native probe, not a chain of historical terminal suites
 ## Contracts Added or Changed
 
 The new shell command implements the already pinned joint gate. It changes no
-product setting, runtime behavior, gate identity or earlier evidence. Reader and
-affected baseline reconciliation is completed by T8.2 before PR handoff.
+product setting, runtime behavior, gate identity or earlier evidence. T8.2
+reconciles R02/R07/R28 and retained defaults, UI03/PTR02 references, directory
+startup usage, the inventory and the existing Unreleased outcomes. GUT03 and its
+consolidated copy already specify blank continuation labels and logical distances.
+The complete config asset, compiled template, command and ordinary binding
+catalogs retain the delivered soft_wrap/visual-line-mode and click policy.
+Historical gate identities remain unchanged; the final delivery state stays open.
 
 ## Files of Interest
 
@@ -65,6 +73,10 @@ affected baseline reconciliation is completed by T8.2 before PR handoff.
 - `examples/wrap-navigation.rs`, `examples/wrap_navigation/`: native journey and
   bounded Linux PTY adapter.
 - `examples/wrap-performance.rs`: reused long-line input/layout measurements.
+- Core User Guide editing/tree/preferences chapters, CLI/default/tree references
+  and `CHANGELOG.md`: delivered user behavior and explicit alternatives.
+- `ops/default/spec/rev-editor.md`, soft-wrap/navigation specs and the operational
+  index/tracker: affected clause and solved-ticket reconciliation.
 
 ## Validation
 
@@ -73,7 +85,10 @@ journey under all three settings sources and the Linux PTY route. The latter
 completed in 462 ms with 70,026 output bytes, exact saves and restored attributes.
 The five native performance fixtures passed; maximum observed native step was
 1.958 ms, maximum resize was 6.695 ms and maximum queued reversal was 13.986 ms.
-These are local measurements, not portable timing guarantees. Final clean-HEAD
+These are local measurements, not portable timing guarantees. All five selected
+tickets resolve to one solved path with canonical PR evidence; reports 1-7 are
+delivered. T8.1/report introduction is commit
+`ea088b08e97c1c108fabf81da857f7f6f3fbdbfe`. Final clean-HEAD
 controller evidence is recorded after the task and PR-reference commits.
 
 ## Risks and Follow-ups

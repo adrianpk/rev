@@ -6,9 +6,22 @@ undo the insertion.
 ## Move to a line
 
 Use the arrow keys to move through the text. `C-a` moves to the beginning of
-the current line; `C-e` moves to its end.
+the current visual row; `C-e` moves to its end. Long source lines wrap at word
+boundaries to fit the pane. Up/Down and `C-n`/`C-p` follow those visible rows.
 
 Move to the beginning of `Pack the notebook.` with Up and `C-a`.
+
+In a narrow pane, one longer source line can look like this:
+
+```text
+1 │ Pack the notebook and
+  │ bring a pencil.
+```
+
+The blank number cell marks a continuation, not another source line. Wrapping
+adds no newline to the file. `C-k` kills to the visual row's end through the
+ordinary kill ring; `C-y` yanks the killed text and `C-x u` undoes the edit.
+Line numbers and `M-x goto-line` still refer to source lines.
 
 ## Select and copy
 

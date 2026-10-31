@@ -202,6 +202,7 @@ keeps a full-width echo/prompt row.
 
 Below 32 columns, or without usable text/status geometry, the pane hides and
 releases tree focus. The show preference and root remain. Widening restores
-presentation with editor focus. Explicitly hiding the tree restores full
+presentation with its retained focus intent, unless editing or cancellation
+changed that intent while it was hidden by geometry. Explicitly hiding the tree restores full
 editing width. Unicode names and control text follow the normal safe drawing
 and clipping policy.

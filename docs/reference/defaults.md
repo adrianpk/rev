@@ -310,7 +310,7 @@ geometry or runtime acceptance; those have separate native and terminal checks.
 | Newline insertion | Follow the buffer's prevailing LF/CRLF style; new text defaults to LF. Literal paste retains supplied separators. |
 | Indentation | Tab inserts spaces to the next four-column stop. Literal pasted tabs retain their bytes and use four-cell display stops. |
 | Movement | Whole graphemes; buffer positions, UTF-8 bytes and display cells remain separate. |
-| Display | No soft wrap. Horizontal scrolling reveals point. Tabs use four-cell stops; control text uses visible notation. |
+| Display | Word-aware soft wrap at each pane's text width. `editor.soft_wrap = false` selects horizontal scrolling; `visual-line-mode` toggles all views of one buffer. Tabs use four-cell stops; control text uses visible notation. |
 | Status | [Pane-local groups](status.md): label, state, access and one-based logical line/display column on the left; language mode at the right edge. |
 | Visits | Canonical paths reuse one live buffer, including symlink aliases. Display names stay distinct. |
 | Save | Stage in the destination directory, flush/synchronize, recheck the observed destination and replace it, then synchronize/observe completion. |
@@ -371,7 +371,7 @@ bundled grammar; other files and syntax failures retain editable plain
 presentation. TOML startup preferences configure existing actions. This
 version has no plugins, macros, package runtime, LSP,
 language completion, automatic
-indentation, OS clipboard bridge, regex/project search, soft wrap or session
+indentation, OS clipboard bridge, regex/project search or session
 persistence. The command catalog describes the implemented editing subset.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),

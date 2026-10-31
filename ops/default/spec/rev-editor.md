@@ -154,7 +154,9 @@ Source: section 4.1. Acceptance: A01, A04.
 
 Launching `rev` without arguments MUST create an initially empty editable
 buffer and one editing window. **Design default:** one positional path opens
-that file, or a new unsaved visiting buffer if the path does not exist.
+that file, or a new unsaved visiting buffer if the path does not exist. A directory
+target SHALL choose that explicit tree root, show its immediate entries and focus
+the tree without replacing live documents or changing the process directory.
 Multiple positional paths MAY be added after the baseline is complete.
 Initialization failures MUST be legible in the original terminal and produce
 a nonzero exit status when startup cannot complete.
@@ -302,8 +304,8 @@ remain valid buffer content.
 #### Scenario: Reveal mixed-width text
 
 - **GIVEN** a long line containing a tab, CJK text, and a combining sequence
-- **WHEN** point moves beyond the visible horizontal range
-- **THEN** scrolling reveals point at a valid grapheme boundary
+- **WHEN** point moves beyond the current visual row, or beyond the horizontal range with wrapping disabled
+- **THEN** the appropriate projection reveals point at a valid grapheme boundary
 - **AND** drawing stays within its assigned cell rectangle.
 
 #### Scenario: Stop repeated vertical motion
@@ -904,8 +906,13 @@ editor focus. Opening a file MUST use the common `find-file` machinery and
 display it in the selected editing window.
 
 **Design defaults:** `M-x toggle-file-tree` toggles the tree, with optional
-`C-x t t`; the root is the current directory or the initial file's parent
-where appropriate. Tree-specific public names MAY use `tree-open`, `tree-close`,
+`C-x t t`. An accepted explicit directory SHALL remain the root across file
+visits. Otherwise `tree.root = "cwd"` SHALL use the launch directory; `auto`
+and `file-parent` SHALL follow the visiting file's parent, falling back to the
+launch directory without a file. An initially hidden tree SHALL expose its
+immediate entries on first presentation, leaving child directories collapsed.
+Later hide/show SHALL preserve deliberate collapse, selection and scroll.
+Tree-specific public names MAY use `tree-open`, `tree-close`,
 `tree-refresh`, `tree-create`, `tree-rename`, and `tree-delete`. Exact tree keys
 are implementation defaults. Git metadata MUST NOT be required or scanned.
 
@@ -1735,7 +1742,7 @@ The complete form SHALL return when width is available again.
 | Area | Retained baseline default |
 | --- | --- |
 | Invocation | Zero arguments or one path; absent file opens an unsaved visiting buffer. |
-| Tree | Initially hidden, left side, current directory or initial file parent as root. |
+| Tree | Initially hidden except for an explicit directory target; left side, first-level expansion once, explicit-root precedence over file-parent/launch-directory policy. |
 | Tree toggle | `toggle-file-tree`; optional `C-x t t`. |
 | Tree focus | Separate from `other-window` cycling. |
 | Text display | Word-aware soft wrap by default, explicit horizontal alternative, Emacs visual-line commands and four-cell tab stops, with coherent buffer-specific overrides. |

@@ -45,6 +45,12 @@ Run `rev .` to browse the current directory, or pass another directory path.
 Its tree opens with immediate entries shown and child directories collapsed.
 Hiding and showing it later preserves your selection and deliberate collapse.
 
+To combine browsing with editing, start with `rev .`, use `C-x C-f` and Tab to
+complete a file, then press Enter. Split with `C-x 3` and click another file in
+the tree: it opens in the editing pane you last selected. Each pane wraps at its
+own width. `C-g` cancels a Find File prompt without opening the draft path;
+resizing preserves the documents and their source positions.
+
 The [file tree reference](../../reference/file-tree.md) covers file creation,
 rename, deletion and refresh. [Focused prompts](../../reference/prompts.md)
 describes path completion in detail.

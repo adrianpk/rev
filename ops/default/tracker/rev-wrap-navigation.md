@@ -166,8 +166,14 @@ Slice 8 is active. See the [Slice 7 report](../report/slices/rev-wrap-navigation
 Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
 - [x] T8.1: Deliver native Rust/Bash joint journeys in bash scripts/check-wrap-navigation.sh, using the real event/composition path plus a bounded representative Linux PTY route. Reuse existing probes; add no Python gate or new runtime dependency.
-- [ ] T8.2: Update the editor User Guide with short visual examples, defaults/commands/configuration and CHANGELOG Unreleased; reconcile affected delivered baseline clauses and complete all five ticket transitions/links before the full gate.
+- [x] T8.2: Update the editor User Guide with short visual examples, defaults/commands/configuration and CHANGELOG Unreleased; reconcile affected delivered baseline clauses and complete all five ticket transitions/links before the full gate.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 8 report.
+
+T8.1 introduces native Rust/composition and Linux PTY joint acceptance plus the
+reused five-fixture long-line probe. T8.2 reconciles reader guidance, CLI/defaults,
+affected baseline clauses and all five solved tickets. Development shell acceptance
+passed; exact clean-HEAD controller evidence and canonical PR linkage follow.
+See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md).
 
 ## Integration evidence
 
@@ -180,19 +186,19 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | delivered | #179 | `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7` | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
 | 7 | delivered | #180 | `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b` | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
-| 8 | pending | pending | pending | pending |
+| 8 | reviewing | pending | pending | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
 
 ## Delivery acceptance
 
-- [ ] Factory word-aware wrap and Emacs visual-line commands work without configuration.
-- [ ] Source bytes, logical numbering, history, selection and Org semantics survive wrapping.
-- [ ] CLI/find-file accept files or directories with correct root/visibility precedence.
-- [ ] First tree presentation exposes immediate entries without repeated state resets.
-- [ ] Tab completes the visibly selected path without accepting it.
-- [ ] Click selects the real tree entry and follows the configured native activation policy.
-- [ ] All five tickets are solved with implementation/PR evidence and valid final links.
-- [ ] Core guidance, supporting references, samples and Unreleased match delivered behavior.
-- [ ] All eight configured reports exist and accurately identify focused validation.
+- [x] Factory word-aware wrap and Emacs visual-line commands work without configuration.
+- [x] Source bytes, logical numbering, history, selection and Org semantics survive wrapping.
+- [x] CLI/find-file accept files or directories with correct root/visibility precedence.
+- [x] First tree presentation exposes immediate entries without repeated state resets.
+- [x] Tab completes the visibly selected path without accepting it.
+- [x] Click selects the real tree entry and follows the configured native activation policy.
+- [x] All five tickets are solved with implementation/PR evidence and valid final links.
+- [x] Core guidance, supporting references, samples and Unreleased match delivered behavior.
+- [x] All eight configured reports exist and accurately identify focused validation.
 - [ ] Controller passes the pinned full gate on one exact clean integrated dev candidate.
 - [ ] Metadata-only closure completes plan/tracker/specs/models/index/reports within allowed paths.
 
