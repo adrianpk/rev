@@ -1,6 +1,6 @@
 # Slice 6: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -95,7 +95,7 @@ initial strict command-table check treated code-styled status labels as command
 names; those labels now use ordinary text. The checker and command assertions
 remain unchanged. All complete sample/catalog defaults remain consistent.
 
-Final clean-HEAD checks follow all task and canonical PR-reference commits,
+Final clean-HEAD checks passed after all task and canonical PR-reference commits,
 in this exact required order:
 
 1. `cargo fmt --all -- --check`
@@ -105,13 +105,25 @@ in this exact required order:
 5. `cargo run --locked --quiet --example documentation-check`
 6. `git diff --check`
 
-A separate focused batch checks `cargo test --locked --lib bookmark` and
+A separate focused batch passed `cargo test --locked --lib bookmark` and
 `cargo clippy --locked --all-targets -- -D warnings`
-on the same candidate before the required receipt. The controller runs the
-combined gate after this slice integrates; this report does not claim that gate.
+on the same candidate before the required receipt. The combined gate remains
+pending under controller ownership.
 
 ## Risks and Follow-ups
 
 The terminal fixture requires Linux procfs, util-linux `script`, `stty`, GNU
 `timeout`, Bash and the repository's Cargo toolchain. Measured timings describe
 the local fixture and do not establish performance on every terminal or host.
+
+Canonical PR #190 merged through Rebase + Fast-forward into `dev` at
+`9217d4dec10ed76860e6eab13939064746973ed1`. Required receipt
+`6IM6JZYJ55PDLPZPJYQH4NHGW6` passed the exact six-command list and 416
+integration tests. The native journey completed in 124ms; checked relocation
+took 12.761ms over 17 passes, with a maximum measured pass of 0.686ms and
+24480 kB peak RSS. The two PTY processes completed in 484ms, emitted
+61134/21275 bytes, restored TTY attributes and retained 350ms of idle silence.
+Documentation passed 319 commands, 189 settings, 59 pages and 341 links.
+Focused receipt `HXGI5YRKCZCGNXGX572RYYK45M` passed 12 bookmark owner tests and
+all-target clippy on the same clean candidate. The controller verified and
+recorded the canonical merge in Acta. Slice 6 of 6 completed.

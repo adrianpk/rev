@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6; canonical PR #190 open, exact-HEAD validation and integration pending
+Active slice: None; all six slices integrated, controller-owned full gate pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -117,7 +117,7 @@ Acceptance: BMK01-BMK07 jointly.
 
 - [x] T6.1: Add the bounded Bash/Rust native/PTY restart journey and resource measurements.
 - [x] T6.2: Complete user guidance, focused text examples, changelog, sample/reference consistency and related gutter reconciliation.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 6 report.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 6 report.
 
 T6.1 acceptance commit: `fd2e7ea03f7bafdebeadea9dc6b5874d4e47e548`.
 The native/PTY journey and resource probe passed during development; the
@@ -125,15 +125,26 @@ documentation checker passed 319 commands, 189 settings, 59 pages and 341 links.
 T6.2 guidance commit: `4c5bf55c6a781e7c7efac620e4ef92ff109d4864`.
 Canonical PR: [#190](https://forge.adrianpk.com/adrianpk/rev/pulls/190).
 [Slice 6 report](../report/slices/rev-bookmarks/slice-6-acceptance.md) records
-the joint journey, resource observations and guidance. Final exact-HEAD
-controller validation follows this PR-reference commit.
+the joint journey, resource observations and guidance. PR #190 merged at
+`9217d4dec10ed76860e6eab13939064746973ed1`; required receipt
+`6IM6JZYJ55PDLPZPJYQH4NHGW6` passed 416 integration tests, native/PTY acceptance,
+documentation and all required checks. Focused receipt
+`HXGI5YRKCZCGNXGX572RYYK45M` passed 12 bookmark owner tests and all-target clippy
+on the same clean candidate. The controller recorded the canonical merge in Acta.
 
 ## Final gate and closure
 
-- [ ] Controller verifies all six canonical slice integrations.
+- [x] Controller verifies all six canonical slice integrations.
 - [ ] Controller runs the pinned Full gate on the clean integrated dev candidate.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-Slices 1 through 5 are integrated. Slice 6 is active under the same controller run.
+All six slices are integrated under the same controller run. The combined gate
+and delivery-set closure remain pending.
+
+Gate prerequisites are available: Cargo/Rust 1.98.0, Bash, util-linux `script`,
+`stty`, GNU `timeout`, `sed`, `mktemp`, `tty` and Linux procfs. The committed
+acceptance wrapper creates and removes its own temporary HOME/XDG roots,
+sources and PTY children; no persistent fixture needs to be started. The
+controller owns execution of the unchanged Full gate on the clean pushed `dev`.
 Preserve previous delivery evidence under its original owners.
