@@ -263,7 +263,7 @@ impl<'a> Coordinates<'a> {
         glyphs.next().transpose()
     }
     fn remember_periodic(&self, index: usize, point: Scalar, cell: Cell) {
-        if index % checkpoints::INTERVAL == 0 {
+        if index.is_multiple_of(checkpoints::INTERVAL) {
             self.remember(point, cell);
         }
     }
@@ -300,12 +300,7 @@ impl<'a> Coordinates<'a> {
         let mut last = from;
         let mut glyphs = self.glyphs_at(row, from, column)?;
         let mut index = 0;
-        loop {
-            let Some(glyph) =
-                self.charged_glyph(&mut glyphs, &work, (last, Cell { row, column }))?
-            else {
-                break;
-            };
+        while let Some(glyph) = self.charged_glyph(&mut glyphs, &work, (last, Cell { row, column }))? {
             if point < glyph.source.end {
                 let cell = cluster_cell(point, &glyph, row)?;
                 self.remember(point, cell);
@@ -332,8 +327,7 @@ impl<'a> Coordinates<'a> {
         let work = self.work();
         let mut glyphs = self.glyphs_at(cell.row, last, column)?;
         let mut index = 0;
-        loop {
-            let Some(glyph) = self.charged_glyph(
+        while let Some(glyph) = self.charged_glyph(
                 &mut glyphs,
                 &work,
                 (
@@ -343,10 +337,7 @@ impl<'a> Coordinates<'a> {
                         column,
                     },
                 ),
-            )?
-            else {
-                break;
-            };
+            )? {
             column = glyph.columns.end;
             if cell.column < column {
                 self.remember(

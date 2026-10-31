@@ -173,6 +173,13 @@ fn css_value(mut node: Node<'_>, text: RopeSlice<'_>) -> Context {
     Context::Unsupported
 }
 
+fn closed_tag(node: Node<'_>, byte: usize) -> bool {
+    node.end_byte() == byte
+        && node
+            .child(node.child_count().saturating_sub(1))
+            .is_some_and(|last| !last.is_missing() && [">", "/>"].contains(&last.kind()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -197,11 +204,4 @@ mod tests {
             tree.root_node().to_sexp()
         );
     }
-}
-
-fn closed_tag(node: Node<'_>, byte: usize) -> bool {
-    node.end_byte() == byte
-        && node
-            .child(node.child_count().saturating_sub(1))
-            .is_some_and(|last| !last.is_missing() && [">", "/>"].contains(&last.kind()))
 }

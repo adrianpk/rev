@@ -261,16 +261,16 @@ impl Session {
                             self.windows.get(*id).is_ok_and(|current| current == view)
                         })
                 }
-            };
+            }
         if !valid {
-            return self.message("Layout source or geometry changed");
+            self.message("Layout source or geometry changed")
         } else if let Some(outcome) = self.prepare_request(held.request) {
-            return outcome;
+            outcome
         } else {
-            return match held.request {
+            match held.request {
                 Request::Command(command) => self.execute_now(command),
                 Request::Pointer(event, now) => self.pointer_now(event, now),
-            };
+            }
         }
     }
     fn replay_deferred(&mut self, input: Deferred) -> Action {

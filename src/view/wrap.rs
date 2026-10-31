@@ -623,6 +623,12 @@ impl View {
     }
 }
 
+impl Fragment {
+    pub(super) fn finished(&self, width: u16) -> bool {
+        self.end_of_line && (self.source.is_empty() || self.painted_width(width) < width)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -756,11 +762,5 @@ mod tests {
             line = Line::continue_from(b, line.suspend()).unwrap();
         }
         assert_eq!(actual.as_slice(), expected, "{width}/{allowance}");
-    }
-}
-
-impl Fragment {
-    pub(super) fn finished(&self, width: u16) -> bool {
-        self.end_of_line && (self.source.is_empty() || self.painted_width(width) < width)
     }
 }

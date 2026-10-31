@@ -202,6 +202,33 @@ fn edge_cell(
     })
 }
 
+fn drag_position(
+    view: &crate::view::View,
+    buffer: &crate::buffer::Buffer,
+    text: Area,
+    pending: &Autoscroll,
+) -> Result<Option<crate::coordinates::Scalar>, Error> {
+    Ok(Some(if buffer.soft_wrap() {
+        let fragments = view.wrapped_rows(buffer, text.width(), text.height())?;
+        let edge = if pending.backward {
+            fragments.first()
+        } else {
+            fragments.last()
+        };
+        let Some(edge) = edge else {
+            return Ok(None);
+        };
+        let column = pending
+            .position
+            .column
+            .saturating_sub(text.column())
+            .min(text.width() - 1);
+        crate::view::View::fragment_point(buffer, edge, usize::from(column))?
+    } else {
+        Coordinates::new(buffer)?.from_cell(edge_cell(view, buffer, text, pending)?)?
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -265,31 +292,4 @@ mod tests {
             assert_eq!(session.view(), &before);
         }
     }
-}
-
-fn drag_position(
-    view: &crate::view::View,
-    buffer: &crate::buffer::Buffer,
-    text: Area,
-    pending: &Autoscroll,
-) -> Result<Option<crate::coordinates::Scalar>, Error> {
-    Ok(Some(if buffer.soft_wrap() {
-        let fragments = view.wrapped_rows(buffer, text.width(), text.height())?;
-        let edge = if pending.backward {
-            fragments.first()
-        } else {
-            fragments.last()
-        };
-        let Some(edge) = edge else {
-            return Ok(None);
-        };
-        let column = pending
-            .position
-            .column
-            .saturating_sub(text.column())
-            .min(text.width() - 1);
-        crate::view::View::fragment_point(buffer, edge, usize::from(column))?
-    } else {
-        Coordinates::new(buffer)?.from_cell(edge_cell(view, buffer, text, pending)?)?
-    }))
 }
