@@ -111,6 +111,7 @@ impl Session {
     }
 
     pub(super) fn saved(&mut self, outcome: &Outcome, after: AfterSave) -> Action {
+        self.lsp_saved(outcome);
         let refreshed = if outcome.publication() != Publication::NotPublished {
             self.tree.observe_path(outcome.target())
         } else {

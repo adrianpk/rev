@@ -85,7 +85,7 @@ popup_rows = 10
 [lsp]
 # Optional owned stdio transport; no server or worker starts while disabled.
 enabled = false
-# Retention policy for document attachments (applied by the document lifecycle).
+# True shuts down the server when its last buffer detaches; false retains it.
 shutdown_on_last_buffer = false
 # Positive finite milliseconds, at most 600000.
 request_timeout_ms = 2000

@@ -181,7 +181,7 @@ change only that view's overrides and never reload or write this snapshot.
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
 | `lsp.enabled` | Boolean | `false` | Start optional configured stdio servers for activated files; lsp-mode toggles the session. |
-| `lsp.shutdown_on_last_buffer` | Boolean | `false` | Retention preference for document attachment lifecycle. |
+| `lsp.shutdown_on_last_buffer` | Boolean | `false` | True shuts down a connection when its last buffer detaches; false retains it until disable/exit. |
 | `lsp.request_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds allowed for an outbound write or subsequent client request. |
 | `lsp.initialize_timeout_ms` | Integer 1..=600000 | `10000` | Milliseconds to initialize a newly owned connection. |
 | `lsp.shutdown_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds for shutdown/exit before owned-child termination and reaping. |
@@ -203,7 +203,19 @@ containing tree bounds lookup and supplies the fallback; files outside that tree
 fall back to their own containing directory. Empty marker arrays use that directory.
 Canonical roots share a single process across file aliases. Queues retain at most
 64 messages and 16 MiB per direction; stderr retains a separate 64 KiB tail.
-The transport negotiates UTF-8/UTF-16 and full/incremental sync. Missing or failed
+The transport negotiates UTF-8/UTF-16 and full/incremental sync. Eligible visiting
+buffers publish unsaved text through didOpen/didChange and retire it through
+didClose; synchronization never saves a file. Successful saves send only the
+negotiated save notification. Wire columns count encoding units, with canonical
+transaction ranges used before each incremental mutation. Split views and
+canonical file aliases share one document. Documents admit at most 8 MiB each
+and 32 MiB total; larger buffers stay editable with native completion.
+
+`lsp-disconnect` excludes the current canonical buffer across all its views until
+`lsp-connect` restores eligibility or the buffer closes. Other attachments retain
+their connection. Restore never enables globally disabled LSP. Reopening or
+restoring advances document generation; undo and equal bytes with a new revision
+cannot reuse old synchronization evidence. Missing or failed
 servers remain unavailable until disable/enable. `lsp-status` reports transport
 readiness; semantic results enter native completion in the subsequent delivery layers.
 

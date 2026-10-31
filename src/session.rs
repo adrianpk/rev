@@ -92,7 +92,6 @@ pub enum Action {
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
     lsp: crate::lsp::Client,
-    lsp_buffer: Option<BufferId>,
     completion: Option<Completion>,
     completion_generation: u64,
     completion_request: Option<u64>,
@@ -292,7 +291,6 @@ impl Session {
         let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
         Ok(Self {
             lsp,
-            lsp_buffer: None,
             completion_policy,
             completion: None,
             completion_generation: 0,

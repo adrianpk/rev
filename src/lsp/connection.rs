@@ -8,7 +8,8 @@ use std::time::{Duration, Instant};
 use serde_json::json;
 
 use super::{
-    Status,
+    Capabilities, Status,
+    documents::Documents,
     frame::Message,
     inbox::{Event, Inbox},
     io::{self, Outbox, Pipes},
@@ -22,10 +23,16 @@ pub(super) struct Connection {
     pub inbox: Arc<Inbox>,
     worker: Option<JoinHandle<()>>,
     pub retiring: bool,
+    pub generation: u64,
 }
 
 impl Connection {
-    pub fn start(server: Server, root: PathBuf, policy: Lsp) -> Result<Self, String> {
+    pub fn start(
+        server: Server,
+        root: PathBuf,
+        policy: Lsp,
+        generation: u64,
+    ) -> Result<Self, String> {
         let status = Arc::new(Mutex::new(Status::Starting));
         let stderr = Arc::new(Mutex::new(VecDeque::new()));
         let inbox = Arc::new(Inbox::default());
@@ -37,12 +44,16 @@ impl Connection {
             inbox: inbox.clone(),
             stopping: false,
             deadline: None,
+            capabilities: None,
+            documents: Documents::default(),
         };
         let retained = stderr.clone();
         let worker = std::thread::Builder::new()
             .name("rev-lsp".into())
             .spawn(move || {
-                if let Err(error) = supervisor.run(retained) {
+                let result = supervisor.run(retained);
+                supervisor.inbox.close();
+                if let Err(error) = result {
                     supervisor.set(Status::Failed(error));
                 }
             })
@@ -53,6 +64,7 @@ impl Connection {
             inbox,
             worker: Some(worker),
             retiring: false,
+            generation,
         })
     }
 
@@ -82,6 +94,8 @@ struct Supervisor {
     inbox: Arc<Inbox>,
     stopping: bool,
     deadline: Option<Instant>,
+    capabilities: Option<Capabilities>,
+    documents: Documents,
 }
 
 impl Supervisor {
@@ -138,7 +152,11 @@ impl Supervisor {
             if remaining == Some(Duration::ZERO) {
                 return self.timeout();
             }
-            if self.event(self.inbox.next(remaining), output, root)? {
+            if self.event(
+                self.inbox.next(remaining, self.capabilities.is_some()),
+                output,
+                root,
+            )? {
                 return Ok(());
             }
         }
@@ -146,16 +164,36 @@ impl Supervisor {
 
     fn event(&mut self, event: Event, output: &Outbox, root: &str) -> Result<bool, String> {
         match event {
-            Event::Stop => self.shutdown(output)?,
-            Event::Failed(_) if self.stopping => return Ok(true),
-            Event::Failed(error) => return Err(error),
-            Event::Timeout => {
-                self.timeout()?;
-                return Ok(true);
-            }
-            Event::Message(message) => self.message(*message, output, root)?,
+            Event::Message(message) => self.message(*message, output, root).map(|_| false),
+            Event::Document(event, permit) => self.document(*event, permit, output).map(|_| false),
+            control => self.control(control, output),
         }
-        Ok(false)
+    }
+
+    fn document(
+        &mut self,
+        event: super::documents::Event,
+        permit: super::budget::Permit,
+        output: &Outbox,
+    ) -> Result<(), String> {
+        if self.stopping {
+            return Ok(());
+        }
+        let caps = self
+            .capabilities
+            .as_ref()
+            .ok_or("LSP document before initialize")?;
+        self.documents.process(event, permit, output, caps)
+    }
+
+    fn control(&mut self, event: Event, output: &Outbox) -> Result<bool, String> {
+        match event {
+            Event::Stop => self.shutdown(output).map(|_| false),
+            Event::Failed(_) if self.stopping => Ok(true),
+            Event::Failed(error) => Err(error),
+            Event::Timeout => self.timeout().map(|_| true),
+            _ => unreachable!("document and protocol events have their own owners"),
+        }
     }
 
     fn timeout(&self) -> Result<(), String> {
@@ -200,7 +238,8 @@ impl Supervisor {
         let capabilities =
             protocol::capabilities(message.result.ok_or("LSP initialize lacks result")?)?;
         output.send(&json!({"jsonrpc":"2.0","method":"initialized","params":{}}))?;
-        self.set(Status::Ready(capabilities));
+        self.set(Status::Ready(capabilities.clone()));
+        self.capabilities = Some(capabilities);
         self.deadline = None;
         Ok(())
     }

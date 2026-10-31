@@ -2,6 +2,8 @@
 pub enum LspCommand {
     Mode,
     Status,
+    Connect,
+    Disconnect,
 }
 
 impl LspCommand {
@@ -9,6 +11,8 @@ impl LspCommand {
         match self {
             Self::Mode => "lsp-mode",
             Self::Status => "lsp-status",
+            Self::Connect => "lsp-connect",
+            Self::Disconnect => "lsp-disconnect",
         }
     }
 }

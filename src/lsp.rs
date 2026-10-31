@@ -1,21 +1,27 @@
 //! Optional session-owned language server transport. Disabled clients create no
 //! threads or processes. IO, JSON work and deadlines belong to connection workers.
+mod attachment;
+mod budget;
 mod connection;
+mod documents;
 mod frame;
 mod inbox;
 mod io;
+pub mod position;
 mod protocol;
 pub mod roots;
 
 use crate::config::Lsp;
 use connection::Connection;
-pub use protocol::{Capabilities, Encoding};
+pub use documents::DocumentVersion;
+pub use protocol::{Capabilities, Encoding, Save};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Status {
     Disabled,
+    Excluded,
     Unavailable,
     Starting,
     Ready(Capabilities),
@@ -32,6 +38,11 @@ pub struct Client {
     connections: BTreeMap<(String, PathBuf), Connection>,
     selected: Option<(String, PathBuf)>,
     fallback: Status,
+    attachments: BTreeMap<crate::buffer::BufferId, attachment::Attachment>,
+    excluded: std::collections::BTreeSet<crate::buffer::BufferId>,
+    snapshot_bytes: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+    next_connection: u64,
+    next_document: u64,
 }
 
 impl Client {
@@ -41,6 +52,11 @@ impl Client {
             connections: BTreeMap::new(),
             selected: None,
             fallback: Status::Unavailable,
+            attachments: BTreeMap::new(),
+            excluded: std::collections::BTreeSet::new(),
+            snapshot_bytes: std::sync::Arc::default(),
+            next_connection: 1,
+            next_document: 1,
         }
     }
 
@@ -52,6 +68,10 @@ impl Client {
     pub fn set_enabled(&mut self, enabled: bool) {
         self.policy.enabled = enabled;
         if !enabled {
+            for attachment in self.attachments.values() {
+                attachment.token.retire();
+            }
+            self.attachments.clear();
             for connection in self.connections.values_mut() {
                 connection.retiring = true;
                 connection.inbox.stop();
@@ -97,7 +117,12 @@ impl Client {
         if self.connections.len() >= self.policy.max_servers {
             return Status::Limited;
         }
-        match Connection::start(server.clone(), root, self.policy.clone()) {
+        let generation = self.next_connection;
+        let Some(next) = generation.checked_add(1) else {
+            return Status::Limited;
+        };
+        self.next_connection = next;
+        match Connection::start(server.clone(), root, self.policy.clone(), generation) {
             Ok(connection) => {
                 self.connections.insert(key, connection);
                 Status::Starting

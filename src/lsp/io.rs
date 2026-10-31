@@ -5,7 +5,6 @@ use std::os::{fd::OwnedFd, unix::net::UnixStream};
 use std::process::Stdio;
 use std::sync::{
     Arc, Mutex,
-    atomic::{AtomicUsize, Ordering},
     mpsc::{self, SyncSender},
 };
 use std::time::Duration;
@@ -13,8 +12,9 @@ use std::time::Duration;
 use serde_json::Value;
 
 use super::{
+    budget::{Budget, Permit},
     frame,
-    inbox::{Inbox, QUEUE_BYTES, QUEUE_MESSAGES},
+    inbox::{Inbox, QUEUE_MESSAGES},
 };
 
 pub(super) type Stderr = Arc<Mutex<VecDeque<u8>>>;
@@ -49,28 +49,37 @@ fn pair() -> Result<(UnixStream, Stdio), String> {
     Ok((read, Stdio::from(OwnedFd::from(write))))
 }
 
+struct Frame {
+    bytes: Vec<u8>,
+    _permit: Permit,
+}
+
 pub(super) struct Outbox {
-    send: SyncSender<Vec<u8>>,
-    bytes: Arc<AtomicUsize>,
+    send: SyncSender<Frame>,
+    budget: Arc<Budget>,
     limit: usize,
 }
 
 impl Outbox {
     pub fn send(&self, value: &Value) -> Result<(), String> {
         let data = frame::encode(value, self.limit)?;
-        let count = data.len();
-        self.bytes
-            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |bytes| {
-                bytes
-                    .checked_add(count)
-                    .filter(|total| *total <= QUEUE_BYTES)
+        let permit = self.budget.reserve(data.len())?;
+        self.enqueue(data, permit)
+    }
+
+    pub fn document(&self, value: &Value, mut permit: Permit) -> Result<(), String> {
+        let data = frame::encode(value, self.limit)?;
+        permit.resize(data.len())?;
+        self.enqueue(data, permit)
+    }
+
+    fn enqueue(&self, bytes: Vec<u8>, permit: Permit) -> Result<(), String> {
+        self.send
+            .try_send(Frame {
+                bytes,
+                _permit: permit,
             })
-            .map_err(|_| "LSP outbound byte queue overflow")?;
-        if self.send.try_send(data).is_err() {
-            self.bytes.fetch_sub(count, Ordering::AcqRel);
-            return Err("LSP outbound message queue overflow or closed".into());
-        }
-        Ok(())
+            .map_err(|_| "LSP outbound message queue overflow or closed".into())
     }
 }
 
@@ -86,25 +95,27 @@ pub(super) fn drive(
     let input = pipes.input.try_clone().map_err(|e| e.to_string())?;
     let output = pipes.output.try_clone().map_err(|e| e.to_string())?;
     let error = pipes.error.try_clone().map_err(|e| e.to_string())?;
-    let (send, receive) = mpsc::sync_channel::<Vec<u8>>(QUEUE_MESSAGES);
-    let bytes = Arc::new(AtomicUsize::new(0));
+    let (send, receive) = mpsc::sync_channel::<Frame>(QUEUE_MESSAGES);
+    let budget = inbox.budget.clone();
     std::thread::scope(|scope| {
         let read_inbox = inbox.clone();
         scope.spawn(move || read_output(output, &read_inbox, limit));
         scope.spawn(move || read_stderr(error, stderr));
-        let written = bytes.clone();
         scope.spawn(move || {
             let mut input = input;
             for data in receive {
-                let result = frame::write(&mut input, &data);
-                written.fetch_sub(data.len(), Ordering::AcqRel);
+                let result = frame::write(&mut input, &data.bytes);
                 if let Err(error) = result {
                     inbox.fail(format!("LSP stdin: {error}"));
                     break;
                 }
             }
         });
-        run(Outbox { send, bytes, limit });
+        run(Outbox {
+            send,
+            budget,
+            limit,
+        });
         for socket in [&pipes.input, &pipes.output, &pipes.error] {
             let _ = socket.shutdown(Shutdown::Both);
         }

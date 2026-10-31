@@ -82,7 +82,6 @@ impl Session {
         self.echo_kind = crate::display::Message::Normal;
         self.echo.clear();
         self.refresh_ingress_tree(observed, root_changed);
-        self.lsp_buffer = None;
         self.activate_lsp();
         Ok(())
     }

@@ -133,6 +133,7 @@ impl std::error::Error for Error {}
 /// Owns the only rope for this identity. Explicit transient owners cannot
 /// publish source files; all text access remains borrowed.
 pub struct Buffer {
+    observer: Option<std::sync::Arc<dyn edit::Observer>>,
     pub(crate) bookmarks: crate::bookmark::Shared,
     pub(crate) bookmark_rows: std::sync::Mutex<crate::bookmark::markers::Cache>,
     id: BufferId,
@@ -193,6 +194,7 @@ impl Buffer {
             sequence: 0,
         };
         Ok(Self {
+            observer: None,
             bookmarks: crate::bookmark::Shared::default(),
             bookmark_rows: std::sync::Mutex::default(),
             id,

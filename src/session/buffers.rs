@@ -107,6 +107,7 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         self.windows.replace_buffer(closed, buffer);
+        self.lsp.closed(closed);
         self.recent_clocks.retain(|p| p.stamp.buffer != closed);
         self.input.cancel();
         self.pending = None;

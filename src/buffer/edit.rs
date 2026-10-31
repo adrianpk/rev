@@ -2,6 +2,8 @@ mod bookmarks;
 mod grouping;
 mod history;
 mod mapping;
+mod observe;
+pub(crate) use observe::{Observer, Published};
 mod reorder;
 mod retained;
 mod syntax;
@@ -311,6 +313,11 @@ impl Buffer {
     /// this buffer; unchanged source snapshots are required before any mutation.
     pub fn publish(&mut self, prepared: Prepared, points: &mut [Point]) -> Result<(), Error> {
         self.admit_publication(&prepared, points)?;
+        let observation = self
+            .observer
+            .as_ref()
+            .filter(|observer| observer.active())
+            .map(|_| Published::capture(&self.text, &prepared.text, &prepared.record));
         // Queue admission completes before any text or live position changes.
         let before = prepared.record.before;
         let after = prepared.record.after;
@@ -324,7 +331,8 @@ impl Buffer {
             .first()
             .map_or(0, |change| change.before.start);
         self.record(prepared.record, prepared.operation, prepared.group)?;
-        // From here onward there are no recoverable operations or callbacks.
+        // Canonical state updates below are infallible. Optional observations run
+        // only after every canonical text, point and anchor has been published.
         self.syntax.edit(before, after, &prepared.syntax);
         self.edit_org(before, after, &prepared.syntax);
         self.coordinates
@@ -347,6 +355,12 @@ impl Buffer {
             Operation::Typing => Some(after),
             _ => None,
         };
+        // Optional observation follows the complete, irreversible publication.
+        if let Some(observation) = observation
+            && let Some(observer) = &self.observer
+        {
+            observer.published(observation);
+        }
         Ok(())
     }
 

@@ -15,6 +15,62 @@ pub struct Capabilities {
     pub encoding: Encoding,
     pub sync: u64,
     pub completion: bool,
+    pub open_close: bool,
+    pub save: Save,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Save {
+    None,
+    Notification,
+    Text,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum TextSync {
+    Kind(u64),
+    Options(SyncOptions),
+}
+
+#[derive(Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
+struct SyncOptions {
+    open_close: bool,
+    change: u64,
+    save: Option<SaveSetting>,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum SaveSetting {
+    Enabled(bool),
+    Options {
+        #[serde(default, rename = "includeText")]
+        include_text: bool,
+    },
+}
+
+fn synchronization(value: Option<TextSync>) -> Result<(u64, bool, Save), String> {
+    let (kind, open_close, save) = match value {
+        Some(TextSync::Kind(kind)) => (kind, true, None),
+        Some(TextSync::Options(options)) => (options.change, options.open_close, options.save),
+        None => (0, false, None),
+    };
+    if !matches!(kind, 1 | 2) || !open_close {
+        return Err(
+            "LSP server lacks admitted open/close and full/incremental synchronization".into(),
+        );
+    }
+    let save = match save {
+        Some(SaveSetting::Enabled(true)) => Save::Notification,
+        Some(SaveSetting::Options { include_text: true }) => Save::Text,
+        Some(SaveSetting::Options {
+            include_text: false,
+        }) => Save::Notification,
+        _ => Save::None,
+    };
+    Ok((kind, open_close, save))
 }
 
 #[derive(Deserialize)]
@@ -27,7 +83,7 @@ struct InitializeResult {
 #[serde(rename_all = "camelCase")]
 struct ServerCapabilities {
     position_encoding: Option<String>,
-    text_document_sync: Option<Value>,
+    text_document_sync: Option<TextSync>,
     completion_provider: Option<Value>,
 }
 
@@ -40,20 +96,12 @@ pub(super) fn capabilities(value: Value) -> Result<Capabilities, String> {
         "utf-16" => Encoding::Utf16,
         _ => return Err("LSP server selected unsupported position encoding".into()),
     };
-    let sync = value
-        .text_document_sync
-        .as_ref()
-        .and_then(|sync| {
-            sync.as_u64()
-                .or_else(|| sync.get("change").and_then(Value::as_u64))
-        })
-        .unwrap_or(0);
-    if !matches!(sync, 1 | 2) {
-        return Err("LSP server lacks full or incremental text synchronization".into());
-    }
+    let (sync, open_close, save) = synchronization(value.text_document_sync)?;
     Ok(Capabilities {
         encoding,
         sync,
+        open_close,
+        save,
         completion: value.completion_provider.is_some_and(|v| v.is_object()),
     })
 }
@@ -64,7 +112,7 @@ pub(super) fn initialize(server: &Server, root: &str) -> Value {
         "rootUri":root, "workspaceFolders":[{"uri":root,"name":"root"}],
         "capabilities":{"general":{"positionEncodings":["utf-8","utf-16"]},
             "workspace":{"configuration":true,"workspaceFolders":true},
-            "textDocument":{"completion":{"dynamicRegistration":false,
+            "textDocument":{"synchronization":{"dynamicRegistration":false,"willSave":false,"willSaveWaitUntil":false,"didSave":true},"completion":{"dynamicRegistration":false,
                 "completionItem":{"snippetSupport":false}}}},
         "initializationOptions":server.initialization_options
     }})
