@@ -8,7 +8,7 @@ Format: OpenSpec capability proposal
 Source: product-owner optional headless-harness and independent native-API clarifications
 Parent contract: [AI Commands](editor-ai-commands.md)
 Model: [Pi Integration Model](editor-ai-pi-integration-model.md)
-Directory foundation: [Directory Opening](../ticket/reviewing/20261028094803-open-directory-targets-from-cli-and-find-file.md)
+Directory foundation: [Directory Opening](../ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md)
 Delivery boundary: future optional AI backend; no implementation or slicing authorized
 Readiness: execution/authentication separation is confirmed; protocol admission and listed details remain open
 

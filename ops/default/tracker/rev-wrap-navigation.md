@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 5
-Execution owner: Looper; Slice 5 PR #178 under review
+Active slice: Slice 6
+Execution owner: Looper; Slice 6 implementation active
 
 ## Canonical slice map
 
@@ -108,7 +108,7 @@ Acceptance: NAV01, NAV02, NAV03, NAV06.
 
 - [x] T5.1: Unify CLI/find-file file-versus-directory admission, Return final directory acceptance, explicit-root precedence and failure-preserving publication.
 - [x] T5.2: Initialize only immediate tree children on first presentation/root change, preserve later collapse/hide/show and configuration precedence; resolve both opening/initial-expansion tickets.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 5 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 5 report.
 
 T5.1 commit `c5a8568c938772c69018c18fa5f2bb935b003632` delivers shared target
 admission and explicit root precedence. T5.2 commit
@@ -117,9 +117,11 @@ bounded immediate listings and retained focus intent. Clean implementation head
 `121c167275df9e2f19f5d5470859bdb13bb86b49` passed 336 native tests,
 documentation validation and nine CLI/PTY cases in controller receipt
 `5BMRLUDPOYEPF7E4V3XQYLLXMZ`. Canonical [PR #178](https://forge.adrianpk.com/adrianpk/rev/pulls/178)
-targets `dev`; both directory tickets remain under review. See the
+merged into `dev` at `941faa796047ef7b2dbc809afe495903f690baaa`. Both directory
+tickets are solved. See the
 [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md).
-The PR-reference head requires fresh configured controller evidence before handoff.
+Final configured receipt `HAYGF7IDRKHEKYSHCJNEVE2NZW` passed 336 tests on
+that exact merge head; the controller recorded its merge in Acta. Slice 6 is active.
 
 ## Slice 6: Highlighted path completion
 
@@ -153,7 +155,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | 2 | delivered | #175 | `70a20019d4bc043f178462eec578fa715c12895e` | [Slice 2 report](../report/slices/rev-wrap-navigation/slice-2-visual-editing.md) |
 | 3 | delivered | #176 | `622309c6e57c11aa70dab4ce7e64f8f384a1dd3a` | [Slice 3 report](../report/slices/rev-wrap-navigation/slice-3-wrapped-interaction.md) |
 | 4 | delivered | #177 | `279242c0351ce10d2415d97c0aa11f1196b0b63c` | [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md) |
-| 5 | reviewing | #178 | pending | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
+| 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | pending | pending | pending | pending |
 | 7 | pending | pending | pending | pending |
 | 8 | pending | pending | pending | pending |

@@ -1,6 +1,6 @@
 # Slice 5: Directory targets and initial tree expansion
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -121,10 +121,11 @@ history assertions remain in place. The regular-file loader's original directory
 rejection case remains intact; session directory admission is a separate target
 operation. The combined delivery gate is reserved for the final acceptance phase.
 
-PR #178 targets `dev` with the approved title and immutable report-introduction
-link. The final PR-reference head receives a fresh configured three-command
-receipt through the controller before handoff; its exact identity is retained
-in controller evidence rather than claimed by this earlier report revision.
+Canonical PR #178 merged into `dev` at
+`941faa796047ef7b2dbc809afe495903f690baaa`. Final controller receipt
+`HAYGF7IDRKHEKYSHCJNEVE2NZW` passed the exact configured three-command prefix
+and all 336 tests on that clean PR-reference head. The controller recorded the
+merge in Acta. Slice 5 of 8 completed.
 
 ## Risks and Follow-ups
 
@@ -132,4 +133,4 @@ A bounded directory observation can still wait on the filesystem. Incomplete
 lists retain an observed subset rather than claim full sorted coverage. Later
 refresh is explicit; no automatic retry or background discovery is introduced.
 
-Both directory tickets remain under review until verified merge.
+Both directory tickets are solved after verified integration.

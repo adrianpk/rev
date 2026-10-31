@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028153707
 title: Show the file-tree root expanded on first display
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,6 +12,8 @@ reported_at: 2026-10-28T15:37:07Z
 ready_at: 2026-10-30T23:24:55Z
 started_at: 2026-10-31T03:02:07Z
 branch: feat/rev-wrap-navigation-05-directory-targets
+closed_at: 2026-10-31T03:28:11Z
+resolution: fixed
 reviewed_at: 2026-10-31T03:20:52Z
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/178
 commits: [c5a8568c938772c69018c18fa5f2bb935b003632, 18ce4a7f1138511ef060b79fbde16755a8a9c494, 121c167275df9e2f19f5d5470859bdb13bb86b49]
@@ -91,5 +93,7 @@ records canonical source preservation, root/configuration precedence, bounded
 first-level observation and native CLI/PTY evidence. Canonical [PR #178](https://forge.adrianpk.com/adrianpk/rev/pulls/178)
 targets `dev`. Controller receipt `5BMRLUDPOYEPF7E4V3XQYLLXMZ` passed 336 native
 tests, documentation checks and nine CLI/PTY cases at
-`121c167275df9e2f19f5d5470859bdb13bb86b49`. The ticket remains under review
-until verified merge; final PR-reference validation is recorded by the controller.
+`121c167275df9e2f19f5d5470859bdb13bb86b49`. PR #178 merged at
+`941faa796047ef7b2dbc809afe495903f690baaa`; final configured receipt
+`HAYGF7IDRKHEKYSHCJNEVE2NZW` passed all 336 tests at that exact commit.
+The controller recorded the verified merge in Acta. This ticket is solved.
