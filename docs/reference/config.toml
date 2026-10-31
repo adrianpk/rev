@@ -88,7 +88,8 @@ save = "on-exit"
 max_entries = 1024 # 1..4096; excess rejects without eviction.
 context_chars = 64 # 16..256 Unicode scalars per side at each checkpoint.
 search_chars = 262144 # 0..1048576 total search scalars; zero disables relocation.
-# M-x bookmark-save and bookmark-reload are available without factory bindings.
+# M-x bookmark-save, bookmark-reload, bookmark-next and bookmark-previous
+# are available without factory bindings.
 
 [tree]
 # Boolean; initial visibility. Tiny/narrow terminals can hide the pane.

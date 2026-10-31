@@ -83,7 +83,7 @@ compiled M-x name once.
 | Mouse | `mouse-mode` |
 | Source wrapping | `visual-line-mode` |
 | Gutter | `gutter-toggle-line-numbers`, `gutter-cycle-line-number-mode`, `gutter-set-line-numbers-absolute`, `gutter-set-line-numbers-relative`, `gutter-cycle-current-line`, `gutter-toggle-line-number-side`, `gutter-inspect-numbering`, `gutter-reset-numbering` |
-| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
+| Bookmarks | `bookmark-set`, `bookmark-set-no-overwrite`, `bookmark-jump`, `bookmark-delete`, `bookmark-save`, `bookmark-reload`, `list-bookmarks`, `bookmark-next`, `bookmark-previous`, `bookmark-bmenu-delete`, `bookmark-bmenu-unmark`, `bookmark-bmenu-execute-deletions`, `bookmark-bmenu-this-window` |
 | Rectangles | `rectangle-mark-mode`, `copy-rectangle-as-kill`, `kill-rectangle`, `yank-rectangle` |
 
 See [Rectangles](rectangles.md) for display-column selection and copy boundaries.
@@ -266,3 +266,13 @@ an action can affect a replacement row. The list refreshes and asks for a retry.
 Returning rechecks the original source revision; a changed or closed origin
 retains the current valid source view with a diagnostic. Source text, dirty state
 and undo history are independent of row navigation and bookmark deletion.
+
+`M-x bookmark-next` and `M-x bookmark-previous` visit revision-current resolved
+bookmarks within the current canonical file, in scalar position order with
+lexical name ties, wrapping at each end. There are no factory shortcuts.
+The first command includes targets at point; repetition advances by stable
+record identity, so several names at one point are visited individually.
+Changing direction steps back through that same order. Point movement, source
+edits, pane changes and collection mutations reset the repetition observation.
+Unresolved, stale and unavailable records are retained but skipped; an empty
+eligible set reports a clear result and suggests a checked jump by name.

@@ -79,8 +79,12 @@ all-target clippy and documentation.
 Acceptance: complete BMK04.
 
 - [x] T4.1: Implement native bookmark listing, stable row actions, deletion marks and local configurable keys.
-- [ ] T4.2: Implement current-file next/previous, wrap, same-position ordering and safe invalidation.
+- [x] T4.2: Implement current-file next/previous, wrap, same-position ordering and safe invalidation.
 - [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 4 report.
+
+T4.1 native-list commit: `96b4dc6bf4cd285a6b5f9a40d9d8fe9dd81a5248`.
+[Slice 4 report](../report/slices/rev-bookmarks/slice-4-navigation.md) records
+checked list and ordered-navigation behavior, native coverage and final checks.
 
 ## Slice 5: Gutter markers
 

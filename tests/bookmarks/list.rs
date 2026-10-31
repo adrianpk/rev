@@ -297,3 +297,28 @@ fn settle(s: &mut Session) {
         std::thread::yield_now();
     }
 }
+
+// A deferred checked list visit closes its workspace only after complete
+// context relocation and publishes the selected stable destination once.
+#[test]
+fn deferred_list_visit() {
+    let f = fixture::Fixture::new();
+    let original = format!("{}unique-end", "a\n".repeat(50000));
+    let path = f.write("source", &original);
+    let mut s = session();
+    s.load(&path).unwrap();
+    s.execute(Command::Motion(Motion::BufferEnd));
+    settle(&mut s);
+    argument(&mut s, BookmarkCommand::Set, "A");
+    kill(&mut s);
+    std::fs::write(&path, format!("prefix\n{original}")).unwrap();
+    s.load(&f.write("origin", "origin")).unwrap();
+    open(&mut s);
+    key(&mut s, KeyCode::Enter);
+    assert!(s.remaining_input(std::time::Instant::now()).is_some());
+    settle(&mut s);
+    assert_eq!(s.buffer().unwrap().file().unwrap().path(), path);
+    assert_eq!(s.view().point.position.0, original.chars().count() + 7);
+    assert!(!surface(&mut s).contains("*Bookmarks*"));
+    assert!(!s.buffer().unwrap().is_modified());
+}

@@ -84,6 +84,7 @@ impl Session {
     }
 
     pub(super) fn place_point(&mut self, point: crate::buffer::edit::Point) -> Result<(), Error> {
+        self.bookmark_iteration = None;
         let buffer = self.buffer()?;
         let mut candidate = self.windows.selected().clone();
         candidate.point = point;

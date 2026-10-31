@@ -1,6 +1,8 @@
 mod list;
 mod navigation;
+mod ordered;
 pub(super) use list::List;
+pub(super) use ordered::Iteration;
 mod persistence;
 mod quit;
 pub(super) use navigation::Navigation;
@@ -29,6 +31,8 @@ impl Session {
     pub(super) fn bookmark_command(&mut self, command: BookmarkCommand) -> Action {
         match command {
             BookmarkCommand::List => return self.list_bookmarks(),
+            BookmarkCommand::Next => return self.step_bookmark(false),
+            BookmarkCommand::Previous => return self.step_bookmark(true),
             BookmarkCommand::MenuDelete
             | BookmarkCommand::MenuUnmark
             | BookmarkCommand::MenuExecute
@@ -96,6 +100,8 @@ impl Session {
             BookmarkCommand::Save
             | BookmarkCommand::Reload
             | BookmarkCommand::List
+            | BookmarkCommand::Next
+            | BookmarkCommand::Previous
             | BookmarkCommand::MenuDelete
             | BookmarkCommand::MenuUnmark
             | BookmarkCommand::MenuExecute
@@ -141,6 +147,8 @@ impl Session {
             BookmarkCommand::Save
             | BookmarkCommand::Reload
             | BookmarkCommand::List
+            | BookmarkCommand::Next
+            | BookmarkCommand::Previous
             | BookmarkCommand::MenuDelete
             | BookmarkCommand::MenuUnmark
             | BookmarkCommand::MenuExecute
@@ -156,6 +164,8 @@ impl Session {
                 BookmarkCommand::Save
                 | BookmarkCommand::Reload
                 | BookmarkCommand::List
+                | BookmarkCommand::Next
+                | BookmarkCommand::Previous
                 | BookmarkCommand::MenuDelete
                 | BookmarkCommand::MenuUnmark
                 | BookmarkCommand::MenuExecute

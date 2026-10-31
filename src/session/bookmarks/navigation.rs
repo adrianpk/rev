@@ -11,6 +11,7 @@ use crate::view::View;
 pub(super) enum Origin {
     Name,
     List(u64),
+    Ordered(u64),
 }
 pub(in crate::session) struct Navigation {
     from: Origin,
@@ -106,11 +107,9 @@ impl Session {
         &mut self,
         mut work: Navigation,
     ) -> Result<Option<Navigation>, String> {
-        if matches!(work.from, Origin::List(generation) if generation != self.bookmarks().generation())
+        if matches!(work.from, Origin::List(generation) | Origin::Ordered(generation) if generation != self.bookmarks().generation())
         {
-            return Err(
-                "Bookmark collection changed during list navigation; retry required".into(),
-            );
+            return Err("Bookmark collection changed during navigation; retry required".into());
         }
         if work.origin != self.windows.selected_id()
             || work.point != self.view().point
@@ -203,6 +202,11 @@ impl Session {
         }
         self.tree.edit();
         self.sync_input_context();
+        if matches!(work.from, Origin::Ordered(_)) {
+            self.remember_bookmark_iteration(work.record.id());
+            self.message(&format!("Bookmark {:?}", work.record.name()));
+            return Ok(None);
+        }
         self.message(if work.contextual {
             "Bookmark resolved by checked context"
         } else {

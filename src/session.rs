@@ -90,6 +90,7 @@ pub struct Session {
     bookmark_visit: Option<bookmarks::Navigation>,
     bookmark_storage: bookmarks::Persistence,
     bookmark_list: Option<bookmarks::List>,
+    bookmark_iteration: Option<bookmarks::Iteration>,
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
@@ -276,6 +277,7 @@ impl Session {
             bookmark_visit: None,
             bookmark_storage,
             bookmark_list: None,
+            bookmark_iteration: None,
             buffers,
             org: org::Work::default(),
             capture: None,
@@ -614,6 +616,14 @@ impl Session {
 
     fn execute_now(&mut self, command: Command) -> Action {
         self.bookmark_visit = None;
+        if !matches!(
+            command,
+            Command::Bookmark(
+                crate::command::BookmarkCommand::Next | crate::command::BookmarkCommand::Previous
+            ) | Command::ExecuteExtended
+        ) {
+            self.bookmark_iteration = None;
+        }
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self

@@ -79,6 +79,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `u` in bookmark list | `bookmark-bmenu-unmark` | Unmark the selected record and advance. |
 | `x` in bookmark list | `bookmark-bmenu-execute-deletions` | Execute checked marked deletions. |
 | `RET` in bookmark list | `bookmark-bmenu-this-window` | Visit the selected stable record in this pane. |
+| `M-x bookmark-next` | `bookmark-next` | Visit the next resolved current-file record, wrapping and stepping same-position names. |
+| `M-x bookmark-previous` | `bookmark-previous` | Visit the previous resolved current-file record in source/name order. |
 | `M-x bookmark-save` | `bookmark-save` | Checkpoint the user collection without saving sources. |
 | `M-x bookmark-reload` | `bookmark-reload` | Validate disk and confirm replacing unsaved bookmarks. |
 | `C-x r M-w` | `copy-rectangle-as-kill` | Retain selected rectangle rows. |

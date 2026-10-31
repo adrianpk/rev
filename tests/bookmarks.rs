@@ -6,6 +6,8 @@ mod fixture;
 mod list;
 #[path = "bookmarks/locations.rs"]
 mod locations;
+#[path = "bookmarks/ordered.rs"]
+mod ordered;
 #[path = "bookmarks/persistence.rs"]
 mod persistence;
 #[path = "bookmarks/reopening.rs"]
@@ -303,6 +305,8 @@ fn bookmark_bindings() {
         BookmarkCommand::Save,
         BookmarkCommand::Reload,
         BookmarkCommand::List,
+        BookmarkCommand::Next,
+        BookmarkCommand::Previous,
         BookmarkCommand::MenuDelete,
         BookmarkCommand::MenuUnmark,
         BookmarkCommand::MenuExecute,
@@ -313,13 +317,7 @@ fn bookmark_bindings() {
             Some(Command::Bookmark(command))
         );
     }
-    for name in [
-        "bookmark-next",
-        "bookmark-previous",
-        "bookmark-markers-mode",
-    ] {
-        assert_eq!(Command::named(name), None);
-    }
+    assert_eq!(Command::named("bookmark-markers-mode"), None);
 }
 
 // An empty set draft uses the visiting basename, not a canonical alias basename

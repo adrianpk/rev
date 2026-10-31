@@ -33,6 +33,22 @@ Other splits retain their independent input and source views. A changed or
 closed origin cannot receive a stale return point; the current valid view is
 retained with a diagnostic. Closing a pane or quitting drops its staged marks.
 
+`bookmark-next` and `bookmark-previous` traverse only current revision-qualified
+resolved anchors in the current canonical file. Ordering is by scalar position,
+then lexical name, with wrap in either direction. First use includes targets at
+point. Repetition retains the last stable ID, point/revision, pane and collection
+generation, so same-position names are independent steps. Movement, edits,
+collection mutation or pane selection resets that observation. There are no new
+factory shortcuts, source visits for ordering, or source writes. Unresolved and
+stale records remain available for a checked named jump.
+
+## Implementation Notes
+
+One collection generation invalidates retained row and iteration observations
+when records, anchors, context or canonical paths change. The durable format
+remains unchanged. Ordered queries copy only bounded location/name metadata and
+sort once per command; frame projection formats visible list rows only.
+
 ## Validation
 
 Development check `cargo test --locked --test bookmarks list:: -- --nocapture`
@@ -41,3 +57,34 @@ remapping, cancellation, real source lifetimes, cross-pane collection changes
 and bounded visit cancellation. The documentation checker passed 316 commands,
 186 configuration entries, 58 pages and 331 links/anchors at the list task.
 Final exact-HEAD controller receipts follow the canonical PR-reference commits.
+
+Development checks also passed eight list journeys (including deferred visit
+completion) and four ordered-navigation journeys. The final catalog contains
+318 implemented commands and 186 configuration entries.
+
+After PR-reference follow-up commits, the controller records the exact clean
+HEAD against this ordered required list:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test bookmarks --test commands --test configuration --test windows --test display --test panels`
+3. `git diff --check`
+
+A separate controller batch checks `cargo test --locked --lib bookmark`,
+`cargo clippy --locked --all-targets -- -D warnings` and
+`cargo run --locked --quiet --example documentation-check` on that same final
+candidate before the required batch. Handoff requires both batches to pass.
+The controller owns the combined gate after all recorded slice integrations.
+
+## Task Commits
+
+T4.1 introduces native listing, the local map, stable generation-checked rows and
+source-safe cancellation/return. T4.2 adds ordered traversal and repetition
+invalidation, with native eligibility and tie coverage. Their exact references
+are recorded in the tracker.
+
+## Risks and Follow-ups
+
+Unresolved, stale or unavailable records have no eligible current-file order;
+the user can explicitly check them through a named jump or list visit. A changed
+list snapshot clears pending marks and requires a retry. Marker projection and
+joint acceptance remain assigned to the recorded successor slices.

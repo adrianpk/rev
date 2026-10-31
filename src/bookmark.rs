@@ -3,6 +3,7 @@
 
 pub(crate) mod context;
 pub(crate) mod list;
+pub(crate) mod ordered;
 pub(crate) mod store;
 pub use context::Context;
 
@@ -333,12 +334,13 @@ impl Bookmarks {
         if let Some(record) = self.entries.values_mut().find(|r| {
             r.id == id
                 && r.generation == generation
-                && !matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
+                && !matches!(
+                    r.resolution,
+                    Resolution::Resolved | Resolution::Stale | Resolution::Unavailable
+                )
         }) {
-            if record.resolution != Resolution::Unavailable {
-                record.resolution = Resolution::Unavailable;
-                self.changed();
-            }
+            record.resolution = Resolution::Unavailable;
+            self.changed();
         }
     }
     pub(crate) fn retarget(
