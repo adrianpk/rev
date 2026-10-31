@@ -1,7 +1,9 @@
 # Native completion
 
-Rust, C and Go completion opens automatically after an identifier edit of at least two
-Unicode characters or a `.` / `::` separator (also C `->`). The default debounce waits
+Native completion opens automatically after an admitted identifier edit of at
+least two Unicode characters or a language separator. Rust/C/Go and script
+languages admit member separators; C also admits `->`. HTML admits tag delimiters
+and attribute spacing, and CSS admits selector/declaration delimiters. The default debounce waits
 150 ms after the newest eligible native edit. `M-TAB` or
 `M-x completion-at-point` requests immediately without a minimum prefix.
 Terminal or desktop shortcuts may intercept M-TAB; the named command uses the
@@ -25,7 +27,7 @@ acceptance and cancellation commands, including finite chord sequences. C-g
 keeps its globally reserved `keyboard-quit` configuration value, interpreted as
 popup cancellation; Escape always cancels literally in the active list.
 
-Candidates are observed declaration names, with kinds displayed separately.
+Candidates are observed names and finite HTML/CSS vocabulary, with kinds displayed separately.
 Labels never become insertion text. Lowercase input matches without case
 sensitivity; uppercase input requires matching case. Prefix matches precede
 ordered subsequences, followed by current-buffer locality, declaration proximity,
@@ -33,7 +35,8 @@ source ordering and stable lexical ties.
 Equal insertions are deduplicated. A single candidate still requires acceptance.
 No usable candidates produce no popup. Automatic requests stay quiet in admitted
 comments, strings and character literals by default; manual invocation bypasses
-that suppression while retaining the same declaration coverage.
+that suppression while retaining the same declaration coverage. Structural
+HTML/CSS admission still excludes ordinary text and value strings.
 
 Acceptance replaces the full identifier around point with literal text through
 the ordinary edit owner, as one undo operation. Read-only buffers and obsolete
@@ -48,8 +51,26 @@ methods, types, fields, constants and local/parameter declarations. Observed
 names do not imply imports, macro expansion, type checking or member resolution.
 Local declarations and parameters stay within their lexical block/function;
 locals from other functions or other buffers do not leak into the list. Bindings
-after point are omitted. Fields remain observed names without receiver inference. Missing or unsupported syntax degrades
-assistance while preserving ordinary editing.
+after point are omitted. Fields remain observed names without receiver inference.
+
+JavaScript and TypeScript observe functions, classes/types, import bindings and
+aliases, members and local/parameter bindings. TSX uses a distinct parser with
+JSX highlighting while retaining the `typescript` preference identity. TS and
+TSX buffers reuse same-language names. Ordinary template text stays quiet by
+default; `${...}` expressions retain code admission. Dollar/private script
+identifiers and hyphenated HTML/CSS names use complete checked replacement ranges.
+
+HTML observes tag and attribute names and adds finite common standard vocabulary
+in those contexts, including an incomplete opening/closing delimiter. It stays
+quiet in document text, attribute values, comments and raw script/style bodies.
+CSS observes selector names and property declarations, adds finite standard
+property names in declaration-name context, and offers observed custom properties
+inside `var(...)`. Ordinary values and strings have no invented value vocabulary.
+The compiled common subsets contain 72 tags, 48 attributes and 84 CSS properties,
+based on the [HTML index](https://html.spec.whatwg.org/multipage/indices.html) and
+[CSS property index](https://www.w3.org/TR/css-2024/#property-index).
+These subsets do not model element-specific validity, DOM types or injected
+languages. Missing or unsupported syntax degrades assistance while preserving editing.
 
 ## Preferences and work bounds
 

@@ -22,7 +22,7 @@ pub(super) fn at(
 
 fn start(buffer: &Buffer, point: usize) -> Result<usize, crate::buffer::edit::Error> {
     let mut start = point;
-    while start > 0 && identifier(character(buffer, start - 1)?) {
+    while start > 0 && identifier(character(buffer, start - 1)?, buffer.completion_grammar()) {
         start -= 1;
         limit(point - start)?;
     }
@@ -31,7 +31,9 @@ fn start(buffer: &Buffer, point: usize) -> Result<usize, crate::buffer::edit::Er
 
 fn end(buffer: &Buffer, point: usize) -> Result<usize, crate::buffer::edit::Error> {
     let mut end = point;
-    while end < buffer.len_chars() && identifier(character(buffer, end)?) {
+    while end < buffer.len_chars()
+        && identifier(character(buffer, end)?, buffer.completion_grammar())
+    {
         end += 1;
         limit(end - point)?;
     }
@@ -56,8 +58,19 @@ fn limit(length: usize) -> Result<(), crate::buffer::edit::Error> {
     Ok(())
 }
 
-fn identifier(ch: char) -> bool {
+fn identifier(ch: char, grammar: crate::config::Grammar) -> bool {
     ch == '_'
         || ch.is_alphanumeric()
         || (!ch.is_ascii() && unicode_width::UnicodeWidthChar::width(ch) == Some(0))
+        || extra(ch, grammar)
+}
+
+fn extra(ch: char, grammar: crate::config::Grammar) -> bool {
+    use crate::config::Grammar;
+    match grammar {
+        Grammar::Html => ch == '-' || ch == ':',
+        Grammar::Css => ch == '-',
+        Grammar::Javascript | Grammar::Typescript | Grammar::Tsx => ch == '$' || ch == '#',
+        _ => false,
+    }
 }

@@ -3,6 +3,7 @@ mod completion;
 mod scope;
 mod source;
 mod style;
+mod web;
 
 pub use style::Style;
 

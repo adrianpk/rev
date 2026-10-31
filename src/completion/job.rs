@@ -143,8 +143,13 @@ fn extract(
     let mut payload = 0;
     for (origin, source) in sources.iter_mut().enumerate() {
         parse(source, deadline, cancel);
-        if origin == 0 && !request.allowed(&source.syntax) {
-            return Ok(Vec::new());
+        if origin == 0 {
+            request.context = source
+                .syntax
+                .completion_context(source.text.slice(..), request.byte);
+            if !request.allowed(&source.syntax) {
+                return Ok(Vec::new());
+            }
         }
         let result = source.syntax.declarations_with(
             source.text.slice(..),
@@ -162,6 +167,12 @@ fn extract(
                 _ => request.limited = true,
             }
         }
+    }
+    let catalog = request.context.catalog();
+    if fits(&symbols, &catalog, payload) {
+        append(&mut symbols, catalog, usize::MAX, &mut payload);
+    } else {
+        request.limited = true;
     }
     Ok(symbols)
 }

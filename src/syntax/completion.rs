@@ -49,6 +49,9 @@ impl Syntax {
             .root_node()
             .descendant_for_byte_range(byte.saturating_sub(1), byte);
         while let Some(current) = node {
+            if current.kind() == "template_substitution" {
+                return true;
+            }
             if let Some(allowed) = literal_policy(current.kind(), policy) {
                 return allowed;
             }

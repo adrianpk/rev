@@ -16,6 +16,12 @@ fn grammar_policy() {
         ("main.go", "", "Go"),
         ("main.c", "", "C"),
         ("main.h", "", "C"),
+        ("main.html", "", "HTML"),
+        ("main.css", "", "CSS"),
+        ("main.js", "", "JavaScript"),
+        ("main.ts", "", "TypeScript"),
+        ("main.tsx", "", "TSX"),
+        ("main.tsx", "language.typescript.grammar = 'plain'", "Text"),
         ("main.go", "language.go.grammar = 'plain'", "Text"),
         ("main.c", "language.c.grammar = 'plain'", "Text"),
         ("main.go", "language.go.grammar = 'rust'", "Rust"),
@@ -29,6 +35,11 @@ fn grammar_policy() {
         let source = match mode {
             "Go" => "package main\nfunc main() {}\n",
             "C" => "int main(void) { return 1; }\n",
+            "HTML" => "<div></div>\n",
+            "CSS" => ".sample { color: red; }\n",
+            "JavaScript" => "function main() {}\n",
+            "TypeScript" => "type Sample = number;\n",
+            "TSX" => "const view = <div />;\n",
             _ => "fn main() {}\n",
         };
         let path = fixture.file(name, source);

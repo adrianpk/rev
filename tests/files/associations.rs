@@ -76,3 +76,30 @@ fn retained_alias() {
     assert_eq!(fs::read(&target).unwrap(), b"fn main() {}\n");
     assert!(fs::symlink_metadata(&alias).unwrap().is_symlink());
 }
+
+// The first visiting extension selects the TS or TSX parser while both retain
+// the same typescript editing policy; later canonical aliases cannot switch it.
+#[test]
+fn typescript_aliases() {
+    let fixture = Fixture::new();
+    let root = fixture.file("config.toml", b"language.typescript.tab_width = 7");
+    let settings = resolve(&load(&root).unwrap()).unwrap();
+    for (target, alias, mode) in [
+        ("body.ts", "alias.tsx", "TSX"),
+        ("other.tsx", "alias.ts", "TypeScript"),
+    ] {
+        let path = fixture.file(target, b"export class Sample {}\n");
+        let alias_path = fixture.0.join(alias);
+        symlink(&path, &alias_path).unwrap();
+        let mut buffers = Buffers::with_settings(settings.clone()).unwrap();
+        let id = buffers.visit(&alias_path).unwrap();
+        let buffer = buffers.get(id).unwrap();
+        assert_eq!(buffer.language(&settings), "typescript");
+        assert_eq!(buffer.mode(), mode);
+        assert_eq!(buffer.policy().tab_width, 7);
+        assert_eq!(buffers.visit(&path).unwrap(), id);
+        assert_eq!(buffers.get(id).unwrap().mode(), mode);
+        assert_eq!(text(buffers.get(id).unwrap()), "export class Sample {}\n");
+        assert!(buffers.get(id).unwrap().history().is_empty());
+    }
+}

@@ -8,8 +8,10 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Rust, C, Go, JavaScript and TypeScript/TSX declaration suggestions appear near the cursor after a short typing
-  delay, using unsaved declarations in the current and same-language open buffers.
+- Native completion suggests Rust, C, Go, JavaScript and TypeScript/TSX
+  declarations, HTML tags/attributes and CSS selectors/properties near the cursor
+  after a short typing delay. It uses unsaved names in the current and same-language
+  open buffers, plus finite HTML/CSS vocabulary in structural contexts.
   Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
   Literal replacements undo in one step and refuse stale targets or read-only

@@ -1,8 +1,10 @@
 //! Disposable native proposals. Canonical buffers retain edit/history ownership.
+pub(crate) mod context;
 pub(crate) mod job;
 mod matching;
 pub(crate) mod source;
 mod target;
+mod vocabulary;
 
 use crate::buffer::{Buffer, Span, edit::Point};
 use crate::window::ViewId;
@@ -28,6 +30,7 @@ pub(crate) struct Request {
     pub policy: crate::config::Completion,
     pub observations: Vec<source::Observation>,
     pub limited: bool,
+    pub context: context::Context,
 }
 
 impl Request {
@@ -61,9 +64,14 @@ impl Request {
             policy: crate::config::Completion::default(),
             observations: Vec::new(),
             limited: false,
+            context: context::Context::Names,
         })
     }
     pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
+        let symbols = symbols
+            .into_iter()
+            .filter(|symbol| self.context.accepts(symbol))
+            .collect();
         let mut candidates = matching::candidates(symbols, &self.prefix, &self.original, self.byte);
         candidates.truncate(self.policy.max_candidates);
         Completion {
@@ -89,21 +97,12 @@ impl Request {
         if !self.prefix.is_empty() {
             return false;
         }
-        let end = self.point.position.0;
-        let Ok(span) = buffer.span(end.saturating_sub(2)..end) else {
-            return false;
-        };
-        let Ok(text) = buffer.slice(&span) else {
-            return false;
-        };
-        let text = text.to_string();
-        text.ends_with('.')
-            || text.ends_with("::")
-            || (buffer.completion_grammar() == crate::config::Grammar::C && text.ends_with("->"))
+        context::trigger(buffer, self.point)
     }
 
     pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
-        self.manual || syntax.completion_allowed(self.byte, &self.policy)
+        self.context != context::Context::Unsupported
+            && (self.manual || syntax.completion_allowed(self.byte, &self.policy))
     }
 }
 

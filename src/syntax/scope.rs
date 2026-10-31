@@ -56,11 +56,13 @@ impl Scopes {
         }
         let mut parent = node.parent();
         let mut prototype = None;
+        let mut function_scoped = false;
         for _ in 0..128 {
             let Some(node) = parent else {
                 return Ok(prototype);
             };
-            if self.region(node, kind) {
+            function_scoped |= kind == "binding" && node.kind() == "variable_declaration";
+            if self.region(node, kind, function_scoped) {
                 return Ok(Some(region_range(node, kind)));
             }
             if kind == "parameter"
@@ -74,9 +76,9 @@ impl Scopes {
         Err("Native completion scope nesting limit reached".into())
     }
 
-    fn region(&self, node: Node<'_>, kind: &str) -> bool {
+    fn region(&self, node: Node<'_>, kind: &str, function_scoped: bool) -> bool {
         self.0.contains(&node.id())
-            && (BLOCKS.contains(&node.kind())
+            && ((!function_scoped && BLOCKS.contains(&node.kind()))
                 || (kind != "function" && FUNCTIONS.contains(&node.kind())))
     }
 }
