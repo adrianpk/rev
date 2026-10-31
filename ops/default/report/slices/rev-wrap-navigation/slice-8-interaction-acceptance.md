@@ -5,7 +5,7 @@ Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
 Branch: `fix/rev-wrap-navigation-validation-1`
-PR: pending
+PR: [#182](https://forge.adrianpk.com/adrianpk/rev/pulls/182)
 
 ## Purpose
 
@@ -148,9 +148,14 @@ failed at the retained assertion before the correction and passed afterward
 3. `cargo test --locked --test files`
 4. `git diff --check`
 
-Clean-HEAD controller evidence and the canonical repair PR reference are recorded
-before handoff. The controller owns integration and rerunning the unchanged full
-gate; earlier slice evidence remains tied to its original candidate.
+Repair commit `3fe555017ec8b3c3a22af8ac86c826ca47fdaa64` passed all four
+commands above at its exact clean head in controller receipt
+`NG64D6QWH24UWQV76BJ4CBDT2M`: 36 gutter tests and 74 file tests passed.
+Canonical [PR #182](https://forge.adrianpk.com/adrianpk/rev/pulls/182) targets
+`dev` with the pinned repair title and immutable original report-introduction
+link. The PR-reference head receives fresh policy-required evidence before
+handoff. The controller owns integration and rerunning the unchanged full gate;
+earlier slice evidence remains tied to its original candidate.
 
 ## Risks and Follow-ups
 
