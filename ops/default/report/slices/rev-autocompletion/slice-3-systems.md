@@ -120,6 +120,14 @@ alias and grammar-policy fixtures now expect the admitted Go/C modes; explicit
 plain fallback, text/history immutability and coordinate assertions are retained.
 The grammar-policy cases use valid representative source for each parser.
 
+Required receipt `HBXJKGTLZ5QA3CHLHCG3JFLNPO` passed formatting, all 23
+completion cases and all 24 coordinate cases at
+`20ae9357ba3d43557a9054ccd4bec0038b26c86d`, then exposed an alias fixture
+that resolved a custom C++ association without installing its snapshot in the
+registry. It now uses `Buffers::with_settings` and also checks the buffer's actual
+editing policy. The C++ plain fallback and first-alias/text assertions remain
+intact; configured grammar identity now drives the real owner under test.
+
 T3.1 is commit `fcf66225fbcec203ad32c431a87a55ce6a2fc489`.
 T3.2 is commit `c082cef64cf465d4ee2d0c2cb69381bf6c022ea4`.
 Focused controller receipt `Y2O5S27HEXXLMGLPEXMZLCNNXZ` passed at clean

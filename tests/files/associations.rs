@@ -15,7 +15,7 @@ fn visiting_languages() {
         ("body.h", "alias.h", "cpp", "Text", 4),
         ("other.rs", "alias.note", "custom", "Text", 4),
     ];
-    let mut buffers = Buffers::new().unwrap();
+    let mut buffers = Buffers::with_settings(settings.clone()).unwrap();
     for (target, alias, language, mode, width) in cases {
         let path = fixture.file(target, b"fn main() {}\n");
         let alias_path = fixture.0.join(alias);
@@ -27,6 +27,7 @@ fn visiting_languages() {
         assert_eq!(buffer.name(), alias);
         assert_eq!(buffer.language(&settings), language);
         let policy = settings.editor(buffer.language(&settings));
+        assert_eq!(buffer.policy(), &policy);
         assert_eq!(policy.indent_width, width);
         assert_eq!(policy.indent_style, IndentStyle::Spaces);
         assert_eq!(policy.tab_width, 8);
