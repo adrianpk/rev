@@ -261,6 +261,7 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 
 | Keys | Target |
 | --- | --- |
+| `C-x C-f` | `find-file` |
 | `C-g` | `keyboard-quit` |
 | `TAB` | `insert-tab` (return to editing) |
 | `M-x` | `execute-extended-command` |
@@ -278,7 +279,7 @@ releases and held acceptance keys cannot submit a newly acquired argument.
 | `C-x t n` | `tree-create-file` |
 | `C-x t d` | `tree-create-directory` |
 
-Tree configuration admits the tree command catalog, cancel, exit, M-x and
+Tree configuration admits the tree command catalog, find-file, cancel, exit, M-x and
 return-to-editing, plus the existing navigation aliases `previous-line`,
 `next-line`, `backward-char`, `forward-char` and `newline`. File mutation commands
 retain their prompts and explicit confirmation; a binding cannot supply consent.

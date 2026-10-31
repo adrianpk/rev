@@ -1,7 +1,7 @@
 use super::*;
 
-// Configured acceptance and navigation retain the same directory/file stages.
-// Repeat/release aliases cannot descend again or insert text after acceptance.
+// Configured acceptance opens the directory tree, then a fresh find-file can
+// accept its child. Repeats/releases cannot reopen a stage or insert source text.
 #[test]
 fn path_accept_aliases() {
     let fixture = super::super::config_fixture::Fixture::new();
@@ -19,6 +19,14 @@ fn path_accept_aliases() {
     session.handle(phase(meta('a'), KeyEventKind::Repeat));
     session.handle(phase(meta('a'), KeyEventKind::Release));
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(
+        session.tree().root(),
+        Some(fixture.0.join("root/child").as_path())
+    );
+    assert!(session.tree().focused() && session.tree().entries()[0].expanded());
+    session.handle(control('x'));
+    session.handle(control('f'));
+    session.handle(Event::Paste("child/".into()));
     session.handle(meta('k'));
     session.handle(meta('a'));
     assert_eq!(session.buffer().unwrap().file().unwrap().path(), target);
@@ -29,8 +37,8 @@ fn path_accept_aliases() {
     assert_eq!(std::fs::read(target).unwrap(), b"target");
 }
 
-// Directory Return uses the same atomic prompt bound as Tab. A selected name
-// that cannot fit retains the original draft and buffer rather than opening it.
+// Tab enforces the atomic draft bound. Return accepts the selected directory
+// without reinserting its long name; a fresh typed new-file visit still works.
 #[test]
 fn path_directory_bound() {
     let fixture = super::super::config_fixture::Fixture::new();
@@ -41,9 +49,18 @@ fn path_directory_bound() {
     let stamp = session.buffer().unwrap().stamp();
     session.execute(Command::FindFile);
     session.handle(key(KeyCode::Up));
-    session.handle(key(KeyCode::Enter));
+    session.handle(key(KeyCode::Tab));
     assert!(session.echo().contains("prompt input limit exceeded"));
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    session.handle(key(KeyCode::Enter));
+    assert_eq!(
+        session.tree().root(),
+        Some(fixture.0.join("root/long directory").as_path())
+    );
+    assert!(session.tree().focused());
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    session.handle(control('x'));
+    session.handle(control('f'));
     session.handle(Event::Paste("new".into()));
     session.handle(key(KeyCode::Enter));
     assert!(
@@ -465,7 +482,7 @@ fn recursive_consent() {
         "[keys.tree]\n'M-d' = 'tree-delete'\n[keys.minibuffer]\n'M-a' = 'minibuffer-accept'",
     );
     fixture.write("root/dir/item", "child");
-    session.execute(Command::Tree(TreeCommand::Expand));
+    session.execute(Command::Tree(TreeCommand::Refresh));
     session.handle(key(KeyCode::Down));
     session.handle(meta('d'));
     session.handle(character('y'));

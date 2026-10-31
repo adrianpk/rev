@@ -80,6 +80,14 @@ intermediate prefix. Incomplete-list feedback and finite observation assertions
 remain active. Selection from an incomplete list completes one observed identity,
 without inferring uniqueness or expanding the observation budget.
 
+The first configured run found four stale command-suite expectations from
+Slice 5: directory Return descent, Return draft-insertion limits, expansion as
+implicit refresh, and the incomplete tree-context binding table. The command
+fixtures now exercise final directory acceptance, bounded Tab insertion, fresh
+find-file aliases, explicit tree refresh and the full native binding set. Input
+phase, dirty-state, disk preservation and recursive deletion consent assertions
+remain active; no runtime admission or acceptance limits are weakened.
+
 The configured three-command prefix and focused all-target Clippy,
 documentation and existing PTY checks require a clean-head controller receipt.
 Final PR-reference changes receive fresh configured evidence before handoff.
