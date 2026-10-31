@@ -43,6 +43,13 @@ impl Navigation {
         if self.draft == draft && !refresh {
             return;
         }
+        let selected = (refresh && self.draft == draft)
+            .then(|| {
+                self.candidates()
+                    .get(self.selected)
+                    .map(|entry| entry.identity().to_owned())
+            })
+            .flatten();
         if self.draft != draft {
             self.selected = 0;
             self.chosen = false;
@@ -50,7 +57,7 @@ impl Navigation {
         }
         self.draft = draft.to_owned();
         match Query::parse(&self.base, self.home.as_deref(), draft) {
-            Ok(query) => self.observe(query, refresh),
+            Ok(query) => self.observe(query, refresh, selected),
             Err(error) => {
                 self.query = None;
                 self.provider = None;
@@ -59,7 +66,7 @@ impl Navigation {
         }
     }
 
-    fn observe(&mut self, query: Query, refresh: bool) {
+    fn observe(&mut self, query: Query, refresh: bool, selected: Option<std::ffi::OsString>) {
         let changed = self
             .query
             .as_ref()
@@ -67,11 +74,24 @@ impl Navigation {
         if changed || refresh {
             match Provider::observe(query.directory()) {
                 Ok(provider) => {
+                    if let Some(name) = selected {
+                        let index = provider
+                            .matching(query.prefix())
+                            .iter()
+                            .position(|entry| entry.identity() == name);
+                        let Some(index) = index else {
+                            self.error = Some("Selected path is no longer present".to_owned());
+                            return;
+                        };
+                        self.selected = index;
+                    }
                     self.provider = Some(provider);
                     self.error = None;
                 }
                 Err(error) => {
-                    self.provider = None;
+                    if changed {
+                        self.provider = None;
+                    }
                     self.error = Some(error.to_string());
                 }
             }

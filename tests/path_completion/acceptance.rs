@@ -41,7 +41,7 @@ pub(super) fn text(session: &Session) -> String {
         .to_string()
 }
 
-fn start(session: &mut Session, extended: bool) {
+pub(super) fn start(session: &mut Session, extended: bool) {
     if extended {
         session.handle(Event::Key(KeyEvent::new(
             KeyCode::Char('x'),

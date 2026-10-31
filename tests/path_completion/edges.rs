@@ -126,8 +126,8 @@ fn bounded(frame: &Frame, width: u16, height: u16) {
     }
 }
 
-// Incomplete lists remain explicit even with two visible rows. Tab cannot infer
-// uniqueness from a truncated subset, but an explicit visible choice can complete.
+// A bounded subset retains its incomplete warning. Tab fills its visible first
+// identity without implying uniqueness or requiring an extra navigation gesture.
 #[test]
 fn incomplete_surface() {
     let fixture = Fixture::new();
@@ -144,13 +144,16 @@ fn incomplete_surface() {
             .iter()
             .any(|row| row.text().starts_with("Incomplete candidate list"))
     );
+    let name = selected(&frame).to_owned();
     session.handle(key(KeyCode::Tab));
-    assert!(session.echo().contains("Incomplete candidate list"));
-    assert!(query(&session.frame().unwrap()).starts_with("Find file: p  "));
-    session.handle(key(KeyCode::Down));
-    let name = selected(&session.frame().unwrap()).to_owned();
-    session.handle(key(KeyCode::Tab));
-    assert!(query(&session.frame().unwrap()).starts_with(&format!("Find file: {name}")));
+    let frame = session.frame().unwrap();
+    assert!(query(&frame).starts_with(&format!("Find file: {name}")));
+    assert!(
+        frame
+            .rows()
+            .iter()
+            .any(|row| row.text().starts_with("Incomplete candidate list"))
+    );
     assert!(!session.buffer().unwrap().is_modified());
 }
 
@@ -169,15 +172,16 @@ fn bounded_completion() {
     session.execute(Command::FindFile);
     session.handle(Event::Paste("al".into()));
     session.handle(key(KeyCode::Tab));
-    assert!(query(&session.frame().unwrap()).starts_with("Find file: alp"));
+    assert_eq!(session.echo(), "prompt input limit exceeded");
+    assert!(query(&session.frame().unwrap()).starts_with("Find file: al  "));
     session.handle(key(KeyCode::Down));
     session.handle(key(KeyCode::Tab));
     assert_eq!(session.echo(), "prompt input limit exceeded");
     let frame = session.frame().unwrap();
-    assert!(query(&frame).starts_with("Find file: alp"));
+    assert!(query(&frame).starts_with("Find file: al  "));
     assert_eq!(selected(&frame), "alpine");
     session.handle(Event::Paste("界é😀a".into()));
-    assert!(query(&session.frame().unwrap()).starts_with("Find file: alp"));
+    assert!(query(&session.frame().unwrap()).starts_with("Find file: al  "));
     session.execute(Command::KeyboardQuit);
     assert_eq!(session.buffer().unwrap().stamp(), stamp);
     assert!(session.buffer().unwrap().history().is_empty());

@@ -142,7 +142,7 @@ spelling without recursive discovery or incidental filesystem writes.
 | --- | --- |
 | File/directory target and root semantics | [Directory opening](../ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) |
 | First-level initialization | [Initial tree expansion](../ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) |
-| Selected Tab completion | [Highlighted path completion](../ticket/ready/20261028170748-complete-highlighted-find-file-path-with-tab.md) |
+| Selected Tab completion | [Highlighted path completion](../ticket/in_progress/20261028170748-complete-highlighted-find-file-path-with-tab.md) |
 | Pointer row selection | [Clicked tree entry](../ticket/ready/20261030231016-select-the-clicked-file-tree-entry.md) |
 
 ## Accepted interaction profile

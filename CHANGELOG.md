@@ -24,6 +24,12 @@ This project uses Semantic Versioning.
   Org folds, table fields, source drafts and image anchors keep their source
   targets as visible text reflows.
 
+### Fixed
+
+- In Find File, Tab fills the highlighted path, including the first suggestion
+  when names share a prefix. Completing a directory keeps the prompt open for
+  its children; completing a file waits for Return before opening it.
+
 ## 0.1.0 - 2026-10-30
 
 The initial terminal editor includes everyday editing and native Org support.

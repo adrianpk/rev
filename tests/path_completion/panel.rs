@@ -125,44 +125,70 @@ fn native_descent() {
     assert!(session.buffer().unwrap().history().is_empty());
 }
 
-// Both navigation pairs move the highlighted candidate without changing the
-// draft. Tab fills that identity and neither opens it nor edits the document.
+// Both real entry routes complete the highlighted file, including the implicit
+// first match of an ambiguous prefix. Selection, Tab and cancel retain dirty
+// source identity, view/history and disk bytes; Return remains separate.
 #[test]
 fn native_selection() {
-    for next in [
-        key(KeyCode::Down),
-        Event::Key(KeyEvent::new(KeyCode::Char('n'), KeyModifiers::CONTROL)),
-    ] {
-        let fixture = Fixture::new();
-        let mut session = editor(&fixture);
-        let stamp = session.buffer().unwrap().stamp();
-        session.execute(Command::FindFile);
-        session.handle(next);
-        let frame = session.frame().unwrap();
-        let selected = frame
-            .rows()
-            .iter()
-            .find(|row| row.band() == Band::Completion && row.selection().is_some())
-            .unwrap();
-        assert_eq!(selected.text().trim(), "alpha.txt");
-        session.handle(key(KeyCode::Tab));
-        assert!(
-            session
-                .frame()
-                .unwrap()
+    for extended in [false, true] {
+        for (moves, expected) in [
+            (vec![], "alpha.txt"),
+            (vec![key(KeyCode::Down)], "alpine.txt"),
+            (vec![control('n')], "alpine.txt"),
+            (vec![key(KeyCode::Down), key(KeyCode::Up)], "alpha.txt"),
+            (vec![control('n'), control('p')], "alpha.txt"),
+        ] {
+            let fixture = Fixture::new();
+            let mut session = editor(&fixture);
+            fixture.write("root/alpine.txt", "alternative");
+            session.insert('!');
+            session.frame().unwrap();
+            let view = session.view().clone();
+            let stamp = session.buffer().unwrap().stamp();
+            let history = session.buffer().unwrap().history().len();
+            super::acceptance::start(&mut session, extended);
+            session.handle(Event::Paste("al".into()));
+            for event in moves {
+                session.handle(event);
+            }
+            let frame = session.frame().unwrap();
+            let selected = frame
                 .rows()
                 .iter()
-                .any(|row| row.text().starts_with("Find file: alpha.txt"))
-        );
-        assert_eq!(session.buffer().unwrap().stamp(), stamp);
-        assert!(
-            session
-                .buffer()
-                .unwrap()
-                .file()
-                .unwrap()
-                .path()
-                .ends_with("document.txt")
-        );
+                .find(|row| row.band() == Band::Completion && row.selection().is_some())
+                .unwrap();
+            assert_eq!(selected.text().trim(), expected);
+            session.handle(key(KeyCode::Tab));
+            assert!(
+                super::acceptance::query(&session.frame().unwrap())
+                    .starts_with(&format!("Find file: {expected}"))
+            );
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+            assert_eq!(session.buffer().unwrap().history().len(), history);
+            assert!(session.buffer().unwrap().is_modified());
+            session.execute(Command::KeyboardQuit);
+            session.frame().unwrap();
+            assert_eq!(*session.view(), view);
+            assert_eq!(super::acceptance::text(&session), "!retained\ntext");
+            assert_eq!(
+                std::fs::read(fixture.0.join("root/document.txt")).unwrap(),
+                b"retained\ntext"
+            );
+            assert_eq!(
+                std::fs::read(fixture.0.join("root/alpha.txt")).unwrap(),
+                b"alpha"
+            );
+            assert_eq!(
+                std::fs::read(fixture.0.join("root/alpine.txt")).unwrap(),
+                b"alternative"
+            );
+        }
     }
+}
+
+fn control(character: char) -> Event {
+    Event::Key(KeyEvent::new(
+        KeyCode::Char(character),
+        KeyModifiers::CONTROL,
+    ))
 }

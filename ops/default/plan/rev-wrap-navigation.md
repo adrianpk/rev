@@ -271,7 +271,7 @@ fixtures cannot cover their boundary. Do not repeat the full gate per slice.
 | [Long-line wrapping](../ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Slice 4 | Slices 1-3 deliver the shared projection and interactions. |
 | [Directory opening](../ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md) | Slice 5 | Uses the accepted root/Return contract. |
 | [Initial tree expansion](../ticket/solved/20261028153707-expand-file-tree-root-on-first-display.md) | Slice 5 | Share first-display initialization with directory opening. |
-| [Selected Tab completion](../ticket/ready/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Slice 6 | Uses the same prompt while keeping completion separate from acceptance. |
+| [Selected Tab completion](../ticket/in_progress/20261028170748-complete-highlighted-find-file-path-with-tab.md) | Slice 6 | Uses the same prompt while keeping completion separate from acceptance. |
 | [Clicked tree entry](../ticket/ready/20261030231016-select-the-clicked-file-tree-entry.md) | Slice 7 | Reuse current entry identity, geometry and canonical activation. |
 
 Each ticket has one closing slice. Update its lifecycle, implementation commits,

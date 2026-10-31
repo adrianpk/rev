@@ -28,6 +28,10 @@ impl Candidate {
         })
     }
 
+    pub(super) fn identity(&self) -> &std::ffi::OsStr {
+        &self.name
+    }
+
     pub fn name(&self) -> Option<&str> {
         self.name.to_str()
     }

@@ -2,8 +2,8 @@ use rev::file::completion::Navigation;
 
 use super::fixture::Fixture;
 
-// Tab extends a shared prefix, leaves an already shared query alone and fills
-// the explicitly selected name instead of cycling or dispatching it.
+// Tab fills the default first match of an ambiguous query or its explicitly
+// selected alternative. Repeated completion never cycles or dispatches a file.
 #[test]
 fn completion_rules() {
     let fixture = Fixture::new();
@@ -12,9 +12,9 @@ fn completion_rules() {
     }
     let mut navigation = Navigation::new(fixture.0.clone(), None);
     navigation.update("al", false);
-    assert_eq!(navigation.complete().unwrap().as_deref(), Some("alp"));
+    assert_eq!(navigation.complete().unwrap().as_deref(), Some("alpha.txt"));
     navigation.update("alp", false);
-    assert_eq!(navigation.complete().unwrap(), None);
+    assert_eq!(navigation.complete().unwrap().as_deref(), Some("alpha.txt"));
     navigation.navigate(false);
     assert_eq!(
         navigation.complete().unwrap().as_deref(),
@@ -47,14 +47,14 @@ fn directory_transitions() {
     assert_eq!(navigation.candidates()[0].label(), "child/");
 }
 
-// Shared completion preserves complete graphemes, including combining accents
-// and ZWJ emoji. A prefix inside differing clusters is retained, never shortened.
+// Full selected names retain whole combining/ZWJ clusters. Completion inserts
+// exact filename bytes, even when the query stops within a candidate cluster.
 #[test]
-fn grapheme_prefixes() {
+fn grapheme_names() {
     for (left, right, query, expected) in [
-        ("界e\u{301}a", "界e\u{301}b", "界", Some("界e\u{301}")),
-        ("e\u{301}a", "e\u{300}b", "e", None),
-        ("👩‍💻a", "👩‍💻b", "👩", Some("👩‍💻")),
+        ("界e\u{301}a", "界e\u{301}b", "界", Some("界e\u{301}a")),
+        ("e\u{301}a", "e\u{300}b", "e", Some("e\u{300}b")),
+        ("👩‍💻a", "👩‍💻b", "👩", Some("👩‍💻a")),
     ] {
         let fixture = Fixture::new();
         fixture.write(left, "retained");

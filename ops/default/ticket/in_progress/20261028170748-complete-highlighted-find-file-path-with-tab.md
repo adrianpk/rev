@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028170748
 title: Complete the highlighted find-file path with Tab
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: unclassified
@@ -10,6 +10,8 @@ tags: completion, paths, minibuffer
 source: chat
 reported_at: 2026-10-28T17:07:48Z
 ready_at: 2026-10-30T23:24:55Z
+started_at: 2026-10-31T03:31:51Z
+branch: feat/rev-wrap-navigation-06-path-tab
 commits: []
 ---
 
@@ -95,7 +97,7 @@ Use that behavioral reference without importing its implementation stack.
   a directory, navigate to a different child, complete it, then accept/cancel.
   Native helper assertions alone are insufficient evidence of this UX.
 - Coordinate directory completion versus final directory acceptance with the
-  [directory-opening ticket](20261028094803-open-directory-targets-from-cli-and-find-file.md).
+  [directory-opening ticket](../solved/20261028094803-open-directory-targets-from-cli-and-find-file.md).
   Preserve the distinction between Tab browsing/completion and Return acceptance.
 
 ## Delivery boundary

@@ -127,7 +127,7 @@ that exact merge head; the controller recorded its merge in Acta. Slice 6 is act
 
 Acceptance: NAV04 and replacement UI03.
 
-- [ ] T6.1: Make the first result visibly selected and Tab fill that exact candidate, including ambiguous prefixes and explicit list navigation, while Return retains typed/new-file semantics.
+- [x] T6.1: Make the first result visibly selected and Tab fill that exact candidate, including ambiguous prefixes and explicit list navigation, while Return retains typed/new-file semantics.
 - [ ] T6.2: Retain directory-component continuation, current-candidate identity across refresh and bounded observation; apply the full UI03 amendment and resolve the path Tab ticket.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 6 report.
 
