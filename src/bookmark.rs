@@ -1,9 +1,24 @@
 //! Session-owned named file locations. Source text and view selections are never
 //! owned or mutated by this collection.
 
+pub(crate) mod context;
+pub use context::Context;
+
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+
+#[cfg(test)]
+mod lifecycle_tests;
+
+/// Borrowed collection observation. Mutation remains with native owners.
+pub struct Collection<'a>(pub(crate) std::sync::MutexGuard<'a, Bookmarks>);
+impl std::ops::Deref for Collection<'_> {
+    type Target = Bookmarks;
+    fn deref(&self) -> &Bookmarks {
+        &self.0
+    }
+}
 
 pub(crate) type Shared = Arc<Mutex<Bookmarks>>;
 
@@ -43,6 +58,7 @@ pub struct Record {
     point: Point,
     generation: u64,
     resolution: Resolution,
+    context: Context,
 }
 
 impl Record {
@@ -55,7 +71,14 @@ impl Record {
     pub fn path(&self) -> &Path {
         &self.path
     }
-    /// A revision-qualified location; callers must check it before navigation.
+    /// A revision-qualified observation. Only resolved records have a current
+    /// live boundary; stale and closed records retain their last point evidence.
+    pub fn context(&self) -> &Context {
+        &self.context
+    }
+    pub(crate) fn generation(&self) -> u64 {
+        self.generation
+    }
     pub fn resolution(&self) -> Resolution {
         self.resolution
     }
@@ -109,6 +132,7 @@ impl Bookmarks {
         path: PathBuf,
         point: Point,
         overwrite: bool,
+        context: Context,
     ) -> Result<RecordId, String> {
         if name.is_empty() || name.len() > MAX_NAME_BYTES || name.chars().any(char::is_control) {
             return Err("Bookmark names must contain 1..256 UTF-8 bytes without controls".into());
@@ -139,6 +163,7 @@ impl Bookmarks {
             point,
             generation,
             resolution: Resolution::Resolved,
+            context,
         };
         self.entries.insert(name.into(), record);
         self.next_id = self.next_id.max(id.0);
@@ -192,6 +217,109 @@ impl Bookmarks {
             } else {
                 Resolution::Stale
             };
+        }
+    }
+}
+
+impl Bookmarks {
+    pub(crate) fn checkpoint(
+        &mut self,
+        buffer: &Buffer,
+        closing: bool,
+    ) -> Result<(), crate::buffer::Error> {
+        // Capture all fallible outcomes before changing any record.
+        let captured = self
+            .entries
+            .values()
+            .filter(|r| r.point.stamp.buffer == buffer.id() && r.resolution == Resolution::Resolved)
+            .map(|r| Context::capture(buffer, r.point.position).map(|context| (r.id, context)))
+            .collect::<Result<BTreeMap<_, _>, _>>()?;
+        for record in self.entries.values_mut().filter(|r| {
+            r.point.stamp.buffer == buffer.id()
+                && matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
+        }) {
+            if let Some(context) = captured.get(&record.id) {
+                record.context = context.clone();
+            }
+            if closing {
+                record.resolution = Resolution::Unresolved;
+            }
+        }
+        Ok(())
+    }
+    pub(crate) fn resolved(
+        &mut self,
+        id: RecordId,
+        generation: u64,
+        point: Point,
+        context: Context,
+        path: PathBuf,
+    ) -> Result<(), String> {
+        let record = self
+            .entries
+            .values_mut()
+            .find(|r| r.id == id && r.generation == generation)
+            .ok_or("Bookmark changed during navigation")?;
+        record.point = point;
+        record.path = path;
+        record.context = context;
+        record.resolution = Resolution::Resolved;
+        Ok(())
+    }
+    pub(crate) fn unavailable(&mut self, id: RecordId, generation: u64) {
+        if let Some(record) = self.entries.values_mut().find(|r| {
+            r.id == id
+                && r.generation == generation
+                && !matches!(r.resolution, Resolution::Resolved | Resolution::Stale)
+        }) {
+            record.resolution = Resolution::Unavailable;
+        }
+    }
+    pub(crate) fn retarget(
+        &mut self,
+        buffer: crate::buffer::BufferId,
+        prior: Option<&Path>,
+        target: &Path,
+    ) {
+        for record in self
+            .entries
+            .values_mut()
+            .filter(|r| r.point.stamp.buffer == buffer || prior == Some(r.path.as_path()))
+        {
+            record.path = target.into();
+        }
+    }
+    pub(crate) fn renamed_paths(
+        &self,
+        source: &Path,
+        target: &Path,
+        directory: bool,
+    ) -> Result<Vec<(RecordId, PathBuf)>, String> {
+        let mut paths = Vec::new();
+        for record in self.entries.values() {
+            let Ok(suffix) = record.path.strip_prefix(source) else {
+                continue;
+            };
+            if !directory && !suffix.as_os_str().is_empty() {
+                continue;
+            }
+            let path = if suffix.as_os_str().is_empty() {
+                target.to_owned()
+            } else {
+                target.join(suffix)
+            };
+            if path.as_os_str().as_encoded_bytes().len() > MAX_PATH_BYTES {
+                return Err("Renamed bookmark path exceeds 4096 bytes".into());
+            }
+            paths.push((record.id, path));
+        }
+        Ok(paths)
+    }
+    pub(crate) fn publish_paths(&mut self, paths: Vec<(RecordId, PathBuf)>) {
+        for (id, path) in paths {
+            if let Some(record) = self.entries.values_mut().find(|r| r.id == id) {
+                record.path = path;
+            }
         }
     }
 }

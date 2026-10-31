@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "bookmarks/locations.rs"]
 mod locations;
+#[path = "bookmarks/reopening.rs"]
+mod reopening;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use rev::command::{BookmarkCommand, Command, History, Motion, RegionCommand};
@@ -210,7 +212,7 @@ fn visit_failures() {
     let origin = s.view().clone();
     argument(&mut s, BookmarkCommand::Jump, "readonly");
     assert_eq!(s.view(), &origin);
-    assert!(s.echo().contains("stale") || s.echo().contains("changed"));
+    assert!(s.echo().contains("unavailable"));
     cancel(&mut s);
     assert_eq!(s.bookmarks().get("readonly").unwrap().point(), point);
 }

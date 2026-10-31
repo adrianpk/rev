@@ -126,3 +126,25 @@ fn visiting(location: &file::Location, files: &crate::config::Files) -> io::Resu
     }
     Buffer::new("", files).map_err(io::Error::other)
 }
+
+impl Buffers {
+    pub(crate) fn prepare_bookmark_visit(&self, path: &Path) -> io::Result<Visit> {
+        if let Some(id) = self.files.get(path) {
+            self.get(*id).map_err(io::Error::other)?;
+            return Ok(Visit::Existing(*id));
+        }
+        let visit = self.prepare_visit(path)?;
+        if !visit
+            .buffer(self)
+            .map_err(io::Error::other)?
+            .file()
+            .is_some_and(|f| f.is_present())
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "Bookmark target is unavailable",
+            ));
+        }
+        Ok(visit)
+    }
+}

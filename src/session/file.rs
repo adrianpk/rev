@@ -15,6 +15,7 @@ impl Session {
     }
 
     fn load_target(&mut self, path: &Path, directories: bool) -> io::Result<()> {
+        self.bookmark_visit = None;
         if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
             return Err(io::Error::other(
                 "Source output owns input; C-g cancels remaining files",

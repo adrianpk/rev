@@ -1,3 +1,6 @@
+mod navigation;
+pub(super) use navigation::Navigation;
+
 use crate::bookmark::Bookmarks;
 use crate::buffer::edit::Point;
 use crate::command::BookmarkCommand;
@@ -14,7 +17,7 @@ pub(super) struct Prompt {
 
 impl Session {
     /// Read-only observation of this session's canonical bookmark collection.
-    pub fn bookmarks(&self) -> std::sync::MutexGuard<'_, Bookmarks> {
+    pub fn bookmarks(&self) -> crate::bookmark::Collection<'_> {
         self.buffers.bookmarks()
     }
 
@@ -86,12 +89,19 @@ impl Session {
         } else {
             draft
         };
+        if prompt.command == BookmarkCommand::Jump {
+            let name = name.to_owned();
+            return match self.visit_bookmark(&name) {
+                Ok(()) => Action::Redraw,
+                Err(error) => self.bookmark_prompt(prompt, draft, &error),
+            };
+        }
         let result = match prompt.command {
             BookmarkCommand::Set | BookmarkCommand::SetNoOverwrite => {
                 self.set_bookmark(name, prompt.command == BookmarkCommand::Set)
             }
-            BookmarkCommand::Jump => self.visit_bookmark(name),
-            BookmarkCommand::Delete => self.buffers.bookmarks().delete(name),
+            BookmarkCommand::Jump => unreachable!("jump owns its cancellable navigation"),
+            BookmarkCommand::Delete => self.buffers.bookmarks_mut().delete(name),
         };
         match result {
             Ok(()) => self.message(match prompt.command {
@@ -106,48 +116,14 @@ impl Session {
     fn set_bookmark(&mut self, name: &str, overwrite: bool) -> Result<(), String> {
         let point = self.view().point;
         let path = Bookmarks::target(self.buffer().map_err(|e| e.to_string())?, point)?;
-        self.buffers.bookmarks().set(name, path, point, overwrite)?;
-        Ok(())
-    }
-
-    fn visit_bookmark(&mut self, name: &str) -> Result<(), String> {
-        let record = self
-            .bookmarks()
-            .get(name)
-            .cloned()
-            .ok_or("No bookmark with that name")?;
-        let point = record.point();
-        let visit = self
-            .buffers
-            .prepare_visit(record.path())
-            .map_err(|e| e.to_string())?;
-        let buffer = visit.buffer(&self.buffers).map_err(|e| e.to_string())?;
-        if record.resolution() != crate::bookmark::Resolution::Resolved
-            || buffer.stamp() != point.stamp
-        {
-            return Err("Bookmark target is stale; set it again at a current location".into());
-        }
-        let tree = self
-            .tree
-            .opening_file(record.path())
-            .map_err(|e| e.to_string())?;
-        let mut view = self.view().clone();
-        if view.point.stamp.buffer != buffer.id() {
-            view.rebind(buffer);
-        }
-        view.point = point;
-        view.check_point(buffer).map_err(|e| e.to_string())?;
-        view.reset_navigation();
-        view.reveal(buffer, self.pane_size())
-            .map_err(|e| e.to_string())?;
-        self.stop_typing().map_err(|e| e.to_string())?;
-        self.buffers.publish_visit(visit);
-        *self.windows.selected_mut() = view;
-        if let Some(tree) = tree {
-            self.tree = tree;
-        }
-        self.tree.edit();
-        self.sync_input_context();
+        let context = crate::bookmark::Context::capture(
+            self.buffer().map_err(|e| e.to_string())?,
+            point.position,
+        )
+        .map_err(|e| e.to_string())?;
+        self.buffers
+            .bookmarks_mut()
+            .set(name, path, point, overwrite, context)?;
         Ok(())
     }
 }

@@ -45,6 +45,10 @@ impl Buffers {
             .map(Buffer::id)
             .or_else(|| self.entries.keys().copied().find(|id| *id != kill.id()))
             .ok_or(Error::Missing(kill.id()))?;
+        self.bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .checkpoint(self.get(kill.id())?, true)?;
         let removed = self
             .entries
             .remove(&kill.id())

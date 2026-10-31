@@ -82,6 +82,7 @@ mod tests {
                     position: Scalar(at),
                 },
                 true,
+                crate::bookmark::Context::capture(buffer, Scalar(at)).unwrap(),
             )
             .unwrap();
     }

@@ -130,7 +130,7 @@ impl std::error::Error for Error {}
 /// Owns the only rope for this identity. Explicit transient owners cannot
 /// publish source files; all text access remains borrowed.
 pub struct Buffer {
-    bookmarks: crate::bookmark::Shared,
+    pub(crate) bookmarks: crate::bookmark::Shared,
     id: BufferId,
     name: String,
     policy: crate::config::Editor,
@@ -386,7 +386,7 @@ impl Buffer {
 
 /// Owns live buffers; file paths and view references do not own additional text.
 pub struct Buffers {
-    bookmarks: crate::bookmark::Shared,
+    pub(crate) bookmarks: crate::bookmark::Shared,
     entries: BTreeMap<BufferId, Buffer>,
     initial: BufferId,
     files: BTreeMap<PathBuf, BufferId>,
@@ -502,7 +502,10 @@ mod capture_tests;
 
 impl Buffers {
     /// Canonical collection shared with every live buffer's publication owner.
-    pub fn bookmarks(&self) -> std::sync::MutexGuard<'_, crate::bookmark::Bookmarks> {
+    pub fn bookmarks(&self) -> crate::bookmark::Collection<'_> {
+        crate::bookmark::Collection(self.bookmarks.lock().expect("bookmark owner poisoned"))
+    }
+    pub(crate) fn bookmarks_mut(&self) -> std::sync::MutexGuard<'_, crate::bookmark::Bookmarks> {
         self.bookmarks.lock().expect("bookmark owner poisoned")
     }
 }

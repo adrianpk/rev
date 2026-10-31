@@ -87,6 +87,7 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    bookmark_visit: Option<bookmarks::Navigation>,
     buffers: Buffers,
     org: org::Work,
     capture: Option<capture::State>,
@@ -265,6 +266,7 @@ impl Session {
         input.set_org_context(buffer.is_org().then_some(crate::input::OrgContext::Editing));
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         Ok(Self {
+            bookmark_visit: None,
             buffers,
             org: org::Work::default(),
             capture: None,
@@ -593,6 +595,7 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        self.bookmark_visit = None;
         self.timestamp_boundary(command);
         self.cancel_pointer_capture();
         if let Some(action) = self

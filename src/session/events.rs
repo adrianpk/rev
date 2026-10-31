@@ -38,6 +38,7 @@ impl Session {
             self.timer_remaining(now),
             self.agenda_action_remaining(),
             self.capture_remaining(),
+            self.bookmark_visit.as_ref().map(|_| Duration::ZERO),
             (self.layout_pending || self.layout_active()).then_some(Duration::ZERO),
         ]
         .into_iter()
@@ -99,6 +100,11 @@ impl Session {
 
     pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
         self.timer_notice = false;
+        if matches!(&event, Event::Key(key) if key.kind != crossterm::event::KeyEventKind::Release)
+            || matches!(&event, Event::Paste(_) | Event::Mouse(_))
+        {
+            self.bookmark_visit = None;
+        }
         if self.layout_pending && matches!(event, Event::Mouse(_)) {
             // The pending frame exposes no current source mapping. Do not let
             // a click on an obsolete surface redirect a canonical source edit.
@@ -146,6 +152,7 @@ impl Session {
             self.expire_timer(now),
             self.expire_agenda_action(),
             self.expire_capture(),
+            self.expire_bookmark_navigation(),
             self.expire_layout(),
         ]
         .into_iter()

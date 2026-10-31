@@ -21,7 +21,20 @@ impl Buffers {
         let target = rename.destination(name)?;
         self.rename_target(&rename, &target)?;
         let changes = self.rename_changes(&rename, &target)?;
+        let bookmark_paths = if rename.is_symlink() {
+            Vec::new()
+        } else {
+            self.bookmarks
+                .lock()
+                .expect("bookmark owner poisoned")
+                .renamed_paths(rename.source(), &target, rename.is_directory())
+                .map_err(io::Error::other)?
+        };
         rename.publish(&target)?;
+        self.bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .publish_paths(bookmark_paths);
         let warning = self.relocate(changes);
         Ok(Renamed {
             source: rename.source().into(),

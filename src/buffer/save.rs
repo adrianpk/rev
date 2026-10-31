@@ -188,6 +188,19 @@ fn reconcile(
     reconcile_buffer(buffer, save, outcome, label);
 }
 fn reconcile_buffer(buffer: &mut Buffer, save: &Save, outcome: &Outcome, label: String) {
+    {
+        let mut bookmarks = buffer.bookmarks.lock().expect("bookmark owner poisoned");
+        bookmarks.retarget(
+            buffer.id(),
+            buffer.file.as_ref().map(|f| f.path()),
+            save.target(),
+        );
+        if outcome.is_complete() {
+            bookmarks
+                .checkpoint(buffer, false)
+                .expect("resolved bookmark points are current before source save publication");
+        }
+    }
     buffer.file = Some(save.target.published(outcome.observed.clone()));
     buffer.name = label;
     buffer.break_typing();

@@ -194,6 +194,22 @@ change its modified flag, or add source undo steps. Aliases reuse the canonical
 live file buffer, including unsaved text, and visiting a bookmark preserves an
 explicit file-tree root. Rectangle bindings under C-x r remain available.
 
-The current collection lasts for this session. A location whose source revision
-has changed or whose buffer was closed is reported as stale; the original view
-and record remain intact. Set the name again at a current point to replace it.
+The current collection lasts for this session. Live positions follow canonical
+edits, structural moves and source undo/redo. Insertions at the point use left
+affinity. Removing the original position makes it stale; source undo can restore
+it, or an explicit set can replace it. Undo does not recreate deleted names or
+replace a bookmark set after that source transaction.
+
+Closing a buffer retains bounded context, and jumping rechecks that evidence
+against the reopened file. A changed position can relocate through one unique
+context match; ambiguous, missing or unavailable targets retain the original
+view and record. The factory limits capture 64 scalars on each side and search
+at most 262144 source scalars, in passes of at most 16384. C-g or new input
+cancels pending resolution; resize and key releases retain it. Checked context
+is location evidence, not proof of historical identity after duplicated edits.
+
+An already open canonical buffer takes precedence, including its unsaved text.
+Discarded text is never recreated for a bookmark. Successful file or directory
+rename updates associated records, including closed targets; save-as follows
+the canonical buffer destination. Jumps reveal folded ancestors and wrapped
+fragments in the selected view without changing other splits' fold state.
