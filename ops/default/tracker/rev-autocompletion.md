@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4 — HTML, CSS, JavaScript and TypeScript; in progress
+Active slice: Slice 5 — JSON and TOML key completion; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -70,9 +70,14 @@ Receipt `YY3FXCH6SEAT74Q3OKMFYPD2UQ` passed its three configured checks and
 
 Acceptance: CMP03, CMP05-CMP07; web-language subset.
 
-- [ ] T4.1: Add the measured HTML, CSS, JavaScript and TypeScript/TSX grammar/query payloads. Distinguish TSX parser selection while preserving existing language preference resolution; include the needed HTML/CSS associations.
-- [ ] T4.2: Provide the specified declarations, observed tags/attributes/selectors/custom properties and finite standard HTML/CSS catalogs. Admit separator/identifier contexts and preserve graceful plain editing around unsupported syntax.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T4.1: Add the measured HTML, CSS, JavaScript and TypeScript/TSX grammar/query payloads. Distinguish TSX parser selection while preserving existing language preference resolution; include the needed HTML/CSS associations.
+- [x] T4.2: Provide the specified declarations, observed tags/attributes/selectors/custom properties and finite standard HTML/CSS catalogs. Admit separator/identifier contexts and preserve graceful plain editing around unsupported syntax.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#198](https://forge.adrianpk.com/adrianpk/rev/pulls/198) merged
+through Rebase + Fast-forward at `b93665235c4b29954d2c53f824904dd232e6e1a3`.
+Receipt `5GMST5QOZS5KBPNTHKKH4PAPQP` passed its three configured checks and
+270 tests at that exact candidate. Slice 4 of 8 completed.
 
 ## Slice 5: JSON and TOML key completion
 

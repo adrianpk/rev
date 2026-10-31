@@ -1,6 +1,6 @@
 # Slice 4: HTML, CSS, JavaScript and TypeScript
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -111,12 +111,16 @@ candidate `0c0277a12e4500fe51a75071ca151ca9bbaf4afa`:
 
 Documentation admitted 326 commands, 198 configuration entries, 60 reachable
 pages and 347 local links/anchors. Canonical PR #198 links the full immutable
-report-introduction commit. After this PR-reference follow-up, the controller
-records fresh validation for the final clean PR head with this configured order:
+report-introduction commit. Final controller receipt
+`5GMST5QOZS5KBPNTHKKH4PAPQP` passed all three configured checks and 270 tests
+at clean candidate `b93665235c4b29954d2c53f824904dd232e6e1a3` in this order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test configuration --test files`
 3. `git diff --check`
+
+Canonical PR #198 merged that exact candidate into dev through Rebase +
+Fast-forward. Slice 4 of 8 is delivered.
 
 ## Risks and Follow-ups
 
