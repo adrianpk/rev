@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-01-session`
-PR: pending
+PR: [#195](https://forge.adrianpk.com/adrianpk/rev/pulls/195)
 
 ## Purpose
 
@@ -84,7 +84,8 @@ held acceptance keys, above-cursor placement, split isolation and tiny/resize
 geometry. The final library batch also covers oversized-buffer refusal.
 
 T1.1 is commit `f80f24b2d61c4dfba385d6206865779b46169137`.
-T1.2 introduces this report with the integrated manual interaction.
+T1.2 is commit `195f30a2549f11108c7cfe4286b3d9375a5e91a6`, which introduces
+this report with the integrated manual interaction.
 After the PR-reference follow-up, the controller validates the final clean HEAD
 and retains its immutable receipt outside the repository. The canonical PR
 Validation section lists that batch's successful commands in order, including
