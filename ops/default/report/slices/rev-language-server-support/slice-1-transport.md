@@ -1,6 +1,6 @@
 # Slice 1: Optional owned server transport
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -98,6 +98,15 @@ Owned local fixture processes are reaped after their checks.
 
 T1.1 is commit `dc8b3428da348d5f259c69134b7a742739fe8785`.
 T1.2 is commit `37dff9caf62315049ee65fb98348548a52dd956c`, which introduces this report with native activation/status and configuration tests.
+
+Canonical PR #203 merged through the controller into `dev` at
+`6306455453c3e45a6ee5dd7a236d5615f239b62d`. Receipt
+`Z2RUGLJVPJIWU4JMTREAUSC3DN` passed the exact configured command list at that
+clean candidate (382 selected tests):
+
+- `cargo fmt --all -- --check`
+- `cargo test --locked --test lsp --test configuration --test files --test commands`
+- `git diff --check`
 
 ## Risks and Follow-ups
 

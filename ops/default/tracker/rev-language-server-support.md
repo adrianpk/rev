@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 1 — Optional owned server transport; PR #203 awaiting controller validation/integration
+Active slice: Slice 2 — Versioned documents and buffer eligibility
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -31,9 +31,9 @@ Acceptance: LSP01-LSP02 transport/launch layer and LSP04-LSP05 configuration/roo
 
 - [x] T1.1: Implement the disabled-by-default stdio client, typed JSON framing/initialization and finite worker queues/deadlines. Launch argv without a shell and share connections by server configuration plus canonical root; no server process or polling when disabled.
 - [x] T1.2: Add the declared server/root/lifetime settings, installed Rust default, root-marker policy and truthful native status/activation controls. Create tests/lsp.rs with a bounded local process fixture for framing, initialization and unavailable prerequisites; expose only working commands.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T1.1 `dc8b3428da348d5f259c69134b7a742739fe8785`; T1.2 `37dff9caf62315049ee65fb98348548a52dd956c` introduces the Slice 1 report. Canonical PR: [#203](https://forge.adrianpk.com/adrianpk/rev/pulls/203). Integration remains controller-owned.
+Implementation: T1.1 `dc8b3428da348d5f259c69134b7a742739fe8785`; T1.2 `37dff9caf62315049ee65fb98348548a52dd956c` introduces the Slice 1 report. Canonical PR: [#203](https://forge.adrianpk.com/adrianpk/rev/pulls/203), merged at `6306455453c3e45a6ee5dd7a236d5615f239b62d`. Exact configured receipt `Z2RUGLJVPJIWU4JMTREAUSC3DN` passed all three commands and 382 tests; report delivered.
 
 ## Slice 2: Versioned documents and buffer eligibility
 
