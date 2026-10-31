@@ -165,7 +165,7 @@ Slice 8 is active. See the [Slice 7 report](../report/slices/rev-wrap-navigation
 
 Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
-- [ ] T8.1: Deliver native Rust/Bash joint journeys in bash scripts/check-wrap-navigation.sh, using the real event/composition path plus a bounded representative Linux PTY route. Reuse existing probes; add no Python gate or new runtime dependency.
+- [x] T8.1: Deliver native Rust/Bash joint journeys in bash scripts/check-wrap-navigation.sh, using the real event/composition path plus a bounded representative Linux PTY route. Reuse existing probes; add no Python gate or new runtime dependency.
 - [ ] T8.2: Update the editor User Guide with short visual examples, defaults/commands/configuration and CHANGELOG Unreleased; reconcile affected delivered baseline clauses and complete all five ticket transitions/links before the full gate.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 8 report.
 
