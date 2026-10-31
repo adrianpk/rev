@@ -33,23 +33,29 @@ fn retired_results() {
 // preparation. Becoming read-only after presentation cannot publish a proposal.
 #[test]
 fn readonly_publication() {
-    let (_fixture, mut session) = session();
-    session.begin_completion();
-    settle(&mut session);
-    let id = session.buffer().unwrap().id();
-    let stamp = session.buffer().unwrap().stamp();
-    session.buffers.get_mut(id).unwrap().set_readonly(true);
-    assert!(
-        session
-            .publish_completion()
-            .unwrap_err()
-            .contains("read-only")
-    );
-    session.begin_completion();
-    settle(&mut session);
-    assert!(session.echo().contains("read-only"));
-    assert_eq!(session.buffer().unwrap().stamp(), stamp);
-    assert!(session.buffer().unwrap().history().is_empty());
+    for org in [false, true] {
+        let (fixture, mut session) = session();
+        if org {
+            session.load(&fixture.write("sample.org", "* TO")).unwrap();
+            session.execute(Command::Motion(crate::command::Motion::BufferEnd));
+        }
+        session.begin_completion();
+        settle(&mut session);
+        let id = session.buffer().unwrap().id();
+        let stamp = session.buffer().unwrap().stamp();
+        session.buffers.get_mut(id).unwrap().set_readonly(true);
+        assert!(
+            session
+                .publish_completion()
+                .unwrap_err()
+                .contains("read-only")
+        );
+        session.begin_completion();
+        settle(&mut session);
+        assert!(session.echo().contains("read-only"));
+        assert_eq!(session.buffer().unwrap().stamp(), stamp);
+        assert!(session.buffer().unwrap().history().is_empty());
+    }
 }
 
 // Real cancelled work keeps its single slot until reaped. A newer request waits

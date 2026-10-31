@@ -48,6 +48,10 @@ TAB requires a heading line or admitted drawer. Ordinary body text, literal bloc
 text and unavailable structural targets report that no target is available.
 They do not insert text or fold another heading. Plain-text, capture and source
 editing retain their own TAB binding; a focused prompt retains completion.
+An active [native completion popup](completion.md) takes Tab for acceptance.
+Native completion covers heading TODO positions/tags, property keys, directives,
+link types and current-document heading targets; ordinary prose and literal block
+bodies stay quiet. `M-TAB` requests immediately in an admitted structural context.
 The [binding reference](bindings.md) and [configuration sample](config.toml)
 list the context maps.
 

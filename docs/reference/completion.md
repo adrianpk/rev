@@ -99,6 +99,34 @@ incomplete-key recovery uses the retained syntax tree and current token, so vali
 independent observations remain usable around malformed source. Ordinary values,
 array elements and comments do not become key contexts.
 
+Native Org completion offers effective TODO states at the first heading word,
+observed tags in a heading tag field, and observed property keys inside a native
+property drawer. The file's valid TODO declaration takes precedence over
+`org.todo.sequence`/`finished`. File/heading tags and TAGS declarations contribute
+tag names; properties come from valid observed metadata. Incomplete property-key
+slots preserve their native drawer header/placement fact without declaring new
+names from malformed text.
+
+After `#+`, the finite native directive list covers metadata, tasks, tags,
+properties, source/example/export/comment blocks, names/captions, tables and
+supported export attributes. After `[[`, admitted file/ID/attachment and web/mail/
+news link types are offered. After `[[*`, current-document heading titles are
+shown without TODO/priority/tag metadata; insertion encodes literal target bytes.
+These proposals do not visit another document. Missing tag/property/directive/
+link colons are supplied once when required; existing delimiters remain in place.
+Heading targets preserve the surrounding link brackets.
+
+Org structural punctuation and initial heading spacing can bypass the ordinary
+prefix minimum. Ordinary prose, property/directive values, inline code/verbatim,
+comments and literal block bodies stay quiet, including incomplete literal blocks.
+The incomplete block-opening directive itself remains a directive position.
+Automatic and manual requests share these context checks. Tab keeps its native
+Org visibility action outside an active popup. A source-edit draft uses its
+declared bundled language, so completion and draft undo precede the existing
+checked one-transaction return to the Org source. Org uses the existing native
+structure/task/tag/property/link recognizers and the same completion worker,
+cancellation, source pins and work bounds. It requires no Org grammar.
+
 Extraction admits at most 2 MiB and 4096 symbols per buffer, 32 observed buffers,
 8 MiB total shared source snapshots, 16384 retained symbols, 8 MiB observation
 payload and 512-byte labels. Current context precedes other sources; older

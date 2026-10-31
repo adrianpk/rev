@@ -15,6 +15,9 @@ This project uses Semantic Versioning.
   open buffers, plus finite HTML/CSS vocabulary in structural contexts.
   Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
+  Native Org contexts suggest task states, tags, property keys, directives, link
+  types and current-document heading targets while prose and literal blocks stay
+  quiet. Source-edit drafts complete their declared language.
   Quoted keys preserve literal escapes; ordinary JSON/TOML values stay quiet.
   Literal replacements undo in one step and refuse stale targets or read-only
   text. Configure timing, contexts, candidate limits and popup keys in TOML, or
