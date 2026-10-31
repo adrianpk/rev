@@ -14,13 +14,20 @@ impl Session {
         self.completion.as_ref().filter(|completion| {
             self.buffer().is_ok_and(|buffer| {
                 completion.current(buffer, self.windows.selected_id(), self.view().point)
+                    && completion.lsp_current(&self.lsp)
             }) && completion.sources_current(&self.buffers)
                 && self.input.focus() == Focus::Editing
                 && !self.tree.focused()
         })
     }
 
+    /// Last admitted source outcome for the current invocation, including empty fallback.
+    pub fn completion_source(&self) -> Option<crate::completion::CompletionSource> {
+        self.completion_source
+    }
+
     pub(super) fn dismiss_completion(&mut self) {
+        self.completion_source = None;
         self.completion = None;
         self.completion_request = None;
         self.completion_work.cancel();
@@ -100,6 +107,7 @@ impl Session {
     }
 
     fn capture_completion(&mut self) -> Result<Request, String> {
+        self.activate_lsp();
         if !self.completion_policy.enabled {
             return Err("Completion is disabled".into());
         }
@@ -113,6 +121,7 @@ impl Session {
         self.completion_request = Some(self.completion_generation);
         let point = self.view().point;
         let view = self.windows.selected_id();
+        let semantic = self.lsp.completion_possible(point.stamp.buffer);
         let buffer = self
             .buffers
             .get_mut(point.stamp.buffer)
@@ -120,12 +129,7 @@ impl Session {
         if buffer.is_readonly() {
             return Err("buffer is read-only".into());
         }
-        if buffer.len_bytes() > crate::completion::MAX_BYTES {
-            return Err("Native completion buffer exceeds 2 MiB".into());
-        }
-        if !buffer.completion_available() {
-            return Err("Native completion syntax is unavailable".into());
-        }
+        completion_available(buffer, semantic)?;
         let mut request = Request::capture(buffer, view, self.completion_generation, point)?;
         request.policy = self.completion_policy.clone();
         Ok(request)
@@ -154,7 +158,20 @@ impl Session {
             .point
             .stamp
             .buffer;
-        let (sources, limited) = self.completion_sources(id)?;
+        self.prepare_semantic(id)?;
+        let (sources, limited) = match self.completion_sources(id) {
+            Ok(sources) => sources,
+            Err(_)
+                if self
+                    .completion_work
+                    .pending
+                    .as_ref()
+                    .is_some_and(|r| r.semantic.is_some()) =>
+            {
+                (Vec::new(), false)
+            }
+            Err(error) => return Err(error),
+        };
         let ids = sources
             .iter()
             .map(|source| source.observation.stamp.buffer)
@@ -173,6 +190,24 @@ impl Session {
         Ok(())
     }
 
+    fn prepare_semantic(&mut self, id: crate::buffer::BufferId) -> Result<(), String> {
+        self.activate_lsp();
+        let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
+        let request = self
+            .completion_work
+            .pending
+            .as_mut()
+            .ok_or("No completion pending")?;
+        request.semantic = self
+            .lsp
+            .completion(buffer, request.semantic_target(), request.manual);
+        if matches!(self.lsp.buffer_status(id), crate::lsp::Status::Ready(caps) if !caps.completion)
+        {
+            request.fallback_reason = crate::completion::CompletionFallback::Unsupported;
+        }
+        Ok(())
+    }
+
     fn receive_completion(
         &mut self,
         result: (Request, Result<crate::completion::job::Output, String>),
@@ -186,6 +221,7 @@ impl Session {
         if self.completion_request != Some(output.request.generation) {
             return Action::Redraw;
         }
+        self.completion_source = output.result.as_ref().ok().map(Completion::source);
         let manual = output.request.manual;
         let limited = output.request.limited;
         let result = output
@@ -260,6 +296,7 @@ impl Session {
         if self.completion_request != Some(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
             || !completion.sources_current(&self.buffers)
+            || !completion.lsp_current(&self.lsp)
         {
             return Err("Stale completion target".into());
         }
@@ -379,6 +416,19 @@ impl Session {
         )
     }
 
+    fn automatic_completion(&self, request: &Request) -> bool {
+        self.buffer().is_ok_and(|buffer| {
+            let trigger = request.point.position.0.checked_sub(1).and_then(|at| {
+                buffer
+                    .slice(&buffer.span(at..at + 1).ok()?)
+                    .ok()
+                    .map(|text| text.to_string())
+            });
+            request.automatic(buffer)
+                || trigger.is_some_and(|text| self.lsp.triggered(buffer.id(), &text))
+        })
+    }
+
     pub(super) fn schedule_completion(&mut self, now: std::time::Instant) {
         if !self.completion_policy.enabled || !self.completion_policy.automatic {
             return;
@@ -388,7 +438,7 @@ impl Session {
             self.completion_request = None;
             return;
         };
-        if !self.buffer().is_ok_and(|buffer| request.automatic(buffer)) {
+        if !self.automatic_completion(&request) {
             self.completion_request = None;
             return;
         }
@@ -401,3 +451,16 @@ impl Session {
 
 #[cfg(test)]
 mod tests;
+
+fn completion_available(buffer: &crate::buffer::Buffer, semantic: bool) -> Result<(), String> {
+    if semantic {
+        return Ok(());
+    }
+    if buffer.len_bytes() > crate::completion::MAX_BYTES {
+        return Err("Native completion buffer exceeds 2 MiB".into());
+    }
+    if !buffer.completion_available() {
+        return Err("Native completion syntax is unavailable".into());
+    }
+    Ok(())
+}

@@ -22,7 +22,7 @@ impl Session {
                 limited = true;
                 continue;
             }
-            if let Ok(source) = self.completion_source(id) {
+            if let Ok(source) = self.native_completion_source(id) {
                 bytes += source.text.len_bytes();
                 sources.push(source);
             }
@@ -37,7 +37,7 @@ impl Session {
         Ok((sources, limited))
     }
 
-    fn completion_source(&mut self, id: BufferId) -> Result<Source, String> {
+    fn native_completion_source(&mut self, id: BufferId) -> Result<Source, String> {
         let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
         let observation = Observation::capture(buffer);
         let org = if buffer.is_org() {

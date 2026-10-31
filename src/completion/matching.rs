@@ -39,6 +39,7 @@ pub(super) fn candidates(
             (label.len() <= super::MAX_LABEL).then_some(Candidate {
                 label,
                 text: symbol.name,
+                range: None,
             })
         })
         .take(super::MAX_CANDIDATES)
@@ -58,6 +59,11 @@ fn normalized(text: &str, sensitive: bool) -> String {
     } else {
         text.to_lowercase()
     }
+}
+
+pub(crate) fn class(name: &str, prefix: &str) -> Option<u8> {
+    let sensitive = prefix.chars().any(char::is_uppercase);
+    rank(&normalized(name, sensitive), &normalized(prefix, sensitive))
 }
 
 fn rank(name: &str, filter: &str) -> Option<u8> {

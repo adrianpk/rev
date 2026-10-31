@@ -8,7 +8,7 @@ use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::sync::{
     Arc, Mutex,
-    atomic::{AtomicU8, AtomicUsize, Ordering},
+    atomic::{AtomicBool, AtomicU8, AtomicUsize, Ordering},
 };
 
 pub(super) const DOCUMENT_BYTES: usize = 8 * 1024 * 1024;
@@ -32,6 +32,7 @@ pub(super) struct Activation {
     bytes: AtomicUsize,
     total: Arc<AtomicUsize>,
     version: Mutex<Option<DocumentVersion>>,
+    pub incomplete: AtomicBool,
 }
 
 impl Activation {
@@ -49,6 +50,7 @@ impl Activation {
             bytes: AtomicUsize::new(0),
             total,
             version: Mutex::new(None),
+            incomplete: AtomicBool::new(false),
         });
         if !result.resize(bytes) {
             return Err("LSP document snapshot limit exceeded".into());

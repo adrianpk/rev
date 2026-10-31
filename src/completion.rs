@@ -2,7 +2,7 @@
 pub(crate) mod context;
 pub(crate) mod job;
 pub(crate) mod literal;
-mod matching;
+pub(crate) mod matching;
 pub(crate) mod source;
 mod target;
 mod vocabulary;
@@ -32,6 +32,9 @@ pub(crate) struct Request {
     pub observations: Vec<source::Observation>,
     pub limited: bool,
     pub context: context::Context,
+    pub semantic: Option<crate::lsp::completion::Ticket>,
+    pub admitted: bool,
+    pub fallback_reason: CompletionFallback,
 }
 
 impl Request {
@@ -66,6 +69,9 @@ impl Request {
             observations: Vec::new(),
             limited: false,
             context: context::Context::Names,
+            semantic: None,
+            admitted: true,
+            fallback_reason: CompletionFallback::Unavailable,
         })
     }
     pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
@@ -86,6 +92,8 @@ impl Request {
             selected: 0,
             popup_rows: self.policy.popup_rows,
             observations: self.observations,
+            source_kind: CompletionSource::Native(self.fallback_reason),
+            lsp_version: None,
         }
     }
     pub(crate) fn current(&self, view: ViewId, point: Point) -> bool {
@@ -171,6 +179,7 @@ mod tests;
 pub struct Candidate {
     label: String,
     pub(crate) text: String,
+    range: Option<std::ops::Range<usize>>,
 }
 
 impl Candidate {
@@ -194,6 +203,8 @@ pub struct Completion {
     selected: usize,
     pub(crate) popup_rows: usize,
     observations: Vec<source::Observation>,
+    source_kind: CompletionSource,
+    lsp_version: Option<crate::lsp::DocumentVersion>,
 }
 
 impl Completion {
@@ -211,6 +222,10 @@ impl Completion {
     ) -> Result<Self, String> {
         let (point, symbols) = context;
         Ok(Request::capture(buffer, view, generation, point)?.complete(symbols))
+    }
+
+    pub fn source(&self) -> CompletionSource {
+        self.source_kind
     }
 
     pub fn candidates(&self) -> &[Candidate] {
@@ -251,8 +266,52 @@ impl Completion {
             return Err("Completion insertion exceeds 64 KiB".into());
         }
         Ok(crate::buffer::edit::Replacement {
-            source: self.source.clone(),
+            source: Span {
+                stamp: self.source.stamp,
+                range: candidate
+                    .range
+                    .clone()
+                    .unwrap_or_else(|| self.source.range.clone()),
+            },
             text: candidate.text.clone(),
         })
+    }
+}
+
+pub use crate::lsp::completion::{Fallback as CompletionFallback, Source as CompletionSource};
+
+impl Request {
+    pub(crate) fn semantic_target(&self) -> (usize, std::ops::Range<usize>, String) {
+        (
+            self.point.position.0,
+            self.source.range.clone(),
+            self.prefix.clone(),
+        )
+    }
+    pub(crate) fn semantic_completion(self, reply: crate::lsp::completion::Reply) -> Completion {
+        let limit = self.policy.max_candidates;
+        let mut completion = self.complete(Vec::new());
+        completion.lsp_version = reply.version;
+        completion.source_kind = reply.source;
+        completion.candidates = reply
+            .items
+            .into_iter()
+            .map(|item| Candidate {
+                label: item.label,
+                text: item.text,
+                range: Some(item.range),
+            })
+            .take(limit)
+            .collect();
+        completion
+    }
+}
+impl Completion {
+    pub(crate) fn fallback(&mut self, source: CompletionSource) {
+        self.source_kind = source;
+    }
+    pub(crate) fn lsp_current(&self, client: &crate::lsp::Client) -> bool {
+        self.lsp_version
+            .is_none_or(|version| client.document_version(version.stamp.buffer) == Some(version))
     }
 }

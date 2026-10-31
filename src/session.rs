@@ -9,7 +9,7 @@ mod buffers;
 mod capture;
 mod completion;
 mod lsp;
-pub use crate::completion::{Candidate, Completion};
+pub use crate::completion::{Candidate, Completion, CompletionFallback, CompletionSource};
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
@@ -95,6 +95,7 @@ pub struct Session {
     completion: Option<Completion>,
     completion_generation: u64,
     completion_request: Option<u64>,
+    completion_source: Option<CompletionSource>,
     completion_work: crate::completion::job::Work,
     completion_recent: Vec<BufferId>,
     completion_policy: crate::config::Completion,
@@ -295,6 +296,7 @@ impl Session {
             completion: None,
             completion_generation: 0,
             completion_request: None,
+            completion_source: None,
             completion_work: crate::completion::job::Work::default(),
             completion_recent: Vec::new(),
             bookmark_visit: None,

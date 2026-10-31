@@ -39,13 +39,14 @@ impl Connection {
         let mut supervisor = Supervisor {
             server,
             root,
-            policy,
+            policy: policy.clone(),
             status: status.clone(),
             inbox: inbox.clone(),
             stopping: false,
             deadline: None,
             capabilities: None,
             documents: Documents::default(),
+            requests: super::requests::Requests::new(&policy),
         };
         let retained = stderr.clone();
         let worker = std::thread::Builder::new()
@@ -96,6 +97,7 @@ struct Supervisor {
     deadline: Option<Instant>,
     capabilities: Option<Capabilities>,
     documents: Documents,
+    requests: super::requests::Requests,
 }
 
 impl Supervisor {
@@ -146,10 +148,17 @@ impl Supervisor {
     fn communicate(&mut self, output: &Outbox, root: &str) -> Result<(), String> {
         output.send(&protocol::initialize(&self.server, root))?;
         loop {
+            self.requests.sweep(output)?;
             let remaining = self
                 .deadline
+                .into_iter()
+                .chain(self.requests.deadline())
+                .min()
                 .map(|deadline| deadline.saturating_duration_since(Instant::now()));
-            if remaining == Some(Duration::ZERO) {
+            if self
+                .deadline
+                .is_some_and(|deadline| Instant::now() >= deadline)
+            {
                 return self.timeout();
             }
             if self.event(
@@ -166,8 +175,27 @@ impl Supervisor {
         match event {
             Event::Message(message) => self.message(*message, output, root).map(|_| false),
             Event::Document(event, permit) => self.document(*event, permit, output).map(|_| false),
+            Event::Completion(query, permit) => {
+                self.complete(*query, permit, output).map(|_| false)
+            }
             control => self.control(control, output),
         }
+    }
+
+    fn complete(
+        &mut self,
+        query: super::completion::Query,
+        permit: super::budget::Permit,
+        output: &Outbox,
+    ) -> Result<(), String> {
+        if self.stopping {
+            return Ok(());
+        }
+        let caps = self
+            .capabilities
+            .as_ref()
+            .ok_or("LSP completion before initialize")?;
+        self.requests.start(query, permit, (output, caps))
     }
 
     fn document(
@@ -191,7 +219,7 @@ impl Supervisor {
             Event::Stop => self.shutdown(output).map(|_| false),
             Event::Failed(_) if self.stopping => Ok(true),
             Event::Failed(error) => Err(error),
-            Event::Timeout => self.timeout().map(|_| true),
+            Event::Timeout | Event::Cancelled => Ok(false),
             _ => unreachable!("document and protocol events have their own owners"),
         }
     }
@@ -228,6 +256,7 @@ impl Supervisor {
         if message.id == Some(json!(1)) && !self.stopping && self.deadline.is_some() {
             return self.initialized(message, output);
         }
+        self.requests.response(message);
         Ok(())
     }
 

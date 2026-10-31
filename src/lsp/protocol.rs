@@ -15,6 +15,7 @@ pub struct Capabilities {
     pub encoding: Encoding,
     pub sync: u64,
     pub completion: bool,
+    pub triggers: Vec<String>,
     pub open_close: bool,
     pub save: Save,
 }
@@ -102,7 +103,11 @@ pub(super) fn capabilities(value: Value) -> Result<Capabilities, String> {
         sync,
         open_close,
         save,
-        completion: value.completion_provider.is_some_and(|v| v.is_object()),
+        completion: value
+            .completion_provider
+            .as_ref()
+            .is_some_and(|v| v.is_object()),
+        triggers: triggers(value.completion_provider.as_ref()),
     })
 }
 
@@ -113,7 +118,7 @@ pub(super) fn initialize(server: &Server, root: &str) -> Value {
         "capabilities":{"general":{"positionEncodings":["utf-8","utf-16"]},
             "workspace":{"configuration":true,"workspaceFolders":true},
             "textDocument":{"synchronization":{"dynamicRegistration":false,"willSave":false,"willSaveWaitUntil":false,"didSave":true},"completion":{"dynamicRegistration":false,
-                "completionItem":{"snippetSupport":false}}}},
+                "contextSupport":true,"completionList":{"itemDefaults":["editRange","insertTextFormat","insertTextMode"]},"completionItem":{"snippetSupport":false,"insertReplaceSupport":true,"insertTextModeSupport":{"valueSet":[1]}}}}},
         "initializationOptions":server.initialization_options
     }})
 }
@@ -154,4 +159,17 @@ pub(super) fn request(message: &super::frame::Message, server: &Server, root: &s
         }
     };
     json!({"jsonrpc":"2.0","id":id,"result":result})
+}
+
+fn triggers(value: Option<&Value>) -> Vec<String> {
+    value
+        .and_then(|value| value.get("triggerCharacters"))
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .take(64)
+        .filter_map(Value::as_str)
+        .filter(|text| text.chars().count() == 1)
+        .map(str::to_owned)
+        .collect()
 }

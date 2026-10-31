@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "lsp/candidates.rs"]
+mod candidates;
 #[path = "lsp/controls.rs"]
 mod controls;
 #[path = "lsp/documents.rs"]

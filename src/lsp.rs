@@ -2,6 +2,7 @@
 //! threads or processes. IO, JSON work and deadlines belong to connection workers.
 mod attachment;
 mod budget;
+pub(crate) mod completion;
 mod connection;
 mod documents;
 mod frame;
@@ -9,6 +10,7 @@ mod inbox;
 mod io;
 pub mod position;
 mod protocol;
+mod requests;
 pub mod roots;
 
 use crate::config::Lsp;

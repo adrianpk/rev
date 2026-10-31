@@ -36,8 +36,11 @@ pub(crate) struct Work {
 
 impl Work {
     pub fn cancel(&mut self) {
-        self.pending = None;
+        if let Some(request) = self.pending.take() {
+            cancel_semantic(&request);
+        }
         if let Some(active) = &self.active {
+            cancel_semantic(&active.request);
             active.cancel.store(true, Ordering::Release);
         }
     }
@@ -116,8 +119,9 @@ impl Work {
 }
 
 fn run(mut request: Request, mut sources: Vec<Source>, cancel: &Arc<AtomicBool>) -> Output {
+    let semantic_request = request.clone();
     let deadline = Instant::now() + WORK_TIME;
-    let result = extract(&mut request, &mut sources, deadline, cancel)
+    let native = extract(&mut request, &mut sources, deadline, cancel)
         .map(|symbols| request.clone().complete(symbols))
         .and_then(|completion| {
             if cancel.load(Ordering::Acquire) || Instant::now() >= deadline {
@@ -126,6 +130,7 @@ fn run(mut request: Request, mut sources: Vec<Source>, cancel: &Arc<AtomicBool>)
                 Ok(completion)
             }
         });
+    let result = semantic(&semantic_request, request.admitted, native);
     Output {
         request,
         sources,
@@ -230,5 +235,34 @@ fn prepare_source(
         return Ok(true);
     }
     request.prepare(&source.syntax, source.text.slice(..));
-    request.allowed(source, deadline, cancel)
+    request.admitted = request.allowed(source, deadline, cancel)?;
+    Ok(request.admitted)
+}
+
+fn cancel_semantic(request: &Request) {
+    if let Some(ticket) = &request.semantic {
+        ticket.cancel();
+    }
+}
+
+fn semantic(
+    request: &Request,
+    admitted: bool,
+    native: Result<super::Completion, String>,
+) -> Result<super::Completion, String> {
+    let Some(ticket) = &request.semantic else {
+        return native;
+    };
+    if !admitted {
+        ticket.cancel();
+        return native;
+    }
+    let reply = ticket.wait();
+    if matches!(reply.source, super::CompletionSource::Semantic { .. }) {
+        return Ok(request.clone().semantic_completion(reply));
+    }
+    native.map(|mut completion| {
+        completion.fallback(reply.source);
+        completion
+    })
 }

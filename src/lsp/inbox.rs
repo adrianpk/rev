@@ -7,6 +7,7 @@ use std::time::Duration;
 
 use super::{
     budget::{Budget, Permit},
+    completion::Query,
     documents,
     frame::Message,
 };
@@ -17,10 +18,11 @@ pub(super) const QUEUE_MESSAGES: usize = 64;
 #[derive(Default)]
 struct Pending {
     messages: VecDeque<(Message, usize)>,
-    documents: VecDeque<(documents::Event, Permit)>,
+    documents: VecDeque<(Work, Permit)>,
     bytes: usize,
     failure: Option<String>,
     stop: bool,
+    cancelled: bool,
     closed: bool,
 }
 
@@ -36,12 +38,37 @@ pub(super) struct Inbox {
 pub(super) enum Event {
     Message(Box<Message>),
     Document(Box<documents::Event>, Permit),
+    Completion(Box<Query>, Permit),
+    Cancelled,
     Failed(String),
     Stop,
     Timeout,
 }
 
+enum Work {
+    Document(documents::Event),
+    Completion(Query),
+}
+
 impl Inbox {
+    pub fn cancel(&self) {
+        self.pending.lock().expect("LSP inbox lock").cancelled = true;
+        self.wake.notify_one();
+    }
+    pub fn completion(&self, query: Query) {
+        let permit = match self.budget.reserve(query.text.len_bytes()) {
+            Ok(permit) => permit,
+            Err(_) => return,
+        };
+        let mut state = self.pending.lock().expect("LSP inbox lock");
+        if state.closed {
+            return;
+        }
+        state.documents.retain(|(work, _)| !matches!(work, Work::Completion(old) if old.stamp.buffer == query.stamp.buffer));
+        state.documents.push_back((Work::Completion(query), permit));
+        self.wake.notify_one();
+    }
+
     pub fn push(&self, message: Message, bytes: usize) {
         let mut state = self.pending.lock().expect("LSP inbox lock");
         if state.messages.len() >= QUEUE_MESSAGES || state.bytes + bytes > QUEUE_BYTES {
@@ -75,7 +102,7 @@ impl Inbox {
         if pending.closed {
             return;
         }
-        pending.documents.push_back((event, permit));
+        pending.documents.push_back((Work::Document(event), permit));
         self.wake.notify_one();
     }
 
@@ -94,12 +121,7 @@ impl Inbox {
 
     pub fn next(&self, timeout: Option<Duration>, ready: bool) -> Event {
         let state = self.pending.lock().expect("LSP inbox lock");
-        let idle = |p: &mut Pending| {
-            p.messages.is_empty()
-                && (!ready || p.documents.is_empty())
-                && p.failure.is_none()
-                && !p.stop
-        };
+        let idle = |p: &mut Pending| p.idle(ready);
         let mut state = match timeout {
             Some(timeout) => {
                 self.wake
@@ -116,6 +138,10 @@ impl Inbox {
         if let Some(error) = state.failure.take() {
             return Event::Failed(error);
         }
+        if state.cancelled {
+            state.cancelled = false;
+            return Event::Cancelled;
+        }
         match state.messages.pop_front() {
             Some((message, bytes)) => {
                 state.bytes -= bytes;
@@ -129,8 +155,19 @@ impl Inbox {
             return Event::Timeout;
         }
         match state.documents.pop_front() {
-            Some((event, permit)) => Event::Document(Box::new(event), permit),
+            Some((Work::Document(event), permit)) => Event::Document(Box::new(event), permit),
+            Some((Work::Completion(query), permit)) => Event::Completion(Box::new(query), permit),
             None => Event::Timeout,
         }
+    }
+}
+
+impl Pending {
+    fn idle(&self, ready: bool) -> bool {
+        self.messages.is_empty()
+            && (!ready || self.documents.is_empty())
+            && self.failure.is_none()
+            && !self.stop
+            && !self.cancelled
     }
 }
