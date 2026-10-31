@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-10-31
 Scope: pending behavior after the completed native Org delivery
-Owner decision: wrap/navigation and the six-slice bookmark delivery completed; remaining proposals retain their own approval state
+Owner decision: native completion and optional LSP approved for ordered Looper delivery; other proposals retain their own state
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -32,8 +32,8 @@ retain their own specification/model state.
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
-| Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md) | Draft. Native UI; operational LSP preferred, Tree-sitter fallback, no ctags. Trigger/coverage/index scope and limits remain open. |
-| Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md) | Draft. Completion first; protocol, launch/sharing, synchronization, encoding and failure limits remain open. |
+| Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Ready for development. Eight native slices cover automatic/manual interaction; Rust, C, Go, HTML, CSS, JavaScript, TypeScript/TSX, JSON and TOML; native Org contexts; bounded open-buffer observations; registered external grammar assets and footprint/acceptance. Implementation/startup requested. |
+| Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Ready for development after native completion closes. Six slices cover disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. Implementation/startup requested in the same ordered sequence. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
@@ -56,8 +56,8 @@ with soft wrapping first:
 The [Wrap and Navigation plan](plan/rev-wrap-navigation.md) and
 [tracker](tracker/rev-wrap-navigation.md) define the approved eight-slice map
 for one autonomous Looper cycle. The owner requested startup.
-The other capabilities retain proposed scheduling only; external extensions
-remain optional exploration without an implementation commitment.
+The completed interaction cycle does not schedule additional capabilities;
+external extensions remain optional exploration without an implementation commitment.
 
 Completed delivery: named persistent bookmarks, checked navigation and gutter
 markers. The [Bookmarks plan](plan/rev-bookmarks.md) and
@@ -82,7 +82,8 @@ The proposed order is not a chain of prerequisites.
 - Native completion owns the shared UI, checked edits and Tree-sitter source.
   The LSP client supplies the optional semantic source. Plan and validate that
   integration together; a native-only stage does not satisfy semantic-source
-  switching. Directory roots are required only for a selected directory index.
+  switching. Native observations use current/other open buffers, with no directory
+  index; LSP resolves roots independently.
 - The LSP client can use already installed compatible servers. Managed
   installation depends on its launch/configuration contract, not the reverse.
 - AI must verify actual root, buffer, command, job and structural interfaces.
@@ -102,6 +103,16 @@ The proposed order is not a chain of prerequisites.
 - Optional external commands remain independent exploration. Native AI, Pi,
   LSP and terminals keep their own contracts without waiting for this draft.
 
+## Approved completion sequence
+
+The owner approved commit/push and startup on 2026-10-31. Execute
+[Native Autocompletion](plan/rev-autocompletion.md), eight slices, then
+[Optional Language Server Support](plan/rev-language-server-support.md), six
+slices, through one pinned Looper sequence. Each set has its own canonical
+tracker, final gate and closure; the successor starts only after verified
+predecessor closure. Combined semantic-source switching belongs to the second
+set. No managed server installation or other pending ticket is added.
+
 ## Readiness and next planning boundary
 
 The soft-wrap and file-navigation specifications and models are Completed. All
@@ -118,8 +129,10 @@ repairs passed the unchanged full gate at
 [bookmark tracker](tracker/rev-bookmarks.md#final-gate-and-closure) and
 [Slice 6 report](report/slices/rev-bookmarks/slice-6-acceptance.md#delivery-set-closure)
 record the exact command and acceptance evidence.
-The other nine capability proposals retain their prior state, including optional
-external-program exploration. Earlier completed gates keep their historical identities.
+Native completion and the optional LSP client now have approved implementation
+profiles, plans and trackers. The remaining seven capability proposals retain
+their prior state, including optional external-program exploration. Earlier
+completed gates keep their historical identities.
 
 Before planning a selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope
