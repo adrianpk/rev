@@ -17,6 +17,15 @@ impl Frame {
         view: &View,
         area: Area,
     ) -> Result<(), Error> {
+        let images = view.preview.images(buffer.stamp());
+        if images.is_empty() {
+            return Ok(());
+        }
+        let fragments = if buffer.soft_wrap() {
+            Some(view.wrapped_rows(buffer, area.width(), area.height())?)
+        } else {
+            None
+        };
         let mut bytes = self
             .previews
             .iter()
@@ -27,7 +36,7 @@ impl Frame {
             .iter()
             .map(|p| u64::from(p.image.png.width) * u64::from(p.image.png.height))
             .sum::<u64>();
-        for image in view.preview.images(buffer.stamp()) {
+        for image in images {
             let count = u64::from(image.png.width) * u64::from(image.png.height);
             if pixels + count > 16777216 {
                 break;
@@ -35,7 +44,8 @@ impl Frame {
             if self.previews.len() == 32 || bytes + image.png.bytes.len() > 16777216 {
                 break;
             }
-            let Some(place) = image_area(buffer, view, image.row, area) else {
+            let Some(place) = image_area(buffer, view, image.row, area, fragments.as_deref())
+            else {
                 continue;
             };
             bytes += image.png.bytes.len();
@@ -48,15 +58,27 @@ impl Frame {
         Ok(())
     }
 }
-fn image_area(buffer: &Buffer, view: &View, row: usize, area: Area) -> Option<Area> {
+fn image_area(
+    buffer: &Buffer,
+    view: &View,
+    row: usize,
+    area: Area,
+    fragments: Option<&[crate::view::Fragment]>,
+) -> Option<Area> {
     // Hidden, horizontally scrolled or off-screen anchors have no placement.
     // A picture stays behind text and cannot cover gutters, prompts or peers.
-    if view.left != 0 || area.width() == 0 || area.height() == 0 {
+    if fragments.is_none() && view.left != 0 || area.width() == 0 || area.height() == 0 {
         return None;
     }
-    let projected = view.project_row(buffer, row)?;
-    let top = view.projected_top(buffer);
-    let offset = u16::try_from(projected.checked_sub(top)?).ok()?;
+    let offset = if let Some(fragments) = fragments {
+        fragments
+            .iter()
+            .position(|f| f.line == row && f.columns.start == 0)?
+    } else {
+        view.project_row(buffer, row)?
+            .checked_sub(view.projected_top(buffer))?
+    };
+    let offset = u16::try_from(offset).ok()?;
     if offset >= area.height() {
         return None;
     }

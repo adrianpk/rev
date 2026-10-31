@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "wrapping/interaction.rs"]
 mod interaction;
+#[path = "wrapping/org.rs"]
+mod org;
 #[path = "wrapping/visual.rs"]
 mod visual;
 

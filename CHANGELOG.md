@@ -16,6 +16,8 @@ This project uses Semantic Versioning.
   recentering follow display rows while goto-line keeps source line numbers.
   Pointer selection, wheel/drag scrolling and search highlights follow the same
   wrapped rows; rectangles and line numbers retain logical source coordinates.
+  Org folds, table fields, source drafts and image anchors keep their source
+  targets as visible text reflows.
 
 ## 0.1.0 - 2026-10-30
 

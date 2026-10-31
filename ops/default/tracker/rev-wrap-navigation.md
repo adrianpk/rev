@@ -81,9 +81,15 @@ that exact commit; the controller recorded its merge in Acta. Slice 3 is deliver
 
 Acceptance: WRP04, WRP05; complete WRP01-WRP07.
 
-- [ ] T4.1: Compose wrapping with existing Org folds, headings, table fields, source blocks and preview projections; retain logical command targets and source-preserving alignment.
+- [x] T4.1: Compose wrapping with existing Org folds, headings, table fields, source blocks and preview projections; retain logical command targets and source-preserving alignment.
 - [ ] T4.2: Complete buffer-local override/split/close/invalidation and bounded cache/work ownership. Measure large/long-line resize, sustained input/reversal and idle costs; resolve the wrap ticket with exact evidence.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 4 report.
+
+T4.1 completes wrapped Org source/field/draft integration and maps preview
+anchors through current visual fragments. Focused Org wrapping and existing
+preview cases pass. T4.2 remains active: bounded resumable layout, cache/work
+ceilings, lifecycle acceptance, long-line measurements and ticket resolution
+are not complete. Slice 4 has no canonical PR yet.
 
 ## Slice 5: Directory targets and initial tree expansion
 

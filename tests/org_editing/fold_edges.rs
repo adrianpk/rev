@@ -186,35 +186,42 @@ fn tiny_projection() {
     }
 }
 
-// Clipped wide/ZWJ edges have no mouse target, while complete combining/tab
-// glyphs hit their original scalar boundary on the projected source row.
+// Explicit horizontal clipping rejects partial wide/ZWJ glyphs; factory wrap
+// uses the first fragment and rejects its word-break fill instead. Both modes
+// preserve complete grapheme targets on the folded source projection.
 #[test]
 fn unicode_hits() {
-    let (buffers, id) = buffer("* A\r\nhidden\r\n* 界e\u{301}\t👩\u{200d}💻 tail\r\nlast");
-    let buffer = buffers.get(id).unwrap();
-    let mut view = View::new(buffer);
-    view.set_folds(buffer, &[range(buffer, 1..2)]).unwrap();
-    view.top = 2;
-    view.left = 3;
-    let coordinates = rev::coordinates::Coordinates::new(buffer).unwrap();
-    for (name, column, logical) in [
-        ("wide edge", 0, None),
-        ("combining", 1, Some(4)),
-        ("tab", 3, Some(5)),
-        ("ZWJ edge", 5, None),
-    ] {
-        let point = view
-            .hit(
-                buffer,
-                Area::new(0, 0, 6, 2).unwrap(),
-                Position { row: 0, column },
-            )
-            .unwrap();
-        let expected =
-            logical.map(|column| coordinates.from_cell(Cell { row: 2, column }).unwrap());
-        assert_eq!(point.map(|point| point.position), expected, "{name}");
+    let (mut buffers, id) = buffer("* A\r\nhidden\r\n* 界e\u{301}\t👩\u{200d}💻 tail\r\nlast");
+    for wrap in [true, false] {
+        if !wrap {
+            buffers.get_mut(id).unwrap().toggle_soft_wrap();
+        }
+        let buffer = buffers.get(id).unwrap();
+        let mut view = View::new(buffer);
+        view.set_folds(buffer, &[range(buffer, 1..2)]).unwrap();
+        view.top = 2;
+        view.left = 3;
+        let coordinates = rev::coordinates::Coordinates::new(buffer).unwrap();
+        for (name, column, horizontal, wrapped) in [
+            ("wide edge", 0, None, Some(0)),
+            ("combining", 1, Some(4), Some(1)),
+            ("tab", 3, Some(5), None),
+            ("ZWJ edge", 5, None, None),
+        ] {
+            let point = view
+                .hit(
+                    buffer,
+                    Area::new(0, 0, 6, 2).unwrap(),
+                    Position { row: 0, column },
+                )
+                .unwrap();
+            let logical = if wrap { wrapped } else { horizontal };
+            let expected =
+                logical.map(|column| coordinates.from_cell(Cell { row: 2, column }).unwrap());
+            assert_eq!(point.map(|point| point.position), expected, "{name}");
+        }
+        assert_eq!(view.screen_row(buffer, 1), None);
     }
-    assert_eq!(view.screen_row(buffer, 1), None);
 }
 
 // The maximum interval table remains a sparse map, not a document-row cache.
