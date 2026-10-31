@@ -2,6 +2,8 @@
 
 #[path = "path_completion/acceptance.rs"]
 mod acceptance;
+#[path = "path_completion/continuation.rs"]
+mod continuation;
 #[path = "path_completion/edges.rs"]
 mod edges;
 #[path = "path_completion/failures.rs"]

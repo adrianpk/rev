@@ -22,6 +22,9 @@ The approved [input and navigation delivery](../plan/rev-input-navigation.md)
 now reconciles the complete R05 replacement and GUT, PTR, NAV, WSP and STA
 additions below. Its controller-owned integrated gate passed on the separate
 input/navigation candidate above; neither earlier validated candidate is relabeled.
+R12 now incorporates the complete UI03 amendment from the approved
+[Wrap and Navigation delivery](../plan/rev-wrap-navigation.md); its completion
+evidence remains separate from those historical gates.
 
 Define the complete reference implementation of `rev`: a small, non-modal,
 terminal text editor written in Rust, with Emacs-style editing, rope-backed
@@ -424,12 +427,48 @@ internal read-only view; it MUST NOT require an extension system.
 
 | Keys | Command | Behavior |
 | --- | --- | --- |
-| `C-x C-f` | `find-file` | Prompt for a path; open or activate its buffer. |
+| `C-x C-f` | `find-file` | Prompt for a file or directory; open its document or browsing context. |
 | `C-x C-s` | `save-buffer` | Save to the visited path; prompt if unnamed. |
 | `C-x C-w` | `write-file` | Prompt for a destination and save the current text there. |
 | `C-x b` | `switch-to-buffer` | Prompt with completion across live buffer names. |
 | `C-x k` | `kill-buffer` | Choose and close a buffer with unsaved-change protection. |
 | `C-x C-b` | `list-buffers` | Present a simple selectable live-buffer list. |
+
+The complete [UI03 navigation amendment](editor-interaction.md#requirement-ui03-filesystem-path-completion)
+also governs the shared find-file command:
+
+C-x C-f and M-x find-file SHALL share one native file/directory prompt. Its
+initial directory SHALL be the current visiting file's parent, otherwise the
+selected directory context or launch cwd. Relative/absolute paths, spaces,
+Unicode, ./, ../ and leading ~/ SHALL work without shell evaluation.
+
+A nonempty list SHALL visibly select its first result. Tab SHALL complete that
+selected result, including after explicit Up/Down or C-p/C-n navigation, rather
+than stopping at a shared prefix. Completing a directory SHALL retain its
+separator and keep the prompt active for child completion. Query changes and
+refreshes SHALL preserve checked candidate identity or report its disappearance.
+
+Return after explicit navigation SHALL accept that candidate. Otherwise it
+SHALL accept the typed draft, including a genuinely new file, without forcing
+the first suggestion. An accepted directory SHALL close the prompt and open
+its browsing context; an empty draft SHALL accept the base directory. New files
+remain in-memory until save. Existing file identity/buffer reuse and unsaved
+text SHALL be preserved. C-g and failed operations SHALL preserve prior usable
+editor state. Completion and selection SHALL NOT create filesystem content.
+
+#### Scenario: Complete first and choose whether to open
+
+- **GIVEN** alpha/ and alpine/ match a typed path component
+- **WHEN** Tab completes the selected result and the user browses its children
+- **THEN** find-file stays active without opening a file or selecting a root
+- **AND** Return can later accept a chosen file or the directory itself.
+
+#### Scenario: Keep a genuinely new filename
+
+- **GIVEN** suggestions alongside a typed filename that does not exist
+- **WHEN** Return accepts that draft without explicit candidate navigation
+- **THEN** rev opens the ordinary unsaved new-file buffer
+- **AND** neither completion nor acceptance creates a disk file.
 
 #### Scenario: Select duplicate basenames
 

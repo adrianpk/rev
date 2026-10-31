@@ -24,12 +24,15 @@ selection only after an actual text change. A directory transition observes the
 new component; cursor movement and redraw do not refresh it.
 
 `navigate(previous)` moves a bounded selection without changing the draft.
-`complete()` explicitly refreshes and returns a selected/unique name or an
-extended whole-grapheme shared prefix. Selected identities survive sorting shifts;
-a missing selected name reports an error. Directories retain a trailing separator.
-The prompt owner enforces the configured scalar bound before installing text.
-Incomplete snapshots cannot imply unique/shared completion without an explicit
-selection. Unsupported names never become replacement opening paths.
+`complete()` explicitly refreshes and returns the highlighted full name, including
+the default first match of an ambiguous prefix. Selected raw identities survive
+sorting shifts. A missing selected name or failed observation retains the previous
+snapshot and reports an error; repeated Tab cannot substitute another row. A
+successful refresh can retry the same identity after access or the name returns.
+Directories retain a trailing separator. The prompt owner enforces the configured
+scalar bound before installing text. Incomplete snapshots keep their diagnostic;
+Tab fills an observed identity without claiming that the list is complete or the
+match unique. Unsupported names never become replacement opening paths.
 
 `requested_rows(limit)`, `reveal(rows)`, `selected()` and `top()` provide presentation
 state for the common completion panel. Diagnostics reserve a visible row within

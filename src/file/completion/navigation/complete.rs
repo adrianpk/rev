@@ -8,10 +8,7 @@ impl Navigation {
     /// Completion neither accepts a root nor opens a file.
     pub fn complete(&mut self) -> io::Result<Option<String>> {
         let draft = self.draft.clone();
-        self.update(&draft, true);
-        if let Some(error) = &self.error {
-            return Err(io::Error::other(error.clone()));
-        }
+        self.update_checked(&draft, true)?;
         let candidates = self.candidates();
         let candidate = candidates
             .get(self.selected)

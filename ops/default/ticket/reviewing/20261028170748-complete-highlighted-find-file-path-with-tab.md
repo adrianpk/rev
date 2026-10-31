@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028170748
 title: Complete the highlighted find-file path with Tab
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: unclassified
@@ -12,7 +12,8 @@ reported_at: 2026-10-28T17:07:48Z
 ready_at: 2026-10-30T23:24:55Z
 started_at: 2026-10-31T03:31:51Z
 branch: feat/rev-wrap-navigation-06-path-tab
-commits: []
+reviewed_at: 2026-10-31T03:36:28Z
+commits: [28ff1967c7330a6619e144a70487f6dc73d7a3cd]
 ---
 
 # Complete the highlighted find-file path with Tab
@@ -57,7 +58,7 @@ used by Odra's filesystem path navigator.
 
 ## Existing contract and source observations
 
-[Editor Interaction UI03](../../spec/editor-interaction.md) currently permits
+[Editor Interaction UI03](../../spec/editor-interaction.md) at capture permitted
 Tab to complete a unique name or the longest shared component prefix. This
 ticket deliberately requests selected-candidate completion by default; prepare
 the corresponding contract amendment during implementation planning. The
@@ -103,7 +104,21 @@ Use that behavioral reference without importing its implementation stack.
 ## Delivery boundary
 
 The shared [File and Directory Navigation specification](../../spec/editor-file-navigation.md)
-owns NAV04 and the distinction between completion and opening. This ticket is
-ready: selected-candidate Tab behavior is defined independently of the final
-directory-acceptance gesture. Runtime changes and UI03 reconciliation belong to
-the selected joint delivery; historical delivery records remain intact.
+owns NAV04 and the distinction between completion and opening. The implemented
+selected-candidate behavior keeps Tab separate from final acceptance. UI03 and
+its consolidated R12 baseline now carry the full approved amendment; historical
+delivery records remain intact. The ticket is under review pending integration.
+
+## Implemented resolution
+
+Slice 6 uses the native highlighted identity for every Tab action, including
+ambiguous prefixes and the default first row. Atomic refresh preserves that
+identity through sorting shifts and repeated disappearance/failure retries.
+Directory completion exposes one child component; file completion retains the
+prompt. Return preserves explicit navigation versus freely typed new-file
+semantics. The provider and configured prompt bounds remain unchanged.
+
+The [Slice 6 report](../../report/slices/rev-wrap-navigation/slice-6-path-tab.md)
+records native dirty-source/history, permission, clipping and identity checks,
+plus RGB/NO_COLOR real-terminal directory continuation and explicit acceptance.
+Canonical PR references and exact clean-head controller evidence precede handoff.

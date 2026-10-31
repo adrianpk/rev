@@ -69,26 +69,39 @@ fn grapheme_names() {
     }
 }
 
-// Refresh tracks the selected identity when sorted rows shift. A removed choice
-// reports an error instead of completing the unrelated row at its old index.
+// Implicit and explicit identities survive sorting shifts through both refresh
+// routes. Repeated missing-choice attempts retain that identity, never a new row.
 #[test]
 fn refreshed_selection() {
-    let fixture = Fixture::new();
-    fixture.write("bravo", "retained");
-    let selected = fixture.write("charlie", "retained");
-    let mut navigation = Navigation::new(fixture.0.clone(), None);
-    navigation.navigate(false);
-    fixture.write("alpha", "retained");
-    assert_eq!(navigation.complete().unwrap().as_deref(), Some("charlie"));
-    assert_eq!(navigation.selected(), Some(2));
-    std::fs::remove_file(selected).unwrap();
-    assert!(
-        navigation
-            .complete()
-            .unwrap_err()
-            .to_string()
-            .contains("no longer present")
-    );
+    for explicit in [false, true] {
+        let fixture = Fixture::new();
+        fixture.write("bravo", "retained");
+        fixture.write("charlie", "retained");
+        let mut navigation = Navigation::new(fixture.0.clone(), None);
+        if explicit {
+            navigation.navigate(false);
+        }
+        let name = if explicit { "charlie" } else { "bravo" };
+        fixture.write("alpha", "unrelated");
+        assert_eq!(navigation.complete().unwrap().as_deref(), Some(name));
+        assert_eq!(navigation.selected(), Some(usize::from(explicit) + 1));
+        fixture.write("aardvark", "another unrelated row");
+        navigation.update("", true);
+        assert_eq!(navigation.selected(), Some(usize::from(explicit) + 2));
+        std::fs::remove_file(fixture.0.join(name)).unwrap();
+        for _ in 0..2 {
+            let error = navigation.complete().unwrap_err();
+            assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+            assert!(error.to_string().contains("no longer present"));
+            assert_eq!(
+                navigation.candidates()[navigation.selected().unwrap()].name(),
+                Some(name)
+            );
+        }
+        fixture.write(name, "restored identity");
+        assert_eq!(navigation.complete().unwrap().as_deref(), Some(name));
+        assert!(navigation.diagnostic().is_none());
+    }
 }
 
 // A changed prefix reuses the snapshot; explicit completion sees additions and
@@ -106,7 +119,10 @@ fn explicit_observation() {
     std::fs::rename(&base, fixture.0.join("moved")).unwrap();
     navigation.update("add", false);
     assert_eq!(navigation.candidates()[0].name(), Some("added"));
-    assert!(navigation.complete().is_err());
+    assert_eq!(
+        navigation.complete().unwrap_err().kind(),
+        std::io::ErrorKind::NotFound
+    );
     assert!(navigation.diagnostic().unwrap().contains("root"));
     assert_eq!(navigation.typed_path().unwrap(), base.join("add"));
 }

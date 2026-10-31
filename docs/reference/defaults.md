@@ -285,8 +285,9 @@ previous application's cursor color. See [Terminal input](terminal-input.md#pale
   borrow space without scrolling retained document views; tiny/zero geometry
   retains prompts, selection and view identities. No panes are created by completion.
 - [Find-file](prompts.md) starts at the visiting file's parent, otherwise a chosen
-  directory or launch cwd. Tab completes selected/unique names or a shared
-  component prefix; Return accepts a directory as its expanded tree context.
+  directory or launch cwd. Tab completes the highlighted full path, initially
+  the first suggestion, and keeps the prompt open. Return accepts a directory
+  as its expanded tree context.
   Return uses an explicit selection, otherwise the freely typed filename, including
   a new name. Canonical aliases reuse dirty buffers; new names remain in memory
   until save. Errors retain the draft and original buffer. Observation is bounded

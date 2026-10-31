@@ -1,3 +1,4 @@
+use std::io;
 use std::path::{Path, PathBuf};
 
 use super::{Candidate, Provider, Query};
@@ -40,8 +41,12 @@ impl Navigation {
     /// Text-only filtering reuses the same directory snapshot. Cursor motion,
     /// resize and refused edits leave this state unchanged.
     pub fn update(&mut self, draft: &str, refresh: bool) {
+        let _ = self.update_checked(draft, refresh);
+    }
+
+    fn update_checked(&mut self, draft: &str, refresh: bool) -> io::Result<()> {
         if self.draft == draft && !refresh {
-            return;
+            return Ok(());
         }
         let selected = (refresh && self.draft == draft)
             .then(|| {
@@ -62,11 +67,17 @@ impl Navigation {
                 self.query = None;
                 self.provider = None;
                 self.error = Some(error.to_string());
+                Err(error)
             }
         }
     }
 
-    fn observe(&mut self, query: Query, refresh: bool, selected: Option<std::ffi::OsString>) {
+    fn observe(
+        &mut self,
+        query: Query,
+        refresh: bool,
+        selected: Option<std::ffi::OsString>,
+    ) -> io::Result<()> {
         let changed = self
             .query
             .as_ref()
@@ -80,8 +91,12 @@ impl Navigation {
                             .iter()
                             .position(|entry| entry.identity() == name);
                         let Some(index) = index else {
-                            self.error = Some("Selected path is no longer present".to_owned());
-                            return;
+                            let error = io::Error::new(
+                                io::ErrorKind::NotFound,
+                                "Selected path is no longer present",
+                            );
+                            self.error = Some(error.to_string());
+                            return Err(error);
                         };
                         self.selected = index;
                     }
@@ -93,11 +108,14 @@ impl Navigation {
                         self.provider = None;
                     }
                     self.error = Some(error.to_string());
+                    self.query = Some(query);
+                    return Err(error);
                 }
             }
         }
         self.query = Some(query);
         self.selected = self.selected.min(self.candidates().len().saturating_sub(1));
+        Ok(())
     }
 
     pub fn candidates(&self) -> Vec<&Candidate> {

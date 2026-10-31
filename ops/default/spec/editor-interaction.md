@@ -16,6 +16,10 @@ Give rev's existing panes a small structural presentation owner and make its
 command and file prompts discoverable. Buffer, view, layout, command and file
 owners retain their existing authority.
 
+UI03 now incorporates the complete approved [navigation amendment](editor-file-navigation.md)
+through Slice 6 of [Wrap and Navigation](../plan/rev-wrap-navigation.md). The
+completed candidate and gate above identify the original interaction delivery.
+
 ## Native Org projection compatibility
 
 [Native Org](editor-org-mode.md) retains these panel, focus, clipping and prompt
@@ -80,38 +84,38 @@ restore prior editing focus. Rendering SHALL NOT perform command execution.
 
 ### Requirement: UI03 Filesystem path completion
 
-C-x C-f and M-x find-file SHALL share one file prompt and filesystem completion
-provider. Its initial directory SHALL be the current visiting file's parent,
-otherwise the working directory. Relative and absolute paths, spaces, Unicode,
-`./`, `../` and leading `~/` SHALL be supported without shell evaluation.
+C-x C-f and M-x find-file SHALL share one native file/directory prompt. Its
+initial directory SHALL be the current visiting file's parent, otherwise the
+selected directory context or launch cwd. Relative/absolute paths, spaces,
+Unicode, ./, ../ and leading ~/ SHALL work without shell evaluation.
 
-Tab SHALL complete a unique name or the longest shared component prefix. An
-ambiguous result SHALL show a vertical selectable list with directory markers.
-Up/Down and C-p/C-n SHALL select candidates. Completing a directory SHALL retain
-its trailing separator and permit listing the next component. Editing the path
-back to a parent SHALL refresh that component. Candidate selection SHALL NOT
-change document text, visit a file or create anything.
+A nonempty list SHALL visibly select its first result. Tab SHALL complete that
+selected result, including after explicit Up/Down or C-p/C-n navigation, rather
+than stopping at a shared prefix. Completing a directory SHALL retain its
+separator and keep the prompt active for child completion. Query changes and
+refreshes SHALL preserve checked candidate identity or report its disappearance.
 
-Return after explicit candidate navigation SHALL accept that candidate; Return
-with a freely typed draft SHALL accept the typed filename, including a new name,
-rather than force the first suggestion. An accepted directory SHALL descend
-instead of creating an editing buffer. New files remain in-memory buffers until
-save. Canonical identity SHALL reuse an already visited buffer and preserve its
-unsaved text. C-g and failed operations SHALL leave the original buffer intact.
+Return after explicit navigation SHALL accept that candidate. Otherwise it
+SHALL accept the typed draft, including a genuinely new file, without forcing
+the first suggestion. An accepted directory SHALL close the prompt and open
+its browsing context; an empty draft SHALL accept the base directory. New files
+remain in-memory until save. Existing file identity/buffer reuse and unsaved
+text SHALL be preserved. C-g and failed operations SHALL preserve prior usable
+editor state. Completion and selection SHALL NOT create filesystem content.
 
-#### Scenario: Open without memorizing a full path
+#### Scenario: Complete first and choose whether to open
 
-- **GIVEN** a file prompt in a directory containing similarly named files
-- **WHEN** the user types a prefix, presses Tab, selects a row and presses Return
-- **THEN** the chosen file opens through the existing safe visit owner
-- **AND** a directory candidate can be completed and descended into first.
+- **GIVEN** alpha/ and alpine/ match a typed path component
+- **WHEN** Tab completes the selected result and the user browses its children
+- **THEN** find-file stays active without opening a file or selecting a root
+- **AND** Return can later accept a chosen file or the directory itself.
 
 #### Scenario: Keep a genuinely new filename
 
-- **GIVEN** existing suggestions and a typed filename that does not exist
-- **WHEN** Return accepts the draft without explicit candidate selection
-- **THEN** rev opens its normal unsaved new-file buffer
-- **AND** neither completion nor the visit creates a disk file.
+- **GIVEN** suggestions alongside a typed filename that does not exist
+- **WHEN** Return accepts that draft without explicit candidate navigation
+- **THEN** rev opens the ordinary unsaved new-file buffer
+- **AND** neither completion nor acceptance creates a disk file.
 
 ### Requirement: UI04 Bounded and safe candidate observation
 

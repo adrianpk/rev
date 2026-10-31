@@ -23,13 +23,14 @@ collapses it or moves to its parent. `C-g` returns to editing while leaving
 the tree visible. `C-x t t` hides it.
 
 You can also open a file directly with `C-x C-f`. Type part of its name and
-use Tab to complete a unique match or shared prefix. To choose a particular
-suggestion, move to it with Up/Down, then use Tab to complete or Enter to open.
+use Tab to fill the highlighted suggestion. The first match is highlighted,
+even when several names share a prefix. Up/Down chooses another suggestion;
+Tab fills it and Enter opens it.
 Tab continues through a completed directory inside the prompt. Enter accepts
 the directory itself, closes the prompt and opens its tree.
 
-With `todo.txt` as the only match, typing `to` and pressing Tab completes the
-prompt to:
+With `todo.txt` highlighted, typing `to` and pressing Tab fills the prompt even
+when `tomorrow.txt` also matches:
 
 ```text
 Find file: todo.txt

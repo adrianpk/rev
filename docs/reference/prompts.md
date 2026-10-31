@@ -30,13 +30,14 @@ The query stays above one candidate per row, bounded by
 `minibuffer.candidate_limit` and available geometry. Directory labels end in `/`.
 
 In find-file, Up/Down or C-p/C-n moves the selection without changing the draft.
-Tab fills an explicitly selected or unique name, or extends the shared prefix at
-whole-grapheme boundaries. Completing a directory keeps its separator and lists
+The first match is highlighted initially. Tab fills that full name, including
+ambiguous prefixes, or the alternative highlighted through list navigation. Completing a directory keeps its separator and lists
 that component; deleting or editing the path back to a parent refreshes it.
 Typing within the same component reuses the cached observation. Explicit Tab can
-refresh disk changes; drawing and resize do not read disk. Incomplete observations
-show a warning and require an explicit selection for completion rather than
-assuming uniqueness from a partial list. No match or refused completion retains
+refresh disk changes while retaining the selected identity; a disappeared choice
+reports an error without completing another row. Drawing and resize do not read disk. Incomplete observations
+keep their warning while Tab fills the highlighted observed identity. Completion
+does not claim uniqueness from a partial list. No match or refused completion retains
 the draft and focus. C-g cancels without visiting a candidate or editing text.
 
 Return after explicit candidate navigation accepts that exact observed path,

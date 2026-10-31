@@ -41,8 +41,8 @@ def candidates(session, colored):
     PTY["resize_surface"](session, 80, 24, True)
     ordered(PTY["last_frame"](session), b"Find file: alpine.txt", [b"alpine.txt"])
     step(session, b"\x07", b"Quit")
-    frame = step(session, b"\x18\x06al\t", b"Find file: alp  ")
-    ordered(frame, b"Find file: alp", [b"alpha.txt", b"alpine.txt"])
+    frame = step(session, b"\x18\x06al\t", b"Find file: alpha.txt  ")
+    ordered(frame, b"Find file: alpha.txt", [b"alpha.txt"])
     step(session, b"\x07", b"Quit")
 
 
@@ -51,7 +51,7 @@ def directories(session, work):
     ordered(frame, b"Find file: child/", [b"nested.txt"])
     frame = step(session, b"\x7f", b"Find file: child  ")
     ordered(frame, b"Find file: child", [b"child/"])
-    step(session, b"\t../al\t", b"Find file: child/../alp")
+    step(session, b"\t../al\t", b"Find file: child/../alpha.txt")
     step(session, b"\x07", b"Quit")
     frame = step(session, b"\x18\x06~/space d\t", b"Find file: ~/space dir/")
     ordered(frame, b"Find file: ~/space dir/", ["界 name.txt".encode()])
@@ -59,6 +59,38 @@ def directories(session, work):
     step(session, b"\x07", b"Quit")
     step(session, b"\x18\x06" + PTY["paste_wire"](str(work / "child/nest").encode()) + b"\t", b"child/nested.txt")
     step(session, b"\x07", b"Quit")
+
+
+def selected_directory(session, work, colored):
+    choices = work / "choices"
+    (choices / "alpha").mkdir(parents=True)
+    (choices / "alpine").mkdir()
+    for name, contents in [
+        ("alpha/first.txt", b"first directory\n"),
+        ("alpine/first.txt", b"first child\n"),
+        ("alpine/z 界 name.txt", b"selected child\n"),
+    ]:
+        (choices / name).write_bytes(contents)
+    before = {path.relative_to(work): path.read_bytes() for path in work.rglob("*") if path.is_file()}
+    frame = step(session, b"\x18\x06choices/al", b"Find file: choices/al  ")
+    ordered(frame, b"Find file: choices/al", [b"alpha/", b"alpine/"])
+    LIST["selected_style"](frame, b"alpha/", colored)
+    frame = step(session, b"\t", b"Find file: choices/alpha/")
+    ordered(frame, b"Find file: choices/alpha/", [b"first.txt"])
+    step(session, b"\x07", b"Quit")
+    step(session, b"\x1bxfind-file\r", b"Find file: ")
+    frame = step(session, b"choices/al\x0e\t", b"Find file: choices/alpine/")
+    ordered(frame, b"Find file: choices/alpine/", [b"first.txt", "z 界 name.txt".encode()])
+    frame = step(session, b"\x0e", b"Find file: choices/alpine/")
+    LIST["selected_style"](frame, "z 界 name.txt".encode(), colored)
+    PTY["resize_surface"](session, 80, 4, True)
+    step(session, b"\t", "Find file: choices/alpine/z 界 name.txt".encode())
+    PTY["resize_surface"](session, 80, 24, True)
+    assert PTY['status_contains'](PTY["last_frame"](session), b"> source.txt -- RW -- L1 C1 Text")
+    step(session, b"\r", "> z 界 name.txt -- RW -- L1 C1 Text".encode())
+    assert PTY["frame_contains"](session.output, b"selected child", None)
+    after = {path.relative_to(work): path.read_bytes() for path in work.rglob("*") if path.is_file()}
+    assert after == before
 
 
 def case(root, colored):
@@ -70,6 +102,7 @@ def case(root, colored):
         candidates(session, colored)
         directories(session, work)
         assert PTY['status_contains'](PTY["last_frame"](session), b"> source.txt -- RW -- L1 C1 Text")
+        selected_directory(session, work, colored)
         os.write(session.master, b"\x18\x03")
         session.finish(0)
         assert PTY["PASTE_OFF"] in session.output and PTY["LEAVE"] in session.output
@@ -77,11 +110,11 @@ def case(root, colored):
         assert (root / "home/space dir/界 name.txt").read_bytes() == b"home\n"
     finally:
         session.close()
-    print(f"PASS native file candidates, shared/selected completion, parent/home/Unicode paths, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
+    print(f"PASS native highlighted completion, ambiguous directory continuation, explicit acceptance, parent/home/Unicode paths, resize/cancel and {'RGB' if colored else 'NO_COLOR'} selection")
 
 
 def main():
-    subprocess.run(["cargo", "build", "--bin", "rev"], cwd=ROOT, check=True)
+    subprocess.run(["cargo", "build", "--locked", "--bin", "rev"], cwd=ROOT, check=True)
     for colored in [True, False]:
         with tempfile.TemporaryDirectory(prefix="rev-path-navigation-") as directory:
             case(Path(directory), colored)

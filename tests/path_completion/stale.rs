@@ -99,3 +99,95 @@ fn replace_kind(target: &std::path::Path, directory: bool) {
         fs::write(target.join("nested"), b"child contents").unwrap();
     }
 }
+
+// Tab binds the visible default or navigated identity before refreshing. Missing
+// names cannot become a new row on repeated Tab, nor consume dirty source state.
+#[test]
+fn vanished_completion() {
+    for explicit in [false, true] {
+        let fixture = Fixture::new();
+        let mut session = super::acceptance::editor(&fixture);
+        fixture.write("root/alpine.txt", "alternative");
+        session.insert('!');
+        session.frame().unwrap();
+        let view = session.view().clone();
+        let stamp = session.buffer().unwrap().stamp();
+        let history = session.buffer().unwrap().history().len();
+        session.execute(Command::FindFile);
+        session.handle(Event::Paste("al".into()));
+        if explicit {
+            session.handle(key(KeyCode::Down));
+        }
+        let name = if explicit { "alpine.txt" } else { "alpha.txt" };
+        fs::remove_file(fixture.0.join("root").join(name)).unwrap();
+        fixture.write("root/albatross.txt", "unrelated row");
+        for _ in 0..2 {
+            session.handle(key(KeyCode::Tab));
+            assert!(
+                session
+                    .echo()
+                    .contains("Selected path is no longer present")
+            );
+            let frame = session.frame().unwrap();
+            assert!(query(&frame).starts_with("Find file: al  "));
+            let selected = frame
+                .rows()
+                .iter()
+                .find(|row| {
+                    row.band() == rev::display::Band::Completion && row.selection().is_some()
+                })
+                .unwrap();
+            assert_eq!(selected.text().trim(), name);
+            assert_eq!(session.buffer().unwrap().stamp(), stamp);
+            assert_eq!(session.buffer().unwrap().history().len(), history);
+        }
+        fixture.write(&format!("root/{name}"), "restored path");
+        session.handle(key(KeyCode::Tab));
+        assert_eq!(
+            query(&session.frame().unwrap()),
+            format!("Find file: {name}")
+        );
+        session.execute(Command::KeyboardQuit);
+        session.frame().unwrap();
+        assert_eq!(*session.view(), view);
+        assert_eq!(text(&session), "!retained\ntext");
+        assert_eq!(
+            fs::read(fixture.0.join("root/albatross.txt")).unwrap(),
+            b"unrelated row"
+        );
+    }
+}
+
+// A denied component refresh keeps its editable query, selected identity and
+// dirty buffer. Restoring owned access permits retry without replacing a row.
+#[test]
+fn denied_completion() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let fixture = Fixture::new();
+    let mut session = super::acceptance::editor(&fixture);
+    session.insert('!');
+    session.frame().unwrap();
+    let view = session.view().clone();
+    let stamp = session.buffer().unwrap().stamp();
+    session.execute(Command::FindFile);
+    session.handle(Event::Paste("al".into()));
+    let root = fixture.0.join("root");
+    let permissions = fs::metadata(&root).unwrap().permissions();
+    fs::set_permissions(&root, fs::Permissions::from_mode(0o000)).unwrap();
+    session.handle(key(KeyCode::Tab));
+    let notice = session.echo().to_owned();
+    let frame = session.frame().unwrap();
+    fs::set_permissions(&root, permissions).unwrap();
+    assert!(notice.contains("Permission denied"));
+    assert!(query(&frame).starts_with("Find file: al  "));
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    session.handle(key(KeyCode::Tab));
+    assert_eq!(query(&session.frame().unwrap()), "Find file: alpha.txt");
+    session.execute(Command::KeyboardQuit);
+    session.frame().unwrap();
+    assert_eq!(*session.view(), view);
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert_eq!(text(&session), "!retained\ntext");
+}
