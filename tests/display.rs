@@ -566,6 +566,32 @@ fn cell_goals() {
         ("emoji edge", 7, 7),
         ("emoji interior", 8, 7),
     ] {
+        let mut wrapped = editor(
+            source,
+            Cell {
+                row: 0,
+                column: goal,
+            },
+            size,
+        );
+        navigate(
+            &mut wrapped,
+            "next-line",
+            Cell {
+                row: 0,
+                column: if goal < 5 { goal + 5 } else { 10 },
+            },
+        );
+        assert_eq!(wrapped.view().column, Some(goal % 5), "{name}");
+        navigate(
+            &mut wrapped,
+            "previous-line",
+            Cell {
+                row: 0,
+                column: goal,
+            },
+        );
+        assert_eq!(wrapped.view().column, Some(goal % 5), "{name}");
         let mut session = editor(
             source,
             Cell {
@@ -574,6 +600,7 @@ fn cell_goals() {
             },
             size,
         );
+        session.execute(rev::command::Command::VisualLineMode);
         for (command, row, column) in [
             ("next-line", 1, snapped),
             ("next-line", 2, 1),
@@ -607,6 +634,20 @@ fn page_navigation() {
         height: 7,
     };
     let mut session = editor(&source, Cell { row: 0, column: 8 }, size);
+    navigate(
+        &mut session,
+        "scroll-up-command",
+        Cell { row: 2, column: 2 },
+    );
+    assert_eq!(session.view().column, Some(2));
+    navigate(
+        &mut session,
+        "scroll-down-command",
+        Cell { row: 0, column: 8 },
+    );
+    assert_eq!(session.view().column, Some(2));
+    let mut session = editor(&source, Cell { row: 0, column: 8 }, size);
+    session.execute(rev::command::Command::VisualLineMode);
     session.frame().unwrap();
     let cases = [
         ("scroll-up-command", 3, 1, 3),
@@ -641,87 +682,125 @@ fn navigation_reset() {
         width: 8,
         height: 5,
     };
-    let mut session = editor(
-        "0123456789\nx\n0123456789",
-        Cell { row: 0, column: 8 },
-        size,
-    );
-    navigate(&mut session, "next-line", Cell { row: 1, column: 1 });
-    assert_eq!(session.view().column, Some(8));
-    navigate(
-        &mut session,
-        "move-beginning-of-line",
-        Cell { row: 1, column: 0 },
-    );
-    assert_eq!(session.view().column, None);
-    navigate(&mut session, "next-line", Cell { row: 2, column: 0 });
-    navigate(
-        &mut session,
-        "move-end-of-line",
-        Cell { row: 2, column: 10 },
-    );
-    navigate(&mut session, "previous-line", Cell { row: 1, column: 1 });
-    assert_eq!(session.view().column, Some(10));
-    assert_eq!(session.insert('!'), rev::session::Action::Redraw);
-    assert_eq!(session.view().column, None);
-    navigate(&mut session, "previous-line", Cell { row: 0, column: 2 });
-    assert_eq!(session.view().column, Some(2));
-    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    for wrap in [true, false] {
+        let mut session = editor(
+            "0123456789\nx\n0123456789",
+            Cell { row: 0, column: 8 },
+            size,
+        );
+        if !wrap {
+            session.execute(rev::command::Command::VisualLineMode);
+        }
+        navigate(
+            &mut session,
+            "next-line",
+            Cell {
+                row: 1,
+                column: if wrap { 0 } else { 1 },
+            },
+        );
+        assert_eq!(session.view().column, Some(if wrap { 0 } else { 8 }));
+        navigate(
+            &mut session,
+            "move-beginning-of-line",
+            Cell { row: 1, column: 0 },
+        );
+        assert_eq!(session.view().column, None);
+        navigate(&mut session, "next-line", Cell { row: 2, column: 0 });
+        navigate(
+            &mut session,
+            "move-end-of-line",
+            Cell {
+                row: 2,
+                column: if wrap { 7 } else { 10 },
+            },
+        );
+        navigate(&mut session, "previous-line", Cell { row: 1, column: 1 });
+        assert_eq!(session.view().column, Some(if wrap { 7 } else { 10 }));
+        assert_eq!(session.insert('!'), rev::session::Action::Redraw);
+        assert_eq!(session.view().column, None);
+        navigate(
+            &mut session,
+            "previous-line",
+            Cell {
+                row: 0,
+                column: if wrap { 10 } else { 2 },
+            },
+        );
+        assert_eq!(session.view().column, Some(2));
+        assert_eq!(session.buffer().unwrap().history().len(), 1);
+    }
 }
 
 // Suspended presentation keeps goals and scroll intact. A one-row pane still
-// pages one logical line, and resize recovery reveals the same intended cell.
+// advances; usable wrap-width changes reseed goals, while no-wrap keeps columns.
 #[test]
 fn suspended_navigation() {
     use crossterm::event::Event;
     use rev::coordinates::Cell;
-    for (width, height) in [(0, 0), (1, 1), (2, 2), (3, 3)] {
-        let size = Size { width, height };
-        let mut session = editor(
-            "abcdef\nx\nabcdef",
-            Cell { row: 0, column: 5 },
-            Size {
-                width: 8,
-                height: 7,
-            },
-        );
-        navigate(&mut session, "next-line", Cell { row: 1, column: 1 });
-        let origin = (session.view().top, session.view().left);
-        session.handle(Event::Resize(width, height));
-        let point = if size.usable() {
-            Cell { row: 2, column: 5 }
-        } else {
-            Cell { row: 1, column: 1 }
-        };
-        navigate(&mut session, "scroll-up-command", point);
-        navigate(
-            &mut session,
-            "scroll-down-command",
-            Cell { row: 1, column: 1 },
-        );
-        for _ in 0..4 {
+    for wrap in [true, false] {
+        for (width, height) in [(0, 0), (1, 1), (2, 2), (3, 3)] {
+            let size = Size { width, height };
+            let mut session = editor(
+                "abcdef\nx\nabcdef",
+                Cell { row: 0, column: 5 },
+                Size {
+                    width: 8,
+                    height: 7,
+                },
+            );
+            if !wrap {
+                session.execute(rev::command::Command::VisualLineMode);
+            }
+            navigate(&mut session, "next-line", Cell { row: 1, column: 1 });
+            let origin = (session.view().top, session.view().left);
+            session.handle(Event::Resize(width, height));
+            let goal = if wrap && size.usable() { 1 } else { 5 };
+            let point = if size.usable() {
+                Cell {
+                    row: 2,
+                    column: goal,
+                }
+            } else {
+                Cell { row: 1, column: 1 }
+            };
+            navigate(&mut session, "scroll-up-command", point);
             navigate(
                 &mut session,
-                "recenter-top-bottom",
+                "scroll-down-command",
                 Cell { row: 1, column: 1 },
             );
-            assert_eq!(session.view().column, Some(5));
-            bounded(&session.frame().unwrap(), size);
+            for _ in 0..4 {
+                navigate(
+                    &mut session,
+                    "recenter-top-bottom",
+                    Cell { row: 1, column: 1 },
+                );
+                assert_eq!(session.view().column, Some(goal));
+                bounded(&session.frame().unwrap(), size);
+            }
+            if !size.usable() {
+                assert_eq!((session.view().top, session.view().left), origin);
+                assert!(session.frame().unwrap().cursor().is_none());
+            }
+            session.handle(Event::Resize(8, 7));
+            navigate(
+                &mut session,
+                "next-line",
+                Cell {
+                    row: 2,
+                    column: goal,
+                },
+            );
+            assert_eq!(session.view().column, Some(goal));
+            bounded(
+                &session.frame().unwrap(),
+                Size {
+                    width: 8,
+                    height: 7,
+                },
+            );
         }
-        if !size.usable() {
-            assert_eq!((session.view().top, session.view().left), origin);
-            assert!(session.frame().unwrap().cursor().is_none());
-        }
-        session.handle(Event::Resize(8, 7));
-        navigate(&mut session, "next-line", Cell { row: 2, column: 5 });
-        assert_eq!(session.view().column, Some(5));
-        bounded(
-            &session.frame().unwrap(),
-            Size {
-                width: 8,
-                height: 7,
-            },
-        );
     }
 }
 

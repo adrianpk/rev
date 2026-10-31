@@ -179,7 +179,6 @@ impl View {
             let content = crate::window::Area::new(0, 0, size.width, size.text_rows())
                 .ok_or(coordinates::Error::Overflow)?;
             let width = self.gutter_geometry(buffer, content)?.text().width();
-            self.sync_wrap_width((buffer.soft_wrap() && width > 0).then_some(width));
             if buffer.soft_wrap() && width > 0 {
                 self.left = 0;
                 return self.reveal_wrapped(buffer, width, size.text_rows());

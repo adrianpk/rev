@@ -64,6 +64,9 @@ impl View {
         let point = self.cell(buffer)?;
         self.reveal_fold(buffer, point.row)?;
         self.sync_policy(buffer);
+        if !buffer.soft_wrap() {
+            self.sync_wrap_width(None);
+        }
         self.alignment = Alignment::Center;
         if distance == 0 {
             return Ok(());

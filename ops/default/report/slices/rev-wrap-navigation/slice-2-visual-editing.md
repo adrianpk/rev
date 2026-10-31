@@ -46,6 +46,11 @@ owners use that same map without adding viewport entries to source history.
 Existing selected-newline fill is retained at a source EOL; word-break padding
 does not become selected source text.
 
+Goal-width observations are updated by navigation rather than ordinary redraw.
+This preserves retained source-view identity while an Org timestamp request owns
+input. Suspended paging keeps its previous goal; an admitted new wrap width
+recalculates that goal before movement.
+
 ## Contracts Added or Changed
 
 - Selected native line commands follow the effective buffer wrap policy.
@@ -67,6 +72,8 @@ does not become selected source text.
   resize/split goals, paging/recenter, logical goto and anchor seams.
 - `tests/coordinates.rs`, `tests/windows.rs`, `tests/editing/regions.rs`:
   retained contracts with explicit wrap and no-wrap assertions.
+- `tests/display.rs`: paired visual/logical goal and page traces, resize recovery
+  and suspended presentation, retaining the existing calendar interaction tests.
 
 ## Validation
 
@@ -75,6 +82,10 @@ does not become selected source text.
 - `cargo test --locked --test wrapping --test windows --test coordinates`:
   passed, 78 tests.
 - `cargo test --locked --test editing regions::`: passed, seven regressions.
+- `cargo test --locked --test display suspended_navigation`: passed after the
+  focused display batch exposed goal-observation mutation during redraw and
+  obsolete logical-only expectations. The failed batch remains in the ledger;
+  complete display and source-quality checks are rerun for the corrected head.
 
 The configured final formatter, wrapping/editing/windows/core/coordinates tests
 and `git diff --check` are recorded by the controller after the PR-reference
