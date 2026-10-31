@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-05-formats`
-PR: pending
+PR: [#199](https://forge.adrianpk.com/adrianpk/rev/pulls/199)
 
 ## Purpose
 
@@ -96,8 +96,24 @@ the escaped-key workflow passed after correcting that prefix mismatch.
 expanded parser/color/plain-override matrix. Development library Clippy and the
 changed-owner source-quality diagnostic passed.
 
-Focused controller validation and canonical PR references will be recorded in
-the PR-reference follow-up. The final clean PR head requires this exact order:
+Focused controller receipt `BN3IFYNSFNDWLBAAWDRHPH43SJ` passed all seven
+checks at clean candidate `a2475a882892f46340379540dff3f0643faaf27f`. Its test commands passed
+11 completion-owner tests, two retained-parser recovery tests and three file
+association tests. The other checks passed library Clippy, changed-owner source
+quality and documentation (326 commands, 198 configuration entries, 60 reachable
+pages and 347 local links/anchors), followed by the clean diff check.
+
+1. `cargo test --locked --lib completion`: passed.
+2. `cargo test --locked --lib syntax::formats`: passed.
+3. `cargo test --locked --test files associations`: passed.
+4. `cargo clippy --locked --lib -- -D warnings`: passed.
+5. `cargo run --locked --quiet --example source-check -- --file src/completion.rs --file src/completion/context.rs --file src/completion/job.rs --file src/completion/literal.rs --file src/config.rs --file src/config/resolve.rs --file src/syntax.rs --file src/syntax/catalog.rs --file src/syntax/completion.rs --file src/syntax/formats.rs --file src/syntax/web.rs`: passed.
+6. `cargo run --locked --quiet --example documentation-check`: passed.
+7. `git diff --check`: passed.
+
+Canonical PR #199 links the full immutable report-introduction commit. After
+this PR-reference follow-up, the controller records fresh validation for the final
+clean PR head in this exact configured order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test configuration`
