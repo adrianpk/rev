@@ -15,11 +15,14 @@ impl Session {
         let mut limited = false;
         for id in ids {
             let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
-            if sources.len() == MAX_BUFFERS || bytes + buffer.len_bytes() > MAX_SNAPSHOTS {
+            if sources.len() == MAX_BUFFERS
+                || bytes + buffer.len_bytes() > MAX_SNAPSHOTS
+                || buffer.len_bytes() > crate::completion::MAX_BYTES
+            {
                 limited = true;
                 continue;
             }
-            let observation = Observation::capture(buffer, self.buffers.snapshot());
+            let observation = Observation::capture(buffer);
             let buffer = self.buffers.get_mut(id).map_err(|e| e.to_string())?;
             if let Ok((text, syntax)) = buffer.completion_snapshot() {
                 bytes += text.len_bytes();
@@ -42,15 +45,14 @@ impl Session {
 
     fn completion_source_ids(&self, current: BufferId) -> Result<Vec<BufferId>, String> {
         let buffer = self.buffers.get(current).map_err(|e| e.to_string())?;
-        let settings = self.buffers.snapshot();
-        let language = buffer.language(settings);
+        let language = buffer.syntax_language();
         let grammar = buffer.completion_grammar();
         let mut ids: Vec<_> = self
             .buffers
             .iter()
             .filter(|buffer| {
-                buffer.completion_available()
-                    && buffer.language(settings) == language
+                buffer.completion_supported()
+                    && buffer.syntax_language() == language
                     && buffer.completion_grammar() == grammar
             })
             .map(|buffer| buffer.id())

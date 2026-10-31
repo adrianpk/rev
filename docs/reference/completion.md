@@ -1,7 +1,7 @@
 # Native completion
 
 Rust, C and Go completion opens automatically after an identifier edit of at least two
-Unicode characters or a native `.` / `::` separator. The default debounce waits
+Unicode characters or a `.` / `::` separator (also C `->`). The default debounce waits
 150 ms after the newest eligible native edit. `M-TAB` or
 `M-x completion-at-point` requests immediately without a minimum prefix.
 Terminal or desktop shortcuts may intercept M-TAB; the named command uses the
@@ -45,7 +45,10 @@ Rust observes functions/methods, types/traits, modules, fields, constants and
 local/parameter declarations. C observes functions, typedef/type/enum names,
 fields, enumerators and local/parameter declarations. Go observes functions/
 methods, types, fields, constants and local/parameter declarations. Observed
-names do not imply imports, macro expansion, type checking or member resolution. Missing or unsupported syntax degrades
+names do not imply imports, macro expansion, type checking or member resolution.
+Local declarations and parameters stay within their lexical block/function;
+locals from other functions or other buffers do not leak into the list. Bindings
+after point are omitted. Fields remain observed names without receiver inference. Missing or unsupported syntax degrades
 assistance while preserving ordinary editing.
 
 ## Preferences and work bounds
@@ -62,7 +65,8 @@ Extraction admits at most 2 MiB and 4096 symbols per buffer, 32 observed buffers
 8 MiB total shared source snapshots, 16384 retained symbols, 8 MiB observation
 payload and 512-byte labels. Current context precedes other sources; older
 other-buffer observations are omitted first under pressure. One temporary worker
-borrows each admitted buffer's sole retained parser/tree and shared rope snapshot. At most one worker and one newest pending request exist;
+borrows each admitted buffer's sole retained parser/tree and shared rope snapshot,
+and performs filtering/ranking before returning disposable proposals. At most one worker and one newest pending request exist;
 cancellation retains the slot until the old worker is reaped. Parse/query
 callbacks check cancellation and a 50 ms work deadline. Limited results are
 omitted without editing source. Source revisions, language/grammar generations, rename paths and open-buffer

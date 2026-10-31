@@ -25,7 +25,7 @@ impl Style {
         match name.split('.').next()? {
             "type" | "constructor" => Some(Self::Type),
             "function" => Some(Self::Function),
-            "constant" => Some(Self::Number),
+            "constant" | "number" => Some(Self::Number),
             "punctuation" | "operator" => Some(Self::Punctuation),
             _ => None,
         }

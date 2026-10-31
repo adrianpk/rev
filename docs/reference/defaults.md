@@ -243,8 +243,8 @@ case-sensitive: any user match precedes all built-ins; within each class, exact
 basename wins, then the longest suffix. Recognition uses the visiting basename,
 retaining the first alias when canonical reuse finds an existing buffer; unique
 buffer-label suffixes do not participate. No language table is required for an
-identity. Unmatched or unnamed text is `plain`; only the `rust` identity defaults
-to their bundled Rust, C and Go grammars. Other identities can use indentation
+identity. Unmatched or unnamed text is `plain`; the `rust`, `c` and `go` identities
+default to their bundled grammars. Other identities can use indentation
 without a parser, or explicitly select an admitted grammar.
 
 ### Palette roles
@@ -384,12 +384,12 @@ or one third of the frame when shown.
 ## Product boundary
 
 Native mode activation includes `.org` and `.org_archive` files, with
-[native Org source coloring](syntax.md#native-org-source). Rust uses the
-bundled grammar; other files and syntax failures retain editable plain
-presentation. TOML startup preferences configure existing actions. This
-version has no plugins, macros, package runtime, LSP,
-language completion, automatic
-indentation, OS clipboard bridge, regex/project search or session
+[native Org source coloring](syntax.md#native-org-source). Rust, C and Go use
+bundled grammars and [native declaration completion](completion.md); other
+identities and syntax failures retain editable plain presentation. TOML startup
+preferences configure existing actions. This version has no plugins, macros,
+package runtime, LSP, automatic indentation, OS clipboard bridge, regex/project
+search or session
 persistence. The command catalog describes the implemented editing subset.
 
 Use [Bindings](bindings.md), [Focused prompts](prompts.md),

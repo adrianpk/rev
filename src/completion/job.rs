@@ -15,7 +15,7 @@ const POLL: Duration = Duration::from_millis(10);
 pub(crate) struct Output {
     pub request: Request,
     pub sources: Vec<Source>,
-    pub result: Result<Vec<Symbol>, String>,
+    pub result: Result<super::Completion, String>,
 }
 
 struct Running {
@@ -117,7 +117,15 @@ impl Work {
 
 fn run(mut request: Request, mut sources: Vec<Source>, cancel: &AtomicBool) -> Output {
     let deadline = Instant::now() + WORK_TIME;
-    let result = extract(&mut request, &mut sources, deadline, cancel);
+    let result = extract(&mut request, &mut sources, deadline, cancel)
+        .map(|symbols| request.clone().complete(symbols))
+        .and_then(|completion| {
+            if cancel.load(Ordering::Acquire) || Instant::now() >= deadline {
+                Err("Native completion work limit reached".into())
+            } else {
+                Ok(completion)
+            }
+        });
     Output {
         request,
         sources,

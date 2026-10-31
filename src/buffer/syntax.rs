@@ -6,6 +6,9 @@ use crate::syntax::Syntax;
 use super::Buffer;
 
 impl Buffer {
+    pub(crate) fn syntax_language(&self) -> &str {
+        &self.language_identity
+    }
     pub(crate) fn completion_grammar(&self) -> Grammar {
         self.grammar
     }
@@ -21,12 +24,14 @@ impl Buffer {
         self.syntax_generation
     }
     pub(crate) fn completion_available(&self) -> bool {
+        self.completion_supported() && self.len_bytes() <= crate::completion::MAX_BYTES
+    }
+    pub(crate) fn completion_supported(&self) -> bool {
         self.syntax_active
             && self.grammar != Grammar::Plain
             && self.mode_choice.is_none()
             && !self.is_org()
             && !self.is_readonly()
-            && self.len_bytes() <= crate::completion::MAX_BYTES
     }
     pub(crate) fn completion_snapshot(&mut self) -> Result<(ropey::Rope, Syntax), String> {
         if self.is_readonly() {

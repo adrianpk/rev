@@ -80,22 +80,56 @@ impl Syntax {
         let options = QueryCursorOptions::new().progress_callback(&mut progress);
         let mut captures =
             cursor.captures_with_options(query, tree.root_node(), Source(text), options);
-        let mut symbols = Vec::new();
+        let mut declarations = Declarations::default();
         while let Some((matched, index)) = captures.next() {
-            if stopped(deadline, cancel) || symbols.len() >= MAX_SYMBOLS {
+            if stopped(deadline, cancel) {
                 return Err("Native completion work or symbol limit reached".into());
             }
             let capture = matched.captures()[*index];
-            if let Some(symbol) = symbol(
-                capture.node,
-                query.capture_names()[capture.index as usize],
-                text,
-            ) {
-                symbols.push(symbol);
-            }
+            declarations.push(capture.node, query.capture_names()[capture.index as usize])?;
         }
         if cursor.did_exceed_match_limit() || stopped(deadline, cancel) {
             return Err("Native completion work limit reached".into());
+        }
+        declarations.finish(text, deadline, cancel)
+    }
+}
+
+#[derive(Default)]
+struct Declarations<'a> {
+    names: Vec<(tree_sitter::Node<'a>, &'static str)>,
+    scopes: super::scope::Scopes,
+}
+
+impl<'a> Declarations<'a> {
+    fn push(&mut self, node: tree_sitter::Node<'a>, kind: &str) -> Result<(), String> {
+        if kind == "scope" {
+            return self.scopes.insert(node);
+        }
+        let Some(kind) = category(kind) else {
+            return Ok(());
+        };
+        if self.names.len() >= MAX_SYMBOLS {
+            return Err("Native completion symbol limit reached".into());
+        }
+        self.names.push((node, kind));
+        Ok(())
+    }
+
+    fn finish(
+        self,
+        text: RopeSlice<'_>,
+        deadline: Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<Vec<Symbol>, String> {
+        let mut symbols = Vec::new();
+        for (node, kind) in self.names {
+            if stopped(deadline, cancel) {
+                return Err("Native completion work limit reached".into());
+            }
+            if let Some(symbol) = symbol(node, kind, text, &self.scopes)? {
+                symbols.push(symbol);
+            }
         }
         Ok(symbols)
     }
@@ -113,23 +147,32 @@ fn expired(deadline: Instant, cancel: &std::sync::atomic::AtomicBool) -> Control
     }
 }
 
-fn symbol(node: tree_sitter::Node<'_>, kind: &str, text: RopeSlice<'_>) -> Option<Symbol> {
+fn symbol(
+    node: tree_sitter::Node<'_>,
+    kind: &str,
+    text: RopeSlice<'_>,
+    scopes: &super::scope::Scopes,
+) -> Result<Option<Symbol>, String> {
     if node.has_error()
         || node.is_missing()
         || node.parent().is_some_and(|parent| parent.has_error())
     {
-        return None;
+        return Ok(None);
     }
     let bytes = node.byte_range();
-    if bytes.len() > MAX_LABEL {
-        return None;
+    let Some(kind) = category(kind) else {
+        return Ok(None);
+    };
+    if bytes.len() + 2 + kind.len() > MAX_LABEL {
+        return Err("Native completion label limit reached".into());
     }
-    Some(Symbol {
+    Ok(Some(Symbol {
         name: text.byte_slice(bytes.clone()).to_string(),
-        kind: category(kind)?,
+        kind,
         byte: bytes.start,
         origin: 0,
-    })
+        scope: scopes.declaration(node, kind)?,
+    }))
 }
 
 fn category(kind: &str) -> Option<&'static str> {

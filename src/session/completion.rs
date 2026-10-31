@@ -190,7 +190,7 @@ impl Session {
         let limited = output.request.limited;
         let result = output
             .result
-            .and_then(|symbols| self.install_completion(output.request.complete(symbols)));
+            .and_then(|completion| self.install_completion(completion));
         self.completion_result(result, manual, limited)
     }
 
@@ -254,6 +254,9 @@ impl Session {
 
     fn check_completion(&self, completion: &Completion) -> Result<(), String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
+        if buffer.is_readonly() {
+            return Err("buffer is read-only".into());
+        }
         if self.completion_request != Some(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
             || !completion.sources_current(&self.buffers)

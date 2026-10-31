@@ -97,7 +97,9 @@ impl Request {
             return false;
         };
         let text = text.to_string();
-        text.ends_with('.') || text.ends_with("::")
+        text.ends_with('.')
+            || text.ends_with("::")
+            || (buffer.completion_grammar() == crate::config::Grammar::C && text.ends_with("->"))
     }
 
     pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
@@ -111,6 +113,7 @@ pub(crate) struct Symbol {
     pub kind: &'static str,
     pub byte: usize,
     pub origin: usize,
+    pub scope: Option<std::ops::Range<usize>>,
 }
 
 #[cfg(test)]

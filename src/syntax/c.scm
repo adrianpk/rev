@@ -15,3 +15,12 @@
 (field_declaration declarator: (field_identifier) @field)
 (field_declaration declarator: (pointer_declarator declarator: (field_identifier) @field))
 (field_declaration declarator: (array_declarator declarator: (field_identifier) @field))
+(declaration declarator: (function_declarator declarator: (parenthesized_declarator (pointer_declarator declarator: (identifier) @binding))))
+
+; Explicit lexical scopes for the captured declaration nodes.
+(compound_statement) @scope
+(function_definition) @scope
+(function_declarator) @scope
+(for_statement) @scope
+(if_statement) @scope
+(while_statement) @scope

@@ -21,11 +21,11 @@ pub(crate) struct Observation {
 }
 
 impl Observation {
-    pub fn capture(buffer: &Buffer, settings: &crate::config::Snapshot) -> Self {
+    pub fn capture(buffer: &Buffer) -> Self {
         Self {
             stamp: buffer.stamp(),
             generation: buffer.syntax_generation(),
-            language: buffer.language(settings).to_owned(),
+            language: buffer.syntax_language().to_owned(),
             grammar: buffer.completion_grammar(),
             path: buffer.file().map(|file| file.path().to_owned()),
         }
@@ -35,7 +35,7 @@ impl Observation {
         buffers.get(self.stamp.buffer).is_ok_and(|buffer| {
             self.stamp == buffer.stamp()
                 && self.generation == buffer.syntax_generation()
-                && self.language == buffer.language(buffers.snapshot())
+                && self.language == buffer.syntax_language()
                 && self.grammar == buffer.completion_grammar()
                 && self.path.as_deref() == buffer.file().map(|file| file.path())
                 && buffer.completion_available()

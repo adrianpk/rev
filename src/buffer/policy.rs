@@ -28,19 +28,20 @@ impl Buffer {
     /// undo/redo traversal remains intact until that publication.
     /// Views discard cached display goals before their next reveal/navigation.
     pub fn apply_settings(&mut self, settings: &Snapshot) {
-        let language = self.language(settings);
-        let policy = settings.editor(language);
-        let grammar = settings.grammar(language);
+        let language = self.language(settings).to_owned();
+        let policy = settings.editor(&language);
+        let grammar = settings.grammar(&language);
         self.policy = policy;
         self.history_policy = settings.settings().history.clone();
         if self.syntax_policy != settings.settings().syntax {
             self.org_attempt = None;
         }
         self.syntax_policy = settings.settings().syntax.clone();
-        if self.grammar != grammar {
+        if self.grammar != grammar || self.language_identity != language {
             self.reset_syntax();
         }
         self.grammar = grammar;
+        self.language_identity = language;
         self.apply_mode(settings);
         self.refresh_syntax();
     }

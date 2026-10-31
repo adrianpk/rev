@@ -118,3 +118,176 @@ fn settle(session: &mut Session) {
         std::thread::sleep(std::time::Duration::from_millis(1));
     }
 }
+
+// Text revisions, rename paths, language/grammar changes and close all retire
+// other-buffer observations even while the current target/view stays identical.
+#[test]
+fn changed_observations() {
+    for action in ["edit", "rename", "grammar", "identity", "language", "close"] {
+        let (fixture, mut session) = session();
+        let path = fixture.write("other.rs", "fn sample_other() {}\n");
+        let id = session.buffers.visit(&path).unwrap();
+        session.begin_completion();
+        settle(&mut session);
+        let old = session.completion().unwrap().clone();
+        assert!(
+            old.candidates()
+                .iter()
+                .any(|candidate| candidate.text() == "sample_other"),
+            "{action}"
+        );
+        change_observation(&mut session, id, action);
+        assert!(session.completion().is_none(), "{action}");
+        assert!(session.install_completion(old).is_err(), "{action}");
+        assert!(session.buffer().unwrap().history().is_empty(), "{action}");
+    }
+}
+
+fn change_observation(session: &mut Session, id: crate::buffer::BufferId, action: &str) {
+    match action {
+        "edit" => {
+            let buffer = session.buffers.get_mut(id).unwrap();
+            let edit = Replacement {
+                source: buffer.span(0..buffer.len_chars()).unwrap(),
+                text: "fn sample_new() {}\n".into(),
+            };
+            let prepared = buffer.prepare(&[edit], &[], None).unwrap();
+            buffer.publish(prepared, &mut []).unwrap();
+        }
+        "rename" => {
+            let path = session.buffers.get(id).unwrap().file().unwrap().path();
+            let rename = crate::file::Rename::capture(path).unwrap();
+            session.buffers.rename(rename, "renamed.rs").unwrap();
+        }
+        "grammar" => {
+            let fixture = crate::fixture::Fixture::new();
+            let config = fixture.write("config.toml", "language.rust.grammar = 'c'");
+            let settings = crate::config::resolve(&crate::config::load(&config).unwrap()).unwrap();
+            let buffer = session.buffers.get_mut(id).unwrap();
+            let generation = buffer.syntax_generation();
+            buffer.apply_settings(&settings);
+            assert!(buffer.syntax_generation() > generation);
+            assert_eq!(buffer.mode(), "C");
+        }
+        "identity" => {
+            let fixture = crate::fixture::Fixture::new();
+            let config = fixture.write(
+                "config.toml",
+                "[files.associations]\n'*.rs' = 'custom'\n[language.custom]\ngrammar = 'rust'",
+            );
+            let settings = crate::config::resolve(&crate::config::load(&config).unwrap()).unwrap();
+            let buffer = session.buffers.get_mut(id).unwrap();
+            buffer.apply_settings(&settings);
+            assert_eq!(buffer.syntax_language(), "custom");
+            assert_eq!(buffer.mode(), "Rust");
+        }
+        "language" => {
+            let path = session.buffers.get(id).unwrap().file().unwrap().path();
+            let rename = crate::file::Rename::capture(path).unwrap();
+            session.buffers.rename(rename, "other.go").unwrap();
+        }
+        "close" => {
+            let kill = session.buffers.prepare_kill(id).unwrap();
+            session.buffers.kill(kill).unwrap();
+        }
+        _ => unreachable!(),
+    }
+}
+
+// Snapshot admission prioritizes the current source, then recent observations.
+// Overflow excludes the least recently used sources before borrowing any parser.
+#[test]
+fn snapshot_inventory() {
+    let (fixture, mut session) = session();
+    let current = session.buffer().unwrap().id();
+    let mut ids = Vec::new();
+    for n in 0..35 {
+        let path = fixture.write(&format!("source-{n}.rs"), "fn sample_other() {}\n");
+        ids.push(session.buffers.visit(&path).unwrap());
+    }
+    session.touch_completion_source(ids[0]);
+    let (sources, limited) = session.completion_sources(current).unwrap();
+    assert!(limited);
+    assert_eq!(sources.len(), crate::completion::source::MAX_BUFFERS);
+    assert_eq!(sources[0].observation.stamp.buffer, current);
+    assert_eq!(sources[1].observation.stamp.buffer, ids[0]);
+    assert!(
+        !sources
+            .iter()
+            .any(|source| source.observation.stamp.buffer == ids[1])
+    );
+    session.restore_completion_sources(sources);
+    assert!(
+        session
+            .buffers
+            .iter()
+            .all(|buffer| !buffer.syntax().working())
+    );
+    assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// Aggregate snapshot bytes and the per-buffer byte limit are independent of
+// symbol count; large comment payloads cannot bypass either admission boundary.
+#[test]
+fn snapshot_bytes() {
+    let (fixture, mut session) = session();
+    let current = session.buffer().unwrap().id();
+    let size = crate::completion::MAX_BYTES;
+    let document = format!("//{}", "x".repeat(size - 2));
+    for n in 0..5 {
+        let path = fixture.write(&format!("large-{n}.rs"), &document);
+        session.buffers.visit(&path).unwrap();
+    }
+    let path = fixture.write("oversize.rs", &format!("{document}x"));
+    let oversize = session.buffers.visit(&path).unwrap();
+    let (sources, limited) = session.completion_sources(current).unwrap();
+    assert!(limited);
+    assert_eq!(sources[0].observation.stamp.buffer, current);
+    assert_eq!(sources.len(), 4);
+    assert!(
+        sources
+            .iter()
+            .map(|source| source.text.len_bytes())
+            .sum::<usize>()
+            <= crate::completion::source::MAX_SNAPSHOTS
+    );
+    assert!(
+        !sources
+            .iter()
+            .any(|source| source.observation.stamp.buffer == oversize)
+    );
+    session.restore_completion_sources(sources);
+    assert!(
+        session
+            .buffers
+            .iter()
+            .all(|buffer| !buffer.syntax().working())
+    );
+}
+
+// An edit after snapshot transfer retires the returning worker's proposal. Its
+// parser is restored with the old revision and reparsed from the newer source
+// on the next request, rather than relabeling stale observations as current.
+#[test]
+fn changed_in_flight() {
+    let (fixture, mut session) = session();
+    let path = fixture.write("other.rs", "fn sample_other() {}\n");
+    let other = session.buffers.visit(&path).unwrap();
+    session.begin_completion();
+    assert!(session.completion_work.owns(other));
+    change_observation(&mut session, other, "edit");
+    settle(&mut session);
+    assert!(session.completion().is_none());
+    session.begin_completion();
+    settle(&mut session);
+    let names: Vec<_> = session
+        .completion()
+        .unwrap()
+        .candidates()
+        .iter()
+        .map(|candidate| candidate.text())
+        .collect();
+    assert!(names.contains(&"sample_new"));
+    assert!(!names.contains(&"sample_other"));
+    assert!(session.buffer().unwrap().history().is_empty());
+}
