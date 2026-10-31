@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4
-Execution owner: Looper; Slice 4 implementation active
+Active slice: Slice 5
+Execution owner: Looper; Slice 5 implementation active
 
 ## Canonical slice map
 
@@ -83,7 +83,7 @@ Acceptance: WRP04, WRP05; complete WRP01-WRP07.
 
 - [x] T4.1: Compose wrapping with existing Org folds, headings, table fields, source blocks and preview projections; retain logical command targets and source-preserving alignment.
 - [x] T4.2: Complete buffer-local override/split/close/invalidation and bounded cache/work ownership. Measure large/long-line resize, sustained input/reversal and idle costs; resolve the wrap ticket with exact evidence.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 4 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 4 report.
 
 T4.1 commit `ba7233b763b514be0c0fb0cf205abd2c4ae4c227` delivers wrapped Org
 source/field/draft/preview integration. T4.2 completes bounded retention,
@@ -98,8 +98,9 @@ commands and 942 tests in receipt `JNLPDE7N5VZQHLQ33J3U6447EA`. T4.2 commits
 `0fe5431e9ee449986bb56c3aadb669513c941331` and
 `034b721bb110461e7106cdea970564548934d009` complete native input ownership
 and settled Org request admission. Canonical [PR #177](https://forge.adrianpk.com/adrianpk/rev/pulls/177)
-targets `dev`; the PR-reference follow-up receives fresh configured checks.
-Integration remains pending, and the wrap ticket is under review.
+merged into `dev` at `279242c0351ce10d2415d97c0aa11f1196b0b63c`. Its final
+configured checks passed 596 tests in receipt `K6BO6PQAFLAXYANN27HMXLOHZG`.
+Slice 4 of 8 completed; the wrap ticket is solved. Slice 5 is active.
 
 ## Slice 5: Directory targets and initial tree expansion
 

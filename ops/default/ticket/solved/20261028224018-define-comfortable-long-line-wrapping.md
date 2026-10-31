@@ -1,7 +1,7 @@
 ---
 id: TKT-20261028224018
 title: Define comfortable long-line wrapping
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: unclassified
@@ -11,6 +11,8 @@ source: chat
 reported_at: 2026-10-28T22:40:18Z
 ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T02:43:02Z
+closed_at: 2026-10-31T02:55:41Z
+resolution: fixed
 reviewed_at: 2026-10-31T02:43:02Z
 branch: feat/rev-wrap-navigation-04-org-wrap
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/177
@@ -119,3 +121,9 @@ and focused commands at `034b721bb110461e7106cdea970564548934d009`, including
 head receives a fresh configured controller receipt before handoff.
 This ticket moved through implementation and is now under review; integration
 and the solved transition remain owned by the controller delivery workflow.
+
+## Verified integration
+
+PR #177 merged the exact validated head `279242c0351ce10d2415d97c0aa11f1196b0b63c`
+into `dev`. Its final three configured commands passed in controller receipt
+`K6BO6PQAFLAXYANN27HMXLOHZG` (596 tests). The ticket is solved.

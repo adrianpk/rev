@@ -1,6 +1,6 @@
 # Slice 4: Org projection and bounded wrap lifetimes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -118,8 +118,10 @@ all eleven controller commands in receipt `JNLPDE7N5VZQHLQ33J3U6447EA`:
 - `python3 scripts/check-wrap-performance.py`
 
 The configured integration suites passed 596 tests; focused helper and affected
-integration suites passed another 346. The PR-reference follow-up requires its
-own fresh configured receipt for the clean head before controller handoff.
+integration suites passed another 346. Final PR-reference head `279242c0351ce10d2415d97c0aa11f1196b0b63c` passed
+the exact three configured commands above in controller receipt
+`K6BO6PQAFLAXYANN27HMXLOHZG` (596 tests). PR #177 merged that exact head
+through Rebase + Fast-forward into `dev` on 2026-10-31.
 
 Development checks passed for coordinates, continuous/resumed wrap partitions,
 queued input and cancellation, native event owners, and display/gutter/search/
@@ -185,6 +187,5 @@ or existing canonical source-edit admission. Visible canvas work also scales
 with terminal geometry. The finite measurements do not promise fixed latency
 for arbitrary text or hosts.
 
-PR #177 contains the approved slice. The controller owns fresh configured
-validation for its final PR-reference head and integration. The wrap ticket
-remains under review until verified merge.
+PR #177 is merged and the wrap ticket is solved. The combined delivery gate
+remains owned by the final acceptance phase.

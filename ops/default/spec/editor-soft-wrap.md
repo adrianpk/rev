@@ -6,7 +6,7 @@ Approved: product owner, 2026-10-31; selected five-topic delivery, Emacs interac
 Plan: [Wrap and Navigation](../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
 Format: OpenSpec capability proposal
-Source: approved visual direction in the [long-line ticket](../ticket/reviewing/20261028224018-define-comfortable-long-line-wrapping.md)
+Source: approved visual direction in the [long-line ticket](../ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md)
 Model: [Soft Wrap Model](editor-soft-wrap-model.md)
 Baselines: [rev Editor](rev-editor.md), [Editor Gutter](editor-gutter.md), [Org Mode](editor-org-mode.md)
 Readiness: accepted behavior and finite delivery scope; implementation is owned by rev-wrap-navigation
