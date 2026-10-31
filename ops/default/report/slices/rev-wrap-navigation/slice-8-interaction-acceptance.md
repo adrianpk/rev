@@ -1,11 +1,11 @@
 # Slice 8: User guidance and joint interaction acceptance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
-Branch: `feat/rev-wrap-navigation-08-interaction-acceptance`
-PR: [#181](https://forge.adrianpk.com/adrianpk/rev/pulls/181)
+Branch: `fix/rev-wrap-navigation-validation-1`
+PR: pending
 
 ## Purpose
 
@@ -117,6 +117,40 @@ clean head: 499 tests, all three native settings journeys, the Linux PTY route
 The controller recorded the merge in Acta as `01M682VDRQ3BVAVDSPBZAYWXC3`.
 Slice 8 is delivered; the integrated delivery gate and metadata closure remain
 controller-owned and pending.
+
+## Gate repair 1: failed-open fixture
+
+The original Slice 8 branch `feat/rev-wrap-navigation-08-interaction-acceptance`
+was delivered through PR #181 as recorded above. This report also owns the
+pinned repair `test(gutter): use an invalid file for failed-open coverage`.
+
+The controller's full gate at `90712acf1ba4dc4bb8db091b87285f0929897039`
+passed formatting and all-target Clippy, then failed in the all-target test run
+at `gutter::lifecycle::file_rebind`. Retained diagnostic identity is
+`TQRG3K3G75J6KTCHNZUYIPHCIA`; 35 other gutter tests passed. The assertion used
+the fixture directory as a rejected file-open target, but NAV01 deliberately
+makes directory opening valid. The directory fixture therefore no longer
+exercised the test's intended failed-ingress path.
+
+`tests/gutter/lifecycle.rs` now creates a real file containing invalid UTF-8
+and requires `InvalidData` from loading it. The existing complete active-view,
+selected-window, shared-peer, BOM/CRLF/tab/Unicode byte fidelity, clean-state
+and empty-history assertions remain intact. This preserves failed-file coverage
+while respecting accepted directory targets. No runtime or gate requirement is
+changed; only that test file and this existing report are modified.
+
+Focused reproduction `cargo test --locked --test gutter lifecycle::file_rebind -- --exact`
+failed at the retained assertion before the correction and passed afterward
+(one test, 35 filtered). The pinned final repair command order is:
+
+1. `cargo fmt --all -- --check`
+2. `cargo test --locked --test gutter`
+3. `cargo test --locked --test files`
+4. `git diff --check`
+
+Clean-HEAD controller evidence and the canonical repair PR reference are recorded
+before handoff. The controller owns integration and rerunning the unchanged full
+gate; earlier slice evidence remains tied to its original candidate.
 
 ## Risks and Follow-ups
 

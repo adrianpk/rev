@@ -37,6 +37,9 @@ fn accept(session: &mut Session) {
 fn file_rebind() {
     let fixture = super::config_fixture::Fixture::new();
     let path = fixture.write("document.txt", "\u{feff}x\t界\r\n");
+    // Directories are valid targets; invalid UTF-8 still rejects file ingress.
+    let invalid = fixture.0.join("invalid.txt");
+    std::fs::write(&invalid, b"text\xff").unwrap();
     let mut session = editor("original");
     session.execute(Command::Split(Split::Below));
     let original = session.windows().selected_id();
@@ -52,7 +55,10 @@ fn file_rebind() {
     let loaded = session.view().clone();
     session.load(&path).unwrap();
     assert_eq!(session.view(), &loaded);
-    assert!(session.load(&fixture.0).is_err());
+    assert_eq!(
+        session.load(&invalid).unwrap_err().kind(),
+        std::io::ErrorKind::InvalidData
+    );
     assert_eq!(session.view(), &loaded);
     assert_eq!(session.windows().selected_id(), original);
     assert_eq!(session.windows().get(peer).unwrap(), &peer_before);
