@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 8
-Execution owner: Looper; Slice 8 PR #181 under review
+Active slice: none; all eight slices integrated, full gate pending
+Execution owner: Looper; full-gate preparation complete, controller gate pending
 
 ## Canonical slice map
 
@@ -159,7 +159,7 @@ and focused native SGR terminal validation. The pointer ticket is solved.
 Final configured receipt `N7OR4FAOUUHBTWEANHW5AT3ALC` passed 359 tests at
 `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b`, the exact canonical PR #180 merge
 into `dev`. The controller recorded the merge in Acta. Slice 7 is delivered;
-Slice 8 is active. See the [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
+Slice 8 subsequently integrated. See the [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
 
 ## Slice 8: User guidance and joint interaction acceptance
 
@@ -167,7 +167,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 
 - [x] T8.1: Deliver native Rust/Bash joint journeys in bash scripts/check-wrap-navigation.sh, using the real event/composition path plus a bounded representative Linux PTY route. Reuse existing probes; add no Python gate or new runtime dependency.
 - [x] T8.2: Update the editor User Guide with short visual examples, defaults/commands/configuration and CHANGELOG Unreleased; reconcile affected delivered baseline clauses and complete all five ticket transitions/links before the full gate.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 8 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 8 report.
 
 T8.1 introduces native Rust/composition and Linux PTY joint acceptance plus the
 reused five-fixture long-line probe. T8.2 reconciles reader guidance, CLI/defaults,
@@ -177,8 +177,11 @@ affected baseline clauses and all five solved tickets. T8.1 commit
 `GS6IDBXSHHMCRIIXMPJ6MBN7KW` passed the six recorded commands, 499 tests, native
 joint acceptance, bounded PTY/performance probes, documentation and focused Clippy
 on the exact clean T8.2 head. Canonical [PR #181](https://forge.adrianpk.com/adrianpk/rev/pulls/181)
-targets `dev`; the PR-reference head requires fresh configured evidence before
-handoff. The controller owns the final integrated gate and closure.
+merged at `4ec549c581d919b72e3e2e89cb4752507e0b1380`. Final configured receipt
+`AUDRUYJUFLGQSXH3OTQIH56NFY` passed the five required commands and 499 tests on
+that exact clean head. The controller recorded its merge in Acta as
+`01M682VDRQ3BVAVDSPBZAYWXC3`. All eight implementation slices are integrated;
+the controller owns the final integrated gate and closure.
 See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md).
 
 ## Integration evidence
@@ -192,7 +195,7 @@ See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interactio
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | delivered | #179 | `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7` | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
 | 7 | delivered | #180 | `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b` | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
-| 8 | reviewing | #181 | pending | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
+| 8 | delivered | #181 | `4ec549c581d919b72e3e2e89cb4752507e0b1380` | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
 
 ## Delivery acceptance
 
@@ -207,6 +210,14 @@ See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interactio
 - [x] All eight configured reports exist and accurately identify focused validation.
 - [ ] Controller passes the pinned full gate on one exact clean integrated dev candidate.
 - [ ] Metadata-only closure completes plan/tracker/specs/models/index/reports within allowed paths.
+
+Full-gate preparation verified Rust/Cargo 1.98, rustfmt, Clippy, Bash and the
+installed Linux PTY/core utilities, writable owned temporary storage and PTY
+device access. `bash -n scripts/check-wrap-navigation.sh` and
+`cargo metadata --locked --offline --no-deps --format-version 1` passed.
+The joint gate owns fixture creation and cleanup; no persistent fixture or
+service is needed. Preparation did not execute the full gate. Plan/tracker and
+spec/model completion remain pending its exact-candidate result.
 
 ## Boundaries
 

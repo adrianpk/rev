@@ -1,6 +1,6 @@
 # Slice 8: User guidance and joint interaction acceptance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -109,10 +109,14 @@ was 6.316 ms and maximum queued reversal was 16.851 ms. Documentation passed
 305 commands, 180 configuration entries, 58 pages and 331 local links/anchors.
 Focused Clippy passed without warnings.
 
-Canonical PR #181 targets `dev` with the approved title and full immutable
-report-introduction link. Its PR-reference head receives a fresh configured
-five-command receipt before handoff. The controller retains that exact final
-identity; the integrated delivery gate and closure remain separate.
+Canonical PR #181 merged into `dev` at
+`4ec549c581d919b72e3e2e89cb4752507e0b1380`. Final configured receipt
+`AUDRUYJUFLGQSXH3OTQIH56NFY` passed the first five commands above on that exact
+clean head: 499 tests, all three native settings journeys, the Linux PTY route
+(472 ms, 70,025 output bytes), all five long-line fixtures and documentation.
+The controller recorded the merge in Acta as `01M682VDRQ3BVAVDSPBZAYWXC3`.
+Slice 8 is delivered; the integrated delivery gate and metadata closure remain
+controller-owned and pending.
 
 ## Risks and Follow-ups
 

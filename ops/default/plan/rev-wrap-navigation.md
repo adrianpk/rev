@@ -13,7 +13,7 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Wrap and Navigation Tracker](../tracker/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 8
+Active slice: none; all eight slices integrated, full gate pending
 
 ## Outcome and authority
 
