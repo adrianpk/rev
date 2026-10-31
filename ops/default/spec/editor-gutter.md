@@ -163,9 +163,11 @@ numbers. A trailing editable empty logical line follows that same buffer model.
 Blank viewport padding beyond the last logical line SHALL have no line number
 .
 
-The delivered no-wrap presentation SHALL remain authoritative. A future wrapped
-continuation cannot acquire another logical line number merely because it
-occupies another display row. Unsupported visual numbering SHALL be rejected
+Word-aware wrapping SHALL display a logical line label only on its first
+source fragment. Continuation number cells SHALL remain blank, including when
+a continuation is the first viewport row. Relative distances SHALL count
+logical source lines across folds and continuations. Explicit no-wrap retains
+the horizontal presentation. Unsupported visual numbering SHALL be rejected
 explicitly if requested, without reinterpreting it as logical numbering.
 
 #### Scenario: Empty document and padding rows

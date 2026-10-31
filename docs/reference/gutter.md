@@ -1,7 +1,10 @@
 # Line numbers
 
 Editing views show one-based logical line numbers on the left with no required
-configuration. The number field is right-aligned, reserves at least four digits,
+configuration. Wrapped continuations have blank number cells; a label appears
+only on the first fragment of each logical source line. Relative distances
+count source lines, including across folds, rather than display continuations.
+The number field is right-aligned, reserves at least four digits,
 has no left padding and one right padding cell, and ends with `│`.
 The terminal renderer also admits a one-cell ASCII `|` fallback.
 

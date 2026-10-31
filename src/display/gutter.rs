@@ -17,10 +17,22 @@ impl Frame {
             return Ok(());
         };
         let settings = view.gutter.effective();
+        let fragments = if buffer.soft_wrap() {
+            view.wrapped_rows(buffer, geometry.text().width(), area.height())?
+        } else {
+            Vec::new()
+        };
         for row in 0..area.height() {
-            let label = view
-                .source_row(buffer, usize::from(row))
-                .and_then(|line| NumberRow::new(line, buffer.len_lines(), current, settings));
+            let source = if buffer.soft_wrap() {
+                fragments
+                    .get(usize::from(row))
+                    .filter(|f| f.columns.start == 0)
+                    .map(|f| f.line)
+            } else {
+                view.source_row(buffer, usize::from(row))
+            };
+            let label =
+                source.and_then(|line| NumberRow::new(line, buffer.len_lines(), current, settings));
             let mut projected = field(area, geometry.digits(), settings, label)?;
             projected.row = row;
             self.blit(area, projected)?;

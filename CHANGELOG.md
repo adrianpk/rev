@@ -14,6 +14,8 @@ This project uses Semantic Versioning.
   to toggle wrapping for one buffer and all its views. While wrapped, Up/Down,
   `C-n`/`C-p`, `C-a`/`C-e` and `C-k` follow Emacs visual-line editing; paging and
   recentering follow display rows while goto-line keeps source line numbers.
+  Pointer selection, wheel/drag scrolling and search highlights follow the same
+  wrapped rows; rectangles and line numbers retain logical source coordinates.
 
 ## 0.1.0 - 2026-10-30
 

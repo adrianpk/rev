@@ -31,6 +31,8 @@ mod surface;
 mod surfaces;
 #[path = "gutter/workspace.rs"]
 mod workspace;
+#[path = "gutter/wrapping.rs"]
+mod wrapping;
 
 use rev::buffer::Buffers;
 use rev::gutter::{CurrentLine, Mode, Overrides, Settings, Side};

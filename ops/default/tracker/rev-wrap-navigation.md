@@ -64,9 +64,15 @@ recorded its merge in Acta. Slice 2 is delivered.
 
 Acceptance: WRP02, WRP03.
 
-- [ ] T3.1: Use the same current mapping for pointer placement/drag/autoscroll, linear selections, search reveal and overlays; keep rectangle semantics in logical source rows/columns.
-- [ ] T3.2: Render logical gutter labels only on a source line's first fragment, preserve relative logical distances and invalidate stale geometry after source/fold/resize changes.
+- [x] T3.1: Use the same current mapping for pointer placement/drag/autoscroll, linear selections, search reveal and overlays; keep rectangle semantics in logical source rows/columns.
+- [x] T3.2: Render logical gutter labels only on a source line's first fragment, preserve relative logical distances and invalidate stale geometry after source/fold/resize changes.
 - [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 3 report.
+
+Implementation commit: T3.1 `f2e4779891ef`. T3.2 introduces the logical-fragment
+gutter projection and the Slice 3 report. Native continuation interactions,
+paired no-wrap contracts and gutter/fold/resize cases passed focused checks.
+The final exact-HEAD command list is recorded through the controller after
+PR-reference publication.
 
 ## Slice 4: Org projection and bounded wrap lifetimes
 
