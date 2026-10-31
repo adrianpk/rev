@@ -197,6 +197,17 @@ See the [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interactio
 | 7 | delivered | #180 | `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b` | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
 | 8 | delivered | #181 | `4ec549c581d919b72e3e2e89cb4752507e0b1380` | [Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md) |
 
+Gate repair 1 integrated through [PR #182](https://forge.adrianpk.com/adrianpk/rev/pulls/182)
+at `16debf9b98acdac1581a203726041b61ac036774`. Final policy receipt
+`VBNOTDVN3ENDHZIBSSQUQ4ERCJ` passed formatting, 36 gutter tests, 74 file tests
+and whitespace validation on that exact clean head. The controller recorded
+its merge in Acta as `01M68JWDE5DYK7H87XWWFGA9R8`. The repair replaces a
+now-valid directory target with invalid UTF-8 for failed-file coverage, retaining
+all view/peer/source/history assertions. The prior gate failure at
+`90712acf1ba4dc4bb8db091b87285f0929897039` remains identifiable in the
+[Slice 8 report](../report/slices/rev-wrap-navigation/slice-8-interaction-acceptance.md);
+the unchanged full gate awaits its controller rerun.
+
 ## Delivery acceptance
 
 - [x] Factory word-aware wrap and Emacs visual-line commands work without configuration.
@@ -215,6 +226,7 @@ Full-gate preparation verified Rust/Cargo 1.98, rustfmt, Clippy, Bash and the
 installed Linux PTY/core utilities, writable owned temporary storage and PTY
 device access. `bash -n scripts/check-wrap-navigation.sh` and
 `cargo metadata --locked --offline --no-deps --format-version 1` passed.
+These prerequisites were rechecked after gate repair 1 integrated.
 The joint gate owns fixture creation and cleanup; no persistent fixture or
 service is needed. Preparation did not execute the full gate. Plan/tracker and
 spec/model completion remain pending its exact-candidate result.
