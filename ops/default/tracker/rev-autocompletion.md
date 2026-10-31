@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Native Autocompletion Plan](../plan/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3 — Rust, C and Go structural sources; in progress
+Active slice: Slice 4 — HTML, CSS, JavaScript and TypeScript; in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -57,9 +57,14 @@ Receipt `OQMJASNUJJFUKHIDXZMAIPRC27` passed its three configured checks and
 
 Acceptance: CMP03, CMP05-CMP07; systems-language subset.
 
-- [ ] T3.1: Generalize the existing syntax owner without a second parser/index owner. Add the measured C and Go grammars alongside Rust, explicit extraction/highlight queries, language identity and bounded same-language open-buffer reuse.
-- [ ] T3.2: Implement declaration/scope coverage and deterministic locality/ranking under the specified snapshot/symbol budgets. Invalidate on edits, rename, grammar changes, buffer close and observation eviction; never scan unopened files.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] T3.1: Generalize the existing syntax owner without a second parser/index owner. Add the measured C and Go grammars alongside Rust, explicit extraction/highlight queries, language identity and bounded same-language open-buffer reuse.
+- [x] T3.2: Implement declaration/scope coverage and deterministic locality/ranking under the specified snapshot/symbol budgets. Invalidate on edits, rename, grammar changes, buffer close and observation eviction; never scan unopened files.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Canonical PR [#197](https://forge.adrianpk.com/adrianpk/rev/pulls/197) merged
+through Rebase + Fast-forward at `1469a344ebb18d067119951774e2447ab6e941b9`.
+Receipt `YY3FXCH6SEAT74Q3OKMFYPD2UQ` passed its three configured checks and
+151 tests at that exact candidate. Slice 3 of 8 completed.
 
 ## Slice 4: HTML, CSS, JavaScript and TypeScript
 

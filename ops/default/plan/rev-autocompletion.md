@@ -11,7 +11,7 @@ Model: [Native Autocompletion Model](../spec/editor-autocompletion-model.md)
 Concern: [Pending Work Index](../README.md)
 Tracker: [Native Autocompletion Tracker](../tracker/rev-autocompletion.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-completion.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3 — Rust, C and Go structural sources; in progress
+Active slice: Slice 4 — HTML, CSS, JavaScript and TypeScript; in progress
 
 ## Outcome and authority
 

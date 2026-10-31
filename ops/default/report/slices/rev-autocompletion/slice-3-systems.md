@@ -1,6 +1,6 @@
 # Slice 3: Rust, C and Go structural sources
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
@@ -152,9 +152,10 @@ candidate `1cab4b0b6549e4825b6c211f0ab85406b3b858e5`, including the renderer cor
 
 The documentation check admitted 326 commands, 198 configuration entries,
 60 reachable pages and 347 local links/anchors. Canonical PR #197 references the
-full immutable report-introduction commit. After this PR-reference follow-up,
-the controller records fresh evidence for the exact final clean PR head and
-its configured ordered list:
+full immutable report-introduction commit. Controller receipt
+`YY3FXCH6SEAT74Q3OKMFYPD2UQ` passed all three configured checks and 151 tests at
+final clean PR head `1469a344ebb18d067119951774e2447ab6e941b9`. Canonical PR #197
+merged through Rebase + Fast-forward at that same commit. Its ordered list was:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test syntax --test files --test coordinates`
