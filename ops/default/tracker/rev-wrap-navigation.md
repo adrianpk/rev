@@ -13,8 +13,8 @@ Model: [Navigation Model](../spec/editor-file-navigation-model.md)
 Concern: [Pending Work Index](../README.md)
 Plan: [Wrap and Navigation Plan](../plan/rev-wrap-navigation.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-wrap-navigation.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 7
-Execution owner: Looper; Slice 7 PR #180 under review
+Active slice: Slice 8
+Execution owner: Looper; Slice 8 implementation active
 
 ## Canonical slice map
 
@@ -150,18 +150,16 @@ Acceptance: NAV05, NAV06.
 
 - [x] T7.1: Carry rendered entry identity through tree hit testing, focus/select that row and apply the existing tree action to it; validate after viewport/listing changes.
 - [x] T7.2: Add mouse.tree_activate_on_click default true with false selection-only, complete sample/reference validation and tests; preserve global mouse disablement and resolve the pointer ticket.
-- [ ] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 7 report.
+- [x] Verify exact-HEAD checks, record the canonical PR/merge and deliver the Slice 7 report.
 
 T7.1 commit `65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41` delivers checked tree hits and native activation.
 T7.2 adds the startup selection-only preference, strict configuration/sample
 coverage, canonical alias and denied-access cases, pointer baseline amendments
-and focused native SGR terminal validation. The pointer ticket is under review;
-T7.2 commit `a6a3c97795feb45b63fbde01374c316d9a4b2cb1` passed all six
-controller commands, 359 tests and two native SGR sessions in receipt
-`WJGF4Y5IGUFXSHIPQFHPWJC5TP` on that exact clean head. Canonical
-[PR #180](https://forge.adrianpk.com/adrianpk/rev/pulls/180) targets `dev`;
-the PR-reference head requires fresh configured controller evidence before
-handoff. See the [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
+and focused native SGR terminal validation. The pointer ticket is solved.
+Final configured receipt `N7OR4FAOUUHBTWEANHW5AT3ALC` passed 359 tests at
+`754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b`, the exact canonical PR #180 merge
+into `dev`. The controller recorded the merge in Acta. Slice 7 is delivered;
+Slice 8 is active. See the [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md).
 
 ## Slice 8: User guidance and joint interaction acceptance
 
@@ -181,7 +179,7 @@ Acceptance: All WRP01-WRP07, NAV01-NAV06 and UI03 scenarios.
 | 4 | delivered | #177 | `279242c0351ce10d2415d97c0aa11f1196b0b63c` | [Slice 4 report](../report/slices/rev-wrap-navigation/slice-4-org-wrap.md) |
 | 5 | delivered | #178 | `941faa796047ef7b2dbc809afe495903f690baaa` | [Slice 5 report](../report/slices/rev-wrap-navigation/slice-5-directory-targets.md) |
 | 6 | delivered | #179 | `e9aadd9805bcd5a8b418d3575ffcd974bfa080e7` | [Slice 6 report](../report/slices/rev-wrap-navigation/slice-6-path-tab.md) |
-| 7 | reviewing | #180 | pending | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
+| 7 | delivered | #180 | `754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b` | [Slice 7 report](../report/slices/rev-wrap-navigation/slice-7-tree-click.md) |
 | 8 | pending | pending | pending | pending |
 
 ## Delivery acceptance

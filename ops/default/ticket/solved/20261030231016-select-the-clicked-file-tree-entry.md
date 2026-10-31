@@ -1,7 +1,7 @@
 ---
 id: TKT-20261030231016
 title: Select the clicked file-tree entry
-status: reviewing
+status: solved
 kind: follow_up
 severity: unclassified
 priority: unclassified
@@ -13,6 +13,8 @@ ready_at: 2026-10-30T23:41:32Z
 started_at: 2026-10-31T03:48:50Z
 branch: feat/rev-wrap-navigation-07-tree-click
 reviewed_at: 2026-10-31T03:56:13Z
+closed_at: 2026-10-31T04:03:30Z
+resolution: fixed
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/180
 commits: [65023e2ee5bb5ea94ea2ac34d5c70adcf159ca41, a6a3c97795feb45b63fbde01374c316d9a4b2cb1]
 ---
@@ -55,7 +57,7 @@ an unrelated row. Preserve native root activation and file failure behavior.
 [File and Directory Navigation NAV05](../../spec/editor-file-navigation.md)
 owns the shared identity and interaction contract. Slice 7 of
 [Wrap and Navigation](../../plan/rev-wrap-navigation.md) implements this behavior;
-the ticket is under review pending canonical integration.
+the ticket is solved after canonical integration.
 
 ## Implemented resolution
 
@@ -73,5 +75,7 @@ with exact file preservation and terminal restoration. Canonical
 [PR #180](https://forge.adrianpk.com/adrianpk/rev/pulls/180) targets `dev`.
 Controller receipt `WJGF4Y5IGUFXSHIPQFHPWJC5TP` passed 359 tests, all-target Clippy,
 documentation and both SGR sessions at clean head
-`a6a3c97795feb45b63fbde01374c316d9a4b2cb1`. The controller records fresh configured
-evidence for the final PR-reference head before handoff.
+`a6a3c97795feb45b63fbde01374c316d9a4b2cb1`. Final configured receipt `N7OR4FAOUUHBTWEANHW5AT3ALC` passed 359 tests at
+`754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b`, the exact PR #180 merge into
+`dev`. The controller recorded that merge in Acta as
+`01M681T9WK1PTFDH9SY5G0SR8H`.

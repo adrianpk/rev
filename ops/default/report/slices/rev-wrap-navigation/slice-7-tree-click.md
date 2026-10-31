@@ -1,6 +1,6 @@
 # Slice 7: Clicked tree entry and activation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-wrap-navigation
 Plan: [Wrap and Navigation](../../../plan/rev-wrap-navigation.md)
 Tracker: [Wrap and Navigation Tracker](../../../tracker/rev-wrap-navigation.md)
@@ -104,14 +104,14 @@ The native suites passed 359 tests: 133 configuration, 74 file, 19 panel,
 entries, 58 pages and 330 local links/anchors. Both SGR sessions passed, retaining
 exact fixture bytes and restoring terminal attributes.
 
-Canonical PR #180 targets `dev` with the approved title and immutable report
-introduction link. Its PR-reference head receives a fresh configured
-three-command receipt before handoff; the controller retains that exact final
-identity and evidence. The combined delivery gate remains unchanged.
+Canonical PR #180 merged into `dev` at
+`754d7af1ed7915e4db1e508b7a3fbbbe73c62c0b`. Final configured receipt
+`N7OR4FAOUUHBTWEANHW5AT3ALC` passed the required three commands and 359 tests
+on that exact clean head. The controller recorded the merge in Acta as
+`01M681T9WK1PTFDH9SY5G0SR8H`. Slice 7 is delivered.
 
 ## Risks and Follow-ups
 
 Activation uses existing filesystem admission and cannot eliminate external
 changes between observations. No background scanner, double-click timer or
-new pointer input mechanism is added. The pointer ticket remains under review
-until verified merge.
+new pointer input mechanism is added. The pointer ticket is solved with canonical merge evidence.
