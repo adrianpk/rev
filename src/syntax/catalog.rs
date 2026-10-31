@@ -11,7 +11,7 @@ pub(super) fn language(grammar: Grammar) -> Option<tree_sitter::Language> {
         Grammar::Javascript => tree_sitter_javascript::LANGUAGE.into(),
         Grammar::Typescript => tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
         Grammar::Tsx => tree_sitter_typescript::LANGUAGE_TSX.into(),
-        Grammar::Plain => return None,
+        _ => return format_language(grammar),
     })
 }
 
@@ -25,7 +25,7 @@ pub(super) fn highlights(grammar: Grammar) -> Option<Cow<'static, str>> {
         Grammar::Javascript => Cow::Owned(javascript(false, true)),
         Grammar::Typescript => Cow::Owned(javascript(true, false)),
         Grammar::Tsx => Cow::Owned(javascript(true, true)),
-        Grammar::Plain => return None,
+        _ => return format_highlights(grammar),
     })
 }
 
@@ -55,7 +55,31 @@ pub(super) fn labels(grammar: Grammar) -> Labels {
         Grammar::Javascript => ("JavaScript", "Org Src JavaScript"),
         Grammar::Typescript => ("TypeScript", "Org Src TypeScript"),
         Grammar::Tsx => ("TSX", "Org Src TSX"),
-        Grammar::Plain => ("Text", "Org Src"),
+        _ => format_labels(grammar),
     };
     Labels { mode, source_mode }
+}
+
+fn format_language(grammar: Grammar) -> Option<tree_sitter::Language> {
+    match grammar {
+        Grammar::Json => Some(tree_sitter_json::LANGUAGE.into()),
+        Grammar::Toml => Some(tree_sitter_toml_ng::LANGUAGE.into()),
+        _ => None,
+    }
+}
+
+fn format_highlights(grammar: Grammar) -> Option<Cow<'static, str>> {
+    match grammar {
+        Grammar::Json => Some(Cow::Borrowed(tree_sitter_json::HIGHLIGHTS_QUERY)),
+        Grammar::Toml => Some(Cow::Borrowed(tree_sitter_toml_ng::HIGHLIGHTS_QUERY)),
+        _ => None,
+    }
+}
+
+fn format_labels(grammar: Grammar) -> (&'static str, &'static str) {
+    match grammar {
+        Grammar::Json => ("JSON", "Org Src JSON"),
+        Grammar::Toml => ("TOML", "Org Src TOML"),
+        _ => ("Text", "Org Src"),
+    }
 }

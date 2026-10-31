@@ -401,6 +401,8 @@ pub enum Grammar {
     Javascript,
     Typescript,
     Tsx,
+    Json,
+    Toml,
     Plain,
 }
 

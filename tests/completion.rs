@@ -334,3 +334,6 @@ mod systems;
 
 #[path = "completion/web.rs"]
 mod web;
+
+#[path = "completion/formats.rs"]
+mod formats;

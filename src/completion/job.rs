@@ -144,9 +144,7 @@ fn extract(
     for (origin, source) in sources.iter_mut().enumerate() {
         parse(source, deadline, cancel);
         if origin == 0 {
-            request.context = source
-                .syntax
-                .completion_context(source.text.slice(..), request.byte);
+            request.prepare(&source.syntax, source.text.slice(..));
             if !request.allowed(&source.syntax) {
                 return Ok(Vec::new());
             }

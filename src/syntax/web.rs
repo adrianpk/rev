@@ -14,6 +14,9 @@ impl Syntax {
         let Some(tree) = &parsed.tree else {
             return Context::Unsupported;
         };
+        if matches!(parsed.grammar, Grammar::Json | Grammar::Toml) {
+            return Context::Unsupported;
+        }
         if !matches!(parsed.grammar, Grammar::Html | Grammar::Css) {
             return Context::Names;
         }

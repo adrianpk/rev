@@ -44,7 +44,7 @@ impl Snapshot {
                 "javascript" => Grammar::Javascript,
                 "typescript" => Grammar::Typescript,
                 "tsx" => Grammar::Tsx,
-                _ => Grammar::Plain,
+                _ => format_grammar(language),
             })
     }
 
@@ -134,4 +134,12 @@ fn retained_origin(document: &Document, key: &[String]) -> bool {
         .into_iter()
         .find(|map| map.name() == context);
     context.is_none_or(|context| document.keys.map(context).contains_key(sequence))
+}
+
+fn format_grammar(language: &str) -> Grammar {
+    match language {
+        "json" => Grammar::Json,
+        "toml" => Grammar::Toml,
+        _ => Grammar::Plain,
+    }
 }

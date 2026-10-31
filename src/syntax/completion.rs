@@ -31,7 +31,7 @@ pub(super) fn query(
             include_str!("script.scm"),
             include_str!("typescript.scm")
         )),
-        Grammar::Plain => return None,
+        _ => return format_query(grammar, language),
     };
     Query::new(language, &source).ok()
 }
@@ -183,7 +183,10 @@ fn symbol(
         return Err("Native completion label limit reached".into());
     }
     Ok(Some(Symbol {
-        name: text.byte_slice(bytes.clone()).to_string(),
+        name: match super::formats::name(node, kind, text) {
+            Some(name) => name,
+            None => return Ok(None),
+        },
         kind,
         byte: bytes.start,
         origin: 0,
@@ -210,6 +213,9 @@ fn structural_category(kind: &str) -> Option<&'static str> {
         "attribute" => "attribute",
         "selector" => "selector",
         "property" => "property",
+        "json-key" => "json-key",
+        "toml-key" => "toml-key",
+        "table" => "table",
         _ => return None,
     })
 }
@@ -232,4 +238,17 @@ fn literal_policy(kind: &str, policy: &crate::config::Completion) -> Option<bool
     ]
     .contains(&kind)
     .then_some(policy.in_strings)
+}
+
+fn format_query(
+    grammar: crate::config::Grammar,
+    language: &tree_sitter::Language,
+) -> Option<Query> {
+    use crate::config::Grammar;
+    let source = match grammar {
+        Grammar::Json => include_str!("json.scm"),
+        Grammar::Toml => include_str!("toml.scm"),
+        _ => return None,
+    };
+    Query::new(language, source).ok()
 }

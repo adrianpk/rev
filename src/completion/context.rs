@@ -12,20 +12,58 @@ pub(crate) enum Context {
     Selector,
     Property,
     CustomProperty,
+    JsonKey,
+    TomlKey,
+    TomlTable,
     Unsupported,
 }
 
 impl Context {
     pub fn accepts(self, symbol: &Symbol) -> bool {
         match self {
-            Self::Names => !["tag", "attribute", "selector", "property"].contains(&symbol.kind),
+            Self::Names => ![
+                "tag",
+                "attribute",
+                "selector",
+                "property",
+                "json-key",
+                "toml-key",
+                "table",
+            ]
+            .contains(&symbol.kind),
             Self::Tag => symbol.kind == "tag",
             Self::Attribute => symbol.kind == "attribute",
             Self::Selector => symbol.kind == "selector",
             Self::Property => symbol.kind == "property",
             Self::CustomProperty => symbol.kind == "property" && symbol.name.starts_with("--"),
-            Self::Unsupported => false,
+            _ => self.accepts_format(symbol),
         }
+    }
+
+    fn accepts_format(self, symbol: &Symbol) -> bool {
+        match self {
+            Self::JsonKey => symbol.kind == "json-key",
+            Self::TomlKey => symbol.kind == "toml-key",
+            Self::TomlTable => symbol.kind == "table",
+            _ => false,
+        }
+    }
+
+    pub fn structured(self) -> bool {
+        matches!(self, Self::JsonKey | Self::TomlKey | Self::TomlTable)
+    }
+
+    pub fn literals(self, candidates: &mut Vec<super::Candidate>) {
+        let grammar = match self {
+            Self::JsonKey => Grammar::Json,
+            Self::TomlKey => Grammar::Toml,
+            _ => return,
+        };
+        for candidate in candidates.iter_mut() {
+            candidate.text = super::literal::encode(&candidate.text, grammar);
+            candidate.label = format!("{}  key", candidate.text);
+        }
+        candidates.retain(|candidate| candidate.label.len() <= super::MAX_LABEL);
     }
 
     pub fn catalog(self) -> Vec<Symbol> {
@@ -61,6 +99,8 @@ pub(super) fn trigger(buffer: &Buffer, point: Point) -> bool {
         Grammar::Html => {
             text.ends_with(['<', '/']) || text.chars().last().is_some_and(char::is_whitespace)
         }
+        Grammar::Json => text.ends_with(['{', ',', '"']),
+        Grammar::Toml => text.ends_with(['[', '.', '"', '\'']),
         Grammar::Css => text.ends_with(['.', '#', '{', ';', '(']),
         _ => {
             text.ends_with('.')

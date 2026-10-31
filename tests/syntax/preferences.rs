@@ -21,6 +21,10 @@ fn grammar_policy() {
         ("main.js", "", "JavaScript"),
         ("main.ts", "", "TypeScript"),
         ("main.tsx", "", "TSX"),
+        ("main.json", "", "JSON"),
+        ("main.toml", "", "TOML"),
+        ("main.json", "language.json.grammar = 'plain'", "Text"),
+        ("main.toml", "language.toml.grammar = 'plain'", "Text"),
         ("main.tsx", "language.typescript.grammar = 'plain'", "Text"),
         ("main.go", "language.go.grammar = 'plain'", "Text"),
         ("main.c", "language.c.grammar = 'plain'", "Text"),
@@ -40,6 +44,8 @@ fn grammar_policy() {
             "JavaScript" => "function main() {}\n",
             "TypeScript" => "type Sample = number;\n",
             "TSX" => "const view = <div />;\n",
+            "JSON" => "{\"sample\": 1}\n",
+            "TOML" => "sample = 1\n",
             _ => "fn main() {}\n",
         };
         let path = fixture.file(name, source);

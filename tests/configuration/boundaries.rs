@@ -137,6 +137,8 @@ fn enum_values() {
                 "'javascript'",
                 "'typescript'",
                 "'tsx'",
+                "'json'",
+                "'toml'",
                 "'plain'",
             ],
         ),

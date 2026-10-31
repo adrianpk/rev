@@ -2,7 +2,8 @@
 
 By default, case-sensitive visiting basenames select bundled Rust (`.rs`),
 C (`.c`, `.h`), Go (`.go`), HTML (`.html`, `.htm`), CSS (`.css`), JavaScript
-(`.js`, `.mjs`, `.cjs`) and TypeScript (`.ts`, `.tsx`) grammars and queries.
+(`.js`, `.mjs`, `.cjs`), TypeScript (`.ts`, `.tsx`), JSON (`.json`) and TOML
+(`.toml`, including `Cargo.toml`) grammars and queries.
 `.tsx` selects the distinct TSX parser while retaining the `typescript` settings
 identity. User associations and the selected language table can override recognition.
 Canonical reuse retains the first visiting alias; display labels such as
@@ -22,7 +23,7 @@ can use Rust presentation without creating a disk file.
 
 Library sessions use their admitted snapshot's `syntax.enabled`, `max_bytes` and
 per-language `grammar`. Bundled `rust`, `c`, `go`, `html`, `css`, `javascript`,
-`typescript`, `tsx` and fallback `plain` choices are supported;
+`typescript`, `tsx`, `json`, `toml` and fallback `plain` choices are supported;
 associations identify a language independently of its grammar. Disabling syntax
 or exceeding a positive UTF-8 byte cutoff drops derived styling without
 rejecting edits or changing history. Equality is admitted and zero means no

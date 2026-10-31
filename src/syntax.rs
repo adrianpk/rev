@@ -1,5 +1,6 @@
 mod catalog;
 mod completion;
+mod formats;
 mod scope;
 mod source;
 mod style;

@@ -1,6 +1,7 @@
 //! Disposable native proposals. Canonical buffers retain edit/history ownership.
 pub(crate) mod context;
 pub(crate) mod job;
+pub(crate) mod literal;
 mod matching;
 pub(crate) mod source;
 mod target;
@@ -73,6 +74,7 @@ impl Request {
             .filter(|symbol| self.context.accepts(symbol))
             .collect();
         let mut candidates = matching::candidates(symbols, &self.prefix, &self.original, self.byte);
+        self.context.literals(&mut candidates);
         candidates.truncate(self.policy.max_candidates);
         Completion {
             generation: self.generation,
@@ -100,9 +102,22 @@ impl Request {
         context::trigger(buffer, self.point)
     }
 
+    pub(crate) fn prepare(&mut self, syntax: &crate::syntax::Syntax, text: ropey::RopeSlice<'_>) {
+        self.context = syntax.completion_context(text, self.byte);
+        if let Some(target) = syntax.format_target(text, self.byte) {
+            self.source.range =
+                text.byte_to_char(target.range.start)..text.byte_to_char(target.range.end);
+            self.prefix = target.prefix;
+            self.original = target.original;
+            self.context = target.context;
+        }
+    }
+
     pub(crate) fn allowed(&self, syntax: &crate::syntax::Syntax) -> bool {
         self.context != context::Context::Unsupported
-            && (self.manual || syntax.completion_allowed(self.byte, &self.policy))
+            && (self.context.structured()
+                || self.manual
+                || syntax.completion_allowed(self.byte, &self.policy))
     }
 }
 

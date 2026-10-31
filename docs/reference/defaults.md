@@ -235,7 +235,7 @@ versus kill tab semantics across source/destination policies.
 | `language.<id>.indent_style` | String: "spaces" or "tabs" | Inherit global | Selected language's buffer policy; replace only this editing leaf. |
 | `language.<id>.indent_width` | Integer 1..=32 | Inherit global | Selected language's indentation-stop display columns. |
 | `language.<id>.tab_width` | Integer 1..=32 | Inherit global | Selected language's literal-tab display cells. |
-| `language.<id>.grammar` | String: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx" or "plain" | Matching bundled grammar; plain otherwise | Selected language's grammar; no external parser download or installation. |
+| `language.<id>.grammar` | String: "rust", "c", "go", "html", "css", "javascript", "typescript", "tsx", "json", "toml" or "plain" | Matching bundled grammar; plain otherwise | Selected language's grammar; no external parser download or installation. |
 
 Association keys are literal basenames or a leading `*.suffix`, including
 compound suffixes. Other wildcards, separators and controls reject. Matching is
@@ -244,7 +244,7 @@ basename wins, then the longest suffix. Recognition uses the visiting basename,
 retaining the first alias when canonical reuse finds an existing buffer; unique
 buffer-label suffixes do not participate. No language table is required for an
 identity. Unmatched or unnamed text is `plain`; Rust, C, Go, HTML, CSS,
-JavaScript, TypeScript and TSX identities default to their bundled grammars.
+JavaScript, TypeScript, TSX, JSON and TOML identities default to their bundled grammars.
 `.tsx` retains the `typescript` preference identity while selecting its TSX parser. Other identities can use indentation
 without a parser, or explicitly select an admitted grammar.
 
