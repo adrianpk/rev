@@ -296,14 +296,18 @@ fn bookmark_bindings() {
             Some(Command::Bookmark(command))
         );
     }
-    assert_eq!(
-        Command::named("bookmark-delete"),
-        Some(Command::Bookmark(BookmarkCommand::Delete))
-    );
+    for command in [
+        BookmarkCommand::Delete,
+        BookmarkCommand::Save,
+        BookmarkCommand::Reload,
+    ] {
+        assert_eq!(
+            Command::named(command.name()),
+            Some(Command::Bookmark(command))
+        );
+    }
     for name in [
         "list-bookmarks",
-        "bookmark-save",
-        "bookmark-reload",
         "bookmark-next",
         "bookmark-previous",
         "bookmark-markers-mode",

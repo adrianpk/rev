@@ -67,6 +67,14 @@ A separate controller batch checks `cargo test --locked --lib`,
 `cargo run --locked --quiet --example documentation-check` on that same final
 candidate before the required batch. Handoff requires both batches to pass.
 
+The first full library batch at the PR-reference candidate failed the unchanged
+process-lifetime test's immediate descendant-stop assertion. The identical
+89-test retry passed; no assertions or time/resource limits were changed.
+The first required batch exposed a Slice 1 catalog test that still classified
+save/reload as unimplemented. Its expectations now admit the delivered native
+commands while retaining rejection of the later commands. Both controller
+batches must be regenerated after this follow-up commit.
+
 ## Task Commits
 
 T3.1: `88dc724e94768d26e5c7819bb9fedfe4ce47481b` introduces checked storage,
