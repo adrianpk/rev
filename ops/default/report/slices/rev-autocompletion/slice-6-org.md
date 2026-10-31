@@ -5,7 +5,7 @@ Delivery set: rev-autocompletion
 Plan: [Native Autocompletion Delivery](../../../plan/rev-autocompletion.md)
 Tracker: [Native Autocompletion Tracker](../../../tracker/rev-autocompletion.md)
 Branch: `feat/rev-autocompletion-06-org`
-PR: pending
+PR: [#200](https://forge.adrianpk.com/adrianpk/rev/pulls/200)
 
 ## Purpose
 
@@ -97,8 +97,22 @@ panic after a multibyte heading separator. Boundary calculation now advances by
 the actual UTF-8 separator width; the unchanged document-context assertion passed
 for that case. Changed-owner source-quality diagnostics passed.
 
-Focused controller evidence and the canonical PR reference will be recorded in
-the PR-reference follow-up. The final clean PR head requires this exact order:
+Focused controller receipt `UNBX2ZIWOELVNGOIRH7ZLMSHHX` passed all five
+checks at clean candidate `d18403bcc60c35ab15f6d57974041ebab735e34e`. Its 12 library tests
+include the retained partial-property assertion and both Rust/Org read-only
+publication. Library Clippy, all changed runtime owners' source quality and
+documentation also passed (326 commands, 198 configuration entries, 60 reachable
+pages and 348 local links/anchors), followed by the clean diff check.
+
+1. `cargo test --locked --lib completion`: passed.
+2. `cargo clippy --locked --lib -- -D warnings`: passed.
+3. `cargo run --locked --quiet --example source-check -- --file src/buffer/syntax.rs --file src/completion.rs --file src/completion/context.rs --file src/completion/job.rs --file src/completion/source.rs --file src/org.rs --file src/org/completion.rs --file src/org/completion/context.rs --file src/org/completion/names.rs --file src/org/completion/vocabulary.rs --file src/org/job.rs --file src/org/links/observe.rs --file src/org/property.rs --file src/org/structure.rs --file src/org/structure/elements.rs --file src/org/visibility.rs --file src/org/visibility/tags.rs --file src/org/visibility/tags/query.rs --file src/session/completion/sources.rs`: passed.
+4. `cargo run --locked --quiet --example documentation-check`: passed.
+5. `git diff --check`: passed.
+
+Canonical PR #200 links the full immutable report-introduction commit. After
+this PR-reference follow-up, the controller records fresh validation for the final
+clean PR head in this exact configured order:
 
 1. `cargo fmt --all -- --check`
 2. `cargo test --locked --test completion --test org_editing --test org_source --test configuration --test commands`
