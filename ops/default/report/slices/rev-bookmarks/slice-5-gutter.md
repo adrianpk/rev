@@ -1,6 +1,6 @@
 # Slice 5: Gutter markers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-bookmarks
 Plan: [Native Bookmarks Delivery](../../../plan/rev-bookmarks.md)
 Tracker: [Native Bookmarks Tracker](../../../tracker/rev-bookmarks.md)
@@ -101,3 +101,11 @@ combined gate after all recorded slices.
 
 Unresolved, stale and unavailable records remain unpainted until a checked visit
 establishes a current live anchor. Joint acceptance remains assigned to Slice 6.
+
+Canonical PR #189 merged through Rebase + Fast-forward into `dev` at
+`52b4b8ee54939b00ba9b305b50e45857740f37e6`. Required receipt
+`UOUFIBZVYUTY4EQBPP3AWIMW2D` passed the exact three-command list and 369
+integration tests. Focused receipt `SP6SDUHTN66V4MVJPA2CCVBFHT` passed 12
+bookmark owner tests, 411 origin/command/editing/file tests, all-target clippy
+and documentation on the same clean candidate. The controller recorded the
+canonical merge in Acta. Slice 5 of 6 completed.

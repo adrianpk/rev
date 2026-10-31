@@ -13,7 +13,7 @@ Model: [Gutter Model](../spec/editor-gutter-model.md)
 Plan: [Bookmarks Plan](../plan/rev-bookmarks.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-bookmarks.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 5; canonical PR #189 open, exact-HEAD validation and integration pending
+Active slice: Slice 6; joint acceptance and guidance, implementation in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -98,14 +98,18 @@ Acceptance: BMK03 and marker parts of BMK07.
 
 - [x] T5.1: Integrate marker geometry and current logical-row lookup with numbering, wrapping, folds, pointer and search owners.
 - [x] T5.2: Add marker configuration, semantic palette, per-view toggle and complete sample/catalog/reference coverage.
-- [ ] Verify focused exact-HEAD checks, canonical PR integration and the Slice 5 report.
+- [x] Verify focused exact-HEAD checks, canonical PR integration and the Slice 5 report.
 
 T5.1 projection commit: `494a53f70027c41e431e04046e362a52aa4291dc`.
 T5.2 configuration commit: `38b09af61b1b4958b43f5f94a70f8082d1dd647b`.
 Canonical PR: [#189](https://forge.adrianpk.com/adrianpk/rev/pulls/189).
 [Slice 5 report](../report/slices/rev-bookmarks/slice-5-gutter.md) records the
 current-row marker index, independent geometry, per-view settings and native
-coverage. Final controller validation follows this PR-reference commit.
+coverage. PR #189 merged at
+`52b4b8ee54939b00ba9b305b50e45857740f37e6`; required receipt
+`UOUFIBZVYUTY4EQBPP3AWIMW2D` passed 369 integration tests and all required
+checks. Focused receipt `SP6SDUHTN66V4MVJPA2CCVBFHT` passed 12 owner tests,
+411 origin/command/editing/file tests, clippy and documentation.
 
 ## Slice 6: Joint acceptance and guidance
 
@@ -122,5 +126,5 @@ Acceptance: BMK01-BMK07 jointly.
 - [ ] Record exact candidate, gate commands, result/receipt and any bounded repair evidence.
 - [ ] Close only the configured operational documentation after the gate passes.
 
-Slices 1 through 4 are integrated. Slice 5 is active under the same controller run.
+Slices 1 through 5 are integrated. Slice 6 is active under the same controller run.
 Preserve previous delivery evidence under its original owners.
