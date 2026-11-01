@@ -350,8 +350,9 @@ Only the selected profile SHALL participate in editing-key resolution. Native
 Vim bindings SHALL have explicit state/context scope so C-v, C-o, C-i and other
 chords do not inherit unrelated Emacs effects. User overrides SHALL remain
 declarative mappings to admitted rev operations with whole-candidate conflict
-validation and protected cancellation. The exact extension of the current
-editor/minibuffer/tree configuration schema remains a design decision.
+validation and protected cancellation. The existing keys owner supplies independent `keys.vim_normal`, `vim_insert`,
+`vim_replace`, `vim_visual_character`, `vim_visual_line` and `vim_visual_block`
+maps; editor, minibuffer, completion and local component maps retain their scope.
 
 #### Scenario: Keep inactive bindings out of resolution
 
@@ -434,16 +435,13 @@ because one was invoked during the previous interaction.
 
 ## Baseline reconciliation during delivery
 
-The existing product Purpose and R01 in rev-editor.md and its configuration
-amendment currently describe direct text insertion as unconditional. The next
-implementation delta must qualify it as the default Emacs profile and admit Vim's
-explicit text-entry states. R22/R23 must recognize colon as an additional entry
-surface over the same catalog. CFG12/CFG13 must define state/profile scoping;
-CFG14/CFG15 retain whole-candidate fallback and startup-only application.
-
-These are implementation-slice reconciliation targets, not a rewrite of
-historical gate evidence. Use the actual R01 identity and R24/R33 clauses and
-CFG12-CFG15 sections. Preserve unaffected clauses and delivered evidence.
+Implementation slices reconcile the baseline Purpose, R01 and R24 with default
+Emacs direct entry and explicit Vim text-entry states. R22/R23 use one command
+registry and native selector for colon and M-x. R33 retains native owners and
+qualifies completion by modal state. CFG12-CFG15 record the typed startup profile,
+six independent state maps, whole-candidate fallback and immutable admission.
+Historical gate evidence and unaffected clauses remain unchanged. The integrated
+candidate still requires its controller-owned gate before capability closure.
 
 ## Implementation preparation obligations
 

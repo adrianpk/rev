@@ -18,6 +18,7 @@ const EDITOR: &[&str] = &[
     "05-file-tree.md",
     "09-preferences.md",
     "10-complete-names.md",
+    "11-modal-editing.md",
 ];
 const ORG: &[&str] = &[
     "06-org-notes.md",

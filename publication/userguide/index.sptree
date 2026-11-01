@@ -7,6 +7,7 @@
     @page[id = "guide-05-file-tree"]
     @page[id = "guide-09-preferences"]
     @page[id = "guide-10-complete-names"]
+    @page[id = "guide-11-modal-editing"]
   }
 
   @part[id = "Org mode", opening = "guide-org-index"]{

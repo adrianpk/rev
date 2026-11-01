@@ -60,8 +60,7 @@ server results keep native fallback available. `M-x lsp-disconnect` excludes
 this buffer; `M-x lsp-connect` restores it. See
 [Use a language server](../../how-to/use-language-server.md) for setup and recovery.
 
-You have completed the User Guide. Continue with a
-[task guide](../../how-to/index.md) or look up a
-[command](../../reference/commands.md).
+Next: [Choose Modal Editing](11-modal-editing.md) to try the optional startup
+profile. Emacs remains the default for the exercises above.
 
 [Previous](09-preferences.md) · [User Guide](index.md)

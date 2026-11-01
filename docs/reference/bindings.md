@@ -150,6 +150,8 @@ all Org commands and the source, draft, agenda and calendar contexts.
 
 Select `editor.interaction_profile = "vim"` and restart. Vim starts in Normal;
 unmatched text and bracketed paste do not insert there. Emacs remains the default.
+[Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) walks through
+profile selection, ordinary edits, shapes and shared command entry.
 The following state commands require the Vim startup profile:
 
 | Input | Command | Result |

@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Select the Emacs or Vim editing profile at startup. Emacs keeps direct text
+- [Select the Emacs or Vim editing profile at startup](docs/tutorials/user-guide/11-modal-editing.md). Emacs keeps direct text
   entry; Vim starts in Normal with explicit Insert entry, logical line opening,
   state feedback and shared undo. Change `editor.interaction_profile` and restart
   to select a profile.

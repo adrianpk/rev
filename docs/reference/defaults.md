@@ -30,12 +30,14 @@ supported reports, cleanup and terminal-owned selection bypass.
 ## Editing profile
 
 `editor.interaction_profile = "emacs"` is the default: ordinary text inserts
-directly. Choose `"vim"` before startup for Normal/Insert editing. Restart after
+directly. Choose `"vim"` before startup for Normal, Insert, Replace and Visual editing. Restart after
 changing it; the profile is immutable for the session and has no command or
 language override. Vim starts in Normal. Use i/a/I/A/o/O to enter Insert and
 Escape/C-[ to return to Normal. The [binding reference](bindings.md#vim-startup-profile)
 lists the currently implemented state commands. Invalid profile or keymap
-settings reject the whole candidate into complete Emacs defaults.
+settings reject the whole candidate into complete Emacs defaults. Follow
+[Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) for a small
+startup and editing exercise.
 
 ## Startup configuration
 
