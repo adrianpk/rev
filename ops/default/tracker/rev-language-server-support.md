@@ -123,7 +123,8 @@ Retained receipt: `4KDHCR4VZITQICSI75OSOIAQYA`.
 Branch: `fix/rev-language-server-gate-1`.
 Exact title: `fix(process): wait for observed descendant shutdown`.
 Report: [Slice 6](../report/slices/rev-language-server-support/slice-6-acceptance.md).
-PR: pending.
+PR: [#209](https://forge.adrianpk.com/adrianpk/rev/pulls/209).
+Implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.
 
 - [x] Diagnose the retained cancellation race: signal-helper exit and leader reap do not acknowledge descendant shutdown.
 - [x] Add bounded group observation and real closed-output/live-group regressions without weakening the original assertions or cleanup budget.

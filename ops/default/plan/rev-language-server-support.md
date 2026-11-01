@@ -235,3 +235,5 @@ change. Cleanup now observes stopped group members within the same 250 ms budget
 used by the signal helper. Existing job/output, stream-drain, direct-reap and
 immediate descendant-state assertions remain unchanged. Focused exact-head
 validation precedes controller integration and rerunning the unchanged full gate.
+
+Canonical repair PR: [#209](https://forge.adrianpk.com/adrianpk/rev/pulls/209). Implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.

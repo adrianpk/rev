@@ -156,7 +156,8 @@ final joint acceptance remain pending controller execution.
 
 Repair branch: `fix/rev-language-server-gate-1`.
 Exact PR title: `fix(process): wait for observed descendant shutdown`.
-Repair PR: pending.
+Repair PR: [#209](https://forge.adrianpk.com/adrianpk/rev/pulls/209).
+Repair implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.
 
 The controller retained failed full-gate candidate
 `dc8621820ab418c38995ac12065916ce175e78f1` and receipt
