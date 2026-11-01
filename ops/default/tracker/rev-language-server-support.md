@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3 — Semantic candidates and native fallback
+Active slice: Slice 3 — Semantic candidates and native fallback; PR #205 awaiting controller integration
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -53,7 +53,7 @@ Acceptance: LSP03 and CMP02 shared-source selection.
 - [x] T3.2: Implement native fallback for valid empty, no admitted items, absent/unsupported capability, timeout, exclusion and unavailable connection. Preserve distinct outcomes and reject stale session/revision/view/activation/connection replies.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 introduces the Slice 3 report with source outcomes, admission/policy regressions and completion guidance. Canonical PR pending creation; integration remains controller-owned.
+Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 `6ebbfbf69dbbfac6775394108fb70aaacd488b72` introduces the Slice 3 report with source outcomes, admission/policy regressions and completion guidance. Canonical PR: [#205](https://forge.adrianpk.com/adrianpk/rev/pulls/205). Integration remains controller-owned.
 
 ## Slice 4: Resolved completion and atomic additional edits
 

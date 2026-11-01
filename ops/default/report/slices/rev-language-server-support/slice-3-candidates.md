@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-03-candidates`
-PR: pending canonical creation
+PR: [#205](https://forge.adrianpk.com/adrianpk/rev/pulls/205)
 
 ## Purpose
 
@@ -114,7 +114,7 @@ reaped on session exit. The local peer establishes deterministic protocol
 behavior; installed-server interoperability remains with its approved slice.
 
 T3.1 is commit `1f97405488ae3213e8226fbb2337f9cc00e236e0`.
-T3.2 introduces this report with the completed source/policy boundaries and
+T3.2 is commit `6ebbfbf69dbbfac6775394108fb70aaacd488b72`, which introduces this report with the completed source/policy boundaries and
 additional protocol regressions.
 
 ## Risks and Follow-ups
