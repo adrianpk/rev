@@ -1,8 +1,11 @@
 # Language Server Support Model
 
-Status: Approved
+Status: Completed
 Date: 2026-10-31
 Reviewed: 2026-10-31
+Completed: 2026-11-01
+Validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
 Approved: product owner, 2026-10-31; implementation and ordered Looper execution requested
 Specification: [Language Server Support](editor-language-server-support.md)
 Completion model: [Native Autocompletion](editor-autocompletion-model.md)
@@ -82,7 +85,11 @@ marker precedence and finite request/queue/shutdown policies. Literal primary
 and bounded additional edits use one canonical transaction; no snippet runtime
 or protocol-controlled command execution is selected.
 
-The approved [plan](../plan/rev-language-server-support.md) and
-[tracker](../tracker/rev-language-server-support.md) own implementation after
-the native completion predecessor closes. Protocol fixtures and a real Rust
-server must establish acceptance; this model is not delivery evidence.
+The completed [plan](../plan/rev-language-server-support.md) and
+[tracker](../tracker/rev-language-server-support.md) record six integrated slices,
+two authorized repairs and the successful controller-owned full gate at the
+validated candidate above. Real Rust unsaved semantic completion, resolved
+edits, source fallback, shared lifetime, cancellation, resource and terminal
+contracts passed. The [Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+holds executed evidence for LSP01-LSP06 and joint CMP01-CMP09; this model retains
+the ownership contract.

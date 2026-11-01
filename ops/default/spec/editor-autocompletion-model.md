@@ -6,14 +6,17 @@ Reviewed: 2026-10-31
 Completed: 2026-10-31
 Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
 Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
-Completion boundary: native interaction and sources delivered; semantic precedence has focused LSP Slice 6 evidence, with integrated joint acceptance pending
+Joint acceptance completed: 2026-11-01
+Joint validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Joint gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
+Completion boundary: native interaction, sources and joint semantic/native acceptance delivered
 Approved: product owner, 2026-10-31; implementation and ordered Looper execution requested
 Specification: [Native Autocompletion](editor-autocompletion.md)
 Semantic source: [Language Server Support](editor-language-server-support.md)
 Org owner: [Org Mode Model](editor-org-mode-model.md)
 Existing owners: [rev Editor Model](rev-editor-model.md), [Editor Configuration Model](editor-configuration-model.md)
 
-## Joint source acceptance candidate
+## Joint source acceptance
 
 The [LSP Slice 6 report](../report/slices/rev-language-server-support/slice-6-acceptance.md) records real semantic readiness separately
 from transport readiness and native fallback. The same canonical edit/history
@@ -23,8 +26,12 @@ semantic results obtain current native observations. Shared-root lifetime and
 exclusions preserve buffer and view ownership.
 
 The predecessor candidate and receipt above remain unchanged. Native source,
-Org, external-grammar, resource and terminal cases are rerun by the joint runner;
-final joint acceptance remains owned by the LSP integrated gate and closure.
+Org, external-grammar, resource and terminal cases passed the joint runner.
+The LSP controller's unchanged full gate at
+`610f2e019a52e6b1314931b11fa070d320ecf809`, receipt
+`YWRNPLD3FXNU6APAKXES5AS7I5`, completes CMP02 and joint CMP01-CMP09.
+The [Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+records executed acceptance and resource observations.
 
 ## Ownership
 
@@ -111,6 +118,6 @@ The completed [plan](../plan/rev-autocompletion.md) and
 [tracker](../tracker/rev-autocompletion.md) record eight integrated native
 slices and the successful controller-owned full gate at the validated candidate
 above. Native session, candidate/edit, grammar generation, Org observation and
-bounded source-work contracts are delivered. Optional semantic readiness and
-source precedence remain assigned to the LSP set; CMP02's full source-switching
-acceptance is not claimed by native closure.
+bounded source-work contracts are delivered. The subsequent integrated LSP gate
+recorded above establishes optional semantic readiness and source precedence,
+completing CMP02 without replacing native closure evidence.

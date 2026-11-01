@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-10-31
-Scope: pending behavior after the completed native completion delivery
-Owner decision: native completion delivered; optional LSP remains the approved queued successor; other proposals retain their own state
+Scope: pending behavior after the completed native completion and optional LSP deliveries
+Owner decision: native completion and optional LSP delivered; other proposals retain their own state
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains seven delivered interaction topics, two open presentation
-follow-ups and eight remaining capability proposals. The five solved
+The inventory contains eight delivered topics, two open presentation
+follow-ups and seven remaining capability proposals. The five solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -32,8 +32,8 @@ retain their own specification/model state.
 | Select the clicked tree entry | [Navigation NAV05](spec/editor-file-navigation.md), [model](spec/editor-file-navigation-model.md), [ticket](ticket/solved/20261030231016-select-the-clicked-file-tree-entry.md) | Delivered / Completed spec / solved ticket. Slice 7 delivered checked native activation and configurable selection-only through PR #180. |
 | Word-aware soft wrapping | [Spec](spec/editor-soft-wrap.md), [model](spec/editor-soft-wrap-model.md), [ticket](ticket/solved/20261028224018-define-comfortable-long-line-wrapping.md) | Delivered / Completed spec / solved ticket. Default word-aware pane-width wrap and buffer-local Emacs Visual Line controls; Slices 1-4 delivered through PRs #174-#177. |
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
-| Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed native scope. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The controller-owned full gate passed. CMP02 semantic/native switching remains assigned to the LSP successor. |
-| Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Ready for development after native completion closes. Six slices cover disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. Implementation/startup requested in the same ordered sequence. |
+| Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
+| Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
@@ -105,13 +105,13 @@ The proposed order is not a chain of prerequisites.
 
 ## Approved completion sequence
 
-The owner approved commit/push and startup on 2026-10-31. Execute
-[Native Autocompletion](plan/rev-autocompletion.md), eight slices, then
+The owner approved commit/push and startup on 2026-10-31 for
+[Native Autocompletion](plan/rev-autocompletion.md), eight slices, followed by
 [Optional Language Server Support](plan/rev-language-server-support.md), six
-slices, through one pinned Looper sequence. Each set has its own canonical
-tracker, final gate and closure; the successor starts only after verified
-predecessor closure. Combined semantic-source switching belongs to the second
-set. No managed server installation or other pending ticket is added.
+slices, through one pinned controller sequence. Both sets are Completed with
+their own canonical trackers, exact-candidate gates and closure evidence.
+The second set completes combined semantic/native source switching. The other
+capability proposals retain their separate approval and planning boundaries.
 
 ## Readiness and next planning boundary
 
@@ -135,10 +135,16 @@ at `0f7cc36cb1082aa56954fa602294f47aac80e889`, receipt
 `DAIRXONWTTLVG6RDIQQZKBSGXA`. The
 [completion tracker](tracker/rev-autocompletion.md#final-gate-and-closure) and
 [Slice 8 report](report/slices/rev-autocompletion/slice-8-acceptance.md#delivery-set-closure)
-record the exact command and integrated resource evidence. CMP02 semantic/native
-source switching remains assigned to the optional LSP client, whose approved
-plan/tracker remain queued for controller handoff after native closure is
-verified. The other seven capability proposals retain their prior state,
+record the exact command and integrated resource evidence. Optional LSP's
+specification/model, plan and tracker are also Completed. Its six slices and two
+authorized repairs passed the unchanged integrated full gate at
+`610f2e019a52e6b1314931b11fa070d320ecf809`, receipt
+`YWRNPLD3FXNU6APAKXES5AS7I5`, establishing CMP02 semantic/native source
+switching and joint native/LSP acceptance. The
+[LSP tracker](tracker/rev-language-server-support.md#final-gate-and-closure) and
+[Slice 6 closure](report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+record exact validation, resources and owned cleanup. The seven remaining
+capability proposals retain their prior state,
 including optional external-program exploration. Earlier completed gates keep
 their historical identities.
 

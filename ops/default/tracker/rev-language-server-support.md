@@ -1,7 +1,10 @@
 # Optional Language Server Support Tracker
 
-Status: In progress
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-11-01
+Validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
 Delivery set: rev-language-server-support
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; approved capability and explicit commit, push and Looper startup request; this breakdown elaborates that authorized scope
@@ -11,7 +14,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and both gate repairs integrated; controller full gate pending
+Active slice: None — all 6 slices and both gate repairs integrated; delivery closed
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -88,26 +91,43 @@ Implementation: T6.1 `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5` adds the normal-
 ## Final gate and closure
 
 - [x] Verify all 6 canonical slice merges and clean synchronized dev.
-- [ ] Run the pinned Full gate on that exact integrated candidate.
-- [ ] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
-- [ ] Close only configured operational documentation and preserve predecessor/historical evidence.
+- [x] Run the pinned Full gate on that exact integrated candidate.
+- [x] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
+- [x] Close only configured operational documentation and preserve predecessor/historical evidence.
 
-- [ ] Establish CMP02 source switching with real Rust completion and controlled empty/unavailable responses; close the joint native/LSP acceptance.
+- [x] Establish CMP02 source switching with real Rust completion and controlled empty/unavailable responses; close the joint native/LSP acceptance.
+
+The controller passed the unchanged Full gate at
+`610f2e019a52e6b1314931b11fa070d320ecf809`, receipt
+`YWRNPLD3FXNU6APAKXES5AS7I5`, on 2026-11-01 in 289.807 seconds:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+All 1,995 tests passed, followed by source quality for 724 production files and
+actual crate/example roots, real Rust semantic/native source switching, owned
+lifetime/resource checks, both Linux PTY journeys and documentation/catalog
+validation. The [Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+records current release bytes and separate server/driver resources. LSP01-LSP06
+and CMP01-CMP09 are delivered. Six slice and two repair merges are canonically
+verified; every report is delivered. Owned fixtures cleaned up and no matching
+acceptance process remained. Closure changes only configured documentation.
 
 Native completion must close before this set activates. Real rust-analyzer is
 required for the final successful-server journey; a fixture alone cannot satisfy
 it. Verify installed server and Rust toolchain in prepare_gate. Keep each child,
 PTY and temporary HOME/XDG/source tree owned and bounded; no user stores are used.
 
-No implementation, gate receipt or merge is claimed by this initial tracker.
-Looper alone updates progress after startup. Full acceptance and remaining
-boundaries follow the linked plan/specification; no additional ticket is queued.
+The controller's exact-candidate gate and canonical merge records establish
+completion. Historical slice, repair and native predecessor evidence is retained;
+no additional ticket or successor is queued by this closure.
 
 ## Gate preparation
 
 All six canonical slice merges and repair PRs #209/#210 match the checkpoint and are
-ancestors of dev. Every slice report is delivered; the set remains in progress
-until its integrated gate and joint closure complete. Prerequisites were refreshed
+ancestors of dev. Every slice report is delivered; the integrated gate and joint
+closure are complete. Prerequisites were refreshed
 after repair integration at `0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`.
 Installed rust-analyzer, Rust/fmt/Clippy, the C
 compiler, Bash and PTY/core utilities are available. Locked offline repository
@@ -131,7 +151,7 @@ Implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.
 - [x] Diagnose the retained cancellation race: signal-helper exit and leader reap do not acknowledge descendant shutdown.
 - [x] Add bounded group observation and real closed-output/live-group regressions without weakening the original assertions or cleanup budget.
 - [x] Verify canonical repair integration and the pinned focused validation receipt.
-- [ ] Verify the controller's unchanged full-gate rerun.
+- [x] Verify the controller's unchanged full-gate rerun.
 
 The isolated original test passed before repair; its failure is retained in the
 parallel gate log. With the repair, all five focused process tests pass and the
@@ -140,7 +160,8 @@ source quality pass. Receipt `TGWCVK3EGLU72SON23W3EXZM3B` passed all four
 commands in the pinned order at the exact clean repair head
 `144f6c83c50a6ef7a8435187b40c89709d04dfbb`, including the PR-reference
 follow-up. Canonical PR #209 is merged at that same commit, with merge activity
-recorded in Acta. The controller's unchanged full-gate rerun remains pending.
+recorded in Acta. The controller's unchanged full gate subsequently passed at
+the final candidate recorded above.
 
 ## Gate repair 2
 
@@ -156,7 +177,7 @@ Implementation: `3ca052e86c8620a59fe9bd3cbea2f189d8bae425`.
 - [x] Correct the approved process boundary or fixture mechanics and verify focused regressions.
 - [x] Prepare the covering authorization's ordered exact-head validation and canonical repair PR.
 - [x] Verify canonical repair integration and the pinned exact-head validation receipt.
-- [ ] Verify the controller's unchanged full-gate rerun.
+- [x] Verify the controller's unchanged full-gate rerun.
 
 The retained assertion hid the returned error. Six diagnostic library runs and
 eight concurrent isolated copies passed before correction; no exact underlying
@@ -172,4 +193,5 @@ passed all four commands in repair 2's pinned order at the exact clean head
 `0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`, including its PR-reference
 follow-up: 115 library and 317 integration tests passed. Canonical PR #210 is
 merged at that same commit, with the merge recorded in Acta. The unchanged
-controller full-gate rerun and final joint closure remain pending.
+controller full gate subsequently passed at the final candidate recorded above;
+joint acceptance is closed.

@@ -1,8 +1,11 @@
 # Language Server Support
 
-Status: Approved
+Status: Completed
 Date: 2026-10-27
 Reviewed: 2026-10-31
+Completed: 2026-11-01
+Validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
 Approved: product owner, 2026-10-31; implementation, preparation commit/push and ordered Looper execution requested
 Format: OpenSpec capability proposal
 Source: product-owner discussion and approved implementation scope
@@ -11,9 +14,20 @@ Completion owner: [Native Autocompletion](editor-autocompletion.md)
 Installation owner: [Language Server Installation](editor-language-server-installation.md)
 Model: [Language Server Support Model](editor-language-server-support-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Readiness: ready for development under the bounded delivery profile below
+Readiness: LSP01-LSP06 and joint CMP01-CMP09 acceptance delivered under the bounded profile below
 Plan: [Optional LSP Delivery](../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../tracker/rev-language-server-support.md)
+
+## Delivery state
+
+Six canonical slices and authorized repairs #209/#210 are integrated. The
+controller's unchanged full gate passed at the validated candidate above on
+2026-11-01. Real installed Rust unsaved semantic completion, resolved same-document
+edits, source precedence/native fallback, retained ownership, bounded resource
+work and both Linux PTY journeys passed. The
+[Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+records the exact command, receipt, environment, resources and evidence limits.
+The native predecessor's original candidate and receipt remain unchanged.
 
 ## Purpose
 

@@ -6,6 +6,9 @@ Reviewed: 2026-10-31
 Completed: 2026-10-31
 Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
 Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
+Joint acceptance completed: 2026-11-01
+Joint validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Joint gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
 Approved: product owner, 2026-10-31; implementation, preparation commit/push and ordered Looper execution requested
 Format: OpenSpec capability proposal
 Source: product-owner discussion and approved implementation scope
@@ -15,11 +18,11 @@ Related: [Language Server Support](editor-language-server-support.md)
 Org owner: [Org Mode](editor-org-mode.md)
 Model: [Native Autocompletion Model](editor-autocompletion-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Readiness: native CMP01 and CMP03-CMP09 delivered; CMP02 has focused LSP Slice 6 candidate evidence, with the integrated joint gate pending
+Readiness: CMP01-CMP09 delivered, including semantic/native source switching through the integrated LSP gate
 Plan: [Native Completion Delivery](../plan/rev-autocompletion.md)
 Tracker: [Native Completion Tracker](../tracker/rev-autocompletion.md)
 
-## Joint source acceptance candidate
+## Joint source acceptance
 
 The LSP set's [Slice 6 report](../report/slices/rev-language-server-support/slice-6-acceptance.md) records a normal-release journey
 requiring a real installed Rust server's semantic candidate from unsaved text.
@@ -28,9 +31,12 @@ exceptions and valid-empty/unavailable native fallback through the same
 completion owner. The joint runner also repeats the native language, Org,
 external grammar, resource and PTY acceptance after source switching succeeds.
 
-The native validated candidate and gate receipt above remain the predecessor's
-historical evidence. The LSP set owns the integrated full gate and joint closure;
-these focused results do not replace that pending gate.
+The LSP controller's unchanged full gate passed at joint candidate
+`610f2e019a52e6b1314931b11fa070d320ecf809`, receipt
+`YWRNPLD3FXNU6APAKXES5AS7I5`, completing CMP02 and joint CMP01-CMP09
+acceptance. The [Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+records exact validation and resources. The original native candidate and gate
+receipt above remain the predecessor's historical evidence.
 
 ## Purpose
 
@@ -423,7 +429,8 @@ or additional local indexing engine is implied.
 Cover current/dirty-buffer symbols, Unicode positions, index invalidation,
 source switching, cancellation, atomic undo, real terminal interaction and
 bounded open-buffer/idle work. The native subset passed the controller-owned
-full gate; source-switching acceptance remains assigned to the LSP successor.
+full gate; source-switching acceptance also passed the integrated LSP gate
+recorded above.
 The following experiment retains its separate historical grammar-linkage
 evidence, independently of the integrated delivery result.
 
@@ -436,8 +443,9 @@ The unchanged full gate passed at the validated candidate above. Exact command,
 receipt, integrated release bytes, idle/resource observations and real PTY
 acceptance are recorded in the [tracker](../tracker/rev-autocompletion.md#final-gate-and-closure)
 and [Slice 8 report](../report/slices/rev-autocompletion/slice-8-acceptance.md#delivery-set-closure).
-Completion of this native scope does not claim CMP02 semantic/native source
-switching; that combined acceptance belongs to the approved LSP successor.
+The native closure established its native scope. The subsequent integrated LSP
+gate recorded above establishes CMP02 semantic/native source switching and
+completes combined acceptance without replacing the native receipt.
 
 ## Engineering evidence: executable footprint and grammar maintenance
 

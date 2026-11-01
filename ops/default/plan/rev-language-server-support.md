@@ -1,7 +1,10 @@
 # Optional Language Server Support Delivery
 
-Status: In progress
+Status: Completed
 Date: 2026-10-31
+Completed: 2026-11-01
+Validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`
+Gate receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`
 Delivery set: rev-language-server-support
 Slice strategy: behavior-first
 Approved: product owner, 2026-10-31; approved capability and explicit commit, push and Looper startup request; this breakdown elaborates that authorized scope
@@ -11,7 +14,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and both gate repairs integrated; controller full gate pending
+Active slice: None — all 6 slices and both gate repairs integrated; delivery closed
 
 ## Outcome and authority
 
@@ -208,8 +211,8 @@ The controller can hand off only after verified closure; neither set promotes ma
 
 All six recorded slices and both gate repairs are integrated; all slice reports are
 delivered. Prerequisites were refreshed after repair integration at
-`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`. The controller's unchanged
-integrated full-gate rerun and final joint closure remain pending.
+`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f` before the controller's unchanged
+full gate passed at the candidate recorded in the closure below.
 Preflight verified rust-analyzer 0.3.3089-standalone, rustc/cargo 1.98.0,
 rustfmt 1.9.0, Clippy 0.1.98, GCC 16.2.1 and util-linux script 2.42.3, plus
 the remaining Bash/PTY/core utilities used by the wrapper.
@@ -243,8 +246,8 @@ The controller integrated PR #209 at
 `144f6c83c50a6ef7a8435187b40c89709d04dfbb`. Receipt
 `TGWCVK3EGLU72SON23W3EXZM3B` records successful focused validation of that
 exact clean head with all four commands in the pinned repair order. Canonical
-merge state and ancestry are verified; the unchanged full-gate rerun remains
-pending with the controller.
+merge state and ancestry are verified. The final unchanged full gate passed at
+the candidate recorded in the closure below.
 
 ## Gate repair 2
 
@@ -288,4 +291,30 @@ The controller integrated canonical PR #210 at
 `MTFNFGVMN2BQCYJJFOULIQ3QRS` passed all four commands in the required order
 on that exact clean head, including 115 library and 317 integration tests.
 Canonical merge state, ancestry and the Acta merge record are verified.
-The unchanged controller full-gate rerun and final joint closure remain pending.
+The unchanged controller full gate passed at the candidate recorded below.
+
+## Delivery-set closure
+
+All six slices and authorized repairs [#209](https://forge.adrianpk.com/adrianpk/rev/pulls/209)
+and [#210](https://forge.adrianpk.com/adrianpk/rev/pulls/210) are integrated.
+The controller passed the unchanged Full gate at
+`610f2e019a52e6b1314931b11fa070d320ecf809`, receipt
+`YWRNPLD3FXNU6APAKXES5AS7I5`, on 2026-11-01 in 289.807 seconds:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+The gate passed 1,995 tests, source quality over all 724 production files and
+the actual crate/example roots, real installed Rust unsaved semantic completion,
+resolved same-document edits, native fallback, bounded lifetime/resource cases,
+both Linux PTY journeys and documentation/catalog checks. LSP01-LSP06 and joint
+CMP01-CMP09 acceptance are delivered. The
+[Slice 6 closure](../report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
+records the exact resource observations and evidence limits.
+
+All six reports are delivered; the specifications/models and pending-work index
+reflect joint closure. Owned acceptance children were reaped and temporary stores
+and PTYs were cleaned up; no matching acceptance process remained at closure.
+Only configured documentation paths change after the tested candidate. Earlier
+native completion and repair receipts retain their original identities.

@@ -140,7 +140,7 @@ controller-owned.
 
 The installed-server result covers the recorded toolchain and admitted profile;
 resource observations vary with machine and server workload. The unchanged full
-gate and final joint acceptance closure follow canonical Slice 6 integration.
+gate and final joint acceptance are complete at the closure candidate below.
 
 ## Integration
 
@@ -150,7 +150,7 @@ through Rebase + Fast-forward into dev at
 `GUMCW2YHQ2HCMGI2WB4QGVKLST` passed all six configured commands, 539 tests,
 all 724 production source files and both bounded terminal journeys at that clean
 head. The controller recorded the merge in Acta. The integrated full gate and
-final joint acceptance remain pending controller execution.
+final joint acceptance subsequently completed at the closure candidate below.
 
 ## Gate repair 1: Observed process-group shutdown
 
@@ -214,8 +214,8 @@ the exact committed minimal Rust fixture's offline metadata and owned PTY
 allocation are ready. Temporary preparation files and descriptors were cleaned up.
 
 The existing Slice 6 introduction and implementation/merge evidence remain
-unchanged. The controller's unchanged full-gate rerun and final joint closure
-remain pending. No server or full gate was started during preparation.
+unchanged. The controller's unchanged full gate subsequently passed at the
+closure candidate below. No server or full gate was started during preparation.
 
 ## Gate repair 2: Deterministic closed-output cancellation
 
@@ -279,5 +279,56 @@ inputs, the committed minimal Rust fixture's offline metadata and owned PTY
 allocation. Temporary preparation files and descriptors were cleaned up.
 
 The existing Slice 6 introduction, delivered slice state and earlier receipts
-remain unchanged. The unchanged controller full-gate rerun and final joint
-closure remain pending. No server or full gate was started during preparation.
+remain unchanged. The unchanged controller full gate and final joint closure
+subsequently completed below. No server or full gate was started during preparation.
+
+## Delivery-set closure
+
+Completed: 2026-11-01.
+Validated candidate: `610f2e019a52e6b1314931b11fa070d320ecf809`.
+Controller receipt: `YWRNPLD3FXNU6APAKXES5AS7I5`.
+Retained evidence log: `610f2e019a52e6b1314931b11fa070d320ecf809.YWRNPLD3FXNU6APAKXES5AS7I5.log`.
+The unchanged configured full gate passed in 289.807 seconds:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check
+```
+
+All 1,995 tests passed; this count includes example tests and excludes filtered
+subprocess reentries. Source quality passed for all 724 production Rust files,
+actual crate roots and acceptance modules. The gate established real installed
+rust-analyzer unsaved semantic completion, selected resolved import/one undo,
+buffer exclusion/restore, valid-empty and unavailable native fallback, shared
+connection ownership, retained idle bounds, disable/exit reaping, native language/
+Org/external-grammar cases and both bounded Linux PTY journeys. LSP01-LSP06 and
+joint CMP01-CMP09 acceptance are delivered. Catalog checks passed for 331 commands
+and 211 configuration entries; documentation passed for 65 reachable pages and
+384 local links/anchors.
+
+| Integrated gate observation | Measured result |
+| --- | --- |
+| Normal release editor | 18,931,160 bytes; 862,488 above the native integrated baseline of 18,068,672 (ratio 1.047734); server excluded |
+| Installed Rust semantic readiness | 216,649 microseconds |
+| Separate installed server | Peak RSS 31,424 kB; 1 CPU tick; 30 threads |
+| Semantic driver | Peak RSS 13,264 kB |
+| Native acceptance | Peak RSS 32,652 kB |
+| Bounded open-buffer observation | 40 peers, 31 retained names, oldest evicted; request 2,065 microseconds |
+| 1024-declaration / 128-event burst | 198,238 microseconds total; longest event/frame 521 microseconds; 0 idle CPU ticks over 350 ms |
+| Native Linux PTY | Peak RSS 14,204 kB; 0 idle CPU ticks over 350 ms; 44,192 output bytes |
+| Semantic Linux PTY | Peak RSS 13,448 kB; 0 idle CPU ticks over 350 ms |
+
+The recorded environment was Rust/Cargo 1.98.0 and rust-analyzer
+0.3.3089-standalone on Linux x86_64, with the normal release profile and two
+build jobs. Each PTY retained its eight-second and 1 MiB output limits, exact
+disk-source preservation and terminal restoration assertions. The installed
+server result covers that toolchain and admitted protocol profile; it does not
+establish arbitrary-server compatibility or a universal resource ceiling.
+
+All six canonical slice PRs and authorized repairs #209/#210 are integrated;
+all reports are delivered. The runner reaped owned server/editor children and
+cleaned up temporary stores and PTYs; no matching gate acceptance process
+remained during closure. Only configured documentation differs after this
+tested candidate. The native predecessor candidate
+`0f7cc36cb1082aa56954fa602294f47aac80e889`, receipt
+`DAIRXONWTTLVG6RDIQQZKBSGXA`, and all earlier slice/repair receipts remain
+historical evidence. The full gate was not rerun for documentation closure.
