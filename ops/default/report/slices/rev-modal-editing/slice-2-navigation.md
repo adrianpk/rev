@@ -1,11 +1,14 @@
 # Slice 2: Logical navigation, counts and search
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-02-navigation`
 PR: `#213`
+Merged commit: `8eead707c9b8ec544d65fef39f6bdcc5a06973a3`
+Canonical validation: `4MIKJGX5CLIPRN5FT3BPKVLF5N`, three configured checks and 145 tests passed
+Focused validation: `D6OICARHBW2KKOS2VZKRFAA7H6`, Clippy, 386 tests, 36 changed Rust files and documentation passed
 
 ## Purpose
 
