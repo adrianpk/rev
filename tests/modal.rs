@@ -4,6 +4,8 @@
 mod boundaries;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "modal/jump_safety.rs"]
+mod jump_safety;
 #[path = "modal/jumps.rs"]
 mod jumps;
 #[path = "modal/keymaps.rs"]

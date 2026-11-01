@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 5 in progress; Slice 4 delivered through PR #215
+Active slice: Slice 5 reviewing; Slice 4 delivered through PR #215
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -72,10 +72,10 @@ Acceptance: MOD06, MOD09-MOD12.
 
 Acceptance: MOD08-MOD09, MOD12-MOD13.
 
-- [ ] T5.1: Add a bounded session-local jump history owned per view, with native buffer/file identity and checked source-location evidence. Rebase live destinations through canonical edits/undo and preserve rename identity; reuse location primitives without coupling storage to the bookmark collection.
-- [ ] T5.2: Record admitted nonlocal destinations: explicit line/buffer/paragraph/viewport jumps, confirmed searches and cross-file visits. Do not record each h/j/k/l, word step, rendering pass or history traversal. New jumps after backward traversal discard the forward branch; failed navigation does not advance its index.
-- [ ] T5.3: Implement counted C-o/C-i backward/forward traversal in Normal and the requested one-Normal-command C-o continuation in Insert. A count/operator or colon argument workflow is one semantic command lifetime, not one raw keystroke; return to Insert only when its checked editing context survives.
-- [ ] T5.4: Test closed/missing/replaced files, dirty-buffer reuse, edits, rename, read-only visits, split inheritance and view deletion. A split starts a bounded copy of current jump state, then evolves independently. Tab/C-i remains prompt/completion Tab while a component owns input; persistence and bookmarks remain unchanged.
+- [x] T5.1: Add a bounded session-local jump history owned per view, with native buffer/file identity and checked source-location evidence. Rebase live destinations through canonical edits/undo and preserve rename identity; reuse location primitives without coupling storage to the bookmark collection.
+- [x] T5.2: Record admitted nonlocal destinations: explicit line/buffer/paragraph/viewport jumps, confirmed searches and cross-file visits. Do not record each h/j/k/l, word step, rendering pass or history traversal. New jumps after backward traversal discard the forward branch; failed navigation does not advance its index.
+- [x] T5.3: Implement counted C-o/C-i backward/forward traversal in Normal and the requested one-Normal-command C-o continuation in Insert. A count/operator or colon argument workflow is one semantic command lifetime, not one raw keystroke; return to Insert only when its checked editing context survives.
+- [x] T5.4: Test closed/missing/replaced files, dirty-buffer reuse, edits, rename, read-only visits, split inheritance and view deletion. A split starts a bounded copy of current jump state, then evolves independently. Tab/C-i remains prompt/completion Tab while a component owns input; persistence and bookmarks remain unchanged.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 6: Replace state and semantic repeat
