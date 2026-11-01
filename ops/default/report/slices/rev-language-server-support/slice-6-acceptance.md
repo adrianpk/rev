@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-06-acceptance`
-PR: pending
+PR: [#208](https://forge.adrianpk.com/adrianpk/rev/pulls/208)
 
 ## Purpose
 
@@ -132,7 +132,7 @@ using precisely the configured order:
 - `git diff --check`
 
 T6.1 is commit `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5`.
-T6.2 introduces this report and the completed guidance with the measured joint
+T6.2 is commit `2a6ca297349212a82876c8d40c96f2cd0129d274`, which introduces this report and the completed guidance with the measured joint
 candidate evidence. Canonical integration and the integrated full gate remain
 controller-owned.
 

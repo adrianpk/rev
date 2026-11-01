@@ -83,7 +83,7 @@ Acceptance: LSP01-LSP06 and CMP01-CMP09 across both delivered sets.
 - [x] T6.2: Update optional-LSP how-to/reference and the existing completion guide, full config/catalog and Unreleased notes. Record integrated executable size and separate server resources; reconcile native completion acceptance after source switching passes without overwriting predecessor gate evidence.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T6.1 `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5` adds the normal-release joint example/wrapper and shared native/LSP terminal journeys. T6.2 introduces the Slice 6 report, optional-server guidance and separate client/server measurements while preserving native predecessor evidence. Canonical PR and exact-HEAD validation pending.
+Implementation: T6.1 `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5` adds the normal-release joint example/wrapper and shared native/LSP terminal journeys. T6.2 `2a6ca297349212a82876c8d40c96f2cd0129d274` introduces the Slice 6 report, optional-server guidance and separate client/server measurements while preserving native predecessor evidence. Canonical PR: [#208](https://forge.adrianpk.com/adrianpk/rev/pulls/208). Final exact-HEAD validation is recorded through the controller after this PR-reference follow-up.
 
 ## Final gate and closure
 
