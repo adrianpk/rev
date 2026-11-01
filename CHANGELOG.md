@@ -6,73 +6,51 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+## 0.2.0 - 2026-11-01
+
 ### Added
 
-- Optional [language-server completion](docs/how-to/use-language-server.md) shares the native popup and undo history.
-  Enable `lsp-mode` or `[lsp] enabled = true` to use configured installed servers,
-  including the default Rust `rust-analyzer` entry. Suggestions follow unsaved
-  text, support checked primary replacements and same-document additional edits,
-  including resolved imports, as one undo operation. Empty or unavailable semantic
-  results and failed resolution fall back to native syntax or Org completion.
-  `lsp-disconnect` and `lsp-connect` exclude or restore the current buffer;
-  `lsp-restart` recovers the current root after a server failure. Healthy servers
-  remain available across buffer visits; disabling LSP stops owned processes.
-  Native syntax coloring remains available independently. Late replies cannot
-  replace newer edits or revive cancelled suggestions.
-- [Native completion](docs/tutorials/user-guide/10-complete-names.md) suggests Rust, C, Go, JavaScript and TypeScript/TSX
-  declarations, HTML tags/attributes, CSS selectors/properties, and observed
-  JSON/TOML keys and TOML tables near the cursor
-  after a short typing delay. It uses unsaved names in the current and same-language
-  open buffers, plus finite HTML/CSS vocabulary in structural contexts.
-  Use `M-TAB` or `M-x completion-at-point` for an immediate request.
-  Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
-  Native and language-server candidates show colored type indicators and aligned
-  type labels, with no additional font package required.
-  Native Org contexts suggest task states, tags, property keys, directives, link
-  types and current-document heading targets while prose and literal blocks stay
-  quiet. Source-edit drafts complete their declared language.
-  Quoted keys preserve literal escapes; ordinary JSON/TOML values stay quiet.
-  [Register precompiled native grammars](docs/how-to/register-grammar.md) and matching queries to complete other
-  languages or replace bundled syntax, with bundled/plain fallback on failure.
-  Literal replacements undo in one step and refuse stale targets or read-only
-  text. Configure timing, contexts, candidate limits and popup keys in TOML, or
-  toggle completion and automatic requests with `completion-mode` and
-  `completion-auto-mode`. Comments, strings and pasted text stay quiet by default.
+- [Native completion](docs/tutorials/user-guide/10-complete-names.md) and syntax
+  coloring for Rust, C, Go, JavaScript, TypeScript/TSX, HTML, CSS, JSON and TOML.
+  Suggestions use unsaved declarations in the current and same-language open
+  buffers, plus HTML/CSS vocabulary. Org suggests task states, tags, properties,
+  directives and link targets in their structural contexts. Type to request a
+  list, or use `M-TAB` / `M-x completion-at-point`. Choose with arrows or C-p/C-n,
+  accept with Tab/Return and undo in one step. Colored indicators identify
+  candidate kinds without an additional font package. Automatic requests can be
+  configured or toggled with `completion-auto-mode`; comments, strings and pasted
+  text stay quiet by default.
+- Optional [language-server completion](docs/how-to/use-language-server.md)
+  shares the native popup. Enable `M-x lsp-mode` to use an installed server;
+  Rust defaults to `rust-analyzer`. Suggestions follow unsaved text and can apply
+  checked same-document imports with the name as one undo operation. Empty or
+  unavailable results use native fallback. Exclude or restore a buffer with
+  `lsp-disconnect` / `lsp-connect`, inspect `lsp-status`, or recover a failed
+  connection with `lsp-restart`. LSP remains disabled by default.
+- [Register precompiled grammars](docs/how-to/register-grammar.md) and matching
+  highlight/completion queries for other languages or replacement syntax.
+  Failed assets fall back to bundled or plain presentation.
 - [Name file positions](docs/how-to/use-bookmarks.md) with `C-x r m`, return
-  with `C-x r b`, and remove names with `M-x bookmark-delete`. `C-x r M` prevents accidental replacement.
-  Vertical name completion supports selection, Tab and cancellation. Bookmarks
-  persist across sessions and follow edits, structural moves, undo, rename
-  and save-as. Closed files reopen through checked context; ambiguous, removed
-  or unavailable locations preserve the original view and source text. The
-  collection saves on exit by default, with explicit save/reload and configurable
-  timing and limits. Checked atomic writes preserve malformed or conflicting
-  stores and offer retry, discard or cancellation when quit cannot save.
-  `C-x r l` opens a read-only list with checked visits and staged deletion;
-  configurable local keys navigate rows without editing source text. Use
-  `M-x bookmark-next` or `bookmark-previous` to step through resolved locations
-  in the current file, including distinct names at the same point. Gutter markers
-  show resolved locations independently of number labels; wrapped continuations
-  and hidden folded bodies stay blank. Configure the glyph and color, or toggle
-  markers per view with `M-x bookmark-markers-mode`.
-- Click a file-tree entry to select it and open its file or expand/collapse its
-  directory. Set `mouse.tree_activate_on_click = false` for selection-only clicks.
-  Blank tree space focuses the tree without activating an entry, and clicked
-  files open in the editing pane you last selected.
-- Open files or directories from startup and `C-x C-f`. Accepting a directory
-  opens its expanded tree while preserving live documents. An explicit directory
-  root stays selected when visiting files inside or outside it. The first tree
-  display shows immediate entries; later hide/show preserves deliberate collapse
-  and selection.
-- Long source lines wrap at word boundaries by default, preserving file bytes,
-  tabs and Unicode graphemes at each split pane's width. Use
-  `editor.soft_wrap = false` for horizontal scrolling or `M-x visual-line-mode`
-  to toggle wrapping for one buffer and all its views. While wrapped, Up/Down,
-  `C-n`/`C-p`, `C-a`/`C-e` and `C-k` follow Emacs visual-line editing; paging and
-  recentering follow display rows while goto-line keeps source line numbers.
-  Pointer selection, wheel/drag scrolling and search highlights follow the same
-  wrapped rows; rectangles and line numbers retain logical source coordinates.
-  Org folds, table fields, source drafts and image anchors keep their source
-  targets as visible text reflows.
+  with `C-x r b`, list with `C-x r l` and remove with `M-x bookmark-delete`.
+  Bookmarks follow edits, undo, rename and save-as, and persist on ordinary quit.
+  Reopened locations use checked source context; ambiguous or unavailable
+  destinations leave the current view intact. The list supports staged deletion,
+  and gutter markers show resolved positions. Use `bookmark-next` /
+  `bookmark-previous` within a file or toggle markers per pane with
+  `bookmark-markers-mode`.
+
+### Changed
+
+- Long source lines wrap at word boundaries by default without changing file
+  bytes. Movement and `C-k` follow visible rows; line numbers and goto-line keep
+  source coordinates. Each split reflows independently. Toggle a buffer with
+  `M-x visual-line-mode`, or set `editor.soft_wrap = false` at startup.
+- Startup and `C-x C-f` accept files or directories. A chosen directory opens
+  its tree with immediate entries shown and remains the root across file visits.
+  Later hide/show preserves deliberate collapse and selection.
+- Clicking a tree entry opens its file in the last selected editing pane or
+  expands/collapses its directory. Set `mouse.tree_activate_on_click = false`
+  for selection-only clicks.
 
 ### Fixed
 

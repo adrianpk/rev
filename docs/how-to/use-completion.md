@@ -24,24 +24,18 @@ Run `M-x completion-auto-mode` to toggle automatic requests for this session
 while keeping manual invocation. Run `M-x completion-mode` to toggle completion
 entirely. Neither command writes your configuration.
 
-For a persistent choice, edit the existing `[completion]` table in
+For a persistent choice, change `automatic` in the existing `[completion]` table in
 `~/.config/rev/config.toml` and restart rev. When `XDG_CONFIG_HOME` is set, use
 `rev/config.toml` beneath that directory. For example:
 
 ```toml
 [completion]
-enabled = true
 automatic = false
-delay_ms = 150
-min_prefix = 2
-in_comments = false
-in_strings = false
-max_candidates = 200
-popup_rows = 10
 ```
 
-This is an excerpt to replace the existing table, not a second table to append.
-The [complete sample](../reference/config.toml) includes popup keys;
+Keep the other settings in that table; do not append a duplicate table.
+Change `delay_ms` to adjust how long typing waits before requesting suggestions.
+The [complete sample](../reference/config.toml) includes timing, contexts and popup keys;
 the [configuration catalog](../reference/defaults.md) gives allowed ranges.
 
 ## Find the expected context

@@ -65,12 +65,22 @@ See [Search and replacement](../../reference/search.md) and
 ## Keep a named location
 
 At a place you want to revisit, press `C-x r m`, type `checkpoint` and press
-Enter. After moving elsewhere, `C-x r b`, `checkpoint`, Enter returns there.
+Enter. In `notes.txt`, the prompt and feedback look like this:
+
+```text
+Set bookmark (default notes.txt): checkpoint
+Bookmark set
+```
+
+A `●` in the gutter marks the bookmarked source line. After moving elsewhere,
+`C-x r b`, `checkpoint`, Enter returns there, even from another file.
 Bookmarks follow live edits and persist on ordinary quit. They do not save
 source text; continue using `C-x C-s` for that.
 
 `C-x r l` lists names, and `M-x bookmark-markers-mode` toggles their markers
-for the current pane. The [bookmark guide](../../how-to/use-bookmarks.md)
+for the current pane. To remove the test bookmark, run `M-x bookmark-delete`,
+enter `checkpoint` and press Enter. The name is removed; the file is unchanged.
+The [bookmark guide](../../how-to/use-bookmarks.md)
 explains replacement, deletion, checked reopening and storage recovery.
 
 Next: [Browse Files](05-file-tree.md).

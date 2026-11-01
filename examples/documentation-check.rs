@@ -51,7 +51,26 @@ fn check_navigation(root: &Path) -> Result<()> {
     let guide = root.join("docs/tutorials/user-guide");
     check_path(&guide, "index.md", EDITOR)?;
     check_path(&guide, "org/index.md", ORG)?;
+    check_publication(root)?;
     check_legacy_anchors(root)
+}
+
+fn check_publication(root: &Path) -> Result<()> {
+    let tree = fs::read_to_string(root.join("publication/userguide/index.sptree"))?;
+    let actual: Vec<_> = tree
+        .lines()
+        .filter_map(|line| line.trim().strip_prefix("@page[id = \""))
+        .filter_map(|line| line.strip_suffix("\"]"))
+        .collect();
+    let expected: Vec<_> = EDITOR
+        .iter()
+        .chain(ORG)
+        .map(|chapter| format!("guide-{}", chapter.trim_end_matches(".md")))
+        .collect();
+    require(
+        actual == expected,
+        "Spore chapter navigation differs from the Markdown learning paths",
+    )
 }
 
 fn check_legacy_anchors(root: &Path) -> Result<()> {

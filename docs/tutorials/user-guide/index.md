@@ -3,13 +3,13 @@
 Open a file, make a change and save it. Start there; no configuration is needed.
 
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
-These chapters describe rev 0.1.0, using the default key bindings and small
+These chapters describe rev 0.2.0, using the default key bindings and small
 files you create yourself.
 
 1. [Edit Your First File](01-first-file.md): write, save, quit and reopen.
 2. [Move and Edit Text](02-edit-text.md): select, copy, move and undo text.
 3. [Use Buffers and Panes](03-buffers-and-panes.md): keep two files open and arrange their views.
-4. [Search and Run Commands](04-search-and-commands.md): find text, replace it and use M-x.
+4. [Search and Run Commands](04-search-and-commands.md): find text, use M-x and keep named locations.
 5. [Browse Files](05-file-tree.md): expand the tree and open a neighboring file.
 6. [Set Your Preferences](09-preferences.md): change indentation at startup and line numbers during a session.
 7. [Complete Names](10-complete-names.md): choose an observed name near the cursor and undo its insertion.

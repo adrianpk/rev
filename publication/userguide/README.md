@@ -17,7 +17,7 @@ scripts/build-user-guide.sh
 ```
 
 The generated HTML is in `target/userguide/`, ready to mount at `/userguide/`.
-The build keeps the nine chapters and two entry pages together, with supporting
+The build keeps the ten chapters and two entry pages together, with supporting
 how-to, reference and explanation pages. Local documentation links stay in the
 Spore publication, including heading anchors and configuration downloads.
 Code blocks remain unchanged; Markdown tables become native Spore tables.

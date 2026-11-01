@@ -35,7 +35,18 @@ fn main() {
 ```
 
 Leave the cursor after `uns` and request `M-x completion-at-point`. You can also
-wait for the normal typing delay. Edit the field name without saving and request
+wait for the normal typing delay. The popup includes the field:
+
+```text
+item.uns
+┌──────────────────────┐
+│◆ unsaved_field  field│
+└──────────────────────┘
+```
+
+The indicator and type label use syntax colors. The list can contain other
+server candidates, and its width follows the pane.
+Edit the field name without saving and request
 again: suggestions follow the current buffer. Use arrows or `C-p`/`C-n`, accept
 with Tab/Return, and undo with `C-/`.
 
