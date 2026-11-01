@@ -1,6 +1,6 @@
 # Slice 5: Shared lifecycle and real Rust interoperability
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -125,3 +125,11 @@ The installed field-completion result establishes the recorded server/toolchain
 and profile on the isolated Rust fixture. Joint executable acceptance, resource
 and size measurements, and complete optional-LSP guidance remain in Slice 6.
 EOF and bounded protocol fixtures do not claim arbitrary-server compatibility.
+
+## Integration
+
+Canonical PR [#207](https://forge.adrianpk.com/adrianpk/rev/pulls/207) merged
+through Rebase + Fast-forward into dev at
+`9dcc1ad7c418a9a8b02e84d86acaae8112646ad9`. Controller receipt
+`5SO6BE73DXTHRQBETQUHCAMLU4` passed all three configured commands and
+368 tests at that clean head. The controller recorded the merge in Acta.

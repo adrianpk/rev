@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 5 — Shared lifecycle and real Rust interoperability
+Active slice: Slice 6 — Joint source acceptance and guidance
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -71,9 +71,9 @@ Acceptance: LSP01, LSP04-LSP06 and bounded LSP02 failure handling.
 
 - [x] T5.1: Complete healthy idle retention, optional last-buffer shutdown, bounded disable/exit cleanup, explicit restart and failed-state suppression. Handle server requests/notifications under the selected capability profile without granting edit or command authority.
 - [x] T5.2: Add real installed rust-analyzer integration on an isolated minimal Rust fixture, plus controlled process failures for cancellation, queue/backpressure, EOF and shutdown. Verify other configured/unbundled language entries remain admissible without a grammar dependency.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 `846071a8e318814a6062a065c092e267e6b8cf5e` introduces the Slice 5 report with installed rust-analyzer unsaved completion, undo/disk/cleanup proof and explicit-restart cancellation. Canonical PR: [#207](https://forge.adrianpk.com/adrianpk/rev/pulls/207). Final exact-HEAD validation is recorded through the controller after this PR-reference follow-up.
+Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 `846071a8e318814a6062a065c092e267e6b8cf5e` introduces the Slice 5 report with installed rust-analyzer unsaved completion, undo/disk/cleanup proof and explicit-restart cancellation. Canonical PR: [#207](https://forge.adrianpk.com/adrianpk/rev/pulls/207). Merged at `9dcc1ad7c418a9a8b02e84d86acaae8112646ad9`; exact configured receipt `5SO6BE73DXTHRQBETQUHCAMLU4` passed all three commands and 368 tests; report delivered.
 
 ## Slice 6: Joint source acceptance and guidance
 
