@@ -1,11 +1,14 @@
 # Slice 1: Startup profile and Insert state
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-01-profile`
 PR: `#212`
+Merged commit: `d1fb1c3f5f03d8f9e9a199ba5722f745f035f026`
+Canonical validation: `5P7SKQUDS32VXLANNUZP4DBFQN`, three configured checks and 397 tests passed
+Focused validation: `OYYCAVQATZCTY4EPQQK3RCUAAP`, cursor reset, changed Rust files and documentation passed
 
 ## Purpose
 

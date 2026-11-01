@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 reviewing in PR #212; canonical integration pending
+Active slice: Slice 2 in progress; Slice 1 delivered through PR #212
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -36,7 +36,7 @@ Acceptance: MOD01-MOD03, MOD09-MOD11.
 - [x] T1.2: Introduce one native session/view-coordinated modal state owner and safe Normal/Insert transitions. Normal rejects unmatched printable input; i/a/I/A/o/O and Escape/C-[ use checked native edits and cursor positions. Keep M-x and C-g recovery, source/history ownership and terminal restoration intact.
 - [x] T1.3: Extend the existing keys tables with profile/state-scoped Vim maps. Keep keys.editor as the Emacs factory surface and preserve local component precedence; admit only implemented canonical commands, never scripts or unbinding sentinels. Distinguish compatible modified Insert bindings from conflicting Normal bindings.
 - [x] T1.4: Show NORMAL/INSERT through the existing status layout and terminal cursor API, resetting cursor presentation on exit. Update the complete supported sample, defaults, command/key inventories and targeted R01/R24/CFG12-CFG15 wording without rewriting historical delivery evidence.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 2: Logical navigation, counts and search
 
