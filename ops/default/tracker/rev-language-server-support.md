@@ -149,10 +149,12 @@ Retained receipt: `WHDZLX5DVWMTD5YGUTR7HGKMYZ`.
 Branch: `fix/rev-language-server-gate-2`.
 Exact title: `fix(process): make closed-output cancellation deterministic`.
 Report: [Slice 6](../report/slices/rev-language-server-support/slice-6-acceptance.md).
+PR: [#210](https://forge.adrianpk.com/adrianpk/rev/pulls/210).
+Implementation: `3ca052e86c8620a59fe9bd3cbea2f189d8bae425`.
 
 - [x] Diagnose the closed-output cancellation failure with the original assertions and limits intact.
 - [x] Correct the approved process boundary or fixture mechanics and verify focused regressions.
-- [ ] Record the covering authorization's ordered exact-head validation and canonical repair PR.
+- [x] Prepare the covering authorization's ordered exact-head validation and canonical repair PR.
 - [ ] Verify canonical repair integration and the controller's unchanged full gate.
 
 The retained assertion hid the returned error. Six diagnostic library runs and

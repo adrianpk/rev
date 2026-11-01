@@ -222,7 +222,8 @@ remain pending. No server or full gate was started during preparation.
 Repair status: reviewing.
 Branch: `fix/rev-language-server-gate-2`.
 Exact title: `fix(process): make closed-output cancellation deterministic`.
-Repair PR: pending.
+Repair PR: [#210](https://forge.adrianpk.com/adrianpk/rev/pulls/210).
+Implementation: `3ca052e86c8620a59fe9bd3cbea2f189d8bae425`.
 
 The retained full gate at `189ea68179c74ff2a28cbe8b76bc6dfe43c86d1a`, receipt
 `WHDZLX5DVWMTD5YGUTR7HGKMYZ`, passed formatting and all-target Clippy, then

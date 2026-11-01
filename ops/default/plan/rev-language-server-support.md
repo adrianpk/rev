@@ -273,6 +273,9 @@ reproduce it; this repair removes the identified fixture ordering race without
 claiming that the original hidden error was recovered. Production cleanup-error
 precedence and process limits are unchanged.
 
+Canonical repair PR: [#210](https://forge.adrianpk.com/adrianpk/rev/pulls/210).
+Implementation: `3ca052e86c8620a59fe9bd3cbea2f189d8bae425`.
+
 Required ordered repair checks:
 
 - `cargo fmt --all -- --check`
