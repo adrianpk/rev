@@ -1,11 +1,14 @@
 # Slice 7: Colon commands and completion ownership
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-07-contexts`
 PR: `#218`
+Merged commit: `7a203c0d8400c0e66a2e89cf70dfe8b37af7ac8a`
+Canonical validation: `XSK2NNNW564GS43IZETMW5S4PR`, five hundred thirteen tests and three configured checks passed
+Focused validation: `T4UYMTXPRUHZGTMOUGA33IWWF5`, Clippy, 584 tests, 21 changed Rust files and documentation passed
 
 ## Purpose
 

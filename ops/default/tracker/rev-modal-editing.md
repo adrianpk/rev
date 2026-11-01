@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 7 reviewing through PR #218; Slice 6 delivered through PR #217
+Active slice: Slice 8 in progress; Slice 7 delivered through PR #218
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -96,7 +96,7 @@ Acceptance: MOD07-MOD12.
 - [x] T7.2: Integrate automatic native/LSP completion with Insert/Replace and manual canonical invocation. Preserve 0.2 popup keys, colored kinds, syntax colors, checked acceptance/imports and one-step undo. Retire pending suggestions/resolution on incompatible modal transitions, and reject late replies without reopening a popup.
 - [x] T7.3: Give tree, search, argument/decision prompts, inventories, bookmarks and native Org contexts priority over the editing grammar. Compatible colon cancellation restores the original Visual state; changed buffer/view/revision retires it. Org source drafts inherit the session profile and use their existing edit/save/cancel ownership.
 - [x] T7.4: Test Escape/Meta disambiguation, protected C-g/M-x, component-owned Tab/C-i, held Return, bracketed paste and pointer focus. Popup cancellation is local before ordinary state transitions; Normal/Visual letters never schedule automatic completion. Keep literal colon/slash input ordinary inside Insert and argument prompts.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 8: Terminal acceptance, resources and guidance
 
