@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "modal/boundaries.rs"]
+mod boundaries;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "modal/keymaps.rs"]

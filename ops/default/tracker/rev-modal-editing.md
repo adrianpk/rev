@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 2 in progress; Slice 1 delivered through PR #212
+Active slice: Slice 2 reviewing; Slice 1 delivered through PR #212
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -42,10 +42,10 @@ Acceptance: MOD01-MOD03, MOD09-MOD11.
 
 Acceptance: MOD04-MOD05, MOD08-MOD09.
 
-- [ ] T2.1: Implement shared semantic targets for h/j/k/l, arrows, 0/^/$, w/b/e, W/B/E, ge/gE, gg/G and counted logical-line destinations. Pin Odra endpoint behavior for the shared subset and label the previously requested extra word/count forms as rev requirements; preserve graphemes and Emacs motion results.
-- [ ] T2.2: Add logical-line f/F/t/T and ;/, paragraph { / } and matching-delimiter % targets. Resolve Unicode character targets and missing matches without partial movement, stale offsets or unbounded count loops; keep target descriptors reusable by operators and Visual states.
-- [ ] T2.3: Implement checked count composition, page/half-page controls, H/M/L and zt/zz/zb through native view geometry. Route /, ?, n/N and word-at-point search through the canonical literal/smart-case/nonwrapping search lifecycle, with cancellation restoring the search origin.
-- [ ] T2.4: Exercise logical versus wrapped rows, empty/CRLF files, EOF, tabs, combining/wide graphemes, hidden Org bodies, terminal aliases and arithmetic overflow. Prove large counts are clamped/resolved through bounded source traversal rather than repeating billions of primitive commands.
+- [x] T2.1: Implement shared semantic targets for h/j/k/l, arrows, 0/^/$, w/b/e, W/B/E, ge/gE, gg/G and counted logical-line destinations. Pin Odra endpoint behavior for the shared subset and label the previously requested extra word/count forms as rev requirements; preserve graphemes and Emacs motion results.
+- [x] T2.2: Add logical-line f/F/t/T and ;/, paragraph { / } and matching-delimiter % targets. Resolve Unicode character targets and missing matches without partial movement, stale offsets or unbounded count loops; keep target descriptors reusable by operators and Visual states.
+- [x] T2.3: Implement checked count composition, page/half-page controls, H/M/L and zt/zz/zb through native view geometry. Route /, ?, n/N and word-at-point search through the canonical literal/smart-case/nonwrapping search lifecycle, with cancellation restoring the search origin.
+- [x] T2.4: Exercise logical versus wrapped rows, empty/CRLF files, EOF, tabs, combining/wide graphemes, hidden Org bodies, terminal aliases and arithmetic overflow. Prove large counts are clamped/resolved through bounded source traversal rather than repeating billions of primitive commands.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 3: Operators and shared text transfer
