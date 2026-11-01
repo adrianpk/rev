@@ -73,7 +73,7 @@ Acceptance: LSP01, LSP04-LSP06 and bounded LSP02 failure handling.
 - [x] T5.2: Add real installed rust-analyzer integration on an isolated minimal Rust fixture, plus controlled process failures for cancellation, queue/backpressure, EOF and shutdown. Verify other configured/unbundled language entries remain admissible without a grammar dependency.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 introduces the Slice 5 report with installed rust-analyzer unsaved completion, undo/disk/cleanup proof and explicit-restart cancellation. Canonical PR and exact-HEAD validation pending.
+Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 `846071a8e318814a6062a065c092e267e6b8cf5e` introduces the Slice 5 report with installed rust-analyzer unsaved completion, undo/disk/cleanup proof and explicit-restart cancellation. Canonical PR: [#207](https://forge.adrianpk.com/adrianpk/rev/pulls/207). Final exact-HEAD validation is recorded through the controller after this PR-reference follow-up.
 
 ## Slice 6: Joint source acceptance and guidance
 

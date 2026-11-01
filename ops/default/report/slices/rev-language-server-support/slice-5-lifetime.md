@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-05-lifetime`
-PR: pending
+PR: [#207](https://forge.adrianpk.com/adrianpk/rev/pulls/207)
 
 ## Purpose
 
@@ -116,7 +116,7 @@ PR-reference follow-up, using precisely the configured command order:
 - `git diff --check`
 
 T5.1 is commit `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`.
-T5.2 introduces this report with the installed-server and restart-cancellation
+T5.2 is commit `846071a8e318814a6062a065c092e267e6b8cf5e`, which introduces this report with the installed-server and restart-cancellation
 proof. Canonical integration and its exact-head receipt remain controller-owned.
 
 ## Risks and Follow-ups
