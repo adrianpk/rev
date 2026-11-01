@@ -261,7 +261,7 @@ fn resolve_failures() {
 #[test]
 fn retired_resolves() {
     for action in [
-        "cancel", "edit", "undo", "view", "exclude", "restore", "disable", "invoke",
+        "cancel", "edit", "undo", "view", "exclude", "restore", "disable", "restart", "invoke",
     ] {
         let f = Fixture::new();
         resolved(&f, json!([import()]));
@@ -307,6 +307,9 @@ fn retired_resolves() {
             "disable" => {
                 s.execute(Command::Lsp(LspCommand::Mode));
             }
+            "restart" => {
+                s.execute(Command::Lsp(LspCommand::Restart));
+            }
             "invoke" => {
                 s.execute(Command::Completion(C::AtPoint));
             }
@@ -316,7 +319,7 @@ fn retired_resolves() {
         let point = s.view().point;
         let state = s.buffer().unwrap().state();
         settle(&mut s);
-        if action != "disable" {
+        if !matches!(action, "disable" | "restart") {
             wait(|| f.0.join("peer.late").exists());
         }
         assert_eq!(text(&s), expected, "{action}");
@@ -324,6 +327,13 @@ fn retired_resolves() {
         assert_eq!(s.buffer().unwrap().state(), state, "{action}");
         if action != "invoke" {
             assert!(s.completion().is_none(), "{action}");
+        }
+        if action == "restart" {
+            wait(|| s.lsp_document_version().is_some());
+            assert_ne!(
+                s.lsp_document_version().unwrap().connection,
+                generation.connection
+            );
         }
         if action == "restore" {
             wait(|| s.lsp_document_version().is_some());

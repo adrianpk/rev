@@ -11,6 +11,8 @@ mod edits;
 mod fixture;
 #[path = "lsp/lifetime.rs"]
 mod lifetime;
+#[path = "lsp/real.rs"]
+mod real;
 
 use fixture::Fixture;
 use rev::config::{Lsp, Server};

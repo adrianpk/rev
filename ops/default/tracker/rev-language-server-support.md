@@ -70,8 +70,10 @@ Implementation: T4.1 `07df3dc83553cc0c49131203971a92742966f767`; T4.2 `085778386
 Acceptance: LSP01, LSP04-LSP06 and bounded LSP02 failure handling.
 
 - [x] T5.1: Complete healthy idle retention, optional last-buffer shutdown, bounded disable/exit cleanup, explicit restart and failed-state suppression. Handle server requests/notifications under the selected capability profile without granting edit or command authority.
-- [ ] T5.2: Add real installed rust-analyzer integration on an isolated minimal Rust fixture, plus controlled process failures for cancellation, queue/backpressure, EOF and shutdown. Verify other configured/unbundled language entries remain admissible without a grammar dependency.
+- [x] T5.2: Add real installed rust-analyzer integration on an isolated minimal Rust fixture, plus controlled process failures for cancellation, queue/backpressure, EOF and shutdown. Verify other configured/unbundled language entries remain admissible without a grammar dependency.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 introduces the Slice 5 report with installed rust-analyzer unsaved completion, undo/disk/cleanup proof and explicit-restart cancellation. Canonical PR and exact-HEAD validation pending.
 
 ## Slice 6: Joint source acceptance and guidance
 
