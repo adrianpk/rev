@@ -1,11 +1,14 @@
 # Slice 3: Operators and shared text transfer
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-03-operators`
 PR: `#214`
+Merged commit: `e7fdb956486a1a347ed9b66f6f604471b9b3f746`
+Canonical validation: `CZHCWJ4BP6JJ76FP4Q6PZEJXMG`, three configured checks and 210 tests passed
+Focused validation: `4QS6SUSRZSF5KQNCBZQOMKW2EJ`, Clippy, 416 tests, 31 changed Rust files and documentation passed
 
 ## Purpose
 
