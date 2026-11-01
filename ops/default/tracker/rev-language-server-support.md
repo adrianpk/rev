@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and gate repair 1 integrated; bounded gate repair 2 in progress
+Active slice: None — all 6 slices and both gate repairs integrated; controller full gate pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -105,10 +105,10 @@ boundaries follow the linked plan/specification; no additional ticket is queued.
 
 ## Gate preparation
 
-All six canonical slice merges and repair PR #209 match the checkpoint and are
+All six canonical slice merges and repair PRs #209/#210 match the checkpoint and are
 ancestors of dev. Every slice report is delivered; the set remains in progress
 until its integrated gate and joint closure complete. Prerequisites were refreshed
-after repair integration at `144f6c83c50a6ef7a8435187b40c89709d04dfbb`.
+after repair integration at `0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`.
 Installed rust-analyzer, Rust/fmt/Clippy, the C
 compiler, Bash and PTY/core utilities are available. Locked offline repository
 metadata and cached Rust/Python grammar producer inputs are available. The
@@ -155,7 +155,8 @@ Implementation: `3ca052e86c8620a59fe9bd3cbea2f189d8bae425`.
 - [x] Diagnose the closed-output cancellation failure with the original assertions and limits intact.
 - [x] Correct the approved process boundary or fixture mechanics and verify focused regressions.
 - [x] Prepare the covering authorization's ordered exact-head validation and canonical repair PR.
-- [ ] Verify canonical repair integration and the controller's unchanged full gate.
+- [x] Verify canonical repair integration and the pinned exact-head validation receipt.
+- [ ] Verify the controller's unchanged full-gate rerun.
 
 The retained assertion hid the returned error. Six diagnostic library runs and
 eight concurrent isolated copies passed before correction; no exact underlying
@@ -166,5 +167,9 @@ collection-and-cleanup entry point. The original cancellation result, 32 attempt
 eight descendants, one-second overall limit and immediate descendant-stop checks
 remain, with direct-child reaping checked on every attempt. No cleanup limit or
 error precedence changed. The five process regressions, library Clippy and the
-four-file source-quality check pass. Final validation follows the PR-reference
-commit using repair 2's full-library command prefix.
+four-file source-quality check pass. Receipt `MTFNFGVMN2BQCYJJFOULIQ3QRS`
+passed all four commands in repair 2's pinned order at the exact clean head
+`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`, including its PR-reference
+follow-up: 115 library and 317 integration tests passed. Canonical PR #210 is
+merged at that same commit, with the merge recorded in Acta. The unchanged
+controller full-gate rerun and final joint closure remain pending.

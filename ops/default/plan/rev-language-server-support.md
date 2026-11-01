@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and gate repair 1 integrated; bounded gate repair 2 in progress
+Active slice: None — all 6 slices and both gate repairs integrated; controller full gate pending
 
 ## Outcome and authority
 
@@ -206,9 +206,9 @@ The controller can hand off only after verified closure; neither set promotes ma
 
 ## Gate preparation
 
-All six recorded slices and gate repair 1 are integrated; all slice reports are
+All six recorded slices and both gate repairs are integrated; all slice reports are
 delivered. Prerequisites were refreshed after repair integration at
-`144f6c83c50a6ef7a8435187b40c89709d04dfbb`. The controller's unchanged
+`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`. The controller's unchanged
 integrated full-gate rerun and final joint closure remain pending.
 Preflight verified rust-analyzer 0.3.3089-standalone, rustc/cargo 1.98.0,
 rustfmt 1.9.0, Clippy 0.1.98, GCC 16.2.1 and util-linux script 2.42.3, plus
@@ -282,3 +282,10 @@ Required ordered repair checks:
 - `cargo test --locked --lib`
 - `cargo test --locked --test org_io --test org_source --test lsp`
 - `git diff --check`
+
+The controller integrated canonical PR #210 at
+`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`. Receipt
+`MTFNFGVMN2BQCYJJFOULIQ3QRS` passed all four commands in the required order
+on that exact clean head, including 115 library and 317 integration tests.
+Canonical merge state, ancestry and the Acta merge record are verified.
+The unchanged controller full-gate rerun and final joint closure remain pending.

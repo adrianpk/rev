@@ -219,7 +219,7 @@ remain pending. No server or full gate was started during preparation.
 
 ## Gate repair 2: Deterministic closed-output cancellation
 
-Repair status: reviewing.
+Repair status: delivered.
 Branch: `fix/rev-language-server-gate-2`.
 Exact title: `fix(process): make closed-output cancellation deterministic`.
 Repair PR: [#210](https://forge.adrianpk.com/adrianpk/rev/pulls/210).
@@ -261,14 +261,23 @@ attempts and 2,048 descendants, with every original timing and immediate
 shutdown assertion active. The owned test processes and temporary logs were
 cleaned up after completion.
 
-The covering authorization after repair 1 requires the following ordered
-exact-head checks, recorded by the controller after the PR-reference follow-up:
+The ordered exact-head checks required by the authorization after repair 1
+passed after the PR-reference follow-up at
+`0ce2f50bc08997a1360bf3bbbb029bbc8578e40f`, receipt
+`MTFNFGVMN2BQCYJJFOULIQ3QRS`: 115 library and 317 integration tests passed.
 
 - `cargo fmt --all -- --check`
 - `cargo test --locked --lib`
 - `cargo test --locked --test org_io --test org_source --test lsp`
 - `git diff --check`
 
+The controller integrated canonical [PR #210](https://forge.adrianpk.com/adrianpk/rev/pulls/210)
+at the same validated commit. Canonical merge state and ancestry are verified,
+and the controller recorded the merge in Acta. Refreshed gate prerequisites
+confirm installed tools, locked offline dependency metadata, cached grammar
+inputs, the committed minimal Rust fixture's offline metadata and owned PTY
+allocation. Temporary preparation files and descriptors were cleaned up.
+
 The existing Slice 6 introduction, delivered slice state and earlier receipts
-remain unchanged. The controller owns repair integration and the unchanged
-full-gate rerun; joint acceptance remains pending.
+remain unchanged. The unchanged controller full-gate rerun and final joint
+closure remain pending. No server or full gate was started during preparation.
