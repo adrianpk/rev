@@ -16,6 +16,7 @@ struct Pending {
     query: Query,
     deadline: Instant,
     encoding: Encoding,
+    resolve_supported: bool,
 }
 pub(super) struct Requests {
     pending: BTreeMap<u64, Pending>,
@@ -76,20 +77,15 @@ impl Requests {
             .next
             .checked_add(1)
             .ok_or("LSP request identity exhausted")?;
-        let position = position::encode(&query.text, query.point, &wire.1.encoding)?;
-        let context = context(&query, wire.1);
-        wire.0.document(
-            &json!({"jsonrpc":"2.0","id":id,"method":"textDocument/completion","params":{
-                "textDocument":{"uri":query.uri},"position":position,"context":context
-            }}),
-            permit,
-        )?;
+        let message = message(&query, id, wire.1)?;
+        wire.0.document(&message, permit)?;
         self.pending.insert(
             id,
             Pending {
                 query,
                 deadline: Instant::now() + self.timeout,
                 encoding: wire.1.encoding.clone(),
+                resolve_supported: wire.1.resolve,
             },
         );
         Ok(())
@@ -125,9 +121,10 @@ impl Requests {
                 .ticket
                 .finish(Reply::fallback(Fallback::Unavailable));
         } else {
-            pending
-                .query
-                .finish(message.result.unwrap_or(Value::Null), &pending.encoding);
+            pending.query.finish(
+                message.result.unwrap_or(Value::Null),
+                (&pending.encoding, pending.resolve_supported),
+            );
         }
     }
 }
@@ -146,4 +143,18 @@ fn context(query: &Query, caps: &Capabilities) -> Value {
         return json!({"triggerKind":2,"triggerCharacter":previous});
     }
     json!({"triggerKind":if query.token.incomplete.load(Ordering::Acquire) { 3 } else { 1 }})
+}
+
+fn message(query: &Query, id: u64, caps: &Capabilities) -> Result<Value, String> {
+    if let Some(proposal) = &query.resolve {
+        return Ok(
+            json!({"jsonrpc":"2.0","id":id,"method":"completionItem/resolve","params":proposal.request()}),
+        );
+    }
+    let position = position::encode(&query.text, query.point, &caps.encoding)?;
+    Ok(
+        json!({"jsonrpc":"2.0","id":id,"method":"textDocument/completion","params":{
+            "textDocument":{"uri":query.uri},"position":position,"context":context(query,caps)
+        }}),
+    )
 }

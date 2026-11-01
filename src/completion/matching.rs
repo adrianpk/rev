@@ -40,6 +40,8 @@ pub(super) fn candidates(
                 label,
                 text: symbol.name,
                 range: None,
+                additional: Vec::new(),
+                proposal: None,
             })
         })
         .take(super::MAX_CANDIDATES)

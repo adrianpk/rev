@@ -1,9 +1,10 @@
+pub(super) mod resolve;
 mod sources;
 
-use crate::buffer::edit::{Cursor, Replacement};
+use crate::buffer::edit::Cursor;
 use crate::command::{Command, CompletionCommand as C};
+use crate::completion::edits::Edits;
 use crate::completion::{Completion, Request};
-use crate::coordinates::Scalar;
 use crate::input::{Focus, Outcome};
 
 use super::{Action, Session};
@@ -27,6 +28,9 @@ impl Session {
     }
 
     pub(super) fn dismiss_completion(&mut self) {
+        if let Some(resolve) = self.completion_resolve.take() {
+            resolve.cancel();
+        }
         self.completion_source = None;
         self.completion = None;
         self.completion_request = None;
@@ -40,6 +44,7 @@ impl Session {
         }
         if self.completion_request.is_some()
             && self.completion.is_none()
+            && !self.resolution_current()
             && !self
                 .completion_work
                 .current(self.windows.selected_id(), self.view().point)
@@ -79,7 +84,8 @@ impl Session {
             C::Accept => {
                 let result = self.publish_completion();
                 match result {
-                    Ok(()) => self.message(""),
+                    Ok(true) => self.message(""),
+                    Ok(false) => self.message("Resolving completion"),
                     Err(error) => self.error(&error),
                 }
             }
@@ -136,7 +142,7 @@ impl Session {
     }
 
     pub(super) fn expire_completion(&mut self, now: std::time::Instant) -> Action {
-        let mut action = Action::Wait;
+        let mut action = self.poll_resolution(now).unwrap_or(Action::Wait);
         if let Some(result) = self.completion_work.poll(now) {
             action = self.receive_completion(result);
         }
@@ -198,6 +204,9 @@ impl Session {
             .pending
             .as_mut()
             .ok_or("No completion pending")?;
+        if request.native_only {
+            return Ok(());
+        }
         request.semantic = self
             .lsp
             .completion(buffer, request.semantic_target(), request.manual);
@@ -315,27 +324,43 @@ impl Session {
         self.message("")
     }
 
-    fn publish_completion(&mut self) -> Result<(), String> {
+    fn publish_completion(&mut self) -> Result<bool, String> {
+        if self.completion_resolve.is_some() {
+            return Ok(false);
+        }
         let completion = self.completion.take().ok_or("No active completion")?;
+        self.check_completion(&completion)?;
+        if let Some(proposal) = completion.proposal() {
+            let ticket = self
+                .lsp
+                .resolve(proposal)
+                .ok_or("Completion connection is obsolete")?;
+            self.completion_resolve = Some(resolve::Resolving::new(completion, ticket));
+            return Ok(false);
+        }
+        self.finish_completion(completion).map(|_| true)
+    }
+
+    fn finish_completion(&mut self, completion: Completion) -> Result<(), String> {
         self.input.set_completion(false);
         let edit = self.completion_edit(&completion);
         self.completion_request = None;
         self.apply_completion(edit?).map_err(|e| e.to_string())
     }
 
-    fn completion_edit(&self, completion: &Completion) -> Result<Replacement, String> {
+    fn completion_edit(&self, completion: &Completion) -> Result<Edits, String> {
         self.check_completion(completion)?;
-        completion.replacement(self.buffer().map_err(|e| e.to_string())?)
+        completion.edits(self.buffer().map_err(|e| e.to_string())?)
     }
 
-    fn apply_completion(&mut self, edit: Replacement) -> Result<(), crate::buffer::edit::Error> {
-        let buffer = self.buffers.get_mut(edit.source.stamp.buffer)?;
+    fn apply_completion(&mut self, edit: Edits) -> Result<(), crate::buffer::edit::Error> {
+        let buffer = self.buffers.get_mut(edit.0[0].source.stamp.buffer)?;
         let points = self.windows.points(buffer)?;
         let cursor = Cursor {
             index: points.initiator,
-            position: Scalar(edit.source.range.start + edit.text.chars().count()),
+            position: edit.1,
         };
-        let mut prepared = buffer.prepare(&[edit], &points.values, Some(cursor))?;
+        let mut prepared = buffer.prepare(&edit.0, &points.values, Some(cursor))?;
         prepared.set_origin(self.windows.selected_id());
         self.windows.publish(buffer, prepared, points)?;
         self.windows.selected_mut().reset_navigation();

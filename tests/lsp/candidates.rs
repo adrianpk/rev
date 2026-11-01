@@ -9,8 +9,8 @@ use rev::view::View;
 use serde_json::{Value, json};
 use std::time::{Duration, Instant};
 
-const RUST: &str = "fn cfg_native() {}\nfn main() { cfg| }\n";
-fn session(
+pub(super) const RUST: &str = "fn cfg_native() {}\nfn main() { cfg| }\n";
+pub(super) fn session(
     fixture: &Fixture,
     mode: &str,
     source: &str,
@@ -26,7 +26,7 @@ fn session(
         fixture.0.join("peer").to_str().unwrap(),
     ]
     .map(str::to_owned);
-    let timeout = if mode == "timeout" { 150 } else { 1000 };
+    let timeout = if mode.ends_with("timeout") { 150 } else { 1000 };
     let config = format!(
         "[completion]\nautomatic = {automatic}\ndelay_ms = 1\n[lsp]\nenabled = true\nrequest_timeout_ms = {timeout}\nshutdown_timeout_ms = 200\n[lsp.servers.rust]\ncommand = '/bin/sh'\nargs = {args:?}\nlanguages = ['rust', 'org', 'unbundled', 'json']\n[files.associations]\n'*.custom' = 'unbundled'\n"
     );
@@ -47,41 +47,41 @@ fn session(
     )
     .unwrap()
 }
-fn text(session: &Session) -> String {
+pub(super) fn text(session: &Session) -> String {
     let b = session.buffer().unwrap();
     b.slice(&b.span(0..b.len_chars()).unwrap())
         .unwrap()
         .to_string()
 }
-fn frames(f: &Fixture) -> Vec<Value> {
+pub(super) fn frames(f: &Fixture) -> Vec<Value> {
     std::fs::read_to_string(f.0.join("peer.frames"))
         .unwrap_or_default()
         .lines()
         .filter_map(|line| serde_json::from_str(line).ok())
         .collect()
 }
-fn wait(mut condition: impl FnMut() -> bool) {
+pub(super) fn wait(mut condition: impl FnMut() -> bool) {
     let deadline = Instant::now() + Duration::from_secs(5);
     while !condition() {
         assert!(Instant::now() < deadline, "bounded completion wait expired");
         std::thread::sleep(Duration::from_millis(2));
     }
 }
-fn settle(s: &mut Session) {
+pub(super) fn settle(s: &mut Session) {
     wait(|| {
         let now = Instant::now();
         s.expire_input(now);
         s.remaining_input(now).is_none()
     });
 }
-fn complete(s: &mut Session) {
+pub(super) fn complete(s: &mut Session) {
     s.execute(Command::Completion(C::AtPoint));
     settle(s);
 }
-fn key(s: &mut Session, code: KeyCode) {
+pub(super) fn key(s: &mut Session, code: KeyCode) {
     s.handle(Event::Key(KeyEvent::new(code, KeyModifiers::NONE)));
 }
-fn labels(s: &Session) -> Vec<String> {
+pub(super) fn labels(s: &Session) -> Vec<String> {
     s.completion()
         .unwrap()
         .candidates()
@@ -185,7 +185,7 @@ fn native_fallbacks() {
                 .iter()
                 .any(|label| label.starts_with("cfg_native"))
         );
-        if mode == "timeout" {
+        if mode.ends_with("timeout") {
             wait(|| frames(&f).iter().any(|v| v["method"] == "$/cancelRequest"));
         }
     }

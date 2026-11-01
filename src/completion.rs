@@ -1,5 +1,6 @@
 //! Disposable native proposals. Canonical buffers retain edit/history ownership.
 pub(crate) mod context;
+pub(crate) mod edits;
 pub(crate) mod job;
 pub(crate) mod literal;
 pub(crate) mod matching;
@@ -35,6 +36,7 @@ pub(crate) struct Request {
     pub semantic: Option<crate::lsp::completion::Ticket>,
     pub admitted: bool,
     pub fallback_reason: CompletionFallback,
+    pub native_only: bool,
 }
 
 impl Request {
@@ -72,6 +74,7 @@ impl Request {
             semantic: None,
             admitted: true,
             fallback_reason: CompletionFallback::Unavailable,
+            native_only: false,
         })
     }
     pub(crate) fn complete(self, symbols: Vec<Symbol>) -> Completion {
@@ -203,6 +206,8 @@ pub struct Candidate {
     label: String,
     pub(crate) text: String,
     range: Option<std::ops::Range<usize>>,
+    additional: Vec<crate::lsp::completion::Edit>,
+    proposal: Option<std::sync::Arc<crate::lsp::completion::Proposal>>,
 }
 
 impl Candidate {
@@ -323,6 +328,8 @@ impl Request {
                 label: item.label,
                 text: item.text,
                 range: Some(item.range),
+                additional: item.additional,
+                proposal: item.proposal,
             })
             .take(limit)
             .collect();

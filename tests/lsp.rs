@@ -5,6 +5,8 @@ mod candidates;
 mod controls;
 #[path = "lsp/documents.rs"]
 mod documents;
+#[path = "lsp/edits.rs"]
+mod edits;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 

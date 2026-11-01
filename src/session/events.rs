@@ -33,7 +33,7 @@ impl Session {
     pub fn remaining_input(&self, now: Instant) -> Option<Duration> {
         [
             self.input.remaining(now),
-            self.completion_work.remaining(now),
+            self.completion_remaining(now),
             self.assets_remaining(),
             self.lsp_remaining(),
             self.pointer_remaining(now),

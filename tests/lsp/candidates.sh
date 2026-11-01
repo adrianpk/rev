@@ -21,11 +21,13 @@ read_frame() {
 }
 read_frame || exit 1
 provider=',"completionProvider":{"triggerCharacters":["."]}'
+case "$mode" in resolve*) provider=',"completionProvider":{"triggerCharacters":["."],"resolveProvider":true}' ;; esac
 encoding='utf-16'
-test "$mode" != utf8 || encoding='utf-8'
+case "$mode" in utf8|resolve-utf8) encoding='utf-8' ;; esac
 test "$mode" != unsupported || provider=''
 frame '{"jsonrpc":"2.0","id":1,"result":{"capabilities":{"positionEncoding":"'"$encoding"'","textDocumentSync":2'"$provider"'}}}'
 old=''
+late_result="$log.result"
 while read_frame; do
     case "$payload" in
         *'"method":"textDocument/completion"'*)
@@ -38,9 +40,20 @@ while read_frame; do
             result=$(cat "$log.result")
             frame '{"jsonrpc":"2.0","id":'"$id"',"result":'"$result"'}'
             ;;
+        *'"method":"completionItem/resolve"'*)
+            id=$(printf '%s' "$payload" | sed -n 's/.*"id":\([0-9][0-9]*\).*/\1/p')
+            case "$mode" in
+                resolve-timeout) continue ;;
+                resolve-eof) exit 0 ;;
+                resolve-late) old=$id; late_result="$log.resolved"; continue ;;
+                resolve-error) frame '{"jsonrpc":"2.0","id":'"$id"',"error":{"code":-32603,"message":"fixture failure"}}'; continue ;;
+            esac
+            result=$(cat "$log.resolved")
+            frame '{"jsonrpc":"2.0","id":'"$id"',"result":'"$result"'}'
+            ;;
         *'"method":"$/cancelRequest"'*)
             if test -n "$old"; then
-                result=$(cat "$log.result")
+                result=$(cat "$late_result")
                 frame '{"jsonrpc":"2.0","id":'"$old"',"result":'"$result"'}'
                 printf 'sent\n' >> "$log.late"
                 old=''

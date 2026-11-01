@@ -15,6 +15,7 @@ pub struct Capabilities {
     pub encoding: Encoding,
     pub sync: u64,
     pub completion: bool,
+    pub resolve: bool,
     pub triggers: Vec<String>,
     pub open_close: bool,
     pub save: Save,
@@ -108,6 +109,12 @@ pub(super) fn capabilities(value: Value) -> Result<Capabilities, String> {
             .as_ref()
             .is_some_and(|v| v.is_object()),
         triggers: triggers(value.completion_provider.as_ref()),
+        resolve: value
+            .completion_provider
+            .as_ref()
+            .and_then(|v| v.get("resolveProvider"))
+            .and_then(Value::as_bool)
+            .unwrap_or(false),
     })
 }
 
@@ -118,7 +125,7 @@ pub(super) fn initialize(server: &Server, root: &str) -> Value {
         "capabilities":{"general":{"positionEncodings":["utf-8","utf-16"]},
             "workspace":{"configuration":true,"workspaceFolders":true},
             "textDocument":{"synchronization":{"dynamicRegistration":false,"willSave":false,"willSaveWaitUntil":false,"didSave":true},"completion":{"dynamicRegistration":false,
-                "contextSupport":true,"completionList":{"itemDefaults":["editRange","insertTextFormat","insertTextMode"]},"completionItem":{"snippetSupport":false,"insertReplaceSupport":true,"insertTextModeSupport":{"valueSet":[1]}}}}},
+                "contextSupport":true,"completionList":{"itemDefaults":["editRange","insertTextFormat","insertTextMode","data"]},"completionItem":{"snippetSupport":false,"resolveSupport":{"properties":["additionalTextEdits"]},"insertReplaceSupport":true,"insertTextModeSupport":{"valueSet":[1]}}}}},
         "initializationOptions":server.initialization_options
     }})
 }

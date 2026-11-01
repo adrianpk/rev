@@ -1,5 +1,8 @@
 //! Completion observations share the connection queue and never own edits.
 mod admit;
+mod edits;
+mod proposal;
+pub(crate) use proposal::Proposal;
 
 use super::{Client, Status, documents::Activation, inbox::Inbox};
 use crate::buffer::{Buffer, Stamp};
@@ -26,10 +29,18 @@ pub enum Source {
     Semantic { incomplete: bool },
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct Edit {
+    pub range: Range<usize>,
+    pub text: String,
+}
+
 pub(crate) struct Item {
     pub label: String,
     pub text: String,
     pub range: Range<usize>,
+    pub additional: Vec<Edit>,
+    pub proposal: Option<Arc<Proposal>>,
 }
 
 pub(crate) struct Reply {
@@ -75,6 +86,9 @@ impl Ticket {
     pub fn cancelled(&self) -> bool {
         self.0.cancelled.load(Ordering::Acquire)
     }
+    pub fn poll(&self) -> Option<Reply> {
+        self.0.result.lock().expect("LSP completion lock").take()
+    }
     pub fn wait(&self) -> Reply {
         let result = self.0.result.lock().expect("LSP completion lock");
         let mut result = self
@@ -103,17 +117,22 @@ pub(super) struct Query {
     pub prefix: String,
     pub uri: String,
     pub manual: bool,
+    pub resolve: Option<Arc<Proposal>>,
 }
 impl Query {
     pub fn current(&self) -> bool {
         !self.ticket.cancelled() && self.token.version().is_some_and(|v| v.stamp == self.stamp)
     }
-    pub fn finish(&self, result: serde_json::Value, encoding: &super::Encoding) {
+    pub fn finish(&self, result: serde_json::Value, wire: (&super::Encoding, bool)) {
         let incomplete = result
             .get("isIncomplete")
             .and_then(serde_json::Value::as_bool)
             .unwrap_or(false);
-        let mut reply = admit::response(self, result, encoding);
+        let mut reply = if self.resolve.is_some() {
+            admit::resolved(self, result, wire.0)
+        } else {
+            admit::response(self, result, wire)
+        };
         let Some(version) = self
             .token
             .version()
@@ -122,7 +141,9 @@ impl Query {
             self.ticket.finish(Reply::fallback(Fallback::Cancelled));
             return;
         };
-        self.token.incomplete.store(incomplete, Ordering::Release);
+        if self.resolve.is_none() {
+            self.token.incomplete.store(incomplete, Ordering::Release);
+        }
         if matches!(reply.source, Source::Semantic { .. }) {
             reply.version = Some(version);
         }
@@ -170,7 +191,34 @@ impl Client {
             range: target.1,
             prefix: target.2,
             manual,
+            resolve: None,
             uri: super::roots::uri(&attachment.path).ok()?,
+        };
+        connection.inbox.completion(query);
+        Some(ticket)
+    }
+}
+
+impl Client {
+    pub(crate) fn resolve(&self, proposal: Arc<Proposal>) -> Option<Ticket> {
+        let context = &proposal.context;
+        if self.document_version(context.stamp.buffer) != Some(context.version) {
+            return None;
+        }
+        let attachment = self.attachments.get(&context.stamp.buffer)?;
+        let connection = self.connections.get(&attachment.key)?;
+        let ticket = Ticket::new(&connection.inbox);
+        let query = Query {
+            ticket: ticket.clone(),
+            token: context.token.clone(),
+            stamp: context.stamp,
+            text: context.text.clone(),
+            point: context.point,
+            range: context.range.clone(),
+            prefix: context.prefix.clone(),
+            uri: context.uri.clone(),
+            manual: true,
+            resolve: Some(proposal),
         };
         connection.inbox.completion(query);
         Some(ticket)
