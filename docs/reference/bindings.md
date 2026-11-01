@@ -141,6 +141,27 @@ Global Org entry keys include `C-c a` (agenda), `C-c c` (capture) and
 `C-c l` (store link). See [Org bindings](org/bindings.md) for those keys,
 all Org commands and the source, draft, agenda and calendar contexts.
 
+## Vim startup profile
+
+Select `editor.interaction_profile = "vim"` and restart. Vim starts in Normal;
+unmatched text and bracketed paste do not insert there. Emacs remains the default.
+The following state commands require the Vim startup profile:
+
+| Input | Command | Result |
+| --- | --- | --- |
+| `i` in Normal | `modal-enter-insert` | Enter Insert at point. |
+| `a` in Normal | `modal-enter-insert-after` | Enter Insert after the current grapheme, stopping at logical EOL. |
+| `I` in Normal | `modal-enter-insert-line-first` | Enter Insert at the first non-whitespace boundary. |
+| `A` in Normal | `modal-enter-insert-line-end` | Enter Insert at logical EOL. |
+| `o` in Normal | `modal-open-line-below` | Open one logical line below and enter Insert. |
+| `O` in Normal | `modal-open-line-above` | Open one logical line above and enter Insert. |
+| Escape or `C-[` in Vim editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
+
+Insert uses native editing and compatible modified factory bindings. Normal
+retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
+alone create no history; opening a line creates one ordinary undoable edit.
+Local prompts, completion, tree and Org maps keep their input priority.
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in

@@ -19,6 +19,9 @@ impl Input {
         if self.workspace_tree {
             return MapContext::Tree;
         }
+        if self.modal_editing() {
+            return self.modal_context();
+        }
         self.workspace_org
             .map_or(MapContext::Editor, super::OrgContext::keymap)
     }

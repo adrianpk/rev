@@ -329,8 +329,8 @@ impl Input {
     }
 
     fn literal(&self, key: Key) -> Outcome {
-        if let Some(outcome) = self.modal_key(key) {
-            return outcome;
+        if self.modal_editing() && self.editing_state == EditingState::Normal {
+            return Outcome::Message("Unbound Normal key");
         }
         if !self.accepts_text() {
             return Outcome::Message("Unbound Org context key");

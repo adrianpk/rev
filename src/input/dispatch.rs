@@ -10,7 +10,7 @@ impl Input {
         let Some(sequence) = Sequence::from_chords(&self.chords) else {
             return self.unmatched(key, continued);
         };
-        let map = self.keymaps.map(self.map_context());
+        let map = self.active_map();
         if let Some(binding) = map.lookup(&sequence) {
             let custom = map.is_custom(&sequence);
             return self.bound(binding, key, custom, continued);
@@ -73,7 +73,7 @@ impl Input {
         let Some(sequence) = Sequence::from_chords(&[key]) else {
             return false;
         };
-        let map = self.keymaps.map(self.map_context());
+        let map = self.active_map();
         if let Some(binding) = map.lookup(&sequence) {
             return self.binding_repeats(binding);
         }

@@ -4,8 +4,7 @@ use std::ops::RangeInclusive;
 use crate::input::keymap;
 
 use super::{
-    Document, Keymaps, PartialGutterPalette, PartialOrgPalette, PartialPalette,
-    PartialSyntaxPalette, Rgb,
+    Document, PartialGutterPalette, PartialOrgPalette, PartialPalette, PartialSyntaxPalette, Rgb,
 };
 
 pub(super) enum Target {
@@ -47,7 +46,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     palette(&document.palette)?;
     languages(document)?;
     associations(&document.files.associations)?;
-    bindings(&document.keys)
+    bindings(document)
 }
 
 fn completion_and_lsp(document: &Document) -> Result<(), Failure> {
@@ -253,8 +252,12 @@ fn association_pattern(pattern: &str) -> bool {
             .any(|character| character.is_control() || "*?[]/\\".contains(character))
 }
 
-fn bindings(keys: &Keymaps) -> Result<keymap::Effective, Failure> {
-    keymap::compile(keys).map_err(|error| Failure {
+fn bindings(document: &Document) -> Result<keymap::Effective, Failure> {
+    keymap::compile_for(
+        &document.keys,
+        document.editor.interaction_profile.unwrap_or_default(),
+    )
+    .map_err(|error| Failure {
         key: vec!["keys".into(), error.context.name().into(), error.sequence],
         message: error.message,
         target: match error.site {

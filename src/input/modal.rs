@@ -1,9 +1,8 @@
 use crate::buffer::BufferId;
-use crate::command::{Command, ModalCommand};
 use crate::config::InteractionProfile;
 use crate::window::ViewId;
 
-use super::{Focus, Input, Key, Outcome};
+use super::{Focus, Input};
 
 /// Transient state of the selected startup profile, never persisted to settings.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -11,6 +10,15 @@ pub enum EditingState {
     #[default]
     Normal,
     Insert,
+}
+
+impl EditingState {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Normal => "NORMAL",
+            Self::Insert => "INSERT",
+        }
+    }
 }
 
 impl Input {
@@ -48,19 +56,19 @@ impl Input {
             )
     }
 
-    pub(super) fn modal_key(&self, key: Key) -> Option<Outcome> {
-        if !self.modal_editing() || self.editing_state != EditingState::Normal {
-            return None;
+    pub(super) fn modal_context(&self) -> super::keymap::Context {
+        match self.editing_state {
+            EditingState::Normal => super::keymap::Context::VimNormal,
+            EditingState::Insert => super::keymap::Context::VimInsert,
         }
-        let command = match key.plain()? {
-            crossterm::event::KeyCode::Char('i') => ModalCommand::Insert,
-            crossterm::event::KeyCode::Char('a') => ModalCommand::InsertAfter,
-            crossterm::event::KeyCode::Char('I') => ModalCommand::InsertLineFirst,
-            crossterm::event::KeyCode::Char('A') => ModalCommand::InsertLineEnd,
-            crossterm::event::KeyCode::Char('o') => ModalCommand::OpenBelow,
-            crossterm::event::KeyCode::Char('O') => ModalCommand::OpenAbove,
-            _ => return Some(Outcome::Message("Unbound Normal key")),
-        };
-        Some(Outcome::Command(Command::Modal(command)))
+    }
+
+    pub(super) fn active_map(&self) -> &super::keymap::Map {
+        if self.modal_editing() {
+            let local = self.workspace_org.map(super::OrgContext::keymap);
+            self.keymaps.vim_map(self.modal_context(), local)
+        } else {
+            self.keymaps.map(self.map_context())
+        }
     }
 }

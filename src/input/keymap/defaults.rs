@@ -38,6 +38,12 @@ fn complete(
 
 pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {
+        Context::VimNormal => super::vim::normal(),
+        Context::VimInsert => EDITOR,
+        Context::VimReplace
+        | Context::VimVisualCharacter
+        | Context::VimVisualLine
+        | Context::VimVisualBlock => &[],
         Context::Completion => COMPLETION,
         Context::Editor => EDITOR,
         Context::Minibuffer => MINIBUFFER,
@@ -51,7 +57,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
     }
 }
 
-const EDITOR: &[(&str, &str)] = &[
+pub(super) const EDITOR: &[(&str, &str)] = &[
     ("C-c a", "org-agenda"),
     ("C-c c", "org-capture"),
     ("C-c l", "org-store-link"),

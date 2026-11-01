@@ -694,6 +694,13 @@ pub struct PartialFiles {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Keymaps {
+    pub vim_normal: BTreeMap<String, String>,
+    pub vim_insert: BTreeMap<String, String>,
+    pub vim_replace: BTreeMap<String, String>,
+    pub vim_visual_character: BTreeMap<String, String>,
+    pub vim_visual_line: BTreeMap<String, String>,
+    pub vim_visual_block: BTreeMap<String, String>,
+
     pub completion: BTreeMap<String, String>,
     pub editor: BTreeMap<String, String>,
     pub minibuffer: BTreeMap<String, String>,
@@ -710,6 +717,12 @@ impl Keymaps {
     pub fn map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::VimNormal => &self.vim_normal,
+            Context::VimInsert => &self.vim_insert,
+            Context::VimReplace => &self.vim_replace,
+            Context::VimVisualCharacter => &self.vim_visual_character,
+            Context::VimVisualLine => &self.vim_visual_line,
+            Context::VimVisualBlock => &self.vim_visual_block,
             Context::Completion => &self.completion,
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
@@ -729,6 +742,12 @@ impl Keymaps {
     ) -> &mut BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::VimNormal => &mut self.vim_normal,
+            Context::VimInsert => &mut self.vim_insert,
+            Context::VimReplace => &mut self.vim_replace,
+            Context::VimVisualCharacter => &mut self.vim_visual_character,
+            Context::VimVisualLine => &mut self.vim_visual_line,
+            Context::VimVisualBlock => &mut self.vim_visual_block,
             Context::Completion => &mut self.completion,
             Context::Editor => &mut self.editor,
             Context::Minibuffer => &mut self.minibuffer,

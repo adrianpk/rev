@@ -5,14 +5,24 @@ mod cancellation;
 mod defaults;
 mod map;
 mod sequence;
+mod vim;
+
+use std::collections::BTreeMap;
 
 pub use map::{Error, Map, Site};
 pub use sequence::{Sequence, SyntaxError};
 
 /// Independent inherited maps; the minibuffer owner retains its stage-specific
 /// argument, search, command, inventory and decision admission rules.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Context {
+    VimNormal,
+    VimInsert,
+    VimReplace,
+    VimVisualCharacter,
+    VimVisualLine,
+    VimVisualBlock,
+
     Completion,
     Editor,
     Minibuffer,
@@ -26,7 +36,13 @@ pub enum Context {
 }
 
 impl Context {
-    pub const ALL: [Self; 10] = [
+    pub const ALL: [Self; 16] = [
+        Self::VimNormal,
+        Self::VimInsert,
+        Self::VimReplace,
+        Self::VimVisualCharacter,
+        Self::VimVisualLine,
+        Self::VimVisualBlock,
         Self::Completion,
         Self::Editor,
         Self::Minibuffer,
@@ -41,6 +57,12 @@ impl Context {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::VimNormal => "vim_normal",
+            Self::VimInsert => "vim_insert",
+            Self::VimReplace => "vim_replace",
+            Self::VimVisualCharacter => "vim_visual_character",
+            Self::VimVisualLine => "vim_visual_line",
+            Self::VimVisualBlock => "vim_visual_block",
             Self::Completion => "completion",
             Self::Editor => "editor",
             Self::Minibuffer => "minibuffer",
@@ -76,6 +98,8 @@ impl Context {
 /// Complete maps published together after all candidate checks succeed.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Effective {
+    vim: BTreeMap<Context, Map>,
+    vim_org: BTreeMap<(Context, Context), Map>,
     completion: Map,
     editor: Map,
     minibuffer: Map,
@@ -97,6 +121,12 @@ impl Default for Effective {
 impl Effective {
     pub fn map(&self, context: Context) -> &Map {
         match context {
+            Context::VimNormal => &self.vim[&context],
+            Context::VimInsert => &self.vim[&context],
+            Context::VimReplace => &self.vim[&context],
+            Context::VimVisualCharacter => &self.vim[&context],
+            Context::VimVisualLine => &self.vim[&context],
+            Context::VimVisualBlock => &self.vim[&context],
             Context::Completion => &self.completion,
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
@@ -114,8 +144,19 @@ impl Effective {
 /// Exact normalized user chords replace inherited entries; all other defaults
 /// survive. No map escapes this boundary before context and prefix validation.
 pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
+    compile_for(keys, crate::config::InteractionProfile::Emacs)
+}
+
+pub fn compile_for(
+    keys: &crate::config::Keymaps,
+    profile: crate::config::InteractionProfile,
+) -> Result<Effective, Error> {
     let (editor, minibuffer, org_calendar) = base_maps(keys)?;
+    let vim = vim::maps(keys)?;
+    let vim_org = vim::org_maps(keys, &vim, profile)?;
     Ok(Effective {
+        vim,
+        vim_org,
         completion: Map::compile(Context::Completion, &keys.completion)?,
         org: Map::inherit(&editor, Context::Org, &keys.org)?,
         org_capture: Map::inherit(&editor, Context::OrgCapture, &keys.org_capture)?,

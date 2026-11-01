@@ -34,7 +34,7 @@ Acceptance: MOD01-MOD03, MOD09-MOD11.
 
 - [x] T1.1: Add the typed editor.interaction_profile enum with emacs as the default, immutable session admission, startup-only application and whole-candidate fallback. Create tests/modal.rs using owned configuration fixtures; preserve startup provisioning and existing configuration precedence.
 - [x] T1.2: Introduce one native session/view-coordinated modal state owner and safe Normal/Insert transitions. Normal rejects unmatched printable input; i/a/I/A/o/O and Escape/C-[ use checked native edits and cursor positions. Keep M-x and C-g recovery, source/history ownership and terminal restoration intact.
-- [ ] T1.3: Extend the existing keys tables with profile/state-scoped Vim maps. Keep keys.editor as the Emacs factory surface and preserve local component precedence; admit only implemented canonical commands, never scripts or unbinding sentinels. Distinguish compatible modified Insert bindings from conflicting Normal bindings.
+- [x] T1.3: Extend the existing keys tables with profile/state-scoped Vim maps. Keep keys.editor as the Emacs factory surface and preserve local component precedence; admit only implemented canonical commands, never scripts or unbinding sentinels. Distinguish compatible modified Insert bindings from conflicting Normal bindings.
 - [ ] T1.4: Show NORMAL/INSERT through the existing status layout and terminal cursor API, resetting cursor presentation on exit. Update the complete supported sample, defaults, command/key inventories and targeted R01/R24/CFG12-CFG15 wording without rewriting historical delivery evidence.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 

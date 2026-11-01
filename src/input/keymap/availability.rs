@@ -35,7 +35,16 @@ impl Context {
     fn editing_context(self) -> bool {
         matches!(
             self,
-            Self::Editor | Self::Org | Self::OrgCapture | Self::OrgSourceEdit
+            Self::Editor
+                | Self::Org
+                | Self::OrgCapture
+                | Self::OrgSourceEdit
+                | Self::VimNormal
+                | Self::VimInsert
+                | Self::VimReplace
+                | Self::VimVisualCharacter
+                | Self::VimVisualLine
+                | Self::VimVisualBlock
         )
     }
 

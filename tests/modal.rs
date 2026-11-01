@@ -2,6 +2,8 @@
 
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "modal/keymaps.rs"]
+mod keymaps;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
