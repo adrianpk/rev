@@ -37,6 +37,12 @@ impl Input {
         }
     }
 
+    pub(crate) fn editing_composition(&self) -> bool {
+        self.modal_editing()
+            && self.editing_state == EditingState::Normal
+            && self.navigation_pending()
+    }
+
     fn navigation_pending(&self) -> bool {
         self.grammar.strokes > 0
             || self.grammar.character.is_some()

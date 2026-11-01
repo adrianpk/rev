@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 3 in progress; Slice 2 delivered through PR #213
+Active slice: Slice 3 reviewing; Slice 2 delivered through PR #213
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -52,10 +52,10 @@ Acceptance: MOD04-MOD05, MOD08-MOD09.
 
 Acceptance: MOD05-MOD06, MOD12.
 
-- [ ] T3.1: Compose d/c/y and </> with one checked target, including multiplied operator/motion counts and doubled logical-line operators. Resolve inclusivity and linewise intent before publication; pending grammar must not move point or mutate text.
-- [ ] T3.2: Implement the finite text-object set: inner/around word and WORD, paragraph, paired parentheses/brackets/braces, and single/double/backtick quotes. Test nested delimiters, escapes, absent targets and boundary counts without introducing a language parser or regexp dialect for text objects.
-- [ ] T3.3: Deliver dd/cc/yy, D/C/Y, x/X, r<char>, p/P, line joining J and indentation through shared prepared edits, kill/yank ownership and history. Preserve linewise transfer intent without creating a modal register store; linewise paste handles EOF and newline conventions.
-- [ ] T3.4: Verify examples such as dw on 'one two' leaving 'two', de preserving the following separator, 2d3w as one checked six-word target and one undo, plus read-only/failed preparation, Unicode and multi-view restoration. Update inventories for each new supported semantic command.
+- [x] T3.1: Compose d/c/y and </> with one checked target, including multiplied operator/motion counts and doubled logical-line operators. Resolve inclusivity and linewise intent before publication; pending grammar must not move point or mutate text.
+- [x] T3.2: Implement the finite text-object set: inner/around word and WORD, paragraph, paired parentheses/brackets/braces, and single/double/backtick quotes. Test nested delimiters, escapes, absent targets and boundary counts without introducing a language parser or regexp dialect for text objects.
+- [x] T3.3: Deliver dd/cc/yy, D/C/Y, x/X, r<char>, p/P, line joining J and indentation through shared prepared edits, kill/yank ownership and history. Preserve linewise transfer intent without creating a modal register store; linewise paste handles EOF and newline conventions.
+- [x] T3.4: Verify examples such as dw on 'one two' leaving 'two', de preserving the following separator, 2d3w as one checked six-word target and one undo, plus read-only/failed preparation, Unicode and multi-view restoration. Update inventories for each new supported semantic command.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 4: Visual selections and block geometry

@@ -909,7 +909,7 @@ impl Session {
             .input
             .prefix_label()
             .unwrap_or_else(|| prefix.label().into());
-        if prefix == crate::input::Prefix::Meta {
+        if prefix == crate::input::Prefix::Meta || self.input.editing_composition() {
             return self.focus_message(&label);
         }
         self.notice(&label)

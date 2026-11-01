@@ -127,6 +127,7 @@ impl Session {
         };
         let mut operator = state.operator?;
         if state.found.is_none() {
+            self.kills.break_chain();
             self.pending = None;
             return Some(self.message("Operator search target unavailable"));
         }

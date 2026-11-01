@@ -38,6 +38,7 @@ fn direct_edits() {
         ("missing replacement", "a\r\nb", 0, "2rx", "a\r\nb"),
         ("huge replacement", "abc", 0, "4294967295rx", "abc"),
         ("join", "one\n  two\nthree", 1, "J", "one two\nthree"),
+        ("join blank lines", "one\n\nthree", 1, "3J", "one three"),
         (
             "counted join",
             "one\r\n  two\r\nthree",

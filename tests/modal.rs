@@ -12,6 +12,8 @@ mod local_targets;
 mod navigation;
 #[path = "modal/objects.rs"]
 mod objects;
+#[path = "modal/operator_safety.rs"]
+mod operator_safety;
 #[path = "modal/operators.rs"]
 mod operators;
 #[path = "modal/presentation.rs"]

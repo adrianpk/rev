@@ -19,20 +19,30 @@ impl Session {
             Operand::Lines => (self.operator_lines(request.amount())?, Shape::Line),
             Operand::Object(object) => return self.object_selection(object, request.amount()),
             Operand::Motion(navigation) => return self.operator_motion(navigation),
-            Operand::Resolved { origin, end } => {
-                if origin != self.view().point {
-                    return Err(Error::Target);
-                }
-                (
-                    origin.position.0.min(end.0)..origin.position.0.max(end.0),
-                    Shape::Linear,
-                )
-            }
+            Operand::Resolved { origin, end } => return self.resolved_selection(origin, end),
         };
         Ok(Some(Selection {
             source: buffer.span(range)?,
             shape,
             backward: false,
+        }))
+    }
+
+    fn resolved_selection(
+        &self,
+        origin: crate::buffer::edit::Point,
+        end: Scalar,
+    ) -> Result<Option<Selection>, Error> {
+        if origin != self.view().point {
+            return Err(Error::Target);
+        }
+        let source = self
+            .buffer()?
+            .span(origin.position.0.min(end.0)..origin.position.0.max(end.0))?;
+        Ok(Some(Selection {
+            source,
+            shape: Shape::Linear,
+            backward: end < origin.position,
         }))
     }
 

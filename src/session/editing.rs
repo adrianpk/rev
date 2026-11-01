@@ -76,7 +76,11 @@ impl Session {
         if let Some(action) = self.operator_search(request) {
             return Some(action);
         }
-        Some(match self.apply_editing(request) {
+        let result = self.apply_editing(request);
+        if !matches!(result, Ok(true)) {
+            self.kills.break_chain();
+        }
+        Some(match result {
             Ok(_) if request.action.copies() => self.message("Target copied"),
             Ok(changed) => self.finish(Ok(changed)),
             Err(error) => self.error(&error.to_string()),

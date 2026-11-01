@@ -61,6 +61,7 @@ impl Session {
             return Ok(false);
         };
         self.last_search = Some(confirmed);
+        let Some(found) = found else { return Ok(false) };
         self.publish_search(found, direction)?;
         Ok(true)
     }
@@ -69,7 +70,7 @@ impl Session {
         &self,
         search: Search,
         count: usize,
-    ) -> Result<Option<(Confirmed, Span, Direction)>, Error> {
+    ) -> Result<Option<(Confirmed, Option<Span>, Direction)>, Error> {
         let confirmed = if matches!(search, Search::WordForward | Search::WordBackward) {
             self.word_observation(search)?
         } else {
@@ -95,7 +96,7 @@ impl Session {
             whole_word: confirmed.whole_word,
         };
         let found = Pattern::new(&confirmed.query)?.occurrence(self.buffer()?, request)?;
-        Ok(found.map(|found| (confirmed, found, direction)))
+        Ok(Some((confirmed, found, direction)))
     }
 
     pub(in crate::session) fn search_target(
@@ -106,6 +107,7 @@ impl Session {
         let Some((_, found, direction)) = self.resolve_search(search, count)? else {
             return Ok(None);
         };
+        let Some(found) = found else { return Ok(None) };
         self.search_point(&found, direction).map(Some)
     }
 
