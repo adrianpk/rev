@@ -5,7 +5,7 @@ Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-07-contexts`
-PR: pending
+PR: `#218`
 
 ## Purpose
 
