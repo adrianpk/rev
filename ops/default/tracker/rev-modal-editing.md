@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 4 reviewing through PR #215; Slice 3 delivered through PR #214
+Active slice: Slice 5 in progress; Slice 4 delivered through PR #215
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -66,7 +66,7 @@ Acceptance: MOD06, MOD09-MOD12.
 - [x] T4.2: Extend native rectangular selection ownership with an explicit logical-grapheme column policy for Vim C-v while preserving the existing display-cell policy for Emacs rectangles. Pin tab, wide/combining grapheme, short-line and EOL cases; geometry must remain shared with wrapping/gutter/pointer projection.
 - [x] T4.3: Apply Visual d/c/y to character, line and block selections as one atomic native operation; change enters Insert and successful copy/delete returns Normal. Keep Visual indentation/text-object availability aligned with the finite Odra subset and preserve rectangular transfer shape.
 - [x] T4.4: Cover mouse selection, split views, buffer switches, Org folds, resize, source revision retirement and one-step undo/redo. Prove no modal selection can target a different buffer and no block failure commits earlier lines.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 5: Jump history and Insert continuation
 

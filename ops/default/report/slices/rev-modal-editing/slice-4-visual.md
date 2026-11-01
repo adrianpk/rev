@@ -1,11 +1,14 @@
 # Slice 4: Visual selections and block geometry
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-04-visual`
 PR: `#215`
+Merged commit: `2598a0f5f6d416bdb9f0dbdfbab4c1f748f0bffe`
+Canonical validation: `VBP2FDNRFRJECYRIAGY4AO5UGW`, three configured checks and 462 tests passed
+Focused validation: `WOQTJVOKZRZVSSRB3SF7VYGW75`, Clippy, 465 tests, 31 changed Rust files and documentation passed
 
 ## Purpose
 
