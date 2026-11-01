@@ -186,7 +186,7 @@ impl Frame {
             },
         )?;
         self.bookmark_markers(buffer, view, geometry, &fragments)?;
-        self.status(buffer, point, panel)?;
+        self.status(buffer, point, panel, None)?;
         self.preview(buffer, view, text.content(), &fragments)?;
         if panel.active() {
             self.cursor = Self::position(point, view, text, buffer, &fragments);
@@ -326,11 +326,17 @@ impl Frame {
         Ok(())
     }
 
-    fn status(&mut self, buffer: &Buffer, point: Cell, panel: Panel) -> Result<(), Error> {
+    pub(crate) fn status(
+        &mut self,
+        buffer: &Buffer,
+        point: Cell,
+        panel: Panel,
+        editing: Option<crate::input::EditingState>,
+    ) -> Result<(), Error> {
         let Some(area) = panel.status() else {
             return Ok(());
         };
-        let status = status::line(buffer, point, area.width(), panel.active())?;
+        let status = status::line(buffer, point, area.width(), panel.active(), editing)?;
         self.blit(
             area,
             Row {

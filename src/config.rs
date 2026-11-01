@@ -717,26 +717,52 @@ impl Keymaps {
     pub fn map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
         use crate::input::keymap::Context;
         match context {
+            Context::Completion => &self.completion,
+            Context::Editor => &self.editor,
+            Context::Minibuffer => &self.minibuffer,
+            Context::Tree => &self.tree,
+            Context::BookmarkList => &self.bookmark_list,
+            _ => self.modal_map(context),
+        }
+    }
+    fn modal_map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
             Context::VimNormal => &self.vim_normal,
             Context::VimInsert => &self.vim_insert,
             Context::VimReplace => &self.vim_replace,
             Context::VimVisualCharacter => &self.vim_visual_character,
             Context::VimVisualLine => &self.vim_visual_line,
             Context::VimVisualBlock => &self.vim_visual_block,
-            Context::Completion => &self.completion,
-            Context::Editor => &self.editor,
-            Context::Minibuffer => &self.minibuffer,
-            Context::Tree => &self.tree,
-            Context::BookmarkList => &self.bookmark_list,
+            _ => self.org_map(context),
+        }
+    }
+    fn org_map(&self, context: crate::input::keymap::Context) -> &BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
             Context::Org => &self.org,
             Context::OrgAgenda => &self.org_agenda,
             Context::OrgCapture => &self.org_capture,
             Context::OrgCalendar => &self.org_calendar,
             Context::OrgSourceEdit => &self.org_source_edit,
+            _ => unreachable!("non-Org maps resolved by their owner"),
         }
     }
-
     pub(super) fn map_mut(
+        &mut self,
+        context: crate::input::keymap::Context,
+    ) -> &mut BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
+            Context::Completion => &mut self.completion,
+            Context::Editor => &mut self.editor,
+            Context::Minibuffer => &mut self.minibuffer,
+            Context::Tree => &mut self.tree,
+            Context::BookmarkList => &mut self.bookmark_list,
+            _ => self.modal_map_mut(context),
+        }
+    }
+    fn modal_map_mut(
         &mut self,
         context: crate::input::keymap::Context,
     ) -> &mut BTreeMap<String, String> {
@@ -748,16 +774,21 @@ impl Keymaps {
             Context::VimVisualCharacter => &mut self.vim_visual_character,
             Context::VimVisualLine => &mut self.vim_visual_line,
             Context::VimVisualBlock => &mut self.vim_visual_block,
-            Context::Completion => &mut self.completion,
-            Context::Editor => &mut self.editor,
-            Context::Minibuffer => &mut self.minibuffer,
-            Context::Tree => &mut self.tree,
-            Context::BookmarkList => &mut self.bookmark_list,
+            _ => self.org_map_mut(context),
+        }
+    }
+    fn org_map_mut(
+        &mut self,
+        context: crate::input::keymap::Context,
+    ) -> &mut BTreeMap<String, String> {
+        use crate::input::keymap::Context;
+        match context {
             Context::Org => &mut self.org,
             Context::OrgAgenda => &mut self.org_agenda,
             Context::OrgCapture => &mut self.org_capture,
             Context::OrgCalendar => &mut self.org_calendar,
             Context::OrgSourceEdit => &mut self.org_source_edit,
+            _ => unreachable!("non-Org maps resolved by their owner"),
         }
     }
 }

@@ -64,27 +64,70 @@ impl Session {
         Ok(())
     }
 
-    /// Odra leaves the native point in place on Insert exit. Do not decrement
-    /// a byte or synthesize a separate Normal cursor.
+    /// Insert exit retains the native point. Do not decrement a byte or
+    /// synthesize a separate Normal cursor.
     pub(super) fn modal_target(&self, command: ModalCommand) -> Result<Scalar, Error> {
         let point = self.view().point.position;
         let buffer = self.buffer()?;
         self.view().check_point(buffer)?;
         let coordinates = Coordinates::new(buffer)?;
-        Ok(match command {
-            ModalCommand::Normal | ModalCommand::Insert => point,
-            ModalCommand::InsertAfter => coordinates
-                .next_observed(point)?
-                .min(coordinates.line_end(point)?),
-            ModalCommand::InsertLineEnd | ModalCommand::OpenBelow => coordinates.line_end(point)?,
-            ModalCommand::OpenAbove => coordinates.line_start(point)?,
-            ModalCommand::InsertLineFirst => {
-                let start = coordinates.line_start(point)?;
-                let end = coordinates.line_end(point)?;
-                let body = buffer.slice(&buffer.span(start.0..end.0)?)?;
-                let spaces = body.chars().take_while(|c| *c == ' ' || *c == '\t').count();
-                Scalar(start.0 + spaces)
-            }
-        })
+        entry_target(&coordinates, point, command).map_err(Error::from)
     }
+
+    pub(super) fn modal_dispatch(&mut self, command: crate::command::Command) -> Option<Action> {
+        let crate::command::Command::Modal(command) = command else {
+            return None;
+        };
+        Some(self.modal_command(command))
+    }
+
+    pub(super) fn modal_frame(
+        &self,
+        frame: &mut crate::display::Frame,
+        composition: Option<&crate::panel::Composition>,
+    ) -> Result<(), Error> {
+        let Some(state) = self.editing_state() else {
+            return Ok(());
+        };
+        let Some((_, panel)) = composition.and_then(|c| {
+            c.panels()
+                .iter()
+                .find(|(id, _)| *id == self.windows.selected_id())
+        }) else {
+            return Ok(());
+        };
+        let buffer = self.buffer()?;
+        frame.status(buffer, self.view().cell(buffer)?, *panel, Some(state))
+    }
+}
+
+fn entry_target(
+    coordinates: &Coordinates<'_>,
+    point: Scalar,
+    command: ModalCommand,
+) -> Result<Scalar, crate::coordinates::Error> {
+    match command {
+        ModalCommand::Normal | ModalCommand::Insert => Ok(point),
+        ModalCommand::InsertAfter => {
+            let next = coordinates.next_observed(point)?;
+            coordinates.line_end(point).map(|end| next.min(end))
+        }
+        ModalCommand::InsertLineEnd | ModalCommand::OpenBelow => coordinates.line_end(point),
+        ModalCommand::OpenAbove => coordinates.line_start(point),
+        ModalCommand::InsertLineFirst => first_text(coordinates, point),
+    }
+}
+
+fn first_text(
+    coordinates: &Coordinates<'_>,
+    point: Scalar,
+) -> Result<Scalar, crate::coordinates::Error> {
+    let row = coordinates.to_line(point)?.row;
+    for glyph in coordinates.glyphs(row)? {
+        let glyph = glyph?;
+        if !glyph.text.chars().all(|c| c == ' ' || c == '\t') {
+            return Ok(glyph.source.start);
+        }
+    }
+    coordinates.line_end(point)
 }

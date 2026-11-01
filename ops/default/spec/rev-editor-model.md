@@ -76,7 +76,7 @@ are sufficient; a reusable capability framework is not required.
 | `focus` | Editor, tree, minibuffer, or active transient interaction. |
 | `ring` | Linear entries, current rotation, and kill/yank continuity. |
 | `rectangle` | Optional last copied/killed block, separate from `ring`. |
-| `input` | Pending chords, prompt/search state, Escape deadline and cancellation origin; ordered finite native input batches. |
+| `input` | Immutable startup profile, transient modal state qualified by native view/buffer identity, pending chords, prompt/search state, Escape deadline and cancellation origin; ordered finite native input batches. |
 | `pointer` | Session enabled override and optional captured source ViewId/qualified anchor, latest drag edge and one pending deadline. |
 | `tree` | Root, loaded entries, expansion, selection, and visibility. |
 | `echo` | Current user-facing status or error, without changing document text. |

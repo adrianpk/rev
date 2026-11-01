@@ -159,7 +159,7 @@ sufficient. New roles and options cannot appear only in one of these surfaces.
 | Palette | Fixed semantic role to color assignments. | Complete built-ins; present leaves override; sample includes all supported role colors actively. |
 | General editing | Separate indentation style, indentation width, tab display width. | Global values with partial per-language overrides; no whitespace rewriting on load. |
 | Language settings | Named descriptor plus supported partial buffer overrides. | Editing preferences do not require a parser for that language. |
-| Keybindings | Context to supported chord/sequence to existing command name. | Editor/minibuffer/tree are distinct; omitted bindings inherit. |
+| Keybindings | Context to supported chord/sequence to existing command name. | Emacs/Vim state maps and local components are distinct; omitted bindings inherit their own factories. |
 | Optional file composition | Ordered explicit include paths. | Application-defined layering with errors/cycle detection; limits fixed by CFG08. |
 | Reference sample | Active defaults and commented supported optional alternatives. | Exhaustive documentation of the supported surface, not a roadmap of unimplemented features. |
 
@@ -180,6 +180,7 @@ No future-inventory entry extends this table implicitly.
 | --- | --- | --- | --- |
 | `version` | Integer, `1` (also when absent) | Only 1 | Loader, global schema |
 | `include` | String array, `[]` | Explicit paths, CFG08 limits | Loader, source-local traversal |
+| `editor.interaction_profile` | String, `"emacs"` | `emacs`, `vim` | Immutable global session choice; no language/view override |
 | `editor.indent_style` | String, `"spaces"` | `spaces`, `tabs` | Buffer editing policy; language-overridable |
 | `editor.indent_width` | Integer, `4` | 1..32 display columns | Buffer editing policy; language-overridable |
 | `editor.tab_width` | Integer, `4` | 1..32 display cells | Buffer coordinates; language-overridable |

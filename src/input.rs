@@ -279,9 +279,6 @@ impl Input {
 
     fn route(&mut self, key: Key) -> Outcome {
         if key.control('g') {
-            if self.modal_editing() {
-                self.set_editing_state(EditingState::Normal);
-            }
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }

@@ -8,6 +8,7 @@ use crossterm::terminal::{
 };
 use crossterm::{Command, ExecutableCommand};
 
+mod cursor;
 pub mod graphics;
 mod mouse;
 
@@ -20,6 +21,7 @@ pub struct Terminal<W: Write> {
     attributes: bool,
     paste: bool,
     cursor_color: bool,
+    cursor_style: cursor::Style,
     mouse: mouse::Reporting,
     images: graphics::Images,
 }
@@ -36,6 +38,7 @@ impl<W: Write> Terminal<W> {
             attributes: false,
             paste: false,
             cursor_color: false,
+            cursor_style: cursor::Style::default(),
             mouse: mouse::Reporting::default(),
             images: graphics::Images::default(),
         })
@@ -81,6 +84,7 @@ impl<W: Write> Terminal<W> {
             self.show(),
             self.reset_attributes(),
             self.reset_cursor_color(),
+            self.cursor_style.restore(&mut self.output),
             self.leave(),
             self.release(),
         ])
@@ -95,6 +99,14 @@ impl<W: Write> Terminal<W> {
             ));
         }
         self.mouse.set(&mut self.output, enabled)
+    }
+
+    /// Optional DECSCUSR feedback. Unsupported terminals may ignore it; a shape
+    /// failure does not prevent source presentation or release its reset duty.
+    pub fn set_cursor_style(&mut self, style: crossterm::cursor::SetCursorStyle) {
+        if self.screen {
+            let _ = self.cursor_style.set(&mut self.output, style);
+        }
     }
 
     fn command(&mut self, command: impl Command, operation: &str) -> io::Result<()> {

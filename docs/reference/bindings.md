@@ -2,7 +2,7 @@
 
 `C-` means Control; `M-` means reported Alt/Meta or a compatible Escape prefix.
 Spaces separate successive chords: `C-x C-s` means Control-x, then Control-s.
-Ordinary printable text inserts directly. These editing bindings apply while
+In the default Emacs profile, ordinary printable text inserts directly. These editing bindings apply while
 an editing window owns focus; tree, prompt and inventory focus have their own
 keys. See [Terminal input](terminal-input.md) for reports and physical-terminal
 limits, and [Focused prompts](prompts.md) for argument and decision keys.
@@ -165,8 +165,17 @@ Local prompts, completion, tree and Org maps keep their input priority.
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
-all ten contexts, including the empty local overlays that inherit editor keys. Copy only desired overrides to preserve inherited stage
+all supported contexts, including local overlays and the state maps. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
+
+`keys.editor` belongs to Emacs. Vim resolves `keys.vim_normal` or
+`keys.vim_insert` over independent native factories; Emacs overrides do not leak
+into either. Local Org editing/capture/source maps overlay the selected state.
+`keys.vim_replace`, `keys.vim_visual_character`, `keys.vim_visual_line` and
+`keys.vim_visual_block` are accepted empty factory maps; those states have no
+entry commands yet. M-x and C-g remain protected recovery in Vim editing.
+Escape/C-[ is a state transition while Vim editing owns input, so a standalone
+Escape cannot become a configurable command prefix there.
 
 `keys.completion` supplies the active popup map; Escape remains literal cancel.
 `keys.editor`, `keys.minibuffer` and `keys.tree` inherit independent complete

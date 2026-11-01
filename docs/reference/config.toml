@@ -14,6 +14,9 @@ include = []
 # include = ["editing.toml", "colors.toml"]
 
 [editor]
+# Startup-only session profile: "emacs" (direct editing) or "vim" (Normal/Insert).
+# Restart after changes; language and buffer settings cannot switch profiles.
+interaction_profile = "emacs"
 # Boolean; word-aware source wrapping at each pane's text width. M-x visual-line-mode
 # toggles one buffer for all its views, without changing text or this file.
 soft_wrap = true
@@ -915,6 +918,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "C-x t n" = "tree-create-file"
 "C-x t d" = "tree-create-directory"
 
+# Reserved maps have no factory bindings until their states are implemented.
 [keys.vim_replace]
 
 [keys.vim_visual_character]

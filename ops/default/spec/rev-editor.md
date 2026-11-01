@@ -26,8 +26,9 @@ R12 now incorporates the complete UI03 amendment from the approved
 [Wrap and Navigation delivery](../plan/rev-wrap-navigation.md); its completion
 evidence remains separate from those historical gates.
 
-Define the complete reference implementation of `rev`: a small, non-modal,
-terminal text editor written in Rust, with Emacs-style editing, rope-backed
+Define the complete reference implementation of `rev`: a small terminal text
+editor written in Rust, with default Emacs-style direct editing, startup-selected
+Vim interaction under [Modal Editing](editor-modal-editing.md), rope-backed
 buffers, split windows, a side file tree, and Tree-sitter highlighting.
 
 This document adapts the supplied technical specification to the OpenSpec
@@ -129,10 +130,12 @@ The following invariants apply across requirements:
 
 Source: sections 1-3, 16, 23-24. Acceptance: A02, A17.
 
-The executable MUST be named `rev`. It MUST run in a terminal, accept ordinary
-text without an insert-mode transition, and implement commands directly in
-Rust. Normal execution MUST work without a network connection. Temporary
-prompt, prefix, search, and tree focus states are part of non-modal editing.
+The executable MUST be named `rev`. It MUST run in a terminal and implement
+commands directly in Rust. The default Emacs profile MUST accept ordinary text
+without an Insert transition. The startup-selected Vim profile MUST admit text
+through its explicit editing states under [Modal Editing](editor-modal-editing.md).
+Normal execution MUST work without a network connection. Prompt, prefix, search
+and tree focus states retain their native input ownership under either profile.
 The baseline MUST respect the exclusions under Scope and priority.
 
 **Design default:** Linux terminals are the primary target. Other platforms
@@ -143,7 +146,7 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 #### Scenario: Ordinary offline editing
 
-- **GIVEN** a supported terminal with no network connection
+- **GIVEN** a supported terminal with no network connection and the default Emacs profile
 - **WHEN** the user launches `rev` and types ordinary text
 - **THEN** an editable terminal buffer receives the text directly
 - **AND** no interpreter, language server, or external editor service is required.
@@ -820,7 +823,10 @@ sequence SHOULD dispatch exactly one logical command.
 
 Pending input MUST NOT prevent event processing needed for terminal cleanup.
 One explicit focused input context MUST determine whether the event belongs
-to a prompt, tree, search, or editing command.
+to a prompt, tree, search, or editing command. The selected startup profile and
+its active state MUST select only their own editing map. In Vim editing, decoded
+Escape/C-[ MUST return to Normal; local components keep their cancellation
+priority. Emacs Escape/Meta timing MUST retain its existing behavior.
 
 #### Scenario: Cancel a nested rectangle prefix
 
@@ -1036,8 +1042,11 @@ Source: sections 18.1-18.3. Acceptance: A11, A16, A18.
 
 One executable and a small collection of ordinary Rust modules SHOULD own the
 application. `App` SHOULD own buffers, the layout, ring, input state, tree, and
-application messages. The terminal guard owns restoration. Buffers own text,
-file identity, mark, history, and content-specific parsing. Windows reference
+application messages. The same input owner MUST retain the immutable startup
+profile, transient modal state and current native view/buffer identity. It MUST
+retire incompatible text-entry state when that identity changes, without owning
+another cursor, text store or history. The terminal guard owns restoration.
+Buffers own text, file identity, mark, history, and content-specific parsing. Windows reference
 stable buffer identities and own their point and viewport.
 
 Drawing SHOULD borrow application state immutably and output mutably only

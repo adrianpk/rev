@@ -4,6 +4,8 @@
 mod fixture;
 #[path = "modal/keymaps.rs"]
 mod keymaps;
+#[path = "modal/presentation.rs"]
+mod presentation;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
@@ -16,12 +18,17 @@ use rev::session::Session;
 use rev::view::{Size, View};
 
 fn session(config: &str, text: &str, position: usize) -> Session {
+    source_session(config, text, position, false)
+}
+
+fn source_session(config: &str, text: &str, position: usize, readonly: bool) -> Session {
     let fixture = Fixture::new();
     let root = fixture.write("config.toml", config);
     let startup = prepare(&root);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
     let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
     let id = buffers.create(text).unwrap();
+    buffers.get_mut(id).unwrap().set_readonly(readonly);
     let mut view = View::with_settings(buffers.get(id).unwrap(), &startup.snapshot);
     view.point.position = Scalar(position);
     Session::new(

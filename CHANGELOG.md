@@ -6,6 +6,13 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Select the Emacs or Vim editing profile at startup. Emacs keeps direct text
+  entry; Vim starts in Normal with explicit Insert entry, logical line opening,
+  state feedback and shared undo. Change `editor.interaction_profile` and restart
+  to select a profile.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

@@ -27,10 +27,20 @@ drag selects canonical text with bounded source-edge autoscroll. Use
 rows; [terminal input](terminal-input.md#pointer-reporting-ownership) documents
 supported reports, cleanup and terminal-owned selection bypass.
 
+## Editing profile
+
+`editor.interaction_profile = "emacs"` is the default: ordinary text inserts
+directly. Choose `"vim"` before startup for Normal/Insert editing. Restart after
+changing it; the profile is immutable for the session and has no command or
+language override. Vim starts in Normal. Use i/a/I/A/o/O to enter Insert and
+Escape/C-[ to return to Normal. The [binding reference](bindings.md#vim-startup-profile)
+lists the currently implemented state commands. Invalid profile or keymap
+settings reject the whole candidate into complete Emacs defaults.
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
-global default, all 54 active RGB roles and all ten default context maps. Its
+global default, all 54 active RGB roles and the profile, state and local context maps. Its
 optional include, language and association examples are commented out. First
 startup installs these complete defaults; a customized file may retain only the
 overrides you need.
@@ -141,7 +151,13 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Editing focus; all 76 entries are active in the sample. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Emacs editing focus; all 76 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; explicit entry commands and compatible modified controls. The sample declares all 56 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | Vim Insert editing; native factories independent of Emacs overrides. The sample declares all 76 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Replace entry command is implemented yet. The sample declares all 0 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Character entry command is implemented yet. The sample declares all 0 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Line entry command is implemented yet. The sample declares all 0 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Block entry command is implemented yet. The sample declares all 0 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 15 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 22 entries are active in the sample. |
@@ -229,6 +245,7 @@ edit limits and finite lifecycle.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
+| `editor.interaction_profile` | String: "emacs" or "vim" | `"emacs"` | Immutable session profile, selected at startup. Vim begins in Normal; no language or runtime override. |
 | `editor.soft_wrap` | Boolean | `true` | Word-aware wrapping at each pane's available text width. M-x visual-line-mode toggles one live buffer for all its views; false retains horizontal scrolling. No source or history changes. |
 | `editor.indent_style` | String: "spaces" or "tabs" | `"spaces"` | Buffer policy; Tab emits the selected indentation form. Language-overridable. |
 | `editor.indent_width` | Integer 1..=32 | `4` | Buffer policy; indentation-stop display columns, independently of tab display width. Language-overridable. |

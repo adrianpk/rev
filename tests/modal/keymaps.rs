@@ -46,6 +46,11 @@ fn local_priority() {
     editor.handle(modified('g', KeyModifiers::CONTROL));
     assert_eq!(text(&editor), "abc");
     assert_eq!(editor.editing_state(), Some(EditingState::Normal));
+    editor.handle(key(KeyCode::Char('i')));
+    editor.handle(modified('g', KeyModifiers::CONTROL));
+    assert_eq!(editor.editing_state(), Some(EditingState::Insert));
+    editor.execute(Command::KeyboardQuit);
+    assert_eq!(editor.editing_state(), Some(EditingState::Insert));
 }
 
 // Native view switches retire text-entry state; commands and history never

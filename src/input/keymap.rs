@@ -57,22 +57,35 @@ impl Context {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Completion => "completion",
+            Self::Editor => "editor",
+            Self::Minibuffer => "minibuffer",
+            Self::Tree => "tree",
+            Self::BookmarkList => "bookmark_list",
+            _ => self.modal_name(),
+        }
+    }
+
+    fn modal_name(self) -> &'static str {
+        match self {
             Self::VimNormal => "vim_normal",
             Self::VimInsert => "vim_insert",
             Self::VimReplace => "vim_replace",
             Self::VimVisualCharacter => "vim_visual_character",
             Self::VimVisualLine => "vim_visual_line",
             Self::VimVisualBlock => "vim_visual_block",
-            Self::Completion => "completion",
-            Self::Editor => "editor",
-            Self::Minibuffer => "minibuffer",
-            Self::Tree => "tree",
-            Self::BookmarkList => "bookmark_list",
+            _ => self.org_name(),
+        }
+    }
+
+    fn org_name(self) -> &'static str {
+        match self {
             Self::Org => "org",
             Self::OrgAgenda => "org_agenda",
             Self::OrgCapture => "org_capture",
             Self::OrgCalendar => "org_calendar",
             Self::OrgSourceEdit => "org_source_edit",
+            _ => unreachable!("non-Org context has a separate name owner"),
         }
     }
 
@@ -120,23 +133,29 @@ impl Default for Effective {
 
 impl Effective {
     pub fn map(&self, context: Context) -> &Map {
+        if let Some(map) = self.vim.get(&context) {
+            return map;
+        }
+        self.native_map(context)
+    }
+    fn native_map(&self, context: Context) -> &Map {
         match context {
-            Context::VimNormal => &self.vim[&context],
-            Context::VimInsert => &self.vim[&context],
-            Context::VimReplace => &self.vim[&context],
-            Context::VimVisualCharacter => &self.vim[&context],
-            Context::VimVisualLine => &self.vim[&context],
-            Context::VimVisualBlock => &self.vim[&context],
             Context::Completion => &self.completion,
             Context::Editor => &self.editor,
             Context::Minibuffer => &self.minibuffer,
             Context::Tree => &self.tree,
             Context::BookmarkList => &self.bookmark_list,
+            _ => self.org_map(context),
+        }
+    }
+    fn org_map(&self, context: Context) -> &Map {
+        match context {
             Context::Org => &self.org,
             Context::OrgAgenda => &self.org_agenda,
             Context::OrgCapture => &self.org_capture,
             Context::OrgCalendar => &self.org_calendar,
             Context::OrgSourceEdit => &self.org_source_edit,
+            _ => unreachable!("non-Org map resolved by its owner"),
         }
     }
 }
@@ -152,15 +171,16 @@ pub fn compile_for(
     profile: crate::config::InteractionProfile,
 ) -> Result<Effective, Error> {
     let (editor, minibuffer, org_calendar) = base_maps(keys)?;
+    let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys)?;
     let vim = vim::maps(keys)?;
     let vim_org = vim::org_maps(keys, &vim, profile)?;
     Ok(Effective {
         vim,
         vim_org,
         completion: Map::compile(Context::Completion, &keys.completion)?,
-        org: Map::inherit(&editor, Context::Org, &keys.org)?,
-        org_capture: Map::inherit(&editor, Context::OrgCapture, &keys.org_capture)?,
-        org_source_edit: Map::inherit(&editor, Context::OrgSourceEdit, &keys.org_source_edit)?,
+        org,
+        org_capture,
+        org_source_edit,
         editor,
         minibuffer,
         tree: Map::compile(Context::Tree, &keys.tree)?,
@@ -175,4 +195,12 @@ fn base_maps(keys: &crate::config::Keymaps) -> Result<(Map, Map, Map), Error> {
     let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
     let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
     Ok((editor, minibuffer, org_calendar))
+}
+
+fn org_editing_maps(editor: &Map, keys: &crate::config::Keymaps) -> Result<(Map, Map, Map), Error> {
+    Ok((
+        Map::inherit(editor, Context::Org, &keys.org)?,
+        Map::inherit(editor, Context::OrgCapture, &keys.org_capture)?,
+        Map::inherit(editor, Context::OrgSourceEdit, &keys.org_source_edit)?,
+    ))
 }

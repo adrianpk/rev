@@ -31,3 +31,11 @@ space becomes available. Prompts and tree rows keep their own data and bounds.
 The existing `palette.status`, `palette.status_inactive` and
 `palette.status_text` roles control status colors. Rendering observes the live
 buffer and view without changing text, focus, history or saved bytes.
+
+With the Vim startup profile, the selected editing pane prefixes its status
+with `NORMAL` or `INSERT`. This state has priority over identity, language and
+position when space is limited. Panes below six cells show `N` or `I`; at six
+or seven cells they keep the complete state label. The Emacs status is unchanged.
+Where the terminal accepts DECSCUSR, Normal uses a steady block and Insert a
+steady bar. Exit resets the terminal's configured cursor shape; the status label
+remains authoritative when cursor-shape feedback is unavailable.

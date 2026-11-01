@@ -18,10 +18,25 @@ pub(super) fn line(
     point: Cell,
     width: u16,
     active: bool,
+    editing: Option<crate::input::EditingState>,
 ) -> Result<String, Error> {
     let row = point.row.checked_add(1).ok_or(Error::Overflow)?;
     let column = point.column.checked_add(1).ok_or(Error::Overflow)?;
-    Facts::new(buffer, active).render(width, row, column)
+    let facts = Facts::new(buffer, active);
+    let Some(editing) = editing else {
+        return facts.render(width, row, column);
+    };
+    if width < 6 {
+        return padded(&editing.label()[..1], width);
+    }
+    if width < 8 {
+        return padded(editing.label(), width);
+    }
+    Ok(format!(
+        "{} {}",
+        editing.label(),
+        facts.render(width - 7, row, column)?
+    ))
 }
 
 impl<'a> Facts<'a> {

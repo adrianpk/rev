@@ -38,22 +38,35 @@ fn complete(
 
 pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {
-        Context::VimNormal => super::vim::normal(),
-        Context::VimInsert => EDITOR,
-        Context::VimReplace
-        | Context::VimVisualCharacter
-        | Context::VimVisualLine
-        | Context::VimVisualBlock => &[],
         Context::Completion => COMPLETION,
         Context::Editor => EDITOR,
         Context::Minibuffer => MINIBUFFER,
         Context::Tree => TREE,
         Context::BookmarkList => BOOKMARK_LIST,
+        _ => modal_bindings(context),
+    }
+}
+
+pub(super) fn modal_bindings(context: Context) -> &'static [(&'static str, &'static str)] {
+    match context {
+        Context::VimNormal => super::vim::normal(),
+        Context::VimInsert => EDITOR,
+        Context::VimReplace => &[],
+        Context::VimVisualCharacter => &[],
+        Context::VimVisualLine => &[],
+        Context::VimVisualBlock => &[],
+        _ => org_bindings(context),
+    }
+}
+
+pub(super) fn org_bindings(context: Context) -> &'static [(&'static str, &'static str)] {
+    match context {
         Context::Org => ORG,
         Context::OrgAgenda => ORG_AGENDA,
         Context::OrgCapture => ORG_CAPTURE,
         Context::OrgCalendar => ORG_CALENDAR,
         Context::OrgSourceEdit => ORG_SOURCE_EDIT,
+        _ => unreachable!("non-Org defaults resolved by their owner"),
     }
 }
 

@@ -7,6 +7,14 @@ distinguishable supported report.
 
 ## Meta and Escape
 
+The deadline rules below apply to Emacs editing and local component input.
+In Vim editing, a decoded Escape or its C-[ alias returns to Normal immediately,
+clears a pending chord and preserves the native point. Reported Alt/Meta still
+uses the shared bindings, including M-x. A popup consumes its own Escape first;
+prompts and decisions retain their existing cancellation rules. The terminal
+may decode adjacent Escape bytes and a character as one Alt event, so physical
+Escape and Alt remain subject to the reporting limits below.
+
 - Reported Alt or Meta modifiers use the same Meta bindings. Shift on a reported
   character preserves that character, including `<` and `>`.
 - A separately reported plain Escape starts a **100 ms** Meta deadline. A plain
@@ -55,7 +63,7 @@ restoration path. A complete Crossterm paste event bypasses key decoding and
 clears pending chord/Meta prefixes. Pasted C-x, C-g, Escape and similar bytes are
 data and cannot invoke editing commands or confirm a decision.
 
-In editing focus, valid Unicode is inserted at point through one checked edit
+In Emacs editing or Vim Insert, valid Unicode is inserted at point through one checked edit
 and one undo step, separate from adjacent typing. LF, CRLF, tabs and final-newline
 absence are preserved as supplied, even when the buffer normally uses another
 newline style. Controls are displayed using visible notation. NUL-containing

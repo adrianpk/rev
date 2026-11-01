@@ -537,6 +537,7 @@ impl Session {
         frame: &mut Frame,
         composition: Option<&crate::panel::Composition>,
     ) -> Result<(), view::Error> {
+        self.modal_frame(frame, composition)?;
         self.timer_frame(frame)?;
         self.habit_frame(frame, composition)?;
         self.agenda_frame(frame, composition)?;
@@ -605,6 +606,15 @@ impl Session {
     }
 
     fn draw(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        if let Some(state) = self.editing_state() {
+            let style = match state {
+                crate::input::EditingState::Normal => {
+                    crossterm::cursor::SetCursorStyle::SteadyBlock
+                }
+                crate::input::EditingState::Insert => crossterm::cursor::SetCursorStyle::SteadyBar,
+            };
+            terminal.set_cursor_style(style);
+        }
         terminal.draw(&self.poll_frame().map_err(io::Error::other)?)
     }
 
@@ -711,7 +721,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = match self
-            .lsp_command(command)
+            .modal_dispatch(command)
+            .or_else(|| self.lsp_command(command))
             .or_else(|| self.query_view_command(command))
             .or_else(|| self.agenda_view_command(command))
             .or_else(|| self.habit_command(command))
@@ -725,7 +736,6 @@ impl Session {
 
     fn active_command(&mut self, command: Command) -> Action {
         match command {
-            Command::Modal(command) => self.modal_command(command),
             Command::Bookmark(command) => self.bookmark_command(command),
             Command::QueryReplace => self.query_replace(),
             Command::GotoLine => self.goto_line(),

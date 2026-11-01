@@ -383,6 +383,10 @@ User bindings SHALL map supported key sequences to existing hyphenated command
 names. At minimum, editor, minibuffer, and tree contexts SHALL be distinguishable.
 An override in one context SHALL NOT accidentally change another context's
 input. Unspecified bindings SHALL inherit the built-in map for that context.
+`keys.editor` SHALL select Emacs overrides; the `keys.vim_*` maps SHALL select
+Vim state overrides over independent factories. Local component maps SHALL
+retain priority over the selected editing map. Only implemented canonical
+commands SHALL be admitted; reserving a state map SHALL NOT add its behavior.
 
 An override SHALL name an existing command. Disabling a built-in chord through
 an empty, boolean, sentinel, or removal value SHALL NOT be supported.
@@ -409,7 +413,9 @@ illegal duplicate across configuration layers.
 Terminal-library limitations SHALL remain visible. Configuration SHALL NOT
 make the editor claim it can distinguish chords the target terminal cannot
 report. Complete sequences still dispatch once, and cancellation remains an
-effective operation in transient contexts.
+effective operation in transient contexts. C-g SHALL remain protected in every
+context; M-x SHALL remain a protected recovery entry in active Vim editing
+maps and their local editing overlays. Conflicts SHALL reject the whole candidate.
 
 #### Scenario: Leaf command conflicts with a longer prefix
 
@@ -427,6 +433,8 @@ A present malformed, unreadable, or semantically invalid candidate SHALL be
 reported with useful source, key, and location context where available.
 Startup SHALL keep the editor usable with complete built-ins and a visible
 configuration diagnostic; the rejected candidate SHALL have no partial effect.
+An invalid interaction profile or state map SHALL select complete Emacs defaults,
+without mixing any bindings or policies from the rejected candidate.
 
 Provisioning SHALL be limited to an absent destination entry. The loader
 SHALL NOT repair, rewrite, or overwrite existing user configuration as a side
@@ -453,6 +461,9 @@ absent optional root file.
 The editor SHALL read and validate configuration at startup. The resulting
 effective configuration SHALL remain fixed for that session; changing source
 files SHALL NOT trigger manual or automatic reload in this delivery.
+`editor.interaction_profile` SHALL be one global immutable session choice,
+`emacs` by default or `vim`. Language/view overrides and runtime profile-switch
+commands SHALL NOT be admitted. Changing the source SHALL affect a later startup.
 
 Startup application SHALL be complete and coherent. The sole filesystem
 creation exception is provisioning the absent user configuration under
@@ -656,10 +667,12 @@ the original validated baseline remains identified separately. The R17 insertion
 
 Source: sections 1-3, 16, 23-24. Acceptance: A02, A17.
 
-The executable MUST be named `rev`. It MUST run in a terminal, accept ordinary
-text without an insert-mode transition, and implement commands directly in
-Rust. Normal execution MUST work without a network connection. Temporary
-prompt, prefix, search, and tree focus states are part of non-modal editing.
+The executable MUST be named `rev`. It MUST run in a terminal and implement
+commands directly in Rust. The default Emacs profile MUST accept ordinary text
+without an Insert transition. The startup-selected Vim profile MUST admit text
+through its explicit editing states under [Modal Editing](editor-modal-editing.md).
+Normal execution MUST work without a network connection. Prompt, prefix, search
+and tree focus states retain their native input ownership under either profile.
 The baseline MUST respect the exclusions under Scope and priority.
 
 **Design default:** Linux terminals are the primary target. Other platforms
@@ -670,7 +683,7 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 #### Scenario: Ordinary offline editing
 
-- **GIVEN** a supported terminal with no network connection
+- **GIVEN** a supported terminal with no network connection and the default Emacs profile
 - **WHEN** the user launches `rev` and types ordinary text
 - **THEN** an editable terminal buffer receives the text directly
 - **AND** no interpreter, language server, or external editor service is required.
