@@ -35,11 +35,54 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("o", "modal-open-line-below"),
             ("O", "modal-open-line-above"),
         ]);
+        bindings.extend([
+            ("v", "modal-enter-visual-character"),
+            ("V", "modal-enter-visual-line"),
+            ("C-v", "modal-enter-visual-block"),
+        ]);
         bindings.extend(super::vim_navigation::BINDINGS);
         bindings.extend(super::vim_editing::BINDINGS);
         bindings
     });
     &NORMAL
+}
+
+pub(super) fn visual(block: bool) -> &'static [(&'static str, &'static str)] {
+    static LINEAR: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| visual_bindings(false));
+    static BLOCK: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| visual_bindings(true));
+    if block { &BLOCK } else { &LINEAR }
+}
+
+fn visual_bindings(block: bool) -> Vec<(&'static str, &'static str)> {
+    let mut bindings: Vec<_> = normal()
+        .iter()
+        .copied()
+        .filter(|(key, _)| {
+            key.starts_with("M-")
+                || key.starts_with("C-x ")
+                || key.starts_with("C-c ")
+                || matches!(*key, "C-g" | "C-l" | "C-_")
+        })
+        .collect();
+    bindings.extend(super::vim_navigation::BINDINGS);
+    bindings.extend([
+        ("v", "modal-enter-visual-character"),
+        ("V", "modal-enter-visual-line"),
+        ("C-v", "modal-enter-visual-block"),
+        ("o", "exchange-point-and-mark"),
+        ("d", "modal-delete"),
+        ("c", "modal-change"),
+        ("y", "modal-copy"),
+    ]);
+    if !block {
+        bindings.extend([
+            (">", "modal-indent"),
+            ("<", "modal-outdent"),
+            ("i", "modal-select-inner-object"),
+            ("a", "modal-select-around-object"),
+        ]);
+    }
+    bindings
 }
 
 pub(super) fn maps(keys: &Keymaps) -> Result<BTreeMap<Context, Map>, Error> {
@@ -62,7 +105,13 @@ pub(super) fn org_maps(
     if profile != InteractionProfile::Vim {
         return Ok(result);
     }
-    for state in [Context::VimNormal, Context::VimInsert] {
+    for state in [
+        Context::VimNormal,
+        Context::VimInsert,
+        Context::VimVisualCharacter,
+        Context::VimVisualLine,
+        Context::VimVisualBlock,
+    ] {
         for local in [Context::Org, Context::OrgCapture, Context::OrgSourceEdit] {
             let map = Map::overlay(&maps[&state], local, keys.map(local))?;
             recovery(&map, local)?;
@@ -78,6 +127,9 @@ fn recovery(map: &Map, context: Context) -> Result<(), Error> {
         context,
         Context::VimNormal
             | Context::VimInsert
+            | Context::VimVisualCharacter
+            | Context::VimVisualLine
+            | Context::VimVisualBlock
             | Context::Org
             | Context::OrgCapture
             | Context::OrgSourceEdit

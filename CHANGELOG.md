@@ -21,6 +21,11 @@ This project uses Semantic Versioning.
   objects. Share retained text and linewise paste with native yank, replace whole
   graphemes, join logical lines and undo each operation through ordinary history.
 
+- Select text in Vim with Character, Line and Block Visual states. Extend or
+  exchange the active end, copy/delete/change the selection, and undo multi-line
+  edits in one step. Visual blocks count whole graphemes and preserve tabs;
+  Emacs rectangles keep their display-cell edges.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

@@ -172,3 +172,23 @@ against native tests and the inspected reference. There is no persisted
 jump/repeat archive, runtime profile setter or executable configuration.
 The owner approved the implementation plan and authorized controller startup
 and canonical slice integration into dev on 2026-11-01.
+
+## Delivered Visual selection ownership
+
+Visual shapes extend the native buffer region mode. The shared mark anchors a
+checked view point; Character materializes an inclusive grapheme endpoint and
+Line materializes complete logical lines. Block distinguishes logical grapheme
+columns from existing display-cell rectangles. Highlighting and edits resolve
+those same row fragments through native coordinate projection. A session retains
+only the source stamp qualifying Visual lifetime, without copying its endpoints.
+Same-buffer view changes preserve the shared shape; buffer changes or source
+publication retire it. Pointer drag resets the shared anchor in the active shape.
+
+Visual d/c/y and linear indentation use prepared native edits/history. Block
+transfer shares one native rectangle allocation with the bounded kill-ring entry
+and exposes an LF-separated linear text view. Modal paste reads the retained
+shape and native rectangle insertion preserves its coordinate policy. Counts
+repeat block rows horizontally within the shared 64-MiB expanded-text bound;
+copy, rejection and cancellation never publish partial row edits. Linear Visual
+objects are limited to inner/around word and paragraph and publish Character
+endpoints through the same mark/point owner.

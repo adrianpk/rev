@@ -41,10 +41,13 @@ impl Selection {
     /// leaves its unselected prefix spaces before the final initiating cursor.
     pub(crate) fn cursor(&self, buffer: &Buffer) -> Result<Scalar, Error> {
         let row = *self.rows.start();
-        let position = Coordinates::new(buffer)?.from_cell(Cell {
-            row,
-            column: self.columns.start,
-        })?;
+        let position = self.policy.position(
+            &Coordinates::new(buffer)?,
+            Cell {
+                row,
+                column: self.columns.start,
+            },
+        )?;
         let prefix = self
             .parts(buffer, row, None)?
             .next()

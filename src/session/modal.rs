@@ -29,7 +29,12 @@ impl Session {
         {
             return self.message("A component owns input focus");
         }
-        match self.enter_modal(command) {
+        let result = if let Some(shape) = command.visual() {
+            self.enter_visual(shape)
+        } else {
+            self.enter_modal(command)
+        };
+        match result {
             Ok(()) => self.message(""),
             Err(error) => self.error(&error.to_string()),
         }
@@ -37,6 +42,7 @@ impl Session {
 
     fn enter_modal(&mut self, command: ModalCommand) -> Result<(), Error> {
         let target = self.modal_target(command)?;
+        self.leave_visual();
         if matches!(command, ModalCommand::OpenBelow | ModalCommand::OpenAbove) {
             let newline = self.buffer()?.newline();
             let cursor = if command == ModalCommand::OpenAbove {
@@ -115,6 +121,7 @@ fn entry_target(
         ModalCommand::InsertLineEnd | ModalCommand::OpenBelow => coordinates.line_end(point),
         ModalCommand::OpenAbove => coordinates.line_start(point),
         ModalCommand::InsertLineFirst => first_text(coordinates, point),
+        _ => Ok(point),
     }
 }
 

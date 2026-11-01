@@ -9,9 +9,38 @@ pub(super) enum Mode {
     Inactive,
     Linear,
     Rectangle,
+    Visual(Visual),
+}
+
+/// Native selection shape over the shared mark and a live view point.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Visual {
+    Character,
+    Line,
+    Block,
 }
 
 impl Buffer {
+    pub fn visual(&self) -> Option<Visual> {
+        match self.mark_mode {
+            Mode::Visual(shape) => Some(shape),
+            _ => None,
+        }
+    }
+
+    /// Convert a live selection without replacing its anchor. Fresh entry
+    /// captures the checked native point; endpoints remain in the buffer owner.
+    pub fn activate_visual(&mut self, point: Point, shape: Visual) -> Result<(), Error> {
+        self.current(point.stamp)?;
+        boundary(self, point.position)?;
+        if self.visual().is_none() {
+            self.activate_mark(point)?;
+        }
+        self.mark_mode = Mode::Visual(shape);
+        self.break_typing();
+        Ok(())
+    }
+
     pub fn mark_active(&self) -> bool {
         self.mark_mode != Mode::Inactive
     }
@@ -25,7 +54,10 @@ impl Buffer {
     }
 
     pub fn rectangle_active(&self) -> bool {
-        self.mark_mode == Mode::Rectangle
+        matches!(
+            self.mark_mode,
+            Mode::Rectangle | Mode::Visual(Visual::Block)
+        )
     }
 
     /// Reuse an active mark, or start a new cell selection at the live point.
@@ -57,9 +89,27 @@ impl Buffer {
         let Some(mark) = self.mark.filter(|_| self.mark_active()) else {
             return Ok(None);
         };
-        Ok(Some(self.span(
-            mark.0.min(point.position.0)..mark.0.max(point.position.0),
-        )?))
+        let start = mark.min(point.position);
+        let end = mark.max(point.position);
+        let coordinates = Coordinates::new(self)?;
+        let range = match self.visual() {
+            Some(Visual::Character) => start.0..coordinates.next_observed(end)?.0,
+            Some(Visual::Line) => self.visual_lines(start, end)?,
+            _ => start.0..end.0,
+        };
+        Ok(Some(self.span(range)?))
+    }
+
+    fn visual_lines(&self, start: Scalar, end: Scalar) -> Result<std::ops::Range<usize>, Error> {
+        let coordinates = Coordinates::new(self)?;
+        let first = coordinates.line_start(start)?;
+        let row = coordinates.to_line(end)?.row + 1;
+        let last = if row < self.len_lines() {
+            coordinates.from_cell(crate::coordinates::Cell { row, column: 0 })?
+        } else {
+            coordinates.end()
+        };
+        Ok(first.0..last.0)
     }
 
     /// Return the stored endpoint as this view's point; other views are unchanged.
@@ -69,10 +119,10 @@ impl Buffer {
         let mark = self.mark.ok_or(Error::Mark)?;
         let mode = self.mark_mode;
         self.set_mark(Some(point.position))?;
-        self.mark_mode = if mode == Mode::Rectangle {
-            mode
-        } else {
+        self.mark_mode = if mode == Mode::Inactive {
             Mode::Linear
+        } else {
+            mode
         };
         Ok(Point {
             position: mark,

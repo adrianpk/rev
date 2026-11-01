@@ -103,9 +103,12 @@ impl Session {
     pub(super) fn start_selection(&mut self, selection: &mut Selection) -> Result<(), Error> {
         if !selection.dragging {
             let Point { stamp, .. } = selection.capture.anchor;
-            self.buffers
-                .get_mut(stamp.buffer)?
-                .activate_mark(selection.capture.anchor)?;
+            let buffer = self.buffers.get_mut(stamp.buffer)?;
+            let shape = buffer.visual();
+            buffer.activate_mark(selection.capture.anchor)?;
+            if let Some(shape) = shape {
+                buffer.activate_visual(selection.capture.anchor, shape)?;
+            }
             selection.dragging = true;
         }
         Ok(())

@@ -1,4 +1,6 @@
 use std::collections::VecDeque;
+use std::sync::Arc;
+pub(crate) const EXPANSION_BYTES: usize = 64 * 1024 * 1024;
 
 use ropey::Rope;
 
@@ -13,7 +15,7 @@ struct Continuation {
     point: Scalar,
 }
 
-/// Owned linear text, newest first, with a fixed entry bound.
+/// Owned text transfers, newest first, with a fixed entry bound.
 pub(crate) struct KillRing {
     entries: VecDeque<Text>,
     policy: crate::config::KillRing,
@@ -24,6 +26,7 @@ pub(crate) struct KillRing {
 pub(crate) enum Shape {
     Linear,
     Line,
+    Block,
 }
 
 pub(crate) struct Transfer {
@@ -35,6 +38,7 @@ pub(crate) struct Transfer {
 struct Text {
     text: Rope,
     shape: Shape,
+    block: Option<Arc<crate::rectangle::Rectangle>>,
 }
 
 /// Fully composed before editing; publication requires no further allocation.
@@ -42,6 +46,7 @@ pub(crate) struct Entry {
     text: Rope,
     coalesced: bool,
     shape: Shape,
+    block: Option<Arc<crate::rectangle::Rectangle>>,
 }
 
 impl KillRing {
@@ -73,6 +78,7 @@ impl KillRing {
             text,
             coalesced: false,
             shape: Shape::Linear,
+            block: None,
         });
     }
 
@@ -87,6 +93,19 @@ impl KillRing {
         transfer: Transfer,
     ) -> Result<Entry, Error> {
         self.prepare_shaped(buffer, source, transfer)
+    }
+
+    pub(crate) fn block(&self) -> Option<Arc<crate::rectangle::Rectangle>> {
+        self.entries.front()?.block.clone()
+    }
+
+    pub(crate) fn prepare_block(&self, block: Arc<crate::rectangle::Rectangle>) -> Entry {
+        Entry {
+            text: Rope::from_str(&block.rows().join("\n")),
+            coalesced: false,
+            shape: Shape::Block,
+            block: Some(block),
+        }
     }
 
     pub(crate) fn publish_transfer(&mut self, entry: Entry) {
@@ -143,6 +162,7 @@ impl KillRing {
                 text: fragment,
                 coalesced: false,
                 shape,
+                block: None,
             });
         };
         let text = if backward {
@@ -157,6 +177,7 @@ impl KillRing {
             text,
             coalesced: true,
             shape,
+            block: None,
         })
     }
 
@@ -182,6 +203,7 @@ impl KillRing {
         self.entries.push_front(Text {
             text: entry.text,
             shape: entry.shape,
+            block: entry.block,
         });
     }
 }

@@ -152,12 +152,12 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Emacs editing focus; all 76 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; state entry, navigation/counts/search, operators, transfer and compatible modified controls. The sample declares all 120 entries. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; state entry, navigation/counts/search, operators, transfer and compatible modified controls. The sample declares all 123 entries. |
 | `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | Vim Insert editing; native factories independent of Emacs overrides. The sample declares all 76 entries. |
 | `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Replace entry command is implemented yet. The sample declares all 0 entries. |
-| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Character entry command is implemented yet. The sample declares all 0 entries. |
-| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Line entry command is implemented yet. The sample declares all 0 entries. |
-| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Visual Block entry command is implemented yet. The sample declares all 0 entries. |
+| `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 109 entries. |
+| `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 109 entries. |
+| `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 105 entries. |
 | `keys.minibuffer` | Map of chord sequences to admitted prompt actions/commands | Compiled map | Prompt focus; all 22 entries are active in the sample. |
 | `keys.bookmark_list` | Map of chord sequences to admitted bookmark-list commands | Compiled map | Read-only bookmark view; all 15 entries are active in the sample. Prompts retain their own input maps. |
 | `keys.tree` | Map of chord sequences to admitted tree commands | Compiled map | Tree focus; all 22 entries are active in the sample. |

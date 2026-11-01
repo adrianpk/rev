@@ -85,7 +85,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 394] = [
+    pub const ALL: [Self; 399] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -154,6 +154,8 @@ impl Command {
         Self::Edit(Editing::new(editing::Action::PasteAfter)),
         Self::Edit(Editing::new(editing::Action::PasteBefore)),
         Self::Edit(Editing::new(editing::Action::Join)),
+        Self::Edit(Editing::new(editing::Action::SelectInner)),
+        Self::Edit(Editing::new(editing::Action::SelectAround)),
         Self::Modal(ModalCommand::Normal),
         Self::Modal(ModalCommand::Insert),
         Self::Modal(ModalCommand::InsertAfter),
@@ -161,6 +163,9 @@ impl Command {
         Self::Modal(ModalCommand::InsertLineEnd),
         Self::Modal(ModalCommand::OpenBelow),
         Self::Modal(ModalCommand::OpenAbove),
+        Self::Modal(ModalCommand::VisualCharacter),
+        Self::Modal(ModalCommand::VisualLine),
+        Self::Modal(ModalCommand::VisualBlock),
         Self::Lsp(LspCommand::Mode),
         Self::Lsp(LspCommand::Status),
         Self::Lsp(LspCommand::Connect),

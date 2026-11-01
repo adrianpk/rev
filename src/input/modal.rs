@@ -10,13 +10,37 @@ pub enum EditingState {
     #[default]
     Normal,
     Insert,
+    VisualCharacter,
+    VisualLine,
+    VisualBlock,
 }
 
 impl EditingState {
+    pub(crate) fn visual(self) -> Option<crate::buffer::Visual> {
+        use crate::buffer::Visual;
+        match self {
+            Self::VisualCharacter => Some(Visual::Character),
+            Self::VisualLine => Some(Visual::Line),
+            Self::VisualBlock => Some(Visual::Block),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn from_visual(shape: crate::buffer::Visual) -> Self {
+        match shape {
+            crate::buffer::Visual::Character => Self::VisualCharacter,
+            crate::buffer::Visual::Line => Self::VisualLine,
+            crate::buffer::Visual::Block => Self::VisualBlock,
+        }
+    }
+
     pub fn label(self) -> &'static str {
         match self {
             Self::Normal => "NORMAL",
             Self::Insert => "INSERT",
+            Self::VisualCharacter => "VISUAL",
+            Self::VisualLine => "VISUAL LINE",
+            Self::VisualBlock => "VISUAL BLOCK",
         }
     }
 }
@@ -63,6 +87,9 @@ impl Input {
         match self.editing_state {
             EditingState::Normal => super::keymap::Context::VimNormal,
             EditingState::Insert => super::keymap::Context::VimInsert,
+            EditingState::VisualCharacter => super::keymap::Context::VimVisualCharacter,
+            EditingState::VisualLine => super::keymap::Context::VimVisualLine,
+            EditingState::VisualBlock => super::keymap::Context::VimVisualBlock,
         }
     }
 

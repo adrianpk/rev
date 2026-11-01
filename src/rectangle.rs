@@ -1,5 +1,7 @@
+mod columns;
 mod kill;
 mod yank;
+use columns::Columns;
 
 use std::ops::{Range, RangeInclusive};
 
@@ -15,14 +17,32 @@ pub(crate) enum Capture {
     Kill,
 }
 
-/// One owned block, separate from linear kill text. Width is the requested
-/// display span; a touched wide cluster can make a row wider than that span.
+/// One native block with its source coordinate policy. Width is the requested
+/// column span; display-cell edges can include a wider touched source cluster.
 pub struct Rectangle {
     rows: Vec<String>,
     width: usize,
+    columns: Columns,
 }
 
 impl Rectangle {
+    pub(crate) fn repeated(&self, count: usize) -> Result<Self, Error> {
+        let bytes = self
+            .rows
+            .iter()
+            .try_fold(0usize, |size, row| size.checked_add(row.len()))
+            .and_then(|size| size.checked_mul(count))
+            .ok_or(Error::Capacity)?;
+        if count > 1 && bytes > crate::kill::EXPANSION_BYTES {
+            return Err(Error::Capacity);
+        }
+        Ok(Self {
+            rows: self.rows.iter().map(|row| row.repeat(count)).collect(),
+            width: self.width.checked_mul(count).ok_or(Error::Capacity)?,
+            columns: self.columns,
+        })
+    }
+
     pub fn rows(&self) -> &[String] {
         &self.rows
     }
@@ -47,6 +67,7 @@ impl Rectangle {
         Ok(Self {
             rows,
             width: selection.width(),
+            columns: selection.policy,
         })
     }
 }
@@ -57,6 +78,7 @@ pub(crate) struct Selection {
     stamp: Stamp,
     rows: RangeInclusive<usize>,
     columns: Range<usize>,
+    policy: Columns,
 }
 
 impl Selection {
@@ -68,12 +90,23 @@ impl Selection {
             return Ok(None);
         }
         let coordinates = Coordinates::new(buffer)?;
-        let a = coordinates.to_cell(crate::coordinates::Scalar(region.range.start))?;
-        let b = coordinates.to_cell(crate::coordinates::Scalar(region.range.end))?;
+        let policy = if buffer.visual() == Some(crate::buffer::Visual::Block) {
+            Columns::Grapheme
+        } else {
+            Columns::Display
+        };
+        let a = policy.cell(&coordinates, buffer.mark().ok_or(Error::Mark)?)?;
+        let b = policy.cell(&coordinates, point.position)?;
+        let end = a
+            .column
+            .max(b.column)
+            .checked_add(usize::from(policy == Columns::Grapheme))
+            .ok_or(Error::Capacity)?;
         Ok(Some(Self {
             stamp: region.stamp,
-            rows: a.row..=b.row,
-            columns: a.column.min(b.column)..a.column.max(b.column),
+            rows: a.row.min(b.row)..=a.row.max(b.row),
+            columns: a.column.min(b.column)..end,
+            policy,
         }))
     }
 
@@ -108,21 +141,58 @@ impl Selection {
             stamp: self.stamp,
             range: 0..0,
         })?;
-        let columns = visible.map_or(self.columns.clone(), |visible| {
-            self.columns.start.max(visible.start)..self.columns.end.min(visible.end)
-        });
+        let columns = self.visible_columns(visible);
         let glyphs = Coordinates::new(buffer)?.glyphs_from_column(crate::coordinates::Cell {
             row,
-            column: columns.start,
+            column: if self.policy == Columns::Display {
+                columns.start
+            } else {
+                0
+            },
         })?;
         let end = columns.end;
         Ok(glyphs
-            .take_while(move |glyph| {
+            .enumerate()
+            .take_while(move |(index, glyph)| {
+                if self.policy == Columns::Grapheme {
+                    return *index < end;
+                }
                 glyph
                     .as_ref()
                     .map_or(true, |glyph| glyph.columns.start < end)
             })
-            .filter_map(|glyph| self.part(buffer, glyph).transpose()))
+            .filter_map(|(index, glyph)| self.selected_part(buffer, index, glyph).transpose()))
+    }
+
+    fn visible_columns(&self, visible: Option<Range<usize>>) -> Range<usize> {
+        if self.policy == Columns::Grapheme {
+            return self.columns.clone();
+        }
+        visible.map_or(self.columns.clone(), |visible| {
+            self.columns.start.max(visible.start)..self.columns.end.min(visible.end)
+        })
+    }
+
+    fn selected_part(
+        &self,
+        buffer: &Buffer,
+        index: usize,
+        glyph: Result<Glyph<'_>, crate::coordinates::Error>,
+    ) -> Result<Option<Part>, Error> {
+        if self.policy == Columns::Display {
+            return self.part(buffer, glyph);
+        }
+        let glyph = glyph?;
+        if index < self.columns.start {
+            return Ok(None);
+        }
+        Ok(Some(Part {
+            source: buffer.span(glyph.source.start.0..glyph.source.end.0)?,
+            columns: glyph.columns,
+            tab: false,
+            padding: 0,
+            prefix: 0,
+        }))
     }
 
     fn part(

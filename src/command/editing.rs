@@ -27,6 +27,8 @@ pub enum Action {
     PasteAfter,
     PasteBefore,
     Join,
+    SelectInner,
+    SelectAround,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -81,6 +83,8 @@ impl Editing {
             Action::PasteAfter => "modal-paste-after",
             Action::PasteBefore => "modal-paste-before",
             Action::Join => "modal-join-lines",
+            Action::SelectInner => "modal-select-inner-object",
+            Action::SelectAround => "modal-select-around-object",
             _ => unreachable!("operator names delegate before direct edit lookup"),
         }
     }
@@ -91,6 +95,10 @@ impl Editing {
 }
 
 impl Action {
+    pub fn selects(self) -> bool {
+        matches!(self, Self::SelectInner | Self::SelectAround)
+    }
+
     pub fn operator(self) -> bool {
         matches!(
             self,

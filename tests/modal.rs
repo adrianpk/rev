@@ -24,6 +24,8 @@ mod search_navigation;
 mod transfer;
 #[path = "modal/viewport.rs"]
 mod viewport;
+#[path = "modal/visual.rs"]
+mod visual;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;

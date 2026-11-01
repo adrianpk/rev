@@ -329,8 +329,12 @@ impl Input {
     }
 
     fn literal(&self, key: Key) -> Outcome {
-        if self.modal_editing() && self.editing_state == EditingState::Normal {
-            return Outcome::Message("Unbound Normal key");
+        if self.modal_editing() && self.editing_state != EditingState::Insert {
+            return Outcome::Message(if self.editing_state.visual().is_some() {
+                "Unbound Visual key"
+            } else {
+                "Unbound Normal key"
+            });
         }
         if !self.accepts_text() {
             return Outcome::Message("Unbound Org context key");

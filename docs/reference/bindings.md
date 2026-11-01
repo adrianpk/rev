@@ -155,6 +155,9 @@ The following state commands require the Vim startup profile:
 | `A` in Normal | `modal-enter-insert-line-end` | Enter Insert at logical EOL. |
 | `o` in Normal | `modal-open-line-below` | Open one logical line below and enter Insert. |
 | `O` in Normal | `modal-open-line-above` | Open one logical line above and enter Insert. |
+| `v` in Normal or Visual | `modal-enter-visual-character` | Select the current grapheme, convert shape or leave a repeated Character state. |
+| `V` in Normal or Visual | `modal-enter-visual-line` | Select complete logical lines, convert shape or leave a repeated Line state. |
+| `C-v` in Normal or Visual | `modal-enter-visual-block` | Select inclusive logical grapheme columns, convert shape or leave a repeated Block state. |
 | Escape or `C-[` in Vim editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
 
 Insert uses native editing and compatible modified factory bindings. Normal
@@ -304,6 +307,48 @@ paste/replacement composes one prepared edit; count-expanded text is bounded to
 64 MiB before allocation. An ordinary single transfer keeps native admission.
 Indentation and multi-line joining are one prepared batch and one undo unit.
 
+### Visual selections
+
+Visual states use the buffer's shared mark and the selected view's native point.
+Character includes the destination grapheme, including a whole LF/CRLF cluster;
+EOF itself contributes no extra text. Line includes complete logical source
+lines between both endpoints. Normal motions, counts, finds and shared literal
+search extend these selections. `o` uses exchange-point-and-mark to move the
+active end; repeated shape entry, Escape/C-[ or C-g cancels presentation.
+
+`d`, `c` and `y` apply immediately to the selected character, line or block range.
+Delete and copy return to Normal; change enters Insert after successful native
+admission. All affected rows publish as one edit and one ordinary undo/redo step.
+Read-only or rejected targets preserve selection, prior transfer and history.
+Linear Visual `>`/`<` indents/outdents every intersecting logical line and returns
+to Normal. Text object entry is deliberately limited to linear Visual `iw`, `aw`,
+`ip` and `ap`; selecting an object sets Character endpoints around that object.
+
+| Input in linear Visual | Command | Result |
+| --- | --- | --- |
+| `i` then `w` or `p` | `modal-select-inner-object` | Select a counted inner word or paragraph through native endpoints. |
+| `a` then `w` or `p` | `modal-select-around-object` | Select a counted word or paragraph with its surrounding whitespace. |
+
+Visual Block counts each source grapheme once: a tab, wide character or joined
+cluster occupies one logical column. Both endpoint columns are included. Existing
+short rows contribute only their actual text, and line separators are excluded.
+Drawing projects the selected glyphs back to their actual display cells, including
+the full tab stop. Emacs rectangles retain display-cell edges and partial-tab
+padding. See [rectangle coordinate and transfer policies](rectangles.md).
+
+Block transfer keeps native rectangle rows and logical-column intent in the
+shared transfer entry; its linear text view joins those rows with LF. `p`/`P`
+reinsert the block across logical rows, padding short destinations on the left
+and preserving LF/CRLF when extending EOF. Counts repeat each retained row
+horizontally within the existing 64-MiB expanded-text bound. Native yank-rectangle
+can use the same retained block. A later linear kill/copy selects linear paste
+again; native yank/yank-pop retain their linear span policy.
+
+A different view of the same unchanged buffer can retain the shared selection.
+Switching buffers or publishing a source revision retires Visual authority.
+Pointer drag replaces the shared anchor while retaining the active shape;
+folding, wrapping and resize affect projection without making a separate range.
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -313,9 +358,9 @@ distinctions; explicit mappings select their named action at the active owner.
 `keys.editor` belongs to Emacs. Vim resolves `keys.vim_normal` or
 `keys.vim_insert` over independent native factories; Emacs overrides do not leak
 into either. Local Org editing/capture/source maps overlay the selected state.
-`keys.vim_replace`, `keys.vim_visual_character`, `keys.vim_visual_line` and
-`keys.vim_visual_block` are accepted empty factory maps; those states have no
-entry commands yet. M-x and C-g remain protected recovery in Vim editing.
+`keys.vim_visual_character`, `keys.vim_visual_line` and `keys.vim_visual_block`
+resolve independent state factories. `keys.vim_replace` remains an empty factory
+until replacement-state entry is delivered. M-x and C-g remain protected recovery in Vim editing.
 Escape/C-[ is a state transition while Vim editing owns input, so a standalone
 Escape cannot become a configurable command prefix there.
 

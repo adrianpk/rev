@@ -12,6 +12,7 @@ pub(crate) struct Insertion {
     pub edits: Vec<Replacement>,
     pub cursor: Scalar,
     inserted: usize,
+    columns: super::Columns,
 }
 
 impl Rectangle {
@@ -20,11 +21,14 @@ impl Rectangle {
             stamp: point.stamp,
             range: point.position.0..point.position.0,
         })?;
-        let start = Coordinates::new(buffer)?.to_cell(point.position)?;
+        let start = self
+            .columns
+            .cell(&Coordinates::new(buffer)?, point.position)?;
         let mut insertion = Insertion {
             edits: Vec::new(),
             cursor: point.position,
             inserted: 0,
+            columns: self.columns,
         };
         for (index, text) in self.rows.iter().enumerate() {
             let row = start.row.checked_add(index).ok_or(Error::Capacity)?;
@@ -45,11 +49,12 @@ impl Rectangle {
 impl Insertion {
     fn row(&mut self, buffer: &Buffer, cell: Cell, text: &str) -> Result<(), Error> {
         let coordinates = Coordinates::new(buffer)?;
-        let position = coordinates.from_cell(cell)?;
+        let position = self.columns.position(&coordinates, cell)?;
         let prefix = if text.is_empty() {
             0
         } else {
-            padding(&coordinates, position, cell.column)?
+            cell.column
+                .saturating_sub(self.columns.cell(&coordinates, position)?.column)
         };
         let mut content = " ".repeat(prefix);
         content.push_str(text);
@@ -93,10 +98,4 @@ impl Insertion {
         });
         Ok(())
     }
-}
-
-fn padding(coordinates: &Coordinates<'_>, position: Scalar, column: usize) -> Result<usize, Error> {
-    // Cell lookup keeps whole graphemes. A short row or an interior glyph
-    // therefore needs a left gap before the retained text, never right padding.
-    Ok(column.saturating_sub(coordinates.to_cell(position)?.column))
 }

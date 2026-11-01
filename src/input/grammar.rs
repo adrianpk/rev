@@ -39,7 +39,7 @@ impl Input {
 
     pub(crate) fn editing_composition(&self) -> bool {
         self.modal_editing()
-            && self.editing_state == EditingState::Normal
+            && self.editing_state != EditingState::Insert
             && self.navigation_pending()
     }
 
@@ -69,7 +69,7 @@ impl Input {
         if let Some(outcome) = self.object_key(key) {
             return Some(outcome);
         }
-        if !self.modal_editing() || self.editing_state != EditingState::Normal {
+        if !self.modal_editing() || self.editing_state == EditingState::Insert {
             return None;
         }
         self.grammar.strokes += 1;

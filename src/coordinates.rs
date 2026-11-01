@@ -1,5 +1,6 @@
 mod checkpoints;
 mod cursor;
+mod grapheme_columns;
 pub(crate) use checkpoints::Checkpoints;
 mod display;
 mod hit;

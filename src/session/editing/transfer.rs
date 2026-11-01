@@ -5,7 +5,7 @@ use crate::session::Session;
 
 // Count expansion has one explicit native materialization bound; an ordinary
 // single transfer remains valid independently of history-retention targets.
-const EXPANSION_BYTES: usize = 64 * 1024 * 1024;
+use crate::kill::EXPANSION_BYTES;
 
 pub(super) fn repeat_text(text: &str, count: usize) -> Result<String, crate::buffer::edit::Error> {
     let length = text
@@ -34,10 +34,17 @@ pub(super) fn repeat_text(text: &str, count: usize) -> Result<String, crate::buf
 
 impl Session {
     pub(super) fn paste_transfer(&mut self, count: usize, before: bool) -> Result<bool, Error> {
+        if let Some(block) = self.kills.block() {
+            return self.paste_block(&block, count, before);
+        }
         let text = self.kills.text().ok_or(Error::Target)?.to_string();
         if self.kills.shape() == Some(Shape::Line) {
             return self.paste_line(&text, count, before);
         }
+        self.paste_linear(&text, count, before)
+    }
+
+    fn paste_linear(&mut self, text: &str, count: usize, before: bool) -> Result<bool, Error> {
         let coordinates = Coordinates::new(self.buffer()?)?;
         let point = self.view().point.position;
         let at = if before {
@@ -45,8 +52,29 @@ impl Session {
         } else {
             coordinates.next(point)?.min(coordinates.line_end(point)?)
         };
-        let text = repeat_text(&text, count)?;
+        let text = repeat_text(text, count)?;
         Ok(self.publish_yank_at(at.0..at.0, &text, 0, None)?)
+    }
+
+    fn paste_block(
+        &mut self,
+        block: &crate::rectangle::Rectangle,
+        count: usize,
+        before: bool,
+    ) -> Result<bool, Error> {
+        let coordinates = Coordinates::new(self.buffer()?)?;
+        let mut point = self.view().point;
+        if !before {
+            point.position = coordinates
+                .next_observed(point.position)?
+                .min(coordinates.line_end(point.position)?);
+        }
+        let block = block.repeated(count)?;
+        let insertion = block.insertions(self.buffer()?, point)?;
+        let changed = self.replace_many(&insertion.edits, Some(insertion.cursor))?;
+        self.yank = None;
+        self.kills.break_chain();
+        Ok(changed)
     }
 
     fn paste_line(&mut self, text: &str, count: usize, before: bool) -> Result<bool, Error> {

@@ -6,7 +6,7 @@ use super::{Action, Session};
 
 impl Session {
     pub fn rectangle(&self) -> Option<&Rectangle> {
-        self.rectangle.as_ref()
+        self.rectangle.as_deref()
     }
 
     pub(super) fn rectangle_command(&mut self, command: RectangleCommand) -> Action {
@@ -68,7 +68,7 @@ impl Session {
         if kill {
             self.remove_rectangle(&selection)?;
         }
-        self.rectangle = Some(rectangle);
+        self.rectangle = Some(std::sync::Arc::new(rectangle));
         Ok(if kill {
             "Rectangle killed"
         } else {

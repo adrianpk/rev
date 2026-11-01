@@ -54,9 +54,9 @@ impl From<crate::search::Error> for Error {
 }
 
 pub(super) struct Selection {
-    source: crate::buffer::Span,
-    shape: Shape,
-    backward: bool,
+    pub(super) source: crate::buffer::Span,
+    pub(super) shape: Shape,
+    pub(super) backward: bool,
 }
 
 impl Session {
@@ -64,6 +64,9 @@ impl Session {
         let Command::Edit(request) = command else {
             return None;
         };
+        if let Some(action) = self.visual_editing(request) {
+            return Some(action);
+        }
         if request.pending() {
             if self.editing_state() != Some(crate::input::EditingState::Normal) {
                 return Some(self.message("Operator composition requires Vim Normal"));
@@ -77,14 +80,18 @@ impl Session {
             return Some(action);
         }
         let result = self.apply_editing(request);
+        Some(self.finish_editing(request, result))
+    }
+
+    fn finish_editing(&mut self, request: Editing, result: Result<bool, Error>) -> Action {
         if !matches!(result, Ok(true)) {
             self.kills.break_chain();
         }
-        Some(match result {
+        match result {
             Ok(_) if request.action.copies() => self.message("Target copied"),
             Ok(changed) => self.finish(Ok(changed)),
             Err(error) => self.error(&error.to_string()),
-        })
+        }
     }
 
     fn begin_operator(&mut self, request: Editing) -> Action {
@@ -114,6 +121,14 @@ impl Session {
 
     fn apply_operator(&mut self, request: Editing) -> Result<bool, Error> {
         let selection = self.editing_range(request)?.ok_or(Error::Target)?;
+        self.apply_selection(request, selection)
+    }
+
+    pub(super) fn apply_selection(
+        &mut self,
+        request: Editing,
+        selection: Selection,
+    ) -> Result<bool, Error> {
         if request.action.shifts() {
             return self.shift_lines(&selection.source, request.action);
         }

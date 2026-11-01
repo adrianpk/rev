@@ -52,9 +52,8 @@ pub(super) fn modal_bindings(context: Context) -> &'static [(&'static str, &'sta
         Context::VimNormal => super::vim::normal(),
         Context::VimInsert => EDITOR,
         Context::VimReplace => &[],
-        Context::VimVisualCharacter => &[],
-        Context::VimVisualLine => &[],
-        Context::VimVisualBlock => &[],
+        Context::VimVisualCharacter | Context::VimVisualLine => super::vim::visual(false),
+        Context::VimVisualBlock => super::vim::visual(true),
         _ => org_bindings(context),
     }
 }

@@ -6,6 +6,7 @@ impl Session {
     pub(super) fn sync_input_context(&mut self) {
         self.input
             .editing_owner(self.windows.selected_id(), self.view().point.stamp.buffer);
+        self.sync_visual_context();
         self.input
             .observe_navigation(self.windows.selected_id(), self.view().point);
         self.prepare_bookmark_markers();

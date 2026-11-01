@@ -6,6 +6,7 @@ mod mode;
 mod org;
 mod policy;
 mod region;
+pub use region::Visual;
 mod rename;
 mod save;
 mod syntax;

@@ -79,3 +79,18 @@ and marks map through the complete change. Undo restores the original text,
 mark, initiating cursor and clean state. The retained rectangle stays available.
 Read-only or prompt-owned input refuses insertion without editing. An absent
 block reports `No rectangle to yank`. The linear kill ring remains independent.
+
+## Logical grapheme blocks
+
+With the Vim startup profile, C-v enters Visual Block using the same native mark,
+rectangle resolver and transaction owner. Its inclusive edges count source
+graphemes rather than terminal cells. A whole tab or wide/combining cluster is
+one column and is copied literally; short rows contribute no trailing padding.
+The highlight projects those selected glyphs onto their native display cells.
+
+Visual block d/c/y operates on every derived row atomically. The retained block
+also supplies a newline-separated linear view in the shared kill ring; modal
+p/P and native yank-rectangle preserve its logical-column insertion policy.
+Counted modal paste repeats each row horizontally within the documented expanded
+text limit. Native display-cell captures keep their original insertion policy
+and separate rectangle retention. See [Visual selections](bindings.md#visual-selections).

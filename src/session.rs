@@ -60,6 +60,7 @@ mod startup;
 mod tangling;
 mod timers;
 mod tree;
+mod visual;
 mod whitespace;
 mod windows;
 mod yank;
@@ -135,7 +136,8 @@ pub struct Session {
     windows: Windows,
     tree: crate::tree::Tree,
     kills: crate::kill::KillRing,
-    rectangle: Option<crate::rectangle::Rectangle>,
+    rectangle: Option<std::sync::Arc<crate::rectangle::Rectangle>>,
+    visual_source: Option<crate::buffer::Stamp>,
     yank: Option<yank::Capture>,
     selection: Option<pointer::Selection>,
     mouse_enabled: bool,
@@ -341,6 +343,7 @@ impl Session {
             tree,
             kills,
             rectangle: None,
+            visual_source: None,
             yank: None,
             selection: None,
             mouse_enabled,
@@ -624,7 +627,10 @@ impl Session {
     fn draw(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
         if let Some(state) = self.editing_state() {
             let style = match state {
-                crate::input::EditingState::Normal => {
+                crate::input::EditingState::Normal
+                | crate::input::EditingState::VisualCharacter
+                | crate::input::EditingState::VisualLine
+                | crate::input::EditingState::VisualBlock => {
                     crossterm::cursor::SetCursorStyle::SteadyBlock
                 }
                 crate::input::EditingState::Insert => crossterm::cursor::SetCursorStyle::SteadyBar,

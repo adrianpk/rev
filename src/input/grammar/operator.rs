@@ -18,7 +18,25 @@ impl Input {
         self.wait(Prefix::Sequence)
     }
 
+    pub(crate) fn expect_visual_object(&mut self, request: Editing) -> Outcome {
+        let strokes = self.grammar.strokes;
+        self.clear_prefix();
+        self.grammar.strokes = strokes;
+        self.grammar.operator = Some(request);
+        self.grammar.object = Some(request.action == Action::SelectAround);
+        self.wait(Prefix::Sequence)
+    }
+
     pub(super) fn editing_binding(&mut self, request: Editing) -> Result<Binding, Outcome> {
+        if self.editing_state.visual().is_some() {
+            if request.action.selects() {
+                return Err(self.expect_visual_object(request));
+            }
+            if request.pending() {
+                self.clear_prefix();
+                return Ok(Binding::Command(Command::Edit(request)));
+            }
+        }
         if let Some(operator) = self.grammar.operator {
             let count = multiplied(operator.count, request.count)
                 .ok_or_else(|| self.grammar_failure("Modal count multiplication exceeds u32"))?;
