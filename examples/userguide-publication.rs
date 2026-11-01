@@ -138,6 +138,14 @@ fn project(
             index += 1;
             continue;
         }
+        if let Some(image) = image(line, source)? {
+            let fragment =
+                PathBuf::from(format!("_fragments/{}-image-{index}.sp", page_id(source)));
+            output.push_str(&format!("@include[path = \"{}\"]\n\n", fragment.display()));
+            fragments.insert(fragment, image);
+            index += 1;
+            continue;
+        }
         if line.starts_with('|') && index + 1 < lines.len() && alignment(lines[index + 1]) {
             let fragment = PathBuf::from(format!("_fragments/{}-{index}.sp", page_id(source)));
             let mut table = String::from("@table{\n@thead{\n");
@@ -197,6 +205,32 @@ fn numbered_item(line: &str) -> Option<&str> {
         return None;
     }
     line.get(digits..)?.strip_prefix(". ")
+}
+
+fn image(line: &str, source: &Path) -> Result<Option<String>> {
+    let Some(image) = line
+        .strip_prefix("![")
+        .and_then(|value| value.strip_suffix(')'))
+    else {
+        return Ok(None);
+    };
+    let Some((alt, destination)) = image.split_once("](") else {
+        return Ok(None);
+    };
+    Ok(Some(format!(
+        "@figure{{\n@image[src = \"{}\", alt = \"{}\"]\n}}\n",
+        quoted(&image_url(destination, source)?),
+        quoted(alt),
+    )))
+}
+
+fn image_url(destination: &str, source: &Path) -> Result<String> {
+    if destination.starts_with(['#', '/']) || destination.contains(':') {
+        return Ok(destination.into());
+    }
+    let suffix = destination.find(['#', '?']).unwrap_or(destination.len());
+    let target = output_path(&resolved_path(&destination[..suffix], source)?);
+    Ok(format!("/{}{}", target.display(), &destination[suffix..]))
 }
 
 fn anchors(content: &str) -> Vec<String> {
@@ -305,28 +339,8 @@ fn link(destination: &str, source: &Path) -> Result<String> {
         return Ok(destination.into());
     }
     let suffix = destination.find(['#', '?']).unwrap_or(destination.len());
-    let mut resolved = PathBuf::new();
-    for component in source
-        .parent()
-        .unwrap_or(Path::new(""))
-        .join(&destination[..suffix])
-        .components()
-    {
-        match component {
-            Component::Normal(value) => resolved.push(value),
-            Component::CurDir => {}
-            Component::ParentDir if resolved.pop() => {}
-            _ => {
-                return Err(format!(
-                    "{}: link escapes documentation: {destination}",
-                    source.display()
-                )
-                .into());
-            }
-        }
-    }
     let from = output_path(source);
-    let target = output_path(&resolved);
+    let target = output_path(&resolved_path(&destination[..suffix], source)?);
     let from: Vec<_> = from
         .parent()
         .unwrap_or(Path::new(""))
@@ -350,6 +364,30 @@ fn link(destination: &str, source: &Path) -> Result<String> {
         result.display(),
         suffix = &destination[suffix..]
     ))
+}
+
+fn resolved_path(destination: &str, source: &Path) -> Result<PathBuf> {
+    let mut resolved = PathBuf::new();
+    for component in source
+        .parent()
+        .unwrap_or(Path::new(""))
+        .join(destination)
+        .components()
+    {
+        match component {
+            Component::Normal(value) => resolved.push(value),
+            Component::CurDir => {}
+            Component::ParentDir if resolved.pop() => {}
+            _ => {
+                return Err(format!(
+                    "{}: link escapes documentation: {destination}",
+                    source.display()
+                )
+                .into());
+            }
+        }
+    }
+    Ok(resolved)
 }
 
 fn cells(line: &str) -> Vec<String> {
@@ -540,15 +578,47 @@ mod tests {
     /// Projection cannot alter editor examples or drop canonical heading anchors.
     #[test]
     fn source_fidelity() -> Result<()> {
-        let source =
-            "# Example\n\n## Startup configuration\n\n```text\n[label](raw.md)\n| literal |\n```\n";
+        let source = "# Example\n\n## Startup configuration\n\n```text\n[label](raw.md)\n![raw](raw.png)\n| literal |\n```\n";
         let output = project(
             source,
             Path::new("reference/example.md"),
             &mut BTreeMap::new(),
         )?;
         assert!(anchors(source).contains(&"startup-configuration".into()));
-        assert!(output.contains("```text\n[label](raw.md)\n| literal |\n```"));
+        assert!(output.contains("```text\n[label](raw.md)\n![raw](raw.png)\n| literal |\n```"));
+        Ok(())
+    }
+
+    /// Markdown screenshots must remain images with their alternative text and
+    /// mounted asset URLs, rather than becoming plain alternative-text prose.
+    #[test]
+    fn source_images() -> Result<()> {
+        for (source, markdown, expected) in [
+            (
+                "reference/gallery.md",
+                "![Rust and Org](images/editor.png)",
+                "@image[src = \"/docs/reference/images/editor.png\", alt = \"Rust and Org\"]",
+            ),
+            (
+                "tutorials/user-guide/org/example.md",
+                "![A \"quoted\" label](../../../reference/images/editor.png)",
+                "@image[src = \"/docs/reference/images/editor.png\", alt = \"A \\\"quoted\\\" label\"]",
+            ),
+            (
+                "reference/gallery.md",
+                "![Remote](https://example.org/editor.png)",
+                "@image[src = \"https://example.org/editor.png\", alt = \"Remote\"]",
+            ),
+        ] {
+            let mut fragments = BTreeMap::new();
+            let output = project(markdown, Path::new(source), &mut fragments)?;
+            assert!(output.contains("@include["), "{source}");
+            assert_eq!(fragments.len(), 1, "{source}");
+            assert!(
+                fragments.values().next().unwrap().contains(expected),
+                "{source}"
+            );
+        }
         Ok(())
     }
 

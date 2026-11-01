@@ -21,6 +21,8 @@ The build keeps the ten chapters and two entry pages together, with supporting
 how-to, reference and explanation pages. Local documentation links stay in the
 Spore publication, including heading anchors and configuration downloads.
 Code blocks remain unchanged; Markdown tables become native Spore tables.
+Standalone Markdown images become native Spore figures with their alternative
+text and asset URLs beneath `/userguide/`.
 Styles and appearance scripts use content-based filenames so updates do not
 depend on a browser or CDN cache expiring.
 
