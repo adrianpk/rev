@@ -404,3 +404,42 @@ fn readonly_resolved() {
     assert_eq!(session.view().point, point);
     assert!(buffer.history().is_empty());
 }
+
+// Editing state is independent invocation evidence: a returned proposal cannot
+// survive a state transition even at the same view, point, revision and generation.
+#[test]
+fn modal_state_result() {
+    let fixture = crate::fixture::Fixture::new();
+    let path = fixture.write("source.rs", "fn sample() {}\n// sa");
+    let config = fixture.write(
+        "config.toml",
+        "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false",
+    );
+    let startup = crate::config::prepare(&config);
+    let mut buffers = crate::buffer::Buffers::with_settings(startup.snapshot.clone()).unwrap();
+    let id = buffers.visit(&path).unwrap();
+    let mut view = crate::view::View::with_settings(buffers.get(id).unwrap(), &startup.snapshot);
+    view.point.position = crate::coordinates::Scalar(buffers.get(id).unwrap().len_chars());
+    let mut session = Session::new(
+        buffers,
+        view,
+        crate::display::Size {
+            width: 80,
+            height: 24,
+        },
+    )
+    .unwrap();
+    session
+        .input
+        .set_editing_state(crate::input::EditingState::Insert);
+    let proposal = prepared(&mut session);
+    let point = session.view().point;
+    session
+        .input
+        .set_editing_state(crate::input::EditingState::Normal);
+    assert!(session.install_completion(proposal).is_err());
+    session.invalidate_completion();
+    assert!(session.completion_request.is_none());
+    assert_eq!(session.view().point, point);
+    assert!(session.buffer().unwrap().history().is_empty());
+}

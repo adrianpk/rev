@@ -50,6 +50,11 @@ impl Session {
             return self.message(&crate::window::Error::Focus.to_string());
         }
         match command {
+            WindowCommand::Focus(direction) => self.adjacent_view(direction),
+            WindowCommand::Balance => {
+                self.windows.balance();
+                self.message("")
+            }
             WindowCommand::Other => self.cycle_view(),
             WindowCommand::Delete => match self.windows.delete_selected() {
                 Ok(_) => self.message(""),
@@ -61,6 +66,18 @@ impl Session {
                 }
                 self.message("")
             }
+        }
+    }
+
+    fn adjacent_view(&mut self, direction: crate::window::Direction) -> Action {
+        let result = self
+            .windows
+            .adjacent(direction, self.editing_size())
+            .map_err(Error::from)
+            .and_then(|target| target.map_or(Ok(()), |id| self.select_view(id)));
+        match result {
+            Ok(()) => self.message(""),
+            Err(error) => self.error(&error.to_string()),
         }
     }
 

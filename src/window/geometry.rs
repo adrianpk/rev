@@ -54,6 +54,12 @@ impl Minimum {
     }
 }
 
+#[derive(Clone, Copy)]
+pub(super) enum Allocation {
+    Ratio(f64),
+    Cells(u16),
+}
+
 pub(super) struct Division {
     pub first: Area,
     pub second: Area,
@@ -140,7 +146,12 @@ impl Area {
         })
     }
     pub(super) fn divide(self, split: Split, ratio: f64) -> Option<Division> {
-        self.divide_to(split, Minimum::leaf(), Minimum::leaf(), ratio)
+        self.divide_to(
+            split,
+            Minimum::leaf(),
+            Minimum::leaf(),
+            Allocation::Ratio(ratio),
+        )
     }
 
     pub(super) fn divide_to(
@@ -148,7 +159,7 @@ impl Area {
         split: Split,
         first: Minimum,
         second: Minimum,
-        ratio: f64,
+        ratio: Allocation,
     ) -> Option<Division> {
         match split {
             Split::Below => self.below(first, second, ratio),
@@ -156,7 +167,7 @@ impl Area {
         }
     }
 
-    fn below(self, first: Minimum, second: Minimum, ratio: f64) -> Option<Division> {
+    fn below(self, first: Minimum, second: Minimum, ratio: Allocation) -> Option<Division> {
         let gap = 1;
         if first.width.max(second.width) > self.width {
             return None;
@@ -184,7 +195,7 @@ impl Area {
             }),
         })
     }
-    fn right(self, first: Minimum, second: Minimum, ratio: f64) -> Option<Division> {
+    fn right(self, first: Minimum, second: Minimum, ratio: Allocation) -> Option<Division> {
         let gap = 1;
         if first.height.max(second.height) > self.height {
             return None;
@@ -217,10 +228,14 @@ impl Area {
 
 /// Prefer the admitted ratio, but reserve each child's complete recursive minimum.
 /// An undersized report suspends the whole projection without a partial layout.
-fn allocation(available: u16, first: u16, second: u16, ratio: f64) -> Option<u16> {
+fn allocation(available: u16, first: u16, second: u16, ratio: Allocation) -> Option<u16> {
     let maximum = available.checked_sub(second)?;
     if first > maximum {
         return None;
     }
-    Some(((f64::from(available) * ratio).floor() as u16).clamp(first, maximum))
+    let requested = match ratio {
+        Allocation::Ratio(ratio) => (f64::from(available) * ratio).floor() as u16,
+        Allocation::Cells(cells) => cells,
+    };
+    Some(requested.clamp(first, maximum))
 }

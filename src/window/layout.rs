@@ -15,28 +15,41 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub(super) fn geometry(&self, size: Size, ratio: f64) -> Option<Geometry> {
-        self.project(Area::root(size)?, ratio)
+    pub(super) fn geometry(
+        &self,
+        size: Size,
+        ratios: &super::division::Ratios,
+    ) -> Option<Geometry> {
+        self.project(Area::root(size)?, ratios)
     }
 
-    pub(crate) fn panel_geometry(&self, area: Area, ratio: f64) -> Option<Geometry> {
-        self.project(area, ratio)
+    pub(super) fn panel_geometry(
+        &self,
+        area: Area,
+        ratios: &super::division::Ratios,
+    ) -> Option<Geometry> {
+        self.project(area, ratios)
     }
 
     pub(crate) fn panel_minimum(&self) -> Option<Size> {
         Some(self.minimum()?.size())
     }
 
-    fn project(&self, area: Area, ratio: f64) -> Option<Geometry> {
+    fn project(&self, area: Area, ratios: &super::division::Ratios) -> Option<Geometry> {
         let minimum = self.minimum()?.size();
         if area.width() < minimum.width || area.height() < minimum.height {
             return None;
         }
         let mut geometry = Geometry::default();
-        self.place(area, &mut geometry, ratio)?;
+        self.place(area, &mut geometry, ratios)?;
         Some(geometry)
     }
-    fn place(&self, area: Area, geometry: &mut Geometry, ratio: f64) -> Option<()> {
+    fn place(
+        &self,
+        area: Area,
+        geometry: &mut Geometry,
+        ratios: &super::division::Ratios,
+    ) -> Option<()> {
         match self {
             Self::Leaf(id) => geometry.panes.push((*id, area)),
             Self::Split {
@@ -44,10 +57,14 @@ impl Layout {
                 first,
                 second,
             } => {
-                let division =
-                    area.divide_to(*direction, first.minimum()?, second.minimum()?, ratio)?;
-                first.place(division.first, geometry, ratio)?;
-                second.place(division.second, geometry, ratio)?;
+                let division = area.divide_to(
+                    *direction,
+                    first.minimum()?,
+                    second.minimum()?,
+                    ratios.get(self, area),
+                )?;
+                first.place(division.first, geometry, ratios)?;
+                second.place(division.second, geometry, ratios)?;
                 if let Some(border) = division.border {
                     geometry.borders.push(border);
                 }
@@ -92,7 +109,7 @@ impl Layout {
         }
     }
 
-    fn first_leaf(&self) -> ViewId {
+    pub(super) fn first_leaf(&self) -> ViewId {
         match self {
             Self::Leaf(id) => *id,
             Self::Split { first, .. } => first.first_leaf(),

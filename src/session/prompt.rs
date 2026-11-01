@@ -83,6 +83,7 @@ impl Session {
     pub(super) fn retire_command(&mut self) {
         if self.input.focus() == Focus::Editing && matches!(self.pending, Some(Pending::Command)) {
             self.pending = None;
+            self.retire_command_origin();
         }
     }
 

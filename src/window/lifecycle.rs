@@ -37,6 +37,7 @@ impl Windows {
             .remove(&self.selected)
             .ok_or(Error::Missing(self.selected))?;
         self.layout = candidate;
+        self.ratios.retain(&self.layout);
         self.selected = replacement;
         Ok(replacement)
     }
@@ -47,6 +48,7 @@ impl Windows {
         let removed = self.views.len() - 1;
         self.views.retain(|id, _| *id == self.selected);
         self.layout = Layout::Leaf(self.selected);
+        self.ratios.retain(&self.layout);
         removed
     }
 }

@@ -85,7 +85,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 404] = [
+    pub const ALL: [Self; 409] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -493,6 +493,11 @@ impl Command {
         Self::Window(WindowCommand::Delete),
         Self::Window(WindowCommand::Keep),
         Self::Window(WindowCommand::Other),
+        Self::Window(WindowCommand::Focus(crate::window::Direction::Left)),
+        Self::Window(WindowCommand::Focus(crate::window::Direction::Down)),
+        Self::Window(WindowCommand::Focus(crate::window::Direction::Up)),
+        Self::Window(WindowCommand::Focus(crate::window::Direction::Right)),
+        Self::Window(WindowCommand::Balance),
         Self::Region(RegionCommand::Set),
         Self::Region(RegionCommand::Exchange),
         Self::Kill(KillCommand::Line),

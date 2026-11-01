@@ -44,6 +44,7 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("C-o", "modal-jump-backward"),
             ("C-i", "modal-jump-forward"),
         ]);
+        bindings.extend(PANES);
         bindings.extend(super::vim_navigation::BINDINGS);
         bindings.extend(super::vim_editing::BINDINGS);
         bindings
@@ -82,6 +83,7 @@ fn visual_bindings(block: bool) -> Vec<(&'static str, &'static str)> {
                 || matches!(*key, "C-g" | "C-l" | "C-_")
         })
         .collect();
+    bindings.extend(PANES);
     bindings.extend(super::vim_navigation::BINDINGS);
     bindings.extend([
         ("v", "modal-enter-visual-character"),
@@ -175,3 +177,16 @@ impl Effective {
             .unwrap_or_else(|| self.map(state))
     }
 }
+
+const PANES: &[(&str, &str)] = &[
+    (":", "execute-extended-command"),
+    ("C-w h", "windmove-left"),
+    ("C-w j", "windmove-down"),
+    ("C-w k", "windmove-up"),
+    ("C-w l", "windmove-right"),
+    ("C-w s", "split-window-below"),
+    ("C-w v", "split-window-right"),
+    ("C-w c", "delete-window"),
+    ("C-w o", "delete-other-windows"),
+    ("C-w =", "balance-windows"),
+];

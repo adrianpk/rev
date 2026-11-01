@@ -103,6 +103,7 @@ pub struct Session {
     completion: Option<Completion>,
     completion_generation: u64,
     completion_request: Option<u64>,
+    completion_state: Option<crate::input::EditingState>,
     completion_source: Option<CompletionSource>,
     completion_work: crate::completion::job::Work,
     completion_resolve: Option<completion::resolve::Resolving>,
@@ -154,6 +155,7 @@ pub struct Session {
     echo: String,
     echo_kind: Message,
     pending: Option<Pending>,
+    command_origin: Option<extended::Origin>,
     task_clock: Option<fn() -> Result<String, String>>,
     org_clock: Option<outline::timestamps::Clock>,
     active_clock: Option<outline::clocks::Active>,
@@ -312,6 +314,7 @@ impl Session {
             completion: None,
             completion_generation: 0,
             completion_request: None,
+            completion_state: None,
             completion_source: None,
             completion_work: crate::completion::job::Work::default(),
             completion_resolve: None,
@@ -362,6 +365,7 @@ impl Session {
             echo: "C-x C-c: exit".into(),
             echo_kind: Message::Normal,
             pending: None,
+            command_origin: None,
             task_clock: None,
             org_clock: None,
             active_clock: None,
@@ -752,6 +756,9 @@ impl Session {
 
     fn execute_operation(&mut self, command: Command) -> Action {
         if let Some(action) = self.completion_boundary(command) {
+            return action;
+        }
+        if let Some(action) = self.cancel_extended(command) {
             return action;
         }
         self.bookmark_visit = None;

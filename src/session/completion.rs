@@ -13,6 +13,9 @@ impl Session {
     /// Current source-bound candidates. Observation never edits or reparses text.
     pub fn completion(&self) -> Option<&Completion> {
         self.completion.as_ref().filter(|completion| {
+            if !self.completion_state_current() {
+                return false;
+            }
             self.buffer().is_ok_and(|buffer| {
                 completion.current(buffer, self.windows.selected_id(), self.view().point)
                     && completion.lsp_current(&self.lsp)
@@ -34,11 +37,16 @@ impl Session {
         self.completion_source = None;
         self.completion = None;
         self.completion_request = None;
+        self.completion_state = None;
         self.completion_work.cancel();
         self.input.set_completion(false);
     }
 
     pub(super) fn invalidate_completion(&mut self) {
+        if self.completion_request.is_some() && !self.completion_state_current() {
+            self.dismiss_completion();
+            return;
+        }
         if self.completion.is_some() && self.completion().is_none() {
             self.dismiss_completion();
         }
@@ -125,6 +133,7 @@ impl Session {
             .checked_add(1)
             .ok_or("Completion identity exhausted")?;
         self.completion_request = Some(self.completion_generation);
+        self.completion_state = self.editing_state();
         let point = self.view().point;
         let view = self.windows.selected_id();
         let semantic = self.lsp.completion_possible(point.stamp.buffer);
@@ -142,6 +151,7 @@ impl Session {
     }
 
     pub(super) fn expire_completion(&mut self, now: std::time::Instant) -> Action {
+        self.invalidate_completion();
         let mut action = self.poll_resolution(now).unwrap_or(Action::Wait);
         if let Some(result) = self.completion_work.poll(now) {
             action = self.receive_completion(result);
@@ -310,7 +320,8 @@ impl Session {
         if buffer.is_readonly() {
             return Err("buffer is read-only".into());
         }
-        if self.completion_request != Some(completion.generation)
+        if !self.completion_state_current()
+            || self.completion_request != Some(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
             || !completion.sources_current(&self.buffers)
         {
@@ -371,6 +382,8 @@ impl Session {
         prepared.set_origin(self.windows.selected_id());
         self.windows.publish(buffer, prepared, points)?;
         self.windows.selected_mut().reset_navigation();
+        self.published_repeat_boundary();
+        self.sync_input_context();
         self.yank = None;
         self.kills.break_chain();
         Ok(())
@@ -413,6 +426,15 @@ impl Session {
         };
         let state = if *value { "enabled" } else { "disabled" };
         self.message(&format!("{name} {state}"))
+    }
+
+    fn completion_state_current(&self) -> bool {
+        self.completion_state == self.editing_state()
+    }
+
+    fn automatic_completion_state(&self) -> bool {
+        self.editing_state()
+            .is_none_or(crate::input::EditingState::text_entry)
     }
 
     fn completion_focus(&self) -> bool {
@@ -462,7 +484,10 @@ impl Session {
     }
 
     pub(super) fn schedule_completion(&mut self, now: std::time::Instant) {
-        if !self.completion_policy.enabled || !self.completion_policy.automatic {
+        if !self.automatic_completion_state()
+            || !self.completion_policy.enabled
+            || !self.completion_policy.automatic
+        {
             return;
         }
         self.dismiss_completion();

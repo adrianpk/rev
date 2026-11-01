@@ -1,4 +1,7 @@
+mod division;
 mod geometry;
+mod navigation;
+pub use navigation::Direction;
 mod layout;
 mod lifecycle;
 mod points;
@@ -60,7 +63,7 @@ pub struct Windows {
     views: BTreeMap<ViewId, View>,
     selected: ViewId,
     layout: Layout,
-    ratio: f64,
+    ratios: division::Ratios,
     saved: Option<(ViewId, View)>,
     anchors: Vec<crate::buffer::edit::Point>,
 }
@@ -81,7 +84,7 @@ impl Windows {
             views: BTreeMap::from([(id, view)]),
             selected: id,
             layout: Layout::Leaf(id),
-            ratio,
+            ratios: division::Ratios::new(ratio),
             saved: None,
             anchors: Vec::new(),
         })
@@ -123,10 +126,10 @@ impl Windows {
         &self.layout
     }
     pub fn geometry(&self, size: Size) -> Option<Geometry> {
-        self.layout.geometry(size, self.ratio)
+        self.layout.geometry(size, &self.ratios)
     }
     pub(crate) fn panel_geometry(&self, area: Area) -> Option<Geometry> {
-        self.layout.panel_geometry(area, self.ratio)
+        self.layout.panel_geometry(area, &self.ratios)
     }
 
     pub fn area(&self, id: ViewId, size: Size) -> Option<Area> {
@@ -146,7 +149,7 @@ impl Windows {
     /// an identity or publishing a new leaf. Original focus and view are retained.
     pub fn split(&mut self, direction: Split, size: Size) -> Result<ViewId, Error> {
         let area = self.area(self.selected, size).ok_or(Error::DoesNotFit)?;
-        area.divide(direction, self.ratio)
+        area.divide(direction, self.ratios.default)
             .ok_or(Error::DoesNotFit)?;
         let id = ViewId::next()?;
         let view = self.selected().clone_for_split();
