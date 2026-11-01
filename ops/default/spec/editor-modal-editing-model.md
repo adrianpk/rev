@@ -119,9 +119,10 @@ inheritance and retention follow the bounded view policy and plan acceptance cas
 
 ## Readiness
 
-The approved specification and proposed [delivery plan](../plan/rev-modal-editing.md)
+The approved specification and [delivery plan](../plan/rev-modal-editing.md)
 define finite coverage, keymaps, search, location ownership and bounds.
 Implementation must verify cursor/Escape, selection edges and state restoration
 against native tests and the inspected reference. There is no persisted
 jump/repeat archive, runtime profile setter or executable configuration.
-The implementation plan and controller still require execution approval.
+The owner approved the implementation plan and authorized controller startup
+and canonical slice integration into dev on 2026-11-01.

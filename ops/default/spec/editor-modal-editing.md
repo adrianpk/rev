@@ -11,8 +11,8 @@ Baseline: [rev Editor](rev-editor.md)
 Configuration: [Editor Configuration](editor-configuration.md)
 Model: [Modal Editing Model](editor-modal-editing-model.md)
 Plan: [Modal Editing Delivery](../plan/rev-modal-editing.md)
-Delivery boundary: capability approved; eight-slice plan proposed; controller startup not yet authorized
-Readiness: approved behavior with a finite implementation matrix in the proposed delivery plan
+Delivery boundary: capability and eight-slice plan approved; controller startup and canonical slice integration into dev authorized on 2026-11-01
+Readiness: approved behavior with a finite implementation matrix in the approved delivery plan
 
 ## Purpose
 
@@ -49,9 +49,9 @@ is one command catalog, one editing engine and one set of buffer/file owners.
 
 The owner selected and then approved this topic on 2026-11-01, temporarily deferring item 10
 of the discussion's execution order. Deferral does not cancel that topic or
-make it a prerequisite for modal editing. This selection starts specification
-refinement. The proposed plan and tracker elaborate the approved capability;
-capability approval alone has not started a controller.
+make it a prerequisite for modal editing. The owner subsequently approved the
+eight-slice plan and tracker and authorized their Looper execution on the same
+date. The controller checkpoint owns actual runtime progress.
 
 The current Odra reference at the commit below includes Normal, Insert,
 Replace, Visual Character, Visual Line and Visual Block, counts, operators,
@@ -121,7 +121,7 @@ to implement every command or setting documented there.
 
 ## Approved editing coverage
 
-This is the required ordinary-editing direction. The proposed plan records its
+This is the required ordinary-editing direction. The approved plan records its
 finite binding/behavior matrix and acceptance obligations. Do not silently reduce
 the explicit C-v, C-o, search or motion requirements to a smaller hjkl profile.
 
@@ -439,7 +439,7 @@ CFG12-CFG15 sections. Preserve unaffected clauses and delivered evidence.
 
 ## Implementation preparation obligations
 
-The approved scope is unchanged. The proposed plan makes these obligations
+The approved scope is unchanged. The approved plan makes these obligations
 concrete rather than delegating silent product decisions to a worker:
 
 1. Pin motion/text-object ranges, inclusivity, linewise transfer and count
@@ -473,6 +473,6 @@ The feature depends on the existing native command, input, configuration,
 buffer, selection, rectangle, history, search and presentation owners. It does
 not require LSP, AI or the separate bookmark feature. Future commands keep
 their canonical names under either entry surface when actually registered.
-The approved capability is ready for the proposed delivery map. The plan and
-tracker remain the planning/execution authority; an explicit go/start request
-is required before their controller begins implementation.
+The approved capability is ready for the approved delivery map. The plan and
+tracker remain the planning/execution authority; the owner authorized controller
+startup and canonical slice integration into dev on 2026-11-01.

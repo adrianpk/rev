@@ -1,10 +1,10 @@
 # Startup Modal Editing Delivery
 
-Status: proposed
+Status: approved
 Date: 2026-11-01
 Delivery set: rev-modal-editing
 Slice strategy: behavior-first
-Approved:
+Approved: product owner, 2026-11-01; eight-slice plan and autonomous Looper execution with delegated integration into dev
 Capability approval: product owner, 2026-11-01; explicit approval of Modal Editing and its paired model
 Planning baseline: `9af6cd59d36d333b69cf228d1c4ed54b63d6d672`
 Spec: [Modal Editing](../spec/editor-modal-editing.md)
@@ -22,11 +22,10 @@ Odra's shipped behavior for shared modal movements, selections, operators,
 replacement, repetition and colon entry. Preserve the explicit additional rev
 requirements, including checked jump history and Insert C-o continuation.
 
-The owner approved the capability. This eight-slice implementation proposal
-and controller startup have not yet been approved. A subsequent explicit
-go/start request can approve this concrete map and delegate its one-PR-per-slice
-Rebase + Fast-forward integration into dev to Looper. Do not start a worker,
-create a slice branch or submit a merge merely because the capability is approved.
+The owner approved the capability, this eight-slice implementation plan and
+controller startup on 2026-11-01. Looper may execute the recorded tasks and
+integrate one canonical PR per slice into dev using Rebase + Fast-forward.
+This authority covers the configured integrated gate and documentation closure.
 The controller checkpoint owns runtime progress; this tracker is its durable
 task record, not a second execution controller.
 

@@ -37,7 +37,7 @@ retain their own specification/model state.
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
-| Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Approved capability. Eight-slice implementation plan proposed, with finite Odra-parity coverage and canonical colon/M-x entry. Startup has not been authorized. |
+| Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Approved capability and eight-slice implementation plan, with finite Odra-parity coverage and canonical colon/M-x entry. Looper startup and canonical slice integration into dev authorized on 2026-11-01. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md) | Draft. Six reference glyphs captured; prefix/source fidelity required. Depth overflow, defaults and reveal/geometry details remain open. Fonts and ligatures belong to the terminal. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
@@ -46,9 +46,10 @@ retain their own specification/model state.
 
 The owner selected startup-only Emacs/Vim modal editing as the next topic on
 2026-11-01, temporarily deferring discussion item 10. The modal specification
-and model are approved. The proposed eight-slice plan/tracker record finite
+and model are approved. The approved eight-slice plan/tracker record finite
 Odra-parity coverage, shared colon/M-x entry and existing completion integration.
-Controller execution has not started; item 10 remains pending.
+The owner authorized Looper startup and canonical slice integration into dev on
+2026-11-01. The controller checkpoint owns runtime progress; item 10 remains pending.
 
 The owner selected these five interaction topics for one approved Looper cycle,
 with soft wrapping first:

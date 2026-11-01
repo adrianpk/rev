@@ -1,10 +1,10 @@
 # Startup Modal Editing Tracker
 
-Status: proposed
+Status: approved
 Date: 2026-11-01
 Delivery set: rev-modal-editing
 Slice strategy: behavior-first
-Approved:
+Approved: product owner, 2026-11-01; eight-slice plan and autonomous Looper execution with delegated integration into dev
 Capability approval: product owner, 2026-11-01; explicit approval of Modal Editing and its paired model
 Planning baseline: `9af6cd59d36d333b69cf228d1c4ed54b63d6d672`
 Spec: [Modal Editing](../spec/editor-modal-editing.md)
@@ -13,7 +13,7 @@ Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
 Active slice: Slice 1 prepared; execution has not started
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
-Execution owner: Looper after startup authorization; checkpoint and canonical merge evidence own runtime progress
+Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
 ## Canonical slice map
 
