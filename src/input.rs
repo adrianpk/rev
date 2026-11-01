@@ -1,6 +1,7 @@
 mod completion;
 mod context;
 mod dispatch;
+mod grammar;
 mod inventory;
 mod key;
 pub mod keymap;
@@ -126,6 +127,8 @@ pub struct Input {
     editing_owner: Option<(crate::window::ViewId, crate::buffer::BufferId)>,
     context: Context,
     prefix: Option<Prefix>,
+    grammar: grammar::Grammar,
+    navigation_source: Option<(crate::window::ViewId, crate::buffer::edit::Point)>,
     chords: Vec<Key>,
     keymaps: keymap::Effective,
     workspace_tree: bool,

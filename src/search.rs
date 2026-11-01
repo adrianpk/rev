@@ -1,5 +1,7 @@
 mod case;
 mod fold;
+mod occurrence;
+pub use occurrence::Request;
 
 use std::collections::VecDeque;
 use std::fmt;
@@ -20,12 +22,14 @@ pub enum Error {
     Buffer(buffer::Error),
     Coordinates(coordinates::Error),
     Limit,
+    View(crate::view::Error),
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Buffer(error) => error.fmt(formatter),
+            Self::View(error) => error.fmt(formatter),
             Self::Coordinates(error) => error.fmt(formatter),
             Self::Limit => formatter.write_str("search limit is 4096 characters"),
         }
@@ -77,7 +81,7 @@ impl Pattern {
     /// The result qualifies its exact source range with the searched revision.
     pub fn find(&self, buffer: &Buffer, start: Scalar) -> Result<Option<Span>, Error> {
         let source = buffer.span(start.0..buffer.len_chars())?;
-        self.scan(buffer, source, false)
+        self.scan(buffer, source, Request::new(start, Direction::Forward))
     }
 
     /// Finds the last match ending at or before the scalar, without wrapping.
@@ -90,28 +94,45 @@ impl Pattern {
             text,
             sensitive: self.sensitive,
         };
-        reversed.scan(buffer, source, true)
+        reversed.scan(buffer, source, Request::new(end, Direction::Backward))
     }
 
-    fn scan(&self, buffer: &Buffer, source: Span, backward: bool) -> Result<Option<Span>, Error> {
+    fn scan(
+        &self,
+        buffer: &Buffer,
+        source: Span,
+        mut request: Request,
+    ) -> Result<Option<Span>, Error> {
         let slice = buffer.slice(&source)?;
         if self.text.is_empty() {
             return Ok(None);
         }
         let mut matched = 0;
         let mut origins = VecDeque::with_capacity(self.text.len());
-        for token in fold::stream(slice, source.range.start, backward, self.sensitive) {
+        for token in fold::stream(
+            slice,
+            source.range.start,
+            request.direction == Direction::Backward,
+            self.sensitive,
+        ) {
             if origins.len() == self.text.len() {
                 origins.pop_front();
             }
             origins.push_back(token);
             matched = self.advance(matched, token.character);
-            if matched == self.text.len() {
-                if let Some(range) = fold::range(&origins) {
-                    return Ok(Some(buffer.span(range)?));
-                }
-                matched = self.fallback[matched - 1];
+            if matched != self.text.len() {
+                continue;
             }
+            let Some(range) = fold::range(&origins) else {
+                matched = self.fallback[matched - 1];
+                continue;
+            };
+            if request.accept(buffer, &range)? {
+                return Ok(Some(buffer.span(range)?));
+            }
+            // Continue from each complete occurrence, as native search repeat does.
+            matched = 0;
+            origins.clear();
         }
         Ok(None)
     }
@@ -140,4 +161,10 @@ fn prefixes(text: &[char]) -> Vec<usize> {
         table[index] = matched;
     }
     table
+}
+
+impl From<crate::view::Error> for Error {
+    fn from(error: crate::view::Error) -> Self {
+        Self::View(error)
+    }
 }

@@ -1,3 +1,5 @@
+use crate::search::Direction;
+use navigation::{Find, Screen, Search, Target, Word};
 mod binding;
 mod bookmark;
 mod buffer;
@@ -8,7 +10,9 @@ mod linear;
 mod lsp;
 mod modal;
 mod motion;
+pub mod navigation;
 pub use modal::ModalCommand;
+pub use navigation::Navigation;
 mod org;
 pub use org::OrgCommand;
 mod rectangle;
@@ -40,6 +44,7 @@ pub use window::WindowCommand;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
     Modal(ModalCommand),
+    Navigate(Navigation),
     Lsp(LspCommand),
     Completion(CompletionCommand),
     Bookmark(BookmarkCommand),
@@ -77,7 +82,61 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 338] = [
+    pub const ALL: [Self; 380] = [
+        Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
+        Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
+        Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
+        Self::Navigate(Navigation::new(Target::Line(Direction::Backward))),
+        Self::Navigate(Navigation::new(Target::LineStart)),
+        Self::Navigate(Navigation::new(Target::FirstText)),
+        Self::Navigate(Navigation::new(Target::LineEnd)),
+        Self::Navigate(Navigation::new(Target::Word(Word::NextStart))),
+        Self::Navigate(Navigation::new(Target::Word(Word::PreviousStart))),
+        Self::Navigate(Navigation::new(Target::Word(Word::NextEnd))),
+        Self::Navigate(Navigation::new(Target::Word(Word::NextBigStart))),
+        Self::Navigate(Navigation::new(Target::Word(Word::PreviousBigStart))),
+        Self::Navigate(Navigation::new(Target::Word(Word::NextBigEnd))),
+        Self::Navigate(Navigation::new(Target::Word(Word::PreviousEnd))),
+        Self::Navigate(Navigation::new(Target::Word(Word::PreviousBigEnd))),
+        Self::Navigate(Navigation::new(Target::Buffer(Direction::Forward))),
+        Self::Navigate(Navigation::new(Target::Buffer(Direction::Backward))),
+        Self::Navigate(Navigation::new(Target::Find(Find::Forward))),
+        Self::Navigate(Navigation::new(Target::Find(Find::Backward))),
+        Self::Navigate(Navigation::new(Target::Find(Find::TillForward))),
+        Self::Navigate(Navigation::new(Target::Find(Find::TillBackward))),
+        Self::Navigate(Navigation::new(Target::RepeatFind(false))),
+        Self::Navigate(Navigation::new(Target::RepeatFind(true))),
+        Self::Navigate(Navigation::new(Target::Paragraph(Direction::Forward))),
+        Self::Navigate(Navigation::new(Target::Paragraph(Direction::Backward))),
+        Self::Navigate(Navigation::new(Target::Pair)),
+        Self::Navigate(Navigation::new(Target::Page {
+            backward: false,
+            half: false,
+        })),
+        Self::Navigate(Navigation::new(Target::Page {
+            backward: true,
+            half: false,
+        })),
+        Self::Navigate(Navigation::new(Target::Page {
+            backward: false,
+            half: true,
+        })),
+        Self::Navigate(Navigation::new(Target::Page {
+            backward: true,
+            half: true,
+        })),
+        Self::Navigate(Navigation::new(Target::Screen(Screen::Top))),
+        Self::Navigate(Navigation::new(Target::Screen(Screen::Middle))),
+        Self::Navigate(Navigation::new(Target::Screen(Screen::Bottom))),
+        Self::Navigate(Navigation::new(Target::Align(Screen::Top))),
+        Self::Navigate(Navigation::new(Target::Align(Screen::Middle))),
+        Self::Navigate(Navigation::new(Target::Align(Screen::Bottom))),
+        Self::Navigate(Navigation::new(Target::Search(Search::Forward))),
+        Self::Navigate(Navigation::new(Target::Search(Search::Backward))),
+        Self::Navigate(Navigation::new(Target::Search(Search::Repeat))),
+        Self::Navigate(Navigation::new(Target::Search(Search::Reverse))),
+        Self::Navigate(Navigation::new(Target::Search(Search::WordForward))),
+        Self::Navigate(Navigation::new(Target::Search(Search::WordBackward))),
         Self::Modal(ModalCommand::Normal),
         Self::Modal(ModalCommand::Insert),
         Self::Modal(ModalCommand::InsertAfter),
@@ -420,6 +479,7 @@ impl Command {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Navigate(request) => request.name(),
             Self::Modal(command) => command.name(),
             Self::Bookmark(command) => command.name(),
             Self::Motion(motion) => motion.name(),
@@ -505,6 +565,9 @@ impl Command {
     /// Repetition belongs to the resolved action, independent of its chord.
     /// Prefix completions and session/prompt transitions require fresh presses.
     pub(crate) fn repeatable(self) -> bool {
+        if let Self::Navigate(request) = self {
+            return !matches!(request.target, Target::Find(_) | Target::Search(_));
+        }
         if let Self::Org(command) = self {
             return command.timestamp_step()
                 || command.calendar() && command != OrgCommand::CalendarSelect;

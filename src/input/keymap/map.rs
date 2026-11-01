@@ -67,6 +67,26 @@ impl Map {
         map.apply(context, overrides)
     }
 
+    /// A local editing owner shadows an inherited leaf or subtree. Validate
+    /// its own map first so conflicts inside that owner still reject startup.
+    pub(super) fn overlay(
+        parent: &Self,
+        context: Context,
+        overrides: &BTreeMap<String, String>,
+    ) -> Result<Self, Error> {
+        let local = Self::compile(context, overrides)?;
+        let mut map = parent.clone();
+        map.entries.retain(|inherited, _| {
+            !local.entries.keys().any(|key| {
+                inherited.chords().starts_with(key.chords())
+                    || key.chords().starts_with(inherited.chords())
+            })
+        });
+        map.entries.extend(local.entries);
+        map.conflicts(context)?;
+        Ok(map)
+    }
+
     fn apply(
         mut self,
         context: Context,

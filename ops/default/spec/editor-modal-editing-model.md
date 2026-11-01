@@ -93,6 +93,29 @@ Copy/delete/change/paste and repeat must preserve required selection shape and
 linewise intent through shared native ownership. Do not add a second modal
 kill ring or an implicit full Vim register namespace.
 
+## Implemented navigation endpoints
+
+Slice 2 routes semantic descriptors and their checked count through the native
+command/deferred-layout owner. The coordinate owner resolves graphemes,
+word-class runs, logical-line finds, paragraph boundaries and delimiter targets;
+the existing view owner projects logical vertical, wrapped viewport and fold
+geometry. Native Emacs word commands share the counted Unicode word scanner
+with modal b/e and retain their prior endpoints.
+
+Shared Odra endpoints are h/l whole graphemes, j/k logical rows with desired
+display column, 0/^/$ logical boundaries, w word/punctuation-class starts,
+b Unicode word starts, e exclusive word-end insertion boundaries, gg BOF and
+G EOF. WORD, ge/gE and counted destinations remain explicit rev requirements,
+with endpoints documented in the [binding reference](../../../docs/reference/bindings.md).
+No byte decrement or standard-Vim e endpoint is inferred from the key's name.
+
+Pending syntax observes the exact native view and point stamp/position. Find
+repetition observes view and source revision plus the matched grapheme and its
+landing position, so till repetition progresses. Confirmed query/direction and
+whole-word continuation extend the canonical search owner and literal matcher.
+Each resolver bounds traversal by the source/view; missing counted matches
+publish no partial point. Idempotent targets keep their single destination.
+
 ## Lifetimes and recovery
 
 Startup prepares and validates the complete selected profile before editing.

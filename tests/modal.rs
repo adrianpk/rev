@@ -4,8 +4,16 @@
 mod fixture;
 #[path = "modal/keymaps.rs"]
 mod keymaps;
+#[path = "modal/local_targets.rs"]
+mod local_targets;
+#[path = "modal/navigation.rs"]
+mod navigation;
 #[path = "modal/presentation.rs"]
 mod presentation;
+#[path = "modal/search.rs"]
+mod search_navigation;
+#[path = "modal/viewport.rs"]
+mod viewport;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;

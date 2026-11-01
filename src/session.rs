@@ -40,6 +40,7 @@ pub use feeds::FeedOutcome;
 mod modal;
 mod mode;
 mod motion;
+mod navigation;
 mod org;
 mod outline;
 mod paste;
@@ -138,6 +139,8 @@ pub struct Session {
     selection: Option<pointer::Selection>,
     mouse_enabled: bool,
     input: Input,
+    last_find: Option<navigation::find::State>,
+    last_search: Option<search::Confirmed>,
     size: Size,
     layout_pending: bool,
     layout: layout::Work,
@@ -288,6 +291,7 @@ impl Session {
         let kills = crate::kill::KillRing::with_settings(buffers.snapshot());
         let mut input = Input::with_settings(buffers.snapshot());
         input.editing_owner(windows.selected_id(), buffer.id());
+        input.observe_navigation(windows.selected_id(), windows.selected().point);
         input.set_org_context(buffer.is_org().then_some(crate::input::OrgContext::Editing));
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         let bookmark_storage = bookmarks::Persistence::configured(
@@ -340,6 +344,8 @@ impl Session {
             selection: None,
             mouse_enabled,
             input,
+            last_find: None,
+            last_search: None,
             size,
             layout_pending: false,
             layout: layout::Work::default(),
@@ -525,9 +531,7 @@ impl Session {
         self.highlight_search(&mut frame, composition.as_ref())?;
         self.prompt_frame(&mut frame, composition.as_ref())?;
         self.completion_frame(&mut frame, composition.as_ref())?;
-        for (_, view) in self.windows.iter() {
-            view.cancel_layout();
-        }
+        self.retire_frame_work();
         self.layout_pending = false;
         Ok(frame)
     }
@@ -544,6 +548,17 @@ impl Session {
         self.query_frame(frame, composition)?;
         self.agenda_results_frame(frame, composition)?;
         self.bookmark_list_frame(frame, composition)
+    }
+
+    fn retire_frame_work(&self) {
+        // A fully painted origin must not discard the deferred request's
+        // offscreen segmentation or counted viewport continuation.
+        if self.layout_active() {
+            return;
+        }
+        for (_, view) in self.windows.iter() {
+            view.cancel_layout();
+        }
     }
 
     fn reveal_workspace(
@@ -721,7 +736,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = match self
-            .modal_dispatch(command)
+            .navigation_dispatch(command)
+            .or_else(|| self.modal_dispatch(command))
             .or_else(|| self.lsp_command(command))
             .or_else(|| self.query_view_command(command))
             .or_else(|| self.agenda_view_command(command))

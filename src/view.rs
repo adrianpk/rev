@@ -1,6 +1,7 @@
 mod fold;
 mod hit;
 pub use fold::FoldError;
+mod navigation;
 mod scroll;
 mod visibility;
 mod visual;

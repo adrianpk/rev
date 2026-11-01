@@ -2,9 +2,11 @@ use crate::buffer::{Buffer, Span};
 use crate::coordinates::{Coordinates, Scalar};
 use crate::display::Frame;
 use crate::input::SearchAction;
-use crate::search::{Direction, Error, Pattern};
+use crate::search::{Direction, Error, Pattern, Request};
+mod continuation;
 use crate::view::View;
 use crate::window::ViewId;
+pub(super) use continuation::Confirmed;
 
 use super::{Action, Pending, Session};
 
@@ -15,6 +17,8 @@ pub(super) struct State {
     found: Option<Span>,
     direction: Direction,
     point: Scalar,
+    query: String,
+    count: usize,
 }
 
 impl Session {
@@ -63,6 +67,8 @@ impl Session {
             view: self.windows.selected_id(),
             found: None,
             direction,
+            query: String::new(),
+            count: 1,
         })));
         self.message("Type a query; C-s/C-r continues")
     }
@@ -101,7 +107,7 @@ impl Session {
         match action {
             SearchAction::Repeat(direction) => self.search(direction),
             SearchAction::Accept => {
-                self.pending = None;
+                self.confirm_search();
                 self.message("")
             }
         }
@@ -153,16 +159,23 @@ impl State {
 
     fn update(&mut self, buffer: &Buffer, query: &str) -> Result<Option<Scalar>, Error> {
         if query.is_empty() {
+            self.query.clear();
             self.anchor = self.origin.point.position;
             self.found = None;
             self.point = self.anchor;
             return Ok(Some(self.anchor));
         }
         let pattern = Pattern::new(query)?;
-        self.found = match self.direction {
-            Direction::Forward => pattern.find(buffer, self.anchor)?,
-            Direction::Backward => pattern.rfind(buffer, self.anchor)?,
-        };
+        self.query = query.into();
+        self.found = pattern.occurrence(
+            buffer,
+            Request {
+                anchor: self.anchor,
+                direction: self.direction,
+                count: self.count,
+                whole_word: false,
+            },
+        )?;
         let Some(found) = &self.found else {
             return Ok(None);
         };

@@ -13,6 +13,10 @@ This project uses Semantic Versioning.
   state feedback and shared undo. Change `editor.interaction_profile` and restart
   to select a profile.
 
+- Navigate in Vim Normal with grapheme and logical-line motions, checked counts,
+  word/WORD and character targets, page controls and viewport alignment. Use
+  `/` or `?` for literal search, `n`/`N` to continue and `*`/`#` for a whole word.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

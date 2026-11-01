@@ -5,6 +5,9 @@ use super::{Input, Key, Outcome, Prefix};
 
 impl Input {
     pub(super) fn mapped(&mut self, key: Key) -> Outcome {
+        if let Some(outcome) = self.grammar_key(key) {
+            return outcome;
+        }
         let continued = !self.chords.is_empty();
         self.chords.push(key);
         let Some(sequence) = Sequence::from_chords(&self.chords) else {
@@ -22,7 +25,10 @@ impl Input {
     }
 
     fn bound(&mut self, binding: Binding, key: Key, custom: bool, continued: bool) -> Outcome {
-        self.clear_prefix();
+        let binding = match self.navigation_binding(binding) {
+            Ok(binding) => binding,
+            Err(outcome) => return outcome,
+        };
         self.suppress_repeat |= continued || !self.binding_repeats(binding);
         self.context_binding(binding, key, custom)
     }
@@ -45,6 +51,9 @@ impl Input {
     /// The bounded pending sequence is input state, independent of buffer text.
     /// Built-in prefixes keep their public identities and existing notices.
     pub fn prefix_label(&self) -> Option<String> {
+        if let Some(label) = self.navigation_label() {
+            return Some(label);
+        }
         let prefix = self.prefix()?;
         if prefix == Prefix::Sequence {
             return Sequence::from_chords(&self.chords).map(|sequence| sequence.to_string());
@@ -53,6 +62,7 @@ impl Input {
     }
 
     pub(super) fn clear_prefix(&mut self) {
+        self.grammar = Default::default();
         self.prefix = None;
         self.chords.clear();
         self.meta_deadline = None;

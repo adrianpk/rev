@@ -35,6 +35,7 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("o", "modal-open-line-below"),
             ("O", "modal-open-line-above"),
         ]);
+        bindings.extend(super::vim_navigation::BINDINGS);
         bindings
     });
     &NORMAL
@@ -62,7 +63,7 @@ pub(super) fn org_maps(
     }
     for state in [Context::VimNormal, Context::VimInsert] {
         for local in [Context::Org, Context::OrgCapture, Context::OrgSourceEdit] {
-            let map = Map::inherit(&maps[&state], local, keys.map(local))?;
+            let map = Map::overlay(&maps[&state], local, keys.map(local))?;
             recovery(&map, local)?;
             result.insert((state, local), map);
         }

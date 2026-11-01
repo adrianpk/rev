@@ -162,6 +162,80 @@ retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
 alone create no history; opening a line creates one ordinary undoable edit.
 Local prompts, completion, tree and Org maps keep their input priority.
 
+### Normal navigation
+
+These bindings resolve one checked native destination. The same named commands
+are available through M-x in either startup profile. Emacs factory keys keep
+their existing visual-line and native word behavior.
+
+| Input | Command | Destination |
+| --- | --- | --- |
+| `h`, `Left` | `modal-backward-char` | Previous whole grapheme, including a whole LF/CRLF boundary. |
+| `l`, `Right` | `modal-forward-char` | Next whole grapheme, including a whole LF/CRLF boundary. |
+| `j`, `Down` | `modal-next-line` | Next logical line; retain desired terminal-cell column and skip hidden Org bodies. |
+| `k`, `Up` | `modal-previous-line` | Previous logical line; retain desired terminal-cell column and skip hidden Org bodies. |
+| `0` | `modal-line-start` | Logical line start. |
+| `^` | `modal-line-first-text` | First non-whitespace grapheme of the logical line. |
+| `$` | `modal-line-end` | Logical content-end boundary before LF/CRLF. A count selects the corresponding following logical line. |
+| `w` | `modal-next-word-start` | Start of the next word or punctuation run, skipping whitespace. |
+| `b` | `modal-previous-word-start` | Previous Unicode word start, skipping punctuation. |
+| `e` | `modal-next-word-end` | Next Unicode word's exclusive end boundary, skipping punctuation. |
+| `W` | `modal-next-big-word-start` | Next start of a whitespace-separated WORD. |
+| `B` | `modal-previous-big-word-start` | Previous start of a whitespace-separated WORD. |
+| `E` | `modal-next-big-word-end` | Exclusive end of the next whitespace-separated WORD. |
+| `g e` | `modal-previous-word-end` | Exclusive end of the preceding Unicode word, excluding the run containing the point's predecessor. |
+| `g E` | `modal-previous-big-word-end` | Exclusive end of the preceding WORD, excluding the run containing the point's predecessor. |
+| `g g` | `modal-buffer-start` | Start of buffer; with a count, start of that one-based logical line. |
+| `G` | `modal-buffer-end` | End of buffer; with a count, start of that one-based logical line. |
+| `f` | `modal-find-forward` | Counted next occurrence of one Unicode scalar within the logical line; land on its grapheme start. |
+| `F` | `modal-find-backward` | Counted previous occurrence of one Unicode scalar within the logical line; land on its grapheme start. |
+| `t` | `modal-till-forward` | Grapheme immediately before the counted next occurrence. |
+| `T` | `modal-till-backward` | Grapheme immediately after the counted previous occurrence. |
+| `;` | `modal-repeat-find` | Repeat the last successful find in its original direction; till skips its prior match. |
+| `,` | `modal-reverse-find` | Repeat the last successful find in the opposite direction; retain the original repeat direction. |
+| `{` | `modal-previous-paragraph` | Previous empty/whitespace-only logical-line boundary, clamped to BOF. |
+| `}` | `modal-next-paragraph` | Next empty/whitespace-only logical-line boundary, clamped to EOF. |
+| `%` | `modal-matching-delimiter` | Match the first parenthesis, bracket or brace at/after point on this logical line; respect nested pairs of the same kind. Missing mates preserve point. |
+| `PageDown`, `C-f` | `modal-page-forward` | Full-page forward through native geometry and page overlap. |
+| `PageUp`, `C-b` | `modal-page-backward` | Full-page backward through native geometry and page overlap. |
+| `C-d` | `modal-half-page-forward` | Half-page forward. |
+| `C-u` | `modal-half-page-backward` | Half-page backward; a local Org prefix beginning with C-u owns that key in Org editing. |
+| `H` | `modal-screen-top` | Top displayed text row; count inward from the top. |
+| `M` | `modal-screen-middle` | Middle displayed text row, including wrapped fragments and folds. |
+| `L` | `modal-screen-bottom` | Bottom displayed text row; count inward from the bottom. |
+| `z t` | `modal-align-top` | Align point at the viewport top without moving it. |
+| `z z` | `modal-align-middle` | Align point at the viewport middle without moving it. |
+| `z b` | `modal-align-bottom` | Align point at the viewport bottom without moving it. |
+| `/` | `modal-search-forward` | Open the shared forward literal search prompt. |
+| `?` | `modal-search-backward` | Open the shared backward literal search prompt. |
+| `n` | `modal-search-repeat` | Continue the confirmed search in its original direction. |
+| `N` | `modal-search-reverse` | Continue the confirmed search in the opposite direction. |
+| `*` | `modal-search-word-forward` | Search forward for the Unicode word at point with complete word boundaries. |
+| `#` | `modal-search-word-backward` | Search backward for the Unicode word at point with complete word boundaries. |
+
+The shared h/l, logical line, 0/^/$, w/b/e and gg/G endpoints follow the inspected
+Odra behavior. In particular e is an insertion boundary after the word. The
+WORD, ge/gE and counted forms above are additional rev requirements. `w` on
+`one 🙂two` reaches the emoji; `e` on `one !!! two` reaches the boundary after
+`one`, then after `two` on its next invocation.
+
+A decimal count starts with 1–9; following zeroes extend it, while standalone
+0 remains logical start. The ceiling is 4,294,967,295 and pending grammar is
+limited to 16 strokes. Targets retain one Unicode scalar (at most four UTF-8
+bytes, within the 96-byte target bound). Counts scan the finite source or
+resolve a projected destination; they do not repeat UI commands. Overflow,
+missing counted finds/searches and stale observations preserve point and text.
+Idempotent start/first-text, delimiter, middle-row and alignment targets retain
+their single-target meaning with a count. Counts on unrelated commands reject.
+Explicit local digit mappings own the start of a command; digits following an admitted count extend that count. M-x cancels pending syntax and opens native command entry.
+
+Escape/C-[, C-g, paste or a changed view/buffer/revision/point retire pending
+syntax. A retained find or search continuation is qualified by its native view
+and source revision. Search keeps literal smart-case matching, no wrapping and
+its native endpoint policy: forward lands after the match, backward at its
+start. C-g during search restores the complete origin view. A confirmed native
+C-s/C-r search also supplies n/N; prompts retain their own key meanings.
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in

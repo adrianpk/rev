@@ -221,6 +221,14 @@ native owner, available to normal command dispatch where appropriate.
 - **THEN** the documented Vim-like destinations are reached through canonical positions
 - **AND** no motion inserts text or splits a grapheme.
 
+The implemented Slice 2 endpoint matrix is documented in the
+[binding reference](../../../docs/reference/bindings.md#normal-navigation).
+The shared Odra subset preserves b's native Unicode word start and e's exclusive
+word-end boundary; w separately observes word/punctuation-class starts. WORD,
+ge/gE and counted line forms are explicit rev additions. Forward search keeps
+the native match-end boundary; reverse search keeps the match start. This pins
+semantic endpoints without changing the existing Emacs bindings.
+
 ### Requirement: MOD05 Counts and operator composition
 
 Counts, operator-pending input, character targets and text objects SHALL form

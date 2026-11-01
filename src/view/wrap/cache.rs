@@ -19,6 +19,7 @@ struct Entries {
     order: VecDeque<Key>,
     bytes: usize,
     building: Option<Continuation>,
+    scrolling: Option<crate::view::visual::scroll::Work>,
 }
 
 /// Candidate snapshots share disposable observations; a real split forks them.
@@ -84,7 +85,9 @@ impl Cache {
     }
 
     pub(in crate::view) fn cancel_work(&self) {
-        self.0.lock().expect("fragment cache poisoned").building = None;
+        let mut entries = self.0.lock().expect("fragment cache poisoned");
+        entries.building = None;
+        entries.scrolling = None;
     }
 
     fn observe(&self, buffer: &Buffer, width: u16) -> MutexGuard<'_, Entries> {
@@ -105,6 +108,7 @@ impl Cache {
                 // A segmentation continuation retains the old complete line's
                 // byte length/context. Resume it only at the exact revision.
                 entries.building = None;
+                entries.scrolling = None;
                 entries.fragments.retain(|_, f| f.observed_end < prefix);
                 let mut order = std::mem::take(&mut entries.order);
                 order.retain(|key| entries.fragments.contains_key(key));
@@ -125,6 +129,23 @@ impl Cache {
             }
         }
         entries
+    }
+
+    pub(in crate::view) fn take_scroll(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+    ) -> Option<crate::view::visual::scroll::Work> {
+        self.observe(buffer, width).scrolling.take()
+    }
+
+    pub(in crate::view) fn suspend_scroll(
+        &self,
+        buffer: &Buffer,
+        width: u16,
+        work: crate::view::visual::scroll::Work,
+    ) {
+        self.observe(buffer, width).scrolling = Some(work);
     }
 
     pub(in crate::view) fn take_work(

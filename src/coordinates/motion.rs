@@ -1,6 +1,5 @@
-use ropey::RopeSlice;
-
-use super::{Byte, Coordinates, Error, Scalar, cursor::Cursor};
+use super::{Coordinates, Error, Scalar, cursor::Cursor};
+use crate::command::navigation::Word;
 
 impl Coordinates<'_> {
     /// The native point owner has already admitted this grapheme boundary.
@@ -83,35 +82,14 @@ impl Coordinates<'_> {
         if !self.is_boundary(point)? {
             return Err(Error::Cluster(point));
         }
-        let byte = self.to_byte(point)?.0;
-        self.from_byte(Byte(scan(self.text, byte, backward)?))
+        self.words(
+            point,
+            if backward {
+                Word::PreviousStart
+            } else {
+                Word::NextEnd
+            },
+            1,
+        )
     }
-}
-
-fn scan(text: RopeSlice<'_>, mut position: usize, backward: bool) -> Result<usize, Error> {
-    let mut cursor = Cursor::new(text, position)?;
-    let mut word = false;
-    while let Some(next) = step(&mut cursor, backward)? {
-        let range = position.min(next)..position.max(next);
-        let cluster = text.get_byte_slice(range).ok_or(Error::Segmentation)?;
-        let current = cluster.chars().any(word_character);
-        if word && !current {
-            break;
-        }
-        word |= current;
-        position = next;
-    }
-    Ok(position)
-}
-
-fn step(cursor: &mut Cursor<'_>, backward: bool) -> Result<Option<usize>, Error> {
-    if backward {
-        cursor.previous()
-    } else {
-        cursor.next()
-    }
-}
-
-fn word_character(character: char) -> bool {
-    character.is_alphanumeric() || character == '_'
 }

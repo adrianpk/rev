@@ -1,3 +1,4 @@
+pub(in crate::view) mod scroll;
 use std::ops::Range;
 
 use crate::buffer::Buffer;
@@ -222,25 +223,7 @@ impl View {
         if distance == 0 {
             return Ok(());
         }
-        let mut fragment = self.visual_fragment(buffer, width)?;
-        let point = self.cell(buffer)?;
-        let column = *self
-            .column
-            .get_or_insert(point.column - fragment.columns.start);
-        let mut moved = 0;
-        for _ in 0..distance {
-            let Some(next) = self.adjacent_fragment(buffer, width, &fragment, scroll.backward())?
-            else {
-                break;
-            };
-            fragment = next;
-            moved += 1;
-        }
-        self.point.position = Self::fragment_point(buffer, &fragment, column)?;
-        if scroll.page() {
-            self.scroll_page_top(buffer, width, scroll.backward(), moved)?;
-        }
-        Ok(())
+        self.continued_scroll(buffer, width, scroll, distance)
     }
 
     fn sync_visual_scroll(&mut self, buffer: &Buffer, width: u16) -> Result<(), Error> {
@@ -248,26 +231,6 @@ impl View {
         self.sync_wrap_width(Some(width));
         self.reveal_fold(buffer, self.cell(buffer)?.row)?;
         self.alignment = super::scroll::Alignment::Center;
-        Ok(())
-    }
-
-    fn scroll_page_top(
-        &mut self,
-        buffer: &Buffer,
-        width: u16,
-        backward: bool,
-        moved: usize,
-    ) -> Result<(), Error> {
-        if let Some(mut top) = self.wrapped_rows(buffer, width, 1)?.into_iter().next() {
-            for _ in 0..moved {
-                let Some(next) = self.adjacent_fragment(buffer, width, &top, backward)? else {
-                    break;
-                };
-                top = next;
-            }
-            self.top = top.line;
-            self.wrap_start = top.source.start;
-        }
         Ok(())
     }
 

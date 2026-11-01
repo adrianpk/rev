@@ -4,6 +4,8 @@ pub(crate) use checkpoints::Checkpoints;
 mod display;
 mod hit;
 mod motion;
+mod navigation;
+pub(crate) use navigation::Found;
 mod work;
 pub(crate) use work::{Budget, Scope, Work};
 

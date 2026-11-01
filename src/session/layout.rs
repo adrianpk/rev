@@ -105,6 +105,7 @@ impl Session {
         let applicable = matches!(
             command,
             Command::Scroll(_)
+                | Command::Navigate(_)
                 | Command::Modal(_)
                 | Command::Kill(KillCommand::Line)
                 | Command::Org(_)
@@ -115,6 +116,10 @@ impl Session {
                         | Motion::BackwardChar
                 )
         );
+        if matches!(command, Command::Navigate(request) if matches!(request.target, crate::command::navigation::Target::Search(_) | crate::command::navigation::Target::Find(_)) && request.character.is_none())
+        {
+            return None;
+        }
         if !applicable
             || matches!(command, Command::Org(_)) && !self.buffer().is_ok_and(|b| b.is_org())
             || !self.source_layout_focus()
@@ -214,6 +219,9 @@ impl Session {
 
     fn prepared_request(&self, request: Request) -> Result<(), Error> {
         match request {
+            Request::Command(Command::Navigate(request)) => {
+                self.navigation_view(request).map(|_| ())
+            }
             Request::Command(Command::Scroll(scroll)) => self.scrolling_view(scroll).map(|_| ()),
             Request::Command(Command::Modal(command)) => self.modal_target(command).map(|_| ()),
             Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
