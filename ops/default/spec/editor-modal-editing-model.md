@@ -288,3 +288,31 @@ priority. Popup cancellation stays local, Tab/C-i keeps its active component
 meaning and held Return cannot become a later edit. Source drafts share the
 immutable startup profile. No worker, queue, input-batch or deadline limit changes,
 and modal state alone introduces no idle polling.
+
+## Acceptance and resource ownership
+
+A native Rust acceptance driver constructs isolated startup snapshots and source
+files, exercises shared editing/history and launches the installed Rust server in
+an owned offline project. The semantic child has a 60-second outer deadline and
+35-second readiness window; selected work and server cleanup retain five-second
+bounds. Server RSS and CPU observations are separate from the native driver.
+
+The existing controlling-PTY owner supplies finite input/output and cleanup.
+Each PTY keeps the eight-second and 1-MiB output limits, observes complete native
+frames and requires terminal attributes, alternate screen, paste mode and cursor
+restoration. Cursor-style bytes precede the frame delimiter, so a read-only
+observer uses the same bounded stream. Explicit Escape is separated from a later
+undo key; packed Escape-x remains terminal Meta input.
+
+Large-count and logical-block observations use native targets and prepared
+history. Count overflow preserves source, point and history. A 4,096-row block
+removes complete tab/wide/combining graphemes with one exact undo. Native and PTY
+128-event bursts retain source and command order. Idle observations require no
+native deadline, terminal output or modal polling. Existing 32-event/four-ms
+input batching and runtime worker/retention limits remain unchanged.
+
+Executable size is observed under normal release flags with two build jobs and
+compared to the recorded predecessor release; the external server is excluded.
+Measurements describe their actual candidate and host, without creating another
+runtime service or inferring universal performance guarantees. Canonical Markdown,
+its ordered guide index and the Spore tree remain one documentation source.

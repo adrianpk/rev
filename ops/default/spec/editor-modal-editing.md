@@ -482,3 +482,26 @@ their canonical names under either entry surface when actually registered.
 The approved capability is ready for the approved delivery map. The plan and
 tracker remain the planning/execution authority; the owner authorized controller
 startup and canonical slice integration into dev on 2026-11-01.
+
+## Implementation and validation map
+
+The implementation maps each requirement to the following concrete checks.
+The capability remains approved until the controller records its integrated
+exact-candidate gate and closes the delivery set.
+
+| Requirement | Concrete coverage |
+| --- | --- |
+| MOD01 Startup choice | `tests/modal.rs`, configuration startup tests, native isolation and both independently started PTY profiles. |
+| MOD02 Configuration isolation | `tests/modal/keymaps.rs`, configuration whole-candidate/default-sample tests and native immutable-snapshot checks. |
+| MOD03 Editing states | Native operators/repeat, Insert and Replace completion, PTY state transitions and cursor shapes. |
+| MOD04 Logical navigation | `tests/modal/navigation.rs`, `viewport.rs`, `local_targets.rs` and source-bounded u32-max resource traversal. |
+| MOD05 Composed operators | `tests/modal/operators.rs`, `objects.rs`, `operator_safety.rs` and native/PTY word deletion with exact undo. |
+| MOD06 Visual geometry | `tests/modal/visual.rs`, `visual_safety.rs`, three native shapes and the 4,096-row Unicode/CRLF block measurement. |
+| MOD07 Shared colon entry | `tests/modal/contexts.rs`, command-catalog tests, native colon/M-x argument equivalence and decoded PTY selector/pane controls. |
+| MOD08 Context ownership | `tests/modal/search.rs`, `contexts.rs`, `context_safety.rs`, source-draft save/abort and popup-local cancellation. |
+| MOD09 Cancellation and Escape | `tests/modal/boundaries.rs`, `completion.rs`, `context_safety.rs` and separately decoded Escape versus packed Meta input in PTYs. |
+| MOD10 State maps | `tests/modal/keymaps.rs`, complete supported sample/configuration checks and the independent Emacs/Vim PTY settings. |
+| MOD11 Native presentation | `tests/modal/presentation.rs`, display tests, narrow native resize, PTY source cursor, three cursor styles and reset. |
+| MOD12 Bounds and preservation | Count overflow, large source/block, native and PTY 128-event bursts, native/server/PTY resource observations and first-party source quality. |
+| MOD13 Checked jumps | `tests/modal/jumps.rs`, `jump_safety.rs`, native jump/undo ownership and decoded C-o/Tab and post-split backward traversal. |
+| MOD14 Replacement and repeat | `tests/modal/repeat.rs`, `repeat_safety.rs`, native/PTY dot grouping and installed semantic acceptance in Replace with one undo. |

@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 8 in progress; Slice 7 delivered through PR #218
+Active slice: Slice 8 reviewing; Slice 7 delivered through PR #218
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -102,10 +102,10 @@ Acceptance: MOD07-MOD12.
 
 Acceptance: MOD01-MOD14.
 
-- [ ] T8.1: Complete approachable canonical Markdown guidance for startup profile selection, ordinary modal editing, selections, colon commands and completion, with small visible examples. Keep Emacs as the introductory default. Update the guide order and Spore tree together, references, full sample/catalogs, baseline/model reconciliation and Unreleased through changelog-normalize.
-- [ ] T8.2: Create a native Rust acceptance example and scripts/check-modal.sh using the existing owned-fixture/controlling-PTY approach. Cover Emacs startup isolation, Vim editing/operators/Visual/jumps/repeat, colon/M-x equivalence, native plus one installed rust-analyzer semantic completion path, undo and clean terminal/child restoration. No new Python harness or project dependency.
-- [ ] T8.3: Measure large-file/count/block behavior, a finite input burst, executable bytes under the same normal release flags and idle work. Preserve bounded worker ownership and no modal idle polling; protect first-party safe Rust, source quality and unchanged input batching without unrelated cleanup or tuning.
-- [ ] T8.4: Run focused acceptance, then hand clean integrated dev to the controller's unchanged full gate and closure. Verify all requirement/coverage rows, reports, actual docs/Spore output and preservation cases before marking delivered; no controller checkpoint edits, fake receipts or untested closure claims.
+- [x] T8.1: Complete approachable canonical Markdown guidance for startup profile selection, ordinary modal editing, selections, colon commands and completion, with small visible examples. Keep Emacs as the introductory default. Update the guide order and Spore tree together, references, full sample/catalogs, baseline/model reconciliation and Unreleased through changelog-normalize.
+- [x] T8.2: Create a native Rust acceptance example and scripts/check-modal.sh using the existing owned-fixture/controlling-PTY approach. Cover Emacs startup isolation, Vim editing/operators/Visual/jumps/repeat, colon/M-x equivalence, native plus one installed rust-analyzer semantic completion path, undo and clean terminal/child restoration. No new Python harness or project dependency.
+- [x] T8.3: Measure large-file/count/block behavior, a finite input burst, executable bytes under the same normal release flags and idle work. Preserve bounded worker ownership and no modal idle polling; protect first-party safe Rust, source quality and unchanged input batching without unrelated cleanup or tuning.
+- [x] T8.4: Run focused acceptance, then hand clean integrated dev to the controller's unchanged full gate and closure. Verify all requirement/coverage rows, reports, actual docs/Spore output and preservation cases before marking delivered; no controller checkpoint edits, fake receipts or untested closure claims.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Delivery closure

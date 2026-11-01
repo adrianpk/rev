@@ -11,10 +11,11 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     jumps(&mut terminal)?;
     commands(&mut terminal)?;
     completion(&mut terminal)?;
+    panes(&mut terminal)?;
     burst(&mut terminal)?;
     restored(root, &mut terminal)?;
     println!(
-        "PASS Vim Linux PTY: decoded operators/Visual/jumps/repeat, colon/M-x arguments, Insert completion, Replace, 128-event burst, cursor shapes/reset, disk unchanged and TTY restored"
+        "PASS Vim Linux PTY: decoded operators/Visual/jumps/repeat, colon/M-x arguments, Insert completion, Replace, pane focus, 128-event burst, cursor shapes/reset, disk unchanged and TTY restored"
     );
     Ok(())
 }
@@ -117,6 +118,20 @@ fn completion(terminal: &mut Terminal) -> Result<()> {
         text_state(frame, 4, "Z", "NORMAL")
     })?;
     send_frame(terminal, b"u", |frame| clean_source(frame, "{ cfg }"))?;
+    Ok(())
+}
+
+fn panes(terminal: &mut Terminal) -> Result<()> {
+    send_frame(terminal, b"\x17v", |frame| {
+        row(frame, 1).matches("one two").count() == 2
+    })?;
+    send_frame(terminal, b"\x17l", |frame| {
+        cursor(frame).is_some_and(|point| point.1 > 50)
+    })?;
+    send_frame(terminal, b"\x17o", |frame| {
+        row(frame, 1).matches("one two").count() == 1
+            && cursor(frame).is_some_and(|point| point.1 < 50)
+    })?;
     Ok(())
 }
 
