@@ -5,7 +5,7 @@ Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
 Branch: `feat/rev-language-server-support-04-edits`
-PR: pending canonical creation
+PR: [#206](https://forge.adrianpk.com/adrianpk/rev/pulls/206)
 
 ## Purpose
 
@@ -117,7 +117,7 @@ restore/disable/connection replacement. Owned fixture children finish through
 the existing bounded shutdown/reap owner.
 
 T4.1 is commit `07df3dc83553cc0c49131203971a92742966f767`.
-T4.2 introduces this report with complete rejection/freshness regressions and
+T4.2 is commit `0857783862901aeef22c3b9d73c99027cfeff6b4`, which introduces this report with complete rejection/freshness regressions and
 source fallback/retirement boundary corrections.
 
 ## Risks and Follow-ups

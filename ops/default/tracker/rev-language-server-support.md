@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4 — Resolved completion and atomic additional edits
+Active slice: Slice 4 — Resolved completion and atomic additional edits; PR #206 awaiting controller integration
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -63,7 +63,7 @@ Acceptance: LSP02-LSP03 complete edit contract and CMP04.
 - [x] T4.2: Reject unsupported snippets/commands/cross-document forms, overlapping or malformed ranges, oversized payloads and obsolete resolve responses. Keep ordinary editing usable during resolve and restore native behavior on cancel/failure.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T4.1 `07df3dc83553cc0c49131203971a92742966f767`; T4.2 introduces the Slice 4 report with atomic edit boundaries, source fallback and obsolete-generation regressions. Canonical PR pending creation; integration remains controller-owned.
+Implementation: T4.1 `07df3dc83553cc0c49131203971a92742966f767`; T4.2 `0857783862901aeef22c3b9d73c99027cfeff6b4` introduces the Slice 4 report with atomic edit boundaries, source fallback and obsolete-generation regressions. Canonical PR: [#206](https://forge.adrianpk.com/adrianpk/rev/pulls/206). Integration remains controller-owned.
 
 ## Slice 5: Shared lifecycle and real Rust interoperability
 
