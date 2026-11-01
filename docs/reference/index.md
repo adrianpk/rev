@@ -15,6 +15,7 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Named bookmarks](commands.md#named-bookmarks): checked locations, persistent storage, listing and gutter markers.
 - [File tree](file-tree.md): root selection, focus and filesystem operations.
 - [Rectangles](rectangles.md): display-column selection and separate retained rows.
+- [Gallery](gallery.md): screenshots of rev in use, newest first.
 
 ## Preferences and display
 
