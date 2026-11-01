@@ -57,7 +57,7 @@ impl Input {
     }
 
     pub fn editing_state(&self) -> Option<EditingState> {
-        (self.profile == InteractionProfile::Vim).then_some(self.editing_state)
+        (self.profile == InteractionProfile::Modal).then_some(self.editing_state)
     }
 
     pub(crate) fn set_editing_state(&mut self, state: EditingState) {
@@ -68,7 +68,7 @@ impl Input {
 
     /// A changed native view/buffer cannot inherit a text-entry continuation.
     pub(crate) fn editing_owner(&mut self, view: ViewId, buffer: BufferId) {
-        if self.profile != InteractionProfile::Vim {
+        if self.profile != InteractionProfile::Modal {
             return;
         }
         let owner = Some((view, buffer));
@@ -79,7 +79,7 @@ impl Input {
     }
 
     pub(super) fn modal_editing(&self) -> bool {
-        self.profile == InteractionProfile::Vim
+        self.profile == InteractionProfile::Modal
             && self.focus() == Focus::Editing
             && !self.workspace_tree
             && !self.workspace_bookmarks

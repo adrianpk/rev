@@ -24,7 +24,7 @@ impl Session {
         destination: &Buffer,
         point: Point,
     ) -> Result<Option<Record>, Error> {
-        if self.interaction_profile() != InteractionProfile::Vim || origin == point {
+        if self.interaction_profile() != InteractionProfile::Modal || origin == point {
             return Ok(None);
         }
         let source = self.buffers.get(origin.stamp.buffer)?;

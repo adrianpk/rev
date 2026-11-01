@@ -122,7 +122,7 @@ pub(super) fn org_maps(
     profile: InteractionProfile,
 ) -> Result<BTreeMap<(Context, Context), Map>, Error> {
     let mut result = BTreeMap::new();
-    if profile != InteractionProfile::Vim {
+    if profile != InteractionProfile::Modal {
         return Ok(result);
     }
     for state in [
@@ -166,7 +166,7 @@ fn recovery(map: &Map, context: Context) -> Result<(), Error> {
         context,
         "M-x",
         Site::Value,
-        "M-x is reserved for execute-extended-command in Vim editing",
+        "M-x is reserved for execute-extended-command in modal editing",
     ))
 }
 

@@ -18,7 +18,7 @@ Readiness: Completed; MOD01-MOD14 have integrated exact-candidate acceptance evi
 ## Purpose
 
 Provide two startup-selected interaction profiles over the same Rust editor:
-Emacs-like direct editing and Vim-like modal editing. Vim-like means familiar
+Non-modal Emacs-like editing and modal Vim-like editing. Vim-like means familiar
 ordinary editing, motions, search, selections, operators and jump navigation.
 It does not mean replacing rev's functions with Vim's command catalog.
 
@@ -28,14 +28,15 @@ is one command catalog, one editing engine and one set of buffer/file owners.
 
 ## Confirmed direction
 
-- Select Emacs or Vim through startup configuration. The choice applies to
-  the whole session and cannot be changed by a runtime command or toggle.
-- Retain Emacs-like editing as the default when the preference is omitted.
-- Normal/Insert/Visual transitions during Vim editing remain ordinary modal
+- Select `non-modal` or `modal` through startup configuration. The choice applies
+  to the whole session and cannot be changed by a runtime command or toggle.
+- Retain non-modal, Emacs-like editing as the default when the preference is
+  omitted.
+- Normal/Insert/Visual transitions during modal editing remain ordinary modal
   interaction. They do not change the selected startup profile.
 - Include common Vim behavior, not only hjkl: file and line motions, counts,
   word motions, search, operators, character/line/block selection and jumps.
-- C-v enters Visual Block in Vim editing. C-o/C-i traverse older/newer jump
+- C-v enters Visual Block in modal editing. C-o/C-i traverse older/newer jump
   locations in Normal. Input meaning remains state- and context-dependent.
 - Invoke rev's existing command names through :{command}, with the same
   completion, availability, dispatch and argument prompts as M-x.
@@ -64,15 +65,15 @@ historical exclusions.
 Behavioral parity includes these concrete coordinate rules:
 
 - Normal and Visual j/k, arrows, 0/^/$ and their operator targets use logical
-  source lines even when text wraps. The Emacs profile retains its delivered
+  source lines even when text wraps. The non-modal profile retains its delivered
   visual-line behavior. Rendering, gutter labels and pointer mapping continue
   to use the native source/display projection.
 - Visual Character includes the destination grapheme; Visual Line includes
   complete logical lines. Repeating the active v/V/C-v shape exits Visual;
   choosing another shape converts the canonical selection. The o key exchanges
   its active end and anchor.
-- Vim Visual Block follows Odra's logical grapheme-column endpoints. Existing
-  Emacs rectangles retain rev's display-column behavior. Native selection and
+- modal Visual Block follows Odra's logical grapheme-column endpoints. Existing
+  non-modal rectangles retain rev's display-column behavior. Native selection and
   edit owners must distinguish these coordinate policies without a second
   document, selection store or history. Tabs and wide/combining graphemes need
   explicit acceptance examples for both profiles.
@@ -140,7 +141,7 @@ the explicit C-v, C-o, search or motion requirements to a smaller hjkl profile.
 | Ordinary edits | x/X, r, R, D/C/Y, p/P, joining, undo, redo and semantic last-change repetition with dot. |
 | Selection | v, V, C-v; extend with motions; exchange active end; operate on the canonical linear or rectangular selection. |
 | Jump history | C-o/C-i in Normal; a bounded view-owned history that can identify another visited file. |
-| Insert continuity | Native text insertion and common Vim Insert controls, including C-o for one Normal command and return to Insert. |
+| Insert continuity | Native text insertion and common modal Insert controls, including C-o for one Normal command and return to Insert. |
 | Native commands | :{canonical-rev-name}; the same registered operation, candidates and argument workflow as M-x. |
 
 The common-Vim direction does not authorize an Ex parser, Vimscript, external
@@ -153,10 +154,11 @@ exception rather than an undocumented Vim mapping.
 
 ### Requirement: MOD01 Startup-only profile selection
 
-The editor SHALL resolve exactly one global Emacs or Vim interaction profile
-from the admitted startup configuration. Omission SHALL retain the existing
-Emacs default. The selected profile SHALL remain immutable for that session;
-no M-x command, colon command, binding or per-buffer/language override SHALL
+The editor SHALL resolve exactly one global interaction profile through
+`editor.interaction_profile`: `non-modal` for Emacs-like editing or `modal`
+for Vim-like editing. These SHALL be the public configuration names. Omission
+SHALL retain the non-modal default. The selected profile SHALL remain immutable
+for that session; no M-x command, colon command, binding or per-buffer/language override SHALL
 switch profiles. Editing the preference SHALL affect a later startup only.
 
 #### Scenario: Keep direct editing by default
@@ -168,10 +170,10 @@ switch profiles. Editing the preference SHALL affect a later startup only.
 
 #### Scenario: Defer a preference change until restart
 
-- **GIVEN** a session started with the Vim profile
-- **WHEN** its configuration file is changed to select Emacs
-- **THEN** the current session remains Vim
-- **AND** only a new admitted startup can select Emacs.
+- **GIVEN** a session started with the modal profile
+- **WHEN** its configuration file is changed to select `non-modal`
+- **THEN** the current session remains modal
+- **AND** only a new admitted startup can select non-modal editing.
 
 ### Requirement: MOD02 Coherent configuration and default isolation
 
@@ -191,7 +193,7 @@ behavior is implemented; specification approval alone does not extend the runnin
 
 ### Requirement: MOD03 Modal states and text admission
 
-Vim startup SHALL enter Normal. The admitted state grammar SHALL distinguish
+Modal startup SHALL enter Normal. The admitted state grammar SHALL distinguish
 Normal, Insert, Replace and the three Visual selection shapes. Normal and
 Visual input SHALL NOT fall through to accidental text insertion. Insert and
 Replace SHALL use canonical text transactions. State transitions alone SHALL
@@ -200,14 +202,14 @@ specified with checked native positions and familiar Vim-visible outcomes.
 
 #### Scenario: Enter and leave insertion
 
-- **GIVEN** Vim Normal in an editable buffer
+- **GIVEN** modal Normal in an editable buffer
 - **WHEN** the user presses i, types text and presses Escape
 - **THEN** text enters through the ordinary edit owner and the state returns to Normal
 - **AND** subsequent motion keys navigate rather than entering document text.
 
 ### Requirement: MOD04 Familiar motions over canonical positions
 
-The Vim grammar SHALL provide the ordinary motion families in the coverage
+The modal grammar SHALL provide the ordinary motion families in the coverage
 table, including gg/G, counted line destinations and word/WORD distinctions.
 Motions SHALL resolve valid native grapheme/line positions with bounded counts,
 normal viewport reveal and Unicode-safe conversion. A Vim word-start motion
@@ -217,7 +219,7 @@ native owner, available to normal command dispatch where appropriate.
 
 #### Scenario: Reach a file destination and move by words
 
-- **GIVEN** Vim Normal in a multi-line buffer containing punctuation and words
+- **GIVEN** modal Normal in a multi-line buffer containing punctuation and words
 - **WHEN** the user uses gg, G, a counted line destination and word motions
 - **THEN** the documented Vim-like destinations are reached through canonical positions
 - **AND** no motion inserts text or splits a grapheme.
@@ -228,7 +230,7 @@ The shared Odra subset preserves b's native Unicode word start and e's exclusive
 word-end boundary; w separately observes word/punctuation-class starts. WORD,
 ge/gE and counted line forms are explicit rev additions. Forward search keeps
 the native match-end boundary; reverse search keeps the match start. This pins
-semantic endpoints without changing the existing Emacs bindings.
+semantic endpoints without changing the existing non-modal bindings.
 
 ### Requirement: MOD05 Counts and operator composition
 
@@ -241,7 +243,7 @@ Unsupported or stale compositions SHALL fail without a partial edit.
 
 #### Scenario: Resolve one counted change
 
-- **GIVEN** Vim Normal and a valid counted operator/motion target
+- **GIVEN** modal Normal and a valid counted operator/motion target
 - **WHEN** the complete composition is accepted
 - **THEN** one checked semantic operation applies to the resolved range
 - **AND** overflow, invalid input or a changed target cannot publish a partial result.
@@ -250,8 +252,8 @@ Unsupported or stale compositions SHALL fail without a partial edit.
 
 v, V and C-v SHALL enter character, logical-line and rectangular Visual
 selection respectively. Selection presentation SHALL derive from existing
-native selection/rectangle ownership. Vim blocks SHALL use Odra-compatible
-logical grapheme-column endpoints; existing Emacs rectangles SHALL retain
+native selection/rectangle ownership. modal blocks SHALL use Odra-compatible
+logical grapheme-column endpoints; existing non-modal rectangles SHALL retain
 display-column endpoints. Both SHALL preserve checked grapheme/tab boundaries
 and one atomic edit/history transaction, not repeated independent line edits.
 Profile changes SHALL NOT
@@ -259,7 +261,7 @@ be required to use undo, redo or existing rectangle commands.
 
 #### Scenario: Select and delete a block
 
-- **GIVEN** Vim Normal and several lines containing tabs and Unicode text
+- **GIVEN** modal Normal and several lines containing tabs and Unicode text
 - **WHEN** the user presses C-v, extends a block and deletes it
 - **THEN** the admitted rectangle is removed as one coherent native operation
 - **AND** one ordinary undo restores all affected lines.
@@ -273,7 +275,7 @@ be required to use undo, redo or existing rectangle commands.
 
 ### Requirement: MOD07 Colon entry uses the rev command catalog
 
-In Vim Normal and Visual states, colon SHALL open the native extended-command
+In modal Normal and Visual states, colon SHALL open the native extended-command
 selector over the same currently registered names as M-x. Filtering, vertical
 candidates, completion, history, availability, dispatch and argument prompts
 SHALL use the same owners. There SHALL NOT be a second catalog of Vim versions
@@ -317,7 +319,7 @@ an operator targeting another view or revision.
 
 #### Scenario: Search and repeat
 
-- **GIVEN** Vim Normal and several occurrences of a search pattern
+- **GIVEN** modal Normal and several occurrences of a search pattern
 - **WHEN** the user searches with slash, confirms and uses n/N
 - **THEN** navigation follows the admitted pattern and direction
 - **AND** cancellation and failures retain the native search guarantees.
@@ -332,7 +334,7 @@ an operator targeting another view or revision.
 ### Requirement: MOD09 Cancellation and terminal Escape
 
 C-g SHALL retain rev's reserved context cancellation. A decoded Escape/C-[ in
-Vim editing SHALL cancel pending composition and return to Normal without an
+modal editing SHALL cancel pending composition and return to Normal without an
 edit. Higher-priority prompts retain their own cancellation lifetime. Escape
 disambiguation SHALL be bounded and profile-aware; adding Vim SHALL neither
 regress Emacs Meta input nor falsely claim distinction between chords the
@@ -340,7 +342,7 @@ terminal reports identically.
 
 #### Scenario: Cancel a pending operator
 
-- **GIVEN** a count/operator is incomplete in Vim editing
+- **GIVEN** a count/operator is incomplete in modal editing
 - **WHEN** the user cancels
 - **THEN** all pending composition is cleared and a valid Normal state remains
 - **AND** document text, retained text and undo history remain unchanged.
@@ -372,7 +374,7 @@ State presentation SHALL not consume document cells or change buffer contents.
 
 #### Scenario: Identify text-entry state
 
-- **GIVEN** Vim Normal in a narrow usable pane
+- **GIVEN** modal Normal in a narrow usable pane
 - **WHEN** the user enters Insert and returns to Normal
 - **THEN** an unambiguous state indicator follows both transitions
 - **AND** editing remains usable without terminal cursor-shape support.
@@ -412,7 +414,7 @@ C-i/Tab terminal alias SHALL have explicit context-aware behavior.
 
 #### Scenario: Use C-o while inserting
 
-- **GIVEN** Vim Insert owns ordinary editing input
+- **GIVEN** modal Insert owns ordinary editing input
 - **WHEN** the user presses C-o and completes one admitted Normal command
 - **THEN** that command runs under checked native dispatch and compatible insertion resumes
 - **AND** the chord is not incorrectly treated as Normal jump-history traversal.

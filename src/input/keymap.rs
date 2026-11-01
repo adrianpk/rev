@@ -165,7 +165,7 @@ impl Effective {
 /// Exact normalized user chords replace inherited entries; all other defaults
 /// survive. No map escapes this boundary before context and prefix validation.
 pub fn compile(keys: &crate::config::Keymaps) -> Result<Effective, Error> {
-    compile_for(keys, crate::config::InteractionProfile::Emacs)
+    compile_for(keys, crate::config::InteractionProfile::NonModal)
 }
 
 pub fn compile_for(

@@ -8,36 +8,37 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- [Select the Emacs or Vim editing profile at startup](docs/tutorials/user-guide/11-modal-editing.md). Emacs keeps direct text
-  entry; Vim starts in Normal with explicit Insert entry, logical line opening,
-  state feedback and shared undo. Change `editor.interaction_profile` and restart
-  to select a profile.
+- [Select non-modal or modal editing at startup](docs/tutorials/user-guide/11-modal-editing.md).
+  The default `non-modal` profile keeps Emacs-like direct text entry; `modal`
+  provides Vim-like editing, starting in Normal with explicit Insert entry,
+  logical line opening, state feedback and shared undo. Change
+  `editor.interaction_profile` and restart to select a profile.
 
-- Navigate in Vim Normal with grapheme and logical-line motions, checked counts,
+- Navigate in modal Normal with grapheme and logical-line motions, checked counts,
   word/WORD and character targets, page controls and viewport alignment. Use
   `/` or `?` for literal search, `n`/`N` to continue and `*`/`#` for a whole word.
 
-- Compose Vim delete/change/copy and indentation with counted motions or text
+- Compose modal delete/change/copy and indentation with counted motions or text
   objects. Share retained text and linewise paste with native yank, replace whole
   graphemes, join logical lines and undo each operation through ordinary history.
 
-- Select text in Vim with Character, Line and Block Visual states. Extend or
+- Select text in modal editing with Character, Line and Block Visual states. Extend or
   exchange the active end, copy/delete/change the selection, and undo multi-line
   edits in one step. Visual blocks count whole graphemes and preserve tabs;
-  Emacs rectangles keep their display-cell edges.
+  Non-modal rectangles keep their display-cell edges.
 
-- Revisit checked file and source locations with C-o/C-i in Vim Normal. Each pane
+- Revisit checked file and source locations with C-o/C-i in modal Normal. Each pane
   keeps its own bounded jump history, including locations rebased through edits
   and undo. In Insert, C-o runs one complete Normal command and resumes insertion
   when the editing context remains compatible.
 
-- Overwrite whole graphemes with R in Vim Replace, then return to Normal with
+- Overwrite whole graphemes with R in modal Replace, then return to Normal with
   Escape. Repeat the latest supported edit with dot at a new target, override its
   count, and undo each repetition in one step. Insert and Replace sessions share
   ordinary undo groups; oversized changes keep their full text and undo history
   while remaining unavailable for repetition.
 
-- Open the shared command selector with colon in Vim Normal or Visual, use
+- Open the shared command selector with colon in modal Normal or Visual, use
   canonical names and ordinary argument prompts, and manage panes with C-w.
   Native and language-server completion works in Insert and Replace, preserving
   popup controls, syntax colors, atomic imports and undo. Cancelling command

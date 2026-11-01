@@ -16,8 +16,8 @@ impl Session {
     }
 
     pub(super) fn modal_command(&mut self, command: ModalCommand) -> Action {
-        if self.interaction_profile() != InteractionProfile::Vim {
-            return self.message("Modal state requires the Vim startup profile");
+        if self.interaction_profile() != InteractionProfile::Modal {
+            return self.message("This command requires the modal startup profile");
         }
         if self.input.focus() != Focus::Editing
             || self.tree.focused()

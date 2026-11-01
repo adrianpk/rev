@@ -131,8 +131,8 @@ The following invariants apply across requirements:
 Source: sections 1-3, 16, 23-24. Acceptance: A02, A17.
 
 The executable MUST be named `rev`. It MUST run in a terminal and implement
-commands directly in Rust. The default Emacs profile MUST accept ordinary text
-without an Insert transition. The startup-selected Vim profile MUST admit text
+commands directly in Rust. The default non-modal profile MUST accept ordinary text
+without an Insert transition. The startup-selected modal profile MUST admit text
 through its explicit editing states under [Modal Editing](editor-modal-editing.md).
 Normal execution MUST work without a network connection. Prompt, prefix, search
 and tree focus states retain their native input ownership under either profile.
@@ -146,7 +146,7 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 #### Scenario: Ordinary offline editing
 
-- **GIVEN** a supported terminal with no network connection and the default Emacs profile
+- **GIVEN** a supported terminal with no network connection and the default non-modal profile
 - **WHEN** the user launches `rev` and types ordinary text
 - **THEN** an editable terminal buffer receives the text directly
 - **AND** no interpreter, language server, or external editor service is required.
@@ -1052,7 +1052,7 @@ application messages. The same input owner MUST retain the immutable startup
 profile, transient modal state and current native view/buffer identity. It MUST
 retire incompatible text-entry state when that identity changes, without owning
 another cursor, text store or history. Automatic completion MUST require Insert
-or Replace in the Vim profile; explicit canonical invocation remains available.
+or Replace in the modal profile; explicit canonical invocation remains available.
 Completion invocation evidence MUST include editing state alongside native
 source/view/generation checks. Incompatible transitions MUST retire pending
 suggestions and selected-item resolution; late replies MUST neither reopen a

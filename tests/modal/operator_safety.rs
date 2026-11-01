@@ -185,7 +185,7 @@ fn sample_operators() {
         include_str!("../../docs/reference/config.toml"),
     );
     let config = format!(
-        "include = ['{}']\n[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false",
+        "include = ['{}']\n[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false",
         base.display()
     );
     let mut editor = session(&config, "a b c d e f g", 0);

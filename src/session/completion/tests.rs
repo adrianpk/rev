@@ -413,7 +413,7 @@ fn modal_state_result() {
     let path = fixture.write("source.rs", "fn sample() {}\n// sa");
     let config = fixture.write(
         "config.toml",
-        "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false",
+        "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false",
     );
     let startup = crate::config::prepare(&config);
     let mut buffers = crate::buffer::Buffers::with_settings(startup.snapshot.clone()).unwrap();

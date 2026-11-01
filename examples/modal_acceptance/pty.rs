@@ -23,7 +23,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
 fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Terminal> {
     std::fs::write(
         root.join("pty/config/rev/config.toml"),
-        "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n",
+        "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n",
     )?;
     std::fs::write(root.join("workspace/terminal.rs"), ORIGINAL)?;
     let mut terminal = Terminal::start(root, binary, wrapper)?;

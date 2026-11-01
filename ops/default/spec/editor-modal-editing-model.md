@@ -16,7 +16,7 @@ buffers, revisions, text positions, selections, rectangles, text transfer,
 history, search and layouts retain their existing ownership. A modal grammar
 does not own a second rope, undo stack, command registry or register store.
 
-Profile is not modal state: choosing Vim is a startup configuration decision;
+Profile is not modal state: choosing modal editing is a startup configuration decision;
 moving between Normal, Insert, Replace and Visual states is ordinary runtime
 editing. There is no runtime operation that changes the selected profile.
 
@@ -24,14 +24,14 @@ editing. There is no runtime operation that changes the selected profile.
 
 | Field | Meaning | Persistence contract |
 | --- | --- | --- |
-| Interaction profile | Emacs-like direct editing or Vim-like modal editing. | One validated startup preference. Omission resolves to Emacs; the admitted value is immutable until the process exits. |
+| Interaction profile | Non-modal Emacs-like editing or modal Vim-like editing. | One validated startup preference. Omission resolves to non-modal; the admitted value is immutable until the process exits. |
 
 Implemented TOML spelling:
 
 ```toml
 [editor]
-# Startup interaction profile: "emacs" or "vim". Restart rev after changing it.
-interaction_profile = "emacs"
+# Startup interaction profile: "non-modal" or "modal". Restart after changes.
+interaction_profile = "non-modal"
 ```
 
 The completed delivery admits this key through the existing root/include
@@ -43,7 +43,7 @@ back to TOML. No preference reload or runtime setter is introduced.
 
 Extend the existing keys owner with vim_normal, vim_insert, vim_replace,
 vim_visual_character, vim_visual_line and vim_visual_block maps. Existing
-keys.editor overrides remain scoped to Emacs; Vim factories explicitly retain
+keys.editor overrides remain scoped to non-modal editing; modal factories explicitly retain
 compatible native modified-key controls rather than inheriting arbitrary Emacs
 overrides. Local component maps apply whenever they own input in either profile.
 Inactive profiles cannot shadow the active editing map.
@@ -75,14 +75,14 @@ positions; it does not justify byte-oriented cuts or a second cursor model.
 Vim word/WORD and motion-end rules may need new native semantic operations;
 reusing a similarly named Emacs motion is insufficient evidence of equivalence.
 
-The owner's Odra parity direction fixes Vim Visual Block endpoints in logical
-grapheme columns. Existing Emacs rectangles retain display-column semantics.
+The owner's Odra parity direction fixes modal Visual Block endpoints in logical
+grapheme columns. Existing non-modal rectangles retain display-column semantics.
 Native selection ownership must distinguish those coordinate policies and
 preserve checked tab and wide/combining-character boundaries without a private
 modal selection store. Linear and block changes use prepared atomic edits and
 ordinary history; failure does not publish earlier lines of a multi-line operation.
 
-Vim Normal and Visual line motions use logical source lines while the Emacs
+modal Normal and Visual line motions use logical source lines while the Emacs
 profile retains its existing visual-line behavior. Both project through the
 same native wrapping, gutter and pointer coordinate owners.
 
@@ -153,7 +153,7 @@ the previous document. A profile-specific grammar cannot consume a local
 confirmation response or treat completion Tab as jump navigation.
 
 C-g retains native cancellation. Escape handling must distinguish decoded
-events from terminal ambiguities and keep the Emacs path unchanged. There are
+events from terminal ambiguities and keep the non-modal path unchanged. There are
 no idle modal scans or background services. Counts and pending data use the u32
 count ceiling, 16-stroke grammar and 96-byte target bound. Jump/repeat storage
 obeys its limits above; large counts cannot become count-sized UI loops.
@@ -276,7 +276,7 @@ forks; later splits keep the admitted startup ratio. Neither operation writes
 configuration or owns source text, cursor positions or history.
 
 Completion captures editing state with its ordinary invocation generation and
-native source/view/point evidence. Automatic requests require Vim Insert/Replace;
+native source/view/point evidence. Automatic requests require modal Insert/Replace;
 manual canonical invocation remains available. Changed state retires requests,
 popups and selected resolution before polling. Existing generation, source,
 provider and permission checks govern returned edits and imports. Native atomic

@@ -225,7 +225,7 @@ fn source_draft_context() {
         editor.execute(Command::Org(OrgCommand::EditSpecial));
         settle(&mut editor);
         assert!(editor.source_edit_draft().is_some(), "{}", editor.echo());
-        assert_eq!(editor.interaction_profile(), InteractionProfile::Vim);
+        assert_eq!(editor.interaction_profile(), InteractionProfile::Modal);
         assert_eq!(editor.editing_state(), Some(EditingState::Normal));
         keys(&mut editor, "iX");
         editor.handle(key(KeyCode::Esc));

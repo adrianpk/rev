@@ -1,8 +1,9 @@
 # Choose Modal Editing
 
-Learn the optional Vim profile with a small file. The earlier chapters use the
-default Emacs profile, where ordinary text enters directly. Both profiles share
-files, commands, selections, completion and undo.
+Learn the optional modal profile, with Vim-like editing, using a small file.
+The earlier chapters use the default non-modal profile, with Emacs-like editing,
+where ordinary text enters directly. Both profiles share files, commands,
+selections, completion and undo.
 
 ## Select the startup profile
 
@@ -11,7 +12,7 @@ Save your files and quit. Open `~/.config/rev/config.toml` and change the existi
 
 ```toml
 [editor]
-interaction_profile = "vim"
+interaction_profile = "modal"
 ```
 
 Keep the other entries in that table. With `XDG_CONFIG_HOME`, use
@@ -24,9 +25,9 @@ rev modal-practice.txt
 
 The status line shows `NORMAL`, and typing ordinary letters does not enter text.
 The startup choice applies to every buffer and source draft in this session.
-Changing the file does not switch a running editor. To return to direct Emacs
-editing, set `interaction_profile = "emacs"`, save and restart. Omitting the
-setting also selects Emacs.
+Changing the file does not switch a running editor. To return to non-modal
+editing, set `interaction_profile = "non-modal"`, save and restart. Omitting the
+setting also selects non-modal editing.
 
 ## Enter text and return to Normal
 
@@ -74,7 +75,7 @@ text. Use `u` to reverse a paste.
 
 `V` selects complete logical lines. `C-v` selects a block in logical grapheme
 columns: extend it with motions, then use `y`, `d` or `c`. Tabs count as one
-logical grapheme in this Vim block; Emacs rectangles keep their display-cell
+logical grapheme in this modal block; non-modal rectangles keep their display-cell
 edges. `o` exchanges the active end. Press the same shape key again or Escape
 to leave Visual without an edit.
 
@@ -117,7 +118,7 @@ a later editing Escape returns to Normal. Checked completion and imports undo in
 one step; retired replies cannot reopen a popup or edit a different target.
 
 Save with `:save-buffer` or `C-x C-s`, then quit with `C-x C-c`. Both profiles use
-the same unsaved-file confirmation. See the [binding reference](../../reference/bindings.md#vim-startup-profile)
+the same unsaved-file confirmation. See the [binding reference](../../reference/bindings.md#modal-startup-profile)
 for the finite supported operations and [defaults](../../reference/defaults.md)
 for startup and state-map configuration.
 

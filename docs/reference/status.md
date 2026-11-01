@@ -32,7 +32,7 @@ The existing `palette.status`, `palette.status_inactive` and
 `palette.status_text` roles control status colors. Rendering observes the live
 buffer and view without changing text, focus, history or saved bytes.
 
-With the Vim startup profile, the selected editing pane prefixes its status
+With the modal startup profile, the selected editing pane prefixes its status
 with `NORMAL` or `INSERT`. This state has priority over identity, language and
 position when space is limited. Panes below six cells show `N` or `I`; at six
 or seven cells they keep the complete state label. The Emacs status is unchanged.

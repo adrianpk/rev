@@ -82,7 +82,7 @@ block reports `No rectangle to yank`. The linear kill ring remains independent.
 
 ## Logical grapheme blocks
 
-With the Vim startup profile, C-v enters Visual Block using the same native mark,
+With the modal startup profile, C-v enters Visual Block using the same native mark,
 rectangle resolver and transaction owner. Its inclusive edges count source
 graphemes rather than terminal cells. A whole tab or wide/combining cluster is
 one column and is copied literally; short rows contribute no trailing padding.

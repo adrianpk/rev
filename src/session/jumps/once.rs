@@ -14,7 +14,7 @@ pub(in crate::session) struct Continuation {
 impl Session {
     pub(in crate::session) fn begin_one_normal(&mut self) -> Action {
         if self.editing_state() != Some(EditingState::Insert) {
-            return self.message("One Normal command requires Vim Insert");
+            return self.message("One Normal command requires the modal Insert state");
         }
         self.one_normal = Some(Continuation {
             view: self.windows.selected_id(),

@@ -29,13 +29,14 @@ supported reports, cleanup and terminal-owned selection bypass.
 
 ## Editing profile
 
-`editor.interaction_profile = "emacs"` is the default: ordinary text inserts
-directly. Choose `"vim"` before startup for Normal, Insert, Replace and Visual editing. Restart after
-changing it; the profile is immutable for the session and has no command or
-language override. Vim starts in Normal. Use i/a/I/A/o/O to enter Insert and
-Escape/C-[ to return to Normal. The [binding reference](bindings.md#vim-startup-profile)
+`editor.interaction_profile = "non-modal"` is the default, with Emacs-like
+editing: ordinary text inserts directly. Choose `"modal"` for Vim-like Normal,
+Insert, Replace and Visual editing. Restart after changing it; the profile is
+immutable for the session and has no command or language override. Modal editing
+starts in Normal. Use i/a/I/A/o/O to enter Insert and Escape/C-[ to return to Normal.
+The [binding reference](bindings.md#modal-startup-profile)
 lists the currently implemented state commands. Invalid profile or keymap
-settings reject the whole candidate into complete Emacs defaults. Follow
+settings reject the whole candidate into complete non-modal defaults. Follow
 [Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) for a small
 startup and editing exercise.
 
@@ -153,10 +154,10 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `language` | Map of language IDs to partial tables | `{}` | IDs start with `[a-z]`, then contain only `[a-z0-9-]`; no grammar installation is implied. |
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
-| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Emacs editing focus; all 76 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 137 entries. |
-| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | Vim Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 77 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | Vim Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 76 entries. |
+| `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Non-modal editing focus; all 76 entries are active in the sample. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | modal Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace, dot repetition, colon commands and native pane controls. The sample declares all 137 entries. |
+| `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | modal Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 77 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | modal Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 76 entries. |
 | `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 119 entries. |
 | `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 119 entries. |
 | `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 115 entries. |
@@ -247,7 +248,7 @@ edit limits and finite lifecycle.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
-| `editor.interaction_profile` | String: "emacs" or "vim" | `"emacs"` | Immutable session profile, selected at startup. Vim begins in Normal; no language or runtime override. |
+| `editor.interaction_profile` | String: "non-modal" or "modal" | `"non-modal"` | Immutable session profile, selected at startup. Modal editing begins in Normal; no language or runtime override. |
 | `editor.soft_wrap` | Boolean | `true` | Word-aware wrapping at each pane's available text width. M-x visual-line-mode toggles one live buffer for all its views; false retains horizontal scrolling. No source or history changes. |
 | `editor.indent_style` | String: "spaces" or "tabs" | `"spaces"` | Buffer policy; Tab emits the selected indentation form. Language-overridable. |
 | `editor.indent_width` | Integer 1..=32 | `4` | Buffer policy; indentation-stop display columns, independently of tab display width. Language-overridable. |

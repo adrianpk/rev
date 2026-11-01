@@ -69,7 +69,7 @@ impl Session {
         }
         if request.pending() {
             if self.editing_state() != Some(crate::input::EditingState::Normal) {
-                return Some(self.message("Operator composition requires Vim Normal"));
+                return Some(self.message("Operator composition requires the modal Normal state"));
             }
             return Some(self.begin_operator(request));
         }

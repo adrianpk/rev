@@ -2,8 +2,9 @@
 
 `C-` means Control; `M-` means reported Alt/Meta or a compatible Escape prefix.
 Spaces separate successive chords: `C-x C-s` means Control-x, then Control-s.
-In the default Emacs profile, ordinary printable text inserts directly. These editing bindings apply while
-an editing window owns focus; tree, prompt and inventory focus have their own
+In the default non-modal profile, editing is Emacs-like and ordinary printable
+text inserts directly. These editing bindings apply while an editing window
+owns focus; tree, prompt and inventory focus have their own
 keys. See [Terminal input](terminal-input.md) for reports and physical-terminal
 limits, and [Focused prompts](prompts.md) for argument and decision keys.
 
@@ -146,13 +147,14 @@ Global Org entry keys include `C-c a` (agenda), `C-c c` (capture) and
 `C-c l` (store link). See [Org bindings](org/bindings.md) for those keys,
 all Org commands and the source, draft, agenda and calendar contexts.
 
-## Vim startup profile
+## Modal startup profile
 
-Select `editor.interaction_profile = "vim"` and restart. Vim starts in Normal;
-unmatched text and bracketed paste do not insert there. Emacs remains the default.
+Select `editor.interaction_profile = "modal"` and restart for Vim-like editing.
+Modal editing starts in Normal; unmatched text and bracketed paste do not insert
+there. Non-modal editing remains the default.
 [Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) walks through
 profile selection, ordinary edits, shapes and shared command entry.
-The following state commands require the Vim startup profile:
+The following state commands require the modal startup profile:
 
 | Input | Command | Result |
 | --- | --- | --- |
@@ -168,7 +170,7 @@ The following state commands require the Vim startup profile:
 | `V` in Normal or Visual | `modal-enter-visual-line` | Select complete logical lines, convert shape or leave a repeated Line state. |
 | `C-v` in Normal or Visual | `modal-enter-visual-block` | Select inclusive logical grapheme columns, convert shape or leave a repeated Block state. |
 | `C-o` in Insert | `modal-one-normal-command` | Admit one complete Normal command, then resume compatible insertion. |
-| Escape or `C-[` in Vim editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
+| Escape or `C-[` in modal editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
 
 Insert and Replace use native editing and compatible modified factory bindings. Normal
 retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
@@ -335,7 +337,7 @@ C-s/C-r search also supplies n/N; prompts retain their own key meanings.
 | `J` | `modal-join-lines` | Join at least two logical lines (count selects total lines), stripping leading indentation and inserting needed spaces. |
 
 `u` and `C-r` invoke ordinary undo and redo. Prefix commands d/c/y/>/< require
-Vim Normal; completed semantic edit requests and standalone edit commands use
+modal Normal; completed semantic edit requests and standalone edit commands use
 the same native range/edit owners. Pending operators never move point or edit.
 Escape/C-[, C-g, M-x, paste or changed native source/view/point retire them.
 
@@ -417,7 +419,7 @@ lifetime. Compatible completion returns to Insert at the checked native point,
 including after an admitted edit. A different view/buffer or unrelated source
 revision retires insertion authority; explicit Visual entry keeps its new state.
 Queued input after deferred layout is interpreted after the command's state
-transition. Native prompts/completion keep their own Tab/C-i action; Emacs bindings
+transition. Native prompts/completion keep their own Tab/C-i action; non-modal bindings
 and ordinary Insert Tab remain unchanged.
 
 ### Visual selections
@@ -446,7 +448,7 @@ Visual Block counts each source grapheme once: a tab, wide character or joined
 cluster occupies one logical column. Both endpoint columns are included. Existing
 short rows contribute only their actual text, and line separators are excluded.
 Drawing projects the selected glyphs back to their actual display cells, including
-the full tab stop. Emacs rectangles retain display-cell edges and partial-tab
+the full tab stop. non-modal rectangles retain display-cell edges and partial-tab
 padding. See [rectangle coordinate and transfer policies](rectangles.md).
 
 Block transfer keeps native rectangle rows and logical-column intent in the
@@ -468,12 +470,12 @@ The [complete reference sample](config.toml) spells out every default target in
 all supported contexts, including local overlays and the state maps. Copy only desired overrides to preserve inherited stage
 distinctions; explicit mappings select their named action at the active owner.
 
-`keys.editor` belongs to Emacs. Vim resolves `keys.vim_normal` or
+`keys.editor` belongs to non-modal editing. Modal editing resolves `keys.vim_normal` or
 `keys.vim_insert` or `keys.vim_replace` over independent native factories;
-Emacs overrides do not leak into those states. Local Org editing/capture/source maps overlay the selected state.
+non-modal overrides do not leak into those states. Local Org editing/capture/source maps overlay the selected state.
 `keys.vim_visual_character`, `keys.vim_visual_line` and `keys.vim_visual_block`
-resolve independent state factories. M-x and C-g remain protected recovery in Vim editing.
-Escape/C-[ is a state transition while Vim editing owns input, so a standalone
+resolve independent state factories. M-x and C-g remain protected recovery in modal editing.
+Escape/C-[ is a state transition while modal editing owns input, so a standalone
 Escape cannot become a configurable command prefix there.
 
 `keys.completion` supplies the active popup map; Escape remains literal cancel.

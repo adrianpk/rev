@@ -14,9 +14,9 @@ include = []
 # include = ["editing.toml", "colors.toml"]
 
 [editor]
-# Startup-only session profile: "emacs" (direct editing) or "vim" (Normal/Insert).
+# Startup-only profile: "non-modal" (Emacs-like) or "modal" (Vim-like).
 # Restart after changes; language and buffer settings cannot switch profiles.
-interaction_profile = "emacs"
+interaction_profile = "non-modal"
 # Boolean; word-aware source wrapping at each pane's text width. M-x visual-line-mode
 # toggles one buffer for all its views, without changing text or this file.
 soft_wrap = true
@@ -780,7 +780,7 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 # highlights = "python-0.25.0/highlights.scm"
 # completions = "python-0.25.0/completions.scm"
 
-# Vim editing maps are independent of keys.editor. Local components keep priority.
+# modal editing maps are independent of keys.editor. Local components keep priority.
 
 [keys.vim_normal]
 ":" = "execute-extended-command"

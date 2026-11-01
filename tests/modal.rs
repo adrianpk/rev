@@ -86,7 +86,7 @@ fn text(session: &Session) -> String {
         .to_string()
 }
 
-const VIM: &str = "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false";
+const VIM: &str = "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false";
 
 // Every state-entry form resolves a native logical/grapheme destination. Open
 // forms publish exactly one reversible edit; other transitions create none.
@@ -153,7 +153,7 @@ fn text_admission() {
     emacs.handle(key(KeyCode::Char('i')));
     assert_eq!(text(&emacs), "i");
     emacs.execute(Command::Modal(ModalCommand::Normal));
-    assert_eq!(emacs.interaction_profile(), InteractionProfile::Emacs);
+    assert_eq!(emacs.interaction_profile(), InteractionProfile::NonModal);
     assert_eq!(emacs.editing_state(), None);
 }
 
@@ -162,13 +162,13 @@ fn text_admission() {
 #[test]
 fn startup_profile() {
     let fixture = Fixture::new();
-    let included = fixture.write("base.toml", "[editor]\ninteraction_profile = 'vim'");
+    let included = fixture.write("base.toml", "[editor]\ninteraction_profile = 'modal'");
     let root = fixture.write("config.toml", "include = ['base.toml']");
     let vim = prepare(&root);
     assert!(vim.diagnostic.is_none());
     assert_eq!(
         vim.snapshot.settings().editor.interaction_profile,
-        InteractionProfile::Vim
+        InteractionProfile::Modal
     );
     assert_eq!(
         vim.snapshot.origin(&["editor", "interaction_profile"]),
@@ -176,17 +176,17 @@ fn startup_profile() {
     );
     fixture.write(
         "config.toml",
-        "include = ['base.toml']\n[editor]\ninteraction_profile = 'emacs'",
+        "include = ['base.toml']\n[editor]\ninteraction_profile = 'non-modal'",
     );
     let emacs = prepare(&root);
     assert!(emacs.diagnostic.is_none());
     assert_eq!(
         emacs.snapshot.settings().editor.interaction_profile,
-        InteractionProfile::Emacs
+        InteractionProfile::NonModal
     );
     assert_eq!(
         vim.snapshot.settings().editor.interaction_profile,
-        InteractionProfile::Vim
+        InteractionProfile::Modal
     );
 }
 
@@ -198,13 +198,28 @@ fn profile_fallback() {
     for (name, text, rejected) in [
         ("omitted", "[editor]\nindent_width = 2", false),
         (
+            "explicit default",
+            "[editor]\nindent_width = 2\ninteraction_profile = 'non-modal'",
+            false,
+        ),
+        (
+            "former direct name",
+            "[editor]\nindent_width = 2\ninteraction_profile = 'emacs'",
+            true,
+        ),
+        (
+            "former modal name",
+            "[editor]\nindent_width = 2\ninteraction_profile = 'vim'",
+            true,
+        ),
+        (
             "unknown",
             "[editor]\nindent_width = 2\ninteraction_profile = 'evil'",
             true,
         ),
         (
             "language",
-            "[editor]\nindent_width = 2\n[language.rust]\ninteraction_profile = 'vim'",
+            "[editor]\nindent_width = 2\n[language.rust]\ninteraction_profile = 'modal'",
             true,
         ),
     ] {
@@ -213,7 +228,7 @@ fn profile_fallback() {
         assert_eq!(startup.diagnostic.is_some(), rejected, "{name}");
         assert_eq!(
             startup.snapshot.settings().editor.interaction_profile,
-            InteractionProfile::Emacs,
+            InteractionProfile::NonModal,
             "{name}"
         );
         assert_eq!(

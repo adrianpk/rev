@@ -73,7 +73,7 @@ impl Session {
 
     fn repeat_candidate(&self, command: Command) -> Option<Record> {
         if self.repeat.replaying
-            || self.interaction_profile() != crate::config::InteractionProfile::Vim
+            || self.interaction_profile() != crate::config::InteractionProfile::Modal
             || self.input.focus() != Focus::Editing
             || self.tree.focused()
         {

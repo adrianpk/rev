@@ -63,7 +63,7 @@ fn direct_edits() {
 // source policies choose the unit, including a partially consumed leading tab.
 #[test]
 fn indentation() {
-    let config = "[editor]\ninteraction_profile = 'vim'\nindent_style = 'spaces'\nindent_width = 2\ntab_width = 4\n[tree]\nvisible = false";
+    let config = "[editor]\ninteraction_profile = 'modal'\nindent_style = 'spaces'\nindent_width = 2\ntab_width = 4\n[tree]\nvisible = false";
     let mut editor = session(config, "a\n b\n\tc", 0);
     keys(&mut editor, "2>>");
     assert_eq!(text(&editor), "  a\n   b\n\tc");

@@ -437,7 +437,7 @@ pub struct Editor {
 impl Default for Editor {
     fn default() -> Self {
         Self {
-            interaction_profile: InteractionProfile::Emacs,
+            interaction_profile: InteractionProfile::NonModal,
             soft_wrap: true,
             indent_style: IndentStyle::Spaces,
             indent_width: 4,
@@ -458,11 +458,11 @@ pub struct PartialEditor {
 
 /// Startup-only session interaction. Language and view policies cannot override it.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "kebab-case")]
 pub enum InteractionProfile {
     #[default]
-    Emacs,
-    Vim,
+    NonModal,
+    Modal,
 }
 
 /// Missing editing

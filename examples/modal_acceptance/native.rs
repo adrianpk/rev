@@ -12,7 +12,7 @@ pub(super) fn settings(root: &Path) -> Result<Snapshot> {
     let path = root.join("modal.toml");
     std::fs::write(
         &path,
-        "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n",
+        "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n",
     )?;
     let startup = rev::config::prepare(&path);
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
@@ -55,7 +55,7 @@ fn isolation(root: &Path) -> Result<()> {
     keys(&mut emacs, "i:/")?;
     assert_eq!(source(&emacs), "i:/one two");
     assert_eq!(emacs.editing_state(), None);
-    assert_eq!(emacs.interaction_profile(), InteractionProfile::Emacs);
+    assert_eq!(emacs.interaction_profile(), InteractionProfile::NonModal);
     let mut vim = open(root, "normal.txt", "|one two", settings(root)?)?;
     keys(&mut vim, "q")?;
     vim.handle(Event::Paste("refused".into()));
@@ -64,10 +64,10 @@ fn isolation(root: &Path) -> Result<()> {
     assert_eq!(vim.editing_state(), Some(EditingState::Normal));
     std::fs::write(
         root.join("modal.toml"),
-        "[editor]\ninteraction_profile = 'emacs'\n",
+        "[editor]\ninteraction_profile = 'non-modal'\n",
     )?;
-    assert_eq!(vim.interaction_profile(), InteractionProfile::Vim);
-    assert_eq!(emacs.interaction_profile(), InteractionProfile::Emacs);
+    assert_eq!(vim.interaction_profile(), InteractionProfile::Modal);
+    assert_eq!(emacs.interaction_profile(), InteractionProfile::NonModal);
     Ok(())
 }
 

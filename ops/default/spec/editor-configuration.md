@@ -462,7 +462,7 @@ The editor SHALL read and validate configuration at startup. The resulting
 effective configuration SHALL remain fixed for that session; changing source
 files SHALL NOT trigger manual or automatic reload in this delivery.
 `editor.interaction_profile` SHALL be one global immutable session choice,
-`emacs` by default or `vim`. Language/view overrides and runtime profile-switch
+`non-modal` by default or `modal`. Language/view overrides and runtime profile-switch
 commands SHALL NOT be admitted. Changing the source SHALL affect a later startup.
 
 Startup application SHALL be complete and coherent. The sole filesystem
@@ -668,8 +668,8 @@ the original validated baseline remains identified separately. The R17 insertion
 Source: sections 1-3, 16, 23-24. Acceptance: A02, A17.
 
 The executable MUST be named `rev`. It MUST run in a terminal and implement
-commands directly in Rust. The default Emacs profile MUST accept ordinary text
-without an Insert transition. The startup-selected Vim profile MUST admit text
+commands directly in Rust. The default non-modal profile MUST accept ordinary text
+without an Insert transition. The startup-selected modal profile MUST admit text
 through its explicit editing states under [Modal Editing](editor-modal-editing.md).
 Normal execution MUST work without a network connection. Prompt, prefix, search
 and tree focus states retain their native input ownership under either profile.
@@ -683,7 +683,7 @@ Configuration SHALL NOT introduce a scripting or theme-package runtime.
 
 #### Scenario: Ordinary offline editing
 
-- **GIVEN** a supported terminal with no network connection and the default Emacs profile
+- **GIVEN** a supported terminal with no network connection and the default non-modal profile
 - **WHEN** the user launches `rev` and types ordinary text
 - **THEN** an editable terminal buffer receives the text directly
 - **AND** no interpreter, language server, or external editor service is required.

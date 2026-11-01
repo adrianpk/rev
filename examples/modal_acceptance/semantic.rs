@@ -52,7 +52,7 @@ pub(super) fn exercise(root: &Path) -> Result<()> {
     )?;
     std::fs::write(
         root.join("config.toml"),
-        "[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n[lsp]\nenabled = true\n",
+        "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n[lsp]\nenabled = true\n",
     )?;
     let config = rev::config::prepare(&root.join("config.toml"));
     assert!(config.diagnostic.is_none());

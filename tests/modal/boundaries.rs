@@ -99,7 +99,7 @@ fn sample_counts() {
         include_str!("../../docs/reference/config.toml"),
     );
     let config = format!(
-        "include = ['{}']\n[editor]\ninteraction_profile = 'vim'\n[tree]\nvisible = false",
+        "include = ['{}']\n[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false",
         base.display()
     );
     let source = "line\n".repeat(30);
