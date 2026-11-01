@@ -44,9 +44,9 @@ reference reconciliation and this report.
 
 The command origin is observation evidence, not a second selection. Native mark,
 Visual geometry and source remain authoritative while the selector owns input.
-Its cancellation is dispatched before outer draft/capture cancellation. Ordinary
-non-Visual cancellation retains the native keyboard-quit behavior, including
-returning tree focus to editing.
+Its cancellation is dispatched before outer draft/capture cancellation. Retained
+tree, bookmark and agenda prompt handlers precede ordinary editor cancellation,
+preserving their focused owner; native draft/provider work remains intact.
 
 Five neutral native window commands add directional focus and balance. Direction
 selection requires orthogonal half-open overlap, then ranks directional gap and
@@ -91,9 +91,8 @@ Unreleased describe the delivered command, pane and completion behavior.
 ## Validation
 
 Exploratory `cargo check --locked --quiet` passed during implementation. All 15
-new context tests passed across focused runs: the full context batch passed 14
-cases, followed by the corrected selector-boundary case through
-`cargo test --locked --test modal contexts::safety::selector_input_boundary -- --nocapture`.
+new context tests passed through
+`cargo test --locked --test modal contexts -- --nocapture`.
 The existing source-check executable passed all 21 changed Rust files and the
 modal root before the final selector fixture and reporting changes.
 
@@ -102,19 +101,24 @@ the allocation was corrected while retaining equal-size, focus and topology
 assertions. The custom Normal editing fixture now uses an unbound q rather than
 conflicting with the native z prefix. The selected-import fixture uses opaque
 `index` data, matching the existing shell peer's request-ID parser; its import,
-state-preservation and atomic-undo assertions remain unchanged. Tree selector
-cancellation asserts the existing keyboard-quit transition back to editing.
+state-preservation and atomic-undo assertions remain unchanged. The first
+controller-focused batch exposed a retained-tree focus regression in the existing
+`workspace::tree_focus` test. Selector cancellation now delegates retained
+component prompts to their native handlers before the editor fallback. The
+original assertion passed with
+`cargo test --locked --test pointer workspace::tree_focus -- --nocapture`; the
+modal selector regression retains the same focus assertion.
 
 Final exact-HEAD outcomes and receipt identities are recorded by the controller
 and Acta after the PR-reference commit. The focused batch covers changed native
-owners, configuration, pointer/display/recovery dependencies, source quality and
+owners, configuration, pointer/display/recovery, bookmark/agenda dependencies, source quality and
 documentation. It precedes the canonical ordered batch below; neither is the
 integrated delivery-set full gate.
 
 ```sh
 cargo clippy --locked --lib -- -D warnings
 cargo test --locked --lib
-cargo test --locked --test configuration --test windows --test pointer --test display --test recovery
+cargo test --locked --test configuration --test windows --test pointer --test display --test recovery --test bookmarks --test org_agenda
 cargo run --locked --quiet --example source-check -- --source src/command.rs --source src/command/window.rs --source src/input/keymap/vim.rs --source src/session.rs --source src/session/completion.rs --source src/session/completion/tests.rs --source src/session/extended.rs --source src/session/jumps/once.rs --source src/session/prompt.rs --source src/session/windows.rs --source src/window.rs --source src/window/division.rs --source src/window/geometry.rs --source src/window/layout.rs --source src/window/lifecycle.rs --source src/window/navigation.rs --source tests/modal.rs --source tests/modal/completion.rs --source tests/modal/context_lsp.rs --source tests/modal/context_safety.rs --source tests/modal/contexts.rs --root tests/modal.rs
 cargo run --locked --quiet --example documentation-check
 git diff --check

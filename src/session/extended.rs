@@ -63,6 +63,17 @@ impl Session {
         {
             return None;
         }
+        // Retained components own cancellation of their selector before the
+        // ordinary editing fallback; the outer draft/provider stays intact.
+        if let Some(action) = self
+            .bookmark_list_command(command)
+            .or_else(|| self.cancel_calendar_prompt(command))
+            .or_else(|| self.cancel_habit_prompt(command))
+            .or_else(|| self.tree_input(command))
+        {
+            self.command_origin = None;
+            return Some(action);
+        }
         self.pending = None;
         let Some(origin) = self.command_origin.take() else {
             return Some(self.keyboard_quit());

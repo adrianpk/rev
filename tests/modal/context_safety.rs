@@ -53,7 +53,7 @@ fn selector_input_boundary() {
             .any(|row| row.text().contains("M-x "))
     );
     control(&mut editor, 'g');
-    assert!(!editor.tree().focused());
+    assert!(editor.tree().focused());
     assert_eq!(editor.editing_state(), Some(EditingState::Normal));
     assert_eq!(text(&editor), "source");
 }
