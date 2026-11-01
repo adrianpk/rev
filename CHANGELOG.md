@@ -6,6 +6,8 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+## 0.3.0 - 2026-11-01
+
 ### Added
 
 - [Select non-modal or modal editing at startup](docs/tutorials/user-guide/11-modal-editing.md).
