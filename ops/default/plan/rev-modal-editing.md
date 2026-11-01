@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 7 in progress; Slice 6 delivered through PR #217
+Active slice: Slice 7 reviewing; Slice 6 delivered through PR #217
 Tracker: [Modal Editing Tracker](../tracker/rev-modal-editing.md)
 
 ## Outcome and authority

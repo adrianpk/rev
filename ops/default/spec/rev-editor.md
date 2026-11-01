@@ -760,7 +760,9 @@ ever-increasing revision counter.
 
 Source: sections 12.1-12.2, 18.3. Acceptance: A11, A17.
 
-Bindings and `M-x` MUST invoke the same Rust command handler. The registry
+Bindings, `M-x` and Vim Normal/Visual colon entry MUST invoke the same Rust
+command handler and complete shared interactive catalog. Colon MUST NOT add
+aliases, ranges, pipelines, trailing-argument parsing or a separate filter. The registry
 SHOULD be a direct static mapping to functions or a small enum. Every listed
 command MUST work; a functional-looking stub is not an implemented command.
 Public names MUST be lowercase and hyphenated, preferring the corresponding
@@ -790,7 +792,11 @@ protocol. Names MUST NOT imply absent Emacs subsystems.
 
 Source: section 12.3. Acceptance: A04, A05, A11.
 
-`M-x` MUST activate a labeled command prompt. Typing MUST filter known commands;
+`M-x` and Vim Normal/Visual colon entry MUST activate the same labeled vertical
+command prompt, query, history, availability, dispatch and argument owners.
+Cancelling Visual command entry MUST retain only a compatible native selection;
+changed view, source revision, point, mark or shape MUST retire it without
+restoring stale offsets. Typing MUST filter known commands;
 prefix or substring matching SHOULD be supported with deterministic ordering.
 The vertical candidate list follows UI02: query editing, selection, explicit
 completion and history navigation retain distinct state. `TAB` MUST complete a
@@ -1045,7 +1051,14 @@ application. `App` SHOULD own buffers, the layout, ring, input state, tree, and
 application messages. The same input owner MUST retain the immutable startup
 profile, transient modal state and current native view/buffer identity. It MUST
 retire incompatible text-entry state when that identity changes, without owning
-another cursor, text store or history. The terminal guard owns restoration.
+another cursor, text store or history. Automatic completion MUST require Insert
+or Replace in the Vim profile; explicit canonical invocation remains available.
+Completion invocation evidence MUST include editing state alongside native
+source/view/generation checks. Incompatible transitions MUST retire pending
+suggestions and selected-item resolution; late replies MUST neither reopen a
+popup nor edit source. Native completion/imports MUST retain one atomic undo.
+Component input and Org draft save/abort ownership MUST precede modal grammar.
+The terminal guard owns restoration.
 Buffers own text, file identity, mark, history, and content-specific parsing. Windows reference
 stable buffer identities and own their point and viewport.
 

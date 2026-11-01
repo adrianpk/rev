@@ -37,6 +37,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x o` | `other-window` | Cycle editing views. |
 | `C-x 0` | `delete-window` | Close the selected view, retaining its buffer. |
 | `C-x 1` | `delete-other-windows` | Keep only the selected view. |
+| `M-x windmove-left` | `windmove-left` | Focus the nearest overlapping pane to the left. |
+| `M-x windmove-down` | `windmove-down` | Focus the nearest overlapping pane below. |
+| `M-x windmove-up` | `windmove-up` | Focus the nearest overlapping pane above. |
+| `M-x windmove-right` | `windmove-right` | Focus the nearest overlapping pane to the right. |
+| `M-x balance-windows` | `balance-windows` | Equalize existing pane divisions, preserving focus and startup split policy. |
 | Return | `newline` | Insert the buffer's preferred line separator. |
 | Tab | `insert-tab` | Insert indentation; default spaces advance to the next four-column stop. |
 | Backspace | `backward-delete-char` | Delete the preceding grapheme. |
@@ -201,6 +206,38 @@ changes retire unfinished entries. Destructive entry controls that cannot be
 represented as the retained insertion, source-bound accepted-search ranges and
 unrelated native command workflows remain ordinary edits and retire repetition.
 Prompts, file consent and provider work are never replayed.
+
+### Commands, panes and completion
+
+In Normal and all Visual shapes, `:` opens the same vertical selector as `M-x`.
+Use full canonical names such as `:split-window-right`, then answer any native
+argument prompt. Matching, history, completion, availability and dispatch are
+shared. Colon supplies no Ex aliases, ranges, pipelines or trailing arguments.
+Cancelling retains a compatible Visual shape and native anchor; changed source,
+point, mark or selected view retires that selection instead of restoring stale
+positions. Insert, Replace and argument prompts keep literal colon/slash text.
+
+The Normal/Visual pane prefix is `C-w`: h/j/k/l focus left/down/up/right, s/v split
+below/right, c closes the selected pane, o keeps only that pane and = balances
+existing divisions. Directional focus requires orthogonal overlap and chooses the
+nearest pane, using native screen order for equal distances. No neighbor is a
+no-op. Balancing reserves separators, shares same-axis pane extents and preserves
+topology, focus, source and the startup ratio for later splits.
+
+Automatic source suggestions run only in Insert/Replace. Manual
+`completion-at-point` remains available through the shared catalog. Popup arrows,
+C-p/C-n, Tab/C-i and Return retain native actions and colored kinds; source syntax
+colors remain visible. Checked primary edits and imports form one undo operation.
+Escape/C-g dismisses the popup locally before a later editing Escape returns to
+Normal. Incompatible state/view/source transitions retire list and resolve work;
+a late reply cannot reopen the popup or publish an edit. Insert C-o waits through
+an asynchronous completion workflow before resuming compatible insertion.
+
+Tree, search, argument/decision prompts, inventories, bookmarks and local Org
+maps retain priority over editing grammar. Org source drafts use the immutable
+session profile with native local save and abort controls. Cancelling their
+command selector leaves the outer draft active. Bracketed paste remains literal
+text in entry states and never starts automatic completion.
 
 ### Normal navigation
 

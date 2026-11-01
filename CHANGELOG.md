@@ -37,6 +37,12 @@ This project uses Semantic Versioning.
   ordinary undo groups; oversized changes keep their full text and undo history
   while remaining unavailable for repetition.
 
+- Open the shared command selector with colon in Vim Normal or Visual, use
+  canonical names and ordinary argument prompts, and manage panes with C-w.
+  Native and language-server completion works in Insert and Replace, preserving
+  popup controls, syntax colors, atomic imports and undo. Cancelling command
+  entry retains a compatible Visual selection; stale replies cannot reopen it.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

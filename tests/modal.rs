@@ -2,6 +2,8 @@
 
 #[path = "modal/boundaries.rs"]
 mod boundaries;
+#[path = "modal/contexts.rs"]
+mod contexts;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "modal/jump_safety.rs"]

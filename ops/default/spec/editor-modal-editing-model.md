@@ -256,3 +256,35 @@ outside that insertion, source-bound accepted-search ranges and unrelated native
 workflows retire repeatability. Failed edits and failed repetitions preserve the
 last admitted record. Prompt, consent, provider and asynchronous work is never a
 repeat operation.
+
+## Implemented command and completion ownership
+
+Colon in Normal and every Visual shape binds the existing extended-command
+enum. Its vertical catalog, query, history, availability, argument stages and
+native handlers are exactly those used by M-x. An observed Visual command origin
+contains only view, stamped point, mark and shape. Native selection remains the
+authority while the selector owns input. Cancellation retains it only if every
+observation still matches; changed evidence retires it without copying offsets.
+Selector cancellation precedes outer component cancellation, so an Org source
+draft remains active until its native save/abort command executes.
+
+Directional pane commands resolve overlapping screen geometry and select through
+the native view owner. Balancing retains bounded overrides for live layout forks,
+reserves separator cells and allocates same-axis pane units. Deletion prunes dead
+forks; later splits keep the admitted startup ratio. Neither operation writes
+configuration or owns source text, cursor positions or history.
+
+Completion captures editing state with its ordinary invocation generation and
+native source/view/point evidence. Automatic requests require Vim Insert/Replace;
+manual canonical invocation remains available. Changed state retires requests,
+popups and selected resolution before polling. Existing generation, source,
+provider and permission checks govern returned edits and imports. Native atomic
+publication updates modal context and retires unsupported repeat ownership.
+Insert C-o remains suspended through an active completion request and resumes
+only after the complete asynchronous workflow has finished compatibly.
+
+Tree, prompts, inventories, bookmarks and native Org contexts keep their input
+priority. Popup cancellation stays local, Tab/C-i keeps its active component
+meaning and held Return cannot become a later edit. Source drafts share the
+immutable startup profile. No worker, queue, input-batch or deadline limit changes,
+and modal state alone introduces no idle polling.

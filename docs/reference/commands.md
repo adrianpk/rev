@@ -1,8 +1,15 @@
 # Commands
 
-`M-x` opens the command prompt. Reported Alt/Meta and compatible Escape input
+`M-x` opens the command prompt. In Vim Normal or Visual, `:` opens that same
+vertical selector with the full shared catalog, matching, history and argument
+workflow. Type canonical names; colon adds no Ex aliases, ranges or argument parser. Reported Alt/Meta and compatible Escape input
 follow the [terminal input policy](terminal-input.md). Command entry uses the
 same fixed command registry and handlers as keyboard bindings.
+
+Cancelling a selector entered from Visual preserves the native selection only
+while its view, point, mark, source revision and shape remain valid. A changed
+source or selected view retires it; cancellation never copies old source offsets
+back into the editor.
 
 ## Matching and invocation
 
@@ -73,7 +80,7 @@ compiled M-x name once.
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
-| Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows` |
+| Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
 | Motion | `forward-char`, `backward-char`, `forward-word`, `backward-word`, `move-beginning-of-line`, `move-end-of-line`, `beginning-of-buffer`, `end-of-buffer`, `goto-line` |
 | Scrolling | `next-line`, `previous-line`, `scroll-up-command`, `scroll-down-command`, `recenter-top-bottom` |

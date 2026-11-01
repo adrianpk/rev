@@ -783,6 +783,16 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 # Vim editing maps are independent of keys.editor. Local components keep priority.
 
 [keys.vim_normal]
+":" = "execute-extended-command"
+"C-w h" = "windmove-left"
+"C-w j" = "windmove-down"
+"C-w k" = "windmove-up"
+"C-w l" = "windmove-right"
+"C-w s" = "split-window-below"
+"C-w v" = "split-window-right"
+"C-w c" = "delete-window"
+"C-w o" = "delete-other-windows"
+"C-w =" = "balance-windows"
 "C-c a" = "org-agenda"
 "C-c c" = "org-capture"
 "C-c l" = "org-store-link"
@@ -1070,6 +1080,16 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 
 
 [keys.vim_visual_character]
+":" = "execute-extended-command"
+"C-w h" = "windmove-left"
+"C-w j" = "windmove-down"
+"C-w k" = "windmove-up"
+"C-w l" = "windmove-right"
+"C-w s" = "split-window-below"
+"C-w v" = "split-window-right"
+"C-w c" = "delete-window"
+"C-w o" = "delete-other-windows"
+"C-w =" = "balance-windows"
 "C-c a" = "org-agenda"
 "C-c c" = "org-capture"
 "C-c l" = "org-store-link"
@@ -1181,6 +1201,16 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_line]
+":" = "execute-extended-command"
+"C-w h" = "windmove-left"
+"C-w j" = "windmove-down"
+"C-w k" = "windmove-up"
+"C-w l" = "windmove-right"
+"C-w s" = "split-window-below"
+"C-w v" = "split-window-right"
+"C-w c" = "delete-window"
+"C-w o" = "delete-other-windows"
+"C-w =" = "balance-windows"
 "C-c a" = "org-agenda"
 "C-c c" = "org-capture"
 "C-c l" = "org-store-link"
@@ -1292,6 +1322,16 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "a" = "modal-select-around-object"
 
 [keys.vim_visual_block]
+":" = "execute-extended-command"
+"C-w h" = "windmove-left"
+"C-w j" = "windmove-down"
+"C-w k" = "windmove-up"
+"C-w l" = "windmove-right"
+"C-w s" = "split-window-below"
+"C-w v" = "split-window-right"
+"C-w c" = "delete-window"
+"C-w o" = "delete-other-windows"
+"C-w =" = "balance-windows"
 "C-c a" = "org-agenda"
 "C-c c" = "org-capture"
 "C-c l" = "org-store-link"
