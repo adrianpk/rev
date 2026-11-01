@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 3 — Semantic candidates and native fallback; PR #205 awaiting controller integration
+Active slice: Slice 4 — Resolved completion and atomic additional edits
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -51,9 +51,9 @@ Acceptance: LSP03 and CMP02 shared-source selection.
 
 - [x] T3.1: Request semantic completion for eligible current revisions, translate plain insertion/TextEdit/InsertReplaceEdit and supported list defaults, and preserve server order within common match classes. Handle trigger characters, incomplete lists and source readiness without a separate UI.
 - [x] T3.2: Implement native fallback for valid empty, no admitted items, absent/unsupported capability, timeout, exclusion and unavailable connection. Preserve distinct outcomes and reject stale session/revision/view/activation/connection replies.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 `6ebbfbf69dbbfac6775394108fb70aaacd488b72` introduces the Slice 3 report with source outcomes, admission/policy regressions and completion guidance. Canonical PR: [#205](https://forge.adrianpk.com/adrianpk/rev/pulls/205). Integration remains controller-owned.
+Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 `6ebbfbf69dbbfac6775394108fb70aaacd488b72` introduces the Slice 3 report with source outcomes, admission/policy regressions and completion guidance. Canonical PR: [#205](https://forge.adrianpk.com/adrianpk/rev/pulls/205). Merged at `df2cef8db7e2065bb6c5ddf888abdf86b2d1e63a`; receipt `X2QWAAQE6DLNMYYRXWEUTR3HSK` passed the exact three configured commands and 402 tests; report delivered.
 
 ## Slice 4: Resolved completion and atomic additional edits
 

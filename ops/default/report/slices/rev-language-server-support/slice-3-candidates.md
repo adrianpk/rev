@@ -1,6 +1,6 @@
 # Slice 3: Semantic candidates and native fallback
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -123,3 +123,11 @@ Selected-item resolve and atomic same-document additional edits remain in Slice 
 Shared lifetime/restart and real Rust interoperability remain in Slice 5; joint
 acceptance and complete optional-LSP guidance remain in Slice 6. Existing
 predecessor acceptance evidence is preserved.
+
+## Integration
+
+Canonical PR [#205](https://forge.adrianpk.com/adrianpk/rev/pulls/205) merged
+through Rebase + Fast-forward into dev at
+`df2cef8db7e2065bb6c5ddf888abdf86b2d1e63a`. Exact configured receipt
+`X2QWAAQE6DLNMYYRXWEUTR3HSK` passed all three ordered commands and
+402 tests at that clean head. The controller recorded the merge in Acta.
