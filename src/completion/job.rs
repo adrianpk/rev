@@ -90,7 +90,10 @@ impl Work {
         let handle = thread::Builder::new()
             .name("native-completion".into())
             .spawn(move || run(worker_request, snapshot, &worker_cancel))
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                cancel_semantic(&request);
+                e.to_string()
+            })?;
         self.active = Some(Running {
             request,
             cancel,
@@ -235,8 +238,10 @@ fn prepare_source(
         return Ok(true);
     }
     request.prepare(&source.syntax, source.text.slice(..));
-    request.admitted = request.allowed(source, deadline, cancel)?;
-    Ok(request.admitted)
+    if request.semantic.is_some() {
+        request.admitted = request.semantic_allowed(source, deadline, cancel)?;
+    }
+    request.allowed(source, deadline, cancel)
 }
 
 fn cancel_semantic(request: &Request) {

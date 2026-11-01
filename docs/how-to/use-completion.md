@@ -6,7 +6,9 @@ default settings, eligible typing also requests them after 150 ms and at least
 two Unicode characters. Language separators can admit a request earlier.
 
 Use Up/Down or `C-p`/`C-n` to choose, Tab/Return to insert, and Escape/`C-g` to
-cancel. Acceptance replaces the complete name around point as one undo operation.
+cancel. Native acceptance replaces the complete name around point as one undo operation.
+An enabled language server can supply a checked primary replacement range in the
+same popup; empty or unavailable semantic results use native fallback.
 Cancellation, selection and a refused edit leave the text and history unchanged.
 Outside a visible list, these keys retain their normal editing actions.
 

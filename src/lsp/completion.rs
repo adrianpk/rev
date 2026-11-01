@@ -109,10 +109,22 @@ impl Query {
         !self.ticket.cancelled() && self.token.version().is_some_and(|v| v.stamp == self.stamp)
     }
     pub fn finish(&self, result: serde_json::Value, encoding: &super::Encoding) {
+        let incomplete = result
+            .get("isIncomplete")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
         let mut reply = admit::response(self, result, encoding);
-        if let Source::Semantic { incomplete } = reply.source {
-            reply.version = self.token.version();
-            self.token.incomplete.store(incomplete, Ordering::Release);
+        let Some(version) = self
+            .token
+            .version()
+            .filter(|version| version.stamp == self.stamp)
+        else {
+            self.ticket.finish(Reply::fallback(Fallback::Cancelled));
+            return;
+        };
+        self.token.incomplete.store(incomplete, Ordering::Release);
+        if matches!(reply.source, Source::Semantic { .. }) {
+            reply.version = Some(version);
         }
         self.ticket.finish(reply);
     }

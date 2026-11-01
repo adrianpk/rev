@@ -49,9 +49,11 @@ Implementation: T2.1 `7049f12fb921e55d832fc1d266138189c0274c5c`; T2.2 `8d3369ca1
 
 Acceptance: LSP03 and CMP02 shared-source selection.
 
-- [ ] T3.1: Request semantic completion for eligible current revisions, translate plain insertion/TextEdit/InsertReplaceEdit and supported list defaults, and preserve server order within common match classes. Handle trigger characters, incomplete lists and source readiness without a separate UI.
-- [ ] T3.2: Implement native fallback for valid empty, no admitted items, absent/unsupported capability, timeout, exclusion and unavailable connection. Preserve distinct outcomes and reject stale session/revision/view/activation/connection replies.
+- [x] T3.1: Request semantic completion for eligible current revisions, translate plain insertion/TextEdit/InsertReplaceEdit and supported list defaults, and preserve server order within common match classes. Handle trigger characters, incomplete lists and source readiness without a separate UI.
+- [x] T3.2: Implement native fallback for valid empty, no admitted items, absent/unsupported capability, timeout, exclusion and unavailable connection. Preserve distinct outcomes and reject stale session/revision/view/activation/connection replies.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 introduces the Slice 3 report with source outcomes, admission/policy regressions and completion guidance. Canonical PR pending creation; integration remains controller-owned.
 
 ## Slice 4: Resolved completion and atomic additional edits
 

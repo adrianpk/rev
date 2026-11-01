@@ -138,6 +138,29 @@ impl Request {
         Ok(result.symbols)
     }
 
+    pub(crate) fn semantic_allowed(
+        &self,
+        source: &source::Source,
+        deadline: std::time::Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<bool, String> {
+        if self.manual || self.context.structured() {
+            return Ok(true);
+        }
+        if let Some(kind) =
+            source
+                .syntax
+                .external_literal(source.text.slice(..), self.byte, deadline, cancel)?
+        {
+            return Ok(if kind == "comment" {
+                self.policy.in_comments
+            } else {
+                self.policy.in_strings
+            });
+        }
+        Ok(source.syntax.completion_allowed(self.byte, &self.policy))
+    }
+
     pub(crate) fn allowed(
         &self,
         source: &source::Source,

@@ -26,8 +26,9 @@ fn session(
         fixture.0.join("peer").to_str().unwrap(),
     ]
     .map(str::to_owned);
+    let timeout = if mode == "timeout" { 150 } else { 1000 };
     let config = format!(
-        "[completion]\nautomatic = {automatic}\ndelay_ms = 1\n[lsp]\nenabled = true\nrequest_timeout_ms = 150\nshutdown_timeout_ms = 200\n[lsp.servers.rust]\ncommand = '/bin/sh'\nargs = {args:?}\nlanguages = ['rust', 'org', 'unbundled']\n[files.associations]\n'*.custom' = 'unbundled'\n"
+        "[completion]\nautomatic = {automatic}\ndelay_ms = 1\n[lsp]\nenabled = true\nrequest_timeout_ms = {timeout}\nshutdown_timeout_ms = 200\n[lsp.servers.rust]\ncommand = '/bin/sh'\nargs = {args:?}\nlanguages = ['rust', 'org', 'unbundled', 'json']\n[files.associations]\n'*.custom' = 'unbundled'\n"
     );
     let path = fixture.write(name, &source.replace('|', ""));
     let settings = rev::config::prepare(&fixture.write("config.toml", &config));
@@ -290,4 +291,216 @@ fn late_replies() {
         }
         assert_eq!(text(&s), RUST.replace('|', ""));
     }
+}
+
+// Columns before an emoji/combining prefix differ in UTF-8 and UTF-16. The
+// selected replacement uses the explicitly chosen replace extent, and CRLF
+// outside that extent survives one canonical undo/redo operation.
+#[test]
+fn encoded_replacement() {
+    let before = "fn main() { let _ = \"😀e\u{301}\"; ";
+    let source = format!("{before}cfg|Suffix }}\r\n");
+    for (mode, start) in [
+        ("utf8", before.len()),
+        ("ready", before.encode_utf16().count()),
+    ] {
+        let f = Fixture::new();
+        let insert =
+            json!({"start":{"line":0,"character":start},"end":{"line":0,"character":start+3}});
+        let replace =
+            json!({"start":{"line":0,"character":start},"end":{"line":0,"character":start+9}});
+        let result = json!({"isIncomplete":false,"itemDefaults":{"editRange":{"insert":insert,"replace":replace}},
+            "items":[{"label":"cfg_server","textEditText":"cfg_server"}]});
+        let mut s = session(&f, mode, &source, "main.rs", result, false);
+        complete(&mut s);
+        assert!(
+            matches!(s.completion_source(), Some(Source::Semantic { .. })),
+            "{}",
+            s.echo()
+        );
+        let request = frames(&f)
+            .into_iter()
+            .find(|v| v["method"] == "textDocument/completion")
+            .unwrap();
+        assert_eq!(
+            request["params"]["position"],
+            json!({"line":0,"character":start+3})
+        );
+        key(&mut s, KeyCode::Enter);
+        assert_eq!(text(&s), format!("{before}cfg_server }}\r\n"));
+        s.execute(Command::History(History::Undo));
+        assert_eq!(text(&s), source.replace('|', ""));
+    }
+}
+
+// Malformed extents, split encoding units, unsupported defaults/modes and
+// oversized insertions are omitted together; another valid item still works.
+#[test]
+fn range_admission() {
+    let source = "fn main() { let _ = \"😀\"; cfg| }\r\n";
+    let valid = json!({"start":{"line":0,"character":26},"end":{"line":0,"character":29}});
+    let items = json!([
+        {"label":"cfg_reversed","textEdit":{"range":{"start":{"line":0,"character":29},"end":{"line":0,"character":26}},"newText":"bad"}},
+        {"label":"cfg_split","textEdit":{"range":{"start":{"line":0,"character":22},"end":{"line":0,"character":29}},"newText":"bad"}},
+        {"label":"cfg_outside","textEdit":{"range":{"start":{"line":99,"character":0},"end":{"line":99,"character":1}},"newText":"bad"}},
+        {"label":"cfg_uncontained","textEdit":{"range":{"start":{"line":0,"character":27},"end":{"line":0,"character":29}},"newText":"bad"}},
+        {"label":"cfg_insert","textEdit":{"replace":valid,"newText":"bad"}},
+        {"label":"cfg_mode","insertTextMode":2},
+        {"label":"cfg_large","insertText":"x".repeat(64*1024+1)},
+        {"label":"cfg_ok","insertText":"cfg_ok"}
+    ]);
+    let f = Fixture::new();
+    let mut s = session(&f, "ready", source, "main.rs", items, false);
+    complete(&mut s);
+    assert_eq!(labels(&s), ["cfg_ok"]);
+    key(&mut s, KeyCode::Tab);
+    assert!(text(&s).contains("; cfg_ok }\r\n"));
+}
+
+// Incomplete results must be fetched again for a changed prefix; an advertised
+// trigger bypasses min_prefix and uses the protocol's trigger-character context.
+#[test]
+fn current_list_refresh() {
+    let f = Fixture::new();
+    let result = json!({"isIncomplete":true,"items":[{"label":"cfg_server"}]});
+    let mut s = session(&f, "ready", RUST, "main.rs", result, true);
+    complete(&mut s);
+    assert_eq!(
+        s.completion_source(),
+        Some(Source::Semantic { incomplete: true })
+    );
+    f.write(
+        "peer.result",
+        &json!({"isIncomplete":true,"items":[{"label":"cfgu_server"}]}).to_string(),
+    );
+    key(&mut s, KeyCode::Char('u'));
+    settle(&mut s);
+    assert_eq!(labels(&s), ["cfgu_server"]);
+    let requests: Vec<_> = frames(&f)
+        .into_iter()
+        .filter(|v| v["method"] == "textDocument/completion")
+        .collect();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[1]["params"]["context"]["triggerKind"], 3);
+    key(&mut s, KeyCode::Char('.'));
+    settle(&mut s);
+    let requests: Vec<_> = frames(&f)
+        .into_iter()
+        .filter(|v| v["method"] == "textDocument/completion")
+        .collect();
+    assert_eq!(requests.len(), 3);
+    assert_eq!(
+        requests[2]["params"]["context"],
+        json!({"triggerKind":2,"triggerCharacter":"."})
+    );
+    f.write(
+        "peer.result",
+        &json!({"isIncomplete":false,"items":[]}).to_string(),
+    );
+    key(&mut s, KeyCode::Char('c'));
+    key(&mut s, KeyCode::Char('f'));
+    settle(&mut s);
+    assert_eq!(s.completion_source(), Some(Source::Native(Fallback::Empty)));
+    key(&mut s, KeyCode::Char('g'));
+    settle(&mut s);
+    let requests: Vec<_> = frames(&f)
+        .into_iter()
+        .filter(|v| v["method"] == "textDocument/completion")
+        .collect();
+    assert_eq!(requests.len(), 5);
+    assert_eq!(requests[3]["params"]["context"]["triggerKind"], 3);
+    assert_eq!(requests[4]["params"]["context"]["triggerKind"], 1);
+}
+
+// Exclusion and global disable use native syntax immediately. Restoring one
+// buffer cannot enable the globally disabled client or fabricate an LSP source.
+#[test]
+fn optional_source() {
+    for disable in [false, true] {
+        let f = Fixture::new();
+        let mut s = session(
+            &f,
+            "ready",
+            RUST,
+            "main.rs",
+            json!([{"label":"cfg_server"}]),
+            false,
+        );
+        s.execute(Command::Lsp(if disable {
+            LspCommand::Mode
+        } else {
+            LspCommand::Disconnect
+        }));
+        s.execute(Command::Lsp(LspCommand::Connect));
+        if !disable {
+            s.execute(Command::Lsp(LspCommand::Disconnect));
+        }
+        complete(&mut s);
+        assert_eq!(
+            s.completion_source(),
+            Some(Source::Native(Fallback::Unavailable))
+        );
+        assert!(
+            labels(&s)
+                .iter()
+                .any(|label| label.starts_with("cfg_native"))
+        );
+        assert!(
+            !frames(&f)
+                .iter()
+                .any(|v| v["method"] == "textDocument/completion")
+        );
+    }
+}
+
+// The common limit bounds retained candidates, not the inspected response
+// prefix. A valid late item still contributes after many unsupported entries;
+// ranking chooses the best 200 while equal keys retain their wire order.
+#[test]
+fn candidate_bound() {
+    let f = Fixture::new();
+    let mut items = vec![json!({"label":"cfg_snippet","insertTextFormat":2}); 4097];
+    for index in 0..205 {
+        items.push(json!({"label":format!("cfg_{index:03}"), "sortText":"z"}));
+    }
+    items.push(json!({"label":"cfg_first","sortText":"!"}));
+    let mut s = session(&f, "ready", RUST, "main.rs", json!(items), false);
+    complete(&mut s);
+    let names = labels(&s);
+    assert_eq!(names.len(), 200);
+    assert_eq!(names[0], "cfg_first");
+    assert_eq!(names[1], "cfg_000");
+    assert_eq!(names[199], "cfg_198");
+}
+
+// A native structural context cannot veto an otherwise eligible server's
+// explicit invocation, while automatic comment policy remains quiet.
+#[test]
+fn semantic_context() {
+    let f = Fixture::new();
+    let mut s = session(
+        &f,
+        "ready",
+        "{\"answer\": tr|}",
+        "value.json",
+        json!([{"label":"true"}]),
+        false,
+    );
+    complete(&mut s);
+    assert_eq!(labels(&s), ["true"]);
+    key(&mut s, KeyCode::Tab);
+    assert_eq!(text(&s), "{\"answer\": true}");
+    let f = Fixture::new();
+    let mut s = session(
+        &f,
+        "ready",
+        "// cfg|\n",
+        "main.rs",
+        json!([{"label":"cfgu_server"}]),
+        true,
+    );
+    key(&mut s, KeyCode::Char('u'));
+    settle(&mut s);
+    assert!(s.completion().is_none());
+    assert_eq!(text(&s), "// cfgu\n");
 }

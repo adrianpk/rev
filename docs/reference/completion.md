@@ -2,9 +2,12 @@
 
 Learn one insertion in [Complete Names](../tutorials/user-guide/10-complete-names.md),
 or use [Use completion](../how-to/use-completion.md) for invocation and settings.
-The delivered source is native syntax: observed declarations and finite structural
-vocabulary. Semantic LSP proposals and switching between semantic and native
-sources belong to the planned LSP successor; this version offers no such switch.
+Completion shares one session, filter and popup across native syntax and optional
+language servers. Native syntax supplies observed declarations and finite
+structural vocabulary. With LSP enabled and an eligible configured server,
+completion requests semantic proposals for the current unsaved revision. A valid
+empty response, no admitted items, unsupported capability, timeout or unavailable
+server selects native fallback when native syntax or Org context is available.
 
 Native completion opens automatically after an admitted identifier edit of at
 least two Unicode characters or a language separator. Rust/C/Go and script
@@ -16,7 +19,7 @@ admitted structural contexts. The default debounce waits
 `M-x completion-at-point` requests immediately without a minimum prefix.
 Terminal or desktop shortcuts may intercept M-TAB; the named command uses the
 same handler. Candidates come from declarations in the current unsaved buffer
-and bounded same-language open buffers, using their retained syntax owners. No server or file scan runs.
+and bounded same-language open buffers, using their retained syntax owners. Native extraction scans no unopened files.
 
 The compact, single-border list appears below or above the source cursor within
 its pane. The first candidate is selected. Up/Down or C-p/C-n changes selection;
@@ -157,3 +160,31 @@ checked completion worker and candidate limits. Their finite declaration/scope
 query profile supports languages outside the bundled catalog. Admission publishes
 an immutable grammar generation; proposals from the previous generation cannot
 be accepted. Failed admission retains bundled completion when available.
+
+## Optional semantic source
+
+LSP is disabled by default. Set `[lsp] enabled = true` in the existing TOML
+configuration, or run `M-x lsp-mode` for this session. The Rust entry uses an
+installed `rust-analyzer`; server entries declare their executable, argv,
+languages and root markers under `[lsp.servers.<name>]`. No server is downloaded.
+`lsp-status` observes the connection. `lsp-disconnect` excludes the current
+canonical buffer across all its views; `lsp-connect` restores eligibility without
+enabling a globally disabled client. Native completion remains available.
+
+Semantic results use the same prefix/subsequence classes, using `filterText` or
+label for matching and server sort keys/order within each class. Plain text,
+TextEdit and InsertReplaceEdit primary replacements and supported list defaults
+are admitted. The replacement extent is checked against point and prefix in the
+negotiated UTF-8/UTF-16 units. Advertised trigger characters can request before
+the minimum prefix; an incomplete list is requested again for changed input.
+Selection alone never changes text. Acceptance uses ordinary canonical undo.
+
+Explicit snippets, commands, indentation adjustment and additional-edit items
+are omitted from this primary-edit profile. Connection, activation, revision,
+view and invocation changes invalidate the old result. Cancellation and request
+timeouts retire pending work; late responses cannot reopen the popup. The
+configured `lsp.request_timeout_ms` defaults to 2000 and
+`lsp.max_pending_requests` to 16 per connection, with one pending completion per
+buffer. Semantic availability does not require a bundled grammar. The session's
+source observation distinguishes semantic results and native fallback reasons;
+transport readiness alone does not claim semantic candidates.

@@ -56,15 +56,15 @@ impl Inbox {
         self.wake.notify_one();
     }
     pub fn completion(&self, query: Query) {
-        let permit = match self.budget.reserve(query.text.len_bytes()) {
-            Ok(permit) => permit,
-            Err(_) => return,
-        };
         let mut state = self.pending.lock().expect("LSP inbox lock");
         if state.closed {
             return;
         }
         state.documents.retain(|(work, _)| !matches!(work, Work::Completion(old) if old.stamp.buffer == query.stamp.buffer));
+        let permit = match self.budget.reserve(query.text.len_bytes()) {
+            Ok(permit) => permit,
+            Err(_) => return,
+        };
         state.documents.push_back((Work::Completion(query), permit));
         self.wake.notify_one();
     }

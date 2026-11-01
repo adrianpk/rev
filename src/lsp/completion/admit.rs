@@ -20,22 +20,7 @@ pub(super) fn response(query: &Query, value: Value, encoding: &Encoding) -> Repl
     if entries.is_empty() {
         return Reply::fallback(Fallback::Empty);
     }
-    let mut items: Vec<_> = entries
-        .iter()
-        .take(crate::completion::MAX_SYMBOLS)
-        .filter_map(|item| candidate(query, item, &defaults, encoding))
-        .collect();
-    items.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
-    let mut bytes = 0;
-    let items: Vec<_> = items
-        .into_iter()
-        .map(|(_, _, item)| item)
-        .take(crate::completion::MAX_CANDIDATES)
-        .take_while(|item| {
-            bytes += item.label.len() + item.text.len();
-            bytes <= crate::completion::MAX_BYTES
-        })
-        .collect();
+    let items = ranked(query, entries, &defaults, encoding);
     if items.is_empty() {
         return Reply::fallback(Fallback::NoAdmitted);
     }
@@ -143,10 +128,7 @@ fn insert_range(
 }
 
 fn edit_range(query: &Query, edit: &Value, encoding: &Encoding) -> Option<Range<usize>> {
-    let raw = edit
-        .get("range")
-        .or_else(|| edit.get("replace"))
-        .unwrap_or(edit);
+    let raw = primary_range(edit)?;
     let range = replacement(query, raw, encoding)?;
     if let Some(insert) = edit.get("insert") {
         insert_range(query, insert, &range, encoding)?;
@@ -159,4 +141,32 @@ fn default_text(item: &Value) -> Option<&str> {
         .or_else(|| item.get("insertText"))
         .or_else(|| item.get("label"))?
         .as_str()
+}
+
+fn primary_range(edit: &Value) -> Option<&Value> {
+    if let Some(range) = edit.get("range") {
+        return (!edit.as_object()?.contains_key("replace")
+            && !edit.as_object()?.contains_key("insert"))
+        .then_some(range);
+    }
+    if let Some(replace) = edit.get("replace") {
+        edit.get("insert")?;
+        return Some(replace);
+    }
+    (!edit.as_object()?.contains_key("insert")).then_some(edit)
+}
+
+fn ranked(query: &Query, entries: &[Value], defaults: &Value, encoding: &Encoding) -> Vec<Item> {
+    let mut retained: Vec<(u8, String, Item)> = Vec::new();
+    for item in entries
+        .iter()
+        .filter_map(|item| candidate(query, item, defaults, encoding))
+    {
+        let index = retained.partition_point(|old| (old.0, &old.1) <= (item.0, &item.1));
+        if index < crate::completion::MAX_CANDIDATES {
+            retained.insert(index, item);
+            retained.truncate(crate::completion::MAX_CANDIDATES);
+        }
+    }
+    retained.into_iter().map(|(_, _, item)| item).collect()
 }
