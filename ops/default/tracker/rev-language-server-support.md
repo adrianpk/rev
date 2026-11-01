@@ -79,7 +79,7 @@ Implementation: T5.1 `8081de017dc5a2f5d4bb2e5d3e56a6725f57f2c7`; T5.2 `846071a8e
 
 Acceptance: LSP01-LSP06 and CMP01-CMP09 across both delivered sets.
 
-- [ ] T6.1: Add examples/lsp-acceptance.rs and scripts/check-lsp.sh. Exercise disabled startup, enable/attach, unsaved semantic completion, resolved import/undo, buffer exception/restore, valid-empty fallback, server failure, shared retention, disable and exit. Run real rust-analyzer and bounded fixture cases with finite deadlines.
+- [x] T6.1: Add examples/lsp-acceptance.rs and scripts/check-lsp.sh. Exercise disabled startup, enable/attach, unsaved semantic completion, resolved import/undo, buffer exception/restore, valid-empty fallback, server failure, shared retention, disable and exit. Run real rust-analyzer and bounded fixture cases with finite deadlines.
 - [ ] T6.2: Update optional-LSP how-to/reference and the existing completion guide, full config/catalog and Unreleased notes. Record integrated executable size and separate server resources; reconcile native completion acceptance after source switching passes without overwriting predecessor gate evidence.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 

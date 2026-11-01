@@ -12,7 +12,7 @@ const LIMIT: usize = 1024 * 1024;
 
 // Same util-linux controlling-PTY boundary and eight-second/1-MiB ownership
 // limits as the existing native journeys. Drop reaps only this fixture.
-struct Terminal {
+pub(super) struct Terminal {
     child: Child,
     input: Option<ChildStdin>,
     reader: Option<JoinHandle<()>>,
@@ -25,7 +25,7 @@ struct Terminal {
 }
 
 impl Terminal {
-    fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Self> {
+    pub(super) fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Self> {
         let mut child = Command::new("script")
             .args([
                 "-q",
@@ -111,7 +111,7 @@ impl Terminal {
         Ok(())
     }
 
-    fn frame(&mut self, predicate: impl Fn(&str) -> bool) -> Result<String> {
+    pub(super) fn frame(&mut self, predicate: impl Fn(&str) -> bool) -> Result<String> {
         if let Err(error) = self.wait(|output| frame(output).is_some_and(&predicate)) {
             return Err(format!(
                 "PTY frame failed: {error}; tail={:?}",
@@ -124,7 +124,7 @@ impl Terminal {
             .to_owned())
     }
 
-    fn send(&mut self, input: &[u8]) -> Result<()> {
+    pub(super) fn send(&mut self, input: &[u8]) -> Result<()> {
         self.output.clear();
         self.input
             .as_mut()
@@ -134,7 +134,7 @@ impl Terminal {
         Ok(())
     }
 
-    fn idle(&mut self) -> Result<()> {
+    pub(super) fn idle(&mut self) -> Result<()> {
         let ticks = cpu_ticks(&self.editor)?;
         assert!(
             matches!(
@@ -155,7 +155,7 @@ impl Terminal {
         Ok(())
     }
 
-    fn finish(&mut self) -> Result<()> {
+    pub(super) fn finish(&mut self) -> Result<()> {
         self.send(b"\x18\x03")?;
         self.wait(|text| text.contains("REV_TTY_RESTORED"))?;
         assert!(
@@ -187,7 +187,7 @@ fn frame(output: &str) -> Option<&str> {
     Some(&frame[..end + SHOW.len()])
 }
 
-fn row(frame: &str, wanted: usize) -> String {
+pub(super) fn row(frame: &str, wanted: usize) -> String {
     let mut row = None;
     let mut text = String::new();
     for part in frame.split("\x1b[").skip(1) {
