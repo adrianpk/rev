@@ -33,7 +33,9 @@ fn declaration_identity() {
             .collect::<Vec<_>>(),
         ["cfg_value", "config"]
     );
-    assert_eq!(completion.candidates[0].label(), "cfg_value  function");
+    assert_eq!(completion.candidates[0].label(), "cfg_value");
+    assert_eq!(completion.candidates[0].kind(), super::Kind::Function);
+    assert_eq!(completion.candidates[0].detail(), "function");
     let edit = completion.replacement(buffer).unwrap();
     assert_eq!(edit.text, "cfg_value");
     assert_eq!(buffer.slice(&edit.source).unwrap().to_string(), "cfg");

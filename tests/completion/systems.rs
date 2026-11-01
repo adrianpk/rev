@@ -294,7 +294,9 @@ fn local_visibility() {
     complete(&mut session);
     let candidates = session.completion().unwrap().candidates();
     assert_eq!(candidates.len(), 1);
-    assert_eq!(candidates[0].label(), "sample_shared  function");
+    assert_eq!(candidates[0].label(), "sample_shared");
+    assert_eq!(candidates[0].kind(), rev::session::CompletionKind::Function);
+    assert_eq!(candidates[0].detail(), "function");
     for document in [
         "fn main() { if let Some(sample_branch) = Some(1) { sa|; } else {} }",
         "fn main() { if let Some(sample_branch) = Some(1) {} else { sa|; } }",

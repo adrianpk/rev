@@ -12,6 +12,8 @@ impl Completion {
     pub(crate) fn resolved(&mut self, item: Item) {
         self.candidates[self.selected] = Candidate {
             label: item.label,
+            kind: self.candidates[self.selected].kind,
+            detail: self.candidates[self.selected].detail,
             text: item.text,
             range: Some(item.range),
             additional: item.additional,

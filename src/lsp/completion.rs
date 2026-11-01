@@ -37,6 +37,7 @@ pub(crate) struct Edit {
 
 pub(crate) struct Item {
     pub label: String,
+    pub kind: Option<u64>,
     pub text: String,
     pub range: Range<usize>,
     pub additional: Vec<Edit>,

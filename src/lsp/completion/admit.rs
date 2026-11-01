@@ -65,6 +65,7 @@ fn candidate(
         sort.to_owned(),
         Item {
             label: label.to_owned(),
+            kind: item.get("kind").and_then(Value::as_u64),
             text: text.to_owned(),
             range,
             additional,

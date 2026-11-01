@@ -7,6 +7,9 @@ two Unicode characters. Language separators can admit a request earlier.
 
 Use Up/Down or `C-p`/`C-n` to choose, Tab/Return to insert, and Escape/`C-g` to
 cancel. Native acceptance replaces the complete name around point as one undo operation.
+Colored indicators identify functions, fields/properties, types and other
+candidate kinds. The type label is separate from the inserted name and may be
+hidden in a narrow pane. No additional font package is required.
 An enabled language server can supply a checked primary replacement range in the
 same popup; empty or unavailable semantic results use native fallback.
 If the selected server item needs resolution, acceptance waits asynchronously.

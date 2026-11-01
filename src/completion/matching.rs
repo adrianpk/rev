@@ -35,9 +35,11 @@ pub(super) fn candidates(
             if !seen.insert(symbol.name.clone()) {
                 return None;
             }
-            let label = format!("{}  {}", symbol.name, symbol.kind);
+            let label = symbol.name.clone();
             (label.len() <= super::MAX_LABEL).then_some(Candidate {
                 label,
+                kind: super::Kind::native(symbol.kind),
+                detail: symbol.kind,
                 text: symbol.name,
                 range: None,
                 additional: Vec::new(),

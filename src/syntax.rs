@@ -37,6 +37,7 @@ pub struct Syntax {
 
 struct Parsed {
     grammar: crate::config::Grammar,
+    language: tree_sitter::Language,
     parser: Parser,
     query: std::sync::Arc<Query>,
     completion: Option<std::sync::Arc<Query>>,
@@ -72,6 +73,7 @@ impl Syntax {
         Self {
             parsed: Some(Parsed {
                 grammar: crate::config::Grammar::Plain,
+                language: assets.language.clone(),
                 parser,
                 query: assets.highlights.clone(),
                 completion: Some(assets.completions.clone()),
@@ -122,6 +124,14 @@ impl Syntax {
     /// revision can advance through several hidden edits without reparsing, but
     /// no captures are current until the parser confirms that revised tree.
     pub(crate) fn edit(&mut self, before: Stamp, after: Stamp, edits: &[InputEdit]) {
+        if self.working {
+            if let Some(parsed) = &mut self.parsed {
+                parsed.activate_parser();
+            }
+            // The old worker remains pinned to its old rope/tree. New text
+            // gets a current parser, and its retired result cannot replace it.
+            self.working = false;
+        }
         self.stamp = None;
         self.incremental = false;
         if let Some(parsed) = &mut self.parsed {
@@ -143,10 +153,7 @@ impl Syntax {
     }
 
     fn refresh(&mut self, text: RopeSlice<'_>, stamp: Stamp, options: Option<ParseOptions<'_>>) {
-        if self.working {
-            return;
-        }
-        if self.stamp == Some(stamp) {
+        if self.working || self.stamp == Some(stamp) {
             return;
         }
         self.incremental = false;
@@ -180,11 +187,24 @@ impl Syntax {
 
 impl Syntax {
     pub(crate) fn take_work(&mut self) -> Option<Self> {
-        if self.working || self.parsed.is_none() {
+        if self.working {
             return None;
         }
-        let work = std::mem::take(self);
-        self.working = true;
+        let parsed = self.parsed.as_mut()?;
+        let work = Self {
+            parsed: Some(parsed.take_parser()),
+            stamp: self.stamp,
+            source: self.source,
+            incremental: self.incremental,
+            working: false,
+        };
+        // Painted revisions need only their immutable tree/query projection.
+        // If work starts before the first repaint, let that frame parse current
+        // text independently. No old-revision captures survive a source edit.
+        self.working = self.stamp.is_some();
+        if !self.working {
+            parsed.activate_parser();
+        }
         Some(work)
     }
     pub(crate) fn working(&self) -> bool {
@@ -193,6 +213,24 @@ impl Syntax {
 }
 
 impl Parsed {
+    fn activate_parser(&mut self) {
+        self.parser
+            .set_language(&self.language)
+            .expect("retained syntax language remains admitted");
+    }
+
+    fn take_parser(&mut self) -> Self {
+        Self {
+            grammar: self.grammar,
+            language: self.language.clone(),
+            parser: std::mem::replace(&mut self.parser, Parser::new()),
+            query: self.query.clone(),
+            completion: self.completion.clone(),
+            external: self.external,
+            tree: self.tree.clone(),
+        }
+    }
+
     fn edit(&mut self, current: bool, edits: &[InputEdit]) {
         if !current {
             self.tree = None;
@@ -224,6 +262,7 @@ impl Parsed {
             completion: completion::query(grammar, &language).map(std::sync::Arc::new),
             external: false,
             tree: None,
+            language,
         })
     }
 

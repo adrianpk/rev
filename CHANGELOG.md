@@ -26,6 +26,8 @@ This project uses Semantic Versioning.
   open buffers, plus finite HTML/CSS vocabulary in structural contexts.
   Use `M-TAB` or `M-x completion-at-point` for an immediate request.
   Navigate with arrows or C-p/C-n, accept with Tab/Return, or cancel with Escape/C-g.
+  Native and language-server candidates show colored type indicators and aligned
+  type labels, with no additional font package required.
   Native Org contexts suggest task states, tags, property keys, directives, link
   types and current-document heading targets while prose and literal blocks stay
   quiet. Source-edit drafts complete their declared language.
@@ -74,6 +76,8 @@ This project uses Semantic Versioning.
 
 ### Fixed
 
+- Syntax colors stay visible while completion waits or analyzes source, including
+  when typing retires an older request.
 - In Find File, Tab fills the highlighted path, including the first suggestion
   when names share a prefix. Completing a directory keeps the prompt open for
   its children; completing a file waits for Return before opening it.

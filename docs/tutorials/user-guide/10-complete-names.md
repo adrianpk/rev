@@ -19,12 +19,13 @@ near the cursor. Its first row is selected using the selection colors:
 ```text
 con
 ┌─────────────────────────┐
-│ configuration  function │
-│ config_value   function │
+│ƒ configuration  function│
+│ƒ config_value   function│
 └─────────────────────────┘
 ```
 
 The exact width and order follow the available space and nearby declarations.
+The indicator and type label use syntax colors; only the name is inserted.
 The list can appear above the cursor when there is little room below it.
 The source text stays unchanged while you choose.
 

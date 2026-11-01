@@ -2,8 +2,10 @@
 pub(crate) mod context;
 pub(crate) mod edits;
 pub(crate) mod job;
+mod kind;
 pub(crate) mod literal;
 pub(crate) mod matching;
+pub use kind::Kind;
 pub(crate) mod source;
 mod target;
 mod vocabulary;
@@ -204,6 +206,8 @@ mod tests;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Candidate {
     label: String,
+    pub(crate) kind: Kind,
+    pub(crate) detail: &'static str,
     pub(crate) text: String,
     range: Option<std::ops::Range<usize>>,
     additional: Vec<crate::lsp::completion::Edit>,
@@ -216,6 +220,12 @@ impl Candidate {
     }
     pub fn text(&self) -> &str {
         &self.text
+    }
+    pub fn kind(&self) -> Kind {
+        self.kind
+    }
+    pub fn detail(&self) -> &str {
+        self.detail
     }
 }
 
@@ -324,12 +334,17 @@ impl Request {
         completion.candidates = reply
             .items
             .into_iter()
-            .map(|item| Candidate {
-                label: item.label,
-                text: item.text,
-                range: Some(item.range),
-                additional: item.additional,
-                proposal: item.proposal,
+            .map(|item| {
+                let (kind, detail) = Kind::semantic(item.kind);
+                Candidate {
+                    label: item.label,
+                    kind,
+                    detail,
+                    text: item.text,
+                    range: Some(item.range),
+                    additional: item.additional,
+                    proposal: item.proposal,
+                }
             })
             .take(limit)
             .collect();

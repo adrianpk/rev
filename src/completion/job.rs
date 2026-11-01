@@ -58,10 +58,6 @@ impl Work {
         self.active
             .as_ref()
             .is_some_and(|r| r.sources.contains(&buffer))
-            || self
-                .pending
-                .as_ref()
-                .is_some_and(|r| r.point.stamp.buffer == buffer)
     }
     pub fn ready(&self, now: Instant) -> bool {
         self.active.is_none()

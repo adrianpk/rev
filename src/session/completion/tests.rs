@@ -14,6 +14,69 @@ fn session() -> (crate::fixture::Fixture, Session) {
     (fixture, session)
 }
 
+// Debounce and exclusive parser work must not remove current source colors.
+// Observe both phases before reaping so a fast worker cannot hide the flicker.
+// A request can start before the edited revision has had its first frame.
+#[test]
+fn completion_colors() {
+    for paint in [false, true] {
+        let (_fixture, mut session) = session();
+        session.frame().unwrap();
+        session.handle(crossterm::event::Event::Key(
+            crossterm::event::KeyEvent::new(
+                crossterm::event::KeyCode::Char('m'),
+                crossterm::event::KeyModifiers::NONE,
+            ),
+        ));
+        assert!(session.completion_work.pending.is_some());
+        if paint {
+            let pending = session.frame().unwrap();
+            assert_eq!(session.buffer().unwrap().mode(), "Rust", "debounce colors");
+            assert!(!pending.rows()[0].syntax().is_empty());
+        }
+        let request = session.capture_completion().unwrap();
+        let id = request.point.stamp.buffer;
+        session.completion_work.queue(request);
+        let (sources, _) = session.completion_sources(id).unwrap();
+        session
+            .completion_work
+            .start(sources, std::time::Instant::now())
+            .unwrap();
+        let working = session.frame().unwrap();
+        assert_eq!(
+            session.buffer().unwrap().mode(),
+            "Rust",
+            "worker colors: {paint}"
+        );
+        assert!(!working.rows()[0].syntax().is_empty());
+        settle(&mut session);
+    }
+}
+
+// An edit during borrowed parser work gets fresh current colors. Returning
+// the old syntax must not overwrite that newer text's parser or projection.
+#[test]
+fn edited_colors() {
+    let (_fixture, mut session) = session();
+    session.frame().unwrap();
+    let id = session.buffer().unwrap().id();
+    let (sources, _) = session.completion_sources(id).unwrap();
+    assert!(session.buffer().unwrap().syntax().working());
+    session.handle(crossterm::event::Event::Key(
+        crossterm::event::KeyEvent::new(
+            crossterm::event::KeyCode::Char('m'),
+            crossterm::event::KeyModifiers::NONE,
+        ),
+    ));
+    let stamp = session.buffer().unwrap().stamp();
+    assert!(!session.buffer().unwrap().syntax().working());
+    assert!(!session.frame().unwrap().rows()[0].syntax().is_empty());
+    session.restore_completion_sources(sources);
+    assert_eq!(session.buffer().unwrap().stamp(), stamp);
+    assert_eq!(session.buffer().unwrap().mode(), "Rust");
+    assert!(!session.frame().unwrap().rows()[0].syntax().is_empty());
+}
+
 // A late result from a cancelled invocation or a superseded session cannot
 // replace a newer selection, even at the same view, point and source revision.
 #[test]
@@ -272,9 +335,8 @@ fn snapshot_bytes() {
     );
 }
 
-// An edit after snapshot transfer retires the returning worker's proposal. Its
-// parser is restored with the old revision and reparsed from the newer source
-// on the next request, rather than relabeling stale observations as current.
+// An edit after snapshot transfer retires the old proposal. A returned parser
+// cannot replace a newer current parser or relabel stale observations as current.
 #[test]
 fn changed_in_flight() {
     let (fixture, mut session) = session();
@@ -313,6 +375,7 @@ fn readonly_resolved() {
         .to_string();
     completion.resolved(crate::lsp::completion::Item {
         label: "sample".into(),
+        kind: Some(3),
         text: "sample".into(),
         range: point.position.0 - 2..point.position.0,
         additional: vec![crate::lsp::completion::Edit {

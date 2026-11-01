@@ -220,9 +220,15 @@ fn cursor_popup() {
         .find(|row| row.selection().is_some())
         .unwrap();
     assert!(selected.text().contains("cfg_value"));
+    assert!(selected.text().contains("ƒ cfg_value"));
+    assert!(selected.text().contains("function"));
     let cells = surface::draw(&frame);
     let range = selected.selection().unwrap();
     let palette = rev::config::Palette::default();
+    assert_eq!(
+        cells[&(usize::from(selected.row()), usize::from(range.start))].foreground,
+        Some(palette.syntax.function)
+    );
     for column in range {
         assert_eq!(
             cells[&(usize::from(selected.row()), usize::from(column))].background,

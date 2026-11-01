@@ -96,13 +96,30 @@ pub(super) fn labels(s: &Session) -> Vec<String> {
 #[test]
 fn primary_forms() {
     let range = json!({"start":{"line":1,"character":12},"end":{"line":1,"character":15}});
+    use rev::session::CompletionKind as Kind;
     let forms = [
-        json!([{"label":"cfg server","insertText":"cfg_server"}]),
-        json!([{"label":"cfg server","textEdit":{"range":range,"newText":"cfg_server"}}]),
-        json!([{"label":"cfg server","textEdit":{"insert":range,"replace":range,"newText":"cfg_server"}}]),
-        json!({"isIncomplete":false,"itemDefaults":{"editRange":range,"insertTextFormat":1,"insertTextMode":1},"items":[{"label":"cfg server","textEditText":"cfg_server"}]}),
+        (
+            "plain",
+            json!([{"label":"cfg server","kind":3,"insertText":"cfg_server"}]),
+            Kind::Function,
+        ),
+        (
+            "replace",
+            json!([{"label":"cfg server","kind":5,"textEdit":{"range":range,"newText":"cfg_server"}}]),
+            Kind::Field,
+        ),
+        (
+            "insert-replace",
+            json!([{"label":"cfg server","kind":10,"textEdit":{"insert":range,"replace":range,"newText":"cfg_server"}}]),
+            Kind::Field,
+        ),
+        (
+            "defaults",
+            json!({"isIncomplete":false,"itemDefaults":{"editRange":range,"insertTextFormat":1,"insertTextMode":1},"items":[{"label":"cfg server","kind":u64::MAX,"textEditText":"cfg_server"}]}),
+            Kind::Text,
+        ),
     ];
-    for result in forms {
+    for (name, result, kind) in forms {
         let f = Fixture::new();
         let mut s = session(&f, "ready", RUST, "main.rs", result, false);
         let original = text(&s);
@@ -113,6 +130,11 @@ fn primary_forms() {
             Some(Source::Semantic { incomplete: false })
         );
         assert_eq!(labels(&s), ["cfg server"]);
+        assert_eq!(
+            s.completion().unwrap().candidates()[0].kind(),
+            kind,
+            "{name}"
+        );
         assert_eq!(text(&s), original);
         assert_eq!(s.view().point, point);
         assert!(s.buffer().unwrap().history().is_empty());

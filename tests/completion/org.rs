@@ -121,7 +121,9 @@ fn heading_targets() {
             .unwrap()
             .candidates()
             .iter()
-            .any(|candidate| candidate.label().starts_with("Project Alpha  heading"))
+            .any(
+                |candidate| candidate.label() == "Project Alpha" && candidate.detail() == "heading"
+            )
     );
     choose(&mut session, "Project%20Alpha");
     key(&mut session, KeyCode::Enter, KeyModifiers::NONE);

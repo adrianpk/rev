@@ -31,6 +31,7 @@ pub(super) enum Tone {
     Tree,
     Gutter(crate::gutter::Role),
     Message(Message),
+    Completion(crate::completion::Kind),
 }
 
 pub(super) struct Face {
@@ -86,10 +87,24 @@ impl Tone {
             ),
             Self::Message(message) => Colors::new(message.color(palette), palette.background),
             Self::Document => Colors::new(palette.foreground, palette.background),
+            Self::Completion(kind) => Colors::new(kind_color(kind, palette), palette.background),
             Self::Habit(state, future) => {
                 Colors::new(palette.foreground, habit_color(state, future, &palette.org))
             }
         }
+    }
+}
+
+fn kind_color(kind: crate::completion::Kind, palette: &Palette) -> Rgb {
+    use crate::completion::Kind;
+    match kind {
+        Kind::Function => palette.syntax.function,
+        Kind::Constructor | Kind::Type | Kind::Module => palette.syntax.r#type,
+        Kind::Field => palette.syntax.punctuation,
+        Kind::Keyword => palette.syntax.keyword,
+        Kind::Constant => palette.syntax.number,
+        Kind::Variable => palette.foreground,
+        Kind::Text => palette.syntax.comment,
     }
 }
 
@@ -130,6 +145,7 @@ impl Row {
         {
             return match tone {
                 Tone::Tree => Colors::new(palette.tree_selected_text, palette.tree_selected),
+                Tone::Completion(kind) => Colors::new(kind_color(kind, palette), palette.selection),
                 _ => Colors::new(palette.selection_text, palette.selection),
             };
         }

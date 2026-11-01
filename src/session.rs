@@ -9,7 +9,9 @@ mod buffers;
 mod capture;
 mod completion;
 mod lsp;
-pub use crate::completion::{Candidate, Completion, CompletionFallback, CompletionSource};
+pub use crate::completion::{
+    Candidate, Completion, CompletionFallback, CompletionSource, Kind as CompletionKind,
+};
 mod refile;
 pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
@@ -475,7 +477,13 @@ impl Session {
     fn refresh_frame(&mut self) -> Result<(), view::Error> {
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
-            if self.completion_work.owns(view.point.stamp.buffer) {
+            if self.completion_work.owns(view.point.stamp.buffer)
+                && self
+                    .buffers
+                    .get(view.point.stamp.buffer)?
+                    .syntax()
+                    .working()
+            {
                 continue;
             }
             self.buffers

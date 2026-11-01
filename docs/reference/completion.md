@@ -38,8 +38,14 @@ acceptance and cancellation commands, including finite chord sequences. C-g
 keeps its globally reserved `keyboard-quit` configuration value, interpreted as
 popup cancellation; Escape always cancels literally in the active list.
 
-Candidates are observed names and finite HTML/CSS vocabulary, with kinds displayed separately.
-Labels never become insertion text. Lowercase input matches without case
+Candidates are observed names and finite HTML/CSS vocabulary. Each row has a
+compact type indicator, the name and a right-aligned type label when space
+permits. Functions use `ƒ`, fields/properties `◆`, types `T` and variables `v`.
+Indicators and type labels use the existing syntax palette roles, including on
+the selected row. They require no Nerd Font. Narrow panes omit the type label
+before reducing the visible name. LSP item kinds use the same presentation;
+missing or unknown kinds use a neutral indicator without inventing a type.
+Indicators and labels never become insertion text. Lowercase input matches without case
 sensitivity; uppercase input requires matching case. Prefix matches precede
 ordered subsequences, followed by current-buffer locality, declaration proximity,
 source ordering and stable lexical ties.
@@ -140,8 +146,12 @@ Extraction admits at most 2 MiB and 4096 symbols per buffer, 32 observed buffers
 8 MiB total shared source snapshots, 16384 retained symbols, 8 MiB observation
 payload and 512-byte labels. Current context precedes other sources; older
 other-buffer observations are omitted first under pressure. One temporary worker
-borrows each admitted buffer's sole retained parser/tree and shared rope snapshot,
-and performs filtering/ranking before returning disposable proposals. At most one worker and one newest pending request exist;
+borrows each admitted buffer's parser and a shared rope/tree snapshot,
+and performs filtering/ranking before returning disposable proposals. While the
+parser is borrowed, the display keeps a read-only tree/query projection for
+that exact revision. Debounce does not suppress ordinary syntax refresh. An
+edit during borrowed work prepares current syntax independently; a retired
+parser cannot overwrite it or paint old captures on new text. At most one worker and one newest pending request exist;
 cancellation retains the slot until the old worker is reaped. Parse/query
 callbacks check cancellation and a 50 ms work deadline. Limited results are
 omitted without editing source. Source revisions, language/grammar generations, rename paths and open-buffer

@@ -67,7 +67,8 @@ impl Context {
         };
         for candidate in candidates.iter_mut() {
             candidate.text = super::literal::encode(&candidate.text, grammar);
-            candidate.label = format!("{}  key", candidate.text);
+            candidate.label = candidate.text.clone();
+            candidate.detail = "key";
         }
         candidates.retain(|candidate| candidate.label.len() <= super::MAX_LABEL);
     }
