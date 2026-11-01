@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and gate repair 1 integrated; controller full gate pending
+Active slice: None — all 6 slices and gate repair 1 integrated; bounded gate repair 2 in progress
 
 ## Outcome and authority
 
@@ -245,3 +245,37 @@ The controller integrated PR #209 at
 exact clean head with all four commands in the pinned repair order. Canonical
 merge state and ancestry are verified; the unchanged full-gate rerun remains
 pending with the controller.
+
+## Gate repair 2
+
+The controller's unchanged full gate failed at
+`189ea68179c74ff2a28cbe8b76bc6dfe43c86d1a`, receipt
+`WHDZLX5DVWMTD5YGUTR7HGKMYZ`. Formatting and all-target Clippy passed;
+the library suite failed `org::io::process::tests::process_closed_output`
+at its cancellation-error assertion (114 passed, one failed).
+
+The covering authorization after repair 1 pins branch
+`fix/rev-language-server-gate-2`, title
+`fix(process): make closed-output cancellation deterministic` and the existing
+Slice 6 report. Changes are limited to the authorized process owner/group/streams/
+tests and these operational records. Preserve cancellation, immediate descendant
+shutdown and direct-child reaping assertions, job/output limits, the 250 ms
+cleanup budget and the unchanged controller full gate.
+
+The closed-output fixture now observes both EOFs and a ready, live owned leader
+before posting cancellation. It then uses the same private collection-and-cleanup
+entry point as normal programs, so collection's deadline cannot expire while a
+separate cancelling test thread waits for readiness. The 32 attempts, eight
+descendants, one-second overall fixture limit and immediate stopped-member
+assertions remain; direct-child reaping is also checked on every attempt.
+The retained log omitted the returned error and diagnostic reruns did not
+reproduce it; this repair removes the identified fixture ordering race without
+claiming that the original hidden error was recovered. Production cleanup-error
+precedence and process limits are unchanged.
+
+Required ordered repair checks:
+
+- `cargo fmt --all -- --check`
+- `cargo test --locked --lib`
+- `cargo test --locked --test org_io --test org_source --test lsp`
+- `git diff --check`

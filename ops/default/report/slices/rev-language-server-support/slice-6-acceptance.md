@@ -216,3 +216,58 @@ allocation are ready. Temporary preparation files and descriptors were cleaned u
 The existing Slice 6 introduction and implementation/merge evidence remain
 unchanged. The controller's unchanged full-gate rerun and final joint closure
 remain pending. No server or full gate was started during preparation.
+
+## Gate repair 2: Deterministic closed-output cancellation
+
+Repair status: reviewing.
+Branch: `fix/rev-language-server-gate-2`.
+Exact title: `fix(process): make closed-output cancellation deterministic`.
+Repair PR: pending.
+
+The retained full gate at `189ea68179c74ff2a28cbe8b76bc6dfe43c86d1a`, receipt
+`WHDZLX5DVWMTD5YGUTR7HGKMYZ`, passed formatting and all-target Clippy, then
+failed the cancellation-error assertion in `process_closed_output` (114 library
+tests passed, one failed). That assertion discarded the actual error. Adding
+its text to the diagnostic did not reproduce the failure: the isolated case,
+six library runs and eight concurrent isolated copies passed before correction.
+The original hidden error remains unknown.
+
+The fixture had a scheduling race: its background worker started collection's
+one-second deadline before the test observed readiness and requested cancellation.
+A delayed cancelling thread could lose to another error or the job deadline.
+The fixture now owns the real launched shell first, waits for both output EOFs
+and all eight descendants' readiness, and verifies the leader is still live.
+It then posts cancellation and enters the same private `Owned::run` used by
+`Program::run_input`. That entry point retains the existing collect-then-stop
+sequence and cleanup-error precedence. The test exercises actual cancelled
+process cleanup without duplicating that sequence in the fixture.
+
+All 32 attempts retain the cancellation-result assertion, eight-descendant count,
+immediate stopped-member assertions and one-second overall limit. Every attempt
+also asserts that the direct child was reaped. The original active-worker
+cancellation/timeout test remains intact. Job/output bounds, the shared 250 ms
+signal/observation budget, stream-drain budget and group isolation are unchanged;
+there is no added retry or wait after cancellation returns.
+
+Successful focused development checks:
+
+- `cargo test --locked --lib org::io::process::tests -- --nocapture`: five process regressions passed.
+- `cargo clippy --locked --lib -- -D warnings`: passed.
+- `cargo run --locked --quiet --example source-check -- --file src/org/io/process.rs --file src/org/io/process/group.rs --file src/org/io/process/streams.rs --file src/org/io/process/tests.rs`: safe Rust, parameters at most five, nesting at most three and complexity at most ten passed.
+
+Eight concurrent copies of the corrected closed-output case also passed: 256
+attempts and 2,048 descendants, with every original timing and immediate
+shutdown assertion active. The owned test processes and temporary logs were
+cleaned up after completion.
+
+The covering authorization after repair 1 requires the following ordered
+exact-head checks, recorded by the controller after the PR-reference follow-up:
+
+- `cargo fmt --all -- --check`
+- `cargo test --locked --lib`
+- `cargo test --locked --test org_io --test org_source --test lsp`
+- `git diff --check`
+
+The existing Slice 6 introduction, delivered slice state and earlier receipts
+remain unchanged. The controller owns repair integration and the unchanged
+full-gate rerun; joint acceptance remains pending.

@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices and gate repair 1 integrated; controller full gate pending
+Active slice: None — all 6 slices and gate repair 1 integrated; bounded gate repair 2 in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -141,3 +141,28 @@ commands in the pinned order at the exact clean repair head
 `144f6c83c50a6ef7a8435187b40c89709d04dfbb`, including the PR-reference
 follow-up. Canonical PR #209 is merged at that same commit, with merge activity
 recorded in Acta. The controller's unchanged full-gate rerun remains pending.
+
+## Gate repair 2
+
+Retained failed base: `189ea68179c74ff2a28cbe8b76bc6dfe43c86d1a`.
+Retained receipt: `WHDZLX5DVWMTD5YGUTR7HGKMYZ`.
+Branch: `fix/rev-language-server-gate-2`.
+Exact title: `fix(process): make closed-output cancellation deterministic`.
+Report: [Slice 6](../report/slices/rev-language-server-support/slice-6-acceptance.md).
+
+- [x] Diagnose the closed-output cancellation failure with the original assertions and limits intact.
+- [x] Correct the approved process boundary or fixture mechanics and verify focused regressions.
+- [ ] Record the covering authorization's ordered exact-head validation and canonical repair PR.
+- [ ] Verify canonical repair integration and the controller's unchanged full gate.
+
+The retained assertion hid the returned error. Six diagnostic library runs and
+eight concurrent isolated copies passed before correction; no exact underlying
+error was recovered. The fixture previously started collection's one-second
+deadline before its cancelling thread observed readiness. It now confirms real
+EOF and a live owned leader before cancellation through the shared production
+collection-and-cleanup entry point. The original cancellation result, 32 attempts,
+eight descendants, one-second overall limit and immediate descendant-stop checks
+remain, with direct-child reaping checked on every attempt. No cleanup limit or
+error precedence changed. The five process regressions, library Clippy and the
+four-file source-quality check pass. Final validation follows the PR-reference
+commit using repair 2's full-library command prefix.

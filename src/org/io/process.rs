@@ -41,11 +41,7 @@ impl Program {
         if cancel.is_cancelled() {
             return Err("External job cancelled before launch".into());
         }
-        let mut owned = self.launch(input, environment)?;
-        let result = owned.collect(&self, cancel);
-        let cleanup = owned.stop();
-        cleanup?;
-        result
+        self.launch(input, environment)?.run(&self, cancel)
     }
     fn validate(&self) -> Result<(), String> {
         if self.argv.is_empty()
@@ -87,6 +83,11 @@ impl Program {
     }
 }
 impl Owned {
+    fn run(mut self, program: &Program, cancel: &Cancellation) -> Result<Outcome, String> {
+        let result = self.collect(program, cancel);
+        self.stop()?;
+        result
+    }
     fn collect(&mut self, program: &Program, cancel: &Cancellation) -> Result<Outcome, String> {
         let deadline = Instant::now() + Duration::from_secs(program.seconds as u64);
         let mut exited = None;

@@ -106,14 +106,15 @@ fn process_descendants() {
     assert!(!PathBuf::from(format!("/proc/{pid}")).exists());
 }
 
-// EOF can precede cancellation: redirected descendants still belong to the
-// owned group. Each completed run must observe their death, without a test wait.
+// Observe real EOF before cancelling an owned launch, then use the production
+// collection/cleanup path. This orders cancellation before its collection
+// deadline without racing a test worker's readiness polling against that timer.
+// Redirected descendants must already be dead when the completed run returns.
 #[test]
 fn process_closed_output() {
     for attempt in 0..32 {
         let f = Fixture::new();
         let cancel = Cancellation::default();
-        let control = cancel.clone();
         let p = program(
             &f.0,
             "exec >/dev/null 2>&1; i=0; while test $i -lt 8; do sleep 30 & echo $! >> descendants; i=$((i+1)); done; : > ready; wait",
@@ -121,18 +122,25 @@ fn process_closed_output() {
         );
         let path = f.0.clone();
         let start = Instant::now();
-        let job = std::thread::spawn(move || p.run(&control));
-        while !path.join("ready").exists() {
+        let mut owned = p.launch(None, None).unwrap();
+        let leader = owned.pid;
+        while !path.join("ready").exists() || !owned.streams.closed() {
+            owned.streams.read(p.output_bytes).unwrap();
             assert!(
                 start.elapsed() < Duration::from_secs(1),
                 "fixture did not start"
             );
             std::thread::sleep(Duration::from_millis(2));
         }
+        assert!(owned.child.as_mut().unwrap().try_wait().unwrap().is_none());
         cancel.cancel();
-        let result = job.join().unwrap();
-        assert!(result.err().unwrap().contains("cancelled"));
+        let error = owned.run(&p, &cancel).err().unwrap();
+        assert!(error.contains("cancelled"), "attempt {attempt}: {error}");
         assert!(start.elapsed() < Duration::from_secs(1));
+        assert!(
+            !PathBuf::from(format!("/proc/{leader}")).exists(),
+            "attempt {attempt}: direct child was not reaped"
+        );
         let pids = std::fs::read_to_string(path.join("descendants")).unwrap();
         assert_eq!(pids.lines().count(), 8);
         for pid in pids.lines() {
