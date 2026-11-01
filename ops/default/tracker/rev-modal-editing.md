@@ -1,6 +1,7 @@
 # Startup Modal Editing Tracker
 
-Status: approved
+Status: Completed
+Completed: 2026-11-01
 Date: 2026-11-01
 Delivery set: rev-modal-editing
 Slice strategy: behavior-first
@@ -11,7 +12,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None; all eight slices delivered; awaiting the controller-owned integrated full gate
+Active slice: None; all eight slices delivered and full gate passed; delivery set closed
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -111,15 +112,32 @@ Acceptance: MOD01-MOD14.
 ## Delivery closure
 
 - [x] All eight configured slices integrated into dev with canonical PR evidence.
-- [ ] The unchanged integrated full gate passed for the exact clean candidate.
+- [x] The unchanged integrated full gate passed for the exact clean candidate.
 - [x] All eight reports are delivered and record actual validation boundaries.
-- [ ] Plan, tracker, modal spec/model and pending-work index agree on completion.
-- [ ] Deferred item 10 and unrelated work remain separate; no main/release/site publication inferred.
+- [x] Plan, tracker, modal spec/model and pending-work index agree on completion.
+- [x] Deferred item 10 and unrelated work remain separate; no main/release/site publication inferred.
 
 PRs #212-#219 are verified merged into dev. Gate preparation verified the
 installed Rust/Cargo/Clippy/rustfmt toolchain, rust-analyzer, Spore and shell/PTY
 utilities, offline locked dependency resolution and writable build output.
 An owned temporary-store and PTY allocation check passed and removed its fixture.
 The unchanged acceptance driver creates and removes its own stores, source
-projects and children; no persistent service or fixture is required. The full
-gate and capability completion remain pending with the controller.
+projects and children; no persistent service or fixture is required. The
+controller subsequently passed the unchanged full gate, as recorded below.
+
+## Final gate and closure
+
+Tested candidate: `e046746acab9514117520eaa68b454f7145f6212`.
+Controller receipt: `2MIARCIE3HXRZVLKHS5FZLPIJB`.
+The exact Full gate command above passed 2,114 top-level tests across 45 targets,
+strict Clippy, native and installed Rust semantic acceptance, both Linux PTYs,
+778-file production source quality, 67-page documentation validation and the
+Spore guide build. All eight canonical PRs and reports are verified delivered.
+The [final report](../report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
+retains the measured costs, initial failed attempt, authorized successful retry
+and terminal/server cleanup evidence. No owned fixture remains active.
+
+Plan, tracker, specification/model and index are closed using this exact-candidate
+evidence. Closure changes only configured documentation paths; the frozen gate
+and tested runtime inputs remain unchanged. Item 10 and unrelated proposals
+retain their existing boundaries.

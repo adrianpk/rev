@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-10-31
-Scope: pending behavior after the completed native completion and optional LSP deliveries
-Owner decision: native completion and optional LSP delivered; other proposals retain their own state
+Scope: pending behavior after the completed native completion, optional LSP and modal editing deliveries
+Owner decision: native completion, optional LSP and modal editing delivered; other proposals retain their own state
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains eight delivered topics, two open presentation
-follow-ups and seven remaining capability proposals. The five solved
+The inventory contains nine delivered topics, two open presentation
+follow-ups and six remaining capability proposals. The five solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -37,19 +37,19 @@ retain their own specification/model state.
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
-| Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Approved capability and eight-slice implementation plan, with finite Odra-parity coverage and canonical colon/M-x entry. Looper startup and canonical slice integration into dev authorized on 2026-11-01. |
+| Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md) | Draft. Six reference glyphs captured; prefix/source fidelity required. Depth overflow, defaults and reveal/geometry details remain open. Fonts and ligatures belong to the terminal. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
 
-The owner selected startup-only Emacs/Vim modal editing as the next topic on
-2026-11-01, temporarily deferring discussion item 10. The modal specification
-and model are approved. The approved eight-slice plan/tracker record finite
-Odra-parity coverage, shared colon/M-x entry and existing completion integration.
-The owner authorized Looper startup and canonical slice integration into dev on
-2026-11-01. The controller checkpoint owns runtime progress; item 10 remains pending.
+The owner selected startup-only Emacs/Vim modal editing on 2026-11-01,
+temporarily deferring discussion item 10, and authorized its eight-slice delivery.
+The specification/model and plan/tracker are now Completed after PRs #212-#219
+and the unchanged controller full gate. Shared native editing, colon/M-x entry
+and completion retain their existing owners. Item 10 remains pending; closure
+does not start another capability.
 
 The owner selected these five interaction topics for one approved Looper cycle,
 with soft wrapping first:
@@ -150,8 +150,15 @@ authorized repairs passed the unchanged integrated full gate at
 switching and joint native/LSP acceptance. The
 [LSP tracker](tracker/rev-language-server-support.md#final-gate-and-closure) and
 [Slice 6 closure](report/slices/rev-language-server-support/slice-6-acceptance.md#delivery-set-closure)
-record exact validation, resources and owned cleanup. The seven remaining
-capability proposals retain their prior state,
+record exact validation, resources and owned cleanup. Modal editing's
+specification/model, plan and tracker are Completed after eight slices through
+PRs #212-#219. Its unchanged full gate passed at
+`e046746acab9514117520eaa68b454f7145f6212`, receipt
+`2MIARCIE3HXRZVLKHS5FZLPIJB`, with 2,114 top-level tests and native/semantic/PTY
+acceptance. The [modal tracker](tracker/rev-modal-editing.md#final-gate-and-closure)
+and [Slice 8 closure](report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
+record exact validation, resources, guide output and owned cleanup.
+The six remaining capability proposals retain their prior state,
 including optional external-program exploration. Earlier completed gates keep
 their historical identities.
 

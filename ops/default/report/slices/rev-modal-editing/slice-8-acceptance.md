@@ -74,7 +74,7 @@ The [plan](../../../plan/rev-modal-editing.md),
 [paired model](../../../spec/editor-modal-editing-model.md) retain MOD01-MOD14
 and the unchanged integrated gate. Baseline R01/R22-R24/R33 and CFG12-CFG15
 reconciliation remains in implementation commits; historical receipts are intact.
-No capability or delivery-set completion is claimed before the controller gate.
+The controller subsequently passed the integrated gate recorded below.
 
 | Requirement | Concrete coverage |
 | --- | --- |
@@ -182,7 +182,49 @@ git diff --check
 
 Measurements apply to the recorded Linux host, Rust/Cargo 1.98.0 and installed
 rust-analyzer 0.3.3089-standalone. They do not establish arbitrary-server support
-or a universal size/latency ceiling. All eight slices are integrated and their
-reports are delivered; the unchanged full gate and capability completion remain
-pending with the controller. Main,
+or a universal size/latency ceiling. All eight slices are integrated, their
+reports are delivered and the unchanged controller full gate passed. Main,
 release and public guide publication are separate actions.
+
+## Delivery-set closure
+
+Slice 8 of 8 completed. Canonical PRs #212-#219 are merged into dev and all eight
+reports are delivered. The controller passed the unchanged full gate at
+`e046746acab9514117520eaa68b454f7145f6212`, immutable receipt
+`2MIARCIE3HXRZVLKHS5FZLPIJB`. Its 45 top-level test targets passed 2,114 tests;
+five isolated child-test executions also passed. Strict Clippy, source quality
+for 778 production files, native/installed-server/PTY acceptance, the 67-page
+documentation check and actual Spore build all passed.
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check
+```
+
+The initial attempt `P6QOTKHGBXKPUIOEAVHH5TXFU5` failed on unresolved modal imports
+and fields. After regeneration of only the package build artifacts, the
+checkpoint's explicitly authorized retry passed the unchanged gate at the same
+candidate. No source, acceptance assertion or gate command changed.
+
+The integrated normal-release journey recorded these results, separately from
+the earlier Slice 8 measurements above:
+
+| Work or process | Integrated gate observation |
+| --- | --- |
+| Large counts / Unicode logical block / 128-event native burst | 222,301 / 29,587 / 33,845 microseconds, with exact preservation/undo assertions. |
+| Executable / native driver | 19,351,552 bytes, delta 420,392 and ratio 1.022206 to the recorded baseline; driver peak RSS 24,588 kB. |
+| Installed Rust semantics | Readiness 369,501 microseconds; driver peak RSS 16,132 kB, separate server 30,600 kB and four CPU ticks. |
+| Emacs / Vim PTYs | Peak RSS 15,508 / 15,324 kB; each retained source and restored terminal state. |
+| Idle work | Native driver and both PTYs recorded zero CPU ticks over 350 ms; PTYs emitted no output. |
+| Modal journey | 2,824 milliseconds, excluding compilation and the other gate commands. |
+
+The log records compilation steps of 27.89 seconds for Clippy, 1m 35s for test
+targets and 2m 17s for the normal-release acceptance binaries. These are build
+step timings, not the entire gate duration. The generated modal chapter and
+byte-exact downloadable configuration were verified after the successful gate.
+The owned server was reaped, both PTYs restored their terminals and fixture
+owners removed their stores. No active owned fixture remained at closure.
+
+The plan, tracker, specification/model and pending-work index now record
+completion using this exact-candidate evidence. Only configured documentation
+closure paths differ afterward; runtime/build inputs, earlier receipts and
+deferred item 10 remain unchanged.

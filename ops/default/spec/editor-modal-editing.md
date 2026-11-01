@@ -1,6 +1,7 @@
 # Modal Editing
 
-Status: approved
+Status: Completed
+Completed: 2026-11-01
 Approved: product owner, 2026-11-01; explicit specification approval
 Date: 2026-10-28
 Reviewed: 2026-11-01
@@ -11,8 +12,8 @@ Baseline: [rev Editor](rev-editor.md)
 Configuration: [Editor Configuration](editor-configuration.md)
 Model: [Modal Editing Model](editor-modal-editing-model.md)
 Plan: [Modal Editing Delivery](../plan/rev-modal-editing.md)
-Delivery boundary: capability and eight-slice plan approved; controller startup and canonical slice integration into dev authorized on 2026-11-01
-Readiness: approved behavior with a finite implementation matrix in the approved delivery plan
+Delivery boundary: eight canonical slices integrated into dev; unchanged controller full gate passed on 2026-11-01
+Readiness: Completed; MOD01-MOD14 have integrated exact-candidate acceptance evidence
 
 ## Purpose
 
@@ -441,7 +442,7 @@ registry and native selector for colon and M-x. R33 retains native owners and
 qualifies completion by modal state. CFG12-CFG15 record the typed startup profile,
 six independent state maps, whole-candidate fallback and immutable admission.
 Historical gate evidence and unaffected clauses remain unchanged. The integrated
-candidate still requires its controller-owned gate before capability closure.
+candidate passed its controller-owned gate, recorded in Delivery closure below.
 
 ## Implementation preparation obligations
 
@@ -479,15 +480,15 @@ The feature depends on the existing native command, input, configuration,
 buffer, selection, rectangle, history, search and presentation owners. It does
 not require LSP, AI or the separate bookmark feature. Future commands keep
 their canonical names under either entry surface when actually registered.
-The approved capability is ready for the approved delivery map. The plan and
-tracker remain the planning/execution authority; the owner authorized controller
-startup and canonical slice integration into dev on 2026-11-01.
+All eight planned slices are integrated into dev. The plan and tracker retain
+the approved map, canonical PRs and completed execution state; controller
+startup and canonical integration were authorized on 2026-11-01.
 
 ## Implementation and validation map
 
 The implementation maps each requirement to the following concrete checks.
-The capability remains approved until the controller records its integrated
-exact-candidate gate and closes the delivery set.
+The controller's integrated exact-candidate gate passed; Delivery closure
+records the evidence for the completed capability.
 
 | Requirement | Concrete coverage |
 | --- | --- |
@@ -505,3 +506,13 @@ exact-candidate gate and closes the delivery set.
 | MOD12 Bounds and preservation | Count overflow, large source/block, native and PTY 128-event bursts, native/server/PTY resource observations and first-party source quality. |
 | MOD13 Checked jumps | `tests/modal/jumps.rs`, `jump_safety.rs`, native jump/undo ownership and decoded C-o/Tab and post-split backward traversal. |
 | MOD14 Replacement and repeat | `tests/modal/repeat.rs`, `repeat_safety.rs`, native/PTY dot grouping and installed semantic acceptance in Replace with one undo. |
+
+## Delivery closure
+
+MOD01-MOD14 are Completed through the eight canonical PRs #212-#219. The unchanged
+controller full gate passed at `e046746acab9514117520eaa68b454f7145f6212`, receipt
+`2MIARCIE3HXRZVLKHS5FZLPIJB`, with 2,114 top-level tests, native/installed-server
+acceptance, both terminal profiles, source quality and Markdown/Spore validation.
+The [final report](../report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
+records the exact command, measured resources, retry and owned cleanup. This
+closure preserves the approved behavior, bounds and historical baseline receipts.

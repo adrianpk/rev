@@ -1,6 +1,7 @@
 # Startup Modal Editing Delivery
 
-Status: approved
+Status: Completed
+Completed: 2026-11-01
 Date: 2026-11-01
 Delivery set: rev-modal-editing
 Slice strategy: behavior-first
@@ -11,7 +12,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None; all eight slices delivered; awaiting the controller-owned integrated full gate
+Active slice: None; all eight slices delivered and full gate passed; delivery set closed
 Tracker: [Modal Editing Tracker](../tracker/rev-modal-editing.md)
 
 ## Outcome and authority
@@ -301,3 +302,18 @@ repair policy; do not edit checkpoints, fabricate evidence or add hidden slices.
 Mark the capability/model Completed only after that evidence exists. Preserve
 the deferred item 10 and unrelated tickets. Publication to main, SemVer and
 public guide deployment require their own later authorization.
+
+## Final gate and closure
+
+All eight canonical slices are integrated through PRs #212-#219 and their
+reports are delivered. The controller passed the unchanged full-gate command
+above at `e046746acab9514117520eaa68b454f7145f6212`, receipt
+`2MIARCIE3HXRZVLKHS5FZLPIJB`: 2,114 top-level tests across 45 targets, native
+and installed-server modal acceptance, both restored PTYs, source quality,
+documentation validation and the Spore guide build. MOD01-MOD14 are closed.
+The [final report](../report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, retry history, resources and owned cleanup.
+
+Documentation closure follows that immutable result and changes only approved
+closure paths. The specification/model and pending-work index reflect completion.
+Discussion item 10 remains deferred; unrelated work retains its prior state.

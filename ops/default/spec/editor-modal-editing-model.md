@@ -1,6 +1,7 @@
 # Modal Editing Model
 
-Status: approved
+Status: Completed
+Completed: 2026-11-01
 Approved: product owner, 2026-11-01; paired promotion with the specification
 Date: 2026-10-28
 Reviewed: 2026-11-01
@@ -25,7 +26,7 @@ editing. There is no runtime operation that changes the selected profile.
 | --- | --- | --- |
 | Interaction profile | Emacs-like direct editing or Vim-like modal editing. | One validated startup preference. Omission resolves to Emacs; the admitted value is immutable until the process exits. |
 
-Approved TOML spelling for the implementation delivery:
+Implemented TOML spelling:
 
 ```toml
 [editor]
@@ -33,11 +34,11 @@ Approved TOML spelling for the implementation delivery:
 interaction_profile = "emacs"
 ```
 
-This is an approved extension, not a key implemented by the v0.2.0 runtime.
-Use the existing root/include precedence, provenance and invalid-candidate
-handling. Do not introduce project/language/view profile overrides or a
-separate preference file. Missing-config provisioning and the complete sample
-gain the key only when the feature is supported. Modal state is not written
+The completed delivery admits this key through the existing root/include
+precedence, provenance and invalid-candidate handling. It introduces no
+project/language/view profile overrides or separate preference file.
+Missing-config provisioning and the complete sample include the key.
+Modal state is not written
 back to TOML. No preference reload or runtime setter is introduced.
 
 Extend the existing keys owner with vim_normal, vim_insert, vim_replace,
@@ -165,13 +166,13 @@ inheritance and retention follow the bounded view policy and plan acceptance cas
 
 ## Readiness
 
-The approved specification and [delivery plan](../plan/rev-modal-editing.md)
-define finite coverage, keymaps, search, location ownership and bounds.
-Implementation must verify cursor/Escape, selection edges and state restoration
-against native tests and the inspected reference. There is no persisted
-jump/repeat archive, runtime profile setter or executable configuration.
-The owner approved the implementation plan and authorized controller startup
-and canonical slice integration into dev on 2026-11-01.
+The completed specification and [delivery plan](../plan/rev-modal-editing.md)
+retain finite coverage, keymaps, search, location ownership and bounds.
+Native tests and real terminal acceptance passed cursor/Escape, selection-edge
+and state-restoration checks. There is no persisted jump/repeat archive,
+runtime profile setter or executable configuration. The owner approved the
+implementation plan and authorized controller startup and canonical slice
+integration into dev on 2026-11-01; all eight slices are delivered.
 
 ## Delivered Visual selection ownership
 
@@ -316,3 +317,14 @@ compared to the recorded predecessor release; the external server is excluded.
 Measurements describe their actual candidate and host, without creating another
 runtime service or inferring universal performance guarantees. Canonical Markdown,
 its ordered guide index and the Spore tree remain one documentation source.
+
+## Delivery closure
+
+This model is Completed with its specification after eight integrated slices
+and the unchanged controller full gate at
+`e046746acab9514117520eaa68b454f7145f6212`, receipt
+`2MIARCIE3HXRZVLKHS5FZLPIJB`. The gate passed 2,114 top-level tests and joint
+native/semantic/resource/PTY acceptance, followed by documentation and Spore
+validation. The [final report](../report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
+retains the measured costs and owned cleanup. Approved persistence, lifetimes,
+resource bounds and runtime ownership remain unchanged.
