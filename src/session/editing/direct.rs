@@ -6,6 +6,7 @@ use crate::search::Direction;
 impl Session {
     pub(super) fn direct_edit(&mut self, request: Editing) -> Result<bool, Error> {
         match request.action {
+            Action::Repeat => self.repeat_change(request.count),
             Action::DeleteForward => self.small_delete(request.amount(), false),
             Action::DeleteBackward => self.small_delete(request.amount(), true),
             Action::Replace => self.replace_character(request),

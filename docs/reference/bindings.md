@@ -150,6 +150,8 @@ The following state commands require the Vim startup profile:
 | Input | Command | Result |
 | --- | --- | --- |
 | `i` in Normal | `modal-enter-insert` | Enter Insert at point. |
+| `R` in Normal | `modal-enter-replace` | Enter persistent Replace with an underline cursor. |
+| `.` in Normal | `modal-repeat-last-change` | Resolve and repeat the latest admitted semantic change; a count overrides its count. |
 | `a` in Normal | `modal-enter-insert-after` | Enter Insert after the current grapheme, stopping at logical EOL. |
 | `I` in Normal | `modal-enter-insert-line-first` | Enter Insert at the first non-whitespace boundary. |
 | `A` in Normal | `modal-enter-insert-line-end` | Enter Insert at logical EOL. |
@@ -161,10 +163,44 @@ The following state commands require the Vim startup profile:
 | `C-o` in Insert | `modal-one-normal-command` | Admit one complete Normal command, then resume compatible insertion. |
 | Escape or `C-[` in Vim editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
 
-Insert uses native editing and compatible modified factory bindings. Normal
+Insert and Replace use native editing and compatible modified factory bindings. Normal
 retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
 alone create no history; opening a line creates one ordinary undoable edit.
 Local prompts, completion, tree and Org maps keep their input priority.
+
+### Replace and semantic repetition
+
+R overwrites corresponding complete graphemes on the current logical line.
+At EOL it inserts before the existing LF/CRLF separator; it never consumes that
+separator. Input that joins the preceding grapheme extends it without consuming
+another source grapheme. Escape/C-[ returns to Normal at the native point.
+Connected Insert/Replace input and a preceding change or line opening share one
+ordinary undo/redo group. Modified movement or another command ends that group.
+
+Dot retains one semantic entry, operator, direct edit, indentation or paste.
+Entries i/a/I/A/o/O/R resolve their entry destination again. Operators resolve
+their motion/object against current source. An explicit dot count replaces the
+recorded count; it does not multiply it. Inserted payload is expanded within the
+native 64-MiB materialization bound before publication. Dot stays Normal and
+creates one ordinary native transaction.
+
+A completed record is usable in another compatible editing pane or buffer.
+It checks current focus, source point, target and permissions before mutation.
+A failed repeat preserves the record. Undo/redo and copying text do not replace
+it. A retained paste keeps its admitted linear, linewise or logical-block payload,
+so a later copy cannot change the repeated insertion. Visual repetition retains
+its grapheme count, line count or block height/width, anchored at current point.
+For a Visual record, an explicit count replaces the linear/line count or block
+width; height remains fixed for a block.
+
+At most 1,024 text bytes are retained, including the complete paste payload.
+Overflow never rejects an otherwise valid edit or exposes a truncated replay;
+it makes that change unavailable to dot. The native history budget still owns
+undo data. An empty insertion entry keeps the prior record. External source/view
+changes retire unfinished entries. Destructive entry controls that cannot be
+represented as the retained insertion, source-bound accepted-search ranges and
+unrelated native command workflows remain ordinary edits and retire repetition.
+Prompts, file consent and provider work are never replayed.
 
 ### Normal navigation
 
@@ -394,11 +430,10 @@ all supported contexts, including local overlays and the state maps. Copy only d
 distinctions; explicit mappings select their named action at the active owner.
 
 `keys.editor` belongs to Emacs. Vim resolves `keys.vim_normal` or
-`keys.vim_insert` over independent native factories; Emacs overrides do not leak
-into either. Local Org editing/capture/source maps overlay the selected state.
+`keys.vim_insert` or `keys.vim_replace` over independent native factories;
+Emacs overrides do not leak into those states. Local Org editing/capture/source maps overlay the selected state.
 `keys.vim_visual_character`, `keys.vim_visual_line` and `keys.vim_visual_block`
-resolve independent state factories. `keys.vim_replace` remains an empty factory
-until replacement-state entry is delivered. M-x and C-g remain protected recovery in Vim editing.
+resolve independent state factories. M-x and C-g remain protected recovery in Vim editing.
 Escape/C-[ is a state transition while Vim editing owns input, so a standalone
 Escape cannot become a configurable command prefix there.
 

@@ -225,3 +225,34 @@ prompts. An admitted edit may change that source revision; incompatible external
 source, buffer or view changes retire it. Completion restores Insert only in a
 valid native editing context, before later deferred input is dispatched. Explicit
 Visual entry remains Visual, and local prompts/completion retain the Tab/C-i alias.
+
+## Implemented replacement and repeat ownership
+
+Slice 6 adds Replace to the typed input state and its independent factory map.
+Native text admission replaces complete graphemes on the current logical line,
+inserts at EOL and retains the line separator. Joining input extends the previous
+cluster. Replace uses an underline cursor and ordinary command/input ownership.
+
+One session-local record retains an entry descriptor, a complete semantic edit
+request, Visual geometry or an admitted transfer payload, with at most 1,024
+retained text bytes. Visual geometry stores a whole-grapheme count, logical-line
+count or logical-block height/width. A completed record can resolve a fresh target
+in another compatible pane/buffer. No stored source offset becomes authoritative.
+An explicit count replaces the original count; a Visual override selects the
+linear/line count or block width while retaining block height.
+
+A pending entry observes its exact native view/point/revision and first history
+stamp. Native connected replacements compose reversible fragments and before/
+after anchor snapshots into one ordinary history unit. An empty top block row
+can insert before the first removed row in that same owned group. Independent
+movement, changed source or another view ends its authority. Native undo payload
+accounting and whole-group pruning remain authoritative for retained history.
+
+Successful publication supplies the repeat text from the native grouped result;
+there is no raw-event transcript. A line opening or linewise change separates its
+native line separator from user payload. Exceeding the text limit retires the
+entire repeat candidate without truncating input or undo. Destructive entry edits
+outside that insertion, source-bound accepted-search ranges and unrelated native
+workflows retire repeatability. Failed edits and failed repetitions preserve the
+last admitted record. Prompt, consent, provider and asynchronous work is never a
+repeat operation.

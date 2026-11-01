@@ -22,6 +22,8 @@ mod operator_safety;
 mod operators;
 #[path = "modal/presentation.rs"]
 mod presentation;
+#[path = "modal/repeat.rs"]
+mod repeat;
 #[path = "modal/search.rs"]
 mod search_navigation;
 #[path = "modal/transfer.rs"]

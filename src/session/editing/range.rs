@@ -8,7 +8,10 @@ use crate::session::Session;
 use std::ops::Range;
 
 impl Session {
-    pub(super) fn editing_range(&self, request: Editing) -> Result<Option<Selection>, Error> {
+    pub(in crate::session) fn editing_range(
+        &self,
+        request: Editing,
+    ) -> Result<Option<Selection>, Error> {
         let operand = request.operand.or_else(|| end_operand(request));
         let Some(operand) = operand else {
             return Ok(None);

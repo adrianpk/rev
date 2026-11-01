@@ -52,8 +52,7 @@ impl Session {
     }
 
     pub(super) fn type_text(&mut self, text: &str) -> Result<bool, Error> {
-        let point = self.windows.selected().point.position.0;
-        self.edit(point..point, text, true, None)
+        self.entry_text(text)
     }
 
     pub(super) fn replace_at(
@@ -96,11 +95,12 @@ impl Session {
         let mut prepared = buffer.prepare(edits, &points.values, cursor)?;
         prepared.set_origin(self.windows.selected_id());
         self.windows.publish(buffer, prepared, points)?;
+        self.published_repeat_boundary();
         self.windows.selected_mut().reset_navigation();
         Ok(true)
     }
 
-    fn edit(
+    pub(super) fn edit(
         &mut self,
         range: Range<usize>,
         text: &str,
@@ -110,6 +110,7 @@ impl Session {
         if range.is_empty() && text.is_empty() {
             return Ok(false);
         }
+        let group = self.repeat_group();
         let buffer = self
             .buffers
             .get_mut(self.windows.selected().point.stamp.buffer)?;
@@ -119,13 +120,12 @@ impl Session {
             index: points.initiator,
             position: cursor.unwrap_or(position),
         };
-        let mut prepared = if typing {
-            buffer.prepare_typing(&edit, &points.values, cursor)?
-        } else {
-            buffer.prepare(std::slice::from_ref(&edit), &points.values, Some(cursor))?
-        };
+        let mut prepared = prepare_text(buffer, &edit, &points.values, cursor, typing)?;
+        let joined = continue_group(buffer, &mut prepared, group)?;
         prepared.set_origin(self.windows.selected_id());
         self.windows.publish(buffer, prepared, points)?;
+        self.published_repeat_boundary();
+        self.capture_repeat_text(joined);
         Ok(true)
     }
 }
@@ -147,4 +147,29 @@ fn replacement(
         },
         Scalar(position),
     ))
+}
+
+fn continue_group(
+    buffer: &crate::buffer::Buffer,
+    prepared: &mut crate::buffer::edit::Prepared,
+    first: Option<crate::buffer::Stamp>,
+) -> Result<bool, Error> {
+    match first {
+        Some(first) => buffer.continue_edit(prepared, first),
+        None => Ok(false),
+    }
+}
+
+fn prepare_text(
+    buffer: &crate::buffer::Buffer,
+    edit: &Replacement,
+    points: &[crate::buffer::edit::Point],
+    cursor: Cursor,
+    typing: bool,
+) -> Result<crate::buffer::edit::Prepared, Error> {
+    if typing {
+        buffer.prepare_typing(edit, points, cursor)
+    } else {
+        buffer.prepare(std::slice::from_ref(edit), points, Some(cursor))
+    }
 }

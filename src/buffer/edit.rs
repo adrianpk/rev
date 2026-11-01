@@ -1,4 +1,5 @@
 mod bookmarks;
+mod continuation;
 mod grouping;
 mod history;
 mod locations;

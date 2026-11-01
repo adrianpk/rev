@@ -39,6 +39,8 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("v", "modal-enter-visual-character"),
             ("V", "modal-enter-visual-line"),
             ("C-v", "modal-enter-visual-block"),
+            ("R", "modal-enter-replace"),
+            (".", "modal-repeat-last-change"),
             ("C-o", "modal-jump-backward"),
             ("C-i", "modal-jump-forward"),
         ]);
@@ -57,6 +59,10 @@ pub(super) fn insert() -> &'static [(&'static str, &'static str)] {
         bindings
     });
     &INSERT
+}
+
+pub(super) fn replace() -> &'static [(&'static str, &'static str)] {
+    super::defaults::EDITOR
 }
 
 pub(super) fn visual(block: bool) -> &'static [(&'static str, &'static str)] {
@@ -120,6 +126,7 @@ pub(super) fn org_maps(
     for state in [
         Context::VimNormal,
         Context::VimInsert,
+        Context::VimReplace,
         Context::VimVisualCharacter,
         Context::VimVisualLine,
         Context::VimVisualBlock,
@@ -139,6 +146,7 @@ fn recovery(map: &Map, context: Context) -> Result<(), Error> {
         context,
         Context::VimNormal
             | Context::VimInsert
+            | Context::VimReplace
             | Context::VimVisualCharacter
             | Context::VimVisualLine
             | Context::VimVisualBlock

@@ -51,7 +51,7 @@ pub(super) fn modal_bindings(context: Context) -> &'static [(&'static str, &'sta
     match context {
         Context::VimNormal => super::vim::normal(),
         Context::VimInsert => super::vim::insert(),
-        Context::VimReplace => &[],
+        Context::VimReplace => super::vim::replace(),
         Context::VimVisualCharacter | Context::VimVisualLine => super::vim::visual(false),
         Context::VimVisualBlock => super::vim::visual(true),
         _ => org_bindings(context),

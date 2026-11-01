@@ -85,7 +85,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 402] = [
+    pub const ALL: [Self; 404] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -167,6 +167,8 @@ impl Command {
         Self::Modal(ModalCommand::VisualLine),
         Self::Modal(ModalCommand::VisualBlock),
         Self::Modal(ModalCommand::Once),
+        Self::Modal(ModalCommand::Replace),
+        Self::Edit(Editing::new(editing::Action::Repeat)),
         Self::Navigate(Navigation::new(Target::Jump(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Jump(Direction::Forward))),
         Self::Lsp(LspCommand::Mode),

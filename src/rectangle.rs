@@ -19,6 +19,7 @@ pub(crate) enum Capture {
 
 /// One native block with its source coordinate policy. Width is the requested
 /// column span; display-cell edges can include a wider touched source cluster.
+#[derive(Clone)]
 pub struct Rectangle {
     rows: Vec<String>,
     width: usize,
@@ -108,6 +109,33 @@ impl Selection {
             columns: a.column.min(b.column)..end,
             policy,
         }))
+    }
+
+    pub(crate) fn dimensions(&self) -> (usize, usize) {
+        (self.rows.end() - self.rows.start() + 1, self.width())
+    }
+
+    pub(crate) fn at(
+        buffer: &Buffer,
+        point: Point,
+        rows: usize,
+        width: usize,
+    ) -> Result<Self, Error> {
+        buffer.slice(&Span {
+            stamp: point.stamp,
+            range: point.position.0..point.position.0,
+        })?;
+        let start = Coordinates::new(buffer)?.grapheme_cell(point.position)?;
+        let last = start
+            .row
+            .saturating_add(rows.saturating_sub(1))
+            .min(buffer.len_lines() - 1);
+        Ok(Self {
+            stamp: point.stamp,
+            rows: start.row..=last,
+            columns: start.column..start.column.checked_add(width).ok_or(Error::Capacity)?,
+            policy: Columns::Grapheme,
+        })
     }
 
     pub(crate) fn width(&self) -> usize {

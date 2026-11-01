@@ -52,6 +52,7 @@ mod prompt;
 mod quit;
 mod rectangle;
 mod region;
+mod repeat;
 mod replace;
 mod save;
 mod search;
@@ -140,6 +141,7 @@ pub struct Session {
     rectangle: Option<std::sync::Arc<crate::rectangle::Rectangle>>,
     visual_source: Option<crate::buffer::Stamp>,
     one_normal: Option<jumps::Continuation>,
+    repeat: repeat::State,
     yank: Option<yank::Capture>,
     selection: Option<pointer::Selection>,
     mouse_enabled: bool,
@@ -347,6 +349,7 @@ impl Session {
             rectangle: None,
             visual_source: None,
             one_normal: None,
+            repeat: repeat::State::default(),
             yank: None,
             selection: None,
             mouse_enabled,
@@ -637,6 +640,9 @@ impl Session {
                     crossterm::cursor::SetCursorStyle::SteadyBlock
                 }
                 crate::input::EditingState::Insert => crossterm::cursor::SetCursorStyle::SteadyBar,
+                crate::input::EditingState::Replace => {
+                    crossterm::cursor::SetCursorStyle::SteadyUnderScore
+                }
             };
             terminal.set_cursor_style(style);
         }
@@ -735,7 +741,9 @@ impl Session {
         if command != Command::Modal(crate::command::ModalCommand::Once) {
             self.start_one_normal();
         }
+        let repeat = self.before_repeat_command(command);
         let action = self.execute_operation(command);
+        self.after_repeat_command(repeat);
         if command != Command::Modal(crate::command::ModalCommand::Once) {
             self.complete_one_normal();
         }

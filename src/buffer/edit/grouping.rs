@@ -34,7 +34,10 @@ impl Buffer {
     }
 
     pub(super) fn admit_group(&self, prepared: &Prepared) -> Result<(), Error> {
-        if prepared.group.is_some() && self.typing != Some(prepared.record.before) {
+        if prepared.group.is_some()
+            && matches!(prepared.operation, Operation::Typing)
+            && self.typing != Some(prepared.record.before)
+        {
             return Err(Error::ChangedPositions);
         }
         Ok(())
@@ -98,7 +101,7 @@ impl Transaction {
         previous.after.end == current.before.start && self.same_context(next)
     }
 
-    fn same_context(&self, next: &Self) -> bool {
+    pub(super) fn same_context(&self, next: &Self) -> bool {
         self.after_state == next.before_state
             && self.after_points == next.before_points
             && self.after_bookmarks == next.before_bookmarks

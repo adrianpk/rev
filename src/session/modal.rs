@@ -64,12 +64,7 @@ impl Session {
             point.position = target;
             self.place_point(point)?;
         }
-        self.input
-            .set_editing_state(if command == ModalCommand::Normal {
-                EditingState::Normal
-            } else {
-                EditingState::Insert
-            });
+        self.input.set_editing_state(entry_state(command));
         Ok(())
     }
 
@@ -140,4 +135,12 @@ fn first_text(
         }
     }
     coordinates.line_end(point)
+}
+
+fn entry_state(command: ModalCommand) -> EditingState {
+    match command {
+        ModalCommand::Normal => EditingState::Normal,
+        ModalCommand::Replace => EditingState::Replace,
+        _ => EditingState::Insert,
+    }
 }

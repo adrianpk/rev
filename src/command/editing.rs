@@ -29,6 +29,7 @@ pub enum Action {
     Join,
     SelectInner,
     SelectAround,
+    Repeat,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -85,6 +86,7 @@ impl Editing {
             Action::Join => "modal-join-lines",
             Action::SelectInner => "modal-select-inner-object",
             Action::SelectAround => "modal-select-around-object",
+            Action::Repeat => "modal-repeat-last-change",
             _ => unreachable!("operator names delegate before direct edit lookup"),
         }
     }

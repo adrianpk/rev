@@ -152,9 +152,9 @@ terminal display columns/cells, never bytes or Unicode scalar positions.
 | `files.associations` | Map of exact basenames or `*.suffix` to language IDs | `{}` | User rules override built-in recognition; see language rules below. |
 | `keys.completion` | Map of popup chord sequences to completion commands | Compiled map | Active cursor popup; all 7 entries are active in the sample. Escape is a reserved literal cancellation. |
 | `keys.editor` | Map of chord sequences to existing editor command names | Compiled map | Emacs editing focus; all 76 entries are active in the sample. |
-| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; state entry, navigation/counts/search, operators, transfer, jump history and compatible modified controls. The sample declares all 125 entries. |
+| `keys.vim_normal` | Map of chord sequences to canonical commands | Compiled map | Vim Normal editing; state entry, navigation/counts/search, operators, transfer, jump history, Replace and dot repetition. The sample declares all 127 entries. |
 | `keys.vim_insert` | Map of chord sequences to canonical commands | Compiled map | Vim Insert editing; independent native factories and one-Normal-command C-o. The sample declares all 77 entries. |
-| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | Reserved state map; no Replace entry command is implemented yet. The sample declares all 0 entries. |
+| `keys.vim_replace` | Map of chord sequences to canonical commands | Compiled map | Vim Replace editing; native modified controls, whole-grapheme overwrite and underline cursor. The sample declares all 76 entries. |
 | `keys.vim_visual_character` | Map of chord sequences to canonical commands | Compiled map | Visual Character navigation, inclusive selection and shared operators. The sample declares all 109 entries. |
 | `keys.vim_visual_line` | Map of chord sequences to canonical commands | Compiled map | Visual Line navigation, complete logical lines and shared operators. The sample declares all 109 entries. |
 | `keys.vim_visual_block` | Map of chord sequences to canonical commands | Compiled map | Visual Block navigation and atomic block delete/change/copy with logical grapheme columns. The sample declares all 105 entries. |

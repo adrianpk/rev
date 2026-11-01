@@ -14,6 +14,7 @@ pub enum History {
 pub(super) enum Operation {
     Edit,
     Typing,
+    Continued,
     History(History),
 }
 
@@ -130,7 +131,7 @@ impl Buffer {
     ) -> Result<(), Error> {
         match operation {
             Operation::Edit => self.record_edit(record),
-            Operation::Typing => self.record_typing(record, group)?,
+            Operation::Typing | Operation::Continued => self.record_typing(record, group)?,
             Operation::History(direction) => self.transfer(direction)?,
         }
         Ok(())

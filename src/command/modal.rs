@@ -12,6 +12,7 @@ pub enum ModalCommand {
     VisualLine,
     VisualBlock,
     Once,
+    Replace,
 }
 
 impl ModalCommand {
@@ -28,6 +29,7 @@ impl ModalCommand {
         match self {
             Self::Normal => "modal-enter-normal",
             Self::Insert => "modal-enter-insert",
+            Self::Replace => "modal-enter-replace",
             Self::InsertAfter => "modal-enter-insert-after",
             Self::InsertLineFirst => "modal-enter-insert-line-first",
             Self::InsertLineEnd => "modal-enter-insert-line-end",

@@ -1,7 +1,7 @@
 mod direct;
 mod lines;
 mod range;
-mod transfer;
+pub(super) mod transfer;
 
 use super::{Action, Session};
 use crate::command::editing::Action as EditAction;
@@ -104,7 +104,7 @@ impl Session {
         self.outcome(outcome, std::time::Instant::now())
     }
 
-    fn apply_editing(&mut self, request: Editing) -> Result<bool, Error> {
+    pub(super) fn apply_editing(&mut self, request: Editing) -> Result<bool, Error> {
         if !request.action.copies() && self.buffer()?.is_readonly() {
             return Err(crate::buffer::edit::Error::ReadOnly.into());
         }
@@ -177,7 +177,11 @@ impl Session {
         Ok(changed)
     }
 
-    fn change_line_text(&self, request: Editing, selection: &Selection) -> Result<String, Error> {
+    pub(super) fn change_line_text(
+        &self,
+        request: Editing,
+        selection: &Selection,
+    ) -> Result<String, Error> {
         if request.action.changes() && selection.shape == Shape::Line {
             let buffer = self.buffer()?;
             let source = buffer.slice(&selection.source)?;
@@ -189,7 +193,12 @@ impl Session {
     }
 
     pub(super) fn editing_preflight(&self, request: Editing) -> Result<(), crate::view::Error> {
-        match self.editing_range(request) {
+        let result = if request.action == EditAction::Repeat {
+            self.repeat_preflight(request.count)
+        } else {
+            self.editing_range(request).map(|_| ())
+        };
+        match result {
             Err(Error::View(error)) if error.pending() => Err(error),
             Err(Error::Edit(crate::buffer::edit::Error::Coordinates(
                 crate::coordinates::Error::Pending,

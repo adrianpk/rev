@@ -10,6 +10,7 @@ pub enum EditingState {
     #[default]
     Normal,
     Insert,
+    Replace,
     VisualCharacter,
     VisualLine,
     VisualBlock,
@@ -34,10 +35,15 @@ impl EditingState {
         }
     }
 
+    pub(crate) fn text_entry(self) -> bool {
+        matches!(self, Self::Insert | Self::Replace)
+    }
+
     pub fn label(self) -> &'static str {
         match self {
             Self::Normal => "NORMAL",
             Self::Insert => "INSERT",
+            Self::Replace => "REPLACE",
             Self::VisualCharacter => "VISUAL",
             Self::VisualLine => "VISUAL LINE",
             Self::VisualBlock => "VISUAL BLOCK",
@@ -87,6 +93,7 @@ impl Input {
         match self.editing_state {
             EditingState::Normal => super::keymap::Context::VimNormal,
             EditingState::Insert => super::keymap::Context::VimInsert,
+            EditingState::Replace => super::keymap::Context::VimReplace,
             EditingState::VisualCharacter => super::keymap::Context::VimVisualCharacter,
             EditingState::VisualLine => super::keymap::Context::VimVisualLine,
             EditingState::VisualBlock => super::keymap::Context::VimVisualBlock,

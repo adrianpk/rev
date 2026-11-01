@@ -31,6 +31,12 @@ This project uses Semantic Versioning.
   and undo. In Insert, C-o runs one complete Normal command and resumes insertion
   when the editing context remains compatible.
 
+- Overwrite whole graphemes with R in Vim Replace, then return to Normal with
+  Escape. Repeat the latest supported edit with dot at a new target, override its
+  count, and undo each repetition in one step. Insert and Replace sessions share
+  ordinary undo groups; oversized changes keep their full text and undo history
+  while remaining unavailable for repetition.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

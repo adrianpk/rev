@@ -23,11 +23,21 @@ impl Session {
         if text.is_empty() {
             return self.message("Empty paste");
         }
-        let point = self.windows.selected().point.position.0;
-        let result = self.replace(point..point, text);
+        let result = self.paste_entry(text);
         if matches!(result, Ok(true)) {
             self.windows.selected_mut().reset_navigation();
         }
         self.finish(result)
+    }
+    fn paste_entry(&mut self, text: &str) -> Result<bool, crate::buffer::edit::Error> {
+        if self
+            .editing_state()
+            .is_some_and(crate::input::EditingState::text_entry)
+        {
+            self.entry_text(text)
+        } else {
+            let point = self.view().point.position.0;
+            self.replace(point..point, text)
+        }
     }
 }

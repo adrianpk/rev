@@ -7,7 +7,10 @@ use crate::session::Session;
 // single transfer remains valid independently of history-retention targets.
 use crate::kill::EXPANSION_BYTES;
 
-pub(super) fn repeat_text(text: &str, count: usize) -> Result<String, crate::buffer::edit::Error> {
+pub(in crate::session) fn repeat_text(
+    text: &str,
+    count: usize,
+) -> Result<String, crate::buffer::edit::Error> {
     let length = text
         .len()
         .checked_mul(count)
@@ -44,7 +47,12 @@ impl Session {
         self.paste_linear(&text, count, before)
     }
 
-    fn paste_linear(&mut self, text: &str, count: usize, before: bool) -> Result<bool, Error> {
+    pub(in crate::session) fn paste_linear(
+        &mut self,
+        text: &str,
+        count: usize,
+        before: bool,
+    ) -> Result<bool, Error> {
         let coordinates = Coordinates::new(self.buffer()?)?;
         let point = self.view().point.position;
         let at = if before {
@@ -56,7 +64,7 @@ impl Session {
         Ok(self.publish_yank_at(at.0..at.0, &text, 0, None)?)
     }
 
-    fn paste_block(
+    pub(in crate::session) fn paste_block(
         &mut self,
         block: &crate::rectangle::Rectangle,
         count: usize,
@@ -77,7 +85,12 @@ impl Session {
         Ok(changed)
     }
 
-    fn paste_line(&mut self, text: &str, count: usize, before: bool) -> Result<bool, Error> {
+    pub(in crate::session) fn paste_line(
+        &mut self,
+        text: &str,
+        count: usize,
+        before: bool,
+    ) -> Result<bool, Error> {
         let at = self.line_paste_point(before)?;
         let prefix = self.line_paste_prefix(at, before)?;
         let mut insertion = self.line_payload(text, count, at)?;

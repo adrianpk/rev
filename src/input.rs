@@ -329,7 +329,7 @@ impl Input {
     }
 
     fn literal(&self, key: Key) -> Outcome {
-        if self.modal_editing() && self.editing_state != EditingState::Insert {
+        if self.modal_editing() && !self.editing_state.text_entry() {
             return Outcome::Message(if self.editing_state.visual().is_some() {
                 "Unbound Visual key"
             } else {

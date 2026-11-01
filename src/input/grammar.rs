@@ -12,7 +12,7 @@ pub(super) enum Character {
 use crate::window::ViewId;
 
 use super::keymap::Sequence;
-use super::{EditingState, Input, Key, Outcome, Prefix};
+use super::{Input, Key, Outcome, Prefix};
 
 const STROKES: u8 = 16;
 
@@ -38,9 +38,7 @@ impl Input {
     }
 
     pub(crate) fn editing_composition(&self) -> bool {
-        self.modal_editing()
-            && self.editing_state != EditingState::Insert
-            && self.navigation_pending()
+        self.modal_editing() && !self.editing_state.text_entry() && self.navigation_pending()
     }
 
     pub(crate) fn navigation_pending(&self) -> bool {
@@ -69,7 +67,7 @@ impl Input {
         if let Some(outcome) = self.object_key(key) {
             return Some(outcome);
         }
-        if !self.modal_editing() || self.editing_state == EditingState::Insert {
+        if !self.modal_editing() || self.editing_state.text_entry() {
             return None;
         }
         self.grammar.strokes += 1;
