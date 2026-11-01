@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6 — Joint source acceptance and guidance
+Active slice: None — all 6 slices integrated; controller full gate pending
 
 ## Outcome and authority
 
@@ -203,3 +203,19 @@ No source, test, script, dependency, product documentation or changelog belongs
 to the post-gate closure commit. Preserve exact candidate/receipt and historical
 delivery evidence. Mark combined native/LSP acceptance delivered only after the joint gate passes.
 The controller can hand off only after verified closure; neither set promotes main.
+
+## Gate preparation
+
+All six recorded slices are integrated and their reports are delivered. The
+controller's integrated full gate and final joint closure remain pending.
+Preflight verified rust-analyzer 0.3.3089-standalone, rustc/cargo 1.98.0,
+rustfmt 1.9.0, Clippy 0.1.98, GCC 16.2.1 and util-linux script 2.42.3, plus
+the remaining Bash/PTY/core utilities used by the wrapper.
+
+`cargo metadata --locked --offline --format-version 1` passed for the repository;
+its cached Rust/Python grammar source inputs are present. The committed minimal
+Rust manifest and source were prepared in an owned isolated fixture; offline
+metadata confirms the explicit dependency-free binary target. Owned PTY
+allocation also succeeded. Preparation files and descriptors were cleaned up;
+the existing gate producers allocate fresh isolated runtime fixtures. No server
+or full gate was started during preparation.

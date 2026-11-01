@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 6 — Joint source acceptance and guidance
+Active slice: None — all 6 slices integrated; controller full gate pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -81,13 +81,13 @@ Acceptance: LSP01-LSP06 and CMP01-CMP09 across both delivered sets.
 
 - [x] T6.1: Add examples/lsp-acceptance.rs and scripts/check-lsp.sh. Exercise disabled startup, enable/attach, unsaved semantic completion, resolved import/undo, buffer exception/restore, valid-empty fallback, server failure, shared retention, disable and exit. Run real rust-analyzer and bounded fixture cases with finite deadlines.
 - [x] T6.2: Update optional-LSP how-to/reference and the existing completion guide, full config/catalog and Unreleased notes. Record integrated executable size and separate server resources; reconcile native completion acceptance after source switching passes without overwriting predecessor gate evidence.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
-Implementation: T6.1 `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5` adds the normal-release joint example/wrapper and shared native/LSP terminal journeys. T6.2 `2a6ca297349212a82876c8d40c96f2cd0129d274` introduces the Slice 6 report, optional-server guidance and separate client/server measurements while preserving native predecessor evidence. Canonical PR: [#208](https://forge.adrianpk.com/adrianpk/rev/pulls/208). Final exact-HEAD validation is recorded through the controller after this PR-reference follow-up.
+Implementation: T6.1 `7c2ffc712178d15f498a08ba1eba4dfcd81f27d5` adds the normal-release joint example/wrapper and shared native/LSP terminal journeys. T6.2 `2a6ca297349212a82876c8d40c96f2cd0129d274` introduces the Slice 6 report, optional-server guidance and separate client/server measurements while preserving native predecessor evidence. Canonical PR: [#208](https://forge.adrianpk.com/adrianpk/rev/pulls/208). Merged at `c632d2fd42b2f1a5fdd5505002fb535655cc6790`; exact receipt `GUMCW2YHQ2HCMGI2WB4QGVKLST` passed all six configured commands and 539 tests, including release acceptance and all 724 production source files; report delivered.
 
 ## Final gate and closure
 
-- [ ] Verify all 6 canonical slice merges and clean synchronized dev.
+- [x] Verify all 6 canonical slice merges and clean synchronized dev.
 - [ ] Run the pinned Full gate on that exact integrated candidate.
 - [ ] Record candidate, command, outcome/receipt, actual resource evidence and any authorized repair.
 - [ ] Close only configured operational documentation and preserve predecessor/historical evidence.
@@ -102,3 +102,16 @@ PTY and temporary HOME/XDG/source tree owned and bounded; no user stores are use
 No implementation, gate receipt or merge is claimed by this initial tracker.
 Looper alone updates progress after startup. Full acceptance and remaining
 boundaries follow the linked plan/specification; no additional ticket is queued.
+
+## Gate preparation
+
+All six canonical merges match the checkpoint and are ancestors of dev. Every
+slice report is delivered; the set remains in progress until its integrated gate
+and joint closure complete. Installed rust-analyzer, Rust/fmt/Clippy, the C
+compiler, Bash and PTY/core utilities are available. Locked offline repository
+metadata and cached Rust/Python grammar producer inputs are available. The
+committed minimal Rust fixture was materialized in isolated temporary stores;
+offline Cargo metadata confirms its dependency-free explicit binary target.
+Owned preparation files and PTY descriptors were cleaned up; no server was
+started. The controller owns the unchanged full gate, which was not run during
+preparation.

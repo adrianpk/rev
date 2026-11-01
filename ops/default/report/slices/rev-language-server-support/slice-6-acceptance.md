@@ -1,6 +1,6 @@
 # Slice 6: Joint source acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -141,3 +141,13 @@ controller-owned.
 The installed-server result covers the recorded toolchain and admitted profile;
 resource observations vary with machine and server workload. The unchanged full
 gate and final joint acceptance closure follow canonical Slice 6 integration.
+
+## Integration
+
+Canonical PR [#208](https://forge.adrianpk.com/adrianpk/rev/pulls/208) merged
+through Rebase + Fast-forward into dev at
+`c632d2fd42b2f1a5fdd5505002fb535655cc6790`. Controller receipt
+`GUMCW2YHQ2HCMGI2WB4QGVKLST` passed all six configured commands, 539 tests,
+all 724 production source files and both bounded terminal journeys at that clean
+head. The controller recorded the merge in Acta. The integrated full gate and
+final joint acceptance remain pending controller execution.
