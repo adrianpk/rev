@@ -7,11 +7,14 @@ distinguishable supported report.
 
 ## Meta and Escape
 
-The deadline rules below apply to Emacs editing and local component input.
-In Vim editing, a decoded Escape or its C-[ alias returns to Normal immediately,
-clears a pending chord and preserves the native point. Reported Alt/Meta still
-uses the shared bindings, including M-x. A popup consumes its own Escape first;
-prompts and decisions retain their existing cancellation rules. The terminal
+In modal editing, a decoded Escape or its C-[ alias returns to Normal immediately,
+clears a pending chord and preserves the native point. A completion popup consumes
+its own Escape first, keeping the editing state. Other focused components use
+the deadline below: an isolated Escape invokes the same context cancellation as
+C-g in the modal profile. Canceling the command selector retains a compatible
+Visual selection; a later editing Escape leaves Visual. Canceling a save/quit
+decision does not authorize saving or discarding text. Reported Alt/Meta still
+uses the shared bindings, including M-x. The terminal
 may decode adjacent Escape bytes and a character as one Alt event, so physical
 Escape and Alt remain subject to the reporting limits below.
 
@@ -23,10 +26,11 @@ Escape and Alt remain subject to the reporting limits below.
 - Reported Control chords retain their meaning while Escape is pending. In
   editing focus, `C-x C-c` can still request guarded exit; `C-g` immediately
   cancels the prefix or active interaction.
-- At or after the deadline, standalone Escape clears pending key prefixes and
-  displays `Escape`. It preserves the focused prompt or decision; use `C-g` to
-  cancel that interaction. A later chord is handled normally and is not lost.
-- A second separately reported Escape clears the pending prefix immediately.
+- At or after the deadline, standalone Escape cancels the focused component in
+  the modal profile. In the non-modal profile, it clears pending key prefixes and
+  displays `Escape`, preserving the prompt or decision; use `C-g` to cancel it.
+  A later chord is handled normally and is not lost.
+- A second separately reported Escape resolves that same action immediately.
   Escape press/release repeats do not extend its deadline.
 - Input polling waits only for the remaining deadline. Resize events remain
   actionable, and terminal errors return through normal guard restoration.
@@ -63,7 +67,7 @@ restoration path. A complete Crossterm paste event bypasses key decoding and
 clears pending chord/Meta prefixes. Pasted C-x, C-g, Escape and similar bytes are
 data and cannot invoke editing commands or confirm a decision.
 
-In Emacs editing or Vim Insert, valid Unicode is inserted at point through one checked edit
+In non-modal editing or modal Insert, valid Unicode is inserted at point through one checked edit
 and one undo step, separate from adjacent typing. LF, CRLF, tabs and final-newline
 absence are preserved as supplied, even when the buffer normally uses another
 newline style. Controls are displayed using visible notation. NUL-containing
@@ -80,7 +84,8 @@ fidelity applies to the Unicode string it delivers.
 Only presses and allowed repeats dispatch. Releases are inert. Prefix,
 confirmation and completed command suffix repeats cannot dispatch twice or
 become document text. Prompt, inventory and decision focus continues to own
-modified input; Escape never transfers that input to the underlying document.
+modified input. Cancellation discards the prompt draft; a fresh key after
+cancellation belongs to the restored context and is never replayed prompt text.
 
 Invalid nested sequences clear their prefix and show a concise message. An
 unsupported rectangle suffix is rejected without invoking a linear command.

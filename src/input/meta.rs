@@ -2,6 +2,8 @@ use std::time::{Duration, Instant};
 
 use crossterm::event::{KeyCode, KeyModifiers};
 
+use crate::{command::Command, config::InteractionProfile};
+
 use super::{Input, Key, Outcome, Prefix};
 
 /// Deadline for a separately reported Escape to modify its next plain chord.
@@ -14,13 +16,11 @@ impl Input {
             .map(|deadline| deadline.saturating_duration_since(now))
     }
 
-    /// Expire once without leaving the focused prompt/decision. C-g is the
-    /// explicit interaction cancellation command; standalone Escape clears chords.
+    /// Resolve an isolated Escape once. Modal components use native C-g
+    /// cancellation; non-modal components retain their prompt or decision.
     pub fn expire(&mut self, now: Instant) -> Outcome {
         if self.meta_deadline.is_some_and(|deadline| now >= deadline) {
-            self.clear_prefix();
-            self.suppress_repeat = true;
-            return Outcome::Message("Escape");
+            return self.finish_escape();
         }
         Outcome::Ignored
     }
@@ -45,11 +45,22 @@ impl Input {
             ));
         }
         if self.meta_deadline.take().is_some() {
-            self.clear_prefix();
-            self.suppress_repeat = true;
-            return Outcome::Message("Escape");
+            return self.finish_escape();
         }
         self.meta_deadline = now.checked_add(META_TIMEOUT);
         Outcome::Prefix(Prefix::Meta)
+    }
+
+    fn finish_escape(&mut self) -> Outcome {
+        if self.profile == InteractionProfile::Modal {
+            // The session routes KeyboardQuit through the innermost owner.
+            // Do not force Normal or discard an outer draft here.
+            self.cancel();
+            Outcome::Command(Command::KeyboardQuit)
+        } else {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            Outcome::Message("Escape")
+        }
     }
 }

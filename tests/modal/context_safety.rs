@@ -2,6 +2,7 @@ use super::completion::source;
 use super::{control, *};
 use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
 use rev::command::{CompletionCommand, TreeCommand};
+use rev::input::META_TIMEOUT;
 use std::time::{Duration, Instant};
 
 // Editing Escape is immediate, while a selector owns Escape/Meta timing and
@@ -52,10 +53,83 @@ fn selector_input_boundary() {
             .iter()
             .any(|row| row.text().contains("M-x "))
     );
-    control(&mut editor, 'g');
+    let now = Instant::now();
+    editor.handle_at(key(KeyCode::Esc), now);
+    editor.handle_at(key(KeyCode::Esc), now + Duration::from_millis(1));
     assert!(editor.tree().focused());
     assert_eq!(editor.editing_state(), Some(EditingState::Normal));
     assert_eq!(text(&editor), "source");
+}
+
+// An isolated component Escape cancels only in the modal profile. Native
+// cancellation restores a search origin and never edits the source or history.
+#[test]
+fn escape_components() {
+    for (profile, config, expected) in [
+        ("modal", VIM, "Quit"),
+        ("non-modal", "[tree]\nvisible = false", "Escape"),
+    ] {
+        for (name, draft) in [
+            ("execute-extended-command", "save"),
+            ("goto-line", "42"),
+            ("find-file", "no-such"),
+            ("switch-to-buffer", "other"),
+            ("list-buffers", ""),
+            ("isearch-forward", "three"),
+            ("query-replace", "one"),
+        ] {
+            let mut editor = session(config, "one\ntwo\nthree", 1);
+            editor.execute(Command::named(name).unwrap());
+            if !draft.is_empty() {
+                editor.handle(Event::Paste(draft.into()));
+            }
+            settle(&mut editor);
+            let now = Instant::now();
+            editor.handle_at(key(KeyCode::Esc), now);
+            editor.expire_input(now + META_TIMEOUT);
+            assert_eq!(editor.echo(), expected, "{profile}: {name}");
+            assert_eq!(text(&editor), "one\ntwo\nthree", "{profile}: {name}");
+            assert!(editor.buffer().unwrap().history().is_empty());
+            if profile == "modal" {
+                assert_eq!(editor.view().point.position, Scalar(1), "{name}");
+                assert_eq!(editor.editing_state(), Some(EditingState::Normal));
+            }
+        }
+    }
+}
+
+// Cancellation is dispatched before a key arriving at the deadline. That fresh
+// key belongs to Normal editing, not the retired prompt or a stale Meta chord.
+#[test]
+fn escape_late_key() {
+    let mut editor = session(VIM, "source", 0);
+    keys(&mut editor, ":save");
+    let now = Instant::now();
+    editor.handle_at(key(KeyCode::Esc), now);
+    editor.handle_at(key(KeyCode::Char('x')), now + META_TIMEOUT);
+    assert_eq!(text(&editor), "ource");
+    assert_eq!(editor.buffer().unwrap().history().len(), 1);
+    assert_eq!(editor.editing_state(), Some(EditingState::Normal));
+}
+
+// Escape cancels a pending save/quit decision without accepting discard,
+// marking the dirty buffer clean, writing it, or exiting the session.
+#[test]
+fn escape_quit_decision() {
+    let mut editor = session(VIM, "source", 0);
+    editor.insert('X');
+    editor.execute(Command::Quit);
+    assert!(editor.echo().contains("n=discard"));
+    let now = Instant::now();
+    editor.handle_at(key(KeyCode::Esc), now);
+    assert_ne!(
+        editor.expire_input(now + META_TIMEOUT),
+        rev::session::Action::Exit
+    );
+    assert_eq!(editor.echo(), "Quit");
+    assert_eq!(text(&editor), "Xsource");
+    assert!(editor.buffer().unwrap().is_modified());
+    assert_eq!(editor.buffer().unwrap().history().len(), 1);
 }
 
 // Native pointer focus retires an Insert popup before another pane can inherit

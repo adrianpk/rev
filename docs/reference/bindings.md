@@ -171,6 +171,7 @@ The following state commands require the modal startup profile:
 | `C-v` in Normal or Visual | `modal-enter-visual-block` | Select inclusive logical grapheme columns, convert shape or leave a repeated Block state. |
 | `C-o` in Insert | `modal-one-normal-command` | Admit one complete Normal command, then resume compatible insertion. |
 | Escape or `C-[` in modal editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
+| Escape or `C-[` in a modal component | `keyboard-quit` | Cancel the current interaction after bounded Alt/Meta recognition; a second Escape cancels immediately. |
 
 Insert and Replace use native editing and compatible modified factory bindings. Normal
 retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
@@ -217,7 +218,8 @@ In Normal and all Visual shapes, `:` opens the same vertical selector as `M-x`.
 Use full canonical names such as `:split-window-right`, then answer any native
 argument prompt. Matching, history, completion, availability and dispatch are
 shared. Colon supplies no Ex aliases, ranges, pipelines or trailing arguments.
-Cancelling retains a compatible Visual shape and native anchor; changed source,
+Escape or C-g cancels the selector. Cancellation retains a compatible Visual
+shape and native anchor; changed source,
 point, mark or selected view retires that selection instead of restoring stale
 positions. Insert, Replace and argument prompts keep literal colon/slash text.
 

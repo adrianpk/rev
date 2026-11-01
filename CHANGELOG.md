@@ -43,6 +43,8 @@ This project uses Semantic Versioning.
   Native and language-server completion works in Insert and Replace, preserving
   popup controls, syntax colors, atomic imports and undo. Cancelling command
   entry retains a compatible Visual selection; stale replies cannot reopen it.
+  Escape cancels the innermost prompt or menu before returning to Normal. It
+  preserves unsaved text when canceling a save/quit decision; C-g remains available.
 
 ## 0.2.0 - 2026-11-01
 

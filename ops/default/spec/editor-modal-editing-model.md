@@ -152,8 +152,14 @@ Changing buffer cannot leave a Visual selection or pending operator targeting
 the previous document. A profile-specific grammar cannot consume a local
 confirmation response or treat completion Tab as jump navigation.
 
-C-g retains native cancellation. Escape handling must distinguish decoded
-events from terminal ambiguities and keep the non-modal path unchanged. There are
+C-g retains native cancellation. Modal Escape cancels the innermost component
+through that same owner before a later editing Escape returns to Normal. A
+completion popup cancels immediately; other components resolve isolated Escape
+after the existing 100 ms Meta deadline, or immediately on a second Escape.
+Canceling command entry preserves a compatible Visual selection, and canceling
+a save/quit decision grants no save/discard authority. Escape handling must
+distinguish decoded events from terminal ambiguities and keep reported Alt/Meta
+and the non-modal path unchanged. There are
 no idle modal scans or background services. Counts and pending data use the u32
 count ceiling, 16-stroke grammar and 96-byte target bound. Jump/repeat storage
 obeys its limits above; large counts cannot become count-sized UI loops.

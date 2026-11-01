@@ -8,6 +8,13 @@ M-x, find-file and bookmark-name queries appear above their vertical candidates
 when surplus rows fit; other argument and decision prompts retain the bottom
 prompt row.
 
+`C-g` cancels the current interaction in both profiles. In the modal profile,
+Escape or `C-[` also cancels it after the short Alt/Meta recognition deadline;
+a second Escape cancels immediately. The innermost interaction owns cancellation:
+closing a command selector can return to Visual selection or an outer component.
+A save/quit decision is canceled without accepting a save or discard choice.
+See [terminal input](terminal-input.md#meta-and-escape) for reporting details.
+
 ## Stages
 
 | Operation | Sequence |

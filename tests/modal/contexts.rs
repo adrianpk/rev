@@ -77,12 +77,15 @@ fn colon_catalog() {
 // only while its exact native view, point and source observations survive.
 #[test]
 fn colon_visual() {
-    for entry in ['v', 'V'] {
+    for (entry, cancel) in [('v', 'g'), ('V', 'g'), ('v', '['), ('V', '[')] {
         let mut editor = session(VIM, "one\ntwo", 0);
         keys(&mut editor, &format!("{entry}l:"));
         let point = editor.view().point;
         let mark = editor.buffer().unwrap().mark();
-        control(&mut editor, 'g');
+        control(&mut editor, cancel);
+        if cancel == '[' {
+            editor.expire_input(std::time::Instant::now() + rev::input::META_TIMEOUT);
+        }
         assert_eq!(editor.view().point, point);
         assert_eq!(editor.buffer().unwrap().mark(), mark);
         assert!(

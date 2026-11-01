@@ -335,10 +335,14 @@ an operator targeting another view or revision.
 
 C-g SHALL retain rev's reserved context cancellation. A decoded Escape/C-[ in
 modal editing SHALL cancel pending composition and return to Normal without an
-edit. Higher-priority prompts retain their own cancellation lifetime. Escape
-disambiguation SHALL be bounded and profile-aware; adding Vim SHALL neither
-regress Emacs Meta input nor falsely claim distinction between chords the
-terminal reports identically.
+edit. Higher-priority components SHALL consume Escape first: completion SHALL
+cancel its popup without changing the editing state; an isolated Escape/C-[ in
+other focused components SHALL invoke their existing C-g cancellation owner.
+Component Escape disambiguation SHALL retain the 100 ms Meta deadline; a second
+separately reported Escape SHALL resolve cancellation immediately. Cancellation
+SHALL NOT accept a save/discard decision or abort an outer draft implicitly.
+Reported Alt/Meta and non-modal Escape behavior SHALL remain unchanged. The
+editor SHALL NOT claim distinction between chords the terminal reports identically.
 
 #### Scenario: Cancel a pending operator
 
@@ -346,6 +350,13 @@ terminal reports identically.
 - **WHEN** the user cancels
 - **THEN** all pending composition is cleared and a valid Normal state remains
 - **AND** document text, retained text and undo history remain unchanged.
+
+#### Scenario: Cancel command entry before leaving Visual
+
+- **GIVEN** an unchanged Visual selection with its colon command selector open
+- **WHEN** a separately reported Escape expires without a Meta suffix
+- **THEN** the selector is canceled through its native owner and the selection remains
+- **AND** a subsequent editing Escape returns to Normal without changing source or undo history.
 
 ### Requirement: MOD10 Profile- and state-aware bindings
 

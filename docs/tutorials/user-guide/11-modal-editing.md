@@ -82,7 +82,7 @@ to leave Visual without an edit.
 ## Search, revisit and arrange panes
 
 Type `/two`, press Enter, then use `n` or `N` for the next/previous match. Search
-is literal, uses smart case and does not wrap. `?` searches backward; `C-g`
+is literal, uses smart case and does not wrap. `?` searches backward; Escape or `C-g`
 cancels a search preview and restores its origin.
 
 Nonlocal moves such as `2G`, accepted searches and file visits enter the pane's
@@ -103,7 +103,9 @@ enter `1` and press Enter. Colon opens the same vertical command selector as
 For example, `:save-buffer` invokes the normal save command. Use full names;
 `:w`, `:q`, Ex ranges and trailing arguments are not command forms here.
 
-Cancelling the selector with `C-g` retains a compatible Visual selection. A
+Press Escape to cancel a command or argument prompt; `C-g` also works.
+Canceling the selector retains a compatible Visual selection. Press Escape
+again to leave Visual. A
 changed source or selected view retires it safely. Tree, search, argument prompts,
 bookmarks and local Org controls retain their own input meanings. Insert and
 argument prompts treat colon and slash as text. Org source drafts use this

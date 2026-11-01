@@ -220,7 +220,8 @@ impl Input {
     }
 
     /// Deliver an event at a monotonic time. Expired Escape state is cleared
-    /// before the event; callers pump `expire` to present idle expiration notices.
+    /// before the event; callers must dispatch `expire` first so cancellation
+    /// reaches the focused owner before fresh input, as well as during idle polls.
     pub fn handle_at(&mut self, event: Event, now: Instant) -> Outcome {
         self.expire(now);
         if let Event::Mouse(event) = event {

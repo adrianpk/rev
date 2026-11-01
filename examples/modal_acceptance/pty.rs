@@ -15,7 +15,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     burst(&mut terminal)?;
     restored(root, &mut terminal)?;
     println!(
-        "PASS Vim Linux PTY: decoded operators/Visual/jumps/repeat, colon/M-x arguments, Insert completion, Replace, pane focus, 128-event burst, cursor shapes/reset, disk unchanged and TTY restored"
+        "PASS Vim Linux PTY: decoded operators/Visual/jumps/repeat, colon/M-x arguments and contextual Escape, Insert completion, Replace, pane focus, 128-event burst, cursor shapes/reset, disk unchanged and TTY restored"
     );
     Ok(())
 }
@@ -93,10 +93,16 @@ fn commands(terminal: &mut Terminal) -> Result<()> {
         normal_at(frame, 2)
     })?;
     send_frame(terminal, b"v:", |frame| frame.contains("M-x "))?;
-    send_frame(terminal, b"\x07", |frame| {
+    send_frame(terminal, b"\x1b", |frame| {
         frame.contains("VISUAL") && !frame.contains("M-x ")
     })?;
     send_frame(terminal, b"\x1b", |frame| frame.contains("NORMAL"))?;
+    send_frame(terminal, b":goto-line\r", |frame| {
+        frame.contains("Goto line:")
+    })?;
+    send_frame(terminal, b"\x1b", |frame| {
+        normal_at(frame, 2) && !frame.contains("Goto line:")
+    })?;
     Ok(())
 }
 
