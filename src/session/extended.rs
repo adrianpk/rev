@@ -74,6 +74,8 @@ impl Session {
             self.command_origin = None;
             return Some(action);
         }
+        self.kills.break_chain();
+        self.yank = None;
         self.pending = None;
         let Some(origin) = self.command_origin.take() else {
             return Some(self.keyboard_quit());

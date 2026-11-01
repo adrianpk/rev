@@ -109,6 +109,13 @@ original assertion passed with
 `cargo test --locked --test pointer workspace::tree_focus -- --nocapture`; the
 modal selector regression retains the same focus assertion.
 
+The canonical command batch then exposed stale yank-pop continuity after
+selector C-g in the existing `palette::named_yank` case. Cancellation now breaks
+the native kill chain and clears the captured yank before the editor fallback,
+while retained component handlers keep their existing behavior. The unchanged
+assertions passed with
+`cargo test --locked --test commands palette::named_yank -- --nocapture`.
+
 Final exact-HEAD outcomes and receipt identities are recorded by the controller
 and Acta after the PR-reference commit. The focused batch covers changed native
 owners, configuration, pointer/display/recovery, bookmark/agenda dependencies, source quality and
