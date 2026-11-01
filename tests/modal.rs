@@ -26,6 +26,8 @@ mod transfer;
 mod viewport;
 #[path = "modal/visual.rs"]
 mod visual;
+#[path = "modal/visual_safety.rs"]
+mod visual_safety;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
