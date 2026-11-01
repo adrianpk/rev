@@ -18,7 +18,7 @@ impl Coordinates<'_> {
         Ok(Cell { row, column })
     }
 
-    pub(crate) fn from_grapheme(&self, cell: Cell) -> Result<Scalar, Error> {
+    pub(crate) fn grapheme_position(&self, cell: Cell) -> Result<Scalar, Error> {
         for (column, glyph) in self.glyphs(cell.row)?.enumerate() {
             if column == cell.column {
                 return Ok(glyph?.source.start);

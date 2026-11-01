@@ -21,7 +21,7 @@ impl Columns {
     ) -> Result<Scalar, Error> {
         match self {
             Self::Display => coordinates.from_cell(cell),
-            Self::Grapheme => coordinates.from_grapheme(cell),
+            Self::Grapheme => coordinates.grapheme_position(cell),
         }
     }
 }
