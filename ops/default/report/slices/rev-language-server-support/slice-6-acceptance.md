@@ -197,14 +197,22 @@ Successful focused development checks:
 - `cargo clippy --locked --lib -- -D warnings`: passed.
 - `cargo run --locked --quiet --example source-check -- --file src/org/io/process.rs --file src/org/io/process/group.rs --file src/org/io/process/streams.rs --file src/org/io/process/tests.rs`: safe Rust, parameters at most five, nesting at most three and complexity at most ten passed.
 
-Final focused exact-head validation uses the last repair identity's pinned order
-after the repair PR-reference follow-up:
+Final focused exact-head validation passed after the repair PR-reference follow-up
+at `144f6c83c50a6ef7a8435187b40c89709d04dfbb`, receipt
+`TGWCVK3EGLU72SON23W3EXZM3B`, using the last repair identity's pinned order:
 
 - `cargo fmt --all -- --check`
 - `cargo test --locked --lib org::io::process::tests`
 - `cargo test --locked --test org_io --test org_source --test lsp`
 - `git diff --check`
 
+The controller integrated canonical [PR #209](https://forge.adrianpk.com/adrianpk/rev/pulls/209)
+at the same validated commit. Canonical merge state and ancestry are verified;
+the merge is recorded in Acta. Gate prerequisites were refreshed after integration:
+installed tools, locked offline dependency metadata, cached grammar source inputs,
+the exact committed minimal Rust fixture's offline metadata and owned PTY
+allocation are ready. Temporary preparation files and descriptors were cleaned up.
+
 The existing Slice 6 introduction and implementation/merge evidence remain
-unchanged. The controller owns repair integration and the unchanged full-gate
-rerun; this repair does not claim that rerun passed.
+unchanged. The controller's unchanged full-gate rerun and final joint closure
+remain pending. No server or full gate was started during preparation.

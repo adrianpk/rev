@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices integrated; bounded gate repair 1 in progress
+Active slice: None — all 6 slices and gate repair 1 integrated; controller full gate pending
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -105,9 +105,11 @@ boundaries follow the linked plan/specification; no additional ticket is queued.
 
 ## Gate preparation
 
-All six canonical merges match the checkpoint and are ancestors of dev. Every
-slice report is delivered; the set remains in progress until its integrated gate
-and joint closure complete. Installed rust-analyzer, Rust/fmt/Clippy, the C
+All six canonical slice merges and repair PR #209 match the checkpoint and are
+ancestors of dev. Every slice report is delivered; the set remains in progress
+until its integrated gate and joint closure complete. Prerequisites were refreshed
+after repair integration at `144f6c83c50a6ef7a8435187b40c89709d04dfbb`.
+Installed rust-analyzer, Rust/fmt/Clippy, the C
 compiler, Bash and PTY/core utilities are available. Locked offline repository
 metadata and cached Rust/Python grammar producer inputs are available. The
 committed minimal Rust fixture was materialized in isolated temporary stores;
@@ -128,10 +130,14 @@ Implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.
 
 - [x] Diagnose the retained cancellation race: signal-helper exit and leader reap do not acknowledge descendant shutdown.
 - [x] Add bounded group observation and real closed-output/live-group regressions without weakening the original assertions or cleanup budget.
-- [ ] Verify canonical repair integration and the controller's unchanged full gate.
+- [x] Verify canonical repair integration and the pinned focused validation receipt.
+- [ ] Verify the controller's unchanged full-gate rerun.
 
 The isolated original test passed before repair; its failure is retained in the
 parallel gate log. With the repair, all five focused process tests pass and the
 original cancellation/timeout test passed ten further repetitions. Clippy and
-source quality pass. The pinned four-command exact-head validation follows the
-repair PR-reference commit. No new slice or successor is introduced.
+source quality pass. Receipt `TGWCVK3EGLU72SON23W3EXZM3B` passed all four
+commands in the pinned order at the exact clean repair head
+`144f6c83c50a6ef7a8435187b40c89709d04dfbb`, including the PR-reference
+follow-up. Canonical PR #209 is merged at that same commit, with merge activity
+recorded in Acta. The controller's unchanged full-gate rerun remains pending.

@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices integrated; bounded gate repair 1 in progress
+Active slice: None — all 6 slices and gate repair 1 integrated; controller full gate pending
 
 ## Outcome and authority
 
@@ -206,8 +206,10 @@ The controller can hand off only after verified closure; neither set promotes ma
 
 ## Gate preparation
 
-All six recorded slices are integrated and their reports are delivered. The
-controller's integrated full gate and final joint closure remain pending.
+All six recorded slices and gate repair 1 are integrated; all slice reports are
+delivered. Prerequisites were refreshed after repair integration at
+`144f6c83c50a6ef7a8435187b40c89709d04dfbb`. The controller's unchanged
+integrated full-gate rerun and final joint closure remain pending.
 Preflight verified rust-analyzer 0.3.3089-standalone, rustc/cargo 1.98.0,
 rustfmt 1.9.0, Clippy 0.1.98, GCC 16.2.1 and util-linux script 2.42.3, plus
 the remaining Bash/PTY/core utilities used by the wrapper.
@@ -233,7 +235,13 @@ The pinned bounded repair uses branch `fix/rev-language-server-gate-1`, title
 report. Only the authorized process owner/group/tests and operational records
 change. Cleanup now observes stopped group members within the same 250 ms budget
 used by the signal helper. Existing job/output, stream-drain, direct-reap and
-immediate descendant-state assertions remain unchanged. Focused exact-head
-validation precedes controller integration and rerunning the unchanged full gate.
+immediate descendant-state assertions remain unchanged.
 
 Canonical repair PR: [#209](https://forge.adrianpk.com/adrianpk/rev/pulls/209). Implementation: `90bdc572b65d850130c7d13df180dc11743ab8d7`.
+
+The controller integrated PR #209 at
+`144f6c83c50a6ef7a8435187b40c89709d04dfbb`. Receipt
+`TGWCVK3EGLU72SON23W3EXZM3B` records successful focused validation of that
+exact clean head with all four commands in the pinned repair order. Canonical
+merge state and ancestry are verified; the unchanged full-gate rerun remains
+pending with the controller.
