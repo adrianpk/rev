@@ -1,6 +1,6 @@
 # Slice 4: Resolved completion and atomic additional edits
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-support
 Plan: [Optional LSP Delivery](../../../plan/rev-language-server-support.md)
 Tracker: [Optional LSP Tracker](../../../tracker/rev-language-server-support.md)
@@ -125,3 +125,11 @@ source fallback/retirement boundary corrections.
 Shared lifetime/restart and real installed Rust interoperability remain in
 Slice 5. Joint executable acceptance and complete optional-LSP guidance remain
 in Slice 6. Existing predecessor and integrated-slice evidence is preserved.
+
+## Integration
+
+Canonical PR [#206](https://forge.adrianpk.com/adrianpk/rev/pulls/206) merged
+through Rebase + Fast-forward into dev at
+`d94a5f3b474f084a37f8d084b6d435c0e550b8bc`. Exact configured receipt
+`G56H6AFFQXGEPLHIYN7UHRLWVG` passed all three ordered commands and
+325 tests at that clean head. The controller recorded the merge in Acta.

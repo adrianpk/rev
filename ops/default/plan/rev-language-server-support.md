@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: Slice 4 — Resolved completion and atomic additional edits; PR #206 awaiting controller integration
+Active slice: Slice 5 — Shared lifecycle and real Rust interoperability
 
 ## Outcome and authority
 
