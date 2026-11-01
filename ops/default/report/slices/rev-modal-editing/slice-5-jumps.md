@@ -1,11 +1,14 @@
 # Slice 5: Jump history and Insert continuation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-05-jumps`
 PR: `#216`
+Merged commit: `6508b29159cf1157cf6cc8ae865e0a939592dcb0`
+Canonical validation: `KUGBDTIG5YFYJ4XT5Z7HHUMHRQ`, three configured checks and 277 tests passed
+Focused validation: `GXA6ELIVDEDZBR2RE3HEGFOX2E`, Clippy, 615 tests, 43 changed Rust files and documentation passed
 
 ## Purpose
 
