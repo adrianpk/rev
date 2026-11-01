@@ -155,13 +155,17 @@ impl Terminal {
         Ok(())
     }
 
+    // Mode/style bytes can precede a frame's hide-cursor delimiter. Keep their
+    // observation on the same bounded stream used for restoration assertions.
+    pub(super) fn contains(&self, sequence: &str) -> bool {
+        self.output.contains(sequence)
+    }
+
     pub(super) fn finish(&mut self) -> Result<()> {
         self.send(b"\x18\x03")?;
         self.wait(|text| text.contains("REV_TTY_RESTORED"))?;
         assert!(
-            self.output.contains("\x1b[?1049l")
-                && self.output.contains("\x1b[?2004l")
-                && self.output.contains(SHOW)
+            self.contains("\x1b[?1049l") && self.contains("\x1b[?2004l") && self.contains(SHOW)
         );
         self.input.take();
         assert!(self.child.wait()?.success());
