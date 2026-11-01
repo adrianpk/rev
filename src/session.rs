@@ -37,6 +37,7 @@ mod execution;
 mod feeds;
 mod previews;
 pub use feeds::FeedOutcome;
+mod modal;
 mod mode;
 mod motion;
 mod org;
@@ -286,6 +287,7 @@ impl Session {
         let windows = Windows::with_settings(view, buffers.snapshot())?;
         let kills = crate::kill::KillRing::with_settings(buffers.snapshot());
         let mut input = Input::with_settings(buffers.snapshot());
+        input.editing_owner(windows.selected_id(), buffer.id());
         input.set_org_context(buffer.is_org().then_some(crate::input::OrgContext::Editing));
         let mouse_enabled = buffers.snapshot().settings().mouse.enabled;
         let bookmark_storage = bookmarks::Persistence::configured(
@@ -723,6 +725,7 @@ impl Session {
 
     fn active_command(&mut self, command: Command) -> Action {
         match command {
+            Command::Modal(command) => self.modal_command(command),
             Command::Bookmark(command) => self.bookmark_command(command),
             Command::QueryReplace => self.query_replace(),
             Command::GotoLine => self.goto_line(),

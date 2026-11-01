@@ -6,7 +6,9 @@ mod gutter;
 mod kill;
 mod linear;
 mod lsp;
+mod modal;
 mod motion;
+pub use modal::ModalCommand;
 mod org;
 pub use org::OrgCommand;
 mod rectangle;
@@ -37,6 +39,7 @@ pub use window::WindowCommand;
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Modal(ModalCommand),
     Lsp(LspCommand),
     Completion(CompletionCommand),
     Bookmark(BookmarkCommand),
@@ -74,7 +77,14 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 331] = [
+    pub const ALL: [Self; 338] = [
+        Self::Modal(ModalCommand::Normal),
+        Self::Modal(ModalCommand::Insert),
+        Self::Modal(ModalCommand::InsertAfter),
+        Self::Modal(ModalCommand::InsertLineFirst),
+        Self::Modal(ModalCommand::InsertLineEnd),
+        Self::Modal(ModalCommand::OpenBelow),
+        Self::Modal(ModalCommand::OpenAbove),
         Self::Lsp(LspCommand::Mode),
         Self::Lsp(LspCommand::Status),
         Self::Lsp(LspCommand::Connect),
@@ -410,6 +420,7 @@ impl Command {
 
     pub fn name(self) -> &'static str {
         match self {
+            Self::Modal(command) => command.name(),
             Self::Bookmark(command) => command.name(),
             Self::Motion(motion) => motion.name(),
             Self::Scroll(scroll) => scroll.name(),

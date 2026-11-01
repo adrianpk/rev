@@ -5,6 +5,8 @@ mod inventory;
 mod key;
 pub mod keymap;
 mod meta;
+mod modal;
+pub use modal::EditingState;
 mod names;
 pub(crate) use names::Names;
 mod org;
@@ -119,6 +121,9 @@ enum Context {
 /// opening a prompt clears pending prefixes, and cancellation restores editing.
 #[derive(Debug, Default)]
 pub struct Input {
+    profile: crate::config::InteractionProfile,
+    editing_state: EditingState,
+    editing_owner: Option<(crate::window::ViewId, crate::buffer::BufferId)>,
     context: Context,
     prefix: Option<Prefix>,
     chords: Vec<Key>,
@@ -144,6 +149,7 @@ impl Input {
     /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
         Self {
+            profile: settings.settings().editor.interaction_profile,
             policy: settings.settings().minibuffer.clone(),
             keymaps: settings.keymaps().clone(),
             ..Self::default()
@@ -273,6 +279,9 @@ impl Input {
 
     fn route(&mut self, key: Key) -> Outcome {
         if key.control('g') {
+            if self.modal_editing() {
+                self.set_editing_state(EditingState::Normal);
+            }
             self.cancel();
             return Outcome::Command(Command::KeyboardQuit);
         }
@@ -320,6 +329,9 @@ impl Input {
     }
 
     fn literal(&self, key: Key) -> Outcome {
+        if let Some(outcome) = self.modal_key(key) {
+            return outcome;
+        }
         if !self.accepts_text() {
             return Outcome::Message("Unbound Org context key");
         }

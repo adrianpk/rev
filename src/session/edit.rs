@@ -48,15 +48,30 @@ impl Session {
         self.cancel_pointer_capture();
         self.yank = None;
         self.kills.break_chain();
-        self.edit(range, text, false)
+        self.edit(range, text, false, None)
     }
 
     pub(super) fn type_text(&mut self, text: &str) -> Result<bool, Error> {
         let point = self.windows.selected().point.position.0;
-        self.edit(point..point, text, true)
+        self.edit(point..point, text, true, None)
     }
 
-    fn edit(&mut self, range: Range<usize>, text: &str, typing: bool) -> Result<bool, Error> {
+    pub(super) fn replace_at(
+        &mut self,
+        at: Scalar,
+        text: &str,
+        cursor: Scalar,
+    ) -> Result<bool, Error> {
+        self.edit(at.0..at.0, text, false, Some(cursor))
+    }
+
+    fn edit(
+        &mut self,
+        range: Range<usize>,
+        text: &str,
+        typing: bool,
+        cursor: Option<Scalar>,
+    ) -> Result<bool, Error> {
         if range.is_empty() && text.is_empty() {
             return Ok(false);
         }
@@ -67,7 +82,7 @@ impl Session {
         let points = self.windows.points(buffer)?;
         let cursor = Cursor {
             index: points.initiator,
-            position,
+            position: cursor.unwrap_or(position),
         };
         let mut prepared = if typing {
             buffer.prepare_typing(&edit, &points.values, cursor)?

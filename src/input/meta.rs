@@ -37,6 +37,13 @@ impl Input {
     }
 
     fn escape(&mut self, now: Instant) -> Outcome {
+        if self.modal_editing() {
+            self.clear_prefix();
+            self.suppress_repeat = true;
+            return Outcome::Command(crate::command::Command::Modal(
+                crate::command::ModalCommand::Normal,
+            ));
+        }
         if self.meta_deadline.take().is_some() {
             self.clear_prefix();
             self.suppress_repeat = true;

@@ -105,6 +105,7 @@ impl Session {
         let applicable = matches!(
             command,
             Command::Scroll(_)
+                | Command::Modal(_)
                 | Command::Kill(KillCommand::Line)
                 | Command::Org(_)
                 | Command::Motion(
@@ -214,6 +215,7 @@ impl Session {
     fn prepared_request(&self, request: Request) -> Result<(), Error> {
         match request {
             Request::Command(Command::Scroll(scroll)) => self.scrolling_view(scroll).map(|_| ()),
+            Request::Command(Command::Modal(command)) => self.modal_target(command).map(|_| ()),
             Request::Command(Command::Motion(motion)) => self.motion_target(motion).map(|_| ()),
             Request::Command(Command::Kill(command)) => self.kill_span(command).map(|_| ()),
             Request::Command(Command::Org(_)) => self.revealing_view().map(|_| ()),
