@@ -1,11 +1,14 @@
 # Slice 6: Replace state and semantic repeat
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-06-repeat`
 PR: `#217`
+Merged commit: `c8508ea30b60318764a316f633a78ebe569329c2`
+Canonical validation: `FYXNQG57C3DL52F2GJUEF3B55I`, three configured checks and 242 tests passed
+Focused validation: `MFKEIWGHQT45BVQXOKIJZRI62P`, Clippy, 548 tests, 32 changed Rust files and documentation passed
 
 ## Purpose
 

@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 6 reviewing in PR #217; Slice 5 delivered through PR #216
+Active slice: Slice 7 in progress; Slice 6 delivered through PR #217
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -86,7 +86,7 @@ Acceptance: MOD03, MOD05, MOD12, MOD14.
 - [x] T6.2: Retain a finite semantic last-change record for supported inserts, changes, replacement, delete, paste and indentation. Store resolved operation intent rather than raw terminal events; never replay prompts, file/save consent, network providers or command workflows.
 - [x] T6.3: Implement dot against current native targets, using the recorded count unless an explicit dot count overrides it as in Odra. Group repeat as one undoable edit, preserve linear/linewise/block intent and validate source/view/read-only evidence before publishing.
 - [x] T6.4: Bound retained text and handle oversized or unsupported changes without truncating a replay or rejecting an already admitted edit. Test Insert/Replace session grouping, stale/failed repeats, cancellation and canonical history across panes; update state/command/sample references.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Slice 7: Colon commands and completion ownership
 
