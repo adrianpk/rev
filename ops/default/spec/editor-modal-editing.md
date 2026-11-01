@@ -1,16 +1,18 @@
 # Modal Editing
 
-Status: draft
+Status: approved
+Approved: product owner, 2026-11-01; explicit specification approval
 Date: 2026-10-28
-Reviewed: 2026-10-31
+Reviewed: 2026-11-01
 Version: 0.1
 Format: OpenSpec capability proposal
-Source: product-owner discussion and subsequent common-Vim interaction clarification
+Source: product-owner discussion, common-Vim clarification and explicit Odra behavioral-parity direction
 Baseline: [rev Editor](rev-editor.md)
 Configuration: [Editor Configuration](editor-configuration.md)
 Model: [Modal Editing Model](editor-modal-editing-model.md)
-Delivery boundary: future editing-profile delivery; no implementation or slicing authorized
-Readiness: interaction direction captured; the coverage matrix and listed design details need review before slicing
+Plan: [Modal Editing Delivery](../plan/rev-modal-editing.md)
+Delivery boundary: capability approved; eight-slice plan proposed; controller startup not yet authorized
+Readiness: approved behavior with a finite implementation matrix in the proposed delivery plan
 
 ## Purpose
 
@@ -38,6 +40,55 @@ is one command catalog, one editing engine and one set of buffer/file owners.
   completion, availability, dispatch and argument prompts as M-x.
 - Do not create Vim counterparts, aliases or a separate implementation of
   rev's existing functions merely to reproduce Vim's Ex command names.
+- Use Odra's shipped modal behavior as the reference for movements, selection,
+  operators and command entry. Keep rev's startup-only profile choice.
+- Keep the full shared interactive command catalog behind colon initially.
+  A possible later command filter is deferred, not part of this delivery.
+
+## Current priority and parity baseline
+
+The owner selected and then approved this topic on 2026-11-01, temporarily deferring item 10
+of the discussion's execution order. Deferral does not cancel that topic or
+make it a prerequisite for modal editing. This selection starts specification
+refinement. The proposed plan and tracker elaborate the approved capability;
+capability approval alone has not started a controller.
+
+The current Odra reference at the commit below includes Normal, Insert,
+Replace, Visual Character, Visual Line and Visual Block, counts, operators,
+semantic repeat, literal search and canonical colon command entry. Its current
+modal reference and User Guide include the follow-ups that the original core
+specification listed as deferred; use the current behavior rather than those
+historical exclusions.
+
+Behavioral parity includes these concrete coordinate rules:
+
+- Normal and Visual j/k, arrows, 0/^/$ and their operator targets use logical
+  source lines even when text wraps. The Emacs profile retains its delivered
+  visual-line behavior. Rendering, gutter labels and pointer mapping continue
+  to use the native source/display projection.
+- Visual Character includes the destination grapheme; Visual Line includes
+  complete logical lines. Repeating the active v/V/C-v shape exits Visual;
+  choosing another shape converts the canonical selection. The o key exchanges
+  its active end and anchor.
+- Vim Visual Block follows Odra's logical grapheme-column endpoints. Existing
+  Emacs rectangles retain rev's display-column behavior. Native selection and
+  edit owners must distinguish these coordinate policies without a second
+  document, selection store or history. Tabs and wide/combining graphemes need
+  explicit acceptance examples for both profiles.
+- Insert and Replace retain compatible native modified-key editing behavior,
+  while focused prompts and completion lists keep their local keys. Automatic
+  completion must not interpret Normal or Visual motion letters as insertion.
+- Colon changes the command-entry surface, not command identity or argument
+  parsing. For example, :save-buffer and M-x save-buffer invoke the same rev
+  operation; Odra's different command names are not copied into rev.
+
+Previously requested common-Vim additions, including MOD13 jump navigation,
+remain explicit requirements. The finite matrix must distinguish observed
+Odra parity from additional rev requirements; absence from an Odra binding
+table is not permission to drop an already requested operation silently.
+
+Reference inspection is static source/documentation evidence, not a new Odra
+runtime acceptance run. No Odra files are changed by this work.
 
 ## Reference and adaptation
 
@@ -46,6 +97,13 @@ f701c830b88e2088bb8de93ba9fee2dd0cd111f1. Relevant reference artifacts are its
 modal-interaction-profile and interaction-profiles-and-modal-compatibility
 specifications, the Modal Follow-Up section of basic-editor-product-closure,
 and the modal-interaction User Guide.
+
+The current behavioral tables are in Odra's
+`docs/reference/modal-interaction-profile/index.md` and
+`docs/tutorials/user-guide/modal-interaction/work-in-modal-profile.md`.
+Navigation, Visual and command-entry ownership were also inspected in its
+`src/interaction/modal_navigation.odin`, `modal_visual.odin` and
+`modal_command_entry.odin`.
 
 Reuse the behavioral decisions: shared command identity, checked canonical
 edits, contextual input ownership, visible modal state, bounded composition,
@@ -61,10 +119,10 @@ Vim's own [motion reference](https://vimhelp.org/motion.txt.html#jumplist),
 these state-specific behaviors. They are behavioral references, not a promise
 to implement every command or setting documented there.
 
-## Editing coverage to preserve during refinement
+## Approved editing coverage
 
-This is the required ordinary-editing direction. Before planning, produce a
-finite binding/behavior matrix with acceptance examples; do not silently reduce
+This is the required ordinary-editing direction. The proposed plan records its
+finite binding/behavior matrix and acceptance obligations. Do not silently reduce
 the explicit C-v, C-o, search or motion requirements to a smaller hjkl profile.
 
 | Area | Common interaction |
@@ -121,7 +179,7 @@ source diagnostics and whole-candidate validation. Unknown values SHALL NOT
 partially activate another keymap. Existing Emacs behavior SHALL be preserved,
 including its bindings, text fallback and Escape/Meta handling. The shipped
 sample and missing-config provisioning SHALL document the profile once the
-behavior is implemented; this draft does not extend the running schema.
+behavior is implemented; specification approval alone does not extend the running schema.
 
 #### Scenario: Reject an unknown profile coherently
 
@@ -183,9 +241,11 @@ Unsupported or stale compositions SHALL fail without a partial edit.
 
 v, V and C-v SHALL enter character, logical-line and rectangular Visual
 selection respectively. Selection presentation SHALL derive from existing
-native selection/rectangle ownership. Block operations SHALL use rev's actual
-column and tab policy, checked grapheme boundaries and one atomic edit/history
-transaction, not repeated independent line edits. Profile changes SHALL NOT
+native selection/rectangle ownership. Vim blocks SHALL use Odra-compatible
+logical grapheme-column endpoints; existing Emacs rectangles SHALL retain
+display-column endpoints. Both SHALL preserve checked grapheme/tab boundaries
+and one atomic edit/history transaction, not repeated independent line edits.
+Profile changes SHALL NOT
 be required to use undo, redo or existing rectangle commands.
 
 #### Scenario: Select and delete a block
@@ -211,6 +271,9 @@ SHALL use the same owners. There SHALL NOT be a second catalog of Vim versions
 of rev functions. A leading colon is entry syntax, not part of command identity.
 Vim Ex aliases, ranges, pipelines and trailing-argument parsing SHALL NOT be
 inferred from familiar spelling. Compatible M-x entry SHALL remain available.
+There SHALL NOT be a colon-only command whitelist or blacklist in this delivery.
+Ordinary query matching and contextual command availability SHALL remain the
+same as M-x. Any later catalog filter requires a separate product decision.
 
 #### Scenario: Invoke one operation through either surface
 
@@ -361,38 +424,42 @@ because one was invoked during the previous interaction.
 - **THEN** the checked semantic change is applied to the current target
 - **AND** ordinary undo reverses the repeated change without replaying prompt input.
 
-## Baseline reconciliation before planning
+## Baseline reconciliation during delivery
 
 The existing product Purpose and R01 in rev-editor.md and its configuration
 amendment currently describe direct text insertion as unconditional. The next
-accepted delta must qualify it as the default Emacs profile and admit Vim's
+implementation delta must qualify it as the default Emacs profile and admit Vim's
 explicit text-entry states. R22/R23 must recognize colon as an additional entry
 surface over the same catalog. CFG12/CFG13 must define state/profile scoping;
 CFG14/CFG15 retain whole-candidate fallback and startup-only application.
 
-These are identified reconciliation targets, not edits to the delivered
-baseline or completed gate evidence. Re-read the current accepted contracts
-before preparing complete modified clauses and implementation slices.
+These are implementation-slice reconciliation targets, not a rewrite of
+historical gate evidence. Use the actual R01 identity and R24/R33 clauses and
+CFG12-CFG15 sections. Preserve unaffected clauses and delivered evidence.
 
-## Open design details
+## Implementation preparation obligations
 
-1. Final finite binding/behavior matrix: motion/text-object variants, operator
-   inclusivity, linewise paste and counted boundaries. The explicitly requested
-   common interaction remains required, not optional future scope.
-2. Search-pattern syntax and case/wrapping rules: reconcile native search with
-   the intended Vim familiarity without silently promising the full Vim regexp
-   dialect or introducing a second search owner.
-3. Startup key spelling and profile/state-scoped TOML overrides; compatible
-   existing shortcuts and the documented C-g exception. No runtime profile
-   selection is being proposed.
-4. Escape/Meta disambiguation and Normal/Insert cursor-boundary mapping with
-   actual terminal events, Unicode and end-of-line behavior.
-5. Jump-recording event catalog, finite capacity, stale-location/edit/rename
-   policy, split inheritance and cross-file resolution. Jumps are not bookmarks.
-6. Visual Block presentation, tab/wide-grapheme edges and supported block edits
-   against rev's existing rectangle contract.
-7. Replace/semantic-repeat admission, retained payload limits and grouping;
-   state/focus suspension and resumption across prompts, buffers and panes.
+The approved scope is unchanged. The proposed plan makes these obligations
+concrete rather than delegating silent product decisions to a worker:
+
+1. Pin motion/text-object ranges, inclusivity, linewise transfer and count
+   boundaries to the finite matrix and inspected Odra behavior. Preserve
+   explicit additional rev requirements rather than shrinking the scope.
+2. Keep native literal search, smart case and no wrapping. Word-at-point search
+   uses checked native boundaries, not a second regexp dialect.
+3. Use editor.interaction_profile and the six keys.vim_* state maps listed in
+   the model. Preserve typed startup admission, local maps and C-g/M-x recovery.
+4. Test Escape/Meta and transitions against actual decoded terminal input,
+   Unicode, source EOL and native cursor ownership.
+5. Deliver the declared jump events, 256-entry view-local capacity, checked
+   edit/rename/reopen behavior and independent split evolution.
+6. Validate Vim logical-grapheme blocks and existing Emacs display-cell
+   rectangles across tabs, wide characters, wrapping and folds.
+7. Keep Replace/repeat within native edit/history admission, the recorded
+   1,024-byte text bound and checked focus/state lifetimes.
+
+An actual product departure requires owner review. Implementation details do
+not authorize an Ex language, alternate command catalog or runtime profile toggle.
 
 ## Validation direction and dependencies
 
@@ -406,5 +473,6 @@ The feature depends on the existing native command, input, configuration,
 buffer, selection, rectangle, history, search and presentation owners. It does
 not require LSP, AI or the separate bookmark feature. Future commands keep
 their canonical names under either entry surface when actually registered.
-Versioning this draft does not start implementation, slicing or a controller.
-Scheduling remains separate from specification readiness.
+The approved capability is ready for the proposed delivery map. The plan and
+tracker remain the planning/execution authority; an explicit go/start request
+is required before their controller begins implementation.
