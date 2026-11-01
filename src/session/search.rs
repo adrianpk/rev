@@ -19,6 +19,7 @@ pub(super) struct State {
     point: Scalar,
     query: String,
     count: usize,
+    operator: Option<crate::command::Editing>,
 }
 
 impl Session {
@@ -69,6 +70,7 @@ impl Session {
             direction,
             query: String::new(),
             count: 1,
+            operator: None,
         })));
         self.message("Type a query; C-s/C-r continues")
     }
@@ -92,6 +94,9 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         if let Some(position) = position {
+            if state.operator.is_some() {
+                return self.message("");
+            }
             let view = self.windows.selected_mut();
             view.point.position = position;
             view.reset_navigation();
@@ -107,10 +112,50 @@ impl Session {
         match action {
             SearchAction::Repeat(direction) => self.search(direction),
             SearchAction::Accept => {
+                if let Some(action) = self.accept_operator_search() {
+                    return action;
+                }
                 self.confirm_search();
                 self.message("")
             }
         }
+    }
+
+    pub(super) fn accept_operator_search(&mut self) -> Option<Action> {
+        let Some(Pending::Search(state)) = &self.pending else {
+            return None;
+        };
+        let mut operator = state.operator?;
+        if state.found.is_none() {
+            self.pending = None;
+            return Some(self.message("Operator search target unavailable"));
+        }
+        operator.operand = Some(crate::command::editing::Operand::Resolved {
+            origin: state.origin.point,
+            end: state.point,
+        });
+        self.confirm_search();
+        Some(self.execute(crate::command::Command::Edit(operator)))
+    }
+
+    pub(super) fn operator_search(&mut self, request: crate::command::Editing) -> Option<Action> {
+        let Some(crate::command::editing::Operand::Motion(navigation)) = request.operand else {
+            return None;
+        };
+        let crate::command::navigation::Target::Search(search) = navigation.target else {
+            return None;
+        };
+        let direction = match search {
+            crate::command::navigation::Search::Forward => Direction::Forward,
+            crate::command::navigation::Search::Backward => Direction::Backward,
+            _ => return None,
+        };
+        let action = self.search(direction);
+        if let Some(Pending::Search(state)) = &mut self.pending {
+            state.operator = Some(request);
+            state.count = navigation.amount();
+        }
+        Some(action)
     }
 
     pub(super) fn restore_search(&mut self) {

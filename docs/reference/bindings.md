@@ -236,6 +236,74 @@ its native endpoint policy: forward lands after the match, backward at its
 start. C-g during search restores the complete origin view. A confirmed native
 C-s/C-r search also supplies n/N; prompts retain their own key meanings.
 
+### Normal operators and transfer
+
+| Input | Command | Result |
+| --- | --- | --- |
+| `d` | `modal-delete` | Delete one checked target into the shared kill ring. |
+| `c` | `modal-change` | Retain/delete the target, then enter Insert after successful publication. |
+| `y` | `modal-copy` | Copy the target to the shared kill ring without editing or moving point. |
+| `>` | `modal-indent` | Indent each intersecting logical line by one active indentation unit. |
+| `<` | `modal-outdent` | Outdent each intersecting logical line by one active indentation unit. |
+| `D` | `modal-delete-line-end` | Delete through the logical content-end boundary; a count selects following lines. |
+| `C` | `modal-change-line-end` | Change through the logical content-end boundary, then enter Insert. |
+| `Y` | `modal-copy-line-end` | Copy through the logical content-end boundary, retaining linear shape. |
+| `x` | `modal-delete-forward` | Delete counted whole graphemes within this logical line, preserving retained text. |
+| `X` | `modal-delete-backward` | Delete counted preceding whole graphemes within this logical line, preserving retained text. |
+| `r` | `modal-replace-character` | Replace counted complete graphemes within this logical line with one printable Unicode scalar. |
+| `p` | `modal-paste-after` | Paste retained text after the current grapheme, or after this logical line for linewise text. |
+| `P` | `modal-paste-before` | Paste retained text at point, or before this logical line for linewise text. |
+| `J` | `modal-join-lines` | Join at least two logical lines (count selects total lines), stripping leading indentation and inserting needed spaces. |
+
+`u` and `C-r` invoke ordinary undo and redo. Prefix commands d/c/y/>/< require
+Vim Normal; completed semantic edit requests and standalone edit commands use
+the same native range/edit owners. Pending operators never move point or edit.
+Escape/C-[, C-g, M-x, paste or changed native source/view/point retire them.
+
+A count before an operator multiplies a count before its target, using checked
+u32 arithmetic. `2d3w` resolves six word starts and publishes one deletion/undo.
+`dd`, `cc`, `yy`, `>>` and `<<` select counted complete logical lines. A line
+change preserves an empty logical insertion slot; changing an empty valid
+interior can enter Insert without an edit. Failed or read-only changes stay in
+their prior state and preserve retained text. Copy remains usable read-only.
+
+Character and word operator ranges use the native half-open interval between
+origin and destination. Thus `dw` on `one two` removes `one `, while `de`
+removes `one` and preserves its following separator. Shared f/F/t/T endpoints
+also retain this Odra range policy: `dfX` on `abcXdef` retains `abc` and leaves
+`Xdef`; the matched target is not implicitly added. Logical line/file/page,
+visible-row and paragraph motions select complete intersecting source lines.
+Missing counted finds or absent objects publish nothing. Alignment commands do
+not select an operator range.
+
+Text objects are `iw`/`aw`, `iW`/`aW`, `ip`/`ap`, and inner/around parentheses,
+brackets, braces, single/double quotes and backticks. Both opening and closing
+pair spellings are aliases. Word objects select Unicode word/punctuation runs;
+WORD objects use whitespace-separated runs. Around word includes following
+whitespace, falling back to preceding whitespace at the end. Counts include
+following runs. Paragraphs select connected logical lines; around includes
+adjacent blank lines. Pair counts select successive enclosing balanced pairs;
+quote counts extend through successive quoted pairs on the logical line.
+Backslash escaping is respected without introducing a language parser.
+
+Operator / and ? use the existing search prompt while point remains at its
+origin. Return applies the complete native search endpoint once; C-g cancels.
+Confirmed n/N and */# targets reuse the shared literal matcher and its existing
+smart-case, nonwrapping policy.
+
+Linewise intent lives in the existing bounded kill ring. `yy`, linewise delete
+and change retain complete logical text, including its actual terminators.
+p/P normalize a linewise entry to the destination newline convention and add
+only necessary separators at EOF. Linear paste retains the native yank endpoint
+after inserted text; linewise paste places point at the inserted line start.
+Native yank/yank-pop and modal paste share entries; no modal register is added.
+Compatible consecutive kills of the same shape follow `kill_ring.coalesce`; a
+changed shape starts a fresh entry.
+Small x/X deletion and r replacement preserve the previous entry. Repeated
+paste/replacement composes one prepared edit; count-expanded text is bounded to
+64 MiB before allocation. An ordinary single transfer keeps native admission.
+Indentation and multi-line joining are one prepared batch and one undo unit.
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in

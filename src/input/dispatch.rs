@@ -34,7 +34,11 @@ impl Input {
     }
 
     pub(super) fn unmatched(&mut self, key: Key, continued: bool) -> Outcome {
+        let operator = self.grammar.operator.is_some();
         self.clear_prefix();
+        if operator {
+            return Outcome::Message("Undefined operator target");
+        }
         if continued {
             self.suppress_repeat = true;
             return Outcome::Message("Undefined key sequence");

@@ -4,6 +4,8 @@ mod binding;
 mod bookmark;
 mod buffer;
 mod completion;
+pub mod editing;
+pub use editing::Editing;
 mod gutter;
 mod kill;
 mod linear;
@@ -45,6 +47,7 @@ pub use window::WindowCommand;
 pub enum Command {
     Modal(ModalCommand),
     Navigate(Navigation),
+    Edit(Editing),
     Lsp(LspCommand),
     Completion(CompletionCommand),
     Bookmark(BookmarkCommand),
@@ -82,7 +85,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 380] = [
+    pub const ALL: [Self; 394] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -137,6 +140,20 @@ impl Command {
         Self::Navigate(Navigation::new(Target::Search(Search::Reverse))),
         Self::Navigate(Navigation::new(Target::Search(Search::WordForward))),
         Self::Navigate(Navigation::new(Target::Search(Search::WordBackward))),
+        Self::Edit(Editing::new(editing::Action::Delete)),
+        Self::Edit(Editing::new(editing::Action::Change)),
+        Self::Edit(Editing::new(editing::Action::Copy)),
+        Self::Edit(Editing::new(editing::Action::Indent)),
+        Self::Edit(Editing::new(editing::Action::Outdent)),
+        Self::Edit(Editing::new(editing::Action::DeleteEnd)),
+        Self::Edit(Editing::new(editing::Action::ChangeEnd)),
+        Self::Edit(Editing::new(editing::Action::CopyEnd)),
+        Self::Edit(Editing::new(editing::Action::DeleteForward)),
+        Self::Edit(Editing::new(editing::Action::DeleteBackward)),
+        Self::Edit(Editing::new(editing::Action::Replace)),
+        Self::Edit(Editing::new(editing::Action::PasteAfter)),
+        Self::Edit(Editing::new(editing::Action::PasteBefore)),
+        Self::Edit(Editing::new(editing::Action::Join)),
         Self::Modal(ModalCommand::Normal),
         Self::Modal(ModalCommand::Insert),
         Self::Modal(ModalCommand::InsertAfter),
@@ -480,6 +497,7 @@ impl Command {
     pub fn name(self) -> &'static str {
         match self {
             Self::Navigate(request) => request.name(),
+            Self::Edit(request) => request.name(),
             Self::Modal(command) => command.name(),
             Self::Bookmark(command) => command.name(),
             Self::Motion(motion) => motion.name(),
@@ -557,6 +575,15 @@ impl Command {
     }
 
     pub(crate) fn is_kill(self) -> bool {
+        if let Self::Edit(request) = self {
+            return matches!(
+                request.action,
+                editing::Action::Delete
+                    | editing::Action::Change
+                    | editing::Action::DeleteEnd
+                    | editing::Action::ChangeEnd
+            );
+        }
         matches!(self, Self::Kill(_) | Self::Linear(LinearCommand::Kill))
     }
 }
@@ -565,6 +592,16 @@ impl Command {
     /// Repetition belongs to the resolved action, independent of its chord.
     /// Prefix completions and session/prompt transitions require fresh presses.
     pub(crate) fn repeatable(self) -> bool {
+        if let Self::Edit(request) = self {
+            return matches!(
+                request.action,
+                editing::Action::DeleteForward
+                    | editing::Action::DeleteBackward
+                    | editing::Action::PasteAfter
+                    | editing::Action::PasteBefore
+                    | editing::Action::Join
+            );
+        }
         if let Self::Navigate(request) = self {
             return !matches!(request.target, Target::Find(_) | Target::Search(_));
         }

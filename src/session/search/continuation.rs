@@ -7,6 +7,7 @@ use crate::window::ViewId;
 use super::super::{Action, Pending, Session};
 use super::snap;
 
+#[derive(Clone)]
 pub(in crate::session) struct Confirmed {
     query: String,
     direction: Direction,
@@ -56,45 +57,68 @@ impl Session {
     }
 
     fn continue_search(&mut self, search: Search, count: usize) -> Result<bool, Error> {
-        let word = matches!(search, Search::WordForward | Search::WordBackward);
-        if word {
-            self.word_search(search)?;
-        }
-        let Some(confirmed) = &self.last_search else {
+        let Some((confirmed, found, direction)) = self.resolve_search(search, count)? else {
             return Ok(false);
+        };
+        self.last_search = Some(confirmed);
+        self.publish_search(found, direction)?;
+        Ok(true)
+    }
+
+    fn resolve_search(
+        &self,
+        search: Search,
+        count: usize,
+    ) -> Result<Option<(Confirmed, Span, Direction)>, Error> {
+        let confirmed = if matches!(search, Search::WordForward | Search::WordBackward) {
+            self.word_observation(search)?
+        } else {
+            let Some(confirmed) = self.last_search.clone() else {
+                return Ok(None);
+            };
+            confirmed
         };
         if confirmed.view != self.windows.selected_id()
             || confirmed.stamp != self.view().point.stamp
         {
-            return Ok(false);
+            return Ok(None);
         }
         let direction = if search == Search::Reverse {
             reverse(confirmed.direction)
         } else {
             confirmed.direction
         };
-        let anchor = confirmed.anchor(self.view().point.position, direction);
-        let pattern = Pattern::new(&confirmed.query)?;
-        let found = pattern.occurrence(
-            self.buffer()?,
-            Request {
-                anchor,
-                direction,
-                count,
-                whole_word: confirmed.whole_word,
-            },
-        )?;
-        let Some(found) = found else { return Ok(false) };
-        self.publish_search(found, direction)?;
-        Ok(true)
+        let request = Request {
+            anchor: confirmed.anchor(self.view().point.position, direction),
+            direction,
+            count,
+            whole_word: confirmed.whole_word,
+        };
+        let found = Pattern::new(&confirmed.query)?.occurrence(self.buffer()?, request)?;
+        Ok(found.map(|found| (confirmed, found, direction)))
+    }
+
+    pub(in crate::session) fn search_target(
+        &self,
+        search: Search,
+        count: usize,
+    ) -> Result<Option<Scalar>, Error> {
+        let Some((_, found, direction)) = self.resolve_search(search, count)? else {
+            return Ok(None);
+        };
+        self.search_point(&found, direction).map(Some)
+    }
+
+    fn search_point(&self, found: &Span, direction: Direction) -> Result<Scalar, Error> {
+        let coordinates = Coordinates::new(self.buffer()?)?;
+        match direction {
+            Direction::Forward => snap(&coordinates, Scalar(found.range.end), true),
+            Direction::Backward => snap(&coordinates, Scalar(found.range.start), false),
+        }
     }
 
     fn publish_search(&mut self, found: Span, direction: Direction) -> Result<(), Error> {
-        let coordinates = Coordinates::new(self.buffer()?)?;
-        let target = match direction {
-            Direction::Forward => snap(&coordinates, Scalar(found.range.end), true)?,
-            Direction::Backward => snap(&coordinates, Scalar(found.range.start), false)?,
-        };
+        let target = self.search_point(&found, direction)?;
         let mut point = self.view().point;
         point.position = target;
         self.place_point(point)?;
@@ -105,7 +129,7 @@ impl Session {
         Ok(())
     }
 
-    fn word_search(&mut self, search: Search) -> Result<(), Error> {
+    fn word_observation(&self, search: Search) -> Result<Confirmed, Error> {
         let buffer = self.buffer()?;
         let coordinates = Coordinates::new(buffer)?;
         let point = self.view().point.position;
@@ -119,7 +143,7 @@ impl Session {
             .take(crate::search::LIMIT + 1)
             .collect();
         Pattern::new(&query)?;
-        self.last_search = Some(Confirmed {
+        Ok(Confirmed {
             query,
             direction: if search == Search::WordForward {
                 Direction::Forward
@@ -130,8 +154,7 @@ impl Session {
             view: self.windows.selected_id(),
             stamp: buffer.stamp(),
             found: Some(found),
-        });
-        Ok(())
+        })
     }
 }
 

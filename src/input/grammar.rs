@@ -1,8 +1,14 @@
 use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::buffer::edit::Point;
-use crate::command::navigation::Target;
-use crate::command::{Binding, Command, Navigation};
+use crate::command::editing::Operand;
+use crate::command::{Binding, Command, Editing, Navigation};
+mod operator;
+#[derive(Debug, Clone, Copy)]
+pub(super) enum Character {
+    Navigation(Navigation),
+    Editing(Editing),
+}
 use crate::window::ViewId;
 
 use super::keymap::Sequence;
@@ -15,7 +21,9 @@ const STROKES: u8 = 16;
 pub(super) struct Grammar {
     pub count: Option<u32>,
     pub strokes: u8,
-    pub character: Option<Navigation>,
+    pub character: Option<Character>,
+    pub operator: Option<Editing>,
+    pub object: Option<bool>,
 }
 
 impl Input {
@@ -30,11 +38,13 @@ impl Input {
     }
 
     fn navigation_pending(&self) -> bool {
-        self.grammar.strokes > 0 || self.grammar.character.is_some()
+        self.grammar.strokes > 0
+            || self.grammar.character.is_some()
+            || self.grammar.operator.is_some()
     }
 
     pub(crate) fn expect_navigation(&mut self, request: Navigation) -> Outcome {
-        self.grammar.character = Some(request);
+        self.grammar.character = Some(Character::Navigation(request));
         self.suppress_repeat = true;
         self.wait(Prefix::Sequence)
     }
@@ -49,6 +59,9 @@ impl Input {
         }
         if let Some(request) = self.grammar.character {
             return Some(self.target_character(request, key));
+        }
+        if let Some(outcome) = self.object_key(key) {
+            return Some(outcome);
         }
         if !self.modal_editing() || self.editing_state != EditingState::Normal {
             return None;
@@ -92,8 +105,9 @@ impl Input {
         Sequence::from_chords(&[key]).is_some_and(|sequence| self.active_map().is_custom(&sequence))
     }
 
-    fn target_character(&mut self, mut request: Navigation, key: Key) -> Outcome {
+    fn target_character(&mut self, request: Character, key: Key) -> Outcome {
         let strokes = self.grammar.strokes;
+        let operator = self.grammar.operator;
         self.clear_prefix();
         if strokes >= STROKES {
             return Outcome::Message("Modal input exceeds 16 strokes");
@@ -104,35 +118,62 @@ impl Input {
         if character.is_control() {
             return Outcome::Message("Find requires a printable character");
         }
-        request.character = Some(character);
         self.suppress_repeat = true;
-        Outcome::Command(Command::Navigate(request))
+        match request {
+            Character::Navigation(mut request) => {
+                request.character = Some(character);
+                if let Some(mut operator) = operator {
+                    operator.operand = Some(Operand::Motion(request));
+                    Outcome::Command(Command::Edit(operator))
+                } else {
+                    Outcome::Command(Command::Navigate(request))
+                }
+            }
+            Character::Editing(mut request) => {
+                request.character = Some(character);
+                Outcome::Command(Command::Edit(request))
+            }
+        }
     }
 
     pub(super) fn navigation_binding(&mut self, binding: Binding) -> Result<Binding, Outcome> {
         let count = self.grammar.count;
-        let strokes = self.grammar.strokes;
-        self.clear_prefix();
-        let Binding::Command(Command::Navigate(mut request)) = binding else {
-            return if count.is_some() {
-                Err(Outcome::Message(
-                    "This command does not accept a modal count",
-                ))
-            } else {
-                Ok(binding)
-            };
-        };
-        request.count = count;
-        if matches!(request.target, Target::Find(_)) && request.character.is_none() {
-            self.grammar.strokes = strokes;
-            return Err(self.expect_navigation(request));
+        match binding {
+            Binding::Command(Command::Edit(mut request)) => {
+                request.count = count;
+                self.editing_binding(request)
+            }
+            Binding::Command(Command::Navigate(mut request)) => {
+                request.count = count;
+                self.motion_binding(request)
+            }
+            _ => {
+                let pending = self.grammar.operator.is_some() || count.is_some();
+                self.clear_prefix();
+                if pending {
+                    Err(Outcome::Message("Unsupported operator/count target"))
+                } else {
+                    Ok(binding)
+                }
+            }
         }
-        Ok(Binding::Command(Command::Navigate(request)))
     }
 
     pub(super) fn navigation_label(&self) -> Option<String> {
         if let Some(request) = self.grammar.character {
-            return Some(format!("{}: character", request.name()));
+            let name = match request {
+                Character::Navigation(r) => r.name(),
+                Character::Editing(r) => r.name(),
+            };
+            return Some(format!("{name}: character"));
+        }
+        if let Some(request) = self.grammar.operator {
+            let count = self
+                .grammar
+                .count
+                .map(|n| n.to_string())
+                .unwrap_or_default();
+            return Some(format!("{} {count}", request.name()));
         }
         self.grammar.count.map(|count| {
             let suffix = Sequence::from_chords(&self.chords)

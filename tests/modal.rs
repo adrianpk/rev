@@ -10,10 +10,16 @@ mod keymaps;
 mod local_targets;
 #[path = "modal/navigation.rs"]
 mod navigation;
+#[path = "modal/objects.rs"]
+mod objects;
+#[path = "modal/operators.rs"]
+mod operators;
 #[path = "modal/presentation.rs"]
 mod presentation;
 #[path = "modal/search.rs"]
 mod search_navigation;
+#[path = "modal/transfer.rs"]
+mod transfer;
 #[path = "modal/viewport.rs"]
 mod viewport;
 

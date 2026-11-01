@@ -1,4 +1,5 @@
 mod find;
+mod objects;
 mod runs;
 pub(crate) use find::Found;
 mod structure;
@@ -39,6 +40,25 @@ impl Coordinates<'_> {
         }
         let end = self.forward_word(point)?;
         Ok(Some(self.backward_word(end)?..end))
+    }
+
+    pub(crate) fn replacement_end(
+        &self,
+        point: Scalar,
+        mut count: usize,
+    ) -> Result<Option<Scalar>, Error> {
+        let end = self.line_end(point)?;
+        let mut runs = Runs::new(self.text, point, false, false)?;
+        while let Some(cluster) = runs.cluster()? {
+            if cluster.range.end > end {
+                break;
+            }
+            count -= 1;
+            if count == 0 {
+                return Ok(Some(cluster.range.end));
+            }
+        }
+        Ok(None)
     }
 
     fn characters(

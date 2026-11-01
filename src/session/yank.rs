@@ -36,6 +36,16 @@ impl Session {
         text: &str,
         rotation: usize,
     ) -> Result<bool, edit::Error> {
+        self.publish_yank_at(range, text, rotation, None)
+    }
+
+    pub(super) fn publish_yank_at(
+        &mut self,
+        range: Range<usize>,
+        text: &str,
+        rotation: usize,
+        cursor: Option<crate::coordinates::Scalar>,
+    ) -> Result<bool, edit::Error> {
         let end = range
             .start
             .checked_add(text.chars().count())
@@ -43,7 +53,11 @@ impl Session {
         // Capture the literal inserted span, not the grapheme-adjusted cursor:
         // an insertion can join a cluster or CRLF with untouched neighboring text.
         let inserted = range.start..end;
-        let changed = self.replace(range, text)?;
+        let changed = if let Some(cursor) = cursor {
+            self.replace_cursor(range, text, cursor)?
+        } else {
+            self.replace(range, text)?
+        };
         self.yank = Some(Capture {
             source: Span {
                 stamp: self.windows.selected().point.stamp,

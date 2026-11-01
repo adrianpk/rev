@@ -1,0 +1,18 @@
+pub(super) const BINDINGS: &[(&str, &str)] = &[
+    ("d", "modal-delete"),
+    ("c", "modal-change"),
+    ("y", "modal-copy"),
+    (">", "modal-indent"),
+    ("<", "modal-outdent"),
+    ("D", "modal-delete-line-end"),
+    ("C", "modal-change-line-end"),
+    ("Y", "modal-copy-line-end"),
+    ("x", "modal-delete-forward"),
+    ("X", "modal-delete-backward"),
+    ("r", "modal-replace-character"),
+    ("p", "modal-paste-after"),
+    ("P", "modal-paste-before"),
+    ("J", "modal-join-lines"),
+    ("u", "undo"),
+    ("C-r", "undo-redo"),
+];

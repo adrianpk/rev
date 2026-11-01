@@ -17,6 +17,7 @@ pub use refile::{ResultEntry as RefileResult, Status as RefileStatus};
 mod attachment;
 mod document;
 mod edit;
+mod editing;
 mod events;
 mod exports;
 mod extended;
@@ -736,7 +737,8 @@ impl Session {
             return self.error(&error.to_string());
         }
         let action = match self
-            .navigation_dispatch(command)
+            .editing_dispatch(command)
+            .or_else(|| self.navigation_dispatch(command))
             .or_else(|| self.modal_dispatch(command))
             .or_else(|| self.lsp_command(command))
             .or_else(|| self.query_view_command(command))

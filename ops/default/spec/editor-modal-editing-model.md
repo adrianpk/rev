@@ -116,6 +116,29 @@ whole-word continuation extend the canonical search owner and literal matcher.
 Each resolver bounds traversal by the source/view; missing counted matches
 publish no partial point. Idempotent targets keep their single destination.
 
+## Implemented operator and transfer ownership
+
+Slice 3 composes one editing request from operator/count, native navigation or
+text-object descriptor and an optional Unicode character. Count multiplication
+checks u32 before range resolution. Pending state stays qualified by the exact
+native source point and shares the 16-stroke/96-byte grammar limits. Operator
+search previews retain that origin; confirmation supplies one qualified range.
+
+Resolved transfer ranges carry linear or complete-logical-line intent in the
+existing kill-ring owner. Copy and failed/read-only edits do not alter history;
+retained text is published only after an admitted deletion/change succeeds.
+Small grapheme deletion and replacement preserve the retained entry. Native
+linear yank and modal paste share storage; linewise paste handles destination
+LF/CRLF and EOF separators without a register store. Repeated transfer output
+has a 64-MiB materialization bound checked before allocation; this does not turn
+the native history retention target into a single-edit limit.
+
+The native half-open word and character-target endpoints remain explicit in the
+[binding reference](../../../docs/reference/bindings.md#normal-operators-and-transfer).
+Shared native coordinate resolution owns inner/around word, WORD, paragraph,
+paired delimiters and logical-line quotes. Indentation/joining publish ordered,
+disjoint prepared edits in one canonical history unit and map every shared view.
+
 ## Lifetimes and recovery
 
 Startup prepares and validates the complete selected profile before editing.

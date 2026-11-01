@@ -35,7 +35,10 @@ impl Session {
         })
     }
 
-    pub(super) fn navigation_find(&self, request: Navigation) -> Result<Option<Found>, Error> {
+    pub(in crate::session) fn navigation_find(
+        &self,
+        request: Navigation,
+    ) -> Result<Option<Found>, Error> {
         let Some((find, character, origin)) = self.find_descriptor(request) else {
             return Ok(None);
         };

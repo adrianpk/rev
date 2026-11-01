@@ -17,6 +17,10 @@ This project uses Semantic Versioning.
   word/WORD and character targets, page controls and viewport alignment. Use
   `/` or `?` for literal search, `n`/`N` to continue and `*`/`#` for a whole word.
 
+- Compose Vim delete/change/copy and indentation with counted motions or text
+  objects. Share retained text and linewise paste with native yank, replace whole
+  graphemes, join logical lines and undo each operation through ordinary history.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

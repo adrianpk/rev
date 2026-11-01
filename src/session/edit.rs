@@ -65,6 +65,41 @@ impl Session {
         self.edit(at.0..at.0, text, false, Some(cursor))
     }
 
+    pub(super) fn replace_cursor(
+        &mut self,
+        range: Range<usize>,
+        text: &str,
+        cursor: Scalar,
+    ) -> Result<bool, Error> {
+        self.cancel_pointer_capture();
+        self.yank = None;
+        self.kills.break_chain();
+        self.edit(range, text, false, Some(cursor))
+    }
+
+    pub(super) fn replace_many(
+        &mut self,
+        edits: &[Replacement],
+        cursor: Option<Scalar>,
+    ) -> Result<bool, Error> {
+        if edits.is_empty() {
+            return Ok(false);
+        }
+        let buffer = self
+            .buffers
+            .get_mut(self.windows.selected().point.stamp.buffer)?;
+        let points = self.windows.points(buffer)?;
+        let cursor = cursor.map(|position| Cursor {
+            index: points.initiator,
+            position,
+        });
+        let mut prepared = buffer.prepare(edits, &points.values, cursor)?;
+        prepared.set_origin(self.windows.selected_id());
+        self.windows.publish(buffer, prepared, points)?;
+        self.windows.selected_mut().reset_navigation();
+        Ok(true)
+    }
+
     fn edit(
         &mut self,
         range: Range<usize>,

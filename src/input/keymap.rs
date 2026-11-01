@@ -6,6 +6,7 @@ mod defaults;
 mod map;
 mod sequence;
 mod vim;
+mod vim_editing;
 mod vim_navigation;
 
 use std::collections::BTreeMap;

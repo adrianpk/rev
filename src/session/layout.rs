@@ -106,6 +106,7 @@ impl Session {
             command,
             Command::Scroll(_)
                 | Command::Navigate(_)
+                | Command::Edit(_)
                 | Command::Modal(_)
                 | Command::Kill(KillCommand::Line)
                 | Command::Org(_)
@@ -219,6 +220,7 @@ impl Session {
 
     fn prepared_request(&self, request: Request) -> Result<(), Error> {
         match request {
+            Request::Command(Command::Edit(request)) => self.editing_preflight(request),
             Request::Command(Command::Navigate(request)) => {
                 self.navigation_view(request).map(|_| ())
             }

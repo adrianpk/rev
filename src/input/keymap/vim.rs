@@ -36,6 +36,7 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("O", "modal-open-line-above"),
         ]);
         bindings.extend(super::vim_navigation::BINDINGS);
+        bindings.extend(super::vim_editing::BINDINGS);
         bindings
     });
     &NORMAL
