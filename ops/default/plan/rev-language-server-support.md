@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Tracker: [Optional Language Server Support Tracker](../tracker/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices integrated; controller full gate pending
+Active slice: None — all 6 slices integrated; bounded gate repair 1 in progress
 
 ## Outcome and authority
 
@@ -219,3 +219,19 @@ metadata confirms the explicit dependency-free binary target. Owned PTY
 allocation also succeeded. Preparation files and descriptors were cleaned up;
 the existing gate producers allocate fresh isolated runtime fixtures. No server
 or full gate was started during preparation.
+
+## Gate repair 1
+
+The controller's unchanged full gate failed at
+`dc8621820ab418c38995ac12065916ce175e78f1`, receipt
+`4KDHCR4VZITQICSI75OSOIAQYA`. Formatting and all-target Clippy completed;
+the library suite then failed `org::io::process::tests::process_lifetime`
+with `cancel: descendant still running` (112 passed, one failed).
+
+The pinned bounded repair uses branch `fix/rev-language-server-gate-1`, title
+`fix(process): wait for observed descendant shutdown` and the existing Slice 6
+report. Only the authorized process owner/group/tests and operational records
+change. Cleanup now observes stopped group members within the same 250 ms budget
+used by the signal helper. Existing job/output, stream-drain, direct-reap and
+immediate descendant-state assertions remain unchanged. Focused exact-head
+validation precedes controller integration and rerunning the unchanged full gate.

@@ -105,3 +105,88 @@ fn process_descendants() {
     drop(owned);
     assert!(!PathBuf::from(format!("/proc/{pid}")).exists());
 }
+
+// EOF can precede cancellation: redirected descendants still belong to the
+// owned group. Each completed run must observe their death, without a test wait.
+#[test]
+fn process_closed_output() {
+    for attempt in 0..32 {
+        let f = Fixture::new();
+        let cancel = Cancellation::default();
+        let control = cancel.clone();
+        let p = program(
+            &f.0,
+            "exec >/dev/null 2>&1; i=0; while test $i -lt 8; do sleep 30 & echo $! >> descendants; i=$((i+1)); done; : > ready; wait",
+            1024,
+        );
+        let path = f.0.clone();
+        let start = Instant::now();
+        let job = std::thread::spawn(move || p.run(&control));
+        while !path.join("ready").exists() {
+            assert!(
+                start.elapsed() < Duration::from_secs(1),
+                "fixture did not start"
+            );
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        cancel.cancel();
+        let result = job.join().unwrap();
+        assert!(result.err().unwrap().contains("cancelled"));
+        assert!(start.elapsed() < Duration::from_secs(1));
+        let pids = std::fs::read_to_string(path.join("descendants")).unwrap();
+        assert_eq!(pids.lines().count(), 8);
+        for pid in pids.lines() {
+            assert!(pid.parse::<u32>().is_ok());
+            assert!(
+                stopped(pid),
+                "attempt {attempt}: descendant {pid} still running"
+            );
+        }
+    }
+}
+
+// Closed output does not establish shutdown. Observing a live owned group must
+// time out without signalling it; stop reaps that group and leaves another
+// owned group alive. Real executable names cover comm delimiters and UTF-8
+// truncation without interpreting the name bytes as process-state fields.
+#[test]
+fn process_observation() {
+    let f = Fixture::new();
+    let mut unrelated = program(&f.0, "sleep 30", 1024).launch(None, None).unwrap();
+    for name in ["plain", "sleep ) name", "abcdefghijklmn\u{9149}"] {
+        let executable = f.0.join(name);
+        std::fs::copy("/bin/sleep", &executable).unwrap();
+        let mut p = program(&f.0, "", 1024);
+        p.argv = vec![
+            "/bin/sh".into(),
+            "-c".into(),
+            "exec >/dev/null 2>&1; exec \"$1\" 30".into(),
+            "fixture".into(),
+            executable.to_str().unwrap().into(),
+        ];
+        let mut owned = p.launch(None, None).unwrap();
+        let start = Instant::now();
+        while !owned.streams.closed() {
+            owned.streams.read(1024).unwrap();
+            assert!(start.elapsed() < Duration::from_secs(1));
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        let error = owned
+            .wait_group(Instant::now() + Duration::from_millis(20))
+            .unwrap_err();
+        assert!(error.contains("shutdown timed out"), "{name}: {error}");
+        assert!(owned.child.as_mut().unwrap().try_wait().unwrap().is_none());
+        let pid = owned.pid;
+        owned.stop().unwrap();
+        assert!(!PathBuf::from(format!("/proc/{pid}")).exists());
+        assert!(
+            unrelated
+                .child
+                .as_mut()
+                .unwrap()
+                .try_wait()
+                .unwrap()
+                .is_none()
+        );
+    }
+}

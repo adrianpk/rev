@@ -133,10 +133,26 @@ impl Owned {
     }
     fn stop_group(&mut self) -> Result<(), String> {
         if !self.group_stopped {
-            group::stop(self.pid)?;
+            let deadline = Instant::now() + Duration::from_millis(250);
+            group::stop(self.pid, deadline)?;
+            self.wait_group(deadline)?;
             self.group_stopped = true;
         }
         Ok(())
+    }
+    // Signal delivery and reaping the leader do not acknowledge descendant
+    // exit. Observe the owned group within the same cleanup budget.
+    fn wait_group(&self, deadline: Instant) -> Result<(), String> {
+        loop {
+            let running = group::running(self.pid, deadline)?;
+            if Instant::now() >= deadline {
+                return Err("Observe owned process-group shutdown timed out".into());
+            }
+            if !running {
+                return Ok(());
+            }
+            std::thread::sleep(Duration::from_millis(2));
+        }
     }
     fn stop(&mut self) -> Result<(), String> {
         let group = self.stop_group();

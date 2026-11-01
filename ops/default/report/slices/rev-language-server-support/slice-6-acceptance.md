@@ -151,3 +151,59 @@ through Rebase + Fast-forward into dev at
 all 724 production source files and both bounded terminal journeys at that clean
 head. The controller recorded the merge in Acta. The integrated full gate and
 final joint acceptance remain pending controller execution.
+
+## Gate repair 1: Observed process-group shutdown
+
+Repair branch: `fix/rev-language-server-gate-1`.
+Exact PR title: `fix(process): wait for observed descendant shutdown`.
+Repair PR: pending.
+
+The controller retained failed full-gate candidate
+`dc8621820ab418c38995ac12065916ce175e78f1` and receipt
+`4KDHCR4VZITQICSI75OSOIAQYA`. Formatting and all-target Clippy passed before
+the library suite failed with `cancel: descendant still running` in
+`org::io::process::tests::process_lifetime` (112 passed, one failed). The
+isolated baseline test passed; the retained parallel run demonstrates the
+timing-dependent failure rather than a deterministic single-test failure.
+
+The signal utility acknowledges signal delivery, and waiting for the leader
+acknowledges only that child. Cleanup previously marked the whole group stopped
+at that point. The process owner now observes Linux process-group membership
+and state before releasing cleanup. Only the owned group is signalled. Active
+members keep cleanup pending; zombies/dead members count as stopped, consistent
+with the existing descendant assertion, while the direct child is still reaped.
+
+The signal helper and observation share one absolute 250 ms deadline, with the
+existing 2 ms cleanup polling interval. The separate 250 ms stream-drain budget,
+job duration/output limits and existing immediate descendant/direct-reap and
+fixture deadline assertions are unchanged. Closed streams alone do not establish
+termination. Stat reads are bounded to 4 KiB; disappearing tasks are expected,
+while unknown observation failures remain cleanup errors. Parsing ignores comm
+name bytes, including parentheses and truncated UTF-8. No idle polling is added.
+
+`process_closed_output` performs 32 bounded cancellation cycles with eight
+redirected descendants each and immediately asserts they are stopped after the
+operation returns. `process_observation` requires a still-live group with closed
+output to reach its observation deadline without being signalled, then checks
+ordinary cleanup/reap and preservation of another group. Real executable names
+cover comm delimiters and UTF-8 truncation. All fixtures own their processes.
+
+Successful focused development checks:
+
+- `cargo test --locked --lib org::io::process::tests -- --nocapture`: all five cases passed.
+- `cargo test --locked --lib org::io::process::tests::process_observation -- --nocapture`: extended real-name/group-ownership case passed.
+- `cargo test --locked --lib org::io::process::tests::process_lifetime -- --nocapture`: ten further repetitions passed with the original immediate assertions unchanged.
+- `cargo clippy --locked --lib -- -D warnings`: passed.
+- `cargo run --locked --quiet --example source-check -- --file src/org/io/process.rs --file src/org/io/process/group.rs --file src/org/io/process/streams.rs --file src/org/io/process/tests.rs`: safe Rust, parameters at most five, nesting at most three and complexity at most ten passed.
+
+Final focused exact-head validation uses the last repair identity's pinned order
+after the repair PR-reference follow-up:
+
+- `cargo fmt --all -- --check`
+- `cargo test --locked --lib org::io::process::tests`
+- `cargo test --locked --test org_io --test org_source --test lsp`
+- `git diff --check`
+
+The existing Slice 6 introduction and implementation/merge evidence remain
+unchanged. The controller owns repair integration and the unchanged full-gate
+rerun; this repair does not claim that rerun passed.

@@ -11,7 +11,7 @@ Model: [Optional Language Server Support Model](../spec/editor-language-server-s
 Concern: [Pending Work Index](../README.md)
 Plan: [Optional Language Server Support Plan](../plan/rev-language-server-support.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-lsp.sh && cargo run --locked --quiet --example documentation-check && git diff --check`
-Active slice: None — all 6 slices integrated; controller full gate pending
+Active slice: None — all 6 slices integrated; bounded gate repair 1 in progress
 Execution owner: Looper; checkpoint and canonical merge evidence own progress
 
 ## Canonical slice map
@@ -115,3 +115,22 @@ offline Cargo metadata confirms its dependency-free explicit binary target.
 Owned preparation files and PTY descriptors were cleaned up; no server was
 started. The controller owns the unchanged full gate, which was not run during
 preparation.
+
+## Gate repair 1
+
+Retained failed base: `dc8621820ab418c38995ac12065916ce175e78f1`.
+Retained receipt: `4KDHCR4VZITQICSI75OSOIAQYA`.
+Branch: `fix/rev-language-server-gate-1`.
+Exact title: `fix(process): wait for observed descendant shutdown`.
+Report: [Slice 6](../report/slices/rev-language-server-support/slice-6-acceptance.md).
+PR: pending.
+
+- [x] Diagnose the retained cancellation race: signal-helper exit and leader reap do not acknowledge descendant shutdown.
+- [x] Add bounded group observation and real closed-output/live-group regressions without weakening the original assertions or cleanup budget.
+- [ ] Verify canonical repair integration and the controller's unchanged full gate.
+
+The isolated original test passed before repair; its failure is retained in the
+parallel gate log. With the repair, all five focused process tests pass and the
+original cancellation/timeout test passed ten further repetitions. Clippy and
+source quality pass. The pinned four-command exact-head validation follows the
+repair PR-reference commit. No new slice or successor is introduced.
