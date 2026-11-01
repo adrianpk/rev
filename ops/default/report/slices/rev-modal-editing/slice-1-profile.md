@@ -70,16 +70,28 @@ Successful development checks:
 - `cargo run --locked --quiet --example source-check -- --source src/config.rs --source src/input/keymap.rs --source src/input/keymap/defaults.rs --source src/session.rs --source src/session/modal.rs`:
   passed after correcting changed dispatch/target complexity.
 
-The final clean PR candidate uses the ordered commands below. Looper records
-its exact HEAD and outcomes before handoff; the canonical PR carries that
-candidate's validation list. The report introduction precedes that receipt.
+The first canonical candidate failed the existing `scroll_bindings` regression:
+modal owner initialization suppressed an initial Emacs motion repeat. Owner
+retirement is now scoped to Vim. `cargo test --locked --test display scroll_bindings -- --exact`
+passes without changing its assertions.
+
+The pinned controller requires the exact configured prefix, which already ends
+with `git diff --check`; extra PR commands cannot precede that final item.
+Focused checks therefore use a separate controller batch on the same clean HEAD:
+
+```sh
+cargo test --locked --lib terminal::cursor::tests::restoration
+cargo run --locked --quiet --example source-check -- --source src/command.rs --source src/command/modal.rs --source src/config.rs --source src/config/merge.rs --source src/config/project.rs --source src/config/validate.rs --source src/display.rs --source src/display/status.rs --source src/input.rs --source src/input/context.rs --source src/input/dispatch.rs --source src/input/keymap.rs --source src/input/keymap/availability.rs --source src/input/keymap/defaults.rs --source src/input/keymap/vim.rs --source src/input/meta.rs --source src/input/modal.rs --source src/input/org.rs --source src/session.rs --source src/session/edit.rs --source src/session/layout.rs --source src/session/modal.rs --source src/session/mode.rs --source src/terminal.rs --source src/terminal/cursor.rs --source tests/configuration/resolution_contract.rs --root tests/modal.rs --source tests/modal/keymaps.rs --source tests/modal/presentation.rs
+cargo run --locked --quiet --example documentation-check
+```
+
+The canonical PR uses exactly the configured ordered batch below. Looper records
+the final clean HEAD and outcomes after the focused batch and before handoff.
+The report introduction precedes those receipts.
 
 ```sh
 cargo fmt --all -- --check
 cargo test --locked --test modal --test configuration --test core --test commands --test display --test windows
-cargo test --locked --lib terminal::cursor::tests::restoration
-cargo run --locked --quiet --example source-check -- --source src/command.rs --source src/command/modal.rs --source src/config.rs --source src/config/merge.rs --source src/config/project.rs --source src/config/validate.rs --source src/display.rs --source src/display/status.rs --source src/input.rs --source src/input/context.rs --source src/input/dispatch.rs --source src/input/keymap.rs --source src/input/keymap/availability.rs --source src/input/keymap/defaults.rs --source src/input/keymap/vim.rs --source src/input/meta.rs --source src/input/modal.rs --source src/input/org.rs --source src/session.rs --source src/session/edit.rs --source src/session/layout.rs --source src/session/modal.rs --source src/session/mode.rs --source src/terminal.rs --source src/terminal/cursor.rs --source tests/configuration/resolution_contract.rs --root tests/modal.rs --source tests/modal/keymaps.rs --source tests/modal/presentation.rs
-cargo run --locked --quiet --example documentation-check
 git diff --check
 ```
 

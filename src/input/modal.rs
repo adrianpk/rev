@@ -38,6 +38,9 @@ impl Input {
 
     /// A changed native view/buffer cannot inherit a text-entry continuation.
     pub(crate) fn editing_owner(&mut self, view: ViewId, buffer: BufferId) {
+        if self.profile != InteractionProfile::Vim {
+            return;
+        }
         let owner = Some((view, buffer));
         if self.editing_owner != owner {
             self.set_editing_state(EditingState::Normal);
