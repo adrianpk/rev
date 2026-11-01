@@ -294,6 +294,11 @@ impl Merge {
 
     fn editor(&mut self, base: &mut PartialEditor, later: &PartialEditor) {
         self.leaf(
+            &["editor", "interaction_profile"],
+            &mut base.interaction_profile,
+            &later.interaction_profile,
+        );
+        self.leaf(
             &["editor", "soft_wrap"],
             &mut base.soft_wrap,
             &later.soft_wrap,

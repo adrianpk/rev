@@ -427,6 +427,7 @@ impl Grammar {
 /// Buffer policy: widths are 1..=32 display columns/cells, respectively.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Editor {
+    pub interaction_profile: InteractionProfile,
     pub soft_wrap: bool,
     pub indent_style: IndentStyle,
     pub indent_width: usize,
@@ -436,6 +437,7 @@ pub struct Editor {
 impl Default for Editor {
     fn default() -> Self {
         Self {
+            interaction_profile: InteractionProfile::Emacs,
             soft_wrap: true,
             indent_style: IndentStyle::Spaces,
             indent_width: 4,
@@ -447,10 +449,20 @@ impl Default for Editor {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialEditor {
+    pub interaction_profile: Option<InteractionProfile>,
     pub soft_wrap: Option<bool>,
     pub indent_style: Option<IndentStyle>,
     pub indent_width: Option<i64>,
     pub tab_width: Option<i64>,
+}
+
+/// Startup-only session interaction. Language and view policies cannot override it.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum InteractionProfile {
+    #[default]
+    Emacs,
+    Vim,
 }
 
 /// Missing editing
