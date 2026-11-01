@@ -72,3 +72,11 @@ pub(super) fn primary(item: &Value) -> bool {
         })
     })
 }
+
+pub(super) fn default_range(value: &Value) -> bool {
+    value.as_object().is_some_and(|object| {
+        object
+            .keys()
+            .all(|key| matches!(key.as_str(), "start" | "end" | "insert" | "replace"))
+    })
+}

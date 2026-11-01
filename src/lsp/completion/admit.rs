@@ -86,6 +86,9 @@ fn supported(item: &Value, defaults: &Value) -> bool {
         && mode.is_none_or(|value| value == 1)
         && item.get("command").is_none_or(Value::is_null)
         && super::edits::primary(item)
+        && defaults
+            .get("editRange")
+            .is_none_or(super::edits::default_range)
         && !["workspaceEdit", "documentChanges", "changes"]
             .iter()
             .any(|key| item.get(key).is_some())

@@ -9,6 +9,9 @@ Use Up/Down or `C-p`/`C-n` to choose, Tab/Return to insert, and Escape/`C-g` to
 cancel. Native acceptance replaces the complete name around point as one undo operation.
 An enabled language server can supply a checked primary replacement range in the
 same popup; empty or unavailable semantic results use native fallback.
+If the selected server item needs resolution, acceptance waits asynchronously.
+Same-document imports and the primary replacement apply together in one undo.
+Keep editing or cancel to retire the pending acceptance without a partial edit.
 Cancellation, selection and a refused edit leave the text and history unchanged.
 Outside a visible list, these keys retain their normal editing actions.
 

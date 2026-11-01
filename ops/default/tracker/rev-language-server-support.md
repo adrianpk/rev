@@ -59,9 +59,11 @@ Implementation: T3.1 `1f97405488ae3213e8226fbb2337f9cc00e236e0`; T3.2 `6ebbfbf69
 
 Acceptance: LSP02-LSP03 complete edit contract and CMP04.
 
-- [ ] T4.1: Resolve an eligible selected item at most once for supported fields and admit bounded current-document additionalTextEdits. Prepare the primary and all non-overlapping additional edits against one originating revision before publishing one undo transaction.
-- [ ] T4.2: Reject unsupported snippets/commands/cross-document forms, overlapping or malformed ranges, oversized payloads and obsolete resolve responses. Keep ordinary editing usable during resolve and restore native behavior on cancel/failure.
+- [x] T4.1: Resolve an eligible selected item at most once for supported fields and admit bounded current-document additionalTextEdits. Prepare the primary and all non-overlapping additional edits against one originating revision before publishing one undo transaction.
+- [x] T4.2: Reject unsupported snippets/commands/cross-document forms, overlapping or malformed ranges, oversized payloads and obsolete resolve responses. Keep ordinary editing usable during resolve and restore native behavior on cancel/failure.
 - [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+
+Implementation: T4.1 `07df3dc83553cc0c49131203971a92742966f767`; T4.2 introduces the Slice 4 report with atomic edit boundaries, source fallback and obsolete-generation regressions. Canonical PR pending creation; integration remains controller-owned.
 
 ## Slice 5: Shared lifecycle and real Rust interoperability
 

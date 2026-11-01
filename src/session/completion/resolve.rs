@@ -36,7 +36,7 @@ impl Session {
     pub(super) fn resolution_current(&self) -> bool {
         self.completion_resolve
             .as_ref()
-            .is_some_and(|resolve| self.check_completion(&resolve.completion).is_ok())
+            .is_some_and(|resolve| self.check_completion_target(&resolve.completion).is_ok())
     }
     pub(super) fn poll_resolution(&mut self, now: Instant) -> Option<Action> {
         let pending = self.completion_resolve.as_mut()?;
@@ -46,12 +46,15 @@ impl Session {
             .completion_resolve
             .take()
             .expect("completed selected resolve");
-        if let Err(error) = self.check_completion(&pending.completion) {
+        if let Err(error) = self.check_completion_target(&pending.completion) {
             self.dismiss_completion();
             return Some(self.error(&error));
         }
         let action = match reply.source {
             Source::Semantic { .. } if reply.items.len() == 1 => {
+                if !pending.completion.lsp_current(&self.lsp) {
+                    return Some(self.resolve_fallback(Fallback::Unavailable));
+                }
                 pending.completion.resolved(reply.items.remove(0));
                 match self.finish_completion(pending.completion) {
                     Ok(()) => self.message(""),

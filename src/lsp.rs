@@ -190,5 +190,8 @@ impl Drop for Client {
 }
 
 fn status(connection: &Connection) -> Status {
+    if connection.retiring {
+        return Status::Stopping;
+    }
     connection.status.lock().expect("LSP status lock").clone()
 }

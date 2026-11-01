@@ -50,6 +50,7 @@ while read_frame; do
             esac
             result=$(cat "$log.resolved")
             frame '{"jsonrpc":"2.0","id":'"$id"',"result":'"$result"'}'
+            printf 'sent\n' > "$log.resolved-sent"
             ;;
         *'"method":"$/cancelRequest"'*)
             if test -n "$old"; then

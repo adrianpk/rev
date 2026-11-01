@@ -1,4 +1,5 @@
 use super::*;
+use crate::buffer::edit::Replacement;
 
 fn session() -> (crate::fixture::Fixture, Session) {
     let fixture = crate::fixture::Fixture::new();
@@ -296,4 +297,47 @@ fn changed_in_flight() {
     assert!(names.contains(&"sample_new"));
     assert!(!names.contains(&"sample_other"));
     assert!(session.buffer().unwrap().history().is_empty());
+}
+
+// Resolved additional edits remain proposals until final admission. A read-only
+// transition after presentation must preserve every edit, point and history.
+#[test]
+fn readonly_resolved() {
+    let (_fixture, mut session) = session();
+    let mut completion = prepared(&mut session);
+    let point = session.view().point;
+    let buffer = session.buffer().unwrap();
+    let original = buffer
+        .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+        .unwrap()
+        .to_string();
+    completion.resolved(crate::lsp::completion::Item {
+        label: "sample".into(),
+        text: "sample".into(),
+        range: point.position.0 - 2..point.position.0,
+        additional: vec![crate::lsp::completion::Edit {
+            range: 0..0,
+            text: "use demo::Thing;\n".into(),
+        }],
+        proposal: None,
+    });
+    session
+        .buffers
+        .get_mut(point.stamp.buffer)
+        .unwrap()
+        .set_readonly(true);
+    assert_eq!(
+        session.finish_completion(completion).unwrap_err(),
+        "buffer is read-only"
+    );
+    let buffer = session.buffer().unwrap();
+    assert_eq!(
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap()
+            .to_string(),
+        original
+    );
+    assert_eq!(session.view().point, point);
+    assert!(buffer.history().is_empty());
 }

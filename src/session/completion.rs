@@ -298,6 +298,14 @@ impl Session {
     }
 
     fn check_completion(&self, completion: &Completion) -> Result<(), String> {
+        self.check_completion_target(completion)?;
+        if !completion.lsp_current(&self.lsp) {
+            return Err("Stale completion target".into());
+        }
+        Ok(())
+    }
+
+    fn check_completion_target(&self, completion: &Completion) -> Result<(), String> {
         let buffer = self.buffer().map_err(|e| e.to_string())?;
         if buffer.is_readonly() {
             return Err("buffer is read-only".into());
@@ -305,7 +313,6 @@ impl Session {
         if self.completion_request != Some(completion.generation)
             || !completion.current(buffer, self.windows.selected_id(), self.view().point)
             || !completion.sources_current(&self.buffers)
-            || !completion.lsp_current(&self.lsp)
         {
             return Err("Stale completion target".into());
         }

@@ -179,8 +179,20 @@ negotiated UTF-8/UTF-16 units. Advertised trigger characters can request before
 the minimum prefix; an incomplete list is requested again for changed input.
 Selection alone never changes text. Acceptance uses ordinary canonical undo.
 
-Explicit snippets, commands, indentation adjustment and additional-edit items
-are omitted from this primary-edit profile. Connection, activation, revision,
+Acceptance resolves the selected item once when the server advertises resolve.
+Only `additionalTextEdits` is advertised as a mutable resolve property; the primary
+proposal remains fixed. List-default data and primary ranges accompany the
+selected item. Resolution waits asynchronously; ordinary edits, movement and
+completion cancellation retire it. A failed or unsupported resolve offers current
+native fallback without applying a primary-only fragment.
+
+Additional edits from the list or resolve must belong to the current document,
+use valid negotiated positions and stay disjoint from the primary and each other.
+At most 32 additional edits and 256 KiB total inserted text are admitted per item,
+including the primary's existing 64 KiB limit. The whole batch publishes as one
+ordinary undo/redo transaction, with the cursor following the primary insertion.
+Read-only or stale state refuses the entire batch. Explicit snippets, commands,
+cross-document edits and indentation adjustment remain unsupported. Connection, activation, revision,
 view and invocation changes invalidate the old result. Cancellation and request
 timeouts retire pending work; late responses cannot reopen the popup. The
 configured `lsp.request_timeout_ms` defaults to 2000 and
