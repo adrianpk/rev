@@ -141,3 +141,25 @@ Meta reports including M-< and M->. These checks prove the reports handled by
 the editor. Physical chords also depend on terminal and multiplexer delivery;
 see [Terminal input](../reference/terminal-input.md). Key press/repeat/release
 semantics and canonical state variants remain covered by native Rust tests.
+
+## Run joint completion acceptance
+
+```sh
+bash scripts/check-lsp.sh
+```
+
+This requires the installed `rust-analyzer`, local Rust toolchain and cached
+locked dependencies. The wrapper builds the normal release editor, checks every
+production Rust source and the acceptance roots, then runs isolated real-server
+and controlled-server completion journeys. It also reruns native language/Org/
+external-grammar completion, resource bounds and the native PTY journey without
+changing their historical evidence.
+
+The real Rust fixture has a 35-second semantic readiness deadline and a
+60-second outer child-process deadline. It requires a semantic field from
+unsaved text, one undo and unchanged disk bytes. Controlled peers prove resolved
+imports, empty/failure fallback, exceptions, sharing, restart and cleanup. The
+native and LSP terminal sessions each retain the eight-second and 1 MiB output
+limits and verify terminal restoration. Output records executable bytes, native
+editor resources and installed-server resources separately. Only owned sources,
+HOME/XDG roots, processes and PTYs are created and cleaned up.

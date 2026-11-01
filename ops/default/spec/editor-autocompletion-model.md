@@ -6,12 +6,25 @@ Reviewed: 2026-10-31
 Completed: 2026-10-31
 Validated candidate: `0f7cc36cb1082aa56954fa602294f47aac80e889`
 Gate receipt: `DAIRXONWTTLVG6RDIQQZKBSGXA`
-Completion boundary: native interaction and sources delivered; semantic source precedence remains assigned to the LSP successor
+Completion boundary: native interaction and sources delivered; semantic precedence has focused LSP Slice 6 evidence, with integrated joint acceptance pending
 Approved: product owner, 2026-10-31; implementation and ordered Looper execution requested
 Specification: [Native Autocompletion](editor-autocompletion.md)
 Semantic source: [Language Server Support](editor-language-server-support.md)
 Org owner: [Org Mode Model](editor-org-mode-model.md)
 Existing owners: [rev Editor Model](rev-editor-model.md), [Editor Configuration Model](editor-configuration-model.md)
+
+## Joint source acceptance candidate
+
+The [LSP Slice 6 report](../report/slices/rev-language-server-support/slice-6-acceptance.md) records real semantic readiness separately
+from transport readiness and native fallback. The same canonical edit/history
+owner accepts the semantic primary and admitted additional edits. Source and
+connection replacement retire the original invocation; empty or unavailable
+semantic results obtain current native observations. Shared-root lifetime and
+exclusions preserve buffer and view ownership.
+
+The predecessor candidate and receipt above remain unchanged. Native source,
+Org, external-grammar, resource and terminal cases are rerun by the joint runner;
+final joint acceptance remains owned by the LSP integrated gate and closure.
 
 ## Ownership
 

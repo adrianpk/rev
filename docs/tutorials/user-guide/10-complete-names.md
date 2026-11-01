@@ -49,6 +49,16 @@ or timing, and [Native completion](../../reference/completion.md) for language
 contexts and work limits. Org has additional structural contexts described in
 that reference; the separate [Org guide](org/index.md) remains its learning path.
 
+## Add optional semantic suggestions
+
+The steps above work with LSP disabled, using names already observed in your
+buffers. With an installed `rust-analyzer`, run `M-x lsp-mode` in a Rust project
+to request semantic suggestions in the same popup. They follow unsaved text and
+can provide checked same-document imports with one undo. Empty or unavailable
+server results keep native fallback available. `M-x lsp-disconnect` excludes
+this buffer; `M-x lsp-connect` restores it. See
+[Use a language server](../../how-to/use-language-server.md) for setup and recovery.
+
 You have completed the User Guide. Continue with a
 [task guide](../../how-to/index.md) or look up a
 [command](../../reference/commands.md).

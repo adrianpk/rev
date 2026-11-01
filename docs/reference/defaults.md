@@ -181,13 +181,13 @@ change only that view's overrides and never reload or write this snapshot.
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
 | `lsp.enabled` | Boolean | `false` | Start optional configured stdio servers for activated files; lsp-mode toggles the session. |
-| `lsp.shutdown_on_last_buffer` | Boolean | `false` | True shuts down a connection when its last buffer detaches; false retains it until disable/exit. |
+| `lsp.shutdown_on_last_buffer` | Boolean | `false` | True shuts down a healthy connection when its last buffer detaches; false retains it until disable/exit. |
 | `lsp.request_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds allowed for an outbound write or subsequent client request. |
 | `lsp.initialize_timeout_ms` | Integer 1..=600000 | `10000` | Milliseconds to initialize a newly owned connection. |
 | `lsp.shutdown_timeout_ms` | Integer 1..=600000 | `2000` | Milliseconds for shutdown/exit before owned-child termination and reaping. |
 | `lsp.max_message_bytes` | Integer 1..=8388608 | `8388608` | Maximum incoming or outgoing JSON body bytes. |
 | `lsp.max_servers` | Integer 1..=8 | `8` | Maximum retained server/root connections, including failed entries. |
-| `lsp.max_pending_requests` | Integer 1..=16 | `16` | Maximum pending requests per connection; transport initializes one request. |
+| `lsp.max_pending_requests` | Integer 1..=16 | `16` | Maximum pending completion/resolve requests per connection; one completion per buffer. |
 | `lsp.servers` | Map of at most 32 server entries | `{ rust = { languages = ["rust"], command = "rust-analyzer", args = [], root_markers = ["Cargo.toml"], initialization_options = {}, settings = {} } }` | Named entries merge by leaf; the Rust default needs an installed executable. |
 
 Each `lsp.servers.<name>` entry declares `languages` (nonempty language array),
@@ -209,15 +209,21 @@ didClose; synchronization never saves a file. Successful saves send only the
 negotiated save notification. Wire columns count encoding units, with canonical
 transaction ranges used before each incremental mutation. Split views and
 canonical file aliases share one document. Documents admit at most 8 MiB each
-and 32 MiB total; larger buffers stay editable with native completion.
+and 32 MiB total; larger buffers stay editable and retain native fallback within
+its own source limits.
 
 `lsp-disconnect` excludes the current canonical buffer across all its views until
 `lsp-connect` restores eligibility or the buffer closes. Other attachments retain
 their connection. Restore never enables globally disabled LSP. Reopening or
 restoring advances document generation; undo and equal bytes with a new revision
 cannot reuse old synchronization evidence. Missing or failed
-servers remain unavailable until disable/enable. `lsp-status` reports transport
-readiness; semantic results enter native completion in the subsequent delivery layers.
+servers remain unavailable until `lsp-restart` or disable/enable. Restart replaces
+the eligible current root while preserving other roots and exclusions.
+`lsp-status` reports transport readiness. Admitted semantic results use the native
+popup; empty, unsupported or unavailable results use native fallback. Selected
+resolve and same-document imports publish with the primary as one undo
+transaction. See [Language servers](language-servers.md) for the protocol profile,
+edit limits and finite lifecycle.
 
 ### Editing, presentation and retention
 

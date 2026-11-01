@@ -169,7 +169,10 @@ installed `rust-analyzer`; server entries declare their executable, argv,
 languages and root markers under `[lsp.servers.<name>]`. No server is downloaded.
 `lsp-status` observes the connection. `lsp-disconnect` excludes the current
 canonical buffer across all its views; `lsp-connect` restores eligibility without
-enabling a globally disabled client. Native completion remains available.
+enabling a globally disabled client. `lsp-restart` replaces the current eligible
+root after failure, preserving exclusions and other roots. Healthy servers stay
+available after last-buffer close by default. Native completion remains available.
+See [Language servers](language-servers.md) for lifecycle and protocol limits.
 
 Semantic results use the same prefix/subsequence classes, using `filterText` or
 label for matching and server sort keys/order within each class. Plain text,

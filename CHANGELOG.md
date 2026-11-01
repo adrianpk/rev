@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Optional language-server completion shares the native popup and undo history.
+- Optional [language-server completion](docs/how-to/use-language-server.md) shares the native popup and undo history.
   Enable `lsp-mode` or `[lsp] enabled = true` to use configured installed servers,
   including the default Rust `rust-analyzer` entry. Suggestions follow unsaved
   text, support checked primary replacements and same-document additional edits,
@@ -17,7 +17,8 @@ This project uses Semantic Versioning.
   `lsp-disconnect` and `lsp-connect` exclude or restore the current buffer;
   `lsp-restart` recovers the current root after a server failure. Healthy servers
   remain available across buffer visits; disabling LSP stops owned processes.
-  Late replies cannot replace newer edits or revive cancelled suggestions.
+  Native syntax coloring remains available independently. Late replies cannot
+  replace newer edits or revive cancelled suggestions.
 - [Native completion](docs/tutorials/user-guide/10-complete-names.md) suggests Rust, C, Go, JavaScript and TypeScript/TSX
   declarations, HTML tags/attributes, CSS selectors/properties, and observed
   JSON/TOML keys and TOML tables near the cursor

@@ -58,5 +58,9 @@ available. See [Native completion](../reference/completion.md) for exact context
 ranking, fallback and limits, or [Register grammar assets](register-grammar.md)
 for another explicitly configured language.
 
+To enable semantic results from an installed server, follow
+[Use a language server](use-language-server.md). It explains unsaved completion,
+buffer exceptions and explicit recovery while preserving native fallback.
+
 For a guided first insertion, follow
 [Complete Names](../tutorials/user-guide/10-complete-names.md).

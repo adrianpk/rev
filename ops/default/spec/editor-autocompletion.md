@@ -15,9 +15,22 @@ Related: [Language Server Support](editor-language-server-support.md)
 Org owner: [Org Mode](editor-org-mode.md)
 Model: [Native Autocompletion Model](editor-autocompletion-model.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Readiness: native CMP01 and CMP03-CMP09 delivered; CMP02 semantic switching remains assigned to the LSP successor
+Readiness: native CMP01 and CMP03-CMP09 delivered; CMP02 has focused LSP Slice 6 candidate evidence, with the integrated joint gate pending
 Plan: [Native Completion Delivery](../plan/rev-autocompletion.md)
 Tracker: [Native Completion Tracker](../tracker/rev-autocompletion.md)
+
+## Joint source acceptance candidate
+
+The LSP set's [Slice 6 report](../report/slices/rev-language-server-support/slice-6-acceptance.md) records a normal-release journey
+requiring a real installed Rust server's semantic candidate from unsaved text.
+Controlled peers establish semantic precedence, resolved import/undo, buffer
+exceptions and valid-empty/unavailable native fallback through the same
+completion owner. The joint runner also repeats the native language, Org,
+external grammar, resource and PTY acceptance after source switching succeeds.
+
+The native validated candidate and gate receipt above remain the predecessor's
+historical evidence. The LSP set owns the integrated full gate and joint closure;
+these focused results do not replace that pending gate.
 
 ## Purpose
 
