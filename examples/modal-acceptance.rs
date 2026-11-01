@@ -31,6 +31,10 @@ fn main() -> Result<()> {
     semantic::run(&args[0])?;
     terminals(&args)?;
     println!(
+        "MEASURE modal acceptance total_ms={}",
+        started.elapsed().as_millis()
+    );
+    println!(
         "PASS modal acceptance: isolated profiles, native edits/selections/history, installed Rust semantics, bounded work and restored Linux PTYs"
     );
     Ok(())
