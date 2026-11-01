@@ -29,6 +29,9 @@ impl Session {
         {
             return self.message("A component owns input focus");
         }
+        if command == ModalCommand::Once {
+            return self.begin_one_normal();
+        }
         let result = if let Some(shape) = command.visual() {
             self.enter_visual(shape)
         } else {

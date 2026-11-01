@@ -31,6 +31,12 @@ impl Buffers {
                 .map_err(io::Error::other)?
         };
         rename.publish(&target)?;
+        if !rename.is_symlink() {
+            self.locations
+                .lock()
+                .expect("location owner poisoned")
+                .renamed(rename.source(), &target, rename.is_directory());
+        }
         self.bookmarks
             .lock()
             .expect("bookmark owner poisoned")

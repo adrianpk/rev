@@ -192,3 +192,36 @@ repeat block rows horizontally within the shared 64-MiB expanded-text bound;
 copy, rejection and cancellation never publish partial row edits. Linear Visual
 objects are limited to inner/around word and paragraph and publish Character
 endpoints through the same mark/point owner.
+
+## Delivered jump and continuation ownership
+
+Each view owns a 256-entry jump history and traversal index. Splits copy bounded
+native location handles and then evolve independently; rebinds retain that view's
+history. A weak native location registry releases unreferenced entries on ordinary
+capture/edit/close work, without idle polling. Each location contains a checked
+source point, optional native file identity and 64 source scalars of evidence on
+each side. Paths retain the native 4096-byte limit. The shared source-context
+primitive belongs to file locations; named bookmarks keep their separate storage,
+settings, context-search policy and persistence.
+
+Canonical prepared edits admit the live location set, map endpoints with left
+anchor affinity and record before/after outcomes in their ordinary payload budget.
+Removed or joined-away boundaries become stale. Structural permutations and
+undo/redo restore checked saved outcomes rather than guessing nearby cursors.
+Close prepares all source evidence before changing either location owner. Closed
+visits require matching file observations, exact bounded context and a native
+grapheme boundary; changed/replaced/missing targets do not advance traversal.
+Canonical rename carries closed paths, while open dirty buffers retain identity.
+
+Explicit line/buffer/paragraph/viewport destinations, accepted search and file
+navigation record successful origin/destination pairs. Ordinary cursor/word steps,
+previews, drawing and traversal itself do not append entries. Backward traversal
+captures the newest current point; older locations stay authoritative after edits
+and undo. Only a new admitted jump truncates a forward branch.
+
+Insert C-o retains one checked view/source continuation while the native Normal
+command lifetime consumes counts, operator/character syntax and component-owned
+prompts. An admitted edit may change that source revision; incompatible external
+source, buffer or view changes retire it. Completion restores Insert only in a
+valid native editing context, before later deferred input is dispatched. Explicit
+Visual entry remains Visual, and local prompts/completion retain the Tab/C-i alias.

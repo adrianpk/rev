@@ -115,6 +115,19 @@ impl Session {
                 if let Some(action) = self.accept_operator_search() {
                     return action;
                 }
+                if let Some(Pending::Search(state)) = &self.pending
+                    && state.found.is_some()
+                {
+                    let jump = self.prepare_jump_between(
+                        state.origin.point,
+                        self.buffer().expect("checked search source"),
+                        self.view().point,
+                    );
+                    match jump {
+                        Ok(record) => self.publish_jump(record),
+                        Err(error) => return self.error(&error.to_string()),
+                    }
+                }
                 self.confirm_search();
                 self.message("")
             }

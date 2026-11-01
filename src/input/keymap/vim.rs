@@ -39,12 +39,24 @@ pub(super) fn normal() -> &'static [(&'static str, &'static str)] {
             ("v", "modal-enter-visual-character"),
             ("V", "modal-enter-visual-line"),
             ("C-v", "modal-enter-visual-block"),
+            ("C-o", "modal-jump-backward"),
+            ("C-i", "modal-jump-forward"),
         ]);
         bindings.extend(super::vim_navigation::BINDINGS);
         bindings.extend(super::vim_editing::BINDINGS);
         bindings
     });
     &NORMAL
+}
+
+pub(super) fn insert() -> &'static [(&'static str, &'static str)] {
+    static INSERT: LazyLock<Vec<(&str, &str)>> = LazyLock::new(|| {
+        let mut bindings = super::defaults::EDITOR.to_vec();
+        bindings.retain(|(key, _)| *key != "C-o");
+        bindings.push(("C-o", "modal-one-normal-command"));
+        bindings
+    });
+    &INSERT
 }
 
 pub(super) fn visual(block: bool) -> &'static [(&'static str, &'static str)] {

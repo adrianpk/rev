@@ -102,6 +102,7 @@ impl Transaction {
         self.after_state == next.before_state
             && self.after_points == next.before_points
             && self.after_bookmarks == next.before_bookmarks
+            && self.after_locations == next.before_locations
             && self.after_mark == next.before_mark
             && self.cursor == next.cursor
     }
@@ -118,6 +119,7 @@ impl Transaction {
         group.after_points = next.after_points.clone();
         group.after_mark = next.after_mark;
         group.after_bookmarks = next.after_bookmarks.clone();
+        group.after_locations = next.after_locations.clone();
         group.bytes = group.payload();
         Ok(group)
     }

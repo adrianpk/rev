@@ -136,6 +136,7 @@ impl std::error::Error for Error {}
 pub struct Buffer {
     observer: Option<std::sync::Arc<dyn edit::Observer>>,
     pub(crate) bookmarks: crate::bookmark::Shared,
+    pub(crate) locations: crate::location::Shared,
     pub(crate) bookmark_rows: std::sync::Mutex<crate::bookmark::markers::Cache>,
     id: BufferId,
     name: String,
@@ -197,6 +198,7 @@ impl Buffer {
         Ok(Self {
             observer: None,
             bookmarks: crate::bookmark::Shared::default(),
+            locations: crate::location::Shared::default(),
             bookmark_rows: std::sync::Mutex::default(),
             id,
             name: format!("*buffer-{id}*"),
@@ -405,6 +407,7 @@ impl Buffer {
 /// Owns live buffers; file paths and view references do not own additional text.
 pub struct Buffers {
     pub(crate) bookmarks: crate::bookmark::Shared,
+    pub(crate) locations: crate::location::Shared,
     entries: BTreeMap<BufferId, Buffer>,
     initial: BufferId,
     files: BTreeMap<PathBuf, BufferId>,
@@ -440,6 +443,7 @@ impl Buffers {
         let initial = buffer.id();
         Ok(Self {
             bookmarks: buffer.bookmarks.clone(),
+            locations: buffer.locations.clone(),
             entries: BTreeMap::from([(initial, buffer)]),
             initial,
             files: BTreeMap::new(),
@@ -488,6 +492,7 @@ impl Buffers {
 
     pub(crate) fn insert(&mut self, mut buffer: Buffer) -> BufferId {
         buffer.bookmarks = self.bookmarks.clone();
+        buffer.locations = self.locations.clone();
         buffer.apply_settings(&self.settings);
         buffer.name = self.label(&buffer.name);
         let id = buffer.id();

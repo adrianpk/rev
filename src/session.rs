@@ -26,6 +26,7 @@ mod goto;
 mod gutter;
 mod habits;
 mod history;
+mod jumps;
 mod kill;
 mod layout;
 mod linear;
@@ -138,6 +139,7 @@ pub struct Session {
     kills: crate::kill::KillRing,
     rectangle: Option<std::sync::Arc<crate::rectangle::Rectangle>>,
     visual_source: Option<crate::buffer::Stamp>,
+    one_normal: Option<jumps::Continuation>,
     yank: Option<yank::Capture>,
     selection: Option<pointer::Selection>,
     mouse_enabled: bool,
@@ -344,6 +346,7 @@ impl Session {
             kills,
             rectangle: None,
             visual_source: None,
+            one_normal: None,
             yank: None,
             selection: None,
             mouse_enabled,
@@ -641,6 +644,26 @@ impl Session {
     }
 
     fn outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
+        self.qualify_one_normal();
+        let complete = matches!(
+            &outcome,
+            Outcome::Argument(_)
+                | Outcome::PathAccept
+                | Outcome::Decision(_)
+                | Outcome::Search(crate::input::SearchAction::Accept)
+                | Outcome::Message(_)
+        );
+        if complete {
+            self.start_one_normal();
+        }
+        let action = self.apply_outcome(outcome, now);
+        if complete {
+            self.complete_one_normal();
+        }
+        action
+    }
+
+    fn apply_outcome(&mut self, outcome: Outcome, now: std::time::Instant) -> Action {
         if self.bookmark_list_active() && matches!(outcome, Outcome::Paste(_)) {
             return self.message("Read-only bookmark list; q returns to source");
         }
@@ -708,6 +731,18 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        self.qualify_one_normal();
+        if command != Command::Modal(crate::command::ModalCommand::Once) {
+            self.start_one_normal();
+        }
+        let action = self.execute_operation(command);
+        if command != Command::Modal(crate::command::ModalCommand::Once) {
+            self.complete_one_normal();
+        }
+        action
+    }
+
+    fn execute_operation(&mut self, command: Command) -> Action {
         if let Some(action) = self.completion_boundary(command) {
             return action;
         }

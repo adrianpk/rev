@@ -14,6 +14,9 @@ impl Session {
         let Command::Navigate(request) = command else {
             return None;
         };
+        if let Target::Jump(direction) = request.target {
+            return Some(self.traverse_jump(direction == Direction::Backward, request.amount()));
+        }
         if let Target::Search(search) = request.target {
             return Some(self.navigation_search(search, request.amount()));
         }
@@ -29,7 +32,14 @@ impl Session {
     fn apply_navigation(&mut self, request: Navigation) -> Result<(), Error> {
         let found = self.navigation_find(request)?;
         let candidate = self.navigation_view(request)?;
-        self.place_view(candidate)?;
+        if matches!(
+            request.target,
+            Target::Buffer(_) | Target::Paragraph(_) | Target::Page { .. } | Target::Screen(_)
+        ) {
+            self.place_jump_view(candidate)?;
+        } else {
+            self.place_view(candidate)?;
+        }
         self.retain_find(request, found);
         Ok(())
     }

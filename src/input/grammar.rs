@@ -43,7 +43,7 @@ impl Input {
             && self.navigation_pending()
     }
 
-    fn navigation_pending(&self) -> bool {
+    pub(crate) fn navigation_pending(&self) -> bool {
         self.grammar.strokes > 0
             || self.grammar.character.is_some()
             || self.grammar.operator.is_some()

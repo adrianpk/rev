@@ -106,6 +106,7 @@ impl From<crate::window::Error> for Error {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct View {
     pub point: Point,
+    pub(crate) jumps: crate::jump::History,
     /// Session-only presentation values, copied by splits and never text data.
     pub gutter: crate::gutter::Policy,
     /// Independent view presentation, inherited by splits and retained on rebind.
@@ -149,6 +150,7 @@ impl View {
                 stamp: buffer.stamp(),
                 position: Scalar(0),
             },
+            jumps: crate::jump::History::default(),
             gutter: crate::gutter::Policy::default(),
             bookmark_markers: bookmarks.markers,
             bookmark_marker: bookmarks.marker,
@@ -185,7 +187,9 @@ impl View {
         let markers = self.bookmark_markers;
         let marker = self.bookmark_marker.clone();
         let enabled = self.preview.enabled;
+        let jumps = std::mem::take(&mut self.jumps);
         *self = Self::new(buffer);
+        self.jumps = jumps;
         self.gutter = gutter;
         self.bookmark_markers = markers;
         self.bookmark_marker = marker;

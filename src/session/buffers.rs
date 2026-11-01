@@ -52,7 +52,14 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         if self.windows.selected().point.stamp.buffer != id {
-            self.windows.selected_mut().rebind(buffer);
+            let mut view = self.view().clone();
+            view.rebind(buffer);
+            let jump = match self.prepare_jump_to(buffer, view.point) {
+                Ok(jump) => jump,
+                Err(error) => return self.error(&error.to_string()),
+            };
+            *self.windows.selected_mut() = view;
+            self.publish_jump(jump);
         }
         self.touch_completion_source(id);
         self.input.cancel();

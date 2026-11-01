@@ -34,7 +34,6 @@ impl Buffers {
     /// Allocate a final-buffer replacement before removing anything. The caller
     /// replaces every view reference with the returned deterministic live owner.
     pub fn kill(&mut self, kill: Kill) -> Result<BufferId, Error> {
-        self.get(kill.id())?.current(kill.stamp)?;
         let fresh = if self.entries.len() == 1 {
             Some(Buffer::new("", &self.settings.settings().files)?)
         } else {
@@ -45,10 +44,7 @@ impl Buffers {
             .map(Buffer::id)
             .or_else(|| self.entries.keys().copied().find(|id| *id != kill.id()))
             .ok_or(Error::Missing(kill.id()))?;
-        self.bookmarks
-            .lock()
-            .expect("bookmark owner poisoned")
-            .checkpoint(self.get(kill.id())?, true)?;
+        self.checkpoint_close(kill.stamp)?;
         let removed = self
             .entries
             .remove(&kill.id())
@@ -59,9 +55,29 @@ impl Buffers {
         self.replace_killed(kill.id(), replacement, fresh);
         Ok(replacement)
     }
+    fn checkpoint_close(&self, stamp: Stamp) -> Result<(), Error> {
+        let buffer = self.get(stamp.buffer)?;
+        buffer.current(stamp)?;
+        let closed = self
+            .locations
+            .lock()
+            .expect("location owner poisoned")
+            .prepare_close(buffer)?;
+        self.bookmarks
+            .lock()
+            .expect("bookmark owner poisoned")
+            .checkpoint(buffer, true)?;
+        self.locations
+            .lock()
+            .expect("location owner poisoned")
+            .publish_close(closed);
+        Ok(())
+    }
+
     fn replace_killed(&mut self, id: BufferId, replacement: BufferId, fresh: Option<Buffer>) {
         if let Some(mut buffer) = fresh {
             buffer.bookmarks = self.bookmarks.clone();
+            buffer.locations = self.locations.clone();
             buffer.name = "*scratch*".into();
             buffer.apply_settings(&self.settings);
             self.entries.insert(buffer.id(), buffer);

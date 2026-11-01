@@ -70,14 +70,9 @@ impl Buffer {
             prepared.record.after,
             self.policy.tab_width,
         );
-        super::bookmarks::restore(
-            &mut prepared.record.after_bookmarks,
-            match direction {
-                History::Undo => &record.before_bookmarks,
-                History::Redo => &record.after_bookmarks,
-            },
-            &coordinates,
-        )?;
+        prepared
+            .record
+            .restore_anchors(record, direction, &coordinates)?;
         prepared.record.bytes = prepared.record.payload();
         prepared.record.after_mark = record.mark(direction);
         if let Some(mark) = prepared.record.after_mark {
@@ -162,6 +157,31 @@ impl Buffer {
 }
 
 impl Transaction {
+    fn restore_anchors(
+        &mut self,
+        record: &Self,
+        direction: History,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        super::bookmarks::restore(
+            &mut self.after_bookmarks,
+            match direction {
+                History::Undo => &record.before_bookmarks,
+                History::Redo => &record.after_bookmarks,
+            },
+            coordinates,
+        )?;
+        super::locations::restore(
+            &mut self.after_locations,
+            match direction {
+                History::Undo => &record.before_locations,
+                History::Redo => &record.after_locations,
+            },
+            coordinates,
+        )?;
+        Ok(())
+    }
+
     fn states(&self, direction: History) -> (State, State) {
         match direction {
             History::Undo => (self.after_state, self.before_state),

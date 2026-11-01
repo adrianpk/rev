@@ -151,6 +151,13 @@ impl Session {
     /// Service native deadlines after the host has processed ready input.
     /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
+        self.qualify_one_normal();
+        let action = self.expire_owned_input(now);
+        self.complete_one_normal();
+        action
+    }
+
+    fn expire_owned_input(&mut self, now: Instant) -> Action {
         [
             if self.layout_active() {
                 Action::Wait

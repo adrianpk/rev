@@ -26,6 +26,11 @@ This project uses Semantic Versioning.
   edits in one step. Visual blocks count whole graphemes and preserve tabs;
   Emacs rectangles keep their display-cell edges.
 
+- Revisit checked file and source locations with C-o/C-i in Vim Normal. Each pane
+  keeps its own bounded jump history, including locations rebased through edits
+  and undo. In Insert, C-o runs one complete Normal command and resumes insertion
+  when the editing context remains compatible.
+
 ## 0.2.0 - 2026-11-01
 
 ### Added

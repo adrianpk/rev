@@ -14,20 +14,7 @@ pub(super) fn map(
             let Some(point) = anchor.position else {
                 return Ok(*anchor);
             };
-            let retained = record.permutation.as_ref().and_then(|p| p.bookmark(point));
-            let removed =
-                retained.is_none() && record.changes.iter().any(|c| c.before.contains(&point.0));
-            let position = if removed {
-                None
-            } else {
-                let mapped = match retained {
-                    Some(position) => position,
-                    None => mapping::mapped(&record.changes, point, mapping::Affinity::Left, None)?,
-                };
-                // A grapheme join can erase the original boundary; it must not be
-                // replaced with a neighbouring cursor merely to keep it in range.
-                coordinates.is_boundary(mapped)?.then_some(mapped)
-            };
+            let position = mapping::anchor(record, coordinates, point)?;
             Ok(Anchor {
                 position,
                 ..*anchor

@@ -43,6 +43,10 @@ pub(super) struct Work {
 }
 
 impl Session {
+    pub(super) fn layout_held(&self) -> bool {
+        self.layout.held.is_some()
+    }
+
     pub(super) fn layout_active(&self) -> bool {
         self.layout.held.is_some() || !self.layout.input.is_empty()
     }
@@ -117,7 +121,7 @@ impl Session {
                         | Motion::BackwardChar
                 )
         );
-        if matches!(command, Command::Navigate(request) if matches!(request.target, crate::command::navigation::Target::Search(_) | crate::command::navigation::Target::Find(_)) && request.character.is_none())
+        if matches!(command, Command::Navigate(request) if matches!(request.target, crate::command::navigation::Target::Search(_) | crate::command::navigation::Target::Find(_) | crate::command::navigation::Target::Jump(_)) && request.character.is_none())
         {
             return None;
         }

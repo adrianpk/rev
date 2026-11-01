@@ -99,7 +99,11 @@ impl Session {
         view.reset_navigation();
         view.reveal(buffer, self.pane_size())
             .map_err(|e| e.to_string())?;
+        let jump = self
+            .prepare_jump_to(buffer, view.point)
+            .map_err(|e| e.to_string())?;
         *self.windows.selected_mut() = view;
+        self.publish_jump(jump);
         self.sync_input_context();
         Ok(())
     }

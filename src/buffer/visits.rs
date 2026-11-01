@@ -98,6 +98,14 @@ impl Buffers {
     }
 
     pub(crate) fn publish_visit(&mut self, visit: Visit) -> BufferId {
+        self.locations
+            .lock()
+            .expect("location owner poisoned")
+            .reopened(
+                visit
+                    .buffer(self)
+                    .expect("admitted visit owns a canonical source"),
+            );
         match visit {
             Visit::Existing(id) => id,
             Visit::New(buffer, path) => {

@@ -31,10 +31,14 @@ impl Session {
         view.reset_navigation();
         view.reveal(buffer, self.pane_size())
             .map_err(|e| e.to_string())?;
+        let jump = self
+            .prepare_jump_to(buffer, point)
+            .map_err(|e| e.to_string())?;
         self.stop_typing().map_err(|e| e.to_string())?;
         self.push_link_mark(self.view().point);
         self.buffers.publish_visit(visit);
         *self.windows.selected_mut() = view;
+        self.publish_jump(jump);
         self.sync_input_context();
         self.message("Org link destination");
         Ok(())

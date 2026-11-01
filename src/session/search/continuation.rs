@@ -123,7 +123,7 @@ impl Session {
         let target = self.search_point(&found, direction)?;
         let mut point = self.view().point;
         point.position = target;
-        self.place_point(point)?;
+        self.place_jump_point(point)?;
         self.last_search
             .as_mut()
             .expect("continuation has a confirmed query")

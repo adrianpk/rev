@@ -1,6 +1,7 @@
 mod bookmarks;
 mod grouping;
 mod history;
+mod locations;
 mod mapping;
 mod observe;
 pub(crate) use observe::{Observer, Published};
@@ -157,6 +158,8 @@ pub struct Transaction {
     changes: Vec<Change>,
     before_bookmarks: Vec<crate::bookmark::Anchor>,
     after_bookmarks: Vec<crate::bookmark::Anchor>,
+    before_locations: Vec<crate::location::Snapshot>,
+    after_locations: Vec<crate::location::Snapshot>,
     before_points: Vec<Point>,
     after_points: Vec<Point>,
     pub before_mark: Option<Scalar>,
@@ -282,6 +285,8 @@ impl Buffer {
                 .expect("bookmark owner poisoned")
                 .anchors(self.stamp())?,
             after_bookmarks: Vec::new(),
+            before_locations: Vec::new(),
+            after_locations: Vec::new(),
             changes,
             before_points: points.to_vec(),
             after_points,
@@ -294,6 +299,7 @@ impl Buffer {
         };
         record.after_mark = mapping::map_mark(&record, &coordinates)?;
         record.after_bookmarks = bookmarks::map(&record, &coordinates)?;
+        self.prepare_location_anchors(&mut record, &coordinates)?;
         record.bytes = record.payload();
         let syntax = syntax::edits(&self.text, &record.changes)?;
         Ok(Prepared {
@@ -307,6 +313,20 @@ impl Buffer {
             active: self.mark_mode,
             tab_width: self.policy.tab_width,
         })
+    }
+
+    fn prepare_location_anchors(
+        &self,
+        record: &mut Transaction,
+        coordinates: &Coordinates<'_>,
+    ) -> Result<(), Error> {
+        record.before_locations = self
+            .locations
+            .lock()
+            .expect("location owner poisoned")
+            .anchors(self.stamp())?;
+        record.after_locations = locations::map(record, coordinates)?;
+        Ok(())
     }
 
     /// The sole text publication path. The caller supplies every live point for
@@ -325,6 +345,7 @@ impl Buffer {
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
         let after_bookmarks = prepared.record.after_bookmarks.clone();
+        let after_locations = prepared.record.after_locations.clone();
         let changed = prepared
             .record
             .changes
@@ -351,6 +372,10 @@ impl Buffer {
             .lock()
             .expect("bookmark owner poisoned")
             .publish_anchors(after, &after_bookmarks);
+        self.locations
+            .lock()
+            .expect("location owner poisoned")
+            .publish(after, &after_locations);
         self.typing = match prepared.operation {
             Operation::Typing => Some(after),
             _ => None,
@@ -378,6 +403,13 @@ impl Buffer {
         {
             return Err(Error::ChangedPositions);
         }
+        self.admit_anchors(prepared)?;
+        self.admit_group(prepared)?;
+        self.reserve(prepared.operation)?;
+        Ok(())
+    }
+
+    fn admit_anchors(&self, prepared: &Prepared) -> Result<(), Error> {
         if self
             .bookmarks
             .lock()
@@ -387,8 +419,15 @@ impl Buffer {
         {
             return Err(Error::ChangedPositions);
         }
-        self.admit_group(prepared)?;
-        self.reserve(prepared.operation)?;
+        if self
+            .locations
+            .lock()
+            .expect("location owner poisoned")
+            .anchors(self.stamp())?
+            != prepared.record.before_locations
+        {
+            return Err(Error::ChangedPositions);
+        }
         Ok(())
     }
 
@@ -484,6 +523,10 @@ impl Transaction {
             .changes
             .iter()
             .fold(0usize, |sum, change| sum.saturating_add(change.payload()));
+        let text = text.saturating_add(
+            (self.before_locations.len() + self.after_locations.len())
+                .saturating_mul(std::mem::size_of::<crate::location::Snapshot>()),
+        );
         text.saturating_add(
             (self.before_bookmarks.len() + self.after_bookmarks.len())
                 .saturating_mul(std::mem::size_of::<crate::bookmark::Anchor>()),

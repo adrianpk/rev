@@ -906,6 +906,8 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "v" = "modal-enter-visual-character"
 "V" = "modal-enter-visual-line"
 "C-v" = "modal-enter-visual-block"
+"C-o" = "modal-jump-backward"
+"C-i" = "modal-jump-forward"
 
 [keys.vim_insert]
 "C-c a" = "org-agenda"
@@ -984,8 +986,8 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "C-x t o" = "tree-open"
 "C-x t n" = "tree-create-file"
 "C-x t d" = "tree-create-directory"
+"C-o" = "modal-one-normal-command"
 
-# Replace has no factory bindings until its state is implemented.
 [keys.vim_replace]
 
 [keys.vim_visual_character]

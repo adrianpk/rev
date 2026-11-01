@@ -214,6 +214,13 @@ impl Session {
         tree: Option<crate::tree::Tree>,
         path: std::path::PathBuf,
     ) -> Result<(), String> {
+        let buffer = work
+            .visit
+            .buffer(&self.buffers)
+            .map_err(|e| e.to_string())?;
+        let jump = self
+            .prepare_jump_to(buffer, work.view.point)
+            .map_err(|e| e.to_string())?;
         // All source, context, geometry and file observations are admitted before
         // publishing the collection binding, canonical visit and destination view.
         self.buffers.bookmarks_mut().resolved(
@@ -227,6 +234,7 @@ impl Session {
             self.bookmark_list = None;
         }
         *self.windows.selected_mut() = work.view;
+        self.publish_jump(jump);
         if let Some(tree) = tree {
             self.tree = tree;
         }

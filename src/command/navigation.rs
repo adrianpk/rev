@@ -18,6 +18,7 @@ pub enum Target {
     Screen(Screen),
     Align(Screen),
     Search(Search),
+    Jump(Direction),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -134,6 +135,9 @@ impl Navigation {
 
     fn final_name(self) -> &'static str {
         match self.target {
+            Target::Jump(Direction::Backward) => "modal-jump-backward",
+            Target::Jump(Direction::Forward) => "modal-jump-forward",
+
             Target::Align(Screen::Top) => "modal-align-top",
             Target::Align(Screen::Middle) => "modal-align-middle",
             Target::Align(Screen::Bottom) => "modal-align-bottom",

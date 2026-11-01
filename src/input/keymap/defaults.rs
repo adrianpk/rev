@@ -50,7 +50,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
 pub(super) fn modal_bindings(context: Context) -> &'static [(&'static str, &'static str)] {
     match context {
         Context::VimNormal => super::vim::normal(),
-        Context::VimInsert => EDITOR,
+        Context::VimInsert => super::vim::insert(),
         Context::VimReplace => &[],
         Context::VimVisualCharacter | Context::VimVisualLine => super::vim::visual(false),
         Context::VimVisualBlock => super::vim::visual(true),

@@ -11,6 +11,7 @@ pub enum ModalCommand {
     VisualCharacter,
     VisualLine,
     VisualBlock,
+    Once,
 }
 
 impl ModalCommand {
@@ -32,9 +33,16 @@ impl ModalCommand {
             Self::InsertLineEnd => "modal-enter-insert-line-end",
             Self::OpenBelow => "modal-open-line-below",
             Self::OpenAbove => "modal-open-line-above",
+            _ => self.visual_name(),
+        }
+    }
+    fn visual_name(self) -> &'static str {
+        match self {
             Self::VisualCharacter => "modal-enter-visual-character",
             Self::VisualLine => "modal-enter-visual-line",
             Self::VisualBlock => "modal-enter-visual-block",
+            Self::Once => "modal-one-normal-command",
+            _ => unreachable!("ordinary state names are handled first"),
         }
     }
 }

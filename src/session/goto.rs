@@ -54,6 +54,6 @@ impl Session {
             coordinates.end()
         };
         candidate.reset_navigation();
-        self.place_view(candidate)
+        self.place_jump_view(candidate)
     }
 }

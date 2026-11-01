@@ -158,6 +158,7 @@ The following state commands require the Vim startup profile:
 | `v` in Normal or Visual | `modal-enter-visual-character` | Select the current grapheme, convert shape or leave a repeated Character state. |
 | `V` in Normal or Visual | `modal-enter-visual-line` | Select complete logical lines, convert shape or leave a repeated Line state. |
 | `C-v` in Normal or Visual | `modal-enter-visual-block` | Select inclusive logical grapheme columns, convert shape or leave a repeated Block state. |
+| `C-o` in Insert | `modal-one-normal-command` | Admit one complete Normal command, then resume compatible insertion. |
 | Escape or `C-[` in Vim editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
 
 Insert uses native editing and compatible modified factory bindings. Normal
@@ -306,6 +307,43 @@ Small x/X deletion and r replacement preserve the previous entry. Repeated
 paste/replacement composes one prepared edit; count-expanded text is bounded to
 64 MiB before allocation. An ordinary single transfer keeps native admission.
 Indentation and multi-line joining are one prepared batch and one undo unit.
+
+### Jump history and Insert continuation
+
+| Input in Normal | Command | Result |
+| --- | --- | --- |
+| `C-o` | `modal-jump-backward` | Revisit an older checked location, with an optional count. |
+| `C-i` or Tab | `modal-jump-forward` | Revisit a newer checked location, with an optional count. |
+
+Each view retains at most 256 session-only locations. A split copies that bounded
+history and traversal index, then each view branches independently. Closing a view
+releases its handles. Explicit buffer/line, paragraph and page/screen destinations,
+accepted literal searches and native file visits record qualified origins and
+destinations. Ordinary h/j/k/l, word steps, search previews, drawing and jump
+traversal do not add entries. Counts clamp by retained entries, without replaying
+primitive commands. Starting backward traversal refreshes the newest current point;
+older entries keep their rebased locations. A new admitted jump after moving back
+removes that view's forward branch. Failed navigation/traversal changes no index.
+
+Live locations follow native prepared edits, structural permutations and undo/redo.
+Deleting an anchor or joining away its grapheme boundary makes it unavailable;
+native undo can restore recorded outcomes. Traversal reuses an existing canonical
+buffer, including its unsaved text and read-only state. A closed file can reopen
+only when native file identity/content/permission observations, the exact retained
+position and up to 64 source scalars on each side still agree. Missing, replaced,
+changed, stale or non-file closed targets reject without guessing another position.
+Canonical rename carries closed paths, and save/close retains the live file identity.
+Paths have the native 4096-byte limit. Jump state never reads/writes bookmark names,
+collections or persistence; a later linear/selection edit remains ordinary history.
+
+In Insert, `C-o` enters Normal for one semantic command. Counts, pending operators,
+find characters, command selection and argument/search prompts belong to that one
+lifetime. Compatible completion returns to Insert at the checked native point,
+including after an admitted edit. A different view/buffer or unrelated source
+revision retires insertion authority; explicit Visual entry keeps its new state.
+Queued input after deferred layout is interpreted after the command's state
+transition. Native prompts/completion keep their own Tab/C-i action; Emacs bindings
+and ordinary Insert Tab remain unchanged.
 
 ### Visual selections
 

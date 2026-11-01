@@ -66,13 +66,19 @@ impl Session {
             .flatten();
         let root_changed = tree.is_some();
         let mut view = self.windows.selected().clone();
-        view.rebind(buffer);
+        if view.point.stamp.buffer != buffer.id() {
+            view.rebind(buffer);
+        }
+        let jump = self
+            .prepare_jump_to(buffer, view.point)
+            .map_err(io::Error::other)?;
         self.stop_typing().map_err(io::Error::other)?;
         // All recoverable work is complete before registry/view publication.
         let id = self.buffers.publish_visit(visit);
         if self.windows.selected().point.stamp.buffer != id {
             *self.windows.selected_mut() = view;
         }
+        self.publish_jump(jump);
         self.tree.edit();
         if let Some(tree) = tree {
             self.tree = tree;
