@@ -171,12 +171,13 @@ The following state commands require the modal startup profile:
 | `C-v` in Normal or Visual | `modal-enter-visual-block` | Select inclusive logical grapheme columns, convert shape or leave a repeated Block state. |
 | `C-o` in Insert | `modal-one-normal-command` | Admit one complete Normal command, then resume compatible insertion. |
 | Escape or `C-[` in modal editing | `modal-enter-normal` | Return to Normal, preserving the native point. |
-| Escape or `C-[` in a modal component | `keyboard-quit` | Cancel the current interaction after bounded Alt/Meta recognition; a second Escape cancels immediately. |
 
 Insert and Replace use native editing and compatible modified factory bindings. Normal
 retains M-x, C-g, Meta commands and C-x/C-c command prefixes. State changes
 alone create no history; opening a line creates one ordinary undoable edit.
 Local prompts, completion, tree and Org maps keep their input priority.
+In a modal component, Escape or `C-[` invokes the same cancellation as `C-g`
+after bounded Alt/Meta recognition; a second Escape cancels immediately.
 
 ### Replace and semantic repetition
 
