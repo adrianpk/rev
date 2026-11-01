@@ -11,7 +11,7 @@ Spec: [Modal Editing](../spec/editor-modal-editing.md)
 Model: [Modal Editing Model](../spec/editor-modal-editing-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --all-targets && bash scripts/check-modal.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 8 reviewing through PR #219; Slice 7 delivered through PR #218
+Active slice: None; all eight slices delivered; awaiting the controller-owned integrated full gate
 Plan: [Modal Editing Plan](../plan/rev-modal-editing.md)
 Execution owner: Looper; startup and canonical slice integration into dev authorized on 2026-11-01; checkpoint and canonical merge evidence own runtime progress
 
@@ -106,12 +106,20 @@ Acceptance: MOD01-MOD14.
 - [x] T8.2: Create a native Rust acceptance example and scripts/check-modal.sh using the existing owned-fixture/controlling-PTY approach. Cover Emacs startup isolation, Vim editing/operators/Visual/jumps/repeat, colon/M-x equivalence, native plus one installed rust-analyzer semantic completion path, undo and clean terminal/child restoration. No new Python harness or project dependency.
 - [x] T8.3: Measure large-file/count/block behavior, a finite input burst, executable bytes under the same normal release flags and idle work. Preserve bounded worker ownership and no modal idle polling; protect first-party safe Rust, source quality and unchanged input batching without unrelated cleanup or tuning.
 - [x] T8.4: Run focused acceptance, then hand clean integrated dev to the controller's unchanged full gate and closure. Verify all requirement/coverage rows, reports, actual docs/Spore output and preservation cases before marking delivered; no controller checkpoint edits, fake receipts or untested closure claims.
-- [ ] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
+- [x] Verify the plan's ordered exact-HEAD checks, canonical PR integration and delivered report.
 
 ## Delivery closure
 
-- [ ] All eight configured slices integrated into dev with canonical PR evidence.
+- [x] All eight configured slices integrated into dev with canonical PR evidence.
 - [ ] The unchanged integrated full gate passed for the exact clean candidate.
-- [ ] All eight reports are delivered and record actual validation boundaries.
+- [x] All eight reports are delivered and record actual validation boundaries.
 - [ ] Plan, tracker, modal spec/model and pending-work index agree on completion.
 - [ ] Deferred item 10 and unrelated work remain separate; no main/release/site publication inferred.
+
+PRs #212-#219 are verified merged into dev. Gate preparation verified the
+installed Rust/Cargo/Clippy/rustfmt toolchain, rust-analyzer, Spore and shell/PTY
+utilities, offline locked dependency resolution and writable build output.
+An owned temporary-store and PTY allocation check passed and removed its fixture.
+The unchanged acceptance driver creates and removes its own stores, source
+projects and children; no persistent service or fixture is required. The full
+gate and capability completion remain pending with the controller.

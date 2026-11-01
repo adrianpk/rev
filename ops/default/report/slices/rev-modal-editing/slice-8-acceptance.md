@@ -1,11 +1,14 @@
 # Slice 8: Terminal acceptance, resources and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-modal-editing
 Plan: `ops/default/plan/rev-modal-editing.md`
 Tracker: `ops/default/tracker/rev-modal-editing.md`
 Branch: `feat/rev-modal-editing-08-acceptance`
 PR: `#219`
+Merged commit: `b7bdb59c52f58a62d105e0d0aa8c894ff47cdd48`
+Canonical validation: `XVYCAJS2UTJT2VXNUKEPJC3HUD`, 464 tests and five configured checks passed
+Focused validation: `EQ4GVBYOFJDOAO4QWXSBS734OB`, Clippy, source checks and Spore build passed
 
 ## Purpose
 
@@ -133,11 +136,27 @@ observation reached the unsaved field in 343,243 microseconds with separate
 server peak RSS 31,168 kB; both PTY idle observations were zero CPU ticks over
 350 ms. These are debug observations, not normal-release measurements.
 
-Final normal-release measurements, exact-HEAD outcomes and immutable receipt
-identities are recorded through the controller and Acta after the PR-reference
-commit. The configured script prints its MEASURE lines, including driver elapsed
-time, source/count/block costs, executable bytes and separate process resources.
-Its byte comparison uses the [recorded predecessor release](../rev-language-server-support/slice-6-acceptance.md)
+Both final batches passed at the merged commit above, after the PR-reference
+commit, with immutable controller receipts and Acta records. Canonical checks
+passed 464 tests, all native/installed-server/PTY assertions, source quality for
+778 production files and the documentation check for 67 pages, 401 local links,
+409 commands and 218 configuration entries. The focused Spore build rendered
+the new chapter; its downloadable sample matched the source byte for byte.
+
+The normal-release journey recorded these observations:
+
+| Work or process | Observed result |
+| --- | --- |
+| u32-max counts over 16,384 logical lines, 311,296 bytes | 211,226 microseconds; overflow rejected without an edit. |
+| Unicode/CRLF logical block, 4,096 rows and three columns | 26,902 microseconds; one atomic delete and exact undo. |
+| Native finite burst, 128 events | 23,257 microseconds; exact point, source and history. |
+| Executable | 19,351,552 bytes; 420,392 bytes above the recorded predecessor, ratio 1.022206. |
+| Native driver | Peak RSS 24,636 kB; zero CPU ticks during 350 ms idle. |
+| Installed Rust semantics | Readiness 266,231 microseconds; driver peak RSS 15,992 kB, separate server 31,224 kB and three CPU ticks. |
+| Emacs and Vim PTYs | Peak RSS 15,528 and 15,508 kB; each recorded zero CPU ticks and no output during 350 ms idle. |
+| Complete modal acceptance journey | 2,598 milliseconds, excluding compilation and the other validation commands. |
+
+The byte comparison uses the [recorded predecessor release](../rev-language-server-support/slice-6-acceptance.md)
 of 18,931,160 bytes with the same normal release profile and two build jobs.
 
 The focused batch checks changed examples and the actual Spore build before the
@@ -163,6 +182,7 @@ git diff --check
 
 Measurements apply to the recorded Linux host, Rust/Cargo 1.98.0 and installed
 rust-analyzer 0.3.3089-standalone. They do not establish arbitrary-server support
-or a universal size/latency ceiling. Final integration, the unchanged full gate,
-all-report closure and capability completion remain controller-owned. Main,
+or a universal size/latency ceiling. All eight slices are integrated and their
+reports are delivered; the unchanged full gate and capability completion remain
+pending with the controller. Main,
 release and public guide publication are separate actions.
