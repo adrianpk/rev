@@ -34,7 +34,7 @@ pub enum Status {
 }
 
 /// Connection identities use a frozen server entry plus a canonical root.
-/// Failed entries remain retained until explicit disable/enable.
+/// Failed entries remain retained until explicit restart or disable/enable.
 pub struct Client {
     policy: Lsp,
     connections: BTreeMap<(String, PathBuf), Connection>,

@@ -29,7 +29,7 @@ pub(super) struct Activation {
     pub connection: u64,
     pub generation: u64,
     state: AtomicU8,
-    bytes: AtomicUsize,
+    bytes: Mutex<usize>,
     total: Arc<AtomicUsize>,
     version: Mutex<Option<DocumentVersion>>,
     pub incomplete: AtomicBool,
@@ -47,7 +47,7 @@ impl Activation {
             connection: generation.0,
             generation: generation.1,
             state: AtomicU8::new(0),
-            bytes: AtomicUsize::new(0),
+            bytes: Mutex::new(0),
             total,
             version: Mutex::new(None),
             incomplete: AtomicBool::new(false),
@@ -77,7 +77,11 @@ impl Activation {
         if bytes > DOCUMENT_BYTES {
             return false;
         }
-        let old = self.bytes.load(Ordering::Acquire);
+        let mut retained = self.bytes.lock().expect("LSP snapshot lock");
+        if !self.active() {
+            return false;
+        }
+        let old = *retained;
         let admitted = self
             .total
             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |total| {
@@ -87,13 +91,13 @@ impl Activation {
             })
             .is_ok();
         if admitted {
-            self.bytes.store(bytes, Ordering::Release);
+            *retained = bytes;
         }
         admitted
     }
 
     fn release(&self) {
-        let bytes = self.bytes.swap(0, Ordering::AcqRel);
+        let bytes = std::mem::take(&mut *self.bytes.lock().expect("LSP snapshot lock"));
         self.total.fetch_sub(bytes, Ordering::AcqRel);
         *self.version.lock().expect("LSP version lock") = None;
     }
@@ -106,7 +110,11 @@ impl Activation {
     }
 
     fn synchronized(&self, stamp: Stamp, version: i32) {
-        *self.version.lock().expect("LSP version lock") = Some(DocumentVersion {
+        let mut current = self.version.lock().expect("LSP version lock");
+        if !self.active() {
+            return;
+        }
+        *current = Some(DocumentVersion {
             connection: self.connection,
             generation: self.generation,
             version,
@@ -161,6 +169,19 @@ pub(super) enum Event {
     },
 }
 impl Event {
+    pub fn retire(&self) {
+        if let Some(token) = self.token() {
+            token.retire();
+        }
+    }
+    fn token(&self) -> Option<&Arc<Activation>> {
+        match self {
+            Self::Open { token, .. } | Self::Change(_, token) | Self::Save { token, .. } => {
+                Some(token)
+            }
+            Self::Close(..) => None,
+        }
+    }
     pub fn bytes(&self) -> usize {
         match self {
             Self::Open {
@@ -186,6 +207,7 @@ impl Event {
 }
 
 struct Opened {
+    token: Arc<Activation>,
     uri: String,
     generation: u64,
     stamp: Stamp,
@@ -193,8 +215,32 @@ struct Opened {
 }
 #[derive(Default)]
 pub(super) struct Documents(BTreeMap<BufferId, Opened>);
+impl Drop for Documents {
+    fn drop(&mut self) {
+        for doc in self.0.values() {
+            doc.token.retire();
+        }
+    }
+}
 impl Documents {
     pub fn process(
+        &mut self,
+        event: Event,
+        permit: Permit,
+        output: &Outbox,
+        caps: &Capabilities,
+    ) -> Result<(), String> {
+        let token = event.token().cloned();
+        let result = self.process_event(event, permit, output, caps);
+        if result.is_err()
+            && let Some(token) = token
+        {
+            token.retire();
+        }
+        result
+    }
+
+    fn process_event(
         &mut self,
         event: Event,
         permit: Permit,
@@ -252,6 +298,7 @@ impl Documents {
             Opened {
                 uri: value.uri,
                 generation: value.token.generation,
+                token: value.token,
                 stamp: value.stamp,
                 version: 1,
             },
@@ -405,5 +452,66 @@ mod tests {
         drop(tokens);
         drop(restored);
         assert_eq!(total.load(Ordering::Acquire), 0);
+    }
+    // Failed initialization must release queued snapshots; an initialized worker
+    // must release its retained lease even while the UI still holds the token.
+    #[test]
+    fn failed_worker_leases() {
+        let buffers = crate::buffer::Buffers::new().unwrap();
+        let stamp = buffers.get(buffers.initial()).unwrap().stamp();
+        let total = Arc::new(AtomicUsize::new(0));
+        let token = Activation::new(stamp, (1, 1), total.clone(), 16).unwrap();
+        let inbox = Inbox::default();
+        inbox.document(Event::Open {
+            token: token.clone(),
+            stamp,
+            uri: "file:///owned".into(),
+            language: "rust".into(),
+            text: Rope::from_str("snapshot"),
+        });
+        inbox.close();
+        assert!(!token.active());
+        assert_eq!(total.load(Ordering::Acquire), 0);
+        let token = Activation::new(stamp, (1, 2), total.clone(), 16).unwrap();
+        let mut documents = Documents::default();
+        token.synchronized(stamp, 1);
+        documents.0.insert(
+            stamp.buffer,
+            Opened {
+                token: token.clone(),
+                uri: "file:///owned".into(),
+                generation: 2,
+                stamp,
+                version: 1,
+            },
+        );
+        drop(documents);
+        assert!(!token.active());
+        assert!(token.version().is_none());
+        assert!(!token.resize(1));
+        assert_eq!(total.load(Ordering::Acquire), 0);
+    }
+
+    // Retirement races with canonical publication. Both operations must share
+    // the byte lease so an interrupted resize cannot leak or subtract twice.
+    #[test]
+    fn concurrent_retirement() {
+        let buffers = crate::buffer::Buffers::new().unwrap();
+        let stamp = buffers.get(buffers.initial()).unwrap().stamp();
+        let total = Arc::new(AtomicUsize::new(0));
+        for generation in 1..=100 {
+            let token = Activation::new(stamp, (1, generation), total.clone(), 16).unwrap();
+            let publisher = token.clone();
+            let worker = std::thread::spawn(move || {
+                for _ in 0..100 {
+                    publisher.resize(32);
+                    publisher.synchronized(stamp, 2);
+                }
+            });
+            token.retire();
+            worker.join().unwrap();
+            assert_eq!(total.load(Ordering::Acquire), 0);
+            assert!(token.version().is_none());
+        }
     }
 }

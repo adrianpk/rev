@@ -15,6 +15,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x lsp-mode` | `lsp-mode` | Toggle optional owned server transport for this session. |
 | `M-x lsp-connect` | `lsp-connect` | Restore this buffer eligibility without enabling globally disabled LSP. |
 | `M-x lsp-disconnect` | `lsp-disconnect` | Exclude this canonical buffer across all its views until restored or closed. |
+| `M-x lsp-restart` | `lsp-restart` | Restart the eligible current root; preserve global mode and buffer exclusions. |
 | `M-x lsp-status` | `lsp-status` | Show the current file transport state or recoverable prerequisite failure. |
 | `M-x completion-mode` | `completion-mode` | Toggle native completion for this session. |
 | `M-x completion-auto-mode` | `completion-auto-mode` | Toggle automatic requests while retaining explicit invocation. |

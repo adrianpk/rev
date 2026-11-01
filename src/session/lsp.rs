@@ -21,6 +21,11 @@ impl Session {
                 }
             }
             LspCommand::Connect => self.lsp.restore(id),
+            LspCommand::Restart => {
+                if let Ok(buffer) = self.buffers.get_mut(id) {
+                    self.lsp.restart_buffer(buffer, self.tree.chosen_root());
+                }
+            }
             LspCommand::Status => {}
         }
         self.activate_lsp();

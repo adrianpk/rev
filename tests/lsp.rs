@@ -9,6 +9,8 @@ mod documents;
 mod edits;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "lsp/lifetime.rs"]
+mod lifetime;
 
 use fixture::Fixture;
 use rev::config::{Lsp, Server};

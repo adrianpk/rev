@@ -74,11 +74,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 330] = [
+    pub const ALL: [Self; 331] = [
         Self::Lsp(LspCommand::Mode),
         Self::Lsp(LspCommand::Status),
         Self::Lsp(LspCommand::Connect),
         Self::Lsp(LspCommand::Disconnect),
+        Self::Lsp(LspCommand::Restart),
         Self::Completion(CompletionCommand::AtPoint),
         Self::Completion(CompletionCommand::Mode),
         Self::Completion(CompletionCommand::AutoMode),

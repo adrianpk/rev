@@ -94,12 +94,14 @@ impl Inbox {
         let permit = match self.budget.reserve(event.bytes()) {
             Ok(permit) => permit,
             Err(error) => {
+                event.retire();
                 self.fail(error);
                 return;
             }
         };
         let mut pending = self.pending.lock().expect("LSP inbox lock");
         if pending.closed {
+            event.retire();
             return;
         }
         pending.documents.push_back((Work::Document(event), permit));
@@ -110,6 +112,11 @@ impl Inbox {
         let mut pending = self.pending.lock().expect("LSP inbox lock");
         pending.closed = true;
         self.closed.store(true, Ordering::Release);
+        for (work, _) in &pending.documents {
+            if let Work::Document(event) = work {
+                event.retire();
+            }
+        }
         pending.documents.clear();
         pending.messages.clear();
         pending.bytes = 0;
@@ -169,5 +176,34 @@ impl Pending {
             && self.failure.is_none()
             && !self.stop
             && !self.cancelled
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    // Inbound overload preserves reserved stop/failure slots, and byte/count
+    // limits apply independently rather than allowing zero-byte message floods.
+    #[test]
+    fn reserved_controls() {
+        for (bytes, count) in [(0, QUEUE_MESSAGES), (QUEUE_BYTES, 1)] {
+            let inbox = Inbox::default();
+            for _ in 0..count {
+                inbox.push(
+                    serde_json::from_value(json!({"jsonrpc":"2.0","method":"notice"})).unwrap(),
+                    bytes,
+                );
+            }
+            inbox.push(
+                serde_json::from_value(json!({"jsonrpc":"2.0","method":"notice"})).unwrap(),
+                1,
+            );
+            inbox.stop();
+            assert!(matches!(inbox.next(None, true), Event::Stop));
+            assert!(matches!(inbox.next(None, true), Event::Failed(_)));
+            inbox.close();
+        }
     }
 }

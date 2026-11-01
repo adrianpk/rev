@@ -4,6 +4,7 @@ pub enum LspCommand {
     Status,
     Connect,
     Disconnect,
+    Restart,
 }
 
 impl LspCommand {
@@ -13,6 +14,7 @@ impl LspCommand {
             Self::Status => "lsp-status",
             Self::Connect => "lsp-connect",
             Self::Disconnect => "lsp-disconnect",
+            Self::Restart => "lsp-restart",
         }
     }
 }

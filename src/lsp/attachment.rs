@@ -214,10 +214,41 @@ impl Client {
         {
             return;
         }
-        if let Some(connection) = self.connections.get_mut(key) {
+        if let Some(connection) = self.connections.get_mut(key)
+            && matches!(
+                super::status(connection),
+                Status::Starting | Status::Ready(_)
+            )
+        {
             connection.retiring = true;
             connection.inbox.stop();
         }
+    }
+
+    /// Restart only the selected eligible root; exclusions and global mode survive.
+    pub(crate) fn restart_buffer(&mut self, buffer: &mut Buffer, tree: Option<&Path>) {
+        let status = self.attach_buffer(buffer, tree);
+        if !matches!(
+            status,
+            Status::Starting | Status::Ready(_) | Status::Missing(_) | Status::Failed(_)
+        ) {
+            return;
+        }
+        let Some(key) = self.selected.clone() else {
+            return;
+        };
+        self.attachments.retain(|_, attachment| {
+            if attachment.key != key {
+                return true;
+            }
+            attachment.token.retire();
+            false
+        });
+        if let Some(connection) = self.connections.get_mut(&key) {
+            connection.retiring = true;
+            connection.inbox.stop();
+        }
+        self.collect();
     }
 
     pub(crate) fn saved_buffer(&mut self, buffer: &mut Buffer, tree: Option<&Path>) {

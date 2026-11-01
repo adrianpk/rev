@@ -15,7 +15,9 @@ This project uses Semantic Versioning.
   including resolved imports, as one undo operation. Empty or unavailable semantic
   results and failed resolution fall back to native syntax or Org completion.
   `lsp-disconnect` and `lsp-connect` exclude or restore the current buffer;
-  late replies cannot replace newer edits or revive cancelled suggestions.
+  `lsp-restart` recovers the current root after a server failure. Healthy servers
+  remain available across buffer visits; disabling LSP stops owned processes.
+  Late replies cannot replace newer edits or revive cancelled suggestions.
 - [Native completion](docs/tutorials/user-guide/10-complete-names.md) suggests Rust, C, Go, JavaScript and TypeScript/TSX
   declarations, HTML tags/attributes, CSS selectors/properties, and observed
   JSON/TOML keys and TOML tables near the cursor
