@@ -99,11 +99,19 @@ Clippy's non-octal Unix permissions lint in the permission-denial fixture.
 Changing the identical mode from `0` to `0o0` preserves the denial assertion;
 no acceptance condition or configured check changed.
 
-After the PR-reference follow-up, the controller records final evidence against
-the exact clean PR HEAD with the configured format, strict Clippy and combined
-files/configuration/external_changes tests in order, followed by focused
-checks and `git diff --check`. The canonical PR and controller receipt own that
-candidate/outcome; these focused results do not claim the integrated full gate.
+Controller receipt `IU5TOVX6QCM33PBROV4YJQWIC7` passed at clean candidate
+`18dfa26c8f34c4f2d0548ad9bc33c5caaae77d1f`: format, strict all-target
+Clippy, the configured combined tests (141 configuration, 11 reload, 75 files),
+documentation catalogs and whitespace. Total batch time was 66.67 seconds.
+
+Canonical PR admission requires the exact four-command configured prefix,
+including final whitespace. It rejected the additional documentation command in
+that list despite its successful result. Final evidence is therefore regenerated
+after this report follow-up using exactly the four configured commands. The
+successful documentation check remains separate evidence above; no check,
+assertion or frozen configuration changes. The canonical PR/controller receipt
+owns the final exact candidate and outcome. This is focused Slice 1 validation,
+not the integrated delivery-set gate.
 
 ## Risks and Follow-ups
 
