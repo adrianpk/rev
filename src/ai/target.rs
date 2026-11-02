@@ -1,0 +1,111 @@
+//! Invocation authority comes exclusively from a qualified native source span.
+use std::path::PathBuf;
+
+use crate::buffer::{Buffer, Span, edit::Point};
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Kind {
+    Explain,
+    Prompt,
+    Implement,
+}
+
+impl Kind {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::Explain => "ai-explain",
+            Self::Prompt => "ai-prompt",
+            Self::Implement => "ai-implement",
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Output {
+    Explanation,
+    Insert,
+    Replace,
+}
+
+impl Output {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::Explanation => "explanation",
+            Self::Insert => "insert",
+            Self::Replace => "replace",
+        }
+    }
+    pub fn edits(self) -> bool {
+        self != Self::Explanation
+    }
+}
+
+pub(crate) struct Target {
+    pub source: Span,
+    pub point: Point,
+    pub path: Option<PathBuf>,
+    pub output: Output,
+    pub dirty: bool,
+    pub bom: bool,
+}
+
+impl Target {
+    pub fn capture(buffer: &Buffer, point: Point, kind: Kind) -> Result<Self, String> {
+        buffer
+            .slice(&Span {
+                stamp: point.stamp,
+                range: point.position.0..point.position.0,
+            })
+            .map_err(|e| e.to_string())?;
+        let selection = if kind == Kind::Implement {
+            None
+        } else {
+            if buffer.visual() == Some(crate::buffer::Visual::Block) || buffer.rectangle_active() {
+                return Err(format!(
+                    "{} requires a linear selection or point",
+                    kind.name()
+                ));
+            }
+            buffer
+                .region(point)
+                .map_err(|e| e.to_string())?
+                .filter(|s| !s.range.is_empty())
+        };
+        let (source, output) = match (kind, selection) {
+            (Kind::Explain, Some(source)) => (source, Output::Explanation),
+            (Kind::Explain, None) => return Err("ai-explain requires an active selection".into()),
+            (Kind::Prompt, Some(source)) => (source, Output::Replace),
+            _ => (
+                buffer
+                    .span(point.position.0..point.position.0)
+                    .map_err(|e| e.to_string())?,
+                Output::Insert,
+            ),
+        };
+        let target = Self {
+            source,
+            point,
+            output,
+            path: buffer.file().map(|f| f.path().to_owned()),
+            dirty: buffer.is_modified(),
+            bom: buffer.has_bom(),
+        };
+        target.current(buffer)?;
+        Ok(target)
+    }
+
+    /// Revision and association are checked again before submission/application.
+    /// Native preparation/publication independently enforce read-only admission.
+    pub fn current(&self, buffer: &Buffer) -> Result<(), String> {
+        buffer
+            .slice(&self.source)
+            .map_err(|e| format!("AI target is stale: {e}"))?;
+        if buffer.file().map(|f| f.path()) != self.path.as_deref() {
+            return Err("AI target file association changed; result retained".into());
+        }
+        if self.output.edits() && buffer.is_readonly() {
+            return Err("AI target is read-only; source unchanged".into());
+        }
+        Ok(())
+    }
+}

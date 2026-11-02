@@ -29,9 +29,11 @@ impl Session {
         {
             return self.message("A component owns input focus");
         }
-        if command == ModalCommand::Normal && self.pending.is_none() && self.cancel_ai() {
+        if command == ModalCommand::Normal
+            && let Some(action) = self.cancel_ai_input()
+        {
             return match self.enter_modal(command) {
-                Ok(()) => self.message("Pi canceled; source retained; stopping owned child"),
+                Ok(()) => action,
                 Err(error) => self.error(&error.to_string()),
             };
         }

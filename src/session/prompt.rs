@@ -57,8 +57,8 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
-        if self.pending.is_none() && self.cancel_ai() {
-            return Some(self.message("Pi canceled; source retained; stopping owned child"));
+        if let Some(action) = self.cancel_ai_input() {
+            return Some(action);
         }
         if self.cancel_reload() {
             self.input.cancel();
@@ -145,6 +145,9 @@ impl Session {
             return self.complete_org_argument();
         }
         match self.pending {
+            Some(Pending::Ai(_)) => {
+                self.message("Enter a literal instruction for the captured AI target; C-g cancels")
+            }
             Some(Pending::Path(_)) => self.complete_path(),
             Some(Pending::GotoLine { .. }) => {
                 self.message("Enter a signed decimal line number; C-g cancels")

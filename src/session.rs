@@ -195,6 +195,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Ai(Box<ai::Request>),
     Reload(Box<crate::buffer::reload::Reload>),
     LspSetup(Box<lsp::Prompt>),
     LspLifecycle(Box<lsp::LifecyclePrompt>),
@@ -870,7 +871,11 @@ impl Session {
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
-            Command::AiExplain => self.ai_explain(),
+            Command::AiExplain => self.ai_command(ai::Kind::Explain),
+            Command::AiPrompt => self.ai_command(ai::Kind::Prompt),
+            Command::AiImplement => self.ai_command(ai::Kind::Implement),
+            Command::AiApplyResult => self.ai_apply_result(),
+            Command::AiDiscardResult => self.ai_discard_result(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
             Command::Motion(motion) => self.motion(motion),

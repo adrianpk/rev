@@ -72,7 +72,7 @@ pub(super) fn run(
     let mut streamed = 0usize;
     loop {
         if accepted && settled {
-            let raw = final_text.ok_or("Pi settled without a completed assistant explanation")?;
+            let raw = final_text.ok_or("Pi settled without a completed assistant result")?;
             let generated: Generated = serde_json::from_str(&raw)
                 .map_err(|_| "Pi final result must contain only version=1 and text")?;
             if generated.version != 1

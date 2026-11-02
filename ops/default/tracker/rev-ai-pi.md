@@ -116,8 +116,8 @@ Report introduction and remaining lifecycle regressions: `18dfaa6cc4c0ef0875b933
 
 ### Slice 4: Checked AI editing
 
-State: ready.
-Ticket: [Checked AI editing](../ticket/ready/20261102211109-apply-ai-results-through-native-editing.md)
+State: in_progress.
+Ticket: [Checked AI editing](../ticket/in_progress/20261102211109-apply-ai-results-through-native-editing.md)
 Requirements: PI03, PI06, PI07; AI03, AI05-AI09, AI14-AI17.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-ai-pi-04-results`

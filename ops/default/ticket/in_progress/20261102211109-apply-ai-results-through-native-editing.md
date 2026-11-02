@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211109
 title: Checked AI editing
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:09Z
 ready_at: 2026-11-02T21:11:09Z
+started_at: 2026-11-02T23:14:42Z
+branch: feat/rev-ai-pi-04-results
 commits: []
 ---
 

@@ -2,3 +2,4 @@
 //! sole text/history owners; a generated explanation never edits its source.
 
 pub mod pi;
+pub(crate) mod target;

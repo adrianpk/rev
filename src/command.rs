@@ -68,6 +68,10 @@ pub enum Command {
     SaveBuffer,
     RevertBuffer,
     AiExplain,
+    AiPrompt,
+    AiImplement,
+    AiApplyResult,
+    AiDiscardResult,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -87,7 +91,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 419] = [
+    pub const ALL: [Self; 423] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -476,6 +480,10 @@ impl Command {
         Self::SaveBuffer,
         Self::RevertBuffer,
         Self::AiExplain,
+        Self::AiPrompt,
+        Self::AiImplement,
+        Self::AiApplyResult,
+        Self::AiDiscardResult,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -556,6 +564,10 @@ impl Command {
             Self::SaveBuffer => "save-buffer",
             Self::RevertBuffer => "revert-buffer",
             Self::AiExplain => "ai-explain",
+            Self::AiPrompt => "ai-prompt",
+            Self::AiImplement => "ai-implement",
+            Self::AiApplyResult => "ai-apply-result",
+            Self::AiDiscardResult => "ai-discard-result",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),

@@ -28,6 +28,44 @@ enum Member {
 }
 
 impl Windows {
+    /// A preview can display another buffer while retaining its explicit source
+    /// view. Include that source point in canonical history, map its viewport
+    /// before publication, and return the mapped view for native presentation.
+    pub(crate) fn publish_observed(
+        &mut self,
+        buffer: &mut Buffer,
+        replacement: crate::buffer::edit::Replacement,
+        mut home: crate::view::View,
+    ) -> Result<crate::view::View, Error> {
+        home.check_point(buffer).map_err(|e| match e {
+            crate::view::Error::Buffer(e) => Error::Source(e),
+            crate::view::Error::Coordinates(e) => Error::Coordinates(e),
+            crate::view::Error::Edit(e) => e,
+            _ => Error::ChangedPositions,
+        })?;
+        let coordinates = Coordinates::new(buffer)?;
+        let top = Point {
+            stamp: buffer.stamp(),
+            position: viewport_position(&home, &coordinates, buffer.soft_wrap())?,
+        };
+        let mut points = self.capture_points(buffer)?;
+        let origin = points.values.len();
+        points.values.push(home.point);
+        let mut prepared = buffer.prepare(&[replacement], &points.values, None)?;
+        prepared.retain_initiator(origin)?;
+        prepared.set_origin(self.selected_id());
+        let home_top = prepared.map_top(top)?;
+        let tops = points.map_tops(&prepared)?;
+        buffer.publish(prepared, &mut points.values)?;
+        home.point = points.values.pop().expect("observed initiating point");
+        home.top = home_top.row;
+        home.wrap_start = home_top.position;
+        home.clear_folds();
+        home.reset_navigation();
+        self.publish_points(points, tops);
+        Ok(home)
+    }
+
     pub(crate) fn reload(
         &mut self,
         buffer: &mut Buffer,
