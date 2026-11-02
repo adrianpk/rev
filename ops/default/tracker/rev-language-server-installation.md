@@ -292,7 +292,7 @@ PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-6-lifecycle.md`
 
 - [x] T6.1: Add explicit update/remove/cancel commands; prepare and verify new versions before atomically retargeting still-owned profiles.
-- [ ] T6.2: Handle shared web-profile references, source conflicts, incomplete jobs and bounded cache cleanup without deleting external or running payloads.
+- [x] T6.2: Handle shared web-profile references, source conflicts, incomplete jobs and bounded cache cleanup without deleting external or running payloads.
 - [ ] T6.3: Verify process-group stop/reap, editor-exit cleanup, concurrent instances, failed replacement and preservation of ordinary editing.
 
 T6.1 development checks passed: `cargo check --locked`,
@@ -302,6 +302,15 @@ unselected profiles, custom options and prior ready payloads; failed probes keep
 settings unchanged. A real client in another process blocks removal through an
 inode lease until its server is reaped. Command/reference catalogs now contain
 417 commands and 219 settings; documentation validation passed.
+
+T6.1 commit: `a379e079ced8fd4bd55d9d5ee1e07b3e54722f05`.
+T6.2 focused lifecycle, Rust acquisition and storage regressions passed. Shared
+web references include unselected profiles, path aliases, absolute arguments and
+environment paths. Include edits during acquisition retain a ready/unselected
+replacement and preserve current settings. Incomplete cleanup rejects aliased
+payloads and escaping links. Cache cleanup removes only marked idle directories;
+active, unknown and legacy cache entries remain untouched. Changed cache/removal
+functions pass the unchanged source limits.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

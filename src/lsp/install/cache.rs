@@ -1,12 +1,11 @@
-use std::fs;
-use std::os::unix::fs::MetadataExt;
+use std::fs::{self, File};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub(super) struct Cache {
     pub directory: PathBuf,
     pub root: PathBuf,
-    identity: (u64, u64),
+    lease: File,
     removed: bool,
 }
 
@@ -28,33 +27,29 @@ impl Cache {
     }
 
     pub fn new(root: &Path) -> Result<Self, String> {
-        fs::create_dir_all(root).map_err(|e| format!("create cache root: {e}"))?;
-        let root = root.canonicalize().map_err(|e| e.to_string())?;
-        let cache = root.join("lsp");
-        super::storage::contained(&root, &cache, false)?;
-        fs::create_dir_all(&cache).map_err(|e| format!("create LSP cache: {e}"))?;
-        super::tree::bytes(&cache, super::CACHE_BYTES)?;
+        let cache = namespace(root)?;
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .map_err(|e| e.to_string())?
             .as_nanos();
         let directory = cache.join(format!("job-{:x}-{nonce:x}", std::process::id()));
         fs::create_dir(&directory).map_err(|e| format!("create unique owned cache: {e}"))?;
-        let metadata = fs::symlink_metadata(&directory).map_err(|e| e.to_string())?;
+        let lease = File::open(&directory).map_err(|e| e.to_string())?;
+        lease.try_lock().map_err(|e| e.to_string())?;
+        super::package::write(
+            &directory.join(super::cache_cleanup::MARKER),
+            super::cache_cleanup::OWNER,
+        )?;
         Ok(Self {
             directory,
             root: cache,
-            identity: (metadata.dev(), metadata.ino()),
+            lease,
             removed: false,
         })
     }
 
     pub fn cleanup(&mut self) -> Result<(), String> {
-        let metadata = fs::symlink_metadata(&self.directory)
-            .map_err(|e| format!("inspect owned cache cleanup: {e}"))?;
-        if !metadata.is_dir() || (metadata.dev(), metadata.ino()) != self.identity {
-            return Err("owned cache identity changed; preserve it for inspection".into());
-        }
+        super::lease::same(&self.directory, &self.lease)?;
         fs::remove_dir_all(&self.directory).map_err(|e| format!("remove owned cache: {e}"))?;
         self.removed = true;
         Ok(())
@@ -67,4 +62,15 @@ impl Drop for Cache {
             let _ = self.cleanup();
         }
     }
+}
+
+fn namespace(root: &Path) -> Result<PathBuf, String> {
+    fs::create_dir_all(root).map_err(|e| format!("create cache root: {e}"))?;
+    let root = root.canonicalize().map_err(|e| e.to_string())?;
+    let cache = root.join("lsp");
+    super::storage::contained(&root, &cache, false)?;
+    fs::create_dir_all(&cache).map_err(|e| format!("create LSP cache: {e}"))?;
+    let cache = cache.canonicalize().map_err(|e| e.to_string())?;
+    super::tree::bytes(&cache, super::CACHE_BYTES)?;
+    Ok(cache)
 }

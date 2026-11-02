@@ -1,6 +1,7 @@
 //! Explicit, optional managed installation. Registry reads never start work;
 //! mutations own one native job slot and OS locks for their entire lifetime.
 mod cache;
+mod cache_cleanup;
 mod lease;
 mod remove;
 mod update;

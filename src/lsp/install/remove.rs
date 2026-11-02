@@ -72,6 +72,10 @@ pub fn remove(
     if let Some(warning) = warning {
         message.push_str(&format!("; {warning}"));
     }
+    match super::cache_cleanup::prune(&storage.roots().cache, cancel) {
+        Ok(count) => message.push_str(&format!("; cleaned {count} idle owned acquisition caches")),
+        Err(error) => message.push_str(&format!("; cache cleanup incomplete: {error}")),
+    }
     Ok(Outcome {
         installation: incomplete,
         selection: None,
