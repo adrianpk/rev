@@ -12,14 +12,14 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 4 — Checked AI editing
+Active slice: Slice 5 — Guarded directory context
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 through 3 are integrated at their validated heads. Slice 4 is active;
+closure. Slices 1 through 4 are integrated at their validated heads. Slice 5 is active;
 later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
@@ -116,8 +116,8 @@ Report introduction and remaining lifecycle regressions: `18dfaa6cc4c0ef0875b933
 
 ### Slice 4: Checked AI editing
 
-State: reviewing.
-Ticket: [Checked AI editing](../ticket/reviewing/20261102211109-apply-ai-results-through-native-editing.md)
+State: delivered.
+Ticket: [Checked AI editing](../ticket/solved/20261102211109-apply-ai-results-through-native-editing.md)
 Requirements: PI03, PI06, PI07; AI03, AI05-AI09, AI14-AI17.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-ai-pi-04-results`
@@ -133,7 +133,10 @@ as one capture/proposal/native-publication transition. Ten new focused integrati
 cases and two private live-admission tests passed. They cover both profiles,
 source/result guards, ordinary undo/shared views and real external-file changes.
 Catalogs passed 423 commands and 230 settings. The Slice 4 report retains exact
-commands and observed scope. Final clean-head validation follows committed PR references.
+commands and observed scope. Canonical PR #232 merged into dev at
+`c3468516c904edcd0ea35c94322ea1aa7b57f35a` on 2026-11-02T23:35:02Z.
+Receipt `D6ZTJX2FOGYYOPQNEAPR3TGO5N` passed all four configured checks and
+38 tests; this is Slice 4 evidence, not the integrated gate.
 
 Report introduction and T4.3 coverage: `4a4fb82f913f1e2a0bf376ffc3932324c34f920c`.
 

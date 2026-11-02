@@ -1,6 +1,6 @@
 # Slice 4: Checked AI editing
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -118,3 +118,18 @@ focused checks do not claim the integrated delivery-set gate.
 Real authenticated provider generation remains with the recorded joint acceptance.
 Directory discovery and retained directory history continue through their approved
 successor slices; the current commands visibly retain fresh input-only context.
+
+## Integration
+
+Canonical PR [#232](https://forge.adrianpk.com/adrianpk/rev/pulls/232) merged
+into dev at `c3468516c904edcd0ea35c94322ea1aa7b57f35a` on
+2026-11-02T23:35:02Z. Receipt `D6ZTJX2FOGYYOPQNEAPR3TGO5N` passed the exact
+clean candidate and ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test ai --test external_changes -- --test-threads=1`
+- `git diff --check`
+
+All 38 integration tests passed; the two focused private result guards also
+passed during development. This closes Slice 4, not the delivery-set gate.

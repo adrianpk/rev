@@ -12,7 +12,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 4 — Checked AI editing
+Active slice: Slice 5 — Guarded directory context
 Tracker: [Delivery Tracker](../tracker/rev-ai-pi.md)
 Supporting contract: [AI Commands](../spec/editor-ai-commands.md), [shared model](../spec/editor-ai-commands-model.md)
 
@@ -179,7 +179,7 @@ git diff --check
 
 ### Slice 4: Checked AI editing
 
-Ticket: [Checked AI editing](../ticket/reviewing/20261102211109-apply-ai-results-through-native-editing.md)
+Ticket: [Checked AI editing](../ticket/solved/20261102211109-apply-ai-results-through-native-editing.md)
 Requirements: PI03, PI06, PI07; AI03, AI05-AI09, AI14-AI17.
 Dependencies: Slice 3 integrated; preserve all earlier contracts.
 

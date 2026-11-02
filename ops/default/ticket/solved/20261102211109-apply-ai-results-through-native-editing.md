@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211109
 title: Checked AI editing
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T23:14:42Z
 branch: feat/rev-ai-pi-04-results
 pr: 232
 reviewed_at: 2026-11-02T23:32:17Z
+closed_at: 2026-11-02T23:35:02Z
+resolution: fixed
 commits: [b9dbf29d6b89f49d1735c15e3104470fba9de1c2, 4a4fb82f913f1e2a0bf376ffc3932324c34f920c]
 ---
 
@@ -61,3 +63,9 @@ native undo/shared views, exact bytes, stale/readonly/association/closed-source
 guards and real external reload. The canonical report introduction is
 `4a4fb82f913f1e2a0bf376ffc3932324c34f920c`. Final clean-head validation follows
 these committed PR references and is retained by the controller and canonical PR.
+
+## Closure
+
+Verified canonical PR #232 merged into dev at
+`c3468516c904edcd0ea35c94322ea1aa7b57f35a`. Controller receipt
+`D6ZTJX2FOGYYOPQNEAPR3TGO5N` passed all four configured checks and 38 tests.
