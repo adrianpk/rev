@@ -12,7 +12,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 — Checked file reload
+Active slice: Slice 2 — External change observation
 Tracker: [Delivery Tracker](../tracker/rev-ai-pi.md)
 Supporting contract: [AI Commands](../spec/editor-ai-commands.md), [shared model](../spec/editor-ai-commands-model.md)
 
@@ -122,7 +122,7 @@ than a silent fallback.
 
 ### Slice 1: Checked file reload
 
-Ticket: [Checked file reload](../ticket/reviewing/20261102211106-reload-visiting-files-safely.md)
+Ticket: [Checked file reload](../ticket/solved/20261102211106-reload-visiting-files-safely.md)
 Requirements: EFC01, EFC03-EFC07.
 Dependencies: delivered native file, buffer and configuration owners.
 

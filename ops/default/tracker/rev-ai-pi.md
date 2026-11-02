@@ -12,15 +12,15 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 — Checked file reload
+Active slice: Slice 2 — External change observation
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slice 1 is implemented and awaiting canonical PR integration. Later slices
-remain pending; their ready tickets are actionable inputs, not completion evidence.
+closure. Slice 1 is integrated at its validated head. Slice 2 is active; later
+slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
 
@@ -39,8 +39,8 @@ remain pending; their ready tickets are actionable inputs, not completion eviden
 
 ### Slice 1: Checked file reload
 
-State: reviewing.
-Ticket: [Checked file reload](../ticket/reviewing/20261102211106-reload-visiting-files-safely.md)
+State: delivered.
+Ticket: [Checked file reload](../ticket/solved/20261102211106-reload-visiting-files-safely.md)
 Requirements: EFC01, EFC03-EFC07.
 Dependencies: delivered native owners.
 Branch: `feat/rev-ai-pi-01-reload`
@@ -57,8 +57,9 @@ Implementation commits: `256c17b2b360bb72b62ed42fa79581afcb7d1898`
 Focused validation passed: configuration reload-policy composition/startup (2),
 external reload/native command cases (11), all-target compilation and documentation
 catalogs (418 commands, 223 configuration entries; 68 pages/414 links).
-Final clean-head validation is recorded by the controller after PR references;
-its receipt is authoritative for the exact ordered candidate checks. This is
+PR #229 merged at `2f87ae673641d72abac12a985ec1630b2d542213` on
+2026-11-02T21:38:02Z. Final clean-head receipt `RM7KIWHX3TU37HLMBDT57F3D22`
+passed all four configured commands and 227 tests before controller integration. This is
 Slice 1 evidence, not the integrated delivery-set gate.
 
 ### Slice 2: External change observation

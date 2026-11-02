@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211106
 title: Checked file reload
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -13,6 +13,8 @@ ready_at: 2026-11-02T21:11:06Z
 started_at: 2026-11-02T21:20:38Z
 branch: feat/rev-ai-pi-01-reload
 pr: 229
+resolution: fixed
+closed_at: 2026-11-02T21:38:02Z
 reviewed_at: 2026-11-02T21:32:00Z
 commits: [256c17b2b360bb72b62ed42fa79581afcb7d1898, 1dbe66439e2273fda440996e08bbd399751925af, 7232bd69a5f58aebda0407b9df6bea5fd7fbb7b4]
 ---

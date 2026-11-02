@@ -1,6 +1,6 @@
 # Slice 1: Checked file reload
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -118,3 +118,13 @@ not the integrated delivery-set gate.
 Automatic notification delivery, overflow/registration lifetime, idle/resource
 measurements and the joint native/PTY acceptance remain in their approved slices.
 No Pi process or model operation is part of this explicit reload increment.
+
+## Integration evidence
+
+Canonical PR #229 merged into dev at
+`2f87ae673641d72abac12a985ec1630b2d542213` on 2026-11-02T21:38:02Z.
+Final controller receipt `RM7KIWHX3TU37HLMBDT57F3D22` passed the exact four
+configured commands at that clean head: format, strict all-target Clippy,
+combined files/configuration/external_changes tests (227 passed) and whitespace.
+The controller verified the canonical title/body/report introduction and owned
+integration. This closes Slice 1 of 8; the integrated delivery-set gate is pending.
