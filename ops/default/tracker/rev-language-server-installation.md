@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 2 — Catalog and guided setup
+Active slice: Slice 3 — Managed Rust installation
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slice 1 is delivered through PR #222. Slice 2 is in canonical PR #223 after implementation and the configured pre-PR checks; later slices remain pending.
+closure. Slices 1 and 2 are delivered through PRs #222 and #223. Slice 3 is active; later slices remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -82,8 +82,8 @@ commit into dev. Slice 1 of 7 completed.
 
 ### Slice 2: Catalog and guided setup
 
-State: reviewing.
-Ticket: [Catalog and guided setup](../ticket/reviewing/20261102111449-guide-language-server-setup.md)
+State: delivered.
+Ticket: [Catalog and guided setup](../ticket/solved/20261102111449-guide-language-server-setup.md)
 Requirements: INS01, INS03, INS04.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-language-server-installation-02-catalog`
@@ -111,13 +111,14 @@ T2.3/report-introduction commit: `fa45a2e6040ebefdf5a019c199ee1702eeedde1c`.
 All four configured commands passed on that clean candidate with controller receipt
 `LNZASM2O7S5S2G2FFW3IP35PUR`. Canonical PR:
 https://forge.adrianpk.com/adrianpk/rev/pulls/223
-The controller retains the final receipt for the PR-reference HEAD;
-canonical integration remains pending.
+Final receipt `LLIYHTI5G7DR77NSFEFN34MBQ7` passed all four commands for
+`2b44e552c8d9db9ed4aeb95636c0fdc5dd2bc5a0`. Canonical PR #223 merged that exact
+commit into dev. Slice 2 of 7 completed.
 
 ### Slice 3: Managed Rust installation
 
-State: ready.
-Ticket: [Managed Rust installation](../ticket/ready/20261102111450-install-managed-rust-server.md)
+State: in_progress.
+Ticket: [Managed Rust installation](../ticket/in_progress/20261102111450-install-managed-rust-server.md)
 Requirements: INS01, INS02, INS03, INS05, INS06.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-language-server-installation-03-managed-rust`

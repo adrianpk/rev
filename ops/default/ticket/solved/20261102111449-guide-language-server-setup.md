@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111449
 title: Catalog and guided setup
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -54,3 +54,6 @@ See the [Slice 2 report](../../report/slices/rev-language-server-installation/sl
 All four configured commands passed at `fa45a2e6040ebefdf5a019c199ee1702eeedde1c` with receipt
 `LNZASM2O7S5S2G2FFW3IP35PUR`. Canonical PR: #223. The final PR-reference
 head requires its own controller receipt before integration.
+
+Final controller receipt `LLIYHTI5G7DR77NSFEFN34MBQ7` passed all configured
+commands at `2b44e552c8d9db9ed4aeb95636c0fdc5dd2bc5a0`, merged by PR #223.

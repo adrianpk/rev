@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111450
 title: Managed Rust installation
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:50Z
 ready_at: 2026-11-02T11:14:50Z
+in_progress_at: 2026-11-02T12:29:53Z
+branch: feat/rev-language-server-installation-03-managed-rust
 commits: []
 ---
 

@@ -1,6 +1,6 @@
 # Slice 2: Catalog and guided setup
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
@@ -103,7 +103,9 @@ Pre-PR controller validation passed at
 
 The controller owns the exact clean-HEAD receipt for the configured ordered
 format, all-target Clippy, command/installation regressions and whitespace checks.
-The PR-reference follow-up head requires its own receipt before integration.
+Final controller receipt `LLIYHTI5G7DR77NSFEFN34MBQ7` passed the same four
+commands for `2b44e552c8d9db9ed4aeb95636c0fdc5dd2bc5a0`. Canonical PR #223
+merged that exact commit into dev. Slice 2 of 7 completed.
 The combined delivery-set gate remains with the controller after all slices.
 
 ## Risks and Follow-ups
