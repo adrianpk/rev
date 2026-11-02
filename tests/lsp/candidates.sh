@@ -36,9 +36,18 @@ while read_frame; do
                 timeout) continue ;;
                 crash) exit 0 ;;
                 late) old=$id; continue ;;
+                hold)
+                    attempt=0
+                    while test ! -f "$log.release"; do
+                        attempt=$((attempt + 1))
+                        test "$attempt" -lt 500 || exit 1
+                        sleep 0.01
+                    done
+                    ;;
             esac
             result=$(cat "$log.result")
             frame '{"jsonrpc":"2.0","id":'"$id"',"result":'"$result"'}'
+            if test "$mode" = hold; then printf 'sent\n' > "$log.sent"; fi
             ;;
         *'"method":"completionItem/resolve"'*)
             id=$(printf '%s' "$payload" | sed -n 's/.*"id":\([0-9][0-9]*\).*/\1/p')

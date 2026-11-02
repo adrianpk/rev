@@ -47,32 +47,78 @@ impl SettingsEdit {
     }
 
     pub fn register(&mut self, name: &str, server: &Server) {
+        let previous = self
+            .sources
+            .sources
+            .first()
+            .and_then(|source| source.document.lsp.servers.get(name));
         let table = &mut self.document["lsp"]["servers"][name];
         if table.is_none() {
             *table = Item::Table(Table::new());
         }
-        table["languages"] = strings(&server.languages);
-        table["command"] = value(&server.command);
-        table["args"] = strings(&server.args);
-        table["root_markers"] = strings(&server.root_markers);
-        table["initialization_options"] = Item::Value(data(&server.initialization_options));
-        table["settings"] = Item::Value(data(&server.settings));
-        let mut env = toml_edit::InlineTable::new();
-        for (key, entry) in &server.env {
-            env.insert(key, Value::from(entry.as_str()));
+        if previous.and_then(|s| s.languages.as_ref()) != Some(&server.languages) {
+            assign(&mut table["languages"], strings(&server.languages));
         }
-        table["env"] = Item::Value(Value::InlineTable(env));
+        if previous.and_then(|s| s.command.as_ref()) != Some(&server.command) {
+            assign(&mut table["command"], value(&server.command));
+        }
+        if previous.and_then(|s| s.args.as_ref()) != Some(&server.args) {
+            assign(&mut table["args"], strings(&server.args));
+        }
+        if previous.and_then(|s| s.root_markers.as_ref()) != Some(&server.root_markers) {
+            assign(&mut table["root_markers"], strings(&server.root_markers));
+        }
+        if previous.and_then(|s| s.initialization_options.as_ref())
+            != Some(&server.initialization_options)
+        {
+            assign(
+                &mut table["initialization_options"],
+                Item::Value(data(&server.initialization_options)),
+            );
+        }
+        if previous.and_then(|s| s.settings.as_ref()) != Some(&server.settings) {
+            assign(&mut table["settings"], Item::Value(data(&server.settings)));
+        }
+        if previous.map(|s| &s.env) != Some(&server.env) {
+            let mut env = toml_edit::InlineTable::new();
+            for (key, entry) in &server.env {
+                env.insert(key, Value::from(entry.as_str()));
+            }
+            assign(&mut table["env"], Item::Value(Value::InlineTable(env)));
+        }
     }
 
     pub fn prefer(&mut self, language: &str, preference: &Preference) {
-        self.document["lsp"]["preferred"][language] = match preference {
+        if self
+            .sources
+            .sources
+            .first()
+            .and_then(|s| s.document.lsp.preferred.get(language))
+            == Some(preference)
+        {
+            return;
+        }
+        let next = match preference {
             Preference::Server(name) => value(name),
             Preference::Native(native) => value(*native),
         };
+        assign(&mut self.document["lsp"]["preferred"][language], next);
     }
 
     pub fn associate(&mut self, pattern: &str, language: &str) {
-        self.document["files"]["associations"][pattern] = value(language);
+        if self
+            .sources
+            .sources
+            .first()
+            .and_then(|s| s.document.files.associations.get(pattern))
+            .is_some_and(|id| id == language)
+        {
+            return;
+        }
+        assign(
+            &mut self.document["files"]["associations"][pattern],
+            value(language),
+        );
     }
 
     /// Serialize manager mutations with an OS-owned lock in the resolved state
@@ -146,6 +192,13 @@ impl SettingsEdit {
         }
         Ok(())
     }
+}
+
+fn assign(target: &mut Item, mut next: Item) {
+    if let (Some(old), Some(new)) = (target.as_value(), next.as_value_mut()) {
+        *new.decor_mut() = old.decor().clone();
+    }
+    *target = next;
 }
 
 fn strings(values: &[String]) -> Item {

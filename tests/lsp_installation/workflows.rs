@@ -173,8 +173,12 @@ fn scoped_reload() {
     );
     let file = f.write("source.rs", "fn main() {}\n");
     let mut s = session(&root, &file);
+    s.insert('x');
+    s.execute(Command::Region(rev::command::RegionCommand::Set));
     let point = s.view().point;
     let stamp = s.buffer().unwrap().stamp();
+    let mark = s.buffer().unwrap().mark();
+    let history = s.buffer().unwrap().history().len();
     f.write("config.toml", "[editor]\ninteraction_profile = 'modal'\ntab_width = 9\n[lsp]\nenabled = true\n[lsp.servers.rust]\ncommand = '/missing/server'\n");
     s.execute(Command::Lsp(LspCommand::ReloadSettings));
     assert_eq!(s.lsp_status(), Status::Disabled);
@@ -198,5 +202,10 @@ fn scoped_reload() {
     assert_eq!(s.lsp_status(), Status::Excluded);
     assert_eq!(s.view().point, point);
     assert_eq!(s.buffer().unwrap().stamp(), stamp);
+    assert_eq!(text(&s), "xfn main() {}\n");
+    assert_eq!(s.buffer().unwrap().mark(), mark);
+    assert!(s.buffer().unwrap().mark_active());
+    assert_eq!(s.buffer().unwrap().history().len(), history);
+    s.execute(Command::History(rev::command::History::Undo));
     assert_eq!(text(&s), "fn main() {}\n");
 }

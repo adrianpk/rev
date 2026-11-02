@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111448
 title: Existing server registration
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,9 @@ reported_at: 2026-11-02T11:14:48Z
 ready_at: 2026-11-02T11:14:48Z
 started_at: 2026-11-02T11:22:00Z
 branch: feat/rev-language-server-installation-01-registration
-commits: []
+reviewed_at: 2026-11-02T11:47:23Z
+pr: pending
+commits: [4c9e7120460c043776cef6bca0470bfeac1e2a9d, b91b6c51b2189f0bd50427555a38c2e36f4c4f81]
 ---
 
 # Existing server registration
@@ -43,8 +45,9 @@ Slice 1; [tracker](../../tracker/rev-language-server-installation.md).
 Prerequisites are the delivered configuration, command, completion and LSP owners.
 One slice PR uses the exact plan branch and title. The controller owns progress.
 
-## Planned validation
+## Validation
 
-Run the owning slice's exact configured commands and its acceptance cases.
-Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+Native configuration/filesystem, both-profile prompt, source-switch and late-response
+checks passed during implementation. The [Slice 1 report](../../report/slices/rev-language-server-installation/slice-1-registration.md)
+records the checks. Controller validation of the exact clean PR head is required
+before integration.

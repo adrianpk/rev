@@ -34,11 +34,9 @@ impl Session {
             })
         });
         match result {
-            Ok(prompt) => self.lsp_setup_prompt(
-                prompt,
-                "",
-                "Choose a language identity; C-g cancels",
-            ),
+            Ok(prompt) => {
+                self.lsp_setup_prompt(prompt, "", "Choose a language identity; C-g cancels")
+            }
             Err(error) => self.error(&error),
         }
     }

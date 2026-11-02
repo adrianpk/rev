@@ -26,6 +26,13 @@ pub fn parse(source: &Path, bytes: &[u8]) -> Result<Document, Diagnostic> {
     let document = Document::deserialize(Deserializer::from(root)).map_err(|error| {
         let mut diagnostic = toml_error(source, text, error);
         diagnostic.key = locations.containing(diagnostic.span.as_ref());
+        if diagnostic.key.len() >= 4
+            && diagnostic.key[0] == "lsp"
+            && diagnostic.key[1] == "servers"
+            && diagnostic.key[3] == "env"
+        {
+            diagnostic.message = "expected a literal string environment map".into();
+        }
         diagnostic
     })?;
     validate::document(&document).map_err(|failure| {

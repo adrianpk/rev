@@ -44,6 +44,7 @@ fn rejected_settings() {
         ("missing", "lsp.preferred.rust = 'unknown'".into()),
         ("incompatible", "lsp.preferred.elixir = 'rust'".into()),
         ("identity", "lsp.preferred.'Bad ID' = false".into()),
+        ("type", "lsp.servers.rust.env = { KEY = 8675309 }".into()),
         (
             "name",
             "lsp.servers.rust.env = { 'A=B' = 'private' }".into(),
@@ -77,6 +78,7 @@ fn rejected_settings() {
         let startup = prepare(&root);
         let diagnostic = startup.diagnostic.expect(name).to_string();
         assert!(!diagnostic.contains("sensitive-value"), "{name}");
+        assert!(!diagnostic.contains("8675309"), "{name}: {diagnostic}");
         assert_eq!(
             startup.snapshot.settings(),
             &rev::config::Settings::default(),
@@ -229,4 +231,27 @@ fn publication_admission() {
             .to_string()
             .contains("mutation lock")
     );
+}
+
+// Updating a profile preserves comments on replaced values and leaves the
+// original representation of unchanged arrays and nested settings intact.
+#[test]
+fn profile_comments() {
+    let f = Fixture::new();
+    let root = f.write("config.toml", "[lsp.preferred]\nrust = 'rust' # choice\n[lsp.servers.rust]\ncommand = 'old' # executable\nargs = ['--stdio'] # literal argv\n[lsp.servers.rust.settings]\n# nested comment\ncheck = true\n");
+    let mut edit = SettingsEdit::capture(&root).unwrap();
+    let mut server = edit.snapshot().unwrap().settings().lsp.servers["rust"].clone();
+    server.command = "new-server".into();
+    edit.register("rust", &server);
+    edit.prefer("rust", &Preference::Server("rust".into()));
+    edit.publish(&f.0.join("state")).unwrap();
+    let text = fs::read_to_string(root).unwrap();
+    for retained in [
+        "# executable",
+        "args = ['--stdio'] # literal argv",
+        "rust = 'rust' # choice",
+        "[lsp.servers.rust.settings]\n# nested comment\ncheck = true",
+    ] {
+        assert!(text.contains(retained), "{retained}: {text}");
+    }
 }

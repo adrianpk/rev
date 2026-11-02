@@ -17,7 +17,7 @@ Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slice 1 is in progress. Later slice implementation and validation remain pending.
+closure. Slice 1 implementation is ready for controller validation and canonical PR preparation. Later slice implementation and validation remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -39,8 +39,8 @@ associations. Preserve the existing semantic-or-native source policy.
 
 ### Slice 1: Existing server registration
 
-State: in_progress.
-Ticket: [Existing server registration](../ticket/in_progress/20261102111448-register-existing-language-servers.md)
+State: reviewing.
+Ticket: [Existing server registration](../ticket/reviewing/20261102111448-register-existing-language-servers.md)
 Requirements: INS01, INS03, INS04, INS05.
 Dependencies: delivered baseline.
 Branch: `feat/rev-language-server-installation-01-registration`
@@ -49,7 +49,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-1-regi
 
 - [x] T1.1: Add preferred-server/native-only and literal environment fields, whole-candidate validation, root provenance and a format-preserving conflict-checked settings writer.
 - [x] T1.2: Expose guided existing/custom registration and scoped live application through the shared command owner; preserve runtime LSP enablement, exclusions, editor profile, includes and unrelated settings.
-- [ ] T1.3: Cover grammar-independent registration, source switching, configuration conflicts and symlink publication through native integration tests.
+- [x] T1.3: Cover grammar-independent registration, source switching, configuration conflicts and symlink publication through native integration tests.
 
 T1.1 development checks passed: `cargo check`,
 `cargo test --locked --test lsp_installation -- --test-threads=1` (5 cases),
@@ -61,7 +61,13 @@ T1.2 development checks passed: `cargo check --locked`,
 `cargo run --locked --quiet --example documentation-check` and
 `cargo test --locked --test commands palette::catalog_reference -- --exact`.
 The native workflow checks cover both startup profiles and cancellation at each
-prompt. Exact final controller validation and canonical integration remain pending.
+prompt. T1.2 commit: `b91b6c51b2189f0bd50427555a38c2e36f4c4f81`.
+T1.3 development checks passed:
+`cargo test --locked --test lsp_installation routing:: -- --test-threads=1`,
+`cargo test --locked --test lsp_installation settings::rejected_settings -- --exact`,
+`cargo test --locked --test lsp_installation workflows::scoped_reload -- --exact` and
+`cargo test --locked --test lsp_installation settings::profile_comments -- --exact`.
+Exact final controller validation and canonical integration remain pending.
 
 ### Slice 2: Catalog and guided setup
 
