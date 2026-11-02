@@ -82,6 +82,7 @@ files.bom = true
             newline: Newline::Crlf,
             bom: true,
             associations: Default::default(),
+            ..Files::default()
         },
         ..Settings::default()
     };

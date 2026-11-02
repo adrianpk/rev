@@ -46,6 +46,21 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
     palette(&document.palette)?;
     languages(document)?;
     associations(&document.files.associations)?;
+    integer(
+        "files.external_change_debounce_ms",
+        document.files.external_change_debounce_ms,
+        0..=2000,
+    )?;
+    integer(
+        "files.external_change_max_bytes",
+        document.files.external_change_max_bytes,
+        1..=134217728,
+    )?;
+    integer(
+        "files.external_change_max_buffers",
+        document.files.external_change_max_buffers,
+        1..=4096,
+    )?;
     bindings(document)
 }
 

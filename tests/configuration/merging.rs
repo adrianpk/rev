@@ -77,3 +77,18 @@ fn mapping_leaves() {
     base.overlay(&document("[keys.editor]"));
     assert_eq!(base.keys.editor.len(), 2);
 }
+
+// Includes retain explicit zero debounce and override only supplied leaves.
+#[test]
+fn reload_policy() {
+    let mut base = document("files.external_changes = 'ask'\nfiles.external_change_max_bytes = 42");
+    let later =
+        document("files.external_changes = 'reload'\nfiles.external_change_debounce_ms = 0");
+    base.overlay(&later);
+    assert_eq!(
+        base.files.external_changes,
+        Some(rev::config::ExternalChanges::Reload)
+    );
+    assert_eq!(base.files.external_change_debounce_ms, Some(0));
+    assert_eq!(base.files.external_change_max_bytes, Some(42));
+}

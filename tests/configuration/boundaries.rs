@@ -29,6 +29,9 @@ fn integer_bounds() {
         ("kill_ring.capacity", 1, 4096),
         ("tree.width", 1, 512),
         ("syntax.max_bytes", 0, 1_073_741_824),
+        ("files.external_change_debounce_ms", 0, 2000),
+        ("files.external_change_max_bytes", 1, 134217728),
+        ("files.external_change_max_buffers", 1, 4096),
         ("language.go.indent_width", 1, 32),
         ("language.go.tab_width", 1, 32),
     ];
@@ -118,7 +121,7 @@ fn palette_roles() {
 // unsupported future controls cannot appear through nested language tables.
 #[test]
 fn enum_values() {
-    let cases: [(&str, &[&str]); 5] = [
+    let cases: [(&str, &[&str]); 6] = [
         ("editor.indent_style", &["'spaces'", "'tabs'"]),
         (
             "minibuffer.match",
@@ -126,6 +129,7 @@ fn enum_values() {
         ),
         ("tree.root", &["'auto'", "'cwd'", "'file-parent'"]),
         ("files.newline", &["'lf'", "'crlf'"]),
+        ("files.external_changes", &["'reload'", "'ask'"]),
         (
             "language.rust.grammar",
             &[

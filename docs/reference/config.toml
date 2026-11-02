@@ -361,6 +361,12 @@ enabled = true
 max_bytes = 0
 
 [files]
+# Startup policy for external changes: "reload" clean buffers or "ask".
+# Explicit revert-buffer remains available in either mode.
+external_changes = "reload"
+external_change_debounce_ms = 150
+external_change_max_bytes = 16777216
+external_change_max_buffers = 256
 # "lf" or "crlf"; creation default only, never conversion of existing files.
 newline = "lf"
 # Boolean; creation default for one leading UTF-8 BOM.

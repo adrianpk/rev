@@ -412,6 +412,26 @@ impl Merge {
     }
 
     fn files(&mut self, base: &mut PartialFiles, later: &PartialFiles) {
+        self.leaf(
+            &["files", "external_changes"],
+            &mut base.external_changes,
+            &later.external_changes,
+        );
+        self.leaf(
+            &["files", "external_change_debounce_ms"],
+            &mut base.external_change_debounce_ms,
+            &later.external_change_debounce_ms,
+        );
+        self.leaf(
+            &["files", "external_change_max_bytes"],
+            &mut base.external_change_max_bytes,
+            &later.external_change_max_bytes,
+        );
+        self.leaf(
+            &["files", "external_change_max_buffers"],
+            &mut base.external_change_max_buffers,
+            &later.external_change_max_buffers,
+        );
         self.leaf(&["files", "newline"], &mut base.newline, &later.newline);
         self.leaf(&["files", "bom"], &mut base.bom, &later.bom);
         self.table(

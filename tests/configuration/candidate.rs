@@ -10,6 +10,16 @@ use crate::fixture::Fixture;
 fn whole_candidate_fallback() {
     let cases = [
         (
+            "invalid reload policy",
+            "editor.tab_width = 8\nfiles.external_changes = 'ignore'",
+            "config.toml",
+        ),
+        (
+            "invalid reload limit",
+            "editor.tab_width = 8\nfiles.external_change_max_bytes = 0",
+            "config.toml",
+        ),
+        (
             "root",
             "include = ['valid.toml']\neditor.tab_width = 8\npalette.background = '#bad'",
             "config.toml",
@@ -163,4 +173,28 @@ fn invalid_source_order() {
         let error = resolve(&sources).unwrap_err();
         assert!(error.message.contains("source occurrence order"), "{name}");
     }
+}
+
+// The complete startup projection preserves includes and tracks each policy leaf.
+#[test]
+fn reload_policy() {
+    let fixture = Fixture::new();
+    fixture.write(
+        "base.toml",
+        "files.external_changes = 'ask'\nfiles.external_change_max_bytes = 42",
+    );
+    let root = fixture.write("config.toml", "include = ['base.toml']\nfiles.external_change_debounce_ms = 0\nfiles.external_change_max_buffers = 8");
+    let startup = prepare(&root);
+    assert!(startup.diagnostic.is_none());
+    let files = &startup.snapshot.settings().files;
+    assert_eq!(files.external_changes, rev::config::ExternalChanges::Ask);
+    assert_eq!(files.external_change_max_bytes, 42);
+    assert_eq!(files.external_change_debounce_ms, 0);
+    assert_eq!(files.external_change_max_buffers, 8);
+    assert!(
+        startup
+            .snapshot
+            .origin(&["files", "external_changes"])
+            .is_some()
+    );
 }

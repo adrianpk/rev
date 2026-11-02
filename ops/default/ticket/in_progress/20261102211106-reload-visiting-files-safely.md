@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211106
 title: Checked file reload
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:06Z
 ready_at: 2026-11-02T21:11:06Z
+started_at: 2026-11-02T21:20:38Z
+branch: feat/rev-ai-pi-01-reload
 commits: []
 ---
 

@@ -666,12 +666,23 @@ pub struct PartialSyntax {
     pub max_bytes: Option<i64>,
 }
 
-/// Format defaults apply only to new buffers; associations are user overrides
-/// of the built-in basename/suffix map, not grammar installation requests.
+/// Startup behavior for external changes to clean visiting buffers.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ExternalChanges {
+    Reload,
+    Ask,
+}
+
+/// File creation defaults, language overrides and bounded external observation.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Files {
     pub newline: Newline,
     pub bom: bool,
+    pub external_changes: ExternalChanges,
+    pub external_change_debounce_ms: usize,
+    pub external_change_max_bytes: usize,
+    pub external_change_max_buffers: usize,
     pub associations: BTreeMap<String, String>,
 }
 
@@ -680,6 +691,10 @@ impl Default for Files {
         Self {
             newline: Newline::Lf,
             bom: false,
+            external_changes: ExternalChanges::Reload,
+            external_change_debounce_ms: 150,
+            external_change_max_bytes: 16_777_216,
+            external_change_max_buffers: 256,
             associations: BTreeMap::new(),
         }
     }
@@ -690,6 +705,10 @@ impl Default for Files {
 pub struct PartialFiles {
     pub newline: Option<Newline>,
     pub bom: Option<bool>,
+    pub external_changes: Option<ExternalChanges>,
+    pub external_change_debounce_ms: Option<i64>,
+    pub external_change_max_bytes: Option<i64>,
+    pub external_change_max_buffers: Option<i64>,
     pub associations: BTreeMap<String, String>,
 }
 

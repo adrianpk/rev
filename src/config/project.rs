@@ -157,6 +157,19 @@ fn syntax(base: &mut Syntax, partial: &PartialSyntax) {
 fn files(base: &mut Files, partial: &PartialFiles) {
     scalar(&mut base.newline, partial.newline);
     scalar(&mut base.bom, partial.bom);
+    scalar(&mut base.external_changes, partial.external_changes);
+    count(
+        &mut base.external_change_debounce_ms,
+        partial.external_change_debounce_ms,
+    );
+    count(
+        &mut base.external_change_max_bytes,
+        partial.external_change_max_bytes,
+    );
+    count(
+        &mut base.external_change_max_buffers,
+        partial.external_change_max_buffers,
+    );
     base.associations.clone_from(&partial.associations);
 }
 

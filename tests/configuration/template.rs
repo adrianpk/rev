@@ -44,6 +44,13 @@ fn explicit_defaults() {
     assert_eq!(document.include, Some(Vec::new()));
     assert!(document.language.is_empty());
     assert!(document.files.associations.is_empty());
+    assert_eq!(
+        document.files.external_changes,
+        Some(rev::config::ExternalChanges::Reload)
+    );
+    assert_eq!(document.files.external_change_debounce_ms, Some(150));
+    assert_eq!(document.files.external_change_max_bytes, Some(16_777_216));
+    assert_eq!(document.files.external_change_max_buffers, Some(256));
 }
 
 fn editor(snapshot: rev::config::Snapshot, path: &Path) -> rev::session::Session {
