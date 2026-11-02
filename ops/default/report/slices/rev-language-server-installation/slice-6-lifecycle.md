@@ -130,8 +130,12 @@ The first configured controller batch at
 `37MM3XAENA35U5Q3TXVI53LIBO`, passed `cargo fmt --all -- --check` and failed
 `cargo clippy --locked --all-targets -- -D warnings` on one collapsible nested
 conditional in keyboard-quit dispatch. The equivalent let-chain correction keeps
-its behavior and source bounds. Fresh configured validation and the canonical PR
-reference are pending. The integrated delivery-set gate remains with the controller.
+its behavior and source bounds. The next batch at
+`3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e`, receipt
+`6M4EBZLLTOG46YCWVNIXPDWTOO`, passed format and exposed a Clippy fixture
+initializer warning after library lint succeeded. The fixture now initializes
+its enabled/server fields together; assertions are unchanged. Fresh configured
+validation and the canonical PR reference are pending. The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 

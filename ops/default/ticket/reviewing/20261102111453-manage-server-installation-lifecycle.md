@@ -13,7 +13,7 @@ ready_at: 2026-11-02T11:14:53Z
 started_at: 2026-11-02T15:43:51Z
 branch: feat/rev-language-server-installation-06-lifecycle
 reviewed_at: 2026-11-02T16:20:11Z
-commits: [a379e079ced8fd4bd55d9d5ee1e07b3e54722f05, 6ad27cd908d867684edab6a8124c8d4138ea3db4, bc9b5a74dba284c3c4a09b24c5b434410cc843c0]
+commits: [a379e079ced8fd4bd55d9d5ee1e07b3e54722f05, 6ad27cd908d867684edab6a8124c8d4138ea3db4, bc9b5a74dba284c3c4a09b24c5b434410cc843c0, 3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e]
 ---
 
 # Update cancellation and removal

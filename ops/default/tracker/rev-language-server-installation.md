@@ -322,8 +322,10 @@ passed. Changed dispatch and lifecycle functions meet the existing source limits
 T6.3/report-introduction commit: `bc9b5a74dba284c3c4a09b24c5b434410cc843c0`.
 The first controller batch, receipt `37MM3XAENA35U5Q3TXVI53LIBO`, passed format
 and failed Clippy on one collapsible conditional. Its equivalent let-chain
-correction retains behavior and source limits. Fresh configured validation and
-canonical PR reference: pending.
+correction retains behavior and source limits. The next batch, receipt
+`6M4EBZLLTOG46YCWVNIXPDWTOO`, exposed one fixture initializer lint after the
+library passed. Its struct initializer correction preserves every assertion.
+Fresh configured validation and canonical PR reference: pending.
 
 ### Slice 7: Acceptance and user guidance
 

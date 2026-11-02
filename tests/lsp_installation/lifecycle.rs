@@ -197,8 +197,6 @@ fn running_removal() {
     drop(storage);
     let file = f.write("workspace/sample.html", "owned\n");
     for mode in ["search-path", "interpreter-argument"] {
-        let mut policy = rev::config::Lsp::default();
-        policy.enabled = true;
         let mut server = installation.launches[0].server(&roots.data.join(&installation.payload));
         if mode == "search-path" {
             let bins = Path::new(&server.command).parent().unwrap().to_path_buf();
@@ -216,7 +214,11 @@ fn running_removal() {
             server.command = "/bin/sh".into();
         }
         let language = server.languages[0].clone();
-        policy.servers = BTreeMap::from([("running".into(), server)]);
+        let policy = rev::config::Lsp {
+            enabled: true,
+            servers: BTreeMap::from([("running".into(), server)]),
+            ..Default::default()
+        };
 
         let mut client = Client::new(policy);
         client.activate(&file, &language, Some(file.parent().unwrap()));
