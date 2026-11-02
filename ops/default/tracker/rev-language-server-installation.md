@@ -291,9 +291,17 @@ Branch: `feat/rev-language-server-installation-06-lifecycle`
 PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-6-lifecycle.md`
 
-- [ ] T6.1: Add explicit update/remove/cancel commands; prepare and verify new versions before atomically retargeting still-owned profiles.
+- [x] T6.1: Add explicit update/remove/cancel commands; prepare and verify new versions before atomically retargeting still-owned profiles.
 - [ ] T6.2: Handle shared web-profile references, source conflicts, incomplete jobs and bounded cache cleanup without deleting external or running payloads.
 - [ ] T6.3: Verify process-group stop/reap, editor-exit cleanup, concurrent instances, failed replacement and preservation of ordinary editing.
+
+T6.1 development checks passed: `cargo check --locked`,
+`cargo test --locked --test lsp_installation lifecycle:: -- --test-threads=1`
+and focused lifecycle/storage source checks. Shared web updates preserve
+unselected profiles, custom options and prior ready payloads; failed probes keep
+settings unchanged. A real client in another process blocks removal through an
+inode lease until its server is reaped. Command/reference catalogs now contain
+417 commands and 219 settings; documentation validation passed.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

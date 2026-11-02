@@ -75,7 +75,7 @@ compiled M-x name once.
 
 | Group | Names |
 | --- | --- |
-| Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server` |
+| Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`, `lsp-cancel-installation` |
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file` |

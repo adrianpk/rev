@@ -3,7 +3,9 @@ use crate::command::{Command, LspCommand};
 use crate::lsp::Status;
 use std::time::Duration;
 
+mod lifecycle;
 mod managed;
+pub(super) use lifecycle::Prompt as LifecyclePrompt;
 mod setup;
 pub(super) use setup::Prompt;
 
@@ -18,6 +20,9 @@ impl Session {
     fn lsp_control(&mut self, command: LspCommand) -> Action {
         match command {
             LspCommand::InstallServer => return self.begin_lsp_installation(),
+            LspCommand::UpdateServer => return self.begin_lifecycle(false),
+            LspCommand::RemoveServer => return self.begin_lifecycle(true),
+            LspCommand::CancelInstallation => return self.cancel_installation(),
             LspCommand::Setup => return self.begin_lsp_setup(),
             LspCommand::SelectServer => return self.begin_lsp_selection(),
             LspCommand::Servers => return self.list_lsp_servers(),
@@ -40,6 +45,9 @@ impl Session {
             }
             LspCommand::Status => {}
             LspCommand::InstallServer
+            | LspCommand::UpdateServer
+            | LspCommand::RemoveServer
+            | LspCommand::CancelInstallation
             | LspCommand::Setup
             | LspCommand::ReloadSettings
             | LspCommand::SelectServer

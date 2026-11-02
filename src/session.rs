@@ -190,6 +190,7 @@ enum AfterSave {
 
 enum Pending {
     LspSetup(Box<lsp::Prompt>),
+    LspLifecycle(Box<lsp::LifecyclePrompt>),
     Bookmark(bookmarks::Prompt),
     BookmarkReload(Box<bookmarks::Reload>),
     BookmarkQuit,

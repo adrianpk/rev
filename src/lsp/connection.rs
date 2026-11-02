@@ -105,6 +105,7 @@ impl Supervisor {
         let root = roots::uri(&self.root)?;
         let timeout = Duration::from_millis(self.policy.request_timeout_ms as u64);
         let (pipes, stdio) = Pipes::new(timeout)?;
+        let _payload_lease = super::install::launch_lease(&self.server, &self.root)?;
         let mut child = match self.spawn(stdio) {
             Ok(child) => child,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {

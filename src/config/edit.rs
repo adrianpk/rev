@@ -180,6 +180,12 @@ impl SettingsEdit {
         Ok(Publication { snapshot, warning })
     }
 
+    /// Validate the captured graph before a managed filesystem effect without
+    /// publishing or rewriting configuration.
+    pub(crate) fn check_unchanged(&self) -> Result<(), String> {
+        self.unchanged()
+    }
+
     fn unchanged(&self) -> Result<(), String> {
         let current =
             load(&self.root).map_err(|e| format!("configuration source conflict: {e}"))?;

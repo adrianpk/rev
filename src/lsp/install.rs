@@ -1,6 +1,12 @@
 //! Explicit, optional managed installation. Registry reads never start work;
 //! mutations own one native job slot and OS locks for their entire lifetime.
 mod cache;
+mod lease;
+mod remove;
+mod update;
+pub(crate) use lease::launch as launch_lease;
+pub use remove::{references, remove};
+pub use update::Update;
 mod download;
 mod evidence;
 mod go;

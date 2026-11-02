@@ -23,6 +23,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x lsp-servers` | `lsp-servers` | Open a read-only snapshot of configured sources, local executable availability and managed recipe prerequisites. |
 | `M-x lsp-select-server` | `lsp-select-server` | Persist a compatible configured source, ready managed installation or native-only choice. |
 | `M-x lsp-install-server` | `lsp-install-server` | Acquire and verify a managed catalog recipe, or select a ready installation; preserve runtime LSP mode. |
+| `M-x lsp-update-server` | `lsp-update-server` | Verify a replacement before retargeting selected managed profiles; retain the old payload. |
+| `M-x lsp-remove-server` | `lsp-remove-server` | Remove a confirmed installer-owned payload only when unreferenced and stopped. |
+| `M-x lsp-cancel-installation` | `lsp-cancel-installation` | Request active management cancellation while its worker retains cleanup ownership. |
 | `M-x completion-mode` | `completion-mode` | Toggle native completion for this session. |
 | `M-x completion-auto-mode` | `completion-auto-mode` | Toggle automatic requests while retaining explicit invocation. |
 | `M-TAB` | `completion-at-point` | Show native suggestions near the source cursor. |

@@ -37,10 +37,13 @@ impl Session {
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {
-            if matches!(self.pending, Some(Pending::LspSetup(_))) {
+            if matches!(
+                self.pending,
+                Some(Pending::LspSetup(_) | Pending::LspLifecycle(_))
+            ) {
                 self.pending = None;
                 self.input.cancel();
-                return Some(self.message("LSP setup cancelled"));
+                return Some(self.message("LSP setup or management interaction cancelled"));
             }
             self.clock_recovery_pin = None;
             self.org.cancel();

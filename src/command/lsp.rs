@@ -10,6 +10,9 @@ pub enum LspCommand {
     Servers,
     SelectServer,
     InstallServer,
+    UpdateServer,
+    RemoveServer,
+    CancelInstallation,
 }
 
 impl LspCommand {
@@ -25,6 +28,9 @@ impl LspCommand {
             Self::Servers => "lsp-servers",
             Self::SelectServer => "lsp-select-server",
             Self::InstallServer => "lsp-install-server",
+            Self::UpdateServer => "lsp-update-server",
+            Self::RemoveServer => "lsp-remove-server",
+            Self::CancelInstallation => "lsp-cancel-installation",
         }
     }
 }

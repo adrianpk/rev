@@ -22,6 +22,9 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-servers` | Open a read-only source/catalog snapshot without running helpers or checking remote versions. |
 | `lsp-select-server` | Choose a compatible configured profile, ready managed installation or native-only source. |
 | `lsp-install-server` | Acquire and verify a catalog recipe or reuse a ready installation; save its choice when configuration sources still match. |
+| `lsp-update-server` | Confirm a managed installation and its selected profiles; verify a replacement before one settings publication. |
+| `lsp-remove-server` | Confirm removal of an installer-owned, unreferenced, stopped payload. |
+| `lsp-cancel-installation` | Cancel the current management job; its slot remains owned until cleanup finishes. |
 
 Eligible file activation uses `lsp.preferred` when present: a compatible server
 name selects that profile; `false` selects native-only. Otherwise it selects the

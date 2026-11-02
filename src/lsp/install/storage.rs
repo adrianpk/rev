@@ -124,6 +124,17 @@ impl Storage {
     pub fn save(&mut self, installation: Installation) -> Result<Option<String>, String> {
         self.progress.set(super::Phase::Publishing);
         let next = self.propose(installation)?;
+        self.persist(next)
+    }
+
+    pub(super) fn forget(&mut self, id: &str) -> Result<Option<String>, String> {
+        let mut next = self.registry.clone();
+        next.installations.retain(|i| i.id != id);
+        next.validate(&self.roots.data)?;
+        self.persist(next)
+    }
+
+    fn persist(&mut self, next: Registry) -> Result<Option<String>, String> {
         let bytes = next.encode().into_bytes();
         if bytes.len() > super::REGISTRY_BYTES {
             return Err("installation registry exceeds 2 MiB".into());
@@ -204,7 +215,7 @@ impl Storage {
         edit.publish_locked(&self.lock).map_err(|e| e.to_string())
     }
 
-    fn unchanged(&self) -> Result<(), String> {
+    pub(super) fn unchanged(&self) -> Result<(), String> {
         let (_, image) = read(&self.roots.data)?;
         if self.image != image {
             return Err(

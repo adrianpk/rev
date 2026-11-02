@@ -18,7 +18,10 @@ This project uses Semantic Versioning.
   `lsp-install-server` while editing continues. Keep analysis off until enabled,
   reuse shared web installations per language and retain a ready server if its
   settings cannot be saved. Keep Ruby gems and Python environments isolated,
-  and build a pinned Odin server with your existing compatible compiler.
+  and build a pinned Odin server with your existing compatible compiler. Update
+  selected managed profiles with `lsp-update-server` after replacement verification,
+  retain the prior version on failure, remove stopped unreferenced payloads with
+  `lsp-remove-server`, and cancel active work with `lsp-cancel-installation`.
 
 ## 0.3.0 - 2026-11-01
 
