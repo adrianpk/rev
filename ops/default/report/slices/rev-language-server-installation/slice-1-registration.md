@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
 Branch: `feat/rev-language-server-installation-01-registration`
-PR: pending
+PR: `#222`
 
 ## Purpose
 
@@ -93,6 +93,15 @@ selected root. The expectations now compare complete default snapshots carrying
 the exact selected root, preserving every existing equality assertion. Focused
 `cargo test --locked --test configuration candidate:: -- --test-threads=1` and
 `cargo test --locked --test configuration org_agenda:: -- --test-threads=1` passed.
+
+Pre-PR controller validation passed all four configured commands at
+`224ad0a48e2b5745658dbed6ef1eb212b3b81499`, receipt
+`FFYT4OFMW4EX5WIW4E6K4XR7ZZ`:
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --locked --all-targets -- -D warnings`: passed.
+- `cargo test --locked --test configuration --test lsp --test lsp_installation -- --test-threads=1`: passed.
+- `git diff --check`: passed.
 
 The controller records the configured ordered format, Clippy, configuration/LSP/
 installation regression and whitespace checks against a clean immutable HEAD.

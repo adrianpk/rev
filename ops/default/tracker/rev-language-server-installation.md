@@ -17,7 +17,7 @@ Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slice 1 implementation is ready for controller validation and canonical PR preparation. Later slice implementation and validation remain pending.
+closure. Slice 1 is in canonical PR #222 after implementation and the configured pre-PR checks. Later slice implementation and validation remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -44,7 +44,7 @@ Ticket: [Existing server registration](../ticket/reviewing/20261102111448-regist
 Requirements: INS01, INS03, INS04, INS05.
 Dependencies: delivered baseline.
 Branch: `feat/rev-language-server-installation-01-registration`
-PR: pending.
+PR: `#222`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-1-registration.md`
 
 - [x] T1.1: Add preferred-server/native-only and literal environment fields, whole-candidate validation, root provenance and a format-preserving conflict-checked settings writer.
@@ -71,8 +71,13 @@ T1.3 report-introduction commit: `ae12c9ef7780ea528fc852286ca1dc9e727ba3ec`.
 The initial controller batch passed format and Clippy; configuration fallback
 comparisons failed because their expectations omitted retained root provenance.
 Full snapshot assertions now include the exact selected root. Focused candidate
-and agenda configuration checks passed. Final controller validation and canonical
-integration remain pending.
+and agenda configuration checks passed. Correction commit:
+`224ad0a48e2b5745658dbed6ef1eb212b3b81499`.
+All four configured commands passed on that clean candidate with controller receipt
+`FFYT4OFMW4EX5WIW4E6K4XR7ZZ`. Canonical PR:
+https://forge.adrianpk.com/adrianpk/rev/pulls/222
+The controller retains the separate final receipt for the PR-reference HEAD;
+canonical integration remains pending.
 
 ### Slice 2: Catalog and guided setup
 
