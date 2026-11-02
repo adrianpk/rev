@@ -8,6 +8,11 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
+  before discarding unsaved text, retain prior undo history and shared-pane
+  positions, and undo the reload without changing the file on disk. Invalid or
+  missing sources leave the current buffer intact; read-only buffers stay read-only.
+
 - [Set up optional language servers](docs/tutorials/user-guide/12-language-servers.md)
   through native prompts in both editing profiles. Reuse installed executables,
   register custom languages without bundled grammars, or acquire and verify Rust,

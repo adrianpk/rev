@@ -28,6 +28,24 @@ enum Member {
 }
 
 impl Windows {
+    pub(crate) fn reload(
+        &mut self,
+        buffer: &mut Buffer,
+        publication: crate::buffer::reload::Publication,
+        mut points: Points,
+    ) -> std::io::Result<bool> {
+        let tops = publication
+            .edit
+            .as_ref()
+            .map(|edit| points.map_tops(edit))
+            .transpose()
+            .map_err(std::io::Error::other)?;
+        let changed = buffer.publish_reload(publication, &mut points.values)?;
+        if let Some(tops) = tops {
+            self.publish_points(points, tops);
+        }
+        Ok(changed)
+    }
     pub(crate) fn points(&self, buffer: &Buffer) -> Result<Points, Error> {
         let points = self.capture_points(buffer)?;
         assert_eq!(

@@ -6,6 +6,7 @@ mod locations;
 mod mapping;
 mod observe;
 pub(crate) use observe::{Observer, Published};
+mod reload;
 mod reorder;
 mod retained;
 mod syntax;
@@ -156,6 +157,8 @@ pub struct Transaction {
     pub after: Stamp,
     pub before_state: State,
     pub after_state: State,
+    before_bom: bool,
+    after_bom: bool,
     changes: Vec<Change>,
     before_bookmarks: Vec<crate::bookmark::Anchor>,
     after_bookmarks: Vec<crate::bookmark::Anchor>,
@@ -280,6 +283,8 @@ impl Buffer {
             after,
             before_state: self.state,
             after_state: state,
+            before_bom: self.bom,
+            after_bom: self.bom,
             before_bookmarks: self
                 .bookmarks
                 .lock()
@@ -343,6 +348,7 @@ impl Buffer {
         let before = prepared.record.before;
         let after = prepared.record.after;
         let state = prepared.record.after_state;
+        let bom = prepared.record.after_bom;
         let mark = prepared.record.after_mark;
         let after_points = prepared.record.after_points.clone();
         let after_bookmarks = prepared.record.after_bookmarks.clone();
@@ -365,6 +371,7 @@ impl Buffer {
         self.crlf = prepared.crlf;
         self.revision = after.revision;
         self.state = state;
+        self.bom = bom;
         self.next_state = prepared.next_state;
         self.mark = mark;
         self.mark_mode = super::region::Mode::Inactive;
@@ -397,7 +404,11 @@ impl Buffer {
         prepared: &Prepared,
         points: &[Point],
     ) -> Result<(), Error> {
-        self.admit(prepared.record.before)?;
+        if matches!(prepared.operation, Operation::Reload) {
+            self.current(prepared.record.before)?;
+        } else {
+            self.admit(prepared.record.before)?;
+        }
         if points != prepared.record.before_points
             || self.mark != prepared.record.before_mark
             || self.mark_mode != prepared.active

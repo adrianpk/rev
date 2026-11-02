@@ -57,6 +57,10 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if self.cancel_reload() {
+            self.input.cancel();
+            return Some(self.message("Reload canceled; buffer text retained"));
+        }
         if self.cancel_lsp_interaction() {
             return Some(self.message("LSP setup or management interaction cancelled"));
         }

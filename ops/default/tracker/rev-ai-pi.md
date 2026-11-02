@@ -47,8 +47,8 @@ Branch: `feat/rev-ai-pi-01-reload`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-1-reload.md`
 
-- [x] T1.1: Admit startup file-policy settings with complete schema/default/sample coverage; native revert-buffer wiring follows with its working reload owner.
-- [ ] T1.2: Capture and validate fresh disk bytes asynchronously; preserve unsaved text through revision-bound discard consent and publish one native undoable reload with checked clean-state evidence.
+- [x] T1.1: Add the proposed file-policy settings and explicit revert-buffer command through the native file/buffer owners, with complete startup schema/default/sample coverage.
+- [x] T1.2: Capture and validate fresh disk bytes asynchronously; preserve unsaved text through revision-bound discard consent and publish one native undoable reload with checked clean-state evidence.
 - [ ] T1.3: Cover invalid/missing/readonly sources, disk and typing races, undo/redo, all shared views and unchanged-byte observations without a second text or history owner.
 
 Validation and actual commit/PR evidence: pending. Use the plan and configured

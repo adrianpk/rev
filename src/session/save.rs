@@ -72,6 +72,7 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::Reload(reload)) => self.reload_answer(*reload, accepted),
             Some(Pending::Quit(quit)) => self.quit_answer(quit, accepted),
             Some(Pending::BookmarkReload(candidate)) => {
                 self.bookmark_reload_answer(*candidate, accepted)

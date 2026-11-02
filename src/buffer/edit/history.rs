@@ -13,6 +13,7 @@ pub enum History {
 #[derive(Clone, Copy)]
 pub(super) enum Operation {
     Edit,
+    Reload,
     Typing,
     Continued,
     History(History),
@@ -66,6 +67,10 @@ impl Buffer {
             .as_ref()
             .map(|order| order.replay(direction));
         let mut prepared = self.prepare_changes(changes, points, target, permutation)?;
+        prepared.record.after_bom = match direction {
+            History::Undo => record.before_bom,
+            History::Redo => record.after_bom,
+        };
         let coordinates = Coordinates::for_text(
             prepared.text.slice(..),
             prepared.record.after,
@@ -130,7 +135,7 @@ impl Buffer {
         group: Option<Transaction>,
     ) -> Result<(), Error> {
         match operation {
-            Operation::Edit => self.record_edit(record),
+            Operation::Edit | Operation::Reload => self.record_edit(record),
             Operation::Typing | Operation::Continued => self.record_typing(record, group)?,
             Operation::History(direction) => self.transfer(direction)?,
         }

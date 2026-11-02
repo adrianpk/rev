@@ -52,6 +52,7 @@ mod prompt;
 mod quit;
 mod rectangle;
 mod region;
+mod reload;
 mod repeat;
 mod replace;
 mod save;
@@ -99,6 +100,7 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    reload: reload::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
@@ -189,6 +191,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Reload(Box<crate::buffer::reload::Reload>),
     LspSetup(Box<lsp::Prompt>),
     LspLifecycle(Box<lsp::LifecyclePrompt>),
     Bookmark(bookmarks::Prompt),
@@ -313,6 +316,7 @@ impl Session {
         let completion_policy = buffers.snapshot().settings().completion.clone();
         let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
         Ok(Self {
+            reload: reload::Work::default(),
             lsp,
             installation: Default::default(),
             installation_notice: String::new(),
@@ -850,6 +854,7 @@ impl Session {
             Command::Quit => self.quit(),
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
+            Command::RevertBuffer => self.revert_buffer(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
             Command::Motion(motion) => self.motion(motion),

@@ -288,9 +288,9 @@ edit limits and finite lifecycle.
 | `files.newline` | String: "lf" or "crlf" | `"lf"` | Creation default for new buffers only; existing separators and final-newline state are preserved. |
 | `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
 | `files.external_changes` | String: "reload" or "ask" | `"reload"` | Startup policy for clean visiting buffers; unsaved text always requires explicit discard consent. Automatic observation is delivered separately from explicit reload. |
-| `files.external_change_debounce_ms` | Integer, 0–2000 | `150` | Coalesce external observation bursts in milliseconds. |
-| `files.external_change_max_bytes` | Integer, 1–134217728 | `16777216` | Maximum complete reload image, including its BOM. |
-| `files.external_change_max_buffers` | Integer, 1–4096 | `256` | Maximum concurrently observed visiting buffers. |
+| `files.external_change_debounce_ms` | Integer 0..=2000 | `150` | Coalesce external observation bursts in milliseconds. |
+| `files.external_change_max_bytes` | Integer 1..=134217728 | `16777216` | Maximum complete reload image, including its BOM. |
+| `files.external_change_max_buffers` | Integer 1..=4096 | `256` | Maximum concurrently observed visiting buffers. |
 | `bookmarks.file` | Absolute native path string, no NUL | Unset | User-wide collection; unset resolves to `$XDG_DATA_HOME/rev/bookmarks.toml` or `$HOME/.local/share/rev/bookmarks.toml`. No shell expansion. |
 | `bookmarks.save` | String: "on-exit", "on-change" or "manual" | `"on-exit"` | Save after source quit decisions, after explicit bookmark mutations, or only on explicit save. Source edits dirty evidence without IO. |
 | `bookmarks.markers` | Boolean | `true` | Initial per-view marker visibility, independent of numbering; splits inherit the current view. |

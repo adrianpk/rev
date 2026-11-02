@@ -66,6 +66,7 @@ pub enum Command {
     Gutter(GutterCommand),
     Whitespace(Whitespace),
     SaveBuffer,
+    RevertBuffer,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -85,7 +86,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 417] = [
+    pub const ALL: [Self; 418] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -472,6 +473,7 @@ impl Command {
         Self::Whitespace(Whitespace::Tabify),
         Self::Whitespace(Whitespace::Untabify),
         Self::SaveBuffer,
+        Self::RevertBuffer,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -550,6 +552,7 @@ impl Command {
             Self::FindFile => "find-file",
             Self::GotoLine => "goto-line",
             Self::SaveBuffer => "save-buffer",
+            Self::RevertBuffer => "revert-buffer",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),

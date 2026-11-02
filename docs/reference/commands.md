@@ -78,7 +78,7 @@ compiled M-x name once.
 | Optional server transport | `lsp-mode`, `lsp-status`, `lsp-connect`, `lsp-disconnect`, `lsp-restart`, `lsp-setup`, `lsp-reload-settings`, `lsp-servers`, `lsp-select-server`, `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`, `lsp-cancel-installation` |
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
-| Files | `find-file`, `save-buffer`, `write-file` |
+| Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
@@ -343,3 +343,19 @@ first visual fragment of a resolved logical line receives the configured glyph.
 Multiple names on a line share that glyph and remain independently navigable.
 Hiding markers never deletes records. Storage admission occurs on first native
 marker demand for a file-backed view; painting never loads, relocates or saves.
+
+## Reload a visiting file
+
+Run `M-x revert-buffer` or `:revert-buffer` to read a fresh checked disk image.
+A modified buffer requires confirmation to discard its unsaved contents; `n` or
+`C-g` retains the current text. Edits, file replacement or association changes
+invalidate pending work and consent. Missing, nonregular, invalid UTF-8, NUL or
+oversized sources leave the buffer intact. The configured reload byte limit
+applies, and the source file is never written by this command.
+
+Reload is one undoable native change across shared panes and retains prior
+history. Undo restores the previous text as modified relative to disk; redo
+returns to the clean reload image. Read-only visiting buffers can refresh while
+remaining read-only. Same-byte observations update checked file evidence without
+an edit or cursor movement. Startup external-change policies and bounds are
+listed in [defaults](defaults.md); automatic observation follows separately.
