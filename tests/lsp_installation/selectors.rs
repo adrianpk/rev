@@ -72,7 +72,7 @@ fn catalog_workflow() {
     let mut s = session(&root, &file);
     let original = fs::read(&root).unwrap();
     // Both selector stages cancel without changing the captured configuration.
-    for answers in [Vec::<&str>::new(), vec!["go"]] {
+    for answers in [Vec::<&str>::new(), vec!["go"], vec!["unlisted", "other"]] {
         named(&mut s, "lsp-select-server", modal);
         for value in answers {
             answer(&mut s, value);
@@ -80,6 +80,22 @@ fn catalog_workflow() {
         cancel(&mut s, modal);
         assert_eq!(fs::read(&root).unwrap(), original);
     }
+    // Preset cancellation also owns its argument and marker stages; no profile
+    // or preference is persisted while those questions remain unanswered.
+    for answers in [vec!["go", "recipe:gopls"], vec!["go", "recipe:gopls", ""]] {
+        named(&mut s, "lsp-setup", modal);
+        for value in answers {
+            answer(&mut s, value);
+        }
+        cancel(&mut s, modal);
+        assert_eq!(fs::read(&root).unwrap(), original);
+    }
+    named(&mut s, "lsp-setup", modal);
+    answer(&mut s, "odin");
+    answer(&mut s, "recipe:ols");
+    assert!(s.echo().contains("ols is unavailable"));
+    cancel(&mut s, modal);
+    assert_eq!(fs::read(&root).unwrap(), original);
     // A recipe points to an observed installed command; user options and the
     // known *.go/*.gox associations survive without another patterns prompt.
     named(&mut s, "lsp-setup", modal);
@@ -159,4 +175,59 @@ fn catalog_workflow() {
     assert!(s.echo().contains("compatible configured server"));
     cancel(&mut s, modal);
     assert_eq!(fs::read(&root).unwrap(), before);
+    s.execute(Command::Lsp(LspCommand::SelectServer));
+    answer(&mut s, "go");
+    answer(&mut s, "other");
+    assert!(s.echo().contains("does not support this language"));
+    cancel(&mut s, modal);
+    assert_eq!(fs::read(&root).unwrap(), before);
+    // An existing preset-named profile remains authoritative even when its
+    // command differs from the catalog and is currently unavailable.
+    let mut edit = rev::config::SettingsEdit::capture(&root).unwrap();
+    let mut custom = edit.snapshot().unwrap().settings().lsp.servers["gopls"].clone();
+    custom.command = "/unavailable/custom-server".into();
+    custom.args = vec!["--custom".into()];
+    edit.register("gopls", &custom);
+    edit.publish(&root_dir.join("state/rev")).unwrap();
+    s.execute(Command::Lsp(LspCommand::ReloadSettings));
+    named(&mut s, "lsp-setup", modal);
+    answer(&mut s, "go");
+    answer(&mut s, "recipe:gopls");
+    assert!(s.echo().contains("saved and applied"), "{}", s.echo());
+    let saved = prepare(&root);
+    assert_eq!(saved.snapshot.settings().lsp.servers["gopls"], custom);
+    assert_eq!(
+        saved.snapshot.settings().lsp.selected("go").unwrap().0,
+        "gopls"
+    );
+    assert!(!marker.exists());
+    assert_eq!(
+        fs::read_to_string(&registry).unwrap(),
+        "schema = 'corrupt'\n"
+    );
+}
+
+// Long admitted profile values cannot grow the visible result beyond its fixed
+// budget. Truncation stays at a UTF-8 boundary and the source remains editable.
+#[test]
+fn bounded_snapshot() {
+    let f = Fixture::new();
+    let mut configuration = String::new();
+    for index in 0..31 {
+        configuration.push_str(&format!(
+            "[lsp.servers.p{index}]\nlanguages = ['custom']\ncommand = '{}'\n",
+            "🧭".repeat(1000)
+        ));
+    }
+    let root = f.write("config.toml", &configuration);
+    let file = f.write("source.custom", "source text");
+    let mut s = session(&root, &file);
+    s.execute(Command::Lsp(LspCommand::Servers));
+    let listing = text(&s);
+    assert!(listing.len() <= 65536);
+    assert!(listing.contains("Additional output omitted"));
+    assert!(s.buffer().unwrap().is_readonly());
+    s.load(&file).unwrap();
+    assert_eq!(text(&s), "source text");
+    assert!(!s.buffer().unwrap().is_readonly());
 }

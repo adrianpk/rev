@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111449
 title: Catalog and guided setup
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,9 @@ reported_at: 2026-11-02T11:14:49Z
 ready_at: 2026-11-02T11:14:49Z
 started_at: 2026-11-02T12:00:58Z
 branch: feat/rev-language-server-installation-02-catalog
-commits: []
+reviewed_at: 2026-11-02T12:18:47Z
+pr: pending
+commits: [92655f9611e6573982b462edf44ecb534663ea61, 0a736a305f15bd4c1e641b2b445b186b587ac5e2]
 ---
 
 # Catalog and guided setup
@@ -44,8 +46,9 @@ Slice 2; [tracker](../../tracker/rev-language-server-installation.md).
 Prerequisite: Slice 1 integrated; earlier contracts remain in force.
 One slice PR uses the exact plan branch and title. The controller owns progress.
 
-## Planned validation
+## Validation
 
-Run the owning slice's exact configured commands and its acceptance cases.
-Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+Catalog filesystem observations, both-profile native selectors, cancellation,
+settings/association inheritance and bounded read-only result checks passed.
+See the [Slice 2 report](../../report/slices/rev-language-server-installation/slice-2-catalog.md).
+Controller validation of the exact clean PR head is required before integration.

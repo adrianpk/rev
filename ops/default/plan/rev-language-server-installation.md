@@ -113,7 +113,7 @@ git diff --check
 
 ### Slice 2: Catalog and guided setup
 
-Ticket: [Catalog and guided setup](../ticket/in_progress/20261102111449-guide-language-server-setup.md)
+Ticket: [Catalog and guided setup](../ticket/reviewing/20261102111449-guide-language-server-setup.md)
 Requirements: INS01, INS03, INS04.
 Dependencies: Slice 1 integrated and prior contracts retained.
 
