@@ -375,6 +375,11 @@ solved; the final ticket is reviewing until merge. Resource/ownership evidence
 and separately recorded package outcomes are in the canonical report. The
 seven configured commands must pass on the exact clean PR head; the controller
 owns post-merge ticket closure, full-gate execution and set closure.
+T7.3 commit: `8cd7b6ef855bd41bc5291390d03fc37353ef193b`.
+The first configured batch passed format and failed Clippy on two redundant
+fixture borrows, receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`. The correction keeps
+all assertions and limits; focused example Clippy passed. Fresh configured
+validation follows.
 
 
 ## Validation selection

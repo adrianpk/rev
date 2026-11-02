@@ -40,12 +40,12 @@ fn configure(root: &Path, profile: &str) -> Result<std::path::PathBuf> {
 }
 
 fn cancel(terminal: &mut Terminal, config: &Path, profile: &str) -> Result<()> {
-    let initial = fs::read(&config)?;
+    let initial = fs::read(config)?;
     command(terminal, "lsp-setup", profile)?;
     terminal.frame(|f| f.contains("LSP language:"))?;
     terminal.send(b"\x07")?;
     terminal.frame(|f| f.contains("cancelled"))?;
-    assert_eq!(fs::read(&config)?, initial);
+    assert_eq!(fs::read(config)?, initial);
     Ok(())
 }
 

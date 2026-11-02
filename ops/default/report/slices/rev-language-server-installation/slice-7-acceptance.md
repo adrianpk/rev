@@ -80,6 +80,7 @@ Focused development checks passed:
 - `cargo build --locked --jobs 2 --bin rev --example lsp-installation-acceptance --example source-check`
 - `bash -n scripts/check-lsp-installation.sh examples/lsp_installation_acceptance/tools.sh`
 - `cargo check --locked --examples`
+- `cargo clippy --locked --example lsp-installation-acceptance -- -D warnings`
 - `cargo run --locked --quiet --example documentation-check`
 - `cargo test --locked --example documentation-check -- --test-threads=1`
 - `target/debug/examples/source-check --source examples/documentation_check/catalogs.rs`
@@ -131,8 +132,12 @@ and verified merged PR #223; Slice 3's existing start timestamp now uses the
 canonical `started_at` field. No timestamp or closure is inferred from file age.
 Implementation/guidance are complete; the final ticket's solved transition
 follows canonical merge. No ticket or set closure is inferred from local checks.
-Configured seven-command release validation is next; the combined integrated
-gate remains pending until controller-owned integration.
+The first configured batch at `8cd7b6ef855bd41bc5291390d03fc37353ef193b`,
+receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`, passed format and failed Clippy on two
+redundant borrows in the new PTY cancellation fixture. Removing those borrows
+preserves behavior and assertions; focused example Clippy passed. Fresh
+seven-command validation follows; the combined integrated gate remains pending
+until controller-owned integration.
 
 ## Risks and Follow-ups
 
