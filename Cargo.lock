@@ -335,6 +335,7 @@ version = "0.3.0"
 dependencies = [
  "crossterm",
  "ropey",
+ "rustix",
  "serde",
  "serde_json",
  "toml",

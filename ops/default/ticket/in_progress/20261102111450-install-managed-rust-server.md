@@ -12,7 +12,7 @@ reported_at: 2026-11-02T11:14:50Z
 ready_at: 2026-11-02T11:14:50Z
 in_progress_at: 2026-11-02T12:29:53Z
 branch: feat/rev-language-server-installation-03-managed-rust
-commits: []
+commits: [377a474ab07a2486c69edeb8ea47268ba6a63941]
 ---
 
 # Managed Rust installation
@@ -48,6 +48,7 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-T3.1 storage and worker development checks passed; see the tracker for exact
-commands and coverage. Acquisition, protocol verification and native management
-interaction remain pending. No completed installation or PR readiness is claimed.
+T3.1 storage/worker and T3.2 acquisition/probe development checks passed; see the
+tracker for exact commands and coverage. Controlled payloads verify mechanics;
+no upstream Rust semantic integration is claimed. Native management interaction,
+conflict-checked selection and final PR validation remain pending.

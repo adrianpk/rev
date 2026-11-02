@@ -126,7 +126,7 @@ PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-3-managed-rust.md`
 
 - [x] T3.1: Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation lock and one bounded asynchronous management worker.
-- [ ] T3.2: Acquire an exact official Rust server release with integrity verification and finite structured helper processes; initialize/shutdown in an owned empty root before publication.
+- [x] T3.2: Acquire an exact official Rust server release with integrity verification and finite structured helper processes; initialize/shutdown in an owned empty root before publication.
 - [ ] T3.3: Publish ready inventory before conflict-checked selection; cover missing prerequisites, corrupt downloads, invalid registry, failed probe and installation while LSP is disabled.
 
 T3.1 development checks passed: `cargo check --locked`,
@@ -139,9 +139,27 @@ Storage coverage includes ready/preparing admission, invalid-registry preservati
 locking with distinct state roots, shared settings locking and cancellation ownership.
 The initial focused source check identified oversized functions; responsibility
 boundaries were split and the unchanged quality limits then passed.
-T3.1 commit: recorded by its task commit; the final report will link its full hash.
-T3.2 and T3.3 remain pending. The configured final ordered validation and canonical
-PR are not ready.
+T3.1 commit: `377a474ab07a2486c69edeb8ea47268ba6a63941`.
+T3.2 development checks passed: `cargo check --locked`,
+`cargo test --locked --test lsp_installation acquisition:: -- --test-threads=1` (3 cases),
+`cargo run --locked --quiet --example source-check -- --source src/lsp/install/cache.rs --source src/lsp/install/helper.rs --source src/lsp/install/process.rs --source src/lsp/install/probe.rs --source src/lsp/install/rust.rs`
+and `git diff --check`.
+Acquisition uses the official release tag, asset URL, declared length and SHA-256;
+helpers use structured argv, owned working directories, bounded nonblocking sockets,
+finite deadlines and process-group cleanup before releasing the unreaped leader.
+Controlled acquisition tests use an owned curl fixture and real gzip/SHA-256 tools,
+with a protocol peer payload. They cover missing tools, digest/gzip/probe failures,
+missing integrity metadata, oversized assets, output overflow, prior-ready preservation,
+empty-root initialize/shutdown/exit and forced cancellation of a TERM-ignoring group.
+They establish mechanics, not upstream Rust semantic behavior. The first acquisition
+run reached its finite deadline because the parent retained Command's writer descriptors;
+releasing those copies after spawn corrected EOF ownership. The focused check passed.
+New functions were split by responsibility and passed the unchanged source-quality limits.
+The approved, already locked rustix 1.1.5 process APIs are now a direct dependency;
+existing Org group observation is reused without changing its signaling behavior.
+T3.2 commit: recorded by its task commit; the final report will link its full hash.
+T3.3 native integration and the configured final ordered validation remain pending.
+The canonical PR is not ready.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

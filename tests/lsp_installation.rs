@@ -14,3 +14,6 @@ mod workflows;
 
 #[path = "lsp_installation/storage.rs"]
 mod storage;
+
+#[path = "lsp_installation/acquisition.rs"]
+mod acquisition;

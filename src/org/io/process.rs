@@ -1,6 +1,6 @@
 //! One owned Unix process group with bounded nonblocking output and cleanup.
 //! This is lifetime ownership for explicitly selected tools, not a sandbox.
-mod group;
+pub(crate) mod group;
 mod streams;
 use crate::org::Cancellation;
 use std::{

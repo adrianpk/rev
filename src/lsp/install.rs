@@ -1,11 +1,17 @@
 //! Explicit, optional managed installation. Registry reads never start work;
 //! mutations own one native job slot and OS locks for their entire lifetime.
+mod cache;
+mod helper;
+mod probe;
+mod process;
 mod record;
+mod rust;
 mod storage;
 mod tree;
 mod worker;
 
 pub use record::{Installation, Launch, Registry, State};
+pub use rust::install_rust;
 pub use storage::{Candidate, Storage};
 pub use worker::{Manager, Outcome};
 

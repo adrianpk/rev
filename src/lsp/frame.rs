@@ -3,7 +3,7 @@ use std::io::{self, BufRead, Read, Write};
 use serde::Deserialize;
 use serde_json::Value;
 
-const HEADER_BYTES: usize = 16 * 1024;
+pub(super) const HEADER_BYTES: usize = 16 * 1024;
 
 /// The supported JSON-RPC envelope; feature payloads stay with their owner.
 #[derive(Debug, Deserialize)]
@@ -30,7 +30,7 @@ pub(super) fn read(input: &mut impl BufRead, limit: usize) -> Result<(Message, u
     Ok((message, length))
 }
 
-fn header(input: &mut impl BufRead, limit: usize) -> Result<usize, String> {
+pub(super) fn header(input: &mut impl BufRead, limit: usize) -> Result<usize, String> {
     let mut bytes = Vec::new();
     let mut length = None;
     loop {

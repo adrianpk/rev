@@ -68,7 +68,7 @@ fn result(read: &mut UnixStream, status: ExitStatus) -> Result<(), String> {
 /// Linux process states distinguish exited zombies from members still handling
 /// SIGKILL, including members that have already closed both output streams.
 /// Observation never signals a process or waits for an unrelated group.
-pub(super) fn running(group: u32, deadline: Instant) -> Result<bool, String> {
+pub(crate) fn running(group: u32, deadline: Instant) -> Result<bool, String> {
     let processes =
         std::fs::read_dir("/proc").map_err(|e| format!("Observe owned process group: {e}"))?;
     for entry in processes {
