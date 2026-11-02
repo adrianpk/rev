@@ -97,12 +97,17 @@ Branch: `feat/rev-ai-pi-03-rpc`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-3-rpc.md`
 
-- [ ] T3.1: Admit typed AI/Pi configuration and own one lazy version-checked RPC child with bounded LF framing, independent streams, continuous consumption and explicit operation generations.
-- [ ] T3.2: Deliver ai-explain for a captured selection through a fresh input-only session and a native read-only result buffer; keep the limited intermediate context visible until directory discovery lands.
-- [ ] T3.3: Handle prompt acceptance versus settled completion, errors, unavailable authentication, C-g/modal Escape cancellation and process shutdown while ordinary editing remains responsive.
+- [x] T3.1: Admit typed AI/Pi configuration and own one lazy version-checked RPC child with bounded LF framing, independent streams, continuous consumption and explicit operation generations.
+- [x] T3.2: Deliver ai-explain for a captured selection through a fresh input-only session and a native read-only result buffer; keep the limited intermediate context visible until directory discovery lands.
+- [x] T3.3: Handle prompt acceptance versus settled completion, errors, unavailable authentication, C-g/modal Escape cancellation and process shutdown while ordinary editing remains responsive.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation: `8725da90411ada30b14fb5371c9be4dd06f7d8f7` (configuration),
+`9cc5443b89a5bb11f89e3b5cb769b099f2af3049` (RPC/lifecycle) and
+`0e81da925428984974e1f23251d1972566020a69` (native selection/result integration).
+Focused protocol/configuration/ownership checks and real offline Pi 1.3.0
+get_state/shutdown probes passed. Catalogs passed 419 commands and 230 settings.
+The Slice 3 report retains measured process observations and exact focused
+commands. Final clean-head configured validation follows committed PR references.
 
 ### Slice 4: Checked AI editing
 

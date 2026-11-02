@@ -12,7 +12,7 @@ use rev::coordinates::Scalar;
 use rev::session::Session;
 use rev::view::{Size, View};
 use std::fs;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 fn editor(f: &Fixture, mode: &str, profile: &str, selection: bool) -> Session {
     let command = support::peer(f, mode);
@@ -206,10 +206,13 @@ fn unavailable_and_admission() {
     s.execute(Command::AiExplain);
     assert!(s.echo().contains("active selection"));
     assert!(!f.0.join("rpc-started").exists());
-    for mode in ["auth", "version", "invalid"] {
+    for mode in ["auth", "version", "invalid", "missing"] {
         let f = Fixture::new();
         let mut s = editor(&f, mode, "non-modal", true);
         let stamp = s.buffer().unwrap().stamp();
+        if mode == "missing" {
+            fs::remove_file(f.0.join("pi-peer")).unwrap();
+        }
         s.execute(Command::AiExplain);
         support::until(|| {
             tick(&mut s);
@@ -244,7 +247,6 @@ fn prompt_and_exit_ownership() {
     assert!(f.0.join("closed").exists());
     let pid = fs::read_to_string(f.0.join("pid")).unwrap();
     assert!(!std::path::Path::new("/proc").join(pid).exists());
-    std::thread::sleep(Duration::from_millis(20));
 }
 
 // Unsaved data is labeled as a native snapshot without an implicit disk save;

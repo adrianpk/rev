@@ -21,7 +21,11 @@ fn start(f: &Fixture, mode: &str) -> Operation {
     Operation::start(
         policy,
         f.0.clone(),
-        "{\"instruction\":\"fixture only\"}".into(),
+        if mode == "stdin_stall" {
+            "x".repeat(900_000)
+        } else {
+            "{\"instruction\":\"fixture only\"}".into()
+        },
         37,
     )
     .unwrap()
@@ -64,6 +68,7 @@ fn rejected_boundaries() {
         "malformed",
         "no_lf",
         "tool",
+        "ui",
         "turns",
         "auth",
         "eof",
@@ -116,7 +121,7 @@ fn cancel_and_stop() {
 // reaches the documented five-second cleanup and two-second forced stop grace.
 #[test]
 fn deadlines() {
-    for mode in ["hold", "stubborn", "version_hang"] {
+    for mode in ["hold", "stubborn", "version_hang", "stdin_stall"] {
         let f = Fixture::new();
         let started = Instant::now();
         let result = finish(&mut start(&f, mode));
@@ -127,5 +132,24 @@ fn deadlines() {
                 assert!(!std::path::Path::new("/proc").join(pid).exists());
             }
         }
+    }
+}
+
+// Logical editor bytes and encoded LF bytes are separate admission limits;
+// oversized input must fail synchronously before any external process starts.
+#[test]
+fn input_admission() {
+    let f = Fixture::new();
+    let command = support::peer(&f, "normal").to_str().unwrap().to_owned();
+    for (max_input_bytes, message) in [(1023, "é".repeat(512)), (4_194_304, "\n".repeat(1_100_000))]
+    {
+        let policy = Pi {
+            command: command.clone(),
+            max_input_bytes,
+            ..Pi::default()
+        };
+        assert!(Operation::start(policy, f.0.clone(), message, 1).is_err());
+        assert!(!f.0.join("version-pid").exists());
+        assert!(!f.0.join("rpc-started").exists());
     }
 }

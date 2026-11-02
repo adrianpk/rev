@@ -27,6 +27,7 @@ for line in sys.stdin:
     kind = r['type']
     if kind == 'get_state':
         response(r, dict(isStreaming=False, isCompacting=False, messageCount=1 if mode=='history' else 0, pendingMessageCount=0,model=dict(provider='fixture',id='controlled')))
+        if mode == 'stdin_stall': time.sleep(20)
     elif kind == 'prompt':
         (root/'prompt').write_text(r['message'])
         if mode == 'rejected':
@@ -45,6 +46,8 @@ for line in sys.stdin:
             sys.stdout.write('{invalid}\n');sys.stdout.flush();continue
         if mode == 'no_lf':
             sys.stdout.write('x' * (2*1024*1024+1));sys.stdout.flush();continue
+        if mode == 'ui':
+            emit(dict(type='extension_ui_request',id='dialog',method='input',title='SECRET-FIXTURE-MUST-NOT-LEAK'));continue
         if mode == 'tool':
             emit(dict(type='tool_execution_start',toolName='bash'));continue
         if mode == 'turns':

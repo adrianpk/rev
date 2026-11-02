@@ -207,10 +207,25 @@ fn pair() -> Result<(UnixStream, Stdio), String> {
 }
 
 pub(super) fn send(input: &mut UnixStream, value: &serde_json::Value) -> Result<(), String> {
-    input
-        .write_all(&frame::encode(value)?)
-        .and_then(|()| input.flush())
-        .map_err(|_| "Pi stdin stalled or closed".into())
+    let bytes = frame::encode(value)?;
+    let deadline = Instant::now() + Duration::from_millis(250);
+    let mut offset = 0;
+    while offset < bytes.len() {
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
+            return Err("Pi stdin write deadline exceeded".into());
+        }
+        input
+            .set_write_timeout(Some(remaining))
+            .map_err(|_| "Pi stdin timeout setup failed")?;
+        match input.write(&bytes[offset..]) {
+            Ok(0) => return Err("Pi stdin closed".into()),
+            Ok(n) => offset += n,
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => {}
+            Err(_) => return Err("Pi stdin stalled or closed".into()),
+        }
+    }
+    input.flush().map_err(|_| "Pi stdin flush failed".into())
 }
 
 fn stop(child: &mut Child) -> Result<(), String> {
