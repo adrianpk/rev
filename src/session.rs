@@ -3,6 +3,7 @@ mod agenda_actions;
 mod agenda_custom;
 mod agenda_queries;
 mod agenda_sources;
+mod ai;
 mod assets;
 mod bookmarks;
 mod buffers;
@@ -103,6 +104,7 @@ pub enum Action {
 pub struct Session {
     observation: observation::Work,
     reload: reload::Work,
+    ai: ai::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
@@ -266,6 +268,7 @@ impl Session {
         self.observation.wake.arm(true);
         let result = self.drive_terminal(terminal);
         self.observation.wake.arm(false);
+        self.ai.stop();
         self.end_timer_session();
         self.lsp.set_enabled(false);
         result
@@ -325,6 +328,9 @@ impl Session {
         Ok(Self {
             observation: observation::Work::default(),
             reload: reload::Work::default(),
+            ai: ai::Work::new(
+                std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
+            ),
             lsp,
             installation: Default::default(),
             installation_notice: String::new(),
@@ -864,6 +870,7 @@ impl Session {
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
+            Command::AiExplain => self.ai_explain(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
             Command::Motion(motion) => self.motion(motion),

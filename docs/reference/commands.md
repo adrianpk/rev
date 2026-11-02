@@ -79,6 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
+| AI | `ai-explain` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
@@ -378,3 +379,33 @@ Missing, invalid or oversized images retain text and history. Recreation at the
 same admitted filename triggers fresh validation. Registration limits or failures report unavailable coverage while
 `revert-buffer` remains usable. Queue overflow schedules finite recheck batches. Successful save/reload observations coalesce, and undo of an automatic
 reload stays dirty instead of being immediately overwritten.
+
+## Selection explanations through Pi
+
+Select a nonempty linear region and run `M-x ai-explain` or `:ai-explain`.
+This optional command starts a checked Pi 1.3.0 child only when invoked. Set
+`ai.pi.command` to the installed executable name/path and optionally set
+`ai.pi.model`; authenticate through Pi before retrying an authentication failure.
+The executable is trusted and receives literal adapter arguments without a shell.
+
+The current command sends the captured selection and its native source metadata.
+Its context is **input only**: no directory discovery, earlier conversation,
+source tools, extensions, MCP, skills, prompt templates or discovered context
+files. Every invocation starts fresh with `--no-session` and closes its child
+when finished. Directory persistence/idle settings do not retain these children.
+Ordinary editing starts no Pi process or AI state files.
+
+A prompt acceptance notice is pending work. Completion waits for `agent_settled`
+and a valid final explanation. A native read-only `*AI Explanation*` buffer names
+the captured source revision, input policy and Pi model. The source is never saved
+or changed by explanation. Editing may continue during generation; if source or
+focus changes, use `switch-to-buffer` to inspect the result. C-g or modal Escape
+owned by editing cancels and fences late results; a prompt's cancellation remains
+owned by that prompt. A stopping child keeps the sole operation slot until cleanup
+finishes. Errors retain the source and require an explicit retry.
+
+The adapter admits LF records up to 2 MiB, protocol queues up to 4 MiB/256 records,
+a 64 KiB stderr tail and at most eight model turns. The configured input/result
+limits also apply. Cancellation sends clear_queue then abort, allows at most five
+seconds for acknowledgements/settlement, then closes stdin with a two-second stop
+grace and a two-second forced-reap deadline. No native API fallback is selected.

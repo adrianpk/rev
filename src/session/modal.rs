@@ -29,6 +29,12 @@ impl Session {
         {
             return self.message("A component owns input focus");
         }
+        if command == ModalCommand::Normal && self.pending.is_none() && self.cancel_ai() {
+            return match self.enter_modal(command) {
+                Ok(()) => self.message("Pi canceled; source retained; stopping owned child"),
+                Err(error) => self.error(&error.to_string()),
+            };
+        }
         if command == ModalCommand::Once {
             return self.begin_one_normal();
         }

@@ -57,6 +57,9 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if self.pending.is_none() && self.cancel_ai() {
+            return Some(self.message("Pi canceled; source retained; stopping owned child"));
+        }
         if self.cancel_reload() {
             self.input.cancel();
             return Some(self.message("Reload canceled; buffer text retained"));

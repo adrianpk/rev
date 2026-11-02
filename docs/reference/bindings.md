@@ -39,6 +39,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |
 | `M-x revert-buffer`, `:revert-buffer` | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |
+| `M-x ai-explain`, `:ai-explain` | `ai-explain` | Explain the captured selection through a fresh input-only Pi session. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

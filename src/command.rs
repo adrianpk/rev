@@ -67,6 +67,7 @@ pub enum Command {
     Whitespace(Whitespace),
     SaveBuffer,
     RevertBuffer,
+    AiExplain,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -86,7 +87,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 418] = [
+    pub const ALL: [Self; 419] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -474,6 +475,7 @@ impl Command {
         Self::Whitespace(Whitespace::Untabify),
         Self::SaveBuffer,
         Self::RevertBuffer,
+        Self::AiExplain,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -553,6 +555,7 @@ impl Command {
             Self::GotoLine => "goto-line",
             Self::SaveBuffer => "save-buffer",
             Self::RevertBuffer => "revert-buffer",
+            Self::AiExplain => "ai-explain",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),

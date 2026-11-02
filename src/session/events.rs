@@ -37,9 +37,10 @@ impl Session {
         // Filesystem work gets one bounded turn after native input, even under
         // a continuous typing burst. Other input deadlines retain their owner.
         if action != Action::Exit {
+            let ai = self.expire_ai();
             let reload = self.expire_reload();
             let observed = self.expire_observation();
-            if reload != Action::Wait || observed != Action::Wait {
+            if ai != Action::Wait || reload != Action::Wait || observed != Action::Wait {
                 return Ok(Action::Redraw);
             }
         }
@@ -55,6 +56,7 @@ impl Session {
             self.assets_remaining(),
             self.lsp_remaining(),
             self.reload_remaining(),
+            self.ai_remaining(),
             self.observation_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
@@ -194,6 +196,7 @@ impl Session {
             self.expire_assets(),
             self.expire_lsp(),
             self.expire_reload(),
+            self.expire_ai(),
             self.expire_observation(),
             self.expire_completion(now),
             self.expire_pointer(now),
