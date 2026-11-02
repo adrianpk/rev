@@ -134,6 +134,7 @@ impl Supervisor {
         let [stdin, stdout, stderr] = stdio;
         Command::new(&self.server.command)
             .args(&self.server.args)
+            .envs(&self.server.env)
             .current_dir(&self.root)
             .stdin(stdin)
             .stdout(stdout)

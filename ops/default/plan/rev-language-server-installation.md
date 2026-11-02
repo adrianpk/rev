@@ -94,7 +94,7 @@ are preparation decisions, not claims that the owner named a particular crate:
 
 ### Slice 1: Existing server registration
 
-Ticket: [Existing server registration](../ticket/ready/20261102111448-register-existing-language-servers.md)
+Ticket: [Existing server registration](../ticket/in_progress/20261102111448-register-existing-language-servers.md)
 Requirements: INS01, INS03, INS04, INS05.
 Dependencies: delivered baseline owners.
 

@@ -27,6 +27,8 @@ pub struct Source {
     pub declaration: usize,
     pub document: Document,
     identity: Identity,
+    entry_identity: Identity,
+    pub(super) bytes: Vec<u8>,
 }
 
 /// Validated sources in preorder, with a depth-first postorder for layering:
@@ -42,12 +44,14 @@ pub struct Sources {
 struct Walk {
     graph: Sources,
     active: Vec<usize>,
+    candidate: Option<Vec<u8>>,
 }
 
 struct Input {
     bytes: Vec<u8>,
     canonical: PathBuf,
     identity: Identity,
+    entry_identity: Identity,
 }
 
 /// Load the selected optional root and its explicit includes. A nonexistent
@@ -69,6 +73,16 @@ pub fn load(root: &Path) -> Result<Sources, Diagnostic> {
     Ok(walk.graph)
 }
 
+/// Run the same bounded include traversal and parser with proposed root bytes.
+pub(super) fn candidate(root: &Path, bytes: Vec<u8>) -> Result<Sources, Diagnostic> {
+    let mut walk = Walk {
+        candidate: Some(bytes),
+        ..Walk::default()
+    };
+    walk.visit(root, None, 0)?;
+    Ok(walk.graph)
+}
+
 impl Walk {
     fn visit(
         &mut self,
@@ -77,8 +91,13 @@ impl Walk {
         declaration: usize,
     ) -> Result<(), Diagnostic> {
         self.admit(path, parent)?;
-        let input = read_file(path, TOTAL_BYTES - self.graph.total_bytes)
-            .map_err(|error| self.error(path, parent, format!("read configuration: {error}")))?;
+        let input = if let Some(bytes) = self.candidate.take() {
+            size(bytes.len() as u64, SOURCE_BYTES, TOTAL_BYTES)
+                .and_then(|()| candidate_input(path, bytes))
+        } else {
+            read_file(path, TOTAL_BYTES - self.graph.total_bytes)
+        }
+        .map_err(|error| self.error(path, parent, format!("read configuration: {error}")))?;
         self.cycle(path, parent, &input)?;
         let document = parse(path, &input.bytes)?;
         self.graph.total_bytes += input.bytes.len();
@@ -90,6 +109,8 @@ impl Walk {
             declaration,
             document,
             identity: input.identity,
+            entry_identity: input.entry_identity,
+            bytes: input.bytes,
         });
         self.active.push(id);
         self.includes(id)?;
@@ -194,6 +215,7 @@ fn regular(metadata: &Metadata) -> io::Result<()> {
 }
 
 fn read_file(path: &Path, remaining: usize) -> io::Result<Input> {
+    let entry = fs::symlink_metadata(path)?;
     let (mut file, metadata, canonical) = open(path)?;
     let limit = SOURCE_BYTES.min(remaining);
     size(metadata.len(), limit, remaining)?;
@@ -210,6 +232,29 @@ fn read_file(path: &Path, remaining: usize) -> io::Result<Input> {
             device: metadata.dev(),
             inode: metadata.ino(),
         },
+        entry_identity: Identity {
+            device: entry.dev(),
+            inode: entry.ino(),
+        },
+    })
+}
+
+fn candidate_input(path: &Path, bytes: Vec<u8>) -> io::Result<Input> {
+    let identity = Identity {
+        device: 0,
+        inode: 0,
+    };
+    // Candidate identities are traversal metadata only; publication compares a
+    // fresh ordinary load with the captured graph before touching the target.
+    Ok(Input {
+        bytes,
+        canonical: match fs::canonicalize(path) {
+            Ok(path) => path,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => path.to_owned(),
+            Err(error) => return Err(error),
+        },
+        identity,
+        entry_identity: identity,
     })
 }
 

@@ -12,9 +12,19 @@ pub struct Snapshot {
     keymaps: crate::input::keymap::Effective,
     sources: Vec<PathBuf>,
     origins: BTreeMap<Vec<String>, usize>,
+    root: Option<PathBuf>,
 }
 
 impl Snapshot {
+    /// The selected user root, including explicit spellings and absent roots.
+    pub fn root(&self) -> Option<&Path> {
+        self.root.as_deref()
+    }
+
+    pub(super) fn with_root(mut self, root: &Path) -> Self {
+        self.root = Some(root.to_owned());
+        self
+    }
     /// Resolve explicit grammar paths under a supplied, already resolved rev
     /// data directory. Call before buffer construction; this performs no IO.
     pub fn with_data_root(mut self, data: &Path) -> Self {
@@ -109,6 +119,7 @@ pub fn resolve(sources: &Sources) -> Result<Snapshot, Diagnostic> {
             .map(|source| source.path.clone())
             .collect(),
         origins,
+        root: sources.sources.first().map(|source| source.path.clone()),
     })
 }
 

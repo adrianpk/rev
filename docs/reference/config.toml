@@ -100,6 +100,10 @@ max_message_bytes = 8388608
 max_servers = 8
 max_pending_requests = 16
 
+[lsp.preferred]
+# Empty preserves lexical server selection. A language maps to a compatible
+# server name or false for native-only; no bundled grammar is required.
+
 [lsp.servers.rust]
 # At most 32 named entries. Languages need no bundled grammar.
 languages = ["rust"]
@@ -111,6 +115,9 @@ args = []
 root_markers = ["Cargo.toml"]
 initialization_options = {}
 settings = {}
+# Literal overrides of the inherited process environment, merged by key.
+# At most 64 entries: 128-byte names, 8 KiB per value and 64 KiB total.
+env = {}
 
 [history]
 # Integer 1..=65536 complete undo/redo groups per buffer.

@@ -207,14 +207,20 @@ change only that view's overrides and never reload or write this snapshot.
 | `lsp.max_message_bytes` | Integer 1..=8388608 | `8388608` | Maximum incoming or outgoing JSON body bytes. |
 | `lsp.max_servers` | Integer 1..=8 | `8` | Maximum retained server/root connections, including failed entries. |
 | `lsp.max_pending_requests` | Integer 1..=16 | `16` | Maximum pending completion/resolve requests per connection; one completion per buffer. |
-| `lsp.servers` | Map of at most 32 server entries | `{ rust = { languages = ["rust"], command = "rust-analyzer", args = [], root_markers = ["Cargo.toml"], initialization_options = {}, settings = {} } }` | Named entries merge by leaf; the Rust default needs an installed executable. |
+| `lsp.servers` | Map of at most 32 server entries | `{ rust = { languages = ["rust"], command = "rust-analyzer", args = [], root_markers = ["Cargo.toml"], initialization_options = {}, settings = {}, env = {} } }` | Named entries merge by leaf; the Rust default needs an installed executable. |
+| `lsp.preferred` | Map from language ID to compatible server name or `false` | `{}` | Explicit server choice or native-only; absent choices keep lexical selection. `true` and unknown or incompatible names reject the complete candidate. |
 
 Each `lsp.servers.<name>` entry declares `languages` (nonempty language array),
 `command` (nonempty executable), `args` (literal string array), `root_markers`
 (relative marker paths without traversal), `initialization_options` and `settings`
 (finite JSON-compatible TOML data). New entries need command and languages after
 source inheritance. Empty argument/marker arrays explicitly replace earlier values.
-The first matching server name in lexical order wins. No grammar allowlist,
+`env` is a literal string map, empty by default, merged by key across includes.
+It overrides the inherited process environment only for that server. Admit at
+most 64 entries, 128-byte nonempty names without NUL or `=`, 8 KiB per value
+without NUL, and 64 KiB total name/value bytes. Diagnostics omit values.
+An explicit `lsp.preferred.<language>` selects one compatible server or `false`
+for native-only. Otherwise the first matching server name in lexical order wins. No grammar allowlist,
 download, environment expansion or shell evaluation applies.
 
 Root lookup chooses the nearest configured ancestor marker. An explicitly opened

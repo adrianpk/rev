@@ -47,11 +47,11 @@ fn discover(provision: bool) -> Startup {
 pub fn prepare(root: &Path) -> Startup {
     match load(root).and_then(|sources| resolve(&sources)) {
         Ok(snapshot) => Startup {
-            snapshot,
+            snapshot: snapshot.with_root(root),
             diagnostic: None,
         },
         Err(diagnostic) => Startup {
-            snapshot: Snapshot::default(),
+            snapshot: Snapshot::default().with_root(root),
             diagnostic: Some(diagnostic),
         },
     }

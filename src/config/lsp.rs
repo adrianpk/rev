@@ -14,6 +14,7 @@ pub struct Lsp {
     pub max_servers: usize,
     pub max_pending_requests: usize,
     pub servers: BTreeMap<String, Server>,
+    pub preferred: BTreeMap<String, Preference>,
 }
 
 impl Default for Lsp {
@@ -25,6 +26,7 @@ impl Default for Lsp {
             root_markers: vec!["Cargo.toml".into()],
             initialization_options: table(),
             settings: table(),
+            env: BTreeMap::new(),
         };
         Self {
             enabled: false,
@@ -36,6 +38,7 @@ impl Default for Lsp {
             max_servers: 8,
             max_pending_requests: 16,
             servers: BTreeMap::from([("rust".into(), rust)]),
+            preferred: BTreeMap::new(),
         }
     }
 }
@@ -53,6 +56,29 @@ pub struct Server {
     pub root_markers: Vec<String>,
     pub initialization_options: toml::Value,
     pub settings: toml::Value,
+    pub env: BTreeMap<String, String>,
+}
+
+/// A server name or an explicit native-only choice. `true` is never admitted.
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(untagged)]
+pub enum Preference {
+    Server(String),
+    Native(bool),
+}
+
+impl Lsp {
+    /// Missing preferences preserve lexical server selection, without a grammar lookup.
+    pub fn selected(&self, language: &str) -> Option<(&String, &Server)> {
+        match self.preferred.get(language) {
+            Some(Preference::Native(_)) => None,
+            Some(Preference::Server(name)) => self.servers.get_key_value(name),
+            None => self
+                .servers
+                .iter()
+                .find(|(_, s)| s.languages.iter().any(|id| id == language)),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Deserialize)]
@@ -64,6 +90,7 @@ pub struct PartialServer {
     pub root_markers: Option<Vec<String>>,
     pub initialization_options: Option<toml::Value>,
     pub settings: Option<toml::Value>,
+    pub env: BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Deserialize)]
@@ -78,11 +105,13 @@ pub struct PartialLsp {
     pub max_servers: Option<i64>,
     pub max_pending_requests: Option<i64>,
     pub servers: BTreeMap<String, PartialServer>,
+    pub preferred: BTreeMap<String, Preference>,
 }
 
 impl PartialLsp {
     pub(super) fn project(&self) -> Lsp {
         let mut result = Lsp::default();
+        result.preferred.clone_from(&self.preferred);
         if let Some(value) = self.enabled {
             result.enabled = value;
         }
@@ -115,6 +144,7 @@ impl PartialLsp {
                     root_markers: Vec::new(),
                     initialization_options: table(),
                     settings: table(),
+                    env: BTreeMap::new(),
                 });
             partial.project(base);
         }
@@ -124,6 +154,7 @@ impl PartialLsp {
 
 impl PartialServer {
     fn project(&self, result: &mut Server) {
+        result.env.extend(self.env.clone());
         if let Some(value) = &self.languages {
             result.languages.clone_from(value);
         }

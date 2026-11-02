@@ -101,12 +101,7 @@ impl Client {
         if !self.enabled() {
             return Status::Disabled;
         }
-        let Some((name, server)) = self
-            .policy
-            .servers
-            .iter()
-            .find(|(_, server)| server.languages.iter().any(|id| id == language))
-        else {
+        let Some((name, server)) = self.policy.selected(language) else {
             return Status::Unavailable;
         };
         let root = match roots::resolve(file, tree, &server.root_markers) {

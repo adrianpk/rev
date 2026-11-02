@@ -216,7 +216,7 @@ fn languages(document: &Document) -> Result<(), Failure> {
     Ok(())
 }
 
-fn language_id(id: &str) -> bool {
+pub(super) fn language_id(id: &str) -> bool {
     id.as_bytes().first().is_some_and(u8::is_ascii_lowercase)
         && id
             .bytes()

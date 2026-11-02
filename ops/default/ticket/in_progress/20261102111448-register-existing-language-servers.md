@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111448
 title: Existing server registration
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:48Z
 ready_at: 2026-11-02T11:14:48Z
+started_at: 2026-11-02T11:22:00Z
+branch: feat/rev-language-server-installation-01-registration
 commits: []
 ---
 

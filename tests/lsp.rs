@@ -33,6 +33,7 @@ fn policy(fixture: &Fixture, mode: &str) -> Lsp {
         root_markers: vec!["Cargo.toml".into()],
         initialization_options: toml::Value::Table(toml::Table::new()),
         settings: toml::Value::Table(toml::Table::new()),
+        env: std::collections::BTreeMap::new(),
     };
     Lsp {
         enabled: true,

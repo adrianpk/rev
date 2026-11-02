@@ -2,6 +2,14 @@ use super::{PartialLsp, PartialServer};
 
 impl super::merge::Merge {
     pub(super) fn lsp(&mut self, base: &mut PartialLsp, later: &PartialLsp) {
+        for (language, preference) in &later.preferred {
+            base.preferred.insert(language.clone(), preference.clone());
+            self.leaf(
+                &["lsp", "preferred", language],
+                &mut None,
+                &Some(preference.clone()),
+            );
+        }
         self.leaf(&["lsp", "enabled"], &mut base.enabled, &later.enabled);
         self.leaf(
             &["lsp", "shutdown_on_last_buffer"],
@@ -44,6 +52,14 @@ impl super::merge::Merge {
     }
 
     fn server(&mut self, name: &str, base: &mut PartialServer, later: &PartialServer) {
+        for (key, value) in &later.env {
+            base.env.insert(key.clone(), value.clone());
+            self.leaf(
+                &["lsp", "servers", name, "env", key],
+                &mut None,
+                &Some(value.clone()),
+            );
+        }
         self.leaf(
             &["lsp", "servers", name, "languages"],
             &mut base.languages,
