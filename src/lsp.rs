@@ -2,6 +2,7 @@
 //! threads or processes. IO, JSON work and deadlines belong to connection workers.
 mod attachment;
 mod budget;
+pub mod catalog;
 pub(crate) mod completion;
 mod connection;
 mod documents;

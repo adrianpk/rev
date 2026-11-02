@@ -18,6 +18,8 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-restart` | Replace the eligible current root's connection; preserve other roots, exclusions and global mode. |
 | `lsp-setup` | Choose a language and existing profile, new installed executable, or native-only source; save and apply the admitted settings. |
 | `lsp-reload-settings` | Read the selected configuration root and includes, applying only LSP settings and file associations. |
+| `lsp-servers` | Open a read-only source/catalog snapshot without running helpers or checking remote versions. |
+| `lsp-select-server` | Choose a compatible configured server or native-only source for any valid language identity. |
 
 Eligible file activation uses `lsp.preferred` when present: a compatible server
 name selects that profile; `false` selects native-only. Otherwise it selects the

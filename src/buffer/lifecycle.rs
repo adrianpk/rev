@@ -13,6 +13,16 @@ impl Kill {
 }
 
 impl Buffers {
+    /// A result uses the canonical buffer/view machinery, with no file or undo
+    /// publication. Names retain the existing unique-label policy.
+    pub(crate) fn result(&mut self, name: &str, text: &str) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
+        buffer.name = name.into();
+        buffer.transient = true;
+        buffer.mode_choice = Some(super::Mode::Text);
+        buffer.set_readonly(true);
+        Ok(self.insert(buffer))
+    }
     pub(crate) fn apply_lsp_settings(&mut self, incoming: &crate::config::Snapshot) {
         self.settings.lsp_delta(incoming);
         for buffer in self.entries.values_mut() {

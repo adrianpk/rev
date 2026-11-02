@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "lsp_installation/catalog.rs"]
+mod catalog;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "lsp_installation/routing.rs"]

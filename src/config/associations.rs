@@ -34,6 +34,27 @@ const BUILTINS: [(&str, &str); 28] = [
 ];
 
 impl Snapshot {
+    /// Language suggestions combine recognition and configured identities.
+    /// Callers may still accept any valid identity absent from this list.
+    pub fn languages(&self) -> Vec<String> {
+        let settings = self.settings();
+        BUILTINS
+            .iter()
+            .map(|(_, id)| (*id).to_owned())
+            .chain(settings.files.associations.values().cloned())
+            .chain(settings.language.keys().cloned())
+            .chain(
+                settings
+                    .lsp
+                    .servers
+                    .values()
+                    .flat_map(|s| s.languages.clone()),
+            )
+            .chain(settings.lsp.preferred.keys().cloned())
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect()
+    }
     /// Known explicit and built-in patterns, without grammar or filesystem IO.
     pub fn patterns(&self, language: &str) -> Vec<String> {
         let mut patterns: std::collections::BTreeMap<String, String> = BUILTINS

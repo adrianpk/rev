@@ -17,10 +17,19 @@ pub(in crate::session) struct Prompt {
     language: String,
     name: String,
     server: Option<Server>,
+    select_only: bool,
 }
 
 impl Session {
     pub(in crate::session) fn begin_lsp_setup(&mut self) -> Action {
+        self.begin_lsp_choice(false)
+    }
+
+    pub(in crate::session) fn begin_lsp_selection(&mut self) -> Action {
+        self.begin_lsp_choice(true)
+    }
+
+    fn begin_lsp_choice(&mut self, select_only: bool) -> Action {
         let result = self.lsp_settings_root().and_then(|root| {
             let edit = SettingsEdit::capture(&root).map_err(|e| e.to_string())?;
             let snapshot = edit.snapshot().map_err(|e| e.to_string())?;
@@ -31,6 +40,7 @@ impl Session {
                 language: String::new(),
                 name: String::new(),
                 server: None,
+                select_only,
             })
         });
         match result {
@@ -80,19 +90,13 @@ impl Session {
 impl Prompt {
     fn choices(&self) -> (&'static str, Vec<String>) {
         match self.stage {
-            Stage::Language => (
-                "LSP language: ",
-                self.snapshot
-                    .settings()
-                    .lsp
-                    .servers
-                    .values()
-                    .flat_map(|server| server.languages.clone())
-                    .chain(self.snapshot.settings().language.keys().cloned())
-                    .collect(),
-            ),
+            Stage::Language => ("LSP language: ", self.snapshot.languages()),
             Stage::Profile => (
-                "Server name (existing, new, or native-only): ",
+                if self.select_only {
+                    "Server name (existing or native-only): "
+                } else {
+                    "Server name (existing, new, or native-only): "
+                },
                 self.snapshot
                     .settings()
                     .lsp
@@ -186,6 +190,9 @@ impl Prompt {
             self.edit
                 .prefer(&self.language, &Preference::Server(draft.into()));
             return self.associations();
+        }
+        if self.select_only {
+            return Err("Choose a compatible configured server or native-only; lsp-setup registers another executable".into());
         }
         self.name = draft.into();
         self.server = Some(

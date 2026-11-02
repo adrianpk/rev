@@ -17,6 +17,8 @@ impl Session {
     fn lsp_control(&mut self, command: LspCommand) -> Action {
         match command {
             LspCommand::Setup => return self.begin_lsp_setup(),
+            LspCommand::SelectServer => return self.begin_lsp_selection(),
+            LspCommand::Servers => return self.list_lsp_servers(),
             LspCommand::ReloadSettings => return self.reload_lsp_settings(),
             _ => (),
         }
@@ -35,12 +37,49 @@ impl Session {
                 }
             }
             LspCommand::Status => {}
-            LspCommand::Setup | LspCommand::ReloadSettings => {
+            LspCommand::Setup
+            | LspCommand::ReloadSettings
+            | LspCommand::SelectServer
+            | LspCommand::Servers => {
                 unreachable!("management commands handled above")
             }
         }
         self.activate_lsp();
         self.message(&format!("LSP: {}", status_text(&self.lsp_status())))
+    }
+
+    fn list_lsp_servers(&mut self) -> Action {
+        let path = std::env::var_os("PATH");
+        let mut text = format!(
+            "Session LSP: {}; current file: {}\n\n",
+            if self.lsp.enabled() {
+                "enabled"
+            } else {
+                "disabled"
+            },
+            status_text(&self.lsp_status())
+        );
+        text.push_str(&crate::lsp::catalog::inventory(
+            self.buffers.snapshot(),
+            path.as_deref(),
+            std::env::consts::OS,
+            std::env::consts::ARCH,
+        ));
+        if text.len() > 65536 {
+            let mut end = 65000;
+            while !text.is_char_boundary(end) {
+                end -= 1;
+            }
+            text.truncate(end);
+            text.push_str("\nAdditional output omitted (64 KiB limit).\n");
+        }
+        match self.buffers.result("*Language Servers*", &text) {
+            Ok(id) => {
+                self.activate(id);
+                self.message("Read-only snapshot; switch-to-buffer returns to your source")
+            }
+            Err(error) => self.error(&error.to_string()),
+        }
     }
 
     fn reload_lsp_settings(&mut self) -> Action {

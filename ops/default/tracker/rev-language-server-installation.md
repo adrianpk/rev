@@ -90,12 +90,15 @@ Branch: `feat/rev-language-server-installation-02-catalog`
 PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-2-catalog.md`
 
-- [ ] T2.1: Add the finite recipe metadata catalog and lsp-setup/lsp-servers/lsp-select-server interactions, including custom languages and existing executables.
+- [x] T2.1: Add the finite recipe metadata catalog and lsp-setup/lsp-servers/lsp-select-server interactions, including custom languages and existing executables.
 - [ ] T2.2: Inherit known associations and selected profile settings; ask for patterns only when needed, and display native-only/external/managed readiness without network discovery.
 - [ ] T2.3: Cover selector cancellation, both interaction profiles, unknown language identities and registry/catalog independence.
 
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T2.1 development checks passed:
+`cargo test --locked --test lsp_installation catalog:: -- --test-threads=1`,
+`cargo test --locked --test commands palette::catalog_reference -- --exact` and
+`cargo run --locked --quiet --example documentation-check`.
+Final controller validation and canonical integration remain pending.
 
 ### Slice 3: Managed Rust installation
 
