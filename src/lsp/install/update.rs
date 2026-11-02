@@ -151,14 +151,6 @@ impl Update {
                 .iter()
                 .find(|l| l.id == target.launch)
                 .ok_or("replacement lacks a referenced launch profile")?;
-            if !target
-                .server
-                .languages
-                .iter()
-                .all(|id| launch.languages.contains(id))
-            {
-                return Err("replacement launch languages differ from selected profile".into());
-            }
             let mut server = target.server.clone();
             server.command = storage
                 .roots()
@@ -176,12 +168,7 @@ impl Update {
 }
 
 fn owns(launch: &super::Launch, server: &Server, payload: &Path) -> bool {
-    Path::new(&server.command) == payload.join(&launch.executable)
-        && server.args == launch.args
-        && server
-            .languages
-            .iter()
-            .all(|id| launch.languages.contains(id))
+    Path::new(&server.command) == payload.join(&launch.executable) && server.args == launch.args
 }
 
 pub(super) fn retained(storage: &Storage, previous: &Installation) -> Result<(), String> {

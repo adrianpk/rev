@@ -325,7 +325,13 @@ and failed Clippy on one collapsible conditional. Its equivalent let-chain
 correction retains behavior and source limits. The next batch, receipt
 `6M4EBZLLTOG46YCWVNIXPDWTOO`, exposed one fixture initializer lint after the
 library passed. Its struct initializer correction preserves every assertion.
-Fresh configured validation and canonical PR reference: pending.
+All four configured commands passed at
+`cc2bcbbd6a892e6e4c0dd83289f814380695b7c7`, receipt
+`OLAPDFNVLKITNOSBZQDGXX6IV2` (39 passed; three opt-in checks ignored).
+A custom-language regression then reproduced a selected managed profile being
+skipped because its language was absent from the recipe. Ownership now depends
+on the captured managed command/arguments, preserving independent user language
+IDs and associations. Fresh configured validation and canonical PR reference: pending.
 
 ### Slice 7: Acceptance and user guidance
 

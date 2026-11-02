@@ -62,8 +62,8 @@ fn next(directory: &Path) {
     }
 }
 
-// Two selected launch profiles share one verified update and one settings
-// publication. Unselected/custom profiles and their user options stay intact.
+// Selected profiles share one verified update and one settings publication,
+// including a custom language outside the recipe. User options stay intact.
 #[test]
 fn shared_update() {
     let Some(directory) = child("lifecycle::shared_update") else {
@@ -79,13 +79,19 @@ fn shared_update() {
     );
     // The storage owner serializes settings; publish through that same lock.
     let mut edit = SettingsEdit::capture(&root).unwrap();
-    for language in ["css", "html", "json"] {
+    for language in ["css", "html", "json", "custom-markup"] {
+        let recipe_language = if language == "custom-markup" {
+            "html"
+        } else {
+            language
+        };
         let launch = previous
             .launches
             .iter()
-            .find(|l| l.languages.contains(&language.into()))
+            .find(|l| l.languages.contains(&recipe_language.into()))
             .unwrap();
         let mut server = launch.server(&roots.data.join(&previous.payload));
+        server.languages = vec![language.into()];
         server.settings = toml::Value::Table(
             [("retained".into(), toml::Value::String(language.into()))]
                 .into_iter()
@@ -95,6 +101,7 @@ fn shared_update() {
         edit.register(&format!("owned-{language}"), &server);
         edit.prefer(language, &Preference::Server(format!("owned-{language}")));
     }
+    edit.associate("*.custom-markup", "custom-markup");
     edit.prefer("json", &Preference::Native(false));
     storage.select(&edit).unwrap();
     let before = fs::read_to_string(&root).unwrap();
@@ -102,7 +109,10 @@ fn shared_update() {
     let unchanged_json = snapshot.settings().lsp.servers["owned-json"].clone();
     let edit = SettingsEdit::capture(&root).unwrap();
     let update = Update::capture(&edit, &previous, &roots.data).unwrap();
-    assert_eq!(update.profiles(), ["owned-css", "owned-html"]);
+    assert_eq!(
+        update.profiles(),
+        ["owned-css", "owned-custom-markup", "owned-html"]
+    );
     next(&directory);
     let outcome = update
         .run(&mut storage, edit, &Cancellation::default())
@@ -115,9 +125,14 @@ fn shared_update() {
         snapshot.settings().lsp.servers["owned-json"],
         unchanged_json
     );
-    for language in ["css", "html"] {
+    assert_eq!(
+        snapshot.settings().files.associations["*.custom-markup"],
+        "custom-markup"
+    );
+    for language in ["css", "html", "custom-markup"] {
         let server = snapshot.settings().lsp.selected(language).unwrap().1;
         assert!(server.command.contains(&outcome.installation.id));
+        assert_eq!(server.languages, [language]);
         assert_eq!(server.settings["retained"].as_str(), Some(language));
         assert_eq!(server.env["USER_OPTION"], language);
     }

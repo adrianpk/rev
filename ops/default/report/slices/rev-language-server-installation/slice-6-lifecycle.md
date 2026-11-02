@@ -17,7 +17,8 @@ preserving settings, ordinary editing and ownership of running processes/data.
 - `lsp-update-server` shows a managed installation's selected owned profiles for
   confirmation. It verifies one replacement before atomically retargeting them,
   preserving user options, associations and the prior payload. Shared web profiles
-  update together; custom commands/arguments and unselected profiles stay intact.
+  update together, including user-defined language IDs; custom commands/arguments
+  and unselected profiles stay intact.
 - A failed acquisition preserves the current ready server. A source conflict
   leaves the replacement ready/unselected and preserves changed user bytes.
   An unselected installation's update does not select itself implicitly.
@@ -35,7 +36,10 @@ preserving settings, ordinary editing and ownership of running processes/data.
 Update captures exact old installation facts and selected profiles whose original
 command/arguments still match a managed launch. It preserves the captured user
 options and rechecks the entire settings graph before the shared writer publishes
-one replacement. Ready facts remain independent from selected configuration.
+one replacement. A matching managed command/argument pair remains owned when
+its user-configured languages differ from the catalog; language IDs and file
+associations are retained. Ready facts remain independent from selected
+configuration.
 
 Running clients hold shared directory-inode leases through server reap; removal
 requires an exclusive lease and rechecks the directory identity. Leases include
@@ -90,6 +94,7 @@ Focused development checks passed:
 - `cargo check --locked`
 - `cargo test --locked --test lsp_installation lifecycle:: -- --test-threads=1`
 - `cargo test --locked --test lsp_installation lifecycle::running_removal -- --exact --nocapture`
+- `cargo test --locked --test lsp_installation lifecycle::shared_update -- --exact --nocapture`
 - `cargo test --locked --test lsp_installation lifecycle_native:: -- --test-threads=1`
 - `cargo test --locked --test lsp_installation acquisition:: -- --test-threads=1`
 - `cargo test --locked --test lsp_installation storage:: -- --test-threads=1`
@@ -98,6 +103,7 @@ Focused development checks passed:
 - `cargo run --locked --quiet --example source-check -- --source src/lsp/install/cache.rs --source src/lsp/install/cache_cleanup.rs --source src/lsp/install/remove.rs`
 - `cargo run --locked --quiet --example source-check -- --source src/lsp/install/lease.rs --source src/session/bookmarks/quit.rs`
 - `cargo run --locked --quiet --example source-check -- --source src/session/lsp.rs --source src/command/lsp.rs --source src/lsp/connection.rs --source src/session/file.rs --source src/session/prompt.rs`
+- `cargo run --locked --quiet --example source-check -- --source src/lsp/install/update.rs`
 - `cargo run --locked --quiet --example documentation-check`
 - `cargo test --locked --test commands palette::catalog_reference -- --exact`
 
@@ -134,8 +140,18 @@ its behavior and source bounds. The next batch at
 `3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e`, receipt
 `6M4EBZLLTOG46YCWVNIXPDWTOO`, passed format and exposed a Clippy fixture
 initializer warning after library lint succeeded. The fixture now initializes
-its enabled/server fields together; assertions are unchanged. Fresh configured
-validation and the canonical PR reference are pending. The integrated delivery-set gate remains with the controller.
+its enabled/server fields together; assertions are unchanged. All four configured
+commands then passed at `cc2bcbbd6a892e6e4c0dd83289f814380695b7c7`, receipt
+`OLAPDFNVLKITNOSBZQDGXX6IV2` (39 passed; three opt-in checks ignored).
+
+The open-language regression subsequently reproduced a selected custom-language
+profile being skipped despite matching the prior managed command/arguments.
+Removing the catalog-language subset checks preserves the approved separation
+between recipe metadata and user language identities. The shared-update case now
+asserts that profile, its language, options and association survive replacement;
+this establishes lifecycle preservation rather than upstream language semantics.
+Fresh configured validation and the canonical PR reference are pending. The
+integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 
