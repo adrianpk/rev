@@ -4,6 +4,18 @@ use crate::input::Focus;
 use super::{Action, Pending, Session};
 
 impl Session {
+    fn cancel_lsp_interaction(&mut self) -> bool {
+        if !matches!(
+            self.pending,
+            Some(Pending::LspSetup(_) | Pending::LspLifecycle(_))
+        ) {
+            return false;
+        }
+        self.pending = None;
+        self.input.cancel();
+        true
+    }
+
     pub(super) fn prepare_command(&mut self, command: Command) -> Option<Action> {
         if let Some(action) = self
             .cancel_publishing(command)
@@ -37,46 +49,48 @@ impl Session {
             return Some(self.extended());
         }
         if command == Command::KeyboardQuit {
-            if matches!(
-                self.pending,
-                Some(Pending::LspSetup(_) | Pending::LspLifecycle(_))
-            ) {
-                self.pending = None;
-                self.input.cancel();
-                return Some(self.message("LSP setup or management interaction cancelled"));
+            if let Some(action) = self.prepare_keyboard_quit() {
+                return Some(action);
             }
-            self.clock_recovery_pin = None;
-            self.org.cancel();
-            self.agenda_query_plan = None;
-            self.agenda_custom_plan = None;
-            if matches!(
-                self.pending,
-                Some(
-                    Pending::BookmarkReload(_)
-                        | Pending::AgendaSources
-                        | Pending::AgendaQuery(_)
-                        | Pending::AgendaCustom(_)
-                        | Pending::AgendaBulk(_)
-                        | Pending::AgendaDate
-                        | Pending::Habit(_)
-                        | Pending::Timer(_)
-                        | Pending::ClockReport(_)
-                        | Pending::Clock(_)
-                        | Pending::Timestamp(_)
-                        | Pending::Property(_)
-                        | Pending::Tags(_)
-                        | Pending::Task(_)
-                        | Pending::Estimate(_)
-                )
-            ) {
-                self.pending = None;
-            }
-            if self.cancel_quit() {
-                return Some(self.message("Quit"));
-            }
-            self.restore_search();
         }
         self.tree_input(command)
+    }
+
+    fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if self.cancel_lsp_interaction() {
+            return Some(self.message("LSP setup or management interaction cancelled"));
+        }
+        self.clock_recovery_pin = None;
+        self.org.cancel();
+        self.agenda_query_plan = None;
+        self.agenda_custom_plan = None;
+        if matches!(
+            self.pending,
+            Some(
+                Pending::BookmarkReload(_)
+                    | Pending::AgendaSources
+                    | Pending::AgendaQuery(_)
+                    | Pending::AgendaCustom(_)
+                    | Pending::AgendaBulk(_)
+                    | Pending::AgendaDate
+                    | Pending::Habit(_)
+                    | Pending::Timer(_)
+                    | Pending::ClockReport(_)
+                    | Pending::Clock(_)
+                    | Pending::Timestamp(_)
+                    | Pending::Property(_)
+                    | Pending::Tags(_)
+                    | Pending::Task(_)
+                    | Pending::Estimate(_)
+            )
+        ) {
+            self.pending = None;
+        }
+        if self.cancel_quit() {
+            return Some(self.message("Quit"));
+        }
+        self.restore_search();
+        None
     }
 
     pub(super) fn command_outcome(&mut self, command: Command) -> Action {

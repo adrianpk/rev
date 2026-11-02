@@ -189,7 +189,7 @@ git diff --check
 
 ### Slice 6: Update cancellation and removal
 
-Ticket: [Update cancellation and removal](../ticket/in_progress/20261102111453-manage-server-installation-lifecycle.md)
+Ticket: [Update cancellation and removal](../ticket/reviewing/20261102111453-manage-server-installation-lifecycle.md)
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated and prior contracts retained.
 

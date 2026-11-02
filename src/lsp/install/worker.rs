@@ -7,6 +7,8 @@ use crate::org::{Cancellation, Job};
 use super::{Installation, Storage};
 
 pub struct Outcome {
+    /// Facts affected by this operation. Removal returns the removed record's
+    /// incomplete snapshot; current installation authority remains the registry.
     pub installation: Installation,
     pub selection: Option<Publication>,
     pub message: String,

@@ -283,8 +283,8 @@ exact commit into dev. Slice 5 of 7 completed.
 
 ### Slice 6: Update cancellation and removal
 
-State: in_progress.
-Ticket: [Update cancellation and removal](../ticket/in_progress/20261102111453-manage-server-installation-lifecycle.md)
+State: reviewing.
+Ticket: [Update cancellation and removal](../ticket/reviewing/20261102111453-manage-server-installation-lifecycle.md)
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-language-server-installation-06-lifecycle`
@@ -293,7 +293,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-6-life
 
 - [x] T6.1: Add explicit update/remove/cancel commands; prepare and verify new versions before atomically retargeting still-owned profiles.
 - [x] T6.2: Handle shared web-profile references, source conflicts, incomplete jobs and bounded cache cleanup without deleting external or running payloads.
-- [ ] T6.3: Verify process-group stop/reap, editor-exit cleanup, concurrent instances, failed replacement and preservation of ordinary editing.
+- [x] T6.3: Verify process-group stop/reap, editor-exit cleanup, concurrent instances, failed replacement and preservation of ordinary editing.
 
 T6.1 development checks passed: `cargo check --locked`,
 `cargo test --locked --test lsp_installation lifecycle:: -- --test-threads=1`
@@ -312,8 +312,14 @@ payloads and escaping links. Cache cleanup removes only marked idle directories;
 active, unknown and legacy cache entries remain untouched. Changed cache/removal
 functions pass the unchanged source limits.
 
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T6.2 commit: `6ad27cd908d867684edab6a8124c8d4138ea3db4`.
+T6.3 native M-x/colon lifecycle tests passed in both startup profiles, including
+confirmation cancellation, worker-slot retention, editing during blocked transfer,
+incomplete removal, successful replacement and confirmed-exit group stop/reap.
+The client lease test also covers interpreter arguments and server-specific PATH.
+The existing unresolved-exit unit check, command catalog and documentation checks
+passed. Changed dispatch and lifecycle functions meet the existing source limits.
+Canonical controller validation, report introduction commit and PR: pending.
 
 ### Slice 7: Acceptance and user guidance
 

@@ -64,7 +64,9 @@ pub fn remove(
     let incomplete = mark(storage, previous)?;
     checkpoint(storage, &edit, cancel)?;
     erase(&payload, lease.as_ref())?;
-    let warning = storage.forget(&previous.id)?;
+    let warning = storage
+        .forget(&previous.id)
+        .map_err(|error| format!("payload removal completed; registry cleanup failed: {error}"))?;
     let mut message = format!(
         "Removed installation {}; configured external servers were not changed",
         previous.id

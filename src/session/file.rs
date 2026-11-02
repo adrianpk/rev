@@ -122,6 +122,9 @@ impl Session {
 
     pub(super) fn argument(&mut self, path: String) -> Action {
         let pending = self.pending.take();
+        if let Some(Pending::LspLifecycle(prompt)) = pending {
+            return self.lifecycle_argument(*prompt, &path);
+        }
         if pending.as_ref().is_some_and(Pending::collection_argument) {
             return self.collection_argument(pending.expect("admitted collection argument"), &path);
         }
@@ -130,7 +133,6 @@ impl Session {
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
             Some(Pending::LspSetup(prompt)) => self.lsp_setup_argument(*prompt, &path),
-            Some(Pending::LspLifecycle(prompt)) => self.lifecycle_argument(*prompt, &path),
             Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
             Some(Pending::BookmarkQuit) => self.bookmark_quit_answer(&path),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),

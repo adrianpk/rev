@@ -41,3 +41,6 @@ mod optional_native;
 
 #[path = "lsp_installation/lifecycle.rs"]
 mod lifecycle;
+
+#[path = "lsp_installation/lifecycle_native.rs"]
+mod lifecycle_native;

@@ -100,6 +100,41 @@ a new executable. Enter its language ID, then a compatible configured profile,
 A language without known associations asks for patterns; a catalog entry or grammar
 is not required. C-g or modal Escape cancels without writing settings.
 
+## Update, cancel or remove a managed server
+
+Open `lsp-servers` and note the managed installation ID. Run `lsp-update-server`
+through M-x or modal colon, choose that ID, and check the selected profile names
+shown before answering `yes`. One verified replacement updates those profiles
+in one settings publication. A shared web package updates all selected profiles
+that still use its original command and arguments. Current options and known
+associations stay intact; custom commands and arguments are preserved.
+
+The old payload stays installed. A failed acquisition leaves its selected
+profiles unchanged. A configuration conflict keeps the replacement ready and
+unselected; inspect the changed configuration before choosing its `ready:<id>`
+entry. Updating an unselected installation creates a ready replacement without
+selecting it implicitly. Analysis remains in its current mode.
+
+Run `lsp-cancel-installation` while editing to cancel an active management job.
+Its worker slot stays occupied until owned helpers stop and are reaped. C-g,
+or modal Escape, cancels an unanswered management prompt. Confirmed editor exit
+also cancels active work; cancelling an exit prompt keeps the session running.
+A candidate interrupted after allocation stays incomplete and is never resumed
+or selected automatically.
+
+To remove a managed payload, run `lsp-remove-server`, choose its ID and confirm
+`yes`. Every profile in the selected configuration graph must stop referencing
+it, including unselected profiles. Selecting native-only leaves a profile table
+in place, so change or remove that old table and adjust any preferences before
+reloading settings. Stop connections that still use the payload in every owning
+rev session; disabling that session's LSP mode requests their shutdown. Retry
+removal after those servers finish stopping.
+
+Removal leaves settings and external executables unchanged. It can also remove
+an incomplete record whose payload is already absent. Cleanup failures retain
+truthful incomplete records for inspection. Only marked idle acquisition caches
+are cleaned; active, unmarked and legacy entries remain untouched.
+
 ## Enable Rust completion
 
 Open a Rust project containing `Cargo.toml`, then run `M-x lsp-mode`. This enables

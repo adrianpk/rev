@@ -195,45 +195,53 @@ fn running_removal() {
     let mut storage = Storage::acquire(roots.clone()).unwrap();
     let installation = web(&mut storage);
     drop(storage);
-    let mut policy = rev::config::Lsp::default();
-    policy.enabled = true;
-    let mut server = installation.launches[0].server(&roots.data.join(&installation.payload));
-    let bins = Path::new(&server.command).parent().unwrap().to_path_buf();
-    server.command = Path::new(&server.command)
-        .file_name()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .into();
-    server
-        .env
-        .insert("PATH".into(), format!("{}:/usr/bin:/bin", bins.display()));
-    let language = server.languages[0].clone();
-    policy.servers = BTreeMap::from([("running".into(), server)]);
     let file = f.write("workspace/sample.html", "owned\n");
-    let mut client = Client::new(policy);
-    client.activate(&file, &language, Some(file.parent().unwrap()));
-    let deadline = Instant::now() + Duration::from_secs(10);
-    while !matches!(client.status(), Status::Ready(_)) {
-        assert!(Instant::now() < deadline, "{:?}", client.status());
-        std::thread::sleep(Duration::from_millis(2));
-    }
-    let output = Command::new(std::env::current_exe().unwrap())
-        .args(["--exact", "lifecycle::running_removal", "--nocapture"])
-        .env("REV_REMOVE_RUNNING", &roots.data)
-        .output()
-        .unwrap();
-    assert!(
-        output.status.success(),
-        "{}{}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-    client.set_enabled(false);
-    while client.connection_count() != 0 {
-        assert!(Instant::now() < deadline);
-        client.collect();
-        std::thread::sleep(Duration::from_millis(2));
+    for mode in ["search-path", "interpreter-argument"] {
+        let mut policy = rev::config::Lsp::default();
+        policy.enabled = true;
+        let mut server = installation.launches[0].server(&roots.data.join(&installation.payload));
+        if mode == "search-path" {
+            let bins = Path::new(&server.command).parent().unwrap().to_path_buf();
+            server.command = Path::new(&server.command)
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .into();
+            server
+                .env
+                .insert("PATH".into(), format!("{}:/usr/bin:/bin", bins.display()));
+        } else {
+            server.args = vec![server.command.clone(), "--stdio".into()];
+            server.command = "/bin/sh".into();
+        }
+        let language = server.languages[0].clone();
+        policy.servers = BTreeMap::from([("running".into(), server)]);
+
+        let mut client = Client::new(policy);
+        client.activate(&file, &language, Some(file.parent().unwrap()));
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !matches!(client.status(), Status::Ready(_)) {
+            assert!(Instant::now() < deadline, "{:?}", client.status());
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        let output = Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", "lifecycle::running_removal", "--nocapture"])
+            .env("REV_REMOVE_RUNNING", &roots.data)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        client.set_enabled(false);
+        while client.connection_count() != 0 {
+            assert!(Instant::now() < deadline);
+            client.collect();
+            std::thread::sleep(Duration::from_millis(2));
+        }
     }
     let mut storage = Storage::acquire(roots.clone()).unwrap();
     let root = f.write("empty.toml", "# retained\n");

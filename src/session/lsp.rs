@@ -18,16 +18,8 @@ impl Session {
     }
 
     fn lsp_control(&mut self, command: LspCommand) -> Action {
-        match command {
-            LspCommand::InstallServer => return self.begin_lsp_installation(),
-            LspCommand::UpdateServer => return self.begin_lifecycle(false),
-            LspCommand::RemoveServer => return self.begin_lifecycle(true),
-            LspCommand::CancelInstallation => return self.cancel_installation(),
-            LspCommand::Setup => return self.begin_lsp_setup(),
-            LspCommand::SelectServer => return self.begin_lsp_selection(),
-            LspCommand::Servers => return self.list_lsp_servers(),
-            LspCommand::ReloadSettings => return self.reload_lsp_settings(),
-            _ => (),
+        if let Some(action) = self.lsp_management(command) {
+            return action;
         }
         let id = self.windows.selected().point.stamp.buffer;
         match command {
@@ -44,19 +36,24 @@ impl Session {
                 }
             }
             LspCommand::Status => {}
-            LspCommand::InstallServer
-            | LspCommand::UpdateServer
-            | LspCommand::RemoveServer
-            | LspCommand::CancelInstallation
-            | LspCommand::Setup
-            | LspCommand::ReloadSettings
-            | LspCommand::SelectServer
-            | LspCommand::Servers => {
-                unreachable!("management commands handled above")
-            }
+            _ => unreachable!("management commands handled before transport"),
         }
         self.activate_lsp();
         self.message(&format!("LSP: {}", status_text(&self.lsp_status())))
+    }
+
+    fn lsp_management(&mut self, command: LspCommand) -> Option<Action> {
+        Some(match command {
+            LspCommand::InstallServer => self.begin_lsp_installation(),
+            LspCommand::UpdateServer => self.begin_lifecycle(false),
+            LspCommand::RemoveServer => self.begin_lifecycle(true),
+            LspCommand::CancelInstallation => self.cancel_installation(),
+            LspCommand::Setup => self.begin_lsp_setup(),
+            LspCommand::SelectServer => self.begin_lsp_selection(),
+            LspCommand::Servers => self.list_lsp_servers(),
+            LspCommand::ReloadSettings => self.reload_lsp_settings(),
+            _ => return None,
+        })
     }
 
     fn list_lsp_servers(&mut self) -> Action {

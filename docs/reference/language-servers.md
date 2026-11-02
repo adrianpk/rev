@@ -199,6 +199,52 @@ resume automatically. Invalid, unknown-schema, duplicate, escaping-path or
 unverified-ready registry data blocks managed changes while ordinary editing,
 existing-server registration and configured external servers remain usable.
 
+## Update, removal and cancellation
+
+`lsp-update-server` captures the complete settings graph and one ready supported
+installation. Its confirmation lists selected profiles whose command and arguments
+still match that installation's launch. Acquisition resolves one concrete version,
+creates another final candidate, and verifies it before retargeting any profile.
+A shared web update performs one acquisition and one atomic settings publication
+for all such selected profiles. User options, associations, analysis mode and
+editing state are retained. Custom commands/arguments and unselected profiles
+are not retargeted. The old payload is retained until explicitly removed.
+
+The original installation and every captured source are checked again before
+publication. A failed acquisition preserves the previous ready version. A changed
+configuration leaves the verified replacement ready/unselected and preserves the
+user's new bytes. A cancelled operation cannot select a replacement; an effect
+already committed before late cancellation keeps its actual published outcome.
+
+`lsp-remove-server` requires an admitted record and unchanged settings/registry.
+Any configured profile referencing the payload blocks removal, even when it is
+unselected or native-only is preferred. References include resolved executable
+aliases, server-specific PATH lookup, and absolute argument/environment paths.
+This check uses the selected root and its explicit include graph.
+
+Active rev clients retain shared directory-inode leases for managed executable
+and literal payload paths through server reap. Removal requires an exclusive
+lease and a matching directory identity, so another rev instance can block it
+without sharing a state/configuration root. Aliased payload directories, escaping
+links, external executables and runtimes are never deletion targets. Cleanup
+marks the record incomplete before deleting its data, synchronizes the parent,
+and then forgets the record. Partial cleanup or durability uncertainty remains
+explicitly incomplete. An absent incomplete payload can be removed on retry.
+
+Successful explicit removal also inspects the bounded acquisition-cache namespace.
+Only job directories with the native ownership marker and an available exclusive
+inode lease may be deleted. Active, unmarked and legacy directories are preserved.
+The existing 2 GiB/65,536-entry/64-level accounting bounds apply; cleanup runs in
+the worker and reports partial failure without misreporting a completed removal.
+There is no startup cleanup, remote version polling or automatic update.
+
+`lsp-cancel-installation` requests cancellation of the current management worker.
+The slot and mutation locks stay owned through helper stop/reap and cache cleanup.
+A focused unanswered prompt can be cancelled with C-g or modal Escape. Confirmed
+exit requests cancellation before returning its exit action; aborted exit leaves
+the session's active job intact. Retained preparing/incomplete records do not
+become ready merely because some files exist.
+
 ## Synchronization and completion
 
 The client admits the LSP 3.17 stdio subset with typed JSON-RPC framing, negotiated
