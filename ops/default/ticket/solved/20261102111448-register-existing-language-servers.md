@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111448
 title: Existing server registration
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T11:22:00Z
 branch: feat/rev-language-server-installation-01-registration
 reviewed_at: 2026-11-02T11:47:23Z
 pr: 222
+resolution: fixed
+closed_at: 2026-11-02T12:00:58Z
 commits: [4c9e7120460c043776cef6bca0470bfeac1e2a9d, b91b6c51b2189f0bd50427555a38c2e36f4c4f81, ae12c9ef7780ea528fc852286ca1dc9e727ba3ec, 224ad0a48e2b5745658dbed6ef1eb212b3b81499]
 ---
 
@@ -51,5 +53,5 @@ Native configuration/filesystem, both-profile prompt, source-switch and late-res
 checks passed during implementation. The [Slice 1 report](../../report/slices/rev-language-server-installation/slice-1-registration.md)
 records the checks. The four configured commands passed at
 `224ad0a48e2b5745658dbed6ef1eb212b3b81499` with receipt
-`FFYT4OFMW4EX5WIW4E6K4XR7ZZ`. Controller validation of the exact clean PR-reference
-head is required before integration. Canonical PR: #222.
+`FFYT4OFMW4EX5WIW4E6K4XR7ZZ`. The final head `7974577e8bdcc0fb4f562553a86acf95ef6201e6` passed the same
+commands with receipt `LHVTEKV5E7QRCYH3PX4BI5UJLH` and merged through PR #222.

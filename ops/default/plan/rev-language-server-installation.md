@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 — Existing server registration
+Active slice: Slice 2 — Catalog and guided setup
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
 
 ## Outcome and authority
@@ -94,7 +94,7 @@ are preparation decisions, not claims that the owner named a particular crate:
 
 ### Slice 1: Existing server registration
 
-Ticket: [Existing server registration](../ticket/reviewing/20261102111448-register-existing-language-servers.md)
+Ticket: [Existing server registration](../ticket/solved/20261102111448-register-existing-language-servers.md)
 Requirements: INS01, INS03, INS04, INS05.
 Dependencies: delivered baseline owners.
 
@@ -113,7 +113,7 @@ git diff --check
 
 ### Slice 2: Catalog and guided setup
 
-Ticket: [Catalog and guided setup](../ticket/ready/20261102111449-guide-language-server-setup.md)
+Ticket: [Catalog and guided setup](../ticket/in_progress/20261102111449-guide-language-server-setup.md)
 Requirements: INS01, INS03, INS04.
 Dependencies: Slice 1 integrated and prior contracts retained.
 

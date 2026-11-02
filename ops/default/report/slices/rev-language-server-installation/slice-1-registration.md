@@ -1,6 +1,6 @@
 # Slice 1: Existing server registration
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
@@ -105,7 +105,9 @@ Pre-PR controller validation passed all four configured commands at
 
 The controller records the configured ordered format, Clippy, configuration/LSP/
 installation regression and whitespace checks against a clean immutable HEAD.
-The PR-reference follow-up head requires its own receipt before integration.
+The final PR head `7974577e8bdcc0fb4f562553a86acf95ef6201e6` passed all four
+configured checks with receipt `LHVTEKV5E7QRCYH3PX4BI5UJLH`. PR #222 integrated
+that exact commit into dev through the controller.
 The combined delivery-set gate belongs to the controller after all slices.
 
 ## Risks and Follow-ups

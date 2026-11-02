@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 — Existing server registration
+Active slice: Slice 2 — Catalog and guided setup
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slice 1 is in canonical PR #222 after implementation and the configured pre-PR checks. Later slice implementation and validation remain pending.
+closure. Slice 1 is delivered through PR #222. Slice 2 is in progress; later slices remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -39,8 +39,8 @@ associations. Preserve the existing semantic-or-native source policy.
 
 ### Slice 1: Existing server registration
 
-State: reviewing.
-Ticket: [Existing server registration](../ticket/reviewing/20261102111448-register-existing-language-servers.md)
+State: delivered.
+Ticket: [Existing server registration](../ticket/solved/20261102111448-register-existing-language-servers.md)
 Requirements: INS01, INS03, INS04, INS05.
 Dependencies: delivered baseline.
 Branch: `feat/rev-language-server-installation-01-registration`
@@ -76,13 +76,14 @@ and agenda configuration checks passed. Correction commit:
 All four configured commands passed on that clean candidate with controller receipt
 `FFYT4OFMW4EX5WIW4E6K4XR7ZZ`. Canonical PR:
 https://forge.adrianpk.com/adrianpk/rev/pulls/222
-The controller retains the separate final receipt for the PR-reference HEAD;
-canonical integration remains pending.
+Final receipt `LHVTEKV5E7QRCYH3PX4BI5UJLH` passed all four commands for
+`7974577e8bdcc0fb4f562553a86acf95ef6201e6`. Canonical PR #222 merged that exact
+commit into dev. Slice 1 of 7 completed.
 
 ### Slice 2: Catalog and guided setup
 
-State: ready.
-Ticket: [Catalog and guided setup](../ticket/ready/20261102111449-guide-language-server-setup.md)
+State: in_progress.
+Ticket: [Catalog and guided setup](../ticket/in_progress/20261102111449-guide-language-server-setup.md)
 Requirements: INS01, INS03, INS04.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-language-server-installation-02-catalog`

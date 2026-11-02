@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111449
 title: Catalog and guided setup
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:49Z
 ready_at: 2026-11-02T11:14:49Z
+started_at: 2026-11-02T12:00:58Z
+branch: feat/rev-language-server-installation-02-catalog
 commits: []
 ---
 
@@ -22,7 +24,8 @@ Add the finite recipe metadata catalog and lsp-setup/lsp-servers/lsp-select-serv
 ## Current behavior and inputs
 
 The optional stdio LSP client and exclusive semantic/native completion policy
-are delivered. Guided management and managed installation are not yet delivered.
+are delivered. Generic registration and scoped reload are delivered through PR #222.
+Catalog guidance and managed installation are not yet delivered.
 Use the [approved specification](../../spec/editor-language-server-installation.md)
 and [model](../../spec/editor-language-server-installation-model.md).
 
