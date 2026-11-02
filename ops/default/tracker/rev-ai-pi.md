@@ -19,8 +19,8 @@ Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. All runtime work and checks below are pending. Ready tickets are
-actionable inputs, not evidence of an active worker or implementation.
+closure. Slice 1 is implemented and awaiting canonical PR integration. Later slices
+remain pending; their ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
 
@@ -39,8 +39,8 @@ actionable inputs, not evidence of an active worker or implementation.
 
 ### Slice 1: Checked file reload
 
-State: in_progress.
-Ticket: [Checked file reload](../ticket/in_progress/20261102211106-reload-visiting-files-safely.md)
+State: reviewing.
+Ticket: [Checked file reload](../ticket/reviewing/20261102211106-reload-visiting-files-safely.md)
 Requirements: EFC01, EFC03-EFC07.
 Dependencies: delivered native owners.
 Branch: `feat/rev-ai-pi-01-reload`
@@ -49,10 +49,16 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-1-reload.md`
 
 - [x] T1.1: Add the proposed file-policy settings and explicit revert-buffer command through the native file/buffer owners, with complete startup schema/default/sample coverage.
 - [x] T1.2: Capture and validate fresh disk bytes asynchronously; preserve unsaved text through revision-bound discard consent and publish one native undoable reload with checked clean-state evidence.
-- [ ] T1.3: Cover invalid/missing/readonly sources, disk and typing races, undo/redo, all shared views and unchanged-byte observations without a second text or history owner.
+- [x] T1.3: Cover invalid/missing/readonly sources, disk and typing races, undo/redo, all shared views and unchanged-byte observations without a second text or history owner.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation commits: `256c17b2b360bb72b62ed42fa79581afcb7d1898`
+(configuration) and `1dbe66439e2273fda440996e08bbd399751925af` (native reload).
+Focused validation passed: configuration reload-policy composition/startup (2),
+external reload/native command cases (11), all-target compilation and documentation
+catalogs (418 commands, 223 configuration entries; 68 pages/414 links).
+Final clean-head validation is recorded by the controller after PR references;
+its receipt is authoritative for the exact ordered candidate checks. This is
+Slice 1 evidence, not the integrated delivery-set gate.
 
 ### Slice 2: External change observation
 

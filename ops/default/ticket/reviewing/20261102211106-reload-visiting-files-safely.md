@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211106
 title: Checked file reload
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T21:11:06Z
 ready_at: 2026-11-02T21:11:06Z
 started_at: 2026-11-02T21:20:38Z
 branch: feat/rev-ai-pi-01-reload
-commits: []
+reviewed_at: 2026-11-02T21:32:00Z
+commits: [256c17b2b360bb72b62ed42fa79581afcb7d1898, 1dbe66439e2273fda440996e08bbd399751925af]
 ---
 
 # Checked file reload
@@ -49,3 +50,12 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Startup policy/default/schema/sample/reference coverage and the native
+revert-buffer owner are implemented. The command uses bounded worker IO,
+revision/destination-bound discard consent and one native undoable publication.
+Focused validation passed: 11 external reload tests, configuration startup/include
+checks, all-target compilation and documentation catalogs. The Slice 1 report and
+canonical PR/controller receipt retain the candidate validation evidence.

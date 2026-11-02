@@ -122,7 +122,7 @@ than a silent fallback.
 
 ### Slice 1: Checked file reload
 
-Ticket: [Checked file reload](../ticket/in_progress/20261102211106-reload-visiting-files-safely.md)
+Ticket: [Checked file reload](../ticket/reviewing/20261102211106-reload-visiting-files-safely.md)
 Requirements: EFC01, EFC03-EFC07.
 Dependencies: delivered native file, buffer and configuration owners.
 
