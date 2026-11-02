@@ -147,6 +147,11 @@ exact document assertions and 350 ms idle admission remain unchanged. Source byt
 checks and policy were not weakened. The final controller receipt is regenerated
 for the resulting clean candidate.
 
+The follow-up batch at `54a5c9ecc761e9fd95e1cf9a2c5bc7a90c13baa4`
+passed format and Clippy identified the already available crate fixture loaded
+a second time. The controlled regression now imports that existing fixture;
+its assertion, production behavior and configured checks are unchanged.
+
 ## Risks and Follow-ups
 
 Kernel overflow is covered through the bounded internal scheduler; no system-wide

@@ -307,12 +307,9 @@ impl Session {
 }
 
 #[cfg(test)]
-#[path = "../../tests/configuration/fixture.rs"]
-mod fixture;
-
-#[cfg(test)]
 mod tests {
     use super::*;
+    use crate::fixture;
 
     // A completed native save must retire older queued notifications, including
     // missing/unavailable results that cannot be ordered by their file metadata.
