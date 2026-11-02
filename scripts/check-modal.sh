@@ -40,7 +40,7 @@ production_count=$((${#source_args[@]} / 2))
 [[ $production_count -gt 2 ]] || { echo 'missing production source inventory' >&2; exit 1; }
 source_args+=(--root examples/modal-acceptance.rs --root examples/source-check.rs)
 while IFS= read -r source; do source_args+=(--file "$source"); done < <(rg --files examples/modal_acceptance -g '*.rs' | LC_ALL=C sort)
-source_args+=(--file examples/completion_acceptance/pty.rs --file examples/completion_acceptance/support.rs)
+source_args+=(--file examples/completion_acceptance/pty.rs --file examples/completion_acceptance/terminal.rs --file examples/completion_acceptance/support.rs)
 "$target/release/examples/source-check" "${source_args[@]}" > "$fixture/source-quality.log"
 tail -n 1 "$fixture/source-quality.log"
 printf 'SOURCE_COVERAGE=%s production files, actual crate roots and modal/shared acceptance modules\n' "$production_count"

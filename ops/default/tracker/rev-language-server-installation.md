@@ -347,7 +347,7 @@ Ticket: [Acceptance and user guidance](../ticket/reviewing/20261102111454-verify
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-language-server-installation-07-acceptance`
-PR: pending.
+PR: `#228`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-7-acceptance.md`
 
 - [x] T7.1: Deliver one representative native/PTY management journey in both startup profiles, real Rust/Go integration, managed acquisition and grammar-independent semantic routing.
@@ -378,8 +378,17 @@ owns post-merge ticket closure, full-gate execution and set closure.
 T7.3 commit: `8cd7b6ef855bd41bc5291390d03fc37353ef193b`.
 The first configured batch passed format and failed Clippy on two redundant
 fixture borrows, receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`. The correction keeps
-all assertions and limits; focused example Clippy passed. Fresh configured
-validation follows.
+all assertions and limits; focused example Clippy passed.
+The seven configured commands passed at
+`c9e081bcfd6c919d40d9b610683fbd984d83d5e0`, receipt
+`NPV2LWJOXJ3LBCYVU2CYJJ3WKI` (39 regressions; three opt-in checks ignored).
+Normal-release native cases took 3,424/3,468 ms; the first management script
+run including its cold two-job build took 202 seconds. All idle samples used
+zero ticks; both PTYs restored terminal state within the existing bounds.
+The local Spore build includes the chapter and full TOML download.
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
+The reference commit and preserved shared-helper source inventory receive fresh
+validation at their final clean HEAD, retained by the controller and Acta.
 
 
 ## Validation selection

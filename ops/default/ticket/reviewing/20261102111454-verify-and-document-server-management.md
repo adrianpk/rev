@@ -13,7 +13,8 @@ ready_at: 2026-11-02T11:14:54Z
 started_at: 2026-11-02T16:39:21Z
 branch: feat/rev-language-server-installation-07-acceptance
 reviewed_at: 2026-11-02T17:03:59Z
-commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89, 91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195, 8cd7b6ef855bd41bc5291390d03fc37353ef193b]
+pr: 228
+commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89, 91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195, 8cd7b6ef855bd41bc5291390d03fc37353ef193b, c9e081bcfd6c919d40d9b610683fbd984d83d5e0]
 ---
 
 # Acceptance and user guidance
@@ -52,6 +53,10 @@ Record actual commands, candidate and limitations in the slice report.
 Both-profile debug native/PTY management, actual Rust/Go semantics and owned
 shutdown passed. The guided chapter, full configuration example and Spore
 navigation are implemented; 68 pages/413 links, all live inventories, seven
-documentation regressions and all-example compilation passed. Final configured
-validation and the canonical PR reference follow; closure remains post-merge.
+documentation regressions and all-example compilation passed. All seven configured
+commands passed at `c9e081bcfd6c919d40d9b610683fbd984d83d5e0`, receipt
+`NPV2LWJOXJ3LBCYVU2CYJJ3WKI` (39 passed; three opt-in checks ignored).
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
+The PR-reference head receives fresh configured validation; closure remains
+post-merge.
 See the [Slice 7 report](../../report/slices/rev-language-server-installation/slice-7-acceptance.md).

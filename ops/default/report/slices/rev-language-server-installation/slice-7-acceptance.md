@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
 Branch: `feat/rev-language-server-installation-07-acceptance`
-PR: pending
+PR: `#228`
 
 ## Purpose
 
@@ -44,7 +44,9 @@ peer proves routing, not a real language implementation's semantic quality.
 
 The shared controlling-PTY reader/restoration boundary was extracted without
 changing its eight-second deadline, 1 MiB cap, bounded channel or stop/reap owner.
-Existing acceptance entry points use that same boundary. No production behavior,
+Existing acceptance entry points use that same boundary. The modal script’s
+explicit source inventory includes the extracted helper, retaining its prior
+source-check coverage. No production behavior,
 runtime dependency or new editor command is introduced by this task.
 
 The documentation checker loads that example through the real configuration
@@ -79,6 +81,7 @@ Focused development checks passed:
 
 - `cargo build --locked --jobs 2 --bin rev --example lsp-installation-acceptance --example source-check`
 - `bash -n scripts/check-lsp-installation.sh examples/lsp_installation_acceptance/tools.sh`
+- `bash -n scripts/check-modal.sh`
 - `cargo check --locked --examples`
 - `cargo clippy --locked --example lsp-installation-acceptance -- -D warnings`
 - `cargo run --locked --quiet --example documentation-check`
@@ -135,13 +138,38 @@ follows canonical merge. No ticket or set closure is inferred from local checks.
 The first configured batch at `8cd7b6ef855bd41bc5291390d03fc37353ef193b`,
 receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`, passed format and failed Clippy on two
 redundant borrows in the new PTY cancellation fixture. Removing those borrows
-preserves behavior and assertions; focused example Clippy passed. Fresh
-seven-command validation follows; the combined integrated gate remains pending
-until controller-owned integration.
+preserves behavior and assertions; focused example Clippy passed. The complete configured batch then passed at
+`c9e081bcfd6c919d40d9b610683fbd984d83d5e0`, receipt
+`NPV2LWJOXJ3LBCYVU2CYJJ3WKI`, in this order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test lsp_installation -- --test-threads=1`
+- `bash scripts/check-lsp-installation.sh`
+- `cargo run --locked --quiet --example documentation-check`
+- `bash scripts/build-user-guide.sh`
+- `git diff --check`
+
+The regression result was 39 passed, three opt-in network checks ignored.
+The normal-release, two-job management script took 202 seconds including its
+cold build. Non-modal/modal native cases took 3,424/3,468 ms; the driver peaked
+at 21,640 KiB and the observed separate servers at 30,760–35,568 KiB. Every idle
+sample used zero ticks. PTY output stayed at 25,196/25,206 bytes; restoration
+and eight-second ownership assertions passed. The editor was 20,581,608 bytes,
+the combined owned fixture used 186,508,505 bytes and six explicit acquisitions
+made twelve fixture curl calls. These are samples, not hard runtime limits.
+
+The Spore build projected 68 Markdown pages and generated both the new chapter
+and its unchanged downloadable TOML example. The guide remains a local output.
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
+The PR-reference follow-up and retained modal source-check inventory receive
+fresh exact-HEAD validation; controller evidence and Acta retain that result
+without changing the validated candidate. The combined integrated gate remains
+pending until controller-owned integration.
 
 ## Risks and Follow-ups
 
-Configured validation and PR references remain pending. The controller owns
+The canonical PR is reviewing. The controller owns
 integration, this final ticket's post-merge closure, the unchanged integrated
 gate and set closure. The arbitrary-language case uses a controlled peer; real
 Rust/Go semantics are separate. Recorded OLS acquisition requires a compatible
