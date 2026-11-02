@@ -116,12 +116,12 @@ Report introduction and remaining lifecycle regressions: `18dfaa6cc4c0ef0875b933
 
 ### Slice 4: Checked AI editing
 
-State: in_progress.
-Ticket: [Checked AI editing](../ticket/in_progress/20261102211109-apply-ai-results-through-native-editing.md)
+State: reviewing.
+Ticket: [Checked AI editing](../ticket/reviewing/20261102211109-apply-ai-results-through-native-editing.md)
 Requirements: PI03, PI06, PI07; AI03, AI05-AI09, AI14-AI17.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-ai-pi-04-results`
-PR: pending.
+PR: [#232](https://forge.adrianpk.com/adrianpk/rev/pulls/232).
 Report: `ops/default/report/slices/rev-ai-pi/slice-4-results.md`
 
 - [x] T4.1: Add ai-prompt and ai-implement with explicit point/selection capture and the bounded version-1 generated-text contract; display proposals through the native transient-buffer owner.
@@ -134,6 +134,8 @@ cases and two private live-admission tests passed. They cover both profiles,
 source/result guards, ordinary undo/shared views and real external-file changes.
 Catalogs passed 423 commands and 230 settings. The Slice 4 report retains exact
 commands and observed scope. Final clean-head validation follows committed PR references.
+
+Report introduction and T4.3 coverage: `4a4fb82f913f1e2a0bf376ffc3932324c34f920c`.
 
 ### Slice 5: Guarded directory context
 

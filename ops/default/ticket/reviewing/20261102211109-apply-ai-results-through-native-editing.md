@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211109
 title: Checked AI editing
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,9 @@ reported_at: 2026-11-02T21:11:09Z
 ready_at: 2026-11-02T21:11:09Z
 started_at: 2026-11-02T23:14:42Z
 branch: feat/rev-ai-pi-04-results
-commits: []
+pr: 232
+reviewed_at: 2026-11-02T23:32:17Z
+commits: [b9dbf29d6b89f49d1735c15e3104470fba9de1c2, 4a4fb82f913f1e2a0bf376ffc3932324c34f920c]
 ---
 
 # Checked AI editing
@@ -49,3 +51,13 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Canonical PR [#232](https://forge.adrianpk.com/adrianpk/rev/pulls/232) delivers
+captured instruction targets and explicit native proposal apply/discard. Ten new
+focused integration cases and two private live-admission cases passed, including
+native undo/shared views, exact bytes, stale/readonly/association/closed-source
+guards and real external reload. The canonical report introduction is
+`4a4fb82f913f1e2a0bf376ffc3932324c34f920c`. Final clean-head validation follows
+these committed PR references and is retained by the controller and canonical PR.

@@ -179,7 +179,7 @@ git diff --check
 
 ### Slice 4: Checked AI editing
 
-Ticket: [Checked AI editing](../ticket/in_progress/20261102211109-apply-ai-results-through-native-editing.md)
+Ticket: [Checked AI editing](../ticket/reviewing/20261102211109-apply-ai-results-through-native-editing.md)
 Requirements: PI03, PI06, PI07; AI03, AI05-AI09, AI14-AI17.
 Dependencies: Slice 3 integrated; preserve all earlier contracts.
 
