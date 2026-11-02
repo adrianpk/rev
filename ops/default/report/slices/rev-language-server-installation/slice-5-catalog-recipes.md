@@ -1,6 +1,6 @@
 # Slice 5: Remaining optional recipes
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
@@ -127,8 +127,10 @@ Pre-PR controller validation passed for `5ebf52701be350bd77932324eff56152518828a
 - `git diff --check`
 
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/226
-The controller will validate the committed PR-reference follow-up at its exact
-head. The integrated delivery-set gate remains with the controller.
+Final controller receipt `PUURIPZASULVCNLPHKFEBOE66M` passed the same four
+commands for `11b6d3abcc24ed250eb400a1578e673bb137fca5` (34 regressions).
+Canonical PR #226 merged that exact commit into dev. Slice 5 of 7 completed.
+The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111452
 title: Remaining optional recipes
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T15:00:15Z
 branch: feat/rev-language-server-installation-05-catalog-recipes
 reviewed_at: 2026-11-02T15:36:44Z
 pr: 226
+closed_at: 2026-11-02T15:43:51Z
+resolution: fixed
 commits: [5ebe8d85a6a82b2ce44f290b42770c387439b4ee, 829a4211fdc61fd36498ec4bb52b1e99304d321d, 5ebf52701be350bd77932324eff56152518828aa]
 ---
 
@@ -57,4 +59,6 @@ for commands, provenance and limitations. All four configured commands passed
 at `5ebf52701be350bd77932324eff56152518828aa`, controller receipt
 `RLQ5RSQHYJ7TOUDA5ET6PZI5M4`. Canonical PR:
 https://forge.adrianpk.com/adrianpk/rev/pulls/226
-The final PR-reference commit receives fresh validation before handoff.
+Final receipt `PUURIPZASULVCNLPHKFEBOE66M` passed all configured commands at
+`11b6d3abcc24ed250eb400a1578e673bb137fca5`, merged unchanged by canonical
+PR #226 into dev. Slice 5 of 7 completed.

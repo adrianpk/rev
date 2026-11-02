@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 5 — Remaining optional recipes
+Active slice: Slice 6 — Update cancellation and removal
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
 
 ## Outcome and authority
@@ -170,7 +170,7 @@ git diff --check
 
 ### Slice 5: Remaining optional recipes
 
-Ticket: [Remaining optional recipes](../ticket/reviewing/20261102111452-complete-optional-server-catalog.md)
+Ticket: [Remaining optional recipes](../ticket/solved/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated and prior contracts retained.
 
@@ -189,7 +189,7 @@ git diff --check
 
 ### Slice 6: Update cancellation and removal
 
-Ticket: [Update cancellation and removal](../ticket/ready/20261102111453-manage-server-installation-lifecycle.md)
+Ticket: [Update cancellation and removal](../ticket/in_progress/20261102111453-manage-server-installation-lifecycle.md)
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated and prior contracts retained.
 

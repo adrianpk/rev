@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 5 — Remaining optional recipes
+Active slice: Slice 6 — Update cancellation and removal
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slices 1–4 are delivered through PRs #222–#225. Slice 5 is active; later slices remain pending.
+closure. Slices 1–5 are delivered through PRs #222–#226. Slice 6 is active; the final slice remains pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -249,8 +249,8 @@ commit into dev. Slice 4 of 7 completed.
 
 ### Slice 5: Remaining optional recipes
 
-State: reviewing.
-Ticket: [Remaining optional recipes](../ticket/reviewing/20261102111452-complete-optional-server-catalog.md)
+State: delivered.
+Ticket: [Remaining optional recipes](../ticket/solved/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-language-server-installation-05-catalog-recipes`
@@ -261,7 +261,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-5-cata
 - [x] T5.2: Add immutable-revision OLS acquisition/build with the installed toolchain and required builtin paths; preserve generic custom setup for Org and all other languages.
 - [x] T5.3: Exercise recipe-specific tool/version failures and available real-server smoke probes; distinguish installed evidence from fixtures and keep all helpers optional.
 
-T5.1 development checks passed: `cargo test --locked --test lsp_installation optional:: -- --test-threads=1`, native Rust acquisition regressions and focused source checks. Controlled tools cover recipe failures, integrity/version rejection and preservation of ready payloads. Explicit live transport probes passed for Marksman 2026-02-08, ruby-lsp 0.26.11 with Ruby 3.4.10 and base python-lsp-server 1.15.0 with Python 3.14.7. Ruby retains exact Bundler plus a frozen isolated lock; Python uses its final venv path. Native builds use GNU Make pipe jobservers to preserve special-file rejection. Final slice validation remains pending.
+T5.1 development checks passed: `cargo test --locked --test lsp_installation optional:: -- --test-threads=1`, native Rust acquisition regressions and focused source checks. Controlled tools cover recipe failures, integrity/version rejection and preservation of ready payloads. Explicit live transport probes passed for Marksman 2026-02-08, ruby-lsp 0.26.11 with Ruby 3.4.10 and base python-lsp-server 1.15.0 with Python 3.14.7. Ruby retains exact Bundler plus a frozen isolated lock; Python uses its final venv path. Native builds use GNU Make pipe jobservers to preserve special-file rejection. Final configured validation passed below.
 
 T5.1 commit: `5ebe8d85a6a82b2ce44f290b42770c387439b4ee`.
 T5.2 development checks passed: `cargo check --locked`, `cargo test --locked --test lsp_installation ols:: -- --test-threads=1`, both-profile native optional setup/reuse and focused source checks. OLS pins one checked-out revision, builds with the installed Odin, retains builtin paths and disables snippets/fake methods. Controlled Git redirection, failed build and probe cases preserve prior ready data. Live revision `9b9711592bed66266311c361dd7a307ecc87025b` is incompatible with installed Odin `dev-2026-08:8412dc37a` (missing `core:odin/tool-format`), so no live OLS readiness is claimed.
@@ -277,12 +277,14 @@ T5.3/report-introduction commit: `5ebf52701be350bd77932324eff56152518828aa`.
 All four configured commands passed on that clean candidate, receipt
 `RLQ5RSQHYJ7TOUDA5ET6PZI5M4` (34 regressions passed; three opt-in network checks excluded).
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/226
-The final PR-reference candidate will receive fresh controller validation.
+Final receipt `PUURIPZASULVCNLPHKFEBOE66M` passed all four commands for
+`11b6d3abcc24ed250eb400a1578e673bb137fca5`. Canonical PR #226 merged that
+exact commit into dev. Slice 5 of 7 completed.
 
 ### Slice 6: Update cancellation and removal
 
-State: ready.
-Ticket: [Update cancellation and removal](../ticket/ready/20261102111453-manage-server-installation-lifecycle.md)
+State: in_progress.
+Ticket: [Update cancellation and removal](../ticket/in_progress/20261102111453-manage-server-installation-lifecycle.md)
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-language-server-installation-06-lifecycle`
