@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111451
 title: Go and web installation
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:51Z
 ready_at: 2026-11-02T11:14:51Z
+started_at: 2026-11-02T14:16:56Z
+branch: feat/rev-language-server-installation-04-go-web
 commits: []
 ---
 
@@ -21,8 +23,8 @@ Add isolated gopls acquisition with exact module provenance and local-only compi
 
 ## Current behavior and inputs
 
-The optional stdio LSP client and exclusive semantic/native completion policy
-are delivered. Guided management and managed installation are not yet delivered.
+The optional stdio LSP client, guided management and managed Rust installation
+are delivered. Preserve the exclusive semantic/native completion policy.
 Use the [approved specification](../../spec/editor-language-server-installation.md)
 and [model](../../spec/editor-language-server-installation-model.md).
 

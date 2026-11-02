@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 3 — Managed Rust installation
+Active slice: Slice 4 — Go and web installation
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slices 1 and 2 are delivered through PRs #222 and #223. Slice 3 is active; later slices remain pending.
+closure. Slices 1–3 are delivered through PRs #222, #223 and #224. Slice 4 is active; later slices remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -117,8 +117,8 @@ commit into dev. Slice 2 of 7 completed.
 
 ### Slice 3: Managed Rust installation
 
-State: reviewing.
-Ticket: [Managed Rust installation](../ticket/reviewing/20261102111450-install-managed-rust-server.md)
+State: delivered.
+Ticket: [Managed Rust installation](../ticket/solved/20261102111450-install-managed-rust-server.md)
 Requirements: INS01, INS02, INS03, INS05, INS06.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-language-server-installation-03-managed-rust`
@@ -173,13 +173,14 @@ T3.3/report-introduction commit: `ee39a681179a7c3ecf6316d20004c900f1b0e529`.
 All four configured commands passed on that clean candidate with controller receipt
 `WJ6BNUUPPJYWBZTRYTZD2YCSCP`. Canonical PR:
 https://forge.adrianpk.com/adrianpk/rev/pulls/224
-The PR-reference follow-up requires a fresh exact-HEAD receipt before integration.
-Canonical integration evidence remains pending with the controller.
+Final receipt `IKLQJ3752CS64MESVHEZXAIP5A` passed all four commands for
+`11bc8142ffe1b0371b050cea91a1ea06df96d19f`. Canonical PR #224 merged that exact
+commit into dev. Slice 3 of 7 completed.
 
 ### Slice 4: Go and web installation
 
-State: ready.
-Ticket: [Go and web installation](../ticket/ready/20261102111451-install-go-and-web-servers.md)
+State: in_progress.
+Ticket: [Go and web installation](../ticket/in_progress/20261102111451-install-go-and-web-servers.md)
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-language-server-installation-04-go-web`

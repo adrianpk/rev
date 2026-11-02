@@ -1,6 +1,6 @@
 # Slice 3: Managed Rust installation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
@@ -130,8 +130,9 @@ Pre-PR controller validation passed at
 - `git diff --check`: passed.
 
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/224
-The PR-reference follow-up requires a fresh exact-HEAD receipt before integration;
-the controller retains that final receipt without another repository mutation.
+Final controller receipt `IKLQJ3752CS64MESVHEZXAIP5A` passed the same four
+commands for `11bc8142ffe1b0371b050cea91a1ea06df96d19f`. Canonical PR #224
+merged that exact commit into dev. Slice 3 of 7 completed.
 The combined delivery-set gate remains with the controller after all slices.
 
 ## Risks and Follow-ups

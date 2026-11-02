@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111450
 title: Managed Rust installation
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,9 @@ in_progress_at: 2026-11-02T12:29:53Z
 branch: feat/rev-language-server-installation-03-managed-rust
 reviewing_at: 2026-11-02T14:04:26Z
 pr: 224
+reviewed_at: 2026-11-02T14:16:56Z
+closed_at: 2026-11-02T14:16:56Z
+resolution: fixed
 commits: [377a474ab07a2486c69edeb8ea47268ba6a63941, df770c9dfe475b86e4faa935723ff92a4e48ff74, ee39a681179a7c3ecf6316d20004c900f1b0e529]
 ---
 
@@ -57,3 +60,6 @@ no upstream Rust semantic integration is claimed. All four configured commands
 passed at `ee39a681179a7c3ecf6316d20004c900f1b0e529` with receipt
 `WJ6BNUUPPJYWBZTRYTZD2YCSCP`. Canonical PR: #224. The final PR-reference
 head requires its own controller receipt before integration.
+
+Final controller receipt `IKLQJ3752CS64MESVHEZXAIP5A` passed all configured
+commands at `11bc8142ffe1b0371b050cea91a1ea06df96d19f`, merged by PR #224.
