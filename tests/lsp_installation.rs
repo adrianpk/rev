@@ -32,3 +32,9 @@ mod live;
 
 #[path = "lsp_installation/optional.rs"]
 mod optional;
+
+#[path = "lsp_installation/ols.rs"]
+mod ols;
+
+#[path = "lsp_installation/optional-native.rs"]
+mod optional_native;

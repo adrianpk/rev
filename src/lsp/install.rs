@@ -7,6 +7,7 @@ mod go;
 mod helper;
 mod marksman;
 mod npm;
+mod ols;
 mod package;
 mod probe;
 mod process;
@@ -40,7 +41,7 @@ pub const OPERATION_SECONDS: u64 = 900;
 
 /// Recipes with delivered acquisition behavior. The metadata catalog may also
 /// describe later optional recipes without exposing an unimplemented operation.
-pub const SUPPORTED_RECIPES: [&str; 7] = [
+pub const SUPPORTED_RECIPES: [&str; 8] = [
     "rust-analyzer",
     "gopls",
     "typescript-language-server",
@@ -48,6 +49,7 @@ pub const SUPPORTED_RECIPES: [&str; 7] = [
     "marksman",
     "ruby-lsp",
     "python-lsp-server",
+    "ols",
 ];
 
 /// Native management dispatch. Shared multi-language profiles inherit the
@@ -66,6 +68,7 @@ pub fn install(
         "marksman" => marksman::install(storage, inherited.remove("markdown"), cancel),
         "ruby-lsp" => ruby::install(storage, inherited.remove("ruby"), cancel),
         "python-lsp-server" => python::install(storage, inherited.remove("python"), cancel),
+        "ols" => ols::install(storage, inherited.remove("odin"), cancel),
         "typescript-language-server" | "vscode-langservers-extracted" => {
             install_npm(storage, recipe, inherited, cancel)
         }

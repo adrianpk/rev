@@ -142,12 +142,51 @@ pub(super) struct Helper {
     pub watch: Vec<(PathBuf, u64)>,
 }
 
+struct Captured {
+    output: Vec<u8>,
+    error: Vec<u8>,
+}
+
 impl Helper {
     pub fn run(&self, cancel: &Cancellation, file: Option<File>) -> Result<Vec<u8>, String> {
+        self.execute(cancel, file, None)
+            .map(|captured| captured.output)
+    }
+
+    /// Git acquisition discards inherited Git redirections/configuration before
+    /// applying its explicit owned paths. Other helpers keep existing behavior.
+    pub fn run_isolated(&self, cancel: &Cancellation, prefix: &str) -> Result<Vec<u8>, String> {
+        self.execute(cancel, None, Some(prefix))
+            .map(|captured| captured.output)
+    }
+
+    /// Build wrappers may hide a compiler's nonzero status. Retain both bounded
+    /// streams so checking the required output can report the actual failure.
+    pub fn run_build(&self, cancel: &Cancellation) -> Result<Vec<u8>, String> {
+        self.execute(cancel, None, None).map(|mut captured| {
+            captured.output.extend(captured.error);
+            captured.output
+        })
+    }
+
+    fn execute(
+        &self,
+        cancel: &Cancellation,
+        file: Option<File>,
+        prefix: Option<&str>,
+    ) -> Result<Captured, String> {
         checkpoint(cancel, Instant::now() + Duration::from_secs(self.seconds))?;
         let (mut streams, [stdin, stdout, stderr]) = Streams::new()?;
         drop(stdin);
         let mut command = self.command();
+        if let Some(prefix) = prefix {
+            for (key, _) in
+                std::env::vars_os().filter(|(key, _)| key.to_string_lossy().starts_with(prefix))
+            {
+                command.env_remove(key);
+            }
+            command.envs(&self.env);
+        }
         command
             .stdin(Stdio::null())
             .stdout(file.map_or(stdout, Stdio::from))
@@ -157,16 +196,22 @@ impl Helper {
         // parent writer ends so EOF can acknowledge helper termination.
         drop(command);
         let result = self.collect(&mut process, &mut streams, cancel);
-        process.finish(result).map_err(|e| {
-            let tail = String::from_utf8_lossy(&streams.error);
-            format!(
-                "{}: {e}; stderr: {tail}",
-                self.executable
-                    .file_name()
-                    .unwrap_or_default()
-                    .to_string_lossy()
-            )
-        })
+        process
+            .finish(result)
+            .map(|output| Captured {
+                output,
+                error: std::mem::take(&mut streams.error),
+            })
+            .map_err(|e| {
+                let tail = String::from_utf8_lossy(&streams.error);
+                format!(
+                    "{}: {e}; stderr: {tail}",
+                    self.executable
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                )
+            })
     }
 
     pub fn command(&self) -> Command {

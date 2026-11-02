@@ -30,7 +30,18 @@ fn acquire(f: &Fixture, recipe: &'static str, language: &'static str) -> Outcome
     let start = Instant::now();
     let outcome = loop {
         if let Some(result) = manager.poll() {
-            break result.unwrap();
+            break result.unwrap_or_else(|error| {
+                for installation in Registry::load(&roots.data).unwrap().installations {
+                    println!(
+                        "LIVE FAILED {}: revision={}; runtime={}; status={:?}",
+                        installation.recipe,
+                        installation.version,
+                        installation.runtime,
+                        installation.status
+                    );
+                }
+                panic!("{error}")
+            });
         }
         assert!(
             Instant::now() < deadline,
@@ -231,6 +242,7 @@ fn optional_packages() {
         "marksman" => ("marksman", "markdown"),
         "ruby-lsp" => ("ruby-lsp", "ruby"),
         "python-lsp-server" => ("python-lsp-server", "python"),
+        "ols" => ("ols", "odin"),
         _ => panic!("unknown optional recipe"),
     };
     let f = Fixture::new();

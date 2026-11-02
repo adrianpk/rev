@@ -1,6 +1,11 @@
 //! Recipe-specific evidence admission. Package provenance never masquerades as
 //! the independent artifact digest required by a native download recipe.
 pub(super) fn valid(recipe: &str, evidence: &str) -> bool {
+    if recipe == "ols" {
+        return evidence
+            .strip_prefix("git-revision:")
+            .is_some_and(super::ols::revision);
+    }
     if recipe == "ruby-lsp" {
         return evidence
             .strip_prefix("gem-lock:sha256:")
