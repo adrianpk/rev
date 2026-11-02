@@ -2,8 +2,9 @@
 
 Status: draft
 Date: 2026-10-28
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-02
+Version: 0.3
+First-delivery approval: product owner, 2026-11-02; only the linked Pi/shared scope, with direct API records still deferred
 Specification: [AI Commands](editor-ai-commands.md)
 Optional adapter: [Pi Integration](editor-ai-pi-integration.md), [Pi Integration Model](editor-ai-pi-integration-model.md)
 Existing owners: [Editor Model](rev-editor-model.md), [Configuration Model](editor-configuration-model.md)
@@ -26,8 +27,9 @@ import that capability's shell, write or executable-block operations into AI.
 
 ## Persistent records and semantic fields
 
-The order below is semantic, not a selected TOML/JSON/database representation.
-Exact storage, keys, version handling and activation behavior remain open.
+The order below describes the broader capability. The first Pi representation,
+keys, persistence and activation are selected in its paired model; native API
+storage and later backend-selection configuration remain deferred.
 
 | Record | Fields | Contract |
 | --- | --- | --- |
@@ -79,9 +81,9 @@ positions. Their absence does not remove the native file/text discovery path.
 ## Invocation state and failure boundaries
 
 A conceptual invocation progresses through capture, optional discovery/model
-exchanges, result-ready and presentation/application. Depending on the selected
-policy it may await explicit acceptance; this draft does not force preview or
-automatic application. Successful explanation ends without a source edit.
+exchanges, result-ready and presentation/application. The first Pi profile
+requires explicit acceptance for edits; the broader capability leaves later
+application policies open. Successful explanation ends without a source edit.
 A successful edit ends after one normal native publication.
 
 Failure, unavailable capability, insufficient context, timeout, rejection and
@@ -95,17 +97,32 @@ work is active. The job/deadline/cancellation implementation uses actual native
 owners. Pi process/protocol work belongs to its adapter; another feature's
 commands or a harness's default tools do not enter AI authority.
 
+## First-delivery ownership
+
+The product owner selected Pi before native API execution. The
+[Pi Integration Model](editor-ai-pi-integration-model.md) supplies the concrete
+first-delivery configuration, literal saved definitions, private session
+bindings, snapshots, result schema and finite lifecycle. No native provider
+transport, credential schema or relevance/discovery loop is required before
+that implementation. These common invocation/target/publication records remain
+the shared contracts for a later independent direct API path.
+
+The [external-file model](editor-external-file-changes-model.md) independently
+adds general visiting-file observation and checked reload. A reload creates a
+canonical source revision that fences stale AI results; it does not grant Pi
+permission to write files or replace native publication.
+
 ## Dependencies and file observations
 
-The directory-opening ticket is a required predecessor of the complete AI
-experience: it establishes explicit roots and file-parent fallback. AI still
-needs its own choice for a deeply nested individually opened file and any
-read/transmission override. There is no implicit ancestor search outside a grant.
+Directory opening is delivered and supplies explicit roots and file-parent
+fallback. The first Pi profile uses that directory, the visiting parent, or
+the launch directory for an unnamed buffer, with an explicit session-local
+override. There is no implicit ancestor search outside a grant.
 
 Re-evaluate available native jobs and structural APIs after their owning work
 is delivered. Existing configuration, command maps and checked edits are reused;
 AI adds a validated data dispatch layer rather than pretending those owners
-already support user-defined commands. LSP remains a separate optional draft.
+already support user-defined commands. LSP is delivered and remains optional.
 
 Direct API operation does not require Pi. Pi operation does not require native
 API configuration. The optional adapter owns effective harness tool/resource

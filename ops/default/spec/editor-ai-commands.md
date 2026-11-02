@@ -2,8 +2,8 @@
 
 Status: draft
 Date: 2026-10-28
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-02
+Version: 0.3
 Format: OpenSpec capability proposal
 Source: product-owner AI Commands proto-specification; prerequisite, optional Pi and independent native-API clarifications.
 Model: [AI Commands Model](editor-ai-commands-model.md)
@@ -11,9 +11,11 @@ Baseline: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
 Required directory context: [Directory Opening](../ticket/solved/20261028094803-open-directory-targets-from-cli-and-find-file.md)
 Optional enrichment: [Language Server Support](editor-language-server-support.md)
-Optional harness backend: [Pi Integration](editor-ai-pi-integration.md)
-Delivery boundary: future AI delivery; no implementation or slicing authorized.
-Readiness: product direction captured; design decisions and required prerequisites remain open.
+First execution path: [Pi Integration](editor-ai-pi-integration.md)
+External source observations: [External File Changes](editor-external-file-changes.md)
+Delivery boundary: shared AI behavior and Pi first; direct API transport/discovery deferred; implementation planning remains separate.
+Readiness: the Pi proposal resolves its first-delivery profile; the later native API questions remain explicit.
+First-delivery approval: product owner, 2026-11-02; selected shared behavior is delivered by the [Pi plan](../plan/rev-ai-pi.md); direct API remains deferred
 
 ## Purpose
 
@@ -31,8 +33,29 @@ registration or executable editor extension interface. Iteration is limited
 to admitted read-only context discovery for one explicit command. Ordinary
 editing remains independent of AI configuration.
 
-This proposal specifies the AI capability. It does not redefine the whole
-editor or claim that directory opening, LSP or new grammar support already ship.
+This proposal specifies the AI capability over the delivered file/directory,
+completion, LSP and modal foundations. Availability of those owners does not
+claim that AI is implemented.
+
+## First-delivery scope
+
+On 2026-11-02 the owner selected Pi before rev's native API/context engine and
+requested a concrete specification after researching headless and RPC modes.
+The [Pi proposal](editor-ai-pi-integration.md) defines shared commands, input
+targets, reusable definitions, read-only project discovery, snapshots, result
+presentation and checked application for that first delivery. It also defines
+the proposed RPC/session/configuration defaults for review.
+
+The independent direct API transport and native discovery loop remain future
+work. Native API requirements below apply to that later path, not as blockers
+or acceptance conditions for Pi. Implementing Pi does not count as implementing
+the native API. The single-target application boundary is retained: external
+reload configuration does not itself authorize direct agent filesystem edits.
+
+Where a broader requirement below still identifies a decision as open, the
+concrete first Pi profile supplies that choice for its delivery. Remaining
+alternatives concern later API or richer-output work; do not reopen already
+specified Pi behavior or treat a future requirement as an implemented feature.
 
 ## Confirmed direction
 
@@ -85,19 +108,20 @@ silently added to another delivery.
 
 | Dependency | Status and required relationship |
 | --- | --- |
-| File/directory opening and root ownership | Required for the complete proposed AI experience. The linked directory ticket is pending. Explicit directory choice and file-parent fallback must have actual native identity/lifetime rules before AI derives its context boundary. |
+| File/directory opening and root ownership | Delivered. Reuse the native explicit-directory and file-parent observations; the Pi proposal freezes its context-root rule without adding workspace registration. |
 | Canonical buffers, source positions, edits, read-only and undo | Existing owners to reuse and verify. AI results must pass the same checks and retain invocation identity. |
 | Native commands, context bindings and startup configuration | Existing foundations to extend deliberately. The current compiled-command whitelist is not already a saved-AI-command registry. A validated data-driven AI dispatcher must not become an executable plugin layer. |
 | Cancellable native jobs and IO | Reuse the actual native job/lifetime owners available at implementation time. Verify the delivered job interfaces without depending on unrelated Org behavior. Reusing an owner does not inherit its other tools or authority. |
-| Tree-sitter context access | Available parsing is grammar-specific; the captured editor has a Rust syntax owner. Public checked structural context extraction may need work in the AI set. Do not promise arbitrary-language symbols or an existing global semantic index. |
-| LSP | Separate draft capability. Optional enrichment only; not a mandatory predecessor of AI. |
-| Provider/profile and AI design decisions | Must be resolved before implementation planning can rely on them. No selected HTTP API, SDK, library or new runtime dependency is authorized here. |
-| Optional Pi adapter | Separate integration contract for process/RPC ownership, delegated context and external authentication. It is required only when Pi execution is selected; native API support remains independent. |
+| Tree-sitter context access | Delivered bundled/registered syntax and completion owners are grammar-specific. Pi discovery does not require native structural extraction or a global semantic index. |
+| LSP | Delivered optional client and management. Optional AI enrichment remains later work; neither Pi nor filesystem discovery requires an active server. |
+| Provider/profile and AI design decisions | The Pi proposal supplies its first-delivery profile. Native HTTP/API protocol, SDK and credential decisions are deferred with the direct API path. |
+| Pi adapter | First implementation path. Owns RPC/session lifetime and delegated discovery; no native API transport/context engine is required before it. |
+| External file changes | Separate general editor proposal, with owner-confirmed reload/ask policies. It may precede or share a planned set with Pi; the bounded Pi result path does not depend on autonomous filesystem writes. |
 
-The linked directory ticket supplies an opening/root foundation. It does not
-settle AI's read/transmission authority for a deeply nested individually opened
-file. Root policy, canonical links and explicit overrides must be resolved here.
-No workspace or project registry is introduced to fill that gap.
+The delivered directory ticket supplies the opening/root foundation. The Pi
+profile chooses explicit directory, visiting parent or launch directory, with
+a session-local override; its tool admission still enforces the read grant.
+Later API policy can be refined independently. No workspace registry is added.
 
 ## ADDED Requirements
 
@@ -139,7 +163,9 @@ Exact native credential storage and protocol fields remain design decisions.
 
 A user SHALL be able to invoke a discrete AI operation with a prompt and a
 selected input/output/context policy without first defining a saved command.
-The prompt SHALL not become persistent merely because it was executed. The
+Execution SHALL not create a saved command definition automatically. Optional
+Pi session-history retention follows the declared configuration and is distinct
+from creating a reusable command. The
 same native request and edit boundaries SHALL apply to immediate and saved
 commands.
 
@@ -404,7 +430,7 @@ credentials, software or discovery machinery belonging only to the other.
 A Pi request using an API key SHALL remain a Pi request and SHALL NOT count as
 native API support. Failure SHALL not silently switch backend, authentication
 or provider. Native API implementation and acceptance SHALL remain required
-independently of the optional harness integration.
+for the later direct API delivery, independently of the first Pi integration.
 
 #### Scenario: Use native API without Pi
 
@@ -462,7 +488,11 @@ Missing source is never synthesized as a native discovery fact.
 
 ## Open design decisions
 
-None of these choices is settled by writing this draft.
+The following records the broader capability's decisions. For the first Pi
+delivery, the subordinate specification/model select root policy, input
+handling, preview/acceptance, literal definitions, public names, session
+storage, protocol and resource defaults. The remaining native API/discovery
+decisions are deferred, not prerequisites that silently expand the Pi set.
 
 1. File-only discovery boundary: containing directory, selected ancestor or a
    deliberate override; relationship to explicit directory/root ownership.
@@ -499,9 +529,8 @@ Prompt definitions remain data, not a package marketplace, scripting language
 or loadable handler API. The editor gains no mandatory workspace or chat model.
 There is no continuous background AI analysis.
 
-This draft/model pair is kept with deferred work and depends on the directory
-opening foundation plus its other actual prerequisites. Once decisions and
-prerequisites are reviewable, the capability can receive its own approved slice
-set and tracker. This capture does not authorize implementation, provider
-requests or alteration of completed delivery records. Versioning the draft does
-not approve its open decisions or create an implementation plan.
+The directory and editor foundations are delivered. Review the complete first
+Pi proposal before producing its approved delivery plan/tracker. The later
+direct API path retains a separate preparation boundary. This specification
+update does not authorize provider requests, controller startup or changes to
+completed delivery records, and does not invent approval of a slicing plan.

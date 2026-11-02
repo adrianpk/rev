@@ -17,7 +17,7 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 ## Complete inventory
 
 The inventory contains ten delivered topics, two open presentation
-follow-ups and five remaining capability proposals. Solved
+follow-ups and six remaining capability proposals. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -35,14 +35,22 @@ retain their own specification/model state.
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Delivered / Completed. Seven slices through PRs #222–#228 deliver guided existing/custom setup, associations, explicit source choice, managed recipes and lifecycle. Any compatible language/server remains eligible independently of bundled grammars or the initial catalog. The unchanged controller gate passed INS01-INS06 with both-profile native/PTY management, real Rust/Go semantics and grammar-independent routing. |
-| Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
-| Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
+| Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft broader contract. Shared commands are prepared for Pi first; native API transport and native context construction are deferred and do not block Pi. |
+| Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Approved for the eight-slice Pi/reload delivery. Lazy private RPC sessions, guarded directory context, native result application and reusable commands; direct API remains deferred. Offline Pi 1.3.0 admission was probed; implementation and joint acceptance are pending. |
+| Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Approved as the first increments of the same delivery. Automatic clean-buffer reload, optional notification and unsaved-edit protection; general editor behavior independent of Pi. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md) | Draft. Six reference glyphs captured; prefix/source fidelity required. Depth overflow, defaults and reveal/geometry details remain open. Fonts and ligatures belong to the terminal. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+The owner approved proceeding with Pi and general external reload on
+2026-11-02 after the architecture explanation. The linked eight-slice plan and
+tracker place reload before the Pi increments in one autonomous delivery.
+Direct API construction remains deferred. External reload does not grant Pi
+direct source-write authority; native result application retains the approved
+single-target boundary. Actual startup/progress belongs to the controller.
 
 The owner selected optional language-server installation on 2026-11-02 and
 authorized the seven-slice plan and autonomous Looper implementation through
