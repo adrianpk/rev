@@ -43,6 +43,7 @@ mod modal;
 mod mode;
 mod motion;
 mod navigation;
+mod observation;
 mod org;
 mod outline;
 mod paste;
@@ -100,6 +101,7 @@ pub enum Action {
 /// Owns the live editing session. Native events and named commands use the same
 /// handlers; all text mutations publish through the checked buffer edit owner.
 pub struct Session {
+    observation: observation::Work,
     reload: reload::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
@@ -259,7 +261,11 @@ impl Session {
     /// Run native input, deadlines and drawing for this host-owned session.
     /// The caller owns terminal acquisition, entry and restoration on return.
     pub fn run_terminal(&mut self, terminal: &mut Terminal<impl Write>) -> io::Result<()> {
+        // Initialize Crossterm's native signal queue before enabling owned wakes.
+        crossterm::event::poll(std::time::Duration::ZERO)?;
+        self.observation.wake.arm(true);
         let result = self.drive_terminal(terminal);
+        self.observation.wake.arm(false);
         self.end_timer_session();
         self.lsp.set_enabled(false);
         result
@@ -292,6 +298,7 @@ impl Session {
             .map_err(|error| view::Error::WorkingDirectory(error.kind()))?;
         session.prepare_bookmark_markers();
         session.activate_lsp();
+        session.observe_files();
         Ok(session)
     }
 
@@ -316,6 +323,7 @@ impl Session {
         let completion_policy = buffers.snapshot().settings().completion.clone();
         let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
         Ok(Self {
+            observation: observation::Work::default(),
             reload: reload::Work::default(),
             lsp,
             installation: Default::default(),
@@ -747,6 +755,7 @@ impl Session {
         }
         let action = self.execute_now(command);
         self.activate_lsp();
+        self.observe_files();
         action
     }
 

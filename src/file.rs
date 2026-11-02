@@ -22,6 +22,9 @@ impl Loaded {
     pub(crate) fn observed_text(&self) -> RopeSlice<'_> {
         self.text.slice(..)
     }
+    pub(crate) fn has_bom(&self) -> bool {
+        self.bom
+    }
     /// Decode strict UTF-8 incrementally. No candidate survives a read, encoding
     /// or NUL-policy failure; exactly one leading BOM becomes format metadata.
     pub fn read(reader: impl Read) -> io::Result<Self> {
@@ -101,6 +104,7 @@ pub(crate) mod reload;
 pub(crate) mod rename;
 mod save;
 pub(crate) mod temporary;
+pub(crate) mod watch;
 
 pub use delete::{DeleteDecision, Deleted, Deletion};
 pub(crate) use location::directory;

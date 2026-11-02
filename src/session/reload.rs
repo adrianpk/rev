@@ -7,6 +7,7 @@ use crate::buffer::reload::{Checked, Reload};
 
 #[derive(Default)]
 pub(super) struct Work {
+    origin: Option<crate::file::watch::Source>,
     task: Option<JoinHandle<io::Result<Completed>>>,
     started: Option<Instant>,
     canceled: bool,
@@ -37,10 +38,27 @@ impl Work {
 }
 
 impl Session {
+    pub(super) fn reload_idle(&self) -> bool {
+        self.reload.task.is_none()
+    }
+    pub(super) fn clear_reload_origin(&mut self) {
+        self.reload.origin = None;
+    }
+    pub(super) fn start_observed_reload(
+        &mut self,
+        request: crate::buffer::reload::Request,
+        source: crate::file::watch::Source,
+    ) -> io::Result<()> {
+        self.reload
+            .start(move || request.read().map(Completed::Read))?;
+        self.reload.origin = Some(source);
+        Ok(())
+    }
     pub(super) fn revert_buffer(&mut self) -> Action {
         if self.reload.task.is_some() || matches!(self.pending, Some(Pending::Reload(_))) {
             return self.message("Reload is already pending; C-g cancels");
         }
+        self.reload.origin = None;
         let request = self.buffer().map_err(io::Error::other).and_then(|buffer| {
             buffer.request_reload(
                 self.buffers
@@ -92,6 +110,16 @@ impl Session {
         let result = self.reload.task.take().expect("finished worker").join();
         self.reload.started = None;
         if self.reload.canceled {
+            self.reload.origin = None;
+            return Action::Wait;
+        }
+        if self
+            .reload
+            .origin
+            .as_ref()
+            .is_some_and(|s| !self.current_observation(s))
+        {
+            self.reload.origin = None;
             return Action::Wait;
         }
         let result = match result {
@@ -99,8 +127,20 @@ impl Session {
             Err(_) => Err(io::Error::other("reload worker failed")),
         };
         match result {
-            Err(error) => self.error(&format!("reload: {error}; buffer retained")),
-            Ok(Completed::Read(reload)) => self.reload_read(reload),
+            Err(error) => {
+                if let Some(source) = self.reload.origin.take() {
+                    self.observation_notice(
+                        &source,
+                        &format!("{error}; text retained; use revert-buffer"),
+                    )
+                } else {
+                    self.error(&format!("reload: {error}; buffer retained"))
+                }
+            }
+            Ok(Completed::Read(reload)) => match self.reload.origin.clone() {
+                Some(source) => self.observed_reload(source, reload),
+                None => self.reload_read(reload),
+            },
             Ok(Completed::Checked(candidate)) => self.reload_publish(candidate),
         }
     }
@@ -150,6 +190,7 @@ impl Session {
     }
 
     fn reload_publish(&mut self, candidate: Checked) -> Action {
+        let origin = self.reload.origin.take();
         let result = (|| {
             let buffer = self
                 .buffers
@@ -176,7 +217,16 @@ impl Session {
                 }
                 self.message(&format!("Reloaded {label}"))
             }
-            Err(error) => self.error(&format!("reload: {error}; buffer retained")),
+            Err(error) => {
+                if let Some(source) = origin {
+                    self.observation_notice(
+                        &source,
+                        &format!("{error}; text retained; use revert-buffer"),
+                    )
+                } else {
+                    self.error(&format!("reload: {error}; buffer retained"))
+                }
+            }
         }
     }
 

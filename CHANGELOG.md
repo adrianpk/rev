@@ -10,8 +10,11 @@ This project uses Semantic Versioning.
 
 - Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane
-  positions, and undo the reload without changing the file on disk. Invalid or
-  missing sources leave the current buffer intact; read-only buffers stay read-only.
+  positions, and undo the reload without changing the file on disk. Clean visiting
+  files now refresh automatically after external writes or replacement, including
+  hidden and read-only buffers. Choose `files.external_changes = "ask"` to retain
+  text with a passive reload notice. Unsaved edits, invalid or missing sources
+  stay protected; idle observation waits for kernel events.
 
 - [Set up optional language servers](docs/tutorials/user-guide/12-language-servers.md)
   through native prompts in both editing profiles. Reuse installed executables,

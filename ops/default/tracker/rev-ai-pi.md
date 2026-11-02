@@ -64,16 +64,16 @@ Slice 1 evidence, not the integrated delivery-set gate.
 
 ### Slice 2: External change observation
 
-State: ready.
-Ticket: [External change observation](../ticket/ready/20261102211107-observe-external-file-changes.md)
+State: in_progress.
+Ticket: [External change observation](../ticket/in_progress/20261102211107-observe-external-file-changes.md)
 Requirements: EFC01-EFC08.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-ai-pi-02-observation`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-2-observation.md`
 
-- [ ] T2.1: Use the already locked rustix filesystem/event APIs for bounded parent-directory notifications and native session wake integration; no recursive project watcher or periodic content reads.
-- [ ] T2.2: Apply reload/ask policies, coalesced per-buffer notices, dirty conflict protection and explicit reload; retain subscriptions through atomic rename, deletion/recreation and shared/hidden buffers.
+- [x] T2.1: Use the already locked rustix filesystem/event APIs for bounded parent-directory notifications and native session wake integration; no recursive project watcher or periodic content reads.
+- [x] T2.2: Apply reload/ask policies, coalesced per-buffer notices, dirty conflict protection and explicit reload; retain subscriptions through atomic rename, deletion/recreation and shared/hidden buffers.
 - [ ] T2.3: Verify native notifications, overflow/registration limits, cleanup, idle behavior and canonical invalidation of completion, bookmarks, Org projections and LSP state.
 
 Validation and actual commit/PR evidence: pending. Use the plan and configured

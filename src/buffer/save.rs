@@ -207,6 +207,7 @@ fn reconcile_buffer(buffer: &mut Buffer, save: &Save, outcome: &Outcome, label: 
     if outcome.is_complete() {
         buffer.saved = save.state;
         buffer.warning = None;
+        buffer.external_notice = None;
     } else {
         let error = outcome
             .error()

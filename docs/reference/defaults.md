@@ -287,7 +287,7 @@ edit limits and finite lifecycle.
 | `syntax.max_bytes` | Integer 0..=1073741824 | `0` | Session; UTF-8 byte cutoff. Zero means no configured cutoff; equality is admitted and a larger buffer uses plain presentation. |
 | `files.newline` | String: "lf" or "crlf" | `"lf"` | Creation default for new buffers only; existing separators and final-newline state are preserved. |
 | `files.bom` | Boolean | `false` | Creation default for one leading UTF-8 BOM; existing files retain their observed BOM state. |
-| `files.external_changes` | String: "reload" or "ask" | `"reload"` | Startup policy for clean visiting buffers; unsaved text always requires explicit discard consent. Automatic observation is delivered separately from explicit reload. |
+| `files.external_changes` | String: "reload" or "ask" | `"reload"` | Reload clean visiting buffers automatically, or retain text and notify under "ask". Both preserve unsaved text and its overwrite guard. |
 | `files.external_change_debounce_ms` | Integer 0..=2000 | `150` | Coalesce external observation bursts in milliseconds. |
 | `files.external_change_max_bytes` | Integer 1..=134217728 | `16777216` | Maximum complete reload image, including its BOM. |
 | `files.external_change_max_buffers` | Integer 1..=4096 | `256` | Maximum concurrently observed visiting buffers. |

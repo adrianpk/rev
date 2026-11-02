@@ -7,7 +7,9 @@ impl Session {
     /// Failed ingress changes only the error echo. Existing buffers, history,
     /// point, scroll and input context remain available without lossy replacement.
     pub fn load(&mut self, path: &Path) -> io::Result<()> {
-        self.load_target(path, true)
+        let result = self.load_target(path, true);
+        self.observe_files();
+        result
     }
 
     pub(super) fn load_file(&mut self, path: &Path) -> io::Result<()> {

@@ -13,19 +13,37 @@ impl Session {
         if self.layout_full() {
             return Ok(self.expire_input(Instant::now()));
         }
+        if self.observation_ready() && !event::poll(Duration::ZERO)? {
+            return Ok(self.expire_input(Instant::now()));
+        }
         if !self.input_ready(Instant::now(), event::poll)? {
             return Ok(self.expire_input(Instant::now()));
         }
         let event = event::read()?;
+        // Owned SIGWINCH notifications enter the native queue as equal-size
+        // Resize events. They must not break typing or reset view navigation.
+        if matches!(event, Event::Resize(w,h) if w == self.size.width && h == self.size.height) {
+            return Ok(self.expire_input(Instant::now()));
+        }
         let started = Instant::now();
         let action = self.handle_at(event, started);
-        self.drain_input(action, started, || {
+        let action = self.drain_input(action, started, || {
             if event::poll(Duration::ZERO)? {
                 event::read().map(Some)
             } else {
                 Ok(None)
             }
-        })
+        })?;
+        // Filesystem work gets one bounded turn after native input, even under
+        // a continuous typing burst. Other input deadlines retain their owner.
+        if action != Action::Exit {
+            let reload = self.expire_reload();
+            let observed = self.expire_observation();
+            if reload != Action::Wait || observed != Action::Wait {
+                return Ok(Action::Redraw);
+            }
+        }
+        Ok(action)
     }
 
     /// The native owner blocks indefinitely without deadlines or ready input.
@@ -37,6 +55,7 @@ impl Session {
             self.assets_remaining(),
             self.lsp_remaining(),
             self.reload_remaining(),
+            self.observation_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
             self.timer_remaining(now),
@@ -82,6 +101,10 @@ impl Session {
             let Some(event) = next()? else {
                 break;
             };
+            if matches!(event, Event::Resize(w,h) if w == self.size.width && h == self.size.height)
+            {
+                continue;
+            }
             match self.handle(event) {
                 Action::Wait => {}
                 outcome => action = outcome,
@@ -102,6 +125,7 @@ impl Session {
         };
         if action != Action::Exit {
             self.activate_lsp();
+            self.observe_files();
         }
         action
     }
@@ -152,6 +176,7 @@ impl Session {
     /// Service native deadlines after the host has processed ready input.
     /// A delayed wake performs one pointer step, never catch-up work.
     pub fn expire_input(&mut self, now: Instant) -> Action {
+        self.observe_files();
         self.qualify_one_normal();
         let action = self.expire_owned_input(now);
         self.complete_one_normal();
@@ -169,6 +194,7 @@ impl Session {
             self.expire_assets(),
             self.expire_lsp(),
             self.expire_reload(),
+            self.expire_observation(),
             self.expire_completion(now),
             self.expire_pointer(now),
             self.expire_timer(now),

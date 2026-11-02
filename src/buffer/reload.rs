@@ -105,6 +105,7 @@ impl Buffer {
         );
         self.saved = self.state;
         self.warning = None;
+        self.external_notice = None;
         self.break_typing();
         Ok(changed)
     }
@@ -135,6 +136,10 @@ impl Request {
 }
 
 impl Reload {
+    pub(crate) fn matches(&self, buffer: &Buffer) -> bool {
+        self.image.loaded.observed_text() == buffer.text.slice(..)
+            && self.image.loaded.has_bom() == buffer.bom
+    }
     pub fn buffer(&self) -> super::BufferId {
         self.request.stamp.buffer
     }

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211107
 title: External change observation
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:07Z
 ready_at: 2026-11-02T21:11:07Z
+started_at: 2026-11-02T21:45:24Z
+branch: feat/rev-ai-pi-02-observation
 commits: []
 ---
 

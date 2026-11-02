@@ -358,4 +358,23 @@ history. Undo restores the previous text as modified relative to disk; redo
 returns to the clean reload image. Read-only visiting buffers can refresh while
 remaining read-only. Same-byte observations update checked file evidence without
 an edit or cursor movement. Startup external-change policies and bounds are
-listed in [defaults](defaults.md); automatic observation follows separately.
+listed in [defaults](defaults.md).
+
+## External file changes
+
+Visiting files are observed through their parent directories, including hidden
+buffers. Atomic rename, direct writes, deletion and recreation remain observable.
+Shared panes use one subscription and one native reload. Idle observation waits
+for kernel events without scanning the project or polling file contents.
+
+The default `files.external_changes = "reload"` refreshes clean visiting buffers.
+With `"ask"`, a passive notice and `disk: revert-buffer` status retain the current
+text until explicit reload. Dirty buffers retain unsaved text under either
+policy, with a conflict notice and the existing save overwrite confirmation.
+Notices name the buffer and reload action without taking input focus; another
+external version can notify again after dismissing an earlier echo.
+
+Missing, invalid or oversized images retain text and history. Recreation at the
+same admitted filename triggers fresh validation. Registration limits or failures report unavailable coverage while
+`revert-buffer` remains usable. Queue overflow schedules finite recheck batches. Successful save/reload observations coalesce, and undo of an automatic
+reload stays dirty instead of being immediately overwritten.

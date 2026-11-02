@@ -11,6 +11,7 @@ struct Facts<'a> {
     access: &'static str,
     mode: &'static str,
     marker: char,
+    pending: bool,
 }
 
 pub(super) fn line(
@@ -46,6 +47,7 @@ impl<'a> Facts<'a> {
             state: if buffer.is_modified() { "**" } else { "--" },
             access: if buffer.is_readonly() { "RO" } else { "RW" },
             mode: buffer.mode(),
+            pending: buffer.external_change_notice().is_some(),
             marker: if active { '>' } else { ' ' },
         }
     }
@@ -55,10 +57,15 @@ impl<'a> Facts<'a> {
         let name = prefix(self.name, width)?;
         let full = self.left(&name, Some(&position));
         let used = cells(&full)?;
-        let right = cells(self.mode)?;
+        let mode = if self.pending {
+            format!("{} disk: revert-buffer", self.mode)
+        } else {
+            self.mode.into()
+        };
+        let right = cells(&mode)?;
         if used + 1 + right <= usize::from(width) {
             let gap = usize::from(width) - used - right;
-            return Ok(format!("{full}{}{mode}", " ".repeat(gap), mode = self.mode));
+            return Ok(format!("{full}{}{mode}", " ".repeat(gap)));
         }
         if used <= usize::from(width) {
             return padded(&full, width);

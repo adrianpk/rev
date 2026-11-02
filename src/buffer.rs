@@ -180,6 +180,7 @@ pub struct Buffer {
     default_newline: crate::config::Newline,
     file: Option<crate::file::Location>,
     warning: Option<String>,
+    external_notice: Option<String>,
 }
 
 impl Buffer {
@@ -242,6 +243,7 @@ impl Buffer {
             default_newline: crate::config::Newline::Lf,
             file: None,
             warning: None,
+            external_notice: None,
         })
     }
 
@@ -300,6 +302,13 @@ impl Buffer {
     /// A published but unresolved save remains pending even at an old clean state.
     pub fn save_warning(&self) -> Option<&str> {
         self.warning.as_deref()
+    }
+    /// Pending external-file condition; it never acknowledges save evidence.
+    pub fn external_change_notice(&self) -> Option<&str> {
+        self.external_notice.as_deref()
+    }
+    pub(crate) fn set_external_notice(&mut self, notice: Option<String>) {
+        self.external_notice = notice;
     }
 
     /// A completed save may acknowledge only the exact text revision it wrote.
