@@ -93,6 +93,12 @@ Documentation passed 418 command identities, 223 configuration entries,
 The initial incremental compile exposed fixture API/array-size and Ropey iterator
 mismatches; corrected code and fixtures passed the checks above.
 
+The initial clean-head controller batch at
+`a25e827812dea9927248c594c48e8b7f443e314e` passed format and stopped at
+Clippy's non-octal Unix permissions lint in the permission-denial fixture.
+Changing the identical mode from `0` to `0o0` preserves the denial assertion;
+no acceptance condition or configured check changed.
+
 After the PR-reference follow-up, the controller records final evidence against
 the exact clean PR HEAD with the configured format, strict Clippy and combined
 files/configuration/external_changes tests in order, followed by focused

@@ -248,7 +248,7 @@ fn unavailable_sources() {
                 symlink(fixture.file("other", b"elsewhere"), &path).unwrap();
             }
             "permissions" => {
-                fs::set_permissions(&path, fs::Permissions::from_mode(0)).unwrap();
+                fs::set_permissions(&path, fs::Permissions::from_mode(0o0)).unwrap();
                 if fs::read(&path).is_ok() {
                     continue;
                 }
