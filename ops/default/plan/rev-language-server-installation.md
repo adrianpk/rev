@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 4 — Go and web installation
+Active slice: Slice 5 — Remaining optional recipes
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
 
 ## Outcome and authority
@@ -151,7 +151,7 @@ git diff --check
 
 ### Slice 4: Go and web installation
 
-Ticket: [Go and web installation](../ticket/reviewing/20261102111451-install-go-and-web-servers.md)
+Ticket: [Go and web installation](../ticket/solved/20261102111451-install-go-and-web-servers.md)
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated and prior contracts retained.
 
@@ -170,7 +170,7 @@ git diff --check
 
 ### Slice 5: Remaining optional recipes
 
-Ticket: [Remaining optional recipes](../ticket/ready/20261102111452-complete-optional-server-catalog.md)
+Ticket: [Remaining optional recipes](../ticket/in_progress/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated and prior contracts retained.
 

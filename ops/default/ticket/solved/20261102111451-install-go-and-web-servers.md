@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111451
 title: Go and web installation
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T14:16:56Z
 branch: feat/rev-language-server-installation-04-go-web
 reviewed_at: 2026-11-02T14:50:44Z
 pr: 225
+closed_at: 2026-11-02T15:00:15Z
+resolution: fixed
 commits: [659399f44008122423f8de04eaa40caccc078ef0, 50aac5222ff076ba4001bfbeb9b8c7ce674de183, d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f]
 ---
 
@@ -58,3 +60,6 @@ for exact commands, provenance and limitations. All four configured commands
 passed at `d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f` with receipt
 `HKEDMZBY74EBCBV43XPUOV3CKK` (116 deterministic cases). Canonical PR: #225.
 The final PR-reference head requires its own controller receipt before integration.
+
+Final controller receipt `7R25H63KMVEPD7TUKPU6WPYQU5` passed all configured
+commands at `b7e5cc0bb3ee1e3158033aba71144bbfbb97ac44`, merged by PR #225.

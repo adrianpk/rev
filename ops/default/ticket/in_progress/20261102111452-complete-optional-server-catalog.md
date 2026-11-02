@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111452
 title: Remaining optional recipes
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:52Z
 ready_at: 2026-11-02T11:14:52Z
+started_at: 2026-11-02T15:00:15Z
+branch: feat/rev-language-server-installation-05-catalog-recipes
 commits: []
 ---
 
@@ -21,8 +23,8 @@ Add verified Marksman native acquisition, isolated Ruby gems and a fixed-path mi
 
 ## Current behavior and inputs
 
-The optional stdio LSP client and exclusive semantic/native completion policy
-are delivered. Guided management and managed installation are not yet delivered.
+The optional stdio LSP client, guided setup and managed Rust/Go/web recipes
+are delivered. Preserve the exclusive semantic/native completion policy.
 Use the [approved specification](../../spec/editor-language-server-installation.md)
 and [model](../../spec/editor-language-server-installation-model.md).
 

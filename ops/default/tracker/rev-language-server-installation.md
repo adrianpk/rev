@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 4 — Go and web installation
+Active slice: Slice 5 — Remaining optional recipes
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slices 1–3 are delivered through PRs #222, #223 and #224. Slice 4 is active; later slices remain pending.
+closure. Slices 1–4 are delivered through PRs #222–#225. Slice 5 is active; later slices remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -179,8 +179,8 @@ commit into dev. Slice 3 of 7 completed.
 
 ### Slice 4: Go and web installation
 
-State: reviewing.
-Ticket: [Go and web installation](../ticket/reviewing/20261102111451-install-go-and-web-servers.md)
+State: delivered.
+Ticket: [Go and web installation](../ticket/solved/20261102111451-install-go-and-web-servers.md)
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-language-server-installation-04-go-web`
@@ -243,13 +243,14 @@ T4.3/report-introduction commit: `d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f`.
 All four configured commands passed on that clean candidate with controller receipt
 `HKEDMZBY74EBCBV43XPUOV3CKK` (116 deterministic regression cases).
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/225
-The PR-reference follow-up requires a fresh exact-HEAD receipt before integration.
-Canonical integration evidence remains pending with the controller.
+Final receipt `7R25H63KMVEPD7TUKPU6WPYQU5` passed all four commands for
+`b7e5cc0bb3ee1e3158033aba71144bbfbb97ac44`. Canonical PR #225 merged that exact
+commit into dev. Slice 4 of 7 completed.
 
 ### Slice 5: Remaining optional recipes
 
-State: ready.
-Ticket: [Remaining optional recipes](../ticket/ready/20261102111452-complete-optional-server-catalog.md)
+State: in_progress.
+Ticket: [Remaining optional recipes](../ticket/in_progress/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-language-server-installation-05-catalog-recipes`

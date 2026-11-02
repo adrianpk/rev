@@ -1,6 +1,6 @@
 # Slice 4: Go and web installation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
@@ -145,8 +145,9 @@ Pre-PR controller validation passed at
 - `git diff --check`: passed.
 
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/225
-The PR-reference follow-up requires a fresh exact-HEAD receipt before integration;
-the controller retains that final receipt without another repository mutation.
+Final controller receipt `7R25H63KMVEPD7TUKPU6WPYQU5` passed the same four
+commands for `b7e5cc0bb3ee1e3158033aba71144bbfbb97ac44`. Canonical PR #225
+merged that exact commit into dev. Slice 4 of 7 completed.
 The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
