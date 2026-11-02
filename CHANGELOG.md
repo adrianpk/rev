@@ -13,10 +13,12 @@ This project uses Semantic Versioning.
   and reload LSP settings without changing the current editing profile or LSP mode.
   Inspect recipes and local availability with `lsp-servers`, reuse an installed
   recipe preset, and change sources through `lsp-select-server`. Acquire and
-  verify Rust, Go, TypeScript/JavaScript and HTML/CSS/JSON servers with
+  verify Rust, Go, TypeScript/JavaScript, HTML/CSS/JSON, Markdown, Ruby, Python
+  and Odin servers with
   `lsp-install-server` while editing continues. Keep analysis off until enabled,
   reuse shared web installations per language and retain a ready server if its
-  settings cannot be saved.
+  settings cannot be saved. Keep Ruby gems and Python environments isolated,
+  and build a pinned Odin server with your existing compatible compiler.
 
 ## 0.3.0 - 2026-11-01
 

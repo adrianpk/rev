@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111452
 title: Remaining optional recipes
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T11:14:52Z
 ready_at: 2026-11-02T11:14:52Z
 started_at: 2026-11-02T15:00:15Z
 branch: feat/rev-language-server-installation-05-catalog-recipes
-commits: []
+reviewed_at: 2026-11-02T15:36:44Z
+commits: [5ebe8d85a6a82b2ce44f290b42770c387439b4ee, 829a4211fdc61fd36498ec4bb52b1e99304d321d]
 ---
 
 # Remaining optional recipes
@@ -47,4 +48,8 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+Focused optional acquisition, failure and native workflow checks passed.
+Live Marksman, Ruby and base Python transport probes passed. Live OLS correctly
+remained incomplete because the installed Odin lacks `core:odin/tool-format`.
+See the [Slice 5 report](../../report/slices/rev-language-server-installation/slice-5-catalog-recipes.md)
+for commands, provenance and limitations. Controller validation is pending.

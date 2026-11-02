@@ -97,10 +97,12 @@ impl Tools {
     }
 
     fn helper(&self, cache: &Cache, candidate: Option<&Candidate>, args: Vec<String>) -> Helper {
-        let mut env = self.env.clone();
-        if let Some(candidate) = candidate {
-            env.extend(candidate.installation.launches[0].env.clone());
-        }
+        let mut env = candidate
+            .map(|candidate| candidate.installation.launches[0].env.clone())
+            .unwrap_or_default();
+        // Acquisition must keep its owned temp/cache and build controls even
+        // when the selected launch has unrelated user environment overrides.
+        env.extend(self.env.clone());
         env.insert("BUNDLE_FROZEN".into(), "false".into());
         Helper {
             executable: self.ruby.clone(),

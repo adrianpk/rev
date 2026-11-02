@@ -170,7 +170,7 @@ git diff --check
 
 ### Slice 5: Remaining optional recipes
 
-Ticket: [Remaining optional recipes](../ticket/in_progress/20261102111452-complete-optional-server-catalog.md)
+Ticket: [Remaining optional recipes](../ticket/reviewing/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated and prior contracts retained.
 

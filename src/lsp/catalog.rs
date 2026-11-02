@@ -144,7 +144,7 @@ pub const RECIPES: [Recipe; 8] = [
             root_markers: &["Gemfile"],
         }],
         prerequisites: &["ruby", "gem"],
-        acquisition: "isolated gem home",
+        acquisition: "isolated server/Bundler gems; frozen lock",
         integrity: "exact gem and dependency resolution",
         source: "https://shopify.github.io/ruby-lsp/",
     },

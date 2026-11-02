@@ -203,7 +203,7 @@ impl Helper {
                 error: std::mem::take(&mut streams.error),
             })
             .map_err(|e| {
-                let tail = String::from_utf8_lossy(&streams.error);
+                let tail = diagnostic(&streams.error);
                 format!(
                     "{}: {e}; stderr: {tail}",
                     self.executable
@@ -303,4 +303,15 @@ pub(super) fn owned_file(path: &Path) -> Result<File, String> {
         .mode(0o600)
         .open(path)
         .map_err(|e| format!("create owned output: {e}"))
+}
+
+/// Keep the displayed UTF-8 tail within its byte ceiling, including replacement
+/// characters introduced for invalid helper output.
+pub(super) fn diagnostic(bytes: &[u8]) -> String {
+    let text = String::from_utf8_lossy(&bytes[bytes.len().saturating_sub(super::DISPLAY_BYTES)..]);
+    let mut start = text.len().saturating_sub(super::DISPLAY_BYTES);
+    while !text.is_char_boundary(start) {
+        start += 1;
+    }
+    text[start..].into()
 }

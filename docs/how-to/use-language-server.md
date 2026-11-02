@@ -28,6 +28,28 @@ language later through its same `ready:<id>` entry without another installation.
 Each choice inherits known associations and current settings. Use `lsp-mode`
 separately to enable analysis.
 
+For Markdown, Ruby, Python or Odin, choose the corresponding recipe in
+`lsp-install-server`, or use its language ID then `install:<recipe>` in
+`lsp-setup`:
+
+| Language | Recipe | Install these optional prerequisites separately |
+| --- | --- | --- |
+| Markdown | `marksman` | `curl` and `sha256sum` |
+| Ruby | `ruby-lsp` | Compatible Ruby, RubyGems and Bundler; native extensions may need a C toolchain and GNU Make 4.4 or newer |
+| Python | `python-lsp-server` | Compatible `python3` with venv and pip support |
+| Odin | `ols` | Git, Bash and an Odin compiler compatible with the resolved OLS revision |
+
+These recipes run on Linux x86-64. Marksman verifies its official release
+SHA-256. Ruby keeps the server and a concrete Bundler version in an owned gem
+home with a frozen lock. Python installs only the base server into an owned
+virtual environment; its final path is retained for entrypoint shebangs.
+OLS builds one immutable upstream revision with your installed compiler and
+retains its builtin collection. It disables snippet-only options. A compiler
+mismatch reports a failed/incomplete candidate; rev does not upgrade Odin.
+If Odin has no known association, answer the patterns prompt with `["*.odin"]`.
+All choices preserve the current analysis mode and remain optional. Org and
+languages outside this catalog use the same installed/custom registration flow.
+
 Use an installed language server to complete names from unsaved text in the
 same popup as native completion. Rust uses `rust-analyzer` by default. Keep the
 server executable on `PATH`, or configure its absolute path. Existing/custom

@@ -249,8 +249,8 @@ commit into dev. Slice 4 of 7 completed.
 
 ### Slice 5: Remaining optional recipes
 
-State: in_progress.
-Ticket: [Remaining optional recipes](../ticket/in_progress/20261102111452-complete-optional-server-catalog.md)
+State: reviewing.
+Ticket: [Remaining optional recipes](../ticket/reviewing/20261102111452-complete-optional-server-catalog.md)
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-language-server-installation-05-catalog-recipes`
@@ -259,15 +259,21 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-5-cata
 
 - [x] T5.1: Add verified Marksman native acquisition, isolated Ruby gems and a fixed-path minimal Python virtual environment.
 - [x] T5.2: Add immutable-revision OLS acquisition/build with the installed toolchain and required builtin paths; preserve generic custom setup for Org and all other languages.
-- [ ] T5.3: Exercise recipe-specific tool/version failures and available real-server smoke probes; distinguish installed evidence from fixtures and keep all helpers optional.
+- [x] T5.3: Exercise recipe-specific tool/version failures and available real-server smoke probes; distinguish installed evidence from fixtures and keep all helpers optional.
 
 T5.1 development checks passed: `cargo test --locked --test lsp_installation optional:: -- --test-threads=1`, native Rust acquisition regressions and focused source checks. Controlled tools cover recipe failures, integrity/version rejection and preservation of ready payloads. Explicit live transport probes passed for Marksman 2026-02-08, ruby-lsp 0.26.11 with Ruby 3.4.10 and base python-lsp-server 1.15.0 with Python 3.14.7. Ruby retains exact Bundler plus a frozen isolated lock; Python uses its final venv path. Native builds use GNU Make pipe jobservers to preserve special-file rejection. Final slice validation remains pending.
 
 T5.1 commit: `5ebe8d85a6a82b2ce44f290b42770c387439b4ee`.
 T5.2 development checks passed: `cargo check --locked`, `cargo test --locked --test lsp_installation ols:: -- --test-threads=1`, both-profile native optional setup/reuse and focused source checks. OLS pins one checked-out revision, builds with the installed Odin, retains builtin paths and disables snippets/fake methods. Controlled Git redirection, failed build and probe cases preserve prior ready data. Live revision `9b9711592bed66266311c361dd7a307ecc87025b` is incompatible with installed Odin `dev-2026-08:8412dc37a` (missing `core:odin/tool-format`), so no live OLS readiness is claimed.
 
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T5.2 commit: `829a4211fdc61fd36498ec4bb52b1e99304d321d`.
+T5.3 focused checks passed for optional prerequisite/evidence/runtime admission,
+OLS build/admission, both-profile acquisition/reuse and generic Org/custom setup.
+`cargo run --locked --quiet --example documentation-check` and
+`cargo test --locked --test commands palette::catalog_reference -- --exact`
+passed (414 commands, 219 settings, 67 reachable pages). Source checks retain
+safe Rust, five parameters, three nesting levels and complexity at most ten.
+Canonical controller validation and PR reference: pending.
 
 ### Slice 6: Update cancellation and removal
 

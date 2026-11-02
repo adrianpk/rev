@@ -3,6 +3,7 @@
 set -eu
 root=$REV_OPTIONAL_FIXTURE
 printf '%s %s\n' "$0" "$*" >> "$root/calls"
+if test -f "$root/flood-stderr"; then /usr/bin/head -c 65536 /dev/zero | /usr/bin/tr '\000' '\377' >&2; exit 42; fi
 if test -f "$root/reject-tool"; then echo 'incompatible optional runtime' >&2; exit 42; fi
 case "${0##*/}" in
 curl)
@@ -16,6 +17,9 @@ gem)
     test "$1" = install
     test "$2" = --norc
     test "$GEM_HOME" = "$GEM_PATH"
+    test "$TMPDIR" != /outside/tmp
+    test "$MAKEFLAGS" = '-j1 --jobserver-style=pipe'
+    test -z "$RUBYOPT"
     test "$BUNDLE_GEMFILE" = "${GEM_HOME%/gems}/Gemfile"
     home=$GEM_HOME; bindir=
     while test "$#" -gt 0; do

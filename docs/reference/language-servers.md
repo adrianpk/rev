@@ -3,8 +3,8 @@
 Optional installed stdio servers supply semantic completion through the native
 popup, canonical buffer and undo owner. LSP is disabled by default. The default
 Rust entry runs `rust-analyzer` with no arguments and uses `Cargo.toml` as its
-root marker. Registration reuses existing executables. Explicit managed Rust, Go
-and web installation can acquire and verify servers without enabling analysis.
+root marker. Registration reuses existing executables. Explicit managed Rust, Go, web, Markdown, Ruby, Python
+and Odin installation can acquire and verify servers without enabling analysis.
 See [Use a language server](../how-to/use-language-server.md) for setup and the
 [configuration catalog](defaults.md) for every setting.
 
@@ -21,7 +21,7 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-reload-settings` | Read the selected configuration root and includes, applying only LSP settings and file associations. |
 | `lsp-servers` | Open a read-only source/catalog snapshot without running helpers or checking remote versions. |
 | `lsp-select-server` | Choose a compatible configured profile, ready managed installation or native-only source. |
-| `lsp-install-server` | Acquire and verify managed Rust, Go, TypeScript/JavaScript or HTML/CSS/JSON, or reuse a ready installation; save its choice when configuration sources still match. |
+| `lsp-install-server` | Acquire and verify a catalog recipe or reuse a ready installation; save its choice when configuration sources still match. |
 
 Eligible file activation uses `lsp.preferred` when present: a compatible server
 name selects that profile; `false` selects native-only. Otherwise it selects the
@@ -121,6 +121,44 @@ current options. Independent web profiles retain each language's settings.
 Reusing a ready record for another language preserves that language's current
 settings and known associations. Acquisition and reuse preserve runtime analysis
 enablement and ordinary editing.
+
+## Managed Markdown, Ruby, Python and Odin
+
+The remaining initial recipes are available through `lsp-install-server` and
+`install:<recipe>` in `lsp-setup` on Linux x86-64. Each uses the same bounded
+worker, final candidate directory, empty-root transport probe and independent
+settings publication as Rust/Go/web.
+
+| Recipe | Acquisition and retained evidence |
+| --- | --- |
+| `marksman` | Resolve one official stable release and its Linux x64 native asset. Require official HTTPS URL, bounded length and release SHA-256 before copying the executable. Retain the concrete release and `--version` output. |
+| `ruby-lsp` | Resolve one RubyGems version, verify the cached primary gem against its API SHA-256, install exact server/Bundler into owned gem and bin directories, and lock dependencies locally. Retain all resolved gem versions/platforms, Ruby identity and `gem-lock:sha256:<digest>`. |
+| `python-lsp-server` | Resolve one PyPI version, create a final-path venv with interpreter copies, and install base-only wheels through isolated pip. Admit exact dependency versions, official HTTPS wheel sources and SHA-256 values in the retained pip report. Record Python identity and `pip-report:sha256:<digest>`. |
+| `ols` | Resolve one full Git commit, fetch/check out that exact object, and run the pinned upstream build script with the installed Odin. Retain source/builtin files, toolchain/build provenance and `git-revision:<commit>`. Missing executable or builtin files fail verification even if the build script exits zero. |
+
+Ruby requires installed Ruby/RubyGems and loadable Bundler. Required native
+extensions additionally need compatible build tools; the managed build uses
+serial GNU Make with pipe jobservers (GNU Make 4.4+) so temporary FIFO files do
+not bypass owned-storage admission. The owned bundle is frozen for probe and
+launch, avoiding Ruby LSP's automatic project bundle installation. Python
+requires venv/pip for its selected interpreter. It requests no optional server
+extras, system site packages or runtime upgrades. Missing compatible wheels are
+an actionable failure.
+
+Git acquisition ignores inherited Git redirections and global/system
+configuration. OLS follows upstream master once per requested operation, then
+uses only the resolved immutable revision. Upstream/compiler incompatibility
+remains an explicit failure; rev does not replace the compiler or try another
+revision implicitly. Managed OLS retains `OLS_BUILTIN_FOLDER` and forces
+`enable_snippets = false` and `enable_fake_methods = false` in initialization
+options. No recipe installs or upgrades a compiler/interpreter globally.
+
+Selection and ready reuse retain unrelated user settings while restoring Ruby's
+owned gem/bundle paths and OLS's builtin path and snippet restrictions. Ready
+registry admission checks those required values. Package/revision evidence and a
+successful transport probe do not establish language semantic quality. Org and
+all other admitted language identities remain supported through generic custom
+registration, independently of this catalog and bundled grammars.
 
 ## Managed storage and publication
 

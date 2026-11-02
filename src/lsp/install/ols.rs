@@ -185,14 +185,8 @@ impl Tools {
                 "OLS build failed; provide an Odin toolchain compatible with this revision: {e}"
             )
         })?;
-        built(candidate).map_err(|e| {
-            format!(
-                "{e}; build output: {}",
-                String::from_utf8_lossy(
-                    &output[output.len().saturating_sub(super::DISPLAY_BYTES)..]
-                )
-            )
-        })?;
+        built(candidate)
+            .map_err(|e| format!("{e}; build output: {}", super::helper::diagnostic(&output)))?;
         candidate.installation.evidence =
             format!("git-revision:{}", candidate.installation.version);
         package::write(&candidate.directory.join("build-provenance.txt"),format!("source={}\nrevision={}\nruntime={}\ncommand=bash --noprofile --norc build.sh release\n",REPOSITORY,candidate.installation.version,candidate.installation.runtime).as_bytes())?;

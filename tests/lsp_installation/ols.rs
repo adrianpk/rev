@@ -154,6 +154,23 @@ fn pinned_build() {
                 .is_none()
         );
     }
+    let registry_path = roots.data.join("lsp/installations.toml");
+    let saved = fs::read_to_string(&registry_path).unwrap();
+    fs::write(
+        &registry_path,
+        saved.replace(
+            payload.join("source/builtin").to_str().unwrap(),
+            "/outside/builtin",
+        ),
+    )
+    .unwrap();
+    assert!(
+        Registry::load(&roots.data)
+            .err()
+            .unwrap()
+            .contains("owned builtin")
+    );
+    fs::write(&registry_path, saved).unwrap();
     assert!(!directory.join("untouched-git").exists());
     assert!(!directory.join("untouched-objects").exists());
 }
