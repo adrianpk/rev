@@ -254,7 +254,7 @@ Ticket: [Remaining optional recipes](../ticket/reviewing/20261102111452-complete
 Requirements: INS01, INS02, INS03, INS06.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-language-server-installation-05-catalog-recipes`
-PR: pending.
+PR: `#226`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-5-catalog-recipes.md`
 
 - [x] T5.1: Add verified Marksman native acquisition, isolated Ruby gems and a fixed-path minimal Python virtual environment.
@@ -273,7 +273,11 @@ OLS build/admission, both-profile acquisition/reuse and generic Org/custom setup
 `cargo test --locked --test commands palette::catalog_reference -- --exact`
 passed (414 commands, 219 settings, 67 reachable pages). Source checks retain
 safe Rust, five parameters, three nesting levels and complexity at most ten.
-Canonical controller validation and PR reference: pending.
+T5.3/report-introduction commit: `5ebf52701be350bd77932324eff56152518828aa`.
+All four configured commands passed on that clean candidate, receipt
+`RLQ5RSQHYJ7TOUDA5ET6PZI5M4` (34 regressions passed; three opt-in network checks excluded).
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/226
+The final PR-reference candidate will receive fresh controller validation.
 
 ### Slice 6: Update cancellation and removal
 

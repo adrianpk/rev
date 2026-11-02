@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
 Branch: `feat/rev-language-server-installation-05-catalog-recipes`
-PR: pending
+PR: `#226`
 
 ## Purpose
 
@@ -118,8 +118,17 @@ probes exposed argument ordering, Make FIFO and missing isolated Bundler failure
 the corrected bounded mechanics passed the Ruby live probe. All live fixture
 roots were removed after owned workers/probes stopped.
 
-Configured controller validation and canonical PR reference are pending.
-The integrated delivery-set gate remains with the controller.
+Pre-PR controller validation passed for `5ebf52701be350bd77932324eff56152518828aa`, receipt
+`RLQ5RSQHYJ7TOUDA5ET6PZI5M4`, in the configured order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test lsp_installation -- --test-threads=1` (34 passed; three explicit network checks excluded).
+- `git diff --check`
+
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/226
+The controller will validate the committed PR-reference follow-up at its exact
+head. The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 

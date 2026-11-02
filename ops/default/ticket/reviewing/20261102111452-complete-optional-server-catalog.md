@@ -13,7 +13,8 @@ ready_at: 2026-11-02T11:14:52Z
 started_at: 2026-11-02T15:00:15Z
 branch: feat/rev-language-server-installation-05-catalog-recipes
 reviewed_at: 2026-11-02T15:36:44Z
-commits: [5ebe8d85a6a82b2ce44f290b42770c387439b4ee, 829a4211fdc61fd36498ec4bb52b1e99304d321d]
+pr: 226
+commits: [5ebe8d85a6a82b2ce44f290b42770c387439b4ee, 829a4211fdc61fd36498ec4bb52b1e99304d321d, 5ebf52701be350bd77932324eff56152518828aa]
 ---
 
 # Remaining optional recipes
@@ -52,4 +53,8 @@ Focused optional acquisition, failure and native workflow checks passed.
 Live Marksman, Ruby and base Python transport probes passed. Live OLS correctly
 remained incomplete because the installed Odin lacks `core:odin/tool-format`.
 See the [Slice 5 report](../../report/slices/rev-language-server-installation/slice-5-catalog-recipes.md)
-for commands, provenance and limitations. Controller validation is pending.
+for commands, provenance and limitations. All four configured commands passed
+at `5ebf52701be350bd77932324eff56152518828aa`, controller receipt
+`RLQ5RSQHYJ7TOUDA5ET6PZI5M4`. Canonical PR:
+https://forge.adrianpk.com/adrianpk/rev/pulls/226
+The final PR-reference commit receives fresh validation before handoff.
