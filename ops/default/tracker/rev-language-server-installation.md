@@ -288,7 +288,7 @@ Ticket: [Update cancellation and removal](../ticket/reviewing/20261102111453-man
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-language-server-installation-06-lifecycle`
-PR: pending.
+PR: `#227`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-6-lifecycle.md`
 
 - [x] T6.1: Add explicit update/remove/cancel commands; prepare and verify new versions before atomically retargeting still-owned profiles.
@@ -331,7 +331,13 @@ All four configured commands passed at
 A custom-language regression then reproduced a selected managed profile being
 skipped because its language was absent from the recipe. Ownership now depends
 on the captured managed command/arguments, preserving independent user language
-IDs and associations. Fresh configured validation and canonical PR reference: pending.
+IDs and associations. Custom-language correction:
+`ab15b881af6cfad5fa778b1c482b6c738dfd2269`.
+The four ordered configured commands passed on that clean candidate, receipt
+`OGJSHSA7RIJLMMURQ2SJQRD4I7` (39 passed; three opt-in network checks ignored).
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
+The PR-reference follow-up is validated separately at its final clean HEAD;
+controller evidence and Acta retain the final receipt.
 
 ### Slice 7: Acceptance and user guidance
 

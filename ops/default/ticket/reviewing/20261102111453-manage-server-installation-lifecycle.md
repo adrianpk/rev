@@ -13,7 +13,8 @@ ready_at: 2026-11-02T11:14:53Z
 started_at: 2026-11-02T15:43:51Z
 branch: feat/rev-language-server-installation-06-lifecycle
 reviewed_at: 2026-11-02T16:20:11Z
-commits: [a379e079ced8fd4bd55d9d5ee1e07b3e54722f05, 6ad27cd908d867684edab6a8124c8d4138ea3db4, bc9b5a74dba284c3c4a09b24c5b434410cc843c0, 3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e, cc2bcbbd6a892e6e4c0dd83289f814380695b7c7]
+pr: 227
+commits: [a379e079ced8fd4bd55d9d5ee1e07b3e54722f05, 6ad27cd908d867684edab6a8124c8d4138ea3db4, bc9b5a74dba284c3c4a09b24c5b434410cc843c0, 3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e, cc2bcbbd6a892e6e4c0dd83289f814380695b7c7, ab15b881af6cfad5fa778b1c482b6c738dfd2269]
 ---
 
 # Update cancellation and removal
@@ -52,4 +53,8 @@ Focused lifecycle, ownership, cancellation and exit checks passed. Native flows
 cover both startup profiles; controlled acquisition peers establish filesystem,
 process and settings behavior rather than upstream language semantics.
 See the [Slice 6 report](../../report/slices/rev-language-server-installation/slice-6-lifecycle.md).
-Canonical controller validation is pending.
+All four ordered configured commands passed at
+`ab15b881af6cfad5fa778b1c482b6c738dfd2269`, controller receipt
+`OGJSHSA7RIJLMMURQ2SJQRD4I7` (39 passed; three opt-in network checks ignored).
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
+The PR-reference follow-up receives fresh exact-HEAD controller validation.

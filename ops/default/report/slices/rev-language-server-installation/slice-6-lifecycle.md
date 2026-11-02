@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
 Branch: `feat/rev-language-server-installation-06-lifecycle`
-PR: pending
+PR: `#227`
 
 ## Purpose
 
@@ -150,8 +150,23 @@ Removing the catalog-language subset checks preserves the approved separation
 between recipe metadata and user language identities. The shared-update case now
 asserts that profile, its language, options and association survive replacement;
 this establishes lifecycle preservation rather than upstream language semantics.
-Fresh configured validation and the canonical PR reference are pending. The
-integrated delivery-set gate remains with the controller.
+Pre-PR controller validation passed at
+`ab15b881af6cfad5fa778b1c482b6c738dfd2269`, receipt
+`OGJSHSA7RIJLMMURQ2SJQRD4I7`, in configured order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test lsp_installation -- --test-threads=1` (39 passed; three explicit network checks ignored).
+- `git diff --check`
+
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
+Report-introduction commit: `bc9b5a74dba284c3c4a09b24c5b434410cc843c0`.
+Lint corrections are `3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e` and
+`cc2bcbbd6a892e6e4c0dd83289f814380695b7c7`; custom-language preservation is
+`ab15b881af6cfad5fa778b1c482b6c738dfd2269`. The PR-reference follow-up requires
+fresh validation at its exact clean HEAD; the controller receipt and Acta retain
+that result without changing the validated candidate. The integrated delivery-set
+gate remains with the controller.
 
 ## Risks and Follow-ups
 
