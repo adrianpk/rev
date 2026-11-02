@@ -10,14 +10,14 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 6 — Update cancellation and removal
+Active slice: Slice 7 — Acceptance and user guidance
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slices 1–5 are delivered through PRs #222–#226. Slice 6 is active; the final slice remains pending.
+closure. Slices 1–6 are delivered through PRs #222–#227. Slice 7 is active.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -283,8 +283,8 @@ exact commit into dev. Slice 5 of 7 completed.
 
 ### Slice 6: Update cancellation and removal
 
-State: reviewing.
-Ticket: [Update cancellation and removal](../ticket/reviewing/20261102111453-manage-server-installation-lifecycle.md)
+State: delivered.
+Ticket: [Update cancellation and removal](../ticket/solved/20261102111453-manage-server-installation-lifecycle.md)
 Requirements: INS02, INS03, INS04, INS05, INS06.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-language-server-installation-06-lifecycle`
@@ -336,13 +336,14 @@ IDs and associations. Custom-language correction:
 The four ordered configured commands passed on that clean candidate, receipt
 `OGJSHSA7RIJLMMURQ2SJQRD4I7` (39 passed; three opt-in network checks ignored).
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
-The PR-reference follow-up is validated separately at its final clean HEAD;
-controller evidence and Acta retain the final receipt.
+Final receipt `Y2P2KAREH3APIXFZX3HD7XVEQC` passed all four configured commands
+at `f4ec4ea1cea38f5b6accb3e217fc5a5398d7064b`. Canonical PR #227 merged
+that exact head into dev. Slice 6 of 7 completed.
 
 ### Slice 7: Acceptance and user guidance
 
-State: ready.
-Ticket: [Acceptance and user guidance](../ticket/ready/20261102111454-verify-and-document-server-management.md)
+State: in_progress.
+Ticket: [Acceptance and user guidance](../ticket/in_progress/20261102111454-verify-and-document-server-management.md)
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-language-server-installation-07-acceptance`

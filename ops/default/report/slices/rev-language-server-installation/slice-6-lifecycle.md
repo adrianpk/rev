@@ -1,6 +1,6 @@
 # Slice 6: Update cancellation and removal
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
@@ -163,9 +163,10 @@ Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
 Report-introduction commit: `bc9b5a74dba284c3c4a09b24c5b434410cc843c0`.
 Lint corrections are `3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e` and
 `cc2bcbbd6a892e6e4c0dd83289f814380695b7c7`; custom-language preservation is
-`ab15b881af6cfad5fa778b1c482b6c738dfd2269`. The PR-reference follow-up requires
-fresh validation at its exact clean HEAD; the controller receipt and Acta retain
-that result without changing the validated candidate. The integrated delivery-set
+`ab15b881af6cfad5fa778b1c482b6c738dfd2269`. Final controller receipt `Y2P2KAREH3APIXFZX3HD7XVEQC` passed all four
+commands at `f4ec4ea1cea38f5b6accb3e217fc5a5398d7064b` (39 passed; three
+opt-in network checks ignored). Canonical PR #227 merged that exact head into
+dev. Slice 6 of 7 completed. The integrated delivery-set
 gate remains with the controller.
 
 ## Risks and Follow-ups

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111454
 title: Acceptance and user guidance
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:54Z
 ready_at: 2026-11-02T11:14:54Z
+started_at: 2026-11-02T16:39:21Z
+branch: feat/rev-language-server-installation-07-acceptance
 commits: []
 ---
 
@@ -22,7 +24,8 @@ Deliver one representative native/PTY management journey in both startup profile
 ## Current behavior and inputs
 
 The optional stdio LSP client and exclusive semantic/native completion policy
-are delivered. Guided management and managed installation are not yet delivered.
+are delivered. Guided management, managed installation and lifecycle are delivered through
+Slice 6. Preserve their verified contracts and ownership boundaries.
 Use the [approved specification](../../spec/editor-language-server-installation.md)
 and [model](../../spec/editor-language-server-installation-model.md).
 
@@ -45,4 +48,4 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+Acceptance implementation is active; no new execution result is claimed.

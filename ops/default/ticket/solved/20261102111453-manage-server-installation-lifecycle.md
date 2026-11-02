@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111453
 title: Update cancellation and removal
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T15:43:51Z
 branch: feat/rev-language-server-installation-06-lifecycle
 reviewed_at: 2026-11-02T16:20:11Z
 pr: 227
+closed_at: 2026-11-02T16:39:00Z
+resolution: fixed
 commits: [a379e079ced8fd4bd55d9d5ee1e07b3e54722f05, 6ad27cd908d867684edab6a8124c8d4138ea3db4, bc9b5a74dba284c3c4a09b24c5b434410cc843c0, 3d2529b12d77a9bf936fdfdc2cbccdaacfc98d6e, cc2bcbbd6a892e6e4c0dd83289f814380695b7c7, ab15b881af6cfad5fa778b1c482b6c738dfd2269]
 ---
 
@@ -58,3 +60,7 @@ All four ordered configured commands passed at
 `OGJSHSA7RIJLMMURQ2SJQRD4I7` (39 passed; three opt-in network checks ignored).
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/227
 The PR-reference follow-up receives fresh exact-HEAD controller validation.
+
+Final receipt `Y2P2KAREH3APIXFZX3HD7XVEQC` passed the four configured commands
+at `f4ec4ea1cea38f5b6accb3e217fc5a5398d7064b`, merged unchanged by canonical
+PR #227 into dev. Slice 6 of 7 completed.
