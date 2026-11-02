@@ -197,6 +197,7 @@ impl Worker {
         let mut reader = inotify::Reader::new(&self.descriptor, &mut buffer);
         let mut changes = BTreeSet::new();
         let mut retired = BTreeSet::new();
+        let mut retired_watches = BTreeSet::new();
         let mut lost = false;
         for index in 0..QUEUE {
             let event = match reader.next() {
@@ -239,8 +240,13 @@ impl Worker {
                     }
                 }
             }
-            if event.events().contains(ReadFlags::IGNORED) {
-                self.parents.retain(|_, wd| *wd != event.wd());
+            if event.events().intersects(
+                ReadFlags::IGNORED
+                    | ReadFlags::DELETE_SELF
+                    | ReadFlags::MOVE_SELF
+                    | ReadFlags::UNMOUNT,
+            ) {
+                retired_watches.insert(event.wd());
             }
             if index + 1 == QUEUE {
                 lost = true;
@@ -248,6 +254,13 @@ impl Worker {
         }
         // Discarding the remainder of a bounded kernel batch is an overflow,
         // never evidence that untouched sources remained unchanged.
+        for wd in retired_watches {
+            match inotify::remove_watch(&self.descriptor, wd) {
+                Ok(()) | Err(rustix::io::Errno::INVAL) => {}
+                Err(error) => return Err(error.into()),
+            }
+            self.parents.retain(|_, prior| *prior != wd);
+        }
         for id in retired {
             self.entries.get_mut(&id).expect("retired source").watched = false;
             self.emit(

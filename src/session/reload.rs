@@ -221,6 +221,9 @@ impl Session {
                     self.published_repeat_boundary();
                     self.activate_lsp();
                 }
+                // Publish association/baseline updates before native input can
+                // block again, including explicit recovery of a retired watch.
+                self.observe_files();
                 self.message(&format!("Reloaded {label}"))
             }
             Err(error) => {

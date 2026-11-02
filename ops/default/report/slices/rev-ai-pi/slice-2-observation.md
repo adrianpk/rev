@@ -36,7 +36,8 @@ metadata and finite event batches; the sole reload worker retains complete
 content reads, consent rechecks and publication admission from Slice 1.
 
 Registrations cover canonical visiting paths through shared parent watches.
-Subscription generations retire queued work after association changes or closure.
+Subscription generations retire queued work after association/baseline publication
+or closure.
 The thread's control eventfd carries coalesced in-memory source updates. Both
 notification and reload queues have at most 256 distinct identities; overflow
 schedules metadata rechecks in batches of 16. Backpressure retains unacknowledged
@@ -88,6 +89,7 @@ Focused development checks passed:
 - `cargo test --locked --test external_changes observation:: -- --test-threads=1`
 - `cargo test --locked --lib file::watch:: -- --test-threads=1`
 - `cargo test --locked --lib observation_wake -- --test-threads=1`
+- `cargo test --locked --lib session::observation::tests::publication_retires_notices -- --exact --test-threads=1`
 - `cargo test --locked --test external_changes pty::idle_native_wake -- --exact --nocapture --test-threads=1`
 - `cargo test --locked --test lsp external_reload -- --test-threads=1`
 - `cargo test --locked --test lsp edits::reload_retires_completion -- --exact --test-threads=1`
@@ -103,9 +105,9 @@ invalidation. The two worker tests cover controlled 300-source overflow/backpres
 preserves one typing history group across an equal-size signal wake.
 
 Both real Linux PTY profiles reloaded an external rename without input. With
-10 ms configured debounce, observed write-to-frame latency was 92 ms non-modal and
-50 ms modal. Each subsequent 350 ms idle window emitted no terminal output and
-used zero CPU ticks; editor peak RSS was 28740 KiB and 29508 KiB respectively.
+10 ms configured debounce, observed write-to-frame latency was 47 ms non-modal and
+46 ms modal. Each subsequent 350 ms idle window emitted no terminal output and
+used zero CPU ticks; editor peak RSS was 29484 KiB and 30492 KiB respectively.
 These are unoptimized debug fixture observations, not isolated feature memory
 costs or production performance guarantees. Each child used the established
 8-second/1-MiB owner, exited and restored its terminal attributes.
@@ -128,6 +130,22 @@ the explicit drop lets its borrow end at the last read, preserving the same
 bounded event drain, overflow handling and owned descriptor lifetime. No check,
 assertion, resource bound or policy changes. Final evidence is regenerated for
 the corrected clean PR head.
+
+Receipt `EISS6RRAVWXG64UZAK67OICMFP` passed all four configured checks at
+`46a9f2d46183e37a01ae8b5cee590fe69f4a5b5f`: 21 external-change, 75 file and
+46 LSP tests. Further bounded recovery assertions then exposed two publication
+boundaries before final handoff. A real PTY lost observation after parent-directory
+replacement and explicit reload; the owner now removes retired parent descriptors
+and publishes the fresh observation baseline before input can block again. A
+controlled late missing-notice test also failed after a completed native save;
+baseline publications now advance subscription generations and reject that result.
+
+The corrected controlled case passed, and both PTY profiles recovered the parent,
+reloaded another external write without a keystroke, stayed idle and restored the
+TTY (1.53 seconds total). The original 8-second/1-MiB child limits, both profiles,
+exact document assertions and 350 ms idle admission remain unchanged. Source bytes,
+checks and policy were not weakened. The final controller receipt is regenerated
+for the resulting clean candidate.
 
 ## Risks and Follow-ups
 

@@ -48,9 +48,38 @@ fn idle_native_wake() {
             "MEASURE file notification profile={profile} reload_ms={}",
             started.elapsed().as_millis()
         );
+        // Parent-watch retirement must not leave a fresh explicit reload
+        // dependent on another keystroke before notifications are re-admitted.
+        std::fs::rename(
+            fixture.0.join("workspace"),
+            fixture.0.join("retired-workspace"),
+        )
+        .unwrap();
+        terminal
+            .frame(|frame| frame.contains("revert-buffer"))
+            .unwrap();
+        std::fs::create_dir(fixture.0.join("workspace")).unwrap();
+        std::fs::write(&source, b"fn restored_parent() {}\n").unwrap();
+        terminal
+            .send(if profile == "modal" {
+                b":revert-buffer\r"
+            } else {
+                b"\x1bxrevert-buffer\r"
+            })
+            .unwrap();
+        terminal
+            .frame(|frame| frame.contains("restored_parent"))
+            .unwrap();
+        std::fs::write(&source, b"fn observed_after_parent() {}\n").unwrap();
+        terminal
+            .frame(|frame| frame.contains("observed_after_parent"))
+            .unwrap();
         terminal.idle().unwrap();
         terminal.finish().unwrap();
         assert!(terminal.contains("REV_TTY_RESTORED"));
-        assert_eq!(std::fs::read(&source).unwrap(), b"fn external_value() {}\n");
+        assert_eq!(
+            std::fs::read(&source).unwrap(),
+            b"fn observed_after_parent() {}\n"
+        );
     }
 }

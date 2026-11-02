@@ -73,7 +73,7 @@ impl Session {
                 .binary_search_by_key(&buffer.id(), |s| s.id)
                 .ok()
                 .map(|index| &self.observation.sources[index])
-                .filter(|s| s.path == file.path());
+                .filter(|s| s.path == file.path() && s.baseline.as_ref() == file.observation());
             let generation = match prior {
                 Some(prior) => prior.generation,
                 None => {
@@ -303,5 +303,37 @@ impl Session {
                 "external change pending; use revert-buffer"
             },
         )
+    }
+}
+
+#[cfg(test)]
+#[path = "../../tests/configuration/fixture.rs"]
+mod fixture;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // A completed native save must retire older queued notifications, including
+    // missing/unavailable results that cannot be ordered by their file metadata.
+    #[test]
+    fn publication_retires_notices() {
+        let fixture = fixture::Fixture::new();
+        let path = fixture.write("source", "text");
+        let mut session = Session::empty(crate::view::Size {
+            width: 80,
+            height: 24,
+        })
+        .unwrap();
+        session.load(&path).unwrap();
+        let old = session.observation.sources[0].clone();
+        assert!(session.buffers.save(old.id).unwrap().is_complete());
+        session.observe_files();
+        assert_eq!(
+            session.observation_notice(&old, "late missing observation; use revert-buffer"),
+            Action::Wait
+        );
+        assert!(session.buffer().unwrap().external_change_notice().is_none());
+        assert!(!session.buffer().unwrap().is_modified());
     }
 }
