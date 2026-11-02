@@ -44,7 +44,7 @@ Ticket: [Checked file reload](../ticket/reviewing/20261102211106-reload-visiting
 Requirements: EFC01, EFC03-EFC07.
 Dependencies: delivered native owners.
 Branch: `feat/rev-ai-pi-01-reload`
-PR: pending.
+PR: [#229](https://forge.adrianpk.com/adrianpk/rev/pulls/229).
 Report: `ops/default/report/slices/rev-ai-pi/slice-1-reload.md`
 
 - [x] T1.1: Add the proposed file-policy settings and explicit revert-buffer command through the native file/buffer owners, with complete startup schema/default/sample coverage.
@@ -52,7 +52,8 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-1-reload.md`
 - [x] T1.3: Cover invalid/missing/readonly sources, disk and typing races, undo/redo, all shared views and unchanged-byte observations without a second text or history owner.
 
 Implementation commits: `256c17b2b360bb72b62ed42fa79581afcb7d1898`
-(configuration) and `1dbe66439e2273fda440996e08bbd399751925af` (native reload).
+(configuration) and `1dbe66439e2273fda440996e08bbd399751925af` (native reload), plus
+`7232bd69a5f58aebda0407b9df6bea5fd7fbb7b4` (regressions/report).
 Focused validation passed: configuration reload-policy composition/startup (2),
 external reload/native command cases (11), all-target compilation and documentation
 catalogs (418 commands, 223 configuration entries; 68 pages/414 links).

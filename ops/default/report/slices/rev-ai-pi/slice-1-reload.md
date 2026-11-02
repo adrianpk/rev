@@ -5,7 +5,7 @@ Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
 Branch: `feat/rev-ai-pi-01-reload`
-PR: pending
+PR: `#229`
 
 ## Purpose
 
