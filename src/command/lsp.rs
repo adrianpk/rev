@@ -9,6 +9,7 @@ pub enum LspCommand {
     ReloadSettings,
     Servers,
     SelectServer,
+    InstallServer,
 }
 
 impl LspCommand {
@@ -23,6 +24,7 @@ impl LspCommand {
             Self::ReloadSettings => "lsp-reload-settings",
             Self::Servers => "lsp-servers",
             Self::SelectServer => "lsp-select-server",
+            Self::InstallServer => "lsp-install-server",
         }
     }
 }

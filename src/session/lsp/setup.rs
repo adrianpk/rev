@@ -2,6 +2,7 @@ use crate::config::{Preference, Server, SettingsEdit, Snapshot};
 use crate::session::{Action, Pending, Session};
 
 enum Stage {
+    Recipe,
     Language,
     Profile,
     Executable,
@@ -18,6 +19,7 @@ pub(in crate::session) struct Prompt {
     name: String,
     server: Option<Server>,
     select_only: bool,
+    management: Option<super::managed::Choice>,
 }
 
 impl Session {
@@ -30,17 +32,30 @@ impl Session {
     }
 
     fn begin_lsp_choice(&mut self, select_only: bool) -> Action {
+        self.begin_lsp_management(select_only, false)
+    }
+
+    pub(in crate::session) fn begin_lsp_installation(&mut self) -> Action {
+        self.begin_lsp_management(false, true)
+    }
+
+    fn begin_lsp_management(&mut self, select_only: bool, install_only: bool) -> Action {
         let result = self.lsp_settings_root().and_then(|root| {
             let edit = SettingsEdit::capture(&root).map_err(|e| e.to_string())?;
             let snapshot = edit.snapshot().map_err(|e| e.to_string())?;
             Ok(Prompt {
                 edit,
                 snapshot,
-                stage: Stage::Language,
+                stage: if install_only {
+                    Stage::Recipe
+                } else {
+                    Stage::Language
+                },
                 language: String::new(),
                 name: String::new(),
                 server: None,
                 select_only,
+                management: None,
             })
         });
         match result {
@@ -69,6 +84,20 @@ impl Session {
             Err(error) => self.lsp_setup_prompt(prompt, draft, &error),
             Ok(false) => self.lsp_setup_prompt(prompt, "", ""),
             Ok(true) => {
+                if let Some(choice) = prompt.management.take() {
+                    let inherited = prompt
+                        .snapshot
+                        .settings()
+                        .lsp
+                        .selected(&prompt.language)
+                        .map(|(_, s)| s.clone());
+                    return self.launch_installation(
+                        choice,
+                        prompt.edit,
+                        prompt.language,
+                        inherited,
+                    );
+                }
                 let state = match crate::config::Roots::from_env() {
                     Ok(roots) => roots.state,
                     Err(error) => return self.error(&error.to_string()),
@@ -90,6 +119,12 @@ impl Session {
 impl Prompt {
     fn choices(&self) -> (&'static str, Vec<String>) {
         match self.stage {
+            Stage::Recipe => (
+                "Managed server (rust-analyzer downloads; ready:<id> reuses): ",
+                std::iter::once("rust-analyzer".into())
+                    .chain(super::managed::choices("rust"))
+                    .collect(),
+            ),
             Stage::Language => {
                 let languages = self
                     .snapshot
@@ -129,6 +164,11 @@ impl Prompt {
                             })
                             .map(|p| format!("recipe:{}", p.id)),
                     )
+                    .chain(super::managed::choices(&self.language))
+                    .chain(
+                        (!self.select_only && self.language == "rust")
+                            .then_some("install:rust-analyzer".into()),
+                    )
                     .chain(std::iter::once("native-only".into()))
                     .collect(),
             ),
@@ -147,54 +187,67 @@ impl Prompt {
 
     fn accept(&mut self, draft: &str) -> Result<bool, String> {
         match self.stage {
-            Stage::Language => {
-                if !crate::config::language_id(draft) {
-                    return Err("Enter a lowercase language ID starting with a letter".into());
-                }
-                self.language = draft.into();
-                self.stage = Stage::Profile;
-            }
-            Stage::Profile => return self.profile(draft),
-            Stage::Executable => {
-                if draft.trim().is_empty() {
-                    return Err("Enter an installed executable".into());
-                }
-                self.server.as_mut().expect("custom server stage").command = draft.into();
-                self.stage = Stage::Arguments;
-            }
-            Stage::Arguments => {
-                if !draft.is_empty() {
-                    self.server.as_mut().expect("custom server stage").args = array(draft)?;
-                }
-                self.stage = Stage::Markers;
-            }
-            Stage::Markers => {
-                if !draft.is_empty() {
-                    self.server
-                        .as_mut()
-                        .expect("custom server stage")
-                        .root_markers = array(draft)?;
-                }
-                self.edit.register(
-                    &self.name,
-                    self.server.as_ref().expect("custom server stage"),
-                );
-                self.edit
-                    .prefer(&self.language, &Preference::Server(self.name.clone()));
-                return self.associations();
-            }
-            Stage::Patterns => {
-                let patterns = array(draft)?;
-                if patterns.is_empty() {
-                    return Err("Enter at least one basename or *.suffix pattern".into());
-                }
-                for pattern in patterns {
-                    self.edit.associate(&pattern, &self.language);
-                }
-                return Ok(true);
-            }
+            Stage::Recipe => self.recipe_choice(draft),
+            Stage::Language => self.language(draft),
+            Stage::Profile => self.profile(draft),
+            Stage::Executable => self.executable(draft),
+            Stage::Arguments => self.arguments(draft),
+            Stage::Markers => self.markers(draft),
+            Stage::Patterns => self.patterns(draft),
         }
+    }
+
+    fn language(&mut self, draft: &str) -> Result<bool, String> {
+        if !crate::config::language_id(draft) {
+            return Err("Enter a lowercase language ID starting with a letter".into());
+        }
+        self.language = draft.into();
+        self.stage = Stage::Profile;
         Ok(false)
+    }
+
+    fn executable(&mut self, draft: &str) -> Result<bool, String> {
+        if draft.trim().is_empty() {
+            return Err("Enter an installed executable".into());
+        }
+        self.server.as_mut().expect("custom server stage").command = draft.into();
+        self.stage = Stage::Arguments;
+        Ok(false)
+    }
+
+    fn arguments(&mut self, draft: &str) -> Result<bool, String> {
+        if !draft.is_empty() {
+            self.server.as_mut().expect("custom server stage").args = array(draft)?;
+        }
+        self.stage = Stage::Markers;
+        Ok(false)
+    }
+
+    fn markers(&mut self, draft: &str) -> Result<bool, String> {
+        if !draft.is_empty() {
+            self.server
+                .as_mut()
+                .expect("custom server stage")
+                .root_markers = array(draft)?;
+        }
+        self.edit.register(
+            &self.name,
+            self.server.as_ref().expect("custom server stage"),
+        );
+        self.edit
+            .prefer(&self.language, &Preference::Server(self.name.clone()));
+        self.associations()
+    }
+
+    fn patterns(&mut self, draft: &str) -> Result<bool, String> {
+        let patterns = array(draft)?;
+        if patterns.is_empty() {
+            return Err("Enter at least one basename or *.suffix pattern".into());
+        }
+        for pattern in patterns {
+            self.edit.associate(&pattern, &self.language);
+        }
+        Ok(true)
     }
 
     fn profile(&mut self, draft: &str) -> Result<bool, String> {
@@ -205,12 +258,11 @@ impl Prompt {
         if draft.trim().is_empty() || draft.len() > 128 {
             return Err("Enter a server name of 1..=128 bytes".into());
         }
-        if let Some(server) = self.snapshot.settings().lsp.servers.get(draft) {
-            if !server.languages.contains(&self.language) {
-                return Err("That server does not support this language identity".into());
-            }
-            self.edit
-                .prefer(&self.language, &Preference::Server(draft.into()));
+        if self.snapshot.settings().lsp.servers.contains_key(draft) {
+            return self.configured(draft);
+        }
+        if let Some(choice) = self.management_choice(draft) {
+            self.management = Some(choice);
             return self.associations();
         }
         if self.select_only {
@@ -225,6 +277,38 @@ impl Prompt {
         self.server = Some(self.base());
         self.stage = Stage::Executable;
         Ok(false)
+    }
+
+    fn configured(&mut self, name: &str) -> Result<bool, String> {
+        if !self.snapshot.settings().lsp.servers[name]
+            .languages
+            .contains(&self.language)
+        {
+            return Err("That server does not support this language identity".into());
+        }
+        self.edit
+            .prefer(&self.language, &Preference::Server(name.into()));
+        self.associations()
+    }
+
+    fn management_choice(&self, draft: &str) -> Option<super::managed::Choice> {
+        if let Some(id) = draft.strip_prefix("ready:") {
+            return Some(super::managed::Choice::Ready(id.into()));
+        }
+        (!self.select_only && self.language == "rust" && draft == "install:rust-analyzer")
+            .then_some(super::managed::Choice::InstallRust)
+    }
+
+    fn recipe_choice(&mut self, draft: &str) -> Result<bool, String> {
+        self.language = "rust".into();
+        self.management = Some(if draft == "rust-analyzer" {
+            super::managed::Choice::InstallRust
+        } else if let Some(id) = draft.strip_prefix("ready:") {
+            super::managed::Choice::Ready(id.into())
+        } else {
+            return Err("Choose rust-analyzer or an offered ready installation".into());
+        });
+        self.associations()
     }
 
     fn base(&self) -> Server {

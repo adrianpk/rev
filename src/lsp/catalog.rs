@@ -1,7 +1,7 @@
 //! Finite acquisition metadata and local executable observations. The catalog
 //! never owns language identities, settings, installation facts or processes.
 mod inventory;
-pub use inventory::inventory;
+pub use inventory::{inventory, with_installations};
 
 use std::ffi::OsStr;
 use std::os::unix::fs::PermissionsExt;

@@ -17,9 +17,14 @@ pub struct Outcome {
 #[derive(Default)]
 pub struct Manager {
     job: Job<Result<Outcome, String>>,
+    progress: super::progress::Progress,
 }
 
 impl Manager {
+    pub fn phase(&self) -> super::Phase {
+        self.progress.phase()
+    }
+
     pub fn active(&self) -> bool {
         self.job.is_active()
     }
@@ -30,17 +35,23 @@ impl Manager {
     where
         F: FnOnce(Storage, &Cancellation) -> Result<Outcome, String> + Send + 'static,
     {
+        if self.active() {
+            return Err("another server management job is still owned".into());
+        }
+        let progress = self.progress.clone();
+        progress.set(super::Phase::Checking);
         self.job
             .start(source, move |cancel| {
                 let cancel =
                     cancel.bounded(Instant::now() + Duration::from_secs(super::OPERATION_SECONDS));
-                let storage = Storage::acquire(roots)?;
-                if cancel.is_cancelled() {
-                    return Err("installation cancelled before acquisition".into());
-                }
-                work(storage, &cancel)
+                let result = run(roots, &progress, &cancel, work);
+                progress.set(terminal(&result, &cancel));
+                result
             })
-            .map_err(|e| e.to_string())
+            .map_err(|e| {
+                self.progress.set(super::Phase::Failed);
+                e.to_string()
+            })
     }
 
     pub fn cancel(&self) -> bool {
@@ -52,8 +63,38 @@ impl Manager {
     pub fn poll(&mut self) -> Option<Result<Outcome, String>> {
         self.job.poll_effect().map(|result| {
             result
-                .map_err(|e| e.to_string())
+                .map_err(|e| {
+                    self.progress.set(super::Phase::Failed);
+                    e.to_string()
+                })
                 .and_then(|(_, outcome)| outcome)
         })
+    }
+}
+
+fn run<F>(
+    roots: Roots,
+    progress: &super::progress::Progress,
+    cancel: &Cancellation,
+    work: F,
+) -> Result<Outcome, String>
+where
+    F: FnOnce(Storage, &Cancellation) -> Result<Outcome, String>,
+{
+    let mut storage = Storage::acquire(roots)?;
+    storage.progress = progress.clone();
+    if cancel.is_cancelled() {
+        return Err("installation cancelled before acquisition".into());
+    }
+    work(storage, cancel)
+}
+
+fn terminal(result: &Result<Outcome, String>, cancel: &Cancellation) -> super::Phase {
+    if result.is_ok() {
+        super::Phase::Ready
+    } else if cancel.is_cancelled() && !cancel.expired() {
+        super::Phase::Cancelled
+    } else {
+        super::Phase::Failed
     }
 }

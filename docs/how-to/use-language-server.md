@@ -1,9 +1,23 @@
 # Use a language server
 
+For managed Rust on GNU/Linux x86-64, run `M-x lsp-install-server` (or
+`:lsp-install-server` in modal Normal), then choose `rust-analyzer`. Install
+`curl`, `gzip` and `sha256sum` separately if they are missing. The operation
+runs while editing remains available, verifies an exact release and saves the
+server choice. It preserves the current LSP mode: use `lsp-mode` separately
+to enable continuous analysis. Missing Rust toolchain or sources require a
+separate toolchain installation.
+
+The equivalent `lsp-setup` path is `rust`, then `install:rust-analyzer`.
+`lsp-servers` shows progress and ready/incomplete installations. If settings
+changed during the operation, the verified payload stays ready and unselected.
+Choose its `ready:<id>` entry to reuse it after resolving the configuration
+conflict; no second download is needed.
+
 Use an installed language server to complete names from unsaved text in the
 same popup as native completion. Rust uses `rust-analyzer` by default. Keep the
-server executable on `PATH`, or configure its absolute path. Rev does not
-install or download a server.
+server executable on `PATH`, or configure its absolute path. Existing/custom
+registration reuses that executable without downloading another one.
 
 ## Register or select an installed server
 
@@ -29,11 +43,11 @@ executable remains a recoverable prerequisite failure.
 
 Run `lsp-servers` to open a read-only snapshot. It shows each language's selected
 source, all configured profiles, local executable availability, and the managed
-recipe catalog with its optional acquisition prerequisites. It does not run a
-helper, look up remote versions or interpret installation records. Available
-executables have not necessarily completed LSP initialization; use `lsp-status`
-for the current file. Managed payload readiness and versions remain unverified
-in this view. Use ordinary buffer switching to return to your source.
+recipe catalog with its optional acquisition prerequisites. It also reads bounded
+managed facts to show versions, readiness, current job phase and selected profiles.
+It runs no helper and looks up no remote versions. Available external executables
+have not necessarily completed LSP initialization; use `lsp-status` for the current
+file. Use ordinary buffer switching to return to your source.
 
 For an already installed Go server, choose `go`, then `recipe:gopls` in
 `lsp-setup`. The preset observes the executable on the inherited PATH and suggests
@@ -45,8 +59,8 @@ overwrites a configured profile with the same name. If the executable is missing
 choose an installed absolute path or inspect the catalog prerequisites.
 
 Use `lsp-select-server` to change an existing language's source without registering
-a new executable. Enter its language ID, then a compatible configured profile or
-`native-only`. It saves and applies the choice without changing global LSP mode.
+a new executable. Enter its language ID, then a compatible configured profile,
+`ready:<id>` installation or `native-only`. It saves and applies the choice without changing global LSP mode.
 A language without known associations asks for patterns; a catalog entry or grammar
 is not required. C-g or modal Escape cancels without writing settings.
 

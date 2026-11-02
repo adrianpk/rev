@@ -12,7 +12,10 @@ This project uses Semantic Versioning.
   without bundled grammars. Select a server or native-only completion per language,
   and reload LSP settings without changing the current editing profile or LSP mode.
   Inspect recipes and local availability with `lsp-servers`, reuse an installed
-  recipe preset, and change sources through `lsp-select-server`.
+  recipe preset, and change sources through `lsp-select-server`. Acquire and
+  verify a Rust server with `lsp-install-server` while editing continues; keep
+  analysis off until enabled and retain a ready server if its settings cannot
+  be saved.
 
 ## 0.3.0 - 2026-11-01
 

@@ -6,8 +6,28 @@ use super::{Executable, RECIPES, executable};
 use crate::config::Snapshot;
 
 /// Bounded read-only observation of admitted settings and recipe prerequisites.
-/// Registry bytes, network endpoints and executable output are never read.
+/// Registry bytes, network endpoints and executable output are never read here.
 pub fn inventory(snapshot: &Snapshot, path: Option<&OsStr>, os: &str, arch: &str) -> String {
+    render(snapshot, path, (os, arch), None)
+}
+
+/// Render already admitted installation facts; this function performs no registry IO.
+pub fn with_installations(
+    snapshot: &Snapshot,
+    path: Option<&OsStr>,
+    platform: (&str, &str),
+    facts: (&crate::lsp::install::Registry, &std::path::Path),
+) -> String {
+    render(snapshot, path, platform, Some(facts))
+}
+
+fn render(
+    snapshot: &Snapshot,
+    path: Option<&OsStr>,
+    platform: (&str, &str),
+    facts: Option<(&crate::lsp::install::Registry, &std::path::Path)>,
+) -> String {
+    let (os, arch) = platform;
     let mut text = String::from(
         "Language servers\n\nConfigured sources\nLanguage | Selected source | Origin | Version | Executable availability\n",
     );
@@ -16,11 +36,13 @@ pub fn inventory(snapshot: &Snapshot, path: Option<&OsStr>, os: &str, arch: &str
         if let Some((name, server)) = snapshot.settings().lsp.selected(language) {
             let custom_path = server.env.get("PATH").map(OsStr::new).or(path);
             let status = availability(executable(&server.command, custom_path));
+            let (origin, version) = origin(&server.command, facts);
             let _ = writeln!(
                 text,
-                "{} | {} | external/configured | unknown | {status}",
+                "{} | {} | {origin} | {} | {status}",
                 cell(language),
-                cell(name)
+                cell(name),
+                cell(version)
             );
         } else {
             let source = if matches!(
@@ -86,7 +108,7 @@ pub fn inventory(snapshot: &Snapshot, path: Option<&OsStr>, os: &str, arch: &str
             .join(", ");
         let _ = writeln!(text, "{} | {profiles} | {readiness}", recipe.id);
     }
-    text.push_str("\nManaged payload readiness/version: unverified; this view does not interpret installation records.\nExecutable availability does not prove LSP readiness. lsp-status observes the active file.\nUse lsp-setup for an installed executable; lsp-select-server changes its source.\n");
+    text.push_str("\nManaged payload readiness/version: unverified; installation facts appear separately when available.\nExecutable availability does not prove LSP readiness. lsp-status observes the active file.\nUse lsp-setup for an installed executable; lsp-select-server changes its source.\n");
     text
 }
 
@@ -104,5 +126,32 @@ fn availability(value: Executable) -> &'static str {
         Executable::Missing => "missing executable; install it or choose another profile",
         Executable::UnknownRoot => "relative launch/search path; checked at client activation",
         Executable::SearchLimit => "PATH inspection limit reached",
+    }
+}
+
+fn origin<'a>(
+    command: &str,
+    facts: Option<(&'a crate::lsp::install::Registry, &std::path::Path)>,
+) -> (&'static str, &'a str) {
+    let Some((registry, data)) = facts else {
+        return ("external/configured", "unknown");
+    };
+    let installation = registry.installations.iter().find(|installation| {
+        installation.launches.iter().any(|launch| {
+            data.join(&installation.payload)
+                .join(&launch.executable)
+                .to_str()
+                == Some(command)
+        })
+    });
+    match installation {
+        Some(installation) => (
+            match installation.status {
+                crate::lsp::install::State::Ready => "managed/ready",
+                _ => "managed/incomplete",
+            },
+            &installation.version,
+        ),
+        None => ("external/configured", "unknown"),
     }
 }

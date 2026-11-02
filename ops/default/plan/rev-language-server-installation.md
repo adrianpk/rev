@@ -132,7 +132,7 @@ git diff --check
 
 ### Slice 3: Managed Rust installation
 
-Ticket: [Managed Rust installation](../ticket/in_progress/20261102111450-install-managed-rust-server.md)
+Ticket: [Managed Rust installation](../ticket/reviewing/20261102111450-install-managed-rust-server.md)
 Requirements: INS01, INS02, INS03, INS05, INS06.
 Dependencies: Slice 2 integrated and prior contracts retained.
 

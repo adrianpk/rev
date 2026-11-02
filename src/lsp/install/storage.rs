@@ -19,6 +19,7 @@ pub(super) struct Image {
 /// A held cross-process mutation transaction. Dropping it releases both locks;
 /// it never removes or repairs existing user data implicitly.
 pub struct Storage {
+    pub(super) progress: super::progress::Progress,
     roots: Roots,
     registry: Registry,
     image: Option<Image>,
@@ -29,6 +30,7 @@ pub struct Storage {
 /// A unique final path, created before acquisition and never moved afterward.
 /// Its preparing record survives a crash without granting selection authority.
 pub struct Candidate {
+    pub(super) progress: super::progress::Progress,
     pub installation: Installation,
     pub directory: PathBuf,
 }
@@ -51,6 +53,7 @@ impl Storage {
         let lock = mutation::Lock::acquire(&roots.state)?;
         let (registry, image) = read(&roots.data)?;
         Ok(Self {
+            progress: Default::default(),
             roots,
             registry,
             image,
@@ -102,6 +105,7 @@ impl Storage {
             return Err(warning);
         }
         Ok(Candidate {
+            progress: self.progress.clone(),
             installation,
             directory,
         })
@@ -118,6 +122,7 @@ impl Storage {
     /// Atomically publish complete facts. A returned warning means publication
     /// committed, but parent-directory durability could not be confirmed.
     pub fn save(&mut self, installation: Installation) -> Result<Option<String>, String> {
+        self.progress.set(super::Phase::Publishing);
         let next = self.propose(installation)?;
         let bytes = next.encode().into_bytes();
         if bytes.len() > super::REGISTRY_BYTES {
@@ -195,6 +200,7 @@ impl Storage {
     /// Ready facts are already durable before this independently fallible
     /// settings transaction. Configuration conflicts leave them unselected.
     pub fn select(&self, edit: &SettingsEdit) -> Result<Publication, String> {
+        self.progress.set(super::Phase::Publishing);
         edit.publish_locked(&self.lock).map_err(|e| e.to_string())
     }
 

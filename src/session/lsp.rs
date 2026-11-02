@@ -3,6 +3,7 @@ use crate::command::{Command, LspCommand};
 use crate::lsp::Status;
 use std::time::Duration;
 
+mod managed;
 mod setup;
 pub(super) use setup::Prompt;
 
@@ -16,6 +17,7 @@ impl Session {
 
     fn lsp_control(&mut self, command: LspCommand) -> Action {
         match command {
+            LspCommand::InstallServer => return self.begin_lsp_installation(),
             LspCommand::Setup => return self.begin_lsp_setup(),
             LspCommand::SelectServer => return self.begin_lsp_selection(),
             LspCommand::Servers => return self.list_lsp_servers(),
@@ -37,7 +39,8 @@ impl Session {
                 }
             }
             LspCommand::Status => {}
-            LspCommand::Setup
+            LspCommand::InstallServer
+            | LspCommand::Setup
             | LspCommand::ReloadSettings
             | LspCommand::SelectServer
             | LspCommand::Servers => {
@@ -59,12 +62,7 @@ impl Session {
             },
             status_text(&self.lsp_status())
         );
-        text.push_str(&crate::lsp::catalog::inventory(
-            self.buffers.snapshot(),
-            path.as_deref(),
-            std::env::consts::OS,
-            std::env::consts::ARCH,
-        ));
+        text.push_str(&self.server_inventory(path.as_deref()));
         if text.len() > 65536 {
             let mut end = 65000;
             while !text.is_char_boundary(end) {
@@ -162,13 +160,13 @@ impl Session {
     }
 
     pub(super) fn lsp_remaining(&self) -> Option<Duration> {
-        self.lsp.starting().then_some(Duration::from_millis(10))
+        (self.lsp.starting() || self.installation.active()).then_some(Duration::from_millis(10))
     }
 
     pub(super) fn expire_lsp(&mut self) -> Action {
         self.lsp.collect();
         self.activate_lsp();
-        Action::Wait
+        self.poll_installation()
     }
 }
 

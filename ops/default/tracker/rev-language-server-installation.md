@@ -117,8 +117,8 @@ commit into dev. Slice 2 of 7 completed.
 
 ### Slice 3: Managed Rust installation
 
-State: in_progress.
-Ticket: [Managed Rust installation](../ticket/in_progress/20261102111450-install-managed-rust-server.md)
+State: reviewing.
+Ticket: [Managed Rust installation](../ticket/reviewing/20261102111450-install-managed-rust-server.md)
 Requirements: INS01, INS02, INS03, INS05, INS06.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-language-server-installation-03-managed-rust`
@@ -127,7 +127,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-3-mana
 
 - [x] T3.1: Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation lock and one bounded asynchronous management worker.
 - [x] T3.2: Acquire an exact official Rust server release with integrity verification and finite structured helper processes; initialize/shutdown in an owned empty root before publication.
-- [ ] T3.3: Publish ready inventory before conflict-checked selection; cover missing prerequisites, corrupt downloads, invalid registry, failed probe and installation while LSP is disabled.
+- [x] T3.3: Publish ready inventory before conflict-checked selection; cover missing prerequisites, corrupt downloads, invalid registry, failed probe and installation while LSP is disabled.
 
 T3.1 development checks passed: `cargo check --locked`,
 `cargo test --locked --test lsp_installation storage:: -- --test-threads=1` (4 cases),
@@ -157,9 +157,20 @@ releasing those copies after spawn corrected EOF ownership. The focused check pa
 New functions were split by responsibility and passed the unchanged source-quality limits.
 The approved, already locked rustix 1.1.5 process APIs are now a direct dependency;
 existing Org group observation is reused without changing its signaling behavior.
-T3.2 commit: recorded by its task commit; the final report will link its full hash.
-T3.3 native integration and the configured final ordered validation remain pending.
-The canonical PR is not ready.
+T3.2 commit: `df770c9dfe475b86e4faa935723ff92a4e48ff74`.
+T3.3 development checks passed:
+`cargo test --locked --test lsp_installation managed:: -- --test-threads=1`,
+`cargo test --locked --test commands palette::catalog_reference -- --exact`,
+`cargo run --locked --quiet --example documentation-check`,
+`cargo run --locked --quiet --example source-check -- --source src/session/lsp/managed.rs --source src/session/lsp/setup.rs --source src/lsp/catalog/inventory.rs --source src/lsp/install/progress.rs --source src/lsp/install/worker.rs`
+and `git diff --check`.
+The native journey covers both profiles, C-g and modal Escape, ordinary editing
+while work is active, disabled analysis, inherited options/associations, preservation
+of a custom preset-named profile, an include-source conflict leaving ready data
+unselected, ready-record selection without helpers and corrupt-registry isolation.
+The command/reference catalogs agree on 414 commands and 219 settings.
+T3.3/report-introduction commit and configured clean-HEAD validation: pending
+at report preparation. The canonical PR is prepared only after that batch passes.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

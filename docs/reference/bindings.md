@@ -18,10 +18,11 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x lsp-disconnect` | `lsp-disconnect` | Exclude this canonical buffer across all its views until restored or closed. |
 | `M-x lsp-restart` | `lsp-restart` | Restart the eligible current root; preserve global mode and buffer exclusions. |
 | `M-x lsp-status` | `lsp-status` | Show the current file transport state or recoverable prerequisite failure. |
-| `M-x lsp-setup` | `lsp-setup` | Register an installed server or select an existing compatible profile/native-only source. |
+| `M-x lsp-setup` | `lsp-setup` | Register an installed server, acquire managed Rust, or select a compatible source. |
 | `M-x lsp-reload-settings` | `lsp-reload-settings` | Reload only LSP settings and file associations, preserving runtime mode, exclusions and startup profile. |
 | `M-x lsp-servers` | `lsp-servers` | Open a read-only snapshot of configured sources, local executable availability and managed recipe prerequisites. |
-| `M-x lsp-select-server` | `lsp-select-server` | Persist a compatible configured source or native-only choice for a language. |
+| `M-x lsp-select-server` | `lsp-select-server` | Persist a compatible configured source, ready managed installation or native-only choice. |
+| `M-x lsp-install-server` | `lsp-install-server` | Acquire and verify managed Rust, or select an existing ready installation; preserve runtime LSP mode. |
 | `M-x completion-mode` | `completion-mode` | Toggle native completion for this session. |
 | `M-x completion-auto-mode` | `completion-auto-mode` | Toggle automatic requests while retaining explicit invocation. |
 | `M-TAB` | `completion-at-point` | Show native suggestions near the source cursor. |

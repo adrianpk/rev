@@ -22,7 +22,7 @@ fn cancel(s: &mut Session, modal: bool) {
 
 // Actual M-x/colon selectors run in owned child environments. Recipe shortcuts
 // inherit user options and associations, while local observations and selection
-// never execute helpers or parse an unrelated/corrupt installation registry.
+// never execute helpers; corrupt managed facts do not block existing-server setup.
 #[test]
 fn catalog_workflow() {
     let Some(profile) = std::env::var_os("REV_CATALOG_PROFILE") else {

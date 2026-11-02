@@ -38,7 +38,7 @@ fn digest(directory: &Path) -> String {
     )
 }
 
-fn fixtures(directory: &Path) {
+pub(super) fn fixtures(directory: &Path) {
     fs::create_dir_all(directory.join("bin")).unwrap();
     executable(
         &directory.join("bin/curl"),

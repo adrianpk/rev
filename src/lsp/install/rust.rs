@@ -57,6 +57,7 @@ pub fn install_rust(
             "unsupported platform: managed Rust acquisition is verified on GNU/Linux x86-64".into(),
         );
     }
+    storage.progress.set(super::Phase::Checking);
     let tools = Tools::discover()?;
     let mut cache = Cache::new(&storage.roots().cache)?;
     let result = acquire(storage, &tools, &cache, inherited, cancel);
@@ -87,6 +88,7 @@ fn acquire(
     inherited: Option<Server>,
     cancel: &Cancellation,
 ) -> Result<Outcome, String> {
+    storage.progress.set(super::Phase::Resolving);
     let metadata = tools
         .curl(API, &cache.directory, &cache.root, None)
         .run(cancel, None)?;
@@ -108,7 +110,7 @@ fn acquire(
     );
     let warning = storage.save(candidate.installation.clone())?;
     let prerequisites = rust_sources(cache, &candidate.installation.launches[0], cancel);
-    let mut message = format!("Rust server {} ready; not selected", exact.version);
+    let mut message = format!("Rust server {} ready", exact.version);
     if let Some(warning) = warning {
         message.push_str(&format!("; {warning}"));
     }
@@ -139,6 +141,7 @@ fn verify(
     exact: &Exact,
     cancel: &Cancellation,
 ) -> Result<(), String> {
+    candidate.progress.set(super::Phase::Acquiring);
     let artifact = cache.directory.join("server.gz");
     tools
         .curl(&exact.url, &cache.directory, &cache.root, Some(&artifact))
@@ -159,6 +162,7 @@ fn verify(
         return Err("downloaded artifact SHA-256 mismatch".into());
     }
     unpack(tools, cache, candidate, &artifact, cancel)?;
+    candidate.progress.set(super::Phase::Verifying);
     candidate.installation.evidence = format!("sha256:{}", exact.digest);
     probe(candidate, cancel)
 }

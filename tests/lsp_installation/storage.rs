@@ -206,6 +206,7 @@ fn worker_and_conflicts() {
         std::thread::sleep(Duration::from_millis(2));
     }
     assert!(!manager.active());
+    assert_eq!(manager.phase(), rev::lsp::install::Phase::Cancelled);
     assert_eq!(
         Registry::load(&roots.data).unwrap().installations[0].status,
         State::Incomplete

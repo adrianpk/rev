@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111450
 title: Managed Rust installation
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T11:14:50Z
 ready_at: 2026-11-02T11:14:50Z
 in_progress_at: 2026-11-02T12:29:53Z
 branch: feat/rev-language-server-installation-03-managed-rust
-commits: [377a474ab07a2486c69edeb8ea47268ba6a63941]
+reviewing_at: 2026-11-02T14:04:26Z
+commits: [377a474ab07a2486c69edeb8ea47268ba6a63941, df770c9dfe475b86e4faa935723ff92a4e48ff74]
 ---
 
 # Managed Rust installation
@@ -48,7 +49,8 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-T3.1 storage/worker and T3.2 acquisition/probe development checks passed; see the
-tracker for exact commands and coverage. Controlled payloads verify mechanics;
-no upstream Rust semantic integration is claimed. Native management interaction,
-conflict-checked selection and final PR validation remain pending.
+All three tasks are implemented and focused development checks passed; see the
+tracker for exact commands and the [Slice 3 report](../../report/slices/rev-language-server-installation/slice-3-managed-rust.md).
+Controlled payloads verify acquisition/protocol mechanics and both native profiles;
+no upstream Rust semantic integration is claimed. The configured ordered batch and
+canonical PR reference are recorded before readiness is reported.

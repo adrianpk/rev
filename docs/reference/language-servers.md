@@ -3,7 +3,8 @@
 Optional installed stdio servers supply semantic completion through the native
 popup, canonical buffer and undo owner. LSP is disabled by default. The default
 Rust entry runs `rust-analyzer` with no arguments and uses `Cargo.toml` as its
-root marker. Registration stores existing executables; no server is downloaded.
+root marker. Registration reuses existing executables. Explicit managed Rust installation can
+download and verify a server without enabling analysis.
 See [Use a language server](../how-to/use-language-server.md) for setup and the
 [configuration catalog](defaults.md) for every setting.
 
@@ -16,10 +17,11 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-disconnect` | Exclude the canonical buffer across its views until restored or closed. |
 | `lsp-connect` | Restore buffer eligibility without enabling a disabled global mode. |
 | `lsp-restart` | Replace the eligible current root's connection; preserve other roots, exclusions and global mode. |
-| `lsp-setup` | Choose a language and existing profile, new installed executable, or native-only source; save and apply the admitted settings. |
+| `lsp-setup` | Choose a language and installed profile, managed Rust recipe, or native-only source; save and apply the admitted settings. |
 | `lsp-reload-settings` | Read the selected configuration root and includes, applying only LSP settings and file associations. |
 | `lsp-servers` | Open a read-only source/catalog snapshot without running helpers or checking remote versions. |
-| `lsp-select-server` | Choose a compatible configured server or native-only source for any valid language identity. |
+| `lsp-select-server` | Choose a compatible configured profile, ready managed installation or native-only source. |
+| `lsp-install-server` | Acquire and verify managed Rust, or reuse a ready installation, then save its choice when configuration sources still match. |
 
 Eligible file activation uses `lsp.preferred` when present: a compatible server
 name selects that profile; `false` selects native-only. Otherwise it selects the
@@ -63,7 +65,8 @@ unsupported recipe platforms do not block external server selection. Local PATH
 inspection checks at most 128 entries without running them; relative launch/search
 paths report that a client working root is required. Environment values are never
 included in the snapshot. Executable prerequisites do not verify runtime features,
-managed installation records, transport readiness or semantic quality.
+transport readiness or semantic quality. Verified managed facts are listed separately
+with version, readiness, installation ID and selected configured profiles.
 
 The `recipe:<launch-profile>` choices in `lsp-setup` reuse an observed installed
 executable. A configured profile with that ID remains authoritative. New presets
@@ -72,6 +75,56 @@ markers, initialization options, settings and literal environment overrides.
 Arguments and markers remain editable before publication. Known associations are
 reused; no registry fact or recipe creates a language allowlist. Viewing the catalog
 and normal startup never acquire or update packages.
+
+## Managed Rust installation
+
+`lsp-install-server` offers `rust-analyzer` acquisition on GNU/Linux x86-64.
+The equivalent setup choice is language `rust`, then `install:rust-analyzer`.
+An explicit operation resolves one exact official stable release, checks its
+asset URL and length, verifies the release SHA-256, and unpacks one executable.
+The digest comes from the same official release channel; it proves artifact
+integrity, not independent publisher identity or semantic quality.
+
+Only this operation requires installed `curl`, `gzip` and `sha256sum`. Missing
+Rust toolchain or sources are reported separately; rev never installs or upgrades
+a compiler. The candidate must complete the native client's initialize/shutdown/
+exit exchange in an owned empty root without user documents. Installation does
+not change global LSP enablement or buffer exclusions. Use `lsp-mode` separately
+when continuous analysis is desired.
+
+Payloads live under the resolved data root at
+`lsp/installations/<recipe>/<installation-id>/`; a candidate is created at its
+final unique path and never moved. `lsp/installations.toml` stores schema-1 facts,
+with at most 32 records and 2 MiB. It records exact version, target, relative
+payload and launch paths, source, SHA-256 evidence, runtime identity, readiness
+and creation/verification timestamps. It contains no language preferences.
+The cache root's `lsp/` holds disposable owned acquisition directories; state
+`lsp/mutation.lock` serializes settings changes. A shared data-directory lock
+also excludes concurrent managers using different state roots.
+
+One native management worker owns acquisition, verification and publication;
+its phase appears in `lsp-servers`. Native artifacts are bounded to 256 MiB,
+candidate payloads to 1 GiB, disposable cache to 2 GiB, and captured helper output
+to 1 MiB with at most 64 KiB retained stderr. The total operation deadline is
+900 seconds. Helpers use structured argv, owned directories and finite deadlines.
+They execute with user permissions and are not a security sandbox. Confirmed
+editor exit cancels the worker; owned groups receive a two-second stop grace
+before bounded forced stop/reap, with cleanup uncertainty reported separately.
+
+Ready facts are published before the independent configuration transaction.
+It preserves known associations and selected profile options/environment, and
+creates another profile if a preset name already belongs to custom settings.
+A source conflict leaves the payload ready and unselected. Use `lsp-servers`
+to find its ID, then choose `ready:<id>` in `lsp-install-server`, `lsp-setup`
+or `lsp-select-server`. Reuse checks ready facts under the mutation locks and
+runs no acquisition helpers or probe. Configured commands remain authoritative;
+there is no implicit managed/PATH precedence.
+
+A failed candidate remains incomplete and preserves earlier ready installations.
+Preparing records from an interrupted job are shown as incomplete and never
+resume automatically. Invalid, unknown-schema, duplicate, escaping-path or
+unverified-ready registry data blocks managed changes while ordinary editing,
+existing-server registration and configured external servers remain usable.
 
 ## Synchronization and completion
 

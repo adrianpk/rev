@@ -17,3 +17,6 @@ mod storage;
 
 #[path = "lsp_installation/acquisition.rs"]
 mod acquisition;
+
+#[path = "lsp_installation/managed.rs"]
+mod managed;

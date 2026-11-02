@@ -4,12 +4,14 @@ mod cache;
 mod helper;
 mod probe;
 mod process;
+mod progress;
 mod record;
 mod rust;
 mod storage;
 mod tree;
 mod worker;
 
+pub use progress::Phase;
 pub use record::{Installation, Launch, Registry, State};
 pub use rust::install_rust;
 pub use storage::{Candidate, Storage};
