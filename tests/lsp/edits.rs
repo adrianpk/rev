@@ -487,3 +487,26 @@ fn rejected_unicode() {
         }
     }
 }
+
+// A kernel-triggered source revision retires an existing semantic popup and
+// its source evidence before any old item can resolve or edit the new image.
+#[test]
+fn reload_retires_completion() {
+    let f = Fixture::new();
+    let items = json!([{"label":"cfg_server","data":{"index":1}}]);
+    let mut s = session(&f, "resolve", RUST, "main.rs", items, false);
+    complete(&mut s);
+    assert!(s.completion().is_some());
+    let external = "fn external_value() {}\nfn main() { external_value(); }\n";
+    std::fs::write(f.0.join("main.rs"), external).unwrap();
+    wait(|| {
+        s.expire_input(Instant::now());
+        text(&s) == external
+    });
+    assert!(s.completion().is_none());
+    s.execute(Command::Completion(C::Accept));
+    settle(&mut s);
+    assert_eq!(text(&s), external);
+    assert_eq!(s.buffer().unwrap().history().len(), 1);
+    assert!(methods(&f, "completionItem/resolve").is_empty());
+}

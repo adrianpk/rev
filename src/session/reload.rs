@@ -100,6 +100,12 @@ impl Session {
                     .is_some_and(|t| t.elapsed() > crate::file::reload::DEADLINE)
             {
                 self.reload.canceled = true;
+                if let Some(source) = self.reload.origin.clone() {
+                    return self.observation_notice(
+                        &source,
+                        "reload deadline exceeded; late work cannot publish; use revert-buffer",
+                    );
+                }
                 return self
                     .error("reload: five-second deadline exceeded; late work cannot publish");
             }
@@ -238,6 +244,9 @@ impl Session {
         let active = self.reload.task.is_some() && !self.reload.canceled;
         if active {
             self.reload.canceled = true;
+            if let Some(source) = self.reload.origin.clone() {
+                self.observation_notice(&source, "external reload canceled; use revert-buffer");
+            }
         }
         pending || active
     }

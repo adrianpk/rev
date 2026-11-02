@@ -141,7 +141,7 @@ git diff --check
 
 ### Slice 2: External change observation
 
-Ticket: [External change observation](../ticket/in_progress/20261102211107-observe-external-file-changes.md)
+Ticket: [External change observation](../ticket/reviewing/20261102211107-observe-external-file-changes.md)
 Requirements: EFC01-EFC08.
 Dependencies: Slice 1 integrated; preserve all earlier contracts.
 

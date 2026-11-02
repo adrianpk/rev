@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211107
 title: External change observation
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T21:11:07Z
 ready_at: 2026-11-02T21:11:07Z
 started_at: 2026-11-02T21:45:24Z
 branch: feat/rev-ai-pi-02-observation
-commits: []
+reviewed_at: 2026-11-02T22:09:59Z
+commits: [16fd877abf0196cb934edf3859b6c0aa81c1c67e]
 ---
 
 # External change observation
@@ -49,3 +50,13 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+The native inotify owner watches bounded visiting-file parents and wakes the
+existing terminal event queue without idle polling. The checked reload owner
+applies clean reload/ask policies, preserves dirty conflicts and native editing,
+and retains passive per-buffer conditions through cancellation and later events.
+Kernel, native-session, controlled bounds/shutdown and both-profile PTY checks
+passed. LSP versions/completion and native bookmark/Org invalidation are covered.
+The Slice 2 report and canonical PR retain exact validation and measured limits.

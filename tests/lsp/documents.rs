@@ -426,3 +426,37 @@ fn unattached_status() {
     assert_eq!(client.buffer_status(buffers.initial()), Status::Unavailable);
     assert!(client.document_version(buffers.initial()).is_none());
 }
+
+// Real kernel reload uses the canonical publication observer: one didChange
+// version, no source didSave, and the same native undo advances the LSP version.
+#[test]
+fn external_reload() {
+    let fixture = Fixture::new();
+    let file = fixture.write("main.rs", "fn first() {}\n");
+    let mut session = session(&fixture, "utf8", "");
+    session.load(&file).unwrap();
+    let opened = synchronized(&session);
+    notifications(&fixture, "textDocument/didOpen", 1);
+    std::fs::write(&file, "fn external() {}\n").unwrap();
+    wait_for(|| {
+        session.expire_input(Instant::now());
+        text(&session) == "fn external() {}\n"
+    });
+    let changed = synchronized(&session);
+    assert_eq!(changed.version, opened.version + 1);
+    let changes = notifications(&fixture, "textDocument/didChange", 1);
+    assert_eq!(changes.len(), 1);
+    assert_eq!(
+        changes[0]["params"]["textDocument"]["version"],
+        changed.version
+    );
+    assert!(
+        frames(&fixture)
+            .iter()
+            .all(|f| f["method"] != "textDocument/didSave")
+    );
+    session.execute(Command::History(History::Undo));
+    assert_eq!(text(&session), "fn first() {}\n");
+    assert!(session.buffer().unwrap().is_modified());
+    assert_eq!(synchronized(&session).version, changed.version + 1);
+}

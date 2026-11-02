@@ -1,5 +1,10 @@
 #![forbid(unsafe_code)]
 
+#[path = "external_changes/observation.rs"]
+mod observation;
+#[path = "external_changes/pty.rs"]
+mod pty;
+
 use std::fs;
 use std::os::unix::fs::{PermissionsExt, symlink};
 use std::path::{Path, PathBuf};

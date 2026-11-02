@@ -64,8 +64,8 @@ Slice 1 evidence, not the integrated delivery-set gate.
 
 ### Slice 2: External change observation
 
-State: in_progress.
-Ticket: [External change observation](../ticket/in_progress/20261102211107-observe-external-file-changes.md)
+State: reviewing.
+Ticket: [External change observation](../ticket/reviewing/20261102211107-observe-external-file-changes.md)
 Requirements: EFC01-EFC08.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-ai-pi-02-observation`
@@ -74,10 +74,15 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-2-observation.md`
 
 - [x] T2.1: Use the already locked rustix filesystem/event APIs for bounded parent-directory notifications and native session wake integration; no recursive project watcher or periodic content reads.
 - [x] T2.2: Apply reload/ask policies, coalesced per-buffer notices, dirty conflict protection and explicit reload; retain subscriptions through atomic rename, deletion/recreation and shared/hidden buffers.
-- [ ] T2.3: Verify native notifications, overflow/registration limits, cleanup, idle behavior and canonical invalidation of completion, bookmarks, Org projections and LSP state.
+- [x] T2.3: Verify native notifications, overflow/registration limits, cleanup, idle behavior and canonical invalidation of completion, bookmarks, Org projections and LSP state.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation: `16fd877abf0196cb934edf3859b6c0aa81c1c67e` lands T2.1/T2.2
+together to keep the notification/reload owner coherent. Focused checks passed:
+nine real kernel/session observation cases, two controlled worker ownership/bounds
+cases, native signal typing continuity, both-profile real Linux PTY wake/idle
+checks and LSP reload/completion invalidation. Documentation catalogs passed.
+Final clean-head validation uses exactly the four configured commands after
+PR references are committed; the canonical PR/controller receipt owns its result.
 
 ### Slice 3: Pi RPC explanation
 

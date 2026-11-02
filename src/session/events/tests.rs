@@ -558,3 +558,21 @@ fn timer_idle_wait() {
             .unwrap()
     );
 }
+
+// Equal-size native signal wakeups must not break a contiguous typing group;
+// source edits and changed-size terminal events keep the existing event path.
+#[test]
+fn observation_wake() {
+    let mut session = session();
+    session.handle(key(KeyCode::Char('a'), KeyModifiers::NONE));
+    let mut events = VecDeque::from([
+        Event::Resize(80, 24),
+        key(KeyCode::Char('b'), KeyModifiers::NONE),
+    ]);
+    session
+        .drain_input(Action::Redraw, Instant::now(), || Ok(events.pop_front()))
+        .unwrap();
+    assert_eq!(text(&session), "ab");
+    assert_eq!(session.buffer().unwrap().history().len(), 1);
+    assert!(session.remaining_input(Instant::now()).is_none());
+}
