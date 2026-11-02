@@ -11,6 +11,22 @@ pub(super) struct Cache {
 }
 
 impl Cache {
+    pub fn finish(
+        &mut self,
+        result: Result<super::Outcome, String>,
+    ) -> Result<super::Outcome, String> {
+        match (result, self.cleanup()) {
+            (Ok(mut outcome), Err(error)) => {
+                outcome
+                    .message
+                    .push_str(&format!("; cache cleanup failed: {error}"));
+                Ok(outcome)
+            }
+            (Err(error), Err(cleanup)) => Err(format!("{error}; cache cleanup failed: {cleanup}")),
+            (result, Ok(())) => result,
+        }
+    }
+
     pub fn new(root: &Path) -> Result<Self, String> {
         fs::create_dir_all(root).map_err(|e| format!("create cache root: {e}"))?;
         let root = root.canonicalize().map_err(|e| e.to_string())?;

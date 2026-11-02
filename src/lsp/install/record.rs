@@ -152,9 +152,10 @@ impl Installation {
             return Err("installation verification evidence exceeds 64 KiB".into());
         }
         if self.status == State::Ready {
-            let digest = self.evidence.strip_prefix("sha256:").unwrap_or("");
-            if digest.len() != 64 || !digest.bytes().all(|byte| byte.is_ascii_hexdigit()) {
-                return Err("ready installation lacks SHA-256 integrity evidence".into());
+            if !super::evidence::valid(&self.recipe, &self.evidence) {
+                return Err(
+                    "ready installation lacks admitted integrity or package evidence".into(),
+                );
             }
             if self.verified_at.is_none_or(|time| time < self.created_at) {
                 return Err("ready installation lacks a valid verification timestamp".into());

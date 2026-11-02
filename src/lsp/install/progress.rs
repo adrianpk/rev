@@ -10,6 +10,7 @@ pub enum Phase {
     Checking,
     Resolving,
     Acquiring,
+    Building,
     Verifying,
     Publishing,
     Ready,
@@ -24,6 +25,7 @@ impl Phase {
             Self::Checking => "checking",
             Self::Resolving => "resolving",
             Self::Acquiring => "acquiring",
+            Self::Building => "building",
             Self::Verifying => "verifying",
             Self::Publishing => "publishing",
             Self::Ready => "ready",
@@ -41,17 +43,20 @@ impl Progress {
         self.0.store(phase as u8, Ordering::Release);
     }
     pub fn phase(&self) -> Phase {
-        match self.0.load(Ordering::Acquire) {
-            0 => Phase::Idle,
-            1 => Phase::Checking,
-            2 => Phase::Resolving,
-            3 => Phase::Acquiring,
-            4 => Phase::Verifying,
-            5 => Phase::Publishing,
-            6 => Phase::Ready,
-            7 => Phase::Failed,
-            8 => Phase::Cancelled,
-            _ => unreachable!("only admitted management phases are stored"),
-        }
+        const PHASES: [Phase; 10] = [
+            Phase::Idle,
+            Phase::Checking,
+            Phase::Resolving,
+            Phase::Acquiring,
+            Phase::Building,
+            Phase::Verifying,
+            Phase::Publishing,
+            Phase::Ready,
+            Phase::Failed,
+            Phase::Cancelled,
+        ];
+        *PHASES
+            .get(self.0.load(Ordering::Acquire) as usize)
+            .expect("only admitted management phases are stored")
     }
 }

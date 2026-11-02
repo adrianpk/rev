@@ -61,24 +61,7 @@ pub fn install_rust(
     let tools = Tools::discover()?;
     let mut cache = Cache::new(&storage.roots().cache)?;
     let result = acquire(storage, &tools, &cache, inherited, cancel);
-    let cleanup = cache.cleanup();
-    completed(result, cleanup)
-}
-
-fn completed(
-    result: Result<Outcome, String>,
-    cleanup: Result<(), String>,
-) -> Result<Outcome, String> {
-    match (result, cleanup) {
-        (Ok(mut outcome), Err(error)) => {
-            outcome
-                .message
-                .push_str(&format!("; cache cleanup failed: {error}"));
-            Ok(outcome)
-        }
-        (Err(error), Err(cleanup)) => Err(format!("{error}; cache cleanup failed: {cleanup}")),
-        (result, Ok(())) => result,
-    }
+    cache.finish(result)
 }
 
 fn acquire(

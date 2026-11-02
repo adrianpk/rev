@@ -20,3 +20,6 @@ mod acquisition;
 
 #[path = "lsp_installation/managed.rs"]
 mod managed;
+
+#[path = "lsp_installation/go.rs"]
+mod go;
