@@ -123,8 +123,15 @@ five-parameter, three-nesting and ten-complexity limits.
 Controlled acquisition/protocol peers establish lifecycle mechanics; they do not
 establish upstream semantic quality. This slice performs no new live upstream
 acquisition. Existing explicit network checks remain opt-in and excluded from
-ordinary regressions. The configured controller batch and canonical PR reference
-are pending. The integrated delivery-set gate remains with the controller.
+ordinary regressions.
+
+The first configured controller batch at
+`bc9b5a74dba284c3c4a09b24c5b434410cc843c0`, receipt
+`37MM3XAENA35U5Q3TXVI53LIBO`, passed `cargo fmt --all -- --check` and failed
+`cargo clippy --locked --all-targets -- -D warnings` on one collapsible nested
+conditional in keyboard-quit dispatch. The equivalent let-chain correction keeps
+its behavior and source bounds. Fresh configured validation and the canonical PR
+reference are pending. The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 

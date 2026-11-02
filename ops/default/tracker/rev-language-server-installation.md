@@ -319,7 +319,11 @@ incomplete removal, successful replacement and confirmed-exit group stop/reap.
 The client lease test also covers interpreter arguments and server-specific PATH.
 The existing unresolved-exit unit check, command catalog and documentation checks
 passed. Changed dispatch and lifecycle functions meet the existing source limits.
-Canonical controller validation, report introduction commit and PR: pending.
+T6.3/report-introduction commit: `bc9b5a74dba284c3c4a09b24c5b434410cc843c0`.
+The first controller batch, receipt `37MM3XAENA35U5Q3TXVI53LIBO`, passed format
+and failed Clippy on one collapsible conditional. Its equivalent let-chain
+correction retains behavior and source limits. Fresh configured validation and
+canonical PR reference: pending.
 
 ### Slice 7: Acceptance and user guidance
 

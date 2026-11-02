@@ -48,10 +48,10 @@ impl Session {
             self.org.cancel_request();
             return Some(self.extended());
         }
-        if command == Command::KeyboardQuit {
-            if let Some(action) = self.prepare_keyboard_quit() {
-                return Some(action);
-            }
+        if command == Command::KeyboardQuit
+            && let Some(action) = self.prepare_keyboard_quit()
+        {
+            return Some(action);
         }
         self.tree_input(command)
     }
