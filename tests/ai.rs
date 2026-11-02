@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "ai/results.rs"]
+mod results;
 #[path = "ai/support.rs"]
 mod support;
 

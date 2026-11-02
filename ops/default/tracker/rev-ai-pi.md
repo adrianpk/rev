@@ -124,12 +124,16 @@ Branch: `feat/rev-ai-pi-04-results`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-4-results.md`
 
-- [ ] T4.1: Add ai-prompt and ai-implement with explicit point/selection capture and the bounded version-1 generated-text contract; display proposals through the native transient-buffer owner.
-- [ ] T4.2: Deliver explicit ai-apply-result and ai-discard-result with source revision/read-only admission, one native undo step and no implicit source save or model-selected target.
-- [ ] T4.3: Fence partial, stale, cancelled, duplicated and oversized results, including local edits, external reloads and focus changes during generation.
+- [x] T4.1: Add ai-prompt and ai-implement with explicit point/selection capture and the bounded version-1 generated-text contract; display proposals through the native transient-buffer owner.
+- [x] T4.2: Deliver explicit ai-apply-result and ai-discard-result with source revision/read-only admission, one native undo step and no implicit source save or model-selected target.
+- [x] T4.3: Fence partial, stale, cancelled, duplicated and oversized results, including local edits, external reloads and focus changes during generation.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation: `b9dbf29d6b89f49d1735c15e3104470fba9de1c2` delivers T4.1/T4.2
+as one capture/proposal/native-publication transition. Ten new focused integration
+cases and two private live-admission tests passed. They cover both profiles,
+source/result guards, ordinary undo/shared views and real external-file changes.
+Catalogs passed 423 commands and 230 settings. The Slice 4 report retains exact
+commands and observed scope. Final clean-head validation follows committed PR references.
 
 ### Slice 5: Guarded directory context
 

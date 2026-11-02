@@ -8,10 +8,12 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Explain a selected region through optional Pi 1.3.0 with `M-x ai-explain` or
-  `:ai-explain`. Continue editing while it runs, cancel through native input,
-  and inspect the captured selection's explanation in a read-only buffer.
-  Each invocation uses fresh input-only context with discovery and tools disabled.
+- Use optional Pi 1.3.0 to explain a selection or propose generated text with
+  `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
+  Continue editing while it runs and inspect read-only results. Explicitly
+  apply a proposal once to its original checked selection or point, undo it
+  normally, or discard it without changing source. Each invocation uses fresh
+  input-only context with discovery and tools disabled.
 
 - Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane

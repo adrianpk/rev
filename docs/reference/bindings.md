@@ -40,6 +40,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x C-w` | `write-file` | Request another destination. |
 | `M-x revert-buffer`, `:revert-buffer` | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |
 | `M-x ai-explain`, `:ai-explain` | `ai-explain` | Explain the captured selection through a fresh input-only Pi session. |
+| `M-x ai-prompt`, `:ai-prompt` | `ai-prompt` | Ask for an instruction; show selection replacement or point insertion before generation. |
+| `M-x ai-implement`, `:ai-implement` | `ai-implement` | Ask for an instruction for the captured insertion point. |
+| `M-x ai-apply-result`, `:ai-apply-result` | `ai-apply-result` | Apply the selected proposal once to its original checked target. |
+| `M-x ai-discard-result`, `:ai-discard-result` | `ai-discard-result` | Discard the pending result without editing source. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

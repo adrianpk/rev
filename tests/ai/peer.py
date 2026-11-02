@@ -18,7 +18,9 @@ def emit(v):
     sys.stdout.flush()
 def response(r, data=None, success=True):
     emit(dict(type='response', id=r['id'], command=r['type'], success=success, data=data))
-def final(text='A selection explanation.\u2028With Unicode.'):
+def final(text=None):
+    if text is None:
+        text = (root/'result').read_bytes().decode('utf-8') if (root/'result').exists() else 'A selection explanation.\u2028With Unicode.'
     emit(dict(type='message_end', message=dict(role='assistant', stopReason='stop', content=[dict(type='text',text=json.dumps(dict(version=1,text=text),ensure_ascii=False))])))
 def settle(): emit(dict(type='agent_settled',aborted=False))
 for line in sys.stdin:
