@@ -12,8 +12,9 @@ reported_at: 2026-11-02T21:11:07Z
 ready_at: 2026-11-02T21:11:07Z
 started_at: 2026-11-02T21:45:24Z
 branch: feat/rev-ai-pi-02-observation
+pr: 230
 reviewed_at: 2026-11-02T22:09:59Z
-commits: [16fd877abf0196cb934edf3859b6c0aa81c1c67e]
+commits: [16fd877abf0196cb934edf3859b6c0aa81c1c67e, da61e4da9c6974d1e57cecf99fdd2f083e7fc512]
 ---
 
 # External change observation

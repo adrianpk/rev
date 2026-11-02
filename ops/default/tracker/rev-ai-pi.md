@@ -69,7 +69,7 @@ Ticket: [External change observation](../ticket/reviewing/20261102211107-observe
 Requirements: EFC01-EFC08.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-ai-pi-02-observation`
-PR: pending.
+PR: [#230](https://forge.adrianpk.com/adrianpk/rev/pulls/230).
 Report: `ops/default/report/slices/rev-ai-pi/slice-2-observation.md`
 
 - [x] T2.1: Use the already locked rustix filesystem/event APIs for bounded parent-directory notifications and native session wake integration; no recursive project watcher or periodic content reads.
@@ -77,7 +77,8 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-2-observation.md`
 - [x] T2.3: Verify native notifications, overflow/registration limits, cleanup, idle behavior and canonical invalidation of completion, bookmarks, Org projections and LSP state.
 
 Implementation: `16fd877abf0196cb934edf3859b6c0aa81c1c67e` lands T2.1/T2.2
-together to keep the notification/reload owner coherent. Focused checks passed:
+together to keep the notification/reload owner coherent.
+T2.3 tests/report: `da61e4da9c6974d1e57cecf99fdd2f083e7fc512`. Focused checks passed:
 nine real kernel/session observation cases, two controlled worker ownership/bounds
 cases, native signal typing continuity, both-profile real Linux PTY wake/idle
 checks and LSP reload/completion invalidation. Documentation catalogs passed.
