@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111454
 title: Acceptance and user guidance
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T11:14:54Z
 ready_at: 2026-11-02T11:14:54Z
 started_at: 2026-11-02T16:39:21Z
 branch: feat/rev-language-server-installation-07-acceptance
-commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89]
+reviewed_at: 2026-11-02T17:03:59Z
+commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89, 91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195]
 ---
 
 # Acceptance and user guidance
@@ -48,4 +49,9 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-Acceptance implementation is active; no new execution result is claimed.
+Both-profile debug native/PTY management, actual Rust/Go semantics and owned
+shutdown passed. The guided chapter, full configuration example and Spore
+navigation are implemented; 68 pages/413 links, all live inventories, seven
+documentation regressions and all-example compilation passed. Final configured
+validation and the canonical PR reference follow; closure remains post-merge.
+See the [Slice 7 report](../../report/slices/rev-language-server-installation/slice-7-acceptance.md).

@@ -14,6 +14,8 @@ started_at: 2026-11-02T12:00:58Z
 branch: feat/rev-language-server-installation-02-catalog
 reviewed_at: 2026-11-02T12:18:47Z
 pr: 223
+closed_at: 2026-11-02T12:30:00Z
+resolution: fixed
 commits: [fa45a2e6040ebefdf5a019c199ee1702eeedde1c, 92655f9611e6573982b462edf44ecb534663ea61, 0a736a305f15bd4c1e641b2b445b186b587ac5e2]
 ---
 

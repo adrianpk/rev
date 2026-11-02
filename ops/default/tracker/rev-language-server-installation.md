@@ -342,8 +342,8 @@ that exact head into dev. Slice 6 of 7 completed.
 
 ### Slice 7: Acceptance and user guidance
 
-State: in_progress.
-Ticket: [Acceptance and user guidance](../ticket/in_progress/20261102111454-verify-and-document-server-management.md)
+State: reviewing.
+Ticket: [Acceptance and user guidance](../ticket/reviewing/20261102111454-verify-and-document-server-management.md)
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-language-server-installation-07-acceptance`
@@ -352,7 +352,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-7-acce
 
 - [x] T7.1: Deliver one representative native/PTY management journey in both startup profiles, real Rust/Go integration, managed acquisition and grammar-independent semantic routing.
 - [x] T7.2: Document ordinary setup, custom languages, source selection, recipes and lifecycle; update complete configuration examples, command/reference catalogs, Unreleased and canonical Markdown-to-Spore guidance.
-- [ ] T7.3: Finish slice tickets before the configured integrated gate, record resource/ownership evidence and close only after controller validation of the exact candidate.
+- [x] T7.3: Finish slice tickets before the configured integrated gate, record resource/ownership evidence and close only after controller validation of the exact candidate.
 
 T7.1 debug native and Linux PTY modes passed for both startup profiles. The
 controlled acquisition fixture transports the actual installed Rust binary;
@@ -369,6 +369,12 @@ native-only Markdown and an unbundled suffix. Documentation check passed 68
 pages/413 links with 417 commands/219 settings; seven documentation regressions
 and all-example compilation passed. Configured release validation and the exact
 integrated delivery-set gate remain pending.
+T7.2 commit: `91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195`.
+T7.3 implementation/admission preparation is complete. All prior tickets are
+solved; the final ticket is reviewing until merge. Resource/ownership evidence
+and separately recorded package outcomes are in the canonical report. The
+seven configured commands must pass on the exact clean PR head; the controller
+owns post-merge ticket closure, full-gate execution and set closure.
 
 
 ## Validation selection
@@ -388,7 +394,8 @@ Do not require Python or other optional runtimes for ordinary Rust/Bash checks.
 
 ## Final gate and closure
 
-Pending. No controller result or implementation evidence exists yet.
+Pending. All implementation tasks and focused evidence are recorded; Slice 7
+canonical integration and the exact integrated gate have not completed.
 Finish ticket transitions and their links before gate admission. Closure is
 documentation-only within the preconfigured exact allowlist. Retain the
 approval, task identities, canonical reports and exact tested candidate/receipt.

@@ -10,7 +10,7 @@ tags: lsp, installation
 source: chat
 reported_at: 2026-11-02T11:14:50Z
 ready_at: 2026-11-02T11:14:50Z
-in_progress_at: 2026-11-02T12:29:53Z
+started_at: 2026-11-02T12:29:53Z
 branch: feat/rev-language-server-installation-03-managed-rust
 reviewing_at: 2026-11-02T14:04:26Z
 pr: 224

@@ -208,7 +208,7 @@ git diff --check
 
 ### Slice 7: Acceptance and user guidance
 
-Ticket: [Acceptance and user guidance](../ticket/in_progress/20261102111454-verify-and-document-server-management.md)
+Ticket: [Acceptance and user guidance](../ticket/reviewing/20261102111454-verify-and-document-server-management.md)
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated and prior contracts retained.
 

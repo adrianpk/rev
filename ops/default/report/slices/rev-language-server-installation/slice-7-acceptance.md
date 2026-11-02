@@ -1,6 +1,6 @@
 # Slice 7: Acceptance and user guidance
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
@@ -82,6 +82,7 @@ Focused development checks passed:
 - `cargo check --locked --examples`
 - `cargo run --locked --quiet --example documentation-check`
 - `cargo test --locked --example documentation-check -- --test-threads=1`
+- `target/debug/examples/source-check --source examples/documentation_check/catalogs.rs`
 - `target/debug/examples/source-check --root examples/lsp-installation-acceptance.rs --file examples/lsp_installation_acceptance/fixture.rs --file examples/lsp_installation_acceptance/native.rs --file examples/lsp_installation_acceptance/pty.rs --file examples/lsp_installation_acceptance/semantic.rs --file examples/lsp_installation_acceptance/support.rs --file examples/completion_acceptance/terminal.rs`
 
 The built native/PTY modes passed for both profiles using owned temporary roots.
@@ -107,12 +108,36 @@ Documentation validation passed at 68 reachable pages, 413 links/anchors and
 417/219 inventory entries; all seven documentation regression cases passed.
 T7.1/report-introduction commit: `2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89`.
 
-No new live upstream package acquisition is claimed here. Earlier slice reports
-retain actual package-manager/probe evidence. Configured release validation and
-the exact-candidate integrated gate have not run for this slice yet.
+No new live upstream package acquisition is claimed here. Earlier integrated
+[Slice 4](slice-4-go-web.md) and [Slice 5](slice-5-catalog-recipes.md) reports retain
+these separately executed upstream observations; they are not reclassified as
+current-host versions or semantic evidence for every package:
+
+| Historical actual acquisition | Recorded version/runtime | Recorded result |
+| --- | --- | --- |
+| gopls | `v0.24.0`, Go `1.27.0-X:nodwarf5` | Exact module/build provenance, probe and unsaved semantic field/undo/reap passed. |
+| TypeScript server/compiler | Both `6.0.3`, Node `26.8.1`, npm `12.0.2` | Exact package lock and transport passed. |
+| Web package | `4.10.0` | One package lock and three launch probes passed. |
+| Marksman | `2026-02-08` | Official native digest/version/transport passed. |
+| Ruby | ruby-lsp `0.26.11`, Bundler `4.0.23`, Ruby `3.4.10` | Isolated frozen lock and transport passed. |
+| Python | Base server `1.15.0`, Python `3.14.7` | Fixed final-path venv/wheel report and transport passed. |
+| OLS | Revision `9b9711592bed66266311c361dd7a307ecc87025b` | Failed/incomplete: the recorded installed Odin lacks `core:odin/tool-format`; no executable/probe/semantics claimed. |
+
+T7.2 commit: `91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195`.
+T7.3 admission checks confirm tickets 1–6 are solved and this final implementation
+ticket is reviewing. Admission filled Slice 2's missing resolution/closure fields
+from its recorded closure commit `e70e5e68c840959a83c9d3c74c68f23e6fa2715c`
+and verified merged PR #223; Slice 3's existing start timestamp now uses the
+canonical `started_at` field. No timestamp or closure is inferred from file age.
+Implementation/guidance are complete; the final ticket's solved transition
+follows canonical merge. No ticket or set closure is inferred from local checks.
+Configured seven-command release validation is next; the combined integrated
+gate remains pending until controller-owned integration.
 
 ## Risks and Follow-ups
 
-Final command sequence and PR references remain pending. The controller owns
-integration and the exact-candidate integrated gate/closure; observed local
-fixtures do not establish upstream provenance or every language server’s quality.
+Configured validation and PR references remain pending. The controller owns
+integration, this final ticket's post-merge closure, the unchanged integrated
+gate and set closure. The arbitrary-language case uses a controlled peer; real
+Rust/Go semantics are separate. Recorded OLS acquisition requires a compatible
+external compiler. Unknown caches remain untouched. No gate result is claimed.
