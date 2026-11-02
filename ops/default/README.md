@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-10-31
 Scope: pending behavior after the completed native completion, optional LSP and modal editing deliveries
-Owner decision: native completion, optional LSP and modal editing delivered; other proposals retain their own state
+Owner decision: native completion, optional LSP and modal editing delivered; language-server installation approved for autonomous implementation on 2026-11-02
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -34,7 +34,7 @@ retain their own specification/model state.
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
-| Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md) | Draft. Rust first; secondary language list includes Odin. Actual recipes, prerequisites, acquisition/verification and managed/external precedence remain open. |
+| Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Approved. Seven slices for guided existing/custom setup, association, explicit choice, managed recipes and lifecycle. Any compatible language/server is eligible independently of bundled grammars or the initial catalog. Execution startup and delivery evidence remain controller-owned. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
@@ -43,6 +43,13 @@ retain their own specification/model state.
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+The owner selected optional language-server installation on 2026-11-02 and
+authorized the seven-slice plan and autonomous Looper implementation through
+dev. Existing-client support is already delivered. The selected set adds
+ergonomic setup and management; it does not limit LSP languages to the native
+grammar list or acquisition catalog. Other pending capabilities retain their
+own state.
 
 The owner selected startup-only Emacs/Vim modal editing on 2026-11-01,
 temporarily deferring discussion item 10, and authorized its eight-slice delivery.
@@ -158,9 +165,11 @@ PRs #212-#219. Its unchanged full gate passed at
 acceptance. The [modal tracker](tracker/rev-modal-editing.md#final-gate-and-closure)
 and [Slice 8 closure](report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
 record exact validation, resources, guide output and owned cleanup.
-The six remaining capability proposals retain their prior state,
-including optional external-program exploration. Earlier completed gates keep
-their historical identities.
+Of the six remaining capability proposals, language-server installation is now
+Approved with a seven-slice plan and tracker. Its implementation and integrated
+acceptance are pending. The other proposals, including optional external-program
+exploration, retain their prior state. Earlier completed gates keep their
+historical identities.
 
 Before planning a selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope
