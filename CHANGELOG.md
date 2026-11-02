@@ -6,6 +6,12 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- Register installed language servers with `lsp-setup`, including custom languages
+  without bundled grammars. Select a server or native-only completion per language,
+  and reload LSP settings without changing the current editing profile or LSP mode.
+
 ## 0.3.0 - 2026-11-01
 
 ### Added

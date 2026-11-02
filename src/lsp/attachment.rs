@@ -194,7 +194,7 @@ impl Client {
         self.excluded.remove(&id);
     }
 
-    fn detach(&mut self, id: BufferId) {
+    pub(super) fn detach(&mut self, id: BufferId) {
         let Some(attachment) = self.attachments.remove(&id) else {
             return;
         };

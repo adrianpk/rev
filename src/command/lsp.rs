@@ -5,6 +5,8 @@ pub enum LspCommand {
     Connect,
     Disconnect,
     Restart,
+    Setup,
+    ReloadSettings,
 }
 
 impl LspCommand {
@@ -15,6 +17,8 @@ impl LspCommand {
             Self::Connect => "lsp-connect",
             Self::Disconnect => "lsp-disconnect",
             Self::Restart => "lsp-restart",
+            Self::Setup => "lsp-setup",
+            Self::ReloadSettings => "lsp-reload-settings",
         }
     }
 }

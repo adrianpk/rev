@@ -58,6 +58,7 @@ pub use parse::parse;
 pub use resolve::{Snapshot, resolve};
 pub use startup::{Startup, prepare};
 pub use template::default_template;
+pub(crate) use validate::language_id;
 pub use xdg::Roots;
 
 use std::collections::BTreeMap;

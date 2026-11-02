@@ -85,7 +85,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 409] = [
+    pub const ALL: [Self; 411] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -176,6 +176,8 @@ impl Command {
         Self::Lsp(LspCommand::Connect),
         Self::Lsp(LspCommand::Disconnect),
         Self::Lsp(LspCommand::Restart),
+        Self::Lsp(LspCommand::Setup),
+        Self::Lsp(LspCommand::ReloadSettings),
         Self::Completion(CompletionCommand::AtPoint),
         Self::Completion(CompletionCommand::Mode),
         Self::Completion(CompletionCommand::AutoMode),

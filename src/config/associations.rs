@@ -34,6 +34,18 @@ const BUILTINS: [(&str, &str); 28] = [
 ];
 
 impl Snapshot {
+    /// Known explicit and built-in patterns, without grammar or filesystem IO.
+    pub fn patterns(&self, language: &str) -> Vec<String> {
+        let mut patterns: std::collections::BTreeMap<String, String> = BUILTINS
+            .into_iter()
+            .map(|(pattern, id)| (pattern.into(), id.into()))
+            .collect();
+        patterns.extend(self.settings().files.associations.clone());
+        patterns
+            .into_iter()
+            .filter_map(|(pattern, id)| (id == language).then_some(pattern))
+            .collect()
+    }
     /// Identify the supplied visiting basename without IO or canonicalization.
     /// Any user match precedes built-ins; exact names precede suffixes within
     /// each class, then the longest suffix wins. Unknown names are plain.

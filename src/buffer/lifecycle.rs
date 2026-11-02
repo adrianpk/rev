@@ -13,6 +13,12 @@ impl Kill {
 }
 
 impl Buffers {
+    pub(crate) fn apply_lsp_settings(&mut self, incoming: &crate::config::Snapshot) {
+        self.settings.lsp_delta(incoming);
+        for buffer in self.entries.values_mut() {
+            buffer.apply_settings(&self.settings);
+        }
+    }
     /// Inventory borrows live text owners in stable identity order.
     pub fn iter(&self) -> impl DoubleEndedIterator<Item = &Buffer> + ExactSizeIterator {
         self.entries.values()

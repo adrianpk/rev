@@ -48,14 +48,20 @@ PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-1-registration.md`
 
 - [x] T1.1: Add preferred-server/native-only and literal environment fields, whole-candidate validation, root provenance and a format-preserving conflict-checked settings writer.
-- [ ] T1.2: Expose guided existing/custom registration and scoped live application through the shared command owner; preserve runtime LSP enablement, exclusions, editor profile, includes and unrelated settings.
+- [x] T1.2: Expose guided existing/custom registration and scoped live application through the shared command owner; preserve runtime LSP enablement, exclusions, editor profile, includes and unrelated settings.
 - [ ] T1.3: Cover grammar-independent registration, source switching, configuration conflicts and symlink publication through native integration tests.
 
 T1.1 development checks passed: `cargo check`,
 `cargo test --locked --test lsp_installation -- --test-threads=1` (5 cases),
 `cargo test --locked --test configuration lsp_ -- --test-threads=1` and
 `cargo test --locked --test configuration template:: -- --test-threads=1`.
-Exact final controller validation and canonical integration remain pending.
+T1.1 commit: `4c9e7120460c043776cef6bca0470bfeac1e2a9d`.
+T1.2 development checks passed: `cargo check --locked`,
+`cargo test --locked --test lsp_installation workflows:: -- --test-threads=1`,
+`cargo run --locked --quiet --example documentation-check` and
+`cargo test --locked --test commands palette::catalog_reference -- --exact`.
+The native workflow checks cover both startup profiles and cancellation at each
+prompt. Exact final controller validation and canonical integration remain pending.
 
 ### Slice 2: Catalog and guided setup
 

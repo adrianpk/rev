@@ -3,6 +3,9 @@ use crate::command::{Command, LspCommand};
 use crate::lsp::Status;
 use std::time::Duration;
 
+mod setup;
+pub(super) use setup::Prompt;
+
 impl Session {
     pub(super) fn lsp_command(&mut self, command: Command) -> Option<Action> {
         let Command::Lsp(command) = command else {
@@ -12,6 +15,11 @@ impl Session {
     }
 
     fn lsp_control(&mut self, command: LspCommand) -> Action {
+        match command {
+            LspCommand::Setup => return self.begin_lsp_setup(),
+            LspCommand::ReloadSettings => return self.reload_lsp_settings(),
+            _ => (),
+        }
         let id = self.windows.selected().point.stamp.buffer;
         match command {
             LspCommand::Mode => self.lsp.set_enabled(!self.lsp.enabled()),
@@ -27,9 +35,47 @@ impl Session {
                 }
             }
             LspCommand::Status => {}
+            LspCommand::Setup | LspCommand::ReloadSettings => {
+                unreachable!("management commands handled above")
+            }
         }
         self.activate_lsp();
         self.message(&format!("LSP: {}", status_text(&self.lsp_status())))
+    }
+
+    fn reload_lsp_settings(&mut self) -> Action {
+        let root = match self.lsp_settings_root() {
+            Ok(root) => root,
+            Err(error) => return self.error(&error),
+        };
+        let startup = crate::config::prepare(&root);
+        if let Some(error) = startup.diagnostic {
+            return self.error(&error.to_string());
+        }
+        self.apply_lsp_settings(&startup.snapshot);
+        self.message("LSP settings and file associations reloaded")
+    }
+
+    fn lsp_settings_root(&self) -> Result<std::path::PathBuf, String> {
+        self.buffers
+            .snapshot()
+            .root()
+            .map(std::path::Path::to_path_buf)
+            .map(Ok)
+            .unwrap_or_else(|| {
+                crate::config::Roots::from_env()
+                    .map(|r| r.config_file())
+                    .map_err(|e| e.to_string())
+            })
+    }
+
+    fn apply_lsp_settings(&mut self, snapshot: &crate::config::Snapshot) {
+        self.dismiss_completion();
+        self.buffers.apply_lsp_settings(snapshot);
+        self.lsp
+            .apply_settings(snapshot.settings().lsp.clone(), &self.buffers);
+        self.activate_lsp();
+        self.sync_input_context();
     }
 
     /// Status observes transport readiness, independently of native completion.

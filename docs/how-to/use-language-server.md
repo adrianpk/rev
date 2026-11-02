@@ -5,6 +5,24 @@ same popup as native completion. Rust uses `rust-analyzer` by default. Keep the
 server executable on `PATH`, or configure its absolute path. Rev does not
 install or download a server.
 
+## Register or select an installed server
+
+Run `M-x lsp-setup` (or `:lsp-setup` in modal Normal). Enter the language ID,
+then an existing compatible server name, a new profile name, or `native-only`.
+For a new profile, enter the executable separately from its JSON argument array,
+then its JSON root-marker array. Empty answers keep the inherited selected
+profile's arguments and markers; enter `[]` to clear them. Settings and literal
+environment overrides also inherit from that profile.
+
+Known language associations are reused. For a new identity such as `elixir`,
+enter a JSON pattern array such as `["*.ex", "*.exs"]` when asked. No grammar or
+recipe is required. C-g cancels; modal Escape also cancels. Nothing is saved
+until all answers form an admitted complete configuration.
+
+Setup saves and applies the choice without enabling LSP. Use `lsp-mode` to
+activate it and `lsp-status` to check its actual transport readiness. A missing
+executable remains a recoverable prerequisite failure.
+
 ## Enable Rust completion
 
 Open a Rust project containing `Cargo.toml`, then run `M-x lsp-mode`. This enables
@@ -74,8 +92,10 @@ buffer visits. After restoring the prerequisite, run `M-x lsp-restart` from an
 eligible file. It replaces that root's connection and reopens its documents with
 current unsaved text. Other roots and buffer exclusions stay unchanged.
 
-Configuration and the process environment are read at startup. Restart rev after
-changing `PATH`, executable arguments, settings or server entries. Disabling and re-enabling `lsp-mode` also permits a
+Run `lsp-reload-settings` after editing server entries, preferences or file
+associations in the selected user root or its includes. It preserves the running
+LSP mode, buffer exclusions and startup editing profile. Restart rev after
+changing its inherited process environment, such as `PATH`. Disabling and re-enabling `lsp-mode` also permits a
 new launch attempt with the existing settings. Empty results, timeouts and
 unavailable servers use native fallback; ordinary editing continues.
 

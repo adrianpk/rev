@@ -12,6 +12,7 @@ pub mod position;
 mod protocol;
 mod requests;
 pub mod roots;
+mod settings;
 
 use crate::config::Lsp;
 use connection::Connection;

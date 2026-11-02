@@ -3,3 +3,5 @@
 mod fixture;
 #[path = "lsp_installation/settings.rs"]
 mod settings;
+#[path = "lsp_installation/workflows.rs"]
+mod workflows;

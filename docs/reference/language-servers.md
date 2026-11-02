@@ -3,7 +3,7 @@
 Optional installed stdio servers supply semantic completion through the native
 popup, canonical buffer and undo owner. LSP is disabled by default. The default
 Rust entry runs `rust-analyzer` with no arguments and uses `Cargo.toml` as its
-root marker. No server installation, download or configuration hot reload occurs.
+root marker. Registration stores existing executables; no server is downloaded.
 See [Use a language server](../how-to/use-language-server.md) for setup and the
 [configuration catalog](defaults.md) for every setting.
 
@@ -16,11 +16,23 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-disconnect` | Exclude the canonical buffer across its views until restored or closed. |
 | `lsp-connect` | Restore buffer eligibility without enabling a disabled global mode. |
 | `lsp-restart` | Replace the eligible current root's connection; preserve other roots, exclusions and global mode. |
+| `lsp-setup` | Choose a language and existing profile, new installed executable, or native-only source; save and apply the admitted settings. |
+| `lsp-reload-settings` | Read the selected configuration root and includes, applying only LSP settings and file associations. |
 
-Eligible file activation selects the first matching server name in lexical order.
+Eligible file activation uses `lsp.preferred` when present: a compatible server
+name selects that profile; `false` selects native-only. Otherwise it selects the
+first matching server name in lexical order. Language identities and associations
+do not require a bundled grammar.
 One frozen server configuration and canonical root identify one owned connection.
 Split views and canonical file aliases share the document; other buffers under
 the same root share the process. Manual exclusions remain buffer-local.
+
+Setup and explicit reload preserve the session's global LSP mode, exclusions,
+text, history, selections and startup interaction profile. Source changes retire
+old activations before new requests; unchanged connections remain usable.
+The writer preserves comments, includes and root symlinks, validates the complete
+candidate and refuses concurrent edits to any captured source. A reported
+post-publication durability warning means the new settings were published.
 
 Root lookup chooses the nearest configured ancestor marker. An explicitly
 opened containing directory bounds the search and supplies its fallback. Files

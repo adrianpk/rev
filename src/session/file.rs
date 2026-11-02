@@ -129,6 +129,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::LspSetup(prompt)) => self.lsp_setup_argument(*prompt, &path),
             Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
             Some(Pending::BookmarkQuit) => self.bookmark_quit_answer(&path),
             Some(pending) if pending.org_argument() => self.org_argument(pending, &path),

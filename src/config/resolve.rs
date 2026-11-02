@@ -16,6 +16,39 @@ pub struct Snapshot {
 }
 
 impl Snapshot {
+    /// Restrict live application to LSP and association leaves. Other settings,
+    /// grammar registrations and the startup interaction profile remain frozen.
+    pub(crate) fn lsp_delta(&mut self, incoming: &Self) {
+        self.settings.lsp = incoming.settings.lsp.clone();
+        self.settings.files.associations = incoming.settings.files.associations.clone();
+        self.origins.retain(|key, _| !lsp_key(key));
+        for (key, source) in incoming.origins.iter().filter(|(key, _)| lsp_key(key)) {
+            let path = &incoming.sources[*source];
+            let id = self
+                .sources
+                .iter()
+                .position(|p| p == path)
+                .unwrap_or_else(|| {
+                    self.sources.push(path.clone());
+                    self.sources.len() - 1
+                });
+            self.origins.insert(key.clone(), id);
+        }
+        // Drop paths used only by a previous LSP graph. Repeated reloads cannot
+        // accumulate historical include names in a long-running session.
+        let previous = std::mem::take(&mut self.sources);
+        for id in self.origins.values_mut() {
+            let path = &previous[*id];
+            *id = self
+                .sources
+                .iter()
+                .position(|p| p == path)
+                .unwrap_or_else(|| {
+                    self.sources.push(path.clone());
+                    self.sources.len() - 1
+                });
+        }
+    }
     /// The selected user root, including explicit spellings and absent roots.
     pub fn root(&self) -> Option<&Path> {
         self.root.as_deref()
@@ -79,6 +112,12 @@ impl Snapshot {
         let key: Vec<String> = key.iter().map(|part| (*part).to_owned()).collect();
         self.origins.get(&key).map(|id| self.sources[*id].as_path())
     }
+}
+
+fn lsp_key(key: &[String]) -> bool {
+    key.first().is_some_and(|part| part == "lsp")
+        || (key.first().is_some_and(|part| part == "files")
+            && key.get(1).is_some_and(|part| part == "associations"))
 }
 
 /// Resolve the loader's postorder against compiled defaults. Every source and
