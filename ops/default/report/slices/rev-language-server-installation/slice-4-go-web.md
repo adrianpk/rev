@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
 Branch: `feat/rev-language-server-installation-04-go-web`
-PR: pending
+PR: `#225`
 
 ## Purpose
 
@@ -135,10 +135,19 @@ Observed npm lock SHA-256 values were
 roots; fixtures were removed after workers, probes and the Go client stopped.
 The explicit network checks are excluded from ordinary deterministic regressions.
 
-The configured ordered format, all-target Clippy, installation/client/completion
-and whitespace batch is recorded through the controller on the clean report head
-before opening the PR. The PR-reference follow-up requires a fresh exact-HEAD
-receipt. The integrated delivery-set gate remains with the controller.
+Pre-PR controller validation passed at
+`d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f`, receipt
+`HKEDMZBY74EBCBV43XPUOV3CKK`:
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --locked --all-targets -- -D warnings`: passed.
+- `cargo test --locked --test lsp_installation --test lsp --test completion -- --test-threads=1`: passed (116 cases; the two explicit network checks are excluded and passed separately above).
+- `git diff --check`: passed.
+
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/225
+The PR-reference follow-up requires a fresh exact-HEAD receipt before integration;
+the controller retains that final receipt without another repository mutation.
+The integrated delivery-set gate remains with the controller.
 
 ## Risks and Follow-ups
 

@@ -184,7 +184,7 @@ Ticket: [Go and web installation](../ticket/reviewing/20261102111451-install-go-
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-language-server-installation-04-go-web`
-PR: pending.
+PR: `#225`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-4-go-web.md`
 
 - [x] T4.1: Add isolated gopls acquisition with exact module provenance and local-only compiler selection.
@@ -239,11 +239,12 @@ server cleanup. TypeScript Language Server 6.0.3/TypeScript 6.0.3 and web packag
 explicit network checks took 61.12 seconds and cleaned owned disposable roots;
 ordinary deterministic checks do not acquire packages. The Slice 4 report records
 exact module/lock evidence and separates web transport from Go semantic evidence.
-T4.3/report-introduction commit and configured clean-HEAD validation: pending
-at report preparation. The canonical PR is prepared only after that batch passes.
-
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T4.3/report-introduction commit: `d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f`.
+All four configured commands passed on that clean candidate with controller receipt
+`HKEDMZBY74EBCBV43XPUOV3CKK` (116 deterministic regression cases).
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/225
+The PR-reference follow-up requires a fresh exact-HEAD receipt before integration.
+Canonical integration evidence remains pending with the controller.
 
 ### Slice 5: Remaining optional recipes
 

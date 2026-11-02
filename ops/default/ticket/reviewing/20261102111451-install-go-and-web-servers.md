@@ -13,7 +13,8 @@ ready_at: 2026-11-02T11:14:51Z
 started_at: 2026-11-02T14:16:56Z
 branch: feat/rev-language-server-installation-04-go-web
 reviewed_at: 2026-11-02T14:50:44Z
-commits: [659399f44008122423f8de04eaa40caccc078ef0, 50aac5222ff076ba4001bfbeb9b8c7ce674de183]
+pr: 225
+commits: [659399f44008122423f8de04eaa40caccc078ef0, 50aac5222ff076ba4001bfbeb9b8c7ce674de183, d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f]
 ---
 
 # Go and web installation
@@ -53,5 +54,7 @@ passed. Actual managed gopls v0.24.0 provided unsaved semantic completion;
 TypeScript Language Server/TypeScript 6.0.3 and web package 4.10.0 passed native
 transport probes on Node v26.8.1/npm 12.0.2. See the
 [Slice 4 report](../../report/slices/rev-language-server-installation/slice-4-go-web.md)
-for exact commands, provenance and limitations. The configured clean-HEAD batch
-and canonical PR reference are recorded before readiness is reported.
+for exact commands, provenance and limitations. All four configured commands
+passed at `d5a5cea182cb1f6b5869b4482ad3e9ac6feb6a2f` with receipt
+`HKEDMZBY74EBCBV43XPUOV3CKK` (116 deterministic cases). Canonical PR: #225.
+The final PR-reference head requires its own controller receipt before integration.
