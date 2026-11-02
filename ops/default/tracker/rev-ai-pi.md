@@ -89,12 +89,12 @@ regression also passed. This is Slice 2 evidence, not the integrated set gate.
 
 ### Slice 3: Pi RPC explanation
 
-State: in_progress.
-Ticket: [Pi RPC explanation](../ticket/in_progress/20261102211108-connect-pi-rpc-for-explanation.md)
+State: reviewing.
+Ticket: [Pi RPC explanation](../ticket/reviewing/20261102211108-connect-pi-rpc-for-explanation.md)
 Requirements: PI01-PI04, PI07; AI01, AI05, AI07, AI16.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-ai-pi-03-rpc`
-PR: pending.
+PR: [#231](https://forge.adrianpk.com/adrianpk/rev/pulls/231).
 Report: `ops/default/report/slices/rev-ai-pi/slice-3-rpc.md`
 
 - [x] T3.1: Admit typed AI/Pi configuration and own one lazy version-checked RPC child with bounded LF framing, independent streams, continuous consumption and explicit operation generations.
@@ -108,6 +108,8 @@ Focused protocol/configuration/ownership checks and real offline Pi 1.3.0
 get_state/shutdown probes passed. Catalogs passed 419 commands and 230 settings.
 The Slice 3 report retains measured process observations and exact focused
 commands. Final clean-head configured validation follows committed PR references.
+
+Report introduction and remaining lifecycle regressions: `18dfaa6cc4c0ef0875b9330dc27bc325733e911f`.
 
 ### Slice 4: Checked AI editing
 

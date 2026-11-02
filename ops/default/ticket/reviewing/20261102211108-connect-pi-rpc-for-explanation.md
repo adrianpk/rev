@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211108
 title: Pi RPC explanation
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,9 @@ reported_at: 2026-11-02T21:11:08Z
 ready_at: 2026-11-02T21:11:08Z
 started_at: 2026-11-02T22:33:17Z
 branch: feat/rev-ai-pi-03-rpc
-commits: []
+pr: 231
+reviewed_at: 2026-11-02T22:59:13Z
+commits: [8725da90411ada30b14fb5371c9be4dd06f7d8f7, 9cc5443b89a5bb11f89e3b5cb769b099f2af3049, 0e81da925428984974e1f23251d1972566020a69, 18dfaa6cc4c0ef0875b9330dc27bc325733e911f]
 ---
 
 # Pi RPC explanation
@@ -49,3 +51,14 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Canonical PR [#231](https://forge.adrianpk.com/adrianpk/rev/pulls/231) delivers
+checked lazy Pi RPC and input-only selection explanation through native commands
+and read-only buffers. Source ownership, ongoing editing, prompt cancellation,
+protocol bounds and owned process shutdown are covered by the Slice 3 report.
+Real offline Pi 1.3.0 get_state/shutdown probes passed without provider generation.
+Final clean-head evidence follows the committed PR references and is retained by
+the controller and canonical PR validation. The report introduction is
+`18dfaa6cc4c0ef0875b9330dc27bc325733e911f`.
