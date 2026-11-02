@@ -12,15 +12,15 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 2 — External change observation
+Active slice: Slice 3 — Pi RPC explanation
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slice 1 is integrated at its validated head. Slice 2 is active; later
-slices remain pending. Ready tickets are actionable inputs, not completion evidence.
+closure. Slices 1 and 2 are integrated at their validated heads. Slice 3 is active;
+later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
 
@@ -64,8 +64,8 @@ Slice 1 evidence, not the integrated delivery-set gate.
 
 ### Slice 2: External change observation
 
-State: reviewing.
-Ticket: [External change observation](../ticket/reviewing/20261102211107-observe-external-file-changes.md)
+State: delivered.
+Ticket: [External change observation](../ticket/solved/20261102211107-observe-external-file-changes.md)
 Requirements: EFC01-EFC08.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-ai-pi-02-observation`
@@ -82,8 +82,10 @@ T2.3 tests/report: `da61e4da9c6974d1e57cecf99fdd2f083e7fc512`. Focused checks pa
 nine real kernel/session observation cases, two controlled worker ownership/bounds
 cases, native signal typing continuity, both-profile real Linux PTY wake/idle
 checks and LSP reload/completion invalidation. Documentation catalogs passed.
-Final clean-head validation uses exactly the four configured commands after
-PR references are committed; the canonical PR/controller receipt owns its result.
+PR #230 merged at `93e22753752d8304e946833b7a2f9c8b9d302518` on
+2026-11-02T22:28:14Z. Final clean-head receipt `FL7VQPPICASDP37MYGALPWKXXT`
+passed all four configured commands and 142 tests. The focused late-notice
+regression also passed. This is Slice 2 evidence, not the integrated set gate.
 
 ### Slice 3: Pi RPC explanation
 

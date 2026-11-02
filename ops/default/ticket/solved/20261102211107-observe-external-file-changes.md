@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211107
 title: External change observation
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -13,6 +13,8 @@ ready_at: 2026-11-02T21:11:07Z
 started_at: 2026-11-02T21:45:24Z
 branch: feat/rev-ai-pi-02-observation
 pr: 230
+closed_at: 2026-11-02T22:28:14Z
+resolution: fixed
 reviewed_at: 2026-11-02T22:09:59Z
 commits: [16fd877abf0196cb934edf3859b6c0aa81c1c67e, da61e4da9c6974d1e57cecf99fdd2f083e7fc512]
 ---
@@ -61,3 +63,10 @@ and retains passive per-buffer conditions through cancellation and later events.
 Kernel, native-session, controlled bounds/shutdown and both-profile PTY checks
 passed. LSP versions/completion and native bookmark/Org invalidation are covered.
 The Slice 2 report and canonical PR retain exact validation and measured limits.
+
+## Closure
+
+PR #230 is integrated at `93e22753752d8304e946833b7a2f9c8b9d302518`.
+Receipt `FL7VQPPICASDP37MYGALPWKXXT` passed all configured Slice 2 checks
+and 142 tests. The linked report retains the observed resource limits and
+focused regression evidence.

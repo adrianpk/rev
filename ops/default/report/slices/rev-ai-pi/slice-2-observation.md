@@ -1,6 +1,6 @@
 # Slice 2: External change observation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -160,3 +160,13 @@ failure, and explicit reload re-admits observation after the source appears.
 Lost parent-directory watches report unavailable coverage until an admitted
 association/baseline change retries registration. The later joint acceptance retains
 broader multi-buffer/resource measurements under its approved scope.
+
+## Integration
+
+PR [#230](https://forge.adrianpk.com/adrianpk/rev/pulls/230) merged into dev on
+2026-11-02T22:28:14Z at `93e22753752d8304e946833b7a2f9c8b9d302518`.
+Controller receipt `FL7VQPPICASDP37MYGALPWKXXT` passed the exact ordered
+four-command slice validation at that clean head: format, strict all-target
+Clippy, 21 external-change/75 file/46 LSP tests, and git diff --check. The
+focused stale-notice regression also passed. The controller owns integration
+and the later unchanged delivery-set gate.
