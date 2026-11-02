@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
 Branch: `feat/rev-language-server-installation-03-managed-rust`
-PR: pending
+PR: `#224`
 
 ## Purpose
 
@@ -120,9 +120,18 @@ Focused checks then passed without weakening production or validation limits.
 A temporary-storage quota interrupted command submission before native edits;
 capacity was restored and fresh owned writes passed before continuation.
 
-The configured ordered format, all-target Clippy, complete installation regression
-and whitespace batch is recorded through the controller on the clean report head
-before opening the PR. Its reference follow-up requires a fresh exact-HEAD receipt.
+Pre-PR controller validation passed at
+`ee39a681179a7c3ecf6316d20004c900f1b0e529`, receipt
+`WJ6BNUUPPJYWBZTRYTZD2YCSCP`:
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --locked --all-targets -- -D warnings`: passed.
+- `cargo test --locked --test lsp_installation -- --test-threads=1`: passed.
+- `git diff --check`: passed.
+
+Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/224
+The PR-reference follow-up requires a fresh exact-HEAD receipt before integration;
+the controller retains that final receipt without another repository mutation.
 The combined delivery-set gate remains with the controller after all slices.
 
 ## Risks and Follow-ups

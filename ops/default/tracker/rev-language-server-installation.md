@@ -122,7 +122,7 @@ Ticket: [Managed Rust installation](../ticket/reviewing/20261102111450-install-m
 Requirements: INS01, INS02, INS03, INS05, INS06.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-language-server-installation-03-managed-rust`
-PR: pending.
+PR: `#224`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-3-managed-rust.md`
 
 - [x] T3.1: Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation lock and one bounded asynchronous management worker.
@@ -169,11 +169,12 @@ while work is active, disabled analysis, inherited options/associations, preserv
 of a custom preset-named profile, an include-source conflict leaving ready data
 unselected, ready-record selection without helpers and corrupt-registry isolation.
 The command/reference catalogs agree on 414 commands and 219 settings.
-T3.3/report-introduction commit and configured clean-HEAD validation: pending
-at report preparation. The canonical PR is prepared only after that batch passes.
-
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T3.3/report-introduction commit: `ee39a681179a7c3ecf6316d20004c900f1b0e529`.
+All four configured commands passed on that clean candidate with controller receipt
+`WJ6BNUUPPJYWBZTRYTZD2YCSCP`. Canonical PR:
+https://forge.adrianpk.com/adrianpk/rev/pulls/224
+The PR-reference follow-up requires a fresh exact-HEAD receipt before integration.
+Canonical integration evidence remains pending with the controller.
 
 ### Slice 4: Go and web installation
 
