@@ -11,3 +11,6 @@ mod selectors;
 mod settings;
 #[path = "lsp_installation/workflows.rs"]
 mod workflows;
+
+#[path = "lsp_installation/storage.rs"]
+mod storage;

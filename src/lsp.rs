@@ -8,6 +8,7 @@ mod connection;
 mod documents;
 mod frame;
 mod inbox;
+pub mod install;
 mod io;
 pub mod position;
 mod protocol;

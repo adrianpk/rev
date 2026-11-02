@@ -125,9 +125,23 @@ Branch: `feat/rev-language-server-installation-03-managed-rust`
 PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-3-managed-rust.md`
 
-- [ ] T3.1: Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation lock and one bounded asynchronous management worker.
+- [x] T3.1: Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation lock and one bounded asynchronous management worker.
 - [ ] T3.2: Acquire an exact official Rust server release with integrity verification and finite structured helper processes; initialize/shutdown in an owned empty root before publication.
 - [ ] T3.3: Publish ready inventory before conflict-checked selection; cover missing prerequisites, corrupt downloads, invalid registry, failed probe and installation while LSP is disabled.
+
+T3.1 development checks passed: `cargo check --locked`,
+`cargo test --locked --test lsp_installation storage:: -- --test-threads=1` (4 cases),
+`cargo test --locked --test lsp_installation settings:: -- --test-threads=1` (6 cases),
+`cargo run --locked --quiet --example source-check -- --source src/config/mutation.rs --source src/lsp/install.rs --source src/lsp/install/record.rs --source src/lsp/install/storage.rs --source src/lsp/install/tree.rs --source src/lsp/install/worker.rs`
+and `git diff --check`.
+Storage coverage includes ready/preparing admission, invalid-registry preservation,
+32-record/2 MiB/1 GiB bounds, escaping paths, source conflicts, cross-process data
+locking with distinct state roots, shared settings locking and cancellation ownership.
+The initial focused source check identified oversized functions; responsibility
+boundaries were split and the unchanged quality limits then passed.
+T3.1 commit: recorded by its task commit; the final report will link its full hash.
+T3.2 and T3.3 remain pending. The configured final ordered validation and canonical
+PR are not ready.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

@@ -1,8 +1,7 @@
 //! Restricted, format-preserving user-root transactions. No resolved defaults
 //! are serialized, and an invalid startup graph never grants write permission.
-use std::fs::{self, File, OpenOptions};
+use std::fs::{self, File};
 use std::io::Write;
-use std::os::unix::fs::OpenOptionsExt;
 use std::path::{Path, PathBuf};
 
 use toml_edit::{DocumentMut, Item, Table, Value, value};
@@ -124,29 +123,26 @@ impl SettingsEdit {
     /// Serialize manager mutations with an OS-owned lock in the resolved state
     /// root. A busy instance returns immediately. The root symlink stays intact.
     pub fn publish(self, state: &Path) -> Result<Publication, Diagnostic> {
-        self.publish_inner(state)
+        let lock = super::mutation::Lock::acquire(state)
+            .map_err(|error| Diagnostic::new(&self.root, error))?;
+        self.publish_locked(&lock)
+    }
+
+    pub(crate) fn publish_locked(
+        &self,
+        _lock: &super::mutation::Lock,
+    ) -> Result<Publication, Diagnostic> {
+        self.publish_inner()
             .map_err(|error| Diagnostic::new(&self.root, error))
     }
 
-    fn publish_inner(&self, state: &Path) -> Result<Publication, String> {
+    fn publish_inner(&self) -> Result<Publication, String> {
         let bytes = self.document.to_string().into_bytes();
         let candidate =
             super::load::candidate(&self.root, bytes.clone()).map_err(|e| e.to_string())?;
         let snapshot = resolve(&candidate)
             .map_err(|e| e.to_string())?
             .with_root(&self.root);
-        let lock_dir = state.join("lsp");
-        fs::create_dir_all(&lock_dir).map_err(|e| format!("create LSP lock directory: {e}"))?;
-        let lock = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .mode(0o600)
-            .open(lock_dir.join("mutation.lock"))
-            .map_err(|e| format!("open LSP mutation lock: {e}"))?;
-        lock.try_lock()
-            .map_err(|_| "another LSP management operation owns the mutation lock".to_owned())?;
         self.unchanged()?;
         let target = self
             .sources

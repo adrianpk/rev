@@ -23,8 +23,9 @@ Implement versioned XDG payloads, schema-1 installation facts, OS-owned mutation
 
 ## Current behavior and inputs
 
-The optional stdio LSP client and exclusive semantic/native completion policy
-are delivered. Guided management and managed installation are not yet delivered.
+The optional stdio LSP client, guided existing-server setup and exclusive
+semantic/native completion policy are delivered. Managed acquisition is active
+implementation in this ticket.
 Use the [approved specification](../../spec/editor-language-server-installation.md)
 and [model](../../spec/editor-language-server-installation-model.md).
 
@@ -47,4 +48,6 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+T3.1 storage and worker development checks passed; see the tracker for exact
+commands and coverage. Acquisition, protocol verification and native management
+interaction remain pending. No completed installation or PR readiness is claimed.

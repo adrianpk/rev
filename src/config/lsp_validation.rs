@@ -198,3 +198,8 @@ fn json_data(name: &str, leaf: &str, value: &toml::Value) -> Result<(), Failure>
         _ => Ok(()),
     }
 }
+
+/// Registry launch profiles follow the same admission rules as user profiles.
+pub(crate) fn profile(name: &str, server: &super::Server) -> Result<(), String> {
+    validate_server(name, server, None, true).map_err(|failure| failure.message)
+}

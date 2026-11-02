@@ -1,0 +1,19 @@
+//! Explicit, optional managed installation. Registry reads never start work;
+//! mutations own one native job slot and OS locks for their entire lifetime.
+mod record;
+mod storage;
+mod tree;
+mod worker;
+
+pub use record::{Installation, Launch, Registry, State};
+pub use storage::{Candidate, Storage};
+pub use worker::{Manager, Outcome};
+
+pub const RECORDS: usize = 32;
+pub const REGISTRY_BYTES: usize = 2 * 1024 * 1024;
+pub const ARTIFACT_BYTES: u64 = 256 * 1024 * 1024;
+pub const PAYLOAD_BYTES: u64 = 1024 * 1024 * 1024;
+pub const CACHE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+pub const OUTPUT_BYTES: usize = 1024 * 1024;
+pub const DISPLAY_BYTES: usize = 64 * 1024;
+pub const OPERATION_SECONDS: u64 = 900;
