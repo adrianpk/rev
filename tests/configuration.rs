@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "configuration/ai.rs"]
+mod ai;
 #[path = "configuration/org_export.rs"]
 mod org_export;
 

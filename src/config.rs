@@ -20,6 +20,8 @@ pub use source::{
     PartialSourcePrograms, ProgramAction, ProgramStep, SourceCwd, SourceDelivery, SourceProgram,
     SourcePrograms, SourceResult,
 };
+mod ai;
+pub use ai::{Ai, PartialAi, PartialPi, Pi};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -85,6 +87,7 @@ pub struct Settings {
     pub bookmarks: Bookmarks,
     pub completion: Completion,
     pub lsp: Lsp,
+    pub ai: Ai,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -114,6 +117,7 @@ pub struct Document {
     pub bookmarks: PartialBookmarks,
     pub completion: PartialCompletion,
     pub lsp: PartialLsp,
+    pub ai: PartialAi,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

@@ -39,6 +39,7 @@ impl Failure {
 pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
+    super::ai::validate(&document.ai)?;
     completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;
@@ -134,7 +135,11 @@ fn retention(document: &Document) -> Result<(), Failure> {
     Ok(())
 }
 
-fn integer(key: &str, value: Option<i64>, range: RangeInclusive<i64>) -> Result<(), Failure> {
+pub(super) fn integer(
+    key: &str,
+    value: Option<i64>,
+    range: RangeInclusive<i64>,
+) -> Result<(), Failure> {
     if value.is_some_and(|value| !range.contains(&value)) {
         return Err(Failure::new(key, format!("expected integer in {range:?}")));
     }

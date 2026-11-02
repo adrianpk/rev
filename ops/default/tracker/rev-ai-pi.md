@@ -89,8 +89,8 @@ regression also passed. This is Slice 2 evidence, not the integrated set gate.
 
 ### Slice 3: Pi RPC explanation
 
-State: ready.
-Ticket: [Pi RPC explanation](../ticket/ready/20261102211108-connect-pi-rpc-for-explanation.md)
+State: in_progress.
+Ticket: [Pi RPC explanation](../ticket/in_progress/20261102211108-connect-pi-rpc-for-explanation.md)
 Requirements: PI01-PI04, PI07; AI01, AI05, AI07, AI16.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-ai-pi-03-rpc`

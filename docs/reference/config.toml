@@ -1453,3 +1453,13 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 "d" = "modal-delete"
 "c" = "modal-change"
 "y" = "modal-copy"
+
+# Optional Pi backend: started only by an explicit AI invocation.
+[ai.pi]
+command = "pi"
+# model = "provider/model" # Unset: use Pi's resolved model.
+persist_sessions = true
+idle_timeout_ms = 900000
+request_timeout_ms = 300000
+max_input_bytes = 1048576
+max_result_bytes = 262144

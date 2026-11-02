@@ -160,7 +160,7 @@ git diff --check
 
 ### Slice 3: Pi RPC explanation
 
-Ticket: [Pi RPC explanation](../ticket/ready/20261102211108-connect-pi-rpc-for-explanation.md)
+Ticket: [Pi RPC explanation](../ticket/in_progress/20261102211108-connect-pi-rpc-for-explanation.md)
 Requirements: PI01-PI04, PI07; AI01, AI05, AI07, AI16.
 Dependencies: Slice 2 integrated; preserve all earlier contracts.
 

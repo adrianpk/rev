@@ -195,6 +195,18 @@ change only that view's overrides and never reload or write this snapshot.
 | `mouse.scroll_lines` | Integer 1..=100 | `3` | Logical rows per wheel report; each drag-edge tick also clamps to the current text-area height. |
 | `mouse.tree_activate_on_click` | Boolean | `true` | Startup tree policy; false selects/focuses only. Global mouse disablement suppresses both selection and activation. |
 
+### Optional Pi transport
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `ai.pi.command` | Nonempty string, at most 4096 bytes, no NUL | `"pi"` | Trusted executable name/path; arguments are supplied by the adapter without a shell. |
+| `ai.pi.model` | Optional nonempty string, at most 256 bytes, no NUL | Unset | Pi model reference; absent uses Pi's resolved model. |
+| `ai.pi.persist_sessions` | Boolean | `true` | Directory-history policy; input-only operations always use a fresh ephemeral child. |
+| `ai.pi.idle_timeout_ms` | Integer 0..=3600000 | `900000` | Directory-child idle lifetime; input-only children close after each operation. |
+| `ai.pi.request_timeout_ms` | Integer 1000..=1800000 | `300000` | Generation deadline followed by bounded cancellation/shutdown. |
+| `ai.pi.max_input_bytes` | Integer 1..=4194304 | `1048576` | Complete encoded editor snapshot/instruction envelope. |
+| `ai.pi.max_result_bytes` | Integer 1..=1048576 | `262144` | Logical generated UTF-8 result limit, separate from protocol frame limits. |
+
 ### Optional server transport
 
 | Key | Type and bounds | Default | Scope and effect |

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211108
 title: Pi RPC explanation
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:08Z
 ready_at: 2026-11-02T21:11:08Z
+started_at: 2026-11-02T22:33:17Z
+branch: feat/rev-ai-pi-03-rpc
 commits: []
 ---
 

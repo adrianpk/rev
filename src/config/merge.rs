@@ -34,6 +34,7 @@ impl Document {
         merge.bookmarks(&mut self.bookmarks, &later.bookmarks);
         merge.completion(&mut self.completion, &later.completion);
         merge.lsp(&mut self.lsp, &later.lsp);
+        merge.ai(&mut self.ai, &later.ai);
         merge.leaf(
             &["org", "enabled"],
             &mut self.org.enabled,
