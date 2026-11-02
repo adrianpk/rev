@@ -1,7 +1,7 @@
 //! Shared package publication and empty-root probing, owned by the installation
 //! transaction. These helpers never inspect a user workspace or apply settings.
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -45,6 +45,22 @@ pub(super) fn write(path: &Path, bytes: &[u8]) -> Result<(), String> {
         .map_err(|e| format!("sync package provenance directory: {e}"))
 }
 
+pub(super) fn read(payload: &Path, relative: &str) -> Result<Vec<u8>, String> {
+    let path = payload.join(relative);
+    super::storage::contained(payload, &path, true)?;
+    let mut bytes = Vec::new();
+    fs::File::open(&path)
+        .and_then(|file| {
+            file.take(super::REGISTRY_BYTES as u64 + 1)
+                .read_to_end(&mut bytes)
+        })
+        .map_err(|e| format!("read package provenance: {e}"))?;
+    if bytes.len() > super::REGISTRY_BYTES {
+        return Err("package provenance exceeds 2 MiB".into());
+    }
+    Ok(bytes)
+}
+
 pub(super) fn launch(profile: &crate::lsp::catalog::Launch, inherited: Option<Server>) -> Launch {
     let base = inherited.unwrap_or_else(|| Server {
         languages: Vec::new(),
@@ -69,6 +85,9 @@ pub(super) fn launch(profile: &crate::lsp::catalog::Launch, inherited: Option<Se
 
 pub(super) fn probe(candidate: &Candidate, cancel: &Cancellation) -> Result<(), String> {
     candidate.progress.set(super::Phase::Verifying);
+    // Admit the complete package tree before executing an extracted entrypoint.
+    // In particular, a package-created .bin link cannot escape the payload.
+    super::tree::bytes(&candidate.directory, super::PAYLOAD_BYTES)?;
     for (index, launch) in candidate.installation.launches.iter().enumerate() {
         let root = candidate.directory.join(format!("probe-{index}"));
         fs::create_dir(&root).map_err(|e| format!("create empty probe root: {e}"))?;

@@ -4,6 +4,11 @@ pub(super) fn valid(recipe: &str, evidence: &str) -> bool {
     if recipe == "gopls" {
         return evidence.strip_prefix("go-module:").is_some_and(go_sum);
     }
+    if ["typescript-language-server", "vscode-langservers-extracted"].contains(&recipe) {
+        return evidence
+            .strip_prefix("npm-lock:sha256:")
+            .is_some_and(sha256);
+    }
     evidence.strip_prefix("sha256:").is_some_and(sha256)
 }
 

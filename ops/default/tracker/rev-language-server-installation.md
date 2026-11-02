@@ -188,7 +188,7 @@ PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-4-go-web.md`
 
 - [x] T4.1: Add isolated gopls acquisition with exact module provenance and local-only compiler selection.
-- [ ] T4.2: Add exact npm-prefix TypeScript/JavaScript and HTML/CSS/JSON recipes with script execution disabled, package locks and separate launch profiles.
+- [x] T4.2: Add exact npm-prefix TypeScript/JavaScript and HTML/CSS/JSON recipes with script execution disabled, package locks and separate launch profiles.
 - [ ] T4.3: Verify prerequisites, package normalization, inherited associations and one semantic/native source; record actual supported package versions and real Go server evidence.
 
 T4.1 development checks passed: `cargo check --locked`,
@@ -203,8 +203,23 @@ preserve prior ready data. This establishes mechanics, not upstream Go semantic
 quality. Package evidence is admitted separately from native release SHA-256;
 the native requirement remains intact. New responsibilities pass the unchanged
 source-quality limits after splitting build-info admission and phase lookup.
-T4.1 commit is recorded by the next task update. Live package/semantic evidence
-and native selection remain assigned to T4.3.
+T4.1 commit: `659399f44008122423f8de04eaa40caccc078ef0`. Live package/semantic evidence and native selection
+remain assigned to T4.3.
+
+T4.2 development checks passed: `cargo check --locked`,
+`cargo test --locked --test lsp_installation npm:: -- --test-threads=1` (2 cases),
+`cargo test --locked --test lsp_installation go:: -- --test-threads=1` (2 cases) and
+`cargo run --locked --quiet --example source-check -- --source src/lsp/install/npm.rs --source src/lsp/install/npm/tools.rs --source src/lsp/install/npm/lock.rs --source src/lsp/install/npm/version.rs --source src/lsp/install/package.rs --source src/lsp/install/evidence.rs`.
+Owned npm/Node fixtures assert exact pins, stable TypeScript 6 normalization,
+scripts disabled, isolated configuration/cache/temp roots, lock and installed
+package identity, registry HTTPS/integrity and all three web launch probes.
+They cover engine, major-version, pin, integrity, source, identity, escaping-link
+and probe failures while preserving earlier ready records. Real SHA-256 hashes
+the retained lock; actual Node/npm compatibility remains a separate live smoke.
+Ready package evidence retains a recipe-specific kind. Payload containment is
+admitted before any extracted launch executes. The shared package path and Go
+regressions pass the unchanged storage/output/process limits.
+T4.2 commit is recorded by the next task update.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

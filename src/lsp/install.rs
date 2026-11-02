@@ -4,6 +4,7 @@ mod cache;
 mod evidence;
 mod go;
 mod helper;
+mod npm;
 mod package;
 mod probe;
 mod process;
@@ -15,6 +16,7 @@ mod tree;
 mod worker;
 
 pub use go::install_go;
+pub use npm::install_npm;
 pub use progress::Phase;
 pub use record::{Installation, Launch, Registry, State};
 pub use rust::install_rust;

@@ -23,3 +23,6 @@ mod managed;
 
 #[path = "lsp_installation/go.rs"]
 mod go;
+
+#[path = "lsp_installation/npm.rs"]
+mod npm;
