@@ -248,7 +248,6 @@ impl Worker {
         }
         // Discarding the remainder of a bounded kernel batch is an overflow,
         // never evidence that untouched sources remained unchanged.
-        drop(reader);
         for id in retired {
             self.entries.get_mut(&id).expect("retired source").watched = false;
             self.emit(

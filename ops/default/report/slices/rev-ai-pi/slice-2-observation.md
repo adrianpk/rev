@@ -121,6 +121,14 @@ through the controller after the PR-reference follow-up, using exactly the four
 configured commands in order. The canonical PR/controller receipt owns that
 candidate and result; no integrated delivery-set gate was run here.
 
+The first controller batch at
+`fe875dae54edb6c2ed2a7503d2db1f7a9951d239` passed format and stopped at
+strict Clippy's drop_non_drop lint for the borrowed inotify reader. Removing
+the explicit drop lets its borrow end at the last read, preserving the same
+bounded event drain, overflow handling and owned descriptor lifetime. No check,
+assertion, resource bound or policy changes. Final evidence is regenerated for
+the corrected clean PR head.
+
 ## Risks and Follow-ups
 
 Kernel overflow is covered through the bounded internal scheduler; no system-wide
