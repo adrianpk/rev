@@ -33,14 +33,14 @@ pub(super) fn key(session: &mut Session, code: KeyCode, modifiers: KeyModifiers)
     session.handle(Event::Key(KeyEvent::new(code, modifiers)));
 }
 
-fn answer(session: &mut Session, text: &str) {
+pub(super) fn answer(session: &mut Session, text: &str) {
     for c in text.chars() {
         key(session, KeyCode::Char(c), KeyModifiers::NONE);
     }
     key(session, KeyCode::Enter, KeyModifiers::NONE);
 }
 
-fn named(session: &mut Session, command: &str, modal: bool) {
+pub(super) fn named(session: &mut Session, command: &str, modal: bool) {
     if modal {
         key(session, KeyCode::Char(':'), KeyModifiers::NONE);
     } else {

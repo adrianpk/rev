@@ -23,15 +23,43 @@ pub fn inventory(snapshot: &Snapshot, path: Option<&OsStr>, os: &str, arch: &str
                 cell(name)
             );
         } else {
+            let source = if matches!(
+                snapshot.settings().lsp.preferred.get(language),
+                Some(crate::config::Preference::Native(false))
+            ) {
+                "native-only"
+            } else {
+                "native fallback"
+            };
             let _ = writeln!(
                 text,
-                "{} | native-only or native fallback | native | - | no server selected",
+                "{} | {source} | native | - | no server selected",
                 cell(language)
             );
         }
     }
     if languages.len() > 128 {
         text.push_str("Additional language rows omitted (128-row limit).\n");
+    }
+    text.push_str(
+        "\nConfigured profiles\nProfile | Languages | Command | Executable availability\n",
+    );
+    for (name, server) in &snapshot.settings().lsp.servers {
+        let languages = server
+            .languages
+            .iter()
+            .take(8)
+            .map(|s| cell(s))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let custom_path = server.env.get("PATH").map(OsStr::new).or(path);
+        let status = availability(executable(&server.command, custom_path));
+        let _ = writeln!(
+            text,
+            "{} | {languages} | {} | {status}",
+            cell(name),
+            cell(&server.command)
+        );
     }
     text.push_str(
         "\nManaged recipe catalog\nRecipe | Launch profiles | Managed acquisition prerequisites\n",

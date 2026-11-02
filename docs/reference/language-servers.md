@@ -49,6 +49,30 @@ activation does not create a crash restart loop. Shutdown sends shutdown/exit,
 then terminates and reaps owned children after its finite deadline. Healthy idle
 connections block on IO; disabled or idle completion creates no polling timer.
 
+## Catalog observations and setup presets
+
+`lsp-servers` creates a read-only snapshot through the normal buffer/view owner.
+It lists at most 128 language rows, all admitted profiles (at most 32), and the
+finite Rust, Go, TypeScript/JavaScript/TSX, HTML/CSS/JSON, Markdown, Ruby, Python and
+Odin recipe metadata. The visible result is bounded to 64 KiB. Org and arbitrary
+custom languages retain generic registration without a managed recipe.
+
+The catalog's managed acquisition target is Linux x86-64. Generic installed-server
+registration is independent of that target. Missing optional prerequisites and
+unsupported recipe platforms do not block external server selection. Local PATH
+inspection checks at most 128 entries without running them; relative launch/search
+paths report that a client working root is required. Environment values are never
+included in the snapshot. Executable prerequisites do not verify runtime features,
+managed installation records, transport readiness or semantic quality.
+
+The `recipe:<launch-profile>` choices in `lsp-setup` reuse an observed installed
+executable. A configured profile with that ID remains authoritative. New presets
+use their recipe's command/arguments while preserving the selected profile's root
+markers, initialization options, settings and literal environment overrides.
+Arguments and markers remain editable before publication. Known associations are
+reused; no registry fact or recipe creates a language allowlist. Viewing the catalog
+and normal startup never acquire or update packages.
+
 ## Synchronization and completion
 
 The client admits the LSP 3.17 stdio subset with typed JSON-RPC framing, negotiated

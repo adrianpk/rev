@@ -5,6 +5,8 @@ mod catalog;
 mod fixture;
 #[path = "lsp_installation/routing.rs"]
 mod routing;
+#[path = "lsp_installation/selectors.rs"]
+mod selectors;
 #[path = "lsp_installation/settings.rs"]
 mod settings;
 #[path = "lsp_installation/workflows.rs"]

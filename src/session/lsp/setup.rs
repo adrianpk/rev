@@ -90,12 +90,28 @@ impl Session {
 impl Prompt {
     fn choices(&self) -> (&'static str, Vec<String>) {
         match self.stage {
-            Stage::Language => ("LSP language: ", self.snapshot.languages()),
+            Stage::Language => {
+                let languages = self
+                    .snapshot
+                    .languages()
+                    .into_iter()
+                    .chain(
+                        crate::lsp::catalog::RECIPES
+                            .iter()
+                            .flat_map(|r| r.launches)
+                            .flat_map(|p| p.languages)
+                            .map(|s| (*s).to_owned()),
+                    )
+                    .collect::<std::collections::BTreeSet<_>>()
+                    .into_iter()
+                    .collect();
+                ("LSP language: ", languages)
+            }
             Stage::Profile => (
                 if self.select_only {
                     "Server name (existing or native-only): "
                 } else {
-                    "Server name (existing, new, or native-only): "
+                    "Server name (existing, recipe preset, new, or native-only): "
                 },
                 self.snapshot
                     .settings()
@@ -104,6 +120,15 @@ impl Prompt {
                     .iter()
                     .filter(|(_, server)| server.languages.contains(&self.language))
                     .map(|(name, _)| name.clone())
+                    .chain(
+                        crate::lsp::catalog::RECIPES
+                            .iter()
+                            .flat_map(|r| r.launches)
+                            .filter(|p| {
+                                !self.select_only && p.languages.contains(&self.language.as_str())
+                            })
+                            .map(|p| format!("recipe:{}", p.id)),
+                    )
                     .chain(std::iter::once("native-only".into()))
                     .collect(),
             ),
@@ -111,12 +136,9 @@ impl Prompt {
                 "Installed executable (literal path or PATH name): ",
                 Vec::new(),
             ),
-            Stage::Arguments => (
-                "Arguments (JSON array; empty keeps inherited): ",
-                Vec::new(),
-            ),
+            Stage::Arguments => ("Arguments (JSON array; empty keeps current): ", Vec::new()),
             Stage::Markers => (
-                "Root markers (JSON array; empty keeps inherited): ",
+                "Root markers (JSON array; empty keeps current): ",
                 Vec::new(),
             ),
             Stage::Patterns => ("File patterns (JSON array): ", Vec::new()),
@@ -194,28 +216,71 @@ impl Prompt {
         if self.select_only {
             return Err("Choose a compatible configured server or native-only; lsp-setup registers another executable".into());
         }
+        if let Some(id) = draft.strip_prefix("recipe:")
+            && let Some(launch) = crate::lsp::catalog::launch(id, &self.language)
+        {
+            return self.recipe(launch);
+        }
         self.name = draft.into();
-        self.server = Some(
-            self.snapshot
-                .settings()
-                .lsp
-                .selected(&self.language)
-                .map(|(_, server)| {
-                    let mut server = server.clone();
-                    server.languages = vec![self.language.clone()];
-                    server
-                })
-                .unwrap_or_else(|| Server {
-                    languages: vec![self.language.clone()],
-                    command: String::new(),
-                    args: Vec::new(),
-                    root_markers: Vec::new(),
-                    initialization_options: toml::Value::Table(toml::Table::new()),
-                    settings: toml::Value::Table(toml::Table::new()),
-                    env: Default::default(),
-                }),
-        );
+        self.server = Some(self.base());
         self.stage = Stage::Executable;
+        Ok(false)
+    }
+
+    fn base(&self) -> Server {
+        self.snapshot
+            .settings()
+            .lsp
+            .selected(&self.language)
+            .map(|(_, server)| {
+                let mut server = server.clone();
+                server.languages = vec![self.language.clone()];
+                server
+            })
+            .unwrap_or_else(|| Server {
+                languages: vec![self.language.clone()],
+                command: String::new(),
+                args: Vec::new(),
+                root_markers: Vec::new(),
+                initialization_options: toml::Value::Table(toml::Table::new()),
+                settings: toml::Value::Table(toml::Table::new()),
+                env: Default::default(),
+            })
+    }
+
+    fn recipe(&mut self, launch: &crate::lsp::catalog::Launch) -> Result<bool, String> {
+        // A configured profile stays authoritative; presets never overwrite it.
+        if self.snapshot.settings().lsp.servers.contains_key(launch.id) {
+            return self.profile(launch.id);
+        }
+        let selected = self.snapshot.settings().lsp.selected(&self.language);
+        let inherited_path = selected.and_then(|(_, s)| s.env.get("PATH"));
+        let process_path = std::env::var_os("PATH");
+        let path = inherited_path
+            .map(std::ffi::OsStr::new)
+            .or(process_path.as_deref());
+        if !matches!(
+            crate::lsp::catalog::executable(launch.command, path),
+            crate::lsp::catalog::Executable::Available(_)
+        ) {
+            return Err(format!(
+                "{} is unavailable or its search path needs a client root; use lsp-servers for prerequisites or register an installed absolute path",
+                launch.command
+            ));
+        }
+        let mut server = self.base();
+        server.command = launch.command.into();
+        server.args = launch.args.iter().map(|s| (*s).to_owned()).collect();
+        if selected.is_none() {
+            server.root_markers = launch
+                .root_markers
+                .iter()
+                .map(|s| (*s).to_owned())
+                .collect();
+        }
+        self.name = launch.id.into();
+        self.server = Some(server);
+        self.stage = Stage::Arguments;
         Ok(false)
     }
 

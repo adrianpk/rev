@@ -8,7 +8,9 @@ install or download a server.
 ## Register or select an installed server
 
 Run `M-x lsp-setup` (or `:lsp-setup` in modal Normal). Enter the language ID,
-then an existing compatible server name, a new profile name, or `native-only`.
+then an existing compatible server name, an installed recipe preset, a new profile
+name, or `native-only`. Language suggestions include known associations, configured
+identities and recipe languages; another valid identity can still be typed.
 For a new profile, enter the executable separately from its JSON argument array,
 then its JSON root-marker array. Empty answers keep the inherited selected
 profile's arguments and markers; enter `[]` to clear them. Settings and literal
@@ -22,6 +24,31 @@ until all answers form an admitted complete configuration.
 Setup saves and applies the choice without enabling LSP. Use `lsp-mode` to
 activate it and `lsp-status` to check its actual transport readiness. A missing
 executable remains a recoverable prerequisite failure.
+
+## Inspect recipes and change sources
+
+Run `lsp-servers` to open a read-only snapshot. It shows each language's selected
+source, all configured profiles, local executable availability, and the managed
+recipe catalog with its optional acquisition prerequisites. It does not run a
+helper, look up remote versions or interpret installation records. Available
+executables have not necessarily completed LSP initialization; use `lsp-status`
+for the current file. Managed payload readiness and versions remain unverified
+in this view. Use ordinary buffer switching to return to your source.
+
+For an already installed Go server, choose `go`, then `recipe:gopls` in
+`lsp-setup`. The preset observes the executable on the inherited PATH and suggests
+its structured launch arguments. Existing root markers, initialization options,
+settings and literal environment values inherit from the selected profile.
+Empty answers keep those values; `[]` clears arguments or markers. Known `*.go`
+and user associations are reused without another patterns prompt. A preset never
+overwrites a configured profile with the same name. If the executable is missing,
+choose an installed absolute path or inspect the catalog prerequisites.
+
+Use `lsp-select-server` to change an existing language's source without registering
+a new executable. Enter its language ID, then a compatible configured profile or
+`native-only`. It saves and applies the choice without changing global LSP mode.
+A language without known associations asks for patterns; a catalog entry or grammar
+is not required. C-g or modal Escape cancels without writing settings.
 
 ## Enable Rust completion
 
