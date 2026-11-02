@@ -26,3 +26,6 @@ mod go;
 
 #[path = "lsp_installation/npm.rs"]
 mod npm;
+
+#[path = "lsp_installation/live.rs"]
+mod live;

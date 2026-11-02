@@ -3,6 +3,7 @@ use crate::session::{Action, Pending, Session};
 
 enum Stage {
     Recipe,
+    ManagedLanguage,
     Language,
     Profile,
     Executable,
@@ -20,6 +21,7 @@ pub(in crate::session) struct Prompt {
     server: Option<Server>,
     select_only: bool,
     management: Option<super::managed::Choice>,
+    managed_languages: Vec<String>,
 }
 
 impl Session {
@@ -56,6 +58,7 @@ impl Session {
                 server: None,
                 select_only,
                 management: None,
+                managed_languages: Vec::new(),
             })
         });
         match result {
@@ -85,12 +88,16 @@ impl Session {
             Ok(false) => self.lsp_setup_prompt(prompt, "", ""),
             Ok(true) => {
                 if let Some(choice) = prompt.management.take() {
-                    let inherited = prompt
-                        .snapshot
-                        .settings()
-                        .lsp
-                        .selected(&prompt.language)
-                        .map(|(_, s)| s.clone());
+                    let lsp = &prompt.snapshot.settings().lsp;
+                    let inherited = lsp
+                        .servers
+                        .values()
+                        .flat_map(|s| &s.languages)
+                        .filter_map(|language| {
+                            lsp.selected(language)
+                                .map(|(_, s)| (language.clone(), s.clone()))
+                        })
+                        .collect();
                     return self.launch_installation(
                         choice,
                         prompt.edit,
@@ -120,11 +127,13 @@ impl Prompt {
     fn choices(&self) -> (&'static str, Vec<String>) {
         match self.stage {
             Stage::Recipe => (
-                "Managed server (rust-analyzer downloads; ready:<id> reuses): ",
-                std::iter::once("rust-analyzer".into())
-                    .chain(super::managed::choices("rust"))
+                "Managed server recipe or ready:<id>: ",
+                super::managed::recipes("")
+                    .into_iter()
+                    .chain(super::managed::choices(""))
                     .collect(),
             ),
+            Stage::ManagedLanguage => ("Installation language: ", self.managed_languages.clone()),
             Stage::Language => {
                 let languages = self
                     .snapshot
@@ -166,8 +175,10 @@ impl Prompt {
                     )
                     .chain(super::managed::choices(&self.language))
                     .chain(
-                        (!self.select_only && self.language == "rust")
-                            .then_some("install:rust-analyzer".into()),
+                        super::managed::recipes(&self.language)
+                            .into_iter()
+                            .filter(|_| !self.select_only)
+                            .map(|id| format!("install:{id}")),
                     )
                     .chain(std::iter::once("native-only".into()))
                     .collect(),
@@ -188,6 +199,7 @@ impl Prompt {
     fn accept(&mut self, draft: &str) -> Result<bool, String> {
         match self.stage {
             Stage::Recipe => self.recipe_choice(draft),
+            Stage::ManagedLanguage => self.managed_language(draft),
             Stage::Language => self.language(draft),
             Stage::Profile => self.profile(draft),
             Stage::Executable => self.executable(draft),
@@ -295,19 +307,56 @@ impl Prompt {
         if let Some(id) = draft.strip_prefix("ready:") {
             return Some(super::managed::Choice::Ready(id.into()));
         }
-        (!self.select_only && self.language == "rust" && draft == "install:rust-analyzer")
-            .then_some(super::managed::Choice::InstallRust)
+        let recipe = draft.strip_prefix("install:")?;
+        (!self.select_only
+            && super::managed::recipes(&self.language)
+                .iter()
+                .any(|r| r == recipe))
+        .then(|| super::managed::Choice::Install(recipe.into()))
     }
 
     fn recipe_choice(&mut self, draft: &str) -> Result<bool, String> {
-        self.language = "rust".into();
-        self.management = Some(if draft == "rust-analyzer" {
-            super::managed::Choice::InstallRust
+        let (choice, languages) = if super::managed::recipes("").iter().any(|r| r == draft) {
+            let recipe = crate::lsp::catalog::RECIPES
+                .iter()
+                .find(|r| r.id == draft)
+                .expect("offered recipe");
+            let languages = recipe
+                .launches
+                .iter()
+                .flat_map(|p| p.languages)
+                .map(|s| (*s).into())
+                .collect::<std::collections::BTreeSet<_>>()
+                .into_iter()
+                .collect();
+            (super::managed::Choice::Install(draft.into()), languages)
         } else if let Some(id) = draft.strip_prefix("ready:") {
-            super::managed::Choice::Ready(id.into())
+            (
+                super::managed::Choice::Ready(id.into()),
+                super::managed::languages(id)?,
+            )
         } else {
-            return Err("Choose rust-analyzer or an offered ready installation".into());
-        });
+            return Err("Choose an offered recipe or ready installation".into());
+        };
+        self.management = Some(choice);
+        self.managed_languages = languages;
+        if self.managed_languages.len() > 1 {
+            self.stage = Stage::ManagedLanguage;
+            return Ok(false);
+        }
+        self.language = self
+            .managed_languages
+            .first()
+            .ok_or("installation has no launch languages")?
+            .clone();
+        self.associations()
+    }
+
+    fn managed_language(&mut self, draft: &str) -> Result<bool, String> {
+        if !self.managed_languages.iter().any(|l| l == draft) {
+            return Err("Choose a language supplied by this installation".into());
+        }
+        self.language = draft.into();
         self.associations()
     }
 

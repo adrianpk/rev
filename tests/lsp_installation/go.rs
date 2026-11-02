@@ -17,8 +17,8 @@ fn executable(path: &Path, text: &str) {
     fs::set_permissions(path, fs::Permissions::from_mode(0o700)).unwrap();
 }
 
-fn fixtures(root: &Path) {
-    fs::create_dir(root.join("bin")).unwrap();
+pub(super) fn fixtures(root: &Path) {
+    fs::create_dir_all(root.join("bin")).unwrap();
     executable(
         &root.join("bin/go"),
         r#"#!/bin/sh

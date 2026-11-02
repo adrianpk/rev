@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111451
 title: Go and web installation
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T11:14:51Z
 ready_at: 2026-11-02T11:14:51Z
 started_at: 2026-11-02T14:16:56Z
 branch: feat/rev-language-server-installation-04-go-web
-commits: [659399f44008122423f8de04eaa40caccc078ef0]
+reviewed_at: 2026-11-02T14:50:44Z
+commits: [659399f44008122423f8de04eaa40caccc078ef0, 50aac5222ff076ba4001bfbeb9b8c7ce674de183]
 ---
 
 # Go and web installation
@@ -43,8 +44,14 @@ Slice 4; [tracker](../../tracker/rev-language-server-installation.md).
 Prerequisite: Slice 3 integrated; earlier contracts remain in force.
 One slice PR uses the exact plan branch and title. The controller owns progress.
 
-## Planned validation
+## Validation
 
 Run the owning slice's exact configured commands and its acceptance cases.
 Record actual commands, candidate and limitations in the slice report.
-No execution result is claimed by this ready ticket.
+All three tasks are implemented; focused acquisition, native and source checks
+passed. Actual managed gopls v0.24.0 provided unsaved semantic completion;
+TypeScript Language Server/TypeScript 6.0.3 and web package 4.10.0 passed native
+transport probes on Node v26.8.1/npm 12.0.2. See the
+[Slice 4 report](../../report/slices/rev-language-server-installation/slice-4-go-web.md)
+for exact commands, provenance and limitations. The configured clean-HEAD batch
+and canonical PR reference are recorded before readiness is reported.

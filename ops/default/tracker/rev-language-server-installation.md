@@ -179,8 +179,8 @@ commit into dev. Slice 3 of 7 completed.
 
 ### Slice 4: Go and web installation
 
-State: in_progress.
-Ticket: [Go and web installation](../ticket/in_progress/20261102111451-install-go-and-web-servers.md)
+State: reviewing.
+Ticket: [Go and web installation](../ticket/reviewing/20261102111451-install-go-and-web-servers.md)
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated.
 Branch: `feat/rev-language-server-installation-04-go-web`
@@ -189,7 +189,7 @@ Report: `ops/default/report/slices/rev-language-server-installation/slice-4-go-w
 
 - [x] T4.1: Add isolated gopls acquisition with exact module provenance and local-only compiler selection.
 - [x] T4.2: Add exact npm-prefix TypeScript/JavaScript and HTML/CSS/JSON recipes with script execution disabled, package locks and separate launch profiles.
-- [ ] T4.3: Verify prerequisites, package normalization, inherited associations and one semantic/native source; record actual supported package versions and real Go server evidence.
+- [x] T4.3: Verify prerequisites, package normalization, inherited associations and one semantic/native source; record actual supported package versions and real Go server evidence.
 
 T4.1 development checks passed: `cargo check --locked`,
 `cargo test --locked --test lsp_installation go:: -- --test-threads=1` (2 cases),
@@ -219,7 +219,28 @@ the retained lock; actual Node/npm compatibility remains a separate live smoke.
 Ready package evidence retains a recipe-specific kind. Payload containment is
 admitted before any extracted launch executes. The shared package path and Go
 regressions pass the unchanged storage/output/process limits.
-T4.2 commit is recorded by the next task update.
+T4.2 commit: `50aac5222ff076ba4001bfbeb9b8c7ce674de183`.
+
+T4.3 development checks passed:
+`cargo test --locked --test lsp_installation managed::native_packages -- --exact --nocapture`,
+`cargo run --locked --quiet --example source-check -- --source src/lsp/install.rs --source src/session/lsp/setup.rs --source src/session/lsp/managed.rs`,
+`cargo run --locked --quiet --example documentation-check` and
+`cargo test --locked --test commands palette::catalog_reference -- --exact`.
+Both native profiles cover Go, shared TypeScript/web selection, association and
+settings inheritance, custom commands, editing/point preservation, disabled
+analysis, multi-language cancellation and helper-free ready reuse. Catalogs agree
+on 414 commands/219 settings; all 67 documentation pages and 402 links passed.
+Explicit upstream validation also passed:
+`cargo test --locked --test lsp_installation live:: -- --ignored --test-threads=1 --nocapture`.
+Actual gopls v0.24.0 was built with local Go 1.27.0-X:nodwarf5 and returned a field
+present only in unsaved text, through one semantic source, with one undo and owned
+server cleanup. TypeScript Language Server 6.0.3/TypeScript 6.0.3 and web package
+4.10.0 passed every native transport probe on Node v26.8.1/npm 12.0.2. These two
+explicit network checks took 61.12 seconds and cleaned owned disposable roots;
+ordinary deterministic checks do not acquire packages. The Slice 4 report records
+exact module/lock evidence and separates web transport from Go semantic evidence.
+T4.3/report-introduction commit and configured clean-HEAD validation: pending
+at report preparation. The canonical PR is prepared only after that batch passes.
 
 Validation: pending; use the exact ordered commands in the plan and controller
 configuration. Commits and canonical integration evidence: pending.

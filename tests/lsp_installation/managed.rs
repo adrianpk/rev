@@ -222,3 +222,172 @@ fn native_installation() {
     let pid = fs::read_to_string(fixture.join("probe.pid")).unwrap();
     assert!(!Path::new(&format!("/proc/{}", pid.trim())).exists());
 }
+
+// Both native entry profiles exercise Go, multi-language npm selection, shared
+// web records and helper-free reuse. Controlled tools isolate configuration and
+// UI contracts; separate live probes establish actual package compatibility.
+#[test]
+fn native_packages() {
+    let Some(profile) = std::env::var_os("REV_PACKAGES_PROFILE") else {
+        for profile in ["modal", "non-modal"] {
+            let f = Fixture::new();
+            super::go::fixtures(&f.0);
+            super::npm::fixtures(&f.0);
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args(["--exact", "managed::native_packages", "--nocapture"])
+                .env("REV_PACKAGES_PROFILE", profile)
+                .env("REV_GO_FIXTURE", &f.0)
+                .env("REV_NPM_FIXTURE", &f.0)
+                .env(
+                    "PATH",
+                    format!("{}:/usr/bin:/bin", f.0.join("bin").display()),
+                )
+                .env("XDG_CONFIG_HOME", f.0.join("config"))
+                .env("XDG_DATA_HOME", f.0.join("data"))
+                .env("XDG_STATE_HOME", f.0.join("state"))
+                .env("XDG_CACHE_HOME", f.0.join("cache"))
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "{profile}: {}{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        return;
+    };
+    let modal = profile == "modal";
+    let f = Fixture::new();
+    let root = f.write(
+        "selected.toml",
+        &format!(
+            r#"# preserve this root
+[editor]
+interaction_profile = '{}'
+[lsp.servers.gopls]
+languages = ['go']
+command = '/external/go-server'
+root_markers = ['Owned.work']
+[lsp.servers.ts-existing]
+languages = ['typescript']
+command = '/external/typescript'
+settings = {{ retained = 'typescript' }}
+[lsp.servers.js-existing]
+languages = ['javascript']
+command = '/external/javascript'
+settings = {{ retained = 'javascript' }}
+[lsp.servers.css-existing]
+languages = ['css']
+command = '/external/css'
+settings = {{ retained = 'css' }}
+env = {{ EXAMPLE_OPTION = 'private-example-value' }}
+[lsp.servers.html-existing]
+languages = ['html']
+command = '/external/html'
+settings = {{ retained = 'html' }}
+"#,
+            profile.to_str().unwrap()
+        ),
+    );
+    let file = f.write("sample.go", "package main\n");
+    let mut s = session(&root, &file);
+    let roots = Roots::from_env().unwrap();
+    let fixture = std::path::PathBuf::from(std::env::var_os("REV_NPM_FIXTURE").unwrap());
+    named(&mut s, "lsp-setup", modal);
+    answer(&mut s, "go");
+    answer(&mut s, "install:gopls");
+    insert(&mut s, 'x', modal);
+    let edited = text(&s);
+    let point = s.view().point;
+    wait(&mut s, "selected and saved");
+    let snapshot = prepare(&root).snapshot;
+    let (id, go) = snapshot.settings().lsp.selected("go").unwrap();
+    assert_ne!(id, "gopls");
+    assert_eq!(
+        snapshot.settings().lsp.servers["gopls"].command,
+        "/external/go-server"
+    );
+    assert_eq!(go.root_markers, vec!["Owned.work"]);
+    let before_cancel = fs::read_to_string(fixture.join("calls")).unwrap();
+    for escape in [false, true].into_iter().filter(|escape| !escape || modal) {
+        named(&mut s, "lsp-install-server", modal);
+        answer(&mut s, "typescript-language-server");
+        if escape {
+            key(&mut s, KeyCode::Esc, KeyModifiers::NONE);
+            s.expire_input(Instant::now() + Duration::from_secs(1));
+        } else {
+            key(&mut s, KeyCode::Char('g'), KeyModifiers::CONTROL);
+        }
+        assert!(s.echo().contains("cancelled"));
+        assert_eq!(
+            fs::read_to_string(fixture.join("calls")).unwrap(),
+            before_cancel
+        );
+    }
+    named(&mut s, "lsp-install-server", modal);
+    answer(&mut s, "typescript-language-server");
+    answer(&mut s, "javascript");
+    wait(&mut s, "selected and saved");
+    let snapshot = prepare(&root).snapshot;
+    let (_, js) = snapshot.settings().lsp.selected("javascript").unwrap();
+    assert_eq!(js.settings["retained"].as_str(), Some("javascript"));
+    assert!(
+        js.command
+            .contains("node_modules/.bin/typescript-language-server")
+    );
+    assert_eq!(
+        snapshot.settings().lsp.selected("typescript").unwrap().0,
+        "ts-existing"
+    );
+    named(&mut s, "lsp-install-server", modal);
+    answer(&mut s, "vscode-langservers-extracted");
+    answer(&mut s, "css");
+    wait(&mut s, "selected and saved");
+    let snapshot = prepare(&root).snapshot;
+    let (_, css) = snapshot.settings().lsp.selected("css").unwrap();
+    assert_eq!(css.settings["retained"].as_str(), Some("css"));
+    assert_eq!(css.env["EXAMPLE_OPTION"], "private-example-value");
+    let registry = Registry::load(&roots.data).unwrap();
+    let web = registry
+        .installations
+        .iter()
+        .find(|i| i.recipe == "vscode-langservers-extracted")
+        .unwrap();
+    assert_eq!(web.launches.len(), 3);
+    let calls = fs::read_to_string(fixture.join("calls")).unwrap();
+    named(&mut s, "lsp-install-server", modal);
+    answer(&mut s, &format!("ready:{}", web.id));
+    answer(&mut s, "html");
+    wait(&mut s, "selected and saved");
+    assert_eq!(fs::read_to_string(fixture.join("calls")).unwrap(), calls);
+    let snapshot = prepare(&root).snapshot;
+    let (_, html) = snapshot.settings().lsp.selected("html").unwrap();
+    assert_eq!(html.settings["retained"].as_str(), Some("html"));
+    for (language, pattern) in [
+        ("go", "*.go"),
+        ("javascript", "*.js"),
+        ("css", "*.css"),
+        ("html", "*.html"),
+    ] {
+        assert!(
+            snapshot.patterns(language).contains(&pattern.to_owned()),
+            "{language}"
+        );
+    }
+    assert_eq!(s.lsp_status(), Status::Disabled);
+    assert_eq!(text(&s), edited);
+    assert_eq!(s.view().point, point);
+    assert!(
+        fs::read_to_string(&root)
+            .unwrap()
+            .contains("# preserve this root")
+    );
+    named(&mut s, "lsp-servers", modal);
+    let inventory = text(&s);
+    for version in ["v0.23.0", "6.0.2", "4.10.0"] {
+        assert!(inventory.contains(version));
+    }
+    assert!(!inventory.contains("private-example-value"));
+    assert!(s.buffer().unwrap().is_readonly());
+}

@@ -151,7 +151,7 @@ git diff --check
 
 ### Slice 4: Go and web installation
 
-Ticket: [Go and web installation](../ticket/in_progress/20261102111451-install-go-and-web-servers.md)
+Ticket: [Go and web installation](../ticket/reviewing/20261102111451-install-go-and-web-servers.md)
 Requirements: INS01, INS02, INS03, INS04, INS06.
 Dependencies: Slice 3 integrated and prior contracts retained.
 

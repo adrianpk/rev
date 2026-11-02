@@ -19,7 +19,7 @@ fn executable(path: &Path, text: &str) {
 }
 
 pub(super) fn fixtures(root: &Path) {
-    fs::create_dir(root.join("bin")).unwrap();
+    fs::create_dir_all(root.join("bin")).unwrap();
     executable(
         &root.join("bin/node"),
         r#"#!/bin/sh

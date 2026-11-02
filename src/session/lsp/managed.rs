@@ -2,11 +2,11 @@ use std::fmt::Write;
 use std::path::Path;
 
 use crate::config::{Preference, Roots, Server, SettingsEdit};
-use crate::lsp::install::{Installation, Outcome, Registry, State, Storage, install_rust};
+use crate::lsp::install::{self, Installation, Outcome, Registry, State, Storage};
 use crate::session::{Action, Session};
 
 pub(in crate::session) enum Choice {
-    InstallRust,
+    Install(String),
     Ready(String),
 }
 
@@ -27,10 +27,38 @@ pub(super) fn choices(language: &str) -> Vec<String> {
 
 fn compatible(installation: &Installation, language: &str) -> bool {
     installation.status == State::Ready
-        && installation
-            .launches
-            .iter()
-            .any(|p| p.languages.iter().any(|l| l == language))
+        && (language.is_empty()
+            || installation
+                .launches
+                .iter()
+                .any(|p| p.languages.iter().any(|l| l == language)))
+}
+
+pub(super) fn recipes(language: &str) -> Vec<String> {
+    crate::lsp::catalog::RECIPES
+        .iter()
+        .filter(|r| install::SUPPORTED_RECIPES.contains(&r.id))
+        .filter(|r| language.is_empty() || r.launch(language).is_some())
+        .map(|r| r.id.to_owned())
+        .collect()
+}
+
+pub(super) fn languages(id: &str) -> Result<Vec<String>, String> {
+    let mut roots = Roots::from_env().map_err(|e| e.to_string())?;
+    roots.data = roots.data.canonicalize().unwrap_or(roots.data);
+    let registry = Registry::load(&roots.data)?;
+    let installation = registry
+        .installations
+        .iter()
+        .find(|i| i.id == id && i.status == State::Ready)
+        .ok_or("ready installation unavailable; inspect lsp-servers")?;
+    Ok(installation
+        .launches
+        .iter()
+        .flat_map(|p| p.languages.iter().cloned())
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect())
 }
 
 impl Session {
@@ -39,7 +67,7 @@ impl Session {
         choice: Choice,
         edit: SettingsEdit,
         language: String,
-        inherited: Option<Server>,
+        inherited: std::collections::BTreeMap<String, Server>,
     ) -> Action {
         let roots = match Roots::from_env() {
             Ok(roots) => roots,
@@ -53,7 +81,9 @@ impl Session {
             .installation
             .start(source, roots, move |mut storage, cancel| {
                 let mut outcome = match choice {
-                    Choice::InstallRust => install_rust(&mut storage, inherited, cancel)?,
+                    Choice::Install(recipe) => {
+                        install::install(&mut storage, &recipe, &language, inherited, cancel)?
+                    }
                     Choice::Ready(id) => ready(&storage, &id)?,
                 };
                 if cancel.is_cancelled() {
@@ -183,8 +213,18 @@ fn selection(
         .iter()
         .find(|p| p.languages.iter().any(|l| l == language))
         .ok_or("ready installation has no compatible launch profile")?;
-    let server = launch.server(&storage.roots().data.join(&installation.payload));
+    let mut server = launch.server(&storage.roots().data.join(&installation.payload));
     let snapshot = edit.snapshot().map_err(|e| e.to_string())?;
+    if let Some((_, current)) = snapshot.settings().lsp.selected(language) {
+        // Reusing one shared package for another language retains that language's
+        // current choices rather than replaying the initial acquisition's values.
+        server.env.clone_from(&current.env);
+        server.root_markers.clone_from(&current.root_markers);
+        server
+            .initialization_options
+            .clone_from(&current.initialization_options);
+        server.settings.clone_from(&current.settings);
+    }
     let name = profile_name(&snapshot, &server, (&launch.id, &installation.id));
     edit.register(&name, &server);
     edit.prefer(language, &Preference::Server(name));

@@ -3,8 +3,8 @@
 Optional installed stdio servers supply semantic completion through the native
 popup, canonical buffer and undo owner. LSP is disabled by default. The default
 Rust entry runs `rust-analyzer` with no arguments and uses `Cargo.toml` as its
-root marker. Registration reuses existing executables. Explicit managed Rust installation can
-download and verify a server without enabling analysis.
+root marker. Registration reuses existing executables. Explicit managed Rust, Go
+and web installation can acquire and verify servers without enabling analysis.
 See [Use a language server](../how-to/use-language-server.md) for setup and the
 [configuration catalog](defaults.md) for every setting.
 
@@ -17,11 +17,11 @@ See [Use a language server](../how-to/use-language-server.md) for setup and the
 | `lsp-disconnect` | Exclude the canonical buffer across its views until restored or closed. |
 | `lsp-connect` | Restore buffer eligibility without enabling a disabled global mode. |
 | `lsp-restart` | Replace the eligible current root's connection; preserve other roots, exclusions and global mode. |
-| `lsp-setup` | Choose a language and installed profile, managed Rust recipe, or native-only source; save and apply the admitted settings. |
+| `lsp-setup` | Choose a language and installed profile, supported managed recipe, or native-only source; save and apply the admitted settings. |
 | `lsp-reload-settings` | Read the selected configuration root and includes, applying only LSP settings and file associations. |
 | `lsp-servers` | Open a read-only source/catalog snapshot without running helpers or checking remote versions. |
 | `lsp-select-server` | Choose a compatible configured profile, ready managed installation or native-only source. |
-| `lsp-install-server` | Acquire and verify managed Rust, or reuse a ready installation, then save its choice when configuration sources still match. |
+| `lsp-install-server` | Acquire and verify managed Rust, Go, TypeScript/JavaScript or HTML/CSS/JSON, or reuse a ready installation; save its choice when configuration sources still match. |
 
 Eligible file activation uses `lsp.preferred` when present: a compatible server
 name selects that profile; `false` selects native-only. Otherwise it selects the
@@ -92,11 +92,43 @@ exit exchange in an owned empty root without user documents. Installation does
 not change global LSP enablement or buffer exclusions. Use `lsp-mode` separately
 when continuous analysis is desired.
 
+## Managed Go and web installation
+
+`lsp-install-server` also offers `gopls`, `typescript-language-server` and
+`vscode-langservers-extracted` on Linux x86-64. Shared packages ask which
+language to select. The equivalent setup choice is a compatible language,
+then `install:<recipe>`. Generic registration remains available for every
+admitted language identity.
+
+| Recipe | Optional tools | Acquisition and verification |
+| --- | --- | --- |
+| `gopls` | Go | Resolve an exact stable module version through the official Go proxy, verify checksum-database module provenance, build with owned `GOBIN`/module/build/temp caches and `GOTOOLCHAIN=local`, and compare the binary's module identity. |
+| `typescript-language-server` | Node and npm | Resolve exact server and stable TypeScript 6 versions, install into an owned npm prefix with scripts disabled and retain the package lock. One `--stdio` profile serves TypeScript, JavaScript and TSX. |
+| `vscode-langservers-extracted` | Node and npm | Resolve an exact package version into one owned npm prefix. Three independent `--stdio` profiles serve HTML, CSS and JSON; each must pass its own probe. |
+
+An insufficient Go compiler or incompatible Node/npm is an actionable failure;
+rev never downloads another compiler or upgrades the shared runtime. npm uses
+owned configuration and cache/temp roots, exact saved dependencies, strict engine
+checks and scripts disabled. Lock admission requires exact package identities,
+registry HTTPS sources and SHA-256/512 integrity. The lock, its SHA-256 and concrete
+runtime/package versions are retained. Go retains module sums, compiler identity
+and binary build information. Package provenance is distinct from native release
+artifact digests. Every launch completes the native empty-root probe without
+user documents before its installation becomes ready.
+
+Selecting a shared TypeScript profile inherits the explicitly chosen language's
+current options. Independent web profiles retain each language's settings.
+Reusing a ready record for another language preserves that language's current
+settings and known associations. Acquisition and reuse preserve runtime analysis
+enablement and ordinary editing.
+
+## Managed storage and publication
+
 Payloads live under the resolved data root at
 `lsp/installations/<recipe>/<installation-id>/`; a candidate is created at its
 final unique path and never moved. `lsp/installations.toml` stores schema-1 facts,
 with at most 32 records and 2 MiB. It records exact version, target, relative
-payload and launch paths, source, SHA-256 evidence, runtime identity, readiness
+payload and launch paths, source, digest or package evidence, runtime identity, readiness
 and creation/verification timestamps. It contains no language preferences.
 The cache root's `lsp/` holds disposable owned acquisition directories; state
 `lsp/mutation.lock` serializes settings changes. A shared data-directory lock

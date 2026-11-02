@@ -31,3 +31,41 @@ pub const CACHE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 pub const OUTPUT_BYTES: usize = 1024 * 1024;
 pub const DISPLAY_BYTES: usize = 64 * 1024;
 pub const OPERATION_SECONDS: u64 = 900;
+
+/// Recipes with delivered acquisition behavior. The metadata catalog may also
+/// describe later optional recipes without exposing an unimplemented operation.
+pub const SUPPORTED_RECIPES: [&str; 4] = [
+    "rust-analyzer",
+    "gopls",
+    "typescript-language-server",
+    "vscode-langservers-extracted",
+];
+
+/// Native management dispatch. Shared multi-language profiles inherit the
+/// explicitly chosen language's settings; independent web profiles keep theirs.
+pub fn install(
+    storage: &mut Storage,
+    recipe: &str,
+    language: &str,
+    mut inherited: std::collections::BTreeMap<String, crate::config::Server>,
+    cancel: &crate::org::Cancellation,
+) -> Result<Outcome, String> {
+    if let Some(base) = inherited.get(language).cloned()
+        && let Some(profile) = crate::lsp::catalog::RECIPES
+            .iter()
+            .find(|r| r.id == recipe)
+            .and_then(|r| r.launch(language))
+    {
+        for language in profile.languages {
+            inherited.insert((*language).into(), base.clone());
+        }
+    }
+    match recipe {
+        "rust-analyzer" => install_rust(storage, inherited.remove("rust"), cancel),
+        "gopls" => install_go(storage, inherited.remove("go"), cancel),
+        "typescript-language-server" | "vscode-langservers-extracted" => {
+            install_npm(storage, recipe, inherited, cancel)
+        }
+        _ => Err("unsupported managed recipe".into()),
+    }
+}

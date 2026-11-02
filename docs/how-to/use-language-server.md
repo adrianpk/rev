@@ -14,6 +14,20 @@ changed during the operation, the verified payload stays ready and unselected.
 Choose its `ready:<id>` entry to reuse it after resolving the configuration
 conflict; no second download is needed.
 
+For managed Go, choose `gopls` in `lsp-install-server`, or `go` then
+`install:gopls` in `lsp-setup`. Install Go separately first. Acquisition uses
+the local compiler and reports an insufficient version without downloading a
+replacement toolchain.
+
+For TypeScript/JavaScript/TSX, choose `typescript-language-server`, then the
+language to select. For HTML/CSS/JSON, choose `vscode-langservers-extracted`,
+then the language. These recipes require installed Node/npm, retain exact package
+versions and a lockfile, and disable package scripts. TypeScript remains on major
+6. The web package supplies three independently verified profiles; select another
+language later through its same `ready:<id>` entry without another installation.
+Each choice inherits known associations and current settings. Use `lsp-mode`
+separately to enable analysis.
+
 Use an installed language server to complete names from unsaved text in the
 same popup as native completion. Rust uses `rust-analyzer` by default. Keep the
 server executable on `PATH`, or configure its absolute path. Existing/custom
