@@ -61,6 +61,6 @@ fn property_policy_admission() {
         assert_eq!(error.key, ["org", "properties", "inherit"], "{value}");
         let startup = prepare(&root);
         assert!(startup.diagnostic.is_some());
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(&root));
     }
 }

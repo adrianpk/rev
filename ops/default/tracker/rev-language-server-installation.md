@@ -67,7 +67,12 @@ T1.3 development checks passed:
 `cargo test --locked --test lsp_installation settings::rejected_settings -- --exact`,
 `cargo test --locked --test lsp_installation workflows::scoped_reload -- --exact` and
 `cargo test --locked --test lsp_installation settings::profile_comments -- --exact`.
-Exact final controller validation and canonical integration remain pending.
+T1.3 report-introduction commit: `ae12c9ef7780ea528fc852286ca1dc9e727ba3ec`.
+The initial controller batch passed format and Clippy; configuration fallback
+comparisons failed because their expectations omitted retained root provenance.
+Full snapshot assertions now include the exact selected root. Focused candidate
+and agenda configuration checks passed. Final controller validation and canonical
+integration remain pending.
 
 ### Slice 2: Catalog and guided setup
 

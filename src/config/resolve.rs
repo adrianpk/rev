@@ -54,7 +54,9 @@ impl Snapshot {
         self.root.as_deref()
     }
 
-    pub(super) fn with_root(mut self, root: &Path) -> Self {
+    /// Retain the selected user root without admitting it as a configuration
+    /// source. Persistence must still capture and validate its current graph.
+    pub fn with_root(mut self, root: &Path) -> Self {
         self.root = Some(root.to_owned());
         self
     }

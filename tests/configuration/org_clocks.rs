@@ -72,7 +72,7 @@ fn clock_bounds() {
             startup.diagnostic
         );
         if !valid {
-            assert_eq!(startup.snapshot, Snapshot::default());
+            assert_eq!(startup.snapshot, Snapshot::default().with_root(&path));
         }
     }
 }

@@ -9,7 +9,13 @@ fn first_start() {
     if isolated() {
         let root = Roots::from_env().unwrap().config_file();
         assert!(!root.exists());
-        assert_eq!(Startup::from_env(), Startup::default());
+        assert_eq!(
+            Startup::from_env(),
+            Startup {
+                snapshot: rev::config::Snapshot::default().with_root(&root),
+                ..Startup::default()
+            }
+        );
         assert!(!root.exists());
         let mut session = launch(None);
         assert_eq!(session.echo(), "C-x C-c: exit");

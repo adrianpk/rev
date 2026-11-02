@@ -87,6 +87,13 @@ literal environment delivery, explicit source switching, native fallback, an
 unchanged other-root connection and a response sent after source retirement.
 They do not establish an upstream server's semantic quality.
 
+The initial controller batch passed format and Clippy, then failed configuration
+fallback comparisons because their expected snapshots omitted the newly retained
+selected root. The expectations now compare complete default snapshots carrying
+the exact selected root, preserving every existing equality assertion. Focused
+`cargo test --locked --test configuration candidate:: -- --test-threads=1` and
+`cargo test --locked --test configuration org_agenda:: -- --test-threads=1` passed.
+
 The controller records the configured ordered format, Clippy, configuration/LSP/
 installation regression and whitespace checks against a clean immutable HEAD.
 The PR-reference follow-up head requires its own receipt before integration.

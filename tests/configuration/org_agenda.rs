@@ -54,7 +54,7 @@ fn agenda_configuration() {
         let p = f.write("candidate.toml", value);
         let s = prepare(&p);
         assert!(s.diagnostic.is_some(), "{name}");
-        assert_eq!(s.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(s.snapshot, Snapshot::default().with_root(&p), "{name}");
     }
     for (name, source) in [
         (
@@ -73,7 +73,7 @@ fn agenda_configuration() {
         let path = f.write("candidate.toml", &source);
         let s = prepare(&path);
         assert!(s.diagnostic.is_some(), "{name}");
-        assert_eq!(s.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(s.snapshot, Snapshot::default().with_root(&path), "{name}");
     }
 }
 
@@ -115,7 +115,10 @@ fn calendar_configuration() {
     ] {
         let s = prepare(&f.write("candidate.toml", value));
         assert!(s.diagnostic.is_some(), "{value}");
-        assert_eq!(s.snapshot, Snapshot::default());
+        assert_eq!(
+            s.snapshot,
+            Snapshot::default().with_root(&f.0.join("candidate.toml"))
+        );
     }
 }
 
@@ -157,6 +160,6 @@ fn custom_configuration() {
     ] {
         let startup = prepare(&f.write("invalid.toml",&source));
         assert!(startup.diagnostic.is_some(),"{name}");
-        assert_eq!(startup.snapshot,Snapshot::default(),"{name}");
+        assert_eq!(startup.snapshot,Snapshot::default().with_root(&f.0.join("invalid.toml")),"{name}");
     }
 }

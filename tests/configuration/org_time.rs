@@ -74,6 +74,6 @@ fn time_rejection() {
         let path = fixture.write("config.toml", source);
         let startup = prepare(&path);
         assert!(startup.diagnostic.is_some(), "{source}");
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(&path));
     }
 }

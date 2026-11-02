@@ -34,7 +34,11 @@ fn whole_candidate_fallback() {
         );
         fixture.write("invalid.toml", "language.go.indent_width = 0");
         let startup = prepare(&root);
-        assert_eq!(startup.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(
+            startup.snapshot,
+            Snapshot::default().with_root(&root),
+            "{name}"
+        );
         assert_eq!(startup.snapshot.settings(), &Settings::default(), "{name}");
         let diagnostic = startup.diagnostic.unwrap();
         assert_eq!(diagnostic.source, fixture.0.join(failed_source), "{name}");
@@ -67,7 +71,7 @@ fn missing_candidate() {
     assert!(sources.sources.is_empty());
     assert_eq!(resolve(&sources).unwrap(), Snapshot::default());
     let startup = prepare(&root);
-    assert_eq!(startup.snapshot, Snapshot::default());
+    assert_eq!(startup.snapshot, Snapshot::default().with_root(&root));
     assert!(startup.diagnostic.is_none());
     assert!(!root.parent().unwrap().exists());
     for path in [roots.config, roots.data, roots.state, roots.cache] {

@@ -52,7 +52,7 @@ fn links_configuration() {
         let path = f.write("invalid.toml", source);
         let s = prepare(&path);
         assert!(s.diagnostic.is_some(), "{name}");
-        assert_eq!(s.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(s.snapshot, Snapshot::default().with_root(&path), "{name}");
     }
 }
 
@@ -93,6 +93,10 @@ fn pdf_configuration() {
         f.write("config.toml", &format!("org.tools.pdf={tokens}"));
         let prepared = prepare(&root);
         assert!(prepared.diagnostic.is_some(), "{name}");
-        assert_eq!(prepared.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(
+            prepared.snapshot,
+            Snapshot::default().with_root(&root),
+            "{name}"
+        );
     }
 }

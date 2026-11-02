@@ -65,7 +65,10 @@ fn rejected_candidate() {
 fn rejected() {
     let roots = Roots::from_env().unwrap();
     let startup = Startup::from_env();
-    assert_eq!(startup.snapshot, Snapshot::default());
+    assert_eq!(
+        startup.snapshot,
+        Snapshot::default().with_root(&roots.config_file())
+    );
     let diagnostic = startup.diagnostic.unwrap();
     assert_eq!(diagnostic.source, roots.config_file());
     assert!(!diagnostic.key.is_empty());
@@ -103,7 +106,10 @@ fn unreadable_sources() {
         let mut session = launch(None);
         assert!(session.echo().starts_with("Configuration: "));
         assert!(session.echo().contains("config.toml"));
-        assert_eq!(Startup::from_env().snapshot, Snapshot::default());
+        assert_eq!(
+            Startup::from_env().snapshot,
+            Snapshot::default().with_root(&Roots::from_env().unwrap().config_file())
+        );
         session.handle(key(KeyCode::Tab));
         assert_eq!(text(&session), "    ");
         return;

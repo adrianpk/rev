@@ -49,6 +49,6 @@ fn habit_configuration() {
         let path = f.write("candidate.toml", source);
         let s = prepare(&path);
         assert!(s.diagnostic.is_some(), "{name}");
-        assert_eq!(s.snapshot, Snapshot::default(), "{name}");
+        assert_eq!(s.snapshot, Snapshot::default().with_root(&path), "{name}");
     }
 }

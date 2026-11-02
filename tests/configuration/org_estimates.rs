@@ -56,6 +56,6 @@ fn estimate_rejection() {
         let root = fixture.write("config.toml", source);
         let startup = prepare(&root);
         assert!(startup.diagnostic.is_some(), "{source}");
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(&root));
     }
 }

@@ -87,7 +87,11 @@ fn org_map_admission() {
         assert_eq!(&error.key[..2], ["keys", context], "{name}");
         let startup = prepare(&path);
         assert!(startup.diagnostic.is_some(), "{name}");
-        assert_eq!(startup.snapshot, rev::config::Snapshot::default(), "{name}");
+        assert_eq!(
+            startup.snapshot,
+            rev::config::Snapshot::default().with_root(&path),
+            "{name}"
+        );
     }
 }
 

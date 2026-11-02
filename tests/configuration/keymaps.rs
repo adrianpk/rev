@@ -182,7 +182,7 @@ fn conflict_layers(context: &str, command: &str) {
         );
         assert_eq!(error.source, fixture.0.join(origin));
         assert_eq!(error.key, ["keys", context, "ESC j"]);
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(&root));
         assert_eq!(startup.snapshot.origin(&["editor", "tab_width"]), None);
         assert_eq!(
             lookup(&startup.snapshot, Context::Editor, "C-x C-s"),
@@ -270,7 +270,7 @@ fn rejected_replacement() {
     );
     let rejected = prepare(&path);
     assert!(rejected.diagnostic.is_some());
-    assert_eq!(rejected.snapshot, Snapshot::default());
+    assert_eq!(rejected.snapshot, Snapshot::default().with_root(&path));
     assert_eq!(
         lookup(&previous, Context::Editor, "C-x C-s"),
         Binding::named("undo")

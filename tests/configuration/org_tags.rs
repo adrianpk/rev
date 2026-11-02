@@ -36,6 +36,6 @@ fn tag_policy_layers() {
         let root = fixture.write("config.toml", body);
         let startup = prepare(&root);
         assert!(startup.diagnostic.is_some());
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(&root));
     }
 }

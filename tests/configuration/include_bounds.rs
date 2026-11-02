@@ -226,7 +226,11 @@ fn denied_source(name: &str) {
     let startup = prepare(&selected);
     fs::set_permissions(&denied, original).unwrap();
     let error = result.unwrap_err();
-    assert_eq!(startup.snapshot, Snapshot::default(), "{name}");
+    assert_eq!(
+        startup.snapshot,
+        Snapshot::default().with_root(&selected),
+        "{name}"
+    );
     assert_eq!(startup.diagnostic.unwrap().to_string(), error.to_string());
     assert!(
         error.message.contains("Permission denied"),
@@ -290,7 +294,7 @@ fn checked_load(root: &std::path::Path) -> Result<Sources, Diagnostic> {
     let result = load(root);
     if let Err(error) = &result {
         let startup = prepare(root);
-        assert_eq!(startup.snapshot, Snapshot::default());
+        assert_eq!(startup.snapshot, Snapshot::default().with_root(root));
         assert_eq!(startup.diagnostic.unwrap().to_string(), error.to_string());
         assert_eq!(startup.snapshot.origin(&["editor", "tab_width"]), None);
     }
