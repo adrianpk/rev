@@ -1,0 +1,31 @@
+# Standalone non-default example. Replace executable names with installed servers.
+# Merge these leaves into existing tables; do not append duplicate TOML tables.
+[lsp]
+enabled = false
+
+[lsp.preferred]
+rust = "rust"
+go = "go-local"
+demo = "demo-custom"
+markdown = false
+
+[lsp.servers.go-local]
+languages = ["go"]
+command = "gopls"
+args = []
+root_markers = ["go.work", "go.mod"]
+initialization_options = {}
+settings = {}
+env = { GOTOOLCHAIN = "local" }
+
+[lsp.servers.demo-custom]
+languages = ["demo"]
+command = "demo-language-server"
+args = ["--stdio"]
+root_markers = ["project.demo"]
+initialization_options = {}
+settings = {}
+env = {}
+
+[files.associations]
+"*.demo" = "demo"

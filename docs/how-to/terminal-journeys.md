@@ -163,3 +163,32 @@ native and LSP terminal sessions each retain the eight-second and 1 MiB output
 limits and verify terminal restoration. Output records executable bytes, native
 editor resources and installed-server resources separately. Only owned sources,
 HOME/XDG roots, processes and PTYs are created and cleaned up.
+
+## Run guided server management acceptance
+
+```sh
+bash scripts/check-lsp-installation.sh
+```
+
+This Linux x86-64 journey uses the installed Rust toolchain, rust-analyzer,
+gopls, Go, Bash, gzip/SHA-256 tools, `rg`, util-linux `script` and GNU `timeout`.
+It builds the normal release editor and new driver with two jobs, then checks
+the affected acceptance sources. It needs cached locked Cargo dependencies;
+it uses no Python tooling or package network acquisition.
+
+One controlled asset is compressed from the real installed Rust server and
+verified through the actual managed acquisition/probe path. Its local digest
+establishes the fixture bytes, not an upstream release identity. Native journeys
+in both profiles install/update/remove that payload, preserve unsaved text and
+settings, and use actual Rust/Go servers for unsaved-only semantic fields, one
+provider and one-step undo. A separate protocol peer establishes routing for an arbitrary
+language without a grammar; it does not establish that language's
+semantic quality. Explicit upstream package probes remain separate from this gate.
+
+The real management PTYs cover prompt cancellation, setup, saved selection,
+inventory, disabled analysis, idle silence, unchanged source and terminal
+restoration. Each retains the existing eight-second/1-MiB boundary. Native
+cases have a 90-second outer guard and finite management/semantic observations.
+Output separates driver/server RSS, idle CPU ticks, payload/editor bytes, fixture
+disk usage and runtime. Only owned roots, children and PTYs are removed after
+their checks finish. The script does not run the combined delivery-set gate.

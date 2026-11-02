@@ -5,8 +5,20 @@ popup, canonical buffer and undo owner. LSP is disabled by default. The default
 Rust entry runs `rust-analyzer` with no arguments and uses `Cargo.toml` as its
 root marker. Registration reuses existing executables. Explicit managed Rust, Go, web, Markdown, Ruby, Python
 and Odin installation can acquire and verify servers without enabling analysis.
-See [Use a language server](../how-to/use-language-server.md) for setup and the
+Start with [Set Up Language Servers](../tutorials/user-guide/12-language-servers.md),
+then use [Use a language server](../how-to/use-language-server.md) for tasks and the
 [configuration catalog](defaults.md) for every setting.
+
+## Configuration example
+
+The [standalone TOML example](language-server-example.toml) contains installed
+Go and custom-language profiles, all launch fields, literal environment overrides,
+known/custom associations and explicit server/native-only preferences. Executable
+names are examples; admission does not install or verify them. Merge its leaves
+into the selected root instead of appending duplicate tables. The
+[complete default sample](config.toml) keeps analysis disabled and preferences
+empty. Managed selection writes final owned executable paths into the same
+profile tables; installation facts do not replace those choices.
 
 ## Activation and ownership
 

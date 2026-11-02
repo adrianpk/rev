@@ -10,7 +10,7 @@ session, start with the [User Guide](../tutorials/user-guide/index.md).
 - [Save and revisit named locations](use-bookmarks.md): keep bookmarks across sessions, manage names and control their markers.
 - [Configure indentation by language](language-indentation.md): give Rust files their own indentation settings.
 - [Use completion](use-completion.md): choose names near the cursor and configure automatic requests.
-- [Use a language server](use-language-server.md): enable installed semantic completion, exclude buffers and recover failed servers.
+- [Use a language server](use-language-server.md): register or acquire a server, select sources and manage updates, cancellation and removal.
 - [Register grammar assets](register-grammar.md): admit precompiled syntax and completion queries for an explicit language.
 - [Recover edits](recover-edits.md): resolve file, save and tree errors while retaining live text.
 

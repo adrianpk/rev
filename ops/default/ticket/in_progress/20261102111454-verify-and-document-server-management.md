@@ -12,7 +12,7 @@ reported_at: 2026-11-02T11:14:54Z
 ready_at: 2026-11-02T11:14:54Z
 started_at: 2026-11-02T16:39:21Z
 branch: feat/rev-language-server-installation-07-acceptance
-commits: []
+commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89]
 ---
 
 # Acceptance and user guidance

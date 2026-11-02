@@ -24,11 +24,50 @@ pub fn check(root: &Path) -> Result<()> {
     }
     let sources = read_pair(root, "defaults.md", "org/configuration.md")?;
     let count = check_configuration(root, &sources)?;
+    check_lsp_example(root)?;
     println!(
         "Catalogs passed: {} commands in each combined inventory, {count} configuration entries against the live schema and packaged defaults.",
         Command::ALL.len()
     );
     Ok(())
+}
+
+fn check_lsp_example(root: &Path) -> Result<()> {
+    let path = root.join("docs/reference/language-server-example.toml");
+    let prepared = rev::config::prepare(&path);
+    require(
+        prepared.diagnostic.is_none(),
+        format!(
+            "language-server example rejected: {:?}",
+            prepared.diagnostic
+        ),
+    )?;
+    let snapshot = prepared.snapshot;
+    let lsp = &snapshot.settings().lsp;
+    require(
+        !lsp.enabled,
+        "language-server example must keep analysis disabled",
+    )?;
+    for (language, name) in [
+        ("rust", "rust"),
+        ("go", "go-local"),
+        ("demo", "demo-custom"),
+    ] {
+        require(
+            lsp.selected(language)
+                .is_some_and(|(selected, _)| selected == name),
+            format!("language-server example lost {language} preference"),
+        )?;
+    }
+    require(
+        lsp.selected("markdown").is_none()
+            && snapshot.language(Path::new("example.demo")) == "demo"
+            && lsp.servers["go-local"]
+                .env
+                .get("GOTOOLCHAIN")
+                .is_some_and(|s| s == "local"),
+        "language-server example lost native-only, custom association or literal runtime policy",
+    )
 }
 
 fn read_pair(root: &Path, core: &str, org: &str) -> Result<[String; 2]> {

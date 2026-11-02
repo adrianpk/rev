@@ -10,7 +10,7 @@ PR: pending
 ## Purpose
 
 Verify guided server management through the actual native and terminal owners,
-then provide a complete learning path and matching configuration guidance.
+and provide a complete learning path and matching configuration guidance.
 
 ## Delivered Behavior
 
@@ -27,6 +27,12 @@ and read-only inventory while analysis remains disabled. They verify the saved
 selection independently from transport readiness, preserve source bytes, observe
 idle silence and restore terminal attributes, screen, cursor and paste modes.
 
+The User Guide now leads through optional setup, managed acquisition, unsaved
+completion, per-language choice and lifecycle. Its Markdown previous/next links
+and Spore navigation include the new chapter. A complete standalone configuration
+example includes installed Go, a custom language, native-only preferences and
+literal environment overrides, while the default sample retains its defaults.
+
 ## Implementation Notes
 
 The fixture compresses the installed real Rust server once and returns controlled
@@ -40,6 +46,12 @@ The shared controlling-PTY reader/restoration boundary was extracted without
 changing its eight-second deadline, 1 MiB cap, bounded channel or stop/reap owner.
 Existing acceptance entry points use that same boundary. No production behavior,
 runtime dependency or new editor command is introduced by this task.
+
+The documentation checker loads that example through the real configuration
+owner and checks its admitted choices, custom suffix and local toolchain policy.
+Live command/configuration inventories remain 417/219. The existing Markdown
+projection carries the chapter and downloadable example into the local Spore
+build; no public deployment or configuration migration is involved.
 
 ## Contracts Added or Changed
 
@@ -57,6 +69,9 @@ complexity at most ten. Final gate and closure remain controller-owned.
   and its focused modules: isolated management, real semantics and resource evidence.
 - `examples/completion_acceptance/terminal.rs`: shared existing PTY ownership,
   rendering observation and terminal restoration.
+- User Guide chapter 12, how-to/reference, full configuration examples, shared
+  command/configuration documentation checker and Spore navigation: one learning
+  path with task details and exact reference contracts.
 
 ## Validation
 
@@ -64,6 +79,9 @@ Focused development checks passed:
 
 - `cargo build --locked --jobs 2 --bin rev --example lsp-installation-acceptance --example source-check`
 - `bash -n scripts/check-lsp-installation.sh examples/lsp_installation_acceptance/tools.sh`
+- `cargo check --locked --examples`
+- `cargo run --locked --quiet --example documentation-check`
+- `cargo test --locked --example documentation-check -- --test-threads=1`
 - `target/debug/examples/source-check --root examples/lsp-installation-acceptance.rs --file examples/lsp_installation_acceptance/fixture.rs --file examples/lsp_installation_acceptance/native.rs --file examples/lsp_installation_acceptance/pty.rs --file examples/lsp_installation_acceptance/semantic.rs --file examples/lsp_installation_acceptance/support.rs --file examples/completion_acceptance/terminal.rs`
 
 The built native/PTY modes passed for both profiles using owned temporary roots.
@@ -85,11 +103,16 @@ The driver now observes the visible ready result and separately asserts admitted
 ready facts and the saved selected command. Source/selection assertions, eight-
 second deadline, output cap and terminal restoration remain unchanged.
 
+Documentation validation passed at 68 reachable pages, 413 links/anchors and
+417/219 inventory entries; all seven documentation regression cases passed.
+T7.1/report-introduction commit: `2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89`.
+
 No new live upstream package acquisition is claimed here. Earlier slice reports
 retain actual package-manager/probe evidence. Configured release validation and
 the exact-candidate integrated gate have not run for this slice yet.
 
 ## Risks and Follow-ups
 
-Guide and configuration narrative, final command sequence, PR references and
-controller-owned integration/gate/closure remain pending in this active slice.
+Final command sequence and PR references remain pending. The controller owns
+integration and the exact-candidate integrated gate/closure; observed local
+fixtures do not establish upstream provenance or every language server’s quality.

@@ -103,6 +103,9 @@ max_pending_requests = 16
 [lsp.preferred]
 # Empty preserves lexical server selection. A language maps to a compatible
 # server name or false for native-only; no bundled grammar is required.
+# Example choices: rust = "rust" or markdown = false. Keep this table empty
+# for the defaults. See docs/reference/language-server-example.toml for a
+# standalone non-default example with complete installed/custom profiles.
 
 [lsp.servers.rust]
 # At most 32 named entries. Languages need no bundled grammar.

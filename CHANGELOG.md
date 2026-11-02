@@ -8,20 +8,15 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Register installed language servers with `lsp-setup`, including custom languages
-  without bundled grammars. Select a server or native-only completion per language,
-  and reload LSP settings without changing the current editing profile or LSP mode.
-  Inspect recipes and local availability with `lsp-servers`, reuse an installed
-  recipe preset, and change sources through `lsp-select-server`. Acquire and
-  verify Rust, Go, TypeScript/JavaScript, HTML/CSS/JSON, Markdown, Ruby, Python
-  and Odin servers with
-  `lsp-install-server` while editing continues. Keep analysis off until enabled,
-  reuse shared web installations per language and retain a ready server if its
-  settings cannot be saved. Keep Ruby gems and Python environments isolated,
-  and build a pinned Odin server with your existing compatible compiler. Update
-  selected managed profiles with `lsp-update-server` after replacement verification,
-  retain the prior version on failure, remove stopped unreferenced payloads with
-  `lsp-remove-server`, and cancel active work with `lsp-cancel-installation`.
+- [Set up optional language servers](docs/tutorials/user-guide/12-language-servers.md)
+  through native prompts in both editing profiles. Reuse installed executables,
+  register custom languages without bundled grammars, or acquire and verify Rust,
+  Go, web, Markdown, Ruby, Python and Odin servers with optional tools on Linux
+  x86-64.
+  Select semantic or native-only completion per language, inspect local readiness
+  and reload choices without changing the current editing profile or analysis mode.
+  Update managed profiles after replacement verification, retain prior versions on
+  failure, cancel active work, and remove only owned, unreferenced, stopped payloads.
 
 ## 0.3.0 - 2026-11-01
 

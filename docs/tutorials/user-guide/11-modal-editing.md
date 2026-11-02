@@ -124,8 +124,7 @@ the same unsaved-file confirmation. See the [binding reference](../../reference/
 for the finite supported operations and [defaults](../../reference/defaults.md)
 for startup and state-map configuration.
 
-You have completed the User Guide. Continue with a
-[task guide](../../how-to/index.md) or look up a
-[command](../../reference/commands.md).
+Next: [Set Up Language Servers](12-language-servers.md) to add optional semantic
+completion through the same shared commands.
 
 [Previous](10-complete-names.md) · [User Guide](index.md)

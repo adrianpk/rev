@@ -17,9 +17,13 @@ scripts/build-user-guide.sh
 ```
 
 The generated HTML is in `target/userguide/`, ready to mount at `/userguide/`.
-The build keeps the ten chapters and two entry pages together, with supporting
+The build keeps the twelve chapters and two entry pages together, with supporting
 how-to, reference and explanation pages. Local documentation links stay in the
 Spore publication, including heading anchors and configuration downloads.
+Edit the Markdown learning path and `index.sptree` together when adding a chapter.
+`cargo run --locked --quiet --example documentation-check` verifies the same
+chapter order, previous/next links and live command/configuration inventories.
+The language-server chapter and its downloadable TOML example use this same build.
 Code blocks remain unchanged; Markdown tables become native Spore tables.
 Standalone Markdown images become native Spore figures with their alternative
 text and asset URLs beneath `/userguide/`.

@@ -11,7 +11,8 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Focused prompts](prompts.md): arguments, path completion, decisions and cancellation.
 - [Search and replacement](search.md): literal smart-case queries and per-match replacement.
 - [Native completion](completion.md): automatic/manual names, structural language contexts and checked acceptance.
-- [Language servers](language-servers.md): optional installed servers, shared lifetimes, semantic edits and fallback limits.
+- [Language servers](language-servers.md): guided setup, managed recipes, source selection, shared lifetimes and semantic edits.
+- [Language-server configuration example](language-server-example.toml): complete installed/custom launch fields and per-language preferences.
 - [Named bookmarks](commands.md#named-bookmarks): checked locations, persistent storage, listing and gutter markers.
 - [File tree](file-tree.md): root selection, focus and filesystem operations.
 - [Rectangles](rectangles.md): display-column selection and separate retained rows.
