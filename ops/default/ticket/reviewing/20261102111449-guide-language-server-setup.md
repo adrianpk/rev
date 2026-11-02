@@ -13,8 +13,8 @@ ready_at: 2026-11-02T11:14:49Z
 started_at: 2026-11-02T12:00:58Z
 branch: feat/rev-language-server-installation-02-catalog
 reviewed_at: 2026-11-02T12:18:47Z
-pr: pending
-commits: [92655f9611e6573982b462edf44ecb534663ea61, 0a736a305f15bd4c1e641b2b445b186b587ac5e2]
+pr: 223
+commits: [fa45a2e6040ebefdf5a019c199ee1702eeedde1c, 92655f9611e6573982b462edf44ecb534663ea61, 0a736a305f15bd4c1e641b2b445b186b587ac5e2]
 ---
 
 # Catalog and guided setup
@@ -51,4 +51,6 @@ One slice PR uses the exact plan branch and title. The controller owns progress.
 Catalog filesystem observations, both-profile native selectors, cancellation,
 settings/association inheritance and bounded read-only result checks passed.
 See the [Slice 2 report](../../report/slices/rev-language-server-installation/slice-2-catalog.md).
-Controller validation of the exact clean PR head is required before integration.
+All four configured commands passed at `fa45a2e6040ebefdf5a019c199ee1702eeedde1c` with receipt
+`LNZASM2O7S5S2G2FFW3IP35PUR`. Canonical PR: #223. The final PR-reference
+head requires its own controller receipt before integration.

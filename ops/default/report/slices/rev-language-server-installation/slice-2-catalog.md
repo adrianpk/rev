@@ -5,7 +5,7 @@ Delivery set: rev-language-server-installation
 Plan: [Installation Delivery](../../../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../../../tracker/rev-language-server-installation.md)
 Branch: `feat/rev-language-server-installation-02-catalog`
-PR: pending
+PR: `#223`
 
 ## Purpose
 
@@ -91,6 +91,15 @@ preset-named custom command preservation, arbitrary uncatalogued identities,
 corrupt-registry preservation, read-only snapshots, omitted environment values
 and UTF-8-safe visible output limits. Controlled metadata/interaction fixtures do
 not establish an upstream server's protocol or semantic quality.
+
+Pre-PR controller validation passed at
+`fa45a2e6040ebefdf5a019c199ee1702eeedde1c`, receipt
+`LNZASM2O7S5S2G2FFW3IP35PUR`:
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --locked --all-targets -- -D warnings`: passed.
+- `cargo test --locked --test commands --test lsp_installation -- --test-threads=1`: passed.
+- `git diff --check`: passed.
 
 The controller owns the exact clean-HEAD receipt for the configured ordered
 format, all-target Clippy, command/installation regressions and whitespace checks.

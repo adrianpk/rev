@@ -17,7 +17,7 @@ Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slice 1 is delivered through PR #222. Slice 2 is in progress; later slices remain pending.
+closure. Slice 1 is delivered through PR #222. Slice 2 is in canonical PR #223 after implementation and the configured pre-PR checks; later slices remain pending.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -87,7 +87,7 @@ Ticket: [Catalog and guided setup](../ticket/reviewing/20261102111449-guide-lang
 Requirements: INS01, INS03, INS04.
 Dependencies: Slice 1 integrated.
 Branch: `feat/rev-language-server-installation-02-catalog`
-PR: pending.
+PR: `#223`.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-2-catalog.md`
 
 - [x] T2.1: Add the finite recipe metadata catalog and lsp-setup/lsp-servers/lsp-select-server interactions, including custom languages and existing executables.
@@ -107,7 +107,12 @@ unknown identities, read-only snapshots and corrupt-registry independence.
 T2.2 commit: `0a736a305f15bd4c1e641b2b445b186b587ac5e2`.
 T2.3 expanded selector and bounded-result checks passed through
 `cargo test --locked --test lsp_installation selectors:: -- --test-threads=1`.
-Final controller validation and canonical integration remain pending.
+T2.3/report-introduction commit: `fa45a2e6040ebefdf5a019c199ee1702eeedde1c`.
+All four configured commands passed on that clean candidate with controller receipt
+`LNZASM2O7S5S2G2FFW3IP35PUR`. Canonical PR:
+https://forge.adrianpk.com/adrianpk/rev/pulls/223
+The controller retains the final receipt for the PR-reference HEAD;
+canonical integration remains pending.
 
 ### Slice 3: Managed Rust installation
 
