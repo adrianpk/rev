@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 7 — Acceptance and user guidance
+Active slice: None — all seven slices delivered; integrated gate pending
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
 
 ## Outcome and authority
@@ -208,7 +208,7 @@ git diff --check
 
 ### Slice 7: Acceptance and user guidance
 
-Ticket: [Acceptance and user guidance](../ticket/reviewing/20261102111454-verify-and-document-server-management.md)
+Ticket: [Acceptance and user guidance](../ticket/solved/20261102111454-verify-and-document-server-management.md)
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated and prior contracts retained.
 

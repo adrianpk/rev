@@ -1,6 +1,6 @@
 # Slice 7: Acceptance and user guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-language-server-installation
 Plan: `ops/default/plan/rev-language-server-installation.md`
 Tracker: `ops/default/tracker/rev-language-server-installation.md`
@@ -128,13 +128,13 @@ current-host versions or semantic evidence for every package:
 | OLS | Revision `9b9711592bed66266311c361dd7a307ecc87025b` | Failed/incomplete: the recorded installed Odin lacks `core:odin/tool-format`; no executable/probe/semantics claimed. |
 
 T7.2 commit: `91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195`.
-T7.3 admission checks confirm tickets 1–6 are solved and this final implementation
-ticket is reviewing. Admission filled Slice 2's missing resolution/closure fields
+At T7.3 admission, tickets 1–6 were solved and this final implementation
+ticket was reviewing. Admission filled Slice 2's missing resolution/closure fields
 from its recorded closure commit `e70e5e68c840959a83c9d3c74c68f23e6fa2715c`
 and verified merged PR #223; Slice 3's existing start timestamp now uses the
 canonical `started_at` field. No timestamp or closure is inferred from file age.
-Implementation/guidance are complete; the final ticket's solved transition
-follows canonical merge. No ticket or set closure is inferred from local checks.
+Implementation/guidance are complete. The final ticket is now solved after
+verified canonical merge. Set closure is not inferred from local checks.
 The first configured batch at `8cd7b6ef855bd41bc5291390d03fc37353ef193b`,
 receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`, passed format and failed Clippy on two
 redundant borrows in the new PTY cancellation fixture. Removing those borrows
@@ -162,15 +162,28 @@ made twelve fixture curl calls. These are samples, not hard runtime limits.
 The Spore build projected 68 Markdown pages and generated both the new chapter
 and its unchanged downloadable TOML example. The guide remains a local output.
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
-The PR-reference follow-up and retained modal source-check inventory receive
-fresh exact-HEAD validation; controller evidence and Acta retain that result
-without changing the validated candidate. The combined integrated gate remains
-pending until controller-owned integration.
+Final clean-head receipt `ZYT35C4DMZOQOR3BIRPNBBHCKK` passed the same seven
+ordered commands at `f84bc0af8193305007ce0c0a76b91d37ff3497c4`, including
+the PR-reference follow-up and retained modal source-check inventory. The
+result remains 39 passed and three opt-in checks ignored. Canonical PR #228
+merged that exact head into dev. Slice 7 of 7 completed.
+
+Gate prerequisites were prepared on 2026-11-02: Rust/Cargo 1.98.0, rustfmt,
+Clippy, rust-analyzer `0.3.3089-standalone`, gopls `v0.23.0`, Go `1.27.1`,
+Spore and required helper executables are available.
+`cargo metadata --locked --offline --format-version 1` resolved 91 packages
+with their source targets and all ten grammar parser packages present. An owned
+isolated HOME/XDG/workspace fixture admitted offline Rust metadata and its
+local Go module. File/directory fsync, atomic rename, guide-output staging and
+PTY allocation succeeded. Preparation observed approximately 126 GiB available
+repository storage, 6.2 GiB temporary storage and 8.3 GiB available memory.
+All temporary roots were removed; preparation launched no editor/server or
+test/build. The unchanged integrated gate remains pending and controller-owned.
 
 ## Risks and Follow-ups
 
-The canonical PR is reviewing. The controller owns
-integration, this final ticket's post-merge closure, the unchanged integrated
-gate and set closure. The arbitrary-language case uses a controlled peer; real
+The canonical PR is merged and the final implementation ticket is solved.
+The controller owns the unchanged integrated gate and set closure.
+The arbitrary-language case uses a controlled peer; real
 Rust/Go semantics are separate. Recorded OLS acquisition requires a compatible
-external compiler. Unknown caches remain untouched. No gate result is claimed.
+external compiler. Unknown caches remain untouched. No integrated-gate result is claimed.

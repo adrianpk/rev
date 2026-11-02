@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102111454
 title: Acceptance and user guidance
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,7 +14,9 @@ started_at: 2026-11-02T16:39:21Z
 branch: feat/rev-language-server-installation-07-acceptance
 reviewed_at: 2026-11-02T17:03:59Z
 pr: 228
-commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89, 91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195, 8cd7b6ef855bd41bc5291390d03fc37353ef193b, c9e081bcfd6c919d40d9b610683fbd984d83d5e0]
+closed_at: 2026-11-02T17:21:41Z
+resolution: fixed
+commits: [2dd2314c1bf4c3ee71b6a6c008e7c217465a5d89, 91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195, 8cd7b6ef855bd41bc5291390d03fc37353ef193b, c9e081bcfd6c919d40d9b610683fbd984d83d5e0, f84bc0af8193305007ce0c0a76b91d37ff3497c4]
 ---
 
 # Acceptance and user guidance
@@ -57,6 +59,8 @@ documentation regressions and all-example compilation passed. All seven configur
 commands passed at `c9e081bcfd6c919d40d9b610683fbd984d83d5e0`, receipt
 `NPV2LWJOXJ3LBCYVU2CYJJ3WKI` (39 passed; three opt-in checks ignored).
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
-The PR-reference head receives fresh configured validation; closure remains
-post-merge.
+Final clean-head receipt `ZYT35C4DMZOQOR3BIRPNBBHCKK` passed the same seven
+ordered commands at `f84bc0af8193305007ce0c0a76b91d37ff3497c4`, merged
+unchanged by canonical PR #228. This implementation ticket is solved; the
+controller-owned integrated gate and delivery-set closure remain pending.
 See the [Slice 7 report](../../report/slices/rev-language-server-installation/slice-7-acceptance.md).

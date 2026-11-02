@@ -10,14 +10,15 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 7 — Acceptance and user guidance
+Active slice: None — all seven slices delivered; integrated gate pending
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
 
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
-closure. Slices 1–6 are delivered through PRs #222–#227. Slice 7 is active.
+closure. All seven slices are delivered through canonical PRs #222–#228.
+The unchanged integrated gate is pending; no implementation slice remains active.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -342,8 +343,8 @@ that exact head into dev. Slice 6 of 7 completed.
 
 ### Slice 7: Acceptance and user guidance
 
-State: reviewing.
-Ticket: [Acceptance and user guidance](../ticket/reviewing/20261102111454-verify-and-document-server-management.md)
+State: delivered.
+Ticket: [Acceptance and user guidance](../ticket/solved/20261102111454-verify-and-document-server-management.md)
 Requirements: INS01-INS06.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-language-server-installation-07-acceptance`
@@ -371,10 +372,9 @@ and all-example compilation passed. Configured release validation and the exact
 integrated delivery-set gate remain pending.
 T7.2 commit: `91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195`.
 T7.3 implementation/admission preparation is complete. All prior tickets are
-solved; the final ticket is reviewing until merge. Resource/ownership evidence
-and separately recorded package outcomes are in the canonical report. The
-seven configured commands must pass on the exact clean PR head; the controller
-owns post-merge ticket closure, full-gate execution and set closure.
+solved. Resource/ownership evidence and separately recorded package outcomes
+are in the canonical report. The seven configured commands passed on the exact
+clean PR head; the controller owns full-gate execution and set closure.
 T7.3 commit: `8cd7b6ef855bd41bc5291390d03fc37353ef193b`.
 The first configured batch passed format and failed Clippy on two redundant
 fixture borrows, receipt `H5TKDVVZ7IRSDTO6PCE2NEBOZO`. The correction keeps
@@ -387,8 +387,9 @@ run including its cold two-job build took 202 seconds. All idle samples used
 zero ticks; both PTYs restored terminal state within the existing bounds.
 The local Spore build includes the chapter and full TOML download.
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
-The reference commit and preserved shared-helper source inventory receive fresh
-validation at their final clean HEAD, retained by the controller and Acta.
+Final receipt `ZYT35C4DMZOQOR3BIRPNBBHCKK` passed all seven configured commands
+at `f84bc0af8193305007ce0c0a76b91d37ff3497c4`. Canonical PR #228 merged
+that exact head into dev. Slice 7 of 7 completed; all seven tickets are solved.
 
 
 ## Validation selection
@@ -408,9 +409,17 @@ Do not require Python or other optional runtimes for ordinary Rust/Bash checks.
 
 ## Final gate and closure
 
-Pending. All implementation tasks and focused evidence are recorded; Slice 7
-canonical integration and the exact integrated gate have not completed.
-Finish ticket transitions and their links before gate admission. Closure is
-documentation-only within the preconfigured exact allowlist. Retain the
-approval, task identities, canonical reports and exact tested candidate/receipt.
-Mark completed only after the configured gate and controller checks pass.
+Gate preparation completed on 2026-11-02 after all seven canonical merges.
+Primary dev includes every recorded head. All reports are delivered and all
+owning tickets are solved. Installed Rust/Cargo/format/Clippy, real Rust/Go
+servers, local Go, Spore and required helpers are available. Locked offline
+metadata resolves 91 packages; all ten grammar parser sources are cached.
+Owned isolated HOME/XDG roots, offline Rust fixture metadata, local Go module,
+file/directory fsync, atomic rename, guide-output staging and PTY allocation
+passed prerequisite checks. Temporary roots were removed; no editor, server,
+test, build or full gate was started during preparation.
+
+The configured integrated gate remains pending and controller-owned. Plan,
+tracker and paired spec/model remain Approved until that exact candidate
+passes. Closure is documentation-only within the preconfigured exact allowlist.
+Retain the approval, task identities, canonical reports and tested candidate/receipt.
