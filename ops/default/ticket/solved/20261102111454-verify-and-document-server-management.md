@@ -61,6 +61,9 @@ commands passed at `c9e081bcfd6c919d40d9b610683fbd984d83d5e0`, receipt
 Canonical PR: https://forge.adrianpk.com/adrianpk/rev/pulls/228
 Final clean-head receipt `ZYT35C4DMZOQOR3BIRPNBBHCKK` passed the same seven
 ordered commands at `f84bc0af8193305007ce0c0a76b91d37ff3497c4`, merged
-unchanged by canonical PR #228. This implementation ticket is solved; the
-controller-owned integrated gate and delivery-set closure remain pending.
+unchanged by canonical PR #228. This implementation ticket is solved.
+The controller passed the unchanged integrated gate at
+`0bc1ede50fd128897d80507c24cbaf9a0e670fda`, receipt
+`EVGM5GWST4Q4AX4CYQWMEGUFSK` (412 selected top-level tests passed,
+three opt-in cases ignored). Delivery-set documentation closure is complete.
 See the [Slice 7 report](../../report/slices/rev-language-server-installation/slice-7-acceptance.md).

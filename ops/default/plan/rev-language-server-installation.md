@@ -1,6 +1,6 @@
 # Language Server Installation Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-02
 Delivery set: rev-language-server-installation
 Slice strategy: behavior-first
@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None — all seven slices delivered; integrated gate pending
+Active slice: None — all seven slices delivered; integrated gate passed; delivery set closed
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
 
 ## Outcome and authority
@@ -311,3 +311,19 @@ configured plan, tracker, seven reports, paired spec/model, pending index and
 the seven exact solved ticket paths. Review that allowlist before startup.
 Retain historical baseline/gate identities. Mark the spec/model and set
 Completed only at verified closure. No application change belongs in closure.
+
+## Final gate and closure
+
+Completed on 2026-11-02 after canonical PRs #222–#228 integrated all seven
+slices and the controller passed the unchanged Full gate command at
+`0bc1ede50fd128897d80507c24cbaf9a0e670fda`, receipt
+`EVGM5GWST4Q4AX4CYQWMEGUFSK`. The selected test runs passed 412
+cases with zero failures and three opt-in network cases ignored. Native/PTY
+management in both profiles, real Rust/Go semantics, grammar-independent
+routing, owned lifecycle, documentation and local Spore generation passed.
+The [tracker](../tracker/rev-language-server-installation.md#final-gate-and-closure)
+and [Slice 7 closure](../report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
+retain the exact candidate, command, timings, resources and evidence limits.
+All seven reports are delivered and owning tickets solved; the paired
+specification/model are Completed. No active owned fixture remained to stop.
+Closure is documentation-only within the configured paths.

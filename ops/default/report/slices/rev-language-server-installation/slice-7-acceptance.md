@@ -178,12 +178,57 @@ local Go module. File/directory fsync, atomic rename, guide-output staging and
 PTY allocation succeeded. Preparation observed approximately 126 GiB available
 repository storage, 6.2 GiB temporary storage and 8.3 GiB available memory.
 All temporary roots were removed; preparation launched no editor/server or
-test/build. The unchanged integrated gate remains pending and controller-owned.
+test/build. These are preparation observations.
+
+## Delivery-set closure
+
+The controller passed the unchanged integrated gate on 2026-11-02 at
+`0bc1ede50fd128897d80507c24cbaf9a0e670fda`, receipt
+`EVGM5GWST4Q4AX4CYQWMEGUFSK`. The canonical gate evidence and log
+retain that immutable candidate. Execution ran from 17:23:22Z to 17:32:57Z,
+approximately 575 seconds including builds. The exact successful command was:
+
+```sh
+cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check
+```
+
+The eight selected top-level test runs passed 412 cases: 121 library,
+44 completion, 139 configuration, six language-assets, 44 LSP, 39 installation,
+one command-catalog and 18 modal-context cases. Three explicit network cases
+were ignored; there were zero failures. Nested subprocess checks are included
+in their owning library cases, not counted again. Format and Clippy passed.
+This is the approved affected-contract gate, not the exhaustive repository suite.
+
+Native management passed in both startup profiles in 3,522/3,443 ms. Actual
+Rust and Go returned unsaved-only fields through one semantic provider; edits
+were one undo operation and preserved disk bytes. The arbitrary language used
+the controlled peer without a grammar/catalog entry. Managed local acquisition,
+verified update, prior-version removal, disabled-analysis editing, cancellation,
+inventory, source preservation and terminal restoration passed.
+
+Every 350 ms idle sample used zero CPU ticks. Observed driver peak RSS was
+at most 21,760 KiB and separate real servers at most 35,904 KiB; PTY output was
+25,197/25,207 bytes within the existing eight-second/1 MiB bounds. The management
+script took 163 seconds including its two-job build. The editor was 20,581,608
+bytes; the owned fixture used 186,508,398 bytes with twelve fixture curl calls.
+These are measured samples, not new acceptance limits. The local Rust payload
+was 42,485,344 bytes; its controlled asset is not upstream release provenance.
+
+Documentation passed 68 reachable pages, 413 links/anchors and the live
+417-command/219-setting inventories. Spore projected 68 Markdown pages and
+generated the local User Guide with the complete TOML download. The gate
+started no new public service. Closure inspection found no active primary
+build, editor, server or owned management fixture; no process needed stopping.
+Unknown temporary roots and caches were preserved.
+
+All canonical PRs #222–#228 are merged, reports delivered and seven owning
+tickets solved. The plan, tracker and paired spec/model are Completed. Only
+configured documentation paths differ from the tested candidate; the runtime
+and all historical evidence identities remain unchanged.
 
 ## Risks and Follow-ups
 
-The canonical PR is merged and the final implementation ticket is solved.
-The controller owns the unchanged integrated gate and set closure.
-The arbitrary-language case uses a controlled peer; real
-Rust/Go semantics are separate. Recorded OLS acquisition requires a compatible
-external compiler. Unknown caches remain untouched. No integrated-gate result is claimed.
+The delivery set is closed after the controller's exact-candidate gate.
+The arbitrary-language case uses a controlled peer; real Rust/Go semantics
+are separate. Recorded OLS acquisition requires a compatible external compiler.
+The local Spore output is not public deployment. Unknown caches remain untouched.

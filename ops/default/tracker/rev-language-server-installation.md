@@ -1,6 +1,6 @@
 # Language Server Installation Tracker
 
-Status: Approved
+Status: Completed
 Date: 2026-11-02
 Delivery set: rev-language-server-installation
 Slice strategy: behavior-first
@@ -10,7 +10,7 @@ Spec: [Language Server Installation](../spec/editor-language-server-installation
 Model: [Installation Model](../spec/editor-language-server-installation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test configuration --test lsp --test lsp_installation --test completion --test language_assets -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && cargo test --locked --test modal contexts:: -- --test-threads=1 && bash scripts/check-lsp-installation.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None — all seven slices delivered; integrated gate pending
+Active slice: None — all seven slices delivered; integrated gate passed; delivery set closed
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 
 ## Execution ownership
@@ -18,7 +18,8 @@ Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 The owner approved preparation and autonomous execution on 2026-11-02. Looper
 owns worker progress, canonical slice integration, the exact-candidate gate and
 closure. All seven slices are delivered through canonical PRs #222–#228.
-The unchanged integrated gate is pending; no implementation slice remains active.
+The unchanged integrated gate passed at the recorded immutable candidate;
+no implementation slice remains active and the delivery set is closed.
 
 The explicit open-language acceptance is mandatory: the initial recipe catalog
 and bundled grammars cannot constrain generic server registration or language
@@ -368,8 +369,8 @@ matching Spore navigation and consolidated Unreleased entry. The actual config
 loader admits the example with disabled analysis, selected Go/custom profiles,
 native-only Markdown and an unbundled suffix. Documentation check passed 68
 pages/413 links with 417 commands/219 settings; seven documentation regressions
-and all-example compilation passed. Configured release validation and the exact
-integrated delivery-set gate remain pending.
+and all-example compilation passed. The controller subsequently passed the
+exact integrated delivery-set gate recorded below.
 T7.2 commit: `91608bcd5e60e5f16f6ed08f4aa74f72ae1e3195`.
 T7.3 implementation/admission preparation is complete. All prior tickets are
 solved. Resource/ownership evidence and separately recorded package outcomes
@@ -419,7 +420,19 @@ file/directory fsync, atomic rename, guide-output staging and PTY allocation
 passed prerequisite checks. Temporary roots were removed; no editor, server,
 test, build or full gate was started during preparation.
 
-The configured integrated gate remains pending and controller-owned. Plan,
-tracker and paired spec/model remain Approved until that exact candidate
-passes. Closure is documentation-only within the preconfigured exact allowlist.
-Retain the approval, task identities, canonical reports and tested candidate/receipt.
+The controller passed the unchanged Full gate command at
+`0bc1ede50fd128897d80507c24cbaf9a0e670fda`, receipt
+`EVGM5GWST4Q4AX4CYQWMEGUFSK`, on 2026-11-02. Execution ran from
+17:23:22Z to 17:32:57Z, approximately 575 seconds including builds. The eight
+selected top-level test runs passed 412 cases with zero failures and three
+opt-in network cases ignored. Both-profile native/PTY management, actual Rust/Go
+semantics, arbitrary-language routing, resource ownership, documentation and
+local Spore generation passed. The [Slice 7 closure](../report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
+records the exact command, measurements and evidence limits.
+
+All seven canonical PRs #222–#228 are merged; all reports are delivered and
+all owning tickets solved. The plan, tracker and paired spec/model are
+Completed. No active primary build, editor, server or owned management fixture
+remained at closure inspection. No process needed stopping. Documentation
+closure changes only the configured allowlist, preserving the tested runtime
+and historical gate identities.

@@ -1,10 +1,11 @@
 # Language Server Installation Model
 
-Status: Approved
+Status: Completed
 Date: 2026-10-27
 Reviewed: 2026-11-02
 Approved: product owner, 2026-11-02; paired implementation approval
 Specification: [Language Server Installation](editor-language-server-installation.md)
+Implementation evidence: [Slice 7 closure](../report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
 Existing ownership: [Editor Configuration Model](editor-configuration-model.md)
 
 ## Records and ownership
@@ -80,7 +81,7 @@ both managed and external LSP for that language without altering its grammar.
 
 ## TOML and session delta
 
-The following describes planned fields; no application support is claimed yet:
+The delivered configuration fields are:
 
 ```toml
 [lsp.preferred]

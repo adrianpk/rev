@@ -1,6 +1,6 @@
 # Language Server Installation
 
-Status: Approved
+Status: Completed
 Date: 2026-10-27
 Reviewed: 2026-11-02
 Approved: product owner, 2026-11-02; implementation and necessary preparation authorized
@@ -12,7 +12,10 @@ Model: [Language Server Installation Model](editor-language-server-installation-
 Storage reference: [Editor Configuration](editor-configuration.md)
 Plan: [Installation Delivery](../plan/rev-language-server-installation.md)
 Tracker: [Installation Tracker](../tracker/rev-language-server-installation.md)
-Readiness: approved for implementation; acceptance evidence is not yet available
+Readiness: completed through seven integrated slices and the unchanged controller gate
+Gate candidate: `0bc1ede50fd128897d80507c24cbaf9a0e670fda`
+Gate receipt: `EVGM5GWST4Q4AX4CYQWMEGUFSK`
+Evidence: [Slice 7 closure](../report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
 
 ## Purpose
 
@@ -53,7 +56,7 @@ The shared command registry also exposes `lsp-servers`, `lsp-select-server`,
 `lsp-install-server`, `lsp-update-server`, `lsp-remove-server`,
 `lsp-cancel-installation` and `lsp-reload-settings`. They reuse native vertical
 selectors, prompts and result buffers. There is no new command parser or
-mandatory key prefix. Names describe planned commands until their slices land.
+mandatory key prefix. These commands are delivered through the seven-slice set.
 
 `lsp-servers` shows language, configured server, selected source, managed or
 external origin, version when known, readiness and actionable prerequisites.

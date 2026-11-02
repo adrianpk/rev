@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-10-31
-Scope: pending behavior after the completed native completion, optional LSP and modal editing deliveries
-Owner decision: native completion, optional LSP and modal editing delivered; language-server installation approved for autonomous implementation on 2026-11-02
+Scope: pending behavior after the completed native completion, optional LSP, modal editing and server-management deliveries
+Owner decision: native completion, optional LSP, modal editing and language-server installation delivered; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains nine delivered topics, two open presentation
-follow-ups and six remaining capability proposals. The five solved
+The inventory contains ten delivered topics, two open presentation
+follow-ups and five remaining capability proposals. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -34,7 +34,7 @@ retain their own specification/model state.
 | Native bookmarks and gutter markers | [Spec](spec/editor-bookmarks.md), [model](spec/editor-bookmarks-model.md), [plan](plan/rev-bookmarks.md), [tracker](tracker/rev-bookmarks.md) | Delivered / Completed spec and model. Six slices through PRs #185-#190 and authorized repairs #191-#193 deliver named commands, checked lifecycle, persistence, listing, native markers, joint acceptance and guidance. The controller-owned combined gate passed. |
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
-| Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Approved. Seven slices for guided existing/custom setup, association, explicit choice, managed recipes and lifecycle. Any compatible language/server is eligible independently of bundled grammars or the initial catalog. Execution startup and delivery evidence remain controller-owned. |
+| Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Delivered / Completed. Seven slices through PRs #222–#228 deliver guided existing/custom setup, associations, explicit source choice, managed recipes and lifecycle. Any compatible language/server remains eligible independently of bundled grammars or the initial catalog. The unchanged controller gate passed INS01-INS06 with both-profile native/PTY management, real Rust/Go semantics and grammar-independent routing. |
 | Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft. Discrete explain/implement/transform operations and reusable declarative commands. Context grants, API profile, acceptance and persistence remain open. |
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md) | Draft. Pi owns its authentication and discovery; rev owns editor snapshots and checked edits. Protocol and enforceable read-only authority remain open. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
@@ -46,10 +46,10 @@ retain their own specification/model state.
 
 The owner selected optional language-server installation on 2026-11-02 and
 authorized the seven-slice plan and autonomous Looper implementation through
-dev. Existing-client support is already delivered. The selected set adds
-ergonomic setup and management; it does not limit LSP languages to the native
-grammar list or acquisition catalog. Other pending capabilities retain their
-own state.
+dev. Its seven canonical slices and unchanged integrated gate are complete.
+The specification/model and plan/tracker are Completed. Delivered setup and
+management remain independent of the native grammar list and acquisition
+catalog. Other pending capabilities retain their own state.
 
 The owner selected startup-only Emacs/Vim modal editing on 2026-11-01,
 temporarily deferring discussion item 10, and authorized its eight-slice delivery.
@@ -165,9 +165,15 @@ PRs #212-#219. Its unchanged full gate passed at
 acceptance. The [modal tracker](tracker/rev-modal-editing.md#final-gate-and-closure)
 and [Slice 8 closure](report/slices/rev-modal-editing/slice-8-acceptance.md#delivery-set-closure)
 record exact validation, resources, guide output and owned cleanup.
-Of the six remaining capability proposals, language-server installation is now
-Approved with a seven-slice plan and tracker. Its implementation and integrated
-acceptance are pending. The other proposals, including optional external-program
+Language-server installation's specification/model, plan and tracker are
+Completed after seven slices through PRs #222–#228. Its unchanged controller
+gate passed at `0bc1ede50fd128897d80507c24cbaf9a0e670fda`, receipt
+`EVGM5GWST4Q4AX4CYQWMEGUFSK`, with 412 selected top-level tests,
+three opt-in cases ignored, and native/real-server/PTY management acceptance.
+The [installation tracker](tracker/rev-language-server-installation.md#final-gate-and-closure)
+and [Slice 7 closure](report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
+record exact validation, resources, local guide output and owned cleanup.
+The five remaining capability proposals, including optional external-program
 exploration, retain their prior state. Earlier completed gates keep their
 historical identities.
 
