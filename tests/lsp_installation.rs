@@ -29,3 +29,6 @@ mod npm;
 
 #[path = "lsp_installation/live.rs"]
 mod live;
+
+#[path = "lsp_installation/optional.rs"]
+mod optional;

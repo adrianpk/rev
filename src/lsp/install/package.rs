@@ -10,6 +10,26 @@ use crate::org::Cancellation;
 
 use super::{Candidate, Launch, Outcome, State, Storage};
 
+pub(super) fn version(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 128
+        && value.as_bytes()[0].is_ascii_digit()
+        && value
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"._+-".contains(&b))
+}
+
+pub(super) fn watch(
+    cache: &super::cache::Cache,
+    candidate: Option<&Candidate>,
+) -> Vec<(std::path::PathBuf, u64)> {
+    let mut watch = vec![(cache.root.clone(), super::CACHE_BYTES)];
+    if let Some(candidate) = candidate {
+        watch.push((candidate.directory.clone(), super::PAYLOAD_BYTES));
+    }
+    watch
+}
+
 pub(super) fn platform() -> Result<(), String> {
     if std::env::consts::OS != "linux" || std::env::consts::ARCH != "x86_64" {
         return Err(

@@ -220,3 +220,19 @@ fn owned_children(command: &str) -> Vec<u32> {
     }
     children.into_iter().collect()
 }
+
+// These opt-in probes use the installed runtimes and actual upstream packages.
+// Ready proves the bounded empty-root lifecycle, not each server's semantics.
+#[test]
+#[ignore = "explicit optional upstream acquisition; run separately from offline regressions"]
+fn optional_packages() {
+    let recipe = std::env::var("REV_LIVE_RECIPE").expect("select one optional live recipe");
+    let (recipe, language) = match recipe.as_str() {
+        "marksman" => ("marksman", "markdown"),
+        "ruby-lsp" => ("ruby-lsp", "ruby"),
+        "python-lsp-server" => ("python-lsp-server", "python"),
+        _ => panic!("unknown optional recipe"),
+    };
+    let f = Fixture::new();
+    acquire(&f, recipe, language);
+}

@@ -3,12 +3,11 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use serde::Deserialize;
-
 use crate::config::Server;
 use crate::org::Cancellation;
 
 use super::cache::Cache;
+use super::download::{self, Exact};
 use super::helper::{Helper, executable, owned_file};
 use super::{Candidate, Launch, Outcome, State, Storage};
 
@@ -16,26 +15,6 @@ const API: &str = "https://api.github.com/repos/rust-lang/rust-analyzer/releases
 const ASSET: &str = "rust-analyzer-x86_64-unknown-linux-gnu.gz";
 const TARGET: &str = "x86_64-unknown-linux-gnu";
 
-#[derive(Deserialize)]
-struct Release {
-    tag_name: String,
-    draft: bool,
-    prerelease: bool,
-    assets: Vec<Asset>,
-}
-#[derive(Deserialize)]
-struct Asset {
-    name: String,
-    digest: Option<String>,
-    browser_download_url: String,
-    size: u64,
-}
-struct Exact {
-    version: String,
-    url: String,
-    digest: String,
-    bytes: u64,
-}
 struct Tools {
     curl: PathBuf,
     gzip: PathBuf,
@@ -72,10 +51,9 @@ fn acquire(
     cancel: &Cancellation,
 ) -> Result<Outcome, String> {
     storage.progress.set(super::Phase::Resolving);
-    let metadata = tools
-        .curl(API, &cache.directory, &cache.root, None)
-        .run(cancel, None)?;
-    let exact = resolve(&metadata)?;
+    let metadata =
+        download::curl(&tools.curl, API, &cache.directory, &cache.root, None).run(cancel, None)?;
+    let exact = download::release(&metadata, "rust-lang/rust-analyzer", ASSET)?;
     let mut candidate = storage.candidate("rust-analyzer", &exact.version, TARGET, &exact.url)?;
     candidate.installation.launches.push(launch(inherited));
     let result = verify(tools, cache, &mut candidate, &exact, cancel);
@@ -126,9 +104,14 @@ fn verify(
 ) -> Result<(), String> {
     candidate.progress.set(super::Phase::Acquiring);
     let artifact = cache.directory.join("server.gz");
-    tools
-        .curl(&exact.url, &cache.directory, &cache.root, Some(&artifact))
-        .run(cancel, None)?;
+    download::curl(
+        &tools.curl,
+        &exact.url,
+        &cache.directory,
+        &cache.root,
+        Some(&artifact),
+    )
+    .run(cancel, None)?;
     let metadata = fs::metadata(&artifact).map_err(|e| format!("downloaded asset: {e}"))?;
     if metadata.len() != exact.bytes || metadata.len() > super::ARTIFACT_BYTES {
         return Err("downloaded artifact length differs from the bounded release asset".into());
@@ -224,53 +207,6 @@ fn runtime(
     Ok(version.into())
 }
 
-fn resolve(bytes: &[u8]) -> Result<Exact, String> {
-    let release: Release =
-        serde_json::from_slice(bytes).map_err(|_| "invalid official Rust release metadata")?;
-    let tag = &release.tag_name;
-    if release.draft || release.prerelease || !tag_valid(tag) {
-        return Err("official Rust release lacks an admitted exact stable tag".into());
-    }
-    let asset = release
-        .assets
-        .into_iter()
-        .find(|a| a.name == ASSET)
-        .ok_or("official Rust release lacks the verified Linux x86-64 asset")?;
-    exact(&release.tag_name, asset)
-}
-
-fn tag_valid(tag: &str) -> bool {
-    tag.len() <= 128
-        && tag
-            .as_bytes()
-            .first()
-            .is_some_and(u8::is_ascii_alphanumeric)
-        && tag
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"._-".contains(&b))
-}
-
-fn exact(tag: &str, asset: Asset) -> Result<Exact, String> {
-    let url = format!("https://github.com/rust-lang/rust-analyzer/releases/download/{tag}/{ASSET}");
-    let digest = asset
-        .digest
-        .as_deref()
-        .and_then(|d| d.strip_prefix("sha256:"))
-        .ok_or("official Rust asset lacks SHA-256 integrity evidence")?;
-    if asset.browser_download_url != url || asset.size == 0 || asset.size > super::ARTIFACT_BYTES {
-        return Err("official Rust asset has an invalid source or transfer size".into());
-    }
-    if digest.len() != 64 || !digest.bytes().all(|b| b.is_ascii_hexdigit()) {
-        return Err("official Rust asset has an invalid SHA-256 digest".into());
-    }
-    Ok(Exact {
-        version: tag.into(),
-        url,
-        digest: digest.to_ascii_lowercase(),
-        bytes: asset.size,
-    })
-}
-
 fn launch(inherited: Option<Server>) -> Launch {
     let base = inherited.unwrap_or_else(|| crate::config::Lsp::default().servers["rust"].clone());
     Launch {
@@ -293,39 +229,6 @@ impl Tools {
             gzip: executable("gzip", path.as_deref())?,
             sha256sum: executable("sha256sum", path.as_deref())?,
         })
-    }
-
-    fn curl(&self, url: &str, directory: &Path, cache: &Path, output: Option<&Path>) -> Helper {
-        let mut args = [
-            "-q",
-            "--fail",
-            "--silent",
-            "--show-error",
-            "--location",
-            "--proto",
-            "=https",
-            "--proto-redir",
-            "=https",
-            "--max-time",
-            "180",
-            "--max-filesize",
-            "268435456",
-            "--url",
-            url,
-        ]
-        .map(str::to_owned)
-        .to_vec();
-        if let Some(output) = output {
-            args.extend(["--output".into(), output.to_string_lossy().into_owned()]);
-        }
-        Helper {
-            executable: self.curl.clone(),
-            args,
-            directory: directory.to_owned(),
-            env: Default::default(),
-            seconds: 185,
-            watch: vec![(cache.to_owned(), super::CACHE_BYTES)],
-        }
     }
 
     fn helper(&self, executable: &Path, args: Vec<String>, cache: &Cache) -> Helper {

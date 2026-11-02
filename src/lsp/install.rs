@@ -1,15 +1,21 @@
 //! Explicit, optional managed installation. Registry reads never start work;
 //! mutations own one native job slot and OS locks for their entire lifetime.
 mod cache;
+mod download;
 mod evidence;
 mod go;
 mod helper;
+mod marksman;
 mod npm;
 mod package;
 mod probe;
 mod process;
 mod progress;
+mod python;
 mod record;
+mod ruby;
+mod runtime;
+pub(crate) use runtime::apply as apply_runtime;
 mod rust;
 mod storage;
 mod tree;
@@ -34,11 +40,14 @@ pub const OPERATION_SECONDS: u64 = 900;
 
 /// Recipes with delivered acquisition behavior. The metadata catalog may also
 /// describe later optional recipes without exposing an unimplemented operation.
-pub const SUPPORTED_RECIPES: [&str; 4] = [
+pub const SUPPORTED_RECIPES: [&str; 7] = [
     "rust-analyzer",
     "gopls",
     "typescript-language-server",
     "vscode-langservers-extracted",
+    "marksman",
+    "ruby-lsp",
+    "python-lsp-server",
 ];
 
 /// Native management dispatch. Shared multi-language profiles inherit the
@@ -50,6 +59,25 @@ pub fn install(
     mut inherited: std::collections::BTreeMap<String, crate::config::Server>,
     cancel: &crate::org::Cancellation,
 ) -> Result<Outcome, String> {
+    inherit(recipe, language, &mut inherited);
+    match recipe {
+        "rust-analyzer" => install_rust(storage, inherited.remove("rust"), cancel),
+        "gopls" => install_go(storage, inherited.remove("go"), cancel),
+        "marksman" => marksman::install(storage, inherited.remove("markdown"), cancel),
+        "ruby-lsp" => ruby::install(storage, inherited.remove("ruby"), cancel),
+        "python-lsp-server" => python::install(storage, inherited.remove("python"), cancel),
+        "typescript-language-server" | "vscode-langservers-extracted" => {
+            install_npm(storage, recipe, inherited, cancel)
+        }
+        _ => Err("unsupported managed recipe".into()),
+    }
+}
+
+fn inherit(
+    recipe: &str,
+    language: &str,
+    inherited: &mut std::collections::BTreeMap<String, crate::config::Server>,
+) {
     if let Some(base) = inherited.get(language).cloned()
         && let Some(profile) = crate::lsp::catalog::RECIPES
             .iter()
@@ -59,13 +87,5 @@ pub fn install(
         for language in profile.languages {
             inherited.insert((*language).into(), base.clone());
         }
-    }
-    match recipe {
-        "rust-analyzer" => install_rust(storage, inherited.remove("rust"), cancel),
-        "gopls" => install_go(storage, inherited.remove("go"), cancel),
-        "typescript-language-server" | "vscode-langservers-extracted" => {
-            install_npm(storage, recipe, inherited, cancel)
-        }
-        _ => Err("unsupported managed recipe".into()),
     }
 }

@@ -158,8 +158,9 @@ impl Helper {
         drop(command);
         let result = self.collect(&mut process, &mut streams, cancel);
         process.finish(result).map_err(|e| {
+            let tail = String::from_utf8_lossy(&streams.error);
             format!(
-                "{}: {e}",
+                "{}: {e}; stderr: {tail}",
                 self.executable
                     .file_name()
                     .unwrap_or_default()

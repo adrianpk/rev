@@ -103,6 +103,7 @@ impl Installation {
         self.facts()?;
         self.verification()?;
         self.profiles(data)?;
+        super::runtime::validate(self, data)?;
         super::storage::contained(data, &data.join(&self.payload), self.status == State::Ready)
     }
 

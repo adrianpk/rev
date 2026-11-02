@@ -225,6 +225,7 @@ fn selection(
             .clone_from(&current.initialization_options);
         server.settings.clone_from(&current.settings);
     }
+    install::apply_runtime(installation, launch, &mut server);
     let name = profile_name(&snapshot, &server, (&launch.id, &installation.id));
     edit.register(&name, &server);
     edit.prefer(language, &Preference::Server(name));

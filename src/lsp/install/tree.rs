@@ -51,7 +51,10 @@ impl Accounting {
                 .checked_add(metadata.len())
                 .ok_or("owned storage accounting overflow")?;
         } else {
-            return Err("owned storage contains a special file".into());
+            return Err(format!(
+                "owned storage contains a special file: {}",
+                path.display()
+            ));
         }
         if self.total > self.limit {
             return Err(format!("owned storage exceeds {} bytes", self.limit));
