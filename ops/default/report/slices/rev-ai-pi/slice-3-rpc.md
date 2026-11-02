@@ -1,6 +1,6 @@
 # Slice 3: Pi RPC explanation
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -132,3 +132,13 @@ Controlled peers establish native protocol/lifetime behavior, not provider
 quality or an actual authenticated generation. The recorded joint acceptance
 owns that bounded real-provider check. Directory discovery, retained directory
 history and generated edit publication follow their existing approved slices.
+
+## Integration
+
+PR [#231](https://forge.adrianpk.com/adrianpk/rev/pulls/231) merged into dev on
+2026-11-02T23:02:57Z at `eb2b45803856e7707ffc122ad697ef02d84a9fc7`.
+Controller receipt `N77GD6JFCVJQGKPXJ7QCEPDOZA` passed the exact ordered
+four-command slice validation at that clean head: format, strict all-target
+Clippy, 7 AI/143 configuration/5 Pi tests, and git diff --check. No tests were
+ignored. The canonical PR contract and committed/pushed references were verified.
+The controller retains integration and the later unchanged delivery-set gate.

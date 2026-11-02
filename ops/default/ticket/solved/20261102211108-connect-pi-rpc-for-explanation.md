@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211108
 title: Pi RPC explanation
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -13,6 +13,8 @@ ready_at: 2026-11-02T21:11:08Z
 started_at: 2026-11-02T22:33:17Z
 branch: feat/rev-ai-pi-03-rpc
 pr: 231
+closed_at: 2026-11-02T23:02:57Z
+resolution: fixed
 reviewed_at: 2026-11-02T22:59:13Z
 commits: [8725da90411ada30b14fb5371c9be4dd06f7d8f7, 9cc5443b89a5bb11f89e3b5cb769b099f2af3049, 0e81da925428984974e1f23251d1972566020a69, 18dfaa6cc4c0ef0875b9330dc27bc325733e911f]
 ---
@@ -62,3 +64,9 @@ Real offline Pi 1.3.0 get_state/shutdown probes passed without provider generati
 Final clean-head evidence follows the committed PR references and is retained by
 the controller and canonical PR validation. The report introduction is
 `18dfaa6cc4c0ef0875b9330dc27bc325733e911f`.
+
+## Closure
+
+PR #231 is integrated at `eb2b45803856e7707ffc122ad697ef02d84a9fc7`.
+Receipt `N77GD6JFCVJQGKPXJ7QCEPDOZA` passed all configured Slice 3 checks
+and 155 tests. The linked report retains exact focused and offline observations.

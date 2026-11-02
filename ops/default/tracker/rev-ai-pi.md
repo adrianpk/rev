@@ -12,14 +12,14 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 3 — Pi RPC explanation
+Active slice: Slice 4 — Checked AI editing
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 and 2 are integrated at their validated heads. Slice 3 is active;
+closure. Slices 1 through 3 are integrated at their validated heads. Slice 4 is active;
 later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
@@ -89,8 +89,8 @@ regression also passed. This is Slice 2 evidence, not the integrated set gate.
 
 ### Slice 3: Pi RPC explanation
 
-State: reviewing.
-Ticket: [Pi RPC explanation](../ticket/reviewing/20261102211108-connect-pi-rpc-for-explanation.md)
+State: delivered.
+Ticket: [Pi RPC explanation](../ticket/solved/20261102211108-connect-pi-rpc-for-explanation.md)
 Requirements: PI01-PI04, PI07; AI01, AI05, AI07, AI16.
 Dependencies: Slice 2 integrated.
 Branch: `feat/rev-ai-pi-03-rpc`
@@ -107,7 +107,10 @@ Implementation: `8725da90411ada30b14fb5371c9be4dd06f7d8f7` (configuration),
 Focused protocol/configuration/ownership checks and real offline Pi 1.3.0
 get_state/shutdown probes passed. Catalogs passed 419 commands and 230 settings.
 The Slice 3 report retains measured process observations and exact focused
-commands. Final clean-head configured validation follows committed PR references.
+commands. PR #231 merged at `eb2b45803856e7707ffc122ad697ef02d84a9fc7` on
+2026-11-02T23:02:57Z. Receipt `N77GD6JFCVJQGKPXJ7QCEPDOZA` passed all
+four configured checks and 155 tests (7 AI, 143 configuration, 5 Pi). This is
+Slice 3 evidence, not the integrated delivery-set gate.
 
 Report introduction and remaining lifecycle regressions: `18dfaa6cc4c0ef0875b9330dc27bc325733e911f`.
 
