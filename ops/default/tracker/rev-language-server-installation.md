@@ -350,12 +350,19 @@ Branch: `feat/rev-language-server-installation-07-acceptance`
 PR: pending.
 Report: `ops/default/report/slices/rev-language-server-installation/slice-7-acceptance.md`
 
-- [ ] T7.1: Deliver one representative native/PTY management journey in both startup profiles, real Rust/Go integration, managed acquisition and grammar-independent semantic routing.
+- [x] T7.1: Deliver one representative native/PTY management journey in both startup profiles, real Rust/Go integration, managed acquisition and grammar-independent semantic routing.
 - [ ] T7.2: Document ordinary setup, custom languages, source selection, recipes and lifecycle; update complete configuration examples, command/reference catalogs, Unreleased and canonical Markdown-to-Spore guidance.
 - [ ] T7.3: Finish slice tickets before the configured integrated gate, record resource/ownership evidence and close only after controller validation of the exact candidate.
 
-Validation: pending; use the exact ordered commands in the plan and controller
-configuration. Commits and canonical integration evidence: pending.
+T7.1 debug native and Linux PTY modes passed for both startup profiles. The
+controlled acquisition fixture transports the actual installed Rust binary;
+real Rust and Go return unsaved-only fields, with one semantic provider and
+one-step undo. An arbitrary language has semantic routing without a grammar,
+then explicit native-only selection. Idle samples consumed zero CPU ticks;
+servers stopped and were reaped, source files stayed unchanged, and the PTYs
+restored terminal state within eight seconds/1 MiB. Focused source checks pass.
+The configured release journey, complete regression sequence and documentation
+commands remain pending. No integrated delivery-set gate result is claimed.
 
 
 ## Validation selection

@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "completion_acceptance/pty.rs"]
+mod baseline_pty;
 #[path = "modal_acceptance/native.rs"]
 mod native;
 #[path = "modal_acceptance/pty.rs"]
@@ -10,7 +12,8 @@ mod resources;
 mod semantic;
 #[path = "completion_acceptance/support.rs"]
 mod support;
-#[path = "completion_acceptance/pty.rs"]
+
+#[path = "completion_acceptance/terminal.rs"]
 mod terminal;
 
 use std::path::PathBuf;
@@ -51,6 +54,6 @@ fn focused(args: &[PathBuf]) -> Result<()> {
 
 fn terminals(args: &[PathBuf]) -> Result<()> {
     assert_eq!(args.len(), 3, "expected fixture, editor and PTY wrapper");
-    terminal::run(&args[0], &args[1], &args[2])?;
+    baseline_pty::run(&args[0], &args[1], &args[2])?;
     pty::run(&args[0], &args[1], &args[2])
 }

@@ -15,6 +15,9 @@ mod resources;
 #[path = "completion_acceptance/support.rs"]
 mod support;
 
+#[path = "completion_acceptance/terminal.rs"]
+mod terminal;
+
 use std::path::PathBuf;
 use support::Result;
 
