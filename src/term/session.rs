@@ -303,12 +303,12 @@ impl Session {
     /// The caller supplies termination authority. Failure retains the process,
     /// failed status and capacity so the operation cannot claim clean closure.
     pub(super) fn close(&mut self) -> io::Result<()> {
-        if let Some(process) = &mut self.process {
-            if let Err(error) = process.stop() {
-                self.state = State::Failed(error.to_string());
-                self.diagnostic = Some(error.to_string());
-                return Err(error);
-            }
+        if let Some(process) = &mut self.process
+            && let Err(error) = process.stop()
+        {
+            self.state = State::Failed(error.to_string());
+            self.diagnostic = Some(error.to_string());
+            return Err(error);
         }
         self.readiness.take();
         self.process.take();
