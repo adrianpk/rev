@@ -25,7 +25,7 @@ pub(crate) struct Terminal {
 }
 
 impl Terminal {
-    pub(crate) fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Self> {
+    pub(crate) fn start(root: &Path, binary: &Path, wrapper: &Path, name: &str) -> Result<Self> {
         let mut child = Command::new("script")
             .args([
                 "-q",
@@ -42,7 +42,7 @@ impl Terminal {
             .arg(wrapper)
             .arg("--pty-child")
             .arg(binary)
-            .arg(root.join("workspace/terminal.rs"))
+            .arg(root.join("workspace").join(name))
             .env("HOME", root.join("pty/home"))
             .env("XDG_CONFIG_HOME", root.join("pty/config"))
             .env("XDG_DATA_HOME", root.join("pty/data"))
@@ -66,7 +66,7 @@ impl Terminal {
             deadline: Instant::now() + Duration::from_secs(8),
             editor: String::new(),
         };
-        terminal.wait(|text| text.contains("REV_EDITOR_PID=") && text.contains("terminal.rs"))?;
+        terminal.wait(|text| text.contains("REV_EDITOR_PID=") && text.contains(name))?;
         terminal.editor = terminal
             .output
             .lines()
@@ -74,7 +74,7 @@ impl Terminal {
             .ok_or("missing owned editor PID")?
             .trim()
             .to_owned();
-        terminal.frame(|frame| frame.contains("terminal.rs"))?;
+        terminal.frame(|frame| frame.contains(name))?;
         Ok(terminal)
     }
 

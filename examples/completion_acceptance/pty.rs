@@ -6,7 +6,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     let original = "fn configuration() {}\nfn config_value() {}\ncon\n";
     let path = root.join("workspace/terminal.rs");
     std::fs::write(&path, original)?;
-    let mut terminal = Terminal::start(root, binary, wrapper)?;
+    let mut terminal = Terminal::start(root, binary, wrapper, "terminal.rs")?;
     manual_cancel(&mut terminal)?;
     manual_accept(&mut terminal)?;
     automatic(&mut terminal)?;

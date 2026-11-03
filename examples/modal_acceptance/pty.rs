@@ -26,7 +26,7 @@ fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Terminal> {
         "[editor]\ninteraction_profile = 'modal'\n[tree]\nvisible = false\n[completion]\nautomatic = false\n",
     )?;
     std::fs::write(root.join("workspace/terminal.rs"), ORIGINAL)?;
-    let mut terminal = Terminal::start(root, binary, wrapper)?;
+    let mut terminal = Terminal::start(root, binary, wrapper, "terminal.rs")?;
     terminal.frame(|frame| frame.contains("NORMAL"))?;
     assert!(terminal.contains("\x1b[2 q"), "Normal block cursor");
     Ok(terminal)

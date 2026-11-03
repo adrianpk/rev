@@ -9,7 +9,7 @@ use std::path::Path;
 pub(crate) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     let peer = root.join("pty-peer");
     let original = configure(root, &peer)?;
-    let mut terminal = Terminal::start(root, binary, wrapper)?;
+    let mut terminal = Terminal::start(root, binary, wrapper, "terminal.rs")?;
     assert!(
         !peer.join("peer.pid").exists(),
         "disabled editor launched a server"

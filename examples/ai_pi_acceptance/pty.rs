@@ -16,7 +16,7 @@ pub(crate) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<()> {
     let project = fixture::prepare(root, true)?;
     let profile = std::env::var("REV_ACCEPTANCE_PROFILE")?;
     let started = Instant::now();
-    let mut t = Terminal::start(root, binary, wrapper)?;
+    let mut t = Terminal::start(root, binary, wrapper, "terminal.rs")?;
     t.frame(|frame| frame.contains("needle"))?;
     println!(
         "MEASURE PTY profile={profile} startup_ms={}",

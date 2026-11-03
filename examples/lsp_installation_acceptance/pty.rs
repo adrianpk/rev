@@ -95,7 +95,7 @@ fn finish(terminal: &mut Terminal, root: &Path, config: &Path, profile: &str) ->
 }
 
 fn start(root: &Path, binary: &Path, wrapper: &Path) -> Result<Terminal> {
-    let mut terminal = Terminal::start(root, binary, wrapper)?;
+    let mut terminal = Terminal::start(root, binary, wrapper, "terminal.rs")?;
     terminal.frame(|f| row(f, 1).contains("fn terminal_native"))?;
     terminal.idle()?;
     Ok(terminal)

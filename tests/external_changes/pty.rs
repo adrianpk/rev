@@ -35,6 +35,7 @@ fn idle_native_wake() {
             &fixture.0,
             Path::new(env!("CARGO_BIN_EXE_rev")),
             &root.join("scripts/check-completion.sh"),
+            "terminal.rs",
         )
         .unwrap();
         terminal.frame(|frame| frame.contains("original")).unwrap();
