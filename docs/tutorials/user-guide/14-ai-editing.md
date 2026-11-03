@@ -155,9 +155,9 @@ the executable setting, discard a pending result if necessary, then retry
 explicitly. Corrupt or unsafe private history is preserved and reported; consult
 [Pi sessions and models](../../reference/commands.md#private-pi-sessions-and-controls).
 
-Continue with [Run Shell Commands](15-shell-commands.md) to transform selected
-text with local tools and undo the result. The
-[AI reference](../../reference/commands.md#selection-explanations-through-pi) gives
+The [AI reference](../../reference/commands.md#selection-explanations-through-pi) gives
 the exact Pi contracts.
 
-[Previous](13-file-reload.md) · [User Guide](index.md) · [Next](15-shell-commands.md)
+Next: [Run Shell Commands](15-shell-commands.md) to transform selected text with local tools and undo the result.
+
+[Previous](13-file-reload.md) · [User Guide](index.md)

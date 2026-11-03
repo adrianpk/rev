@@ -108,6 +108,14 @@ with 350 ms terminal silence; observed editor peak RSS was 12864/14384 kB.
 These observations establish the finite local cases, not general latency or
 memory guarantees.
 
+Focused receipt `RXP3QWEFVRARFBCQN4JO477BVM` passed catalog, readonly-transition
+and Spore pipe-cell checks on `575f47551d121495f4227838af00007bc5da4e2e`.
+The first configured receipt `WY4B6AB7OJ7X5FLV2QAPO3HQ3Y` passed format,
+strict Clippy, all 35 shell tests and the complete native/resource/PTY driver,
+then rejected the preceding chapter's footer-only next link. The guide contract
+requires a literal `Next:` line. Correct that chapter to the established form;
+keep navigation checks unchanged and regenerate both receipts on the new head.
+
 The final clean head receives focused catalog, readonly-publication and Spore
 pipe-cell checks, followed by the configured ordered Slice 4 prefix through
 `looper validate` after all PR-reference commits are pushed. Canonical PR/receipt
