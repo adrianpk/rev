@@ -21,13 +21,13 @@ Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation 
 
 ## Slice 1: One-shot commands
 
-State: pending
+State: implementing
 Dependency: approved preparation on clean dev.
 Branch: `feat/rev-shell-commands-01-execution`
 Expected PR title: `feat(shell): run bounded native shell commands`
 Report: `ops/default/report/slices/rev-shell-commands/slice-1-execution.md`
 
-- [ ] T1.1: Admit the five shell preferences with complete defaults, sample, source origins and whole-candidate failure; preserve existing configuration behavior.
+- [x] T1.1: Admit the five shell preferences with complete defaults, sample, source origins and whole-candidate failure; preserve existing configuration behavior.
 - [ ] T1.2: Deliver shell-command, cancellation and retained plain-text output through existing native commands/prompts and one bounded nonblocking owned process; capture directory and distinguish data from shell syntax.
 - [ ] T1.3: Exercise real sh/printf, startup environment and cwd, output/diagnostic bounds, nonzero/invalid results, concurrent stream drainage, deadline and descendant cleanup in tests/shell_commands.rs. Preserve existing Org process contracts.
 - [ ] Record exact-head validation, immutable report link and canonical PR.

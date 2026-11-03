@@ -25,6 +25,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     completion(&mut settings.completion, &document.completion);
     settings.lsp = document.lsp.project();
     settings.ai = document.ai.project();
+    settings.shell = document.shell.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
     headings(&mut settings.org.headings, &document.org.headings);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);

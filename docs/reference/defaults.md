@@ -40,6 +40,19 @@ settings reject the whole candidate into complete non-modal defaults. Follow
 [Choose Modal Editing](../tutorials/user-guide/11-modal-editing.md) for a small
 startup and editing exercise.
 
+## Shell command preferences
+
+These global preferences are frozen at startup. Commands run only after explicit
+native invocation and accepted command input.
+
+| Setting | Type | Default | Behavior |
+| --- | --- | --- | --- |
+| `shell.program` | String | `""` | Empty selects the nonempty startup SHELL value, then /bin/sh. Otherwise one executable, at most 4096 UTF-8 bytes without NUL. |
+| `shell.args` | Array of strings | `["-c"]` | Whole-array replacement; 1..32 entries, at most 4096 bytes each and 32768 total, without NUL. Accepted command text is appended as one final argument. |
+| `shell.timeout_seconds` | Integer 1..=600 | `600` | Finite execution deadline, followed by owned process-group cleanup. |
+| `shell.max_input_bytes` | Integer 1..=16777216 | `8388608` | Maximum captured region input in UTF-8 bytes. |
+| `shell.max_output_bytes` | Integer 1..=16777216 | `8388608` | Aggregate stdout plus stderr bytes; excess fails without admitting partial output. |
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported

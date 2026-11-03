@@ -20,6 +20,8 @@ pub use source::{
     PartialSourcePrograms, ProgramAction, ProgramStep, SourceCwd, SourceDelivery, SourceProgram,
     SourcePrograms, SourceResult,
 };
+mod shell;
+pub use shell::{PartialShell, Shell};
 mod ai;
 pub use ai::{Ai, AiCommand, AiContext, AiInput, AiOutput, PartialAi, PartialPi, Pi};
 mod headings;
@@ -90,6 +92,7 @@ pub struct Settings {
     pub completion: Completion,
     pub lsp: Lsp,
     pub ai: Ai,
+    pub shell: Shell,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -120,6 +123,7 @@ pub struct Document {
     pub completion: PartialCompletion,
     pub lsp: PartialLsp,
     pub ai: PartialAi,
+    pub shell: PartialShell,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

@@ -35,6 +35,7 @@ impl Document {
         merge.completion(&mut self.completion, &later.completion);
         merge.lsp(&mut self.lsp, &later.lsp);
         merge.ai(&mut self.ai, &later.ai);
+        merge.shell(&mut self.shell, &later.shell);
         merge.headings(&mut self.org.headings, &later.org.headings);
         merge.leaf(
             &["org", "enabled"],
