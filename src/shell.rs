@@ -1,5 +1,9 @@
 //! One explicitly requested shell invocation. The worker owns only its process
 //! and bounded output; native session state stays on the editing thread.
+mod input;
+mod target;
+pub(crate) use target::{Kind, Target};
+
 use crate::{
     config::Shell,
     process::{Cancellation, Outcome, Program},
@@ -20,9 +24,16 @@ impl Operation {
         startup_shell: &str,
         directory: PathBuf,
         command: &str,
+        input: Option<Vec<u8>>,
     ) -> Result<Self, String> {
         if command.trim().is_empty() || command.len() > 4096 || command.contains('\0') {
             return Err("Shell command requires 1..=4096 UTF-8 bytes without NUL".into());
+        }
+        if input
+            .as_ref()
+            .is_some_and(|bytes| bytes.len() > policy.max_input_bytes)
+        {
+            return Err("Shell region exceeds max_input_bytes".into());
         }
         let program = if policy.program.is_empty() {
             startup_shell
@@ -43,7 +54,13 @@ impl Operation {
         let control = cancel.clone();
         let worker = thread::Builder::new()
             .name("shell-command".into())
-            .spawn(move || program.run(&control))
+            .spawn(move || {
+                let input = input::stage(input)?;
+                match input {
+                    Some(file) => program.run_input(Some(file), None, &control),
+                    None => program.run(&control),
+                }
+            })
             .map_err(|e| format!("Start shell worker: {e}"))?;
         Ok(Self {
             cancel,

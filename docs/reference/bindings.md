@@ -51,6 +51,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x ai-cancel`, `:ai-cancel` | `ai-cancel` | Cancel the active invocation or AI-owned input/result. |
 | `M-x ai-save-command`, `:ai-save-command` | `ai-save-command` | Save the successful literal instruction as a reusable command. |
 | `M-x shell-command`, `:shell-command` | `shell-command` | Prompt for an explicit one-shot shell command with null stdin and bounded retained output; no dedicated default key yet. |
+| `M-x shell-command-on-region`, `:shell-command-on-region` | `shell-command-on-region` | Send the captured nonempty linear region as bounded stdin data and retain complete output without changing source. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |

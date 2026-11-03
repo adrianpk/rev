@@ -49,6 +49,9 @@ Branch: `feat/rev-shell-commands-02-filters`
 Expected PR title: `feat(shell): filter regions and insert checked command output`
 Report: `ops/default/report/slices/rev-shell-commands/slice-2-filters.md`
 
+Progress: T2.1 region capture, bounded stdin and display are implemented; checked
+insertion/replacement complete with T2.2. Three focused region-input tests passed.
+
 - [ ] T2.1: Capture linear selections and insertion points before prompts, supply exact bounded stdin followed by EOF, and deliver shell-command-on-region, shell-filter-region and shell-command-insert.
 - [ ] T2.2: Publish only complete successful stdout through native observed edits and one undo; preserve canonical newlines, source positions, readonly admission and strict stale/reload/closed-target rejection.
 - [ ] T2.3: Verify real sort/tr with unsaved input, empty successful results, Unicode/newlines, cancelled prompts, read-only input, read-only edit rejection, edited/reloaded targets, pane switches and normal undo.

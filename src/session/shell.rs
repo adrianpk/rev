@@ -1,11 +1,17 @@
 use super::{Action, Pending, Session};
-use crate::{buffer::Stamp, input::Focus, shell::Operation};
+use crate::{
+    buffer::Stamp,
+    input::Focus,
+    shell::{Kind, Operation, Target},
+};
 use std::{path::PathBuf, time::Duration};
 
 pub(super) struct Request {
     source: crate::buffer::edit::Point,
     view: crate::window::ViewId,
     directory: PathBuf,
+    target: Target,
+    input: Option<Vec<u8>>,
 }
 
 pub(super) struct Work {
@@ -38,7 +44,7 @@ impl Work {
 }
 
 impl Session {
-    pub(super) fn shell_command(&mut self) -> Action {
+    pub(super) fn shell_command(&mut self, kind: Kind) -> Action {
         if self.shell.operation.is_some() {
             return self.error(
                 "A shell command is already active or stopping; shell-command-cancel cancels it",
@@ -61,23 +67,50 @@ impl Session {
             .or_else(|| self.tree.chosen_root())
             .unwrap_or(&self.shell.launch)
             .to_owned();
+        let target = match Target::capture(buffer, self.view().point, kind) {
+            Ok(target) => target,
+            Err(error) => return self.error(&error),
+        };
+        let input = match target.input(
+            buffer,
+            self.buffers.snapshot().settings().shell.max_input_bytes,
+        ) {
+            Ok(input) => input,
+            Err(error) => return self.error(&error),
+        };
         let request = Request {
             source: self.view().point,
             view: self.windows.selected_id(),
             directory,
+            target,
+            input,
         };
         if let Err(e) = self.input.argument("Shell command: ", "") {
             return self.error(&e.to_string());
         }
         self.pending = Some(Pending::Shell(request));
-        self.message("Enter a shell command; no document text is sent; C-g cancels")
+        self.message(if kind.has_input() {
+            "Enter a shell command for the captured region; C-g cancels"
+        } else {
+            "Enter a shell command; no document text is sent; C-g cancels"
+        })
     }
-    pub(super) fn shell_argument(&mut self, request: Request, command: &str) -> Action {
+    pub(super) fn shell_argument(&mut self, mut request: Request, command: &str) -> Action {
         if self.shell.operation.is_some() {
             return self.error("A shell command is already active or stopping");
         }
         if self.buffers.get(request.source.stamp.buffer).is_err() {
             return self.error("Shell command source was closed");
+        }
+        if request.target.kind.has_input() {
+            let current = self
+                .buffers
+                .get(request.source.stamp.buffer)
+                .map_err(|e| e.to_string())
+                .and_then(|b| request.target.current(b));
+            if let Err(error) = current {
+                return self.error(&error);
+            }
         }
         let policy = &self.buffers.snapshot().settings().shell;
         match Operation::start(
@@ -85,6 +118,7 @@ impl Session {
             &self.shell.startup_shell,
             request.directory.clone(),
             command,
+            request.input.take(),
         ) {
             Ok(operation) => {
                 self.shell.operation = Some(operation);
