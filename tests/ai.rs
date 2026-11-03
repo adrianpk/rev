@@ -5,6 +5,8 @@ mod discovery;
 mod fixture;
 #[path = "ai/results.rs"]
 mod results;
+#[path = "ai/sessions.rs"]
+mod sessions;
 #[path = "ai/support.rs"]
 mod support;
 

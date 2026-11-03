@@ -3,6 +3,8 @@
 mod discovery;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "pi/sessions.rs"]
+mod sessions;
 #[path = "ai/support.rs"]
 mod support;
 

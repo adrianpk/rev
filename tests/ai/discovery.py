@@ -128,7 +128,9 @@ with tempfile.TemporaryDirectory(prefix='rev-pi-discovery-') as temporary:
     (root/'main.zig').unlink(); root.rmdir(); (base/'retired').rename(root)
     pi = Pi(root)
     try:
-        for _ in range(32): assert not pi.tool('rev_read', path='module.zig').get('isError')
+        for n in range(32):
+            if n == 16: assert pi.probe(envelope=dict(dirty_sources=[]))['installed']
+            assert not pi.tool('rev_read', path='module.zig').get('isError')
         assert pi.tool('rev_read', path='module.zig')['isError']; checks += 1
         pi.close()
     finally: pi.abort()
