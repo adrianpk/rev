@@ -1,6 +1,6 @@
 # Slice 2: Checked text filters
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
@@ -108,11 +108,15 @@ in `Box`, matching existing large native prompts, without changing admission or
 publication. Both controller receipts are regenerated after this correction;
 prior results remain tied to their original candidate.
 
-The final clean PR head receives the configured ordered Slice 2 prefix through
-`looper validate` after PR-reference commits are pushed. The readonly-transition
-case also receives a focused controller receipt on that same head. The canonical
-PR and controller receipts own exact-candidate success; this report does not claim
-the integrated delivery-set gate.
+Canonical PR [#243](https://forge.adrianpk.com/adrianpk/rev/pulls/243) merged
+into dev at `ae496d8f79ea864233d64c8c7d43e2a898e0d7bc`.
+Controller receipt `4PQQM2NGXFIIZ6A2R6WYQG4VUX` passed all six configured
+commands in order on that exact clean head: formatting, strict all-target Clippy,
+22 shell and 21 external-change tests, 5 native AI publication tests, documentation
+validation and `git diff --check`. Focused receipt `LSFGO3J6QTLAMXN5UZML5KAFFD`
+passed the real-child readonly-transition case on the same head. The immutable
+report introduction is `071b89040dd1833f4b79779d1186d6192c3a7c9e`.
+The integrated delivery-set gate remains controller-owned.
 
 ## Risks and Follow-ups
 

@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: Slice 2 - Checked text filters
+Active slice: Slice 3 - Native interaction and lifecycle
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -43,7 +43,7 @@ contract check passed.
 
 ## Slice 2: Checked text filters
 
-State: reviewing
+State: delivered
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-shell-commands-02-filters`
 Expected PR title: `feat(shell): filter regions and insert checked command output`
@@ -62,13 +62,15 @@ Task commits: T2.1 `494aa35190f30f4b80210ce6fb1a6f3437a87f2e`,
 T2.2 `6f491a31ce9aa89d547951e757b1e0bd16c03d53`,
 T2.3 `071b89040dd1833f4b79779d1186d6192c3a7c9e`.
 Report introduction: [Slice 2 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/071b89040dd1833f4b79779d1186d6192c3a7c9e/ops/default/report/slices/rev-shell-commands/slice-2-filters.md).
-Exact clean-HEAD configured validation and the focused readonly-transition check
-are owned by Looper receipts after this PR-reference commit and push. The canonical
-PR records its successful configured command prefix before integration.
+Integration: canonical PR #243 merged into dev at `ae496d8f79ea864233d64c8c7d43e2a898e0d7bc`.
+Controller receipt `4PQQM2NGXFIIZ6A2R6WYQG4VUX` passed all six configured
+commands on that exact clean candidate; 48 focused tests and documentation checks
+passed. Receipt `LSFGO3J6QTLAMXN5UZML5KAFFD` passed the additional real-child
+readonly-transition case on the same head. The canonical PR contract check passed.
 
 ## Slice 3: Native interaction and lifecycle
 
-State: pending
+State: implementing
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-shell-commands-03-interaction`
 Expected PR title: `feat(shell): integrate command keys and checked job lifecycle`
