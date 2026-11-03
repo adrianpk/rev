@@ -63,7 +63,7 @@ Report: `ops/default/report/slices/rev-org-headings/slice-2-view-controls.md`
 
 - [x] T2.1: Deliver the shared native pretty toggle/reset with view-local
   override, existing selectors/keymaps and no new factory binding.
-- [ ] T2.2: Preserve split/rebind/reset/edit/reload behavior and exact source
+- [x] T2.2: Preserve split/rebind/reset/edit/reload behavior and exact source
   cursor, pointer, selection, wrap and gutter meanings.
 - [ ] T2.3: Verify both profiles, readonly Org results, source copy/undo, native
   AI acceptance, cancellation and independent view choices.

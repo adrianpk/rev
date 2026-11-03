@@ -6,6 +6,8 @@ mod controls;
 mod fixture;
 #[path = "org_headings/geometry.rs"]
 mod geometry;
+#[path = "org_headings/lifecycle.rs"]
+mod lifecycle;
 #[path = "org_headings/observations.rs"]
 mod observations;
 

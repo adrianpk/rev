@@ -84,6 +84,14 @@ impl Buffer {
         self.is_org() && self.org_attempt != Some(self.stamp())
     }
 
+    /// A new explicit presentation request can retry a canceled observation.
+    /// The existing session worker still owns admission, bounds and retirement.
+    pub(crate) fn request_org_outline(&mut self) {
+        if self.is_org() && self.org_outline().is_none() {
+            self.org_attempt = None;
+        }
+    }
+
     pub(crate) fn attempted_org_colors(&mut self) {
         self.org_attempt = Some(self.stamp());
     }
