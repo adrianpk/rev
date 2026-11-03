@@ -1,8 +1,7 @@
 # Edit with Pi
 
 Ask Pi for a small change, inspect the proposal, apply it explicitly and undo
-it. This chapter describes the Unreleased development version. Ordinary editing
-and file reload work without Pi.
+it. Ordinary editing and file reload work without Pi.
 
 ## Prepare Pi and a toy file
 

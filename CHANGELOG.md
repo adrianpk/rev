@@ -6,54 +6,41 @@ This project uses Semantic Versioning.
 
 ## Unreleased
 
+## 0.4.0 - 2026-11-03
+
 ### Added
 
-- Display native Org headings with six level-specific markers, cycling at deeper
-  levels while preserving source stars, cursor cells and wrapping. Configure
-  markers, leading-star visibility and overflow under `org.headings`, or set
-  `pretty = false` for source presentation. Recognition also works with syntax
-  coloring disabled; the terminal controls glyph coverage. Toggle source/pretty
-  headings per view with `org-pretty-headings-mode`, or restore the startup choice
-  with `org-reset-heading-presentation`, through M-x or modal colon. Splits inherit
-  independent choices, which survive buffer switches, edits, undo and reload.
-  [Write Org Notes](docs/tutorials/user-guide/06-org-notes.md#inspect-heading-stars)
-  walks through source/pretty presentation and canonical star copy.
+- [Display Org heading markers](docs/tutorials/user-guide/06-org-notes.md#inspect-heading-stars)
+  by level while preserving the saved stars, cursor positions and wrapping.
+  Configure markers and deeper-level repetition under `org.headings`. Use
+  `org-pretty-headings-mode` to switch one pane between markers and source stars,
+  or `org-reset-heading-presentation` to restore its startup choice. Both commands
+  work through M-x or modal colon, including in read-only Org results.
 
-- [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
-  `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
-  Continue editing while it runs and inspect read-only Org results, with the
-  answer or proposed text first and request details in a folded drawer. TAB on
-  `REQUEST` reveals them. Explanations adapt to the supplied material. Explicitly
-  apply a proposal once to its original checked selection or point, undo it
-  normally, or discard it without changing source. Let Pi inspect the chosen
-  directory through bounded read, list and literal-search tools, with current
-  editor snapshots taking precedence over disk. Source writes and shell tools
-  stay disabled. Retain isolated private directory history across restarts,
-  choose an AI directory and Pi-reported model for the editor session, or reset
-  history and disconnect explicitly. Idle children close after the configured
-  timeout; input-only operations always use fresh ephemeral history. Save a
-  successful literal instruction with `ai-save-command`, call its named command
-  on fresh selections, points or whole buffers, and bind it through the existing
-  profile keymaps. Choose input-only context or guarded directory discovery for
-  each definition.
+- [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) through
+  `ai-explain`, `ai-prompt` and `ai-implement`. Continue editing while a request
+  runs, then inspect its read-only Org result with the answer first and request
+  details in a folded drawer. Apply a proposal to its original checked target
+  and undo it normally. Choose a model, allow bounded directory discovery,
+  retain private directory history or use input-only context. Save a reusable
+  instruction with `ai-save-command` and invoke it by name or a configured key.
 
-- [Follow external file changes](docs/tutorials/user-guide/13-file-reload.md) and reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
-  before discarding unsaved text, retain prior undo history and shared-pane
-  positions, and undo the reload without changing the file on disk. Clean visiting
-  files now refresh automatically after external writes or replacement, including
-  hidden and read-only buffers. Choose `files.external_changes = "ask"` to retain
-  text with a passive reload notice. Unsaved edits, invalid or missing sources
-  stay protected; idle observation waits for kernel events.
+- [Reload a file](docs/tutorials/user-guide/13-file-reload.md) with
+  `M-x revert-buffer` or `:revert-buffer`. Confirm before discarding unsaved text,
+  retain pane positions and prior undo history, and undo the reload normally.
 
 - [Set up optional language servers](docs/tutorials/user-guide/12-language-servers.md)
-  through native prompts in both editing profiles. Reuse installed executables,
-  register custom languages without bundled grammars, or acquire and verify Rust,
-  Go, web, Markdown, Ruby, Python and Odin servers with optional tools on Linux
-  x86-64.
-  Select semantic or native-only completion per language, inspect local readiness
-  and reload choices without changing the current editing profile or analysis mode.
-  Update managed profiles after replacement verification, retain prior versions on
-  failure, cancel active work, and remove only owned, unreferenced, stopped payloads.
+  through native prompts. Reuse an installed server, register another language,
+  or install a supported server with optional tools on Linux x86-64. Select
+  semantic or native-only completion per language, inspect server readiness,
+  and manage verified updates and removal in either editing profile.
+
+### Changed
+
+- Clean visiting files automatically refresh after external writes or atomic
+  replacement, including hidden and read-only buffers. Set
+  `files.external_changes = "ask"` to keep the text and receive a reload notice.
+  Unsaved edits remain protected when an external change conflicts with them.
 
 ## 0.3.0 - 2026-11-01
 

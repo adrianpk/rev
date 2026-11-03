@@ -1,9 +1,8 @@
 # Follow External File Changes
 
 Watch a clean file refresh after another program replaces it, then reload a
-file with unsaved edits by explicit choice. This chapter describes the
-Unreleased development version. Use `M-x` in non-modal editing or `:` in modal
-Normal for the named commands below.
+file with unsaved edits by explicit choice. Use `M-x` in non-modal editing or
+`:` in modal Normal for the named commands below.
 
 ## Open a practice file
 

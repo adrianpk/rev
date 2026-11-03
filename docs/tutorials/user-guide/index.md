@@ -3,8 +3,8 @@
 Open a file, make a change and save it. Start there; no configuration is needed.
 
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
-These chapters describe rev 0.3.0 and the Unreleased development additions, using default key bindings and small
-files you create yourself. The default path uses Emacs direct entry; later
+These chapters describe rev 0.4.0, using default key bindings and small files
+you create yourself. The default path uses Emacs direct entry; later
 chapters offer startup-selected modal editing, optional language servers, external reload and optional Pi editing.
 
 1. [Edit Your First File](01-first-file.md): write, save, quit and reopen.
