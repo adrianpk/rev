@@ -12,7 +12,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 8 — Joint acceptance and guidance
+Active slice: None — all eight slices integrated; full gate pending
 Tracker: [Delivery Tracker](../tracker/rev-ai-pi.md)
 Supporting contract: [AI Commands](../spec/editor-ai-commands.md), [shared model](../spec/editor-ai-commands-model.md)
 
@@ -255,7 +255,7 @@ git diff --check
 
 ### Slice 8: Joint acceptance and guidance
 
-Ticket: [Joint acceptance and guidance](../ticket/blocked/20261102211113-accept-and-document-pi-and-reload.md)
+Ticket: [Joint acceptance and guidance](../ticket/solved/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated; preserve all earlier contracts.
 
@@ -328,6 +328,14 @@ idle CPU/wakeups, file-notification/reload latency and owned child shutdown.
 No performance figure is presumed. Existing source/runtime identity must
 support any reused evidence. Retain normal idle behavior while AI is unused;
 external notification uses finite event waiting, not a content-polling loop.
+
+Operator decision for retained incident 1 on 2026-11-03 authorized exactly one
+additional real-provider operation after renewed OAuth, with the same one-minute,
+four-turn/eight-tool-call limits, existing configured model, generated toy input
+and no fallback or further requests. That operation passed once at integrated
+`dbdb11b78c76f3d39c7cb3df6542b064f90a83ba`; the original failed observation is
+preserved in the Slice 8 report. Live acceptance is complete, and the frozen
+repeatable gate remains offline for model requests.
 
 ## Gate scope, expected cost and recovery
 

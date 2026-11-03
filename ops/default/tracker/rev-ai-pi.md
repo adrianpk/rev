@@ -12,15 +12,16 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 8 — Joint acceptance and guidance
+Active slice: None — all eight slices integrated; full gate pending
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 through 7 are integrated at their validated heads. Slice 8 is active;
-later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
+closure. All eight slices are integrated at their validated heads. Slice entries
+and tickets are delivered; the frozen integrated gate and delivery-set closure
+remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
 
@@ -220,8 +221,8 @@ Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
 ### Slice 8: Joint acceptance and guidance
 
-State: blocked on real-provider acceptance.
-Ticket: [Joint acceptance and guidance](../ticket/blocked/20261102211113-accept-and-document-pi-and-reload.md)
+State: delivered.
+Ticket: [Joint acceptance and guidance](../ticket/solved/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated.
 Branch: `feat/rev-ai-pi-08-acceptance`
@@ -229,7 +230,7 @@ PR: [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236).
 Report: `ops/default/report/slices/rev-ai-pi/slice-8-acceptance.md`
 
 - [x] T8.1: Deliver representative native and PTY journeys for both startup profiles, real kernel file notifications and the installed Pi RPC/tool/session lifecycle, with measured idle/RSS/startup limits.
-- [ ] T8.2: Exercise one bounded real-provider operation using available existing Pi authentication; report unavailable authentication variants distinctly and never invent live evidence from fixtures.
+- [x] T8.2: Exercise one bounded real-provider operation using available existing Pi authentication; report unavailable authentication variants distinctly and never invent live evidence from fixtures.
 - [x] T8.3: Document ordinary Pi and reload workflows, complete references/configuration/command catalogs, canonical Markdown and Spore guidance and Unreleased; finish ticket transitions before the unchanged integrated gate and controller closure.
 
 T8.1 focused native/PTY journeys passed in both profiles with installed Pi 1.3.0
@@ -237,13 +238,21 @@ and a controlled local provider (zero HTTP requests). Six focused session cases
 and strict driver lint passed. Initial-history creation admission:
 `47928e8b376385049bf249ff76fd6e8299a6447d`.
 T8.1 driver/report introduction: `b8fadd21cef5f9b8c34f3737965cc0ca908f289a`.
-T8.2 attempted its one real-provider operation with the existing default and
-Pi-owned OAuth: provider completion failed, one turn/zero tool calls. Live
-acceptance remains externally blocked; no automatic provider retry is authorized
-by this observation. T8.3 guide/catalog checks passed 70 pages/434 links.
-Canonical PR: [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236).
-Final exact-head ordered validation: pending controller receipt.
-Do not claim the integrated gate from focused checks.
+The initial T8.2 real-provider attempt failed completion under the existing
+configured model and Pi-owned OAuth (one turn/zero tools). Retained incident 1
+preserves that failure and the operator's bounded additional-operation decision.
+After renewed OAuth, the one additional operation passed at the integrated head
+in 2873 ms with the same model, one turn, zero tools, fresh input-only history and
+unchanged generated toy source. Acta `01M6G9M4ZBQFX4G7C93FD0VXXJ` records it.
+T8.2 is complete; API-key variants were not exercised and no further live
+operation was performed.
+
+Canonical PR [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236) merged at
+`dbdb11b78c76f3d39c7cb3df6542b064f90a83ba` on 2026-11-03T07:45:06Z. Exact-head receipt
+`RJLI2OQ42YTAU7K373I7PFAIKG` passed all seven configured commands, 61 suite cases,
+the nested save case, both-profile release native/PTY/Pi acceptance, documentation
+(70 pages/434 links) and the User Guide build. The report preserves separate
+editor/Pi resource measurements. Slice 8 is delivered; integrated gate pending.
 
 
 ## Preparation evidence
@@ -257,11 +266,15 @@ The plan records its exact boundary and corrected named-tool allowlist.
 
 ## Final gate and closure
 
-Pending. The Full gate metadata must match the local frozen configuration.
+Prepared; not yet run. Plan/tracker Full gate metadata matches the unchanged
+local frozen configuration. Pinned native Pi 1.3.0, Rust/Cargo and locked cached
+dependencies, Bash, util-linux PTYs, GNU timeout and Spore are available.
+`cargo fetch --locked --offline` and a disposable PTY admission check passed.
+The gate script owns temporary HOME/XDG/Pi roots and child cleanup. The primary
+checkout stays on dev; the controller will validate the prepared candidate.
 Its affected native regressions and joint offline native/PTY/Pi flow are the
-selected integrated gate, not an exhaustive repository run. The single bounded
-real-provider acceptance observation belongs to Slice 8 and is not repeated
-automatically on gate retries.
+selected integrated gate, not an exhaustive repository run. Real-provider
+observations belong to Slice 8 and are not repeated automatically on gate retries.
 
 Finish ticket transitions and all implementation before gate admission.
 Closure preserves actual candidate/receipt and historical identities, changes

@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211113
 title: Joint acceptance and guidance
-status: blocked
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,7 +14,11 @@ started_at: 2026-11-03T01:44:04Z
 branch: feat/rev-ai-pi-08-acceptance
 pr: https://forge.adrianpk.com/adrianpk/rev/pulls/236
 blocked_at: 2026-11-03T02:00:38Z
-commits: [47928e8b376385049bf249ff76fd6e8299a6447d, b8fadd21cef5f9b8c34f3737965cc0ca908f289a]
+resumed_at: 2026-11-03T08:49:48Z
+reviewed_at: 2026-11-03T08:54:31Z
+closed_at: 2026-11-03T08:54:31Z
+resolution: fixed
+commits: [47928e8b376385049bf249ff76fd6e8299a6447d, b8fadd21cef5f9b8c34f3737965cc0ca908f289a, 297a8314f9d1f89104146f7cfdc724193bcb63ed, dbdb11b78c76f3d39c7cb3df6542b064f90a83ba]
 ---
 
 # Joint acceptance and guidance
@@ -48,9 +52,9 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 
 ## Planned validation
 
-Run the slice's exact ordered configured checks and its relevant acceptance.
-Record real versus controlled observations and the tested candidate in the
-report. No test result, runtime implementation or PR is claimed by this ticket.
+The Slice 8 report records the exact configured checks and actual controlled
+versus real-provider observations. Its seven-command receipt validates the
+canonical merge head; the integrated delivery-set gate remains pending.
 
 ## Implementation evidence
 
@@ -60,6 +64,17 @@ pass 429 commands, 231 settings, 70 pages and 434 local links/anchors.
 
 The single bounded real-provider attempt failed provider completion with the
 existing configured default and Pi-owned OAuth. Its guard observed one model
-turn and zero tool calls. Successful live acceptance remains externally blocked;
-no second provider operation was attempted. The Slice 8 report records the
-actual distinction and final controller validation/PR references.
+turn and zero tool calls. That failure was retained as incident 1. The operator
+then authorized one additional bounded operation after renewed OAuth. It passed in 2873 ms with
+one turn, zero tools, the existing configured model and unchanged toy source.
+No fallback or further request was used; the original failure remains recorded.
+
+## Resolution
+
+The resumed in_progress work completed the authorized live operation. Its result
+and the canonical merge were then verified through reviewing before this solved
+transition. PR #236 merged at `dbdb11b78c76f3d39c7cb3df6542b064f90a83ba`;
+receipt `RJLI2OQ42YTAU7K373I7PFAIKG` passed all seven Slice 8 checks and 61 suite
+cases, plus the nested save case. The [Slice 8 report](../../report/slices/rev-ai-pi/slice-8-acceptance.md)
+preserves both provider observations and actual native/PTY/resource evidence.
+The controller owns the pending integrated gate and delivery-set closure.

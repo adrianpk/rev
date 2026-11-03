@@ -1,6 +1,6 @@
 # Slice 8: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: `ops/default/plan/rev-ai-pi.md`
 Tracker: `ops/default/tracker/rev-ai-pi.md`
@@ -119,7 +119,7 @@ kernel wakeup counts or an RSS/latency guarantee. The existing editor idle
 admission stays unchanged. Actual persistent Pi children report the 33554432-byte
 OS file-size limit; the production index/history bounds remain in force.
 
-### Single real-provider observation
+### Initial real-provider observation
 
 One operation was attempted on 2026-11-03 with the installed Pi and its existing
 configured `openai-codex/gpt-5.6-sol` default. Authentication form: Pi-owned OAuth;
@@ -133,14 +133,56 @@ change or manual credential mutation was performed.
 This is a failed real-provider observation, not successful authenticated model
 acceptance. The error does not by itself distinguish authentication, model or
 provider-service failure. API-key variants were not exercised; controlled local
-providers do not establish their availability. T8.2 remains externally blocked
-pending a working existing default provider/authentication and controller-directed
-continuation within the approved operation budget.
+providers do not establish their availability. This attempt left T8.2 externally
+blocked. The operator-authorized continuation below resolves that blocker while
+retaining this failed observation.
+
+### Authorized real-provider continuation
+
+The operator decision for retained incident 1 authorized one additional operation
+following renewed OAuth, preserving the one-minute, four-turn and eight-tool-call
+limits, existing configured model, generated toy input and no fallback/further
+requests. The original incident anchor and failed observation remain intact.
+
+On 2026-11-03T08:49:48Z the unchanged release acceptance driver ran on integrated
+commit `dbdb11b78c76f3d39c7cb3df6542b064f90a83ba`. The real configured
+`openai-codex/gpt-5.6-sol` operation passed with Pi-owned OAuth in 2873 ms:
+one model turn, zero tool calls, 44 response bytes, fresh input-only history and
+unchanged generated toy source. Owned Pi cleanup completed with no remaining
+fixture processes. No fallback or further provider operation was used. API-key
+variants remain unexercised. Acta event `01M6G9M4ZBQFX4G7C93FD0VXXJ` records the
+completed observation. This completes T8.2 independently of the offline gate.
 
 ## Risks and Follow-ups
 
-The mandatory repeatable gate remains offline for model requests. Successful
-live-provider acceptance is outstanding; keep its failure visible when deciding
-readiness. The controller owns integrated validation and delivery-set closure.
-The broader native API contract remains draft. No release or site publication
-is claimed.
+The controller owns the pending frozen integrated gate and delivery-set closure.
+Its repeatable model evidence stays offline. The broader native API contract
+remains draft; its transport and context construction stay deferred.
+
+## Integration
+
+Canonical PR [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236) merged
+into dev at `dbdb11b78c76f3d39c7cb3df6542b064f90a83ba` on 2026-11-03T07:45:06Z.
+Receipt `RJLI2OQ42YTAU7K373I7PFAIKG` passed that exact clean head and all seven
+configured commands in order:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test external_changes --test ai --test pi -- --test-threads=1`
+- `bash scripts/check-ai-pi.sh`
+- `cargo run --locked --quiet --example documentation-check`
+- `bash scripts/build-user-guide.sh`
+- `git diff --check`
+
+All 61 suite cases passed (25 AI, 21 external-change, 15 Pi), plus the owned
+save child case. The release joint script passed native and PTY journeys in both
+profiles in 241 seconds including build. Release native startups were 33950/60806
+us; first-result editor RSS was 13716/14848 KiB and separate Pi RSS was
+172492/171332 KiB. Native reload measured 10/10 ms; PTY startup 72/86 ms and
+input-preserving reload 22/22 ms. The release editor measured 21474384 bytes.
+
+Gate prerequisites are available: pinned native Pi 1.3.0, locked Cargo cache,
+Rust/Cargo, Bash, util-linux PTYs, GNU timeout and Spore with local guide assets.
+The gate's own fixtures create isolated roots and reap their owned children.
+The successful live operation is recorded separately and will not be repeated
+by the frozen gate. Slice 8 is delivered; the full gate remains pending.
