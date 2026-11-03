@@ -77,6 +77,11 @@ Report introduction: `4a4b3f623077f961c243c99957b57c9ea041ae86`.
 Final validation: the controller receipt for the clean canonical PR head owns
 the six ordered Slice 2 command outcomes after this PR-reference commit.
 
+The first batch passed format and strict Clippy, then found the old Org catalog
+count. The exact count changes from 229 to 231 for the two delivered names;
+command round-trips and routing assertions remain unchanged. Its focused test
+passes; the controller batch is regenerated for this corrected clean head.
+
 ## Slice 3: Joint acceptance and guidance
 
 State: pending.

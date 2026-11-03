@@ -95,16 +95,26 @@ copy/edit, configured bindings and result apply/discard cover both profiles;
 selectors exercise M-x in both and actual modal colon. No provider process,
 font installation or acceptance weakening is part of these fixtures.
 
+The first clean-head batch `5F7VA7OV3CKENCZB6A4PSMCCZO` at
+`fd3e098a2fa7a2f16633b6f020b2f03b4f7cbb85` passed format and strict
+Clippy, then stopped on the existing `org_visibility::visibility_keys` catalog
+cardinality assertion. Its expected 229 Org names now become 231 because this
+slice delivers exactly two new names. The exact cardinality assertion is updated;
+all command round-trips and plain/Org/capture/prompt TAB assertions remain.
+The focused correction passed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands org_visibility::visibility_keys -- --test-threads=1` (1 test).
+
 The exact configured six-command batch runs through `looper validate` after the
-canonical PR-reference commit: format, strict all-target Clippy, combined
+canonical PR-reference and catalog-count correction commits: format, strict all-target Clippy, combined
 heading/command/display/reload tests, modal contexts, documentation and whitespace.
 The successful canonical controller receipt owns the final clean PR candidate
 and ordered command outcomes. Focused development checks do not replace the
 integrated delivery-set gate.
 
-Development target footprint was 570 MiB with 6760 MiB filesystem space
-available before final validation. Builds retain debug-disabled, non-incremental,
-one-job policy and worktree-local output.
+Development target footprint was 767 MiB with 6703 MiB filesystem space
+available before regenerated validation. Builds retain debug-disabled,
+non-incremental, one-job policy and worktree-local output.
 
 ## Risks and Follow-ups
 
