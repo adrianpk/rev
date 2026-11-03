@@ -233,7 +233,7 @@ pub(super) fn run(root: &Path, binary: &Path, wrapper: &Path) -> Result<(), Box<
     let rust = std::fs::read(&rust_path)?;
     let org = std::fs::read(&org_path)?;
     let started = Instant::now();
-    let mut terminal = Terminal::start(root, binary, wrapper, "terminal.rs")?;
+    let mut terminal = Terminal::start(root, binary, wrapper)?;
     terminal.send(b"\x18\x06a\t")?;
     terminal.frame(|f| f.contains("Find file: alpha.rs") && f.contains("*scratch*"))?;
     terminal.send(b"\r")?;

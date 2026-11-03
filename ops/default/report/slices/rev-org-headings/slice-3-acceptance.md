@@ -91,6 +91,14 @@ ticks and restored TTYs. These are local development observations, not universal
 performance guarantees. The counter assertion follows native history ownership:
 one undo entry before undo, none afterward, with exact source restoration.
 
+Initial exact-head batch `63EJSPL7JILXEIXQ4L2ARHVMIH` at
+`ddd1380f243d43d02303120893cbbcc59cfbadff` passed format and stopped in
+all-target Clippy: the unrelated wrap-navigation fixture owns its own
+three-argument terminal constructor. Its call was mistakenly included in the
+shared-constructor adaptation and is restored exactly. The shared owner still
+accepts the explicit filename; no terminal assertion or check is removed.
+Fresh exact-head evidence is required after this correction.
+
 After canonical PR references are committed/pushed, Looper records these exact
 ordered checks on the clean PR head. The canonical PR and retained receipt own
 that final result; the controller later records integrated gate evidence.
