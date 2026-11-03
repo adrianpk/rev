@@ -82,20 +82,26 @@ approved commands. Slice 2 of 3 is delivered; Acta records integration.
 
 ## Slice 3: Joint acceptance and guidance
 
-State: implementing.
+State: reviewing; canonical PR and final clean-head receipt pending.
 Requirements: OGP01-OGP08 together.
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-org-headings-03-acceptance`
 Expected PR title: `test(org): verify heading presentation and document controls`
 Report: `ops/default/report/slices/rev-org-headings/slice-3-acceptance.md`
 
-- [ ] T3.1: Deliver the bounded native/resource/real-PTY example and Bash driver;
+- [x] T3.1: Deliver the bounded native/resource/real-PTY example and Bash driver;
   verify both profiles, widths, resize, source/pretty behavior and terminal exit.
-- [ ] T3.2: Update current Org Markdown guidance, generated Spore, catalogs and
+- [x] T3.2: Update current Org Markdown guidance, generated Spore, catalogs and
   Unreleased without public deployment or font/package installation.
-- [ ] T3.3: Prepare integrated dev for the unchanged controller full gate and
+- [x] T3.3: Prepare integrated dev for the unchanged controller full gate and
   preserve its exact receipt and representative measurements.
 - [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
+
+Task commits: T3.1 `3124e9da400b4c2e775f7666cdbf314b337e960c`;
+T3.2 `26f182284dbd491d90832c65a895acf5a9920568`. Native/resource/four-PTY
+development acceptance and the existing shared terminal kernel-wake case pass.
+T3.3 prepares the report and local gate prerequisites; the unchanged integrated
+gate and delivery closure remain pending controller-owned integration.
 
 ## Required validation prefixes
 
