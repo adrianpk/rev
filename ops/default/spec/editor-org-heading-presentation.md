@@ -1,16 +1,17 @@
 # Org Heading Presentation
 
-Status: draft
+Status: Approved
 Date: 2026-10-28
-Reviewed: 2026-10-31
-Version: 0.1
-Format: OpenSpec capability proposal
+Reviewed: 2026-11-03
+Version: 0.2
+Approved: product owner, 2026-11-03; explicit continuation to finalize and approve the heading-presentation specification
+Format: OpenSpec capability specification
 Source: product-owner heading clarification, reference screenshot and verified Org Superstar glyph sequence
 Model: [Org Heading Presentation Model](editor-org-heading-presentation-model.md)
 Org owner: [Org Mode](editor-org-mode.md)
 Configuration owner: [Editor Configuration](editor-configuration.md)
-Delivery boundary: future follow-up to delivered Org; no implementation or slicing authorized
-Readiness: heading scope and six reference glyphs confirmed; listed presentation details remain open
+Delivery boundary: approved follow-up to delivered Org; implementation planning and controller startup remain separate actions
+Readiness: behavior, settings, commands, geometry and bounds settled; ready for planning, not implemented
 
 ## Purpose
 
@@ -41,9 +42,50 @@ not inferred solely from pixels.
 | 6 | `******` | ▶ | U+25B6 |
 
 Repeated leading stars are visually concealed with level indentation retained.
-The reference establishes these six levels; behavior beyond the configured
-sequence is still an explicit design choice. It does not establish new colors
-or require importing another editor's theme or font configuration.
+After level 6, cycle through the sequence: level 7 uses ◉ and level 8 uses ○.
+A startup preference can instead retain the final configured marker for deeper
+levels. This does not establish new colors or require importing another
+editor's theme or font configuration.
+
+## Reference comparison and settled profile
+
+The [Org manual](https://orgmode.org/manual/Hard-indentation.html) distinguishes
+hiding leading stars from removing source indentation. Its
+[Org Indent mode](https://orgmode.org/manual/Org-Indent-Mode.html) also introduces
+virtual indentation of body text. The
+[org-superstar reference](https://github.com/integral-dw/org-superstar-mode#custom-utf8-bullets-for-heading-lines)
+cycles heading markers by default and can repeat the last entry instead.
+These are behavioral references; rev does not load either Emacs facility.
+
+The approved rev profile decorates headings without adding virtual body
+indentation. It preserves the original prefix width: a level-N heading uses
+N-1 blank cells followed by its one-cell marker, then the original separator
+and title. With leading-star hiding disabled, the first N-1 asterisks stay
+visible and only the final star is replaced. With pretty presentation disabled,
+every source star stays visible. Reuse the existing Org heading palette roles.
+
+Defaults are `pretty = true`, the six reference markers,
+`hide_leading_stars = true` and `cycle_bullets = true`, under `[org.headings]`.
+The model defines their exact types, admission bounds and precedence. These
+are approved future settings; the current binary and packaged sample do not
+admit them until implementation is delivered.
+
+`org-pretty-headings-mode` toggles pretty presentation in the active Org view.
+`org-reset-heading-presentation` clears its override and restores the immutable
+startup choice. Both are compiled commands available through M-x and modal
+colon, without a new default keybinding. Runtime changes do not write TOML.
+The view retains its override across buffer switches, ignores it in non-Org
+buffers, and resumes it when Org is active again. A split copies that view's
+choice; later changes in either pane remain independent. A source edit or
+reload invalidates derived mappings, not the view's explicit choice.
+
+The prefix does not automatically reveal on cursor entry or editing. Each
+original star retains its own cell and canonical source position. Clicking a
+concealed leading-star cell targets that star; clicking the marker targets the
+last star. Character motions and edits still operate on source stars. The
+source/pretty command provides an explicit way to inspect them without changing
+geometry. Selection highlighting follows canonical cells and copy returns the
+original selected text.
 
 ## ADDED Requirements
 
@@ -51,7 +93,7 @@ or require importing another editor's theme or font configuration.
 
 Recognized Org headings SHALL select a display marker using their actual
 structural level and the admitted configured sequence. The reference sequence
-SHALL be the proposed factory sequence. A heading-level edit SHALL recompute
+SHALL be the factory sequence. A heading-level edit SHALL recompute
 the marker from current source. Glyphs SHALL not be inserted into document
 text to represent a heading level.
 
@@ -61,6 +103,20 @@ text to represent a heading level.
 - **WHEN** the reference presentation is enabled
 - **THEN** their markers are respectively ◉, ○, ✸, ✿, ◆ and ▶
 - **AND** the heading hierarchy is still determined by source stars.
+
+#### Scenario: Resolve levels beyond the sequence
+
+- **GIVEN** the six factory markers and a level-7 heading
+- **WHEN** `cycle_bullets` is true
+- **THEN** its marker is ◉
+- **AND** its structural level remains 7.
+
+#### Scenario: Retain the last marker instead
+
+- **GIVEN** the six factory markers and `cycle_bullets` false
+- **WHEN** headings at levels 7 and 8 are displayed
+- **THEN** both use ▶
+- **AND** their different structural levels and prefix widths remain intact.
 
 ### Requirement: OGP02 Presentation preserves source and history
 
@@ -105,7 +161,9 @@ selection, clipping, horizontal scrolling and gutter numbering SHALL keep
 their canonical meanings. Initial glyph admission SHALL require one visible
 grapheme occupying one cell under the supported width policy; control sequences,
 blank/zero-width entries and unsupported widths SHALL be rejected coherently.
-Preserving the source prefix's cell width is the proposed initial geometry.
+The complete source prefix's cell width SHALL remain unchanged, including while
+point is inside it. Existing word-wrap, source-to-cell and selection owners
+remain authoritative; decoration SHALL not change a line's wrap positions.
 
 #### Scenario: Edit a heading level
 
@@ -126,8 +184,11 @@ Preserving the source prefix's cell width is the proposed initial geometry.
 Enablement, the marker sequence and supported leading-star presentation SHALL
 be declarative TOML preferences using the existing startup validation and
 override rules. The exhaustive sample SHALL describe them only when delivered.
-Unspecified values SHALL use complete built-ins. Glyph list/byte limits and
-depth-overflow behavior SHALL be fixed before implementation. An invalid
+Unspecified values SHALL use complete built-ins. A marker list SHALL contain
+1..=32 entries, each at most 32 UTF-8 bytes and one printable non-whitespace
+grapheme of terminal width one under the existing native width policy. Control
+characters, empty entries and zero/wide-cell markers SHALL be rejected. The
+total admitted marker payload is at most 1024 bytes. An invalid
 candidate SHALL follow existing coherent configuration failure handling.
 
 #### Scenario: Override the marker sequence
@@ -137,13 +198,20 @@ candidate SHALL follow existing coherent configuration failure handling.
 - **THEN** recognized heading levels use the selected sequence
 - **AND** changing the preference does not rewrite the Org document.
 
+#### Scenario: Reject a marker that changes cell geometry
+
+- **GIVEN** an empty sequence, a control character or a two-cell marker
+- **WHEN** startup configuration is validated
+- **THEN** the whole candidate follows the existing configuration failure policy
+- **AND** no partial heading preference or edited document is published.
+
 ### Requirement: OGP06 Native source and pretty-view controls
 
 A compiled native command SHALL let the user switch heading presentation
 between decorated and readable source in the active Org view. Startup defaults
-and session-local view overrides SHALL remain distinct. Existing command entry
-and, when delivered, Vim colon entry SHALL reach the same handler. Controls
-SHALL not change the editor interaction profile or persist an override implicitly.
+and session-local view overrides SHALL remain distinct. M-x and the delivered
+modal colon selector SHALL reach the same handlers named above. Controls SHALL
+not change the editor interaction profile or persist an override implicitly.
 
 #### Scenario: Return to visible source
 
@@ -151,6 +219,14 @@ SHALL not change the editor interaction profile or persist an override implicitl
 - **WHEN** the user selects ordinary source presentation
 - **THEN** its heading stars are readable without decoration
 - **AND** the same buffer, edits, history and source point remain available.
+
+#### Scenario: Keep independent pane choices
+
+- **GIVEN** two panes displaying the same Org buffer
+- **WHEN** pretty presentation is toggled in one pane
+- **THEN** only that pane's presentation changes
+- **AND** splitting it inherits its current choice while reset restores only
+  the selected view's configured default.
 
 ### Requirement: OGP07 Terminal font ownership and honest fallback
 
@@ -176,7 +252,16 @@ revision/settings invalidation and bounded retained state. It SHALL not add
 an idle scan, whole-project redraw loop or another Org parser. Acceptance SHALL
 cover the reference markers, configuration, literal contexts, source fidelity,
 Unicode/cell geometry, source/pretty switching and real terminal interaction.
-Completed Org delivery records SHALL remain historical evidence; this draft
+If native structural observation is incomplete, stale or unavailable, undecided
+prefixes SHALL remain readable source until current evidence is available.
+Turning syntax coloring off SHALL not disable heading recognition or make
+unverified star-like text eligible for decoration. Respect `org.enabled` and
+the existing Org observation, cancellation and work limits. Retain one bounded
+startup marker list and viewport-derived projection rather than another
+per-line or whole-document decoration store. Acceptance SHALL include both
+editing profiles, splits, reload, soft wrap, disabled coloring, literal contexts
+and read-only Org result buffers.
+Completed Org delivery records SHALL remain historical evidence; this contract
 SHALL NOT be presented as delivered heading decoration.
 
 #### Scenario: Refresh after a local heading change
@@ -186,17 +271,29 @@ SHALL NOT be presented as delivered heading decoration.
 - **THEN** current decoration updates through the admitted recognition/projection owners
 - **AND** source is not reparsed or scanned as an unrelated project-wide operation.
 
-## Open design details
+## Acceptance fixtures and planning boundary
 
-- Cycling versus retaining the final marker after the configured sequence ends.
-- Final TOML/command names, default enablement, leading-star indentation and
-  per-view override/reset/split inheritance.
-- Reveal-on-edit behavior inside the prefix and precise hidden-cell hit mapping.
-- Finite list/payload limits and real-terminal width/ligature fixtures.
+Use headings at levels 1 through 8, a custom one-marker sequence, visible and
+hidden leading stars, and plain source view. Include source/example blocks with
+star-like lines, a malformed/incomplete observation, Unicode titles and long
+wrapped headings. Test insertion/deletion of stars, copy, save, undo, pointer
+selection, split panes and external reload without changing source ownership.
+
+Exercise the native view at 40x12 and 80x24 and through resize. A real Linux PTY
+journey SHALL verify emitted reference glyphs, source/pretty switching,
+cancellation, cursor position and terminal restoration under both profiles.
+Rendering protocol evidence does not prove font coverage or ligature shaping;
+visual review uses the terminal's existing configured font, without installing
+fonts or making a new font a build/test prerequisite.
+
+No product decisions remain open for this capability. Implementation planning
+must identify the existing observation/projection owners, proportional native
+and PTY checks, and measured projection cost. It does not reopen the completed
+Org gate or authorize a controller through this document alone.
 
 ## Delivery relationship
 
 This is a presentation follow-up to ORG16/ORG17, not a claim that heading decoration is
-already implemented. The model records proposed preference spelling and source
-mappings without adding them to the shipped schema. Versioning this draft does
+already implemented. The model records approved preference spelling and source
+mappings without adding them to the shipped schema. Approving this contract does
 not add list-item prettification, install fonts or start implementation/slicing.
