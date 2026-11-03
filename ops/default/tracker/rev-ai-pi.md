@@ -220,20 +220,28 @@ Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
 ### Slice 8: Joint acceptance and guidance
 
-State: active.
-Ticket: [Joint acceptance and guidance](../ticket/ready/20261102211113-accept-and-document-pi-and-reload.md)
+State: in_progress.
+Ticket: [Joint acceptance and guidance](../ticket/in_progress/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated.
 Branch: `feat/rev-ai-pi-08-acceptance`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-8-acceptance.md`
 
-- [ ] T8.1: Deliver representative native and PTY journeys for both startup profiles, real kernel file notifications and the installed Pi RPC/tool/session lifecycle, with measured idle/RSS/startup limits.
+- [x] T8.1: Deliver representative native and PTY journeys for both startup profiles, real kernel file notifications and the installed Pi RPC/tool/session lifecycle, with measured idle/RSS/startup limits.
 - [ ] T8.2: Exercise one bounded real-provider operation using available existing Pi authentication; report unavailable authentication variants distinctly and never invent live evidence from fixtures.
 - [ ] T8.3: Document ordinary Pi and reload workflows, complete references/configuration/command catalogs, canonical Markdown and Spore guidance and Unreleased; finish ticket transitions before the unchanged integrated gate and controller closure.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+T8.1 focused native/PTY journeys passed in both profiles with installed Pi 1.3.0
+and a controlled local provider (zero HTTP requests). Six focused session cases
+and strict driver lint passed. Initial-history creation admission:
+`47928e8b3763` (full identity recorded in the report/commit history).
+T8.2 attempted its one real-provider operation with the existing default and
+Pi-owned OAuth: provider completion failed, one turn/zero tool calls. Live
+acceptance remains externally blocked; no automatic provider retry is authorized
+by this observation. T8.3 guide/catalog checks passed 70 pages/434 links.
+Final exact-head ordered validation and canonical PR reference: pending.
+Do not claim the integrated gate from focused checks.
 
 
 ## Preparation evidence

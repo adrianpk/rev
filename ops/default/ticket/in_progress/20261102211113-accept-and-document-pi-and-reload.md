@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211113
 title: Joint acceptance and guidance
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:13Z
 ready_at: 2026-11-02T21:11:13Z
+started_at: 2026-11-03T01:44:04Z
+branch: feat/rev-ai-pi-08-acceptance
 commits: []
 ---
 
@@ -22,7 +24,7 @@ Deliver representative native and PTY journeys for both startup profiles, real k
 ## Inputs and current state
 
 The optional LSP/configuration/native-editing owners are delivered.
-Pi and general external-file reload are not yet implemented.
+Slices 1 through 7 deliver Pi and general external-file reload; joint acceptance and guided workflows remain.
 Use [Pi Integration](../../spec/editor-ai-pi-integration.md), its
 [model](../../spec/editor-ai-pi-integration-model.md), and
 [External File Changes](../../spec/editor-external-file-changes.md) with its
