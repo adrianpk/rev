@@ -52,7 +52,7 @@ working directory, cancellation and inspectable plain-text results.
   `shell.max_input_bytes` and `shell.max_output_bytes` to typed admission,
   precedence, source origins, sample TOML and the default catalog.
 - Add `shell-command`, `shell-command-cancel` and `shell-command-output` to the
-  native catalog, handlers and command reference.
+  native catalog, handlers and command/binding references.
 - Enforce one invocation, 4096 command bytes, finite configured time/output
   limits, strict UTF-8/NUL admission and checked retained result identities.
 - Add one user-facing Unreleased entry for one-shot commands and results.
@@ -84,6 +84,14 @@ streams; cancel/deadline/descendant cleanup; session drop; prompt ownership and
 return to idle; startup shell fallback, explicit override, argv and environment.
 An initial process promotion compile identified one remaining viewer import;
 the import was updated before the successful compile.
+
+The first controller batch on `77a8726806973ae06029c574fb33e49a462eac27`
+passed formatting, strict all-target Clippy, 151 configuration tests, 9 shell
+tests and 7 process-filtered library tests. Its documentation check identified
+three missing command inventory rows in `docs/reference/bindings.md`; those rows
+now describe named invocation without assigning the later slice's default keys.
+The failed receipt is retained; successful checks are not relabeled for a newer
+candidate.
 
 The final ordered Slice 1 prefix is recorded through `looper validate` after the
 PR-reference follow-up commit and push. The canonical PR Validation section and
