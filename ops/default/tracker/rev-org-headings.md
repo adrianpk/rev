@@ -24,7 +24,7 @@ Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gat
 
 ## Slice 1: Configured native markers
 
-State: implementing.
+State: preparing canonical PR.
 Requirements: OGP01-OGP05, OGP07; native observation/projection part of OGP08.
 Dependency: approved preparation on clean dev.
 Branch: `feat/rev-org-headings-01-presentation`
@@ -35,8 +35,14 @@ Report: `ops/default/report/slices/rev-org-headings/slice-1-presentation.md`
   template, provenance and configuration references.
 - [x] T1.2: Render current native heading prefixes with configured markers and
   unchanged source/cell/wrap geometry; preserve literal/partial source.
-- [ ] T1.3: Verify levels, overrides, invalid glyphs, native frames, disabled
+- [x] T1.3: Verify levels, overrides, invalid glyphs, native frames, disabled
   coloring and source/dirty/history fidelity in tests/org_headings.rs.
+Task commits: T1.1 `ac4ff6648919f72b1da4bb0f6f5fee343289afc6`;
+T1.2 `12d47edd7a9736888cec508567b336ceb11c8967`. T1.3 is introduced with
+this slice's report and native tests. Focused development checks passed: two
+configuration, three display, seven heading and three Org projection tests.
+The controller receipt for the final canonical PR head owns exact validation.
+
 - [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
 
 ## Slice 2: Independent view controls

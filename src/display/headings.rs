@@ -1,16 +1,11 @@
 use crate::buffer::Buffer;
+use crate::coordinates::Cell;
 use crate::view::View;
 
 /// Replace only visible ASCII prefix cells after canonical clipping/wrapping.
 /// Every source star retains its cell; no cursor or hit mapping is changed.
-pub(super) fn project(
-    buffer: &Buffer,
-    view: &View,
-    row: usize,
-    left: usize,
-    width: u16,
-    text: &mut String,
-) {
+pub(super) fn project(buffer: &Buffer, view: &View, from: Cell, width: u16, text: &mut String) {
+    let Cell { row, column: left } = from;
     let policy = &view.headings;
     if !policy.pretty {
         return;

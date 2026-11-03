@@ -300,7 +300,16 @@ impl Frame {
                 },
                 content.width(),
             )?;
-            headings::project(buffer, view, source, left, painted, &mut text);
+            headings::project(
+                buffer,
+                view,
+                Cell {
+                    row: source,
+                    column: left,
+                },
+                painted,
+                &mut text,
+            );
             let projected = Row {
                 row,
                 text,
