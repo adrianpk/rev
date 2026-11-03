@@ -225,7 +225,7 @@ Ticket: [Joint acceptance and guidance](../ticket/blocked/20261102211113-accept-
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated.
 Branch: `feat/rev-ai-pi-08-acceptance`
-PR: pending.
+PR: [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236).
 Report: `ops/default/report/slices/rev-ai-pi/slice-8-acceptance.md`
 
 - [x] T8.1: Deliver representative native and PTY journeys for both startup profiles, real kernel file notifications and the installed Pi RPC/tool/session lifecycle, with measured idle/RSS/startup limits.
@@ -241,7 +241,8 @@ T8.2 attempted its one real-provider operation with the existing default and
 Pi-owned OAuth: provider completion failed, one turn/zero tool calls. Live
 acceptance remains externally blocked; no automatic provider retry is authorized
 by this observation. T8.3 guide/catalog checks passed 70 pages/434 links.
-Final exact-head ordered validation and canonical PR reference: pending.
+Canonical PR: [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236).
+Final exact-head ordered validation: pending controller receipt.
 Do not claim the integrated gate from focused checks.
 
 

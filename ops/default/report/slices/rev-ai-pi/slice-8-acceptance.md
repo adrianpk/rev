@@ -5,7 +5,7 @@ Delivery set: rev-ai-pi
 Plan: `ops/default/plan/rev-ai-pi.md`
 Tracker: `ops/default/tracker/rev-ai-pi.md`
 Branch: `feat/rev-ai-pi-08-acceptance`
-PR: pending
+PR: `#236`
 
 ## Purpose
 
@@ -59,6 +59,9 @@ or response content.
 
 History correction: `47928e8b376385049bf249ff76fd6e8299a6447d`.
 Acceptance/report introduction: `b8fadd21cef5f9b8c34f3737965cc0ca908f289a`.
+
+Guidance commit: `297a8314f9d1` (full identity in Git).
+Canonical PR: [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236).
 
 ## Contracts Added or Changed
 

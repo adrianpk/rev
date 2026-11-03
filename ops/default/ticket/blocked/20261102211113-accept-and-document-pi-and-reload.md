@@ -12,6 +12,7 @@ reported_at: 2026-11-02T21:11:13Z
 ready_at: 2026-11-02T21:11:13Z
 started_at: 2026-11-03T01:44:04Z
 branch: feat/rev-ai-pi-08-acceptance
+pr: https://forge.adrianpk.com/adrianpk/rev/pulls/236
 blocked_at: 2026-11-03T02:00:38Z
 commits: [47928e8b376385049bf249ff76fd6e8299a6447d, b8fadd21cef5f9b8c34f3737965cc0ca908f289a]
 ---
