@@ -1,6 +1,6 @@
 # Slice 1: Configured native markers
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-headings
 Plan: [Heading Presentation Delivery](../../../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../../../tracker/rev-org-headings.md)
@@ -102,16 +102,18 @@ unchanged. Focused correction checks passed:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test display org_timestamps::timestamp_calendar_geometry -- --test-threads=1` (1 test).
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1` (4 native source/result and initial-drawer cases).
 
-The required format, strict all-target Clippy, combined heading/configuration/
-display tests, documentation and whitespace batch runs through `looper validate`
-after the canonical PR-reference and geometry correction commits. Its successful
-canonical receipt owns
-the exact clean PR candidate and ordered commands. Development results above
-are focused evidence, not the integrated delivery-set gate.
+Canonical PR #238 merged through controller-owned Rebase + Fast-forward into
+dev at `5e662a9691b7ab08c7c89dd37a1f7d3d1dce217a` on
+2026-11-03T15:52:56Z. Receipt `DT6X246MDOZQJMVKQPBPAAAEQF` passed the
+exact five configured commands at that clean head: format, strict all-target
+Clippy, 195 tests (149 configuration, 39 display, 7 headings), documentation
+and whitespace. Documentation verified 429 command identities, 235 settings,
+70 pages and 434 local links/anchors. The batch took 113.94 seconds.
 
-Development target footprint was 719 MiB with 3997 MiB filesystem space
-available before the regenerated final batch. Builds retain the configured debug-disabled,
-non-incremental, one-job policy and worktree-local target directory.
+Final target footprint was 732 MiB with 3981 MiB filesystem space available.
+Builds retained debug-disabled, non-incremental, one-job policy and the
+worktree-local target directory. This closes Slice 1 of 3; the integrated
+delivery-set gate remains pending.
 
 ## Risks and Follow-ups
 

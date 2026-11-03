@@ -10,7 +10,7 @@ Spec: [Org Heading Presentation](../spec/editor-org-heading-presentation.md)
 Model: [Heading Presentation Model](../spec/editor-org-heading-presentation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test configuration --test commands --test display -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_editing visibility -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 1 - Configured native markers
+Active slice: Slice 2 - Independent view controls
 Plan: [Heading Presentation Plan](../plan/rev-org-headings.md)
 Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gate receipts own progress
 
@@ -24,7 +24,8 @@ Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gat
 
 ## Slice 1: Configured native markers
 
-State: reviewing; canonical PR #238 is open against dev.
+State: delivered; canonical PR #238 merged into dev at
+`5e662a9691b7ab08c7c89dd37a1f7d3d1dce217a`.
 Requirements: OGP01-OGP05, OGP07; native observation/projection part of OGP08.
 Dependency: approved preparation on clean dev.
 Branch: `feat/rev-org-headings-01-presentation`
@@ -45,17 +46,15 @@ The controller receipt for the final canonical PR head owns exact validation.
 
 Canonical PR: [#238](https://forge.adrianpk.com/adrianpk/rev/pulls/238).
 Report introduction: `4d1630aca2929d2569412cbf03498352213f5e01`.
-Final validation: the controller receipt for the clean canonical PR head owns
-the exact ordered Slice 1 command outcomes after this PR-reference commit.
-
-The first controller batch passed format, Clippy and 149 configuration cases,
-then exposed passive fold-retirement mutations in two unchanged display tests.
-The same branch corrects that view invariant; both failing cases and four native
-result/drawer cases pass. Final evidence is regenerated for the corrected head.
+Final validation: receipt `DT6X246MDOZQJMVKQPBPAAAEQF` passed all five
+configured commands at the merged head: format, strict Clippy, 195 native tests,
+documentation and whitespace. The passive-reveal correction preserved the two
+existing geometry assertions and four native result/drawer cases. Slice 1 of 3
+is delivered; Acta records controller-owned integration.
 
 ## Slice 2: Independent view controls
 
-State: pending.
+State: implementing.
 Requirements: OGP02-OGP04, OGP06, OGP08.
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-org-headings-02-view-controls`
