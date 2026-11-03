@@ -1,6 +1,6 @@
 # Slice 4: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
@@ -113,19 +113,41 @@ and Spore pipe-cell checks on `575f47551d121495f4227838af00007bc5da4e2e`.
 The first configured receipt `WY4B6AB7OJ7X5FLV2QAPO3HQ3Y` passed format,
 strict Clippy, all 35 shell tests and the complete native/resource/PTY driver,
 then rejected the preceding chapter's footer-only next link. The guide contract
-requires a literal `Next:` line. Correct that chapter to the established form;
-keep navigation checks unchanged and regenerate both receipts on the new head.
+requires a literal `Next:` line. The chapter was corrected to the established
+form, preserving navigation checks; both receipts were regenerated afterward.
 
-The final clean head receives focused catalog, readonly-publication and Spore
-pipe-cell checks, followed by the configured ordered Slice 4 prefix through
-`looper validate` after all PR-reference commits are pushed. Canonical PR/receipt
-records own exact-candidate success. The unchanged integrated gate remains the
-controller's next phase and is not claimed by these focused journeys.
+Canonical PR [#245](https://forge.adrianpk.com/adrianpk/rev/pulls/245) merged
+into dev at `554d1b770a2cee58328863afac1f0dd2c1e0ba1d`.
+Controller receipt `3DQKGFLQ5HKNUHWESKIWUZ5FNL` passed all seven configured
+commands in order on that exact clean head: format, strict all-target Clippy,
+35 shell tests, the complete native/resource/PTY driver, documentation validation,
+the local guide build and `git diff --check`. Documentation covered 437 commands,
+240 preferences, 73 reachable pages and 458 local links/anchors; Spore projected
+all 73 Markdown pages. The canonical PR contract check passed.
+
+The final resource run retained exactly 8388608 stdin/stdout bytes and matching
+inserted/removed history bytes, with one undo. It observed 8530 us capture,
+2248738 us collection/publication, 66333 us undo and 104684 kB peak native RSS.
+Native idle used zero CPU ticks over 350 ms, with two threads before and after.
+The non-modal/modal PTYs observed 75739/75782 bounded bytes and 12736/13936 kB
+peak RSS; each passed 350 ms of terminal silence with zero idle CPU ticks.
+These remain finite host observations, not general performance guarantees.
+
+Focused receipt `7FMBXVR66YUNL4HKD54J6GMZUW` passed three tests on that same
+clean head:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands palette::catalog_reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::shell::publication -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --example userguide-publication table_cells -- --test-threads=1`
+
+The immutable report introduction is `591267724625605c25936a6309d09c8386522821`.
+All PR-reference follow-ups were pushed before validation. The unchanged
+integrated gate remains controller-owned and pending.
 
 ## Risks and Follow-ups
 
 Terminal bytes prove protocol behavior; glyph appearance belongs to the terminal.
 The finite 8 MiB case exercises the default bound and does not claim unlimited
 streaming. Existing conservative disk observation cannot prevent a later external
-write after observation. The controller still owns integration, the unchanged
-combined gate and approved documentation closure.
+write after observation. The controller still owns the unchanged combined gate;
+final documentation closure requires its successful receipt.

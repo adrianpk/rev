@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: Slice 4 - Joint acceptance and guidance
+Active slice: None - all four slices integrated; controller full gate pending
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -92,7 +92,7 @@ formatting, strict Clippy and documentation. The canonical PR contract check pas
 
 ## Slice 4: Joint acceptance and guidance
 
-State: reviewing
+State: delivered
 Dependency: Slice 3 integrated.
 Branch: `feat/rev-shell-commands-04-acceptance`
 Expected PR title: `test(shell): verify shell commands and document text filters`
@@ -106,9 +106,14 @@ Report: `ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md`
 Task commits: T4.1 `db7c3fb38c81db7b7f471d667f72e16cbc130ebe`,
 T4.2 `306286125fae9c44629a84c80d65c135c59e78b9`.
 T4.3 `591267724625605c25936a6309d09c8386522821`.
-Report introduction: [Slice 4 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/591267724625605c25936a6309d09c8386522821/ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md). Development native/resource/PTY checks passed with unchanged source-quality
-and terminal limits. Exact clean-head focused/configured receipts follow the
-canonical PR reference and push.
+Report introduction: [Slice 4 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/591267724625605c25936a6309d09c8386522821/ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md).
+Integration: canonical PR #245 merged into dev at `554d1b770a2cee58328863afac1f0dd2c1e0ba1d`.
+Controller receipt `3DQKGFLQ5HKNUHWESKIWUZ5FNL` passed all seven configured
+commands on that exact clean head: formatting, strict all-target Clippy, 35 shell
+tests, native/resource/both-profile PTY acceptance, documentation, local guide
+build and `git diff --check`. Focused receipt `7FMBXVR66YUNL4HKD54J6GMZUW`
+passed catalog, readonly-publication and Spore pipe-cell tests on the same head.
+The canonical PR contract check passed.
 
 ## Validation and controller ownership
 
@@ -122,11 +127,22 @@ Keep the plan's one-job/no-debug/no-incremental profile, 1 GiB admission floor
 and narrowly owned completed-slice target cleanup. Do not clean shared targets
 or unrelated worktrees.
 
+Gate preparation on 2026-11-03 verified Rust/Cargo 1.98, Clippy, rustfmt,
+Spore and every shell/PTY driver utility. Locked offline metadata resolved all
+91 packages and confirmed the primary private target path. The executable
+drivers create their own isolated HOME/XDG, source and PTY fixtures and clean up their owned
+processes and temporary directories; no persistent service is required.
+Only the integrated Slice 3 private target was reclaimed after exact path,
+clean-source, merged-PR/ancestry, retained-receipt and inactive-target checks.
+Source worktrees and receipts remain available. The 1 GiB filesystem admission
+floor was met at preparation and remains required before each controller build.
+The unchanged combined gate has not been run by the preparation worker.
+
 ## Final gate and closure
 
-- [ ] All four canonical PRs are integrated into dev.
+- [x] All four canonical PRs are integrated into dev.
 - [ ] Controller records the unchanged combined gate on clean integrated dev.
-- [ ] All reports are delivered with exact candidate/receipt evidence.
+- [x] All reports are delivered with exact candidate/receipt evidence.
 - [ ] Plan/tracker/spec/model and pending index reflect completion.
 - [ ] Closure changes only configured documentation paths.
 - [ ] Closure is committed/pushed; clean dev matches origin/dev.
