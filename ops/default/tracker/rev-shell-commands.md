@@ -43,20 +43,20 @@ contract check passed.
 
 ## Slice 2: Checked text filters
 
-State: implementing
+State: reviewing
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-shell-commands-02-filters`
 Expected PR title: `feat(shell): filter regions and insert checked command output`
 Report: `ops/default/report/slices/rev-shell-commands/slice-2-filters.md`
 
-Progress: T2.1/T2.2 deliver the three region/insert commands and checked native
-publication. Focused checks passed three region-input tests, eight filter tests
-and one real-child readonly-transition test. T2.3 completes the regression set.
+Progress: T2.1-T2.3 deliver the three region/insert commands and checked native
+publication. Development validation passed 22 native shell tests, the focused
+real sort/tr cases and one real-child readonly-transition test.
 
 - [x] T2.1: Capture linear selections and insertion points before prompts, supply exact bounded stdin followed by EOF, and deliver shell-command-on-region, shell-filter-region and shell-command-insert.
 - [x] T2.2: Publish only complete successful stdout through native observed edits and one undo; preserve canonical newlines, source positions, readonly admission and strict stale/reload/closed-target rejection.
-- [ ] T2.3: Verify real sort/tr with unsaved input, empty successful results, Unicode/newlines, cancelled prompts, read-only input, read-only edit rejection, edited/reloaded targets, pane switches and normal undo.
-- [ ] Record exact-head validation, immutable report link and canonical PR.
+- [x] T2.3: Verify real sort/tr with unsaved input, empty successful results, Unicode/newlines, cancelled prompts, read-only input, read-only edit rejection, edited/reloaded targets, pane switches and normal undo.
+- [ ] Record immutable report introduction and canonical PR. Exact clean-HEAD ordered validation is owned by the Looper receipt.
 
 ## Slice 3: Native interaction and lifecycle
 

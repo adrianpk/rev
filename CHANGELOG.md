@@ -12,7 +12,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Run explicit shell commands from M-x or colon, send unsaved regions as input,
   replace a region or insert complete output in one undo step, and keep editing
   while commands run. Inspect bounded output and diagnostics in read-only text
-  buffers; cancellation and stale targets preserve source text.
+  buffers. Edits require valid complete stdout and an unchanged writable target.
 
 ## 0.4.0 - 2026-11-03
 

@@ -1,7 +1,11 @@
 #![forbid(unsafe_code)]
 
+#[path = "shell_commands/filters.rs"]
+mod filters;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "shell_commands/regions.rs"]
+mod regions;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;
