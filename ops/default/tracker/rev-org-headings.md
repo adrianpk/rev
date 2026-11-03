@@ -82,7 +82,8 @@ approved commands. Slice 2 of 3 is delivered; Acta records integration.
 
 ## Slice 3: Joint acceptance and guidance
 
-State: reviewing; canonical PR and final clean-head receipt pending.
+State: reviewing; canonical PR [#240](https://forge.adrianpk.com/adrianpk/rev/pulls/240)
+prepared; final clean-head receipt pending.
 Requirements: OGP01-OGP08 together.
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-org-headings-03-acceptance`
@@ -98,7 +99,8 @@ Report: `ops/default/report/slices/rev-org-headings/slice-3-acceptance.md`
 - [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
 
 Task commits: T3.1 `3124e9da400b4c2e775f7666cdbf314b337e960c`;
-T3.2 `26f182284dbd491d90832c65a895acf5a9920568`. Native/resource/four-PTY
+T3.2 `26f182284dbd491d90832c65a895acf5a9920568`;
+T3.3 `5f57e7009c6cb7924420bd32ddc92e14c4b1192d`. Native/resource/four-PTY
 development acceptance and the existing shared terminal kernel-wake case pass.
 T3.3 prepares the report and local gate prerequisites; the unchanged integrated
 gate and delivery closure remain pending controller-owned integration.
