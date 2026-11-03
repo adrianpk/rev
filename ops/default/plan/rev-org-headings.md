@@ -1,6 +1,7 @@
 # Org Heading Presentation Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-03
 Delivery set: rev-org-headings
 Slice strategy: behavior-first
@@ -10,7 +11,7 @@ Spec: [Org Heading Presentation](../spec/editor-org-heading-presentation.md)
 Model: [Heading Presentation Model](../spec/editor-org-heading-presentation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test configuration --test commands --test display -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_editing visibility -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None - all three slices integrated; controller full gate pending
+Active slice: None - delivery set completed
 Tracker: [Heading Presentation Tracker](../tracker/rev-org-headings.md)
 
 ## Outcome and authority
@@ -219,3 +220,16 @@ three reports delivered, the specification/model Completed and the pending
 index delivered. Change only the generated, reviewed closure_paths. Runtime,
 test, shipped reference and guide edits belong before the gate. No extra
 provider probe, release, installation, successor or main merge follows closure.
+
+## Delivery-set closure
+
+All three recorded slices are delivered through canonical PRs #238, #239 and
+#240. The controller passed the unchanged Full gate at immutable dev candidate
+`18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`, on 2026-11-03T16:58:37Z in 566.81 seconds.
+It passed 420 selected tests, native/resource/four-PTY acceptance, source quality,
+documentation catalogs and the local Markdown-to-Spore guide build. The
+[Slice 3 closure](../report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
+records the exact receipt, measurements and owned cleanup. Plan, tracker,
+paired specification/model and pending index are reconciled. Only the configured
+closure documentation differs from that tested candidate.

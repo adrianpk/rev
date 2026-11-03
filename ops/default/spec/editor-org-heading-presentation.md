@@ -1,6 +1,7 @@
 # Org Heading Presentation
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-10-28
 Reviewed: 2026-11-03
 Version: 0.2
@@ -11,7 +12,7 @@ Model: [Org Heading Presentation Model](editor-org-heading-presentation-model.md
 Org owner: [Org Mode](editor-org-mode.md)
 Configuration owner: [Editor Configuration](editor-configuration.md)
 Delivery boundary: approved three-slice autonomous delivery through dev; explicit Looper startup requested 2026-11-03
-Readiness: approved for implementation under the linked plan; controller checkpoints own actual startup and progress
+Readiness: delivered through three canonical slices; controller full gate passed at the candidate recorded in the linked tracker
 Plan: [Heading Presentation Delivery](../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../tracker/rev-org-headings.md)
 
@@ -69,8 +70,8 @@ every source star stays visible. Reuse the existing Org heading palette roles.
 Defaults are `pretty = true`, the six reference markers,
 `hide_leading_stars = true` and `cycle_bullets = true`, under `[org.headings]`.
 The model defines their exact types, admission bounds and precedence. These
-are approved future settings; the current binary and packaged sample do not
-admit them until implementation is delivered.
+settings are delivered in the native binary, complete startup catalog and
+packaged sample.
 
 `org-pretty-headings-mode` toggles pretty presentation in the active Org view.
 `org-reset-heading-presentation` clears its override and restores the immutable
@@ -295,8 +296,11 @@ one retained controller; the completed earlier Org gate remains historical.
 
 ## Delivery relationship
 
-This is a presentation follow-up to ORG16/ORG17, not a claim that heading decoration is
-already implemented. The model records approved preference spelling and source
-mappings without adding them to the shipped schema. The owner's explicit
-delivery instruction is recorded in the plan and tracker; this specification
-alone does not claim that implementation is complete.
+This presentation follow-up to ORG16/ORG17 is delivered through PRs #238-#240.
+The model's four preferences and source/view mappings are implemented and the
+paired plan/tracker are Completed. The unchanged controller full gate passed
+at `18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`, closing OGP01-OGP08. The
+[Slice 3 closure](../report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
+records exact-candidate tests, bounded terminal/resource observations and local
+guide validation. Earlier Org delivery gates retain their historical identity.

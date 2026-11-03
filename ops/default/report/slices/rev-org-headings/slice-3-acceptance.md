@@ -103,8 +103,8 @@ Canonical PR #240 merged through controller-owned Rebase + Fast-forward into
 dev at `4bda46f32496016b514150f8fb4eb457786046f4` on
 2026-11-03T16:45:11Z. Receipt `JIACPRIUXO7FT3BFVZOIYNBTD5` passed these
 seven ordered checks on that exact clean head after PR-reference follow-ups,
-in 35.35 seconds. This closes Slice 3 of 3; integrated gate evidence remains
-pending controller execution.
+in 35.35 seconds. This closes Slice 3 of 3; the subsequent successful
+integrated gate is recorded below.
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
@@ -137,11 +137,51 @@ service, server, provider, font install or credential is needed. Its eight-secon
 1-MiB PTYs, native bounds and one-job release build remain unchanged. The guide
 build derives `target/userguide` from canonical Markdown and validates locally.
 All three canonical PR merges are ancestors of dev and recorded in Acta.
-The controller owns the unchanged full gate on the ensuing clean preparation
-commit; these prerequisite observations are not integrated gate evidence.
+The controller subsequently passed the unchanged full gate on the clean
+preparation commit recorded below. The prerequisite observations above remain
+separate from that integrated gate evidence.
+
+## Delivery-set closure
+
+The controller passed the unchanged configured Full gate at immutable candidate
+`18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`. It ran on primary dev from
+2026-11-03T16:49:10Z to 2026-11-03T16:58:37Z, taking 566.81 seconds.
+The exact combined command remains in the plan/tracker Full gate metadata.
+Evidence is retained at
+`/home/adrian/.local/state/looper/configs/rev-org-headings.json.state/checks/18f625997de4c0ac2e1ae50d6fea667fe14f2c2d.json`,
+with its receipt-specific `.T2QVMEBIU5HJTNBIOEXKDCUFSU.log` alongside it.
+
+All 420 selected native tests passed: 161 commands, 149 configuration, 39 display,
+16 headings, 11 Org visibility, 18 modal contexts, 21 external-change and 5
+native AI-result cases. Format, strict all-target Clippy, source quality,
+both-profile native/resource acceptance and all four size/resize PTYs passed.
+Documentation verified 431 commands, 235 settings, 70 reachable pages and 438
+local links/anchors. All 70 Markdown pages projected and built locally through
+Spore under `target/userguide`.
+
+The 778898-byte/16896-line/512-heading fixture measured 310883us startup,
+22032us for 64 toggle/projections, 551671us for level edit/undo and 20236 kB
+peak RSS. Native idle consumed zero ticks over 350ms with no pending deadline.
+PTY startup was 51125-70834us, output 12711-32337 bytes and peak RSS
+13036-14492 kB. All four measured zero idle ticks and restored terminal state.
+The eight-second/1-MiB PTY limits and finite native bounds were unchanged.
+
+The completed gate's primary target was 29157 MiB including retained historical
+build artifacts; the Slice 3 worktree target was 1012 MiB. Filesystem free space
+was 6033 MiB at closure inspection. Builds used the pinned debug-disabled,
+non-incremental, one-job policy and worktree-local output. Fixture guards and
+owned terminal children completed; the journey's EXIT trap removed its private
+roots. No persistent fixture was started for this delivery.
+
+Canonical PRs #238, #239 and #240 are integrated and recorded in Acta. All three
+reports are delivered; plan/tracker and the paired specification/model are
+Completed, and the pending index records this delivered capability. Only the
+configured closure documentation differs from the tested candidate. The
+controller retains final checkpoint verification.
 
 ## Risks and Follow-ups
 
-The integrated full gate and delivery closure remain pending controller
-execution. Emitted Unicode protocol evidence does not establish the hosting
-terminal font's rasterization or glyph coverage.
+No implementation follow-up is recorded for this delivery. Emitted Unicode
+protocol evidence does not establish the hosting terminal font's rasterization
+or glyph coverage.

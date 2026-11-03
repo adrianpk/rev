@@ -116,9 +116,15 @@ identities, 235 settings, 70 pages and 435 local links/anchors. The batch took
 
 Final target footprint was 829 MiB with 6708 MiB filesystem space available.
 Builds retained debug-disabled, non-incremental, one-job policy and worktree-local
-output. This closes Slice 2 of 3; the integrated delivery-set gate is pending.
+output. This closes Slice 2 of 3.
+
+The later integrated delivery-set gate passed at
+`18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`. All three slices are delivered and the set is
+Completed. The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure)
+records the combined 420-test, native/resource/PTY and local guide evidence.
 
 ## Risks and Follow-ups
 
-Slice 3 owns the joint native/resource/real-PTY acceptance and the User Guide.
+All planned successor slices are delivered and the integrated gate passed.
 Terminal glyph coverage remains a terminal/font property.

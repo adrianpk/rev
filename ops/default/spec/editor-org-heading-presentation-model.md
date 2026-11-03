@@ -1,6 +1,7 @@
 # Org Heading Presentation Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-10-28
 Reviewed: 2026-11-03
 Version: 0.2
@@ -24,7 +25,7 @@ There is no alternate document text, heading hierarchy or font database.
 | `org.headings.hide_leading_stars` | Whether the first N-1 source stars are drawn as blank cells in pretty view. | Boolean, `true`; preserve their cells and canonical source positions. |
 | `org.headings.cycle_bullets` | How a deeper heading resolves after the sequence ends. | Boolean, `true`; false retains the final glyph. |
 
-Approved future spelling; these keys are not currently admitted by the binary:
+Delivered startup preferences, admitted by the native binary and packaged sample:
 
 ```toml
 [org.headings]
@@ -44,9 +45,9 @@ width library. Duplicate entries are valid. An empty list is invalid even when
 Use existing startup configuration composition, provenance and whole-candidate
 failure behavior. Omitted leaves inherit; a supplied marker array replaces the
 entire inherited array rather than appending to it. Built-ins work without a
-configuration file. Add the complete four-field catalog, exhaustive sample and
-packaged template together only when implementation is delivered. No font family,
-theme package or separate configuration root is introduced.
+configuration file. The complete four-field catalog, exhaustive sample and
+packaged template are delivered together. No font family, theme package or
+separate configuration root is introduced.
 
 For structural level `level >= 1` and list length `count >= 1`, use index
 `(level - 1) % count` when cycling and `min(level - 1, count - 1)` otherwise.
@@ -116,3 +117,13 @@ above; current source/projection invalidation prevents stale pointer admission.
 These identities match the observed configuration. They are not a guarantee
 of identical rasterization across fonts or terminals. No screenshot, private
 configuration file, heading text or font file is stored by this model.
+
+## Delivery evidence
+
+The paired specification and model are Completed through canonical PRs #238-#240.
+Controller receipt `T2QVMEBIU5HJTNBIOEXKDCUFSU` passed the unchanged full gate
+at `18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`. The
+[Slice 3 closure](../report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
+records source/configuration/view, read-only result, geometry, reload and real
+terminal acceptance for this model. All approved bounds and mappings above remain
+unchanged.

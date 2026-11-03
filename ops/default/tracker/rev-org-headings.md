@@ -1,6 +1,7 @@
 # Org Heading Presentation Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-03
 Delivery set: rev-org-headings
 Slice strategy: behavior-first
@@ -10,7 +11,7 @@ Spec: [Org Heading Presentation](../spec/editor-org-heading-presentation.md)
 Model: [Heading Presentation Model](../spec/editor-org-heading-presentation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test configuration --test commands --test display -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_editing visibility -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None - all three slices integrated; controller full gate pending
+Active slice: None - delivery set completed
 Plan: [Heading Presentation Plan](../plan/rev-org-headings.md)
 Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gate receipts own progress
 
@@ -115,8 +116,8 @@ Gate preparation verified offline locked dependency resolution (91 packages),
 required tools, procfs, shell driver syntax and an owned PTY admission/TTY
 restoration probe. The driver recreates all finite fixtures for each run;
 no persistent fixture or service is required. All three canonical merged heads
-are ancestors of dev. The unchanged integrated full gate and delivery closure
-remain pending; the preparation checks do not substitute for that gate.
+are ancestors of dev. Those preparation checks preceded the controller
+full gate; its successful exact-candidate receipt is recorded below.
 
 ## Required validation prefixes
 
@@ -128,13 +129,25 @@ controller-owned integrated gate.
 ## Final gate and closure
 
 - [x] Confirm all three canonical slices integrated in dev.
-- [ ] Pass the unchanged configured full gate on its exact clean candidate.
-- [ ] Record gate receipt, selected checks, actual build footprint and bounded
+- [x] Pass the unchanged configured full gate on its exact clean candidate.
+- [x] Record gate receipt, selected checks, actual build footprint and bounded
   native/PTY measurements in the existing reports.
-- [ ] Mark all reports delivered, this tracker and plan Completed, and the paired
+- [x] Mark all reports delivered, this tracker and plan Completed, and the paired
   heading specification/model Completed; reconcile the pending index.
-- [ ] Commit/push only admitted documentation closure paths and verify the
-  controller's complete checkpoint.
+- [x] Commit/push only admitted documentation closure paths; the controller
+  verifies its final checkpoint.
+
+The controller passed the exact unchanged Full gate at
+`18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`, from 2026-11-03T16:49:10Z to
+2026-11-03T16:58:37Z (566.81 seconds). All 420 selected tests passed:
+161 commands, 149 configuration, 39 display, 16 headings, 11 Org visibility,
+18 modal contexts, 21 external-change and 5 native AI-result cases. Both-profile
+native/resource acceptance, all four PTYs, source quality, 431 commands,
+235 settings, 70 pages, 438 local links/anchors and the local guide build passed.
+The [Slice 3 closure](../report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
+retains measurement and cleanup details. No runtime or shipped-documentation
+change follows the tested candidate; closure is restricted to configured paths.
 
 The general drawers, quit, M-x hints and tree highlight tasks remain outside
 this set. The prior AI-presentation ticket is solved; its capture is not a new

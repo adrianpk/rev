@@ -112,11 +112,15 @@ and whitespace. Documentation verified 429 command identities, 235 settings,
 
 Final target footprint was 732 MiB with 3981 MiB filesystem space available.
 Builds retained debug-disabled, non-incremental, one-job policy and the
-worktree-local target directory. This closes Slice 1 of 3; the integrated
-delivery-set gate remains pending.
+worktree-local target directory. This closes Slice 1 of 3.
+
+The later integrated delivery-set gate passed at
+`18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
+`T2QVMEBIU5HJTNBIOEXKDCUFSU`. All three slices are delivered and the set is
+Completed. The [Slice 3 closure](slice-3-acceptance.md#delivery-set-closure)
+records the combined 420-test, native/resource/PTY and local guide evidence.
 
 ## Risks and Follow-ups
 
-Slice 2 owns runtime source/pretty/reset commands and independent view-control
-acceptance. Slice 3 owns the joint real-PTY/resource journey and User Guide.
+All planned successor slices are delivered and the integrated gate passed.
 Terminal glyph coverage remains a terminal/font property.
