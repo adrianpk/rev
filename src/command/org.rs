@@ -230,9 +230,11 @@ pub enum OrgCommand {
     LinkPreviewClear,
     LinkPreviewRefresh,
     LinkPreviewRegion,
+    PrettyHeadings,
+    ResetHeadingPresentation,
 }
 impl OrgCommand {
-    pub const ALL: [Self; 228] = [
+    pub const ALL: [Self; 230] = [
         Self::Cycle,
         Self::GlobalCycle,
         Self::Overview,
@@ -461,6 +463,8 @@ impl OrgCommand {
         Self::LinkPreviewClear,
         Self::LinkPreviewRefresh,
         Self::LinkPreviewRegion,
+        Self::PrettyHeadings,
+        Self::ResetHeadingPresentation,
     ];
     pub fn name(self) -> &'static str {
         [
@@ -692,6 +696,8 @@ impl OrgCommand {
             "org-link-preview-clear",
             "org-link-preview-refresh",
             "org-link-preview-region",
+            "org-pretty-headings-mode",
+            "org-reset-heading-presentation",
         ][self as usize]
     }
 

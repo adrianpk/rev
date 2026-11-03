@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+#[path = "org_headings/controls.rs"]
+mod controls;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "org_headings/geometry.rs"]

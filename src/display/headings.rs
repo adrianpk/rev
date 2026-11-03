@@ -7,7 +7,7 @@ use crate::view::View;
 pub(super) fn project(buffer: &Buffer, view: &View, from: Cell, width: u16, text: &mut String) {
     let Cell { row, column: left } = from;
     let policy = &view.headings;
-    if !policy.pretty {
+    if !view.pretty_headings() {
         return;
     }
     let Some(level) = buffer.org_heading_level(row) else {

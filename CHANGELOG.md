@@ -12,7 +12,10 @@ This project uses Semantic Versioning.
   levels while preserving source stars, cursor cells and wrapping. Configure
   markers, leading-star visibility and overflow under `org.headings`, or set
   `pretty = false` for source presentation. Recognition also works with syntax
-  coloring disabled; the terminal controls glyph coverage.
+  coloring disabled; the terminal controls glyph coverage. Toggle source/pretty
+  headings per view with `org-pretty-headings-mode`, or restore the startup choice
+  with `org-reset-heading-presentation`, through M-x or modal colon. Splits inherit
+  independent choices, which survive buffer switches, edits, undo and reload.
 
 - [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.

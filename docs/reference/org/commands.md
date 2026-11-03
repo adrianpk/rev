@@ -9,6 +9,7 @@ see [Org bindings](bindings.md) and the [capability map](../org-controls.md).
 
 | Group | Names |
 | --- | --- |
+| Heading presentation | `org-pretty-headings-mode`, `org-reset-heading-presentation` |
 | Native mode | `org-mode`, `text-mode` |
 | Org visibility | `org-cycle`, `org-shifttab`, `org-overview`, `org-content`, `org-show-all`, `org-hide-subtree`, `org-show-children`, `org-show-subtree`, `org-hide-drawer`, `org-show-drawer`, `org-toggle-drawer` |
 | Org estimates | `org-priority`, `org-priority-up`, `org-priority-down`, `org-inspect-priority`, `org-set-effort`, `org-inc-effort`, `org-inspect-effort` |

@@ -7,6 +7,8 @@ source, agenda, calendar and draft actions require their stated owner.
 
 | Keys | Command | Result |
 | --- | --- | --- |
+| M-x or modal colon | `org-pretty-headings-mode` | Toggle source/pretty headings only in the active native Org view, including read-only results. No factory shortcut. |
+| M-x or modal colon | `org-reset-heading-presentation` | Clear this view's override and restore its immutable startup pretty flag. No TOML write. |
 | `C-c C-x C-a` in Org | `org-archive-subtree` | Move the complete subtree to the checked archive location with origin metadata. |
 | `C-c C-x a` in Org | `org-toggle-archive-tag` | Toggle the local ARCHIVE tag without removing source. |
 | `C-c C-x A` in Org | `org-archive-to-archive-sibling` | Move the entry below its checked Archive sibling, creating it when absent. |

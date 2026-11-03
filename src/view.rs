@@ -1,4 +1,5 @@
 mod fold;
+mod headings;
 mod hit;
 pub use fold::FoldError;
 mod navigation;
@@ -114,6 +115,7 @@ pub struct View {
     bookmark_marker: String,
     pub preview: crate::org::preview::State,
     pub(crate) headings: std::sync::Arc<crate::config::Headings>,
+    heading_pretty: Option<bool>,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
     pub top: usize,
@@ -158,6 +160,7 @@ impl View {
             bookmark_marker: bookmarks.marker,
             preview: crate::org::preview::State::default(),
             headings: std::sync::Arc::new(crate::config::Headings::default()),
+            heading_pretty: None,
             column: None,
             top: 0,
             left: 0,
@@ -193,6 +196,7 @@ impl View {
         let marker = self.bookmark_marker.clone();
         let enabled = self.preview.enabled;
         let headings = self.headings.clone();
+        let heading_pretty = self.heading_pretty;
         let jumps = std::mem::take(&mut self.jumps);
         *self = Self::new(buffer);
         self.jumps = jumps;
@@ -201,6 +205,7 @@ impl View {
         self.bookmark_marker = marker;
         self.preview.enabled = enabled;
         self.headings = headings;
+        self.heading_pretty = heading_pretty;
     }
 
     pub(crate) fn bookmark_marker(&self) -> &str {

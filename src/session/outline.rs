@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 pub(super) mod clocks;
 pub(super) mod estimates;
+mod headings;
 mod list;
 mod operation;
 pub(super) mod property;
@@ -33,6 +34,9 @@ impl Session {
         }
         if !self.buffer().is_ok_and(|b| b.is_org()) {
             return self.message("Native Org mode is not active");
+        }
+        if let Some(action) = self.heading_presentation(command) {
+            return action;
         }
         if let Some(action) = self.table_return(command) {
             return action;

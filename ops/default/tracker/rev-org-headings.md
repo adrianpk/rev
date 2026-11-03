@@ -61,7 +61,7 @@ Branch: `feat/rev-org-headings-02-view-controls`
 Expected PR title: `feat(org): control heading presentation per view`
 Report: `ops/default/report/slices/rev-org-headings/slice-2-view-controls.md`
 
-- [ ] T2.1: Deliver the shared native pretty toggle/reset with view-local
+- [x] T2.1: Deliver the shared native pretty toggle/reset with view-local
   override, existing selectors/keymaps and no new factory binding.
 - [ ] T2.2: Preserve split/rebind/reset/edit/reload behavior and exact source
   cursor, pointer, selection, wrap and gutter meanings.

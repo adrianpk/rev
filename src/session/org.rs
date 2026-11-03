@@ -141,7 +141,7 @@ impl Session {
     fn pretty_org(&self, id: BufferId) -> bool {
         self.windows
             .iter()
-            .any(|(_, view)| view.point.stamp.buffer == id && view.headings.pretty)
+            .any(|(_, view)| view.point.stamp.buffer == id && view.pretty_headings())
     }
 
     fn start_org(&mut self, id: BufferId) {

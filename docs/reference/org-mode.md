@@ -24,6 +24,18 @@ Relative/paused timers do no periodic work; only an armed countdown owns a wake.
 Timer insertion is a normal source transaction, while undo does not rewind time.
 See [controls](org-controls.md) for startup values and all other Org capabilities.
 
+## Heading presentation
+
+`org-pretty-headings-mode` switches the active Org view between configured
+markers and original stars. `org-reset-heading-presentation` clears that view's
+choice and restores `org.headings.pretty`. Both use M-x or modal colon, including
+in read-only Org results; neither has a factory shortcut or writes TOML.
+A split inherits its source view's choice, then each pane is independent. Buffer
+switches, edits, undo and reload retain the choice. Prefix cells, point, copy and
+wrapping stay source-backed; entering the prefix never reveals it automatically.
+See [startup preferences](defaults.md#org-heading-presentation) for markers,
+leading-star visibility, overflow and terminal font ownership.
+
 ## Keys and named commands
 
 | Key | Command | Behavior |

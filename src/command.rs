@@ -100,7 +100,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 429] = [
+    pub const ALL: [Self; 431] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -246,6 +246,8 @@ impl Command {
         Self::GotoLine,
         Self::MouseMode,
         Self::VisualLineMode,
+        Self::Org(OrgCommand::PrettyHeadings),
+        Self::Org(OrgCommand::ResetHeadingPresentation),
         Self::Org(OrgCommand::Cycle),
         Self::Org(OrgCommand::GlobalCycle),
         Self::Org(OrgCommand::Overview),
