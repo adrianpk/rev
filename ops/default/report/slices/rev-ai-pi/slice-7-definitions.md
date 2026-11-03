@@ -1,6 +1,6 @@
 # Slice 7: Reusable AI commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -146,3 +146,19 @@ Literal source and permitted directory context may be transmitted to the chosen
 Pi model under the existing policy. Saved names do not promise identical model
 results. Authenticated-provider/PTY acceptance and the integrated gate remain
 with the recorded final acceptance stage.
+
+## Integration
+
+Canonical PR [#235](https://forge.adrianpk.com/adrianpk/rev/pulls/235) merged
+into dev at `af6dd10a18846b4ac5e7b6a5787e3b145b3f4012` on 2026-11-03T01:32:11Z.
+Receipt `C7EIUNEWCMOYKJ6Q4W4FPA6I7G` passed the exact clean head and ordered
+configured commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test ai --test configuration --test commands -- --test-threads=1`
+- `git diff --check`
+
+All 333 suite cases passed (25 AI, 161 commands, 147 configuration). The owned
+child harness additionally completed its nested save case. This closes Slice 7,
+not the integrated delivery-set gate.

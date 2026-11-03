@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211112
 title: Reusable AI commands
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-03T01:06:17Z
 branch: feat/rev-ai-pi-07-definitions
 pr: 235
 reviewed_at: 2026-11-03T01:21:25Z
+closed_at: 2026-11-03T01:32:11Z
+resolution: fixed
 commits: [8f349aca77a480575a4738c4b5a43d05922e809a, 9509b8d606a1933dc641e0fccd0c0ac3583a2b84]
 ---
 
@@ -64,3 +66,9 @@ Final clean-head validation follows the PR-reference commits through Looper.
 
 Canonical PR: [#235](https://forge.adrianpk.com/adrianpk/rev/pulls/235).
 Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
+
+## Closure
+
+Canonical PR #235 merged into dev at `af6dd10a18846b4ac5e7b6a5787e3b145b3f4012` on
+2026-11-03T01:32:11Z. Receipt `C7EIUNEWCMOYKJ6Q4W4FPA6I7G` passed all four configured
+checks and 333 suite cases.

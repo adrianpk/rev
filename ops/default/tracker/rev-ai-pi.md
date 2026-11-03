@@ -12,14 +12,14 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 7 — Reusable AI commands
+Active slice: Slice 8 — Joint acceptance and guidance
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 through 6 are integrated at their validated heads. Slice 7 is active;
+closure. Slices 1 through 7 are integrated at their validated heads. Slice 8 is active;
 later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
@@ -192,8 +192,8 @@ Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
 
 ### Slice 7: Reusable AI commands
 
-State: reviewing.
-Ticket: [Reusable AI commands](../ticket/reviewing/20261102211112-save-and-bind-ai-commands.md)
+State: delivered.
+Ticket: [Reusable AI commands](../ticket/solved/20261102211112-save-and-bind-ai-commands.md)
 Requirements: PI01, PI06, PI08; AI03, AI04, AI14, AI18.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-ai-pi-07-definitions`
@@ -212,14 +212,15 @@ Native journeys cover fresh targets, narrow context, real scoped publication,
 source conflicts and restart-bound keymaps with a controlled peer. Two older
 empty-query fixtures now assert the current first compiled AI command while
 retaining acceptance, row-limit and source-immutability checks; both focused
-cases passed. Final clean-head validation follows all candidate commits through
-the controller.
+cases passed. PR #235 merged at `af6dd10a18846b4ac5e7b6a5787e3b145b3f4012` on
+2026-11-03T01:32:11Z. Receipt `C7EIUNEWCMOYKJ6Q4W4FPA6I7G` passed all four configured
+checks and 333 suite cases; the integrated gate remains pending.
 
 Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
 ### Slice 8: Joint acceptance and guidance
 
-State: ready.
+State: active.
 Ticket: [Joint acceptance and guidance](../ticket/ready/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated.
