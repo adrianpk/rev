@@ -147,7 +147,7 @@ Ticket: [Guarded directory context](../ticket/reviewing/20261102211110-delegate-
 Requirements: PI02-PI05, PI07; AI06, AI09, AI11-AI13, AI17, AI20.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-ai-pi-05-discovery`
-PR: pending.
+PR: [#233](https://forge.adrianpk.com/adrianpk/rev/pulls/233).
 Report: `ops/default/report/slices/rev-ai-pi/slice-5-discovery.md`
 
 - [x] T5.1: Package a small internal Pi JavaScript resource with rev and load it explicitly through the admitted Pi extension interface; expose only bounded read/list/search operations without a shell or user plugin installation.
@@ -160,6 +160,8 @@ cases and 27 actual offline Pi checks passed, including real tool execution with
 controlled model events, root/file races, unsaved precedence and finite budgets.
 The Slice 5 report records exact commands and distinguishes provider evidence.
 Final clean-head validation follows the committed canonical PR references.
+
+Report introduction and T5.3 actual-runtime evidence: `984889b23b2c0885ccf8c67accd14b5af9d03467`.
 
 ### Slice 6: Private Pi sessions
 
