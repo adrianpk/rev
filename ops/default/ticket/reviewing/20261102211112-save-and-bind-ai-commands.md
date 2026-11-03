@@ -12,6 +12,7 @@ reported_at: 2026-11-02T21:11:12Z
 ready_at: 2026-11-02T21:11:12Z
 started_at: 2026-11-03T01:06:17Z
 branch: feat/rev-ai-pi-07-definitions
+pr: 235
 reviewed_at: 2026-11-03T01:21:25Z
 commits: [8f349aca77a480575a4738c4b5a43d05922e809a, 9509b8d606a1933dc641e0fccd0c0ac3583a2b84]
 ---
@@ -60,3 +61,6 @@ all-test compilation and documentation catalogs passed. Native tests use an
 owned controlled RPC peer and real isolated settings publication; no external
 provider requests are claimed. The Slice 7 report records commands and bounds.
 Final clean-head validation follows the PR-reference commits through Looper.
+
+Canonical PR: [#235](https://forge.adrianpk.com/adrianpk/rev/pulls/235).
+Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.

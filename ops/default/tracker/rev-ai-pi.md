@@ -197,7 +197,7 @@ Ticket: [Reusable AI commands](../ticket/reviewing/20261102211112-save-and-bind-
 Requirements: PI01, PI06, PI08; AI03, AI04, AI14, AI18.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-ai-pi-07-definitions`
-PR: pending.
+PR: [#235](https://forge.adrianpk.com/adrianpk/rev/pulls/235).
 Report: `ops/default/report/slices/rev-ai-pi/slice-7-definitions.md`
 
 - [x] T7.1: Admit bounded literal ai.commands definitions and dynamic ai-name resolution in the shared M-x/colon catalog, preserving typed input/context/output combinations and name collision rules.
@@ -211,6 +211,8 @@ passed 429 commands, 231 configuration entries, 68 pages and 415 links/anchors.
 Native journeys cover fresh targets, narrow context, real scoped publication,
 source conflicts and restart-bound keymaps with a controlled peer. Final
 clean-head validation follows PR-reference commits through the controller.
+
+Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
 ### Slice 8: Joint acceptance and guidance
 
