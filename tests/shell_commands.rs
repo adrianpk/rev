@@ -4,6 +4,8 @@
 mod filters;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "shell_commands/interaction.rs"]
+mod interaction;
 #[path = "shell_commands/regions.rs"]
 mod regions;
 

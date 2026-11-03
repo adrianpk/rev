@@ -17,6 +17,7 @@ mod path;
 mod prompt;
 mod replace;
 mod search;
+mod shell;
 mod tree;
 
 use std::collections::VecDeque;
@@ -109,6 +110,7 @@ enum Context {
     Search(Prompt),
     Command(Palette),
     Argument(Prompt),
+    Shell(Prompt),
     Names(Names),
     Calendar(Prompt),
     Path(Prompt),
@@ -138,6 +140,7 @@ pub struct Input {
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
+    shell_history: shell::History,
     ai_commands: Vec<Command>,
     policy: crate::config::Minibuffer,
 }
@@ -191,6 +194,7 @@ impl Input {
             Context::Names(names) => Some(names.prompt()),
             Context::Calendar(prompt)
             | Context::Argument(prompt)
+            | Context::Shell(prompt)
             | Context::Path(prompt)
             | Context::Literal(prompt) => Some(prompt),
             _ => None,
@@ -307,6 +311,7 @@ impl Input {
             Context::Search(prompt) => search::handle(prompt, key),
             Context::Editing => self.literal(key),
             Context::Argument(prompt) | Context::Calendar(prompt) => prompt.handle(key),
+            Context::Shell(prompt) => self.shell_history.handle(prompt, key),
             Context::Path(prompt) => path::handle(prompt, key),
             Context::Literal(prompt) => replace::argument(prompt, key),
             Context::ReplaceDecision => replace::answer(key),

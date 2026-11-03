@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+#[path = "commands/shell.rs"]
+mod shell;
+
 #[path = "configuration/fixture.rs"]
 mod config_fixture;
 #[path = "commands/context_keymaps.rs"]

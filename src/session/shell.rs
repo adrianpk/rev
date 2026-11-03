@@ -89,7 +89,7 @@ impl Session {
             input,
             home: self.view().clone(),
         };
-        if let Err(e) = self.input.argument("Shell command: ", "") {
+        if let Err(e) = self.input.shell_prompt() {
             return self.error(&e.to_string());
         }
         self.pending = Some(Pending::Shell(Box::new(request)));
@@ -133,6 +133,7 @@ impl Session {
             },
         ) {
             Ok(operation) => {
+                self.input.remember_shell(command);
                 self.shell.operation = Some(operation);
                 self.shell.request = Some(request);
                 self.message("Shell command running; shell-command-cancel or source C-g cancels")

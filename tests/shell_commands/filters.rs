@@ -10,7 +10,7 @@ fn insert(editor: &mut Session, command: &str) {
     editor.execute(Command::ShellCommandInsert);
     answer(editor, command);
 }
-fn source_editor(
+pub(super) fn source_editor(
     f: &Fixture,
     initial: &str,
     preferences: &str,
@@ -40,7 +40,7 @@ fn source_editor(
         path,
     )
 }
-fn settle(editor: &mut Session) {
+pub(super) fn settle(editor: &mut Session) {
     let deadline = Instant::now() + Duration::from_secs(5);
     while editor.remaining_input(Instant::now()).is_some() {
         editor.expire_input(Instant::now());
