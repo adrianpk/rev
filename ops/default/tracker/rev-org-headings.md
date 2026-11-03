@@ -10,7 +10,7 @@ Spec: [Org Heading Presentation](../spec/editor-org-heading-presentation.md)
 Model: [Heading Presentation Model](../spec/editor-org-heading-presentation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test configuration --test commands --test display -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_editing visibility -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 3 - Joint acceptance and guidance
+Active slice: None - all three slices integrated; controller full gate pending
 Plan: [Heading Presentation Plan](../plan/rev-org-headings.md)
 Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gate receipts own progress
 
@@ -82,8 +82,8 @@ approved commands. Slice 2 of 3 is delivered; Acta records integration.
 
 ## Slice 3: Joint acceptance and guidance
 
-State: reviewing; canonical PR [#240](https://forge.adrianpk.com/adrianpk/rev/pulls/240)
-prepared; final clean-head receipt pending.
+State: delivered; canonical PR [#240](https://forge.adrianpk.com/adrianpk/rev/pulls/240)
+merged into dev at `4bda46f32496016b514150f8fb4eb457786046f4`.
 Requirements: OGP01-OGP08 together.
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-org-headings-03-acceptance`
@@ -96,14 +96,27 @@ Report: `ops/default/report/slices/rev-org-headings/slice-3-acceptance.md`
   Unreleased without public deployment or font/package installation.
 - [x] T3.3: Prepare integrated dev for the unchanged controller full gate and
   preserve its exact receipt and representative measurements.
-- [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
+- [x] Record successful exact-HEAD validation, immutable report and canonical PR.
 
 Task commits: T3.1 `3124e9da400b4c2e775f7666cdbf314b337e960c`;
 T3.2 `26f182284dbd491d90832c65a895acf5a9920568`;
 T3.3 `5f57e7009c6cb7924420bd32ddc92e14c4b1192d`. Native/resource/four-PTY
 development acceptance and the existing shared terminal kernel-wake case pass.
-T3.3 prepares the report and local gate prerequisites; the unchanged integrated
-gate and delivery closure remain pending controller-owned integration.
+Canonical PR: [#240](https://forge.adrianpk.com/adrianpk/rev/pulls/240).
+Report introduction: `5f57e7009c6cb7924420bd32ddc92e14c4b1192d`.
+Final validation: receipt `JIACPRIUXO7FT3BFVZOIYNBTD5` passed all seven
+configured commands at the merged head: format, strict all-target Clippy,
+16 heading tests, native/resource/four-PTY acceptance, documentation, local
+Markdown-to-Spore build and whitespace, in 35.35 seconds. The checked catalogs
+contain 431 commands, 235 settings, 70 pages and 438 local links/anchors.
+Slice 3 of 3 is delivered; Acta records controller-owned integration.
+
+Gate preparation verified offline locked dependency resolution (91 packages),
+required tools, procfs, shell driver syntax and an owned PTY admission/TTY
+restoration probe. The driver recreates all finite fixtures for each run;
+no persistent fixture or service is required. All three canonical merged heads
+are ancestors of dev. The unchanged integrated full gate and delivery closure
+remain pending; the preparation checks do not substitute for that gate.
 
 ## Required validation prefixes
 
@@ -114,7 +127,7 @@ controller-owned integrated gate.
 
 ## Final gate and closure
 
-- [ ] Confirm all three canonical slices integrated in dev.
+- [x] Confirm all three canonical slices integrated in dev.
 - [ ] Pass the unchanged configured full gate on its exact clean candidate.
 - [ ] Record gate receipt, selected checks, actual build footprint and bounded
   native/PTY measurements in the existing reports.

@@ -1,6 +1,6 @@
 # Slice 3: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-headings
 Plan: [Heading Presentation Delivery](../../../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../../../tracker/rev-org-headings.md)
@@ -97,11 +97,14 @@ all-target Clippy: the unrelated wrap-navigation fixture owns its own
 three-argument terminal constructor. Its call was mistakenly included in the
 shared-constructor adaptation and is restored exactly. The shared owner still
 accepts the explicit filename; no terminal assertion or check is removed.
-Fresh exact-head evidence is required after this correction.
+The corrected candidate subsequently passed fresh exact-head validation below.
 
-After canonical PR references are committed/pushed, Looper records these exact
-ordered checks on the clean PR head. The canonical PR and retained receipt own
-that final result; the controller later records integrated gate evidence.
+Canonical PR #240 merged through controller-owned Rebase + Fast-forward into
+dev at `4bda46f32496016b514150f8fb4eb457786046f4` on
+2026-11-03T16:45:11Z. Receipt `JIACPRIUXO7FT3BFVZOIYNBTD5` passed these
+seven ordered checks on that exact clean head after PR-reference follow-ups,
+in 35.35 seconds. This closes Slice 3 of 3; integrated gate evidence remains
+pending controller execution.
 
 - `cargo fmt --all -- --check`
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
@@ -111,17 +114,34 @@ that final result; the controller later records integrated gate evidence.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh`
 - `git diff --check`
 
-Gate prerequisites are present locally: the installed Rust toolchain and cached
-locked dependencies, Linux procfs, Bash, rg, util-linux script, stty, kill,
-GNU timeout and Spore. The driver recreates and owns all fixtures per run;
-no persistent service, server, provider, font install or credential is needed.
-The guide build derives `target/userguide` from canonical Markdown and validates
-Spore locally. No publication follows this slice. Development target footprint
-was 935 MiB with 6335 MiB filesystem space and 6765 MiB available RAM before the
-final checks; all build output remains worktree-local.
+The final slice batch passed 16 heading tests (8.96 seconds), native cases in
+both profiles, all four PTYs, source quality, 431-command/235-setting catalog
+checks, 70 reachable documentation pages and 438 local links/anchors. It projected
+and built 70 Markdown pages locally through Spore. Its large fixture measured
+302752us startup, 20886us for 64 toggle/projections and 533719us for edit/undo,
+with 19964 kB peak RSS and zero native idle ticks. PTYs measured 49753-65426us
+startup, 12711-32337 output bytes and 12972-14268 kB peak RSS, all with zero idle
+ticks and restored TTYs. Final worktree-local target footprint was 1012 MiB.
+
+Gate preparation at 2026-11-03T16:47:53Z verified the installed Rust 1.98.0
+toolchain, Bash, rg, util-linux script, stty, kill, GNU timeout, C compiler,
+Spore and guide asset utilities. `cargo metadata --locked --offline --format-version 1`
+resolved 91 cached packages to the primary worktree's own target; no dependency
+acquisition or build was needed. Linux procfs is readable and an owned,
+five-second PTY admission/restoration probe passed and exited. Shell drivers
+passed Bash syntax checks. Filesystem admission was 6305 MiB free with
+7025 MiB available host RAM, above the plan's 1 GiB build admission floor.
+
+The driver recreates and owns every finite fixture per run; no persistent
+service, server, provider, font install or credential is needed. Its eight-second/
+1-MiB PTYs, native bounds and one-job release build remain unchanged. The guide
+build derives `target/userguide` from canonical Markdown and validates locally.
+All three canonical PR merges are ancestors of dev and recorded in Acta.
+The controller owns the unchanged full gate on the ensuing clean preparation
+commit; these prerequisite observations are not integrated gate evidence.
 
 ## Risks and Follow-ups
 
-The integrated full gate and delivery closure remain controller-owned and
-pending integration. Emitted Unicode protocol evidence does not establish the
-hosting terminal font's rasterization or glyph coverage.
+The integrated full gate and delivery closure remain pending controller
+execution. Emitted Unicode protocol evidence does not establish the hosting
+terminal font's rasterization or glyph coverage.
