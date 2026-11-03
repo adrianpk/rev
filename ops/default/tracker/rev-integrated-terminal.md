@@ -54,17 +54,17 @@ local 5 ms startup/zero idle CPU-tick observations in the Slice 1 report.
 
 ## Slice 2: Lower panel and native commands
 
-Status: implementing
+Status: reviewing
 Branch: `feat/rev-integrated-terminal-02-panel`
 Expected PR title: `feat(terminal): open interactive shells in the lower panel`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-2-panel.md`
-PR: pending
+PR: `#249`
 
 - [x] T2.1: Admit the complete [terminal] preference catalog, defaults, sample and candidate validation; retain structured shell argv, startup directory context and no startup process launch.
 - [x] T2.2: Open a real interactive terminal in the default lower panel, reuse its stable default session, show/hide with remembered size/focus and render cells through native display ownership.
 - [x] T2.3: Admit typed terminal-backed buffers through native navigation and command catalogs; guard source-only file/edit/completion/LSP/Org/AI actions without changing ordinary source buffers, and update Unreleased when the user-visible path works.
 
-Task evidence: T2.1 `47660f76771a` admits all seven startup preferences; T2.2 `c81964d0fa2f` wires native panel commands, cells, wake delivery and typed resource navigation. T2.3 completes source admission, bounded cell projection, effective bindings, Unreleased and native fixtures.
+Task evidence: T2.1 `47660f76771a` admits all seven startup preferences; T2.2 `c81964d0fa2f` wires native panel commands, cells, wake delivery and typed resource navigation. T2.3 `7d6e91c04df7` completes source admission, bounded cell projection, effective bindings, Unreleased and native fixtures.
 
 Validation: four focused native panel tests, two preference tests and focused source quality passed during development. Final acceptance uses the exact ordered Slice 2 commands and the clean PR HEAD recorded by the controller.
 Integration: pending canonical PR and controller verification.
