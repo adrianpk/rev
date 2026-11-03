@@ -4,7 +4,7 @@ These pages describe rev 0.4.0.
 
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
 your first file, then learn buffers, search, bookmarks, file browsing, preferences
-completion, optional modal editing, file reload and optional Pi editing.
+completion, optional modal editing, file reload, optional Pi editing and local shell text filters.
 
 - [Tutorials](tutorials/index.md): learn through the ordered User Guide.
 - [How-to guides](how-to/index.md): install rev or complete a specific task.

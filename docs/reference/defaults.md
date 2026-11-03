@@ -43,7 +43,9 @@ startup and editing exercise.
 ## Shell command preferences
 
 These global preferences are frozen at startup. Commands run only after explicit
-native invocation and accepted command input.
+native invocation and accepted command input. The [shell reference](shell-commands.md)
+defines stdin/stdout, checked publication and cancellation; the
+[User Guide](../tutorials/user-guide/15-shell-commands.md) shows a sort-and-undo exercise.
 
 | Setting | Type | Default | Behavior |
 | --- | --- | --- | --- |

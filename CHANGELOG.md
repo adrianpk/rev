@@ -9,14 +9,13 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Run explicit shell commands from M-x or colon, send unsaved regions as input,
-  replace a region or insert complete output in one undo step, and keep editing
-  while commands run. Inspect bounded output and diagnostics in read-only text
-  buffers. Use M-!, M-\| and their C-u insertion/filter sequences in non-modal
-  editing, or the shared commands through M-x/colon. Recall recent accepted shell
-  commands with M-p/M-n. Cancel from the source after inner prompts close, and
-  see running/stopping status while a job is active. Edits require valid complete
-  stdout and an unchanged writable target.
+- [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
+  from M-x or colon, send selected unsaved text to tools such as sort/tr, and
+  replace a region or insert complete stdout in one undo step. Keep editing while
+  a command runs, cancel it from its source and inspect retained read-only output
+  or diagnostics. Use M-!, M-\| and their C-u insert/filter sequences in non-modal
+  editing, with M-p/M-n prompt history. Automatic edits require an unchanged
+  writable target; failures and stale results preserve source.
 
 ## 0.4.0 - 2026-11-03
 

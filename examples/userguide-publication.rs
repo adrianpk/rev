@@ -631,7 +631,7 @@ mod tests {
         );
         let mut fragments = BTreeMap::new();
         let output = project(
-            "# Sample\n\n| Key | Description |\n| --- | --- |\n| `C-x` | [Save](save.md) |\n",
+            "# Sample\n\n| Key | Description |\n| --- | --- |\n| `C-x` | [Save](save.md) |\n| `M-\\|` | Shell output |\n",
             Path::new("reference/example.md"),
             &mut fragments,
         )?;
@@ -639,6 +639,7 @@ mod tests {
         let fragment = fragments.values().next().ok_or("Missing table")?;
         assert!(fragment.contains("@table{"));
         assert!(fragment.contains("@code{@verbatim{C-x}}"));
+        assert!(fragment.contains("@code{@verbatim{M-|}}"));
         assert!(fragment.contains("@link[to = \"save.html\"]"));
         Ok(())
     }

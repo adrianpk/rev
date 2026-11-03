@@ -89,7 +89,10 @@ fn names(sources: &[String], column: Option<usize>) -> Vec<String> {
             inventory
                 .lines()
                 .filter(|line| line.starts_with('|'))
-                .map(|line| column.map_or(line, |index| line.split('|').nth(index).unwrap_or("")))
+                .map(|line| {
+                    // Canonical delimiters include spaces; M-\| stays inside its key cell.
+                    column.map_or(line, |index| line.split(" | ").nth(index - 1).unwrap_or(""))
+                })
                 .flat_map(|line| line.split('`').skip(1).step_by(2).map(str::to_owned))
         })
         .collect()

@@ -622,6 +622,10 @@ never recovered by stripping markup and never enter accepted source text.
 
 ## One-shot shell commands
 
+Follow [Run Shell Commands](../tutorials/user-guide/15-shell-commands.md) for a
+sort-and-undo exercise, or see the [shell reference](shell-commands.md) for exact
+commands, bounds and lifecycle.
+
 Run `M-x shell-command` or `:shell-command`, then accept a literal command such
 as `printf 'hello\n'`. The selected shell receives the accepted command as one
 argument after `shell.args`, with stdin immediately closed and no source text.

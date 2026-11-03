@@ -264,3 +264,42 @@ group has 35 seconds. Only owned completed fixtures are removed.
 These measurements describe the local run. Emitted Unicode characters establish
 terminal protocol behavior; glyph appearance and ligatures belong to the
 hosting terminal.
+
+## Run shell command acceptance
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-shell-commands.sh
+```
+
+This journey needs Linux, the locked repository toolchain and cached dependencies,
+Bash, installed sh/sort/tr/cat/sleep, `rg`, util-linux `script`, `stty`, `kill`
+and GNU `timeout`. It builds the release editor, driver and source checker with
+one job, after requiring 1 GiB free on the private target filesystem. HOME/XDG
+stores and sources belong to one temporary fixture. No provider or language
+server is used.
+
+Native journeys exercise both profiles with real commands, unsaved Unicode/CRLF,
+checked filters/insertion and ordinary undo, readonly and stale targets, an
+atomic external reload while a child is still active, and owned cancellation.
+Source quality covers shell configuration/prompt/publication, the shared process
+helper, activity status, crate roots and acceptance modules. Its safe-Rust,
+five-parameter, three-level nesting and complexity limits remain unchanged.
+
+The finite resource case supplies exactly the default 8 MiB input bound to real
+tr, verifies the complete retained stdout and native inserted/removed history
+bytes, then undoes once. Output records snapshot and collection/publication time,
+undo observation, peak RSS, thread counts and 350 ms idle CPU. It requires no
+post-job deadline, no remaining shell worker and at most one idle CPU tick.
+These are local observations, not hardware-independent latency or RSS promises.
+
+Two real PTYs cover non-modal sequences and modal Visual/colon invocation,
+canonical Unicode selection, sort/tr output, one-step undo, inner prompt
+cancellation before source job cancellation, descendant reaping and resize from
+100x24 to 72x18. Each retains the existing eight-second/1-MiB limit and verifies
+unchanged disk bytes, restored termios, cursor visibility, alternate-screen exit
+and bracketed-paste shutdown. The driver checks post-job terminal silence and CPU.
+Native, resource and two-PTY groups have 20-second outer guards. Only completed
+owned fixtures are removed.
+
+For focused development, the same script accepts `--native`, `--resources` or
+`--pty`; the ordinary command above runs all three and is the canonical gate.

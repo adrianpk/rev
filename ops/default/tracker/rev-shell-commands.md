@@ -92,7 +92,7 @@ formatting, strict Clippy and documentation. The canonical PR contract check pas
 
 ## Slice 4: Joint acceptance and guidance
 
-State: implementing
+State: reviewing
 Dependency: Slice 3 integrated.
 Branch: `feat/rev-shell-commands-04-acceptance`
 Expected PR title: `test(shell): verify shell commands and document text filters`
@@ -100,8 +100,15 @@ Report: `ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md`
 
 - [x] T4.1: Add examples/shell-command-acceptance.rs and scripts/check-shell-commands.sh using existing native/Rust/PTY support, real installed sh/sort/tr and isolated fixtures; add focused source-quality coverage for the new owners.
 - [x] T4.2: Measure finite near-limit input, collection/publication and post-job idle behavior; verify both profiles in representative Linux PTYs with resize, cancellation, canonical selection, undo and terminal restoration.
-- [ ] T4.3: Add approachable Markdown guidance and exact references/defaults/bindings, link them through the existing editor path and Spore projection, and finalize meaningful Unreleased notes. Prepare clean dev for the unchanged controller gate.
+- [x] T4.3: Add approachable Markdown guidance and exact references/defaults/bindings, link them through the existing editor path and Spore projection, and finalize meaningful Unreleased notes. Prepare clean dev for the unchanged controller gate.
 - [ ] Record exact-head validation, immutable report link and canonical PR.
+
+Task commits: T4.1 `db7c3fb38c81db7b7f471d667f72e16cbc130ebe`,
+T4.2 `306286125fae9c44629a84c80d65c135c59e78b9`.
+T4.3 introduces the canonical report and completes the User Guide/reference/Spore
+path. Development native/resource/PTY checks passed with unchanged source-quality
+and terminal limits. Exact clean-head focused/configured receipts follow the
+canonical PR reference and push.
 
 ## Validation and controller ownership
 

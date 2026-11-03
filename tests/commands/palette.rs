@@ -561,7 +561,8 @@ fn catalog_reference() {
         let names = source
             .lines()
             .filter(|line| line.starts_with('|'))
-            .map(|line| column.map_or(line, |index| line.split('|').nth(index).unwrap()))
+            // Keep escaped pipe keys inside the documented key cell.
+            .map(|line| column.map_or(line, |index| line.split(" | ").nth(index - 1).unwrap()))
             .flat_map(|line| line.split('`').skip(1).step_by(2))
             .collect::<Vec<_>>();
         let documented = names

@@ -5,7 +5,7 @@ Open a file, make a change and save it. Start there; no configuration is needed.
 If rev is not installed yet, follow [Install rev](../../how-to/install-rev.md).
 These chapters describe rev 0.4.0, using default key bindings and small files
 you create yourself. The default path uses Emacs direct entry; later
-chapters offer startup-selected modal editing, optional language servers, external reload and optional Pi editing.
+chapters offer startup-selected modal editing, optional language servers, external reload, optional Pi editing and local shell text filters.
 
 1. [Edit Your First File](01-first-file.md): write, save, quit and reopen.
 2. [Move and Edit Text](02-edit-text.md): select, copy, move and undo text.
@@ -19,6 +19,7 @@ chapters offer startup-selected modal editing, optional language servers, extern
 
 10. [Follow External File Changes](13-file-reload.md): observe a replacement, keep unsaved text and explicitly reload.
 11. [Edit with Pi](14-ai-editing.md): inspect and accept a proposal, undo it and reuse an instruction.
+12. [Run Shell Commands](15-shell-commands.md): sort unsaved text, inspect output and undo a checked filter.
 
 Read in order when learning, or return directly to a chapter you need.
 Each chapter links to the next one and to its supporting reference.
