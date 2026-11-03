@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: Slice 4 - Gate repair 1
+Active slice: None - all slices and gate repair 1 integrated; controller full gate pending
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -127,7 +127,7 @@ Keep the plan's one-job/no-debug/no-incremental profile, 1 GiB admission floor
 and narrowly owned completed-slice target cleanup. Do not clean shared targets
 or unrelated worktrees.
 
-Gate preparation on 2026-11-03 verified Rust/Cargo 1.98, Clippy, rustfmt,
+Initial gate preparation on 2026-11-03 verified Rust/Cargo 1.98, Clippy, rustfmt,
 Spore and every shell/PTY driver utility. Locked offline metadata resolved all
 91 packages and confirmed the primary private target path. The executable
 drivers create their own isolated HOME/XDG, source and PTY fixtures and clean up their owned
@@ -138,32 +138,43 @@ Source worktrees and receipts remain available. The 1 GiB filesystem admission
 floor was met at preparation and remains required before each controller build.
 The unchanged combined gate was not run by the preparation worker.
 
-Gate repair 1: [#246](https://forge.adrianpk.com/adrianpk/rev/pulls/246), reviewing
+Gate repair 1: [#246](https://forge.adrianpk.com/adrianpk/rev/pulls/246), delivered
 on `fix/rev-shell-commands-validation-1`, exact title
 `fix(shell): repair approved command and filter acceptance`, existing Slice 4
 report. Controller gate receipt `RSHBYQUHAMXM7FQYNTWOPSLFQS` failed on
 `858c50f64105cde67ee128e1cb1d0c90b96cc9df` at
 `configuration::reference::sample_maps`: the packaged keymaps omit the compiled
-shell bindings. Repair only the seven affected template maps; keep complete
-declared/effective-map equality, runtime behavior and all gate commands intact.
+shell bindings. The repair completed the seven affected template maps and their
+documented counts, retaining complete declared/effective-map equality, runtime
+behavior and all gate commands.
 The retained configuration binary reproduced the missing VimNormal M-! and M-|
-entries. Focused regression and the pinned five-command repair prefix precede
-controller integration and the unchanged combined gate.
+entries. Focused regression and the pinned five-command repair prefix passed
+before controller integration.
 Focused receipt `ZLBTP4HTQ6ZICAKCSZP7MAB3GN` passed both packaged-template
 tests and `git diff --check` at `353d33651463f85f76e46471dc938aeb01eb9454`.
-The final canonical PR receipt owns the clean head after this reference follow-up
-and the exact five-command repair prefix.
 The first final receipt `7O7DA2WCJ7EMSOOOOYYYDL3DBH` passed format,
 Clippy and all 349 affected tests on `c390a68ecdfa38974a7acc7ff08135b17aa376c3`,
-then rejected stale documented keymap counts. Correct the seven defaults.md
-counts alongside the complete template, retain every assertion, and regenerate
-the same ordered repair prefix on the new clean canonical PR head.
+then rejected stale documented keymap counts. The seven defaults.md counts were
+corrected alongside the complete template without changing assertions.
+Canonical PR #246 merged into dev at `02e7e77b57ecb219f01e33b5d93d6dd7124b1bc7`.
+Final receipt `VCK427Z65VUKAXGHWR7UJ5F3S2` passed all five required repair
+commands on that exact clean head: format, strict Clippy, all 349 affected tests,
+documentation and `git diff --check`. Documentation covered 437 commands,
+240 preferences, 73 pages and 458 local links/anchors.
+
+Post-repair gate preparation reverified the same tools, executable drivers and
+all 91 locked offline packages. The drivers own their transient fixtures; no
+persistent service is required. The integrated repair's private target alone
+was reclaimed after exact path, clean-source, merged-PR/ancestry,
+retained-receipt and inactive-target checks. Source and receipts remain available.
+The 1 GiB filesystem admission floor was met and remains required before each
+controller build. The preparation worker did not run the combined gate.
 
 ## Final gate and closure
 
 - [x] All four canonical PRs are integrated into dev.
 - [ ] Controller records the unchanged combined gate on clean integrated dev.
-- [ ] All reports are delivered with exact candidate/receipt evidence.
+- [x] All reports are delivered with exact candidate/receipt evidence.
 - [ ] Plan/tracker/spec/model and pending index reflect completion.
 - [ ] Closure changes only configured documentation paths.
 - [ ] Closure is committed/pushed; clean dev matches origin/dev.

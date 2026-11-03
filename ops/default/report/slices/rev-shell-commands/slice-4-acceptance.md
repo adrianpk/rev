@@ -1,6 +1,6 @@
 # Slice 4: Joint acceptance and guidance
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
@@ -175,10 +175,25 @@ Repair receipt `7O7DA2WCJ7EMSOOOOYYYDL3DBH` on
 and all 349 shell/configuration/command tests, including complete sample maps.
 Documentation then rejected `keys.editor: compiled map count drift`: the seven
 existing keymap rows in defaults.md still described the smaller incomplete
-template. Update their exact counts to 80/139/81/80/121/121/117 for
-Editor/Normal/Insert/Replace/Visual Character/Line/Block. Preserve the count
-assertion and both complete-map assertions; regenerate the same five-command
-prefix on the corrected clean canonical PR head.
+template. Their exact counts were corrected to 80/139/81/80/121/121/117 for
+Editor/Normal/Insert/Replace/Visual Character/Line/Block, preserving the count
+assertion and both complete-map assertions.
+
+Canonical repair PR #246 merged into dev at
+`02e7e77b57ecb219f01e33b5d93d6dd7124b1bc7`. Final controller receipt
+`VCK427Z65VUKAXGHWR7UJ5F3S2` passed the exact five-command repair prefix
+on that clean candidate:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands --test configuration --test commands -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+All 163 command, 151 configuration and 35 shell tests passed. Documentation
+validated 437 commands, 240 preferences, 73 reachable pages and 458 local
+links/anchors. The controller's unchanged combined gate remains pending;
+preparation did not run it.
 
 ## Risks and Follow-ups
 
