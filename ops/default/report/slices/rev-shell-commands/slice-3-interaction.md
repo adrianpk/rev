@@ -5,7 +5,7 @@ Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
 Branch: `feat/rev-shell-commands-03-interaction`
-PR: pending
+PR: `#244`
 
 ## Purpose
 
@@ -42,7 +42,7 @@ editing profiles, with checked interaction ownership and finite job lifecycle.
   the bounded shell-specific native prompt history and actual command cases.
 - `T3.2`: `9e408f818be84c70ba87fa06a821ba061c7a1a5f` fences completion echo
   after later interactions and exercises shared invocation and owned lifecycle.
-- `T3.3`: this report-introduction commit completes frame/status/idle integration,
+- `T3.3`: `fd88363c0e76fdde404288d13c3ba82a737303cc` completes frame/status/idle integration,
   reconciles references and revises the existing Unreleased capability entry.
 - Shell history is separate from named-command history. It records only commands
   admitted by the session after successful operation acquisition, with no disk

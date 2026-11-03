@@ -79,11 +79,12 @@ Report: `ops/default/report/slices/rev-shell-commands/slice-3-interaction.md`
 - [x] T3.1: Wire the four non-modal M-!/M-|/C-u sequences through effective native keymaps and prompt history; preserve Org C-u prefixes, configured overrides and modal motions.
 - [x] T3.2: Exercise shared M-x/colon invocation, Visual-origin selection, inner cancellation priority, no focus stealing, output reopening, one active job, source rebind and ordinary save/quit decisions with owned cleanup.
 - [x] T3.3: Complete startup/frame/status and idle integration without an always-running worker or idle timer. Reconcile command/configuration catalogs and delivered Unreleased behavior in the same slices.
-- [ ] Record exact-head validation, immutable report link and canonical PR.
+- [x] Record immutable report introduction and canonical PR: [#244](https://forge.adrianpk.com/adrianpk/rev/pulls/244).
 
 Task commits: T3.1 `7a898d22c8e867cf4dbfd2ab76f7b98a104d434e`,
 T3.2 `9e408f818be84c70ba87fa06a821ba061c7a1a5f`.
-T3.3 introduces the canonical report and completes frame/status/idle integration.
+T3.3 `fd88363c0e76fdde404288d13c3ba82a737303cc`.
+Report introduction: [Slice 3 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/fd88363c0e76fdde404288d13c3ba82a737303cc/ops/default/report/slices/rev-shell-commands/slice-3-interaction.md).
 Focused development checks passed 17 native/keymap/modal cases; the configured
 ordered prefix runs on the final clean PR head through the controller.
 
