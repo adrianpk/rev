@@ -9,6 +9,8 @@ mod org_export;
 mod org_headings;
 #[path = "configuration/shell.rs"]
 mod shell;
+#[path = "configuration/terminal.rs"]
+mod terminal;
 
 #[path = "configuration/associations.rs"]
 mod associations;

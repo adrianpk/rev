@@ -213,6 +213,7 @@ fn models(root: &Path) -> Result<Models> {
         "src/config/lsp.rs",
         "src/config/ai.rs",
         "src/config/shell.rs",
+        "src/config/terminal.rs",
         "src/config/export.rs",
         "src/config/publishing.rs",
         "src/config/source.rs",

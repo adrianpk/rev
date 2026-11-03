@@ -47,6 +47,7 @@ fn checked_document(
     editing(document)?;
     super::ai::validate(&document.ai)?;
     super::shell::validate(&document.shell)?;
+    super::terminal::validate(&document.terminal)?;
     completion_and_lsp(document)?;
     bookmarks(&document.bookmarks)?;
     gutter(document)?;

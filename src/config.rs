@@ -20,6 +20,8 @@ pub use source::{
     PartialSourcePrograms, ProgramAction, ProgramStep, SourceCwd, SourceDelivery, SourceProgram,
     SourcePrograms, SourceResult,
 };
+mod terminal;
+pub use terminal::{PartialTerminal, Terminal};
 mod shell;
 pub use shell::{PartialShell, Shell};
 mod ai;
@@ -93,6 +95,7 @@ pub struct Settings {
     pub lsp: Lsp,
     pub ai: Ai,
     pub shell: Shell,
+    pub terminal: Terminal,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: Palette,
@@ -124,6 +127,7 @@ pub struct Document {
     pub lsp: PartialLsp,
     pub ai: PartialAi,
     pub shell: PartialShell,
+    pub terminal: PartialTerminal,
     pub language: BTreeMap<String, Language>,
     pub keys: Keymaps,
     pub palette: PartialPalette,

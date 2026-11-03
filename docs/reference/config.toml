@@ -21,6 +21,16 @@ timeout_seconds = 600
 max_input_bytes = 8388608
 max_output_bytes = 8388608
 
+# Interactive terminals; loading preferences never launches a process.
+[terminal]
+program = ""
+args = []
+panel_height = 10
+max_sessions = 8
+scrollback_lines = 2000
+max_pending_input_bytes = 262144
+max_pending_output_bytes = 262144
+
 [editor]
 # Startup-only profile: "non-modal" (Emacs-like) or "modal" (Vim-like).
 # Restart after changes; language and buffer settings cannot switch profiles.

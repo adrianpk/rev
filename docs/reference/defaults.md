@@ -55,6 +55,22 @@ defines stdin/stdout, checked publication and cancellation; the
 | `shell.max_input_bytes` | Integer 1..=16777216 | `8388608` | Maximum captured region input in UTF-8 bytes. |
 | `shell.max_output_bytes` | Integer 1..=16777216 | `8388608` | Aggregate stdout plus stderr bytes; excess fails without admitting partial output. |
 
+## Interactive terminal preferences
+
+These global preferences are frozen at startup and separate from one-shot
+shell commands. Loading configuration does not launch a terminal process.
+Arguments remain structured values; no command string or implicit `-c` is added.
+
+| Setting | Type | Default | Behavior |
+| --- | --- | --- | --- |
+| `terminal.program` | String | `""` | Empty selects the nonempty startup SHELL value, then /bin/sh. Otherwise one executable, at most 4096 UTF-8 bytes without NUL. |
+| `terminal.args` | Array of strings | `[]` | Whole-array replacement, including an empty array; at most 32 strings and 16384 combined UTF-8 bytes without NUL. |
+| `terminal.panel_height` | Integer 3..=200 | `10` | Preferred terminal content rows, clamped to valid geometry that preserves usable source panes. |
+| `terminal.max_sessions` | Integer 1..=32 | `8` | Owned live and exited sessions; explicit closure releases capacity. Cell admission can reject a session before this count is reached. |
+| `terminal.scrollback_lines` | Integer 0..=20000 | `2000` | Requested retained rows, additionally constrained by cell and extra-storage admission. |
+| `terminal.max_pending_input_bytes` | Integer 4096..=1048576 | `262144` | Complete input sequences are accepted atomically into this bound. |
+| `terminal.max_pending_output_bytes` | Integer 4096..=1048576 | `262144` | Maximum pre-parser output; direct bounded reads apply PTY backpressure without an accumulating output queue. |
+
 ## Startup configuration
 
 The [complete English reference sample](config.toml) contains every supported
