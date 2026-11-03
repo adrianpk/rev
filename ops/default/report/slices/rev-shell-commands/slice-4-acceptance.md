@@ -1,11 +1,11 @@
 # Slice 4: Joint acceptance and guidance
 
-Status: delivered
+Status: reviewing
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
-Branch: `feat/rev-shell-commands-04-acceptance`
-PR: `#245`
+Branch: `fix/rev-shell-commands-validation-1`
+PR: pending
 
 ## Purpose
 
@@ -143,6 +143,22 @@ clean head:
 The immutable report introduction is `591267724625605c25936a6309d09c8386522821`.
 All PR-reference follow-ups were pushed before validation. The unchanged
 integrated gate remains controller-owned and pending.
+
+Gate repair 1 addresses controller receipt `RSHBYQUHAMXM7FQYNTWOPSLFQS`
+on failed base `858c50f64105cde67ee128e1cb1d0c90b96cc9df`. Format,
+strict Clippy and 163 command tests passed, then configuration's existing
+`reference::sample_maps` rejected the packaged VimNormal map. Focused execution
+of the retained configuration binary reproduced the absent M-! and M-| entries.
+The other modal maps derive from the same editor defaults and need their matching
+declarations too. Add four compiled shell bindings to Editor/Insert/Replace and
+two M- bindings to Normal/Visual character/line/block. This repairs the packaged
+factory template without changing compiled behavior or extending modal C-u
+motions. Keep both complete declared-map and effective-map equality assertions.
+
+The repair uses the original gate-repair policy, the pinned branch/title and
+this existing report. Focused template regression and the exact five-command
+repair prefix are recorded through the controller after clean commits; the
+unchanged combined gate remains the controller's responsibility.
 
 ## Risks and Follow-ups
 

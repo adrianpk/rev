@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: None - all four slices integrated; controller full gate pending
+Active slice: Slice 4 - Gate repair 1
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -136,13 +136,24 @@ Only the integrated Slice 3 private target was reclaimed after exact path,
 clean-source, merged-PR/ancestry, retained-receipt and inactive-target checks.
 Source worktrees and receipts remain available. The 1 GiB filesystem admission
 floor was met at preparation and remains required before each controller build.
-The unchanged combined gate has not been run by the preparation worker.
+The unchanged combined gate was not run by the preparation worker.
+
+Gate repair 1: pending on `fix/rev-shell-commands-validation-1`, exact title
+`fix(shell): repair approved command and filter acceptance`, existing Slice 4
+report. Controller gate receipt `RSHBYQUHAMXM7FQYNTWOPSLFQS` failed on
+`858c50f64105cde67ee128e1cb1d0c90b96cc9df` at
+`configuration::reference::sample_maps`: the packaged keymaps omit the compiled
+shell bindings. Repair only the seven affected template maps; keep complete
+declared/effective-map equality, runtime behavior and all gate commands intact.
+The retained configuration binary reproduced the missing VimNormal M-! and M-|
+entries. Focused regression and the pinned five-command repair prefix precede
+controller integration and the unchanged combined gate.
 
 ## Final gate and closure
 
 - [x] All four canonical PRs are integrated into dev.
 - [ ] Controller records the unchanged combined gate on clean integrated dev.
-- [x] All reports are delivered with exact candidate/receipt evidence.
+- [ ] All reports are delivered with exact candidate/receipt evidence.
 - [ ] Plan/tracker/spec/model and pending index reflect completion.
 - [ ] Closure changes only configured documentation paths.
 - [ ] Closure is committed/pushed; clean dev matches origin/dev.

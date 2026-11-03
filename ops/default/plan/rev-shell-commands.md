@@ -11,7 +11,7 @@ Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Tracker: [Shell Commands Tracker](../tracker/rev-shell-commands.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands --test configuration --test commands --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-shell-commands.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None - all four slices integrated; controller full gate pending
+Active slice: Slice 4 - Gate repair 1
 
 ## Outcome and authority
 
@@ -180,6 +180,14 @@ Allow at most two bounded correction PRs for affected shell acceptance, preservi
 the same frozen commands, run, conversation, counters and reports. Do not modify
 Looper, add slices/dependencies, weaken assertions or change product scope to
 make a check pass.
+
+Gate repair 1 retains Slice 4 and its existing report. Failed base:
+`858c50f64105cde67ee128e1cb1d0c90b96cc9df`; branch:
+`fix/rev-shell-commands-validation-1`; exact PR title:
+`fix(shell): repair approved command and filter acceptance`.
+The checkpoint's original gate-repair policy covers this repair. Complete the
+packaged shell keymaps within its allowed paths; preserve all runtime bindings,
+complete-map assertions, resource limits and the unchanged controller gate.
 
 Only the following documentation paths may change during final closure:
 
