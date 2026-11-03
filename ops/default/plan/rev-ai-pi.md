@@ -236,7 +236,7 @@ git diff --check
 
 ### Slice 7: Reusable AI commands
 
-Ticket: [Reusable AI commands](../ticket/ready/20261102211112-save-and-bind-ai-commands.md)
+Ticket: [Reusable AI commands](../ticket/reviewing/20261102211112-save-and-bind-ai-commands.md)
 Requirements: PI01, PI06, PI08; AI03, AI04, AI14, AI18.
 Dependencies: Slice 6 integrated; preserve all earlier contracts.
 

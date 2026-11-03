@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211112
 title: Reusable AI commands
-status: ready
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -10,7 +10,10 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:12Z
 ready_at: 2026-11-02T21:11:12Z
-commits: []
+started_at: 2026-11-03T01:06:17Z
+branch: feat/rev-ai-pi-07-definitions
+reviewed_at: 2026-11-03T01:21:25Z
+commits: [8f349aca77a480575a4738c4b5a43d05922e809a, 9509b8d606a1933dc641e0fccd0c0ac3583a2b84]
 ---
 
 # Reusable AI commands
@@ -47,3 +50,13 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Bounded literal definitions resolve through the shared command/keymap owners.
+Successful instructions save through the conflict-checked root publisher and
+activate only the chosen definition. Seven focused cases, strict library lint,
+all-test compilation and documentation catalogs passed. Native tests use an
+owned controlled RPC peer and real isolated settings publication; no external
+provider requests are claimed. The Slice 7 report records commands and bounds.
+Final clean-head validation follows the PR-reference commits through Looper.

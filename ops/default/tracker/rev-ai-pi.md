@@ -192,20 +192,25 @@ Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
 
 ### Slice 7: Reusable AI commands
 
-State: active.
-Ticket: [Reusable AI commands](../ticket/ready/20261102211112-save-and-bind-ai-commands.md)
+State: reviewing.
+Ticket: [Reusable AI commands](../ticket/reviewing/20261102211112-save-and-bind-ai-commands.md)
 Requirements: PI01, PI06, PI08; AI03, AI04, AI14, AI18.
 Dependencies: Slice 6 integrated.
 Branch: `feat/rev-ai-pi-07-definitions`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-7-definitions.md`
 
-- [ ] T7.1: Admit bounded literal ai.commands definitions and dynamic ai-name resolution in the shared M-x/colon catalog, preserving typed input/context/output combinations and name collision rules.
-- [ ] T7.2: Implement ai-save-command through the existing format-preserving conflict-checked root publisher; activate the validated definition while retaining ordinary startup keybinding semantics.
-- [ ] T7.3: Verify include/source conflicts, user comments, profile keymaps, narrow input context after broad directory history and reuse with a fresh native target and optional Pi model.
+- [x] T7.1: Admit bounded literal ai.commands definitions and dynamic ai-name resolution in the shared M-x/colon catalog, preserving typed input/context/output combinations and name collision rules.
+- [x] T7.2: Implement ai-save-command through the existing format-preserving conflict-checked root publisher; activate the validated definition while retaining ordinary startup keybinding semantics.
+- [x] T7.3: Verify include/source conflicts, user comments, profile keymaps, narrow input context after broad directory history and reuse with a fresh native target and optional Pi model.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation commits: `8f349aca77a480575a4738c4b5a43d05922e809a` (T7.1/T7.2) and
+`9509b8d606a1933dc641e0fccd0c0ac3583a2b84` (T7.3). Seven focused definition cases,
+strict library lint and all-test compilation passed. Documentation catalogs
+passed 429 commands, 231 configuration entries, 68 pages and 415 links/anchors.
+Native journeys cover fresh targets, narrow context, real scoped publication,
+source conflicts and restart-bound keymaps with a controlled peer. Final
+clean-head validation follows PR-reference commits through the controller.
 
 ### Slice 8: Joint acceptance and guidance
 
