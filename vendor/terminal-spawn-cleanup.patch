@@ -1,0 +1,22 @@
+--- a/src/tty/unix.rs
++++ b/src/tty/unix.rs
+@@ -298,8 +298,11 @@
+-        Err(err) => Err(Error::new(
+-            err.kind(),
+-            format!(
+-                "Failed to spawn command '{}': {}",
+-                builder.get_program().to_string_lossy(),
+-                err
+-            ),
+-        )),
++        Err(err) => {
++            unregister_signal(sig_id);
++            Err(Error::new(
++                err.kind(),
++                format!(
++                    "Failed to spawn command '{}': {}",
++                    builder.get_program().to_string_lossy(),
++                    err
++                ),
++            ))
++        },

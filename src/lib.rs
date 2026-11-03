@@ -24,6 +24,7 @@ pub mod search;
 pub mod session;
 mod shell;
 pub mod syntax;
+pub mod term;
 pub mod terminal;
 pub mod tree;
 pub mod view;

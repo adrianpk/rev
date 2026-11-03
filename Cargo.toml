@@ -11,6 +11,7 @@ name = "source-check"
 test = true
 
 [dependencies]
+alacritty_terminal = { version = "=0.26.0", default-features = false }
 crossterm = "=0.29.0"
 ropey = { version = "=1.6.1", default-features = false, features = ["simd"] }
 unicode-segmentation = "=1.13.3"
@@ -30,7 +31,10 @@ toml = { version = "=1.1.8", default-features = false, features = ["parse", "ser
 toml_edit = { version = "=0.25.17", default-features = false, features = ["parse", "display"] }
 serde = { version = "=1.0.229", features = ["derive"] }
 serde_json = "=1.0.154"
-rustix = { version = "=1.1.5", features = ["process", "fs", "event"] }
+rustix = { version = "=1.1.5", features = ["process", "fs", "event", "termios"] }
 
 [dev-dependencies]
 tree-sitter-python = "=0.25.0"
+
+[patch.crates-io]
+alacritty_terminal = { path = "vendor/alacritty_terminal-0.26.0" }
