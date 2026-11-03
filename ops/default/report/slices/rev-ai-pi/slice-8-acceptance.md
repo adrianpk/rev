@@ -57,6 +57,9 @@ fresh input-only history, no tools, a four-turn/eight-call guard, a 45-second
 request deadline and an outer one-minute guard. It never prints authentication
 or response content.
 
+History correction: `47928e8b376385049bf249ff76fd6e8299a6447d`.
+Acceptance/report introduction: `b8fadd21cef5f9b8c34f3737965cc0ca908f289a`.
+
 ## Contracts Added or Changed
 
 T8.1 connects EFC01-EFC08 and PI01-PI08 at their actual notification, native

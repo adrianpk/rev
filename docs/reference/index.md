@@ -13,6 +13,8 @@ Use this section to look up exact behavior. For a guided start, read the
 - [Native completion](completion.md): automatic/manual names, structural language contexts and checked acceptance.
 - [Language servers](language-servers.md): guided setup, managed recipes, source selection, shared lifetimes and semantic edits.
 - [Language-server configuration example](language-server-example.toml): complete installed/custom launch fields and per-language preferences.
+- [File reload](commands.md#reload-a-visiting-file): checked revert, automatic observation and unsaved-text protection.
+- [Pi-backed AI](commands.md#selection-explanations-through-pi): checked proposals, guarded context, private sessions and reusable commands.
 - [Named bookmarks](commands.md#named-bookmarks): checked locations, persistent storage, listing and gutter markers.
 - [File tree](file-tree.md): root selection, focus and filesystem operations.
 - [Rectangles](rectangles.md): display-column selection and separate retained rows.

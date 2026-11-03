@@ -8,7 +8,7 @@ This project uses Semantic Versioning.
 
 ### Added
 
-- Use optional Pi 1.3.0 to explain a selection or propose generated text with
+- [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
   Continue editing while it runs and inspect read-only results. Explicitly
   apply a proposal once to its original checked selection or point, undo it
@@ -24,7 +24,7 @@ This project uses Semantic Versioning.
   profile keymaps. Choose input-only context or guarded directory discovery for
   each definition.
 
-- Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
+- [Follow external file changes](docs/tutorials/user-guide/13-file-reload.md) and reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane
   positions, and undo the reload without changing the file on disk. Clean visiting
   files now refresh automatically after external writes or replacement, including

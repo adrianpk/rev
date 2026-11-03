@@ -192,3 +192,46 @@ cases have a 90-second outer guard and finite management/semantic observations.
 Output separates driver/server RSS, idle CPU ticks, payload/editor bytes, fixture
 disk usage and runtime. Only owned roots, children and PTYs are removed after
 their checks finish. The script does not run the combined delivery-set gate.
+
+## Run joint Pi and reload acceptance
+
+Pin the installed native Pi 1.3.0 executable, then run the offline journey:
+
+```sh
+export REV_PI_EXECUTABLE=/absolute/path/to/installed/pi
+bash scripts/check-ai-pi.sh
+```
+
+The script refuses an updater or shell wrapper and never installs Pi. It needs
+Linux, cached locked Cargo dependencies, Bash, util-linux `script`, `stty` and
+GNU `timeout`. JavaScript resources run inside Pi's installed runtime; no
+separate Python, Node or npm build step is required. The script builds the
+normal release editor and Rust driver with two jobs.
+
+Owned HOME/XDG/Pi roots isolate both startup profiles. A validation-only local
+provider emits controlled model events without HTTP, while the actual Pi
+runtime performs RPC, read/list/search tools and history reconstruction. Checks
+compare actual tool bytes/results, unsaved snapshot precedence, rejected private,
+traversing, escaping, missing, binary and oversized reads, compatible-child reuse,
+restart/reset, private limits, idle expiry and owned exit. Native publication
+checks one undo, unchanged disk bytes and stale-result refusal after a real
+atomic notification reload. Missing Pi leaves ordinary edit/undo usable.
+
+Real PTYs preserve another command's input across a kernel-triggered reload,
+reject the stale AI proposal and restore terminal attributes on owned exit.
+Each retains the existing eight-second/1-MiB bound. Native journeys have a
+35-second outer guard. Output records startup/reload timing, editor RSS,
+external Pi RSS and idle CPU separately. Voluntary context switches are labeled
+as such; they are not a claim to measure every kernel wakeup. Cleanup removes
+only completed owned fixtures. These local observations establish no machine
+independent latency or RSS guarantee.
+
+A real-provider observation is deliberately separate from the repeatable gate.
+The Rust driver's explicit `--live` mode requires `REV_PI_LIVE=1`, an unused toy
+root and existing working Pi authentication/default model. It submits one fresh
+input-only toy explanation, disables context tools/history, caps model turns at
+four and tool calls at eight, and uses a 45-second request deadline with bounded
+cleanup within a minute. It reports model, counts and timing without printing
+authentication or the response. Do not put that mode in automatic gate retries.
+Record the actual authentication form separately; offline fixtures do not prove
+OAuth or API-key provider availability.

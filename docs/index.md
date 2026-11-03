@@ -1,10 +1,10 @@
 # Documentation
 
-These pages describe rev 0.3.0.
+These pages describe rev 0.3.0 and the Unreleased development additions.
 
 Start with the [User Guide](tutorials/user-guide/index.md) to open, edit and save
 your first file, then learn buffers, search, bookmarks, file browsing, preferences
-completion and optional modal editing.
+completion, optional modal editing, file reload and optional Pi editing.
 
 - [Tutorials](tutorials/index.md): learn through the ordered User Guide.
 - [How-to guides](how-to/index.md): install rev or complete a specific task.

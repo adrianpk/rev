@@ -102,8 +102,7 @@ before removal. External executables and shared runtimes remain outside managed
 removal. See [Use a language server](../../how-to/use-language-server.md) for
 recipe prerequisites, conflict recovery, cancellation and cleanup procedures.
 
-You have completed the User Guide. Continue with a
-[task guide](../../how-to/index.md) or look up the
-[language-server reference](../../reference/language-servers.md).
+Next: [Follow External File Changes](13-file-reload.md). For exact server behavior, use
+the [language-server reference](../../reference/language-servers.md).
 
 [Previous](11-modal-editing.md) · [User Guide](index.md)

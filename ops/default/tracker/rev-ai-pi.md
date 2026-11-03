@@ -220,8 +220,8 @@ Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
 ### Slice 8: Joint acceptance and guidance
 
-State: in_progress.
-Ticket: [Joint acceptance and guidance](../ticket/in_progress/20261102211113-accept-and-document-pi-and-reload.md)
+State: blocked on real-provider acceptance.
+Ticket: [Joint acceptance and guidance](../ticket/blocked/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated.
 Branch: `feat/rev-ai-pi-08-acceptance`
@@ -230,12 +230,13 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-8-acceptance.md`
 
 - [x] T8.1: Deliver representative native and PTY journeys for both startup profiles, real kernel file notifications and the installed Pi RPC/tool/session lifecycle, with measured idle/RSS/startup limits.
 - [ ] T8.2: Exercise one bounded real-provider operation using available existing Pi authentication; report unavailable authentication variants distinctly and never invent live evidence from fixtures.
-- [ ] T8.3: Document ordinary Pi and reload workflows, complete references/configuration/command catalogs, canonical Markdown and Spore guidance and Unreleased; finish ticket transitions before the unchanged integrated gate and controller closure.
+- [x] T8.3: Document ordinary Pi and reload workflows, complete references/configuration/command catalogs, canonical Markdown and Spore guidance and Unreleased; finish ticket transitions before the unchanged integrated gate and controller closure.
 
 T8.1 focused native/PTY journeys passed in both profiles with installed Pi 1.3.0
 and a controlled local provider (zero HTTP requests). Six focused session cases
 and strict driver lint passed. Initial-history creation admission:
-`47928e8b3763` (full identity recorded in the report/commit history).
+`47928e8b376385049bf249ff76fd6e8299a6447d`.
+T8.1 driver/report introduction: `b8fadd21cef5f9b8c34f3737965cc0ca908f289a`.
 T8.2 attempted its one real-provider operation with the existing default and
 Pi-owned OAuth: provider completion failed, one turn/zero tool calls. Live
 acceptance remains externally blocked; no automatic provider retry is authorized

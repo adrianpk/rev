@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211113
 title: Joint acceptance and guidance
-status: in_progress
+status: blocked
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T21:11:13Z
 ready_at: 2026-11-02T21:11:13Z
 started_at: 2026-11-03T01:44:04Z
 branch: feat/rev-ai-pi-08-acceptance
-commits: []
+blocked_at: 2026-11-03T02:00:38Z
+commits: [47928e8b376385049bf249ff76fd6e8299a6447d, b8fadd21cef5f9b8c34f3737965cc0ca908f289a]
 ---
 
 # Joint acceptance and guidance
@@ -49,3 +50,15 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Both-profile offline native/PTY installed-Pi journeys and six focused history
+cases passed. The User Guide adds reload and explicit proposal editing; catalogs
+pass 429 commands, 231 settings, 70 pages and 434 local links/anchors.
+
+The single bounded real-provider attempt failed provider completion with the
+existing configured default and Pi-owned OAuth. Its guard observed one model
+turn and zero tool calls. Successful live acceptance remains externally blocked;
+no second provider operation was attempted. The Slice 8 report records the
+actual distinction and final controller validation/PR references.

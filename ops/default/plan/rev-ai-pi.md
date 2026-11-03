@@ -255,7 +255,7 @@ git diff --check
 
 ### Slice 8: Joint acceptance and guidance
 
-Ticket: [Joint acceptance and guidance](../ticket/in_progress/20261102211113-accept-and-document-pi-and-reload.md)
+Ticket: [Joint acceptance and guidance](../ticket/blocked/20261102211113-accept-and-document-pi-and-reload.md)
 Requirements: EFC01-EFC08, PI01-PI08; selected shared AI behavior.
 Dependencies: Slice 7 integrated; preserve all earlier contracts.
 
