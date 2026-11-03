@@ -289,17 +289,20 @@ impl Lease {
         self.store.same()?;
         same_file(&self.store.at(&format!("{}.lock", self.id)), &self._lock)?;
         let name = self.path.file_name().ok_or("Pi history name unavailable")?;
-        let file = match private_file(&descriptor(&self.store.sessions).join(name), false) {
+        let path = descriptor(&self.store.sessions).join(name);
+        let file = match private_file(&path, false) {
             Ok(file) => file,
-            Err(_)
-                if !required
-                    && self.observation.is_none()
-                    && fs::symlink_metadata(&self.path)
-                        .is_err_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
-            {
-                return Ok(());
+            Err(error) if !required && self.observation.is_none() => {
+                match fs::symlink_metadata(&self.path) {
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+                    // Pi can create its first history between open and stat.
+                    // Reopen through the same strict admission; an observed
+                    // history never receives this initial-creation exception.
+                    Ok(_) => private_file(&path, false)?,
+                    Err(_) => return Err(error),
+                }
             }
-            Err(e) => return Err(e),
+            Err(error) => return Err(error),
         };
         let meta = file.metadata().map_err(|_| "Pi session metadata failed")?;
         if meta.len() >= SESSION_BYTES {
