@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: Slice 1 - One-shot commands
+Active slice: Slice 2 - Checked text filters
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -21,7 +21,7 @@ Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation 
 
 ## Slice 1: One-shot commands
 
-State: reviewing
+State: delivered
 Dependency: approved preparation on clean dev.
 Branch: `feat/rev-shell-commands-01-execution`
 Expected PR title: `feat(shell): run bounded native shell commands`
@@ -36,13 +36,14 @@ Task commits: T1.1 `37f9791f5516d8e9821b32c71e224031d4a9fc1f`,
 T1.2 `dd6c1119bb472b8b73aab861e0ba2951ddd69a1a`,
 T1.3 `15a57e4206679e4f71eafc885ab320d538b59a8b`.
 Report introduction: [Slice 1 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/15a57e4206679e4f71eafc885ab320d538b59a8b/ops/default/report/slices/rev-shell-commands/slice-1-execution.md).
-Exact clean-HEAD ordered validation is owned by the Looper receipt after this
-PR-reference follow-up is committed and pushed; the canonical PR lists its
-successful configured command prefix before integration.
+Integration: canonical PR #242 merged into dev at `5e1622b82ec342e502b12a08792ce45e50d41532`.
+Controller receipt `2SHYGPQSSZE6UZAXEFY7T3LYUK` passed all six configured
+checks on that exact clean candidate; 167 focused tests and the canonical PR
+contract check passed.
 
 ## Slice 2: Checked text filters
 
-State: pending
+State: implementing
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-shell-commands-02-filters`
 Expected PR title: `feat(shell): filter regions and insert checked command output`

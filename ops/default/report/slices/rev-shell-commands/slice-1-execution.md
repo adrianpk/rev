@@ -1,6 +1,6 @@
 # Slice 1: One-shot commands
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
@@ -97,6 +97,20 @@ The final ordered Slice 1 prefix is recorded through `looper validate` after the
 PR-reference follow-up commit and push. The canonical PR Validation section and
 controller receipt own the exact clean candidate and ordered successful checks.
 This report does not claim the integrated delivery-set gate.
+
+Canonical PR #242 was integrated by the controller into dev at
+`5e1622b82ec342e502b12a08792ce45e50d41532`. Controller validation
+`2SHYGPQSSZE6UZAXEFY7T3LYUK` passed the exact clean candidate before integration:
+
+- `cargo fmt --all -- --check`: passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings`: passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands --test configuration -- --test-threads=1`: passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`: passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`: passed.
+- `git diff --check`: passed.
+
+The focused suites passed 151 configuration, 9 shell and 7 process-filtered
+library tests. The canonical PR contract check also passed.
 
 ## Risks and Follow-ups
 
