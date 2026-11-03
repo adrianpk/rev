@@ -14,8 +14,9 @@ pub(crate) fn run(root: &Path) -> Result<()> {
         readonly(root, profile)?;
         cancelled(root, profile)?;
         stale(root, profile)?;
+        reload(root, profile)?;
         println!(
-            "PASS native profile={profile}: explicit sh/sort/tr, unsaved UTF-8/CRLF, checked one-step undo, readonly admission, stale source, owned cancellation and idle"
+            "PASS native profile={profile}: explicit sh/sort/tr, unsaved UTF-8/CRLF, checked one-step undo, readonly admission, stale source, concurrent atomic reload, owned cancellation and idle"
         );
     }
     Ok(())
@@ -159,4 +160,50 @@ fn stale(root: &Path, profile: &str) -> Result<()> {
     assert_eq!(editor.buffer()?.history().len(), 1);
     assert_eq!(output(&mut editor)?, INPUT);
     idle(&mut editor)
+}
+
+fn reload(root: &Path, profile: &str) -> Result<()> {
+    let mut editor = open(root, profile, "reload", INPUT, false)?;
+    let path = editor.buffer()?.file().unwrap().path().to_owned();
+    let directory = path.parent().unwrap();
+    whole(&mut editor);
+    named(&mut editor, profile, "shell-filter-region");
+    answer(
+        &mut editor,
+        "printf '%s' $$ > started; n=0; while test ! -f ready && test $n -lt 200; do n=$((n+1)); sleep 0.01; done; cat",
+    );
+    let leader = ready(&directory.join("started"))?;
+    atomic(&path)?;
+    wait_reload(&mut editor)?;
+    assert!(
+        Path::new(&format!("/proc/{}", leader.trim())).exists(),
+        "child finished before concurrent reload"
+    );
+    fs::write(directory.join("ready"), "")?;
+    settle(&mut editor)?;
+    assert_eq!(source(&editor), "external changed界\n");
+    assert_eq!(editor.buffer()?.history().len(), 1);
+    assert_eq!(output(&mut editor)?, INPUT);
+    Ok(())
+}
+
+fn atomic(path: &Path) -> Result<()> {
+    let replacement = path.with_extension("replacement");
+    fs::write(&replacement, "external changed界\n")?;
+    fs::rename(replacement, path)?;
+    Ok(())
+}
+
+fn wait_reload(editor: &mut Session) -> Result<()> {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+    while source(editor) != "external changed界\n" {
+        editor.expire_input(std::time::Instant::now());
+        editor.poll_frame()?;
+        assert!(
+            std::time::Instant::now() < deadline,
+            "atomic source reload did not complete"
+        );
+        std::thread::sleep(std::time::Duration::from_millis(1));
+    }
+    Ok(())
 }

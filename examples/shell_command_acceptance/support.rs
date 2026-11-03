@@ -11,6 +11,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+pub(crate) use super::metrics::{cpu_ticks, peak_rss};
+
 pub(crate) type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 pub(crate) fn open(
