@@ -2,8 +2,8 @@
 
 Status: draft
 Date: 2026-10-28
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-03
+Version: 0.3
 Format: OpenSpec capability proposal
 Source: product-owner terminal presentation request and clarification to inherit Odra behavior with a Rust/Alacritty implementation
 Model: [Integrated Terminal Model](editor-integrated-terminal-model.md)
@@ -11,6 +11,7 @@ Editor owner: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
 Delivery boundary: future terminal delivery; no implementation or slicing authorized
 Readiness: behavioral reference and Rust engine direction established; exact dependency pin, native catalog integration and measured limits remain delivery preparation
+Separate capability: [Shell Commands and Text Filters](editor-shell-commands.md) is the owner-selected first delivery; this terminal draft is not part of that implementation
 
 ## Purpose
 
@@ -24,6 +25,13 @@ the editor's normal buffer navigation. Supporting that application does not
 create a built-in Git UI or a Magit-like subsystem in rev.
 
 ## Reference and confirmed direction
+
+The owner selected two independent contracts on 2026-11-03. A lower terminal
+panel and a terminal-backed buffer are two placements of the same interactive
+capability. Sending selected text to a one-shot command and capturing stdout
+belongs to Shell Commands and Text Filters; it does not require this emulator,
+PTY or persistent session. Either capability may reuse genuinely shared native
+process primitives without taking over the other's lifecycle.
 
 Odra's integrated-terminal-sessions specification, reviewed at commit
 f701c830b88e2088bb8de93ba9fee2dd0cd111f1, is the behavioral reference for session,

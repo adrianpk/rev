@@ -2,8 +2,8 @@
 
 Status: draft
 Date: 2026-10-29
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-03
+Version: 0.3
 Format: OpenSpec capability proposal
 Source: product-owner architectural exploration and supplied extended working note
 Decision state: optional exploration; the refined profile below is not an adoption or delivery commitment
@@ -11,6 +11,7 @@ Delivery boundary: optional exploration outside the lightweight editor baseline;
 Model: [External Extensions Model](editor-external-extensions-model.md)
 Baseline: [rev Editor](rev-editor.md), [Editor Configuration](editor-configuration.md)
 Related: [Native Autocompletion](editor-autocompletion.md), [AI Commands](editor-ai-commands.md), [Pi Integration](editor-ai-pi-integration.md)
+Selected native subset: [Shell Commands and Text Filters](editor-shell-commands.md); direct command entry is independent of this draft's future declarative registry and structured protocol
 
 ## Purpose
 
@@ -25,6 +26,13 @@ lightweight editor. It remains a possible addition, without an implementation
 commitment, assigned order or dependency from existing native features.
 
 ## Status and product boundary
+
+On 2026-11-03 the owner authorized separating interactive terminals and piping
+and beginning the agent-selected first capability. The native one-shot shell
+profile now has its own specification and model. It permits explicit command
+entry and text filtering without adopting configured extension definitions,
+capability discovery or a JSON exchange protocol. This larger extension draft
+remains optional exploration and is not a dependency of that delivery.
 
 This revision incorporates the supplied narrower exploration. The draft profile
 uses explicit user configuration, stdio and one child per invocation. Simple
@@ -44,11 +52,11 @@ value depends on elaborate panels, interactive views or their own layout
 belong in an editor willing to pay that cost; their absence is an accepted
 outcome, not a gap to close later.
 
-The baseline excludes plugins and a public extension interface. Even a native
-filter command introduces external-program execution and needs an approved
-baseline delta before implementation. Retaining this draft does not amend
-that baseline, the AI contracts, their implementation boundaries or any active
-controller. Native AI, Pi and LSP keep their own integration owners.
+The baseline excludes plugins and a public extension interface. The selected
+native shell specification records its narrow one-shot execution delta.
+Adopting this larger extension interface still requires its own accepted
+baseline delta. Retaining this draft does not broaden the shell delivery, AI
+contracts or any active controller. Native AI, Pi and LSP keep their own owners.
 
 ## Fixed editor surfaces
 

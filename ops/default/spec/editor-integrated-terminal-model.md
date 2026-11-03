@@ -2,10 +2,11 @@
 
 Status: draft
 Date: 2026-10-28
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-03
+Version: 0.3
 Specification: [Integrated Terminal Sessions](editor-integrated-terminal.md)
 Existing editor model: [rev Editor Model](rev-editor-model.md)
+Separate owner: [Shell Commands Model](editor-shell-commands-model.md) owns one-shot stdin/stdout jobs; those jobs do not create terminal sessions or placements
 
 ## Ownership
 

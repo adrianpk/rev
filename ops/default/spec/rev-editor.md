@@ -84,6 +84,13 @@ contracts. Explicit Org adapters may run a selected language program, PDF compil
 transport or viewer after their documented consent. This does not introduce an
 embedded interpreter, general build/test runner or startup execution hook.
 
+The additive [Shell Commands and Text Filters](editor-shell-commands.md)
+contract admits explicitly invoked one-shot shell subprocesses and checked
+text results as a separately delivered capability. It does not turn the
+original exclusion into an interactive shell, automatic task runner or plugin
+interface. [Interactive Terminals](editor-integrated-terminal.md) retains its
+own draft and approval boundary; original completed editor gates stay historical.
+
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
 after the required baseline is satisfied. A **Design default** retains a

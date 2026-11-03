@@ -2,10 +2,11 @@
 
 Status: draft
 Date: 2026-10-29
-Reviewed: 2026-10-31
-Version: 0.2
+Reviewed: 2026-11-03
+Version: 0.3
 Specification: [External Extensions](editor-external-extensions.md)
 Decision state: refined candidate model only; no adopted schema, storage or protocol
+Separate native owner: [Shell Commands Model](editor-shell-commands-model.md) covers the selected one-shot command/filter profile without adopting the extension records below
 
 ## Ownership
 

@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-10-31
-Scope: pending behavior after the completed native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: native completion, optional LSP, modal editing, language-server installation, Pi, external reload and heading presentation delivered; other proposals retain their separate approval boundaries
+Scope: selected native shell-command delivery and pending behavior after the completed native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Owner decision: separate interactive terminals from command piping; start native shell commands and text filters first under the delegated choice; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -17,7 +17,7 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 ## Complete inventory
 
 The inventory contains thirteen delivered topics, two open presentation
-follow-ups and three remaining capability proposals. Solved
+follow-ups, the selected shell-command delivery and three other capability proposals. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -40,10 +40,18 @@ retain their own specification/model state.
 | Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed in the same eight-slice delivery. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection passed EFC01-EFC08 through the unchanged controller gate. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md), [plan](plan/rev-org-headings.md), [tracker](tracker/rev-org-headings.md) | Delivered / Completed. Three slices through PRs #238-#240 deliver six cyclic reference glyphs, complete startup preferences, independent native view toggle/reset, source-backed prefix width and bounded projection. The unchanged controller full gate passed OGP01-OGP08 with 420 selected tests and both-profile native/resource/PTY acceptance. Fonts and ligatures remain terminal-owned. |
+| Native shell commands and text filters | [Spec](spec/editor-shell-commands.md), [model](spec/editor-shell-commands-model.md), [plan](plan/rev-shell-commands.md), [tracker](tracker/rev-shell-commands.md) | Approved / selected first on 2026-11-03. Four slices prepare explicit command entry, one-shot stdin/stdout, checked insert/replace, native controls and bounded native/PTY acceptance in one Looper run. No terminal emulator or extension registry is required. Execution progress belongs to the controller. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
+
+On 2026-11-03 the owner requested two independent specifications and starting
+the agent-selected first capability. Native shell commands and text filters
+are selected first. Their approved specification/model and four-slice plan/
+tracker define one autonomous Looper delivery. Interactive terminal placement
+(lower panel or main buffer) remains one separate draft. The larger external
+extension proposal remains optional; neither is started by the shell delivery.
 
 The owner selected Org heading presentation on 2026-11-03 after the Pi/reload
 delivery. Its specification/model and plan/tracker are now Completed after
@@ -132,6 +140,9 @@ The proposed order is not a chain of prerequisites.
   jobs, with their own PTY/process lifetime. Neither requires AI or plugins.
 - Optional external commands remain independent exploration. Native AI, Pi,
   LSP and terminals keep their own contracts without waiting for this draft.
+- Selected native shell commands reuse command/prompt, checked text-edit and
+  low-level process ownership. Their one-shot streams do not require terminal
+  emulation, PTYs, interactive-session placement or the optional extension API.
 
 ## Approved completion sequence
 
@@ -208,7 +219,13 @@ fidelity and local User Guide output. The three remaining capability proposals,
 including optional external-program exploration, retain their prior state.
 Earlier completed gates keep their historical identities.
 
-Before planning a selected delivery, close only its relevant product decisions,
+The approved shell-command contract and plan/tracker define the selected next
+delivery. Its six native commands, four non-modal key sequences and five typed
+preferences have explicit input, target, output, cancellation and resource
+semantics. This approval does not mark them delivered; the controller owns the
+four integrations, combined gate and closure evidence.
+
+Before planning another selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope
 approval through the established workflow. Recheck current implementation and
 external protocol/dependency references at that point. Captured historical
