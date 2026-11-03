@@ -5,7 +5,7 @@ Delivery set: rev-org-headings
 Plan: [Heading Presentation Delivery](../../../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../../../tracker/rev-org-headings.md)
 Branch: `feat/rev-org-headings-01-presentation`
-PR: pending
+PR: `#238`
 
 ## Purpose
 
