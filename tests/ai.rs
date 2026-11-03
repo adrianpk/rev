@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "ai/definitions.rs"]
+mod definitions;
 #[path = "ai/discovery.rs"]
 mod discovery;
 #[path = "configuration/fixture.rs"]
