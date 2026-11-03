@@ -162,7 +162,10 @@ impl View {
             return Ok(());
         }
         if self.active_folds(buffer).is_none() {
-            self.clear_folds();
+            // Retiring stale projection is passive. Only an explicit clear
+            // records the view's visibility choice and suppresses initialization.
+            self.visibility = None;
+            self.folds = None;
             return Ok(());
         }
         let folds = self.folds.as_ref().expect("active folds are installed");

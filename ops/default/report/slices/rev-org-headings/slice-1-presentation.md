@@ -89,14 +89,28 @@ selection and continuation row at widths 40 and 80, wrapping on/off and five
 horizontal offsets. Byte/node-limited and canceled observations remain literal;
 a current edit and undo recompute the native level without presentation history.
 
+The first controller batch `3HWITYJ7MVJSW5LBIOEJKZ56RW` at
+`3c9b56432d4fd5b2c2f1105634bd0bcd4aa32e2c` passed format, strict Clippy
+and all 149 configuration tests. It stopped on `tiny_geometry` and
+`org_timestamps::timestamp_calendar_geometry`: passive fold retirement marked
+the view as having an explicit visibility choice even without active folds.
+`reveal_fold` now retires only stale derived state; explicit `clear_folds`
+retains its initialization-suppression semantics. Existing assertions remain
+unchanged. Focused correction checks passed:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test display tiny_geometry -- --test-threads=1` (1 test).
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test display org_timestamps::timestamp_calendar_geometry -- --test-threads=1` (1 test).
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1` (4 native source/result and initial-drawer cases).
+
 The required format, strict all-target Clippy, combined heading/configuration/
 display tests, documentation and whitespace batch runs through `looper validate`
-after the canonical PR-reference commit. Its successful canonical receipt owns
+after the canonical PR-reference and geometry correction commits. Its successful
+canonical receipt owns
 the exact clean PR candidate and ordered commands. Development results above
 are focused evidence, not the integrated delivery-set gate.
 
-Development target footprint was 620 MiB with 4031 MiB filesystem space
-available before the final batch. Builds retain the configured debug-disabled,
+Development target footprint was 719 MiB with 3997 MiB filesystem space
+available before the regenerated final batch. Builds retain the configured debug-disabled,
 non-incremental, one-job policy and worktree-local target directory.
 
 ## Risks and Follow-ups

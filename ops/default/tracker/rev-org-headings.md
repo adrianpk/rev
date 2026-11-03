@@ -48,6 +48,11 @@ Report introduction: `4d1630aca2929d2569412cbf03498352213f5e01`.
 Final validation: the controller receipt for the clean canonical PR head owns
 the exact ordered Slice 1 command outcomes after this PR-reference commit.
 
+The first controller batch passed format, Clippy and 149 configuration cases,
+then exposed passive fold-retirement mutations in two unchanged display tests.
+The same branch corrects that view invariant; both failing cases and four native
+result/drawer cases pass. Final evidence is regenerated for the corrected head.
+
 ## Slice 2: Independent view controls
 
 State: pending.
