@@ -10,8 +10,10 @@ Source: product-owner heading clarification, reference screenshot and verified O
 Model: [Org Heading Presentation Model](editor-org-heading-presentation-model.md)
 Org owner: [Org Mode](editor-org-mode.md)
 Configuration owner: [Editor Configuration](editor-configuration.md)
-Delivery boundary: approved follow-up to delivered Org; implementation planning and controller startup remain separate actions
-Readiness: behavior, settings, commands, geometry and bounds settled; ready for planning, not implemented
+Delivery boundary: approved three-slice autonomous delivery through dev; explicit Looper startup requested 2026-11-03
+Readiness: approved for implementation under the linked plan; controller checkpoints own actual startup and progress
+Plan: [Heading Presentation Delivery](../plan/rev-org-headings.md)
+Tracker: [Heading Presentation Tracker](../tracker/rev-org-headings.md)
 
 ## Purpose
 
@@ -286,14 +288,15 @@ Rendering protocol evidence does not prove font coverage or ligature shaping;
 visual review uses the terminal's existing configured font, without installing
 fonts or making a new font a build/test prerequisite.
 
-No product decisions remain open for this capability. Implementation planning
-must identify the existing observation/projection owners, proportional native
-and PTY checks, and measured projection cost. It does not reopen the completed
-Org gate or authorize a controller through this document alone.
+No product decisions remain open for this capability. The approved delivery plan
+identifies the observation/projection owners, proportional native/PTY checks and
+projection-cost evidence. The owner's separate startup request authorizes its
+one retained controller; the completed earlier Org gate remains historical.
 
 ## Delivery relationship
 
 This is a presentation follow-up to ORG16/ORG17, not a claim that heading decoration is
 already implemented. The model records approved preference spelling and source
-mappings without adding them to the shipped schema. Approving this contract does
-not add list-item prettification, install fonts or start implementation/slicing.
+mappings without adding them to the shipped schema. The owner's explicit
+delivery instruction is recorded in the plan and tracker; this specification
+alone does not claim that implementation is complete.

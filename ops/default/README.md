@@ -39,16 +39,17 @@ retain their own specification/model state.
 | Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed. Eight slices through PRs #229-#236 deliver private Pi RPC sessions, guarded discovery, checked native application and reusable commands. The unchanged controller gate and separate bounded OAuth acceptance passed; native API remains deferred. |
 | Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed in the same eight-slice delivery. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection passed EFC01-EFC08 through the unchanged controller gate. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
-| Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md) | Approved / ready for planning. Six cyclic reference glyphs, startup defaults, native view toggle/reset, prefix-width preservation and finite marker limits are defined. Fonts and ligatures remain terminal-owned; implementation has not started. |
+| Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md), [plan](plan/rev-org-headings.md), [tracker](tracker/rev-org-headings.md) | Approved / three-slice autonomous delivery authorized. Six cyclic reference glyphs, startup defaults, native view toggle/reset, prefix-width preservation and finite marker limits are defined. Fonts and ligatures remain terminal-owned. The controller owns actual progress. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
 
 The owner selected Org heading presentation on 2026-11-03 after the Pi/reload
-delivery. Its specification and model are Approved and ready for planning.
-This closes the former item 10's product decisions; it does not start a plan,
-slice set or controller. General drawer visibility remains a separate Org task.
+delivery. Its specification and model are Approved, and the owner explicitly
+requested Looper implementation through the linked three-slice plan and tracker.
+One retained controller owns the set's integration, unchanged gate and closure.
+General drawer visibility remains a separate Org task.
 
 The owner approved proceeding with Pi and general external reload on
 2026-11-02 after the architecture explanation. The linked eight-slice plan and
@@ -197,7 +198,7 @@ six nested child cases and both-profile native/PTY/offline Pi acceptance. The
 [Slice 8 closure](report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
 record exact validation, resources, the separate OAuth observation and local
 User Guide output. Native API support remains deferred in its broader draft.
-Heading presentation is Approved for planning. The other three remaining
+Heading presentation has an approved three-slice delivery. The other three remaining
 capability proposals, including optional external-program exploration, retain
 their prior state. Earlier completed gates keep their historical identities.
 
