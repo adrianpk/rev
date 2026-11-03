@@ -167,20 +167,25 @@ Report introduction and T5.3 actual-runtime evidence: `984889b23b2c0885ccf8c67ac
 
 ### Slice 6: Private Pi sessions
 
-State: ready.
-Ticket: [Private Pi sessions](../ticket/ready/20261102211111-retain-private-pi-sessions.md)
+State: reviewing.
+Ticket: [Private Pi sessions](../ticket/reviewing/20261102211111-retain-private-pi-sessions.md)
 Requirements: PI01-PI04, PI07, PI08; AI16-AI20.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-ai-pi-06-sessions`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-6-sessions.md`
 
-- [ ] T6.1: Persist bounded schema-1 private session bindings in XDG state while Pi owns its JSONL history; reuse only matching root/model/grant observations.
-- [ ] T6.2: Implement ai-set-directory, ai-select-model, ai-reset-session and ai-disconnect, with owned idle shutdown, safe restart and fresh ephemeral input-only sessions.
-- [ ] T6.3: Cover history isolation, changed roots/providers, compaction and session limits, corrupt records, concurrent instances and actual child exit without exporting credentials.
+- [x] T6.1: Persist bounded schema-1 private session bindings in XDG state while Pi owns its JSONL history; reuse only matching root/model/grant observations.
+- [x] T6.2: Implement ai-set-directory, ai-select-model, ai-reset-session and ai-disconnect, with owned idle shutdown, safe restart and fresh ephemeral input-only sessions.
+- [x] T6.3: Cover history isolation, changed roots/providers, compaction and session limits, corrupt records, concurrent instances and actual child exit without exporting credentials.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation commits: `ad97bb9e569c5858eb0f3e33a3ef36fd1618d581` (T6.1/T6.2) and
+`7ef7b03396602642ca99a408101e867d2b017c78` (T6.3). Nine focused session cases and
+27 actual offline Pi resource checks passed, including actual history restoration
+and owned exit with a controlled local provider and zero external requests.
+Strict library lint and documentation catalogs passed (428 commands, 230
+configuration entries; 68 pages/414 links). Final clean-head validation follows
+the PR-reference commits through the controller; integrated gate remains pending.
 
 ### Slice 7: Reusable AI commands
 

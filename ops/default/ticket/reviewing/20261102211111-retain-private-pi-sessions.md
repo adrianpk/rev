@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211111
 title: Private Pi sessions
-status: ready
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -10,7 +10,10 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:11Z
 ready_at: 2026-11-02T21:11:11Z
-commits: []
+started_at: 2026-11-03T00:15:21Z
+branch: feat/rev-ai-pi-06-sessions
+reviewed_at: 2026-11-03T00:58:15Z
+commits: [ad97bb9e569c5858eb0f3e33a3ef36fd1618d581, 7ef7b03396602642ca99a408101e867d2b017c78]
 ---
 
 # Private Pi sessions
@@ -47,3 +50,12 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+Private binding storage and native lifecycle/model/directory controls are
+implemented, with nine focused native session cases and 27 actual offline Pi
+checks passing. Real Pi with a local controlled provider restores prior history
+and exits its owned process without external provider requests. The canonical
+Slice 6 report records commands and bounds. Final clean-head validation follows
+the PR-reference commits through the controller.

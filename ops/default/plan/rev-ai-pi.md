@@ -217,7 +217,7 @@ git diff --check
 
 ### Slice 6: Private Pi sessions
 
-Ticket: [Private Pi sessions](../ticket/ready/20261102211111-retain-private-pi-sessions.md)
+Ticket: [Private Pi sessions](../ticket/reviewing/20261102211111-retain-private-pi-sessions.md)
 Requirements: PI01-PI04, PI07, PI08; AI16-AI20.
 Dependencies: Slice 5 integrated; preserve all earlier contracts.
 
