@@ -5,7 +5,7 @@ Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `feat/rev-integrated-terminal-01-engine`
-PR: pending
+PR: `#248`
 
 ## Purpose
 

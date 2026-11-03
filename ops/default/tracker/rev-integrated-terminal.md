@@ -31,14 +31,14 @@ Status: reviewing
 Branch: `feat/rev-integrated-terminal-01-engine`
 Expected PR title: `feat(terminal): own bounded Rust terminal sessions`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-1-engine.md`
-PR: pending
+PR: `#248`
 
 - [x] T1.1: Add the pinned minimal engine and bounded native session/PTY/process owner; establish typed identities, finite queues, grid/extra accounting, readiness and cleanup without exposing command stubs.
 - [x] T1.2: Exercise a real shell through a PTY, parsed text/colors/cursor/alternate screen, input, resize, child exit, invalid launch and cleanup; introduce tests/integrated_terminal.rs with meaningful shared fixtures.
 - [x] T1.3: Record dependency scope, baseline and candidate release size, allocation sketch and startup/idle observations; preserve the host terminal and existing one-shot process owners.
 
 Validation: eight native PTY tests pass, including failed-launch descriptor cleanup. Release builds and source reconstruction/quality checks pass. Exact clean-HEAD acceptance uses the ordered Slice 1 controller commands and their canonical receipt.
-Integration: pending canonical PR and controller verification.
+Integration: canonical PR #248 targets dev; merge and integration verification remain controller-owned.
 
 Retained incident 1: the operator authorized a minimal same-version source
 override for the dependency's failed-spawn SIGCHLD registration leak. The
