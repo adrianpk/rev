@@ -5,7 +5,7 @@ Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
 Branch: `feat/rev-shell-commands-04-acceptance`
-PR: pending
+PR: `#245`
 
 ## Purpose
 
@@ -48,7 +48,7 @@ complete user-facing workflow through the existing User Guide and Spore path.
   conditions, evaluation order, bounds or ownership.
 - `T4.2`: `306286125fae9c44629a84c80d65c135c59e78b9` adds finite resource
   observations, shared terminal-owner reuse and both-profile PTY/reload journeys.
-- `T4.3`: this report-introduction commit completes guidance, catalogs and Spore
+- `T4.3`: `591267724625605c25936a6309d09c8386522821` completes guidance, catalogs and Spore
   navigation. Documentation remains canonical Markdown; publication is generated
   only through the existing local guide producer.
 - Fixture HOME/XDG stores and sources are private. PID markers belong to actual

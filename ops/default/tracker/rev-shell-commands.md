@@ -101,12 +101,12 @@ Report: `ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md`
 - [x] T4.1: Add examples/shell-command-acceptance.rs and scripts/check-shell-commands.sh using existing native/Rust/PTY support, real installed sh/sort/tr and isolated fixtures; add focused source-quality coverage for the new owners.
 - [x] T4.2: Measure finite near-limit input, collection/publication and post-job idle behavior; verify both profiles in representative Linux PTYs with resize, cancellation, canonical selection, undo and terminal restoration.
 - [x] T4.3: Add approachable Markdown guidance and exact references/defaults/bindings, link them through the existing editor path and Spore projection, and finalize meaningful Unreleased notes. Prepare clean dev for the unchanged controller gate.
-- [ ] Record exact-head validation, immutable report link and canonical PR.
+- [x] Record immutable report introduction and canonical PR: [#245](https://forge.adrianpk.com/adrianpk/rev/pulls/245).
 
 Task commits: T4.1 `db7c3fb38c81db7b7f471d667f72e16cbc130ebe`,
 T4.2 `306286125fae9c44629a84c80d65c135c59e78b9`.
-T4.3 introduces the canonical report and completes the User Guide/reference/Spore
-path. Development native/resource/PTY checks passed with unchanged source-quality
+T4.3 `591267724625605c25936a6309d09c8386522821`.
+Report introduction: [Slice 4 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/591267724625605c25936a6309d09c8386522821/ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md). Development native/resource/PTY checks passed with unchanged source-quality
 and terminal limits. Exact clean-head focused/configured receipts follow the
 canonical PR reference and push.
 
