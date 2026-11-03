@@ -105,11 +105,14 @@ fn visual_bindings(block: bool) -> Vec<(&'static str, &'static str)> {
     bindings
 }
 
-pub(super) fn maps(keys: &Keymaps) -> Result<BTreeMap<Context, Map>, Error> {
+pub(super) fn maps(
+    keys: &Keymaps,
+    commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
+) -> Result<BTreeMap<Context, Map>, Error> {
     STATES
         .into_iter()
         .map(|state| {
-            let map = Map::compile(state, keys.map(state))?;
+            let map = Map::compile(state, keys.map(state), commands)?;
             recovery(&map, state)?;
             Ok((state, map))
         })
@@ -120,6 +123,7 @@ pub(super) fn org_maps(
     keys: &Keymaps,
     maps: &BTreeMap<Context, Map>,
     profile: InteractionProfile,
+    commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
 ) -> Result<BTreeMap<(Context, Context), Map>, Error> {
     let mut result = BTreeMap::new();
     if profile != InteractionProfile::Modal {
@@ -134,7 +138,7 @@ pub(super) fn org_maps(
         Context::VimVisualBlock,
     ] {
         for local in [Context::Org, Context::OrgCapture, Context::OrgSourceEdit] {
-            let map = Map::overlay(&maps[&state], local, keys.map(local))?;
+            let map = Map::overlay(&maps[&state], local, keys.map(local), commands)?;
             recovery(&map, local)?;
             result.insert((state, local), map);
         }

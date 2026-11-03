@@ -9,7 +9,7 @@ use crate::command::Command;
 use super::{Context, Error, Input, Key, Outcome, Prompt};
 
 /// Owns bounded command text, candidate selection and history-navigation draft.
-/// Candidates are derived from the static registry, never interpreted as code.
+/// Candidates are admitted command identities, never interpreted as code.
 #[derive(Debug)]
 pub struct Palette {
     prompt: Prompt,
@@ -22,10 +22,11 @@ pub struct Palette {
     history: Option<usize>,
     draft: String,
     policy: crate::config::Minibuffer,
+    ai_commands: Vec<Command>,
 }
 
 impl Palette {
-    fn new(policy: &crate::config::Minibuffer) -> Result<Self, Error> {
+    fn new(policy: &crate::config::Minibuffer, ai_commands: &[Command]) -> Result<Self, Error> {
         Ok(Self {
             prompt: Prompt::new("M-x ", "", policy.input_limit)?,
             query: None,
@@ -35,6 +36,7 @@ impl Palette {
             history: None,
             draft: String::new(),
             policy: policy.clone(),
+            ai_commands: ai_commands.to_vec(),
         })
     }
 
@@ -44,13 +46,20 @@ impl Palette {
 
     pub fn candidates(&self) -> Vec<Command> {
         let query = self.query.as_deref().unwrap_or(self.prompt.text());
-        let mut candidates = Command::matching(query);
+        let mut candidates: Vec<_> = Command::ALL
+            .into_iter()
+            .chain(self.ai_commands.iter().copied())
+            .filter(|command| command.name().contains(query))
+            .collect();
+        candidates.sort_by(|a, b| {
+            (!a.name().starts_with(query), a.name()).cmp(&(!b.name().starts_with(query), b.name()))
+        });
         match self.policy.r#match {
             crate::config::Match::PrefixThenSubstring => {}
             crate::config::Match::Prefix => {
                 candidates.retain(|command| command.name().starts_with(query))
             }
-            crate::config::Match::Substring => candidates.sort_by_key(|command| command.name()),
+            crate::config::Match::Substring => candidates.sort_by(|a, b| a.name().cmp(b.name())),
         }
         candidates
     }
@@ -161,8 +170,12 @@ impl Palette {
         if self.prompt.text().is_empty() {
             return Outcome::Message("No command entered");
         }
-        let command =
-            Command::named(self.prompt.text()).or_else(|| self.candidates().first().copied());
+        let command = self
+            .candidates()
+            .iter()
+            .find(|command| command.name() == self.prompt.text())
+            .copied()
+            .or_else(|| self.candidates().first().copied());
         match command {
             Some(command) => Outcome::Command(command),
             None => Outcome::Message("Unknown command"),
@@ -188,10 +201,16 @@ fn direction(key: Key) -> Option<bool> {
 }
 
 impl Input {
+    pub(crate) fn admit_ai_command(&mut self, name: crate::command::AiName) {
+        let command = Command::AiDefined(name);
+        if !self.ai_commands.contains(&command) {
+            self.ai_commands.push(command);
+        }
+    }
     /// Opens command entry only from editing; session history survives cancel.
     pub fn commands(&mut self) -> Result<(), Error> {
         self.available()?;
-        self.context = Context::Command(Palette::new(&self.policy)?);
+        self.context = Context::Command(Palette::new(&self.policy, &self.ai_commands)?);
         self.clear_prefix();
         Ok(())
     }

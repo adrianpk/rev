@@ -17,7 +17,8 @@ struct Locations(BTreeMap<Vec<String>, Location>);
 
 /// Parse and validate one UTF-8 TOML 1.1 source without IO or editor mutation.
 /// Omitted schema version means 1. Successful records retain partial presence;
-/// this operation neither resolves includes nor fills defaults into input.
+/// this operation neither resolves includes nor fills defaults into input. AI
+/// keymap references resolve only after the complete include graph is composed.
 pub fn parse(source: &Path, bytes: &[u8]) -> Result<Document, Diagnostic> {
     let text = std::str::from_utf8(bytes).map_err(|error| invalid_utf8(source, bytes, error))?;
     let root = DeTable::parse(text).map_err(|error| toml_error(source, text, error))?;

@@ -20,25 +20,7 @@ impl Kind {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Output {
-    Explanation,
-    Insert,
-    Replace,
-}
-
-impl Output {
-    pub fn name(self) -> &'static str {
-        match self {
-            Self::Explanation => "explanation",
-            Self::Insert => "insert",
-            Self::Replace => "replace",
-        }
-    }
-    pub fn edits(self) -> bool {
-        self != Self::Explanation
-    }
-}
+pub(crate) use crate::config::AiOutput as Output;
 
 pub(crate) struct Target {
     pub source: Span,
@@ -87,6 +69,50 @@ impl Target {
             point,
             output,
             path: buffer.file().map(|f| f.path().to_owned()),
+            dirty: buffer.is_modified(),
+            bom: buffer.has_bom(),
+        };
+        target.current(buffer)?;
+        Ok(target)
+    }
+
+    pub fn defined(
+        buffer: &Buffer,
+        point: Point,
+        definition: &crate::config::AiCommand,
+    ) -> Result<Self, String> {
+        use crate::config::AiInput;
+        buffer
+            .slice(&Span {
+                stamp: point.stamp,
+                range: point.position.0..point.position.0,
+            })
+            .map_err(|e| e.to_string())?;
+        let source = match definition.input {
+            AiInput::Point => buffer
+                .span(point.position.0..point.position.0)
+                .map_err(|e| e.to_string())?,
+            AiInput::Buffer => buffer
+                .span(0..buffer.len_chars())
+                .map_err(|e| e.to_string())?,
+            AiInput::Selection => {
+                if buffer.visual() == Some(crate::buffer::Visual::Block)
+                    || buffer.rectangle_active()
+                {
+                    return Err("AI selection requires a linear region".into());
+                }
+                buffer
+                    .region(point)
+                    .map_err(|e| e.to_string())?
+                    .filter(|s| !s.range.is_empty())
+                    .ok_or("AI command requires an active selection")?
+            }
+        };
+        let target = Self {
+            source,
+            point,
+            path: buffer.file().map(|f| f.path().to_owned()),
+            output: definition.output,
             dirty: buffer.is_modified(),
             bom: buffer.has_bom(),
         };

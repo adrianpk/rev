@@ -3,15 +3,30 @@ use crate::command::{Binding, Command, Motion, Scroll};
 use super::{Context, Error, Site};
 
 impl Context {
-    pub(super) fn target(self, sequence: &str, name: &str) -> Result<Binding, Error> {
-        let target = Binding::named(name).ok_or_else(|| {
-            Error::new(
-                self,
-                sequence,
-                Site::Value,
-                "expected an existing command name; unbinding values are unsupported",
-            )
-        })?;
+    pub(super) fn target(
+        self,
+        sequence: &str,
+        name: &str,
+        commands: Option<&std::collections::BTreeMap<String, crate::config::AiCommand>>,
+    ) -> Result<Binding, Error> {
+        let target = Binding::named(name)
+            .or_else(|| {
+                let key = name.strip_prefix("ai-")?;
+                if commands.is_some_and(|commands| !commands.contains_key(key)) {
+                    return None;
+                }
+                crate::command::AiName::new(key)
+                    .ok()
+                    .map(|name| Binding::Command(Command::AiDefined(name)))
+            })
+            .ok_or_else(|| {
+                Error::new(
+                    self,
+                    sequence,
+                    Site::Value,
+                    "expected an existing command name; unbinding values are unsupported",
+                )
+            })?;
         if !self.local_available(target) {
             return Err(Error::new(
                 self,

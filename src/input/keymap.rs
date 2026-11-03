@@ -172,37 +172,63 @@ pub fn compile_for(
     keys: &crate::config::Keymaps,
     profile: crate::config::InteractionProfile,
 ) -> Result<Effective, Error> {
-    let (editor, minibuffer, org_calendar) = base_maps(keys)?;
-    let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys)?;
-    let vim = vim::maps(keys)?;
-    let vim_org = vim::org_maps(keys, &vim, profile)?;
+    compile_ai(keys, profile, Some(&std::collections::BTreeMap::new()))
+}
+
+// None is source-local validation: AI references resolve after include layering.
+pub(crate) fn compile_ai(
+    keys: &crate::config::Keymaps,
+    profile: crate::config::InteractionProfile,
+    commands: Option<&std::collections::BTreeMap<String, crate::config::AiCommand>>,
+) -> Result<Effective, Error> {
+    let (editor, minibuffer, org_calendar) = base_maps(keys, commands)?;
+    let (org, org_capture, org_source_edit) = org_editing_maps(&editor, keys, commands)?;
+    let vim = vim::maps(keys, commands)?;
+    let vim_org = vim::org_maps(keys, &vim, profile, commands)?;
     Ok(Effective {
         vim,
         vim_org,
-        completion: Map::compile(Context::Completion, &keys.completion)?,
+        completion: Map::compile(Context::Completion, &keys.completion, commands)?,
         org,
         org_capture,
         org_source_edit,
         editor,
         minibuffer,
-        tree: Map::compile(Context::Tree, &keys.tree)?,
-        bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list)?,
-        org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda)?,
+        tree: Map::compile(Context::Tree, &keys.tree, commands)?,
+        bookmark_list: Map::compile(Context::BookmarkList, &keys.bookmark_list, commands)?,
+        org_agenda: Map::compile(Context::OrgAgenda, &keys.org_agenda, commands)?,
         org_calendar,
     })
 }
 
-fn base_maps(keys: &crate::config::Keymaps) -> Result<(Map, Map, Map), Error> {
-    let editor = Map::compile(Context::Editor, &keys.editor)?;
-    let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer)?;
-    let org_calendar = Map::inherit(&minibuffer, Context::OrgCalendar, &keys.org_calendar)?;
+fn base_maps(
+    keys: &crate::config::Keymaps,
+    commands: Option<&std::collections::BTreeMap<String, crate::config::AiCommand>>,
+) -> Result<(Map, Map, Map), Error> {
+    let editor = Map::compile(Context::Editor, &keys.editor, commands)?;
+    let minibuffer = Map::compile(Context::Minibuffer, &keys.minibuffer, commands)?;
+    let org_calendar = Map::inherit(
+        &minibuffer,
+        Context::OrgCalendar,
+        &keys.org_calendar,
+        commands,
+    )?;
     Ok((editor, minibuffer, org_calendar))
 }
 
-fn org_editing_maps(editor: &Map, keys: &crate::config::Keymaps) -> Result<(Map, Map, Map), Error> {
+fn org_editing_maps(
+    editor: &Map,
+    keys: &crate::config::Keymaps,
+    commands: Option<&std::collections::BTreeMap<String, crate::config::AiCommand>>,
+) -> Result<(Map, Map, Map), Error> {
     Ok((
-        Map::inherit(editor, Context::Org, &keys.org)?,
-        Map::inherit(editor, Context::OrgCapture, &keys.org_capture)?,
-        Map::inherit(editor, Context::OrgSourceEdit, &keys.org_source_edit)?,
+        Map::inherit(editor, Context::Org, &keys.org, commands)?,
+        Map::inherit(editor, Context::OrgCapture, &keys.org_capture, commands)?,
+        Map::inherit(
+            editor,
+            Context::OrgSourceEdit,
+            &keys.org_source_edit,
+            commands,
+        )?,
     ))
 }

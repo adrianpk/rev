@@ -10,7 +10,7 @@ use super::{Diagnostic, Preference, Server, Snapshot, Sources, load, resolve};
 use crate::file::temporary::Temporary;
 
 /// A captured complete source graph and editable user root. Mutations are limited
-/// to server profiles, language preferences and file associations.
+/// to server profiles, language preferences, file associations and AI definitions.
 pub struct SettingsEdit {
     root: PathBuf,
     sources: Sources,
@@ -118,6 +118,49 @@ impl SettingsEdit {
             &mut self.document["files"]["associations"][pattern],
             value(language),
         );
+    }
+
+    /// Change only this literal definition in the user root, preserving includes
+    /// and unrelated formatting. Complete candidate validation precedes publish.
+    pub fn ai_command(&mut self, name: &str, definition: &super::AiCommand) -> Result<(), String> {
+        crate::command::AiName::new(name)?;
+        definition.validate()?;
+        // Missing namespace parents are ordinary implicit tables, so later
+        // definitions can use normal TOML table syntax without sealed inline maps.
+        let parent = &mut self.document["ai"];
+        if parent.is_none() {
+            let mut table = Table::new();
+            table.set_implicit(true);
+            *parent = Item::Table(table);
+        }
+        let parent = &mut self.document["ai"]["commands"];
+        if parent.is_none() {
+            let mut table = Table::new();
+            table.set_implicit(true);
+            *parent = Item::Table(table);
+        }
+        let table = &mut self.document["ai"]["commands"][name];
+        if table.is_none() {
+            *table = Item::Table(Table::new());
+        }
+        for (key, text) in [
+            ("prompt", definition.prompt.as_str()),
+            ("input", definition.input.name()),
+            ("context", definition.context.name()),
+            ("output", definition.output.name()),
+        ] {
+            if table.get(key).and_then(Item::as_str) != Some(text) {
+                assign(&mut table[key], value(text));
+            }
+        }
+        if let Some(model) = &definition.model {
+            if table.get("model").and_then(Item::as_str) != Some(model.as_str()) {
+                assign(&mut table["model"], value(model));
+            }
+        } else if let Some(table) = table.as_table_like_mut() {
+            table.remove("model");
+        }
+        Ok(())
     }
 
     /// Serialize manager mutations with an OS-owned lock in the resolved state

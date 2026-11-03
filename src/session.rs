@@ -197,6 +197,7 @@ enum AfterSave {
 enum Pending {
     Ai(Box<ai::Request>),
     AiDirectory,
+    AiSave(Box<ai::save::Prompt>),
     AiModel(Vec<crate::ai::pi::Model>),
     Reload(Box<crate::buffer::reload::Reload>),
     LspSetup(Box<lsp::Prompt>),
@@ -873,6 +874,8 @@ impl Session {
             Command::FindFile => self.find_file(),
             Command::SaveBuffer => self.save_buffer(),
             Command::RevertBuffer => self.revert_buffer(),
+            Command::AiSaveCommand => self.ai_save_command(),
+            Command::AiDefined(name) => self.ai_defined(name),
             Command::AiExplain => self.ai_command(ai::Kind::Explain),
             Command::AiPrompt => self.ai_command(ai::Kind::Prompt),
             Command::AiImplement => self.ai_command(ai::Kind::Implement),

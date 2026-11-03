@@ -21,7 +21,7 @@ pub use source::{
     SourcePrograms, SourceResult,
 };
 mod ai;
-pub use ai::{Ai, PartialAi, PartialPi, Pi};
+pub use ai::{Ai, AiCommand, AiContext, AiInput, AiOutput, PartialAi, PartialPi, Pi};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;

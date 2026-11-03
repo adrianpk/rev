@@ -13,6 +13,10 @@ impl Kill {
 }
 
 impl Buffers {
+    pub(crate) fn apply_ai_definition(&mut self, name: &str, incoming: &crate::config::Snapshot) {
+        self.settings.ai_definition(name, incoming);
+    }
+
     /// A result uses the canonical buffer/view machinery, with no file or undo
     /// publication. Names retain the existing unique-label policy.
     pub(crate) fn result(&mut self, name: &str, text: &str) -> Result<BufferId, Error> {

@@ -52,7 +52,7 @@ impl Binding {
         })
     }
 
-    pub fn name(self) -> &'static str {
+    pub fn name(&self) -> &str {
         match self {
             Self::Command(command) => command.name(),
             Self::Prompt(action) => action.name(),

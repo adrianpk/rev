@@ -16,6 +16,34 @@ pub struct Snapshot {
 }
 
 impl Snapshot {
+    /// Activate one explicitly published definition; other settings and startup
+    /// keymaps remain frozen, including other definitions changed on disk.
+    pub(crate) fn ai_definition(&mut self, name: &str, incoming: &Self) {
+        let definition = incoming
+            .settings
+            .ai
+            .commands
+            .get(name)
+            .expect("published AI definition");
+        self.settings
+            .ai
+            .commands
+            .insert(name.to_owned(), definition.clone());
+        let key = vec!["ai".into(), "commands".into(), name.to_owned()];
+        if let Some(source) = incoming.origins.get(&key) {
+            let path = &incoming.sources[*source];
+            let id = self
+                .sources
+                .iter()
+                .position(|p| p == path)
+                .unwrap_or_else(|| {
+                    self.sources.push(path.clone());
+                    self.sources.len() - 1
+                });
+            self.origins.insert(key, id);
+        }
+    }
+
     /// Restrict live application to LSP and association leaves. Other settings,
     /// grammar registrations and the startup interaction profile remain frozen.
     pub(crate) fn lsp_delta(&mut self, incoming: &Self) {

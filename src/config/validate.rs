@@ -37,6 +37,12 @@ impl Failure {
 }
 
 pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure> {
+    checked_document(document, None)
+}
+fn checked_document(
+    document: &Document,
+    commands: Option<&std::collections::BTreeMap<String, super::AiCommand>>,
+) -> Result<keymap::Effective, Failure> {
     integer("version", document.version, 1..=1)?;
     editing(document)?;
     super::ai::validate(&document.ai)?;
@@ -62,7 +68,7 @@ pub(super) fn document(document: &Document) -> Result<keymap::Effective, Failure
         document.files.external_change_max_buffers,
         1..=4096,
     )?;
-    bindings(document)
+    bindings(document, commands)
 }
 
 fn completion_and_lsp(document: &Document) -> Result<(), Failure> {
@@ -272,10 +278,14 @@ fn association_pattern(pattern: &str) -> bool {
             .any(|character| character.is_control() || "*?[]/\\".contains(character))
 }
 
-fn bindings(document: &Document) -> Result<keymap::Effective, Failure> {
-    keymap::compile_for(
+fn bindings(
+    document: &Document,
+    commands: Option<&std::collections::BTreeMap<String, super::AiCommand>>,
+) -> Result<keymap::Effective, Failure> {
+    keymap::compile_ai(
         &document.keys,
         document.editor.interaction_profile.unwrap_or_default(),
+        commands,
     )
     .map_err(|error| Failure {
         key: vec!["keys".into(), error.context.name().into(), error.sequence],
@@ -417,7 +427,7 @@ fn estimates(document: &Document) -> Result<(), Failure> {
 
 pub(super) fn candidate(value: &Document) -> Result<keymap::Effective, Failure> {
     super::lsp_validation::validate(&value.lsp, true)?;
-    let keymaps = document(value)?;
+    let keymaps = checked_document(value, Some(&value.ai.commands))?;
     let mut priority = super::Priority::default();
     super::project::priority(&mut priority, &value.org.priority);
     crate::org::priority::Priority::configured(&priority)

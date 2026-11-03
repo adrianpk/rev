@@ -49,6 +49,7 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x ai-reset-session`, `:ai-reset-session` | `ai-reset-session` | Start fresh owned history on the next explicit invocation. |
 | `M-x ai-disconnect`, `:ai-disconnect` | `ai-disconnect` | Stop the owned child and retain private history/results. |
 | `M-x ai-cancel`, `:ai-cancel` | `ai-cancel` | Cancel the active invocation or AI-owned input/result. |
+| `M-x ai-save-command`, `:ai-save-command` | `ai-save-command` | Save the successful literal instruction as a reusable command. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |
@@ -566,7 +567,7 @@ Alt remains present on Control aliases: `C-M-h` and `M-DEL` are one chord.
 
 The editor inventory above and the [Org inventory](org/bindings.md) together
 list every compiled command, including global Org entry keys, with the aliases above.
-Editor targets are the fixed implemented `Command` catalog used by M-x. A user
+Editor targets are the compiled commands and admitted `ai-<name>` definitions used by M-x. A user
 alias does not install a new handler, shell expression or executable body.
 Prompt-only actions below are unavailable in the editor and M-x catalog.
 

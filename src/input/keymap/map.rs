@@ -53,18 +53,20 @@ impl Map {
     pub(super) fn compile(
         context: Context,
         overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
-        Self::builtins(context).apply(context, overrides)
+        Self::builtins(context).apply(context, overrides, commands)
     }
 
     pub(super) fn inherit(
         parent: &Self,
         context: Context,
         overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
         let mut map = parent.clone();
         map.entries.extend(Self::builtins(context).entries);
-        map.apply(context, overrides)
+        map.apply(context, overrides, commands)
     }
 
     /// A local editing owner shadows an inherited leaf or subtree. Validate
@@ -73,8 +75,9 @@ impl Map {
         parent: &Self,
         context: Context,
         overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
-        let local = Self::compile(context, overrides)?;
+        let local = Self::compile(context, overrides, commands)?;
         let mut map = parent.clone();
         map.entries.retain(|inherited, _| {
             !local.entries.keys().any(|key| {
@@ -91,12 +94,13 @@ impl Map {
         mut self,
         context: Context,
         overrides: &BTreeMap<String, String>,
+        commands: Option<&BTreeMap<String, crate::config::AiCommand>>,
     ) -> Result<Self, Error> {
         let mut incoming = BTreeMap::new();
         for (spelling, name) in overrides {
             let sequence = Sequence::parse(spelling)
                 .map_err(|error| Error::new(context, spelling, Site::Key, error.0))?;
-            let target = context.target(spelling, name)?;
+            let target = context.target(spelling, name, commands)?;
             super::cancellation::admit(context, spelling, &sequence, target)?;
             if let Some(previous) = incoming.insert(
                 sequence,

@@ -1,6 +1,8 @@
 use crate::search::Direction;
 use navigation::{Find, Screen, Search, Target, Word};
+mod ai_name;
 mod binding;
+pub use ai_name::AiName;
 mod bookmark;
 mod buffer;
 mod completion;
@@ -67,6 +69,7 @@ pub enum Command {
     Whitespace(Whitespace),
     SaveBuffer,
     RevertBuffer,
+    AiDefined(AiName),
     AiExplain,
     AiPrompt,
     AiImplement,
@@ -77,6 +80,7 @@ pub enum Command {
     AiResetSession,
     AiDisconnect,
     AiCancel,
+    AiSaveCommand,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -96,7 +100,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 428] = [
+    pub const ALL: [Self; 429] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -494,6 +498,7 @@ impl Command {
         Self::AiResetSession,
         Self::AiDisconnect,
         Self::AiCancel,
+        Self::AiSaveCommand,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -539,8 +544,9 @@ impl Command {
         Self::Linear(LinearCommand::Pop),
     ];
 
-    pub fn name(self) -> &'static str {
+    pub fn name(&self) -> &str {
         match self {
+            Self::AiDefined(name) => name.name(),
             Self::Navigate(request) => request.name(),
             Self::Edit(request) => request.name(),
             Self::Modal(command) => command.name(),
@@ -583,6 +589,7 @@ impl Command {
             Self::AiResetSession => "ai-reset-session",
             Self::AiDisconnect => "ai-disconnect",
             Self::AiCancel => "ai-cancel",
+            Self::AiSaveCommand => "ai-save-command",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),
@@ -626,7 +633,9 @@ impl Command {
             .into_iter()
             .filter(|command| command.name().contains(query))
             .collect();
-        commands.sort_by_key(|command| (!command.name().starts_with(query), command.name()));
+        commands.sort_by(|a, b| {
+            (!a.name().starts_with(query), a.name()).cmp(&(!b.name().starts_with(query), b.name()))
+        });
         commands
     }
 

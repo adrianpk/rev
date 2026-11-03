@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 #[path = "configuration/ai.rs"]
 mod ai;
+#[path = "configuration/ai_commands.rs"]
+mod ai_commands;
 #[path = "configuration/org_export.rs"]
 mod org_export;
 

@@ -18,7 +18,11 @@ This project uses Semantic Versioning.
   stay disabled. Retain isolated private directory history across restarts,
   choose an AI directory and Pi-reported model for the editor session, or reset
   history and disconnect explicitly. Idle children close after the configured
-  timeout; input-only operations always use fresh ephemeral history.
+  timeout; input-only operations always use fresh ephemeral history. Save a
+  successful literal instruction with `ai-save-command`, call its named command
+  on fresh selections, points or whole buffers, and bind it through the existing
+  profile keymaps. Choose input-only context or guarded directory discovery for
+  each definition.
 
 - Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane

@@ -2,6 +2,7 @@ mod capture;
 mod context;
 mod controls;
 mod results;
+pub(super) mod save;
 
 use std::path::PathBuf;
 use std::time::Duration;
@@ -16,6 +17,7 @@ use crate::{
 
 pub(super) struct Request {
     target: Target,
+    definition: crate::config::AiCommand,
     view: crate::window::ViewId,
     home: crate::view::View,
     return_to: crate::location::Anchor,
@@ -38,6 +40,7 @@ pub(super) struct Work {
     reset: Option<(PathBuf, Option<String>, u64)>,
     source: Option<Request>,
     ready: Option<Ready>,
+    last: Option<crate::config::AiCommand>,
     accepted: bool,
     cleanup_failed: bool,
 }
@@ -55,6 +58,7 @@ impl Work {
             reset: None,
             source: None,
             ready: None,
+            last: None,
             accepted: false,
             cleanup_failed: false,
         }
@@ -146,7 +150,12 @@ impl Session {
     pub(super) fn cancel_ai_input(&mut self) -> Option<Action> {
         if matches!(
             self.pending,
-            Some(super::Pending::Ai(_) | super::Pending::AiDirectory | super::Pending::AiModel(_))
+            Some(
+                super::Pending::Ai(_)
+                    | super::Pending::AiDirectory
+                    | super::Pending::AiModel(_)
+                    | super::Pending::AiSave(_)
+            )
         ) {
             self.pending = None;
             self.input.cancel();

@@ -9,7 +9,7 @@ use super::{
 
 #[derive(Default)]
 pub(super) struct Merge {
-    paths: Vec<Vec<String>>,
+    pub(super) paths: Vec<Vec<String>>,
 }
 
 impl Document {

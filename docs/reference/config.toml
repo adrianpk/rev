@@ -1465,3 +1465,13 @@ idle_timeout_ms = 900000
 request_timeout_ms = 300000
 max_input_bytes = 1048576
 max_result_bytes = 262144
+
+# Literal AI definitions are empty by default and start no process.
+[ai.commands]
+# [ai.commands.table-total]
+# prompt = "Add a totals row and preserve the table layout."
+# input = "selection" # selection, point or explicit whole buffer
+# context = "input" # input or guarded directory discovery
+# output = "replace" # explanation; insert requires point; replace needs selection/buffer
+# model = "provider/model" # Optional Pi model override; no credentials.
+# Bind ai-table-total in the existing profile keymap table, then restart.

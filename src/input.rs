@@ -138,6 +138,7 @@ pub struct Input {
     meta_deadline: Option<Instant>,
     suppress_repeat: bool,
     history: VecDeque<Command>,
+    ai_commands: Vec<Command>,
     policy: crate::config::Minibuffer,
 }
 
@@ -152,6 +153,15 @@ impl Input {
     /// The default constructor retains the compiled preferences.
     pub fn with_settings(settings: &crate::config::Snapshot) -> Self {
         Self {
+            ai_commands: settings
+                .settings()
+                .ai
+                .commands
+                .keys()
+                .map(|key| {
+                    Command::AiDefined(crate::command::AiName::new(key).expect("admitted AI name"))
+                })
+                .collect(),
             profile: settings.settings().editor.interaction_profile,
             policy: settings.settings().minibuffer.clone(),
             keymaps: settings.keymaps().clone(),

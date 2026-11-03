@@ -4,7 +4,7 @@
 vertical selector with the full shared catalog, matching, history and argument
 workflow. Type canonical names; colon adds no Ex aliases, ranges or argument parser. Reported Alt/Meta and compatible Escape input
 follow the [terminal input policy](terminal-input.md). Command entry uses the
-same fixed command registry and handlers as keyboard bindings.
+same admitted command catalog and handlers as keyboard bindings.
 
 Cancelling a selector entered from Visual preserves the native selection only
 while its view, point, mark, source revision and shape remain valid. A changed
@@ -48,7 +48,7 @@ back into the editor.
 Candidate space borrows presentation rows without scrolling the retained editing
 workspace. When no candidate rows fit, the query and cancellation remain usable.
 Resize preserves the draft and selection; growing restores a coherent list.
-Rendering reads only the fixed command registry and cannot execute a command or
+Rendering reads only the admitted command catalog and cannot execute a command or
 observe the filesystem.
 
 Argument-taking commands continue with their existing path, buffer or decision
@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel` |
+| AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
@@ -448,6 +448,65 @@ returned discovery text. Before source IO, a tool reserves 256 KiB of remaining
 return capacity; an insufficient remainder ends discovery conservatively.
 Compaction never resets these counters or the native request deadline. Discovery
 returns data only and cannot expand the original native editing target.
+
+## Reusable AI commands
+
+After a successful operation, run `ai-save-command` and enter a new name without
+its `ai-` prefix. This saves the successful literal instruction and its input,
+context, output and optional model policy, never the generated text or a captured
+source/result. Saving requires a valid current configuration graph; a changed
+root/include or competing publisher rejects the transaction. Includes, comments,
+unrelated values and other definitions retain their existing representation.
+Existing names are refused; choose another name or edit the definition explicitly
+in configuration.
+
+The chosen saved command becomes callable immediately through M-x or modal
+colon. Only that definition activates: other disk changes and newly persisted
+keybindings follow ordinary restart behavior. C-g cancels the name prompt without
+writing. No process starts merely because a definition is configured or saved.
+
+Definitions use `ai.commands.<name>` in the existing user TOML graph. At most 64
+names are admitted. Names contain 1..64 lowercase ASCII letters/digits/hyphens,
+start with a letter, and cannot collide with compiled command/action names.
+The callable identity is `ai-<name>`. Each complete record requires a nonempty
+literal `prompt` of at most 16384 UTF-8 bytes, `input`, `context` and `output`.
+An optional `model` selects Pi's provider/model without changing credentials.
+Shell substitutions, template interpolation and executable handlers do not run.
+
+Input `selection` requires a nonempty linear region; `point` captures an insertion
+anchor; `buffer` explicitly captures the complete native buffer. Output
+`explanation` is read-only. Output `insert` requires point input; `replace`
+requires selection or buffer input. Every invocation captures fresh source and
+target identities. Application retains the same explicit acceptance and one-step
+undo as builtin proposals, including stale-target rejection.
+
+Context `input` transmits only the selected input envelope, with no directory
+tools, peer snapshot map or retained history. It always starts a fresh ephemeral
+child, including after broader directory work. Context `directory` permits the
+existing guarded discovery/snapshot policy and compatible private history.
+Changing that boundary first closes an idle child; retry after owned cleanup.
+A definition's model overrides the session-local choice, then the configured
+Pi model; an absent model uses those existing choices.
+
+```toml
+[ai.commands.table-total]
+prompt = "Add a totals row and preserve the table layout."
+input = "selection"
+context = "input"
+output = "replace"
+
+[keys.editor]
+"M-j" = "ai-table-total"
+
+[keys.vim_normal]
+"g t" = "ai-table-total"
+```
+
+Complete records merge by name through normal include/root precedence; duplicate
+keys within one TOML source reject. Definition admission precedes final keymap
+reference validation, so included maps can refer to a root definition. Existing
+context, prefix and reserved cancellation/recovery rules still apply. The full
+compiled catalog remains available alongside admitted saved names.
 
 ## Private Pi sessions and controls
 

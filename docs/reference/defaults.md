@@ -199,6 +199,7 @@ change only that view's overrides and never reload or write this snapshot.
 
 | Key | Type and bounds | Default | Scope and effect |
 | --- | --- | --- | --- |
+| `ai.commands` | Map of at most 64 complete literal definitions | `{}` | Callable ai-name records; input/context/output and optional Pi model. See [Reusable AI commands](commands.md#reusable-ai-commands). |
 | `ai.pi.command` | Nonempty string, at most 4096 bytes, no NUL | `"pi"` | Trusted executable name/path; arguments are supplied by the adapter without a shell. |
 | `ai.pi.model` | Optional nonempty string, at most 256 bytes, no NUL | Unset | Pi model reference; absent uses Pi's resolved model. |
 | `ai.pi.persist_sessions` | Boolean | `true` | Directory-history policy; input-only operations always use a fresh ephemeral child. |

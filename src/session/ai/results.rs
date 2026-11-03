@@ -66,6 +66,7 @@ impl Session {
             && !self.tree.focused()
             && !self.windows.retained_view_active();
         let id = payload.stamp.buffer;
+        self.ai.last = Some(request.definition.clone());
         self.ai.ready = Some(Ready { request, payload });
         if show {
             self.activate(id);
@@ -73,7 +74,9 @@ impl Session {
         if edits {
             self.message("AI proposal ready in *AI Result*; ai-apply-result or ai-discard-result")
         } else {
-            self.message("Pi explanation ready in *AI Explanation* (captured selection; read-only)")
+            self.message(
+                "Pi explanation ready in *AI Explanation* (captured native input; read-only)",
+            )
         }
     }
 
@@ -236,6 +239,13 @@ mod tests {
             .capture(source, session.view().point)
             .unwrap();
         let request = Request {
+            definition: crate::config::AiCommand {
+                prompt: "fixture".into(),
+                input: crate::config::AiInput::Point,
+                context: crate::config::AiContext::Directory,
+                output: Output::Insert,
+                model: None,
+            },
             target,
             return_to,
             root: std::env::temp_dir(),

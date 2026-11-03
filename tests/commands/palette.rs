@@ -105,7 +105,7 @@ fn filter_order() {
             .unwrap()
             .candidates()
             .into_iter()
-            .map(Command::name)
+            .map(|command| command.name().to_owned())
             .collect();
         assert_eq!(actual, expected, "{query}");
         assert_eq!(input.focus(), Focus::Command);
@@ -525,7 +525,7 @@ fn catalog_reference() {
     use std::collections::BTreeSet;
     let live = Command::ALL
         .into_iter()
-        .map(Command::name)
+        .map(|command| command.name().to_owned())
         .collect::<BTreeSet<_>>();
     assert_eq!(Command::ALL.len(), live.len(), "duplicate registry name");
     let cases = [
@@ -564,7 +564,10 @@ fn catalog_reference() {
             .map(|line| column.map_or(line, |index| line.split('|').nth(index).unwrap()))
             .flat_map(|line| line.split('`').skip(1).step_by(2))
             .collect::<Vec<_>>();
-        let documented = names.iter().copied().collect::<BTreeSet<_>>();
+        let documented = names
+            .iter()
+            .map(|name| (*name).to_owned())
+            .collect::<BTreeSet<_>>();
         assert_eq!(
             names.len(),
             documented.len(),
