@@ -70,16 +70,22 @@ readonly-transition case on the same head. The canonical PR contract check passe
 
 ## Slice 3: Native interaction and lifecycle
 
-State: implementing
+State: reviewing
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-shell-commands-03-interaction`
 Expected PR title: `feat(shell): integrate command keys and checked job lifecycle`
 Report: `ops/default/report/slices/rev-shell-commands/slice-3-interaction.md`
 
-- [ ] T3.1: Wire the four non-modal M-!/M-|/C-u sequences through effective native keymaps and prompt history; preserve Org C-u prefixes, configured overrides and modal motions.
-- [ ] T3.2: Exercise shared M-x/colon invocation, Visual-origin selection, inner cancellation priority, no focus stealing, output reopening, one active job, source rebind and ordinary save/quit decisions with owned cleanup.
-- [ ] T3.3: Complete startup/frame/status and idle integration without an always-running worker or idle timer. Reconcile command/configuration catalogs and delivered Unreleased behavior in the same slices.
+- [x] T3.1: Wire the four non-modal M-!/M-|/C-u sequences through effective native keymaps and prompt history; preserve Org C-u prefixes, configured overrides and modal motions.
+- [x] T3.2: Exercise shared M-x/colon invocation, Visual-origin selection, inner cancellation priority, no focus stealing, output reopening, one active job, source rebind and ordinary save/quit decisions with owned cleanup.
+- [x] T3.3: Complete startup/frame/status and idle integration without an always-running worker or idle timer. Reconcile command/configuration catalogs and delivered Unreleased behavior in the same slices.
 - [ ] Record exact-head validation, immutable report link and canonical PR.
+
+Task commits: T3.1 `7a898d22c8e867cf4dbfd2ab76f7b98a104d434e`,
+T3.2 `9e408f818be84c70ba87fa06a821ba061c7a1a5f`.
+T3.3 introduces the canonical report and completes frame/status/idle integration.
+Focused development checks passed 17 native/keymap/modal cases; the configured
+ordered prefix runs on the final clean PR head through the controller.
 
 ## Slice 4: Joint acceptance and guidance
 

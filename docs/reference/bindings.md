@@ -50,10 +50,10 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x ai-disconnect`, `:ai-disconnect` | `ai-disconnect` | Stop the owned child and retain private history/results. |
 | `M-x ai-cancel`, `:ai-cancel` | `ai-cancel` | Cancel the active invocation or AI-owned input/result. |
 | `M-x ai-save-command`, `:ai-save-command` | `ai-save-command` | Save the successful literal instruction as a reusable command. |
-| `M-x shell-command`, `:shell-command` | `shell-command` | Prompt for an explicit one-shot shell command with null stdin and bounded retained output; no dedicated default key yet. |
-| `M-x shell-command-on-region`, `:shell-command-on-region` | `shell-command-on-region` | Send the captured nonempty linear region as bounded stdin data and retain complete output without changing source. |
-| `M-x shell-filter-region`, `:shell-filter-region` | `shell-filter-region` | Replace the captured nonempty linear region with complete successful stdout as one checked edit. |
-| `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
+| `M-!` (non-modal), `M-x shell-command`, `:shell-command` | `shell-command` | Prompt for an explicit one-shot shell command with null stdin and bounded retained output. |
+| `M-\|` (non-modal), `M-x shell-command-on-region`, `:shell-command-on-region` | `shell-command-on-region` | Send the captured nonempty linear region as bounded stdin data and retain complete output without changing source. |
+| `C-u M-\|` (non-modal), `M-x shell-filter-region`, `:shell-filter-region` | `shell-filter-region` | Replace the captured nonempty linear region with complete successful stdout as one checked edit. |
+| `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |

@@ -10,6 +10,8 @@ mod interaction;
 mod lifecycle;
 #[path = "shell_commands/regions.rs"]
 mod regions;
+#[path = "shell_commands/status.rs"]
+mod status;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use fixture::Fixture;

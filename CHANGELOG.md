@@ -12,7 +12,11 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Run explicit shell commands from M-x or colon, send unsaved regions as input,
   replace a region or insert complete output in one undo step, and keep editing
   while commands run. Inspect bounded output and diagnostics in read-only text
-  buffers. Edits require valid complete stdout and an unchanged writable target.
+  buffers. Use M-!, M-\| and their C-u insertion/filter sequences in non-modal
+  editing, or the shared commands through M-x/colon. Recall recent accepted shell
+  commands with M-p/M-n. Cancel from the source after inner prompts close, and
+  see running/stopping status while a job is active. Edits require valid complete
+  stdout and an unchanged writable target.
 
 ## 0.4.0 - 2026-11-03
 

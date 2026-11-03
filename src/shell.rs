@@ -93,6 +93,9 @@ impl Operation {
     pub(crate) fn cancel(&self) {
         self.cancel.cancel();
     }
+    pub(crate) fn stopping(&self) -> bool {
+        self.cancel.is_cancelled()
+    }
     pub(crate) fn poll(&mut self) -> Option<Result<Outcome, String>> {
         if !self.worker.as_ref()?.is_finished() {
             return None;

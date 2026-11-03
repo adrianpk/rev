@@ -625,12 +625,23 @@ never recovered by stripping markup and never enter accepted source text.
 Run `M-x shell-command` or `:shell-command`, then accept a literal command such
 as `printf 'hello\n'`. The selected shell receives the accepted command as one
 argument after `shell.args`, with stdin immediately closed and no source text.
+
+The shell prompt retains the last 32 admitted command strings for this session;
+M-p/M-n recall them and restore the current draft. Cancelled or rejected input
+leaves history unchanged. In non-modal editing, M-! runs a command, M-\| sends
+the region, C-u M-! inserts output and C-u M-\| filters the region. These are
+exact sequences; modal Normal/Visual retain C-u motion. Linear Visual selections
+survive colon entry; blocks are rejected. Configured bindings use the same handlers.
+
 Its directory is captured before the prompt: the visiting file's parent, the
 explicitly opened directory for unnamed buffers, or the editor launch directory.
 The shell inherits the editor environment. No source file is saved automatically.
 
 One invocation runs at a time, within `shell.timeout_seconds` and the aggregate
-`shell.max_output_bytes` limit. Editing remains available. Use
+`shell.max_output_bytes` limit. Editing remains available; active-pane status
+shows the shell running or stopping.
+Completion is observed by native input polling or frame production, and a finished
+job leaves no shell worker or input deadline. Use
 `shell-command-cancel` or C-g in its originating editing context to cancel it;
 a prompt consumes its own cancellation first. Shutdown cleans up the owned
 process group after normal quit decisions succeed.

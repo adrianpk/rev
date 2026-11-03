@@ -11,6 +11,7 @@ mod capture;
 mod completion;
 mod lsp;
 mod shell;
+mod status;
 pub use crate::completion::{
     Candidate, Completion, CompletionFallback, CompletionSource, Kind as CompletionKind,
 };
@@ -532,6 +533,9 @@ impl Session {
     }
 
     fn refresh_frame(&mut self) -> Result<(), view::Error> {
+        // Canonical completion precedes the derived layout budget. Embedding
+        // hosts may observe ready jobs through frame() without synthesizing input.
+        self.expire_shell();
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
             if self.completion_work.owns(view.point.stamp.buffer)
@@ -591,7 +595,7 @@ impl Session {
         composition: Option<&crate::panel::Composition>,
     ) -> Result<(), view::Error> {
         self.modal_frame(frame, composition)?;
-        self.timer_frame(frame)?;
+        self.activity_frame(frame)?;
         self.habit_frame(frame, composition)?;
         self.agenda_frame(frame, composition)?;
         self.query_frame(frame, composition)?;

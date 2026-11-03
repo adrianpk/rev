@@ -149,6 +149,15 @@ impl Session {
     pub(super) fn shell_interaction(&mut self) {
         self.shell.notify = false;
     }
+    pub(super) fn shell_status(&self) -> Option<&'static str> {
+        self.shell.operation.as_ref().map(|operation| {
+            if operation.stopping() {
+                "<Shell stopping>"
+            } else {
+                "<Shell running>"
+            }
+        })
+    }
     pub(super) fn shell_remaining(&self) -> Option<Duration> {
         self.shell
             .operation

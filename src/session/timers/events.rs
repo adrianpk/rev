@@ -1,5 +1,4 @@
 use super::*;
-use crate::display::Frame;
 use std::time::{Duration, Instant};
 impl Session {
     pub(in crate::session) fn timer_remaining(&self, now: Instant) -> Option<Duration> {
@@ -23,19 +22,12 @@ impl Session {
             }
         }
     }
-    pub(in crate::session) fn timer_frame(
-        &self,
-        frame: &mut Frame,
-    ) -> Result<(), crate::view::Error> {
-        let label = if self.timer_notice {
+    pub(in crate::session) fn timer_status(&self) -> Option<String> {
+        if self.timer_notice {
             Some("<Timer done>".into())
         } else {
             self.timer_label()
-        };
-        if let Some(label) = label {
-            frame.timer_status(&format!("{} {label}", self.buffer()?.mode()))?;
         }
-        Ok(())
     }
     fn timer_label(&self) -> Option<String> {
         match self.timer.reading(self.timer_now()) {

@@ -1,9 +1,9 @@
 use super::*;
 use crate::window::Area;
-/// Add a disposable timer status only where a complete active-pane label fits.
+/// Add disposable activity status only where a complete active-pane label fits.
 /// The face range protects adjacent panes and the normal narrow status tokens.
 impl Frame {
-    pub(crate) fn timer_status(&mut self, label: &str) -> Result<(), Error> {
+    pub(crate) fn activity_status(&mut self, label: &str) -> Result<(), Error> {
         let cells = crate::coordinates::Glyphs::for_text(label)?
             .try_fold(0, |_, glyph| glyph.map(|g| g.columns.end))?;
         let mut target = None;
