@@ -30,6 +30,9 @@ See [controls](org-controls.md) for startup values and all other Org capabilitie
 markers and original stars. `org-reset-heading-presentation` clears that view's
 choice and restores `org.headings.pretty`. Both use M-x or modal colon, including
 in read-only Org results; neither has a factory shortcut or writes TOML.
+Feedback is `Org headings: source` or `Org headings: pretty`, including reset's
+effective startup choice. See the [heading exercise](../tutorials/user-guide/06-org-notes.md#inspect-heading-stars)
+for a small source/pretty example.
 A split inherits its source view's choice, then each pane is independent. Buffer
 switches, edits, undo and reload retain the choice. Prefix cells, point, copy and
 wrapping stay source-backed; entering the prefix never reveals it automatically.

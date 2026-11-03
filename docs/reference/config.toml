@@ -170,6 +170,8 @@ enabled = true
 
 [org.headings]
 # Source stars stay intact. Each marker occupies one terminal cell.
+# M-x org-pretty-headings-mode toggles only this view; reset its choice with
+# org-reset-heading-presentation. Neither command writes this file.
 pretty = true
 bullets = ["◉", "○", "✸", "✿", "◆", "▶"]
 hide_leading_stars = true

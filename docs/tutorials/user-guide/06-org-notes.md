@@ -1,7 +1,8 @@
 # Write Org Notes
 
 Org is a plain-text format for notes, outlines and tasks. Here you will create
-a small outline and fold part of it without changing the document.
+a small outline, inspect its heading presentation and fold part of it without
+changing the document.
 
 Open `trip.org` with `C-x C-f`. Type or paste:
 
@@ -19,13 +20,39 @@ Check the forecast before leaving.
 Save with `C-x C-s`. The status line shows `Org`; the filename enables the
 native mode automatically.
 
+## Inspect heading stars
+
+With the factory settings, the first two headings appear as `◉ Trip` and
+` ○ Equipment`. The markers follow heading levels; the saved file still
+contains `* Trip` and `** Equipment`.
+
+Run `M-x org-pretty-headings-mode`. The feedback reads `Org headings: source`
+and the original stars appear. Run it again: `Org headings: pretty` restores
+the markers. In the modal profile, `:org-pretty-headings-mode` runs the same
+command.
+
+Move through the prefix with the arrow keys. Each blank leading cell and the
+marker keep the original star's position. Selecting and copying this prefix
+copies its stars.
+
+Run `M-x org-reset-heading-presentation` to return this pane to your startup
+choice. With factory settings, the feedback is `Org headings: pretty`.
+Each pane has its own choice, so switching presentation does not change the
+file or another pane.
+
+The terminal chooses fonts and ligatures. If a marker is unavailable, switch
+to source presentation or choose simpler one-cell symbols in the
+[heading preferences](../../reference/defaults.md#org-heading-presentation).
+
 ## Fold an outline
 
-Move to the `* Trip` heading and press Tab. Its body and child headings fold
+Move to the `Trip` heading and press Tab. Its body and child headings fold
 away. Press Tab again to show its child headings, then again to show the
 complete subtree.
 
-After the first Tab, that part of the buffer shows:
+After the first Tab, that part of the buffer shows the following outline.
+These code examples use source stars; pretty presentation shows the same
+headings with markers.
 
 ```org
 * Trip

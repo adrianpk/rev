@@ -160,6 +160,9 @@ Heading recognition remains active with syntax coloring disabled, but respects
 `org.enabled`. The terminal owns font coverage and shaping; use `pretty = false`
 or simpler one-cell markers when a symbol is unavailable. rev installs no fonts
 and does not rewrite programming operators to imitate ligatures.
+Use `org-pretty-headings-mode` to override only the active view's pretty flag;
+`org-reset-heading-presentation` returns to its immutable startup value.
+Both use M-x or modal colon and leave this configuration unchanged.
 
 ### Source metadata and maps
 

@@ -10,7 +10,7 @@ start with [Edit Your First File](../01-first-file.md) and
 
 ## Get started
 
-1. [Write Org Notes](../06-org-notes.md): create headings and fold an outline.
+1. [Write Org Notes](../06-org-notes.md): create headings, switch source/pretty presentation and fold an outline.
 2. [Plan Tasks](../07-org-tasks-and-agenda.md): complete a task, schedule another and find it in the agenda.
 3. [Calculate a Table](../08-org-tables.md): align cells and recalculate a numeric column.
 

@@ -16,6 +16,8 @@ This project uses Semantic Versioning.
   headings per view with `org-pretty-headings-mode`, or restore the startup choice
   with `org-reset-heading-presentation`, through M-x or modal colon. Splits inherit
   independent choices, which survive buffer switches, edits, undo and reload.
+  [Write Org Notes](docs/tutorials/user-guide/06-org-notes.md#inspect-heading-stars)
+  walks through source/pretty presentation and canonical star copy.
 
 - [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.

@@ -235,3 +235,32 @@ cleanup within a minute. It reports model, counts and timing without printing
 authentication or the response. Do not put that mode in automatic gate retries.
 Record the actual authentication form separately; offline fixtures do not prove
 OAuth or API-key provider availability.
+
+## Run heading presentation acceptance
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh
+```
+
+This journey needs Linux, the repository toolchain, cached locked Cargo
+dependencies, Bash, `rg`, util-linux `script`, `stty`, `kill` and GNU
+`timeout`. It builds the normal release editor and Rust driver with one job
+and checks the heading policy, projection, view and command owners, crate roots
+and heading/shared acceptance sources.
+It uses isolated HOME/XDG roots without a language server, provider or font
+installation.
+
+Native cases and four real PTYs cover both editing profiles at 40x12 and
+80x24, then resize to the other dimensions. They check emitted level-1-to-8
+markers, explicit source/pretty/reset, canonical star copy, unchanged source
+point, command cancellation, unchanged disk bytes and terminal restoration.
+Native cases also preserve BOM/CRLF bytes and empty history. A finite large
+Org fixture checks a heading-level edit and one undo, and measures startup,
+repeated projection, refresh, peak RSS and idle CPU;
+idle work has no pending deadline. Each PTY retains eight seconds and 1 MiB
+of output; native/resource cases have 20-second outer guards and the four-PTY
+group has 35 seconds. Only owned completed fixtures are removed.
+
+These measurements describe the local run. Emitted Unicode characters establish
+terminal protocol behavior; glyph appearance and ligatures belong to the
+hosting terminal.
