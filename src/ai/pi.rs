@@ -1,88 +1,181 @@
-//! One lazy, owned Pi 1.3.0 RPC operation. Input-only grants always use a new
-//! child with no tools or persisted session. All process IO is off the UI thread.
-
+//! Owned Pi 1.3.0 operations and compatible idle connections. Pi owns history;
+//! native state retains only binding metadata and bounded result/protocol data.
 mod directory;
 mod frame;
-pub(crate) use directory::{private_roots, source_path};
+mod history;
 mod io;
 mod protocol;
 mod resource;
+mod worker;
+pub(crate) use directory::{private_roots, source_path};
 
+use crate::config::Pi;
+use serde_json::json;
 use std::path::PathBuf;
-use std::process::Command;
 use std::sync::{
-    Arc,
+    Arc, Mutex, Weak,
     atomic::{AtomicBool, Ordering},
 };
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use serde_json::json;
-
-use crate::config::Pi;
-
+#[derive(Default)]
+struct Mailbox {
+    result: Option<Answer>,
+    pending: Option<Request>,
+    idle_until: Option<Instant>,
+    closed: bool,
+}
 #[derive(Default)]
 pub(super) struct Control {
     cancel: AtomicBool,
     accepted: AtomicBool,
     cleanup_failed: AtomicBool,
+    reset_applied: AtomicBool,
+    mailbox: Mutex<Mailbox>,
+    wake: Mutex<Weak<io::Inbox>>,
 }
-
 impl Control {
     fn canceled(&self) -> bool {
         self.cancel.load(Ordering::Acquire)
     }
+    fn wake(&self) {
+        if let Some(inbox) = self.wake.lock().expect("Pi wake owner").upgrade() {
+            inbox.wake();
+        }
+    }
 }
 
-/// A settled explanation and observed backend identity, without provider secrets.
 #[derive(Debug)]
 pub struct Output {
     pub text: String,
     pub model: String,
     pub directory: bool,
+    pub history: String,
+}
+/// Pi-reported model identifiers only; authentication/provider settings stay in Pi.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Model {
+    pub provider: String,
+    pub id: String,
+}
+impl Model {
+    pub fn reference(&self) -> String {
+        format!("{}/{}", self.provider, self.id)
+    }
+}
+enum Answer {
+    Generated(Output),
+    Models(Vec<Model>),
+}
+enum Purpose {
+    Generate(String),
+    Models,
+}
+struct Request {
+    purpose: Purpose,
+    epoch: u64,
+    deadline: Instant,
+}
+struct Profile {
+    directory: bool,
+    retained: bool,
+    state: Option<PathBuf>,
+    reset: bool,
 }
 
-/// Owns the only supervisor slot until all child IO/shutdown has completed.
-/// Dropping requests cancellation and waits only for the finite cleanup owner.
+/// One invocation slot and, for managed directory operations, its idle child.
+/// No request can queue behind another active invocation or a stopping child.
 pub struct Operation {
     epoch: u64,
+    policy: Pi,
+    root: PathBuf,
     control: Arc<Control>,
-    task: Option<JoinHandle<Result<Output, String>>>,
+    task: Option<JoinHandle<Result<(), String>>>,
 }
-
 impl Operation {
-    /// Start an explicit bounded input-only invocation; no shell interpolation,
-    /// filesystem discovery or previous Pi conversation is admitted.
+    /// Fresh input-only invocation, independent of directory persistence settings.
     pub fn start(policy: Pi, root: PathBuf, message: String, epoch: u64) -> Result<Self, String> {
-        Self::launch(policy, root, message, epoch, false)
+        Self::launch(
+            policy,
+            root,
+            Purpose::Generate(message),
+            epoch,
+            Profile {
+                directory: false,
+                retained: false,
+                state: None,
+                reset: false,
+            },
+        )
     }
-
-    /// Start fresh directory discovery using only the embedded read/list/search
-    /// resource. Root must already be canonical. Native snapshots are structured
-    /// data in the bounded envelope.
+    /// Explicit fresh directory grant, without retained process/history state.
     pub fn directory(
         policy: Pi,
         root: PathBuf,
         message: String,
         epoch: u64,
     ) -> Result<Self, String> {
-        Self::launch(policy, root, message, epoch, true)
+        Self::launch(
+            policy,
+            root,
+            Purpose::Generate(message),
+            epoch,
+            Profile {
+                directory: true,
+                retained: false,
+                state: None,
+                reset: false,
+            },
+        )
     }
-
-    fn launch(
+    /// Managed directory history. State is the host's XDG state namespace;
+    /// None resolves the normal user namespace only for this explicit operation.
+    pub fn retained(
         policy: Pi,
         root: PathBuf,
         message: String,
         epoch: u64,
-        directory: bool,
+        state: Option<PathBuf>,
+        reset: bool,
     ) -> Result<Self, String> {
-        if message.len() > policy.max_input_bytes {
-            return Err("Pi editor envelope exceeds max_input_bytes".into());
-        }
-        frame::encode(&json!({"id":format!("{epoch}:prompt"),"type":"prompt","message":&message}))?;
-        // Retain the admitted inode across thread scheduling, version probing
-        // and extension startup; replacing its name cannot recycle its identity.
-        let root_handle = if directory {
+        Self::launch(
+            policy,
+            root,
+            Purpose::Generate(message),
+            epoch,
+            Profile {
+                directory: true,
+                retained: true,
+                state,
+                reset,
+            },
+        )
+    }
+    /// Read Pi's model catalog in a fresh tool-free memory-only child.
+    pub fn models(policy: Pi, root: PathBuf, epoch: u64) -> Result<Self, String> {
+        Self::launch(
+            policy,
+            root,
+            Purpose::Models,
+            epoch,
+            Profile {
+                directory: false,
+                retained: false,
+                state: None,
+                reset: false,
+            },
+        )
+    }
+    fn launch(
+        policy: Pi,
+        root: PathBuf,
+        purpose: Purpose,
+        epoch: u64,
+        profile: Profile,
+    ) -> Result<Self, String> {
+        admitted(&policy, &purpose, epoch)?;
+        let root_handle = if profile.directory {
             let handle = rustix::fs::open(
                 &root,
                 rustix::fs::OFlags::RDONLY
@@ -94,7 +187,7 @@ impl Operation {
             .map_err(|_| "Pi directory root could not be pinned")?;
             if root
                 .canonicalize()
-                .map_err(|_| "Pi directory root is unavailable")?
+                .map_err(|_| "Pi directory root unavailable")?
                 .as_os_str()
                 != root.as_os_str()
             {
@@ -104,93 +197,89 @@ impl Operation {
         } else {
             None
         };
+        let request = Request {
+            purpose,
+            epoch,
+            deadline: Instant::now() + Duration::from_millis(policy.request_timeout_ms as u64),
+        };
         let control = Arc::new(Control::default());
-        let worker = control.clone();
-        let deadline = Instant::now() + Duration::from_millis(policy.request_timeout_ms as u64);
+        let worker_control = control.clone();
+        let worker_policy = policy.clone();
+        let worker_root = root.clone();
         let task = std::thread::Builder::new()
             .name("rev-pi".into())
             .spawn(move || {
-                let canonical = root.canonicalize().map_err(|_| "Pi working directory is unavailable")?;
-                if directory && canonical.as_os_str() != root.as_os_str() {
-                    return Err("Pi canonical root changed before launch".into());
-                }
-                let root = canonical;
-                if !root.is_dir() {
-                    return Err("Pi working directory is not a directory".into());
-                }
-                use std::os::unix::fs::MetadataExt;
-                let root_observation = std::fs::metadata(&root).map_err(|_| "Pi root observation failed")?;
-                if let Some(handle) = &root_handle {
-                    let held = handle.metadata().map_err(|_| "Pi root handle failed")?;
-                    if held.dev() != root_observation.dev() || held.ino() != root_observation.ino() {
-                        return Err("Pi directory root changed before launch".into());
-                    }
-                }
-                probe(&policy, &root, &worker, deadline)?;
-                let resource = if directory { Some(resource::Resource::new()?) } else { None };
-                if worker.canceled() {
-                    return Err("Pi invocation canceled".into());
-                }
-                let (pipes, stdio) = io::Pipes::new()?;
-                let [stdin, stdout, stderr] = stdio;
-                let mut command = Command::new(&policy.command);
-                command.args([
-                    "--mode",
-                    "rpc",
-                    "--no-session",
-                    "--no-extensions",
-                    "--no-mcp",
-                    "--no-skills",
-                    "--no-prompt-templates",
-                    "--no-context-files",
-                    "--no-themes",
-                    "--no-approve",
-                    "--offline",
-                ]);
-                if let Some(resource) = &resource {
-                    resource.check().map_err(|_| "Pi internal resource changed")?;
-                    command.args(["--tools", "rev_read,rev_list,rev_search", "--extension"]).arg(&resource.path);
-                } else {
-                    command.arg("--no-tools");
-                }
-                if let Some(model) = &policy.model {
-                    command.arg("--model").arg(model);
-                }
-                let mut child = io::Owned::new(
-                    command
-                        .current_dir(&root)
-                        .stdin(stdin)
-                        .stdout(stdout)
-                        .stderr(stderr)
-                        .spawn()
-                        .map_err(|_| "Pi RPC launch failed; check ai.pi.command")?,
-                    worker.clone(),
+                let result = worker::run(
+                    worker_policy,
+                    worker_root,
+                    root_handle,
+                    request,
+                    profile,
+                    &worker_control,
                 );
-                pipes.drive(&mut child, |inbox, input, _child| {
-                    let private_roots = if directory { directory::private_roots()? } else { Vec::new() };
-                    let admission = directory.then(|| json!({
-                        "version":1, "nonce":epoch, "root":root,
-                        "dev":root_observation.dev().to_string(), "ino":root_observation.ino().to_string(),
-                        "timeout_ms":deadline.saturating_duration_since(Instant::now()).as_millis().min(1_800_000) as u64,
-                        "max_input_bytes":policy.max_input_bytes,
-                        "private_roots":private_roots
-                    }));
-                    let result = protocol::run(inbox, input, &worker, &policy, &message, epoch, deadline, admission.as_ref());
-                    if result.is_err() {
-                        protocol::cancel(inbox, input, epoch);
+                let mut mailbox = worker_control.mailbox.lock().expect("Pi mailbox");
+                mailbox.closed = true;
+                match result {
+                    Ok(answer) => {
+                        if let Some(answer) = answer {
+                            mailbox.result = Some(answer);
+                        }
+                        Ok(())
                     }
-                    result
-                })
+                    Err(error) => Err(error),
+                }
             })
             .map_err(|_| "Pi supervisor could not start")?;
         Ok(Self {
             epoch,
+            policy,
+            root,
             control,
             task: Some(task),
         })
     }
-
-    /// Failed OS cleanup blocks replacement children for this editor owner.
+    pub fn matches(&self, policy: &Pi, root: &std::path::Path) -> bool {
+        self.policy == *policy && self.root == root
+    }
+    pub fn can_reuse(&self) -> bool {
+        let state = self.control.mailbox.lock().expect("Pi mailbox");
+        !state.closed
+            && !self.is_canceled()
+            && state.idle_until.is_some_and(|end| Instant::now() < end)
+            && state.result.is_none()
+    }
+    pub fn resume(&mut self, message: String, epoch: u64) -> Result<(), String> {
+        self.begin(Purpose::Generate(message), epoch)
+    }
+    pub fn query_models(&mut self, epoch: u64) -> Result<(), String> {
+        self.begin(Purpose::Models, epoch)
+    }
+    fn begin(&mut self, purpose: Purpose, epoch: u64) -> Result<(), String> {
+        admitted(&self.policy, &purpose, epoch)?;
+        let mut state = self.control.mailbox.lock().expect("Pi mailbox");
+        if state.closed
+            || self.is_canceled()
+            || state.result.is_some()
+            || state.pending.is_some()
+            || state.idle_until.is_none_or(|end| Instant::now() >= end)
+        {
+            return Err("Pi idle connection expired or is stopping; retry after cleanup".into());
+        }
+        state.pending = Some(Request {
+            purpose,
+            epoch,
+            deadline: Instant::now() + Duration::from_millis(self.policy.request_timeout_ms as u64),
+        });
+        state.idle_until = None;
+        self.epoch = epoch;
+        self.control.accepted.store(false, Ordering::Release);
+        drop(state);
+        self.control.wake();
+        Ok(())
+    }
+    pub fn reset_applied(&self) -> bool {
+        self.control.reset_applied.load(Ordering::Acquire)
+    }
     pub fn cleanup_failed(&self) -> bool {
         self.control.cleanup_failed.load(Ordering::Acquire)
     }
@@ -202,33 +291,67 @@ impl Operation {
     }
     pub fn cancel(&self) {
         self.control.cancel.store(true, Ordering::Release);
+        self.control.wake();
     }
     pub fn is_canceled(&self) -> bool {
         self.control.canceled()
     }
-    pub fn finished(&self) -> bool {
+    pub fn worker_finished(&self) -> bool {
         self.task.as_ref().is_none_or(JoinHandle::is_finished)
     }
-
-    /// Only joins a completed worker. Cancellation fences even a settled result
-    /// that raced with native input before the UI took the completion.
-    pub fn take(&mut self) -> Option<Result<Output, String>> {
-        if !self.finished() {
-            return None;
-        }
-        let result = self
-            .task
-            .take()?
-            .join()
-            .unwrap_or_else(|_| Err("Pi supervisor failed".into()));
-        Some(if self.is_canceled() {
-            Err("Pi invocation canceled".into())
+    pub fn finished(&self) -> bool {
+        self.control
+            .mailbox
+            .lock()
+            .expect("Pi mailbox")
+            .result
+            .is_some()
+            || self.worker_finished()
+    }
+    fn answer(&mut self) -> Option<Result<Answer, String>> {
+        let ready = self
+            .control
+            .mailbox
+            .lock()
+            .expect("Pi mailbox")
+            .result
+            .take();
+        let result = if let Some(answer) = ready {
+            Some(Ok(answer))
+        } else if self.worker_finished() {
+            match self.task.take()?.join() {
+                Ok(Ok(())) => None,
+                Ok(Err(e)) => Some(Err(e)),
+                Err(_) => Some(Err("Pi supervisor failed".into())),
+            }
         } else {
-            result
+            None
+        };
+        result.map(|r| {
+            if self.is_canceled() {
+                Err("Pi invocation canceled".into())
+            } else {
+                r
+            }
+        })
+    }
+    pub fn take(&mut self) -> Option<Result<Output, String>> {
+        self.answer().map(|r| {
+            r.and_then(|a| match a {
+                Answer::Generated(out) => Ok(out),
+                Answer::Models(_) => Err("Pi operation returned a model catalog".into()),
+            })
+        })
+    }
+    pub fn take_models(&mut self) -> Option<Result<Vec<Model>, String>> {
+        self.answer().map(|r| {
+            r.and_then(|a| match a {
+                Answer::Models(models) => Ok(models),
+                Answer::Generated(_) => Err("Pi operation returned generated text".into()),
+            })
         })
     }
 }
-
 impl Drop for Operation {
     fn drop(&mut self) {
         self.cancel();
@@ -237,57 +360,12 @@ impl Drop for Operation {
         }
     }
 }
-
-fn probe(
-    policy: &Pi,
-    root: &std::path::Path,
-    control: &Arc<Control>,
-    deadline: Instant,
-) -> Result<(), String> {
-    let (pipes, stdio) = io::Pipes::new()?;
-    let [stdin, stdout, stderr] = stdio;
-    let mut child = io::Owned::new(
-        Command::new(&policy.command)
-            .arg("--version")
-            .env("PI_OFFLINE", "1")
-            .current_dir(root)
-            .stdin(stdin)
-            .stdout(stdout)
-            .stderr(stderr)
-            .spawn()
-            .map_err(|_| "Pi is unavailable; install Pi 1.3.0 or set ai.pi.command")?,
-        control.clone(),
-    );
-    pipes.drive(&mut child, |inbox, _input, child| {
-        let deadline = deadline.min(Instant::now() + Duration::from_secs(5));
-        loop {
-            if control.canceled() {
-                return Err("Pi invocation canceled".into());
-            }
-            if Instant::now() >= deadline {
-                return Err("Pi version probe exceeded its deadline".into());
-            }
-            if let Some(bytes) = inbox.next(Duration::from_millis(20))? {
-                if bytes != b"1.3.0" {
-                    return Err(
-                        "Unsupported Pi version; this adapter requires checked Pi 1.3.0".into(),
-                    );
-                }
-                // Version output is an admission observation, not model work.
-                // The same executable is used for the owned RPC child.
-                let exit = Instant::now() + Duration::from_secs(1);
-                while Instant::now() < exit {
-                    if let Some(status) = child.try_wait().map_err(|_| "Pi version wait failed")? {
-                        return if status.success() {
-                            Ok(())
-                        } else {
-                            Err("Pi version probe failed".into())
-                        };
-                    }
-                    std::thread::sleep(Duration::from_millis(10));
-                }
-                return Err("Pi version probe did not exit".into());
-            }
+fn admitted(policy: &Pi, purpose: &Purpose, epoch: u64) -> Result<(), String> {
+    if let Purpose::Generate(message) = purpose {
+        if message.len() > policy.max_input_bytes {
+            return Err("Pi editor envelope exceeds max_input_bytes".into());
         }
-    })
+        frame::encode(&json!({"id":format!("{epoch}:prompt"),"type":"prompt","message":message}))?;
+    }
+    Ok(())
 }

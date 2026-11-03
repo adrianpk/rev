@@ -15,7 +15,10 @@ This project uses Semantic Versioning.
   normally, or discard it without changing source. Let Pi inspect the chosen
   directory through bounded read, list and literal-search tools, with current
   editor snapshots taking precedence over disk. Source writes and shell tools
-  stay disabled; each invocation currently starts with fresh history.
+  stay disabled. Retain isolated private directory history across restarts,
+  choose an AI directory and Pi-reported model for the editor session, or reset
+  history and disconnect explicitly. Idle children close after the configured
+  timeout; input-only operations always use fresh ephemeral history.
 
 - Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane

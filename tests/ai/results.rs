@@ -280,7 +280,7 @@ fn incomplete_results_never_apply() {
             f.write(
                 "config.toml",
                 &format!(
-                    "[ai.pi]\ncommand='{}'\nmax_result_bytes=1\n",
+                    "[ai.pi]\npersist_sessions=false\nidle_timeout_ms=0\ncommand='{}'\nmax_result_bytes=1\n",
                     f.0.join("pi-peer").display()
                 ),
             );

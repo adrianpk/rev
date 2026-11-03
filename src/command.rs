@@ -72,6 +72,11 @@ pub enum Command {
     AiImplement,
     AiApplyResult,
     AiDiscardResult,
+    AiSetDirectory,
+    AiSelectModel,
+    AiResetSession,
+    AiDisconnect,
+    AiCancel,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -91,7 +96,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 423] = [
+    pub const ALL: [Self; 428] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -484,6 +489,11 @@ impl Command {
         Self::AiImplement,
         Self::AiApplyResult,
         Self::AiDiscardResult,
+        Self::AiSetDirectory,
+        Self::AiSelectModel,
+        Self::AiResetSession,
+        Self::AiDisconnect,
+        Self::AiCancel,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -568,6 +578,11 @@ impl Command {
             Self::AiImplement => "ai-implement",
             Self::AiApplyResult => "ai-apply-result",
             Self::AiDiscardResult => "ai-discard-result",
+            Self::AiSetDirectory => "ai-set-directory",
+            Self::AiSelectModel => "ai-select-model",
+            Self::AiResetSession => "ai-reset-session",
+            Self::AiDisconnect => "ai-disconnect",
+            Self::AiCancel => "ai-cancel",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),

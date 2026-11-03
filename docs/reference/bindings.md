@@ -39,11 +39,16 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-x C-s` | `save-buffer` | Save to the current destination. |
 | `C-x C-w` | `write-file` | Request another destination. |
 | `M-x revert-buffer`, `:revert-buffer` | `revert-buffer` | Reload a checked disk image; confirm before discarding unsaved text. |
-| `M-x ai-explain`, `:ai-explain` | `ai-explain` | Explain the captured selection through a fresh input-only Pi session. |
+| `M-x ai-explain`, `:ai-explain` | `ai-explain` | Explain the captured selection with guarded directory context and compatible private Pi history. |
 | `M-x ai-prompt`, `:ai-prompt` | `ai-prompt` | Ask for an instruction; show selection replacement or point insertion before generation. |
 | `M-x ai-implement`, `:ai-implement` | `ai-implement` | Ask for an instruction for the captured insertion point. |
 | `M-x ai-apply-result`, `:ai-apply-result` | `ai-apply-result` | Apply the selected proposal once to its original checked target. |
 | `M-x ai-discard-result`, `:ai-discard-result` | `ai-discard-result` | Discard the pending result without editing source. |
+| `M-x ai-set-directory`, `:ai-set-directory` | `ai-set-directory` | Choose a session-local AI context root. |
+| `M-x ai-select-model`, `:ai-select-model` | `ai-select-model` | Choose a Pi-reported provider/model for this editor session. |
+| `M-x ai-reset-session`, `:ai-reset-session` | `ai-reset-session` | Start fresh owned history on the next explicit invocation. |
+| `M-x ai-disconnect`, `:ai-disconnect` | `ai-disconnect` | Stop the owned child and retain private history/results. |
+| `M-x ai-cancel`, `:ai-cancel` | `ai-cancel` | Cancel the active invocation or AI-owned input/result. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

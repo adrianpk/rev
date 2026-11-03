@@ -13,6 +13,7 @@ struct Queue {
     records: VecDeque<Vec<u8>>,
     bytes: usize,
     closed: bool,
+    woken: bool,
     failure: Option<String>,
 }
 
@@ -26,11 +27,16 @@ pub(super) struct Inbox {
 }
 
 impl Inbox {
+    pub fn wake(&self) {
+        self.queue.lock().expect("Pi wake queue").woken = true;
+        self.ready.notify_all();
+    }
     pub fn next(&self, wait: Duration) -> Result<Option<Vec<u8>>, String> {
         let mut queue = self.queue.lock().expect("Pi inbox");
-        if queue.records.is_empty() && !queue.closed && queue.failure.is_none() {
+        if queue.records.is_empty() && !queue.closed && queue.failure.is_none() && !queue.woken {
             queue = self.ready.wait_timeout(queue, wait).expect("Pi wait").0;
         }
+        queue.woken = false;
         if let Some(error) = &queue.failure {
             return Err(error.clone());
         }
@@ -86,6 +92,20 @@ impl Owned {
             stop_attempted: false,
             control,
         }
+    }
+    pub fn limit_history(&self) -> Result<(), String> {
+        let pid = rustix::process::Pid::from_raw(self.child.id() as i32)
+            .ok_or("Pi process identity invalid")?;
+        rustix::process::prlimit(
+            Some(pid),
+            rustix::process::Resource::Fsize,
+            rustix::process::Rlimit {
+                current: Some(super::history::SESSION_BYTES),
+                maximum: Some(super::history::SESSION_BYTES),
+            },
+        )
+        .map_err(|_| "Pi history file limit could not be enforced")?;
+        Ok(())
     }
     fn stop(&mut self) -> Result<(), String> {
         self.stop_attempted = true;
@@ -150,6 +170,7 @@ impl Pipes {
             .try_clone()
             .map_err(|_| "Pi stderr clone failed")?;
         let inbox = Arc::new(Inbox::default());
+        *child.control.wake.lock().expect("Pi wake owner") = Arc::downgrade(&inbox);
         std::thread::scope(|scope| {
             // Release scoped readers before joining them even if setup/run
             // unwinds. Inherited descriptors cannot retain these local reads.

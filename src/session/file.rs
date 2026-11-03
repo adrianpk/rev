@@ -135,6 +135,8 @@ impl Session {
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
             Some(Pending::Ai(request)) => self.ai_argument(*request, &path),
+            Some(Pending::AiDirectory) => self.ai_directory_argument(&path),
+            Some(Pending::AiModel(models)) => self.ai_model_argument(models, &path),
             Some(Pending::LspSetup(prompt)) => self.lsp_setup_argument(*prompt, &path),
             Some(Pending::Bookmark(prompt)) => self.bookmark_argument(prompt, &path),
             Some(Pending::BookmarkQuit) => self.bookmark_quit_answer(&path),

@@ -3,6 +3,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// Pi creates history lazily; keep its owned JSONL private before the first write.
+process.umask(0o077);
+
 const TOOLS = ['rev_read', 'rev_list', 'rev_search'];
 const FILE = 1048576, RETURNED = 4194304;
 const FLAGS = fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK;
@@ -28,7 +31,7 @@ function integer(value, fallback, min, max) {
 }
 
 export default function (pi) {
-  let grant, rootFd, rootId, calls = 0, returned = 0, turns = 0, poisoned = false;
+  let grant, rootFd, rootId, calls = 0, returned = 0, invocationMessage, poisoned = false;
   let snapshots = new Map();
   function check(signal) {
     if (!grant || poisoned) error('grant unavailable');
@@ -221,17 +224,18 @@ export default function (pi) {
     handler: async (raw, ctx) => {
       let nonce;
       try {
-        if (grant) error('grant already admitted');
+        if (!ctx.isIdle()) error('grant requires an idle boundary');
         const data = JSON.parse(raw); nonce = data.nonce;
         if (data.version !== 1 || !path.isAbsolute(data.root) || fs.realpathSync(data.root) !== data.root) error('invalid canonical root');
         parts(data.root.slice(1), true);
-        const fd = fs.openSync(data.root, DIRECTORY);
-        rootFd = fd; rootId = identity(stat(fd));
+        if (grant && (data.nonce <= grant.nonce || data.root !== grant.root || data.max_input_bytes !== grant.max_input_bytes || JSON.stringify(data.private_roots) !== JSON.stringify(grant.private_roots))) error('grant boundary changed');
+        if (rootFd === undefined) { rootFd = fs.openSync(data.root, DIRECTORY); rootId = identity(stat(rootFd)); }
         if (rootId !== `${data.dev}:${data.ino}`) error('root observation changed');
-        grant = { root: data.root, deadline: Date.now() + integer(data.timeout_ms, undefined, 1, 1800000), max_input_bytes: integer(data.max_input_bytes, undefined, 1, 4194304), private_roots: data.private_roots };
+        grant = { nonce: data.nonce, root: data.root, deadline: Date.now() + integer(data.timeout_ms, undefined, 1, 1800000), max_input_bytes: integer(data.max_input_bytes, undefined, 1, 4194304), private_roots: data.private_roots };
         if (!Array.isArray(grant.private_roots) || grant.private_roots.length > 16 || grant.private_roots.some(p => typeof p !== 'string' || !path.isAbsolute(p))) error('invalid private paths');
         admitted(rootFd);
         check();
+        calls = 0; returned = 0; invocationMessage = undefined; modelTurns = 0; snapshots = new Map();
         const tools = pi.getActiveTools().slice().sort();
         if (JSON.stringify(tools) !== JSON.stringify(TOOLS.slice().sort())) error('effective tool profile differs');
         ctx.ui.notify(JSON.stringify({ type: 'rev-discovery-v1', nonce, tools, admitted: true }), 'info');
@@ -244,7 +248,11 @@ export default function (pi) {
   pi.on('before_agent_start', async (event, ctx) => {
     try {
     check();
-    if (++turns > 1 || Buffer.byteLength(event.prompt) > grant.max_input_bytes) { poisoned = true; error('invalid invocation envelope'); }
+    if (Buffer.byteLength(event.prompt) > grant.max_input_bytes || (invocationMessage !== undefined && event.prompt !== invocationMessage)) { poisoned = true; error('invalid invocation envelope or hidden follow-up'); }
+    // Pi may retry/compact this same invocation. Its exact envelope can be
+    // revisited without resetting turn/tool/byte accounting.
+    if (invocationMessage !== undefined) return;
+    invocationMessage = event.prompt;
     poisoned = true;
     const envelope = JSON.parse(event.prompt);
     const sources = envelope.dirty_sources;

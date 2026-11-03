@@ -21,7 +21,8 @@ use std::time::Instant;
 fn editor(f: &Fixture, mode: &str, profile: &str, selection: bool) -> Session {
     let command = support::peer(f, mode);
     let source = format!(
-        "[editor]\ninteraction_profile = '{profile}'\n[ai.pi]\ncommand = '{}'\nrequest_timeout_ms = 1000\n",
+        "[editor]\ninteraction_profile = '{profile}'\n[ai.pi]\npersist_sessions=false\nidle_timeout_ms={}\ncommand = '{}'\nrequest_timeout_ms = 1000\n",
+        if mode == "idle" { 5000 } else { 0 },
         command.display()
     );
     let config = f.write("config.toml", &source);

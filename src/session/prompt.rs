@@ -148,6 +148,7 @@ impl Session {
             Some(Pending::Ai(_)) => {
                 self.message("Enter a literal instruction for the captured AI target; C-g cancels")
             }
+            Some(Pending::AiDirectory) => self.message("Enter a directory path; C-g cancels"),
             Some(Pending::Path(_)) => self.complete_path(),
             Some(Pending::GotoLine { .. }) => {
                 self.message("Enter a signed decimal line number; C-g cancels")

@@ -20,6 +20,13 @@ if '--extension' in sys.argv:
     assert resource.stat().st_size <= 65536
     (root/'resource-copy').write_bytes(resource.read_bytes())
     (root/'resource-mode').write_text(json.dumps(dict(file=resource.stat().st_mode & 0o777, parent=resource.parent.stat().st_mode & 0o777, link=resource.is_symlink())))
+session = Path(sys.argv[sys.argv.index('--session')+1]) if '--session' in sys.argv else None
+count = 0
+model = sys.argv[sys.argv.index('--model')+1] if '--model' in sys.argv else (root/'resolved-model').read_text() if (root/'resolved-model').exists() else 'fixture/controlled'
+provider, model_id = model.split('/',1)
+if session:
+    import resource
+    (root/'file-limit').write_text(json.dumps(resource.getrlimit(resource.RLIMIT_FSIZE)))
 def emit(v):
     sys.stdout.write(json.dumps(v, ensure_ascii=False) + '\n')
     sys.stdout.flush()
@@ -35,8 +42,14 @@ for line in sys.stdin:
     with (root/'requests').open('a') as log: log.write(json.dumps(r)+'\n')
     kind = r['type']
     if kind == 'get_state':
-        response(r, dict(isStreaming=False, isCompacting=False, messageCount=1 if mode=='history' else 0, pendingMessageCount=0,model=dict(provider='fixture',id='controlled')))
+        response(r, dict(isStreaming=False, isCompacting=False, messageCount=1 if mode=='history' else count, pendingMessageCount=0,model=dict(provider=provider,id=model_id),**(dict(sessionFile=str(session)) if session else {})))
         if mode == 'stdin_stall': time.sleep(20)
+    elif kind == 'get_available_models':
+        response(r,dict(models=[dict(provider='fixture',id='controlled'),dict(provider='another',id='model')]))
+    elif kind == 'switch_session':
+        session=Path(r['sessionPath'])
+        count=len(session.read_text().splitlines())
+        response(r,dict(cancelled=False))
     elif kind == 'prompt' and r['message'].startswith('/rev-discovery '):
         grant = json.loads(r['message'].split(' ',1)[1])
         (root/'grant').write_text(json.dumps(grant))
@@ -51,6 +64,10 @@ for line in sys.stdin:
         response(r,dict(disposition='handled'))
     elif kind == 'prompt':
         (root/'prompt').write_text(r['message'])
+        count+=1
+        if session:
+            os.umask(0o077)
+            with session.open('a') as history: history.write(json.dumps(dict(fixture=True,message=r['message']))+'\n')
         if mode == 'rejected':
             response(r, success=False)
             continue
@@ -84,6 +101,16 @@ for line in sys.stdin:
             emit(dict(type='extension_ui_request',id='dialog',method='input',title='SECRET-FIXTURE-MUST-NOT-LEAK'));continue
         if mode == 'tool':
             emit(dict(type='tool_execution_start',toolName='bash'));continue
+        if mode == 'compaction':
+            emit(dict(type='compaction_start',reason='threshold'))
+            emit(dict(type='compaction_end',reason='threshold',aborted=False,willRetry=False,result=dict(summary='fixture history')))
+        if mode == 'compaction_turns':
+            for n in range(9):
+                if n == 4:
+                    emit(dict(type='compaction_start',reason='threshold'))
+                    emit(dict(type='compaction_end',reason='threshold',aborted=False,willRetry=False,result=dict(summary='fixture history')))
+                emit(dict(type='turn_start'))
+            continue
         if mode == 'turns':
             for _ in range(9): emit(dict(type='turn_start'))
             continue

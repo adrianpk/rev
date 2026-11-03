@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result` |
+| AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
 | Editing | `newline`, `insert-tab`, `backward-delete-char`, `delete-char`, `tabify`, `untabify` |
@@ -389,13 +389,15 @@ This optional command starts a checked Pi 1.3.0 child only when invoked. Set
 The executable is trusted and receives literal adapter arguments without a shell.
 
 The command sends the captured selection and its native source metadata. Its
-**directory context** starts at the explicitly opened tree root, otherwise the
+**directory context** starts at the explicit AI directory override, otherwise the
+opened tree root, otherwise the
 visiting file's parent, otherwise the editor's launch directory. It never climbs
 to an inferred repository root. Pi chooses which sources to inspect through the
 internal read, list and literal-search tools; shell, edit/write tools, automatic
 extensions, MCP, skills, templates and discovered instruction files are disabled.
-Every invocation currently starts fresh with `--no-session` and closes its child
-when finished. Directory persistence/idle settings do not retain these children.
+Directory operations reuse only compatible private history and an owned idle
+child, according to the settings below. Input-only operations always start with
+`--no-session` and close their child when finished.
 Ordinary editing starts no Pi process or AI state files.
 
 A prompt acceptance notice is pending work. Completion waits for `agent_settled`
@@ -446,6 +448,55 @@ returned discovery text. Before source IO, a tool reserves 256 KiB of remaining
 return capacity; an insufficient remainder ends discovery conservatively.
 Compaction never resets these counters or the native request deadline. Discovery
 returns data only and cannot expand the original native editing target.
+
+## Private Pi sessions and controls
+
+`ai-set-directory` opens a native path prompt for a session-local AI root. Relative
+paths resolve against the current AI root. The chosen canonical directory does
+not change the file tree, visiting file or editing target. `ai-select-model`
+queries Pi and offers only its reported provider/model identifiers in the native
+name selector. The choice applies to this editor session; it does not write
+configuration or authentication data. Both commands are available through M-x
+and modal colon without a factory key prefix.
+
+With `ai.pi.persist_sessions = true`, directory history lives under the XDG state
+root: `rev/ai/pi/sessions.toml` binds a canonical root, exact configuration/grant
+observations and resolved provider/model to a relative file under
+`rev/ai/pi/sessions/`. Pi owns that JSONL history and reconstruction. The native
+adapter stores bounded binding metadata, not a second transcript. New invocations
+capture fresh source revisions and grant counters; earlier source/tool messages
+remain historical and cannot replace the current native editing target.
+
+The version-1 index admits at most 16 bindings and 64 KiB. Each history is limited
+to 32 MiB, including an OS file-size limit on the owned persistent Pi child.
+Private directories/files require modes 0700/0600 and current-user ownership.
+No-follow checks, identity observations and cooperating index/history locks
+reject unsafe paths, conflicting writes and simultaneous use of one history.
+Unknown schemas, corrupt/oversized records and unsafe histories are preserved
+and fail explicitly. Correct the owned store or set persistence false to use
+in-memory directory context; no automatic eviction or unknown-history overwrite
+occurs.
+
+`ai-reset-session` stops the current child and makes the next explicit invocation
+under that directory/model start fresh owned history. Only its verified previous
+owned history can be removed after the replacement binding is published.
+`ai-disconnect` closes the owned child while preserving history and any completed
+result. `ai-cancel` cancels the active invocation or AI-owned prompt/result through
+its native owner. None of these commands changes source text or Pi credentials.
+
+`ai.pi.idle_timeout_ms` keeps a compatible directory child available after a
+settled result (default 900000 ms); zero closes it immediately. The idle supervisor
+blocks on notification until a new explicit request, cancellation or its deadline;
+ordinary editor input has no AI idle polling timer. Idle expiry and editor exit
+close and reap the owned child. With persistence enabled, later explicit work
+restores compatible history in a new child. With persistence disabled, only that
+live directory child retains memory; input-only work remains fresh and ephemeral.
+
+Changing root, model or admitted policy crosses an isolation boundary. A child
+that is active or stopping retains the single operation slot until cleanup
+finishes. Retry explicitly after the stopping notice; no hidden request queue
+starts another invocation. A new boundary never adopts the last arbitrary Pi
+session or widens an earlier input-only grant.
 
 ## Generated text through Pi
 

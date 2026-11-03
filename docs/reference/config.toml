@@ -1458,7 +1458,9 @@ bookmark = "#e0af68"            # Resolved logical-line bookmark marker.
 [ai.pi]
 command = "pi"
 # model = "provider/model" # Unset: use Pi's resolved model.
+# Retain isolated directory history in private XDG state; input-only stays fresh.
 persist_sessions = true
+# Retain a compatible idle directory child; zero closes it after settlement.
 idle_timeout_ms = 900000
 request_timeout_ms = 300000
 max_input_bytes = 1048576

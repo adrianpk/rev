@@ -1,5 +1,6 @@
 mod capture;
 mod context;
+mod controls;
 mod results;
 
 use std::path::PathBuf;
@@ -30,6 +31,11 @@ pub(super) struct Work {
     launch: PathBuf,
     epoch: u64,
     operation: Option<Operation>,
+    idle: Option<Operation>,
+    query: bool,
+    directory: Option<PathBuf>,
+    model: Option<String>,
+    reset: Option<(PathBuf, Option<String>, u64)>,
     source: Option<Request>,
     ready: Option<Ready>,
     accepted: bool,
@@ -42,6 +48,11 @@ impl Work {
             launch,
             epoch: 0,
             operation: None,
+            idle: None,
+            query: false,
+            directory: None,
+            model: None,
+            reset: None,
             source: None,
             ready: None,
             accepted: false,
@@ -51,6 +62,7 @@ impl Work {
     pub fn stop(&mut self) {
         self.source = None;
         self.operation = None;
+        self.idle = None;
     }
 }
 
@@ -66,8 +78,12 @@ impl Session {
         let Some(operation) = self.ai.operation.as_mut() else {
             return Action::Wait;
         };
-        if !operation.finished() {
-            if operation.accepted() && !operation.is_canceled() && !self.ai.accepted {
+        if (operation.is_canceled() && !operation.worker_finished()) || !operation.finished() {
+            if operation.accepted()
+                && !operation.is_canceled()
+                && !self.ai.accepted
+                && !self.ai.query
+            {
                 self.ai.accepted = true;
                 return self.message(
                     "Pi accepted; awaiting settled result (guarded directory reads); C-g cancels",
@@ -76,20 +92,40 @@ impl Session {
             return Action::Wait;
         }
         let epoch = operation.epoch();
-        let result = operation.take();
         self.ai.cleanup_failed |= operation.cleanup_failed();
-        self.ai.operation = None;
+        if operation.reset_applied()
+            && self
+                .ai
+                .reset
+                .as_ref()
+                .is_some_and(|(_, _, epoch)| *epoch <= operation.epoch())
+        {
+            self.ai.reset = None;
+        }
         let source = self.ai.source.take();
+        let query = self.ai.query;
+        self.ai.query = false;
+        let outcome = if query {
+            operation
+                .take_models()
+                .map(|r| r.map(controls::Outcome::Models))
+        } else {
+            operation
+                .take()
+                .map(|r| r.map(controls::Outcome::Generated))
+        };
+        let operation = self.ai.operation.take().expect("admitted Pi operation");
+        if !operation.worker_finished() {
+            self.ai.idle = Some(operation);
+        }
         if epoch != self.ai.epoch {
             return Action::Wait;
         }
-        match result {
-            Some(Ok(output)) => {
-                let Some(request) = source else {
-                    return Action::Wait;
-                };
-                self.ai_present(request, output)
+        match outcome {
+            Some(Ok(controls::Outcome::Generated(output))) => {
+                source.map_or(Action::Wait, |request| self.ai_present(request, output))
             }
+            Some(Ok(controls::Outcome::Models(models))) => self.ai_model_choices(models),
             Some(Err(error)) => self.error(&error),
             None => Action::Wait,
         }
@@ -108,7 +144,10 @@ impl Session {
     }
 
     pub(super) fn cancel_ai_input(&mut self) -> Option<Action> {
-        if matches!(self.pending, Some(super::Pending::Ai(_))) {
+        if matches!(
+            self.pending,
+            Some(super::Pending::Ai(_) | super::Pending::AiDirectory | super::Pending::AiModel(_))
+        ) {
             self.pending = None;
             self.input.cancel();
             return Some(self.message("AI instruction canceled; source unchanged"));

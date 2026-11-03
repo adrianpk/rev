@@ -18,54 +18,34 @@ struct Generated {
     text: String,
 }
 
-#[allow(clippy::too_many_arguments)]
-pub(super) fn run(
+pub(super) struct Generation<'a> {
+    pub control: &'a Control,
+    pub policy: &'a Pi,
+    pub message: &'a str,
+    pub epoch: u64,
+    pub deadline: Instant,
+    pub model: String,
+    pub directory: bool,
+    pub history: String,
+    pub lease: Option<&'a mut super::history::Lease>,
+}
+pub(super) fn generate(
     inbox: &Inbox,
     input: &mut UnixStream,
-    control: &Control,
-    policy: &Pi,
-    message: &str,
-    epoch: u64,
-    deadline: Instant,
-    admission: Option<&Value>,
+    run: Generation<'_>,
 ) -> Result<Output, String> {
-    if let Some(admission) = admission {
-        admit(inbox, input, control, epoch, deadline, admission)?;
-    }
-    let state_id = format!("{epoch}:state");
+    let Generation {
+        control,
+        policy,
+        message,
+        epoch,
+        deadline,
+        model,
+        directory,
+        history,
+        mut lease,
+    } = run;
     let prompt_id = format!("{epoch}:prompt");
-    io::send(input, &json!({"id":state_id,"type":"get_state"}))?;
-    let model = loop {
-        let Some(record) = io::next(inbox, control, deadline)? else {
-            continue;
-        };
-        if record["type"] == "extension_ui_request" {
-            return Err("Pi extension UI is unavailable; authenticate in Pi and retry".into());
-        }
-        if record["type"] != "response" {
-            return Err("Pi emitted unexpected startup activity".into());
-        }
-        response(&record, &state_id, "get_state")?;
-        let state = &record["data"];
-        if state["isCompacting"] != false
-            || state["isStreaming"] != false
-            || state["messageCount"] != 0
-            || state["pendingMessageCount"] != 0
-            || state["sessionFile"].as_str().is_some()
-        {
-            return Err("Pi did not admit a fresh session".into());
-        }
-        let provider = state["model"]["provider"]
-            .as_str()
-            .ok_or("Pi has no model; configure a model and authenticate in Pi, then retry")?;
-        let id = state["model"]["id"]
-            .as_str()
-            .ok_or("Pi model identity is unavailable")?;
-        if provider.len() + id.len() > 256 {
-            return Err("Pi model identity exceeds 256 bytes".into());
-        }
-        break format!("{provider}/{id}");
-    };
     io::send(
         input,
         &json!({"id":prompt_id,"type":"prompt","message":message}),
@@ -95,8 +75,12 @@ pub(super) fn run(
             return Ok(Output {
                 text: generated.text,
                 model,
-                directory: admission.is_some(),
+                directory,
+                history,
             });
+        }
+        if let Some(lease) = lease.as_deref_mut() {
+            lease.check(false)?;
         }
         let Some(record) = io::next(inbox, control, deadline)? else {
             continue;
@@ -141,7 +125,7 @@ pub(super) fn run(
             }
             Some("message_end") if record["message"]["role"] == "assistant" => {
                 let message = &record["message"];
-                if message["stopReason"] == "toolUse" && admission.is_some() {
+                if message["stopReason"] == "toolUse" && directory {
                     let blocks = message["content"]
                         .as_array()
                         .ok_or("Invalid Pi tool turn")?;
@@ -182,7 +166,7 @@ pub(super) fn run(
                 final_text = Some(text);
             }
             Some("tool_execution_start" | "tool_execution_update" | "tool_execution_end") => {
-                if admission.is_none() {
+                if !directory {
                     return Err("Pi attempted a tool under an input-only grant".into());
                 }
                 tools.event(&record)?;
@@ -190,7 +174,7 @@ pub(super) fn run(
             Some("extension_ui_request") => {
                 return Err("Pi requested unavailable UI; authenticate in Pi and retry".into());
             }
-            Some("extension_error") if admission.is_some() => {
+            Some("extension_error") if directory => {
                 return Err("Pi guarded discovery failed; retry with an admitted root and within invocation limits".into());
             }
             Some(
@@ -214,7 +198,7 @@ pub(super) fn run(
     }
 }
 
-fn response(record: &Value, id: &str, command: &str) -> Result<(), String> {
+pub(super) fn response(record: &Value, id: &str, command: &str) -> Result<(), String> {
     if record["id"] != id || record["command"] != command {
         return Err("Pi response correlation failed".into());
     }
@@ -269,7 +253,7 @@ fn allowed(name: &Value) -> bool {
     name.as_str().is_some_and(|name| NAMES.contains(&name))
 }
 
-fn admit(
+pub(super) fn admit(
     inbox: &Inbox,
     input: &mut UnixStream,
     control: &Control,
@@ -373,4 +357,86 @@ impl Tools {
         }
         Ok(())
     }
+}
+
+pub(super) fn request(
+    inbox: &Inbox,
+    input: &mut UnixStream,
+    control: &Control,
+    epoch: u64,
+    deadline: Instant,
+    command: &str,
+    data: Value,
+) -> Result<Value, String> {
+    let id = format!("{epoch}:{command}");
+    let mut record = data;
+    record["id"] = json!(id);
+    record["type"] = json!(command);
+    io::send(input, &record)?;
+    loop {
+        let Some(record) = io::next(inbox, control, deadline)? else {
+            continue;
+        };
+        if record["type"] != "response" {
+            return Err("Pi emitted unexpected control activity".into());
+        }
+        response(&record, &id, command)?;
+        return Ok(record["data"].clone());
+    }
+}
+pub(super) fn model(state: &Value) -> Result<String, String> {
+    let provider = state["model"]["provider"]
+        .as_str()
+        .ok_or("Pi has no model; select and authenticate a model in Pi")?;
+    let id = state["model"]["id"]
+        .as_str()
+        .ok_or("Pi model identity unavailable")?;
+    if provider.is_empty()
+        || id.is_empty()
+        || provider.len() + id.len() > 255
+        || provider.chars().chain(id.chars()).any(char::is_control)
+    {
+        return Err("Pi model identity invalid".into());
+    }
+    Ok(format!("{provider}/{id}"))
+}
+pub(super) fn state(
+    data: &Value,
+    path: Option<&std::path::Path>,
+    fresh: bool,
+) -> Result<String, String> {
+    if data["isStreaming"] != false
+        || data["isCompacting"] != false
+        || data["pendingMessageCount"] != 0
+        || data["messageCount"].as_u64().is_none()
+        || (fresh && data["messageCount"] != 0)
+    {
+        return Err("Pi session was not admitted idle with the expected history".into());
+    }
+    if data["sessionFile"].as_str().map(std::path::Path::new) != path {
+        return Err("Pi selected an unexpected session file".into());
+    }
+    model(data)
+}
+pub(super) fn models(data: &Value) -> Result<Vec<super::Model>, String> {
+    let models = data["models"]
+        .as_array()
+        .ok_or("Pi model catalog invalid")?;
+    if models.len() > 4096 {
+        return Err("Pi model catalog exceeds 4096 entries".into());
+    }
+    let mut result = Vec::new();
+    let mut names = std::collections::BTreeSet::new();
+    for value in models {
+        let wrapper = json!({"model":value});
+        let reference = model(&wrapper)?;
+        if !names.insert(reference) {
+            continue;
+        }
+        result.push(super::Model {
+            provider: value["provider"].as_str().unwrap().into(),
+            id: value["id"].as_str().unwrap().into(),
+        });
+    }
+    Ok(result)
 }
