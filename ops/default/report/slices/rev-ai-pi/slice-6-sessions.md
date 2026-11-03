@@ -1,6 +1,6 @@
 # Slice 6: Private Pi sessions
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -131,3 +131,18 @@ exclusions do not classify arbitrary contents. Locks coordinate cooperating
 instances, and the configured executable/resource remain trusted process code.
 Authenticated-provider acceptance and the integrated gate remain with their
 recorded delivery stages. Saved reusable command definitions remain Slice 7.
+
+## Integration
+
+Canonical PR [#234](https://forge.adrianpk.com/adrianpk/rev/pulls/234) merged
+into dev at `d4a5c4c90dda580fdad612c91478189ae14ba644` on 2026-11-03T01:01:25Z.
+Receipt `Y5YWQGRNOAKJ3ADM3Q6VBHY532` passed the exact clean head and configured
+ordered commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test pi --test ai -- --test-threads=1`
+- `git diff --check`
+
+All 37 native tests passed (22 editor AI, 15 Pi). The actual offline Pi evidence
+remains focused local evidence; this closes Slice 6, not the integrated gate.

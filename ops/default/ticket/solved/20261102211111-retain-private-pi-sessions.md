@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211111
 title: Private Pi sessions
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-03T00:15:21Z
 branch: feat/rev-ai-pi-06-sessions
 pr: 234
 reviewed_at: 2026-11-03T00:58:15Z
+closed_at: 2026-11-03T01:01:25Z
+resolution: fixed
 commits: [ad97bb9e569c5858eb0f3e33a3ef36fd1618d581, 7ef7b03396602642ca99a408101e867d2b017c78]
 ---
 
@@ -63,3 +65,9 @@ the PR-reference commits through the controller.
 
 Canonical PR: [#234](https://forge.adrianpk.com/adrianpk/rev/pulls/234).
 Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
+
+## Closure
+
+Canonical PR #234 merged into dev at `d4a5c4c90dda580fdad612c91478189ae14ba644` on
+2026-11-03T01:01:25Z. Receipt `Y5YWQGRNOAKJ3ADM3Q6VBHY532` passed all four configured
+checks and 37 native tests.

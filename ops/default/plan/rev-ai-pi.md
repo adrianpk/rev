@@ -12,7 +12,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 6 — Private Pi sessions
+Active slice: Slice 7 — Reusable AI commands
 Tracker: [Delivery Tracker](../tracker/rev-ai-pi.md)
 Supporting contract: [AI Commands](../spec/editor-ai-commands.md), [shared model](../spec/editor-ai-commands-model.md)
 
@@ -217,7 +217,7 @@ git diff --check
 
 ### Slice 6: Private Pi sessions
 
-Ticket: [Private Pi sessions](../ticket/reviewing/20261102211111-retain-private-pi-sessions.md)
+Ticket: [Private Pi sessions](../ticket/solved/20261102211111-retain-private-pi-sessions.md)
 Requirements: PI01-PI04, PI07, PI08; AI16-AI20.
 Dependencies: Slice 5 integrated; preserve all earlier contracts.
 

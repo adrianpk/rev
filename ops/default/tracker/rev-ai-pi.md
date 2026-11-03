@@ -12,14 +12,14 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 6 — Private Pi sessions
+Active slice: Slice 7 — Reusable AI commands
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 through 5 are integrated at their validated heads. Slice 6 is active;
+closure. Slices 1 through 6 are integrated at their validated heads. Slice 7 is active;
 later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
@@ -167,8 +167,8 @@ Report introduction and T5.3 actual-runtime evidence: `984889b23b2c0885ccf8c67ac
 
 ### Slice 6: Private Pi sessions
 
-State: reviewing.
-Ticket: [Private Pi sessions](../ticket/reviewing/20261102211111-retain-private-pi-sessions.md)
+State: delivered.
+Ticket: [Private Pi sessions](../ticket/solved/20261102211111-retain-private-pi-sessions.md)
 Requirements: PI01-PI04, PI07, PI08; AI16-AI20.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-ai-pi-06-sessions`
@@ -184,14 +184,15 @@ Implementation commits: `ad97bb9e569c5858eb0f3e33a3ef36fd1618d581` (T6.1/T6.2) a
 27 actual offline Pi resource checks passed, including actual history restoration
 and owned exit with a controlled local provider and zero external requests.
 Strict library lint and documentation catalogs passed (428 commands, 230
-configuration entries; 68 pages/414 links). Final clean-head validation follows
-the PR-reference commits through the controller; integrated gate remains pending.
+configuration entries; 68 pages/414 links). PR #234 merged at `d4a5c4c90dda580fdad612c91478189ae14ba644`
+on 2026-11-03T01:01:25Z. Receipt `Y5YWQGRNOAKJ3ADM3Q6VBHY532` passed all four configured
+commands and 37 native tests; the integrated gate remains pending.
 
 Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
 
 ### Slice 7: Reusable AI commands
 
-State: ready.
+State: active.
 Ticket: [Reusable AI commands](../ticket/ready/20261102211112-save-and-bind-ai-commands.md)
 Requirements: PI01, PI06, PI08; AI03, AI04, AI14, AI18.
 Dependencies: Slice 6 integrated.
