@@ -24,6 +24,7 @@ pub(super) struct Work {
     request: Option<Request>,
     output: Option<Stamp>,
     diagnostics: Option<Stamp>,
+    notify: bool,
 }
 impl Work {
     pub(super) fn new(launch: PathBuf) -> Self {
@@ -38,6 +39,7 @@ impl Work {
             request: None,
             output: None,
             diagnostics: None,
+            notify: false,
         }
     }
     pub(super) fn stop(&mut self) {
@@ -134,12 +136,18 @@ impl Session {
         ) {
             Ok(operation) => {
                 self.input.remember_shell(command);
+                self.shell.notify = true;
                 self.shell.operation = Some(operation);
                 self.shell.request = Some(request);
                 self.message("Shell command running; shell-command-cancel or source C-g cancels")
             }
             Err(error) => self.error(&error),
         }
+    }
+    /// New native input revokes completion echo authority without revoking the
+    /// original source target. The result remains explicitly inspectable.
+    pub(super) fn shell_interaction(&mut self) {
+        self.shell.notify = false;
     }
     pub(super) fn shell_remaining(&self) -> Option<Duration> {
         self.shell
@@ -181,7 +189,8 @@ impl Session {
         };
         self.shell.operation = None;
         let request = self.shell.request.take().expect("owned shell request");
-        let current = self.pending.is_none()
+        let current = self.shell.notify
+            && self.pending.is_none()
             && self.input.focus() == Focus::Editing
             && !self.tree.focused()
             && self.windows.selected_id() == request.view

@@ -139,6 +139,9 @@ impl Session {
     }
 
     pub(super) fn handle_ready_at(&mut self, event: Event, now: Instant) -> Action {
+        if bookmark_input(&event) {
+            self.shell_interaction();
+        }
         self.invalidate_completion();
         self.timer_notice = false;
         if bookmark_input(&event) {

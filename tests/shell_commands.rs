@@ -6,6 +6,8 @@ mod filters;
 mod fixture;
 #[path = "shell_commands/interaction.rs"]
 mod interaction;
+#[path = "shell_commands/lifecycle.rs"]
+mod lifecycle;
 #[path = "shell_commands/regions.rs"]
 mod regions;
 

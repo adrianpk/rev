@@ -1,3 +1,6 @@
+#[path = "shell.rs"]
+mod shell;
+
 #[path = "context_safety.rs"]
 mod safety;
 
