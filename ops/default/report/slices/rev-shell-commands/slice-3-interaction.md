@@ -99,6 +99,14 @@ process cleanup; it does not treat unrelated native deadlines as shell workers.
 Visual tests use the admitted TOML section and native preserved motion column.
 Block admission asserts the explicit linear-selection rejection.
 
+The initial configured receipt `FZ6YSEAKYK2A7ZBVURJSG5YUP7` passed format
+and strict Clippy on `73874cbf9a07a97c4b8d3112d5bb239093cc2a2f`, then
+failed the binding inventory assertion: its literal table-column reader splits
+even escaped vertical bars. Encode the two pipe-key cells as inline HTML code
+with the vertical-bar entity, preserving the rendered exact chords. Keep the
+same complete command-name equality and duplicate assertions and all frozen
+commands; regenerate the configured receipt on the corrected clean head.
+
 After PR-reference commits and push, the final clean head receives the configured
 ordered Slice 3 checks through `looper validate`. The canonical PR and controller
 receipt record exact-candidate success; this report does not claim the integrated
