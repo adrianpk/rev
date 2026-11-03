@@ -72,6 +72,13 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::TerminalClose { kill, .. }) => {
+                if accepted {
+                    self.close_buffer(kill)
+                } else {
+                    self.message("Terminal retained")
+                }
+            }
             Some(Pending::Reload(reload)) => self.reload_answer(*reload, accepted),
             Some(Pending::Quit(quit)) => self.quit_answer(quit, accepted),
             Some(Pending::BookmarkReload(candidate)) => {
@@ -182,6 +189,7 @@ impl Session {
             Some(Pending::Quit(quit)) => Some(quit.question.as_str()),
             Some(Pending::Save { confirmation, .. }) => Some(confirmation.message()),
             Some(Pending::Kill { message, .. }) => Some(message.as_str()),
+            Some(Pending::TerminalClose { message, .. }) => Some(message.as_str()),
             _ => None,
         };
         if let Some(question) = question {

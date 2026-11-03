@@ -204,7 +204,7 @@ pub struct Prepared {
 
 impl Buffer {
     pub fn is_readonly(&self) -> bool {
-        self.read_only
+        self.read_only || self.terminal().is_some()
     }
 
     pub fn set_readonly(&mut self, read_only: bool) {
@@ -445,7 +445,7 @@ impl Buffer {
 
     fn admit(&self, stamp: Stamp) -> Result<(), Error> {
         self.current(stamp)?;
-        if self.read_only {
+        if self.is_readonly() {
             return Err(Error::ReadOnly);
         }
         Ok(())

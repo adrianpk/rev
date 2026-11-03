@@ -136,6 +136,11 @@ impl Buffers {
 }
 
 fn writable(buffer: &Buffer) -> io::Result<()> {
+    if buffer.terminal().is_some() {
+        return Err(io::Error::other(
+            "Terminal buffers cannot be saved as source files",
+        ));
+    }
     if buffer.is_transient() {
         return Err(io::Error::other(
             "Transient capture draft cannot be saved as a source file",

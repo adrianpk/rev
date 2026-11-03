@@ -15,11 +15,24 @@ impl Session {
     }
 
     pub(super) fn composition(&self) -> Option<crate::panel::Composition> {
+        let rows = self.terminal_rows();
+        let size = Size {
+            height: self.size.height - rows.map_or(0, |r| r + 2),
+            ..self.size
+        };
+        let mut composition = self.source_composition(size)?;
+        if let Some(rows) = rows {
+            composition.attach_terminal(self.size, rows, self.terminals.focused)?;
+        }
+        Some(composition)
+    }
+
+    fn source_composition(&self, size: Size) -> Option<crate::panel::Composition> {
         if let Some(names) = self.input.names() {
             return crate::panel::Composition::completion(
                 &self.windows,
                 &self.tree,
-                self.size,
+                size,
                 names.requested_rows(),
             );
         }
@@ -27,7 +40,7 @@ impl Session {
             return crate::panel::Composition::completion(
                 &self.windows,
                 &self.tree,
-                self.size,
+                size,
                 palette.requested_rows(),
             );
         }
@@ -35,7 +48,7 @@ impl Session {
             return crate::panel::Composition::completion(
                 &self.windows,
                 &self.tree,
-                self.size,
+                size,
                 path.requested_rows(
                     self.buffers
                         .snapshot()
@@ -50,7 +63,7 @@ impl Session {
         } else {
             0
         };
-        crate::panel::Composition::workspace(&self.windows, &self.tree, self.size, rows)
+        crate::panel::Composition::workspace(&self.windows, &self.tree, size, rows)
     }
 
     pub(super) fn editing_size(&self) -> Size {

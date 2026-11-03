@@ -34,7 +34,14 @@ impl Session {
         {
             self.query_agenda = None;
         }
-        let role = if self.source_edit_selected() {
+        self.input.set_org_context(self.input_org_role());
+    }
+
+    fn input_org_role(&self) -> Option<crate::input::OrgContext> {
+        if self.terminals.focused {
+            return None;
+        }
+        if self.source_edit_selected() {
             Some(crate::input::OrgContext::SourceEdit)
         } else if self.capture_selected() {
             Some(crate::input::OrgContext::Capture)
@@ -44,8 +51,7 @@ impl Session {
             self.buffer()
                 .is_ok_and(|b| b.is_org())
                 .then_some(crate::input::OrgContext::Editing)
-        };
-        self.input.set_org_context(role);
+        }
     }
 
     pub(super) fn select_mode(&mut self, mode: Mode) -> Action {

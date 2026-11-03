@@ -6,6 +6,7 @@ use super::{Error, Frame, Position, clip};
 impl Frame {
     /// Derive only visible inventory rows; the list never owns editable text.
     pub(crate) fn inventory(&mut self, buffers: &Buffers, selected: BufferId) -> Result<(), Error> {
+        self.terminal_rows.clear();
         let extent = usize::from(self.size.text_rows());
         if extent == 0 {
             self.decision();

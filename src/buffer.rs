@@ -134,7 +134,16 @@ impl std::error::Error for Error {}
 
 /// Owns the only rope for this identity. Explicit transient owners cannot
 /// publish source files; all text access remains borrowed.
+/// Canonical navigation identity; terminal output belongs to its emulator,
+/// never to the inert text storage used by source-only APIs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Resource {
+    Text,
+    Terminal(crate::term::SessionId),
+}
+
 pub struct Buffer {
+    resource: Resource,
     observer: Option<std::sync::Arc<dyn edit::Observer>>,
     pub(crate) bookmarks: crate::bookmark::Shared,
     pub(crate) locations: crate::location::Shared,
@@ -198,6 +207,7 @@ impl Buffer {
             sequence: 0,
         };
         Ok(Self {
+            resource: Resource::Text,
             observer: None,
             bookmarks: crate::bookmark::Shared::default(),
             locations: crate::location::Shared::default(),
@@ -264,6 +274,17 @@ impl Buffer {
     /// Transient text participates in checked edits, never source publication.
     pub fn is_transient(&self) -> bool {
         self.transient
+    }
+
+    pub fn resource(&self) -> Resource {
+        self.resource
+    }
+
+    pub fn terminal(&self) -> Option<crate::term::SessionId> {
+        match self.resource {
+            Resource::Terminal(id) => Some(id),
+            Resource::Text => None,
+        }
     }
 
     pub fn has_bom(&self) -> bool {

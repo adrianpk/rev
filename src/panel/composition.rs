@@ -16,6 +16,7 @@ pub struct Composition {
     prompt: Area,
     viewport: Area,
     tree: Option<Panel>,
+    terminal: Option<Panel>,
 }
 
 impl Composition {
@@ -69,6 +70,7 @@ impl Composition {
             borders,
             viewport: editing,
             tree: None,
+            terminal: None,
             auxiliary,
             prompt: Area::new(outer.column(), outer.row() + available, outer.width(), 1)?,
         })
@@ -97,6 +99,7 @@ impl Composition {
             auxiliary: None,
             viewport,
             tree: None,
+            terminal: None,
             prompt: Area::new(0, size.height - 1, size.width, 1)?,
         });
         composition.prompt = Area::new(0, size.height - 1, size.width, 1)?;
@@ -155,6 +158,31 @@ impl Composition {
         self.tree
     }
 
+    /// Attach a full-width terminal below an already admitted source workspace.
+    /// The caller reserved these rows before deriving source/completion geometry.
+    pub(crate) fn attach_terminal(&mut self, size: Size, rows: u16, active: bool) -> Option<()> {
+        let row = size.height.checked_sub(rows + 2)?;
+        self.borders.push(Area::new(0, row - 1, size.width, 1)?);
+        self.terminal = Some(Panel::new(
+            Area::new(0, row, size.width, rows + 1)?,
+            true,
+            active,
+        ));
+        if self.auxiliary.is_none() {
+            self.prompt = Area::new(0, size.height - 1, size.width, 1)?;
+        }
+        if active {
+            for (_, panel) in &mut self.panels {
+                panel.active = false;
+            }
+        }
+        Some(())
+    }
+
+    pub fn terminal(&self) -> Option<Panel> {
+        self.terminal
+    }
+
     /// Editing sizes borrow the global prompt reservation for existing view
     /// calculations; the actual viewport excludes that row.
     pub fn editing_size(&self) -> Size {
@@ -165,11 +193,15 @@ impl Composition {
         Size {
             width: self.prompt.column() + self.prompt.width(),
             height: self
-                .auxiliary
-                .map_or(self.prompt.row() + self.prompt.height(), |panel| {
-                    (self.prompt.row() + self.prompt.height())
-                        .max(panel.outer().row() + panel.outer().height())
-                }),
+                .terminal
+                .map_or(0, |p| p.outer().row() + p.outer().height() + 1)
+                .max(
+                    self.auxiliary
+                        .map_or(self.prompt.row() + self.prompt.height(), |panel| {
+                            (self.prompt.row() + self.prompt.height())
+                                .max(panel.outer().row() + panel.outer().height())
+                        }),
+                ),
         }
     }
 

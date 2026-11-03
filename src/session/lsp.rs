@@ -135,7 +135,7 @@ impl Session {
     }
 
     pub(super) fn activate_lsp(&mut self) {
-        if !self.lsp.enabled() {
+        if self.terminals.focused || !self.lsp.enabled() {
             return;
         }
         let id = self.windows.selected().point.stamp.buffer;

@@ -46,7 +46,7 @@ pub(super) struct Colors {
 }
 
 impl Colors {
-    fn new(foreground: Rgb, background: Rgb) -> Self {
+    pub(super) fn new(foreground: Rgb, background: Rgb) -> Self {
         Self {
             foreground,
             background,

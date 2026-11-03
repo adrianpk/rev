@@ -23,6 +23,7 @@ mod rectangle;
 mod region;
 mod scroll;
 mod split;
+mod terminal;
 mod tree;
 mod window;
 
@@ -41,12 +42,14 @@ pub use motion::Motion;
 pub use rectangle::RectangleCommand;
 pub use region::RegionCommand;
 pub use scroll::Scroll;
+pub use terminal::TerminalCommand;
 pub use tree::TreeCommand;
 pub use window::WindowCommand;
 
 /// Only commands with a working handler belong in the public registry.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Command {
+    Terminal(TerminalCommand),
     Modal(ModalCommand),
     Navigate(Navigation),
     Edit(Editing),
@@ -106,7 +109,9 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 437] = [
+    pub const ALL: [Self; 439] = [
+        Self::Terminal(TerminalCommand::Open),
+        Self::Terminal(TerminalCommand::Toggle),
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -573,6 +578,7 @@ impl Command {
     }
     fn family_name(self) -> &'static str {
         match self {
+            Self::Terminal(command) => command.name(),
             Self::Buffer(command) => command.name(),
             Self::Split(split) => split.name(),
             Self::Window(command) => command.name(),

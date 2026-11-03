@@ -24,6 +24,7 @@ mod syntax;
 pub use style::Message;
 use style::{Face, Tone};
 mod activity;
+mod terminal;
 mod tree;
 pub use syntax::Paint;
 
@@ -106,6 +107,7 @@ pub struct Frame {
     cursor: Option<Position>,
     previews: Vec<preview::Placement>,
     source_rows: Vec<SourceRows>,
+    terminal_rows: std::collections::BTreeMap<u16, Vec<alacritty_terminal::term::cell::Cell>>,
 }
 
 /// Metadata for this immutable frame only, separate from retained view caches.
@@ -131,6 +133,7 @@ impl Frame {
             cursor: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
+            terminal_rows: Default::default(),
         };
         if size.width > 0 && size.height > 0 {
             frame.blank_rows();
@@ -149,6 +152,7 @@ impl Frame {
             cursor: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
+            terminal_rows: Default::default(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);
@@ -256,7 +260,11 @@ impl Frame {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
-            row.write(writer, &self.palette, separator)?;
+            if let Some(cells) = self.terminal_rows.get(&row.row) {
+                terminal::write(writer, cells, &self.palette)?;
+            } else {
+                row.write(writer, &self.palette, separator)?;
+            }
         }
         Ok(())
     }

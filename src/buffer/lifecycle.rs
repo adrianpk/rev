@@ -13,6 +13,14 @@ impl Kill {
 }
 
 impl Buffers {
+    pub(crate) fn terminal(&mut self, id: crate::term::SessionId) -> Result<BufferId, Error> {
+        let mut buffer = Buffer::new("", &self.settings.settings().files)?;
+        buffer.name = format!("*terminal-{}*", id.number());
+        buffer.resource = super::Resource::Terminal(id);
+        buffer.transient = true;
+        buffer.mode_choice = Some(super::Mode::Text);
+        Ok(self.insert(buffer))
+    }
     pub(crate) fn apply_ai_definition(&mut self, name: &str, incoming: &crate::config::Snapshot) {
         self.settings.ai_definition(name, incoming);
     }
@@ -67,7 +75,11 @@ impl Buffers {
     /// Allocate a final-buffer replacement before removing anything. The caller
     /// replaces every view reference with the returned deterministic live owner.
     pub fn kill(&mut self, kill: Kill) -> Result<BufferId, Error> {
-        let fresh = if self.entries.len() == 1 {
+        let fresh = if self
+            .entries
+            .values()
+            .all(|b| b.id() == kill.id() || b.terminal().is_some())
+        {
             Some(Buffer::new("", &self.settings.settings().files)?)
         } else {
             None
@@ -75,7 +87,12 @@ impl Buffers {
         let replacement = fresh
             .as_ref()
             .map(Buffer::id)
-            .or_else(|| self.entries.keys().copied().find(|id| *id != kill.id()))
+            .or_else(|| {
+                self.entries
+                    .values()
+                    .find(|b| b.id() != kill.id() && b.terminal().is_none())
+                    .map(Buffer::id)
+            })
             .ok_or(Error::Missing(kill.id()))?;
         self.checkpoint_close(kill.stamp)?;
         let removed = self
@@ -91,6 +108,9 @@ impl Buffers {
     fn checkpoint_close(&self, stamp: Stamp) -> Result<(), Error> {
         let buffer = self.get(stamp.buffer)?;
         buffer.current(stamp)?;
+        if buffer.terminal().is_some() {
+            return Ok(());
+        }
         let closed = self
             .locations
             .lock()

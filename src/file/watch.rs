@@ -63,7 +63,7 @@ impl Wake {
             self.signal();
         }
     }
-    fn signal(&self) {
+    pub(crate) fn signal(&self) {
         if self.armed.load(Ordering::Acquire) {
             // Exclusively this editor process, using its installed terminal
             // signal queue. No other process or synthesized input is involved.

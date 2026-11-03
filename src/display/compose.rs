@@ -51,6 +51,7 @@ impl Frame {
             cursor: None,
             previews: Vec::new(),
             source_rows: Vec::new(),
+            terminal_rows: Default::default(),
         };
         if size.width == 0 || size.height == 0 {
             return Ok(frame);

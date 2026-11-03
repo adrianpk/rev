@@ -44,6 +44,9 @@ impl Session {
 
 impl Session {
     fn visual_command_origin(&self) -> Option<Origin> {
+        if self.terminals.focused {
+            return None;
+        }
         let shape = self.editing_state()?.visual()?;
         let buffer = self.buffer().ok()?;
         if buffer.visual() != Some(shape) || self.visual_source != Some(buffer.stamp()) {

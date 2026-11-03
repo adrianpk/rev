@@ -3,6 +3,8 @@
 mod engine;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "integrated_terminal/panel.rs"]
+mod panel;
 #[path = "integrated_terminal/resources.rs"]
 mod resources;
 use fixture::Fixture;

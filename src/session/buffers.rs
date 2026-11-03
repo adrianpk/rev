@@ -20,7 +20,11 @@ impl Session {
         }
         self.pending = Some(Pending::Buffer {
             command,
-            default: self.windows.selected().point.stamp.buffer,
+            default: self
+                .terminal_buffer()
+                .map(|b| b.id())
+                .filter(|_| self.terminals.focused)
+                .unwrap_or(self.windows.selected().point.stamp.buffer),
         });
         self.message("Tab completes names; Enter uses the current buffer when empty")
     }
@@ -51,6 +55,11 @@ impl Session {
             Ok(buffer) => buffer,
             Err(error) => return self.error(&error.to_string()),
         };
+        if let Some(terminal) = buffer.terminal() {
+            self.input.cancel();
+            self.pending = None;
+            return self.terminal_show(terminal);
+        }
         if self.windows.selected().point.stamp.buffer != id {
             let mut view = self.view().clone();
             view.rebind(buffer);
@@ -62,6 +71,7 @@ impl Session {
             self.publish_jump(jump);
         }
         self.touch_completion_source(id);
+        self.terminals.focused = false;
         self.input.cancel();
         self.pending = None;
         self.message("")
@@ -80,6 +90,23 @@ impl Session {
             Err(error) => return self.error(&error.to_string()),
         };
         if !buffer.is_modified() {
+            if let Some(terminal) = buffer.terminal()
+                && self
+                    .terminals()
+                    .get(terminal)
+                    .is_some_and(|s| *s.state() == crate::term::State::Running)
+            {
+                let message = format!(
+                    "Terminate {:?}? y=terminate, n=keep, C-g=cancel",
+                    buffer.name()
+                );
+                if let Err(error) = self.input.decision("Terminate terminal?") {
+                    return self.error(&error.to_string());
+                }
+                self.echo = message.clone();
+                self.pending = Some(Pending::TerminalClose { kill, message });
+                return Action::Redraw;
+            }
             return self.close_buffer(kill);
         }
         let message = format!("Close {:?}? y=save, n=discard, C-g=cancel", buffer.name());
@@ -105,6 +132,11 @@ impl Session {
 
     pub(super) fn close_buffer(&mut self, kill: Kill) -> Action {
         let closed = kill.id();
+        if let Some(terminal) = self.buffers.get(closed).ok().and_then(|b| b.terminal()) {
+            if let Err(error) = self.close_terminal(terminal) {
+                return self.error(&error.to_string());
+            }
+        }
         let replacement = match self.buffers.kill(kill) {
             Ok(id) => id,
             Err(error) => return self.error(&error.to_string()),

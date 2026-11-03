@@ -6,6 +6,29 @@ use super::keymap::{Context as MapContext, Sequence};
 use super::{Focus, Input, Key, Outcome};
 
 impl Input {
+    pub(crate) fn terminal_host_key(&self, key: Key) -> bool {
+        if key.control('g') {
+            return true;
+        }
+        let Some(sequence) = Sequence::from_chords(&[key]) else {
+            return false;
+        };
+        let map = self.active_map();
+        if matches!(
+            map.lookup(&sequence),
+            Some(Binding::Command(Command::Terminal(_)))
+        ) {
+            return true;
+        }
+        if key.modifiers.is_empty() {
+            return false;
+        }
+        map.is_prefix(&sequence)
+            || matches!(
+                map.lookup(&sequence),
+                Some(Binding::Command(Command::ExecuteExtended))
+            )
+    }
     pub(super) fn map_context(&self) -> MapContext {
         if matches!(self.context, super::Context::Calendar(_)) {
             return MapContext::OrgCalendar;

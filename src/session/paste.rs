@@ -2,6 +2,9 @@ use super::{Action, Session};
 
 impl Session {
     pub(super) fn paste_text(&mut self, text: &str) -> Action {
+        if self.terminals.focused {
+            return self.terminal_send(text.as_bytes());
+        }
         if self.tangling.is_some() || self.execution.is_some() || self.feeds.is_some() {
             return self.message("Source output owns input; C-g cancels remaining files");
         }

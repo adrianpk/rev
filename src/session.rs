@@ -12,6 +12,7 @@ mod completion;
 mod lsp;
 mod shell;
 mod status;
+mod terminals;
 pub use crate::completion::{
     Candidate, Completion, CompletionFallback, CompletionSource, Kind as CompletionKind,
 };
@@ -108,6 +109,7 @@ pub struct Session {
     reload: reload::Work,
     ai: ai::Work,
     shell: shell::Work,
+    terminals: terminals::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
@@ -198,6 +200,10 @@ enum AfterSave {
 }
 
 enum Pending {
+    TerminalClose {
+        kill: Kill,
+        message: String,
+    },
     Shell(Box<shell::Request>),
     Ai(Box<ai::Request>),
     AiDirectory,
@@ -334,8 +340,15 @@ impl Session {
         );
         let completion_policy = buffers.snapshot().settings().completion.clone();
         let lsp = crate::lsp::Client::new(buffers.snapshot().settings().lsp.clone());
+        let observation = observation::Work::default();
+        let terminals = terminals::Work::new(
+            &buffers.snapshot().settings().terminal,
+            std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
+            observation.wake.clone(),
+        );
         Ok(Self {
-            observation: observation::Work::default(),
+            observation,
+            terminals,
             reload: reload::Work::default(),
             shell: shell::Work::new(
                 std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
@@ -536,6 +549,7 @@ impl Session {
         // Canonical completion precedes the derived layout budget. Embedding
         // hosts may observe ready jobs through frame() without synthesizing input.
         self.expire_shell();
+        self.expire_terminals();
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {
             if self.completion_work.owns(view.point.stamp.buffer)
@@ -601,6 +615,7 @@ impl Session {
         self.query_frame(frame, composition)?;
         self.agenda_results_frame(frame, composition)?;
         self.bookmark_list_frame(frame, composition)
+            .map(|()| self.terminal_frame(frame, composition))
     }
 
     fn retire_frame_work(&self) {
@@ -771,6 +786,9 @@ impl Session {
 
     /// Executes the same implemented command enum produced by key bindings.
     pub fn execute(&mut self, command: Command) -> Action {
+        if let Some(action) = self.terminal_source_guard(command) {
+            return action;
+        }
         self.shell_interaction();
         if let Some(action) = self.defer_layout_command(command) {
             return action;
@@ -782,6 +800,12 @@ impl Session {
     }
 
     fn execute_now(&mut self, command: Command) -> Action {
+        if let Some(action) = self.terminal_source_guard(command) {
+            return action;
+        }
+        if self.terminals.focused {
+            return self.execute_operation(command);
+        }
         self.qualify_one_normal();
         if command != Command::Modal(crate::command::ModalCommand::Once) {
             self.start_one_normal();
@@ -801,6 +825,9 @@ impl Session {
         }
         if let Some(action) = self.cancel_extended(command) {
             return action;
+        }
+        if let Command::Terminal(command) = command {
+            return self.terminal_command(command);
         }
         self.bookmark_visit = None;
         if !matches!(
@@ -966,6 +993,15 @@ impl Session {
     /// Inserts one printable scalar, retaining a valid grapheme cursor after
     /// joins. Control bytes can enter only through explicit implemented commands.
     pub fn insert(&mut self, character: char) -> Action {
+        if self.terminals.focused {
+            if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
+                return self.error("A host prompt owns input focus");
+            }
+            if character.is_control() {
+                return self.error("Control character rejected");
+            }
+            return self.terminal_send(character.to_string().as_bytes());
+        }
         self.dismiss_completion();
         if self.bookmark_list_active() {
             return self.message("Read-only bookmark list; q returns to source");
@@ -1033,6 +1069,10 @@ impl Session {
 
     fn resize(&mut self, width: u16, height: u16) -> Action {
         self.size = Size { width, height };
+        let terminal = self.resize_terminal();
+        if terminal != Action::Wait {
+            return terminal;
+        }
         if self.tree.resize(self.size) {
             self.focus_message("File tree hidden at this width");
         }

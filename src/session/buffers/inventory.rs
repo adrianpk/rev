@@ -9,7 +9,10 @@ impl Session {
             return self.error(&error.to_string());
         }
         self.pending = Some(Pending::Inventory(
-            self.windows.selected().point.stamp.buffer,
+            self.terminal_buffer()
+                .map(|b| b.id())
+                .filter(|_| self.terminals.focused)
+                .unwrap_or(self.windows.selected().point.stamp.buffer),
         ));
         self.message("Buffers: arrows move, Enter selects, C-g cancels")
     }

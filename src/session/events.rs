@@ -38,10 +38,12 @@ impl Session {
         // a continuous typing burst. Other input deadlines retain their owner.
         if action != Action::Exit {
             let shell = self.expire_shell();
+            let terminal = self.expire_terminals();
             let ai = self.expire_ai();
             let reload = self.expire_reload();
             let observed = self.expire_observation();
-            if shell != Action::Wait
+            if terminal != Action::Wait
+                || shell != Action::Wait
                 || ai != Action::Wait
                 || reload != Action::Wait
                 || observed != Action::Wait
@@ -63,6 +65,7 @@ impl Session {
             self.reload_remaining(),
             self.ai_remaining(),
             self.shell_remaining(),
+            self.terminal_remaining(),
             self.observation_remaining(),
             self.pointer_remaining(now),
             self.org.remaining(now),
@@ -172,8 +175,16 @@ impl Session {
         {
             return action;
         }
+        if let Some(action) = self.terminal_input(&event) {
+            return action;
+        }
+        self.terminals.host_cancel = crate::input::Input::interrupt(&event)
+            && (self.input.focus() != crate::input::Focus::Editing
+                || self.pending.is_some()
+                || self.input.prefix().is_some());
         let outcome = self.input.handle_at(event, now);
         let action = self.dispatch_completion_outcome(outcome, now);
+        self.terminals.host_cancel = false;
         if action == Action::Wait {
             return expired;
         }
@@ -207,6 +218,7 @@ impl Session {
             self.expire_reload(),
             self.expire_ai(),
             self.expire_shell(),
+            self.expire_terminals(),
             self.expire_observation(),
             self.expire_completion(now),
             self.expire_pointer(now),

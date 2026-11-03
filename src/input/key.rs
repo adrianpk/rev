@@ -8,7 +8,7 @@ pub struct Key {
 }
 
 impl Key {
-    pub(super) fn normalize(event: KeyEvent) -> Option<Self> {
+    pub(crate) fn normalize(event: KeyEvent) -> Option<Self> {
         if event.kind == KeyEventKind::Release {
             return None;
         }
