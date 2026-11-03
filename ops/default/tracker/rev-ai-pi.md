@@ -12,14 +12,14 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 5 — Guarded directory context
+Active slice: Slice 6 — Private Pi sessions
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
 
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
-closure. Slices 1 through 4 are integrated at their validated heads. Slice 5 is active;
+closure. Slices 1 through 5 are integrated at their validated heads. Slice 6 is active;
 later slices remain pending. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
@@ -142,8 +142,8 @@ Report introduction and T4.3 coverage: `4a4fb82f913f1e2a0bf376ffc3932324c34f920c
 
 ### Slice 5: Guarded directory context
 
-State: reviewing.
-Ticket: [Guarded directory context](../ticket/reviewing/20261102211110-delegate-guarded-project-discovery.md)
+State: delivered.
+Ticket: [Guarded directory context](../ticket/solved/20261102211110-delegate-guarded-project-discovery.md)
 Requirements: PI02-PI05, PI07; AI06, AI09, AI11-AI13, AI17, AI20.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-ai-pi-05-discovery`
@@ -159,7 +159,9 @@ coherent resource/profile/native-observation transition. Six focused native
 cases and 27 actual offline Pi checks passed, including real tool execution with
 controlled model events, root/file races, unsaved precedence and finite budgets.
 The Slice 5 report records exact commands and distinguishes provider evidence.
-Final clean-head validation follows the committed canonical PR references.
+Canonical PR #233 merged into dev at `9d16dc77b4371c161b1ea6716f31fea767b5393a` on
+2026-11-03T00:11:56Z. Receipt `OLNWBRUOJRSR4SWXPZISRJSPLN` passed all four configured
+checks and 28 native tests; this is Slice 5 evidence, not the integrated gate.
 
 Report introduction and T5.3 actual-runtime evidence: `984889b23b2c0885ccf8c67accd14b5af9d03467`.
 

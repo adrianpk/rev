@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211110
 title: Guarded directory context
-status: reviewing
+status: solved
 kind: task
 severity: unclassified
 priority: normal
@@ -14,6 +14,8 @@ started_at: 2026-11-02T23:42:32Z
 branch: feat/rev-ai-pi-05-discovery
 pr: 233
 reviewed_at: 2026-11-03T00:04:47Z
+closed_at: 2026-11-03T00:11:56Z
+resolution: fixed
 commits: [bee7889f191cd961de5f275b24ca7cc26d375aa7, 984889b23b2c0885ccf8c67accd14b5af9d03467]
 ---
 
@@ -64,3 +66,9 @@ clean-head validation follows the PR-reference commit through the controller.
 Canonical PR: [#233](https://forge.adrianpk.com/adrianpk/rev/pulls/233).
 Report introduction and actual-runtime T5.3 evidence:
 `984889b23b2c0885ccf8c67accd14b5af9d03467`.
+
+## Closure
+
+Canonical PR #233 merged into dev at `9d16dc77b4371c161b1ea6716f31fea767b5393a` on
+2026-11-03T00:11:56Z. Receipt `OLNWBRUOJRSR4SWXPZISRJSPLN` passed all four configured
+checks and 28 native tests.

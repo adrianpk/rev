@@ -1,6 +1,6 @@
 # Slice 5: Guarded directory context
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-ai-pi
 Plan: [Pi and Reload Delivery](../../../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../../../tracker/rev-ai-pi.md)
@@ -143,3 +143,18 @@ The admitted root must contain source suitable for the chosen model. Private
 path exclusions are not content classification. Persisted isolated directory
 history remains with Slice 6; authenticated provider acceptance remains with
 the recorded joint acceptance. No such evidence is inferred from local fixtures.
+
+## Integration
+
+Canonical PR [#233](https://forge.adrianpk.com/adrianpk/rev/pulls/233) merged
+into dev at `9d16dc77b4371c161b1ea6716f31fea767b5393a` on
+2026-11-03T00:11:56Z. Receipt `OLNWBRUOJRSR4SWXPZISRJSPLN` passed the exact
+clean head and ordered configured commands:
+
+- `cargo fmt --all -- --check`
+- `cargo clippy --locked --all-targets -- -D warnings`
+- `cargo test --locked --test pi --test ai -- --test-threads=1`
+- `git diff --check`
+
+All 28 native tests passed (19 editor AI, 9 Pi); the 27 actual offline Pi checks
+remain focused local evidence. This closes Slice 5, not the delivery-set gate.
