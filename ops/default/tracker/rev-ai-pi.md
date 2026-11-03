@@ -1,6 +1,7 @@
 # Pi Integration and External Reload Tracker
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-02
 Delivery set: rev-ai-pi
 Slice strategy: behavior-first
@@ -12,7 +13,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None — all eight slices integrated; full gate pending
+Active slice: None — all eight slices delivered; full gate passed
 Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 
 ## Execution ownership
@@ -20,8 +21,8 @@ Plan: [Delivery Plan](../plan/rev-ai-pi.md)
 The owner approved proceeding on 2026-11-02. Looper owns the eight-slice
 execution, canonical PR integration, configured gate, bounded recovery and
 closure. All eight slices are integrated at their validated heads. Slice entries
-and tickets are delivered; the frozen integrated gate and delivery-set closure
-remain pending. Ready tickets are actionable inputs, not completion evidence.
+and tickets are delivered; the frozen integrated gate passed and the delivery
+set is complete. Ready tickets are actionable inputs, not completion evidence.
 
 ## Canonical slice map
 
@@ -187,7 +188,7 @@ and owned exit with a controlled local provider and zero external requests.
 Strict library lint and documentation catalogs passed (428 commands, 230
 configuration entries; 68 pages/414 links). PR #234 merged at `d4a5c4c90dda580fdad612c91478189ae14ba644`
 on 2026-11-03T01:01:25Z. Receipt `Y5YWQGRNOAKJ3ADM3Q6VBHY532` passed all four configured
-commands and 37 native tests; the integrated gate remains pending.
+commands and 37 native tests; the integrated gate was pending at that slice's integration.
 
 Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
 
@@ -215,7 +216,7 @@ empty-query fixtures now assert the current first compiled AI command while
 retaining acceptance, row-limit and source-immutability checks; both focused
 cases passed. PR #235 merged at `af6dd10a18846b4ac5e7b6a5787e3b145b3f4012` on
 2026-11-03T01:32:11Z. Receipt `C7EIUNEWCMOYKJ6Q4W4FPA6I7G` passed all four configured
-checks and 333 suite cases; the integrated gate remains pending.
+checks and 333 suite cases; the integrated gate was pending at that slice's integration.
 
 Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 
@@ -252,7 +253,8 @@ Canonical PR [#236](https://forge.adrianpk.com/adrianpk/rev/pulls/236) merged at
 `RJLI2OQ42YTAU7K373I7PFAIKG` passed all seven configured commands, 61 suite cases,
 the nested save case, both-profile release native/PTY/Pi acceptance, documentation
 (70 pages/434 links) and the User Guide build. The report preserves separate
-editor/Pi resource measurements. Slice 8 is delivered; integrated gate pending.
+editor/Pi resource measurements. Slice 8 is delivered; the integrated gate below
+passed for the complete delivery.
 
 
 ## Preparation evidence
@@ -266,16 +268,24 @@ The plan records its exact boundary and corrected named-tool allowlist.
 
 ## Final gate and closure
 
-Prepared; not yet run. Plan/tracker Full gate metadata matches the unchanged
-local frozen configuration. Pinned native Pi 1.3.0, Rust/Cargo and locked cached
-dependencies, Bash, util-linux PTYs, GNU timeout and Spore are available.
-`cargo fetch --locked --offline` and a disposable PTY admission check passed.
-The gate script owns temporary HOME/XDG/Pi roots and child cleanup. The primary
-checkout stays on dev; the controller will validate the prepared candidate.
-Its affected native regressions and joint offline native/PTY/Pi flow are the
-selected integrated gate, not an exhaustive repository run. Real-provider
-observations belong to Slice 8 and are not repeated automatically on gate retries.
+Completed on 2026-11-03. The unchanged Full gate metadata above matches the
+controller evidence for immutable candidate `ecd02abcbd1f08530d8fad1395672dc6d00ee085`.
+Receipt `HBFDUZX54JK3RJUBGSQYIJANGO` passed from
+2026-11-03T08:58:36Z to 2026-11-03T09:04:09Z (approximately 333 seconds).
 
-Finish ticket transitions and all implementation before gate admission.
-Closure preserves actual candidate/receipt and historical identities, changes
-only preconfigured documents, and never marks the deferred native API complete.
+All 578 selected top-level tests passed with zero failures/ignored cases, plus
+six nested child cases. Strict format/lint, both-profile release native/PTY
+installed-Pi journeys, documentation (429 commands, 231 settings, 70 pages,
+434 links/anchors), local Spore User Guide generation and whitespace passed.
+The [Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, measured resources and owned cleanup.
+
+Real-provider observations were separate from this offline gate. The initial
+failed attempt and retained incident 1 remain recorded; its one operator-authorized
+OAuth continuation passed in 2873 ms with one turn/zero tools and unchanged toy
+source. No further provider request was made by the gate or closure.
+
+All eight reports are delivered and tickets solved. EFC01-EFC08, PI01-PI08 and
+selected shared AI behavior are complete. The broader native API specification
+and model retain draft status. Only configured documentation closure paths
+change after the immutable tested candidate. No successor is activated.

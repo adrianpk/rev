@@ -1,6 +1,7 @@
 # Pi Integration Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-10-28
 Reviewed: 2026-11-02
 Version: 0.2
@@ -22,8 +23,8 @@ not a substitute for checking effective tools, source paths and resources.
 
 ## Configuration delta
 
-Use the existing user TOML root and include precedence. Planned fields are
-under `ai.pi`; these are specification fields, not implemented settings.
+Use the existing user TOML root and include precedence. Delivered fields are
+under `ai.pi` and match the packaged defaults and configuration reference.
 Defaults permit lazy explicit AI commands without starting Pi during editing.
 
 | Field | Type and validation | Default |
@@ -169,3 +170,20 @@ private history persistence and actual process shutdown. No watcher or AI
 dependency is selected here. Measure cold/warm startup, idle CPU and RSS; no
 performance number is implied by this model. Real provider checks require
 authorized access; fixtures prove only their stated protocol boundaries.
+
+## Delivery evidence
+
+PI01-PI08 completed through canonical PRs #229-#236 in the
+[Pi/reload delivery](../plan/rev-ai-pi.md). The unchanged controller full gate
+passed at `ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, on 2026-11-03. The
+[Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, 578 selected top-level tests, both-profile native/PTY
+acceptance and separate real-provider evidence. Existing requirement, scenario,
+configuration and resource contracts remain intact.
+
+The real provider observation used Pi-owned OAuth and the existing configured
+model. Its original failed attempt and one explicitly authorized successful
+continuation remain recorded. API-key variants were not exercised live. The
+broader native API specification/model remain draft; direct transport and native
+context construction stay deferred.

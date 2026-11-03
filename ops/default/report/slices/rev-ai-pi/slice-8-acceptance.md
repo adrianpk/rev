@@ -155,8 +155,8 @@ completed observation. This completes T8.2 independently of the offline gate.
 
 ## Risks and Follow-ups
 
-The controller owns the pending frozen integrated gate and delivery-set closure.
-Its repeatable model evidence stays offline. The broader native API contract
+The controller-owned frozen integrated gate passed and the delivery set is
+complete. Its repeatable model evidence stayed offline. The broader native API contract
 remains draft; its transport and context construction stay deferred.
 
 ## Integration
@@ -185,4 +185,48 @@ Gate prerequisites are available: pinned native Pi 1.3.0, locked Cargo cache,
 Rust/Cargo, Bash, util-linux PTYs, GNU timeout and Spore with local guide assets.
 The gate's own fixtures create isolated roots and reap their owned children.
 The successful live operation is recorded separately and will not be repeated
-by the frozen gate. Slice 8 is delivered; the full gate remains pending.
+by the frozen gate. Slice 8 is delivered; the full gate passed as recorded below.
+
+## Delivery-set closure
+
+The frozen controller full gate passed at immutable candidate
+`ecd02abcbd1f08530d8fad1395672dc6d00ee085` in receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, from 2026-11-03T08:58:36Z to
+2026-11-03T09:04:09Z (approximately 333 seconds). Its exact successful command was:
+
+- `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
+
+The selected top-level suites passed: 129 library, 75 files, 147 configuration,
+21 external changes, 25 AI, 15 Pi, 57 bookmarks, 44 completion, 46 LSP,
+18 modal contexts and one command-catalog case (578 total, zero failed/ignored).
+Six owned child subcases also passed. Format, strict all-target lint and both
+profile variants of the real installed-Pi offline/native/PTY script passed.
+The script measured 18 seconds including its warm build; the full gate did not
+repeat either real-provider observation.
+
+| Integrated release observation | Non-modal | Modal |
+| --- | --- | --- |
+| Native startup | 38923 us | 42170 us |
+| First offline Pi result | 955 ms | 939 ms |
+| Native notification/reload | 10 ms | 8 ms |
+| First-result editor peak RSS | 13660 KiB | 15068 KiB |
+| Separate Pi peak RSS at first result | 180520 KiB | 171884 KiB |
+| PTY startup | 64 ms | 76 ms |
+| PTY input-preserving reload | 22 ms | 22 ms |
+| PTY output | 50090 bytes | 50100 bytes |
+
+Editor idle windows retained zero CPU ticks and PTY silence. Separate Pi
+350-ms observations used two/one CPU ticks and five/four voluntary context
+switches; full kernel wakeup counts remain unavailable. The release editor
+measured 21474384 bytes. Catalogs passed 429 commands and 231 configuration
+entries, with 70 reachable pages and 434 local links/anchors. Spore produced
+the local User Guide. Owned native/PTY/Pi fixtures completed their cleanup;
+unrelated services and processes were preserved.
+
+All eight reports are delivered and tickets solved. The plan/tracker and the
+Pi/external-file specification/model pairs are Completed for EFC01-EFC08,
+PI01-PI08 and selected shared AI behavior. The original failed provider
+observation, incident and authorized successful OAuth continuation stay distinct.
+Native API transport/context support remains deferred in its unchanged draft
+contract/model. Only configured documentation closure paths differ from the
+tested candidate.

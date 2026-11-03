@@ -1,6 +1,7 @@
 # Pi Integration
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-10-28
 Reviewed: 2026-11-02
 Version: 0.2
@@ -14,7 +15,7 @@ File observations: [External File Changes](editor-external-file-changes.md)
 Plan: [Pi and Reload Delivery](../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../tracker/rev-ai-pi.md)
 Delivery boundary: first AI delivery through Pi and general external reload in one approved Looper set through dev
-Readiness: approved for implementation; native API is deferred and direct filesystem writes are not added
+Readiness: implemented and validated through the completed Pi/reload delivery; native API remains deferred
 
 ## Purpose
 
@@ -264,7 +265,7 @@ switching instead of mixing histories from different grants.
 
 ## First-delivery commands and definitions
 
-These names describe the approved implementation, not commands already shipped:
+These names are delivered through the native command registry:
 
 | Command | Behavior |
 | --- | --- |
@@ -320,7 +321,7 @@ ordinary editing with Pi absent, delegated context and unsaved snapshots,
 root/tool restrictions, partial/failed/cancelled output and native undo/read-only
 admission. Fixtures alone do not prove real-provider subscription acceptance.
 External authenticated checks require their own authorized credentials and
-must not be performed merely because this draft exists.
+must not be performed merely because this specification exists.
 
 Include related declarations in another file, an unbundled language with no
 LSP, a dirty target, incompatible history, input-only after directory discovery,
@@ -346,3 +347,20 @@ development workflow or an executable extension layer for rev. This complete
 specification is approved for the linked delivery. Its exact plan/tracker,
 gate and authority own implementation and controller startup; this approval
 does not cover direct filesystem writes, account changes or native API delivery.
+
+## Delivery evidence
+
+PI01-PI08 completed through canonical PRs #229-#236 in the
+[Pi/reload delivery](../plan/rev-ai-pi.md). The unchanged controller full gate
+passed at `ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, on 2026-11-03. The
+[Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, 578 selected top-level tests, both-profile native/PTY
+acceptance and separate real-provider evidence. Existing requirement, scenario,
+configuration and resource contracts remain intact.
+
+The real provider observation used Pi-owned OAuth and the existing configured
+model. Its original failed attempt and one explicitly authorized successful
+continuation remain recorded. API-key variants were not exercised live. The
+broader native API specification/model remain draft; direct transport and native
+context construction stay deferred.

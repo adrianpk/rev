@@ -1,6 +1,7 @@
 # Pi Integration and External Reload Delivery
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-02
 Delivery set: rev-ai-pi
 Slice strategy: behavior-first
@@ -12,7 +13,7 @@ Spec: [External File Changes](../spec/editor-external-file-changes.md)
 Model: [External File Changes Model](../spec/editor-external-file-changes-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && cargo clippy --locked --all-targets -- -D warnings && cargo test --locked --lib --test files --test configuration --test external_changes --test ai --test pi -- --test-threads=1 && cargo test --locked --test completion --test lsp --test bookmarks -- --test-threads=1 && cargo test --locked --test modal contexts:: -- --test-threads=1 && cargo test --locked --test commands palette::catalog_reference -- --exact && bash scripts/check-ai-pi.sh && cargo run --locked --quiet --example documentation-check && bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None — all eight slices integrated; full gate pending
+Active slice: None — all eight slices delivered; full gate passed
 Tracker: [Delivery Tracker](../tracker/rev-ai-pi.md)
 Supporting contract: [AI Commands](../spec/editor-ai-commands.md), [shared model](../spec/editor-ai-commands-model.md)
 
@@ -377,3 +378,19 @@ only the plan/tracker, eight reports, the two capability spec/model pairs,
 pending index and eight exact solved tickets. The broader AI API spec/model
 are supporting draft documents and are not closure paths: do not mark the
 deferred API complete. Do not modify application code after the gate as closure.
+
+## Delivery-set closure
+
+All eight slices, their canonical PRs #229-#236 and solved tickets are complete.
+The unchanged controller-owned full gate passed on 2026-11-03 at immutable
+candidate `ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`. It completed in approximately 333 seconds,
+with 578 selected top-level tests, six nested child cases, both-profile native/PTY
+installed-Pi acceptance, documentation catalogs and the local User Guide build.
+
+EFC01-EFC08, PI01-PI08 and the selected shared AI behavior are delivered.
+The [Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records the exact frozen command, measurements, original failed provider
+observation and the operator-authorized successful OAuth continuation. The
+broader native API specification/model remain draft. This documentation closure
+changes only configured closure paths; runtime source remains the tested source.

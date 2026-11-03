@@ -1,6 +1,7 @@
 # External File Changes
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-02
 Format: OpenSpec capability specification
 Source: product-owner confirmation of automatic reload, configurable notification and protection of unsaved edits
@@ -13,7 +14,7 @@ Related integration: [Pi Integration](editor-ai-pi-integration.md)
 Plan: [Pi and Reload Delivery](../plan/rev-ai-pi.md)
 Tracker: [Pi and Reload Tracker](../tracker/rev-ai-pi.md)
 Delivery boundary: eight-slice Pi and reload delivery through dev under the approved plan
-Readiness: approved for implementation; no implementation evidence claimed
+Readiness: implemented and validated through the completed Pi/reload delivery
 
 ## Purpose
 
@@ -207,9 +208,20 @@ Measure idle wakeups/CPU, representative multi-buffer latency, memory and large
 file limits. Keep tests at affected file/buffer/configuration boundaries plus
 representative syntax/LSP/Org invalidation; do not append all historical gates.
 Document short ordinary examples and reflect the canonical Markdown guidance
-in Spore when implementation lands.
+in the local Spore User Guide projection.
 
 The linked approved delivery places this capability before Pi in the same
 set. It is not a prerequisite for Pi's read-only discovery
 and native-result path. Direct agent filesystem editing would require an
 additional application/authority decision in the AI contract.
+
+## Delivery evidence
+
+EFC01-EFC08 completed through canonical PRs #229-#236 in the
+[Pi/reload delivery](../plan/rev-ai-pi.md). The unchanged controller full gate
+passed at `ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, on 2026-11-03. The
+[Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, 578 selected top-level tests, both-profile native/PTY
+acceptance and separate real-provider evidence. Existing requirement, scenario,
+configuration and resource contracts remain intact.

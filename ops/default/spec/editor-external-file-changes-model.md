@@ -1,18 +1,19 @@
 # External File Changes Model
 
-Status: Approved
+Status: Completed
+Completed: 2026-11-03
 Date: 2026-11-02
 Approved: product owner, 2026-11-02; paired external-reload delivery approval
 Specification: [External File Changes](editor-external-file-changes.md)
 Existing ownership: [Editor Configuration Model](editor-configuration-model.md)
-Readiness: approved configuration delta and transient state for implementation
+Readiness: delivered configuration and native transient state; frozen integrated gate passed
 
 ## Persistent configuration
 
 Use the existing sole user TOML root, includes, validation and complete native
 defaults. No per-project discovery, session archive or reload-state file is
 introduced. The engineering defaults below make the approved delivery's bounds
-explicit; they are not claims about already implemented settings.
+explicit and match the implemented settings and packaged defaults.
 
 | Field | Type and admitted values | Default | Meaning |
 | --- | --- | --- | --- |
@@ -99,3 +100,14 @@ Diagnostics distinguish notification-only, local-edit conflict, source race,
 missing destination, invalid ingress, size/read limit and observation failure.
 They identify a buffer and useful next action without dumping its contents.
 No automatic confirmation, force-save or agent write authority is inferred.
+
+## Delivery evidence
+
+EFC01-EFC08 completed through canonical PRs #229-#236 in the
+[Pi/reload delivery](../plan/rev-ai-pi.md). The unchanged controller full gate
+passed at `ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, on 2026-11-03. The
+[Slice 8 closure](../report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+records exact commands, 578 selected top-level tests, both-profile native/PTY
+acceptance and separate real-provider evidence. Existing requirement, scenario,
+configuration and resource contracts remain intact.

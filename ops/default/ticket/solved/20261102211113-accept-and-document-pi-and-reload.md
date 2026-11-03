@@ -54,7 +54,9 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 
 The Slice 8 report records the exact configured checks and actual controlled
 versus real-provider observations. Its seven-command receipt validates the
-canonical merge head; the integrated delivery-set gate remains pending.
+canonical merge head. The subsequent integrated delivery-set gate passed at
+`ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`.
 
 ## Implementation evidence
 
@@ -77,4 +79,7 @@ transition. PR #236 merged at `dbdb11b78c76f3d39c7cb3df6542b064f90a83ba`;
 receipt `RJLI2OQ42YTAU7K373I7PFAIKG` passed all seven Slice 8 checks and 61 suite
 cases, plus the nested save case. The [Slice 8 report](../../report/slices/rev-ai-pi/slice-8-acceptance.md)
 preserves both provider observations and actual native/PTY/resource evidence.
-The controller owns the pending integrated gate and delivery-set closure.
+The controller full gate passed at `ecd02abcbd1f08530d8fad1395672dc6d00ee085`
+in receipt `HBFDUZX54JK3RJUBGSQYIJANGO`: 578 selected top-level cases,
+six nested child cases, native/PTY/offline Pi acceptance and local guide output.
+The delivery is closed through the configured documentation paths.

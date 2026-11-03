@@ -2,8 +2,8 @@
 
 Status: proposed
 Date: 2026-10-31
-Scope: pending behavior after the completed native completion, optional LSP, modal editing and server-management deliveries
-Owner decision: native completion, optional LSP, modal editing and language-server installation delivered; other proposals retain their separate approval boundaries
+Scope: pending behavior after the completed native completion, optional LSP, modal editing, server-management and Pi/reload deliveries
+Owner decision: native completion, optional LSP, modal editing, language-server installation, Pi and external reload delivered; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains ten delivered topics, two open presentation
-follow-ups and six remaining capability proposals. Solved
+The inventory contains twelve delivered topics, two open presentation
+follow-ups and four remaining capability proposals. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -35,9 +35,9 @@ retain their own specification/model state.
 | Built-in autocompletion | [Spec](spec/editor-autocompletion.md), [model](spec/editor-autocompletion-model.md), [plan](plan/rev-autocompletion.md), [tracker](tracker/rev-autocompletion.md) | Delivered / Completed. Eight slices through PRs #195-#202 deliver automatic/manual interaction, ten bundled parsers, native Org contexts, bounded observations, registered external grammars and native/resource/PTY acceptance. The native gate passed; the subsequent integrated LSP gate also passed CMP02 semantic/native switching and joint acceptance. |
 | Optional native LSP client | [Spec](spec/editor-language-server-support.md), [model](spec/editor-language-server-support-model.md), [plan](plan/rev-language-server-support.md), [tracker](tracker/rev-language-server-support.md) | Delivered / Completed. Six slices through PRs #203-#208 and authorized repairs #209/#210 deliver disabled-by-default stdio support, unsaved sync, UTF-8/UTF-16 mapping, shared processes, buffer exclusions, checked semantic edits, fallback and real Rust-server acceptance. The unchanged controller full gate passed; LSP01-LSP06 and joint CMP01-CMP09 are closed. |
 | Simple optional LSP installation | [Spec](spec/editor-language-server-installation.md), [model](spec/editor-language-server-installation-model.md), [plan](plan/rev-language-server-installation.md), [tracker](tracker/rev-language-server-installation.md) | Delivered / Completed. Seven slices through PRs #222–#228 deliver guided existing/custom setup, associations, explicit source choice, managed recipes and lifecycle. Any compatible language/server remains eligible independently of bundled grammars or the initial catalog. The unchanged controller gate passed INS01-INS06 with both-profile native/PTY management, real Rust/Go semantics and grammar-independent routing. |
-| Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft broader contract. Shared commands are prepared for Pi first; native API transport and native context construction are deferred and do not block Pi. |
-| Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | All eight slices integrated; frozen full gate pending. Private Pi RPC sessions, guarded discovery, checked native result application and reusable commands are delivered. Both-profile offline native/PTY and bounded OAuth acceptance passed; native API remains deferred. |
-| Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Integrated in the same eight-slice delivery; frozen full gate pending. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection are delivered as general editor behavior. |
+| Native AI commands via provider API | [Spec](spec/editor-ai-commands.md), [model](spec/editor-ai-commands-model.md) | Draft broader contract. Selected shared commands are delivered through Pi; native API transport and native context construction remain deferred. |
+| Independent optional Pi backend | [Spec](spec/editor-ai-pi-integration.md), [model](spec/editor-ai-pi-integration-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed. Eight slices through PRs #229-#236 deliver private Pi RPC sessions, guarded discovery, checked native application and reusable commands. The unchanged controller gate and separate bounded OAuth acceptance passed; native API remains deferred. |
+| Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed in the same eight-slice delivery. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection passed EFC01-EFC08 through the unchanged controller gate. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md) | Draft. Six reference glyphs captured; prefix/source fidelity required. Depth overflow, defaults and reveal/geometry details remain open. Fonts and ligatures belong to the terminal. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
@@ -48,7 +48,8 @@ retain their own specification/model state.
 The owner approved proceeding with Pi and general external reload on
 2026-11-02 after the architecture explanation. The linked eight-slice plan and
 tracker place reload before the Pi increments in one autonomous delivery.
-Direct API construction remains deferred. External reload does not grant Pi
+All eight slices and the frozen full gate are complete. Direct API construction
+remains deferred. External reload does not grant Pi
 direct source-write authority; native result application retains the approved
 single-target boundary. Actual startup/progress belongs to the controller.
 
@@ -181,7 +182,16 @@ three opt-in cases ignored, and native/real-server/PTY management acceptance.
 The [installation tracker](tracker/rev-language-server-installation.md#final-gate-and-closure)
 and [Slice 7 closure](report/slices/rev-language-server-installation/slice-7-acceptance.md#delivery-set-closure)
 record exact validation, resources, local guide output and owned cleanup.
-The five remaining capability proposals, including optional external-program
+Pi and external-file changes are Completed after eight canonical slices through
+PRs #229-#236. Their unchanged controller gate passed at
+`ecd02abcbd1f08530d8fad1395672dc6d00ee085`, receipt
+`HBFDUZX54JK3RJUBGSQYIJANGO`, with 578 selected top-level tests,
+six nested child cases and both-profile native/PTY/offline Pi acceptance. The
+[Pi/reload tracker](tracker/rev-ai-pi.md#final-gate-and-closure) and
+[Slice 8 closure](report/slices/rev-ai-pi/slice-8-acceptance.md#delivery-set-closure)
+record exact validation, resources, the separate OAuth observation and local
+User Guide output. Native API support remains deferred in its broader draft.
+The four remaining capability proposals, including optional external-program
 exploration, retain their prior state. Earlier completed gates keep their
 historical identities.
 
