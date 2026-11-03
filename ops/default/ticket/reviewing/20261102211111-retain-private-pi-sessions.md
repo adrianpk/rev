@@ -12,6 +12,7 @@ reported_at: 2026-11-02T21:11:11Z
 ready_at: 2026-11-02T21:11:11Z
 started_at: 2026-11-03T00:15:21Z
 branch: feat/rev-ai-pi-06-sessions
+pr: 234
 reviewed_at: 2026-11-03T00:58:15Z
 commits: [ad97bb9e569c5858eb0f3e33a3ef36fd1618d581, 7ef7b03396602642ca99a408101e867d2b017c78]
 ---
@@ -59,3 +60,6 @@ checks passing. Real Pi with a local controlled provider restores prior history
 and exits its owned process without external provider requests. The canonical
 Slice 6 report records commands and bounds. Final clean-head validation follows
 the PR-reference commits through the controller.
+
+Canonical PR: [#234](https://forge.adrianpk.com/adrianpk/rev/pulls/234).
+Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.

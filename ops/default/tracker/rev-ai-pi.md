@@ -172,7 +172,7 @@ Ticket: [Private Pi sessions](../ticket/reviewing/20261102211111-retain-private-
 Requirements: PI01-PI04, PI07, PI08; AI16-AI20.
 Dependencies: Slice 5 integrated.
 Branch: `feat/rev-ai-pi-06-sessions`
-PR: pending.
+PR: [#234](https://forge.adrianpk.com/adrianpk/rev/pulls/234).
 Report: `ops/default/report/slices/rev-ai-pi/slice-6-sessions.md`
 
 - [x] T6.1: Persist bounded schema-1 private session bindings in XDG state while Pi owns its JSONL history; reuse only matching root/model/grant observations.
@@ -186,6 +186,8 @@ and owned exit with a controlled local provider and zero external requests.
 Strict library lint and documentation catalogs passed (428 commands, 230
 configuration entries; 68 pages/414 links). Final clean-head validation follows
 the PR-reference commits through the controller; integrated gate remains pending.
+
+Report introduction: `31b7d41f182361cb9c7de84f8a5a66b5d881f881`.
 
 ### Slice 7: Reusable AI commands
 
