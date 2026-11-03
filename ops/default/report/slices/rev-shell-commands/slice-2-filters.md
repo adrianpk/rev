@@ -5,7 +5,7 @@ Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
 Branch: `feat/rev-shell-commands-02-filters`
-PR: pending
+PR: `#243`
 
 ## Purpose
 
@@ -37,7 +37,7 @@ successful stdout to the original checked region or insertion point.
   together with T2.2.
 - `T2.2`: `6f491a31ce9aa89d547951e757b1e0bd16c03d53` adds checked publication,
   source/reload fences and the real-child readonly-transition regression.
-- `T2.3`: this report-introduction commit adds the complete native filter cases.
+- `T2.3`: `071b89040dd1833f4b79779d1186d6192c3a7c9e` adds the complete native filter cases and introduces this report.
 - Anonymous sealed memory-file staging reuses the existing process helper's
   file-input path. The input descriptor reaches finite EOF without a concurrent
   pipe writer, implicit save or filesystem persistence. Existing dependencies,

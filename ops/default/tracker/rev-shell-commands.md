@@ -56,7 +56,15 @@ real sort/tr cases and one real-child readonly-transition test.
 - [x] T2.1: Capture linear selections and insertion points before prompts, supply exact bounded stdin followed by EOF, and deliver shell-command-on-region, shell-filter-region and shell-command-insert.
 - [x] T2.2: Publish only complete successful stdout through native observed edits and one undo; preserve canonical newlines, source positions, readonly admission and strict stale/reload/closed-target rejection.
 - [x] T2.3: Verify real sort/tr with unsaved input, empty successful results, Unicode/newlines, cancelled prompts, read-only input, read-only edit rejection, edited/reloaded targets, pane switches and normal undo.
-- [ ] Record immutable report introduction and canonical PR. Exact clean-HEAD ordered validation is owned by the Looper receipt.
+- [x] Record immutable report introduction and canonical PR: [#243](https://forge.adrianpk.com/adrianpk/rev/pulls/243).
+
+Task commits: T2.1 `494aa35190f30f4b80210ce6fb1a6f3437a87f2e`,
+T2.2 `6f491a31ce9aa89d547951e757b1e0bd16c03d53`,
+T2.3 `071b89040dd1833f4b79779d1186d6192c3a7c9e`.
+Report introduction: [Slice 2 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/071b89040dd1833f4b79779d1186d6192c3a7c9e/ops/default/report/slices/rev-shell-commands/slice-2-filters.md).
+Exact clean-HEAD configured validation and the focused readonly-transition check
+are owned by Looper receipts after this PR-reference commit and push. The canonical
+PR records its successful configured command prefix before integration.
 
 ## Slice 3: Native interaction and lifecycle
 
