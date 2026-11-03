@@ -1,10 +1,12 @@
 # Integrated Terminal Model
 
-Status: draft
+Status: Approved
 Date: 2026-10-28
 Reviewed: 2026-11-03
-Version: 0.3
+Approved: product owner, 2026-11-03; promoted with the terminal specification
+Version: 0.4
 Specification: [Integrated Terminal Sessions](editor-integrated-terminal.md)
+Delivery: [Plan](../plan/rev-integrated-terminal.md), [tracker](../tracker/rev-integrated-terminal.md)
 Existing editor model: [rev Editor Model](rev-editor-model.md)
 Separate owner: [Shell Commands Model](editor-shell-commands-model.md) owns one-shot stdin/stdout jobs; those jobs do not create terminal sessions or placements
 
@@ -38,8 +40,9 @@ state over the same session. With no live view, retain the last valid geometry.
 Reattachment publishes a checked resize before geometry-sensitive input.
 
 Use the crate's existing PTY/event facilities where they satisfy rev's lifetime
-and bounds, without assuming another PTY dependency is needed. Exact crate
-version/features are pinned with the implementation candidate. No Zig engine,
+and bounds. The delivery pins alacritty_terminal =0.26.0 with default features
+disabled, and requires rev-owned bounded IO instead of adopting its unbounded
+EventLoop queues. No additional direct crate is selected. No Zig engine,
 desktop Alacritty process/configuration or window/font backend enters this model.
 
 ## Preferences and defaults
@@ -48,11 +51,17 @@ Default creation uses the lower panel. Direct creation in a main-area buffer
 is a separate explicit operation. The configured user shell is the interactive
 default; explicit argv/environment remain structured data. rev's directory
 context supplies the initial location with file-parent/launch-directory
-fallbacks. Exact TOML keys, panel dimensions and measured limits are prepared
-for delivery, not added to the shipped sample by this model.
+fallbacks. The approved plan defines the initial typed TOML keys, panel
+dimensions and finite resource bounds. Implementing the shipped sample and
+measuring those bounds belong to the recorded slices.
 
 There is one instance-global default session and one remembered lower-panel
-terminal/size. terminal-open reuses a live default; terminal-new and
+terminal/size. The lower panel displays one selected session at a time;
+selecting another retains the previous session and its process. Multiple
+independent sessions are part of the first delivery, selected through ordinary
+buffer navigation. Creation is on demand: editor startup and buffer listing
+do not launch children, and selecting or moving an existing session does not
+duplicate its process. terminal-open reuses a live default; terminal-new and
 terminal-new-buffer create independent sessions. Opening after default exit
 creates a fresh default without discarding its exited buffer. Buffer names are
 terminal, terminal-2 and so on, with explicit identity-preserving rename.
@@ -89,12 +98,12 @@ follow the Odra contract. Copy mode owns stable retained-text navigation while
 the child continues. Native user paste follows child bracketed-paste state;
 child-requested clipboard effects are denied and hyperlinks require explicit
 activation. The crate's own optional vi-navigation helpers do not select or
-replace rev's startup-only Emacs/Vim profile.
+replace rev's startup-only non-modal/modal profile.
 
 ## Readiness
 
-The behavioral reference and Rust engine direction are established. Remaining
-work is exact dependency pinning, typed preference/default/bounds integration,
-native IO/render/host-effect adaptation and real Linux PTY/lazygit validation.
-This document is still a draft, not an implemented terminal or an approved
-slice map. No new Git/AI workflow or runtime profile selection is introduced.
+The product behavior and eight-slice plan are approved with the sibling
+specification. The plan records dependency/preference/bounds decisions and
+native Linux PTY/lazygit acceptance. Implementation and measurements remain
+pending controller execution; planning does not claim a delivered terminal.
+No new Git/AI workflow or runtime profile selection is introduced.

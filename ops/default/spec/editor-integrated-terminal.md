@@ -1,17 +1,19 @@
 # Integrated Terminal Sessions
 
-Status: draft
+Status: Approved
 Date: 2026-10-28
 Reviewed: 2026-11-03
-Version: 0.3
-Format: OpenSpec capability proposal
-Source: product-owner terminal presentation request and clarification to inherit Odra behavior with a Rust/Alacritty implementation
+Approved: product owner, 2026-11-03; lower-panel default, direct-buffer entry, bidirectional live relocation and multiple on-demand sessions in the first delivery
+Version: 0.4
+Format: OpenSpec capability specification
+Source: product-owner terminal presentation request, Odra behavior reference, Rust/Alacritty engine choice and multiple-session clarification
 Model: [Integrated Terminal Model](editor-integrated-terminal-model.md)
+Delivery: [Plan](../plan/rev-integrated-terminal.md), [tracker](../tracker/rev-integrated-terminal.md)
 Editor owner: [rev Editor](rev-editor.md)
 Controls: [Editor Configuration](editor-configuration.md)
-Delivery boundary: future terminal delivery; no implementation or slicing authorized
-Readiness: behavioral reference and Rust engine direction established; exact dependency pin, native catalog integration and measured limits remain delivery preparation
-Separate capability: [Shell Commands and Text Filters](editor-shell-commands.md) is the owner-selected first delivery; this terminal draft is not part of that implementation
+Delivery boundary: approved eight-slice autonomous delivery through dev; owner explicitly requested Looper startup on 2026-11-03
+Readiness: approved plan/tracker define the dependency, initial finite preferences/resource bounds, ordered validation and closure; implementation and measurements remain pending controller execution
+Separate capability: [Shell Commands and Text Filters](editor-shell-commands.md) is Completed; interactive terminals retain their own session lifecycle and delivery
 
 ## Purpose
 
@@ -42,7 +44,9 @@ surface; Project/Workspace abstractions are not introduced.
 
 - The default placement is a usable lower terminal panel.
 - Opening directly in a normal buffer location is an explicit alternative.
-- Multiple terminal sessions are supported as independent running sessions.
+- Multiple independent terminal sessions are included in the first delivery,
+  created on demand and selected through ordinary buffer navigation.
+- The lower panel presents one selected terminal session at a time.
 - Move the same live session from the lower panel to a buffer and back.
 - Preserve the child process, interactive application, working state and
   retained terminal output across those moves.
@@ -50,18 +54,36 @@ surface; Project/Workspace abstractions are not introduced.
   libghostty-vt or Zig build/runtime requirement for this feature.
 - Inherit Odra's session, close, input, copy/paste and presentation behavior.
 
+## Relationship to the delivered baseline
+
+This is an accepted additive capability against the **Scope and priority**
+section of [rev Editor](rev-editor.md#scope-and-priority). That section's
+embedded-shell exclusion describes the original implemented baseline;
+TRM01-TRM11 define the separately planned interactive-terminal addition.
+The completed shell-command capability continues to own one-shot text filters.
+
+The baseline's **Vocabulary and invariants** and the **Buffer** record in
+[rev Editor Model](rev-editor-model.md#buffer) describe source-text buffers.
+Terminal-backed buffers join ordinary navigation with their own typed session
+owner, not an editable source rope. Source save, splice and undo commands must
+retain that distinction. The sibling terminal model defines the new records.
+Original completed requirements, gate results and delivery records remain
+historical evidence, not terminal acceptance evidence.
+
 ## Rust terminal engine
 
 Use the [alacritty_terminal library](https://docs.rs/alacritty_terminal/0.26.0/alacritty_terminal/)
 behind a rev-owned adapter. The inspected reference release is 0.26.0. Its
 Term/grid API supplies terminal state and renderable content; its tty and
-event_loop modules also provide PTY-related components. The exact production
-pin and feature set are established with the implementation candidate.
+event_loop modules also provide PTY-related components. The approved delivery
+pins =0.26.0 with default-features = false; Cargo.lock resolution belongs to
+Slice 1. Its serde state-serialization feature is not needed.
 
 Keep process, PTY, emulator, buffer, view and render ownership explicit even
-when the same crate supplies several mechanisms. Review its existing PTY/IO
-facilities before introducing another PTY dependency. No separate PTY crate is
-selected by this specification.
+when the same crate supplies several mechanisms. Preparation inspected its
+PTY/IO facilities and found unbounded input/write queues in its EventLoop.
+The plan requires bounded rev-owned IO around the admitted engine/PTY
+facilities. No separate PTY crate or other new direct dependency is selected.
 
 The [crate manifest](https://docs.rs/crate/alacritty_terminal/0.26.0/source/Cargo.toml.orig)
 is the dependency reference. Integrate the library into rev's native render
@@ -120,14 +142,28 @@ the child application.
 
 ### Requirement: TRM03 Multiple sessions with stable identities
 
-rev SHALL own multiple independent terminal sessions and expose their stable
-terminal-buffer identities through native navigation. Selecting or relocating
-one SHALL not change another's process, input, output or working state. The
-first buffer SHALL be named terminal, then terminal-2, terminal-3 and so on;
+The first delivery SHALL support multiple independent terminal sessions and
+expose their stable terminal-buffer identities through ordinary buffer
+selection and listing. Sessions SHALL be created on explicit user invocation;
+editor startup and buffer listing SHALL NOT start terminal processes. Selecting
+or relocating an existing session SHALL NOT create a duplicate process.
+
+The lower panel SHALL present one selected terminal session at a time.
+Selecting another session SHALL retain the previous session and its running
+state. Selecting or relocating one SHALL not change another's process, input,
+output or working state. The first buffer SHALL be named terminal, then
+terminal-2, terminal-3 and so on;
 explicit rename SHALL preserve identity. One terminal-backed buffer MAY be
 selected in multiple ordinary panes as views of the same session. The focused
 live view SHALL own PTY resize authority; other views SHALL not create another
 PTY or emulator. Each view retains its own viewport/copy navigation.
+
+#### Scenario: Create sessions on demand
+
+- **GIVEN** rev starts with ordinary source buffers and no terminal sessions
+- **WHEN** the user creates a terminal and later explicitly requests another
+- **THEN** each invocation creates one independent session and terminal-backed buffer
+- **AND** no terminal process was started by editor startup or buffer listing.
 
 #### Scenario: Switch independent terminals
 
@@ -135,6 +171,13 @@ PTY or emulator. Each view retains its own viewport/copy navigation.
 - **WHEN** the user selects and relocates one
 - **THEN** only its attachment and geometry change
 - **AND** the other session retains its state and receives no redirected input.
+
+#### Scenario: Select another terminal in the lower panel
+
+- **GIVEN** two live sessions and one shown in the lower panel
+- **WHEN** the user selects the other through native terminal selection
+- **THEN** the lower panel presents that session without creating another process
+- **AND** the previously shown session continues and remains selectable as a buffer.
 
 #### Scenario: Present one terminal in two panes
 
@@ -199,7 +242,7 @@ as an ordinary source file.
 ### Requirement: TRM06 Contextual keyboard and pointer ownership
 
 Focused live terminal input SHALL be routed to the child under an explicit
-terminal context. Ordinary editor Emacs/Vim motions SHALL not accidentally
+terminal context. Ordinary non-modal/modal editor bindings SHALL not accidentally
 consume interactive application input. Factory C-g/M-x recovery and the C-x
 editor prefix SHALL remain reachable. Terminal-local commands resolve before
 unclaimed input is encoded for the child. C-q/terminal-send-next-key SHALL send
@@ -209,7 +252,7 @@ otherwise intercepted by the host.
 Return, Tab, Backspace, Delete, arrows and paging SHALL use native child-mode
 encoding in live mode. C-y/M-y use admitted terminal yank/yank-pop; C-l clears
 the visible terminal screen. C-c C-t enters copy mode. Printable colon belongs
-to the child while live terminal input owns focus; Vim host command entry is
+to the child while live terminal input owns focus; modal colon command entry is
 available after selecting a compatible editor/copy context. Escape belongs to
 the child unless a stronger host transient explicitly owns it.
 
@@ -229,8 +272,8 @@ Control-click SHALL explicitly activate an admitted terminal hyperlink.
 
 Creation, direct-buffer creation, session selection, relocation in both
 directions and visibility controls SHALL be concrete native operations in
-rev's existing command catalog. M-x and, when delivered, Vim colon entry SHALL
-invoke the same operations in compatible host contexts. Appropriate panel,
+rev's existing command catalog. Non-modal M-x and modal colon entry SHALL invoke
+the same operations in compatible host contexts. Appropriate panel,
 directory, shell and terminal preferences SHALL use existing TOML/startup and
 session-override conventions. Default shell creation SHALL use the user's
 configured interactive shell; executable arguments/environment SHALL remain
@@ -291,7 +334,7 @@ ownership. The feature SHALL not require Zig, libghostty-vt, an Alacritty
 desktop installation or a separate graphical window. The library's screen,
 modes and damage observations SHALL be lowered through rev's admitted terminal
 renderer. Library selection SHALL not replace the hosting terminal's font
-selection or the editor's startup-selected Emacs/Vim interaction profile.
+selection or the editor's startup-selected non-modal/modal interaction profile.
 
 #### Scenario: Run the embedded terminal with the Rust library
 
@@ -369,21 +412,20 @@ stubs or a programmable facade.
 
 ## Implementation preparation
 
-Behavior follows Odra with the explicit rev placement and Rust-engine choices
-above. Additional reference text may refine the draft but is not a prerequisite
-for resolving behavior already covered by that reference.
+Behavior follows Odra with the approved rev placement, multiple-session and
+Rust-engine choices above. The linked eight-slice plan fixes the initial
+engineering policy and validation; its tracker and controller own execution.
 
-- Pin alacritty_terminal and the admitted feature/transitive set; verify its
-  PTY/IO/resize/exit integration and ordinary Rust build without a Zig toolchain.
+- Resolve the pinned alacritty_terminal feature/transitive set in Slice 1;
+  verify PTY/IO/resize/exit integration and the ordinary Rust build.
 - Lower the admitted VT styles/modes/damage and host effects into rev's renderer
   and input owners; advertise only actual supported terminal capabilities.
-- Define the typed TOML catalog, sensible panel geometry, session/IO/scrollback
-  limits and exact Linux integration gates from representative measurements.
+- Implement the plan's typed TOML catalog, usable panel geometry and finite
+  session/IO/scrollback limits; record representative measurements.
 - Validate real lazygit/shell operation, relocation/mirrored views, focus and
   literal-next recovery, copy/paste, process closure and idle/resource behavior.
 
-Before planning, reconcile the editor's current embedded-shell exclusion and
-buffer/file command admission with a complete accepted terminal capability
-delta. Preserve historical completed delivery and gate records. Versioning this
-draft does not authorize implementation, slicing, dependency
-installation or process launch.
+The plan maps the accepted baseline addition and typed buffer/file command
+admission to implementation and acceptance work. Preserve historical completed
+delivery and gate records. Exact startup and progress belong to the controller;
+planning metadata is not evidence of a running worker or completed capability.

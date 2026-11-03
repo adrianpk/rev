@@ -3,7 +3,7 @@
 Status: proposed
 Date: 2026-11-03
 Scope: pending behavior after the completed native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
-Owner decision: separate interactive terminals from command piping; start native shell commands and text filters first under the delegated choice; other proposals retain their separate approval boundaries
+Owner decision: native shell commands and text filters are Completed; the interactive-terminal specification/model and eight-slice plan/tracker are approved, with explicit Looper startup requested; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
 It is a planning entry point, not a delivery plan or execution tracker. The
@@ -41,7 +41,7 @@ retain their own specification/model state.
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md), [plan](plan/rev-org-headings.md), [tracker](tracker/rev-org-headings.md) | Delivered / Completed. Three slices through PRs #238-#240 deliver six cyclic reference glyphs, complete startup preferences, independent native view toggle/reset, source-backed prefix width and bounded projection. The unchanged controller full gate passed OGP01-OGP08 with 420 selected tests and both-profile native/resource/PTY acceptance. Fonts and ligatures remain terminal-owned. |
 | Native shell commands and text filters | [Spec](spec/editor-shell-commands.md), [model](spec/editor-shell-commands-model.md), [plan](plan/rev-shell-commands.md), [tracker](tracker/rev-shell-commands.md) | Delivered / Completed. Four slices through PRs #242-#245 and repair #246 deliver explicit command entry, bounded stdin/stdout, checked insert/replace and native controls. The unchanged controller gate passed SHL01-SHL08 with both-profile native/resource/PTY acceptance and guide projection. |
-| Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
+| Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md), [plan](plan/rev-integrated-terminal.md), [tracker](tracker/rev-integrated-terminal.md) | Approved eight-slice delivery; Looper startup requested. Lower panel by default, direct buffer alternative, bidirectional live relocation and multiple on-demand sessions through ordinary buffer navigation. The lower panel displays one session at a time. Pinned Rust engine, bounded IO/preferences, real shell/lazygit acceptance and Markdown/Spore guidance are recorded in the plan; implementation remains pending. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
 ## Selected execution order
@@ -50,9 +50,13 @@ On 2026-11-03 the owner requested two independent specifications and starting
 the agent-selected first capability. Native shell commands and text filters
 were selected first. Their specification/model and four-slice plan/tracker are
 Completed after PRs #242-#245, repair #246 and the unchanged controller gate.
-Interactive terminal placement
-(lower panel or main buffer) remains one separate draft. The larger external
-extension proposal remains optional; neither is started by the shell delivery.
+The owner then approved the separate interactive-terminal specification and
+model on 2026-11-03, including multiple on-demand sessions, a lower-panel default,
+direct main-buffer entry and live relocation in both directions. The owner then
+explicitly requested Looper startup. The linked eight-slice plan and tracker
+define one autonomous delivery through dev, including its fixed gate and
+bounded recovery. Actual startup and progress belong to the controller
+checkpoint. The larger external extension proposal remains optional.
 
 The owner selected Org heading presentation on 2026-11-03 after the Pi/reload
 delivery. Its specification/model and plan/tracker are now Completed after
@@ -216,8 +220,9 @@ passed at `18f625997de4c0ac2e1ae50d6fea667fe14f2c2d`, receipt
 [heading tracker](tracker/rev-org-headings.md#final-gate-and-closure) and
 [Slice 3 closure](report/slices/rev-org-headings/slice-3-acceptance.md#delivery-set-closure)
 record the 420 selected tests, native/resource/four-PTY acceptance, source-byte
-fidelity and local User Guide output. The three remaining capability proposals,
-including optional external-program exploration, retain their prior state.
+fidelity and local User Guide output. Remaining capability proposals retain
+their independently recorded states, including the approved terminal contract
+and optional external-program exploration.
 Earlier completed gates keep their historical identities.
 
 Shell commands and text filters are Completed after four canonical slices and

@@ -93,8 +93,10 @@ PRs #242-#245 and repair #246. Its unchanged controller gate passed at
 [shell tracker](../tracker/rev-shell-commands.md#final-gate-and-closure) records
 SHL01-SHL08 acceptance. It does not turn the
 original exclusion into an interactive shell, automatic task runner or plugin
-interface. [Interactive Terminals](editor-integrated-terminal.md) retains its
-own draft and approval boundary; original completed editor gates stay historical.
+interface. [Interactive Terminals](editor-integrated-terminal.md) is the
+separately approved additive contract for live PTY sessions, terminal-backed
+buffers and lower-panel/main-area placement. Its implementation remains a
+separate delivery; original completed editor gates stay historical.
 
 MUST and SHALL define acceptance obligations. SHOULD is a strong expectation;
 deviations require a recorded reason. MAY permits bounded optional behavior
