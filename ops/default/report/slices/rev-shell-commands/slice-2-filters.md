@@ -116,11 +116,15 @@ commands in order on that exact clean head: formatting, strict all-target Clippy
 validation and `git diff --check`. Focused receipt `LSFGO3J6QTLAMXN5UZML5KAFFD`
 passed the real-child readonly-transition case on the same head. The immutable
 report introduction is `071b89040dd1833f4b79779d1186d6192c3a7c9e`.
-The integrated delivery-set gate remains controller-owned.
+The unchanged integrated gate subsequently passed at
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, controller receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`. The
+[Slice 4 closure](slice-4-acceptance.md#delivery-set-closure) records combined
+native/resource/PTY acceptance and cleanup; this slice remains delivered.
 
 ## Risks and Follow-ups
 
-The remaining approved slices add default keys/history and joint profile, PTY and
+Subsequent slices delivered default keys/history and joint profile, PTY and
 resource acceptance. The existing disk-observation model remains conservative
 metadata evidence; it cannot eliminate changes after an observation. No dependency
 or Cargo.lock change is introduced.

@@ -1,8 +1,8 @@
 # Pending Editor Work
 
 Status: proposed
-Date: 2026-10-31
-Scope: selected native shell-command delivery and pending behavior after the completed native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
+Date: 2026-11-03
+Scope: pending behavior after the completed native shell-command, native completion, optional LSP, modal editing, server-management, Pi/reload and heading-presentation deliveries
 Owner decision: separate interactive terminals from command piping; start native shell commands and text filters first under the delegated choice; other proposals retain their separate approval boundaries
 
 This index connects the pending tickets, capability specifications and models.
@@ -16,8 +16,8 @@ decisions and identify cases where rev has no direct Emacs counterpart.
 
 ## Complete inventory
 
-The inventory contains thirteen delivered topics, two open presentation
-follow-ups, the selected shell-command delivery and three other capability proposals. Solved
+The inventory contains fourteen delivered topics, two open presentation
+follow-ups and three capability proposals. Solved
 tickets retain their implementation/PR evidence.
 The completed delivery passed its controller-owned full gate; other capabilities
 retain their own specification/model state.
@@ -40,7 +40,7 @@ retain their own specification/model state.
 | Configurable external file changes | [Spec](spec/editor-external-file-changes.md), [model](spec/editor-external-file-changes-model.md), [plan](plan/rev-ai-pi.md), [tracker](tracker/rev-ai-pi.md) | Delivered / Completed in the same eight-slice delivery. Checked revert, automatic clean-buffer reload, passive notification and unsaved-edit protection passed EFC01-EFC08 through the unchanged controller gate. |
 | Startup-selected Emacs/Vim editing | [Spec](spec/editor-modal-editing.md), [model](spec/editor-modal-editing-model.md), [plan](plan/rev-modal-editing.md), [tracker](tracker/rev-modal-editing.md) | Delivered / Completed. Eight slices through PRs #212-#219 deliver immutable startup profiles, checked modal navigation/operators/selections/jumps/repeat and shared colon/M-x/completion workflows. The unchanged controller full gate passed MOD01-MOD14, native/installed-server/PTY acceptance and guidance. |
 | Org heading glyphs and terminal fonts | [Spec](spec/editor-org-heading-presentation.md), [model](spec/editor-org-heading-presentation-model.md), [plan](plan/rev-org-headings.md), [tracker](tracker/rev-org-headings.md) | Delivered / Completed. Three slices through PRs #238-#240 deliver six cyclic reference glyphs, complete startup preferences, independent native view toggle/reset, source-backed prefix width and bounded projection. The unchanged controller full gate passed OGP01-OGP08 with 420 selected tests and both-profile native/resource/PTY acceptance. Fonts and ligatures remain terminal-owned. |
-| Native shell commands and text filters | [Spec](spec/editor-shell-commands.md), [model](spec/editor-shell-commands-model.md), [plan](plan/rev-shell-commands.md), [tracker](tracker/rev-shell-commands.md) | Approved / selected first on 2026-11-03. Four slices prepare explicit command entry, one-shot stdin/stdout, checked insert/replace, native controls and bounded native/PTY acceptance in one Looper run. No terminal emulator or extension registry is required. Execution progress belongs to the controller. |
+| Native shell commands and text filters | [Spec](spec/editor-shell-commands.md), [model](spec/editor-shell-commands-model.md), [plan](plan/rev-shell-commands.md), [tracker](tracker/rev-shell-commands.md) | Delivered / Completed. Four slices through PRs #242-#245 and repair #246 deliver explicit command entry, bounded stdin/stdout, checked insert/replace and native controls. The unchanged controller gate passed SHL01-SHL08 with both-profile native/resource/PTY acceptance and guide projection. |
 | Integrated terminals | [Spec](spec/editor-integrated-terminal.md), [model](spec/editor-integrated-terminal-model.md) | Draft. Lower panel by default, direct buffer alternative and live relocation, Rust alacritty_terminal direction. Exact dependency pin, settings, IO integration and limits need preparation. |
 | External programs/extensions | [Spec](spec/editor-external-extensions.md), [model](spec/editor-external-extensions-model.md) | Optional exploration only. Explicit configuration, stdio and one child per invocation are the refined draft profile. Adoption itself is undecided; no scheduled delivery or baseline dependency. |
 
@@ -48,8 +48,9 @@ retain their own specification/model state.
 
 On 2026-11-03 the owner requested two independent specifications and starting
 the agent-selected first capability. Native shell commands and text filters
-are selected first. Their approved specification/model and four-slice plan/
-tracker define one autonomous Looper delivery. Interactive terminal placement
+were selected first. Their specification/model and four-slice plan/tracker are
+Completed after PRs #242-#245, repair #246 and the unchanged controller gate.
+Interactive terminal placement
 (lower panel or main buffer) remains one separate draft. The larger external
 extension proposal remains optional; neither is started by the shell delivery.
 
@@ -219,11 +220,15 @@ fidelity and local User Guide output. The three remaining capability proposals,
 including optional external-program exploration, retain their prior state.
 Earlier completed gates keep their historical identities.
 
-The approved shell-command contract and plan/tracker define the selected next
-delivery. Its six native commands, four non-modal key sequences and five typed
-preferences have explicit input, target, output, cancellation and resource
-semantics. This approval does not mark them delivered; the controller owns the
-four integrations, combined gate and closure evidence.
+Shell commands and text filters are Completed after four canonical slices and
+repair #246. The unchanged controller gate passed at
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`, with 402 selected top-level tests, three nested
+child cases, both-profile native/resource/PTY acceptance and the local guide
+build. The [shell tracker](tracker/rev-shell-commands.md#final-gate-and-closure)
+and [Slice 4 closure](report/slices/rev-shell-commands/slice-4-acceptance.md#delivery-set-closure)
+record exact validation and owned cleanup. Six native commands, four non-modal
+key sequences and five typed preferences are delivered under SHL01-SHL08.
 
 Before planning another selected delivery, close only its relevant product decisions,
 reconcile the named delivered baseline clauses, and obtain implementation-scope

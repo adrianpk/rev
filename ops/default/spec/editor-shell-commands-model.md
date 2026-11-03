@@ -1,7 +1,10 @@
 # Shell Commands Model
 
-Status: approved
+Status: Completed
 Date: 2026-11-03
+Completed: 2026-11-03
+Validated candidate: `736d631947d4d379cd65dd695ff2ab00fd6c964b`
+Gate validation: `5SCPQH64UEI7UZ2VFXVFZMGKWH`
 Reviewed: 2026-11-03
 Version: 0.1
 Specification: [Shell Commands and Text Filters](editor-shell-commands.md)
@@ -83,6 +86,11 @@ protocols and process ownership.
 
 ## Completion
 
-The implementation and focused native/PTY evidence must satisfy SHL01-SHL08
-together. The [interactive terminal model](editor-integrated-terminal-model.md)
+The implementation and unchanged controller gate satisfy SHL01-SHL08 together.
+Canonical PRs #242-#245 and repair #246 deliver the captured target, bounded job,
+checked publication and retained-result lifecycle described here. The
+[tracker](../tracker/rev-shell-commands.md#final-gate-and-closure) and
+[Slice 4 closure](../report/slices/rev-shell-commands/slice-4-acceptance.md#delivery-set-closure)
+record exact-candidate validation and native/resource/PTY observations.
+The [interactive terminal model](editor-integrated-terminal-model.md)
 continues to own PTY/emulation/session placement independently.

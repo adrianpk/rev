@@ -86,7 +86,12 @@ embedded interpreter, general build/test runner or startup execution hook.
 
 The additive [Shell Commands and Text Filters](editor-shell-commands.md)
 contract admits explicitly invoked one-shot shell subprocesses and checked
-text results as a separately delivered capability. It does not turn the
+text results as a separately delivered capability, now Completed through
+PRs #242-#245 and repair #246. Its unchanged controller gate passed at
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`; the
+[shell tracker](../tracker/rev-shell-commands.md#final-gate-and-closure) records
+SHL01-SHL08 acceptance. It does not turn the
 original exclusion into an interactive shell, automatic task runner or plugin
 interface. [Interactive Terminals](editor-integrated-terminal.md) retains its
 own draft and approval boundary; original completed editor gates stay historical.

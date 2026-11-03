@@ -93,10 +93,10 @@ now describe named invocation without assigning the later slice's default keys.
 The failed receipt is retained; successful checks are not relabeled for a newer
 candidate.
 
-The final ordered Slice 1 prefix is recorded through `looper validate` after the
-PR-reference follow-up commit and push. The canonical PR Validation section and
-controller receipt own the exact clean candidate and ordered successful checks.
-This report does not claim the integrated delivery-set gate.
+The final ordered Slice 1 prefix was recorded through `looper validate` after the
+PR-reference follow-up commit and push. Its canonical PR and controller receipt
+retain their exact candidate and command identities independently of the later
+integrated gate.
 
 Canonical PR #242 was integrated by the controller into dev at
 `5e1622b82ec342e502b12a08792ce45e50d41532`. Controller validation
@@ -112,8 +112,14 @@ Canonical PR #242 was integrated by the controller into dev at
 The focused suites passed 151 configuration, 9 shell and 7 process-filtered
 library tests. The canonical PR contract check also passed.
 
+The unchanged integrated gate subsequently passed at
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, controller receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`. The
+[Slice 4 closure](slice-4-acceptance.md#delivery-set-closure) records combined
+native/resource/PTY acceptance and cleanup; this slice remains delivered.
+
 ## Risks and Follow-ups
 
-The remaining approved slices add region/edit publication, keys/history and joint
+Subsequent slices delivered region/edit publication, keys/history and joint
 native/PTY/resource acceptance. This slice adds no dependencies or Cargo.lock
 changes. Process groups enforce lifetime ownership rather than a sandbox.

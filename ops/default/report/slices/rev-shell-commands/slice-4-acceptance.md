@@ -141,17 +141,17 @@ clean head:
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --example userguide-publication table_cells -- --test-threads=1`
 
 The immutable report introduction is `591267724625605c25936a6309d09c8386522821`.
-All PR-reference follow-ups were pushed before validation. The unchanged
-integrated gate remains controller-owned and pending.
+All PR-reference follow-ups were pushed before validation. The later integrated
+gate result is recorded under Delivery-set closure below.
 
 Gate repair 1 addresses controller receipt `RSHBYQUHAMXM7FQYNTWOPSLFQS`
 on failed base `858c50f64105cde67ee128e1cb1d0c90b96cc9df`. Format,
 strict Clippy and 163 command tests passed, then configuration's existing
 `reference::sample_maps` rejected the packaged VimNormal map. Focused execution
 of the retained configuration binary reproduced the absent M-! and M-| entries.
-The other modal maps derive from the same editor defaults and need their matching
-declarations too. Add four compiled shell bindings to Editor/Insert/Replace and
-two M- bindings to Normal/Visual character/line/block. This repairs the packaged
+The other modal maps derive from the same editor defaults. The repair added four
+compiled shell bindings to Editor/Insert/Replace and two M- bindings to
+Normal/Visual character/line/block. This repairs the packaged
 factory template without changing compiled behavior or extending modal C-u
 motions. Keep both complete declared-map and effective-map equality assertions.
 
@@ -192,13 +192,47 @@ on that clean candidate:
 
 All 163 command, 151 configuration and 35 shell tests passed. Documentation
 validated 437 commands, 240 preferences, 73 reachable pages and 458 local
-links/anchors. The controller's unchanged combined gate remains pending;
-preparation did not run it.
+links/anchors. At post-repair preparation the combined gate was still pending;
+the preparation worker did not run it.
+
+### Delivery-set closure
+
+The controller passed the exact unchanged
+[Full gate at the tested candidate](https://forge.adrianpk.com/adrianpk/rev/src/commit/736d631947d4d379cd65dd695ff2ab00fd6c964b/ops/default/plan/rev-shell-commands.md)
+on `736d631947d4d379cd65dd695ff2ab00fd6c964b`, receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`, on 2026-11-03. Its retained evidence is
+`/home/adrian/.local/state/looper/configs/rev-shell-commands.json.state/checks/736d631947d4d379cd65dd695ff2ab00fd6c964b.json`.
+The exact command chain includes final `git diff --check`; closure uses that
+receipt without repeating the gate or assigning it to a later documentation head.
+
+The gate passed 402 selected top-level tests: 163 commands, 151 configuration,
+21 external changes, 35 shell, 20 modal contexts, 7 process-filtered library
+tests and 5 native AI publication tests. Three nested process-writer child
+cases also passed. Strict all-target Clippy, formatting and unchanged source
+quality passed. Both native profiles exercised real sh/sort/tr, canonical
+selection, one-step undo, readonly/stale rejection, concurrent atomic reload,
+owned cancellation and post-job idle.
+
+The finite case retained exactly 8388608 input/output bytes and matching
+inserted/removed history bytes with one undo. It observed 10402 us capture,
+2269598 us collection/publication, 73276 us undo and 104948 kB peak native RSS.
+Native idle consumed zero CPU ticks over 350 ms, with two threads before and
+after. The non-modal/modal PTYs passed selection, sort/tr, undo, cancellation,
+descendant cleanup, resize and terminal restoration, with 75739/75782 bounded
+bytes and 12976/14044 kB peak RSS. Each passed 350 ms of terminal silence with
+zero idle CPU ticks. These remain finite host observations.
+
+Catalogs validated 437 commands and 240 preferences; documentation validated
+73 reachable pages and 458 links/anchors. Spore projected all 73 Markdown pages
+and built the local guide under `target/userguide`. The drivers completed their
+owned temporary HOME/XDG/source/PTY cleanup. No current-set test process remains
+active; the local guide output is retained. All four slices and repair #246 are
+integrated. SHL01-SHL08, the spec/model, plan/tracker and pending index are closed
+through documentation changes restricted to the configured closure paths.
 
 ## Risks and Follow-ups
 
 Terminal bytes prove protocol behavior; glyph appearance belongs to the terminal.
 The finite 8 MiB case exercises the default bound and does not claim unlimited
 streaming. Existing conservative disk observation cannot prevent a later external
-write after observation. The controller still owns the unchanged combined gate;
-final documentation closure requires its successful receipt.
+write after observation.

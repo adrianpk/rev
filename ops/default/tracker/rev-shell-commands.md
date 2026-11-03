@@ -1,13 +1,16 @@
 # Native Shell Commands Tracker
 
-Status: Approved
+Status: Completed
 Date: 2026-11-03
+Completed: 2026-11-03
+Validated candidate: `736d631947d4d379cd65dd695ff2ab00fd6c964b`
+Gate validation: `5SCPQH64UEI7UZ2VFXVFZMGKWH`
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: None - all slices and gate repair 1 integrated; controller full gate pending
+Active slice: None - delivery completed
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -173,11 +176,27 @@ controller build. The preparation worker did not run the combined gate.
 ## Final gate and closure
 
 - [x] All four canonical PRs are integrated into dev.
-- [ ] Controller records the unchanged combined gate on clean integrated dev.
+- [x] Controller records the unchanged combined gate on clean integrated dev.
 - [x] All reports are delivered with exact candidate/receipt evidence.
-- [ ] Plan/tracker/spec/model and pending index reflect completion.
-- [ ] Closure changes only configured documentation paths.
-- [ ] Closure is committed/pushed; clean dev matches origin/dev.
+- [x] Plan/tracker/spec/model and pending index reflect completion.
+- [x] Closure changes only configured documentation paths.
+- [x] Closure is committed/pushed; clean dev matches origin/dev.
+
+The unchanged Full gate recorded in the plan passed on immutable candidate
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, controller receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`, on 2026-11-03. Canonical evidence:
+`/home/adrian/.local/state/looper/configs/rev-shell-commands.json.state/checks/736d631947d4d379cd65dd695ff2ab00fd6c964b.json`.
+The receipt contains the exact configured command chain and retained log; closure
+does not relabel it as validation of a later documentation commit.
+
+The gate passed 402 selected top-level tests and three nested child cases,
+both-profile native and Linux PTY journeys, the finite 8 MiB resource case,
+source quality, 437-command/240-preference catalogs, 73 reachable pages,
+458 local links/anchors and local Spore guide generation. Owned transient
+fixtures completed cleanup; no current-set test process remains active.
+The [Slice 4 closure](../report/slices/rev-shell-commands/slice-4-acceptance.md#delivery-set-closure)
+records observations. All four slices and repair #246 are integrated; SHL01-SHL08
+and documentation closure are complete.
 
 ## Closure paths
 

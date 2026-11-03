@@ -1,7 +1,10 @@
 # Native Shell Commands Delivery
 
-Status: Approved
+Status: Completed
 Date: 2026-11-03
+Completed: 2026-11-03
+Validated candidate: `736d631947d4d379cd65dd695ff2ab00fd6c964b`
+Gate validation: `5SCPQH64UEI7UZ2VFXVFZMGKWH`
 Delivery set: rev-shell-commands
 Slice strategy: behavior-first
 Approved: owner, 2026-11-03; requested two specifications and starting the agent-selected first capability; this map is derived under that execution authority
@@ -11,7 +14,7 @@ Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Tracker: [Shell Commands Tracker](../tracker/rev-shell-commands.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test shell_commands --test configuration --test commands --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-shell-commands.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: None - all slices and gate repair 1 integrated; controller full gate pending
+Active slice: None - delivery completed
 
 ## Outcome and authority
 
@@ -191,7 +194,14 @@ into dev at `02e7e77b57ecb219f01e33b5d93d6dd7124b1bc7`; receipt
 `VCK427Z65VUKAXGHWR7UJ5F3S2` passed all five required repair commands.
 The packaged shell keymaps and documented counts are complete, preserving runtime
 bindings, complete-map assertions, resource limits and the unchanged controller
-gate. The combined gate remains pending on clean integrated dev.
+gate. The controller passed the exact Full gate above on clean integrated
+`736d631947d4d379cd65dd695ff2ab00fd6c964b` in receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`. It passed 402 selected top-level tests,
+three nested child cases, both-profile native/resource/PTY acceptance, catalogs,
+documentation and the 73-page local guide build. The
+[tracker](../tracker/rev-shell-commands.md#final-gate-and-closure) and
+[Slice 4 closure](../report/slices/rev-shell-commands/slice-4-acceptance.md#delivery-set-closure)
+record exact evidence and owned fixture cleanup. SHL01-SHL08 are complete.
 
 Only the following documentation paths may change during final closure:
 

@@ -114,11 +114,15 @@ commands in order on that exact clean head: format, strict all-target Clippy,
 163 command tests, 35 shell tests, 20 modal context tests, documentation
 validation and `git diff --check`. The canonical PR contract check passed.
 The immutable report introduction is `fd88363c0e76fdde404288d13c3ba82a737303cc`.
-The integrated delivery-set gate remains controller-owned.
+The unchanged integrated gate subsequently passed at
+`736d631947d4d379cd65dd695ff2ab00fd6c964b`, controller receipt
+`5SCPQH64UEI7UZ2VFXVFZMGKWH`. The
+[Slice 4 closure](slice-4-acceptance.md#delivery-set-closure) records combined
+native/resource/PTY acceptance and cleanup; this slice remains delivered.
 
 ## Risks and Follow-ups
 
-The next approved slice owns joint Linux PTY/resource acceptance and approachable
+Slice 4 delivered joint Linux PTY/resource acceptance and approachable
 user guidance. Active labels are omitted when a narrow pane cannot fit them;
 explicit native cancellation and output commands remain available. Shell bounds,
 checked publication and conservative disk observation retain their existing

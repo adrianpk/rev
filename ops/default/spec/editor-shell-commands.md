@@ -1,13 +1,17 @@
 # Shell Commands and Text Filters
 
-Status: approved
+Status: Completed
 Date: 2026-11-03
+Completed: 2026-11-03
+Validated candidate: `736d631947d4d379cd65dd695ff2ab00fd6c964b`
+Gate validation: `5SCPQH64UEI7UZ2VFXVFZMGKWH`
 Reviewed: 2026-11-03
 Version: 0.1
 Format: OpenSpec capability proposal
 Source: owner request to separate interactive terminals from piping and begin the agent-selected first capability
 Implementation authority: owner, 2026-11-03; selected first capability under the delegated choice and established Emacs interaction guide
 Model: [Shell Commands Model](editor-shell-commands-model.md)
+Delivery: [Plan](../plan/rev-shell-commands.md), [tracker](../tracker/rev-shell-commands.md#final-gate-and-closure)
 Baseline: [rev Editor](rev-editor.md), [Configuration](editor-configuration.md)
 Related: [Interactive Terminals](editor-integrated-terminal.md), [External Extensions](editor-external-extensions.md)
 Delivery boundary: native one-shot commands and text filters first; interactive terminals and optional extension protocols remain separate
@@ -283,6 +287,16 @@ argv, resource and lifecycle contracts. Add no crate by default.
 - **WHEN** command, region, insertion and replacement journeys run in both profiles
 - **THEN** source/undo, cancellation, resize and owned cleanup satisfy SHL01-SHL07
 - **AND** a completed job leaves no worker or periodic idle input deadline.
+
+## Completion evidence
+
+SHL01-SHL08 are delivered through canonical PRs #242-#245 and repair #246.
+The unchanged controller gate passed on the immutable candidate above, covering
+native commands, checked text publication, both profiles, owned process cleanup,
+finite resources, real Linux PTYs and guide projection. The
+[Slice 4 closure](../report/slices/rev-shell-commands/slice-4-acceptance.md#delivery-set-closure)
+records exact evidence. The baseline's existing additive shell paragraph is
+reconciled with this completed capability; earlier gates retain their identities.
 
 ## References
 
