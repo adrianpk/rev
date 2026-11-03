@@ -209,8 +209,11 @@ Implementation commits: `8f349aca77a480575a4738c4b5a43d05922e809a` (T7.1/T7.2) a
 strict library lint and all-test compilation passed. Documentation catalogs
 passed 429 commands, 231 configuration entries, 68 pages and 415 links/anchors.
 Native journeys cover fresh targets, narrow context, real scoped publication,
-source conflicts and restart-bound keymaps with a controlled peer. Final
-clean-head validation follows PR-reference commits through the controller.
+source conflicts and restart-bound keymaps with a controlled peer. Two older
+empty-query fixtures now assert the current first compiled AI command while
+retaining acceptance, row-limit and source-immutability checks; both focused
+cases passed. Final clean-head validation follows all candidate commits through
+the controller.
 
 Report introduction: `0c074ee5a9ee191ffed3280b3d1bf44966877c1d`.
 

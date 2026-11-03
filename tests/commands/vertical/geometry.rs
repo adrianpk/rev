@@ -18,7 +18,7 @@ fn candidate_limits() {
         query(&mut session, "");
         let frame = session.frame().unwrap();
         assert_eq!(names(&frame).len(), limit);
-        assert_eq!(names(&frame)[0], "backward-char");
+        assert_eq!(names(&frame)[0], "ai-apply-result");
         assert_eq!(session.buffer().unwrap().stamp(), stamp);
         assert!(session.buffer().unwrap().history().is_empty());
     }

@@ -97,6 +97,7 @@ Successful focused commands:
 - `cargo clippy --locked --lib -- -D warnings`
 - `cargo check --locked --tests`
 - `cargo test --locked --test configuration --test ai definition -- --test-threads=1`
+- `cargo test --locked --test commands -- selection::acceptance_rules vertical::geometry::candidate_limits --exact --test-threads=1`
 - `cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
@@ -122,6 +123,16 @@ same conflict/comment/activation assertions. No acceptance requirement or
 resource limit was relaxed. External provider requests: zero. Controlled RPC
 proves the stated native/transport boundaries; it does not claim authenticated
 model generation or a new real-Pi compaction acceptance.
+
+The first configured receipt, `FZEGDA4XMG4WITAUUWC5IYPWJ5`, passed format,
+strict all-target lint and all 25 AI cases, then exposed two obsolete empty-query
+catalog expectations in the command suite. They expected backward-char as the
+first alphabetical name, although the already delivered compiled AI commands
+place ai-apply-result first. The two exact name expectations were updated to
+that current catalog identity. Empty-query acceptance/navigation, row limits,
+source stamps and empty history assertions remain intact. Both focused cases
+passed together; no runtime behavior, resource cap or acceptance rule changed.
+The changed candidate requires a fresh complete ordered controller validation.
 
 Documentation passed 429 commands, 231 configuration entries, 68 reachable pages
 and 415 local links/anchors. Final clean-head evidence is recorded through the

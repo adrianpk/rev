@@ -1,5 +1,5 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
-use rev::command::{KillCommand, Motion, Split};
+use rev::command::{KillCommand, Split};
 
 use super::{Command, Event, Focus, Input, KeyCode, Outcome, control, key};
 
@@ -85,13 +85,13 @@ fn acceptance_rules() {
             "explicit empty",
             "",
             vec![key(KeyCode::Up)],
-            Outcome::Command(Command::Motion(Motion::BackwardChar)),
+            Outcome::Command(Command::AiApplyResult),
         ),
         (
             "completed empty",
             "",
             vec![key(KeyCode::Tab)],
-            Outcome::Command(Command::Motion(Motion::BackwardChar)),
+            Outcome::Command(Command::AiApplyResult),
         ),
         (
             "no match",
