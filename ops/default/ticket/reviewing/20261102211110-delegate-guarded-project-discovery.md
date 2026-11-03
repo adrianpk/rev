@@ -56,7 +56,7 @@ report. No test result, runtime implementation or PR is claimed by this ticket.
 
 The implementation commit `bee7889f191cd961de5f275b24ca7cc26d375aa7` delivers
 the internal resource, root/handle/tool admission and native snapshot precedence.
-Five focused native discovery cases and 27 actual offline Pi checks passed; the
+Six focused native discovery cases and 27 actual offline Pi checks passed; the
 local controlled model drives real Pi tool execution without an external provider
 request. The canonical Slice 5 report records boundaries and commands. Final
 clean-head validation follows the PR-reference commit through the controller.

@@ -110,3 +110,27 @@ fn root_replaced_during_startup() {
     assert!(finish(&mut operation).is_err());
     assert!(!f.0.join("prompt").exists());
 }
+
+// A canonical directory grant cannot be reinterpreted through a symlink in a
+// parent component. Reject before even the version child or resource extraction.
+#[test]
+fn canonical_root_admission() {
+    let f = Fixture::new();
+    let command = support::peer(&f, "normal");
+    let real = f.0.join("real");
+    fs::create_dir_all(real.join("project")).unwrap();
+    std::os::unix::fs::symlink(&real, f.0.join("alias")).unwrap();
+    let result = Operation::directory(
+        Pi {
+            command: command.to_str().unwrap().into(),
+            ..Pi::default()
+        },
+        f.0.join("alias/project"),
+        r#"{"dirty_sources":[]}"#.into(),
+        47,
+    );
+    assert!(result.is_err());
+    assert!(result.err().unwrap().contains("canonical identity"));
+    assert!(!f.0.join("version-pid").exists());
+    assert!(f.0.join("alias").is_symlink());
+}

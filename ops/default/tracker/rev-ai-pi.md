@@ -155,7 +155,7 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-5-discovery.md`
 - [x] T5.3: Validate traversal, symlink/root replacement races, missing/binary/large sources, disabled external resources and actual Pi tool admission; native API transport/discovery remains deferred.
 
 Implementation: `bee7889f191cd961de5f275b24ca7cc26d375aa7` delivers the
-coherent resource/profile/native-observation transition. Five focused native
+coherent resource/profile/native-observation transition. Six focused native
 cases and 27 actual offline Pi checks passed, including real tool execution with
 controlled model events, root/file races, unsaved precedence and finite budgets.
 The Slice 5 report records exact commands and distinguishes provider evidence.

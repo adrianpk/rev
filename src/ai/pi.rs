@@ -58,7 +58,8 @@ impl Operation {
     }
 
     /// Start fresh directory discovery using only the embedded read/list/search
-    /// resource. Native snapshots are structured data in the bounded envelope.
+    /// resource. Root must already be canonical. Native snapshots are structured
+    /// data in the bounded envelope.
     pub fn directory(
         policy: Pi,
         root: PathBuf,
@@ -91,6 +92,14 @@ impl Operation {
                 rustix::fs::Mode::empty(),
             )
             .map_err(|_| "Pi directory root could not be pinned")?;
+            if root
+                .canonicalize()
+                .map_err(|_| "Pi directory root is unavailable")?
+                .as_os_str()
+                != root.as_os_str()
+            {
+                return Err("Pi directory root must retain its canonical identity".into());
+            }
             Some(std::fs::File::from(handle))
         } else {
             None
@@ -101,9 +110,11 @@ impl Operation {
         let task = std::thread::Builder::new()
             .name("rev-pi".into())
             .spawn(move || {
-                let root = root
-                    .canonicalize()
-                    .map_err(|_| "Pi working directory is unavailable")?;
+                let canonical = root.canonicalize().map_err(|_| "Pi working directory is unavailable")?;
+                if directory && canonical.as_os_str() != root.as_os_str() {
+                    return Err("Pi canonical root changed before launch".into());
+                }
+                let root = canonical;
                 if !root.is_dir() {
                     return Err("Pi working directory is not a directory".into());
                 }

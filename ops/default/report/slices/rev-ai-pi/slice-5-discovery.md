@@ -98,14 +98,17 @@ Successful focused commands:
 
 - `cargo clippy --locked --lib -- -D warnings`
 - `cargo test --locked --test ai --test pi discovery:: -- --test-threads=1`
+- `cargo test --locked --test pi discovery::canonical_root_admission -- --exact --test-threads=1`
 - `python3 tests/ai/discovery.py "$REV_PI_EXECUTABLE"`
 - `cargo run --locked --quiet --example documentation-check`
 - `git diff --check`
 
-Five focused native cases passed (two editor, three Pi), including hidden dirty
+Six focused native cases passed (two editor, four Pi), including hidden dirty
 sources, refreshed revisions, excluded/overfull maps, private byte-exact resource
 extraction/retirement, rejected admission/tool/result boundaries and replacement
-of a root during delayed startup. The literal installed compiled Pi 1.3.0 binary
+of a root during delayed startup. A canonical-parent-alias case also rejects
+before any child/extraction; canonicalization cannot redefine the granted root
+while a supervisor starts. The literal installed compiled Pi 1.3.0 binary
 was selected through REV_PI_EXECUTABLE, without invoking its updating wrapper.
 
 The offline probe passed 27 checks. It uses actual Pi registration/runtime and
@@ -123,7 +126,9 @@ error and permits continuation. The resource now calls the actual context abort
 owner on a poisoned grant; the eight-call runtime assertion passes. An initial
 no-follow duplicate of a descriptor path rejected its proc symlink; opening its
 final directory component preserves no-follow source checks and passes the
-actual runtime probe. Focused strict lint findings were corrected before success.
+actual runtime probe. Focused strict lint findings were corrected before success. Late canonical
+resolution was additionally fenced by requiring the original canonical name
+both at pinning and worker admission; its focused rejection test passed.
 Catalog validation passed 423 commands, 230 configuration entries, 68 pages and
 414 links/anchors.
 
