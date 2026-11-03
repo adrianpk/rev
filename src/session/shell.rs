@@ -1,8 +1,10 @@
+mod publication;
+
 use super::{Action, Pending, Session};
 use crate::{
     buffer::Stamp,
     input::Focus,
-    shell::{Kind, Operation, Target},
+    shell::{Invocation, Kind, Operation, Outcome, Target},
 };
 use std::{path::PathBuf, time::Duration};
 
@@ -12,6 +14,7 @@ pub(super) struct Request {
     directory: PathBuf,
     target: Target,
     input: Option<Vec<u8>>,
+    home: crate::view::View,
 }
 
 pub(super) struct Work {
@@ -84,6 +87,7 @@ impl Session {
             directory,
             target,
             input,
+            home: self.view().clone(),
         };
         if let Err(e) = self.input.argument("Shell command: ", "") {
             return self.error(&e.to_string());
@@ -102,7 +106,7 @@ impl Session {
         if self.buffers.get(request.source.stamp.buffer).is_err() {
             return self.error("Shell command source was closed");
         }
-        if request.target.kind.has_input() {
+        if request.target.kind.has_input() || request.target.kind.edits() {
             let current = self
                 .buffers
                 .get(request.source.stamp.buffer)
@@ -116,9 +120,17 @@ impl Session {
         match Operation::start(
             policy,
             &self.shell.startup_shell,
-            request.directory.clone(),
             command,
-            request.input.take(),
+            Invocation {
+                directory: request.directory.clone(),
+                input: request.input.take(),
+                file: request
+                    .target
+                    .kind
+                    .edits()
+                    .then(|| request.target.file.clone())
+                    .flatten(),
+            },
         ) {
             Ok(operation) => {
                 self.shell.operation = Some(operation);
@@ -175,15 +187,7 @@ impl Session {
             && self.view().point == request.source;
         let message = match outcome {
             Err(error) => self.shell_failure(&error),
-            Ok(outcome) => {
-                match (
-                    crate::shell::text(outcome.stdout),
-                    crate::shell::text(outcome.stderr),
-                ) {
-                    (Ok(stdout), Ok(stderr)) => self.shell_result(&stdout, &stderr, outcome.status),
-                    (Err(error), _) | (_, Err(error)) => self.shell_failure(&error),
-                }
-            }
+            Ok(outcome) => self.shell_result(&request, outcome),
         };
         // Completion retains output without taking focus or replacing another
         // prompt's echo. The explicit output command visits the retained identity.
@@ -199,28 +203,48 @@ impl Session {
         }
         format!("Shell command failed: {error}; shell-command-output opens diagnostics")
     }
-    fn shell_result(
-        &mut self,
-        stdout: &str,
-        stderr: &str,
-        status: std::process::ExitStatus,
-    ) -> String {
-        let diagnostic = if status.success() && stderr.is_empty() {
-            None
-        } else {
-            Some(format!("Shell command {status}\n{stderr}"))
-        };
-        if let Err(error) = self.retain_shell_output(Some(stdout), diagnostic.as_deref()) {
+    fn shell_result(&mut self, request: &Request, outcome: Outcome) -> String {
+        // Retain complete stdout before any source publication. Allocation failure
+        // cannot leave an edit that has no inspectable output owner.
+        if let Err(error) = self.retain_shell_output(Some(&outcome.stdout), None) {
             return format!("Shell result could not be retained: {error}");
         }
+        let publication = if outcome.status.success() && request.target.kind.edits() {
+            Some(self.publish_shell(request, &outcome))
+        } else {
+            None
+        };
+        let detail = publication_detail(&publication);
+        if let Err(error) = self.retain_shell_diagnostics(&outcome, &publication) {
+            return format!("Shell output retained{detail}; diagnostics unavailable: {error}");
+        }
         format!(
-            "Shell command {status}; shell-command-output opens retained text{}",
-            if diagnostic.is_some() {
+            "Shell command {}{detail}; shell-command-output opens retained text{}",
+            outcome.status,
+            if self.shell.diagnostics.is_some() {
                 "; diagnostics in *Shell Diagnostics*"
             } else {
                 ""
             }
         )
+    }
+    fn retain_shell_diagnostics(
+        &mut self,
+        outcome: &Outcome,
+        publication: &Option<Result<bool, String>>,
+    ) -> Result<(), String> {
+        let failure = publication
+            .as_ref()
+            .and_then(|result| result.as_ref().err());
+        if outcome.status.success() && outcome.stderr.is_empty() && failure.is_none() {
+            return Ok(());
+        }
+        let mut diagnostic = format!("Shell command {}\n{}", outcome.status, outcome.stderr);
+        if let Some(error) = failure {
+            diagnostic.push_str(&format!("\nNot applied: {error}"));
+        }
+        self.shell.diagnostics = self.shell_buffer("*Shell Diagnostics*", Some(&diagnostic))?;
+        Ok(())
     }
     fn shell_buffer(&mut self, name: &str, text: Option<&str>) -> Result<Option<Stamp>, String> {
         let Some(text) = text else {
@@ -274,5 +298,14 @@ impl Session {
             return self.message("Retained shell result is unavailable or its ownership changed");
         }
         self.activate(stamp.buffer)
+    }
+}
+
+fn publication_detail(publication: &Option<Result<bool, String>>) -> String {
+    match publication {
+        Some(Ok(true)) => "; output applied in one undo step".to_owned(),
+        Some(Ok(false)) => "; empty insertion left source unchanged".to_owned(),
+        Some(Err(error)) => format!("; not applied: {error}; output retained"),
+        None => String::new(),
     }
 }

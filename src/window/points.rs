@@ -36,6 +36,7 @@ impl Windows {
         buffer: &mut Buffer,
         replacement: crate::buffer::edit::Replacement,
         mut home: crate::view::View,
+        origin_view: ViewId,
     ) -> Result<crate::view::View, Error> {
         home.check_point(buffer).map_err(|e| match e {
             crate::view::Error::Buffer(e) => Error::Source(e),
@@ -53,7 +54,7 @@ impl Windows {
         points.values.push(home.point);
         let mut prepared = buffer.prepare(&[replacement], &points.values, None)?;
         prepared.retain_initiator(origin)?;
-        prepared.set_origin(self.selected_id());
+        prepared.set_origin(origin_view);
         let home_top = prepared.map_top(top)?;
         let tops = points.map_tops(&prepared)?;
         buffer.publish(prepared, &mut points.values)?;

@@ -125,6 +125,17 @@ impl Watch {
             .update = Some(sources);
         signal(&self.control);
     }
+    /// A checked edit can reject a queued source replacement without consuming
+    /// notifications or taking reload/discard authority from the native owner.
+    pub(crate) fn pending_for(&self, id: BufferId) -> bool {
+        self.shared
+            .lock()
+            .expect("file observation poisoned")
+            .events
+            .iter()
+            .any(|event| event.source.id == id)
+    }
+
     pub fn take(&self) -> (Vec<Changed>, Option<String>) {
         let mut shared = self.shared.lock().expect("file observation poisoned");
         let events = (0..BATCH)

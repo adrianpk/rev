@@ -124,6 +124,7 @@ impl Session {
                     text,
                 },
                 ready.request.home.clone(),
+                self.windows.selected_id(),
             )
             .map_err(|e| e.to_string())?;
         buffer.deactivate_region();

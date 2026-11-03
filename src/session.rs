@@ -895,6 +895,8 @@ impl Session {
             Command::AiCancel => self.ai_cancel_command(),
             Command::ShellCommand => self.shell_command(crate::shell::Kind::Command),
             Command::ShellCommandOnRegion => self.shell_command(crate::shell::Kind::Region),
+            Command::ShellFilterRegion => self.shell_command(crate::shell::Kind::Filter),
+            Command::ShellCommandInsert => self.shell_command(crate::shell::Kind::Insert),
             Command::ShellCommandCancel => self.shell_cancel(),
             Command::ShellCommandOutput => self.shell_output(),
             Command::WriteFile => self.write_file(),

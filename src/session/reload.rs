@@ -8,6 +8,7 @@ use crate::buffer::reload::{Checked, Reload};
 #[derive(Default)]
 pub(super) struct Work {
     origin: Option<crate::file::watch::Source>,
+    buffer: Option<crate::buffer::BufferId>,
     task: Option<JoinHandle<io::Result<Completed>>>,
     started: Option<Instant>,
     canceled: bool,
@@ -21,6 +22,7 @@ enum Completed {
 impl Work {
     fn start(
         &mut self,
+        buffer: crate::buffer::BufferId,
         run: impl FnOnce() -> io::Result<Completed> + Send + 'static,
     ) -> io::Result<()> {
         if self.task.is_some() {
@@ -32,12 +34,17 @@ impl Work {
                 .spawn(run)?,
         );
         self.started = Some(Instant::now());
+        self.buffer = Some(buffer);
         self.canceled = false;
         Ok(())
     }
 }
 
 impl Session {
+    pub(super) fn reload_pending_for(&self, id: crate::buffer::BufferId) -> bool {
+        (self.reload.task.is_some() && self.reload.buffer == Some(id))
+            || matches!(&self.pending, Some(Pending::Reload(reload)) if reload.buffer() == id)
+    }
     pub(super) fn reload_idle(&self) -> bool {
         self.reload.task.is_none()
     }
@@ -50,7 +57,7 @@ impl Session {
         source: crate::file::watch::Source,
     ) -> io::Result<()> {
         self.reload
-            .start(move || request.read().map(Completed::Read))?;
+            .start(source.id, move || request.read().map(Completed::Read))?;
         self.reload.origin = Some(source);
         Ok(())
     }
@@ -72,10 +79,9 @@ impl Session {
             Ok(request) => request,
             Err(error) => return self.error(&format!("reload: {error}")),
         };
-        match self
-            .reload
-            .start(move || request.read().map(Completed::Read))
-        {
+        match self.reload.start(self.view().point.stamp.buffer, move || {
+            request.read().map(Completed::Read)
+        }) {
             Ok(()) => self.message("Checking visiting file for reload"),
             Err(error) => self.error(&format!("reload: {error}")),
         }
@@ -186,10 +192,9 @@ impl Session {
         if !accepted {
             return self.message("Reload canceled; buffer text retained");
         }
-        match self
-            .reload
-            .start(move || reload.verify(true).map(Completed::Checked))
-        {
+        match self.reload.start(reload.buffer(), move || {
+            reload.verify(true).map(Completed::Checked)
+        }) {
             Ok(()) => self.message("Rechecking reload source"),
             Err(error) => self.error(&format!("reload: {error}")),
         }

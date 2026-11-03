@@ -159,6 +159,22 @@ impl Session {
         })
     }
 
+    pub(super) fn observation_pending_for(&self, id: BufferId) -> bool {
+        self.observation
+            .pending
+            .iter()
+            .any(|event| event.source.id == id)
+            || self
+                .observation
+                .watch
+                .as_ref()
+                .is_some_and(|watch| watch.pending_for(id))
+            || self
+                .buffers
+                .get(id)
+                .is_ok_and(|buffer| buffer.external_change_notice().is_some())
+    }
+
     pub(super) fn observation_ready(&self) -> bool {
         self.observation.wake.ready() && self.observation.pending.len() <= QUEUE - BATCH
     }

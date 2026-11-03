@@ -79,7 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
-| Shell | `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
+| Shell | `shell-filter-region`, `shell-command-insert`, `shell-command-on-region`, `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
@@ -641,3 +641,18 @@ changes. Nonzero exit also retains stderr/status in `*Shell Diagnostics*`.
 Timeout, cancellation, invalid UTF-8, NUL and output overflow report diagnostics
 without exposing partial output as a successful result. Closed or changed output
 identities are unavailable; they are never recreated or overwritten by name.
+
+Use `shell-command-on-region` to send the current nonempty linear selection as
+literal stdin data and show stdout. `shell-filter-region` sends the same bounded
+snapshot and replaces that region with complete successful stdout.
+`shell-command-insert` sends no source input and inserts at the point captured
+before its prompt. Select the complete document with the native mark and buffer
+motions for whole-buffer input. Empty, absent and rectangular regions are rejected.
+
+Filters and insertion require the original buffer revision, file association and
+writable state before launch and publication. Pending file observation, reload,
+external disk changes and closed or edited sources reject automatic application
+while retaining valid stdout. Switching panes never redirects the target or takes
+focus. Successful replacement/insertion uses one ordinary undo step; empty
+replacement deletes the region, while empty insertion creates no history entry.
+No whitespace or newline normalization changes the stdout applied to source.

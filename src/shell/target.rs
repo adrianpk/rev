@@ -8,10 +8,15 @@ use crate::{
 pub(crate) enum Kind {
     Command,
     Region,
+    Filter,
+    Insert,
 }
 impl Kind {
+    pub(crate) fn edits(self) -> bool {
+        matches!(self, Self::Filter | Self::Insert)
+    }
     pub(crate) fn has_input(self) -> bool {
-        self == Self::Region
+        matches!(self, Self::Region | Self::Filter)
     }
 }
 
@@ -42,6 +47,9 @@ impl Target {
                 .span(point.position.0..point.position.0)
                 .map_err(|e| e.to_string())?
         };
+        if kind.edits() && buffer.is_readonly() {
+            return Err("Shell target is read-only; source unchanged".into());
+        }
         Ok(Self {
             source,
             file: buffer.file().cloned(),
@@ -63,7 +71,10 @@ impl Target {
             .slice(&self.source)
             .map_err(|e| format!("Shell target changed: {e}"))?;
         if buffer.file() != self.file.as_ref() {
-            return Err("Shell target file association changed".into());
+            return Err("Shell target file association or observation changed".into());
+        }
+        if self.kind.edits() && buffer.is_readonly() {
+            return Err("Shell target is read-only; output retained".into());
         }
         Ok(())
     }

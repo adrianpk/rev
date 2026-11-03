@@ -9,9 +9,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- Run explicit one-shot shell commands from M-x or colon, keep editing while
-  they execute, cancel their owned processes, and inspect bounded output and
-  diagnostics in read-only text buffers.
+- Run explicit shell commands from M-x or colon, send unsaved regions as input,
+  replace a region or insert complete output in one undo step, and keep editing
+  while commands run. Inspect bounded output and diagnostics in read-only text
+  buffers; cancellation and stale targets preserve source text.
 
 ## 0.4.0 - 2026-11-03
 

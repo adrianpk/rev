@@ -6,12 +6,25 @@ pub(crate) use target::{Kind, Target};
 
 use crate::{
     config::Shell,
-    process::{Cancellation, Outcome, Program},
+    process::{Cancellation, Program},
 };
 use std::{
     path::PathBuf,
     thread::{self, JoinHandle},
 };
+
+pub(crate) struct Invocation {
+    pub directory: PathBuf,
+    pub input: Option<Vec<u8>>,
+    pub file: Option<crate::file::Location>,
+}
+
+pub(crate) struct Outcome {
+    pub status: std::process::ExitStatus,
+    pub stdout: String,
+    pub stderr: String,
+    pub observed: Result<Option<crate::file::Observation>, String>,
+}
 
 pub(crate) struct Operation {
     cancel: Cancellation,
@@ -22,14 +35,14 @@ impl Operation {
     pub(crate) fn start(
         policy: &Shell,
         startup_shell: &str,
-        directory: PathBuf,
         command: &str,
-        input: Option<Vec<u8>>,
+        invocation: Invocation,
     ) -> Result<Self, String> {
         if command.trim().is_empty() || command.len() > 4096 || command.contains('\0') {
             return Err("Shell command requires 1..=4096 UTF-8 bytes without NUL".into());
         }
-        if input
+        if invocation
+            .input
             .as_ref()
             .is_some_and(|bytes| bytes.len() > policy.max_input_bytes)
         {
@@ -46,7 +59,7 @@ impl Operation {
         argv.push(command.to_owned());
         let program = Program {
             argv,
-            directory,
+            directory: invocation.directory,
             seconds: policy.timeout_seconds,
             output_bytes: policy.max_output_bytes,
         };
@@ -55,11 +68,21 @@ impl Operation {
         let worker = thread::Builder::new()
             .name("shell-command".into())
             .spawn(move || {
-                let input = input::stage(input)?;
-                match input {
+                let input = input::stage(invocation.input)?;
+                let collected = match input {
                     Some(file) => program.run_input(Some(file), None, &control),
                     None => program.run(&control),
-                }
+                }?;
+                let observed = invocation.file.as_ref().map_or(Ok(None), |file| {
+                    crate::file::observe(file.path())
+                        .map_err(|e| format!("Observe shell source: {e}"))
+                });
+                Ok(Outcome {
+                    status: collected.status,
+                    stdout: text(collected.stdout)?,
+                    stderr: text(collected.stderr)?,
+                    observed,
+                })
             })
             .map_err(|e| format!("Start shell worker: {e}"))?;
         Ok(Self {

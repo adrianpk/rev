@@ -83,6 +83,8 @@ pub enum Command {
     AiSaveCommand,
     ShellCommand,
     ShellCommandOnRegion,
+    ShellFilterRegion,
+    ShellCommandInsert,
     ShellCommandCancel,
     ShellCommandOutput,
     WriteFile,
@@ -104,7 +106,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 435] = [
+    pub const ALL: [Self; 437] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -507,6 +509,8 @@ impl Command {
         Self::AiSaveCommand,
         Self::ShellCommand,
         Self::ShellCommandOnRegion,
+        Self::ShellFilterRegion,
+        Self::ShellCommandInsert,
         Self::ShellCommandCancel,
         Self::ShellCommandOutput,
         Self::WriteFile,
@@ -602,6 +606,8 @@ impl Command {
             Self::AiSaveCommand => "ai-save-command",
             Self::ShellCommand => "shell-command",
             Self::ShellCommandOnRegion => "shell-command-on-region",
+            Self::ShellFilterRegion => "shell-filter-region",
+            Self::ShellCommandInsert => "shell-command-insert",
             Self::ShellCommandCancel => "shell-command-cancel",
             Self::ShellCommandOutput => "shell-command-output",
             Self::WriteFile => "write-file",
