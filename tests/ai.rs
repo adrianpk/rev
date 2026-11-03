@@ -103,6 +103,8 @@ fn named_explanation() {
         named(&mut s, profile, "ai-explain");
         ready(&mut s);
         assert!(s.buffer().unwrap().is_readonly());
+        assert!(s.buffer().unwrap().is_org());
+        assert!(text(&s).starts_with("* source.txt — explanation\n\nA selection explanation."));
         assert!(s.buffer().unwrap().is_transient());
         assert!(s.buffer().unwrap().file().is_none());
         assert_eq!(s.buffer().unwrap().history().len(), 0);
@@ -116,6 +118,13 @@ fn named_explanation() {
         assert_eq!(prompt["observations"]["text"], "é original");
         assert_eq!(prompt["observations"]["revision"], source.revision);
         assert_eq!(prompt["observations"]["dirty"], false);
+        assert!(
+            prompt["instruction"]
+                .as_str()
+                .unwrap()
+                .contains("software engineering")
+        );
+        assert!(prompt["presentation"].as_str().unwrap().contains("Org"));
         let args: Vec<String> =
             serde_json::from_str(&fs::read_to_string(f.0.join("args")).unwrap()).unwrap();
         for flag in [

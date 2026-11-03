@@ -45,15 +45,33 @@ Insert a short comment explaining the add function. Return only that comment.
 ```
 
 Continue navigating or editing while Pi runs. A completed `*AI Result*` buffer
-shows the captured source, context, model and proposed bytes. If you moved to
-another view, use `switch-to-buffer` to inspect it. Generation does not save or
+shows the proposed text in an Org block, with the source filename above it:
+
+```org
+* toy.rs — insertion proposal
+
+#+begin_src rust
+// Adds two integers.
+#+end_src
+
+Proposal only: ai-apply-result accepts; ai-discard-result discards.
+
+:REQUEST: …
+:END:
+```
+
+The comment is an example; the model's wording can differ. `REQUEST` starts
+folded. Place point on that line and press TAB to inspect the model, source
+snapshot and context used; press TAB again to close it. If you moved to another
+view, use `switch-to-buffer` to inspect the result. Generation does not save or
 change the source.
 
 With that result selected, run `M-x ai-apply-result`. The comment is inserted at
 the original captured point, even if focus moved. Undo once (`C-/` or modal
 Normal `u`) to remove the whole generated insertion. The file on disk stays
 unchanged until you save explicitly. Model output varies; inspect its contents
-before acceptance.
+before acceptance. Only the generated text is inserted, without the Org heading,
+display block or request details.
 
 To decline a proposal, use `ai-discard-result`. To cancel a running operation,
 use `ai-cancel`; `C-g` and the owning modal Escape also cancel through the active
@@ -62,7 +80,24 @@ input context. A separate command prompt owns its own cancellation.
 For replacement, select a nonempty linear range and run `ai-prompt`. Without a
 selection, `ai-prompt` inserts at point; `ai-implement` always inserts. To read
 an explanation without editing authority, select text and run `ai-explain`.
-The resulting `*AI Explanation*` has no apply action.
+The resulting `*AI Explanation*` has no apply action. Its answer comes first,
+with request details folded below it:
+
+```org
+* toy.rs — explanation
+
+=add= returns the sum of its two integer arguments.
+
+Read-only explanation. ai-discard-result returns to source.
+
+:REQUEST: …
+:END:
+```
+
+Explanations use a software engineering perspective by default. For other
+material, Pi is instructed to adapt to the subject. A whole file can receive
+an overview and useful sections; a short selection can receive a short answer.
+These are model instructions, so the depth and wording can vary.
 
 ## Keep context and source current
 
@@ -94,13 +129,15 @@ You can also add a definition directly to configuration and restart:
 
 ```toml
 [ai.commands.explain-buffer]
-prompt = "Explain the supplied buffer in two short sentences."
+prompt = "Explain the supplied buffer."
 input = "buffer"
 context = "input"
 output = "explanation"
 ```
 
-Run `ai-explain-buffer` to use it. This definition sends only the captured input,
+Run `ai-explain-buffer` to use it. Saved prompts keep their literal wording;
+rev supplies the Org presentation guidance separately. This definition sends only
+the captured input,
 with fresh ephemeral history and no directory tools. Other supported policies
 and keybinding examples are in [Reusable AI commands](../../reference/commands.md#reusable-ai-commands).
 

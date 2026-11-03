@@ -121,7 +121,7 @@ offer a fresh ephemeral operation rather than guessing another session.
 | Child | Owned process identity/generation, executable/version observation, cwd, effective tool/resource policy and streams. | Not an unrelated interactive Pi or its session. |
 | RPC request | Unique string ID, admitted command and bounded payload, response and settled state. | Typed commands only; model data cannot dispatch RPC. |
 | Discovery observation | Tool kind/path, checked root, source provenance, bounded returned content and accounted size. | Data only; no shell/write/editor-command authority. |
-| Result | Invocation/epoch, original target, settled outcome, version-1 text payload and provenance. | Proposal until explicit native application; read-only explanation has no publication. |
+| Result | Invocation/epoch, original target, captured source name/language, settled outcome, original version-1 text payload, Org display span/stamp, request drawer boundaries and provenance. | Proposal until explicit native application; read-only explanation has no publication. Display markup never supplies accepted source text. |
 
 Encode editor metadata and snapshots as structured data inside the RPC
 `prompt.message` string with explicit instruction/data boundaries. Do not
@@ -133,6 +133,14 @@ The model-result object has exactly `version = 1` and a UTF-8 `text` string.
 Do not accept extra model-supplied target paths, command dispatch or operations.
 Record parsing and generated-result parsing are separate contracts. Invalid
 output can be inspected without being published.
+
+The acceptance presentation uses the same version-1 object. Explanatory text
+is requested as Org body content through a separate native presentation-guidance
+field in the editor envelope; saved literal prompts remain unchanged. rev owns
+the source heading, proposal block escaping and trailing request metadata. The
+original generated text and the read-only display revision remain separate
+in-memory records. Per-view initial folding and manual visibility changes use
+the native Org projection; neither record is a new persistent session format.
 
 ## Protocol lifecycle and finite work
 

@@ -106,6 +106,7 @@ impl View {
     }
 
     pub fn clear_folds(&mut self) -> bool {
+        self.visibility_initialized = true;
         self.visibility = None;
         self.folds.take().is_some()
     }

@@ -124,10 +124,10 @@ impl Buffer {
     pub fn mode(&self) -> &'static str {
         if self.source_language.is_some() {
             self.syntax.source_mode(self.stamp())
-        } else if self.is_transient() {
-            "Capture"
         } else if self.is_org() {
             "Org"
+        } else if self.is_transient() {
+            "Capture"
         } else {
             self.syntax.mode(self.stamp())
         }

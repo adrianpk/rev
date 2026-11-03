@@ -75,6 +75,10 @@ impl Buffer {
         self.org_colors_admitted() && self.org_attempt != Some(self.stamp())
     }
 
+    pub(crate) fn needs_org_outline(&self) -> bool {
+        self.is_org() && self.org_attempt != Some(self.stamp())
+    }
+
     pub(crate) fn attempted_org_colors(&mut self) {
         self.org_attempt = Some(self.stamp());
     }

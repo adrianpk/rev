@@ -124,6 +124,7 @@ pub struct View {
     wrap_active: bool,
     folds: Option<fold::Folds>,
     visibility: Option<std::sync::Arc<crate::org::Visibility>>,
+    visibility_initialized: bool,
     alignment: scroll::Alignment,
     tab_width: usize,
 }
@@ -164,6 +165,7 @@ impl View {
             wrap_active: buffer.soft_wrap(),
             folds: None,
             visibility: None,
+            visibility_initialized: false,
             alignment: scroll::Alignment::Center,
             tab_width: buffer.policy().tab_width,
         }

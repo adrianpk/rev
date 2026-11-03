@@ -1,6 +1,7 @@
 mod capture;
 mod context;
 mod controls;
+mod presentation;
 mod results;
 pub(super) mod save;
 
@@ -22,11 +23,16 @@ pub(super) struct Request {
     home: crate::view::View,
     return_to: crate::location::Anchor,
     root: PathBuf,
+    source_name: String,
+    language: String,
 }
 
 struct Ready {
     request: Request,
     payload: Span,
+    generated: String,
+    drawer: crate::coordinates::Scalar,
+    drawer_body: std::ops::Range<usize>,
 }
 
 pub(super) struct Work {

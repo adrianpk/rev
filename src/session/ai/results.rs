@@ -16,11 +16,6 @@ impl Session {
         } else {
             "*AI Explanation*"
         };
-        let actions = if edits {
-            "Proposal only: ai-apply-result accepts; ai-discard-result discards."
-        } else {
-            "Explanation only: no apply action; ai-discard-result returns to source."
-        };
         let condition = self
             .buffers
             .get(target.source.stamp.buffer)
@@ -28,33 +23,11 @@ impl Session {
             .and_then(|b| target.current(b))
             .err()
             .unwrap_or_default();
-        let mut text = format!(
-            "Pi {}\nContext: {}; {}.\nModel: {}\nSource: buffer {} revision {}, scalars {}..{} (captured snapshot).\n{}\n{}\n\n",
-            target.output.name(),
-            if output.directory {
-                "guarded directory read/list/search; captured native snapshots override disk"
-            } else {
-                "input only; directory discovery disabled"
-            },
-            output.history,
-            output.model,
-            target.source.stamp.buffer,
-            target.source.stamp.revision,
-            target.source.range.start,
-            target.source.range.end,
-            actions,
-            condition,
-        );
-        if output.directory {
-            text.push_str(&format!("Directory root: {}\n\n", request.root.display()));
-        }
-        let start = text.chars().count();
-        text.push_str(&output.text);
-        let result = self.buffers.result(label, &text).and_then(|id| {
-            self.buffers
-                .get(id)?
-                .span(start..self.buffers.get(id)?.len_chars())
-        });
+        let document = super::presentation::document(&request, &output, &condition);
+        let result = self
+            .buffers
+            .org_result(label, &document.text)
+            .and_then(|id| self.buffers.get(id)?.span(document.body));
         let payload = match result {
             Ok(payload) => payload,
             Err(error) => return self.error(&format!("Pi result: {error}")),
@@ -67,7 +40,13 @@ impl Session {
             && !self.windows.retained_view_active();
         let id = payload.stamp.buffer;
         self.ai.last = Some(request.definition.clone());
-        self.ai.ready = Some(Ready { request, payload });
+        self.ai.ready = Some(Ready {
+            request,
+            payload,
+            generated: output.text,
+            drawer: document.drawer,
+            drawer_body: document.drawer_body,
+        });
         if show {
             self.activate(id);
         }
@@ -122,10 +101,10 @@ impl Session {
         if !result.is_readonly() {
             return Err("AI result is no longer read-only; source unchanged".into());
         }
-        let text = result
-            .slice(&ready.payload)
-            .map_err(|e| e.to_string())?
-            .to_string();
+        // The display revision is still authoritative, but its escaped Org
+        // representation is never interpreted as generated source text.
+        result.slice(&ready.payload).map_err(|e| e.to_string())?;
+        let text = ready.generated.clone();
         if text.len() > self.buffers.snapshot().settings().ai.pi.max_result_bytes {
             return Err("AI result exceeds max_result_bytes".into());
         }
@@ -148,6 +127,49 @@ impl Session {
             .map_err(|e| e.to_string())?;
         buffer.deactivate_region();
         Ok(home)
+    }
+
+    pub(in crate::session) fn ai_result_buffer(&self, id: crate::buffer::BufferId) -> bool {
+        self.ai
+            .ready
+            .as_ref()
+            .is_some_and(|ready| ready.payload.stamp.buffer == id)
+    }
+
+    pub(in crate::session) fn ai_result_visibility(&mut self) {
+        let Some(ready) = &self.ai.ready else { return };
+        let Ok(buffer) = self.buffers.get(ready.payload.stamp.buffer) else {
+            return;
+        };
+        if !buffer.is_org() || buffer.stamp() != ready.payload.stamp {
+            return;
+        }
+        let views: Vec<_> = self
+            .windows
+            .iter()
+            .filter(|(_, view)| view.point.stamp == buffer.stamp())
+            .map(|(id, _)| id)
+            .collect();
+        for id in views {
+            if let Ok(view) = self.windows.get_mut(id) {
+                let pending = self
+                    .org
+                    .request
+                    .as_mut()
+                    .filter(|request| request.view == id && request.origin == *view);
+                let _ = view.initial_org_drawer(
+                    buffer,
+                    buffer.org_outline().cloned(),
+                    ready.drawer,
+                    ready.drawer_body.clone(),
+                );
+                // Initial folding changes derived projection only. Preserve a
+                // queued command whose complete origin still matched beforehand.
+                if let Some(pending) = pending {
+                    pending.origin = view.clone();
+                }
+            }
+        }
     }
 
     pub(in crate::session) fn ai_discard_result(&mut self) -> Action {
@@ -215,6 +237,10 @@ mod tests {
     };
 
     fn proposal() -> (Session, BufferId) {
+        generated_proposal("generated")
+    }
+
+    fn generated_proposal(generated: &str) -> (Session, BufferId) {
         let mut buffers = Buffers::new().unwrap();
         let id = buffers.create("source").unwrap();
         let buffer = buffers.get(id).unwrap();
@@ -239,6 +265,8 @@ mod tests {
             .capture(source, session.view().point)
             .unwrap();
         let request = Request {
+            source_name: "report.rs".into(),
+            language: "rust".into(),
             definition: crate::config::AiCommand {
                 prompt: "fixture".into(),
                 input: crate::config::AiInput::Point,
@@ -255,7 +283,7 @@ mod tests {
         session.ai_present(
             request,
             pi::Output {
-                text: "generated".into(),
+                text: generated.into(),
                 model: "controlled".into(),
                 directory: true,
                 history: "controlled".into(),
@@ -268,6 +296,78 @@ mod tests {
         b.slice(&b.span(0..b.len_chars()).unwrap())
             .unwrap()
             .to_string()
+    }
+
+    // Display escaping and line-ending normalization must never alter accepted
+    // code. Native Org must still recognize the trailing request drawer.
+    #[test]
+    fn literal_proposals() {
+        for generated in [
+            "fn café() {}\r\n",
+            "* Heading\n#+end_src\n:REQUEST:\n:END:\n",
+            "  ,#+end_example\n** child\nlast line",
+            "\u{301}👩‍💻\r\nno final newline",
+        ] {
+            let (mut session, source) = generated_proposal(generated);
+            let result = session.view().point.stamp.buffer;
+            let buffer = session.buffers.get_mut(result).unwrap();
+            assert!(buffer.is_org());
+            assert!(
+                text_of(buffer)
+                    .starts_with("* report.rs — insertion proposal\n\n#+begin_src rust\n")
+            );
+            let scan = crate::org::ColorScan::new(buffer, crate::org::Limits::default()).unwrap();
+            buffer
+                .install_org_coloring(scan.run(&crate::org::Cancellation::default()))
+                .unwrap();
+            session.ai_result_visibility();
+            let buffer = session.buffer().unwrap();
+            assert!(session.view().visible_lines(buffer) < buffer.len_lines());
+            session.ai_apply_result();
+            assert_eq!(text(&session, source), format!("sou{generated}rce"));
+            assert_eq!(session.buffer().unwrap().history().len(), 1);
+            session.execute(crate::command::Command::History(
+                crate::buffer::edit::History::Undo,
+            ));
+            assert_eq!(text(&session, source), "source");
+        }
+    }
+
+    fn text_of(buffer: &crate::buffer::Buffer) -> String {
+        buffer
+            .slice(&buffer.span(0..buffer.len_chars()).unwrap())
+            .unwrap()
+            .to_string()
+    }
+
+    // TAB can arrive before analysis completes. Initial projection must retain
+    // that exact pending view and toggle the initially closed drawer just once.
+    #[test]
+    fn pending_drawer() {
+        let (mut session, _) = proposal();
+        session.ai_result_visibility();
+        let point = session.ai.ready.as_ref().unwrap().drawer;
+        session.windows.selected_mut().point.position = point;
+        session.org.request = Some(crate::session::outline::Request {
+            view: session.windows.selected_id(),
+            origin: session.view().clone(),
+            command: crate::command::OrgCommand::Cycle,
+        });
+        let buffer = session
+            .buffers
+            .get_mut(session.view().point.stamp.buffer)
+            .unwrap();
+        let scan = crate::org::ColorScan::new(buffer, crate::org::Limits::default()).unwrap();
+        buffer
+            .install_org_coloring(scan.run(&crate::org::Cancellation::default()))
+            .unwrap();
+        session.ai_result_visibility();
+        session.finish_org_request();
+        assert!(session.org.request.is_none());
+        assert_eq!(
+            session.view().visible_lines(session.buffer().unwrap()),
+            session.buffer().unwrap().len_lines()
+        );
     }
 
     // A target becoming read-only after generation must fail live admission;

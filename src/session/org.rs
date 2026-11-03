@@ -97,6 +97,7 @@ impl Work {
 impl Session {
     pub(super) fn refresh_org(&mut self) {
         self.poll_org();
+        self.ai_result_visibility();
         self.finish_org_request();
         if self.org.job.is_active() || self.capture_blocks_input() {
             return;
@@ -110,9 +111,10 @@ impl Session {
             return;
         }
         let Some(id) = self.visible_org().into_iter().find(|id| {
-            self.buffers
-                .get(*id)
-                .is_ok_and(|buffer| buffer.needs_org_colors())
+            self.buffers.get(*id).is_ok_and(|buffer| {
+                buffer.needs_org_colors()
+                    || self.ai_result_buffer(*id) && buffer.needs_org_outline()
+            })
         }) else {
             return;
         };
@@ -167,6 +169,7 @@ impl Session {
             buffer.stamp() == source
                 && buffer.is_org()
                 && (buffer.org_colors_admitted()
+                    || self.ai_result_buffer(source.buffer)
                     || self
                         .org
                         .request
@@ -272,6 +275,7 @@ impl Session {
         if let Ok(buffer) = self.buffers.get_mut(id) {
             let _ = buffer.install_org_coloring(coloring);
         }
+        self.ai_result_visibility();
     }
 
     pub(super) fn expire_org(&mut self, now: Instant) -> Action {

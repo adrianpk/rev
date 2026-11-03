@@ -64,7 +64,8 @@ impl Buffer {
             || self.language(settings) == "org",
             |mode| mode == Mode::Org,
         );
-        self.activate_org(!self.transient && self.org_enabled && requested);
+        let admitted = !self.transient || self.is_readonly() && self.mode_choice == Some(Mode::Org);
+        self.activate_org(admitted && self.org_enabled && requested);
     }
 
     fn activate_org(&mut self, active: bool) {

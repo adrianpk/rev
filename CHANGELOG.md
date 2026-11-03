@@ -10,7 +10,9 @@ This project uses Semantic Versioning.
 
 - [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
-  Continue editing while it runs and inspect read-only results. Explicitly
+  Continue editing while it runs and inspect read-only Org results, with the
+  answer or proposed text first and request details in a folded drawer. TAB on
+  `REQUEST` reveals them. Explanations adapt to the supplied material. Explicitly
   apply a proposal once to its original checked selection or point, undo it
   normally, or discard it without changing source. Let Pi inspect the chosen
   directory through bounded read, list and literal-search tools, with current

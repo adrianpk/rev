@@ -20,10 +20,23 @@ impl Buffers {
     /// A result uses the canonical buffer/view machinery, with no file or undo
     /// publication. Names retain the existing unique-label policy.
     pub(crate) fn result(&mut self, name: &str, text: &str) -> Result<BufferId, Error> {
+        self.result_mode(name, text, super::Mode::Text)
+    }
+
+    pub(crate) fn org_result(&mut self, name: &str, text: &str) -> Result<BufferId, Error> {
+        self.result_mode(name, text, super::Mode::Org)
+    }
+
+    fn result_mode(
+        &mut self,
+        name: &str,
+        text: &str,
+        mode: super::Mode,
+    ) -> Result<BufferId, Error> {
         let mut buffer = Buffer::new(text, &self.settings.settings().files)?;
         buffer.name = name.into();
         buffer.transient = true;
-        buffer.mode_choice = Some(super::Mode::Text);
+        buffer.mode_choice = Some(mode);
         buffer.set_readonly(true);
         Ok(self.insert(buffer))
     }

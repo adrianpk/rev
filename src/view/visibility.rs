@@ -8,6 +8,42 @@ use crate::org::{Outline, Source, SourceRange, Visibility};
 use super::{Error, View};
 
 impl View {
+    pub(crate) fn initial_org_drawer(
+        &mut self,
+        buffer: &Buffer,
+        model: Option<Arc<Outline>>,
+        point: crate::coordinates::Scalar,
+        body: std::ops::Range<usize>,
+    ) -> Result<(), String> {
+        if self.visibility_initialized || self.visibility.is_some() {
+            return Ok(());
+        }
+        let Some(model) = model else {
+            // The editor knows its own footer boundaries. Project those lines
+            // before the first frame while the normal bounded Org worker runs.
+            if self.folds.is_none() {
+                let range = Source::new(buffer)
+                    .range(Byte(body.start)..Byte(body.end))
+                    .map_err(|e| e.to_string())?;
+                self.set_folds(buffer, &[range])
+                    .map_err(|e| e.to_string())?;
+            }
+            return Ok(());
+        };
+        let byte = Coordinates::new(buffer)
+            .map_err(|e| e.to_string())?
+            .to_byte(point)
+            .map_err(|e| e.to_string())?
+            .0;
+        let next = Visibility::new(model)
+            .change(OrgCommand::HideDrawer, byte)
+            .map_err(str::to_owned)?;
+        self.install_visibility(buffer, next)
+            .map_err(|e| e.to_string())?;
+        self.visibility_initialized = true;
+        Ok(())
+    }
+
     pub(crate) fn org_visibility(
         &mut self,
         buffer: &Buffer,
