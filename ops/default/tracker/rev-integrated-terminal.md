@@ -7,7 +7,7 @@ Plan: [Integrated Terminal Delivery](../plan/rev-integrated-terminal.md)
 Spec: [Integrated Terminal Sessions](../spec/editor-integrated-terminal.md)
 Model: [Integrated Terminal Model](../spec/editor-integrated-terminal-model.md)
 Approved: owner, 2026-11-03; explicit request to start the approved terminal delivery through Looper
-Active slice: Slice 1 - Native engine and PTY ownership
+Active slice: Slice 2 - Lower panel and native commands
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -27,7 +27,7 @@ Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation 
 
 ## Slice 1: Native engine and PTY ownership
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-integrated-terminal-01-engine`
 Expected PR title: `feat(terminal): own bounded Rust terminal sessions`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-1-engine.md`
@@ -37,8 +37,8 @@ PR: `#248`
 - [x] T1.2: Exercise a real shell through a PTY, parsed text/colors/cursor/alternate screen, input, resize, child exit, invalid launch and cleanup; introduce tests/integrated_terminal.rs with meaningful shared fixtures.
 - [x] T1.3: Record dependency scope, baseline and candidate release size, allocation sketch and startup/idle observations; preserve the host terminal and existing one-shot process owners.
 
-Validation: eight native PTY tests pass, including failed-launch descriptor cleanup. Release builds and source reconstruction/quality checks pass. Exact clean-HEAD acceptance uses the ordered Slice 1 controller commands and their canonical receipt.
-Integration: canonical PR #248 targets dev; merge and integration verification remain controller-owned.
+Validation: controller receipt `VYYVEE7ASRQGTWATZGD3VZMHUX` passed the exact five configured commands on `4aeb2c0659d7b8c638e979bd40cfc168e97ee2eb`, including eight native PTY tests. Focused source receipt `INCMCOMKBAQVJWLATBSO74RKV2` passed on the same head.
+Integration: canonical PR #248 merged at `4aeb2c0659d7b8c638e979bd40cfc168e97ee2eb`; local dev and origin/dev match the validated candidate.
 
 Retained incident 1: the operator authorized a minimal same-version source
 override for the dependency's failed-spawn SIGCHLD registration leak. The
@@ -54,7 +54,7 @@ local 5 ms startup/zero idle CPU-tick observations in the Slice 1 report.
 
 ## Slice 2: Lower panel and native commands
 
-Status: pending
+Status: implementing
 Branch: `feat/rev-integrated-terminal-02-panel`
 Expected PR title: `feat(terminal): open interactive shells in the lower panel`
 Report: `ops/default/report/slices/rev-integrated-terminal/slice-2-panel.md`

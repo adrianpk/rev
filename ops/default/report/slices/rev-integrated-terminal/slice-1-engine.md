@@ -1,11 +1,13 @@
 # Slice 1: Native Engine and PTY Ownership
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-integrated-terminal
 Plan: [Integrated Terminal Delivery](../../../plan/rev-integrated-terminal.md)
 Tracker: [Integrated Terminal Tracker](../../../tracker/rev-integrated-terminal.md)
 Branch: `feat/rev-integrated-terminal-01-engine`
 PR: `#248`
+Integrated: `4aeb2c0659d7b8c638e979bd40cfc168e97ee2eb`
+Validation receipt: `VYYVEE7ASRQGTWATZGD3VZMHUX`
 
 ## Purpose
 
@@ -86,6 +88,12 @@ one-shot process owners are unchanged. No editor command stubs are exposed.
   authorized source correction with license and provenance.
 
 ## Validation
+
+All five required checks passed for the exact integrated head in controller
+receipt `VYYVEE7ASRQGTWATZGD3VZMHUX`: formatting, strict all-target Clippy,
+eight native PTY tests, documentation and whitespace. Focused source quality
+also passed for that head in receipt `INCMCOMKBAQVJWLATBSO74RKV2`.
+Canonical PR #248 is merged; local dev and origin/dev were verified at that head.
 
 Development evidence:
 
