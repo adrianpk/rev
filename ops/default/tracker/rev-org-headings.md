@@ -33,7 +33,7 @@ Report: `ops/default/report/slices/rev-org-headings/slice-1-presentation.md`
 
 - [x] T1.1: Deliver the four complete bounded startup preferences, samples,
   template, provenance and configuration references.
-- [ ] T1.2: Render current native heading prefixes with configured markers and
+- [x] T1.2: Render current native heading prefixes with configured markers and
   unchanged source/cell/wrap geometry; preserve literal/partial source.
 - [ ] T1.3: Verify levels, overrides, invalid glyphs, native frames, disabled
   coloring and source/dirty/history fidelity in tests/org_headings.rs.

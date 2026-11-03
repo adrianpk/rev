@@ -113,7 +113,8 @@ impl Session {
         let Some(id) = self.visible_org().into_iter().find(|id| {
             self.buffers.get(*id).is_ok_and(|buffer| {
                 buffer.needs_org_colors()
-                    || self.ai_result_buffer(*id) && buffer.needs_org_outline()
+                    || (self.pretty_org(*id) || self.ai_result_buffer(*id))
+                        && buffer.needs_org_outline()
             })
         }) else {
             return;
@@ -135,6 +136,12 @@ impl Session {
                     .map(|view| view.point.stamp.buffer)
             })
             .collect()
+    }
+
+    fn pretty_org(&self, id: BufferId) -> bool {
+        self.windows
+            .iter()
+            .any(|(_, view)| view.point.stamp.buffer == id && view.headings.pretty)
     }
 
     fn start_org(&mut self, id: BufferId) {
@@ -169,6 +176,7 @@ impl Session {
             buffer.stamp() == source
                 && buffer.is_org()
                 && (buffer.org_colors_admitted()
+                    || self.pretty_org(source.buffer)
                     || self.ai_result_buffer(source.buffer)
                     || self
                         .org

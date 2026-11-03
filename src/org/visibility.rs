@@ -60,6 +60,25 @@ pub(crate) struct Outline {
 }
 
 impl Outline {
+    /// Exact native heading starts only; partial observations cannot decorate.
+    pub(crate) fn heading_level_at(&self, byte: usize) -> Option<usize> {
+        self.complete().ok()?;
+        let index = self
+            .headings
+            .partition_point(|heading| heading.start < byte);
+        self.headings
+            .get(index)
+            .filter(|heading| {
+                heading.start == byte
+                    && heading.level > 0
+                    && heading
+                        .start
+                        .checked_add(heading.level)
+                        .is_some_and(|end| end <= heading.title.start)
+            })
+            .map(|heading| heading.level)
+    }
+
     pub(crate) fn observe(
         structure: &Structure,
         text: &ropey::Rope,

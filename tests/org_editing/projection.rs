@@ -37,11 +37,11 @@ fn source_display() {
     };
     let frame = Frame::project(buffer, &view, size, "").unwrap();
     for (local, label, text) in [
-        (0, "   1 │", "* A"),
-        (1, "   4 │", "* B 界e\u{301}"),
+        (0, "   1 │", "◉ A"),
+        (1, "   4 │", "◉ B 界e\u{301}"),
         (2, "   5 │", ":LOGBOOK:"),
         (3, "   7 │", ":END:"),
-        (4, "   8 │", "* C"),
+        (4, "   8 │", "◉ C"),
     ] {
         assert!(
             frame.rows()[local]

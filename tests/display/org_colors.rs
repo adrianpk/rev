@@ -28,7 +28,7 @@ fn clipped_source() {
         }
         let buffer = buffers.get(id).unwrap();
         for (name, left, width, unwrapped, paints) in [
-            ("whole", 0, 5, "* 界e\u{301}", 0..5),
+            ("whole", 0, 5, "◉ 界e\u{301}", 0..5),
             ("wide edge", 3, 4, " e\u{301}  ", 1..2),
             ("tab", 6, 4, "  te", 2..4),
         ] {
@@ -37,7 +37,7 @@ fn clipped_source() {
             view.left = left;
             let frame = Frame::project(buffer, &view, Size { width, height: 3 }, "").unwrap();
             let expected = if wrap {
-                if width == 5 { "*    " } else { "*   " }
+                if width == 5 { "◉    " } else { "◉   " }
             } else {
                 unwrapped
             };

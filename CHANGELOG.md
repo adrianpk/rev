@@ -8,6 +8,12 @@ This project uses Semantic Versioning.
 
 ### Added
 
+- Display native Org headings with six level-specific markers, cycling at deeper
+  levels while preserving source stars, cursor cells and wrapping. Configure
+  markers, leading-star visibility and overflow under `org.headings`, or set
+  `pretty = false` for source presentation. Recognition also works with syntax
+  coloring disabled; the terminal controls glyph coverage.
+
 - [Edit with optional Pi 1.3.0](docs/tutorials/user-guide/14-ai-editing.md) to explain a selection or propose generated text with
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
   Continue editing while it runs and inspect read-only Org results, with the

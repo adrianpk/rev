@@ -113,6 +113,7 @@ pub struct View {
     pub bookmark_markers: bool,
     bookmark_marker: String,
     pub preview: crate::org::preview::State,
+    pub(crate) headings: std::sync::Arc<crate::config::Headings>,
     /// Intended terminal-cell column, retained across vertical/page/recenter input.
     pub column: Option<usize>,
     pub top: usize,
@@ -156,6 +157,7 @@ impl View {
             bookmark_markers: bookmarks.markers,
             bookmark_marker: bookmarks.marker,
             preview: crate::org::preview::State::default(),
+            headings: std::sync::Arc::new(crate::config::Headings::default()),
             column: None,
             top: 0,
             left: 0,
@@ -179,6 +181,7 @@ impl View {
         view.bookmark_markers = settings.settings().bookmarks.markers;
         view.bookmark_marker = settings.settings().bookmarks.marker.clone();
         view.preview.enabled = settings.settings().org.preview.enabled;
+        view.headings = std::sync::Arc::new(settings.settings().org.headings.clone());
         view
     }
 
@@ -189,6 +192,7 @@ impl View {
         let markers = self.bookmark_markers;
         let marker = self.bookmark_marker.clone();
         let enabled = self.preview.enabled;
+        let headings = self.headings.clone();
         let jumps = std::mem::take(&mut self.jumps);
         *self = Self::new(buffer);
         self.jumps = jumps;
@@ -196,6 +200,7 @@ impl View {
         self.bookmark_markers = markers;
         self.bookmark_marker = marker;
         self.preview.enabled = enabled;
+        self.headings = headings;
     }
 
     pub(crate) fn bookmark_marker(&self) -> &str {

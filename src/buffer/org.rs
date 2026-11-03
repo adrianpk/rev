@@ -2,6 +2,11 @@ use super::{Buffer, Error, Stamp};
 use crate::org::Index;
 
 impl Buffer {
+    pub(crate) fn org_heading_level(&self, row: usize) -> Option<usize> {
+        let outline = self.org_outline()?;
+        outline.heading_level_at(self.text.try_line_to_byte(row).ok()?)
+    }
+
     /// Optional derived state: ordinary buffers never start analysis implicitly.
     pub fn org_index(&self) -> Option<&Index> {
         self.org.as_ref()

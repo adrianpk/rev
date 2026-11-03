@@ -9,6 +9,7 @@ mod completion;
 mod compose;
 mod gutter;
 mod habit;
+mod headings;
 mod native_completion;
 pub use agenda::AgendaDisplay;
 pub use habit::HabitDisplay;
@@ -289,7 +290,7 @@ impl Frame {
             };
             let left = fragment.map_or(view.left, |f| f.columns.start);
             let painted = fragment.map_or(content.width(), |f| f.painted_width(content.width()));
-            let text = document_text(
+            let mut text = document_text(
                 buffer,
                 &coordinates,
                 fragment,
@@ -299,6 +300,7 @@ impl Frame {
                 },
                 content.width(),
             )?;
+            headings::project(buffer, view, source, left, painted, &mut text);
             let projected = Row {
                 row,
                 text,
