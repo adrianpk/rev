@@ -34,7 +34,7 @@ Report: `ops/default/report/slices/rev-integrated-terminal/slice-1-engine.md`
 PR: pending
 
 - [x] T1.1: Add the pinned minimal engine and bounded native session/PTY/process owner; establish typed identities, finite queues, grid/extra accounting, readiness and cleanup without exposing command stubs.
-- [ ] T1.2: Exercise a real shell through a PTY, parsed text/colors/cursor/alternate screen, input, resize, child exit, invalid launch and cleanup; introduce tests/integrated_terminal.rs with meaningful shared fixtures.
+- [x] T1.2: Exercise a real shell through a PTY, parsed text/colors/cursor/alternate screen, input, resize, child exit, invalid launch and cleanup; introduce tests/integrated_terminal.rs with meaningful shared fixtures.
 - [ ] T1.3: Record dependency scope, baseline and candidate release size, allocation sketch and startup/idle observations; preserve the host terminal and existing one-shot process owners.
 
 Validation: pending; use the exact ordered Slice 1 commands from the plan and frozen controller configuration.
@@ -45,6 +45,9 @@ override for the dependency's failed-spawn SIGCHLD registration leak. The
 override preserves version, license, bounds and assertions; the real-PTY
 missing-interpreter regression now preserves its baseline descriptor count.
 Registry caches are unchanged. Final exact-candidate validation remains pending.
+
+Task evidence: T1.1 `e1e7d7f1`; T1.2 development batch passed all eight native
+PTY tests, including the unchanged missing-interpreter descriptor assertion.
 
 ## Slice 2: Lower panel and native commands
 
