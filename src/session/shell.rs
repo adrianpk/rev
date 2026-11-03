@@ -55,11 +55,7 @@ impl Session {
                 "A shell command is already active or stopping; shell-command-cancel cancels it",
             );
         }
-        if self.input.focus() != Focus::Editing
-            || self.pending.is_some()
-            || self.tree.focused()
-            || self.windows.retained_view_active()
-        {
+        if !self.shell_editing() {
             return self.error("Editing must own shell command invocation");
         }
         let buffer = match self.buffer() {
@@ -100,6 +96,12 @@ impl Session {
         } else {
             "Enter a shell command; no document text is sent; C-g cancels"
         })
+    }
+    fn shell_editing(&self) -> bool {
+        self.input.focus() == Focus::Editing
+            && self.pending.is_none()
+            && !self.tree.focused()
+            && !self.windows.retained_view_active()
     }
     pub(super) fn shell_argument(&mut self, mut request: Request, command: &str) -> Action {
         if self.shell.operation.is_some() {

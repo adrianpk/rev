@@ -67,23 +67,7 @@ impl Operation {
         let control = cancel.clone();
         let worker = thread::Builder::new()
             .name("shell-command".into())
-            .spawn(move || {
-                let input = input::stage(invocation.input)?;
-                let collected = match input {
-                    Some(file) => program.run_input(Some(file), None, &control),
-                    None => program.run(&control),
-                }?;
-                let observed = invocation.file.as_ref().map_or(Ok(None), |file| {
-                    crate::file::observe(file.path())
-                        .map_err(|e| format!("Observe shell source: {e}"))
-                });
-                Ok(Outcome {
-                    status: collected.status,
-                    stdout: text(collected.stdout)?,
-                    stderr: text(collected.stderr)?,
-                    observed,
-                })
-            })
+            .spawn(move || run(program, invocation.input, invocation.file, control))
             .map_err(|e| format!("Start shell worker: {e}"))?;
         Ok(Self {
             cancel,
@@ -110,6 +94,28 @@ impl Operation {
             result
         })
     }
+}
+
+fn run(
+    program: Program,
+    input: Option<Vec<u8>>,
+    file: Option<crate::file::Location>,
+    control: Cancellation,
+) -> Result<Outcome, String> {
+    let input = input::stage(input)?;
+    let collected = match input {
+        Some(file) => program.run_input(Some(file), None, &control),
+        None => program.run(&control),
+    }?;
+    let observed = file.as_ref().map_or(Ok(None), |file| {
+        crate::file::observe(file.path()).map_err(|e| format!("Observe shell source: {e}"))
+    });
+    Ok(Outcome {
+        status: collected.status,
+        stdout: text(collected.stdout)?,
+        stderr: text(collected.stderr)?,
+        observed,
+    })
 }
 
 impl Drop for Operation {

@@ -40,6 +40,10 @@ impl History {
         if self.commands.is_empty() {
             return Outcome::Message("Shell command history is empty");
         }
+        self.recall(prompt, previous)
+    }
+
+    fn recall(&mut self, prompt: &mut Prompt, previous: bool) -> Outcome {
         let index = match (self.index, previous) {
             (None, true) => Some(0),
             (Some(index), true) => Some((index + 1).min(self.commands.len() - 1)),

@@ -98,7 +98,7 @@ Branch: `feat/rev-shell-commands-04-acceptance`
 Expected PR title: `test(shell): verify shell commands and document text filters`
 Report: `ops/default/report/slices/rev-shell-commands/slice-4-acceptance.md`
 
-- [ ] T4.1: Add examples/shell-command-acceptance.rs and scripts/check-shell-commands.sh using existing native/Rust/PTY support, real installed sh/sort/tr and isolated fixtures; add focused source-quality coverage for the new owners.
+- [x] T4.1: Add examples/shell-command-acceptance.rs and scripts/check-shell-commands.sh using existing native/Rust/PTY support, real installed sh/sort/tr and isolated fixtures; add focused source-quality coverage for the new owners.
 - [ ] T4.2: Measure finite near-limit input, collection/publication and post-job idle behavior; verify both profiles in representative Linux PTYs with resize, cancellation, canonical selection, undo and terminal restoration.
 - [ ] T4.3: Add approachable Markdown guidance and exact references/defaults/bindings, link them through the existing editor path and Spore projection, and finalize meaningful Unreleased notes. Prepare clean dev for the unchanged controller gate.
 - [ ] Record exact-head validation, immutable report link and canonical PR.

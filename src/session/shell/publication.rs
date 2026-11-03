@@ -14,12 +14,7 @@ impl Session {
                 "Shell target has pending external observation or reload; use revert-buffer".into(),
             );
         }
-        if let Some(file) = &target.file {
-            let observed = outcome.observed.as_ref().map_err(String::clone)?;
-            if observed.as_ref() != file.observation() {
-                return Err("Shell target has external file changes; use revert-buffer".into());
-            }
-        }
+        current_file(target, outcome)?;
         let buffer = self
             .buffers
             .get_mut(id)
@@ -46,6 +41,16 @@ impl Session {
         self.observe_files();
         Ok(true)
     }
+}
+
+fn current_file(target: &crate::shell::Target, outcome: &Outcome) -> Result<(), String> {
+    if let Some(file) = &target.file {
+        let observed = outcome.observed.as_ref().map_err(String::clone)?;
+        if observed.as_ref() != file.observation() {
+            return Err("Shell target has external file changes; use revert-buffer".into());
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
