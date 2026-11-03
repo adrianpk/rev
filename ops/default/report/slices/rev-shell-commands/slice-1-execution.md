@@ -5,7 +5,7 @@ Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
 Branch: `feat/rev-shell-commands-01-execution`
-PR: pending
+PR: `#242`
 
 ## Purpose
 
@@ -33,8 +33,8 @@ working directory, cancellation and inspectable plain-text results.
 ## Implementation Notes
 
 - `T1.1`: `37f9791f5516d8e9821b32c71e224031d4a9fc1f` admits configuration.
-- `T1.2`: `dd6c1119bb47` adds native execution and presentation.
-- `T1.3`: this report-introduction commit adds real shell acceptance coverage.
+- `T1.2`: `dd6c1119bb472b8b73aab861e0ba2951ddd69a1a` adds native execution and presentation.
+- `T1.3`: `15a57e4206679e4f71eafc885ab320d538b59a8b` adds real shell acceptance coverage and introduces this report.
 - Promote the existing process, stream, group and cancellation owners to
   `src/process`. Existing Org callers retain their argv, resource, consent and
   cleanup policies; `org::Cancellation` remains a public re-export. LSP retains

@@ -30,7 +30,15 @@ Report: `ops/default/report/slices/rev-shell-commands/slice-1-execution.md`
 - [x] T1.1: Admit the five shell preferences with complete defaults, sample, source origins and whole-candidate failure; preserve existing configuration behavior.
 - [x] T1.2: Deliver shell-command, cancellation and retained plain-text output through existing native commands/prompts and one bounded nonblocking owned process; capture directory and distinguish data from shell syntax.
 - [x] T1.3: Exercise real sh/printf, startup environment and cwd, output/diagnostic bounds, nonzero/invalid results, concurrent stream drainage, deadline and descendant cleanup in tests/shell_commands.rs. Preserve existing Org process contracts.
-- [ ] Record immutable report introduction and canonical PR. Exact clean-HEAD ordered validation is owned by the Looper receipt.
+- [x] Record immutable report introduction and canonical PR: [#242](https://forge.adrianpk.com/adrianpk/rev/pulls/242).
+
+Task commits: T1.1 `37f9791f5516d8e9821b32c71e224031d4a9fc1f`,
+T1.2 `dd6c1119bb472b8b73aab861e0ba2951ddd69a1a`,
+T1.3 `15a57e4206679e4f71eafc885ab320d538b59a8b`.
+Report introduction: [Slice 1 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/15a57e4206679e4f71eafc885ab320d538b59a8b/ops/default/report/slices/rev-shell-commands/slice-1-execution.md).
+Exact clean-HEAD ordered validation is owned by the Looper receipt after this
+PR-reference follow-up is committed and pushed; the canonical PR lists its
+successful configured command prefix before integration.
 
 ## Slice 2: Checked text filters
 
