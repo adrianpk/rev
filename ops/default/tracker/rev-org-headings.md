@@ -54,7 +54,7 @@ is delivered; Acta records controller-owned integration.
 
 ## Slice 2: Independent view controls
 
-State: implementing.
+State: preparing canonical PR.
 Requirements: OGP02-OGP04, OGP06, OGP08.
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-org-headings-02-view-controls`
@@ -65,8 +65,13 @@ Report: `ops/default/report/slices/rev-org-headings/slice-2-view-controls.md`
   override, existing selectors/keymaps and no new factory binding.
 - [x] T2.2: Preserve split/rebind/reset/edit/reload behavior and exact source
   cursor, pointer, selection, wrap and gutter meanings.
-- [ ] T2.3: Verify both profiles, readonly Org results, source copy/undo, native
+- [x] T2.3: Verify both profiles, readonly Org results, source copy/undo, native
   AI acceptance, cancellation and independent view choices.
+Task commits: T2.1 `85464c398fdf7916b766e9c1cff2ecdf299b3252`;
+T2.2 `59f02ca119e7e94a38f61b84e7feaffed77fe1bb`.
+T2.3 is introduced with the native source-copy/result tests and Slice 2 report.
+Development checks passed: 16 heading, 11 visibility and 5 native result tests.
+
 - [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
 
 ## Slice 3: Joint acceptance and guidance

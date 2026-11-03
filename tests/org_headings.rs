@@ -2,6 +2,8 @@
 
 #[path = "org_headings/controls.rs"]
 mod controls;
+#[path = "org_headings/editing.rs"]
+mod editing;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "org_headings/geometry.rs"]

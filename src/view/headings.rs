@@ -18,4 +18,10 @@ impl View {
     pub(crate) fn reset_heading_presentation(&mut self) {
         self.heading_pretty = None;
     }
+
+    /// Restoring source anchors from a retained view must keep the live choice.
+    pub(crate) fn retain_heading_presentation(&mut self, current: &Self) {
+        self.headings = current.headings.clone();
+        self.heading_pretty = current.heading_pretty;
+    }
 }

@@ -61,7 +61,8 @@ impl Session {
 
     pub(in crate::session) fn ai_apply_result(&mut self) -> Action {
         match self.ai_publish() {
-            Ok(home) => {
+            Ok(mut home) => {
+                home.retain_heading_presentation(self.view());
                 // Publication already succeeded. Consume authority before any
                 // presentation/cleanup step so an error cannot enable a replay.
                 let ready = self.ai.ready.take().expect("published AI result");
@@ -184,8 +185,9 @@ impl Session {
             return self.message("No AI result is ready");
         };
         if self.view().point.stamp.buffer == ready.payload.stamp.buffer
-            && let Some(home) = self.ai_home(&ready.request)
+            && let Some(mut home) = self.ai_home(&ready.request)
         {
+            home.retain_heading_presentation(self.view());
             *self.windows.selected_mut() = home;
         }
         self.ai_close_result(ready, "AI result discarded; source unchanged")
@@ -236,15 +238,84 @@ mod tests {
         view::Size,
     };
 
+    mod fixture {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/configuration/fixture.rs"
+        ));
+    }
+
+    // Real readonly Org results admit presentation controls in both profiles.
+    // Apply/discard restore source anchors but retain the current view choice;
+    // escaped display bytes never substitute for the original generated text.
+    #[test]
+    fn heading_presentation() {
+        use crate::command::{Command, OrgCommand};
+        let generated = "* Literal\r\n#+end_src\n** Child\n";
+        for profile in ["non-modal", "modal"] {
+            for apply in [false, true] {
+                let fixture = fixture::Fixture::new();
+                let settings = crate::config::prepare(&fixture.write(
+                    "config.toml",
+                    &format!("editor.interaction_profile='{profile}'"),
+                ))
+                .snapshot;
+                let (mut session, source) = generated_with_settings(generated, settings);
+                let result = session.view().point.stamp.buffer;
+                let buffer = session.buffers.get_mut(result).unwrap();
+                assert!(buffer.is_org() && buffer.is_readonly());
+                let scan =
+                    crate::org::ColorScan::new(buffer, crate::org::Limits::default()).unwrap();
+                buffer
+                    .install_org_coloring(scan.run(&crate::org::Cancellation::default()))
+                    .unwrap();
+                session.ai_result_visibility();
+                let original = text_of(session.buffer().unwrap());
+                let point = session.view().point;
+                session.execute(Command::Org(OrgCommand::PrettyHeadings));
+                assert!(!session.view().pretty_headings());
+                session.execute(Command::Org(OrgCommand::ResetHeadingPresentation));
+                assert!(session.view().pretty_headings());
+                session.execute(Command::Org(OrgCommand::PrettyHeadings));
+                assert_eq!(session.view().point, point);
+                assert_eq!(text_of(session.buffer().unwrap()), original);
+                assert!(session.buffer().unwrap().history().is_empty());
+                if apply {
+                    session.execute(Command::AiApplyResult);
+                    assert_eq!(text(&session, source), format!("sou{generated}rce"));
+                    assert_eq!(session.buffer().unwrap().history().len(), 1);
+                    session.execute(Command::History(crate::buffer::edit::History::Undo));
+                } else {
+                    session.execute(Command::AiDiscardResult);
+                    assert!(session.buffer().unwrap().history().is_empty());
+                }
+                assert_eq!(text(&session, source), "source");
+                assert_eq!(
+                    session.view().heading_presentation_override(),
+                    Some(false),
+                    "{profile}, apply={apply}"
+                );
+                assert!(session.ai.ready.is_none());
+            }
+        }
+    }
+
     fn proposal() -> (Session, BufferId) {
         generated_proposal("generated")
     }
 
     fn generated_proposal(generated: &str) -> (Session, BufferId) {
-        let mut buffers = Buffers::new().unwrap();
+        generated_with_settings(generated, crate::config::Snapshot::default())
+    }
+
+    fn generated_with_settings(
+        generated: &str,
+        settings: crate::config::Snapshot,
+    ) -> (Session, BufferId) {
+        let mut buffers = Buffers::with_settings(settings.clone()).unwrap();
         let id = buffers.create("source").unwrap();
         let buffer = buffers.get(id).unwrap();
-        let mut view = View::new(buffer);
+        let mut view = View::with_settings(buffer, &settings);
         view.point.position = Scalar(3);
         let mut session = Session::new(
             buffers,
