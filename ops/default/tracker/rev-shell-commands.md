@@ -153,6 +153,11 @@ Focused receipt `ZLBTP4HTQ6ZICAKCSZP7MAB3GN` passed both packaged-template
 tests and `git diff --check` at `353d33651463f85f76e46471dc938aeb01eb9454`.
 The final canonical PR receipt owns the clean head after this reference follow-up
 and the exact five-command repair prefix.
+The first final receipt `7O7DA2WCJ7EMSOOOOYYYDL3DBH` passed format,
+Clippy and all 349 affected tests on `c390a68ecdfa38974a7acc7ff08135b17aa376c3`,
+then rejected stale documented keymap counts. Correct the seven defaults.md
+counts alongside the complete template, retain every assertion, and regenerate
+the same ordered repair prefix on the new clean canonical PR head.
 
 ## Final gate and closure
 

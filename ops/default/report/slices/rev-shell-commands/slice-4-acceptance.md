@@ -170,6 +170,16 @@ configuration and command tests plus formatting, strict all-target Clippy,
 documentation and whitespace checks. The unchanged combined gate remains the
 controller's responsibility.
 
+Repair receipt `7O7DA2WCJ7EMSOOOOYYYDL3DBH` on
+`c390a68ecdfa38974a7acc7ff08135b17aa376c3` passed format, strict Clippy
+and all 349 shell/configuration/command tests, including complete sample maps.
+Documentation then rejected `keys.editor: compiled map count drift`: the seven
+existing keymap rows in defaults.md still described the smaller incomplete
+template. Update their exact counts to 80/139/81/80/121/121/117 for
+Editor/Normal/Insert/Replace/Visual Character/Line/Block. Preserve the count
+assertion and both complete-map assertions; regenerate the same five-command
+prefix on the corrected clean canonical PR head.
+
 ## Risks and Follow-ups
 
 Terminal bytes prove protocol behavior; glyph appearance belongs to the terminal.
