@@ -197,7 +197,7 @@ enum AfterSave {
 }
 
 enum Pending {
-    Shell(shell::Request),
+    Shell(Box<shell::Request>),
     Ai(Box<ai::Request>),
     AiDirectory,
     AiSave(Box<ai::save::Prompt>),

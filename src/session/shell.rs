@@ -92,7 +92,7 @@ impl Session {
         if let Err(e) = self.input.argument("Shell command: ", "") {
             return self.error(&e.to_string());
         }
-        self.pending = Some(Pending::Shell(request));
+        self.pending = Some(Pending::Shell(Box::new(request)));
         self.message(if kind.has_input() {
             "Enter a shell command for the captured region; C-g cancels"
         } else {

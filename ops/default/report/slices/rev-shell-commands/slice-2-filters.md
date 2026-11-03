@@ -100,6 +100,14 @@ An early pane driver assumed split changed focus. It now explicitly selects the
 other pane; assertions for distinct view identity, retained focus, original-source
 publication and ordinary undo remain in place.
 
+The first clean-candidate readonly receipt `6EHRQ6MZZ6LG7HXYZ5SPH2OAGF`
+passed on `29a38140dc9c1e2e97351c4f8c9255085c29dcaa`. The configured batch
+`TVQGAUKRGZDS545K7G7FTZIK3E` then failed strict Clippy because the captured
+shell request made `Pending::Shell` a large enum variant. Store that prompt request
+in `Box`, matching existing large native prompts, without changing admission or
+publication. Both controller receipts are regenerated after this correction;
+prior results remain tied to their original candidate.
+
 The final clean PR head receives the configured ordered Slice 2 prefix through
 `looper validate` after PR-reference commits are pushed. The readonly-transition
 case also receives a focused controller receipt on that same head. The canonical
