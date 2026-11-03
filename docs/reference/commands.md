@@ -459,7 +459,7 @@ replacement inputs fail without broadening the target.
 Replacement includes its captured selection; point insertion supplies the
 instruction and native point metadata. Directory reads use complete snapshots
 of the current visiting source and up to 16 admitted current/dirty visiting
-buffers, captured when the instruction is submitted and counted against
+buffers within that root, captured when the instruction is submitted and counted against
 `max_input_bytes`. These snapshots override disk for their paths. Another
 invocation refreshes them; later source edits still invalidate result acceptance.
 No whole-directory dump is sent. The instruction accepts at most 16384 UTF-8

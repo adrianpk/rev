@@ -44,6 +44,9 @@ impl Session {
             actions,
             condition,
         );
+        if output.directory {
+            text.push_str(&format!("Directory root: {}\n\n", request.root.display()));
+        }
         let start = text.chars().count();
         text.push_str(&output.text);
         let result = self.buffers.result(label, &text).and_then(|id| {

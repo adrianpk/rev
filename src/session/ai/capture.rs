@@ -105,7 +105,7 @@ impl Session {
         }
     }
 
-    fn ai_start(&mut self, request: Request, instruction: &str) -> Result<(), String> {
+    fn ai_start(&mut self, mut request: Request, instruction: &str) -> Result<(), String> {
         if instruction.trim().is_empty() || instruction.len() > 16_384 || instruction.contains('\0')
         {
             return Err("AI instruction must contain 1..=16384 UTF-8 bytes without NUL".into());
@@ -148,11 +148,12 @@ impl Session {
             .ok_or("Pi invocation identity exhausted")?;
         let operation = Operation::directory(
             self.buffers.snapshot().settings().ai.pi.clone(),
-            root,
+            root.clone(),
             message,
             epoch,
         )?;
         self.ai.epoch = epoch;
+        request.root = root;
         self.ai.source = Some(request);
         self.ai.accepted = false;
         self.ai.operation = Some(operation);

@@ -142,8 +142,8 @@ Report introduction and T4.3 coverage: `4a4fb82f913f1e2a0bf376ffc3932324c34f920c
 
 ### Slice 5: Guarded directory context
 
-State: in_progress.
-Ticket: [Guarded directory context](../ticket/in_progress/20261102211110-delegate-guarded-project-discovery.md)
+State: reviewing.
+Ticket: [Guarded directory context](../ticket/reviewing/20261102211110-delegate-guarded-project-discovery.md)
 Requirements: PI02-PI05, PI07; AI06, AI09, AI11-AI13, AI17, AI20.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-ai-pi-05-discovery`
@@ -152,10 +152,14 @@ Report: `ops/default/report/slices/rev-ai-pi/slice-5-discovery.md`
 
 - [x] T5.1: Package a small internal Pi JavaScript resource with rev and load it explicitly through the admitted Pi extension interface; expose only bounded read/list/search operations without a shell or user plugin installation.
 - [x] T5.2: Enforce canonical-root and opened-handle path checks, per-operation budgets and fresh unsaved-source precedence while Pi retains all relevance selection and model/context iteration.
-- [ ] T5.3: Validate traversal, symlink/root replacement races, missing/binary/large sources, disabled external resources and actual Pi tool admission; native API transport/discovery remains deferred.
+- [x] T5.3: Validate traversal, symlink/root replacement races, missing/binary/large sources, disabled external resources and actual Pi tool admission; native API transport/discovery remains deferred.
 
-Validation and actual commit/PR evidence: pending. Use the plan and configured
-ordered commands; do not claim the integrated gate from focused checks.
+Implementation: `bee7889f191cd961de5f275b24ca7cc26d375aa7` delivers the
+coherent resource/profile/native-observation transition. Five focused native
+cases and 27 actual offline Pi checks passed, including real tool execution with
+controlled model events, root/file races, unsaved precedence and finite budgets.
+The Slice 5 report records exact commands and distinguishes provider evidence.
+Final clean-head validation follows the committed canonical PR references.
 
 ### Slice 6: Private Pi sessions
 

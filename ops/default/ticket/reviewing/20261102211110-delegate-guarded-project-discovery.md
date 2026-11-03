@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211110
 title: Guarded directory context
-status: in_progress
+status: reviewing
 kind: task
 severity: unclassified
 priority: normal
@@ -12,7 +12,8 @@ reported_at: 2026-11-02T21:11:10Z
 ready_at: 2026-11-02T21:11:10Z
 started_at: 2026-11-02T23:42:32Z
 branch: feat/rev-ai-pi-05-discovery
-commits: []
+reviewed_at: 2026-11-03T00:04:47Z
+commits: [bee7889f191cd961de5f275b24ca7cc26d375aa7]
 ---
 
 # Guarded directory context
@@ -49,3 +50,12 @@ Use the exact branch/PR/report identity from the plan; Looper owns integration.
 Run the slice's exact ordered configured checks and its relevant acceptance.
 Record real versus controlled observations and the tested candidate in the
 report. No test result, runtime implementation or PR is claimed by this ticket.
+
+## Implementation evidence
+
+The implementation commit `bee7889f191cd961de5f275b24ca7cc26d375aa7` delivers
+the internal resource, root/handle/tool admission and native snapshot precedence.
+Five focused native discovery cases and 27 actual offline Pi checks passed; the
+local controlled model drives real Pi tool execution without an external provider
+request. The canonical Slice 5 report records boundaries and commands. Final
+clean-head validation follows the PR-reference commit through the controller.

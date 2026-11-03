@@ -198,7 +198,7 @@ git diff --check
 
 ### Slice 5: Guarded directory context
 
-Ticket: [Guarded directory context](../ticket/in_progress/20261102211110-delegate-guarded-project-discovery.md)
+Ticket: [Guarded directory context](../ticket/reviewing/20261102211110-delegate-guarded-project-discovery.md)
 Requirements: PI02-PI05, PI07; AI06, AI09, AI11-AI13, AI17, AI20.
 Dependencies: Slice 4 integrated; preserve all earlier contracts.
 

@@ -38,6 +38,7 @@ fn native_source_map() {
     switch(&mut s, "source.txt");
     fs::write(&other, "changed outside\n").unwrap();
     prompt(&mut s);
+    assert!(text(&s).contains(&format!("Directory root: {}", f.0.display())));
     let message: serde_json::Value =
         serde_json::from_str(&fs::read_to_string(f.0.join("prompt")).unwrap()).unwrap();
     assert_eq!(message["context"], "directory");
