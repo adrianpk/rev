@@ -185,6 +185,7 @@ Gate repair 1 retains Slice 4 and its existing report. Failed base:
 `858c50f64105cde67ee128e1cb1d0c90b96cc9df`; branch:
 `fix/rev-shell-commands-validation-1`; exact PR title:
 `fix(shell): repair approved command and filter acceptance`.
+Canonical repair PR: [#246](https://forge.adrianpk.com/adrianpk/rev/pulls/246).
 The checkpoint's original gate-repair policy covers this repair. Complete the
 packaged shell keymaps within its allowed paths; preserve all runtime bindings,
 complete-map assertions, resource limits and the unchanged controller gate.

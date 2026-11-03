@@ -138,7 +138,8 @@ Source worktrees and receipts remain available. The 1 GiB filesystem admission
 floor was met at preparation and remains required before each controller build.
 The unchanged combined gate was not run by the preparation worker.
 
-Gate repair 1: pending on `fix/rev-shell-commands-validation-1`, exact title
+Gate repair 1: [#246](https://forge.adrianpk.com/adrianpk/rev/pulls/246), reviewing
+on `fix/rev-shell-commands-validation-1`, exact title
 `fix(shell): repair approved command and filter acceptance`, existing Slice 4
 report. Controller gate receipt `RSHBYQUHAMXM7FQYNTWOPSLFQS` failed on
 `858c50f64105cde67ee128e1cb1d0c90b96cc9df` at
@@ -148,6 +149,10 @@ declared/effective-map equality, runtime behavior and all gate commands intact.
 The retained configuration binary reproduced the missing VimNormal M-! and M-|
 entries. Focused regression and the pinned five-command repair prefix precede
 controller integration and the unchanged combined gate.
+Focused receipt `ZLBTP4HTQ6ZICAKCSZP7MAB3GN` passed both packaged-template
+tests and `git diff --check` at `353d33651463f85f76e46471dc938aeb01eb9454`.
+The final canonical PR receipt owns the clean head after this reference follow-up
+and the exact five-command repair prefix.
 
 ## Final gate and closure
 

@@ -5,7 +5,7 @@ Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
 Branch: `fix/rev-shell-commands-validation-1`
-PR: pending
+PR: `#246`
 
 ## Purpose
 
@@ -156,9 +156,19 @@ factory template without changing compiled behavior or extending modal C-u
 motions. Keep both complete declared-map and effective-map equality assertions.
 
 The repair uses the original gate-repair policy, the pinned branch/title and
-this existing report. Focused template regression and the exact five-command
-repair prefix are recorded through the controller after clean commits; the
-unchanged combined gate remains the controller's responsibility.
+this existing report. Canonical repair PR:
+[#246](https://forge.adrianpk.com/adrianpk/rev/pulls/246).
+Focused controller receipt `ZLBTP4HTQ6ZICAKCSZP7MAB3GN` passed both
+packaged-template regressions on `353d33651463f85f76e46471dc938aeb01eb9454`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference::sample_ -- --test-threads=1`: sample_defaults and sample_maps passed, covering packaged bytes, scalar defaults and complete declared/effective maps.
+- `git diff --check`: passed.
+
+The canonical PR receipt owns the exact clean head and five-command repair
+prefix after the PR-reference follow-up. That prefix includes all shell,
+configuration and command tests plus formatting, strict all-target Clippy,
+documentation and whitespace checks. The unchanged combined gate remains the
+controller's responsibility.
 
 ## Risks and Follow-ups
 
