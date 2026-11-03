@@ -10,7 +10,7 @@ Spec: [Org Heading Presentation](../spec/editor-org-heading-presentation.md)
 Model: [Heading Presentation Model](../spec/editor-org-heading-presentation-model.md)
 Concern: [Pending Work Index](../README.md)
 Full gate: `cargo fmt --all -- --check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --all-targets -- -D warnings && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_headings --test configuration --test commands --test display -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test org_editing visibility -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test modal contexts:: -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test external_changes -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib session::ai::results -- --test-threads=1 && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-org-headings.sh && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check && env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/build-user-guide.sh && git diff --check`
-Active slice: Slice 2 - Independent view controls
+Active slice: Slice 3 - Joint acceptance and guidance
 Plan: [Heading Presentation Plan](../plan/rev-org-headings.md)
 Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gate receipts own progress
 
@@ -54,7 +54,8 @@ is delivered; Acta records controller-owned integration.
 
 ## Slice 2: Independent view controls
 
-State: reviewing; canonical PR #239 is open against dev.
+State: delivered; canonical PR #239 merged into dev at
+`9f80318352921105f11b34226b1b39d85fba293b`.
 Requirements: OGP02-OGP04, OGP06, OGP08.
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-org-headings-02-view-controls`
@@ -74,17 +75,14 @@ Development checks passed: 16 heading, 11 visibility and 5 native result tests.
 
 Canonical PR: [#239](https://forge.adrianpk.com/adrianpk/rev/pulls/239).
 Report introduction: `4a4b3f623077f961c243c99957b57c9ea041ae86`.
-Final validation: the controller receipt for the clean canonical PR head owns
-the six ordered Slice 2 command outcomes after this PR-reference commit.
-
-The first batch passed format and strict Clippy, then found the old Org catalog
-count. The exact count changes from 229 to 231 for the two delivered names;
-command round-trips and routing assertions remain unchanged. Its focused test
-passes; the controller batch is regenerated for this corrected clean head.
+Final validation: receipt `GRKJCN7LNUOYNQCGJHBRINYNOT` passed all six
+configured commands at the merged head: format, strict Clippy, 255 native tests,
+documentation and whitespace. The exact Org name count includes the two
+approved commands. Slice 2 of 3 is delivered; Acta records integration.
 
 ## Slice 3: Joint acceptance and guidance
 
-State: pending.
+State: implementing.
 Requirements: OGP01-OGP08 together.
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-org-headings-03-acceptance`

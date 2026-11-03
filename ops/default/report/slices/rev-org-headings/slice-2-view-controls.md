@@ -1,6 +1,6 @@
 # Slice 2: Independent view controls
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-org-headings
 Plan: [Heading Presentation Delivery](../../../plan/rev-org-headings.md)
 Tracker: [Heading Presentation Tracker](../../../tracker/rev-org-headings.md)
@@ -105,16 +105,18 @@ The focused correction passed:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands org_visibility::visibility_keys -- --test-threads=1` (1 test).
 
-The exact configured six-command batch runs through `looper validate` after the
-canonical PR-reference and catalog-count correction commits: format, strict all-target Clippy, combined
-heading/command/display/reload tests, modal contexts, documentation and whitespace.
-The successful canonical controller receipt owns the final clean PR candidate
-and ordered command outcomes. Focused development checks do not replace the
-integrated delivery-set gate.
+Canonical PR #239 merged through controller-owned Rebase + Fast-forward into
+dev at `9f80318352921105f11b34226b1b39d85fba293b` on
+2026-11-03T16:20:10Z. Receipt `GRKJCN7LNUOYNQCGJHBRINYNOT` passed all
+six configured checks at that exact clean head: format, strict all-target
+Clippy, 255 tests (161 commands, 39 display, 21 reload, 16 headings, 18 modal
+contexts), documentation and whitespace. Documentation verified 431 command
+identities, 235 settings, 70 pages and 435 local links/anchors. The batch took
+134.49 seconds. Native result and visibility checks remain focused evidence above.
 
-Development target footprint was 767 MiB with 6703 MiB filesystem space
-available before regenerated validation. Builds retain debug-disabled,
-non-incremental, one-job policy and worktree-local output.
+Final target footprint was 829 MiB with 6708 MiB filesystem space available.
+Builds retained debug-disabled, non-incremental, one-job policy and worktree-local
+output. This closes Slice 2 of 3; the integrated delivery-set gate is pending.
 
 ## Risks and Follow-ups
 
