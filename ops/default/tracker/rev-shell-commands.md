@@ -7,7 +7,7 @@ Plan: [Native Shell Commands Delivery](../plan/rev-shell-commands.md)
 Spec: [Shell Commands and Text Filters](../spec/editor-shell-commands.md)
 Model: [Shell Commands Model](../spec/editor-shell-commands-model.md)
 Approved: owner's specification separation and delegated first-capability startup request, 2026-11-03
-Active slice: Slice 3 - Native interaction and lifecycle
+Active slice: Slice 4 - Joint acceptance and guidance
 Progress owner: Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -70,7 +70,7 @@ readonly-transition case on the same head. The canonical PR contract check passe
 
 ## Slice 3: Native interaction and lifecycle
 
-State: reviewing
+State: delivered
 Dependency: Slice 2 integrated.
 Branch: `feat/rev-shell-commands-03-interaction`
 Expected PR title: `feat(shell): integrate command keys and checked job lifecycle`
@@ -85,12 +85,14 @@ Task commits: T3.1 `7a898d22c8e867cf4dbfd2ab76f7b98a104d434e`,
 T3.2 `9e408f818be84c70ba87fa06a821ba061c7a1a5f`.
 T3.3 `fd88363c0e76fdde404288d13c3ba82a737303cc`.
 Report introduction: [Slice 3 report](https://forge.adrianpk.com/adrianpk/rev/src/commit/fd88363c0e76fdde404288d13c3ba82a737303cc/ops/default/report/slices/rev-shell-commands/slice-3-interaction.md).
-Focused development checks passed 17 native/keymap/modal cases; the configured
-ordered prefix runs on the final clean PR head through the controller.
+Integration: canonical PR #244 merged into dev at `a921b2f9317038cb933eca341c47e393a3f64000`.
+Controller receipt `NSV5A2P6YV6LTBB2KFGKZ72KD6` passed all six configured
+commands on that exact clean candidate: 218 native/keymap/modal tests plus
+formatting, strict Clippy and documentation. The canonical PR contract check passed.
 
 ## Slice 4: Joint acceptance and guidance
 
-State: pending
+State: implementing
 Dependency: Slice 3 integrated.
 Branch: `feat/rev-shell-commands-04-acceptance`
 Expected PR title: `test(shell): verify shell commands and document text filters`

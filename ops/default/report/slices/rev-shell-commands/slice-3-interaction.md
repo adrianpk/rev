@@ -1,6 +1,6 @@
 # Slice 3: Native interaction and lifecycle
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-shell-commands
 Plan: [Native Shell Commands Delivery](../../../plan/rev-shell-commands.md)
 Tracker: [Native Shell Commands Tracker](../../../tracker/rev-shell-commands.md)
@@ -107,10 +107,14 @@ with the vertical-bar entity, preserving the rendered exact chords. Keep the
 same complete command-name equality and duplicate assertions and all frozen
 commands; regenerate the configured receipt on the corrected clean head.
 
-After PR-reference commits and push, the final clean head receives the configured
-ordered Slice 3 checks through `looper validate`. The canonical PR and controller
-receipt record exact-candidate success; this report does not claim the integrated
-delivery-set gate.
+Canonical PR [#244](https://forge.adrianpk.com/adrianpk/rev/pulls/244) merged
+into dev at `a921b2f9317038cb933eca341c47e393a3f64000`.
+Controller receipt `NSV5A2P6YV6LTBB2KFGKZ72KD6` passed all six configured
+commands in order on that exact clean head: format, strict all-target Clippy,
+163 command tests, 35 shell tests, 20 modal context tests, documentation
+validation and `git diff --check`. The canonical PR contract check passed.
+The immutable report introduction is `fd88363c0e76fdde404288d13c3ba82a737303cc`.
+The integrated delivery-set gate remains controller-owned.
 
 ## Risks and Follow-ups
 
