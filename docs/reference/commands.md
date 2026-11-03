@@ -621,6 +621,27 @@ The original generated payload is retained separately from the display. Org
 comma escaping, display line endings, titles, blocks and request metadata are
 never recovered by stripping markup and never enter accepted source text.
 
+## Interactive terminals
+
+Use `M-x terminal-open`, or `:terminal-open` from modal source editing, to open
+the instance's default shell in a lower panel. Repeating the command selects
+the same live session. Creation uses the selected directory context, then the
+current file's parent or launch directory. Startup `[terminal]` preferences
+select the executable and literal argument array; no shell starts automatically.
+
+The live panel owns printable keys and ordinary child input in either profile.
+`C-g` returns focus to the editor. `M-x` opens host commands while the panel is
+focused; a prompt's `C-g` cancels that prompt before returning editor focus.
+Printable colon and Escape belong to the live child. Use `terminal-toggle` to
+hide or restore the panel without restarting its shell. The panel remembers its
+height and clamps it to preserve a usable source pane.
+
+`list-buffers` and `switch-to-buffer` include the terminal's stable buffer name.
+Selecting it focuses the panel. Terminal buffers hold emulator state rather
+than editable source text, so file saves, text edits, undo, bookmarks, completion,
+LSP, Org and AI source actions require returning to a source buffer. Killing a
+live terminal buffer asks before terminating its owned process group.
+
 ## One-shot shell commands
 
 Follow [Run Shell Commands](../tutorials/user-guide/15-shell-commands.md) for a

@@ -42,7 +42,7 @@ impl Session {
             return Some(Action::Redraw);
         }
         if matches!(mouse.kind, MouseEventKind::Down(_)) {
-            self.terminal_return();
+            self.terminal_source_focus();
         }
         None
     }

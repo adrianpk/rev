@@ -549,6 +549,7 @@ impl Session {
         // Canonical completion precedes the derived layout budget. Embedding
         // hosts may observe ready jobs through frame() without synthesizing input.
         self.expire_shell();
+        self.resize_terminal();
         self.expire_terminals();
         self.invalidate_completion();
         for (_, view) in self.windows.iter() {

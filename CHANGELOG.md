@@ -9,6 +9,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- [Open an interactive shell](docs/reference/commands.md#interactive-terminals)
+  with `terminal-open` and return to the editor with C-g. Hide or restore the
+  lower panel with `terminal-toggle` while the same shell keeps running, select
+  it through ordinary buffer navigation and configure startup shell preferences
+  under `[terminal]`.
+
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and
   replace a region or insert complete stdout in one undo step. Keep editing while

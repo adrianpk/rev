@@ -16,10 +16,13 @@ struct Editor {
 
 impl Editor {
     fn new(profile: &str, height: u16) -> Self {
+        Self::with_keys(profile, height, "")
+    }
+    fn with_keys(profile: &str, height: u16, keys: &str) -> Self {
         let fixture = Fixture::new();
         let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
         let config = fixture.write("config.toml", &format!(
-            "[editor]\ninteraction_profile='{profile}'\n[terminal]\nprogram='/bin/sh'\nargs=[{},'literal;not-evaluated']\n",
+            "[editor]\ninteraction_profile='{profile}'\n[terminal]\nprogram='/bin/sh'\nargs=[{},'literal;not-evaluated']\n{keys}",
             serde_json::to_string(&script.to_string_lossy()).unwrap(),
         ));
         let startup = rev::config::prepare(&config);
@@ -84,19 +87,7 @@ fn key(code: KeyCode, modifiers: KeyModifiers) -> Event {
 // retain the same PTY and ordinary source while live keys reach the real child.
 #[test]
 fn native_panel() {
-    if std::env::var_os("REV_TERMINAL_COLOR_CHILD").is_none() {
-        let output = std::process::Command::new(std::env::current_exe().unwrap())
-            .args(["--exact", "panel::native_panel", "--nocapture"])
-            .env("REV_TERMINAL_COLOR_CHILD", "1")
-            .env_remove("NO_COLOR")
-            .output()
-            .unwrap();
-        assert!(
-            output.status.success(),
-            "{}{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
+    if isolated("panel::native_panel", true) {
         return;
     }
     for (profile, colon) in [("non-modal", false), ("modal", true)] {
@@ -143,6 +134,22 @@ fn native_panel() {
                 .any(|s| s == b"\x1b[38;2;205;0;0m")
         );
         editor.named("terminal-toggle", false);
+        editor.named("terminal-toggle", colon);
+        editor
+            .session
+            .handle(key(KeyCode::Char('x'), KeyModifiers::ALT));
+        let frame = editor.session.frame().unwrap();
+        assert_eq!(frame.rows()[11].band(), rev::display::Band::Divider);
+        assert!(
+            frame.rows()[12]
+                .text()
+                .contains("READY:literal;not-evaluated")
+        );
+        editor
+            .session
+            .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+        assert!(editor.session.terminal_focused());
+        editor.named("terminal-toggle", false);
         assert!(!editor.session.terminal_focused());
         assert!(
             !editor
@@ -173,6 +180,9 @@ fn native_panel() {
 // admitted panel clamps its rows and restores the remembered height after resize.
 #[test]
 fn panel_admission() {
+    if isolated("panel::panel_admission", false) {
+        return;
+    }
     let mut editor = Editor::new("non-modal", 7);
     let source = editor.session.buffer().unwrap().stamp();
     editor
@@ -193,6 +203,21 @@ fn panel_admission() {
         editor.session.terminals().get(id).unwrap().geometry().rows,
         10
     );
+    editor.session.handle(Event::Resize(u16::MAX, 8));
+    assert_eq!(
+        editor
+            .session
+            .terminals()
+            .get(id)
+            .unwrap()
+            .geometry()
+            .columns,
+        80
+    );
+    let mut native = Vec::new();
+    editor.session.frame().unwrap().write(&mut native).unwrap();
+    assert!(native.len() < 2_000_000);
+    editor.session.handle(Event::Resize(80, 24));
     editor.session.handle(Event::Resize(80, 4));
     assert_eq!(editor.session.frame().unwrap().rows().len(), 4);
     editor.session.handle(Event::Resize(80, 24));
@@ -212,10 +237,29 @@ fn panel_admission() {
 // authority. Host prompts remain usable and cancel before child focus changes.
 #[test]
 fn source_guards() {
+    if isolated("panel::source_guards", false) {
+        return;
+    }
     let mut editor = Editor::new("non-modal", 24);
     editor.session.insert('X');
     let source = editor.session.buffer().unwrap().stamp();
     editor.open();
+    let buffer = editor.session.terminal_buffer().unwrap();
+    let edit = rev::buffer::edit::Replacement {
+        source: buffer.span(0..0).unwrap(),
+        text: "source edit".into(),
+    };
+    assert!(matches!(
+        buffer.prepare(&[edit], &[], None),
+        Err(rev::buffer::edit::Error::ReadOnly)
+    ));
+    assert!(editor.session.replace(0..0, "source edit").is_err());
+    editor
+        .session
+        .handle(key(KeyCode::Char('x'), KeyModifiers::CONTROL));
+    editor.session.handle(Event::Paste("prefix-paste\n".into()));
+    editor.wait(|s| text(s).contains("INPUT:prefix-paste"));
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
     for name in [
         "save-buffer",
         "write-file",
@@ -281,4 +325,59 @@ fn source_guards() {
         .session
         .execute(Command::History(rev::command::History::Undo));
     assert_ne!(editor.session.buffer().unwrap().stamp(), source);
+}
+
+// Effective command bindings share the same live host handler in both profiles;
+// they remain host keys while ordinary characters retain child ownership.
+#[test]
+fn terminal_keys() {
+    if isolated("panel::terminal_keys", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let mut editor = Editor::with_keys(
+            profile,
+            24,
+            "[keys.editor]\n'C-t'='terminal-toggle'\n[keys.vim_normal]\n'C-t'='terminal-toggle'",
+        );
+        editor
+            .session
+            .handle(key(KeyCode::Char('t'), KeyModifiers::CONTROL));
+        assert!(
+            editor.session.terminal_focused(),
+            "{}",
+            editor.session.echo()
+        );
+        editor.wait(|s| text(s).contains("READY:literal;not-evaluated"));
+        editor.send("ping");
+        editor.wait(|s| text(s).contains("PONG"));
+        editor
+            .session
+            .handle(key(KeyCode::Char('t'), KeyModifiers::CONTROL));
+        assert!(!editor.session.terminal_focused());
+        assert_eq!(editor.session.terminals().ids().count(), 1);
+    }
+}
+
+// Native file observers retire asynchronously. Isolate their descriptors and
+// color cache from the engine's exact descriptor-baseline regression tests.
+fn isolated(name: &str, colored: bool) -> bool {
+    if std::env::var("REV_TERMINAL_PANEL_CHILD").as_deref() == Ok(name) {
+        return false;
+    }
+    let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+    command
+        .args(["--exact", name, "--nocapture"])
+        .env("REV_TERMINAL_PANEL_CHILD", name);
+    if colored {
+        command.env_remove("NO_COLOR");
+    }
+    let output = command.output().unwrap();
+    assert!(
+        output.status.success(),
+        "{}{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    true
 }

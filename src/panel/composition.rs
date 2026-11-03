@@ -162,6 +162,7 @@ impl Composition {
     /// The caller reserved these rows before deriving source/completion geometry.
     pub(crate) fn attach_terminal(&mut self, size: Size, rows: u16, active: bool) -> Option<()> {
         let row = size.height.checked_sub(rows + 2)?;
+        self.clip_auxiliary_bottom(row - 1)?;
         self.borders.push(Area::new(0, row - 1, size.width, 1)?);
         self.terminal = Some(Panel::new(
             Area::new(0, row, size.width, rows + 1)?,
@@ -181,6 +182,19 @@ impl Composition {
 
     pub fn terminal(&self) -> Option<Panel> {
         self.terminal
+    }
+
+    fn clip_auxiliary_bottom(&mut self, bottom: u16) -> Option<()> {
+        if let Some(panel) = self.auxiliary {
+            let area = panel.outer();
+            let height = area.height().min(bottom.saturating_sub(area.row()));
+            self.auxiliary = Some(Panel::new(
+                Area::new(area.column(), area.row(), area.width(), height)?,
+                false,
+                panel.active(),
+            ));
+        }
+        Some(())
     }
 
     /// Editing sizes borrow the global prompt reservation for existing view

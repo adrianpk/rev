@@ -141,6 +141,7 @@ impl Process {
 /// not reaped until these groups stop, preventing session-ID reuse while scanning.
 fn groups(session: Pid, deadline: Instant) -> io::Result<BTreeSet<i32>> {
     let mut groups = BTreeSet::new();
+    let mut bytes = [0; 4097];
     for (index, entry) in std::fs::read_dir("/proc")?.enumerate() {
         if index >= 32768 || Instant::now() >= deadline {
             return Err(io::Error::new(
@@ -157,7 +158,9 @@ fn groups(session: Pid, deadline: Instant) -> io::Result<BTreeSet<i32>> {
         {
             continue;
         }
-        if let Some(group) = member(&entry.path().join("stat"), session)? {
+        let mut path = entry.path();
+        path.push("stat");
+        if let Some(group) = member(&path, session, &mut bytes)? {
             groups.insert(group.as_raw_nonzero().get());
         }
         if groups.len() > 256 {
@@ -168,21 +171,33 @@ fn groups(session: Pid, deadline: Instant) -> io::Result<BTreeSet<i32>> {
     }
     Ok(groups)
 }
-fn member(path: &std::path::Path, session: Pid) -> io::Result<Option<Pid>> {
-    let mut bytes = Vec::new();
-    match File::open(path).and_then(|f| f.take(4097).read_to_end(&mut bytes)) {
-        Ok(_) => {}
+fn member(path: &std::path::Path, session: Pid, bytes: &mut [u8; 4097]) -> io::Result<Option<Pid>> {
+    let size = match File::open(path).and_then(|mut file| read_stat(&mut file, bytes)) {
+        Ok(size) => size,
         Err(error)
             if error.kind() == io::ErrorKind::NotFound || error.raw_os_error() == Some(3) =>
         {
             return Ok(None);
         }
         Err(error) => return Err(error),
-    }
-    if bytes.len() > 4096 {
+    };
+    if size > 4096 {
         return Err(io::Error::other("Terminal process stat exceeds 4 KiB"));
     }
-    member_fields(&bytes, session)
+    member_fields(&bytes[..size], session)
+}
+
+fn read_stat(file: &mut impl Read, bytes: &mut [u8; 4097]) -> io::Result<usize> {
+    let mut size = 0;
+    while size < bytes.len() {
+        match file.read(&mut bytes[size..]) {
+            Ok(0) => break,
+            Ok(count) => size += count,
+            Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
+            Err(error) => return Err(error),
+        }
+    }
+    Ok(size)
 }
 fn member_fields(bytes: &[u8], session: Pid) -> io::Result<Option<Pid>> {
     let end = bytes
@@ -190,14 +205,21 @@ fn member_fields(bytes: &[u8], session: Pid) -> io::Result<Option<Pid>> {
         .rposition(|b| *b == b')')
         .ok_or_else(|| io::Error::other("Invalid process stat"))?;
     let tail = std::str::from_utf8(&bytes[end + 1..]).map_err(io::Error::other)?;
-    let fields: Vec<_> = tail.split_whitespace().take(4).collect();
-    if fields.len() != 4 {
-        return Err(io::Error::other("Incomplete process stat"));
-    }
-    if matches!(fields[0], "Z" | "X" | "x")
-        || fields[3].parse::<i32>().ok() != Some(session.as_raw_nonzero().get())
+    let mut fields = tail.split_whitespace();
+    let state = field(&mut fields)?;
+    let _parent = field(&mut fields)?;
+    let group = field(&mut fields)?;
+    let owner = field(&mut fields)?;
+    if matches!(state, "Z" | "X" | "x")
+        || owner.parse::<i32>().ok() != Some(session.as_raw_nonzero().get())
     {
         return Ok(None);
     }
-    Ok(fields[2].parse::<i32>().ok().and_then(Pid::from_raw))
+    Ok(group.parse::<i32>().ok().and_then(Pid::from_raw))
+}
+
+fn field<'a>(fields: &mut impl Iterator<Item = &'a str>) -> io::Result<&'a str> {
+    fields
+        .next()
+        .ok_or_else(|| io::Error::other("Incomplete process stat"))
 }

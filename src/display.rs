@@ -261,7 +261,7 @@ impl Frame {
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
             if let Some(cells) = self.terminal_rows.get(&row.row) {
-                terminal::write(writer, cells, &self.palette)?;
+                terminal::write(writer, cells, &self.palette, self.size.width)?;
             } else {
                 row.write(writer, &self.palette, separator)?;
             }

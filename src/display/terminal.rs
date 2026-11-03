@@ -29,27 +29,25 @@ impl Frame {
         let grid = session.screen().grid();
         let size = session.geometry();
         for row in 0..area.height() {
-            let cells: Vec<_> = (0..area.width())
+            let cells: Vec<_> = (0..area.width().min(size.columns))
+                .filter(|_| row < size.rows)
                 .map(|column| {
-                    if row < size.rows && column < size.columns {
-                        grid[Point::new(Line(i32::from(row)), Column(usize::from(column)))].clone()
-                    } else {
-                        Cell::default()
+                    let mut cell =
+                        grid[Point::new(Line(i32::from(row)), Column(usize::from(column)))].clone();
+                    if cell.flags.contains(Flags::WIDE_CHAR) && column + 1 == area.width() {
+                        cell.c = ' ';
+                        cell.extra = None;
+                        cell.flags.remove(Flags::WIDE_CHAR);
                     }
+                    cell
                 })
                 .collect();
             let native = &mut self.rows[usize::from(area.row() + row)];
-            native.text = cells
-                .iter()
-                .filter(|c| !c.flags.contains(Flags::WIDE_CHAR_SPACER))
-                .map(|c| {
-                    if c.flags.contains(Flags::HIDDEN) {
-                        ' '
-                    } else {
-                        printable(c.c)
-                    }
-                })
-                .collect();
+            native.text = projected(&cells);
+            native.text.extend(std::iter::repeat_n(
+                ' ',
+                usize::from(area.width()) - cells.len(),
+            ));
             native.band = Band::Document;
             self.terminal_rows.insert(native.row, cells);
         }
@@ -75,23 +73,62 @@ impl Frame {
     }
 }
 
-pub(super) fn write(writer: &mut impl Write, cells: &[Cell], palette: &Palette) -> io::Result<()> {
+pub(super) fn write(
+    writer: &mut impl Write,
+    cells: &[Cell],
+    palette: &Palette,
+    width: u16,
+) -> io::Result<()> {
     for (column, cell) in cells.iter().enumerate() {
         if cell.flags.contains(Flags::WIDE_CHAR_SPACER) {
             continue;
         }
         writer.queue(MoveToColumn(column as u16))?;
         attributes(writer, cell.flags)?;
-        let mut fg = color(cell.fg, palette);
-        let mut bg = color(cell.bg, palette);
-        if cell.flags.contains(Flags::INVERSE) {
-            std::mem::swap(&mut fg, &mut bg);
-        }
+        let fg = color(cell.fg, palette);
+        let bg = color(cell.bg, palette);
         super::style::Colors::new(fg, bg).write(writer, &mut None)?;
         write_cell(writer, cell)?;
     }
     writer.queue(SetAttribute(Attribute::Reset))?;
+    padding(writer, cells.len(), width, palette)?;
     super::style::reset(writer)
+}
+
+fn padding(writer: &mut impl Write, cells: usize, width: u16, palette: &Palette) -> io::Result<()> {
+    if cells >= usize::from(width) {
+        return Ok(());
+    }
+    super::style::Colors::new(palette.foreground, palette.background).write(writer, &mut None)?;
+    writer.queue(MoveToColumn(cells as u16))?;
+    for _ in cells..usize::from(width) {
+        writer.write_all(b" ")?;
+    }
+    Ok(())
+}
+
+fn projected(cells: &[Cell]) -> String {
+    let mut text = String::new();
+    for cell in cells
+        .iter()
+        .filter(|c| !c.flags.contains(Flags::WIDE_CHAR_SPACER))
+    {
+        if cell.flags.contains(Flags::HIDDEN) {
+            text.push(' ');
+            if cell.flags.contains(Flags::WIDE_CHAR) {
+                text.push(' ');
+            }
+        } else {
+            text.push(printable(cell.c));
+            text.extend(
+                cell.zerowidth()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|c| printable(*c)),
+            );
+        }
+    }
+    text
 }
 
 fn write_cell(writer: &mut impl Write, cell: &Cell) -> io::Result<()> {
@@ -121,6 +158,7 @@ fn attributes(writer: &mut impl Write, flags: Flags) -> io::Result<()> {
         (Flags::ITALIC, Attribute::Italic),
         (Flags::ALL_UNDERLINES, Attribute::Underlined),
         (Flags::STRIKEOUT, Attribute::CrossedOut),
+        (Flags::INVERSE, Attribute::Reverse),
     ] {
         if flags.intersects(flag) {
             writer.queue(SetAttribute(attribute))?;
@@ -136,9 +174,9 @@ fn color(color: Color, palette: &Palette) -> Rgb {
         Color::Named(NamedColor::Background) => palette.background,
         Color::Named(NamedColor::DimForeground) => dim(palette.foreground),
         Color::Named(name) if (name as usize) < 16 => indexed(name as u8),
-        Color::Named(name) if (259..267).contains(&(name as usize)) => {
-            dim(indexed((name as u8).wrapping_sub(3)))
-        }
+        Color::Named(name) if (259..267).contains(&(name as usize)) => dim(indexed(
+            (name as usize - NamedColor::DimBlack as usize) as u8,
+        )),
         Color::Named(_) => palette.foreground,
     }
 }

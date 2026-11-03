@@ -71,7 +71,7 @@ impl Session {
             self.publish_jump(jump);
         }
         self.touch_completion_source(id);
-        self.terminals.focused = false;
+        self.terminal_source_focus();
         self.input.cancel();
         self.pending = None;
         self.message("")
@@ -132,10 +132,10 @@ impl Session {
 
     pub(super) fn close_buffer(&mut self, kill: Kill) -> Action {
         let closed = kill.id();
-        if let Some(terminal) = self.buffers.get(closed).ok().and_then(|b| b.terminal()) {
-            if let Err(error) = self.close_terminal(terminal) {
-                return self.error(&error.to_string());
-            }
+        if let Some(terminal) = self.buffers.get(closed).ok().and_then(|b| b.terminal())
+            && let Err(error) = self.close_terminal(terminal)
+        {
+            return self.error(&error.to_string());
         }
         let replacement = match self.buffers.kill(kill) {
             Ok(id) => id,

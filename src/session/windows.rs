@@ -33,7 +33,7 @@ impl Session {
         self.stop_typing()?;
         self.kills.break_chain();
         self.windows.select(id)?;
-        self.terminals.focused = false;
+        self.terminal_source_focus();
         self.bookmark_iteration = None;
         self.sync_input_context();
         Ok(())

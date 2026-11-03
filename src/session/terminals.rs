@@ -186,6 +186,11 @@ impl Session {
         self.sync_input_context();
     }
 
+    pub(super) fn terminal_source_focus(&mut self) {
+        self.terminals.focused = false;
+        self.terminals.home = None;
+    }
+
     fn terminal_geometry(&self) -> Option<Geometry> {
         let minimum = self.windows.layout().panel_minimum()?;
         let rows = self
@@ -224,6 +229,14 @@ impl Session {
         let Some(size) = self.terminal_geometry() else {
             return Action::Wait;
         };
+        if self
+            .terminals
+            .sessions
+            .get(id)
+            .is_some_and(|s| s.geometry() == size)
+        {
+            return Action::Wait;
+        }
         match self.terminals.sessions.resize(id, size) {
             Ok(()) => Action::Wait,
             Err(error) => self.error(&format!("Terminal retains its admitted geometry: {error}")),
@@ -260,11 +273,8 @@ impl Session {
         let Some(session) = self.terminals.sessions.get(id) else {
             return;
         };
-        let label = format!(
-            " *terminal-{}*  {:?}  C-g: editor",
-            id.number(),
-            session.state()
-        );
+        let name = self.terminal_buffer().map_or("Terminal", |b| b.name());
+        let label = format!(" {name}  {:?}  C-g: editor", session.state());
         frame.terminal(session, panel, &label);
     }
 }
