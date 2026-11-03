@@ -57,6 +57,9 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if let Some(action) = self.cancel_shell_input() {
+            return Some(action);
+        }
         if let Some(action) = self.cancel_ai_input() {
             return Some(action);
         }
@@ -145,6 +148,7 @@ impl Session {
             return self.complete_org_argument();
         }
         match self.pending {
+            Some(Pending::Shell(_)) => self.message("Enter a shell command; C-g cancels"),
             Some(Pending::Ai(_)) => {
                 self.message("Enter a literal instruction for the captured AI target; C-g cancels")
             }

@@ -1,8 +1,6 @@
 use super::*;
-use crate::org::{
-    io::process::Outcome,
-    links::{External, Selection, Viewer},
-};
+use crate::org::links::{External, Selection, Viewer};
+use crate::process::Outcome;
 pub(in crate::session) struct Prompt {
     request: Request,
     target: Follow,

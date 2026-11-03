@@ -1,7 +1,7 @@
 use super::*;
 use crate::{
     config,
-    org::io::process::{Outcome, Program},
+    process::{Outcome, Program},
 };
 use std::path::Path;
 #[derive(Clone)]

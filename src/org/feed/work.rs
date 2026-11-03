@@ -5,8 +5,9 @@ use crate::{
     config::{FeedSource, Org, Snapshot},
     org::{
         execution::scratch::Scratch,
-        io::{CaptureRead, DestinationSource, process::Program},
+        io::{CaptureRead, DestinationSource},
     },
+    process::Program,
 };
 use std::{
     path::{Path, PathBuf},

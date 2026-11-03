@@ -15,6 +15,7 @@ impl Session {
         }
         self.end_timer_session();
         self.installation.cancel();
+        self.shell.stop();
         Action::Exit
     }
     fn bookmark_quit_prompt(&mut self, notice: &str) -> Action {
@@ -34,6 +35,7 @@ impl Session {
             "discard" => {
                 self.end_timer_session();
                 self.installation.cancel();
+                self.shell.stop();
                 Action::Exit
             }
             "cancel" => self.message("Quit canceled; unsaved bookmarks retained"),

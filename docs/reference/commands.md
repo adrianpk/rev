@@ -79,6 +79,7 @@ compiled M-x name once.
 | Native completion | `completion-at-point`, `completion-next`, `completion-previous`, `completion-accept`, `completion-cancel`, `completion-mode`, `completion-auto-mode` |
 | Command and session | `execute-extended-command`, `keyboard-quit`, `save-buffers-kill-terminal` |
 | Files | `find-file`, `save-buffer`, `write-file`, `revert-buffer` |
+| Shell | `shell-command`, `shell-command-cancel`, `shell-command-output` |
 | AI | `ai-explain`, `ai-prompt`, `ai-implement`, `ai-apply-result`, `ai-discard-result`, `ai-set-directory`, `ai-select-model`, `ai-reset-session`, `ai-disconnect`, `ai-cancel`, `ai-save-command` |
 | Buffers | `switch-to-buffer`, `list-buffers`, `kill-buffer` |
 | Windows | `split-window-below`, `split-window-right`, `other-window`, `delete-window`, `delete-other-windows`, `windmove-left`, `windmove-down`, `windmove-up`, `windmove-right`, `balance-windows` |
@@ -618,3 +619,25 @@ no model-supplied path, command or extra result field is accepted.
 The original generated payload is retained separately from the display. Org
 comma escaping, display line endings, titles, blocks and request metadata are
 never recovered by stripping markup and never enter accepted source text.
+
+## One-shot shell commands
+
+Run `M-x shell-command` or `:shell-command`, then accept a literal command such
+as `printf 'hello\n'`. The selected shell receives the accepted command as one
+argument after `shell.args`, with stdin immediately closed and no source text.
+Its directory is captured before the prompt: the visiting file's parent, the
+explicitly opened directory for unnamed buffers, or the editor launch directory.
+The shell inherits the editor environment. No source file is saved automatically.
+
+One invocation runs at a time, within `shell.timeout_seconds` and the aggregate
+`shell.max_output_bytes` limit. Editing remains available. Use
+`shell-command-cancel` or C-g in its originating editing context to cancel it;
+a prompt consumes its own cancellation first. Shutdown cleans up the owned
+process group after normal quit decisions succeed.
+
+Completion retains exact valid UTF-8 stdout in a read-only plain-text buffer.
+`shell-command-output` visits the last retained result without automatic focus
+changes. Nonzero exit also retains stderr/status in `*Shell Diagnostics*`.
+Timeout, cancellation, invalid UTF-8, NUL and output overflow report diagnostics
+without exposing partial output as a successful result. Closed or changed output
+identities are unavailable; they are never recreated or overwritten by name.

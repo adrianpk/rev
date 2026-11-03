@@ -2,7 +2,7 @@
 //! Configured programs retain host authority; this adapter is not a sandbox.
 mod scratch;
 use super::{output::Prepared, *};
-use crate::{config, org::io::process::Program};
+use crate::{config, process::Program};
 use std::path::{Path, PathBuf};
 pub(crate) struct Compiler {
     argv: Vec<String>,

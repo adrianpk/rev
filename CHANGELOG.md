@@ -7,6 +7,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+### Added
+
+- Run explicit one-shot shell commands from M-x or colon, keep editing while
+  they execute, cancel their owned processes, and inspect bounded output and
+  diagnostics in read-only text buffers.
+
 ## 0.4.0 - 2026-11-03
 
 ### Added

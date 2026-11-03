@@ -93,7 +93,7 @@ impl Process {
     fn quiet(&self, deadline: Instant) -> Result<bool, String> {
         while Instant::now() < deadline {
             if self.exited()?
-                && !crate::org::io::process::group::running(
+                && !crate::process::group::running(
                     self.pid.as_raw_nonzero().get() as u32,
                     deadline,
                 )?

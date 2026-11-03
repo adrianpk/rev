@@ -10,6 +10,7 @@ mod buffers;
 mod capture;
 mod completion;
 mod lsp;
+mod shell;
 pub use crate::completion::{
     Candidate, Completion, CompletionFallback, CompletionSource, Kind as CompletionKind,
 };
@@ -105,6 +106,7 @@ pub struct Session {
     observation: observation::Work,
     reload: reload::Work,
     ai: ai::Work,
+    shell: shell::Work,
     lsp: crate::lsp::Client,
     installation: crate::lsp::install::Manager,
     installation_notice: String,
@@ -195,6 +197,7 @@ enum AfterSave {
 }
 
 enum Pending {
+    Shell(shell::Request),
     Ai(Box<ai::Request>),
     AiDirectory,
     AiSave(Box<ai::save::Prompt>),
@@ -273,6 +276,7 @@ impl Session {
         let result = self.drive_terminal(terminal);
         self.observation.wake.arm(false);
         self.ai.stop();
+        self.shell.stop();
         self.end_timer_session();
         self.lsp.set_enabled(false);
         result
@@ -332,6 +336,9 @@ impl Session {
         Ok(Self {
             observation: observation::Work::default(),
             reload: reload::Work::default(),
+            shell: shell::Work::new(
+                std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
+            ),
             ai: ai::Work::new(
                 std::env::current_dir().map_err(|e| view::Error::WorkingDirectory(e.kind()))?,
             ),
@@ -886,6 +893,9 @@ impl Session {
             Command::AiResetSession => self.ai_reset_session(),
             Command::AiDisconnect => self.ai_disconnect(),
             Command::AiCancel => self.ai_cancel_command(),
+            Command::ShellCommand => self.shell_command(),
+            Command::ShellCommandCancel => self.shell_cancel(),
+            Command::ShellCommandOutput => self.shell_output(),
             Command::WriteFile => self.write_file(),
             Command::Buffer(command) => self.buffer_command(command),
             Command::Motion(motion) => self.motion(motion),

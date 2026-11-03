@@ -81,6 +81,9 @@ pub enum Command {
     AiDisconnect,
     AiCancel,
     AiSaveCommand,
+    ShellCommand,
+    ShellCommandCancel,
+    ShellCommandOutput,
     WriteFile,
     KeyboardQuit,
     Newline,
@@ -100,7 +103,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 431] = [
+    pub const ALL: [Self; 434] = [
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
@@ -501,6 +504,9 @@ impl Command {
         Self::AiDisconnect,
         Self::AiCancel,
         Self::AiSaveCommand,
+        Self::ShellCommand,
+        Self::ShellCommandCancel,
+        Self::ShellCommandOutput,
         Self::WriteFile,
         Self::KeyboardQuit,
         Self::Newline,
@@ -592,6 +598,9 @@ impl Command {
             Self::AiDisconnect => "ai-disconnect",
             Self::AiCancel => "ai-cancel",
             Self::AiSaveCommand => "ai-save-command",
+            Self::ShellCommand => "shell-command",
+            Self::ShellCommandCancel => "shell-command-cancel",
+            Self::ShellCommandOutput => "shell-command-output",
             Self::WriteFile => "write-file",
             Self::KeyboardQuit => "keyboard-quit",
             _ => self.search_name(),

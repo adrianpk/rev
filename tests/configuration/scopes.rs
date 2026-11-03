@@ -84,7 +84,7 @@ fn rejected_scopes() {
         ),
         (
             "unknown command",
-            "[keys.tree]\n'RET' = 'shell-command'",
+            "[keys.tree]\n'RET' = 'unknown-shell-command'",
             vec!["keys", "tree", "RET"],
         ),
         (

@@ -1,8 +1,9 @@
 //! One owned Unix process group with bounded nonblocking output and cleanup.
 //! This is lifetime ownership for explicitly selected tools, not a sandbox.
+mod cancellation;
 pub(crate) mod group;
 mod streams;
-use crate::org::Cancellation;
+pub use cancellation::Cancellation;
 use std::{
     os::unix::process::CommandExt,
     path::PathBuf,
