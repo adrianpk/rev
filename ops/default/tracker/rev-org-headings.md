@@ -54,7 +54,7 @@ is delivered; Acta records controller-owned integration.
 
 ## Slice 2: Independent view controls
 
-State: preparing canonical PR.
+State: reviewing; canonical PR #239 is open against dev.
 Requirements: OGP02-OGP04, OGP06, OGP08.
 Dependency: Slice 1 integrated.
 Branch: `feat/rev-org-headings-02-view-controls`
@@ -69,10 +69,13 @@ Report: `ops/default/report/slices/rev-org-headings/slice-2-view-controls.md`
   AI acceptance, cancellation and independent view choices.
 Task commits: T2.1 `85464c398fdf7916b766e9c1cff2ecdf299b3252`;
 T2.2 `59f02ca119e7e94a38f61b84e7feaffed77fe1bb`.
-T2.3 is introduced with the native source-copy/result tests and Slice 2 report.
+T2.3 `4a4b3f623077f961c243c99957b57c9ea041ae86`.
 Development checks passed: 16 heading, 11 visibility and 5 native result tests.
 
-- [ ] Record successful exact-HEAD validation, immutable report and canonical PR.
+Canonical PR: [#239](https://forge.adrianpk.com/adrianpk/rev/pulls/239).
+Report introduction: `4a4b3f623077f961c243c99957b57c9ea041ae86`.
+Final validation: the controller receipt for the clean canonical PR head owns
+the six ordered Slice 2 command outcomes after this PR-reference commit.
 
 ## Slice 3: Joint acceptance and guidance
 
