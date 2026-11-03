@@ -203,6 +203,7 @@ fn models(root: &Path) -> Result<Models> {
     let mut models = BTreeMap::new();
     for name in [
         "src/config.rs",
+        "src/config/headings.rs",
         "src/config/palette.rs",
         "src/config/bookmarks.rs",
         "src/config/completion.rs",

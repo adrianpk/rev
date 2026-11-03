@@ -101,6 +101,7 @@ fn editing(document: &Document) -> Result<(), Failure> {
     for (key, value, range) in fields {
         integer(key, value, range)?;
     }
+    super::headings::validate(&document.org.headings)?;
     properties(&document.org.properties)?;
     todo(document)?;
     time(document)?;

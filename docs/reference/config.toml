@@ -168,6 +168,13 @@ directories_first = true
 # Native Org availability; M-x org-mode selects it explicitly per buffer.
 enabled = true
 
+[org.headings]
+# Source stars stay intact. Each marker occupies one terminal cell.
+pretty = true
+bullets = ["◉", "○", "✸", "✿", "◆", "▶"]
+hide_leading_stars = true
+cycle_bullets = true
+
 [org.timer]
 # Minutes or H:MM:SS; zero stays unarmed until explicit positive entry.
 default = "0"

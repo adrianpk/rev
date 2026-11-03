@@ -24,14 +24,14 @@ Execution owner: Looper; checkpoint, canonical PR checks and exact-candidate gat
 
 ## Slice 1: Configured native markers
 
-State: ready.
+State: implementing.
 Requirements: OGP01-OGP05, OGP07; native observation/projection part of OGP08.
 Dependency: approved preparation on clean dev.
 Branch: `feat/rev-org-headings-01-presentation`
 Expected PR title: `feat(org): display configurable native heading markers`
 Report: `ops/default/report/slices/rev-org-headings/slice-1-presentation.md`
 
-- [ ] T1.1: Deliver the four complete bounded startup preferences, samples,
+- [x] T1.1: Deliver the four complete bounded startup preferences, samples,
   template, provenance and configuration references.
 - [ ] T1.2: Render current native heading prefixes with configured markers and
   unchanged source/cell/wrap geometry; preserve literal/partial source.

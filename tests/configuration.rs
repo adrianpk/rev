@@ -5,6 +5,8 @@ mod ai;
 mod ai_commands;
 #[path = "configuration/org_export.rs"]
 mod org_export;
+#[path = "configuration/org_headings.rs"]
+mod org_headings;
 
 #[path = "configuration/associations.rs"]
 mod associations;

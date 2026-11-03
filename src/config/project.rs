@@ -26,6 +26,7 @@ pub(super) fn settings(document: &Document) -> Settings {
     settings.lsp = document.lsp.project();
     settings.ai = document.ai.project();
     scalar(&mut settings.org.enabled, document.org.enabled);
+    headings(&mut settings.org.headings, &document.org.headings);
     scalar(&mut settings.org.tags.inherit, document.org.tags.inherit);
     if let Some(names) = &document.org.properties.inherit {
         settings.org.properties.inherit.clone_from(names);
@@ -450,4 +451,13 @@ fn completion(base: &mut super::Completion, partial: &super::PartialCompletion) 
     scalar(&mut base.in_strings, partial.in_strings);
     count(&mut base.max_candidates, partial.max_candidates);
     count(&mut base.popup_rows, partial.popup_rows);
+}
+
+fn headings(base: &mut super::Headings, partial: &super::PartialHeadings) {
+    scalar(&mut base.pretty, partial.pretty);
+    scalar(&mut base.hide_leading_stars, partial.hide_leading_stars);
+    scalar(&mut base.cycle_bullets, partial.cycle_bullets);
+    if let Some(bullets) = &partial.bullets {
+        base.bullets.clone_from(bullets);
+    }
 }

@@ -22,6 +22,8 @@ pub use source::{
 };
 mod ai;
 pub use ai::{Ai, AiCommand, AiContext, AiInput, AiOutput, PartialAi, PartialPi, Pi};
+mod headings;
+pub use headings::{Headings, PartialHeadings};
 mod agenda;
 pub use agenda::{AgendaBlock, AgendaKind, AgendaSort, AgendaView};
 mod associations;
@@ -156,6 +158,7 @@ pub enum Newline {
 /// Native Org availability; individual buffers retain explicit mode choices.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Org {
+    pub headings: Headings,
     pub enabled: bool,
     pub properties: Properties,
     pub tags: Tags,
@@ -184,6 +187,7 @@ pub struct Org {
 impl Default for Org {
     fn default() -> Self {
         Self {
+            headings: Headings::default(),
             enabled: true,
             properties: Properties::default(),
             tags: Tags::default(),
@@ -214,6 +218,7 @@ impl Default for Org {
 #[derive(Clone, Debug, Default, PartialEq, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PartialOrg {
+    pub headings: PartialHeadings,
     pub enabled: Option<bool>,
     pub properties: PartialProperties,
     pub tags: PartialTags,

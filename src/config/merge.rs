@@ -35,6 +35,7 @@ impl Document {
         merge.completion(&mut self.completion, &later.completion);
         merge.lsp(&mut self.lsp, &later.lsp);
         merge.ai(&mut self.ai, &later.ai);
+        merge.headings(&mut self.org.headings, &later.org.headings);
         merge.leaf(
             &["org", "enabled"],
             &mut self.org.enabled,
@@ -1061,6 +1062,31 @@ impl Merge {
             &["completion", "popup_rows"],
             &mut base.popup_rows,
             &later.popup_rows,
+        );
+    }
+}
+
+impl Merge {
+    fn headings(&mut self, base: &mut super::PartialHeadings, later: &super::PartialHeadings) {
+        self.leaf(
+            &["org", "headings", "pretty"],
+            &mut base.pretty,
+            &later.pretty,
+        );
+        self.leaf(
+            &["org", "headings", "bullets"],
+            &mut base.bullets,
+            &later.bullets,
+        );
+        self.leaf(
+            &["org", "headings", "hide_leading_stars"],
+            &mut base.hide_leading_stars,
+            &later.hide_leading_stars,
+        );
+        self.leaf(
+            &["org", "headings", "cycle_bullets"],
+            &mut base.cycle_bullets,
+            &later.cycle_bullets,
         );
     }
 }

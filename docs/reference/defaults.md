@@ -145,6 +145,22 @@ read once at startup. Global values apply throughout that session; the four
 floats have distinct types; use `0.5`, not `0`, for a float share. Widths describe
 terminal display columns/cells, never bytes or Unicode scalar positions.
 
+### Org heading presentation
+
+| Key | Type and bounds | Default | Scope and effect |
+| --- | --- | --- | --- |
+| `org.headings.pretty` | Boolean | `true` | Decorate current native Org heading prefixes; false retains readable source stars. |
+| `org.headings.bullets` | Array of marker strings | `["◉", "○", "✸", "✿", "◆", "▶"]` | Whole-array replacement; 1..32 entries, at most 32 UTF-8 bytes each and 1024 total. Each entry is one printable non-whitespace grapheme of terminal width one. Duplicates are valid. |
+| `org.headings.hide_leading_stars` | Boolean | `true` | Blank the first N-1 star cells in a pretty level-N heading; false retains those stars. |
+| `org.headings.cycle_bullets` | Boolean | `true` | Cycle markers for deeper levels; false repeats the final configured marker. |
+
+These startup settings preserve the original prefix width, separator, title,
+wrapping and source positions. Literal or unverified prefixes remain source.
+Heading recognition remains active with syntax coloring disabled, but respects
+`org.enabled`. The terminal owns font coverage and shaping; use `pretty = false`
+or simpler one-cell markers when a symbol is unavailable. rev installs no fonts
+and does not rewrite programming operators to imitate ligatures.
+
 ### Source metadata and maps
 
 | Key | Type and bounds | Default | Scope and effect |

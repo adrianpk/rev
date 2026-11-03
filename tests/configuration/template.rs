@@ -40,6 +40,7 @@ fn explicit_defaults() {
     assert_eq!(raw["gutter"].as_table().unwrap().len(), 7);
     assert_eq!(raw["mouse"].as_table().unwrap().len(), 3);
     assert_eq!(raw["mouse"]["tree_activate_on_click"].as_bool(), Some(true));
+    assert_eq!(raw["org"]["headings"].as_table().unwrap().len(), 4);
     let document = parse(Path::new("packaged/config.toml"), text.as_bytes()).unwrap();
     assert_eq!(document.include, Some(Vec::new()));
     assert!(document.language.is_empty());
