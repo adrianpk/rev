@@ -142,16 +142,16 @@ Report introduction and T4.3 coverage: `4a4fb82f913f1e2a0bf376ffc3932324c34f920c
 
 ### Slice 5: Guarded directory context
 
-State: ready.
-Ticket: [Guarded directory context](../ticket/ready/20261102211110-delegate-guarded-project-discovery.md)
+State: in_progress.
+Ticket: [Guarded directory context](../ticket/in_progress/20261102211110-delegate-guarded-project-discovery.md)
 Requirements: PI02-PI05, PI07; AI06, AI09, AI11-AI13, AI17, AI20.
 Dependencies: Slice 4 integrated.
 Branch: `feat/rev-ai-pi-05-discovery`
 PR: pending.
 Report: `ops/default/report/slices/rev-ai-pi/slice-5-discovery.md`
 
-- [ ] T5.1: Package a small internal Pi JavaScript resource with rev and load it explicitly through the admitted Pi extension interface; expose only bounded read/list/search operations without a shell or user plugin installation.
-- [ ] T5.2: Enforce canonical-root and opened-handle path checks, per-operation budgets and fresh unsaved-source precedence while Pi retains all relevance selection and model/context iteration.
+- [x] T5.1: Package a small internal Pi JavaScript resource with rev and load it explicitly through the admitted Pi extension interface; expose only bounded read/list/search operations without a shell or user plugin installation.
+- [x] T5.2: Enforce canonical-root and opened-handle path checks, per-operation budgets and fresh unsaved-source precedence while Pi retains all relevance selection and model/context iteration.
 - [ ] T5.3: Validate traversal, symlink/root replacement races, missing/binary/large sources, disabled external resources and actual Pi tool admission; native API transport/discovery remains deferred.
 
 Validation and actual commit/PR evidence: pending. Use the plan and configured

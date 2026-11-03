@@ -1,9 +1,12 @@
 //! One lazy, owned Pi 1.3.0 RPC operation. Input-only grants always use a new
 //! child with no tools or persisted session. All process IO is off the UI thread.
 
+mod directory;
 mod frame;
+pub(crate) use directory::{private_roots, source_path};
 mod io;
 mod protocol;
+mod resource;
 
 use std::path::PathBuf;
 use std::process::Command;
@@ -36,6 +39,7 @@ impl Control {
 pub struct Output {
     pub text: String,
     pub model: String,
+    pub directory: bool,
 }
 
 /// Owns the only supervisor slot until all child IO/shutdown has completed.
@@ -50,10 +54,47 @@ impl Operation {
     /// Start an explicit bounded input-only invocation; no shell interpolation,
     /// filesystem discovery or previous Pi conversation is admitted.
     pub fn start(policy: Pi, root: PathBuf, message: String, epoch: u64) -> Result<Self, String> {
+        Self::launch(policy, root, message, epoch, false)
+    }
+
+    /// Start fresh directory discovery using only the embedded read/list/search
+    /// resource. Native snapshots are structured data in the bounded envelope.
+    pub fn directory(
+        policy: Pi,
+        root: PathBuf,
+        message: String,
+        epoch: u64,
+    ) -> Result<Self, String> {
+        Self::launch(policy, root, message, epoch, true)
+    }
+
+    fn launch(
+        policy: Pi,
+        root: PathBuf,
+        message: String,
+        epoch: u64,
+        directory: bool,
+    ) -> Result<Self, String> {
         if message.len() > policy.max_input_bytes {
             return Err("Pi editor envelope exceeds max_input_bytes".into());
         }
         frame::encode(&json!({"id":format!("{epoch}:prompt"),"type":"prompt","message":&message}))?;
+        // Retain the admitted inode across thread scheduling, version probing
+        // and extension startup; replacing its name cannot recycle its identity.
+        let root_handle = if directory {
+            let handle = rustix::fs::open(
+                &root,
+                rustix::fs::OFlags::RDONLY
+                    | rustix::fs::OFlags::DIRECTORY
+                    | rustix::fs::OFlags::NOFOLLOW
+                    | rustix::fs::OFlags::CLOEXEC,
+                rustix::fs::Mode::empty(),
+            )
+            .map_err(|_| "Pi directory root could not be pinned")?;
+            Some(std::fs::File::from(handle))
+        } else {
+            None
+        };
         let control = Arc::new(Control::default());
         let worker = control.clone();
         let deadline = Instant::now() + Duration::from_millis(policy.request_timeout_ms as u64);
@@ -66,7 +107,16 @@ impl Operation {
                 if !root.is_dir() {
                     return Err("Pi working directory is not a directory".into());
                 }
+                use std::os::unix::fs::MetadataExt;
+                let root_observation = std::fs::metadata(&root).map_err(|_| "Pi root observation failed")?;
+                if let Some(handle) = &root_handle {
+                    let held = handle.metadata().map_err(|_| "Pi root handle failed")?;
+                    if held.dev() != root_observation.dev() || held.ino() != root_observation.ino() {
+                        return Err("Pi directory root changed before launch".into());
+                    }
+                }
                 probe(&policy, &root, &worker, deadline)?;
+                let resource = if directory { Some(resource::Resource::new()?) } else { None };
                 if worker.canceled() {
                     return Err("Pi invocation canceled".into());
                 }
@@ -77,7 +127,6 @@ impl Operation {
                     "--mode",
                     "rpc",
                     "--no-session",
-                    "--no-tools",
                     "--no-extensions",
                     "--no-mcp",
                     "--no-skills",
@@ -87,6 +136,12 @@ impl Operation {
                     "--no-approve",
                     "--offline",
                 ]);
+                if let Some(resource) = &resource {
+                    resource.check().map_err(|_| "Pi internal resource changed")?;
+                    command.args(["--tools", "rev_read,rev_list,rev_search", "--extension"]).arg(&resource.path);
+                } else {
+                    command.arg("--no-tools");
+                }
                 if let Some(model) = &policy.model {
                     command.arg("--model").arg(model);
                 }
@@ -101,8 +156,15 @@ impl Operation {
                     worker.clone(),
                 );
                 pipes.drive(&mut child, |inbox, input, _child| {
-                    let result =
-                        protocol::run(inbox, input, &worker, &policy, &message, epoch, deadline);
+                    let private_roots = if directory { directory::private_roots()? } else { Vec::new() };
+                    let admission = directory.then(|| json!({
+                        "version":1, "nonce":epoch, "root":root,
+                        "dev":root_observation.dev().to_string(), "ino":root_observation.ino().to_string(),
+                        "timeout_ms":deadline.saturating_duration_since(Instant::now()).as_millis().min(1_800_000) as u64,
+                        "max_input_bytes":policy.max_input_bytes,
+                        "private_roots":private_roots
+                    }));
+                    let result = protocol::run(inbox, input, &worker, &policy, &message, epoch, deadline, admission.as_ref());
                     if result.is_err() {
                         protocol::cancel(inbox, input, epoch);
                     }

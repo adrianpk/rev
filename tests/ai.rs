@@ -1,4 +1,6 @@
 #![forbid(unsafe_code)]
+#[path = "ai/discovery.rs"]
+mod discovery;
 #[path = "configuration/fixture.rs"]
 mod fixture;
 #[path = "ai/results.rs"]
@@ -99,7 +101,7 @@ fn named_explanation() {
         assert!(s.buffer().unwrap().is_transient());
         assert!(s.buffer().unwrap().file().is_none());
         assert_eq!(s.buffer().unwrap().history().len(), 0);
-        assert!(text(&s).contains("Context: input only"));
+        assert!(text(&s).contains("Context: guarded directory"));
         assert!(text(&s).contains("A selection explanation."));
         let result = text(&s);
         s.insert('x');
@@ -113,7 +115,8 @@ fn named_explanation() {
             serde_json::from_str(&fs::read_to_string(f.0.join("args")).unwrap()).unwrap();
         for flag in [
             "--no-session",
-            "--no-tools",
+            "--tools",
+            "--extension",
             "--no-extensions",
             "--no-mcp",
             "--no-skills",

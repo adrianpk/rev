@@ -1,7 +1,7 @@
 ---
 id: TKT-20261102211110
 title: Guarded directory context
-status: ready
+status: in_progress
 kind: task
 severity: unclassified
 priority: normal
@@ -10,6 +10,8 @@ tags: ai, pi, files
 source: chat
 reported_at: 2026-11-02T21:11:10Z
 ready_at: 2026-11-02T21:11:10Z
+started_at: 2026-11-02T23:42:32Z
+branch: feat/rev-ai-pi-05-discovery
 commits: []
 ---
 

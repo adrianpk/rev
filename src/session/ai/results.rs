@@ -29,8 +29,13 @@ impl Session {
             .err()
             .unwrap_or_default();
         let mut text = format!(
-            "Pi {}\nContext: input only; directory discovery disabled; fresh ephemeral history.\nModel: {}\nSource: buffer {} revision {}, scalars {}..{} (captured snapshot).\n{}\n{}\n\n",
+            "Pi {}\nContext: {}; fresh ephemeral history.\nModel: {}\nSource: buffer {} revision {}, scalars {}..{} (captured snapshot).\n{}\n{}\n\n",
             target.output.name(),
+            if output.directory {
+                "guarded directory read/list/search; captured native snapshots override disk"
+            } else {
+                "input only; directory discovery disabled"
+            },
             output.model,
             target.source.stamp.buffer,
             target.source.stamp.revision,
@@ -238,6 +243,7 @@ mod tests {
             pi::Output {
                 text: "generated".into(),
                 model: "controlled".into(),
+                directory: true,
             },
         );
         (session, id)

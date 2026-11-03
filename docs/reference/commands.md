@@ -388,10 +388,13 @@ This optional command starts a checked Pi 1.3.0 child only when invoked. Set
 `ai.pi.model`; authenticate through Pi before retrying an authentication failure.
 The executable is trusted and receives literal adapter arguments without a shell.
 
-The current command sends the captured selection and its native source metadata.
-Its context is **input only**: no directory discovery, earlier conversation,
-source tools, extensions, MCP, skills, prompt templates or discovered context
-files. Every invocation starts fresh with `--no-session` and closes its child
+The command sends the captured selection and its native source metadata. Its
+**directory context** starts at the explicitly opened tree root, otherwise the
+visiting file's parent, otherwise the editor's launch directory. It never climbs
+to an inferred repository root. Pi chooses which sources to inspect through the
+internal read, list and literal-search tools; shell, edit/write tools, automatic
+extensions, MCP, skills, templates and discovered instruction files are disabled.
+Every invocation currently starts fresh with `--no-session` and closes its child
 when finished. Directory persistence/idle settings do not retain these children.
 Ordinary editing starts no Pi process or AI state files.
 
@@ -410,6 +413,40 @@ limits also apply. Cancellation sends clear_queue then abort, allows at most fiv
 seconds for acknowledgements/settlement, then closes stdin with a two-second stop
 grace and a two-second forced-reap deadline. No native API fallback is selected.
 
+## Guarded Pi directory reads
+
+The packaged internal resource is extracted to a checked private cache only for
+an invoked directory operation. It requires Linux descriptor paths and Pi 1.3.0;
+no separate JavaScript installation or user plugin setup is needed. Admission
+checks the effective three-tool allowlist before starting model work.
+
+Tool paths are relative to a canonical root. Every component is opened without
+following symbolic links, and root identity plus opened file/directory handles
+are checked around IO. Hard links, special files, invalid UTF-8, NUL-containing
+files and regular files over 1 MiB are rejected. Root replacement retires the
+grant. Missing sources report unavailability; an admitted native snapshot can
+still represent an unsaved file whose disk entry disappeared.
+
+Discovery excludes `.git`, `.pi`, common credential paths such as `.env`, SSH
+keys and credential/key files, and resolved editor/Pi private directories. These
+path exclusions do not classify arbitrary source contents as safe to transmit.
+Select a root whose ordinary source files may be sent to the chosen Pi model.
+The configured executable and packaged adapter are trusted process code; cwd is
+not an operating-system sandbox.
+
+Read ranges use Unicode scalar offsets, at most 32768 scalars per call. Listing
+supports an optional literal path substring and bounded recursion. Search is
+case-sensitive literal text, includes native snapshots and labels disk matches
+as disk observations. Results report completeness, skipped entries and source
+provenance. Each traversal visits at most 4096 entries and 16 nested directory
+levels. Search inspects at most 128 files/4 MiB and returns bounded excerpts.
+
+One invocation admits at most 32 tool calls, eight model turns and 4 MiB of
+returned discovery text. Before source IO, a tool reserves 256 KiB of remaining
+return capacity; an insufficient remainder ends discovery conservatively.
+Compaction never resets these counters or the native request deadline. Discovery
+returns data only and cannot expand the original native editing target.
+
 ## Generated text through Pi
 
 Run `M-x ai-prompt` or `:ai-prompt` for a literal instruction. A nonempty linear
@@ -419,9 +456,13 @@ selection is active. The instruction prompt names the source and chosen scalar
 range before execution. Missing required explain selections and rectangular
 replacement inputs fail without broadening the target.
 
-The current context is input only. Replacement includes its captured selection;
-point insertion supplies the instruction and native point metadata, without a
-whole-buffer or directory dump. The instruction accepts at most 16384 UTF-8
+Replacement includes its captured selection; point insertion supplies the
+instruction and native point metadata. Directory reads use complete snapshots
+of the current visiting source and up to 16 admitted current/dirty visiting
+buffers, captured when the instruction is submitted and counted against
+`max_input_bytes`. These snapshots override disk for their paths. Another
+invocation refreshes them; later source edits still invalidate result acceptance.
+No whole-directory dump is sent. The instruction accepts at most 16384 UTF-8
 bytes, also subject to native prompt and total AI input limits. No reusable
 command is saved by executing an instruction. Read-only editing targets reject
 before launch; a reload or association change during instruction input requires

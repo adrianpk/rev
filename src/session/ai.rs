@@ -1,4 +1,5 @@
 mod capture;
+mod context;
 mod results;
 
 use std::path::PathBuf;
@@ -68,8 +69,9 @@ impl Session {
         if !operation.finished() {
             if operation.accepted() && !operation.is_canceled() && !self.ai.accepted {
                 self.ai.accepted = true;
-                return self
-                    .message("Pi accepted; awaiting settled result (input only); C-g cancels");
+                return self.message(
+                    "Pi accepted; awaiting settled result (guarded directory reads); C-g cancels",
+                );
             }
             return Action::Wait;
         }

@@ -7,12 +7,19 @@ mode = (root / 'mode').read_text()
 if '--version' in sys.argv:
     (root / 'version-pid').write_text(str(os.getpid()))
     if mode == 'version_hang': time.sleep(20)
+    if mode == 'version_gate':
+        while not (root/'release-version').exists(): time.sleep(.005)
     print('9.0.0' if mode == 'version' else '1.3.0', flush=True)
     sys.exit(0)
 (root / 'pid').write_text(str(os.getpid()))
 (root / 'args').write_text(json.dumps(sys.argv[1:]))
 (root / 'cwd').write_text(os.getcwd())
 (root / 'rpc-started').touch()
+if '--extension' in sys.argv:
+    resource = Path(sys.argv[sys.argv.index('--extension')+1])
+    assert resource.stat().st_size <= 65536
+    (root/'resource-copy').write_bytes(resource.read_bytes())
+    (root/'resource-mode').write_text(json.dumps(dict(file=resource.stat().st_mode & 0o777, parent=resource.parent.stat().st_mode & 0o777, link=resource.is_symlink())))
 def emit(v):
     sys.stdout.write(json.dumps(v, ensure_ascii=False) + '\n')
     sys.stdout.flush()
@@ -30,6 +37,18 @@ for line in sys.stdin:
     if kind == 'get_state':
         response(r, dict(isStreaming=False, isCompacting=False, messageCount=1 if mode=='history' else 0, pendingMessageCount=0,model=dict(provider='fixture',id='controlled')))
         if mode == 'stdin_stall': time.sleep(20)
+    elif kind == 'prompt' and r['message'].startswith('/rev-discovery '):
+        grant = json.loads(r['message'].split(' ',1)[1])
+        (root/'grant').write_text(json.dumps(grant))
+        tools = ['rev_read','rev_list','rev_search']
+        if mode == 'admit_extra': tools.append('bash')
+        if mode == 'admit_missing': tools.pop()
+        observed = Path(grant['root']).stat()
+        same_root = str(observed.st_dev) == grant['dev'] and str(observed.st_ino) == grant['ino']
+        notice = dict(type='extension_ui_request',id='admit-notice',method='notify',message=json.dumps(dict(type='rev-discovery-v1',nonce=grant['nonce'],tools=tools,admitted=mode!='admit_rejected' and same_root)))
+        if mode == 'admit_partial': response(r,dict(disposition='handled'));continue
+        emit(notice)
+        response(r,dict(disposition='handled'))
     elif kind == 'prompt':
         (root/'prompt').write_text(r['message'])
         if mode == 'rejected':
@@ -42,6 +61,19 @@ for line in sys.stdin:
         if mode == 'empty_settled': settle();continue
         if mode == 'truncated':
             emit(dict(type='message_end',message=dict(role='assistant',stopReason='length',content=[])));settle();continue
+        if mode.startswith('directory_'):
+            emit(dict(type='turn_start'))
+            emit(dict(type='message_end',message=dict(role='assistant',stopReason='toolUse',content=[dict(type='toolCall',id='read-0',name='rev_read',arguments=dict(path='source.txt'))])))
+            count = 33 if mode == 'directory_calls' else 5 if mode == 'directory_bytes' else 2 if mode == 'directory_repeated' else 1
+            for n in range(count):
+                tool = 'bash' if mode == 'directory_extra' else 'rev_read'
+                identity = 'read-0' if mode == 'directory_repeated' else 'read-'+str(n)
+                emit(dict(type='tool_execution_start',toolName=tool,toolCallId=identity))
+                if mode == 'directory_unfinished': continue
+                if mode == 'directory_update': emit(dict(type='tool_execution_update',toolName=tool,toolCallId=identity,partialResult={}))
+                content = [dict(type='image',data='x')] if mode == 'directory_content' else [dict(type='text',text='x'*(1000000 if mode == 'directory_bytes' else 10))]
+                emit(dict(type='tool_execution_end',toolName=tool,toolCallId='other' if mode == 'directory_unmatched' else identity,result=dict(content=content,details=dict(fatal=mode=='directory_fatal')),isError=False))
+            emit(dict(type='turn_start'))
         if mode == 'stderr':
             sys.stderr.write('diagnostic-only\n' * 30000);sys.stderr.flush()
         if mode == 'malformed':

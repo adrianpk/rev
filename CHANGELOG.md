@@ -12,8 +12,10 @@ This project uses Semantic Versioning.
   `ai-explain`, `ai-prompt` and `ai-implement` through M-x or modal colon.
   Continue editing while it runs and inspect read-only results. Explicitly
   apply a proposal once to its original checked selection or point, undo it
-  normally, or discard it without changing source. Each invocation uses fresh
-  input-only context with discovery and tools disabled.
+  normally, or discard it without changing source. Let Pi inspect the chosen
+  directory through bounded read, list and literal-search tools, with current
+  editor snapshots taking precedence over disk. Source writes and shell tools
+  stay disabled; each invocation currently starts with fresh history.
 
 - Reload a visiting file with `M-x revert-buffer` or `:revert-buffer`. Confirm
   before discarding unsaved text, retain prior undo history and shared-pane
