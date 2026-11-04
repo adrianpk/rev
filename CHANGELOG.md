@@ -23,6 +23,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   links with Control-click through your configured viewer. Enter retained-output
   copy mode with C-c C-t to navigate, select, search and copy while the child
   keeps running; Return resumes live input without sending a child command.
+  Paste retained text with C-y and rotate an unsent paste with M-y under checked
+  queue ownership. Explicit paste respects child bracketed-paste mode. Use named
+  commands to clear scrollback, align copy point or send protected VT keys.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

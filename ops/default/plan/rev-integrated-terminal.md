@@ -193,6 +193,14 @@ Requirements: TRM06-TRM07, TRM11.
 - T5.2: Implement native terminal yank/yank-pop with checked replaceability and bracketed paste, separate clear-screen/clear-scrollback operations, line/cursor navigation and explicit send/undo operations.
 - T5.3: Complete prompt/error/link navigation using actual admitted evidence such as OSC 133 and recognized locations; report unavailable evidence honestly. Complete the finite terminal-send-* command inventory without placeholders.
 
+The admitted paste replacement policy owns only the exact preceding paste still
+wholly queued in rev. Any successful write, later accepted input, protocol reply,
+unrelated command or changed retained-text generation revokes replacement.
+This policy does not infer child-side line editing from cursor position or text.
+Paste candidates, including active bracket framing, share the configured pending
+input cap; rejection publishes no partial bytes. Copy cursor reset requires a
+current-text representation check before moving the frozen point.
+
 ## Slice 6: Session lifecycle and failure containment
 
 Prerequisite: Slice 5 integrated into dev.

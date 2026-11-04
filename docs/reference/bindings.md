@@ -69,6 +69,26 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-q` in live terminal input, `M-x terminal-send-next-key` | `terminal-send-next-key` | Send one following normalized key literally to the child, bypassing host recovery. |
 | `C-c C-t` in live terminal input, `M-x terminal-copy-mode` | `terminal-copy-mode` | Freeze retained output for native navigation, selection and search. |
 | Return in terminal copy mode, `M-x terminal-copy-mode-done` | `terminal-copy-mode-done` | Resume live input without sending Return to the child. |
+| C-y in live input, M-x terminal-yank | `terminal-yank` | Paste the newest retained text using active bracket framing. |
+| M-y in live input, M-x terminal-yank-pop | `terminal-yank-pop` | Rotate only while the preceding paste remains wholly queued. |
+| M-x terminal-clear | `terminal-clear` | Send C-l through ordinary child input. |
+| M-x terminal-clear-scrollback | `terminal-clear-scrollback` | Clear retained history and copy projections, preserving live screen/input. |
+| M-x terminal-beginning-of-line | `terminal-beginning-of-line` | Move to the frozen copy line start. |
+| M-x terminal-end-of-line | `terminal-end-of-line` | Move to the frozen copy line end. |
+| M-x terminal-reset-cursor-point | `terminal-reset-cursor-point` | Align copy point with a still-represented live cursor. |
+| M-x terminal-undo | `terminal-undo` | Send C-_ to the child without source undo. |
+| M-x terminal-send-return | `terminal-send-return` | Send Return with the live mode-aware VT encoder. |
+| M-x terminal-send-tab | `terminal-send-tab` | Send Tab with the live mode-aware VT encoder. |
+| M-x terminal-send-escape | `terminal-send-escape` | Send Escape with the live mode-aware VT encoder. |
+| M-x terminal-send-backspace | `terminal-send-backspace` | Send Backspace with the live mode-aware VT encoder. |
+| M-x terminal-send-delete | `terminal-send-delete` | Send Delete with the live mode-aware VT encoder. |
+| M-x terminal-send-up | `terminal-send-up` | Send Up with the live mode-aware VT encoder. |
+| M-x terminal-send-down | `terminal-send-down` | Send Down with the live mode-aware VT encoder. |
+| M-x terminal-send-left | `terminal-send-left` | Send Left with the live mode-aware VT encoder. |
+| M-x terminal-send-right | `terminal-send-right` | Send Right with the live mode-aware VT encoder. |
+| M-x terminal-send-prior | `terminal-send-prior` | Send PageUp with the live mode-aware VT encoder. |
+| M-x terminal-send-next | `terminal-send-next` | Send PageDown with the live mode-aware VT encoder. |
+| M-x terminal-send-space | `terminal-send-space` | Send Space with the live mode-aware VT encoder. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |
