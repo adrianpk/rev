@@ -1,8 +1,18 @@
 use super::*;
 use std::os::unix::ffi::OsStringExt;
 
+pub(super) enum Publication {
+    Status(Observation),
+    Diff(Diff),
+}
+
+enum Candidate {
+    Status(Identity, Option<Status>),
+    Diff(diff::Prepared),
+}
+
 pub(super) struct Finished {
-    pub observation: Result<Observation, String>,
+    pub publication: Result<Publication, String>,
     pub record: Record,
     pub retained: Option<capture::Owned>,
 }
@@ -10,6 +20,7 @@ pub(super) struct Finished {
 pub(super) fn start(
     policy: config::Git,
     directory: PathBuf,
+    target: Option<diff::Target>,
     progress: Arc<Mutex<Progress>>,
     cancel: Cancellation,
     mut admission: Lease,
@@ -35,10 +46,15 @@ pub(super) fn start(
                 end: capture::End::Exited,
                 retained: None,
             };
-            let observed = runner.observe(&mut admission);
+            let observed = match target {
+                Some(target) => runner.compare(target, &mut admission).map(Candidate::Diff),
+                None => runner
+                    .observe(&mut admission)
+                    .map(|(identity, status)| Candidate::Status(identity, status)),
+            };
             let mut finished = runner.finish(observed, admission);
             finished.record.admission.retain(finished.record.bytes());
-            if let Ok(observation) = &mut finished.observation {
+            if let Ok(Publication::Status(observation)) = &mut finished.publication {
                 observation.admission.retain(observation.bytes());
             }
             wake();
@@ -209,6 +225,22 @@ impl Runner {
         phase: Phase,
         allow_absent: bool,
     ) -> Result<Vec<u8>, String> {
+        self.command_os(
+            &args.iter().map(OsString::from).collect::<Vec<_>>(),
+            phase,
+            allow_absent,
+            None,
+        )
+        .map(|(bytes, _)| bytes)
+    }
+
+    fn command_os(
+        &mut self,
+        args: &[OsString],
+        phase: Phase,
+        allow_absent: bool,
+        detail_cap: Option<usize>,
+    ) -> Result<(Vec<u8>, bool), String> {
         if Instant::now() >= self.deadline {
             self.end = capture::End::TimedOut;
             return Err("Git observation timed out".into());
@@ -224,13 +256,13 @@ impl Runner {
         }
         self.argv = std::iter::once(OsString::from(&self.policy.program))
             .chain(std::iter::once(OsString::from("--no-optional-locks")))
-            .chain(args.iter().map(OsString::from))
+            .chain(args.iter().cloned())
             .collect();
         let program = capture::Program {
             argv: self.argv.clone(),
             directory: self.directory.clone(),
             seconds: self.policy.observation_timeout_seconds,
-            output_bytes: remaining,
+            output_bytes: detail_cap.map_or(remaining, |cap| cap.min(remaining)),
         };
         let progress = self.progress.clone();
         let wake = self.wake.clone();
@@ -274,6 +306,9 @@ impl Runner {
                 .diagnostic
                 .unwrap_or("Git cleanup remains owned".into()));
         }
+        if self.end == capture::End::OutputLimit && detail_cap.is_some() {
+            return Ok((result.stdout, true));
+        }
         if self.end != capture::End::Exited {
             return Err(result
                 .diagnostic
@@ -283,17 +318,13 @@ impl Runner {
             .status
             .is_some_and(|status| status.success() || (allow_absent && status.code() == Some(1)))
         {
-            Ok(result.stdout)
+            Ok((result.stdout, false))
         } else {
             Err("Git rejected the requested repository observation; inspect its retained diagnostic".into())
         }
     }
 
-    fn finish(
-        mut self,
-        mut observed: Result<(Identity, Option<Status>), String>,
-        mut admission: Lease,
-    ) -> Finished {
+    fn finish(mut self, mut observed: Result<Candidate, String>, mut admission: Lease) -> Finished {
         if self.cancel.is_cancelled() {
             self.end = capture::End::Cancelled;
             observed = Err("Git observation cancelled before publication".into());
@@ -315,6 +346,7 @@ impl Runner {
         };
         let mut record = Record {
             id: progress.operation,
+            kind: progress.kind,
             context: progress.context,
             started: progress.started,
             ended: Instant::now(),
@@ -327,18 +359,47 @@ impl Runner {
             diagnostic: observed.as_ref().err().cloned(),
             admission: admission.split(0),
         };
-        record.admission = admission.split(record.bytes());
-        let observation = observed.map(|(identity, status)| Observation {
-            context: progress.context.unwrap_or(ContextId(progress.operation.0)),
-            generation: progress.operation.0,
-            identity,
-            status,
-            admission,
+        record.admission = admission.split(record.bytes() + 4096);
+        let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Status(identity, status) => Ok(Publication::Status(Observation {
+                context: progress.context.unwrap_or(ContextId(progress.operation.0)),
+                generation: progress.operation.0,
+                identity,
+                status,
+                admission,
+            })),
+            Candidate::Diff(prepared) => diff::prepare(
+                progress.operation,
+                prepared,
+                admission,
+                &self.cancel.bounded(self.deadline),
+            )
+            .map(Publication::Diff),
         });
+        if let Err(error) = &publication {
+            if record.outcome == Outcome::Verified {
+                record.outcome = if self.cancel.is_cancelled() {
+                    Outcome::Cancelled
+                } else if Instant::now() >= self.deadline {
+                    Outcome::TimedOut
+                } else {
+                    Outcome::Failed
+                };
+            }
+            record.diagnostic = Some(error.clone());
+        }
+        if let Ok(Publication::Diff(detail)) = &publication
+            && let DiffKind::Malformed(reason) = &detail.kind
+        {
+            record.outcome = Outcome::Failed;
+            record.diagnostic = Some(reason.clone());
+        }
         Finished {
-            observation,
+            publication,
             record,
             retained: self.retained,
         }
     }
 }
+
+mod detail;

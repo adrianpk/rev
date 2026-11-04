@@ -1,7 +1,9 @@
 //! Native repository observations and owned installed-Git operations. Git keeps
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
+mod diff;
 mod status;
+pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
 mod work;
 pub use status::{Completeness, Group, Head, PathChange, Status};
 
@@ -94,6 +96,12 @@ pub struct ContextId(u64);
 pub struct OperationId(u64);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OperationKind {
+    Status,
+    Diff,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Phase {
     Checking,
     Executing,
@@ -117,6 +125,7 @@ pub enum Outcome {
 #[derive(Debug)]
 pub struct Record {
     pub id: OperationId,
+    pub kind: OperationKind,
     pub context: Option<ContextId>,
     pub started: Instant,
     pub ended: Instant,
@@ -163,11 +172,14 @@ pub struct Context {
     pub id: ContextId,
     pub observation: Arc<Observation>,
     pub failure: Option<OperationId>,
+    pub detail: Option<Arc<Diff>>,
+    pub detail_failure: Option<OperationId>,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct Progress {
     pub operation: OperationId,
+    pub kind: OperationKind,
     pub context: Option<ContextId>,
     pub phase: Phase,
     pub child: Option<u32>,
@@ -187,6 +199,7 @@ struct Active {
 /// last confirmed observation intact and records a visible failure.
 pub struct Update {
     pub operation: OperationId,
+    pub kind: OperationKind,
     pub context: Option<ContextId>,
     pub published: bool,
 }
@@ -279,7 +292,7 @@ impl Repositories {
         if directory.as_os_str().as_encoded_bytes().len() > 4096 {
             return Err("Git directory exceeds its 4096-byte path bound".into());
         }
-        self.start(directory.to_owned(), None)
+        self.start(directory.to_owned(), None, None)
     }
 
     pub fn refresh(&mut self, context: ContextId) -> Result<OperationId, String> {
@@ -299,13 +312,68 @@ impl Repositories {
             .as_ref()
             .unwrap_or(&known.observation.identity.git_directory)
             .clone();
-        self.start(directory, Some(context))
+        self.start(directory, Some(context), None)
+    }
+
+    /// Compare one exact path in its captured Status generation. An escaped
+    /// label, path in another layer, or stale observation cannot supply a target.
+    pub fn compare(
+        &mut self,
+        context: ContextId,
+        generation: u64,
+        group: Group,
+        path: &Path,
+    ) -> Result<OperationId, String> {
+        let known = self
+            .context(context)
+            .ok_or("Git context no longer exists")?;
+        if known.failure.is_some() || known.observation.generation != generation {
+            return Err("Git comparison requires a current confirmed Status generation".into());
+        }
+        if self
+            .progress()
+            .any(|p| p.context == Some(context) || p.context.is_none())
+        {
+            return Err("Git repository already owns an active operation".into());
+        }
+        let root = known
+            .observation
+            .identity
+            .worktree
+            .as_ref()
+            .ok_or("Bare repositories have no working-tree comparison")?
+            .clone();
+        let change = known
+            .observation
+            .status
+            .as_ref()
+            .and_then(|status| status.group(group).find(|change| change.path == path))
+            .ok_or("Selected Git path/layer is no longer admitted")?
+            .clone();
+        let target = diff::Target {
+            observation: known.observation.clone(),
+            group,
+            change,
+        };
+        self.start(root, Some(context), Some(target))
+    }
+
+    pub fn detail_current(&self, detail: &Diff) -> bool {
+        self.context(detail.observation.context)
+            .is_some_and(|context| {
+                context.observation.generation == detail.observation.generation
+                    && context.failure.is_none()
+                    && context.detail_failure.is_none()
+                    && detail.verified
+                    && detail.completeness == Completeness::Complete
+            })
     }
 
     fn start(
         &mut self,
         directory: PathBuf,
         context: Option<ContextId>,
+        target: Option<diff::Target>,
     ) -> Result<OperationId, String> {
         if self.active.len() >= MAX_CONTEXTS {
             return Err("Git active context limit reached".into());
@@ -348,6 +416,11 @@ impl Repositories {
         let id = OperationId(self.next);
         let progress = Arc::new(Mutex::new(Progress {
             operation: id,
+            kind: if target.is_some() {
+                OperationKind::Diff
+            } else {
+                OperationKind::Status
+            },
             context,
             phase: Phase::Checking,
             child: None,
@@ -358,6 +431,7 @@ impl Repositories {
         let thread = work::start(
             self.policy.clone(),
             directory,
+            target,
             progress.clone(),
             cancel.clone(),
             admission,
@@ -413,7 +487,7 @@ impl Repositories {
                     }
                     wake();
                     work::Finished {
-                        observation: Err("Git cancelled".into()),
+                        publication: Err("Git cancelled".into()),
                         record,
                         retained: (record_cleanup_pending(&child)).then_some(child),
                     }
@@ -453,6 +527,7 @@ impl Repositories {
                 let progress = *active.progress.lock().expect("Git progress owner");
                 updates.push(Update {
                     operation: progress.operation,
+                    kind: progress.kind,
                     context: progress.context,
                     published: false,
                 });
@@ -461,8 +536,9 @@ impl Repositories {
             }
             let progress = *active.progress.lock().expect("Git progress owner");
             let mut record = finished.record;
-            let context = match finished.observation {
-                Ok(mut observation) => {
+            let mut published = false;
+            let context = match finished.publication {
+                Ok(work::Publication::Status(mut observation)) => {
                     let prior = self
                         .contexts
                         .iter()
@@ -472,6 +548,7 @@ impl Repositories {
                         let id = observation.context;
                         self.contexts[prior].observation = Arc::new(observation);
                         self.contexts[prior].failure = None;
+                        published = true;
                         record.context = Some(id);
                         Some(id)
                     } else if self.contexts.len() < MAX_CONTEXTS {
@@ -480,7 +557,10 @@ impl Repositories {
                             id,
                             observation: Arc::new(observation),
                             failure: None,
+                            detail: None,
+                            detail_failure: None,
                         });
+                        published = true;
                         record.context = Some(id);
                         Some(id)
                     } else {
@@ -492,20 +572,43 @@ impl Repositories {
                         None
                     }
                 }
+                Ok(work::Publication::Diff(detail)) => {
+                    let context = self
+                        .contexts
+                        .iter_mut()
+                        .find(|context| context.id == detail.observation.context);
+                    if let Some(context) = context
+                        && context.observation.generation == detail.observation.generation
+                        && context.failure.is_none()
+                    {
+                        context.detail = Some(Arc::new(detail));
+                        context.detail_failure = None;
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Git comparison generation changed before publication".into());
+                    }
+                    progress.context
+                }
                 Err(_error) => {
                     if let Some(context) = progress
                         .context
                         .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
                     {
-                        context.failure = Some(record.id);
+                        match progress.kind {
+                            OperationKind::Status => context.failure = Some(record.id),
+                            OperationKind::Diff => context.detail_failure = Some(record.id),
+                        }
                     }
                     progress.context
                 }
             };
             updates.push(Update {
                 operation: record.id,
+                kind: progress.kind,
                 context,
-                published: record.outcome == Outcome::Verified,
+                published,
             });
             self.active.remove(index);
             self.retain_record(record);

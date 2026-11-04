@@ -48,6 +48,20 @@ pub struct PathChange {
 }
 
 impl PathChange {
+    pub(super) fn renamed_in(&self, group: Group) -> bool {
+        self.old_path.is_some()
+            && match group {
+                Group::Staged => matches!(self.index, b'R' | b'C'),
+                Group::Unstaged => matches!(self.worktree, b'R' | b'C'),
+                _ => false,
+            }
+    }
+    pub(super) fn bytes(&self) -> usize {
+        self.path.capacity()
+            + self.old_path.as_ref().map_or(0, PathBuf::capacity)
+            + self.modes.capacity() * std::mem::size_of::<u32>()
+            + self.objects.capacity() * std::mem::size_of::<ObjectId>()
+    }
     pub fn in_group(&self, group: Group) -> bool {
         match group {
             Group::Unmerged => self.unmerged,
