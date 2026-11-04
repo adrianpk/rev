@@ -3,6 +3,7 @@
 mod cancellation;
 pub(crate) mod capture;
 pub(crate) mod group;
+pub(crate) mod input;
 mod streams;
 pub use cancellation::Cancellation;
 use std::{

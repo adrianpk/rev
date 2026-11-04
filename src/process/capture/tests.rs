@@ -7,6 +7,7 @@ fn program(fixture: &Fixture, script: &str, output_bytes: usize) -> Program {
         directory: fixture.0.clone(),
         seconds: 1,
         output_bytes,
+        input: None,
     }
 }
 

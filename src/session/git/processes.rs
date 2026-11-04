@@ -14,7 +14,7 @@ impl Work {
     pub(super) fn process_header(&self, row: usize) -> String {
         match (self.page, row) {
             (Page::Processes, 0) => "Git Processes: active first, then recent".into(),
-            (Page::Processes, 1) => "Status and diff operations; exact session identities".into(),
+            (Page::Processes, 1) => "Owned Git operations; exact session identities".into(),
             (Page::Processes, 2) => self
                 .process_selected
                 .filter(|id| !self.process_ids().any(|current| current == *id))
@@ -42,6 +42,8 @@ impl Work {
         match kind {
             Some(crate::git::OperationKind::Status) => "Status observation",
             Some(crate::git::OperationKind::Diff) => "Diff comparison",
+            Some(crate::git::OperationKind::Stage) => "Stage index",
+            Some(crate::git::OperationKind::Unstage) => "Unstage index",
             None => "expired operation",
         }
     }
@@ -62,9 +64,10 @@ impl Work {
         }
         let record = self.engine.record(id)?;
         Some(format!(
-            "{id:?}  {}  {:?}  {}ms  {}{}",
+            "{id:?}  {}  {:?}  effects {:?}  {}ms  {}{}",
             self.process_kind(id),
             record.outcome,
+            record.effects,
             record.ended.duration_since(record.started).as_millis(),
             record
                 .exit
@@ -104,7 +107,7 @@ impl Work {
 }
 
 fn record_lines(record: &Record) -> impl Iterator<Item = String> + '_ {
-    std::iter::once("Last child argv (display only):".into())
+    std::iter::once("Recorded child argv (display only):".into())
         .chain(
             record
                 .argv

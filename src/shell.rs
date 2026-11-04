@@ -1,6 +1,6 @@
 //! One explicitly requested shell invocation. The worker owns only its process
 //! and bounded output; native session state stays on the editing thread.
-mod input;
+use crate::process::input;
 mod target;
 pub(crate) use target::{Kind, Target};
 
@@ -102,8 +102,9 @@ fn run(
     file: Option<crate::file::Location>,
     control: Cancellation,
 ) -> Result<Outcome, String> {
-    let input = input::stage(input)?;
-    let collected = match input {
+    let staged = input::stage(input.as_deref())?;
+    drop(input);
+    let collected = match staged {
         Some(file) => program.run_input(Some(file), None, &control),
         None => program.run(&control),
     }?;

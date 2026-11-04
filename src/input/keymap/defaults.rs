@@ -162,6 +162,8 @@ pub(super) const GIT: &[(&str, &str)] = &[
     ("C-g", "keyboard-quit"),
     ("q", "git-quit"),
     ("g", "git-refresh"),
+    ("s", "git-stage"),
+    ("u", "git-unstage"),
     ("TAB", "git-toggle-section"),
     ("?", "git-dispatch"),
     ("$", "git-processes"),

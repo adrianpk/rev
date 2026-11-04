@@ -72,12 +72,12 @@ Report: `ops/default/report/slices/rev-git-integration/slice-3-index.md`
 Requirements: GIT05, GIT17, GIT19
 PR: pending
 
-- [ ] T3.1: Stage and unstage exact paths or admitted text hunks; revalidate their complete comparison before changing the index.
+- [x] T3.1: Stage and unstage exact paths or admitted text hunks; revalidate their complete comparison before changing the index.
 - [ ] T3.2: Implement compatible marked path groups and nonoverlapping same-path/layer hunk groups; reject stale, mixed, duplicate or unsupported groups before launch.
 - [ ] T3.3: Restore one confirmed tracked working-tree path from its index state without changing the index; protect unsaved buffers and verify actual index/worktree results and partial-effect diagnostics.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: T3.1 development strict Clippy and formatter pass; 11 index/native cases passed before mode follow-ups, with three focused cases covering executable modes, gitlinks and creation/deletion modes. Shared checks passed 3 process, 3 shell-region, 21 reference, 9 Status presentation and 5 diff presentation tests; documentation catalogs pass. Final exact-HEAD controller validation follows T3.2-T3.3 and PR references.
+Integration: T3.1 implementation is on the approved slice branch. T3.2 marked groups and T3.3 protected discard remain pending; no PR or merge is claimed.
 
 ## Slice 4: Native commit composition
 

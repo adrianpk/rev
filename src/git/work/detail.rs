@@ -70,7 +70,11 @@ impl Runner {
         })
     }
 
-    fn check_target(&mut self, target: &diff::Target, admission: &mut Lease) -> Result<(), String> {
+    pub(super) fn check_target(
+        &mut self,
+        target: &diff::Target,
+        admission: &mut Lease,
+    ) -> Result<(), String> {
         let (identity, status) = self.observe(admission)?;
         let prior = target
             .observation
@@ -94,7 +98,7 @@ impl Runner {
         Ok(())
     }
 
-    fn diff_args(&self, target: &diff::Target) -> Vec<OsString> {
+    pub(super) fn diff_args(&self, target: &diff::Target) -> Vec<OsString> {
         let mut args: Vec<OsString> = [
             "--literal-pathspecs",
             "diff",

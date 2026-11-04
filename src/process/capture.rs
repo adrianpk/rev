@@ -20,6 +20,7 @@ pub(crate) struct Program {
     pub directory: PathBuf,
     pub seconds: usize,
     pub output_bytes: usize,
+    pub input: Option<std::fs::File>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -51,8 +52,9 @@ pub(crate) struct Owned {
 }
 
 impl Program {
-    pub fn run(self, cancel: &Cancellation, mut phase: impl FnMut(u32, bool)) -> Collected {
-        let mut owned = match self.launch(cancel) {
+    pub fn run(mut self, cancel: &Cancellation, mut phase: impl FnMut(u32, bool)) -> Collected {
+        let input = self.input.take();
+        let mut owned = match self.launch(input, cancel) {
             Ok(owned) => owned,
             Err(error) => {
                 return Collected {
@@ -109,7 +111,7 @@ impl Program {
         }
     }
 
-    fn launch(&self, cancel: &Cancellation) -> Result<Owned, String> {
+    fn launch(&self, input: Option<std::fs::File>, cancel: &Cancellation) -> Result<Owned, String> {
         if self.argv.is_empty()
             || self.argv.len() > 64
             || self
@@ -133,7 +135,7 @@ impl Program {
         command
             .args(&self.argv[1..])
             .current_dir(&self.directory)
-            .stdin(Stdio::null())
+            .stdin(input.map_or_else(Stdio::null, Stdio::from))
             .stdout(stdout)
             .stderr(stderr)
             .process_group(0)

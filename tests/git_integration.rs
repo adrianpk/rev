@@ -3,6 +3,8 @@
 mod diffs;
 #[path = "configuration/fixture.rs"]
 mod fixture;
+#[path = "git_integration/index.rs"]
+mod index;
 #[path = "git_integration/status.rs"]
 mod status;
 #[path = "git_integration/support.rs"]

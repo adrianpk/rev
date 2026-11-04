@@ -1,6 +1,23 @@
 use super::*;
 use std::os::unix::ffi::OsStringExt;
 
+mod index;
+
+pub(super) enum Request {
+    Status,
+    Diff(diff::Target),
+    Index(super::index::Request),
+}
+impl Request {
+    pub fn kind(&self) -> OperationKind {
+        match self {
+            Self::Status => OperationKind::Status,
+            Self::Diff(_) => OperationKind::Diff,
+            Self::Index(request) => request.direction.kind(),
+        }
+    }
+}
+
 pub(super) enum Publication {
     Status(Observation),
     Diff(Diff),
@@ -20,7 +37,7 @@ pub(super) struct Finished {
 pub(super) fn start(
     policy: config::Git,
     directory: PathBuf,
-    target: Option<diff::Target>,
+    request: Request,
     progress: Arc<Mutex<Progress>>,
     cancel: Cancellation,
     mut admission: Lease,
@@ -29,15 +46,21 @@ pub(super) fn start(
     std::thread::Builder::new()
         .name("git-observation".into())
         .spawn(move || {
+            let seconds = match request {
+                Request::Index(_) => policy.operation_timeout_seconds,
+                _ => policy.observation_timeout_seconds,
+            };
             let mut runner = Runner {
-                deadline: Instant::now()
-                    + Duration::from_secs(policy.observation_timeout_seconds as u64),
+                deadline: Instant::now() + Duration::from_secs(seconds as u64),
+                seconds,
                 policy,
                 directory,
                 progress,
                 cancel,
                 wake: wake.clone(),
                 captured: 0,
+                effects: Effects::NotStarted,
+                operation_failure: None,
                 argv: Vec::new(),
                 stdout: Vec::new(),
                 stderr: Vec::new(),
@@ -46,9 +69,12 @@ pub(super) fn start(
                 end: capture::End::Exited,
                 retained: None,
             };
-            let observed = match target {
-                Some(target) => runner.compare(target, &mut admission).map(Candidate::Diff),
-                None => runner
+            let observed = match request {
+                Request::Index(request) => runner.change_index(request, &mut admission),
+                Request::Diff(target) => {
+                    runner.compare(target, &mut admission).map(Candidate::Diff)
+                }
+                Request::Status => runner
                     .observe(&mut admission)
                     .map(|(identity, status)| Candidate::Status(identity, status)),
             };
@@ -67,10 +93,13 @@ struct Runner {
     policy: config::Git,
     directory: PathBuf,
     deadline: Instant,
+    seconds: usize,
     progress: Arc<Mutex<Progress>>,
     cancel: Cancellation,
     wake: crate::term::Waker,
     captured: usize,
+    effects: Effects,
+    operation_failure: Option<String>,
     argv: Vec<OsString>,
     stdout: Vec<u8>,
     stderr: Vec<u8>,
@@ -241,6 +270,16 @@ impl Runner {
         allow_absent: bool,
         detail_cap: Option<usize>,
     ) -> Result<(Vec<u8>, bool), String> {
+        self.command_input(args, phase, allow_absent, detail_cap, None)
+    }
+    fn command_input(
+        &mut self,
+        args: &[OsString],
+        phase: Phase,
+        allow_absent: bool,
+        detail_cap: Option<usize>,
+        input: Option<std::fs::File>,
+    ) -> Result<(Vec<u8>, bool), String> {
         if Instant::now() >= self.deadline {
             self.end = capture::End::TimedOut;
             return Err("Git observation timed out".into());
@@ -261,8 +300,9 @@ impl Runner {
         let program = capture::Program {
             argv: self.argv.clone(),
             directory: self.directory.clone(),
-            seconds: self.policy.observation_timeout_seconds,
+            seconds: self.seconds,
             output_bytes: detail_cap.map_or(remaining, |cap| cap.min(remaining)),
+            input,
         };
         let progress = self.progress.clone();
         let wake = self.wake.clone();
@@ -340,6 +380,10 @@ impl Runner {
                 capture::End::Cancelled => Outcome::Cancelled,
                 capture::End::TimedOut => Outcome::TimedOut,
                 capture::End::OutputLimit => Outcome::OutputLimit,
+                _ if self.operation_failure.is_some() && self.effects == Effects::Possible => {
+                    Outcome::Indeterminate
+                }
+                _ if self.operation_failure.is_some() => Outcome::Failed,
                 _ if observed.is_ok() => Outcome::Verified,
                 _ => Outcome::Failed,
             }
@@ -351,12 +395,15 @@ impl Runner {
             started: progress.started,
             ended: Instant::now(),
             outcome,
+            effects: self.effects,
             argv: self.argv,
             exit: self.exit,
             stdout: self.stdout,
             stderr: self.stderr,
             output_truncated: self.truncated,
-            diagnostic: observed.as_ref().err().cloned(),
+            diagnostic: self
+                .operation_failure
+                .or_else(|| observed.as_ref().err().cloned()),
             admission: admission.split(0),
         };
         record.admission = admission.split(record.bytes() + 4096);

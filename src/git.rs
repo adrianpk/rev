@@ -2,6 +2,8 @@
 //! durable repository state; this owner retains finite session observations.
 pub(crate) mod budget;
 mod diff;
+mod index;
+pub use index::{IndexDirection, IndexTarget};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
 mod work;
@@ -99,6 +101,8 @@ pub struct OperationId(u64);
 pub enum OperationKind {
     Status,
     Diff,
+    Stage,
+    Unstage,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -118,6 +122,15 @@ pub enum Outcome {
     TimedOut,
     OutputLimit,
     CleanupPending,
+    Indeterminate,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Effects {
+    #[default]
+    NotStarted,
+    Possible,
+    Verified,
 }
 
 /// Child facts survive failure and cancellation. Raw bytes are inspection data,
@@ -130,6 +143,7 @@ pub struct Record {
     pub started: Instant,
     pub ended: Instant,
     pub outcome: Outcome,
+    pub effects: Effects,
     pub argv: Vec<OsString>,
     pub exit: Option<std::process::ExitStatus>,
     pub stdout: Vec<u8>,
@@ -292,7 +306,7 @@ impl Repositories {
         if directory.as_os_str().as_encoded_bytes().len() > 4096 {
             return Err("Git directory exceeds its 4096-byte path bound".into());
         }
-        self.start(directory.to_owned(), None, None)
+        self.start(directory.to_owned(), None, work::Request::Status)
     }
 
     pub fn refresh(&mut self, context: ContextId) -> Result<OperationId, String> {
@@ -312,7 +326,7 @@ impl Repositories {
             .as_ref()
             .unwrap_or(&known.observation.identity.git_directory)
             .clone();
-        self.start(directory, Some(context), None)
+        self.start(directory, Some(context), work::Request::Status)
     }
 
     /// Compare one exact path in its captured Status generation. An escaped
@@ -355,7 +369,7 @@ impl Repositories {
             group,
             change,
         };
-        self.start(root, Some(context), Some(target))
+        self.start(root, Some(context), work::Request::Diff(target))
     }
 
     pub fn detail_current(&self, detail: &Diff) -> bool {
@@ -373,7 +387,7 @@ impl Repositories {
         &mut self,
         directory: PathBuf,
         context: Option<ContextId>,
-        target: Option<diff::Target>,
+        request: work::Request,
     ) -> Result<OperationId, String> {
         if self.active.len() >= MAX_CONTEXTS {
             return Err("Git active context limit reached".into());
@@ -416,11 +430,7 @@ impl Repositories {
         let id = OperationId(self.next);
         let progress = Arc::new(Mutex::new(Progress {
             operation: id,
-            kind: if target.is_some() {
-                OperationKind::Diff
-            } else {
-                OperationKind::Status
-            },
+            kind: request.kind(),
             context,
             phase: Phase::Checking,
             child: None,
@@ -431,7 +441,7 @@ impl Repositories {
         let thread = work::start(
             self.policy.clone(),
             directory,
-            target,
+            request,
             progress.clone(),
             cancel.clone(),
             admission,
@@ -525,6 +535,13 @@ impl Repositories {
                 active.record = Some(finished.record);
                 active.progress.lock().expect("Git progress owner").phase = Phase::Cleanup;
                 let progress = *active.progress.lock().expect("Git progress owner");
+                if matches!(progress.kind, OperationKind::Stage | OperationKind::Unstage)
+                    && let Some(context) = progress
+                        .context
+                        .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
+                {
+                    context.failure = Some(progress.operation);
+                }
                 updates.push(Update {
                     operation: progress.operation,
                     kind: progress.kind,
@@ -599,6 +616,9 @@ impl Repositories {
                         match progress.kind {
                             OperationKind::Status => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
+                            OperationKind::Stage | OperationKind::Unstage => {
+                                context.failure = Some(record.id)
+                            }
                         }
                     }
                     progress.context

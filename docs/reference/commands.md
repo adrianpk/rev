@@ -699,6 +699,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-quit` | Return from the innermost Git menu or restore the retained editing context; started work continues. |
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
 | `git-toggle-section` | Toggle a Status group, path comparison or selected semantic hunk; one path and one hunk body expand at a time. |
+| `git-stage` | Stage the selected exact disk path or supported unstaged text hunk after complete preflight; preserve source buffers and verify the index. |
+| `git-unstage` | Unstage the selected staged path or supported text hunk against its captured HEAD baseline, including unborn HEAD. |
 | `git-diff` | Inspect the selected exact path/layer or hunk in read-only detail; q returns to Status. |
 | `git-visit-file` | Visit the selected canonical current source without replacing unsaved text; in Processes, inspect the selected operation. |
 | `git-dispatch` | Show the currently available native Git actions. |
@@ -714,7 +716,7 @@ old detail is labeled stale until replacement succeeds. Return visits the real
 current file, preserving an existing modified source buffer. A deleted path or
 directory has no current source file to visit. q returns one presentation level.
 
-The `keys.git` map owns q, g, Tab, Return, ? and list navigation in both profiles.
+The `keys.git` map owns q, g, s/u, Tab, Return, ? and list navigation in both profiles.
 M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged
 and Staged sections appear in that order when nonempty. Clean, bare, unborn,
 detached, unavailable and truncated states remain explicit. Pointer selection

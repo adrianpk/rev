@@ -9,6 +9,7 @@ use crossterm::event::{Event, MouseButton, MouseEventKind};
 use std::{path::PathBuf, sync::Arc};
 
 mod comparisons;
+mod index;
 mod processes;
 mod shutdown;
 
@@ -21,6 +22,8 @@ pub(super) struct Work {
     page: Page,
     process_origin: Option<Page>,
     inspection: comparisons::Inspection,
+    index_request: Option<OperationId>,
+    index_preparing: Option<index::Preparing>,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -173,6 +176,8 @@ impl Work {
             page: Page::Status,
             process_origin: None,
             inspection: comparisons::Inspection::default(),
+            index_request: None,
+            index_preparing: None,
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -259,6 +264,8 @@ impl Session {
                 GitCommand::ToggleSection => self.toggle_git_section(),
                 GitCommand::Diff => self.open_git_diff(comparisons::Mode::Detail),
                 GitCommand::VisitFile => self.visit_git_file(),
+                GitCommand::Stage => self.change_git_index(crate::git::IndexDirection::Stage),
+                GitCommand::Unstage => self.change_git_index(crate::git::IndexDirection::Unstage),
                 GitCommand::Dispatch => {
                     if !self.git.visible {
                         self.message("git-dispatch requires a Git presentation")
@@ -375,7 +382,7 @@ impl Session {
         let Some(context) = self.git.state.context.filter(|_| self.git.visible) else {
             return self.message("Git Status is still checking its repository context");
         };
-        if self.git.state.request.is_some() {
+        if self.git.state.request.is_some() || self.git.index_request.is_some() {
             return self.message("Git observation is already active");
         }
         match self.git.engine.refresh(context) {
@@ -483,6 +490,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.index_request == Some(update.operation) {
+                self.publish_git_index(&update);
+                continue;
+            }
             if self
                 .git
                 .inspection
@@ -491,6 +502,7 @@ impl Session {
                 .is_some_and(|r| r.operation == update.operation)
             {
                 self.publish_git_diff(&update);
+                self.finish_git_index_preparation(&update);
                 continue;
             }
             if self
@@ -681,6 +693,7 @@ impl Session {
                             "g  git-refresh",
                             "Tab  git-toggle-section",
                             "Return  git-visit-file",
+                            "s / u  git-stage / git-unstage",
                             "M-x git-diff  selected comparison",
                             "$  git-processes",
                             "M-x / :  native commands",
@@ -744,7 +757,8 @@ impl Session {
                     return (
                         format!(
                             "{}{}{}{}",
-                            if self.git.state.request.is_some() {
+                            if self.git.state.request.is_some() || self.git.index_request.is_some()
+                            {
                                 "Checking / refreshing  "
                             } else {
                                 ""
