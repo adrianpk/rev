@@ -5,7 +5,7 @@ Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
 Branch: `feat/rev-git-integration-07-transport`
-PR: pending
+PR: `#264`
 
 ## Purpose
 
@@ -136,8 +136,22 @@ Git baseline, command/configuration references, documentation and whitespace
 through the controller after the PR-reference follow-up. Expected warm cost
 is several minutes; this is component regression, not the selected full gate.
 
+Final ordered contract, executed through the controller after this PR-reference
+follow-up:
+
+- `cargo fmt --all -- --check`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration transport:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration -- --skip transport:: --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example documentation-check`
+- `git diff --check`
+
+The [canonical PR #264](https://forge.adrianpk.com/adrianpk/rev/pulls/264)
+Validation list and controller receipt record successful exact-clean-HEAD results.
+
 ## Risks and Follow-ups
 
-Canonical PR-reference publication and successful exact-HEAD checks remain
-pending. Combined PTY/resource acceptance remains Slice 13 and the full
+PR #264 targets dev. The PR-reference follow-up precedes the ordered controller
+checks; controller-owned integration remains pending. Combined PTY/resource acceptance remains Slice 13 and the full
 User Guide remains Slice 14.
