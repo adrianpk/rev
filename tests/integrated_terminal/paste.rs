@@ -4,7 +4,7 @@ use super::*;
 // Size rejection preserves the preceding paste; accepted later input revokes it.
 #[test]
 fn queued_paste() {
-    let script = "stty raw -echo; printf '\033[?2004hREADY'; dd bs=1 count=16 of=input.bin 2>/dev/null; printf RECEIVED; while :; do sleep 60; done";
+    let script = r"stty raw -echo; printf '\033[?2004hREADY'; dd bs=1 count=16 of=input.bin 2>/dev/null; printf RECEIVED; while :; do sleep 60; done";
     let mut terminal = Terminal::new(
         script,
         Limits {
@@ -13,6 +13,15 @@ fn queued_paste() {
         },
     );
     terminal.wait(|s| text(s).contains("READY"));
+    assert!(
+        terminal
+            .sessions
+            .get(terminal.id)
+            .unwrap()
+            .screen()
+            .mode()
+            .contains(alacritty_terminal::term::TermMode::BRACKETED_PASTE)
+    );
     let id = terminal.id;
     terminal.sessions.queue(id, b"P").unwrap();
     let paste = terminal
