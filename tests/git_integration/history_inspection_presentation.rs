@@ -8,7 +8,7 @@ use rev::command::{Command, GitCommand, Motion};
 #[test]
 fn range_and_ordered_marks() {
     for profile in ["non-modal", "modal"] {
-        let r = Repository::new("sha1");
+        let r = Repository::new("sha256");
         for n in 0..4 {
             fs::write(r.root.join("source"), format!("value {n}\n")).unwrap();
             r.commit();
@@ -37,10 +37,7 @@ fn range_and_ordered_marks() {
         key(s, KeyCode::Enter, KeyModifiers::NONE);
         wait(s, |s| s.echo().contains("Git history inspected"));
         let frame = render(s).join("\n");
-        assert!(
-            frame.contains(&format!("Git Range endpoint: {head}")),
-            "{frame}"
-        );
+        assert!(frame.contains(&format!("Git Range: {head}")), "{frame}");
         assert!(frame.contains(&format!("Range base: {two}")), "{frame}");
         plain(s, 'q');
         plain(s, 'n');

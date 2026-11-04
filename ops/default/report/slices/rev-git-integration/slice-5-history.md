@@ -1,6 +1,6 @@
 # Slice 5: History Ranges Reflog and Blame
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -64,6 +64,24 @@ T5.2 delivers ranges, attribution and historical source:
 - `keys.git_inspect` gives both profiles independent inspection navigation.
   q returns to the correct History, Reflog or Blame origin without checkout,
   saving, staging or creating a writable historical buffer.
+
+T5.3 delivers bounded ownership and failure evidence:
+
+- Real fixtures cover explicit byte-truncated reflog, complete blame-record
+  prefixes and historical blobs under small configured limits. Metadata beyond
+  4096 bytes rejects while retaining confirmed history. Old observation owners
+  cannot regain authority after Status refresh.
+- Reflog traversal has a finite count ceiling derived from the configured detail
+  byte limit and minimum complete record size. Blame admission follows actual
+  detail/path bytes and the shared budget; status-path preferences do not limit
+  unrelated source-line attribution. Incomplete records never become targets.
+- A 257-commit fixture exercises 256 native ordered marks, duplicate rejection,
+  the next-target limit, independent base changes and explicit clearing without
+  application-state injection. Both profiles show complete SHA-256 range IDs
+  in the standard 80-column view.
+- Root and deleted-path comparisons read the exact appropriate blob. Binary
+  bytes stay read-only. Configured external diff/text-conversion helpers do not
+  execute; source files, index entries and HEAD remain unchanged by inspection.
 
 ## Implementation Notes
 
@@ -143,11 +161,19 @@ installed-Git fast-import process to bound setup cost while preserving the real
 256-mark application boundary. The selected slice runner remains serial with
 one build job; the configured full gate is unchanged.
 
-Final exact-HEAD controller validation remains pending after T5.3 and the
-canonical PR-reference follow-up.
+Development checks for T5.3:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::limits:: -- --test-threads=1` passed four tests in 10.73 seconds.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::limits::bounded_inspection -- --test-threads=1` passed after aligning reflog/blame admission with their approved detail/path byte limits.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration history::inspection::presentation::range_and_ordered_marks -- --test-threads=1` passed with complete SHA-256 endpoint/base labels in both profiles.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings` passed.
+- `git diff --check` passed.
+
+Final exact-HEAD controller validation follows the canonical PR-reference commit.
+
 
 ## Risks and Follow-ups
 
-T5.3 remains pending: the remaining finite-admission, historical-source and
-attribution edge cases and slice regressions. Combined PTY/resource acceptance
-remains Slice 13; the full User Guide remains Slice 14.
+Combined PTY/resource acceptance remains Slice 13; the full User Guide remains
+Slice 14. Read verification detects changed repository facts without claiming an
+exclusive transaction against external Git clients.

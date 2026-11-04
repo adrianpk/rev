@@ -122,11 +122,7 @@ impl Work {
                         match row {
                             0 => format!(
                                 "Git {}: {}",
-                                if detail.range {
-                                    "Range endpoint"
-                                } else {
-                                    "Revision"
-                                },
+                                if detail.range { "Range" } else { "Revision" },
                                 detail.object.hex()
                             ),
                             1 => format!(

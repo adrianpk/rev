@@ -64,7 +64,7 @@ impl Work {
         };
         match row {
             0 => format!(
-                "Git History root: {}",
+                "History root: {}",
                 history
                     .root
                     .map_or("unborn / no commits".into(), |id| id.hex())

@@ -21,7 +21,19 @@ impl Runner {
                     "--date=iso-strict".into(),
                     "--format=%H%x00%gD%x00%gs%x00%gN%x00%gE".into(),
                     "-z".into(),
-                    format!("--max-count={}", self.policy.history_page_size + 1).into(),
+                    // Each record needs a full hash and five NUL separators.
+                    // Read one beyond the byte-derived ceiling so a capped
+                    // traversal cannot masquerade as a complete reflog.
+                    format!(
+                        "--max-count={}",
+                        self.policy.max_detail_bytes
+                            / match observation.identity.format {
+                                ObjectFormat::Sha1 => 45,
+                                ObjectFormat::Sha256 => 69,
+                            }
+                            + 1
+                    )
+                    .into(),
                     "HEAD".into(),
                     "--".into(),
                 ],
@@ -41,7 +53,7 @@ impl Runner {
         }
         let mut fields = nul_fields(&bytes);
         let mut entries = Vec::new();
-        let mut complete = !truncated;
+        let complete = !truncated;
         while let Some(object) = fields.next() {
             let mut values = [None; 4];
             for value in &mut values {
@@ -53,10 +65,6 @@ impl Runner {
                 }
                 return Err("Incomplete reflog metadata record".into());
             };
-            if entries.len() >= self.policy.history_page_size {
-                complete = false;
-                break;
-            }
             for field in [selector, subject, author, email] {
                 metadata_field(field)?;
             }
@@ -88,7 +96,7 @@ impl Runner {
                 Completeness::Complete
             } else {
                 Completeness::Truncated {
-                    reason: "Reflog entry or detail bound",
+                    reason: "Reflog detail bound",
                 }
             },
             _admission: admission.split(retained),
@@ -113,6 +121,7 @@ impl Runner {
                 "core.quotePath=false".into(),
                 "blame".into(),
                 "--line-porcelain".into(),
+                "--no-textconv".into(),
                 "--root".into(),
                 "--no-progress".into(),
                 root.hex().into(),
@@ -123,16 +132,12 @@ impl Runner {
             false,
             Some(self.policy.max_detail_bytes),
         )?;
+        let record_count = bytes
+            .split(|b| *b == b'\n')
+            .filter(|line| line.starts_with(b"\t"))
+            .count();
         admission.grow(
-            bytes.len() * 4
-                + (self
-                    .policy
-                    .max_status_paths
-                    .min(bytes.iter().filter(|b| **b == b'\n').count())
-                    + 1)
-                    * std::mem::size_of::<Attribution>()
-                    * 2
-                + 8192,
+            bytes.len() * 4 + (record_count + 1) * std::mem::size_of::<Attribution>() * 2 + 8192,
         )?;
         let mut records = bytes
             .split_inclusive(|b| *b == b'\n')
@@ -143,10 +148,6 @@ impl Runner {
         while let Some(header) = records.next() {
             if self.cancel.bounded(self.deadline).is_cancelled() {
                 return Err("Blame parsing cancelled".into());
-            }
-            if lines.len() >= self.policy.max_status_paths {
-                complete = false;
-                break;
             }
             let mut parts = header.split(|b| *b == b' ');
             let object = ObjectId::parse(
@@ -249,7 +250,7 @@ impl Runner {
                 Completeness::Complete
             } else {
                 Completeness::Truncated {
-                    reason: "Blame line, path or detail bound",
+                    reason: "Blame path or detail bound",
                 }
             },
             _admission: admission.split(retained),
