@@ -73,8 +73,7 @@ Return to the lazygit session, close its help if necessary and use its `q`
 control to return to the shell. Run:
 
 ```sh
-printf 'hello from the shell
-'
+printf 'hello from the shell\n'
 ```
 
 Press C-c C-t to enter frozen output copy mode. Navigate, select and copy with

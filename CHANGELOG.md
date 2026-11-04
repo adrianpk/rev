@@ -9,30 +9,16 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
-- [Open an interactive shell](docs/reference/commands.md#interactive-terminals)
-  with `terminal-open` and return to the editor with C-g. Hide or restore the
-  lower panel with `terminal-toggle` while the same shell keeps running, select
-  it through ordinary buffer navigation, open directly with
-  `terminal-new-buffer`, and move the same live session between panel and editing
-  panes with `terminal-move-to-buffer` and `terminal-move-to-panel`. Configure
-  startup shell preferences under `[terminal]`. Use `terminal-new` for independent
-  sessions, `terminal-list` to select them and `terminal-rename` to name them.
-  Live input supports control keys, paging, function keys and child cursor modes;
-  use C-q to send one protected host key literally to the shell or tool. Interact
-  with child mouse modes, select or scroll locally with Shift, and open validated
-  links with Control-click through your configured viewer. Enter retained-output
-  copy mode with C-c C-t to navigate, select, search and copy while the child
-  keeps running; Return resumes live input without sending a child command.
-  Paste retained text with C-y and rotate an unsent paste with M-y under checked
-  queue ownership. Explicit paste respects child bracketed-paste mode. Use named
-  commands to clear scrollback, align copy point or send protected VT keys.
-  Navigate reported prompts and recognized error locations, and activate links
-  retained with a copy snapshot through the configured viewer. Keep final output
-  and actual exit status after a child exits; opening again starts a new default
-  without erasing the old buffer. Closing a live buffer asks before termination.
-  Quitting resolves source saves first, asks once for live terminals, and waits
-  for owned cleanup while keeping the editor responsive. Declining retains the
-  sessions; a source change or cleanup failure cancels exit and preserves source.
+- [Use an integrated terminal](docs/tutorials/user-guide/16-integrated-terminal.md)
+  for interactive shells and tools such as lazygit. Open in the lower panel or
+  an editing pane, move the same running session between them, and keep several
+  sessions available through ordinary buffer selection. Return to source with
+  C-g, inspect/copy retained output with C-c C-t, and paste with C-y. Child key
+  and mouse modes, local selection and explicit links follow the
+  [terminal reference](docs/reference/integrated-terminal.md). Configure startup
+  shell, panel and resource preferences under `[terminal]`. Exited sessions
+  retain output and status; closing live sessions and quitting ask before owned
+  shutdown, with pending or failed cleanup kept visible.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

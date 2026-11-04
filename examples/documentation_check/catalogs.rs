@@ -25,6 +25,7 @@ pub fn check(root: &Path) -> Result<()> {
     let sources = read_pair(root, "defaults.md", "org/configuration.md")?;
     let count = check_configuration(root, &sources)?;
     check_lsp_example(root)?;
+    check_terminal_reference(root)?;
     println!(
         "Catalogs passed: {} commands in each combined inventory, {count} configuration entries against the live schema and packaged defaults.",
         Command::ALL.len()
@@ -151,7 +152,53 @@ fn check_configuration(root: &Path, sources: &[String]) -> Result<usize> {
     for (key, row) in &rows {
         check_default(&sample, key, row)?;
     }
+    check_terminal_settings(root, &expected, &sample)?;
     Ok(rows.len())
+}
+
+// The dedicated reference must stay complete as live terminal commands evolve.
+fn check_terminal_reference(root: &Path) -> Result<()> {
+    let source = fs::read_to_string(root.join("docs/reference/integrated-terminal.md"))?;
+    let declared = names(&[source], None)
+        .into_iter()
+        .filter(|name| name.starts_with("terminal-"))
+        .collect();
+    let expected = Command::ALL
+        .into_iter()
+        .map(|command| command.name().to_owned())
+        .filter(|name| name.starts_with("terminal-"))
+        .collect();
+    same_names("integrated terminal reference", declared, &expected)
+}
+
+// Compare the focused settings table with the same live schema and packaged
+// defaults as the complete catalog, including rejected duplicates and extras.
+fn check_terminal_settings(
+    root: &Path,
+    schema: &BTreeSet<String>,
+    sample: &toml::Value,
+) -> Result<()> {
+    let source = fs::read_to_string(root.join("docs/reference/integrated-terminal.md"))?;
+    let settings = source
+        .lines()
+        .filter(|line| line.starts_with("| `terminal."))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let rows = configuration_rows(&[settings])?;
+    let expected = schema
+        .iter()
+        .filter(|key| key.starts_with("terminal."))
+        .cloned()
+        .collect();
+    same_names(
+        "integrated terminal settings",
+        rows.keys().cloned().collect(),
+        &expected,
+    )?;
+    for (key, row) in rows {
+        check_default(sample, &key, &row)?;
+    }
+    Ok(())
 }
 
 fn value_at<'a>(sample: &'a toml::Value, key: &str) -> Result<&'a toml::Value> {

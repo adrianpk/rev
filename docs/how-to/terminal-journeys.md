@@ -303,3 +303,37 @@ owned fixtures are removed.
 
 For focused development, the same script accepts `--native`, `--resources` or
 `--pty`; the ordinary command above runs all three and is the canonical gate.
+
+## Run integrated terminal acceptance
+
+```sh
+env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 bash scripts/check-integrated-terminal.sh
+```
+
+This journey needs Linux, cached locked Cargo dependencies, Bash, Git, installed
+lazygit, `rg`, util-linux `script`, `stty` and GNU `timeout`. It builds the normal
+release editor and Rust driver with one job and requires 1 GiB free. Disposable
+Git/HOME/XDG stores remove inherited Git selectors; lazygit fetch/update are
+disabled. No network or user Git state is needed.
+
+Both native profiles run actual Bash and lazygit. Four host PTYs cover tool
+relocation and multiple-session input/copy/closure, plus one real-PTY injected
+host write fault. They assert process/state retention, exact literal/mouse/paste
+bytes, protected source, fresh active-shell readiness, actual exit status and
+full terminal restoration. Each case retains eight seconds and 1 MiB of output;
+the five-case group has a 45-second outer guard. Native/resource groups each
+have 20-second guards. Live commands have no runtime cap outside these fixtures.
+
+The resource case runs a real 1 MiB flood beside a responding peer and a blocked
+input owner. It records bounded service/retention/queues, CPU ticks at the printed
+clock rate, RSS, exact FD/thread return and owned cleanup. The normal-release
+binary delta uses Slice 1's explicitly recorded pre-terminal baseline, not a
+fresh baseline rebuild. These local observations do not establish portable
+latency, CPU or memory guarantees. The write-fault case proves restoration with
+subsequent writes available, not recovery from a physically unavailable terminal.
+
+Source checking covers the terminal engine/session/input/copy/shutdown owners,
+crate roots and shared/new acceptance modules. Only owned completed fixtures
+are removed. Use `--native`, `--pty` or `--resources` for focused development.
+The ordinary command runs all three; the combined delivery gate remains a
+separate controller operation.

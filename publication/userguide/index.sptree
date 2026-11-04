@@ -12,6 +12,7 @@
     @page[id = "guide-13-file-reload"]
     @page[id = "guide-14-ai-editing"]
     @page[id = "guide-15-shell-commands"]
+    @page[id = "guide-16-integrated-terminal"]
   }
 
   @part[id = "Org mode", opening = "guide-org-index"]{
