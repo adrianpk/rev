@@ -34,6 +34,28 @@ T4.1 delivers normal composition:
 - Returning preserves the retained source view, modified text, point, split
   identities and prior tree/terminal focus.
 
+T4.2 delivers amend and fixup composition:
+
+- `git-commit-amend` reads the exact observed HEAD, parent set and existing
+  message before native editing. Submission uses Git's amend semantics while
+  preserving its author identity and current committer/signing/hook policy.
+- `git-commit-fixup` collects one revision and resolves it once to a full
+  immutable commit. Native composition prepares the standard `fixup!` subject
+  from Git's actual target subject; edits retain that target subject and may
+  supply a body. The resulting commit is an ordinary child of checked HEAD.
+- The first explicit submission for either prepared mode opens a read-only
+  exact review. Complete target IDs, checked HEAD, accepted message byte count
+  and final-newline state remain inspectable with wrapped vertical scrolling.
+  Plain Return cannot accept; C-Enter or C-c C-c accepts, q or C-g retains the
+  cancelled draft. Prompt cancellation preserves its outer composition owner.
+- Worker preflight repeats checked index/HEAD observations after preparation.
+  Moved HEAD, changed index, missing target and unsupported message metadata
+  cannot silently retarget a submission. Full object formats remain intact.
+- Fixup never starts autosquash or rewrites existing history. Installed Git
+  rejects `--fixup` together with `--file`; native sealed message input instead
+  supplies the standard complete fixup message. An independent installed-Git
+  `--fixup` fixture proves the actual resulting message bytes.
+
 ## Implementation Notes
 
 The Git worker shares existing capture, cancellation, process-group cleanup,
@@ -52,10 +74,20 @@ checked by the canonical edit owner before publication. Ordinary source buffers
 retain their existing policy. Cancelled/failed text has a separate bounded
 session lease; verified success clears it.
 
+Read-only commit preparation shares the existing observation worker and deadline.
+Its message/parent metadata is admitted against the same session budget before
+retention. Prepared results are generation-bound; source view acquisition also
+requires current observation authority. Submission requires the exact native
+observation owner, preventing equal numeric IDs from another repository engine
+from supplying authority. A no-op amend may retain the same object identity if
+Git's actual parent/message/tree postconditions all hold.
+
 ## Contracts Added or Changed
 
-- `git-commit`, `git-commit-submit`, `git-commit-cancel` and the `keys.git_commit`
-  editor overlay are implemented and documented together.
+- `git-commit`, `git-commit-amend`, `git-commit-fixup`, `git-commit-submit`,
+  `git-commit-cancel` and the `keys.git_commit` editor overlay are implemented
+  and documented together. The Git navigation map also admits the two explicit
+  submission aliases while exact review owns input.
 - The complete Git index evidence uses existing configured output/path-count
   limits; incomplete or unsupported entries reject before a changing child.
 - No new dependency, persistent application state or process framework.
@@ -69,15 +101,17 @@ session lease; verified success clears it.
   draft editing through existing owners.
 - `tests/git_integration/commits.rs`, `commits_presentation.rs`: real-Git and
   native profile proofs.
+- `src/session/git/commit/`, `tests/git_integration/commits_modes.rs`: immutable
+  preparation, explicit review and real amend/fixup graph/identity proofs.
 
 ## Validation
 
 Development checks, before final exact-HEAD controller validation:
 
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings` passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration commits:: -- --test-threads=1` passed six tests: SHA-1/SHA-256 and unborn commits, exact message/tree/index, stale authority, hook failure, post-effect uncertainty, both profiles and all composition aliases.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration commits:: -- --test-threads=1` passed ten tests: SHA-1/SHA-256 and unborn commits, exact message/tree/index, stale authority, hook failure, post-effect uncertainty, both profiles, all composition aliases, amend author/parents, immutable fixup target/message oracle and native exact review.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference -- --test-threads=1` passed 11 tests.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --quiet --locked --example documentation-check` passed: 493 commands, 264 configuration entries and 76 reachable pages.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --quiet --locked --example documentation-check` passed: 495 commands, 264 configuration entries and 76 reachable pages.
 - A message proof initially expected Git to add a final newline; installed Git
   demonstrated verbatim preservation. Verification and assertions were
   corrected to require exact accepted bytes; the focused suite then passed.
@@ -86,6 +120,6 @@ Final ordered checks and canonical PR reference remain pending.
 
 ## Risks and Follow-ups
 
-T4.2 amend/fixup and T4.3 expanded failure, terminal and capacity proofs remain
-within this slice. Combined PTY/resource acceptance remains Slice 13; the full
+T4.3 expanded failure, terminal and capacity proofs remain within this slice.
+Combined PTY/resource acceptance remains Slice 13; the full
 User Guide remains Slice 14.

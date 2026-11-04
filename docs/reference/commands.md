@@ -695,6 +695,8 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-commit-amend` | Prepare the exact observed HEAD and existing message; explicitly review before committing the checked index as its replacement. |
+| `git-commit-fixup` | Resolve one entered revision to a full immutable commit, compose its standard fixup subject/body and explicitly review the target; keep current history in place. |
 | `git-commit` | Open a native subject/body composer from current complete Status; retain cancelled or failed text for this session. |
 | `git-commit-submit` | Explicitly commit the checked index with the accepted message; verify actual HEAD, parent, message, tree and unchanged index. |
 | `git-commit-cancel` | Return to Status before process start, retaining the session draft. |
@@ -746,3 +748,14 @@ and retains the draft. Git keeps identity, hooks and signing policy; rev never
 saves or stages source text implicitly. Failed or uncertain effects retain the
 message and actual child diagnostics in Processes. Drafts are session-only,
 limited to 65536 bytes per context, with bounded native undo history.
+
+`git-commit-amend` prepares the observed HEAD and existing message.
+`git-commit-fixup` prompts for one revision, resolves a full immutable target and
+prepares its `fixup!` subject; retain that exact subject while editing the body.
+For these modes, the first C-Enter or C-c C-c opens a read-only exact review.
+The review shows the complete target, checked HEAD, message byte count and
+final-newline state; Up/Down scroll the wrapped content. Plain Return does not
+accept. C-Enter or C-c C-c explicitly accepts; q or C-g cancels and retains
+the draft. A moved HEAD or changed index rejects before the mutator. Amend
+preserves Git author/parent semantics; fixup creates one ordinary child commit
+with the standard message and does not run autosquash.

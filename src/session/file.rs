@@ -134,6 +134,7 @@ impl Session {
     }
     fn file_argument(&mut self, pending: Option<Pending>, path: String) -> Action {
         match pending {
+            Some(Pending::GitFixup(observation)) => self.git_fixup_argument(observation, &path),
             Some(Pending::TerminalRename(id)) => self.terminal_renamed(id, &path),
             Some(Pending::Shell(request)) => self.shell_argument(*request, &path),
             Some(Pending::Ai(request)) => self.ai_argument(*request, &path),

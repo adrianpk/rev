@@ -56,6 +56,8 @@ Every command below is also available as `M-x` followed by its exact name.
 | `C-u M-!` (non-modal), `M-x shell-command-insert`, `:shell-command-insert` | `shell-command-insert` | Insert complete successful stdout at the point captured before the prompt, with null stdin. |
 | `M-x shell-command-cancel`, `:shell-command-cancel` | `shell-command-cancel` | Cancel the owned invocation; originating editing C-g also cancels after inner input owners. |
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
+| `M-x git-commit-amend` | `git-commit-amend` | Prepare exact observed HEAD composition, then explicitly review the replacement commit. |
+| `M-x git-commit-fixup` | `git-commit-fixup` | Resolve one exact target, compose its fixup body and review before submission. |
 | `c` in Git Status | `git-commit` | Open native commit text directly; a subsequent c is literal message text. |
 | `C-Enter`, `C-c C-c` in composer | `git-commit-submit` | Commit the checked index with the accepted message. |
 | `C-g`, `C-c C-k` in composer | `git-commit-cancel` | Retain the session draft and return to Status before process start. |
@@ -765,6 +767,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-x C-c` | `save-buffers-kill-terminal` |
 | `M-x`, `:` | `execute-extended-command` |
 | `C-g` | `keyboard-quit` |
+| `C-Enter`, `C-c C-c` during exact commit review | `git-commit-submit` |
 | `c` | `git-commit` |
 | `q` | `git-quit` |
 | `g` | `git-refresh` |
@@ -850,3 +853,7 @@ The read-only bookmark workspace uses `keys.bookmark_list`: arrows, C-n/C-p and
 n/p move rows; Return visits; d/u mark or unmark and advance; x deletes marked
 records; q/C-g returns and discards unexecuted marks. M-x opens the normal command
 prompt and C-x o changes panes. These local keys do not edit source text.
+
+Amend and fixup use the native command catalog. Their first explicit composer
+submission opens exact review; a second C-Enter or C-c C-c accepts. q or C-g
+in review retains the draft.

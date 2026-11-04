@@ -4,6 +4,7 @@ pub(crate) mod budget;
 mod commit;
 mod diff;
 pub use commit::MAX_COMMIT_BYTES;
+pub use commit::{CommitMode, Composition};
 mod discard;
 mod index;
 pub use index::{IndexDirection, IndexTarget};
@@ -108,6 +109,7 @@ pub enum OperationKind {
     Unstage,
     Discard,
     Commit,
+    CommitPrepare,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -194,6 +196,7 @@ pub struct Context {
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
     draft: Option<commit::Draft>,
+    composition: Option<Arc<Composition>>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -576,6 +579,7 @@ impl Repositories {
                         let id = observation.context;
                         self.contexts[prior].observation = Arc::new(observation);
                         self.contexts[prior].failure = None;
+                        self.contexts[prior].composition = None;
                         if progress.kind == OperationKind::Commit
                             && record.outcome == Outcome::Verified
                         {
@@ -593,6 +597,7 @@ impl Repositories {
                             detail: None,
                             detail_failure: None,
                             draft: None,
+                            composition: None,
                         });
                         published = true;
                         record.context = Some(id);
@@ -625,6 +630,23 @@ impl Repositories {
                     }
                     progress.context
                 }
+                Ok(work::Publication::Composition(composition)) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == composition.observation.context)
+                        && context.observation.generation == composition.observation.generation
+                        && context.failure.is_none()
+                    {
+                        context.composition = Some(Arc::new(composition));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Commit preparation generation changed before publication".into());
+                    }
+                    progress.context
+                }
                 Err(_error) => {
                     if let Some(context) = progress
                         .context
@@ -633,6 +655,7 @@ impl Repositories {
                         match progress.kind {
                             OperationKind::Status => context.failure = Some(record.id),
                             OperationKind::Diff => context.detail_failure = Some(record.id),
+                            OperationKind::CommitPrepare => {}
                             OperationKind::Stage
                             | OperationKind::Unstage
                             | OperationKind::Discard

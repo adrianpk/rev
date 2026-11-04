@@ -3,7 +3,7 @@ use crate::{
     support::Repository,
 };
 use crossterm::event::{Event, KeyCode, KeyModifiers};
-use rev::command::{Command, Split};
+use rev::command::{Command, GitCommand, Split};
 use std::fs;
 
 // A single c opens a native editable owner in both profiles; following c is
@@ -108,5 +108,61 @@ fn normal_cancel() {
         plain(editor, 'c');
         assert_eq!(text(editor), "retained λ\n\nbody");
         key(editor, KeyCode::Char('g'), KeyModifiers::CONTROL);
+    }
+}
+
+// Amend and fixup preparation is native and read-only. The first acceptance
+// opens a review with the full immutable object; plain Return cannot accept,
+// while the alternate explicit alias performs the reviewed commit.
+#[test]
+fn reviewed_modes() {
+    for (profile, fixup) in [("modal", false), ("non-modal", true)] {
+        let repository = Repository::new("sha1");
+        let path = repository.root.join("source");
+        fs::write(&path, "base\n").unwrap();
+        repository.commit();
+        let head = repository.git(["rev-parse", "HEAD"]);
+        let mut owned = editor(&repository, profile, "", false);
+        let editor = &mut owned.0;
+        editor.load(&path).unwrap();
+        entry(editor);
+        wait(editor, |s| s.git_observation().is_some());
+        if fixup {
+            fs::write(&path, "staged\n").unwrap();
+            repository.git(["add", "source"]);
+            editor.execute(Command::Git(GitCommand::Refresh));
+            wait(editor, |s| s.echo().contains("Status refreshed"));
+        }
+        editor.execute(Command::Git(if fixup {
+            GitCommand::CommitFixup
+        } else {
+            GitCommand::CommitAmend
+        }));
+        if fixup {
+            editor.handle(Event::Paste("HEAD".into()));
+            key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        }
+        wait(editor, |s| s.echo().contains("edit message, then C-Enter"));
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), head);
+        editor.handle(Event::Paste("Changed body λ".into()));
+        key(editor, KeyCode::Enter, KeyModifiers::CONTROL);
+        assert!(editor.git_visible());
+        let rows = crate::status::presentation::render(editor).join("\n");
+        let id = std::str::from_utf8(&head).unwrap().trim();
+        assert!(rows.contains(id), "{rows}");
+        key(editor, KeyCode::Enter, KeyModifiers::NONE);
+        assert_eq!(repository.git(["rev-parse", "HEAD"]), head);
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        key(editor, KeyCode::Char('c'), KeyModifiers::CONTROL);
+        wait(editor, |s| s.echo().contains("Commit created and verified"));
+        assert_eq!(
+            repository.git(["rev-list", "--count", "HEAD"]),
+            if fixup { b"2\n" } else { b"1\n" }
+        );
+        assert!(
+            repository
+                .git(["show", "--format=%B", "--no-patch", "HEAD"])
+                .ends_with("Changed body λ\n".as_bytes())
+        );
     }
 }

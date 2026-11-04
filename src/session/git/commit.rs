@@ -2,9 +2,14 @@
 //! survive beneath it. Only an explicit submit authorizes the Git child.
 use super::*;
 use crate::{buffer::BufferId, git::budget::Lease, input::EditingState, window::ViewId};
+mod prepare;
+mod review;
 
 pub(super) struct Composer {
     observation: Arc<Observation>,
+    composition: Option<Arc<crate::git::Composition>>,
+    review: bool,
+    top: usize,
     buffer: BufferId,
     view: ViewId,
     tree: bool,
@@ -15,11 +20,15 @@ pub(super) struct Composer {
 
 impl Session {
     pub(in crate::session) fn git_composing(&self) -> bool {
-        self.git.composer.is_some()
+        self.git.composer.as_ref().is_some_and(|c| !c.review)
+    }
+    pub(super) fn git_commit_reviewing(&self) -> bool {
+        self.git.composer.as_ref().is_some_and(|c| c.review)
     }
 
     pub(super) fn commit_command(&mut self, command: Command) -> Option<Action> {
-        if !self.git_composing() {
+        self.git.composer.as_ref()?;
+        if command == Command::KeyboardQuit && self.pending.is_some() {
             return None;
         }
         if self.input.focus() != Focus::Editing {
@@ -30,6 +39,28 @@ impl Session {
             Command::Git(GitCommand::CommitCancel) | Command::KeyboardQuit => {
                 self.cancel_git_commit()
             }
+            Command::Git(GitCommand::Quit) if self.git_commit_reviewing() => {
+                self.cancel_git_commit()
+            }
+            Command::ExecuteExtended if self.git_commit_reviewing() => self.extended(),
+            Command::Scroll(scroll) if self.git_commit_reviewing() => {
+                let distance = match scroll {
+                    Scroll::PageForward | Scroll::PageBackward => self.git_extent(),
+                    _ => 1,
+                };
+                let state = self.git.composer.as_mut().expect("composer");
+                state.top = if matches!(scroll, Scroll::PreviousLine | Scroll::PageBackward) {
+                    state.top.saturating_sub(distance)
+                } else {
+                    state
+                        .top
+                        .saturating_add(distance)
+                        .min(crate::git::MAX_COMMIT_BYTES)
+                };
+                Action::Redraw
+            }
+            _ if self.git_commit_reviewing() => self
+                .message("Exact commit review: C-Enter or C-c C-c accepts; q or C-g retains draft"),
             _ if editing(command) => return None,
             _ => self
                 .message("Commit composer owns this view; C-Enter submits, C-g retains the draft"),
@@ -37,13 +68,16 @@ impl Session {
     }
 
     pub(super) fn compose_git_commit(&mut self) -> Action {
-        match self.install_git_commit() {
+        match self.install_git_commit(None) {
             Ok(()) => self.message("Compose commit: Return inserts newline; C-Enter or C-c C-c submits; C-g retains draft"),
             Err(error) => self.error(&error),
         }
     }
 
-    fn install_git_commit(&mut self) -> Result<(), String> {
+    fn install_git_commit(
+        &mut self,
+        composition: Option<Arc<crate::git::Composition>>,
+    ) -> Result<(), String> {
         if !self.git.visible || self.git.page != Page::Status {
             return Err("Open Git Status before composing a commit".into());
         }
@@ -62,7 +96,17 @@ impl Session {
         // (128 KiB payload target), <=64 ranges/transaction and <=16 points.
         // Admission also covers rope chunks, edit candidates and projection.
         let admission = self.git.engine.source_admission(8 * 1024 * 1024)?;
-        let text = self.git.engine.commit_draft(context).unwrap_or("");
+        if composition
+            .as_ref()
+            .is_some_and(|c| c.observation.generation != observation.generation)
+        {
+            return Err("Prepared commit observation changed; prepare again".into());
+        }
+        let text = self
+            .git
+            .engine
+            .commit_draft(context)
+            .unwrap_or_else(|| composition.as_ref().map_or("", |c| c.message.as_str()));
         let id = self.buffers.commit_draft(text).map_err(|e| e.to_string())?;
         let buffer = self.buffers.get(id).map_err(|e| e.to_string())?;
         let mut point = crate::view::View::new(buffer).point;
@@ -73,6 +117,9 @@ impl Session {
         }
         self.git.composer = Some(Composer {
             observation,
+            composition,
+            review: false,
+            top: 0,
             buffer: id,
             view: self.windows.selected_id(),
             tree: self.tree.focused(),
@@ -136,15 +183,31 @@ impl Session {
     }
 
     fn submit_git_commit(&mut self) -> Action {
+        if self
+            .git
+            .composer
+            .as_ref()
+            .is_some_and(|c| c.composition.is_some() && !c.review)
+        {
+            self.git.composer.as_mut().expect("composer").review = true;
+            self.git.visible = true;
+            self.input.cancel();
+            self.sync_input_context();
+            return self.message(
+                "Review exact commit request; C-Enter or C-c C-c accepts; q or C-g retains draft",
+            );
+        }
         let result = self.commit_text().and_then(|text| {
-            let observation = self
-                .git
-                .composer
-                .as_ref()
-                .expect("composer")
-                .observation
-                .clone();
-            let operation = self.git.engine.commit(observation, &text)?;
+            let composer = self.git.composer.as_ref().expect("composer");
+            let operation = if let Some(composition) = &composer.composition {
+                self.git
+                    .engine
+                    .commit_prepared(composition.clone(), &text)?
+            } else {
+                self.git
+                    .engine
+                    .commit(composer.observation.clone(), &text)?
+            };
             self.git.commit_request = Some(operation);
             self.leave_git_commit()
         });

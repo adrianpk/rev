@@ -89,11 +89,11 @@ Requirements: GIT06, GIT16-GIT19
 PR: pending
 
 - [x] T4.1: Enter normal composition directly with c and provide ordinary native text editing, explicit submission, cancellation and session-only retained drafts.
-- [ ] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
+- [x] T4.2: Compose normal, reviewed amend and exact-target fixup requests; preserve checked index/HEAD, identity, hooks, signing policy and actual messages without hidden staging or saving.
 - [ ] T4.3: Verify C-Enter/C-c C-c submission, C-g/C-c C-k cancellation, literal c, failed hooks, retained drafts, post-effect uncertainty and protected source/terminal state.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
-Integration: pending; no commit or PR is claimed.
+Validation: Development checks passed ten focused commit tests, strict Clippy and the native configuration-reference suite. Final exact-HEAD controller validation remains pending.
+Integration: pending; task commits are on the dedicated slice branch. The canonical PR reference remains pending.
 
 ## Slice 5: History ranges reflog and blame
 

@@ -167,6 +167,8 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("C-Enter", "git-commit-submit"),
+    ("C-c C-c", "git-commit-submit"),
     ("c", "git-commit"),
     ("C-x g", "git-status"),
     ("C-x C-c", "save-buffers-kill-terminal"),

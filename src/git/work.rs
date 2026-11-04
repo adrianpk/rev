@@ -11,6 +11,7 @@ pub(super) enum Request {
     Index(super::index::Request),
     Discard(Arc<Diff>),
     Commit(super::commit::Request),
+    CommitPrepare(super::commit::Preparation),
 }
 impl Request {
     pub fn kind(&self) -> OperationKind {
@@ -20,6 +21,7 @@ impl Request {
             Self::Index(request) => request.direction.kind(),
             Self::Discard(_) => OperationKind::Discard,
             Self::Commit(_) => OperationKind::Commit,
+            Self::CommitPrepare(_) => OperationKind::CommitPrepare,
         }
     }
 }
@@ -27,11 +29,13 @@ impl Request {
 pub(super) enum Publication {
     Status(Observation),
     Diff(Diff),
+    Composition(Composition),
 }
 
 enum Candidate {
     Status(Identity, Option<Status>),
     Diff(diff::Prepared),
+    Composition(commit::Prepared),
 }
 
 pub(super) struct Finished {
@@ -82,6 +86,9 @@ pub(super) fn start(
                 Request::Index(request) => runner.change_index(request, &mut admission),
                 Request::Discard(diff) => runner.discard(diff, &mut admission),
                 Request::Commit(request) => runner.commit(request, &mut admission),
+                Request::CommitPrepare(request) => runner
+                    .prepare_commit(request, &mut admission)
+                    .map(Candidate::Composition),
                 Request::Diff(target) => {
                     runner.compare(target, &mut admission).map(Candidate::Diff)
                 }
@@ -437,6 +444,18 @@ impl Runner {
                 &self.cancel.bounded(self.deadline),
             )
             .map(Publication::Diff),
+            Candidate::Composition(prepared) => {
+                let mut composition = Composition {
+                    observation: prepared.observation,
+                    mode: prepared.mode,
+                    message: prepared.message,
+                    parents: prepared.parents,
+                    fixup_prefix: prepared.fixup_prefix,
+                    admission,
+                };
+                composition.admission.retain(composition.bytes());
+                Ok(Publication::Composition(composition))
+            }
         });
         if let Err(error) = &publication {
             if record.outcome == Outcome::Verified {

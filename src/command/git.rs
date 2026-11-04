@@ -2,6 +2,8 @@
 pub enum GitCommand {
     Status,
     Commit,
+    CommitAmend,
+    CommitFixup,
     CommitSubmit,
     CommitCancel,
     Quit,
@@ -26,6 +28,8 @@ impl GitCommand {
         match self {
             Self::Status => "git-status",
             Self::Commit => "git-commit",
+            Self::CommitAmend => "git-commit-amend",
+            Self::CommitFixup => "git-commit-fixup",
             Self::CommitSubmit => "git-commit-submit",
             Self::CommitCancel => "git-commit-cancel",
             Self::Quit => "git-quit",

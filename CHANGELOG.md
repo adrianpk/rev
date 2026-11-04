@@ -18,9 +18,12 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   clear marks with 0; stale or incompatible groups reject before index changes.
   Confirm whole-path discard with k to restore a tracked working file from its
   index, protecting unsaved visiting buffers and retaining staged entries. Compose
-  a commit with c, edit its subject and body, submit with C-Enter or C-c C-c, or
+  a commit with c, or prepare an amend or exact-target fixup through M-x. Edit
+  its subject and body, submit with C-Enter or C-c C-c, or
   retain the session draft with C-g. Commit only the checked staged content,
-  keeping Git hooks, identity and signing policy. Return to the same windows
+  keeping Git hooks, identity and signing policy. Explicitly review amend and
+  fixup targets before Git runs; fixup leaves autosquash to a separate action.
+  Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting
   with Git work still running. Failed refreshes preserve confirmed Status.

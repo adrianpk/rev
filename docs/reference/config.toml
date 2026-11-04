@@ -1554,6 +1554,8 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"C-Enter" = "git-commit-submit"
+"C-c C-c" = "git-commit-submit"
 "c" = "git-commit"
 "C-x g" = "git-status"
 "C-x C-c" = "save-buffers-kill-terminal"

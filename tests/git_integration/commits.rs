@@ -2,6 +2,8 @@ use crate::support::{Repository, finish};
 use rev::git::{Effects, MAX_COMMIT_BYTES, Outcome};
 use std::{fs, os::unix::fs::PermissionsExt};
 
+#[path = "commits_modes.rs"]
+mod modes;
 #[path = "commits_presentation.rs"]
 mod presentation;
 

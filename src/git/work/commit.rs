@@ -1,7 +1,118 @@
 use super::super::commit::{check_status, same_index};
 use super::*;
 
+pub(super) struct Prepared {
+    pub observation: Arc<Observation>,
+    pub mode: CommitMode,
+    pub message: String,
+    pub parents: Vec<ObjectId>,
+    pub fixup_prefix: Option<String>,
+}
+
 impl Runner {
+    pub(super) fn prepare_commit(
+        &mut self,
+        request: super::super::commit::Preparation,
+        admission: &mut Lease,
+    ) -> Result<Prepared, String> {
+        self.check_commit(&request.observation, admission)?;
+        let format = request.observation.identity.format;
+        let (mode, message, parents, fixup_prefix) = if let Some(revision) = request.target {
+            let resolved = self
+                .command_os(
+                    &[
+                        "rev-parse".into(),
+                        "--verify".into(),
+                        "--end-of-options".into(),
+                        format!("{revision}^{{commit}}").into(),
+                    ],
+                    Phase::Checking,
+                    false,
+                    None,
+                )?
+                .0;
+            let target = ObjectId::parse(
+                resolved
+                    .strip_suffix(b"\n")
+                    .ok_or("Fixup resolution lacks newline")?,
+                format,
+            )?;
+            let (subject, limited) = self.command_os(
+                &[
+                    "show".into(),
+                    "--no-patch".into(),
+                    "--format=%s".into(),
+                    target.hex().into(),
+                ],
+                Phase::Checking,
+                false,
+                Some(4096),
+            )?;
+            if limited {
+                return Err("Fixup target subject exceeds its 4096-byte metadata bound".into());
+            }
+            let subject = std::str::from_utf8(
+                subject
+                    .strip_suffix(b"\n")
+                    .ok_or("Fixup subject lacks newline")?,
+            )
+            .map_err(|_| "Fixup target subject is not UTF-8")?;
+            if subject.contains(['\0', '\n', '\r']) {
+                return Err("Fixup target subject has unsupported controls".into());
+            }
+            let prefix = format!("fixup! {subject}");
+            (
+                CommitMode::Fixup { target },
+                format!("{prefix}\n\n"),
+                Vec::new(),
+                Some(prefix),
+            )
+        } else {
+            let head = head_object(&check_status(request.observation.status.as_ref())?.head)
+                .ok_or("Amend requires an exact existing HEAD")?;
+            let object = self.read_commit(head)?;
+            admission.grow(2 * object.len())?;
+            let (parents, message) = commit_object(&object, format)?;
+            if message.len() > MAX_COMMIT_BYTES || message.contains(&0) {
+                return Err(
+                    "Amend message exceeds the native 65536-byte draft bound or contains NUL"
+                        .into(),
+                );
+            }
+            let message = std::str::from_utf8(message)
+                .map_err(|_| "Amend message is not UTF-8")?
+                .to_owned();
+            (CommitMode::Amend { head }, message, parents, None)
+        };
+        admission.grow(
+            2 * message.capacity()
+                + 2 * fixup_prefix.as_ref().map_or(0, String::capacity)
+                + parents.capacity() * std::mem::size_of::<ObjectId>()
+                + std::mem::size_of::<Composition>(),
+        )?;
+        self.check_commit(&request.observation, admission)?;
+        Ok(Prepared {
+            observation: request.observation,
+            mode,
+            message,
+            parents,
+            fixup_prefix,
+        })
+    }
+
+    fn read_commit(&mut self, head: ObjectId) -> Result<Vec<u8>, String> {
+        let (object, limited) = self.command_os(
+            &["cat-file".into(), "commit".into(), head.hex().into()],
+            Phase::Verifying,
+            false,
+            Some(self.policy.max_detail_bytes),
+        )?;
+        if limited {
+            return Err("Commit object exceeded its complete-detail cap".into());
+        }
+        Ok(object)
+    }
+
     pub(super) fn commit(
         &mut self,
         request: super::super::commit::Request,
@@ -20,6 +131,22 @@ impl Runner {
             true,
             self.policy.max_status_paths,
         )?;
+        if let Some(composition) = &request.composition {
+            let target = match composition.mode {
+                CommitMode::Amend { head } => head,
+                CommitMode::Fixup { target } => target,
+            };
+            self.command_os(
+                &[
+                    "cat-file".into(),
+                    "-e".into(),
+                    format!("{}^{{commit}}", target.hex()).into(),
+                ],
+                Phase::Checking,
+                false,
+                None,
+            )?;
+        }
         // A full semantic index snapshot covers unchanged paths as well as
         // Status's staged delta. Recheck after preparation, before launching
         // the sole mutator; no source save or hidden staging is involved.
@@ -28,7 +155,16 @@ impl Runner {
         if before != self.commit_index()? {
             return Err("Commit index changed during preparation; refresh required".into());
         }
-        let args = ["commit", "--no-edit", "--cleanup=verbatim", "--file=-"].map(OsString::from);
+        let mut args = ["commit", "--no-edit", "--cleanup=verbatim", "--file=-"]
+            .map(OsString::from)
+            .to_vec();
+        if request
+            .composition
+            .as_ref()
+            .is_some_and(|c| matches!(c.mode, CommitMode::Amend { .. }))
+        {
+            args.push("--amend".into());
+        }
         let (executed, facts) = self.execute_change(&args, input);
         if self.retained.is_some() {
             self.restore_execution(facts, true);
@@ -132,20 +268,26 @@ impl Runner {
         }
         let head = head_object(&status.head).ok_or("Commit did not create a HEAD object")?;
         let old = head_object(&check_status(request.observation.status.as_ref())?.head);
-        if Some(head) == old {
+        if Some(head) == old
+            && !request
+                .composition
+                .as_ref()
+                .is_some_and(|c| matches!(c.mode, CommitMode::Amend { .. }))
+        {
             return Err("Commit did not advance the checked HEAD".into());
         }
-        let (object, limited) = self.command_os(
-            &["cat-file".into(), "commit".into(), head.hex().into()],
-            Phase::Verifying,
-            false,
-            Some(self.policy.max_detail_bytes),
-        )?;
-        if limited {
-            return Err("Commit object exceeded its complete-detail cap".into());
-        }
+        let object = self.read_commit(head)?;
+        admission.grow(2 * object.len())?;
         let (parents, message) = commit_object(&object, identity.format)?;
-        if parents != old.into_iter().collect::<Vec<_>>() || message != request.message.as_bytes() {
+        let expected_parents = request
+            .composition
+            .as_ref()
+            .filter(|c| matches!(c.mode, CommitMode::Amend { .. }))
+            .map_or_else(
+                || old.into_iter().collect::<Vec<_>>(),
+                |c| c.parents.clone(),
+            );
+        if parents != expected_parents || message != request.message.as_bytes() {
             return Err("Actual commit parents or message differ from the accepted composition; inspect HEAD".into());
         }
         let tree = self
@@ -200,9 +342,6 @@ fn commit_object(bytes: &[u8], format: ObjectFormat) -> Result<(Vec<ObjectId>, &
     let mut parents = Vec::new();
     for line in bytes[..boundary].split(|b| *b == b'\n') {
         if let Some(value) = line.strip_prefix(b"parent ") {
-            if parents.len() >= 64 {
-                return Err("Commit parent metadata exceeds its bound".into());
-            }
             parents.push(ObjectId::parse(value, format)?);
         }
     }

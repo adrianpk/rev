@@ -27,6 +27,7 @@ pub(super) struct Work {
     index_request: Option<OperationId>,
     discard_request: Option<OperationId>,
     commit_request: Option<OperationId>,
+    commit_preparing: Option<OperationId>,
     composer: Option<commit::Composer>,
     index_preparing: Option<index::Preparing>,
     marks: index::Marks,
@@ -185,6 +186,7 @@ impl Work {
             index_request: None,
             discard_request: None,
             commit_request: None,
+            commit_preparing: None,
             composer: None,
             index_preparing: None,
             marks: index::Marks::default(),
@@ -273,6 +275,8 @@ impl Session {
             return Some(match command {
                 GitCommand::Status => self.open_git(),
                 GitCommand::Commit => self.compose_git_commit(),
+                GitCommand::CommitAmend => self.prepare_git_amend(),
+                GitCommand::CommitFixup => self.prompt_git_fixup(),
                 GitCommand::CommitSubmit | GitCommand::CommitCancel => {
                     self.message("No commit composer is active")
                 }
@@ -516,6 +520,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.commit_preparing == Some(update.operation) {
+                self.publish_git_preparation(&update);
+                continue;
+            }
             if self.git.commit_request == Some(update.operation) {
                 self.publish_git_commit(&update);
                 continue;
@@ -592,7 +600,7 @@ impl Session {
         Action::Redraw
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
-        if self.git_composing() && matches!(event, Event::Mouse(_)) {
+        if self.git.composer.is_some() && matches!(event, Event::Mouse(_)) {
             return Some(Action::Wait);
         }
         if !self.git.visible || self.input.focus() != Focus::Editing {
@@ -672,6 +680,9 @@ impl Session {
         }
     }
     pub(super) fn git_frame(&mut self) -> Result<Frame, crate::view::Error> {
+        if self.git_commit_reviewing() {
+            return self.git_commit_review_frame();
+        }
         self.git.reconcile(self.git_extent());
         let popup = self.input.palette().and_then(|palette| {
             crate::panel::Composition::navigation(self.size, palette.requested_rows())
@@ -713,7 +724,7 @@ impl Session {
             &self.echo,
             match self.git.page {
                 Page::Status => {
-                    " Git Status  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
+                    " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
                 Page::Diff => " Git Diff  g refresh  Return visit source  $ processes  q Status",
                 Page::Processes => " Git Processes  Return inspect  C-g cancel selected  q return",
