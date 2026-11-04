@@ -72,9 +72,9 @@ fn editor(config: &str, name: &str, source: &str) -> (Fixture, Session) {
     let fixture = Fixture::new();
     let startup = prepare(&fixture.write("config.toml", config));
     assert!(startup.diagnostic.is_none(), "{:?}", startup.diagnostic);
-    let mut buffers = Buffers::with_settings(startup.snapshot).unwrap();
+    let mut buffers = Buffers::with_settings(startup.snapshot.clone()).unwrap();
     let id = buffers.visit(&fixture.write(name, source)).unwrap();
-    let view = View::new(buffers.get(id).unwrap());
+    let view = View::with_settings(buffers.get(id).unwrap(), &startup.snapshot);
     let session = Session::new(
         buffers,
         view,

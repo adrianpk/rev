@@ -145,6 +145,7 @@ fn retired_work() {
 // Native Org admission honors the ordinary syntax toggle and exact UTF-8 cutoff,
 // independently of a configured Rust grammar. Growing past equality drops old
 // styles immediately; undo makes the current revision eligible for fresh work.
+// Disable independent heading presentation so coloring is the observation owner.
 #[test]
 fn syntax_policy() {
     let source = "* 界\n";
@@ -157,7 +158,8 @@ fn syntax_policy() {
         ("grammar", "language.org.grammar = 'rust'", true),
         ("unavailable", "org.enabled = false", false),
     ] {
-        let (_fixture, mut session) = editor(config, "notes.org", source);
+        let config = format!("org.headings.pretty=false\n{config}");
+        let (_fixture, mut session) = editor(&config, "notes.org", source);
         let stamp = session.buffer().unwrap().stamp();
         settle(&mut session);
         assert_eq!(
