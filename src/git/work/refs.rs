@@ -8,7 +8,7 @@ impl Runner {
         self.check_ref_origin(&refs.observation, admission)?;
         let current = self.read_refs(refs.observation.clone(), admission)?;
         if !refs.same(&current) {
-            return Err("Refs changed while tag parameters or confirmation were open".into());
+            return Err("Refs changed while request parameters or confirmation were open".into());
         }
         Ok(())
     }

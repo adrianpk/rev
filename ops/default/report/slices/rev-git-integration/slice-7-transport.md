@@ -1,6 +1,6 @@
 # Slice 7: Separate Fetch and Reviewed Push
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -47,6 +47,23 @@ T7.2 implements reviewed upstream push:
 - Verification queries the private effective push endpoint, including when it
   differs from the fetch URL. Actual child failure, checked destination state
   and unavailable publication verification are distinct; no automatic retry runs.
+
+T7.3 establishes bounded failure and uncertainty behavior:
+
+- A real edit to the selected fetch refspec's force policy invalidates the
+  captured configuration before a changing child, retaining existing tracking.
+- An actual successful push followed by temporary unavailability of its owned
+  bare endpoint produces an indeterminate publication outcome. The retained
+  child exit remains successful; restoring that fixture proves the real object
+  was published once. No success response or remote state is fabricated.
+- Owned remote helpers invoke real Git credential fill with an owned failing
+  credential helper. Noninteractive failure receives a fixed safe diagnosis;
+  endpoint, helper stderr and credential sentinels remain absent from records.
+  These fixtures prove helper/credential ownership, not live network authentication.
+- Quiet deadline, excessive-output and explicitly cancelled helpers use the
+  existing finite transport, output, group cleanup and five-second fixture
+  bounds. Records preserve possible effects and cancellation/timeout/output
+  distinctions. All owned children finish cleanup; no retry runs automatically.
 
 ## Implementation Notes
 
@@ -103,8 +120,24 @@ Initial compile/lint corrections were limited visibility and one needless borrow
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration transport::push::receiver_rejection -- --test-threads=1` passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration transport::presentation::native_push -- --test-threads=1` passed.
 
+T7.3 focused development command:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration transport::acceptance:: -- --test-threads=1` passed all four tests in 9.95 seconds.
+
+The first configuration-change fixture also changed public upstream facts and
+therefore reached the earlier stale-ref rejection. It now changes only fetch
+force policy, retaining the same tracking identity so the configuration check
+is exercised directly. Its missing local capture binding was corrected before
+the successful run. The no-changing-child and unchanged-tracking assertions,
+fixture deadlines and all resource ceilings remain enforced. Shared ref
+invalidation diagnostics now name the request rather than tag-only parameters.
+The final candidate will run the required ordered prefix, the shared 107-test
+Git baseline, command/configuration references, documentation and whitespace
+through the controller after the PR-reference follow-up. Expected warm cost
+is several minutes; this is component regression, not the selected full gate.
+
 ## Risks and Follow-ups
 
-T7.3 transport failure/uncertainty acceptance and complete exact-HEAD checks
-remain pending. Combined PTY/resource acceptance remains Slice 13 and the full
+Canonical PR-reference publication and successful exact-HEAD checks remain
+pending. Combined PTY/resource acceptance remains Slice 13 and the full
 User Guide remains Slice 14.

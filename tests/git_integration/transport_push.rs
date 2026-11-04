@@ -1,18 +1,18 @@
 use super::*;
 use rev::git::PushIntent;
 
-fn tracking(repository: &Repository) {
+pub(super) fn tracking(repository: &Repository) {
     repository.git(["fetch", "origin"]);
     repository.git(["branch", "--set-upstream-to=origin/main", "main"]);
 }
-fn prepare(owner: &mut Repositories, refs: Arc<Refs>) -> Arc<PushIntent> {
+pub(super) fn prepare(owner: &mut Repositories, refs: Arc<Refs>) -> Arc<PushIntent> {
     let context = refs.observation.context;
     let id = owner.prepare_push(refs, b"refs/heads/main", None).unwrap();
     let update = finish(owner);
     assert!(update.published, "{:?}", owner.record(id));
     owner.push_intent(context).unwrap().clone()
 }
-fn object(repository: &Repository, remote: &std::path::Path, name: &str) -> Vec<u8> {
+pub(super) fn object(repository: &Repository, remote: &std::path::Path, name: &str) -> Vec<u8> {
     repository.git(["--git-dir", remote.to_str().unwrap(), "rev-parse", name])
 }
 

@@ -893,6 +893,6 @@ The result refreshes local facts and queries the privately captured effective
 push endpoint for the exact full destination. A successful child alone does not
 prove publication. Failed children, unavailable verification, differing remote
 objects and cancellation/timeout after possible effects remain distinct in
-Processes. Failure is never automatically retried. Transport/helper output and
-credential-bearing endpoints remain private; records retain safe argv, actual
+Processes. Failure is never automatically retried. Recognized noninteractive credential/authentication failures get a fixed safe
+diagnosis. Transport/helper output and credential-bearing endpoints remain private; records retain safe argv, actual
 exit and checked outcomes under the existing finite transport/output limits.

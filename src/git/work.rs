@@ -105,6 +105,7 @@ pub(super) fn start(
                 wake: wake.clone(),
                 captured: 0,
                 private_output,
+                transport_diagnostic: None,
                 effects: Effects::NotStarted,
                 operation_failure: None,
                 failure_verified: false,
@@ -157,6 +158,7 @@ struct Runner {
     // Transport/helper and raw configuration output may contain credentials.
     // Parse it privately; public records retain safe argv, exit and outcome.
     private_output: bool,
+    transport_diagnostic: Option<&'static str>,
     effects: Effects,
     operation_failure: Option<String>,
     failure_verified: bool,
@@ -395,6 +397,31 @@ impl Runner {
             || result.stderr.len() > stderr_end
             || result.end == capture::End::OutputLimit;
         if self.private_output {
+            if result.status.is_some_and(|status| !status.success()) {
+                for (needle, diagnosis) in [
+                    (
+                        b"terminal prompts disabled".as_slice(),
+                        "Noninteractive Git credential input is unavailable",
+                    ),
+                    (
+                        b"Authentication failed".as_slice(),
+                        "Git authentication failed",
+                    ),
+                    (
+                        b"Permission denied (publickey".as_slice(),
+                        "Git SSH authentication failed",
+                    ),
+                ] {
+                    if result
+                        .stderr
+                        .windows(needle.len())
+                        .any(|part| part == needle)
+                    {
+                        self.transport_diagnostic = Some(diagnosis);
+                        break;
+                    }
+                }
+            }
             self.stdout.clear();
             self.stderr.clear();
         }
@@ -455,6 +482,20 @@ impl Runner {
                 _ => Outcome::Failed,
             }
         };
+        let diagnostic = self
+            .operation_failure
+            .or_else(|| observed.as_ref().err().cloned());
+        let diagnostic = if self.private_output {
+            let mut text = diagnostic.unwrap_or("Checked Git request completed".into());
+            if let Some(reason) = self.transport_diagnostic {
+                text.push_str("; ");
+                text.push_str(reason);
+            }
+            text.push_str("; raw transport/configuration output withheld to protect credentials");
+            Some(text)
+        } else {
+            diagnostic
+        };
         let mut record = Record {
             id: progress.operation,
             kind: progress.kind,
@@ -468,10 +509,7 @@ impl Runner {
             stdout: self.stdout,
             stderr: self.stderr,
             output_truncated: self.truncated,
-            diagnostic: self
-                .operation_failure
-                .or_else(|| observed.as_ref().err().cloned())
-                .or_else(|| self.private_output.then(|| "Transport/configuration output withheld to protect credentials; exit and checked facts retained".into())),
+            diagnostic,
             admission: admission.split(0),
         };
         record.admission = admission.split(record.bytes() + 4096);
@@ -517,7 +555,9 @@ impl Runner {
                     Outcome::Failed
                 };
             }
-            record.diagnostic = Some(error.clone());
+            if !self.private_output {
+                record.diagnostic = Some(error.clone());
+            }
         }
         if let Ok(Publication::Diff(detail)) = &publication
             && let DiffKind::Malformed(reason) = &detail.kind

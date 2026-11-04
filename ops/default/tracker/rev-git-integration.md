@@ -129,7 +129,7 @@ Integration: [PR #263](https://forge.adrianpk.com/adrianpk/rev/pulls/263) merged
 
 ## Slice 7: Separate fetch and reviewed push
 
-Status: active
+Status: reviewing
 Branch: `feat/rev-git-integration-07-transport`
 Expected PR title: `feat(git): fetch and push one reviewed upstream branch`
 Report: `ops/default/report/slices/rev-git-integration/slice-7-transport.md`
@@ -138,10 +138,10 @@ PR: pending
 
 - [x] T7.1: Fetch an explicitly selected configured remote and refresh tracking facts without integrating the current branch.
 - [x] T7.2: Review and confirm one exact branch, configured upstream remote and destination; prevent implicit force, deletion, tags or mirror expansion and reject ambiguous tracking.
-- [ ] T7.3: Verify local-bare remote outcomes, hostile/conflicting push settings, failed credentials/helpers, cancellation, bounded diagnostics and publication uncertainty; no live user remote or credential is used.
+- [x] T7.3: Verify local-bare remote outcomes, hostile/conflicting push settings, failed credentials/helpers, cancellation, bounded diagnostics and publication uncertainty; no live user remote or credential is used.
 
-Validation: T7.1 development formatter, strict focused Clippy, all three transport tests and 21 reference tests pass. Documentation checks 511 commands and 267 configuration entries. Real SHA-1/SHA-256 bare remotes and both native profiles establish explicit fetch without integration; T7.2 adds checked single-branch upstream publication, conflicting-policy/stale rejection and both-profile native review/source retention. Documentation covers 512 commands; final exact-HEAD evidence remains pending.
-Integration: T7.1 introduces the canonical report; T7.2 completes reviewed upstream push; T7.3 and canonical PR preparation remain pending.
+Validation: T7.1 development formatter, strict focused Clippy, all three transport tests and 21 reference tests pass. Documentation checks 511 commands and 267 configuration entries. Real SHA-1/SHA-256 bare remotes and both native profiles establish explicit fetch without integration; T7.2 adds checked single-branch upstream publication, conflicting-policy/stale rejection and both-profile native review/source retention. Documentation covers 512 commands; T7.3 passes all four bounded failure/uncertainty fixtures, including real credential fill and post-publication endpoint unavailability. Earlier failures remain recorded in the report; final exact-HEAD evidence remains pending.
+Integration: T7.1 introduces the canonical report; T7.2 completes reviewed upstream push; T7.3 completes bounded transport acceptance; canonical PR preparation and exact-HEAD checks remain pending.
 
 ## Slice 8: Merge rebase and sequence control
 
