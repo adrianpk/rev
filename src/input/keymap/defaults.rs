@@ -164,6 +164,8 @@ pub(super) const GIT: &[(&str, &str)] = &[
     ("g", "git-refresh"),
     ("TAB", "git-toggle-section"),
     ("?", "git-dispatch"),
+    ("$", "git-processes"),
+    ("RET", "git-process-show"),
     ("Up", "previous-line"),
     ("Down", "next-line"),
     ("C-p", "previous-line"),

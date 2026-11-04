@@ -406,3 +406,105 @@ fn operation_identity() {
 fn context_id(owner: &Repositories) -> rev::git::ContextId {
     owner.contexts()[0].id
 }
+
+// Controlled output/deadline faults and a real concurrent HEAD change reject
+// publication. Exit zero alone cannot replace confirmed repository facts.
+#[test]
+fn rejected_publication() {
+    for case in ["malformed", "changed HEAD", "deadline"] {
+        let repository = Repository::new("sha1");
+        repository.commit();
+        let mut owner = repository.owner(if case == "deadline" {
+            "observation_timeout_seconds=2"
+        } else {
+            ""
+        });
+        repository.open(&mut owner, &repository.root);
+        let retained = owner.contexts()[0].observation.clone();
+        let injected = if case == "malformed" {
+            "printf '# branch.oid (initial)\\000# branch.head main\\000invalid record\\000'\nexit 0"
+        } else if case == "changed HEAD" {
+            "/usr/bin/git \"$@\"\n/usr/bin/git symbolic-ref HEAD refs/heads/other\nexit 0"
+        } else {
+            "trap '' TERM\nexec sleep 60"
+        };
+        fs::write(&repository.program, format!("#!/bin/sh\nexport GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null\nif [ \"$2\" = status ]; then\n{injected}\nfi\nexec /usr/bin/git \"$@\"\n")).unwrap();
+        owner.refresh(retained.context).unwrap();
+        assert!(!finish(&mut owner).published, "{case}");
+        let context = owner.context(retained.context).unwrap();
+        assert!(Arc::ptr_eq(&retained, &context.observation), "{case}");
+        assert!(context.failure.is_some());
+        let record = owner.records().last().unwrap();
+        assert_eq!(
+            record.outcome,
+            if case == "deadline" {
+                Outcome::TimedOut
+            } else {
+                Outcome::Failed
+            }
+        );
+        if case == "changed HEAD" {
+            assert!(record.diagnostic.as_ref().unwrap().contains("HEAD changed"));
+        }
+        assert!(!owner.busy());
+    }
+}
+
+// A real local remote and divergent commits establish tracking counts. A real
+// merge conflict supplies porcelain-v2 unmerged layers without remote access.
+#[test]
+fn tracking_conflict() {
+    let repository = Repository::new("sha1");
+    fs::write(repository.root.join("shared"), "base\n").unwrap();
+    repository.commit();
+    let remote = repository.fixture.0.join("remote.git");
+    repository.git(["init", "--bare", remote.to_str().unwrap()]);
+    repository.git(["remote", "add", "origin", remote.to_str().unwrap()]);
+    repository.git(["push", "--set-upstream", "origin", "main"]);
+    let peer = repository.fixture.0.join("peer");
+    repository.git([
+        "clone",
+        "--local",
+        "--branch=main",
+        remote.to_str().unwrap(),
+        peer.to_str().unwrap(),
+    ]);
+    repository.git([
+        "-C",
+        peer.to_str().unwrap(),
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "--allow-empty",
+        "--message=Peer",
+    ]);
+    repository.git(["-C", peer.to_str().unwrap(), "push", "origin", "main"]);
+    repository.git(["fetch", "origin"]);
+    repository.git(["branch", "side"]);
+    fs::write(repository.root.join("shared"), "main\n").unwrap();
+    repository.commit();
+    repository.git(["switch", "side"]);
+    fs::write(repository.root.join("shared"), "side\n").unwrap();
+    repository.commit();
+    repository.git(["switch", "main"]);
+    let conflict = std::process::Command::new(&repository.program)
+        .args(["merge", "--no-edit", "side"])
+        .current_dir(&repository.root)
+        .output()
+        .unwrap();
+    assert_eq!(conflict.status.code(), Some(1));
+    let mut owner = repository.owner("");
+    assert!(repository.open(&mut owner, &repository.root).published);
+    let status = owner.contexts()[0].observation.status.as_ref().unwrap();
+    assert_eq!(status.upstream.as_deref(), Some(b"origin/main".as_slice()));
+    assert_eq!(status.ahead, Some(1));
+    assert_eq!(status.behind, Some(1));
+    let paths: Vec<_> = status.group(Group::Unmerged).collect();
+    assert_eq!(paths.len(), 1);
+    assert_eq!(paths[0].path, PathBuf::from("shared"));
+    assert_eq!(status.completeness, Completeness::Complete);
+}

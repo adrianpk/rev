@@ -231,6 +231,18 @@ impl Repositories {
     pub fn records(&self) -> &[Record] {
         &self.records
     }
+    /// Inspection includes a retained failed-cleanup record without releasing
+    /// its live child owner or moving the operation into completed history.
+    pub fn record(&self, id: OperationId) -> Option<&Record> {
+        self.active
+            .iter()
+            .filter_map(|active| active.record.as_ref())
+            .chain(self.records.iter())
+            .find(|record| record.id == id)
+    }
+    pub fn cleanup_pending(&self) -> bool {
+        self.active.iter().any(|active| active.retained.is_some())
+    }
     pub fn admitted_bytes(&self) -> usize {
         self.budget.used()
     }
@@ -396,7 +408,9 @@ impl Repositories {
                         Outcome::CleanupPending
                     };
                     record.diagnostic = result.err();
-                    progress.lock().expect("Git progress owner").child = None;
+                    if !record_cleanup_pending(&child) {
+                        progress.lock().expect("Git progress owner").child = None;
+                    }
                     wake();
                     work::Finished {
                         observation: Err("Git cancelled".into()),

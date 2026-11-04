@@ -8,12 +8,30 @@ use crate::{
 use crossterm::event::{Event, MouseButton, MouseEventKind};
 use std::{path::PathBuf, sync::Arc};
 
+mod processes;
+mod shutdown;
+
 pub(super) struct Work {
     pub engine: Repositories,
     launch: PathBuf,
     visible: bool,
     state: State,
     painted: Option<Painted>,
+    page: Page,
+    process_origin: bool,
+    process_selected: Option<OperationId>,
+    process_top: usize,
+    detail_top: usize,
+    pub(super) exit_operations: Vec<OperationId>,
+    pub(super) shutdown: Option<super::quit::Sources>,
+}
+
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
+enum Page {
+    #[default]
+    Status,
+    Processes,
+    Process(OperationId),
 }
 
 struct Painted {
@@ -24,6 +42,9 @@ struct Painted {
     size: crate::display::Size,
     focus: Focus,
     menu: bool,
+    page: Page,
+    processes: Vec<OperationId>,
+    process_top: usize,
 }
 
 #[derive(Default)]
@@ -93,6 +114,13 @@ impl Work {
             visible: false,
             state: State::default(),
             painted: None,
+            page: Page::Status,
+            process_origin: false,
+            process_selected: None,
+            process_top: 0,
+            detail_top: 0,
+            exit_operations: Vec::new(),
+            shutdown: None,
         })
     }
     fn observation(&self) -> Option<&Observation> {
@@ -155,6 +183,9 @@ impl Session {
                         Action::Redraw
                     }
                 }
+                GitCommand::Processes => self.open_git_processes(),
+                GitCommand::ProcessShow => self.show_git_process(),
+                GitCommand::ProcessCancel => self.cancel_git_process(),
             });
         }
         if !self.git.visible {
@@ -187,6 +218,12 @@ impl Session {
 
     fn open_git(&mut self) -> Action {
         if self.git.visible {
+            self.git.page = Page::Status;
+            self.git.state.menu = false;
+            if self.git.state.context.is_none() && self.git.state.request.is_none() {
+                self.git.visible = false;
+                return self.open_git();
+            }
             return self.refresh_git();
         }
         if self.layout_active() {
@@ -206,6 +243,7 @@ impl Session {
                 self.git.state.request = Some((operation, true));
                 self.git.state.menu = false;
                 self.git.visible = true;
+                self.git.page = Page::Status;
                 self.git.painted = None;
                 self.cancel_pointer_capture();
                 self.cancel_terminal_pointer();
@@ -222,6 +260,17 @@ impl Session {
         if self.git.state.menu {
             self.git.state.menu = false;
             return Action::Redraw;
+        }
+        match self.git.page {
+            Page::Process(_) => {
+                self.git.page = Page::Processes;
+                return Action::Redraw;
+            }
+            Page::Processes if self.git.process_origin => {
+                self.git.page = Page::Status;
+                return Action::Redraw;
+            }
+            _ => {}
         }
         self.git.visible = false;
         self.git.painted = None;
@@ -253,6 +302,11 @@ impl Session {
         usize::from(self.size.height.saturating_sub(5).max(1))
     }
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
+        match self.git.page {
+            Page::Processes => return self.move_git_process(distance, backward),
+            Page::Process(id) => return self.scroll_git_process(id, distance, backward),
+            Page::Status => {}
+        }
         let Some(status) = self.git.status() else {
             return self.message("Git Status is unavailable or checking context");
         };
@@ -290,6 +344,9 @@ impl Session {
     }
     fn toggle_git_section(&mut self) -> Action {
         self.git.state.menu = false;
+        if self.git.page != Page::Status {
+            return self.show_git_process();
+        }
         let group = match self.git.state.selected {
             Some(Target::Section(group) | Target::Path(group, _)) => group,
             None => return self.message("No current Git section is selected"),
@@ -332,7 +389,7 @@ impl Session {
                 {
                     self.message("Git Status refreshed");
                 }
-            } else if opening && self.git.visible {
+            } else if opening && self.git.visible && self.git.page == Page::Status {
                 self.git.visible = false;
                 self.input.set_git(false);
                 self.sync_input_context();
@@ -359,6 +416,14 @@ impl Session {
         if !self.git.visible || self.input.focus() != Focus::Editing {
             return None;
         }
+        if self.git.page != Page::Status
+            && !self.git.state.menu
+            && self.pending.is_none()
+            && self.input.prefix().is_none()
+            && crate::input::Input::interrupt(event)
+        {
+            return Some(self.cancel_git_process());
+        }
         match event {
             Event::Paste(_) => Some(self.message("Git presentation is read-only")),
             Event::Mouse(mouse) => {
@@ -379,6 +444,9 @@ impl Session {
                             && painted.size == self.size
                             && painted.focus == self.input.focus()
                             && painted.menu == self.git.state.menu
+                            && painted.page == self.git.page
+                            && painted.processes == self.git.process_ids().collect::<Vec<_>>()
+                            && painted.process_top == self.git.process_top
                     })
                 {
                     return Some(
@@ -399,7 +467,14 @@ impl Session {
                             && mouse.column < self.size.width
                             && !self.git.state.menu =>
                     {
-                        self.select_git_row(self.git.state.top + usize::from(mouse.row - 3))
+                        let index = usize::from(mouse.row - 3);
+                        if self.git.page == Page::Processes {
+                            self.select_git_process(self.git.process_top + index)
+                        } else if self.git.page == Page::Status {
+                            self.select_git_row(self.git.state.top + index)
+                        } else {
+                            Action::Wait
+                        }
                     }
                     _ => Action::Wait,
                 })
@@ -430,11 +505,24 @@ impl Session {
         let observation = self.git.observation();
         let status = observation.and_then(|o| o.status.as_ref());
         let mut rows = status.map(|s| items(s, &self.git.state.collapsed).skip(self.git.state.top));
+        let mut process_rows = self.git.process_rows().skip(match self.git.page {
+            Page::Process(_) => self.git.detail_top,
+            _ => self.git.process_top,
+        });
         let mut frame = Frame::git(
             self.buffer()?,
             self.size,
             self.buffers.palette(),
             &self.echo,
+            match self.git.page {
+                Page::Status => {
+                    " Git Status  g refresh  Tab section  $ processes  ? actions  q return"
+                }
+                Page::Processes => " Git Processes  Return inspect  C-g cancel selected  q return",
+                Page::Process(_) => {
+                    " Git Process  Up/Down scroll  C-g cancel this operation  q return"
+                }
+            },
             admission,
             |row| {
                 if self.git.state.menu {
@@ -443,6 +531,7 @@ impl Session {
                             "Git actions",
                             "g  git-refresh",
                             "Tab  git-toggle-section",
+                            "$  git-processes",
                             "M-x / :  native commands",
                             "q / C-g  return to Status",
                         ]
@@ -451,6 +540,13 @@ impl Session {
                         .to_string(),
                         false,
                     );
+                }
+                if self.git.page != Page::Status {
+                    return if row < 3 {
+                        (self.git.process_header(row), false)
+                    } else {
+                        process_rows.next().unwrap_or_default()
+                    };
                 }
                 if row == 0 {
                     return (header(observation), false);
@@ -546,6 +642,7 @@ impl Session {
         frame.message_kind(self.echo_kind);
         self.prompt_frame(&mut frame, popup.as_ref())?;
         drop(rows);
+        drop(process_rows);
         self.git.painted = Some(Painted {
             context: self.git.state.context,
             generation: self.git.observation().map(|o| o.generation),
@@ -554,6 +651,9 @@ impl Session {
             size: self.size,
             focus: self.input.focus(),
             menu: self.git.state.menu,
+            page: self.git.page,
+            processes: self.git.process_ids().collect(),
+            process_top: self.git.process_top,
         });
         Ok(frame)
     }

@@ -61,6 +61,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `g` in Git | `git-refresh` | Request a replacement observation; retain confirmed Status on failure. |
 | Tab in Git | `git-toggle-section` | Collapse or expand the selected nonempty Status group. |
 | `?` in Git | `git-dispatch` | Show the available native Git actions. |
+| `$` in Git, `M-x git-processes`, `:git-processes` | `git-processes` | Inspect active and recent owned operations without cancelling them. |
+| Return in Processes | `git-process-show` | Inspect the selected operation and retain its originating list selection. |
+| `C-g` in Processes or process detail, `M-x git-process-cancel` | `git-process-cancel` | Cancel the selected live operation through its exact identity; menus and prompts keep first refusal. |
 | `M-x terminal-open`, `:terminal-open` | `terminal-open` | Open or select the instance default interactive terminal in the lower panel. |
 | `M-x terminal-toggle`, `:terminal-toggle` | `terminal-toggle` | Hide or restore the lower terminal panel without restarting the child. |
 | `M-x terminal-new-buffer`, `:terminal-new-buffer` | `terminal-new-buffer` | Create an independent terminal directly in the selected editing pane. |
@@ -741,6 +744,8 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `g` | `git-refresh` |
 | Tab | `git-toggle-section` |
 | `?` | `git-dispatch` |
+| `$` | `git-processes` |
+| Return | `git-process-show` |
 | Up, `C-p`, `p` | `previous-line` |
 | Down, `C-n`, `n` | `next-line` |
 

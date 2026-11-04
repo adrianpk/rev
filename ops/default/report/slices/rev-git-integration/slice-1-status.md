@@ -1,6 +1,6 @@
 # Slice 1: Repository Context and Native Status
 
-Status: drafting
+Status: reviewing
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -52,8 +52,24 @@ T1.2 adds the native presentation:
 - `keys.git` supplies validated navigation bindings independently of source
   maps. Retained frames participate in the same 32 MiB budget as observations.
 
-T1.3 process inspection, checked UI cancellation and guarded application exit
-remain pending. Slice 1 is not ready for its pull request.
+T1.3 completes owned-work inspection and exit:
+
+- `$` and `git-processes` show active observations before bounded recent records,
+  including after Status is hidden. Return opens the selected identity's phase,
+  duration, actual exit evidence and available captured diagnostics; q restores
+  the originating list or Status selection.
+- Contextual C-g and `git-process-cancel` cancel an explicitly selected live
+  identity. Menus, prompts and pending prefixes retain first refusal. Escape,
+  inspection and view exit do not stop a child; expired records never retarget a
+  replacement operation.
+- Guarded application exit identifies active Git observations, captures consent
+  for those identities and gathers terminal consent before termination starts.
+  Decline preserves running work and unsaved sources. Accepted exit awaits
+  bounded cleanup; cancelling exit after consent keeps cleanup owned without
+  exiting. Failed cleanup retains an inspectable owner and explicit retry.
+- Real isolated repositories cover tracking divergence and unmerged entries.
+  Controlled malformed output, a real intervening HEAD change and deadline
+  exhaustion retain the confirmed observation with truthful failure outcomes.
 
 ## Implementation Notes
 
@@ -75,6 +91,12 @@ Cleanup sends TERM, allows 500 ms grace, then escalates within a two-second
 deadline. Failed cleanup retains ownership for an explicit retry. No sequence
 abort or repository rollback is inferred from child termination.
 
+Process detail borrows retained bytes and escapes bounded visible chunks.
+Lines containing URLs, user-info or credential markers are withheld in full,
+including separated authorization values. Diagnostic labels remain display
+text and never become repository arguments. Active capture stays on its worker;
+completed or retained-cleanup records provide the available byte evidence.
+
 ## Contracts Added or Changed
 
 - Added the typed native Git observation, operation identity, process record
@@ -85,6 +107,9 @@ abort or repository rollback is inferred from child termination.
   documented defaults/ranges and complete-candidate cross-field validation.
 - Added native Git command identities and a validated `keys.git` context, with
   full-canvas frame admission and source/terminal input ownership boundaries.
+- Extended the existing guarded exit coordinator with captured Git operation
+  consent and an asynchronous cleanup continuation, alongside source/terminal
+  decisions.
 - No dependency or persistent repository store was added.
 
 ## Files of Interest
@@ -96,20 +121,28 @@ abort or repository rollback is inferred from child termination.
 - `src/process/capture.rs`: OS arguments, bounded capture and owned cleanup.
 - `src/config/git.rs`: typed startup policy and validation.
 - `src/session/git.rs`: retained native Status navigation and checked input.
+- `src/session/git/processes.rs`: identity-bound inspection and cancellation.
+- `src/session/git/shutdown.rs`: consent and guarded exit continuation.
 - `src/display/git.rs`: safe read-only projection under shared admission.
 - `tests/git_integration/status.rs`: real isolated repository contracts.
 - `tests/git_integration/presentation.rs`: both-profile navigation, terminal
   retention, pointer generations, configuration and display bounds.
+- `tests/git_integration/lifetime.rs`: real child retention, selected cancellation,
+  guarded exit and credential-safe diagnostic presentation.
 
 ## Validation
 
-T1.1-T1.2 development checks pass. They establish backend and native Status
-behavior, not the complete slice or final delivery gate. The controller's
-clean-HEAD slice receipt remains pending T1.3.
+T1.1-T1.3 development checks pass. The 21 native Git tests finish in about
+31 seconds on the development host. Controlled wrappers isolate delays and
+failure bytes around installed Git; they do not substitute normal repository
+semantics. No user remote, live credentials or external network is exercised.
+The controller records the final clean-HEAD ordered validation separately after
+the PR-reference commit. Shared window/panel checks below ran during T1.2;
+combined PTY/resource acceptance remains assigned to Slice 13.
 
 - `cargo fmt --all -- --check`: passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo clippy --locked --lib --bin rev --test git_integration -- -D warnings`: passed.
-- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status:: -- --test-threads=1`: 16 passed.
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test git_integration status:: -- --test-threads=1`: 21 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --lib process -- --test-threads=1`: 10 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test configuration reference -- --test-threads=1`: 11 passed.
 - `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test commands --test configuration reference -- --test-threads=1`: 10 command and 11 configuration checks passed.
@@ -118,7 +151,6 @@ clean-HEAD slice receipt remains pending T1.3.
 
 ## Risks and Follow-ups
 
-Complete T1.3 process inspection, checked UI
-cancellation, guarded application exit and remaining failure fixtures before
-opening the canonical Slice 1 pull request. Joint PTY and resource measurements
-remain assigned to Slice 13 by the approved plan.
+Joint PTY, binary/RSS/idle measurements and combined resource acceptance remain
+assigned to Slice 13 by the approved plan. The full delivery gate follows all
+approved implementation slices under controller ownership.

@@ -121,7 +121,9 @@ fn tree(target: Binding) -> bool {
     matches!(
         command,
         Command::Tree(_)
-            | Command::Git(crate::command::GitCommand::Status)
+            | Command::Git(
+                crate::command::GitCommand::Status | crate::command::GitCommand::Processes
+            )
             | Command::KeyboardQuit
             | Command::Quit
             | Command::MouseMode
@@ -166,17 +168,17 @@ fn bookmark_list(target: Binding) -> bool {
     matches!(
         target,
         Binding::Command(
-            Command::Git(crate::command::GitCommand::Status)
-                | Command::Bookmark(
-                    B::List
-                        | B::MenuVisit
-                        | B::MenuDelete
-                        | B::MenuUnmark
-                        | B::MenuExecute
-                        | B::Save
-                        | B::Reload
-                )
-                | Command::KeyboardQuit
+            Command::Git(
+                crate::command::GitCommand::Status | crate::command::GitCommand::Processes
+            ) | Command::Bookmark(
+                B::List
+                    | B::MenuVisit
+                    | B::MenuDelete
+                    | B::MenuUnmark
+                    | B::MenuExecute
+                    | B::Save
+                    | B::Reload
+            ) | Command::KeyboardQuit
                 | Command::ExecuteExtended
                 | Command::Quit
                 | Command::Split(_)

@@ -700,6 +700,9 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 | `git-refresh` | Replace Status only after a checked bounded observation succeeds; retain confirmed facts with a stale indication on failure. |
 | `git-toggle-section` | Toggle the selected Status section while retaining its semantic identity. |
 | `git-dispatch` | Show the currently available native Git actions. |
+| `git-processes` | Inspect active operations followed by bounded recent records, including after leaving Git. |
+| `git-process-show` | Open the selected operation's phase, elapsed time, exit evidence and safely displayed retained diagnostics. |
+| `git-process-cancel` | Request bounded cancellation of the explicitly selected live operation; an expired identity cannot target a replacement. |
 
 The `keys.git` map owns q, g, Tab, ? and list navigation in both profiles.
 M-x and colon use the shared command catalog. Unmerged, Untracked, Unstaged
@@ -707,3 +710,12 @@ and Staged sections appear in that order when nonempty. Clean, bare, unborn,
 detached, unavailable and truncated states remain explicit. Pointer selection
 uses a current frame and semantic path identity; display escaping never
 reconstructs a filesystem argument.
+
+`$` opens Processes and Return inspects the selected operation. Contextual C-g
+in Processes or process detail explicitly cancels that selected live operation;
+inside a menu or prompt it dismisses only that input owner. Escape dismisses
+input without cancelling a child. Each q returns one level and preserves work.
+Application exit identifies active Git work and requires a fresh decision
+before termination, alongside unsaved-source and terminal decisions. Accepted
+cleanup retains ownership until reaping; failure keeps the editor open. Stopping
+a process does not abort a Git sequence or claim repository rollback.

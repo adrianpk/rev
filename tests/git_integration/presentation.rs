@@ -13,6 +13,9 @@ use std::{
     time::{Duration, Instant},
 };
 
+#[path = "lifetime.rs"]
+mod lifetime;
+
 struct Editor(Session);
 impl Drop for Editor {
     fn drop(&mut self) {

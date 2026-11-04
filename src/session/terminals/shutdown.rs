@@ -64,13 +64,21 @@ impl Session {
     ) -> Action {
         self.input.cancel();
         if !accepted {
+            self.cancel_git_shutdown();
             return self.message("Quit canceled; terminal sessions retained");
         }
         self.begin_terminal_shutdown(sources)
     }
     fn begin_terminal_shutdown(&mut self, sources: Sources) -> Action {
+        if !sources.permits(&self.buffers) || !self.git_exit_permitted() {
+            self.cancel_git_shutdown();
+            return self
+                .error("Source or owned Git work changed; quit canceled before termination");
+        }
+        if self.terminals.sessions.ids().next().is_none() {
+            return self.begin_git_shutdown(sources);
+        }
         match self.request_terminal_shutdown(sources) {
-            Ok(()) if !self.terminal_shutdown_active() => self.finish_editor_quit(),
             Ok(()) => Action::Redraw,
             Err(error) => {
                 self.cancel_terminal_shutdown();
@@ -185,6 +193,12 @@ impl Session {
         }
         // Keep the closing state observable until the host consumes Exit.
         // frame() may service receipts without consuming the native action.
+        if self.git.engine.busy() {
+            let Shutdown::Closing(sources) = std::mem::take(&mut self.terminals.shutdown) else {
+                unreachable!("terminal shutdown owns source decisions");
+            };
+            return self.begin_git_shutdown(sources);
+        }
         self.finish_editor_quit()
     }
 }

@@ -32,6 +32,9 @@ impl Sources {
 
 impl Session {
     pub(super) fn quit(&mut self) -> Action {
+        if self.git_shutdown_active() {
+            return self.advance_git_shutdown();
+        }
         if self.terminal_shutdown_active() {
             return self.advance_terminal_shutdown();
         }
@@ -41,6 +44,7 @@ impl Session {
         self.begin_quit()
     }
     pub(super) fn begin_quit(&mut self) -> Action {
+        self.cancel_git_shutdown();
         let buffers = self
             .buffers
             .iter()
@@ -112,6 +116,9 @@ impl Session {
     }
 
     pub(super) fn finish_editor_quit(&mut self) -> Action {
+        if self.git.engine.busy() {
+            return self.error("Git cleanup remains owned; exit requires its guarded completion");
+        }
         self.end_timer_session();
         self.installation.cancel();
         self.shell.stop();
@@ -126,6 +133,8 @@ impl Session {
                     | Pending::BookmarkQuit(_)
                     | Pending::TerminalQuit { .. }
                     | Pending::TerminalShutdown { .. }
+                    | Pending::GitQuit { .. }
+                    | Pending::GitShutdown { .. }
                     | Pending::Write {
                         after: AfterSave::Quit(_),
                         ..
@@ -138,6 +147,7 @@ impl Session {
         );
         if quitting {
             self.cancel_terminal_shutdown();
+            self.cancel_git_shutdown();
             self.pending = None;
             self.input.cancel();
         }

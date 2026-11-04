@@ -5,6 +5,9 @@ pub enum GitCommand {
     Refresh,
     ToggleSection,
     Dispatch,
+    Processes,
+    ProcessShow,
+    ProcessCancel,
 }
 
 impl GitCommand {
@@ -15,6 +18,9 @@ impl GitCommand {
             Self::Refresh => "git-refresh",
             Self::ToggleSection => "git-toggle-section",
             Self::Dispatch => "git-dispatch",
+            Self::Processes => "git-processes",
+            Self::ProcessShow => "git-process-show",
+            Self::ProcessCancel => "git-process-cancel",
         }
     }
 }

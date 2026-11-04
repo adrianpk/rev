@@ -72,6 +72,12 @@ impl Session {
 
     pub(super) fn decision(&mut self, accepted: bool) -> Action {
         match self.pending.take() {
+            Some(Pending::GitQuit {
+                operations,
+                sources,
+                ..
+            }) => self.git_quit_answer(accepted, operations, sources),
+            Some(Pending::GitShutdown { .. }) => self.git_shutdown_answer(accepted),
             Some(Pending::TerminalQuit { sources, .. }) => {
                 self.terminal_quit_answer(accepted, sources)
             }
@@ -195,6 +201,9 @@ impl Session {
             Some(Pending::Kill { message, .. }) => Some(message.as_str()),
             Some(Pending::TerminalClose { message, .. }) => Some(message.as_str()),
             Some(Pending::TerminalQuit { message, .. } | Pending::TerminalShutdown { message }) => {
+                Some(message.as_str())
+            }
+            Some(Pending::GitQuit { message, .. } | Pending::GitShutdown { message }) => {
                 Some(message.as_str())
             }
             _ => None,

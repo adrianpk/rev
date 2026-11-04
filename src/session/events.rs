@@ -44,10 +44,12 @@ impl Session {
             let reload = self.expire_reload();
             let observed = self.expire_observation();
             let shutdown = self.advance_terminal_shutdown();
-            if shutdown == Action::Exit {
+            let git_shutdown = self.advance_git_shutdown();
+            if shutdown == Action::Exit || git_shutdown == Action::Exit {
                 return Ok(Action::Exit);
             }
             if shutdown != Action::Wait
+                || git_shutdown != Action::Wait
                 || terminal != Action::Wait
                 || shell != Action::Wait
                 || git != Action::Wait
@@ -243,6 +245,7 @@ impl Session {
             self.expire_bookmark_navigation(),
             self.expire_layout(),
             self.advance_terminal_shutdown(),
+            self.advance_git_shutdown(),
         ]
         .into_iter()
         .rev()

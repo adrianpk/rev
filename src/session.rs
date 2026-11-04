@@ -202,6 +202,14 @@ enum AfterSave {
 }
 
 enum Pending {
+    GitQuit {
+        operations: Vec<crate::git::OperationId>,
+        message: String,
+        sources: quit::Sources,
+    },
+    GitShutdown {
+        message: String,
+    },
     TerminalClose {
         kill: Kill,
         message: String,

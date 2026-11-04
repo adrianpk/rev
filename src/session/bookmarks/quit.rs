@@ -16,7 +16,7 @@ impl Session {
         {
             return self.bookmark_quit_prompt(&error, sources);
         }
-        self.finish_terminal_quit(sources)
+        self.prepare_git_quit(sources)
     }
     fn bookmark_quit_prompt(
         &mut self,
@@ -40,7 +40,7 @@ impl Session {
     ) -> Action {
         match answer {
             "retry" => self.finish_bookmark_quit(sources),
-            "discard" => self.finish_terminal_quit(sources),
+            "discard" => self.prepare_git_quit(sources),
             "cancel" => self.message("Quit canceled; unsaved bookmarks retained"),
             _ => self.bookmark_quit_prompt("Choose retry, discard or cancel; C-g cancels", sources),
         }

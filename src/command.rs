@@ -112,12 +112,15 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 479] = [
+    pub const ALL: [Self; 482] = [
         Self::Git(GitCommand::Status),
         Self::Git(GitCommand::Quit),
         Self::Git(GitCommand::Refresh),
         Self::Git(GitCommand::ToggleSection),
         Self::Git(GitCommand::Dispatch),
+        Self::Git(GitCommand::Processes),
+        Self::Git(GitCommand::ProcessShow),
+        Self::Git(GitCommand::ProcessCancel),
         Self::Terminal(TerminalCommand::NextPrompt),
         Self::Terminal(TerminalCommand::PreviousPrompt),
         Self::Terminal(TerminalCommand::NextError),
