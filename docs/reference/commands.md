@@ -695,6 +695,11 @@ Status reads disk and Git state; it does not save an unsaved source buffer.
 
 | Command | Behavior |
 | --- | --- |
+| `git-refs` | Observe local/remote-tracking branches, both tag kinds, configured remote names, HEAD and available upstream facts with exact names and object IDs. |
+| `git-branch-create` | Collect a new local name and confirm the selected ref's commit or checked HEAD; create without implicit tracking. |
+| `git-branch-switch` | Confirm the selected local branch; require complete clean disk/index and unchanged unmodified repository-backed buffers. |
+| `git-branch-rename` | Collect a new name and confirm the exact selected local branch; preserve its object and reject replacement of an existing name. |
+| `git-branch-delete` | Confirm exact local deletion; require a noncurrent branch merged into checked HEAD and retain Git's non-forced protection. |
 | `git-show-range` | Compare the marked full base and selected full endpoint in that order; keep the exact read-only range through refresh. |
 | `git-sequence-mark` | Append the selected History revision once to a bounded ordered set, retaining the independent range base. |
 | `git-sequence-unmark` | Remove the selected revision from the ordered set, retaining remaining order and the range base. |
@@ -732,6 +737,17 @@ malformed and truncated results. g refreshes Status and the retained comparison;
 old detail is labeled stale until replacement succeeds. Return visits the real
 current file, preserving an existing modified source buffer. A deleted path or
 directory has no current source file to visit. q returns one presentation level.
+
+b or y in Status opens Refs. Its independent `keys.git_refs` map keeps n for
+branch creation, S for switch, R for rename and D for non-forced deletion.
+Choose a ref with Up/Down or C-p/C-n. Prompts collect new names; the explicit
+review shows the exact accepted name and full target. Only y accepts; Return
+is not acceptance, n or C-g cancels. Existing names, moved refs/HEAD, modified
+source buffers and dirty switch state reject. g refreshes compatible Status
+and Refs; failed observations retain confirmed facts. Tags show their actual
+object and peeled commit separately. Configured remote names are shown without
+exposing URL values. q returns to Status; started work retains its ownership.
+Changed disk files enter the existing automatic-or-ask reload policy.
 
 h or l l in Status opens History. `keys.git_history` keeps navigation separate
 from Status in both profiles. Tab inspects the exact selected revision; f admits

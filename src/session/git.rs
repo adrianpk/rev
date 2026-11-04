@@ -13,7 +13,10 @@ mod comparisons;
 pub(super) mod discard;
 mod history;
 mod index;
+mod lines;
+use lines::Wrapped;
 mod processes;
+pub(super) mod refs;
 mod shutdown;
 
 pub(super) struct Work {
@@ -33,6 +36,7 @@ pub(super) struct Work {
     index_preparing: Option<index::Preparing>,
     marks: index::Marks,
     ancestry: history::Inspection,
+    refs: refs::Inspection,
     process_selected: Option<OperationId>,
     process_top: usize,
     detail_top: usize,
@@ -45,6 +49,7 @@ enum Page {
     #[default]
     Status,
     History,
+    Refs,
     Revision,
     Reflog,
     Blame,
@@ -72,6 +77,8 @@ struct Painted {
     history_top: usize,
     revision_top: usize,
     inspected: (Option<OperationId>, usize),
+    refs: Option<OperationId>,
+    refs_top: usize,
     expanded: bool,
     expanded_hunk: Option<crate::git::HunkId>,
 }
@@ -188,6 +195,7 @@ impl Work {
     ) -> std::io::Result<Self> {
         let engine = Repositories::new(snapshot, Arc::new(move || wake.signal()));
         let ancestry = history::Inspection::new(&engine)?;
+        let refs = refs::Inspection::new(&engine)?;
         Ok(Self {
             engine,
             launch: std::env::current_dir()?,
@@ -205,6 +213,7 @@ impl Work {
             index_preparing: None,
             marks: index::Marks::default(),
             ancestry,
+            refs,
             process_selected: None,
             process_top: 0,
             detail_top: 0,
@@ -288,6 +297,11 @@ impl Session {
                 return Some(self.message("A prompt owns input focus"));
             }
             return Some(match command {
+                GitCommand::Refs => self.open_git_refs(),
+                GitCommand::BranchCreate => self.prompt_git_branch(refs::Intent::Create),
+                GitCommand::BranchSwitch => self.prompt_git_branch(refs::Intent::Switch),
+                GitCommand::BranchRename => self.prompt_git_branch(refs::Intent::Rename),
+                GitCommand::BranchDelete => self.prompt_git_branch(refs::Intent::Delete),
                 GitCommand::ShowRange => self.show_git_range(),
                 GitCommand::SequenceMark => self.mark_git_revision(true, false, false),
                 GitCommand::SequenceUnmark => self.mark_git_revision(true, true, false),
@@ -413,7 +427,7 @@ impl Session {
             return Action::Redraw;
         }
         match self.git.page {
-            Page::History => {
+            Page::Refs | Page::History => {
                 self.git.page = Page::Status;
                 return Action::Redraw;
             }
@@ -455,6 +469,9 @@ impl Session {
         })
     }
     fn refresh_git(&mut self) -> Action {
+        if self.git.visible && self.git.page == Page::Refs {
+            return self.open_git_refs();
+        }
         if self.git.visible
             && matches!(
                 self.git.page,
@@ -489,6 +506,7 @@ impl Session {
     }
     fn move_git(&mut self, distance: usize, backward: bool) -> Action {
         match self.git.page {
+            Page::Refs => return self.move_git_refs(distance, backward),
             Page::History | Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile => {
                 return self.move_git_history(distance, backward);
             }
@@ -590,6 +608,10 @@ impl Session {
             return Action::Wait;
         }
         for update in updates {
+            if self.git.refs.request == Some(update.operation) {
+                self.publish_git_refs(&update);
+                continue;
+            }
             if self
                 .git
                 .ancestry
@@ -680,6 +702,8 @@ impl Session {
     }
     pub(super) fn git_input(&mut self, event: &Event) -> Option<Action> {
         self.input
+            .set_git_refs(self.git.visible && self.git.page == Page::Refs);
+        self.input
             .set_git_history(self.git.visible && self.git.page == Page::History);
         self.input.set_git_inspect(
             self.git.visible
@@ -688,6 +712,9 @@ impl Session {
                     Page::Revision | Page::Reflog | Page::Blame | Page::RevisionFile
                 ),
         );
+        if let Some(action) = self.git_branch_review_input(event) {
+            return Some(action);
+        }
         if self.git.composer.is_some() && matches!(event, Event::Mouse(_)) {
             return Some(Action::Wait);
         }
@@ -715,7 +742,9 @@ impl Session {
                 }
                 if matches!(mouse.kind, MouseEventKind::Down(MouseButton::Left))
                     && !self.git.painted.as_ref().is_some_and(|painted| {
-                        painted.context == self.git.state.context
+                        painted.refs == self.git.refs().map(|r| r.id)
+                            && painted.refs_top == self.git.refs.top
+                            && painted.context == self.git.state.context
                             && painted.generation == self.git.observation().map(|o| o.generation)
                             && painted.inspected == self.git.inspection_token()
                             && painted.history == self.git.history().map(|h| h.id)
@@ -756,7 +785,9 @@ impl Session {
                             && !self.git.state.menu =>
                     {
                         let index = usize::from(mouse.row - 3);
-                        if self.git.page == Page::Processes {
+                        if self.git.page == Page::Refs {
+                            self.select_git_ref(self.git.refs.top + index)
+                        } else if self.git.page == Page::Processes {
                             self.select_git_process(self.git.process_top + index)
                         } else if matches!(
                             self.git.page,
@@ -782,6 +813,9 @@ impl Session {
         }
     }
     pub(super) fn git_frame(&mut self) -> Result<Frame, crate::view::Error> {
+        if matches!(self.pending, Some(super::Pending::GitBranch(_))) {
+            return self.git_branch_review_frame();
+        }
         if self.git_commit_reviewing() {
             return self.git_commit_review_frame();
         }
@@ -828,6 +862,9 @@ impl Session {
                 Page::Status => {
                     " Git Status  c commit  Tab expand  Return visit  g refresh  $ processes  ? actions  q return"
                 }
+                Page::Refs => {
+                    " Git Refs  n create  S switch  R rename  D delete  ? actions  g refresh  q Status"
+                }
                 Page::History => {
                     " Git History  Tab revision  * base  Return range  a/U ordered marks  f next page  q Status"
                 }
@@ -849,6 +886,9 @@ impl Session {
             },
             admission,
             |row| {
+                if self.git.state.menu && self.git.page == Page::Refs {
+                    return self.git.refs_menu(row);
+                }
                 if self.git.state.menu {
                     return (
                         [
@@ -870,6 +910,9 @@ impl Session {
                         .to_string(),
                         false,
                     );
+                }
+                if self.git.page == Page::Refs {
+                    return self.git.refs_row(row);
                 }
                 if self.git.page == Page::Diff {
                     return if row < 3 {
@@ -1089,6 +1132,8 @@ impl Session {
             history_top: self.git.ancestry.top,
             revision_top: self.git.ancestry.detail_top,
             inspected: self.git.inspection_token(),
+            refs: self.git.refs().map(|r| r.id),
+            refs_top: self.git.refs.top,
             expanded: self.git.inspection.expanded,
             expanded_hunk: self.git.inspection.expanded_hunk,
         });

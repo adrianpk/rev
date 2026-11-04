@@ -1,6 +1,12 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GitCommand {
     Status,
+    Refs,
+    BranchCreate,
+    BranchSwitch,
+    BranchRename,
+    BranchDelete,
+
     Log,
     Show,
     LogNextPage,
@@ -34,6 +40,12 @@ pub enum GitCommand {
 impl GitCommand {
     pub fn name(self) -> &'static str {
         match self {
+            Self::Refs => "git-refs",
+            Self::BranchCreate => "git-branch-create",
+            Self::BranchSwitch => "git-branch-switch",
+            Self::BranchRename => "git-branch-rename",
+            Self::BranchDelete => "git-branch-delete",
+
             Self::ShowRange => "git-show-range",
             Self::SequenceMark => "git-sequence-mark",
             Self::SequenceUnmark => "git-sequence-unmark",

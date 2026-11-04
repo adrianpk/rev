@@ -30,6 +30,9 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   through renames with B b or B B. Read exact historical file bytes or visit
   the current source without replacing unsaved text. Inspect without checking
   out files or changing source text, the index or HEAD.
+  Inspect branches, tags and upstream facts with b or y; confirm local branch
+  creation, clean switching, renaming or non-forced deletion in Refs. Changed
+  files follow your reload policy, protecting unsaved source text.
   Return to the same windows
   and terminals. Inspect active and
   recent Git processes, cancel a selected operation, and confirm before quitting

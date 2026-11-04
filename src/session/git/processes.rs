@@ -40,6 +40,8 @@ impl Work {
             .map(|p| p.kind)
             .or_else(|| self.engine.record(id).map(|r| r.kind));
         match kind {
+            Some(crate::git::OperationKind::Refs) => "Refs observation",
+            Some(crate::git::OperationKind::Branch) => "Checked local branch",
             Some(crate::git::OperationKind::History) => "history inspection",
             Some(crate::git::OperationKind::Status) => "Status observation",
             Some(crate::git::OperationKind::Diff) => "Diff comparison",
@@ -88,6 +90,7 @@ impl Work {
             Page::Status
             | Page::Diff
             | Page::History
+            | Page::Refs
             | Page::Revision
             | Page::Reflog
             | Page::Blame

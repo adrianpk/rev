@@ -14,3 +14,6 @@ mod support;
 
 #[path = "git_integration/history.rs"]
 mod history;
+
+#[path = "git_integration/refs.rs"]
+mod refs;

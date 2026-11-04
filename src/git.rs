@@ -13,6 +13,8 @@ pub use history::{
     RevisionFile, RevisionPath,
 };
 pub use index::{IndexDirection, IndexTarget};
+mod refs;
+pub use refs::{BranchAction, RefKind, Reference, Refs};
 mod status;
 pub use diff::{Baseline, Diff, DiffKind, DiffLine, Hunk, HunkId, LineRange};
 mod work;
@@ -116,6 +118,8 @@ pub enum OperationKind {
     Commit,
     CommitPrepare,
     History,
+    Refs,
+    Branch,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -201,6 +205,7 @@ pub struct Context {
     pub failure: Option<OperationId>,
     pub detail: Option<Arc<Diff>>,
     pub detail_failure: Option<OperationId>,
+    pub refs: Option<Arc<Refs>>,
     pub history: Option<Arc<History>>,
     pub reflog: Option<Arc<Reflog>>,
     pub blame: Option<Arc<Blame>>,
@@ -561,6 +566,7 @@ impl Repositories {
                         | OperationKind::Unstage
                         | OperationKind::Discard
                         | OperationKind::Commit
+                        | OperationKind::Branch
                 ) && let Some(context) = progress
                     .context
                     .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
@@ -607,6 +613,7 @@ impl Repositories {
                             failure: None,
                             detail: None,
                             detail_failure: None,
+                            refs: None,
                             history: None,
                             reflog: None,
                             blame: None,
@@ -626,6 +633,30 @@ impl Repositories {
                         );
                         None
                     }
+                }
+                Ok(work::Publication::Refs { mut refs, changed }) => {
+                    if let Some(context) = self
+                        .contexts
+                        .iter_mut()
+                        .find(|c| c.id == refs.observation.context)
+                        && (changed
+                            || (Arc::ptr_eq(&context.observation, &refs.observation)
+                                && context.failure.is_none()))
+                    {
+                        if changed {
+                            context.observation = refs.observation.clone();
+                            context.failure = None;
+                            context.composition = None;
+                        }
+                        refs.id = record.id;
+                        context.refs = Some(Arc::new(refs));
+                        published = true;
+                    } else {
+                        record.outcome = Outcome::Failed;
+                        record.diagnostic =
+                            Some("Refs generation changed before publication".into());
+                    }
+                    progress.context
                 }
                 Ok(work::Publication::Diff(detail)) => {
                     let context = self
@@ -699,13 +730,16 @@ impl Repositories {
                         .and_then(|id| self.contexts.iter_mut().find(|c| c.id == id))
                     {
                         match progress.kind {
-                            OperationKind::Status => context.failure = Some(record.id),
+                            OperationKind::Status | OperationKind::Refs => {
+                                context.failure = Some(record.id)
+                            }
                             OperationKind::Diff => context.detail_failure = Some(record.id),
                             OperationKind::CommitPrepare | OperationKind::History => {}
                             OperationKind::Stage
                             | OperationKind::Unstage
                             | OperationKind::Discard
-                            | OperationKind::Commit => context.failure = Some(record.id),
+                            | OperationKind::Commit
+                            | OperationKind::Branch => context.failure = Some(record.id),
                         }
                     }
                     progress.context

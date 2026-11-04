@@ -120,11 +120,11 @@ Report: `ops/default/report/slices/rev-git-integration/slice-6-refs.md`
 Requirements: GIT08, GIT17-GIT19
 PR: pending
 
-- [ ] T6.1: Present local/remote-tracking refs, tags, remotes and upstream facts with exact identities and checked branch create/switch/rename/non-forced deletion.
+- [x] T6.1: Present local/remote-tracking refs, tags, remotes and upstream facts with exact identities and checked branch create/switch/rename/non-forced deletion.
 - [ ] T6.2: Implement t/git-tag-create with lightweight default and annotated message composition; retain distinct tag-object/peeled-target identities, Git metadata/signing and checked local tag deletion.
 - [ ] T6.3: Verify current/unmerged branch protection, modified source admission, stale confirmation, both tag kinds, existing-name failure and conflicting signing policy without implicit publication or policy overrides.
 
-Validation: pending; use the exact focused commands and selected-gate policy in the plan.
+Validation: T6.1 development formatter, strict focused Clippy, all six refs tests and 21 reference tests pass. Both native profiles additionally verify full SHA-256 review and scroll controls. Documentation checks 508 commands and 267 configuration entries. T6.2-T6.3 and final controller validation remain pending.
 Integration: pending; no commit or PR is claimed.
 
 ## Slice 7: Separate fetch and reviewed push

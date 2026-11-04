@@ -562,6 +562,16 @@ folding, wrapping and resize affect projection without making a separate range.
 For live terminal key ownership and copy controls, see the
 [integrated terminal reference](integrated-terminal.md#live-input-and-mouse).
 
+### Native refs bindings
+
+| Keys | Command | Behavior |
+| --- | --- | --- |
+| `b`, `y` in Status | `git-refs` | Inspect exact native repository refs. |
+| `n` in Refs | `git-branch-create` | Confirm a new local branch at the selected full commit. |
+| `S` in Refs | `git-branch-switch` | Confirm a checked clean local branch switch. |
+| `R` in Refs | `git-branch-rename` | Confirm the exact local branch and new name. |
+| `D` in Refs | `git-branch-delete` | Confirm non-forced local deletion. |
+
 ## Configuration keymap contracts
 
 The [complete reference sample](config.toml) spells out every default target in
@@ -827,6 +837,7 @@ native cancellation. Prompts use `keys.minibuffer`.
 | `C-g` | `keyboard-quit` |
 | `C-Enter`, `C-c C-c` during exact commit review | `git-commit-submit` |
 | `c` | `git-commit` |
+| `b`, `y` | `git-refs` |
 | `h`, `l l` | `git-log` |
 | `l r` | `git-reflog` |
 | `B b`, `B B` | `git-blame` |
@@ -918,3 +929,33 @@ prompt and C-x o changes panes. These local keys do not edit source text.
 Amend and fixup use the native command catalog. Their first explicit composer
 submission opens exact review; a second C-Enter or C-c C-c accepts. q or C-g
 in review retains the draft.
+
+### Git refs defaults and availability
+
+`keys.git_refs` owns read-only refs and reviewed local branch actions in both
+profiles. Prompts retain `keys.minibuffer`. n creates a branch; p is reserved
+for push and has no navigation alias. Up/Down and C-p/C-n navigate.
+
+| Keys | Target |
+| --- | --- |
+| `C-x g` | `git-status` |
+| `q` | `git-quit` |
+| `g` | `git-refresh` |
+| `n` | `git-branch-create` |
+| `S` | `git-branch-switch` |
+| `R` | `git-branch-rename` |
+| `D` | `git-branch-delete` |
+| `?` | `git-dispatch` |
+| `$` | `git-processes` |
+| `M-x` | `execute-extended-command` |
+| `:` | `execute-extended-command` |
+| `C-g` | `keyboard-quit` |
+| `C-x C-c` | `save-buffers-kill-terminal` |
+| `Up` | `previous-line` |
+| `Down` | `next-line` |
+| `C-p` | `previous-line` |
+| `C-n` | `next-line` |
+| `PageUp` | `scroll-down-command` |
+| `PageDown` | `scroll-up-command` |
+| `M-<` | `beginning-of-buffer` |
+| `M->` | `end-of-buffer` |

@@ -50,6 +50,7 @@ pub(super) fn bindings(context: Context) -> &'static [(&'static str, &'static st
         Context::Git => GIT,
         Context::GitHistory => GIT_HISTORY,
         Context::GitInspect => GIT_INSPECT,
+        Context::GitRefs => GIT_REFS,
         Context::GitCommit => GIT_COMMIT,
         _ => modal_bindings(context),
     }
@@ -190,6 +191,30 @@ pub(super) const GIT_HISTORY: &[(&str, &str)] = &[
     ("M->", "end-of-buffer"),
 ];
 
+const GIT_REFS: &[(&str, &str)] = &[
+    ("C-x g", "git-status"),
+    ("q", "git-quit"),
+    ("g", "git-refresh"),
+    ("n", "git-branch-create"),
+    ("S", "git-branch-switch"),
+    ("R", "git-branch-rename"),
+    ("D", "git-branch-delete"),
+    ("?", "git-dispatch"),
+    ("$", "git-processes"),
+    ("M-x", "execute-extended-command"),
+    (":", "execute-extended-command"),
+    ("C-g", "keyboard-quit"),
+    ("C-x C-c", "save-buffers-kill-terminal"),
+    ("Up", "previous-line"),
+    ("Down", "next-line"),
+    ("C-p", "previous-line"),
+    ("C-n", "next-line"),
+    ("PageUp", "scroll-down-command"),
+    ("PageDown", "scroll-up-command"),
+    ("M-<", "beginning-of-buffer"),
+    ("M->", "end-of-buffer"),
+];
+
 const GIT_INSPECT: &[(&str, &str)] = &[
     ("C-x g", "git-status"),
     ("q", "git-quit"),
@@ -222,6 +247,8 @@ pub(super) const GIT_COMMIT: &[(&str, &str)] = &[
 ];
 
 const GIT: &[(&str, &str)] = &[
+    ("b", "git-refs"),
+    ("y", "git-refs"),
     ("h", "git-log"),
     ("l r", "git-reflog"),
     ("B b", "git-blame"),

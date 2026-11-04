@@ -57,6 +57,9 @@ impl Session {
     }
 
     fn prepare_keyboard_quit(&mut self) -> Option<Action> {
+        if let Some(action) = self.cancel_git_branch() {
+            return Some(action);
+        }
         if let Some(action) = self.cancel_git_discard() {
             return Some(action);
         }

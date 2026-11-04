@@ -203,6 +203,8 @@ enum AfterSave {
 
 enum Pending {
     GitDiscard(Box<git::discard::Consent>),
+    GitBranch(Box<git::refs::Consent>),
+    GitBranchName(Box<git::refs::Prompt>),
     GitHistoryRoot(crate::git::ContextId),
     GitHistoryParent(std::sync::Arc<crate::git::RevisionDetail>),
     GitFixup(std::sync::Arc<crate::git::Observation>),

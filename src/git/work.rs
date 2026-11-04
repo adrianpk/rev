@@ -5,9 +5,11 @@ mod commit;
 mod discard;
 mod history;
 mod index;
+mod refs;
 
 pub(super) enum Request {
     Status,
+    Refs(super::refs::Request),
     History(super::history::Request),
     Diff(diff::Target),
     Index(super::index::Request),
@@ -18,6 +20,8 @@ pub(super) enum Request {
 impl Request {
     pub fn kind(&self) -> OperationKind {
         match self {
+            Self::Refs(super::refs::Request::Observe(_)) => OperationKind::Refs,
+            Self::Refs(super::refs::Request::Branch { .. }) => OperationKind::Branch,
             Self::History(_) => OperationKind::History,
             Self::Status => OperationKind::Status,
             Self::Diff(_) => OperationKind::Diff,
@@ -31,6 +35,7 @@ impl Request {
 
 pub(super) enum Publication {
     Status(Observation),
+    Refs { refs: Refs, changed: bool },
     History(super::history::ResultData),
     Diff(Diff),
     Composition(Composition),
@@ -38,6 +43,7 @@ pub(super) enum Publication {
 
 enum Candidate {
     Status(Identity, Option<Status>),
+    Refs { refs: Refs, changed: bool },
     History(super::history::ResultData),
     Diff(diff::Prepared),
     Composition(commit::Prepared),
@@ -62,7 +68,10 @@ pub(super) fn start(
         .name("git-observation".into())
         .spawn(move || {
             let seconds = match request {
-                Request::Index(_) | Request::Discard(_) | Request::Commit(_) => {
+                Request::Index(_)
+                | Request::Discard(_)
+                | Request::Commit(_)
+                | Request::Refs(super::refs::Request::Branch { .. }) => {
                     policy.operation_timeout_seconds
                 }
                 _ => policy.observation_timeout_seconds,
@@ -88,6 +97,7 @@ pub(super) fn start(
                 retained: None,
             };
             let observed = match request {
+                Request::Refs(request) => runner.refs(request, &mut admission),
                 Request::History(request) => runner
                     .history(request, &mut admission)
                     .map(Candidate::History),
@@ -438,6 +448,7 @@ impl Runner {
         };
         record.admission = admission.split(record.bytes() + 4096);
         let publication = observed.and_then(|candidate| match candidate {
+            Candidate::Refs { refs, changed } => Ok(Publication::Refs { refs, changed }),
             Candidate::History(result) => Ok(Publication::History(result)),
             Candidate::Status(identity, status) => Ok(Publication::Status(Observation {
                 context: progress.context.unwrap_or(ContextId(progress.operation.0)),

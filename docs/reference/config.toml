@@ -1554,6 +1554,8 @@ max_result_bytes = 262144
 
 # Read-only Git navigation uses the same context in both startup profiles.
 [keys.git]
+"b" = "git-refs"
+"y" = "git-refs"
 "h" = "git-log"
 "l r" = "git-reflog"
 "B b" = "git-blame"
@@ -1643,6 +1645,30 @@ max_result_bytes = 262144
 "C-n" = "next-line"
 "p" = "previous-line"
 "n" = "next-line"
+"PageUp" = "scroll-down-command"
+"PageDown" = "scroll-up-command"
+"M-<" = "beginning-of-buffer"
+"M->" = "end-of-buffer"
+
+# Exact local/tracking refs and checked local branch actions in both profiles.
+[keys.git_refs]
+"C-x g" = "git-status"
+"q" = "git-quit"
+"g" = "git-refresh"
+"n" = "git-branch-create"
+"S" = "git-branch-switch"
+"R" = "git-branch-rename"
+"D" = "git-branch-delete"
+"?" = "git-dispatch"
+"$" = "git-processes"
+"M-x" = "execute-extended-command"
+":" = "execute-extended-command"
+"C-g" = "keyboard-quit"
+"C-x C-c" = "save-buffers-kill-terminal"
+"Up" = "previous-line"
+"Down" = "next-line"
+"C-p" = "previous-line"
+"C-n" = "next-line"
 "PageUp" = "scroll-down-command"
 "PageDown" = "scroll-up-command"
 "M-<" = "beginning-of-buffer"
