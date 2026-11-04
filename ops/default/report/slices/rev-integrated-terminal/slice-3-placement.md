@@ -83,6 +83,9 @@ focus-owned geometry, tiny-screen rejection/recovery and directory/other-pane
 entry. Final fixtures additionally require child cwd changes to survive moves
 and other-pane geometry failures to retain the original layout.
 Final exact-head evidence belongs to the controller's ordered Slice 3 receipt.
+Focused attempt `ZMPDHASBYTLDAGM3I6A5UU6YVO` found a compile error after
+extracting inventory clipping. The helper now returns its coordinate error;
+the existing caller performs the view-error conversion without behavior changes.
 
 ## Risks and Follow-ups
 

@@ -55,7 +55,11 @@ impl Frame {
     }
 }
 
-fn entry(buffer: &Buffer, selected: BufferId, width: u16) -> Result<String, Error> {
+fn entry(
+    buffer: &Buffer,
+    selected: BufferId,
+    width: u16,
+) -> Result<String, crate::coordinates::Error> {
     let marker = if buffer.id() == selected { ">" } else { " " };
     let dirty = if buffer.is_modified() { "**" } else { "--" };
     let access = if buffer.is_readonly() { "RO" } else { "RW" };
