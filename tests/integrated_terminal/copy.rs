@@ -481,3 +481,49 @@ fn copy_capacity() {
     assert_eq!(editor.session.terminals().ids().count(), 1);
     assert_eq!(editor.session.buffer().unwrap().len_bytes(), 0);
 }
+
+// The first click addresses the VT cells that were actually visible, even when
+// native copy grapheme layout joins a multi-cell emoji. A stationary release
+// retains that observation after the transition into the frozen presentation.
+#[test]
+fn copy_pointer() {
+    if isolated("panel::copy::copy_pointer", false) {
+        return;
+    }
+    use alacritty_terminal::index::{Column, Line, Point};
+    use crossterm::event::{MouseButton, MouseEvent, MouseEventKind};
+    let script = "printf '👩‍💻X\\nREADY'\nwhile :; do sleep 60; done\n";
+    let mut editor = Editor::with_script("non-modal", 24, "", script);
+    let source = editor.session.buffer().unwrap().stamp();
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::Open));
+    editor.wait(|s| text(s).contains("READY"));
+    let id = editor
+        .session
+        .terminal_buffer()
+        .unwrap()
+        .terminal()
+        .unwrap();
+    assert_eq!(
+        editor.session.terminals().get(id).unwrap().screen().grid()[Point::new(Line(0), Column(4))]
+            .c,
+        'X'
+    );
+    for kind in [
+        MouseEventKind::Down(MouseButton::Left),
+        MouseEventKind::Up(MouseButton::Left),
+    ] {
+        editor.session.handle(Event::Mouse(MouseEvent {
+            kind,
+            column: 4,
+            row: 12,
+            modifiers: KeyModifiers::SHIFT,
+        }));
+        editor.session.frame().unwrap();
+    }
+    copy(&mut editor);
+    editor.session.execute(Command::Linear(LinearCommand::Copy));
+    assert_eq!(editor.session.killed_text().unwrap().to_string(), "X");
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+}
