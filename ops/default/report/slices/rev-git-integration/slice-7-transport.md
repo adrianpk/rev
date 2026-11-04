@@ -1,6 +1,6 @@
 # Slice 7: Separate Fetch and Reviewed Push
 
-Status: reviewing
+Status: delivered
 Delivery set: rev-git-integration
 Plan: `ops/default/plan/rev-git-integration.md`
 Tracker: `ops/default/tracker/rev-git-integration.md`
@@ -149,9 +149,13 @@ follow-up:
 
 The [canonical PR #264](https://forge.adrianpk.com/adrianpk/rev/pulls/264)
 Validation list and controller receipt record successful exact-clean-HEAD results.
+Receipt `67Z2NNDVAJAC4EOIYA6PBPFUMR` passed all seven ordered checks at
+`5db15bc1085a2575994c7ce3f100be545fa54882`: 12 transport, 107 shared Git
+and 21 reference tests, with 512-command documentation coverage, formatter,
+strict Clippy and whitespace checks.
 
 ## Risks and Follow-ups
 
-PR #264 targets dev. The PR-reference follow-up precedes the ordered controller
-checks; controller-owned integration remains pending. Combined PTY/resource acceptance remains Slice 13 and the full
+PR #264 merged through controller-owned Rebase + Fast-forward into dev at
+`5db15bc1085a2575994c7ce3f100be545fa54882`. Slice 7 of 14 completed. Combined PTY/resource acceptance remains Slice 13 and the full
 User Guide remains Slice 14.

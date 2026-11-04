@@ -7,7 +7,7 @@ Plan: [Native Git Integration Delivery](../plan/rev-git-integration.md)
 Spec: [Native Git Integration](../spec/editor-git-integration.md)
 Model: [Native Git Model](../spec/editor-git-integration-model.md)
 Approved: owner, 2026-11-04; complete fourteen-slice plan and autonomous Looper execution/integration through dev
-Active slice: Slice 7 - Separate fetch and reviewed push
+Active slice: Slice 8 - Merge rebase and sequence control
 Progress owner: after startup, Looper checkpoint, canonical PRs and exact-candidate validation receipts
 
 ## Canonical slice map
@@ -129,7 +129,7 @@ Integration: [PR #263](https://forge.adrianpk.com/adrianpk/rev/pulls/263) merged
 
 ## Slice 7: Separate fetch and reviewed push
 
-Status: reviewing
+Status: delivered
 Branch: `feat/rev-git-integration-07-transport`
 Expected PR title: `feat(git): fetch and push one reviewed upstream branch`
 Report: `ops/default/report/slices/rev-git-integration/slice-7-transport.md`
@@ -140,12 +140,12 @@ PR: `#264`
 - [x] T7.2: Review and confirm one exact branch, configured upstream remote and destination; prevent implicit force, deletion, tags or mirror expansion and reject ambiguous tracking.
 - [x] T7.3: Verify local-bare remote outcomes, hostile/conflicting push settings, failed credentials/helpers, cancellation, bounded diagnostics and publication uncertainty; no live user remote or credential is used.
 
-Validation: T7.1 development formatter, strict focused Clippy, all three transport tests and 21 reference tests pass. Documentation checks 511 commands and 267 configuration entries. Real SHA-1/SHA-256 bare remotes and both native profiles establish explicit fetch without integration; T7.2 adds checked single-branch upstream publication, conflicting-policy/stale rejection and both-profile native review/source retention. Documentation covers 512 commands; T7.3 passes all four bounded failure/uncertainty fixtures, including real credential fill and post-publication endpoint unavailability. Earlier failures remain recorded in the report; final exact-HEAD evidence remains pending.
-Integration: T7.1 introduced the report at `97f6a253d1bc3ae00f313790536dee2eec2fb7e6`; T7.2-T7.3 complete the approved tasks. [PR #264](https://forge.adrianpk.com/adrianpk/rev/pulls/264) targets dev. This PR-reference follow-up precedes the recorded ordered exact-HEAD controller checks; integration remains pending.
+Validation: Controller receipt `67Z2NNDVAJAC4EOIYA6PBPFUMR` passed all seven ordered checks at `5db15bc1085a2575994c7ce3f100be545fa54882`: 119 Git tests, 21 command/configuration references, formatter, strict Clippy, 512-command documentation and whitespace. Earlier development failures remain recorded in the report.
+Integration: [PR #264](https://forge.adrianpk.com/adrianpk/rev/pulls/264) merged through controller-owned Rebase + Fast-forward into dev at `5db15bc1085a2575994c7ce3f100be545fa54882`. Slice 7 of 14 completed.
 
 ## Slice 8: Merge rebase and sequence control
 
-Status: pending
+Status: active
 Branch: `feat/rev-git-integration-08-integration`
 Expected PR title: `feat(git): run checked merge and rebase workflows`
 Report: `ops/default/report/slices/rev-git-integration/slice-8-integration.md`
