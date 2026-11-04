@@ -22,7 +22,11 @@ impl Session {
         };
         let mut composition = self.source_composition(size)?;
         if let Some(rows) = rows {
-            composition.attach_terminal(self.size, rows, self.terminals.focused)?;
+            composition.attach_terminal(
+                self.size,
+                rows,
+                self.terminals.focused && self.terminals.view.is_none(),
+            )?;
         }
         Some(composition)
     }

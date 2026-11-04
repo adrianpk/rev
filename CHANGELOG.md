@@ -12,8 +12,10 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - [Open an interactive shell](docs/reference/commands.md#interactive-terminals)
   with `terminal-open` and return to the editor with C-g. Hide or restore the
   lower panel with `terminal-toggle` while the same shell keeps running, select
-  it through ordinary buffer navigation and configure startup shell preferences
-  under `[terminal]`.
+  it through ordinary buffer navigation, open directly with
+  `terminal-new-buffer`, and move the same live session between panel and editing
+  panes with `terminal-move-to-buffer` and `terminal-move-to-panel`. Configure
+  startup shell preferences under `[terminal]`.
 
 - [Run shell commands and text filters](docs/tutorials/user-guide/15-shell-commands.md)
   from M-x or colon, send selected unsaved text to tools such as sort/tr, and

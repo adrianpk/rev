@@ -1,8 +1,5 @@
 use super::super::{Action, Session};
-use crate::{
-    command::{Command, WindowCommand},
-    input::Focus,
-};
+use crate::{command::Command, input::Focus};
 
 impl Session {
     /// A lower-panel terminal is a resource focus, like the native tree. It
@@ -18,7 +15,8 @@ impl Session {
                 | Command::KeyboardQuit
                 | Command::Quit
                 | Command::Buffer(_)
-                | Command::Window(WindowCommand::Other | WindowCommand::Focus(_))
+                | Command::Split(_)
+                | Command::Window(_)
         ) {
             return None;
         }

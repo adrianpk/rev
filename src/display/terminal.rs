@@ -21,6 +21,17 @@ use crate::{
     term::Session,
 };
 
+pub(super) struct Run {
+    column: u16,
+    width: u16,
+    cells: Vec<Cell>,
+}
+impl Run {
+    pub(super) fn full_width(&self, width: u16) -> bool {
+        self.column == 0 && self.width == width
+    }
+}
+
 impl Frame {
     /// Project emulator cells, never child escape strings. Per-cell placement
     /// preserves the emulator's columns even for unusual combining sequences.
@@ -42,23 +53,31 @@ impl Frame {
                     cell
                 })
                 .collect();
-            let native = &mut self.rows[usize::from(area.row() + row)];
-            native.text = projected(&cells);
-            native.text.extend(std::iter::repeat_n(
+            let mut text = projected(&cells);
+            text.extend(std::iter::repeat_n(
                 ' ',
                 usize::from(area.width()) - cells.len(),
             ));
-            native.band = Band::Document;
-            self.terminal_rows.insert(native.row, cells);
+            self.terminal_blit(area, row, text, (Band::Document, Tone::Document));
+            self.terminal_rows
+                .entry(area.row() + row)
+                .or_default()
+                .push(Run {
+                    column: area.column(),
+                    width: area.width(),
+                    cells,
+                });
         }
         if let Some(status) = panel.status() {
-            let row = &mut self.rows[usize::from(status.row())];
-            row.text = crate::coordinates::Glyphs::for_text(label)
+            let text = crate::coordinates::Glyphs::for_text(label)
                 .and_then(|g| super::clip::line(g, 0, status.width()))
                 .unwrap_or_else(|_| " ".repeat(usize::from(status.width())));
-            row.band = Band::Status;
-            row.tone = Tone::Status(panel.active());
-            row.faces.clear();
+            self.terminal_blit(
+                status,
+                0,
+                text,
+                (Band::Status, Tone::Status(panel.active())),
+            );
         }
         if panel.active() {
             self.cursor = None;
@@ -71,19 +90,37 @@ impl Frame {
             }
         }
     }
+
+    fn terminal_blit(
+        &mut self,
+        area: crate::window::Area,
+        row: u16,
+        text: String,
+        style: (Band, Tone),
+    ) {
+        self.blit(
+            area,
+            super::Row {
+                row,
+                text,
+                band: style.0,
+                tone: style.1,
+                faces: Vec::new(),
+                syntax: Vec::new(),
+                search: None,
+                selection: None,
+            },
+        )
+        .expect("admitted terminal projection");
+    }
 }
 
-pub(super) fn write(
-    writer: &mut impl Write,
-    cells: &[Cell],
-    palette: &Palette,
-    width: u16,
-) -> io::Result<()> {
-    for (column, cell) in cells.iter().enumerate() {
+pub(super) fn write(writer: &mut impl Write, run: &Run, palette: &Palette) -> io::Result<()> {
+    for (column, cell) in run.cells.iter().enumerate() {
         if cell.flags.contains(Flags::WIDE_CHAR_SPACER) {
             continue;
         }
-        writer.queue(MoveToColumn(column as u16))?;
+        writer.queue(MoveToColumn(run.column + column as u16))?;
         attributes(writer, cell.flags)?;
         let fg = color(cell.fg, palette);
         let bg = color(cell.bg, palette);
@@ -91,17 +128,18 @@ pub(super) fn write(
         write_cell(writer, cell)?;
     }
     writer.queue(SetAttribute(Attribute::Reset))?;
-    padding(writer, cells.len(), width, palette)?;
+    padding(writer, run, palette)?;
     super::style::reset(writer)
 }
 
-fn padding(writer: &mut impl Write, cells: usize, width: u16, palette: &Palette) -> io::Result<()> {
-    if cells >= usize::from(width) {
+fn padding(writer: &mut impl Write, run: &Run, palette: &Palette) -> io::Result<()> {
+    let cells = run.cells.len();
+    if cells >= usize::from(run.width) {
         return Ok(());
     }
     super::style::Colors::new(palette.foreground, palette.background).write(writer, &mut None)?;
-    writer.queue(MoveToColumn(cells as u16))?;
-    for _ in cells..usize::from(width) {
+    writer.queue(MoveToColumn(run.column + cells as u16))?;
+    for _ in cells..usize::from(run.width) {
         writer.write_all(b" ")?;
     }
     Ok(())

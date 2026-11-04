@@ -55,8 +55,7 @@ impl Session {
             return None;
         }
         let mode = self
-            .terminals
-            .selected
+            .current_terminal()
             .and_then(|id| self.terminals.sessions.get(id))
             .is_some_and(|s| s.screen().mode().contains(TermMode::APP_CURSOR));
         let Some(bytes) = encode(key, mode) else {
@@ -66,10 +65,16 @@ impl Session {
     }
 
     pub(in crate::session) fn terminal_send(&mut self, bytes: &[u8]) -> Action {
-        if self.terminal_rows().is_none() {
-            return self.error("Terminal panel is suspended at this screen size");
+        let usable = if self.terminals.view.is_some() {
+            self.buffer_geometry(&self.windows, self.terminals.visible)
+                .is_some()
+        } else {
+            self.terminal_rows().is_some()
+        };
+        if !usable {
+            return self.error("Terminal presentation is suspended at this screen size");
         }
-        let Some(id) = self.terminals.selected else {
+        let Some(id) = self.current_terminal() else {
             return self.error("No terminal is selected");
         };
         match self.terminals.sessions.queue(id, bytes) {

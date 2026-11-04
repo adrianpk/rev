@@ -1,5 +1,7 @@
 mod input;
 mod lifecycle;
+mod placement;
+mod render;
 mod source;
 
 use std::{path::PathBuf, sync::Arc, time::Duration};
@@ -26,6 +28,9 @@ pub(super) struct Work {
     height: u16,
     home: Option<(ViewId, bool)>,
     closing: std::collections::BTreeMap<SessionId, crate::buffer::Kill>,
+    buffers: std::collections::BTreeSet<SessionId>,
+    back: std::collections::BTreeMap<ViewId, crate::view::View>,
+    pub(super) view: Option<ViewId>,
 }
 
 impl Work {
@@ -64,12 +69,19 @@ impl Work {
             height: prefs.panel_height as u16,
             home: None,
             closing: Default::default(),
+            buffers: Default::default(),
+            back: Default::default(),
+            view: None,
         }
     }
 }
 
 impl Session {
     fn terminal_closed(&mut self, id: SessionId) {
+        if self.current_terminal() == Some(id) && self.terminals.focused {
+            self.terminal_return();
+        }
+        self.terminals.buffers.remove(&id);
         if self.terminals.default == Some(id) {
             self.terminals.default = None;
         }
@@ -87,13 +99,19 @@ impl Session {
     }
 
     pub fn terminal_buffer(&self) -> Option<&crate::buffer::Buffer> {
-        let id = self.terminals.selected?;
+        let id = self.current_terminal()?;
         self.buffers.iter().find(|b| b.terminal() == Some(id))
     }
 
     pub(super) fn terminal_command(&mut self, command: TerminalCommand) -> Action {
         if self.input.focus() != crate::input::Focus::Editing || self.pending.is_some() {
             return self.error("A host prompt owns terminal invocation");
+        }
+        match command {
+            TerminalCommand::NewBuffer => return self.terminal_create(true),
+            TerminalCommand::MoveToBuffer => return self.terminal_move(true),
+            TerminalCommand::MoveToPanel => return self.terminal_move(false),
+            _ => {}
         }
         if command == TerminalCommand::Toggle {
             if self.terminals.visible {
@@ -110,13 +128,18 @@ impl Session {
                 .get(id)
                 .is_some_and(|s| *s.state() == State::Running)
         {
-            return self.terminal_show(id);
+            return self.select_terminal(id);
         }
-        self.terminal_create()
+        self.terminal_create(false)
     }
 
-    fn terminal_create(&mut self) -> Action {
-        let size = match self.terminal_geometry() {
+    fn terminal_create(&mut self, buffer: bool) -> Action {
+        let geometry = if buffer {
+            self.buffer_geometry(&self.windows, self.terminals.visible)
+        } else {
+            self.terminal_geometry()
+        };
+        let size = match geometry {
             Some(size) => size,
             None => {
                 return self.error("Terminal panel requires three rows and a usable source area");
@@ -143,7 +166,11 @@ impl Session {
             ));
         }
         self.terminals.default = Some(id);
-        self.terminal_show(id)
+        if buffer {
+            self.terminal_to_buffer(id)
+        } else {
+            self.terminal_show(id)
+        }
     }
 
     pub(super) fn terminal_show(&mut self, id: SessionId) -> Action {
@@ -156,10 +183,15 @@ impl Session {
         if let Err(error) = self.terminals.sessions.resize(id, size) {
             return self.error(&format!("Show terminal: {error}"));
         }
+        self.show_admitted_terminal(id)
+    }
+
+    fn show_admitted_terminal(&mut self, id: SessionId) -> Action {
         if !self.terminals.focused {
             self.terminals.home = Some((self.windows.selected_id(), self.tree.focused()));
         }
         self.terminals.selected = Some(id);
+        self.terminals.view = None;
         self.dismiss_completion();
         self.terminals.visible = true;
         self.terminals.focused = true;
@@ -177,6 +209,7 @@ impl Session {
     }
 
     pub(super) fn terminal_return(&mut self) {
+        self.restore_terminal_view();
         self.terminals.focused = false;
         if let Some((id, tree)) = self.terminals.home.take() {
             let _ = self.windows.select(id);
@@ -189,6 +222,7 @@ impl Session {
 
     pub(super) fn terminal_source_focus(&mut self) {
         self.terminals.focused = false;
+        self.terminals.view = None;
         self.terminals.home = None;
     }
 
@@ -224,6 +258,9 @@ impl Session {
     }
 
     pub(super) fn resize_terminal(&mut self) -> Action {
+        if let Some(view) = self.terminals.view {
+            return self.resize_terminal_view(view);
+        }
         let Some(id) = self.terminals.selected.filter(|_| self.terminals.visible) else {
             return Action::Wait;
         };
@@ -259,24 +296,5 @@ impl Session {
         } else {
             Action::Redraw
         }
-    }
-
-    pub(super) fn terminal_frame(
-        &self,
-        frame: &mut crate::display::Frame,
-        composition: Option<&Composition>,
-    ) {
-        let Some(panel) = composition.and_then(Composition::terminal) else {
-            return;
-        };
-        let Some(id) = self.terminals.selected else {
-            return;
-        };
-        let Some(session) = self.terminals.sessions.get(id) else {
-            return;
-        };
-        let name = self.terminal_buffer().map_or("Terminal", |b| b.name());
-        let label = format!(" {name}  {:?}  C-g: editor", session.state());
-        frame.terminal(session, panel, &label);
     }
 }

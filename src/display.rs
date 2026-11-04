@@ -107,7 +107,7 @@ pub struct Frame {
     cursor: Option<Position>,
     previews: Vec<preview::Placement>,
     source_rows: Vec<SourceRows>,
-    terminal_rows: std::collections::BTreeMap<u16, Vec<alacritty_terminal::term::cell::Cell>>,
+    terminal_rows: std::collections::BTreeMap<u16, Vec<terminal::Run>>,
 }
 
 /// Metadata for this immutable frame only, separate from retained view caches.
@@ -260,10 +260,17 @@ impl Frame {
         writer.queue(Hide)?;
         for row in &self.rows {
             writer.queue(MoveTo(0, row.row))?;
-            if let Some(cells) = self.terminal_rows.get(&row.row) {
-                terminal::write(writer, cells, &self.palette, self.size.width)?;
-            } else {
+            let covered = self
+                .terminal_rows
+                .get(&row.row)
+                .is_some_and(|runs| runs.len() == 1 && runs[0].full_width(self.size.width));
+            if !covered {
                 row.write(writer, &self.palette, separator)?;
+            }
+            if let Some(runs) = self.terminal_rows.get(&row.row) {
+                for run in runs {
+                    terminal::write(writer, run, &self.palette)?;
+                }
             }
         }
         Ok(())

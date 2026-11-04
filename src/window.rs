@@ -172,7 +172,10 @@ impl Windows {
         };
         for (id, area) in geometry.panes() {
             let view = self.views.get_mut(id).ok_or(Error::Missing(*id))?;
-            view.reveal(buffers.get(view.point.stamp.buffer)?, area.view_size())?;
+            let buffer = buffers.get(view.point.stamp.buffer)?;
+            if buffer.terminal().is_none() {
+                view.reveal(buffer, area.view_size())?;
+            }
         }
         Ok(())
     }

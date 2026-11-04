@@ -58,7 +58,7 @@ impl Session {
         if let Some(terminal) = buffer.terminal() {
             self.input.cancel();
             self.pending = None;
-            return self.terminal_show(terminal);
+            return self.select_terminal(terminal);
         }
         if self.windows.selected().point.stamp.buffer != id {
             let mut view = self.view().clone();

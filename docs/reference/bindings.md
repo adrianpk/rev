@@ -58,6 +58,9 @@ Every command below is also available as `M-x` followed by its exact name.
 | `M-x shell-command-output`, `:shell-command-output` | `shell-command-output` | Visit the last retained read-only plain-text result or diagnostics. |
 | `M-x terminal-open`, `:terminal-open` | `terminal-open` | Open or select the instance default interactive terminal in the lower panel. |
 | `M-x terminal-toggle`, `:terminal-toggle` | `terminal-toggle` | Hide or restore the lower terminal panel without restarting the child. |
+| `M-x terminal-new-buffer`, `:terminal-new-buffer` | `terminal-new-buffer` | Create an independent terminal directly in the selected editing pane. |
+| `M-x terminal-move-to-buffer`, `:terminal-move-to-buffer` | `terminal-move-to-buffer` | Move the current terminal into the selected editing pane. |
+| `M-x terminal-move-to-panel`, `:terminal-move-to-panel` | `terminal-move-to-panel` | Dock the same session in the lower panel. |
 | `C-x b` | `switch-to-buffer` | Select a live buffer by name. |
 | `C-x C-b` | `list-buffers` | Select from the live buffer inventory. |
 | `C-x k` | `kill-buffer` | Close a buffer with modified-text protection. |

@@ -34,6 +34,9 @@ impl Session {
         self.kills.break_chain();
         self.windows.select(id)?;
         self.terminal_source_focus();
+        if self.buffer()?.terminal().is_some() {
+            self.focus_terminal_view(id);
+        }
         self.bookmark_iteration = None;
         self.sync_input_context();
         Ok(())

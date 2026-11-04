@@ -27,7 +27,7 @@ impl Editor {
     }
     fn with_keys(profile: &str, height: u16, keys: &str) -> Self {
         let fixture = Fixture::new();
-        let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
+        let script = fixture.write("child.sh", "printf '\\033[2J\\033[HREADY:%s\\n' \"$1\"\npwd\nwhile IFS= read -r line; do\n case \"$line\" in\n ping) printf '\\033[31mPONG\\033[0m\\n';;\n alt) printf '\\033[?1049h\\033[2J\\033[HALTERNATE';;\n exit) exit 7;;\n *) printf 'INPUT:%s\\n' \"$line\";;\n esac\ndone\n");
         let config = fixture.write("config.toml", &format!(
             "[editor]\ninteraction_profile='{profile}'\n[terminal]\nprogram='/bin/sh'\nargs=[{},'literal;not-evaluated']\n{keys}",
             serde_json::to_string(&script.to_string_lossy()).unwrap(),
@@ -394,6 +394,103 @@ fn terminal_keys() {
         assert!(!editor.session.terminal_focused());
         assert_eq!(editor.session.terminals().ids().count(), 1);
     }
+}
+
+// Relocation changes only attachment/geometry. Rejected geometry leaves the
+// same typed buffer, child, alternate screen and valid original placement.
+#[test]
+fn live_relocation() {
+    if isolated("panel::live_relocation", false) {
+        return;
+    }
+    for profile in ["non-modal", "modal"] {
+        let mut editor = Editor::new(profile, 24);
+        let source = editor.session.buffer().unwrap().stamp();
+        editor.open();
+        let buffer = editor.session.terminal_buffer().unwrap().id();
+        let id = editor.session.terminals().ids().next().unwrap();
+        let pid = editor.session.terminals().get(id).unwrap().process_id();
+        editor.send("alt");
+        editor.wait(|s| text(s).contains("ALTERNATE"));
+        editor.session.handle(Event::Resize(u16::MAX, 24));
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToBuffer));
+        assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+        assert_eq!(
+            editor.session.terminals().get(id).unwrap().process_id(),
+            pid
+        );
+        editor.session.handle(Event::Resize(80, 24));
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToBuffer));
+        assert_eq!(editor.session.buffer().unwrap().id(), buffer);
+        assert!(editor.session.terminal_focused());
+        assert!(text(editor.session.terminals().get(id).unwrap()).contains("ALTERNATE"));
+        assert!(
+            editor
+                .session
+                .terminals()
+                .get(id)
+                .unwrap()
+                .screen()
+                .mode()
+                .contains(alacritty_terminal::term::TermMode::ALT_SCREEN)
+        );
+        assert!(
+            editor
+                .session
+                .frame()
+                .unwrap()
+                .rows()
+                .iter()
+                .any(|r| r.text().contains("ALTERNATE"))
+        );
+        editor.session.handle(Event::Resize(80, 7));
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToPanel));
+        assert_eq!(editor.session.buffer().unwrap().id(), buffer);
+        editor.session.handle(Event::Resize(80, 24));
+        editor
+            .session
+            .execute(Command::Terminal(TerminalCommand::MoveToPanel));
+        assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+        assert_eq!(editor.session.terminal_buffer().unwrap().id(), buffer);
+        assert_eq!(editor.session.terminals().ids().count(), 1);
+        assert_eq!(
+            editor.session.terminals().get(id).unwrap().process_id(),
+            pid
+        );
+        editor.send("ping");
+        editor.wait(|s| text(s).contains("PONG"));
+    }
+}
+
+// Direct creation needs no lower-panel space, and its live buffer cannot gain
+// source authority. Recovery returns the exact original unsaved source.
+#[test]
+fn direct_buffer() {
+    if isolated("panel::direct_buffer", false) {
+        return;
+    }
+    let mut editor = Editor::new("non-modal", 7);
+    editor.session.insert('X');
+    let source = editor.session.buffer().unwrap().stamp();
+    editor
+        .session
+        .execute(Command::Terminal(TerminalCommand::NewBuffer));
+    editor.wait(|s| text(s).contains("READY"));
+    let id = editor.session.terminals().ids().next().unwrap();
+    assert_eq!(editor.session.buffer().unwrap().terminal(), Some(id));
+    editor.session.execute(Command::SaveBuffer);
+    assert!(editor.session.echo().contains("requires a source buffer"));
+    editor
+        .session
+        .handle(key(KeyCode::Char('g'), KeyModifiers::CONTROL));
+    assert_eq!(editor.session.buffer().unwrap().stamp(), source);
+    assert_eq!(editor.session.terminals().ids().count(), 1);
 }
 
 // Native file observers retire asynchronously. Isolate their descriptors and

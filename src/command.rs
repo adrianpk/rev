@@ -109,9 +109,12 @@ pub enum Command {
 }
 
 impl Command {
-    pub const ALL: [Self; 439] = [
+    pub const ALL: [Self; 442] = [
         Self::Terminal(TerminalCommand::Open),
         Self::Terminal(TerminalCommand::Toggle),
+        Self::Terminal(TerminalCommand::NewBuffer),
+        Self::Terminal(TerminalCommand::MoveToBuffer),
+        Self::Terminal(TerminalCommand::MoveToPanel),
         Self::Navigate(Navigation::new(Target::Character(Direction::Forward))),
         Self::Navigate(Navigation::new(Target::Character(Direction::Backward))),
         Self::Navigate(Navigation::new(Target::Line(Direction::Forward))),
