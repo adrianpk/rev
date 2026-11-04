@@ -53,6 +53,9 @@ prefixes. A frame exposes optional native terminal cursor style metadata.
 - `src/display/terminal.rs`: native cursor presentation.
 - `tests/integrated_terminal/interaction.rs`: exact real-PTY input checks.
 
+Task commits: T4.1 `5f3ae4f4d345`, with cancellation correction
+`9671a9d28f0d` and bounded dispatch `580bd8538d2a`; T4.2 `7da3f48dff23`.
+
 ## Validation
 
 Focused attempt `NA76K3A36DM2CK62VG3QC4QL2Q` exposed delayed Escape
@@ -67,8 +70,16 @@ placement dispatch now delegate directory entry to its existing small owner.
 Focused receipt `NZ6I2BQ7YVM7IJBMWFHBBJYCIE` passed exact input, six source
 files and whitespace on `580bd8538d2a7b566d37d07e54803f0d7f266d59`.
 
-Pending full-screen focused validation and the ordered Slice 4
-commands. The raw-PTY fixture covers both startup profiles and ordinary versus
+Focused receipt `SCGY7G3XHNXBZ74CDIPCGGQK5Q` passed on
+`7da3f48dff23ff0470fc0fd1d97b359d4215c9d0`:
+
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --locked --test integrated_terminal panel::interaction:: -- --test-threads=1`
+- `env CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo run --locked --quiet --example source-check -- --file src/display/terminal.rs`
+- `git diff --check`
+
+Both real-PTY scenarios passed. The full-screen case uses a controlled shell
+fixture; installed-tool journeys remain under the recorded acceptance slice.
+The exact ordered Slice 4 commands remain pending T4.3 and PR references. The raw-PTY fixture covers both startup profiles and ordinary versus
 application modes, protected-key forwarding and host transient cancellation.
 
 ## Risks and Follow-ups

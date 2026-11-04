@@ -95,10 +95,11 @@ Report: `ops/default/report/slices/rev-integrated-terminal/slice-4-interaction.m
 PR: pending
 
 - [x] T4.1: Route printable keys, child control keys, Return/Tab/deletion/arrows/paging, cursor shape and application modes in both startup profiles; preserve host recovery/prefix commands, literal-next and contextual transient cancellation.
-- [ ] T4.2: Render real shell and full-screen TUI screen/style/cursor/alternate-screen/resize changes without source repaint glitches, raw escape passthrough, focus stealing or a busy idle loop.
+- [x] T4.2: Render real shell and full-screen TUI screen/style/cursor/alternate-screen/resize changes without source repaint glitches, raw escape passthrough, focus stealing or a busy idle loop.
 - [ ] T4.3: Route child-enabled mouse/wheel input and native local selection/scrolling, Shift bypass and explicit validated link activation; deny child clipboard/host effects and keep printable colon/Escape under live child authority.
 
-Task evidence: T4.1 `5f3ae4f4d345` and cancellation correction `9671a9d28f0d`; the raw-PTY cases pass in both profiles and input modes.
+Task evidence: T4.1 `5f3ae4f4d345` and cancellation correction `9671a9d28f0d`; the raw-PTY cases pass in both profiles and input modes. Dispatch correction: `580bd8538d2a`. T4.2 `7da3f48dff23` resolves child palette colors and adds controlled full-screen PTY coverage.
+Focused receipts: `NZ6I2BQ7YVM7IJBMWFHBBJYCIE` passed T4.1 input and six source files on `580bd8538d2a7b566d37d07e54803f0d7f266d59`; `SCGY7G3XHNXBZ74CDIPCGGQK5Q` passed both interaction scenarios and renderer source checks on `7da3f48dff23ff0470fc0fd1d97b359d4215c9d0`.
 
 Validation: pending; use the exact ordered Slice 4 commands from the plan and frozen controller configuration.
 Integration: pending canonical PR and controller verification.
