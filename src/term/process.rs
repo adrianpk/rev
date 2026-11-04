@@ -77,8 +77,14 @@ impl Process {
     }
     pub fn exited(&self) -> io::Result<bool> {
         let mut fds = [PollFd::new(self.exit.as_ref(), PollFlags::IN)];
-        poll(&mut fds, Some(&Timespec::default()))?;
-        Ok(!fds[0].revents().is_empty())
+        // An owned host wake can interrupt this zero-time observation. No exit
+        // was established; defer to the next bounded service turn, preserving
+        // both live ownership and the UI's one-syscall work bound.
+        match poll(&mut fds, Some(&Timespec::default())) {
+            Ok(_) => Ok(!fds[0].revents().is_empty()),
+            Err(rustix::io::Errno::INTR) => Ok(false),
+            Err(error) => Err(error.into()),
+        }
     }
     pub fn status(&mut self) -> Option<std::process::ExitStatus> {
         match self.pty.next_child_event() {

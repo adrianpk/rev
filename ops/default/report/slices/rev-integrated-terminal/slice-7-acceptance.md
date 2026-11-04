@@ -36,7 +36,10 @@ cursor only after the owned geometry's final row is fully painted.
 
 ## Contracts Added or Changed
 
-No production resource limit, dependency or gate changes.
+The real PTY run reproduced a live session incorrectly failing when an owned
+host wake interrupted the zero-time pidfd observation. The process owner now
+defers that inconclusive observation to its next service turn. It performs no
+retry loop, retains the child and changes no resource limit, dependency or gate.
 
 ## Files of Interest
 

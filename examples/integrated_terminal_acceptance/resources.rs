@@ -90,7 +90,7 @@ fn prepare(root: &Path) -> Result<Owned> {
     let victim = launch(
         &mut sessions,
         &directory,
-        "stty -echo; printf VICTIM_READY; read -r action; stty raw -echo; printf FLOOD_READY; head -c 1048576 /dev/zero | tr '\\000' x; printf '\\r\\nFLOOD_DONE'; exec sleep 60",
+        "stty raw -echo; printf VICTIM_READY; dd bs=1 count=1 of=/dev/null 2>/dev/null; head -c 1048576 /dev/zero | tr '\\000' x; printf '\\r\\nFLOOD_DONE'; exec sleep 60",
     )?;
     let peer = launch(
         &mut sessions,
@@ -148,8 +148,8 @@ fn idle(owned: &mut Owned) -> Result<()> {
     Ok(())
 }
 fn flood(owned: &mut Owned) -> Result<()> {
-    owned.sessions.queue(owned.victim, b"start\n")?;
-    owned.wait(|o| o.text(o.victim).contains("FLOOD_READY"))?;
+    // Fill atomically before servicing. The first byte releases the producer;
+    // its remaining input stays unread during the actual output flood.
     owned.sessions.queue(owned.victim, &vec![b'x'; 65536])?;
     assert!(owned.sessions.queue(owned.victim, b"overflow").is_err());
     assert_eq!(
